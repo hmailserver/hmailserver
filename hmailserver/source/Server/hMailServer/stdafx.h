@@ -66,7 +66,7 @@
 #include "Windows.h"
 
 // ADO
-#import "..\..\libraries\msado28\msado28.tlb" \
+#import "..\..\..\..\libraries\msado28\msado28.tlb" \
    rename("EOF","adoEOF") \
    no_namespace
 
