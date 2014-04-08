@@ -14,3 +14,6 @@
 hmailserver/source/Server/hMailServer/Debug/
 hmailserver/source/Server/hMailServer/hMailServer.h
 hmailserver/source/Server/hMailServer/Debug (x64)/*
+*.user
+*.log
+*.suo
