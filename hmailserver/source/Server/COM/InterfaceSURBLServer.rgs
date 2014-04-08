@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.SURBLServer.1 = s 'SURBLServer Class'
+	{
+		CLSID = s '{D875AEC4-7AA0-4C93-9F8F-141324C80D17}'
+	}
+	hMailServer.SURBLServer = s 'SURBLServer Class'
+	{
+		CLSID = s '{D875AEC4-7AA0-4C93-9F8F-141324C80D17}'
+		CurVer = s 'hMailServer.SURBLServer.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {D875AEC4-7AA0-4C93-9F8F-141324C80D17} = s 'SURBLServer Class'
+		{
+			ProgID = s 'hMailServer.SURBLServer.1'
+			VersionIndependentProgID = s 'hMailServer.SURBLServer'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

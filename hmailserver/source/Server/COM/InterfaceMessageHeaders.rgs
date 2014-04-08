@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.MessageHeaders.1 = s 'MessageHeaders Class'
+	{
+		CLSID = s '{AE360CD2-BB40-4B39-83A6-84516C865365}'
+	}
+	hMailServer.MessageHeaders = s 'MessageHeaders Class'
+	{
+		CLSID = s '{AE360CD2-BB40-4B39-83A6-84516C865365}'
+		CurVer = s 'hMailServer.MessageHeaders.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {AE360CD2-BB40-4B39-83A6-84516C865365} = s 'MessageHeaders Class'
+		{
+			ProgID = s 'hMailServer.MessageHeaders.1'
+			VersionIndependentProgID = s 'hMailServer.MessageHeaders'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

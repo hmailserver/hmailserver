@@ -1,0 +1,24 @@
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=messiah.edu; h=from:to:subject:
+	date:message-id; q=dns; s=test1; b=RKd+t+/rSjCZ6vuvpXaSK/kH6NtFd
+	eyCfC0jXN2LigEU7RVb5iW33aW8UN6gEKmSAmfd4/8xIFVtOq+fAQg4gw==
+Received: from x.y.test
+   by example.net
+   via TCP
+   with ESMTP
+   id ABC12345
+   for <mary@example.net>;  21 Nov 1997 10:05:43 -0600
+Received: from machine.example by x.y.test; 21 Nov 1997 10:01:22 -0600
+From: George <george@example.com>
+To: Nobody <nobody@messiah.edu>
+Subject: domainkeys test (should fail since sender domain is wrong)
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+
+Blah  blah  blah
+
+
+

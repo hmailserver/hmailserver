@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Recipients.1 = s 'Recipients Class'
+	{
+		CLSID = s '{B5B9C42D-64F1-443F-AA0D-FABB2DD9317B}'
+	}
+	hMailServer.Recipients = s 'Recipients Class'
+	{
+		CLSID = s '{B5B9C42D-64F1-443F-AA0D-FABB2DD9317B}'
+		CurVer = s 'hMailServer.Recipients.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B5B9C42D-64F1-443F-AA0D-FABB2DD9317B} = s 'Recipients Class'
+		{
+			ProgID = s 'hMailServer.Recipients.1'
+			VersionIndependentProgID = s 'hMailServer.Recipients'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

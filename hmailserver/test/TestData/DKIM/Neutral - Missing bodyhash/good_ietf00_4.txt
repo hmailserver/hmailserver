@@ -1,0 +1,26 @@
+Return-Path: <tony@att.com>
+X-Original-To: test@dkimtest.jason.long.name
+Delivered-To: dkimtest@mx2.messiah.edu
+Received: from voicemail.cis.att.net (unknown [12.34.200.188])
+	by mx2.messiah.edu (Postfix) with ESMTP id 581BB7323C
+	for <test@dkimtest.jason.long.name>; Wed,  1 Mar 2006 16:27:14 -0500 (EST)
+Received: from  (localhost[127.0.0.1]) by voicemail.cis.att.net (vm2) with SMTP
+          id <2006030121275918800sp93ne>; Wed, 1 Mar 2006 21:27:59 +0000
+DKIM-Signature: a=rsa-sha1;  c=simple/simple; d=vmt2.cis.att.net; t=1141248471; 
+ h=DaTe : FrOm : MiMe-vErSiOn : To : SuBjEcT : CoNtEnT-TyPe : CoNtEnT-TrAnSfEr-eNcOdInG; s=foo; 
+ b=lvE5sFj5AGe0A9f7px9ZrnTyLoxBdwzePVI8JXT4rlKg2KP1TuoNW/KNjoezhIcnLlchxw8Dp0w4
+ /0W1Mp/Z9N3spa7EYTAvfL4BxDOPhnT+q5aIfcAXSufReQijhI4M
+Date: Wed, 15 Feb 2006 17:32:54 -0500
+From: Tony Hansen <tony@att.com>
+MIME-Version: 1.0
+To: dkim-test@altn.org,  sa-test@sendmail.net, 
+ autorespond+dkim@dk.elandsys.com
+Subject: test with mixed case h=hdr names simple/simple
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Message-Id: <20060301212714.581BB7323C@mx2.messiah.edu>
+
+The quick brown fox jumped over the lazy dog.
+
+
+

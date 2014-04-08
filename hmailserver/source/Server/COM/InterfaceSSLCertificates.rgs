@@ -1,0 +1,27 @@
+HKCR
+{
+	hMailServer.SSLCertificates.1 = s 'SSLCertificates Class'
+	{
+		CLSID = s '{BE7AF6BB-2ECA-4313-BE00-16A72D82AE49}'
+	}
+	hMailServer.SSLCertificates = s 'SSLCertificates Class'
+	{
+		CLSID = s '{BE7AF6BB-2ECA-4313-BE00-16A72D82AE49}'
+		CurVer = s 'hMailServer.SSLCertificates.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {BE7AF6BB-2ECA-4313-BE00-16A72D82AE49} = s 'SSLCertificates Class'
+		{
+			ProgID = s 'hMailServer.SSLCertificates.1'
+			VersionIndependentProgID = s 'hMailServer.SSLCertificates'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{ABDF8B07-95B0-4D03-B08F-54ADDD46479B}'
+		}
+	}
+}

@@ -1,0 +1,229 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D1B37F04-8582-4E72-A261-D5BAEF3C7306}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MercuryMigrate</RootNamespace>
+    <AssemblyName>MercuryMigrate</AssemblyName>
+    <ApplicationIcon>harddisk_add.ico</ApplicationIcon>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>http://localhost/MercuryMigrate/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Common\Admin\Controls\ucText.cs">
+      <Link>ucText.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Dialogs\formEnterPassword.cs">
+      <Link>formEnterPassword.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Dialogs\formEnterPassword.designer.cs">
+      <Link>formEnterPassword.designer.cs</Link>
+      <DependentUpon>formEnterPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Interfaces\IPropertyEditor.cs">
+      <Link>IPropertyEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Miscellaneous\Authenticator.cs">
+      <Link>Authenticator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Miscellaneous\CommandLineParser.cs">
+      <Link>CommandLineParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Miscellaneous\TabOrderManager.cs">
+      <Link>TabOrderManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Wizard\IWizardPage.cs">
+      <Link>IWizardPage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Wizard\ucWizard.cs">
+      <Link>ucWizard.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\..\Common\Admin\Wizard\ucWizard.designer.cs">
+      <Link>ucWizard.designer.cs</Link>
+      <DependentUpon>ucWizard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="formMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="formMain.Designer.cs">
+      <DependentUpon>formMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Globals.cs" />
+    <Compile Include="MercuryUser.cs" />
+    <Compile Include="Pages\ucSelectPath.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pages\ucSelectPath.Designer.cs">
+      <DependentUpon>ucSelectPath.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ucCompleted.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pages\ucCompleted.Designer.cs">
+      <DependentUpon>ucCompleted.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ucPerformTask.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pages\ucPerformTask.Designer.cs">
+      <DependentUpon>ucPerformTask.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ucSelectDomains.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pages\ucSelectDomains.Designer.cs">
+      <DependentUpon>ucSelectDomains.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ucWelcome.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Pages\ucWelcome.Designer.cs">
+      <DependentUpon>ucWelcome.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="..\..\Common\Admin\Dialogs\formEnterPassword.resx">
+      <Link>formEnterPassword.resx</Link>
+      <DependentUpon>formEnterPassword.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Common\Admin\Wizard\ucWizard.resx">
+      <Link>ucWizard.resx</Link>
+      <DependentUpon>ucWizard.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="formMain.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\ucSelectPath.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSelectPath.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\ucCompleted.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucCompleted.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\ucPerformTask.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucPerformTask.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\ucSelectDomains.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSelectDomains.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\ucWelcome.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucWelcome.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="hMailServer">
+      <Guid>{DB241B59-A1B1-4C59-98FC-8D101A2995F2}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="harddisk_add.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,47 @@
+Return-Path: <jasonalonzolong@gmail.com>
+X-Original-To: dktest@mx2.messiah.edu
+Delivered-To: dktest@mx2.messiah.edu
+Received: from mx2.messiah.edu (localhost [127.0.0.1])
+	by mx2.messiah.edu (Postfix) with ESMTP id 05B98272FBA
+	for <dktest@mx2.messiah.edu>; Tue, 10 Oct 2006 15:27:15 -0400 (EDT)
+X-Spam-Checker-Version: SpamAssassin 3.1.5 (2006-08-29) on 
+	mymail1a.messiah.edu
+X-Spam-Level: *
+X-Spam-Status: No, score=1.6 required=5.0 tests=HTML_10_20,HTML_MESSAGE,
+	HTML_SHORT_LENGTH autolearn=no version=3.1.5
+Received: from ug-out-1314.google.com (ug-out-1314.google.com [66.249.92.174])
+	by mx2.messiah.edu (Postfix) with ESMTP id 79F442ADB4D
+	for <test@dktest.jason.long.name>; Tue, 10 Oct 2006 15:27:14 -0400 (EDT)
+Received: by ug-out-1314.google.com with SMTP id 29so952130ugc
+        for <test@dktest.jason.long.name>; Tue, 10 Oct 2006 12:27:13 -0700 (PDT)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=JOYJLw6miPAjUXx+gIQm3NsWuFInq05TuJppyoxqTopYPe3bSKzRBPLw5X+OMO36re/FDEfZnOjJ4cNYvVPuld6JEikNjk2RK98unQvcdkgBPZODuE7g/vXgLZo005nQkwvfd+4dbpHiINsOTT/0ASxQ+65OcgBu0CRR/DO7z/M=
+Received: by 10.66.240.12 with SMTP id n12mr8614290ugh;
+        Tue, 10 Oct 2006 12:27:12 -0700 (PDT)
+Received: by 10.67.96.17 with HTTP; Tue, 10 Oct 2006 12:27:12 -0700 (PDT)
+Message-ID: <d09d84a70610101227y1f955d37g6f1fdc5d8ac64271@mail.gmail.com>
+Date: Tue, 10 Oct 2006 15:27:12 -0400
+From: "Jason Long" <jasonalonzolong@gmail.com>
+To: jlong@messiah.edu
+Subject: Test from gmail
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_20675_4029655.1160508432731"
+
+------=_Part_20675_4029655.1160508432731
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+This message sent from Gmail.
+
+------=_Part_20675_4029655.1160508432731
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+This message sent from Gmail.<br>
+
+------=_Part_20675_4029655.1160508432731--

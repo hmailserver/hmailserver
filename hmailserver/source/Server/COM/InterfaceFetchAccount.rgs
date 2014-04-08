@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.FetchAccount.1 = s 'FetchAccount Class'
+	{
+		CLSID = s '{6F5E2977-2F51-40B0-847B-DD44C9ACC5A5}'
+	}
+	hMailServer.FetchAccount = s 'FetchAccount Class'
+	{
+		CLSID = s '{6F5E2977-2F51-40B0-847B-DD44C9ACC5A5}'
+		CurVer = s 'hMailServer.FetchAccount.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {6F5E2977-2F51-40B0-847B-DD44C9ACC5A5} = s 'FetchAccount Class'
+		{
+			ProgID = s 'hMailServer.FetchAccount.1'
+			VersionIndependentProgID = s 'hMailServer.FetchAccount'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

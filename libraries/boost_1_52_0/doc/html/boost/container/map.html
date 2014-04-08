@@ -1,0 +1,530 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Class template map</title>
+<link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="../../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
+<link rel="up" href="../../boost_container_header_reference.html#header.boost.container.map_hpp" title="Header &lt;boost/container/map.hpp&gt;">
+<link rel="prev" href="list.html" title="Class template list">
+<link rel="next" href="multimap.html" title="Class template multimap">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../boost.png"></td>
+<td align="center"><a href="../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="list.html"><img src="../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../boost_container_header_reference.html#header.boost.container.map_hpp"><img src="../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="multimap.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="refentry">
+<a name="boost.container.map"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2><span class="refentrytitle">Class template map</span></h2>
+<p>boost::container::map</p>
+</div>
+<h2 xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv-title">Synopsis</h2>
+<div xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv"><pre class="synopsis"><span class="comment">// In header: &lt;<a class="link" href="../../boost_container_header_reference.html#header.boost.container.map_hpp" title="Header &lt;boost/container/map.hpp&gt;">boost/container/map.hpp</a>&gt;
+
+</span><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Key<span class="special">,</span> <span class="keyword">typename</span> T<span class="special">,</span> <span class="keyword">typename</span> Compare <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">Key</span><span class="special">&gt;</span><span class="special">,</span> 
+         <span class="keyword">typename</span> Allocator <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="keyword">const</span> <span class="identifier">Key</span><span class="special">,</span> <span class="identifier">T</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="special">&gt;</span> 
+<span class="keyword">class</span> <a class="link" href="map.html" title="Class template map">map</a> <span class="special">{</span>
+<span class="keyword">public</span><span class="special">:</span>
+  <span class="comment">// types</span>
+  <span class="keyword">typedef</span> <span class="identifier">Key</span>                                                              <a name="boost.container.map.key_type"></a><span class="identifier">key_type</span><span class="special">;</span>           
+  <span class="keyword">typedef</span> <span class="identifier">T</span>                                                                <a name="boost.container.map.mapped_type"></a><span class="identifier">mapped_type</span><span class="special">;</span>        
+  <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="keyword">const</span> <span class="identifier">Key</span><span class="special">,</span> <span class="identifier">T</span> <span class="special">&gt;</span>                                        <a name="boost.container.map.value_type"></a><span class="identifier">value_type</span><span class="special">;</span>         
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">pointer</span>         <a name="boost.container.map.pointer"></a><span class="identifier">pointer</span><span class="special">;</span>            
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">const_pointer</span>   <a name="boost.container.map.const_pointer"></a><span class="identifier">const_pointer</span><span class="special">;</span>      
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">reference</span>       <a name="boost.container.map.reference"></a><span class="identifier">reference</span><span class="special">;</span>          
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">const_reference</span> <a name="boost.container.map.const_reference"></a><span class="identifier">const_reference</span><span class="special">;</span>    
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">size_type</span>       <a name="boost.container.map.size_type"></a><span class="identifier">size_type</span><span class="special">;</span>          
+  <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_traits</span><span class="special">&lt;</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span><span class="special">::</span><span class="identifier">difference_type</span> <a name="boost.container.map.difference_type"></a><span class="identifier">difference_type</span><span class="special">;</span>    
+  <span class="keyword">typedef</span> <span class="identifier">Allocator</span>                                                        <a name="boost.container.map.allocator_type"></a><span class="identifier">allocator_type</span><span class="special">;</span>     
+  <span class="keyword">typedef</span> <span class="identifier">Compare</span>                                                          <a name="boost.container.map.key_compare"></a><span class="identifier">key_compare</span><span class="special">;</span>        
+  <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">key_type</span><span class="special">,</span> <span class="identifier">mapped_type</span> <span class="special">&gt;</span>                               <a name="boost.container.map.nonconst_value_type"></a><span class="identifier">nonconst_value_type</span><span class="special">;</span>
+
+  <span class="comment">// <a class="link" href="map.html#boost.container.mapconstruct-copy-destruct">construct/copy/destruct</a></span>
+  <a class="link" href="map.html#id359683-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">explicit</span> <a class="link" href="map.html#id359699-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> 
+    <a class="link" href="map.html#id359733-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="identifier">InputIterator</span><span class="special">,</span> <span class="identifier">InputIterator</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span> <span class="special">=</span> <span class="identifier">Compare</span><span class="special">(</span><span class="special">)</span><span class="special">,</span> 
+        <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> 
+    <a class="link" href="map.html#id341775-bb"><span class="identifier">map</span></a><span class="special">(</span><a class="link" href="ordered_unique_range_t.html" title="Struct ordered_unique_range_t">ordered_unique_range_t</a><span class="special">,</span> <span class="identifier">InputIterator</span><span class="special">,</span> <span class="identifier">InputIterator</span><span class="special">,</span> 
+        <span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span> <span class="special">=</span> <span class="identifier">Compare</span><span class="special">(</span><span class="special">)</span><span class="special">,</span> 
+        <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="map.html#id341845-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="keyword">const</span> <a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="map.html#id341871-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="map.html#id341904-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="keyword">const</span> <a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="map.html#id357799-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  map&amp; <a class="link" href="map.html#id357840-bb"><span class="keyword">operator</span><span class="special">=</span></a><span class="special">(</span><span class="identifier">BOOST_COPY_ASSIGN_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  map&amp; <a class="link" href="map.html#id357866-bb"><span class="keyword">operator</span><span class="special">=</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+
+  <span class="comment">// <a class="link" href="map.html#id350328-bb">public member functions</a></span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id350331-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">stored_allocator_type</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id358944-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">value_compare_impl</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id344357-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">iterator</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id344370-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">const_iterator</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id344384-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">reverse_iterator</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id344398-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">const_reverse_iterator</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <a class="link" href="map.html#id344412-bb"><span class="identifier">BOOST_CONTAINER_IMPDEF</span></a><span class="special">(</span><span class="identifier">movable_value_type_impl</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">allocator_type</span> <a class="link" href="map.html#id334893-bb"><span class="identifier">get_allocator</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">stored_allocator_type</span> <span class="special">&amp;</span> <a class="link" href="map.html#id334917-bb"><span class="identifier">get_stored_allocator</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">const</span> <span class="identifier">stored_allocator_type</span> <span class="special">&amp;</span> <a class="link" href="map.html#id329053-bb"><span class="identifier">get_stored_allocator</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id329091-bb"><span class="identifier">begin</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id329122-bb"><span class="identifier">begin</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id329153-bb"><span class="identifier">end</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id329183-bb"><span class="identifier">end</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">reverse_iterator</span> <a class="link" href="map.html#id329213-bb"><span class="identifier">rbegin</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_reverse_iterator</span> <a class="link" href="map.html#id329245-bb"><span class="identifier">rbegin</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">reverse_iterator</span> <a class="link" href="map.html#id329276-bb"><span class="identifier">rend</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_reverse_iterator</span> <a class="link" href="map.html#id329307-bb"><span class="identifier">rend</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id329338-bb"><span class="identifier">cbegin</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id351933-bb"><span class="identifier">cend</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">const_reverse_iterator</span> <a class="link" href="map.html#id351963-bb"><span class="identifier">crbegin</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">const_reverse_iterator</span> <a class="link" href="map.html#id351994-bb"><span class="identifier">crend</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">bool</span> <a class="link" href="map.html#id352026-bb"><span class="identifier">empty</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">size_type</span> <a class="link" href="map.html#id352056-bb"><span class="identifier">size</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">size_type</span> <a class="link" href="map.html#id352087-bb"><span class="identifier">max_size</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">mapped_type</span> <span class="special">&amp;</span> <a class="link" href="map.html#id346273-bb"><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">mapped_type</span> <span class="special">&amp;</span> <a class="link" href="map.html#id357877-bb"><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span></a><span class="special">(</span><span class="identifier">key_type</span> <span class="special">&amp;&amp;</span><span class="special">)</span><span class="special">;</span>
+   <a class="link" href="map.html#id357901-bb"><span class="identifier">BOOST_MOVE_CONVERSION_AWARE_CATCH</span></a><span class="special">(</span><span class="keyword">operator</span><span class="special">,</span> <span class="identifier">key_type</span><span class="special">,</span> <span class="identifier">mapped_type</span> <span class="special">&amp;</span><span class="special">,</span> 
+                                     <span class="keyword">this</span><span class="special">-&gt;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">const</span> <span class="identifier">T</span> <span class="special">&amp;</span> <a class="link" href="map.html#id348584-bb"><span class="identifier">at</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id348604-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id348644-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">nonconst_value_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id348685-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">nonconst_value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id336430-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">movable_value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id336471-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id336512-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id335816-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">nonconst_value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id335862-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">movable_value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id335909-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">nonconst_value_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id335953-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> <span class="keyword">void</span> <a class="link" href="map.html#id335997-bb"><span class="identifier">insert</span></a><span class="special">(</span><span class="identifier">InputIterator</span><span class="special">,</span> <span class="identifier">InputIterator</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> Args<span class="special">&gt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a class="link" href="map.html#id336049-bb"><span class="identifier">emplace</span></a><span class="special">(</span><span class="identifier">Args</span> <span class="special">&amp;&amp;</span><span class="special">...</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> Args<span class="special">&gt;</span> <span class="identifier">iterator</span> <a class="link" href="map.html#id336101-bb"><span class="identifier">emplace_hint</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">Args</span> <span class="special">&amp;&amp;</span><span class="special">...</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id336158-bb"><span class="identifier">erase</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">size_type</span> <a class="link" href="map.html#id336196-bb"><span class="identifier">erase</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id336233-bb"><span class="identifier">erase</span></a><span class="special">(</span><span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">const_iterator</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="map.html#id336276-bb"><span class="identifier">swap</span></a><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="map.html#id336314-bb"><span class="identifier">clear</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">key_compare</span> <a class="link" href="map.html#id336344-bb"><span class="identifier">key_comp</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">value_compare</span> <a class="link" href="map.html#id336368-bb"><span class="identifier">value_comp</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id336391-bb"><span class="identifier">find</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id336421-bb"><span class="identifier">find</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">size_type</span> <a class="link" href="map.html#id338196-bb"><span class="identifier">count</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id329514-bb"><span class="identifier">lower_bound</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id329545-bb"><span class="identifier">lower_bound</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">iterator</span> <a class="link" href="map.html#id357934-bb"><span class="identifier">upper_bound</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">const_iterator</span> <a class="link" href="map.html#id357964-bb"><span class="identifier">upper_bound</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="identifier">iterator</span> <span class="special">&gt;</span> <a class="link" href="map.html#id357994-bb"><span class="identifier">equal_range</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">const_iterator</span> <span class="special">&gt;</span> 
+  <a class="link" href="map.html#id358024-bb"><span class="identifier">equal_range</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+<span class="special">}</span><span class="special">;</span></pre></div>
+<div class="refsect1">
+<a name="id1259760"></a><h2>Description</h2>
+<p>A map is a kind of associative container that supports unique keys (contains at most one of each key value) and provides for fast retrieval of values of another type T based on the keys. The map class supports bidirectional iterators.</p>
+<p>A map satisfies all of the requirements of a container and of a reversible container and of an associative container. For a map&lt;Key,T&gt; the key_type is Key and the value_type is std::pair&lt;const Key,T&gt;.</p>
+<p>Compare is the ordering function for Keys (e.g. <span class="emphasis"><em>std::less&lt;Key&gt;</em></span>).</p>
+<p>Allocator is the allocator to allocate the value_types (e.g. <span class="emphasis"><em>allocator&lt; std::pair&lt;const Key, T&gt; &gt; </em></span>). </p>
+<div class="refsect2">
+<a name="id1259792"></a><h3>
+<a name="boost.container.mapconstruct-copy-destruct"></a><code class="computeroutput">map</code> 
+        public
+       construct/copy/destruct</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+<pre class="literallayout"><a name="id359683-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Default constructs an empty map.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">explicit</span> <a name="id359699-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span> comp<span class="special">,</span> 
+             <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> a <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Constructs an empty map using the specified comparison object and allocator.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> 
+  <a name="id359733-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="identifier">InputIterator</span> first<span class="special">,</span> <span class="identifier">InputIterator</span> last<span class="special">,</span> 
+      <span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span> comp <span class="special">=</span> <span class="identifier">Compare</span><span class="special">(</span><span class="special">)</span><span class="special">,</span> 
+      <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> a <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Constructs an empty map using the specified comparison object and allocator, and inserts elements from the range [first ,last ).</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Linear in N if the range [first ,last ) is already sorted using comp and otherwise N logN, where N is last - first. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> 
+  <a name="id341775-bb"></a><span class="identifier">map</span><span class="special">(</span><a class="link" href="ordered_unique_range_t.html" title="Struct ordered_unique_range_t">ordered_unique_range_t</a><span class="special">,</span> <span class="identifier">InputIterator</span> first<span class="special">,</span> <span class="identifier">InputIterator</span> last<span class="special">,</span> 
+      <span class="keyword">const</span> <span class="identifier">Compare</span> <span class="special">&amp;</span> comp <span class="special">=</span> <span class="identifier">Compare</span><span class="special">(</span><span class="special">)</span><span class="special">,</span> 
+      <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> a <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">(</span><span class="special">)</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Constructs an empty map using the specified comparison object and allocator, and inserts elements from the ordered unique range [first ,last). This function is more efficient than the normal range creation for ordered ranges.</p>
+<p><span class="bold"><strong>Requires</strong></span>: [first ,last) must be ordered according to the predicate and must be unique values.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Linear in N. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><a name="id341845-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Copy constructs a map.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Linear in x.size(). </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><a name="id341871-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Move constructs a map. Constructs *this using x's resources.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant.</p>
+<p><span class="bold"><strong>Postcondition</strong></span>: x is emptied. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><a name="id341904-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span> x<span class="special">,</span> <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> a<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Copy constructs a map using the specified allocator.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Linear in x.size(). </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><a name="id357799-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span> x<span class="special">,</span> <span class="keyword">const</span> <span class="identifier">allocator_type</span> <span class="special">&amp;</span> a<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Move constructs a map using the specified allocator. Constructs *this using x's resources.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant if x == x.get_allocator(), linear otherwise.</p>
+<p><span class="bold"><strong>Postcondition</strong></span>: x is emptied. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout">map&amp; <a name="id357840-bb"></a><span class="keyword">operator</span><span class="special">=</span><span class="special">(</span><span class="identifier">BOOST_COPY_ASSIGN_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Makes *this a copy of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Linear in x.size(). </p>
+</li>
+<li class="listitem">
+<pre class="literallayout">map&amp; <a name="id357866-bb"></a><span class="keyword">operator</span><span class="special">=</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: this-&gt;swap(x.get()).</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+</ol></div>
+</div>
+<div class="refsect2">
+<a name="id1260774"></a><h3>
+<a name="id350328-bb"></a><code class="computeroutput">map</code> public member functions</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id350331-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">stored_allocator_type</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id358944-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">value_compare_impl</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id344357-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">iterator</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id344370-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">const_iterator</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id344384-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">reverse_iterator</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id344398-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">tree_t</span><span class="special">::</span><span class="identifier">const_reverse_iterator</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">typedef</span> <a name="id344412-bb"></a><span class="identifier">BOOST_CONTAINER_IMPDEF</span><span class="special">(</span><span class="identifier">movable_value_type_impl</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">allocator_type</span> <a name="id334893-bb"></a><span class="identifier">get_allocator</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a copy of the Allocator that was passed to the object's constructor.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">stored_allocator_type</span> <span class="special">&amp;</span> <a name="id334917-bb"></a><span class="identifier">get_stored_allocator</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a reference to the internal allocator.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant.</p>
+<p><span class="bold"><strong>Note</strong></span>: Non-standard extension. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">const</span> <span class="identifier">stored_allocator_type</span> <span class="special">&amp;</span> <a name="id329053-bb"></a><span class="identifier">get_stored_allocator</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a reference to the internal allocator.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant.</p>
+<p><span class="bold"><strong>Note</strong></span>: Non-standard extension. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id329091-bb"></a><span class="identifier">begin</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns an iterator to the first element contained in the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id329122-bb"></a><span class="identifier">begin</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_iterator to the first element contained in the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id329153-bb"></a><span class="identifier">end</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns an iterator to the end of the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id329183-bb"></a><span class="identifier">end</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_iterator to the end of the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">reverse_iterator</span> <a name="id329213-bb"></a><span class="identifier">rbegin</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a reverse_iterator pointing to the beginning of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_reverse_iterator</span> <a name="id329245-bb"></a><span class="identifier">rbegin</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_reverse_iterator pointing to the beginning of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">reverse_iterator</span> <a name="id329276-bb"></a><span class="identifier">rend</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a reverse_iterator pointing to the end of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_reverse_iterator</span> <a name="id329307-bb"></a><span class="identifier">rend</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_reverse_iterator pointing to the end of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id329338-bb"></a><span class="identifier">cbegin</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_iterator to the first element contained in the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id351933-bb"></a><span class="identifier">cend</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_iterator to the end of the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_reverse_iterator</span> <a name="id351963-bb"></a><span class="identifier">crbegin</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_reverse_iterator pointing to the beginning of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_reverse_iterator</span> <a name="id351994-bb"></a><span class="identifier">crend</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns a const_reverse_iterator pointing to the end of the reversed container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">bool</span> <a name="id352026-bb"></a><span class="identifier">empty</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns true if the container contains no elements.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">size_type</span> <a name="id352056-bb"></a><span class="identifier">size</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns the number of the elements contained in the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">size_type</span> <a name="id352087-bb"></a><span class="identifier">max_size</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns the largest possible size of the container.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">mapped_type</span> <span class="special">&amp;</span> <a name="id346273-bb"></a><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> k<span class="special">)</span><span class="special">;</span></pre>
+<p>Effects: If there is no key equivalent to x in the map, inserts value_type(x, T()) into the map.</p>
+<p>Returns: Allocator reference to the mapped_type corresponding to x in *this.</p>
+<p>Complexity: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">mapped_type</span> <span class="special">&amp;</span> <a name="id357877-bb"></a><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span><span class="special">(</span><span class="identifier">key_type</span> <span class="special">&amp;&amp;</span> k<span class="special">)</span><span class="special">;</span></pre>
+<p>Effects: If there is no key equivalent to x in the map, inserts value_type(boost::move(x), T()) into the map (the key is move-constructed)</p>
+<p>Returns: Allocator reference to the mapped_type corresponding to x in *this.</p>
+<p>Complexity: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"> <a name="id357901-bb"></a><span class="identifier">BOOST_MOVE_CONVERSION_AWARE_CATCH</span><span class="special">(</span><span class="keyword">operator</span><span class="special">,</span> <span class="identifier">key_type</span><span class="special">,</span> <span class="identifier">mapped_type</span> <span class="special">&amp;</span><span class="special">,</span> 
+                                   <span class="keyword">this</span><span class="special">-&gt;</span> priv_subscript<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p>Returns: Allocator reference to the element whose key is equivalent to x. Throws: An exception object of type out_of_range if no such element is present. Complexity: logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">const</span> <span class="identifier">T</span> <span class="special">&amp;</span> <a name="id348584-bb"></a><span class="identifier">at</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> k<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p>Returns: Allocator reference to the element whose key is equivalent to x. Throws: An exception object of type out_of_range if no such element is present. Complexity: logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id348604-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts x if and only if there is no element in the container with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id348644-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">nonconst_value_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts a new value_type created from the pair if and only if there is no element in the container with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id348685-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">nonconst_value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts a new value_type move constructed from the pair if and only if there is no element in the container with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id336430-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">movable_value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts a new value_type move constructed from the pair if and only if there is no element in the container with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id336471-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Move constructs a new value from x if and only if there is no element in the container with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id336512-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">,</span> <span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts a copy of x in the container if and only if there is no element in the container with key equivalent to the key of x. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic in general, but amortized constant if t is inserted right before p. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id335816-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">nonconst_value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Move constructs a new value from x if and only if there is no element in the container with key equivalent to the key of x. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic in general, but amortized constant if t is inserted right before p. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id335862-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">movable_value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Move constructs a new value from x if and only if there is no element in the container with key equivalent to the key of x. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic in general, but amortized constant if t is inserted right before p. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id335909-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">,</span> <span class="keyword">const</span> <span class="identifier">nonconst_value_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts a copy of x in the container. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id335953-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">,</span> <span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">value_type</span><span class="special">)</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts an element move constructed from x in the container. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <a class="link" href="../../InputIterator.html" title="Concept InputIterator">InputIterator</a><span class="special">&gt;</span> 
+  <span class="keyword">void</span> <a name="id335997-bb"></a><span class="identifier">insert</span><span class="special">(</span><span class="identifier">InputIterator</span> first<span class="special">,</span> <span class="identifier">InputIterator</span> last<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Requires</strong></span>: first, last are not iterators into *this.</p>
+<p><span class="bold"><strong>Effects</strong></span>: inserts each element from the range [first,last) if and only if there is no element with key equivalent to the key of that element.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: At most N log(size()+N) (N is the distance from first to last) </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> Args<span class="special">&gt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="keyword">bool</span> <span class="special">&gt;</span> <a name="id336049-bb"></a><span class="identifier">emplace</span><span class="special">(</span><span class="identifier">Args</span> <span class="special">&amp;&amp;</span><span class="special">...</span> args<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts an object x of type T constructed with std::forward&lt;Args&gt;(args)... in the container if and only if there is no element in the container with an equivalent key. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic in general, but amortized constant if t is inserted right before p. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> Args<span class="special">&gt;</span> 
+  <span class="identifier">iterator</span> <a name="id336101-bb"></a><span class="identifier">emplace_hint</span><span class="special">(</span><span class="identifier">const_iterator</span> hint<span class="special">,</span> <span class="identifier">Args</span> <span class="special">&amp;&amp;</span><span class="special">...</span> args<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Inserts an object of type T constructed with std::forward&lt;Args&gt;(args)... in the container if and only if there is no element in the container with an equivalent key. p is a hint pointing to where the insert should start to search.</p>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the element with key equivalent to the key of x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic in general, but amortized constant if t is inserted right before p. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id336158-bb"></a><span class="identifier">erase</span><span class="special">(</span><span class="identifier">const_iterator</span> position<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Erases the element pointed to by position.</p>
+<p><span class="bold"><strong>Returns</strong></span>: Returns an iterator pointing to the element immediately following q prior to the element being erased. If no such element exists, returns end().</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Amortized constant time </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">size_type</span> <a name="id336196-bb"></a><span class="identifier">erase</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Erases all elements in the container with key equivalent to x.</p>
+<p><span class="bold"><strong>Returns</strong></span>: Returns the number of erased elements.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: log(size()) + count(k) </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id336233-bb"></a><span class="identifier">erase</span><span class="special">(</span><span class="identifier">const_iterator</span> first<span class="special">,</span> <span class="identifier">const_iterator</span> last<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Erases all the elements in the range [first, last).</p>
+<p><span class="bold"><strong>Returns</strong></span>: Returns last.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: log(size())+N where N is the distance from first to last. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">void</span> <a name="id336276-bb"></a><span class="identifier">swap</span><span class="special">(</span><a class="link" href="map.html" title="Class template map">map</a> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Swaps the contents of *this and x.</p>
+<p><span class="bold"><strong>Throws</strong></span>: Nothing.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">void</span> <a name="id336314-bb"></a><span class="identifier">clear</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: erase(a.begin(),a.end()).</p>
+<p><span class="bold"><strong>Postcondition</strong></span>: size() == 0.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: linear in size(). </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">key_compare</span> <a name="id336344-bb"></a><span class="identifier">key_comp</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns the comparison object out of which a was constructed.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">value_compare</span> <a name="id336368-bb"></a><span class="identifier">value_comp</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Returns an object of value_compare constructed out of the comparison object.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Constant. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id336391-bb"></a><span class="identifier">find</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to an element with the key equivalent to x, or end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id336421-bb"></a><span class="identifier">find</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: Allocator const_iterator pointing to an element with the key equivalent to x, or end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic. </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">size_type</span> <a name="id338196-bb"></a><span class="identifier">count</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: The number of elements with key equivalent to x.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: log(size())+count(k) </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id329514-bb"></a><span class="identifier">lower_bound</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the first element with key not less than k, or a.end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id329545-bb"></a><span class="identifier">lower_bound</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: Allocator const iterator pointing to the first element with key not less than k, or a.end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">iterator</span> <a name="id357934-bb"></a><span class="identifier">upper_bound</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: An iterator pointing to the first element with key not less than x, or end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">const_iterator</span> <a name="id357964-bb"></a><span class="identifier">upper_bound</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Returns</strong></span>: Allocator const iterator pointing to the first element with key not less than x, or end() if such an element is not found.</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">iterator</span><span class="special">,</span> <span class="identifier">iterator</span> <span class="special">&gt;</span> <a name="id357994-bb"></a><span class="identifier">equal_range</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Equivalent to std::make_pair(this-&gt;lower_bound(k), this-&gt;upper_bound(k)).</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span> <span class="identifier">const_iterator</span><span class="special">,</span> <span class="identifier">const_iterator</span> <span class="special">&gt;</span> 
+<a name="id358024-bb"></a><span class="identifier">equal_range</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">key_type</span> <span class="special">&amp;</span> x<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>
+<p><span class="bold"><strong>Effects</strong></span>: Equivalent to std::make_pair(this-&gt;lower_bound(k), this-&gt;upper_bound(k)).</p>
+<p><span class="bold"><strong>Complexity</strong></span>: Logarithmic </p>
+</li>
+</ol></div>
+</div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2009-2012 Ion
+      Gaztanaga<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="list.html"><img src="../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../boost_container_header_reference.html#header.boost.container.map_hpp"><img src="../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="multimap.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

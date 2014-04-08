@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.EventLog.1 = s 'EventLog Class'
+	{
+		CLSID = s '{D8D10BF8-87FD-4D1B-B937-23A420CF064E}'
+	}
+	hMailServer.EventLog = s 'EventLog Class'
+	{
+		CLSID = s '{D8D10BF8-87FD-4D1B-B937-23A420CF064E}'
+		CurVer = s 'hMailServer.EventLog.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {D8D10BF8-87FD-4D1B-B937-23A420CF064E} = s 'EventLog Class'
+		{
+			ProgID = s 'hMailServer.EventLog.1'
+			VersionIndependentProgID = s 'hMailServer.EventLog'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

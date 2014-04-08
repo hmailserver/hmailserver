@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Backup.1 = s 'Backup Class'
+	{
+		CLSID = s '{B088FED1-A784-4CDB-ADDF-E7332CB7F72F}'
+	}
+	hMailServer.Backup = s 'Backup Class'
+	{
+		CLSID = s '{B088FED1-A784-4CDB-ADDF-E7332CB7F72F}'
+		CurVer = s 'hMailServer.Backup.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B088FED1-A784-4CDB-ADDF-E7332CB7F72F} = s 'Backup Class'
+		{
+			ProgID = s 'hMailServer.Backup.1'
+			VersionIndependentProgID = s 'hMailServer.Backup'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

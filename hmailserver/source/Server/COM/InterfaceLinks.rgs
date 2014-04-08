@@ -1,0 +1,26 @@
+HKCR
+{
+	hMailServer.Links.1 = s 'Links Class'
+	{
+		CLSID = s '{88A65C5B-916D-4A79-948A-B0DEE0454804}'
+	}
+	hMailServer.Links = s 'Links Class'
+	{
+		CLSID = s '{88A65C5B-916D-4A79-948A-B0DEE0454804}'
+		CurVer = s 'hMailServer.Links.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {88A65C5B-916D-4A79-948A-B0DEE0454804} = s 'Links Class'
+		{
+			ProgID = s 'hMailServer.Links.1'
+			VersionIndependentProgID = s 'hMailServer.Links'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{AD7A0C43-E8CC-4BC1-8207-F90D9EEA6007}'
+		}
+	}
+}

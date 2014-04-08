@@ -1,0 +1,225 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "1 TYPELIB ""hMailServer.tlb""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "hMailServer"
+            VALUE "FileDescription", "hMailServer"
+            VALUE "FileVersion", "1.0"
+            VALUE "InternalName", "hMailServer.exe"
+            VALUE "OriginalFilename", "hMailServer.exe"
+            VALUE "ProductName", "hMailServer"
+            VALUE "ProductVersion", "1.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_HMAILSERVER         REGISTRY                "hMailServer.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_SERVICENAME         "hMailServer"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Swedish resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_SVE)
+#ifdef _WIN32
+LANGUAGE LANG_SWEDISH, SUBLANG_DEFAULT
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_INTERFACESTATUS     REGISTRY                "..\\COM\\InterfaceStatus.rgs"
+IDR_INTERFACESETTINGS   REGISTRY                "..\\COM\\InterfaceSettings.rgs"
+IDR_INTERFACEDOMAIN     REGISTRY                "..\\COM\\InterfaceDomain.rgs"
+IDR_INTERFACEACCOUNTS   REGISTRY                "..\\COM\\InterfaceAccounts.rgs"
+IDR_INTERFACEACCOUNT    REGISTRY                "..\\COM\\InterfaceAccount.rgs"
+IDR_INTERFACEDATABASE   REGISTRY                "..\\COM\\InterfaceDatabase.rgs"
+IDR_INTERFACEMESSAGE    REGISTRY                "..\\COM\\InterfaceMessage.rgs"
+IDR_INTERFACEMESSAGES   REGISTRY                "..\\COM\\InterfaceMessages.rgs"
+IDR_INTERFACEALIASES    REGISTRY                "..\\COM\\InterfaceAliases.rgs"
+IDR_INTERFACEUTILITIES  REGISTRY                "..\\COM\\InterfaceUtilities.rgs"
+IDR_INTERFACEALIAS      REGISTRY                "..\\COM\\InterfaceAlias.rgs"
+IDR_INTERFACEATTACHMENT REGISTRY                "..\\COM\\InterfaceAttachment.rgs"
+IDR_INTERFACEATTACHMENTS REGISTRY                "..\\COM\\InterfaceAttachments.rgs"
+IDR_INTERFACELOGGING    REGISTRY                "..\\COM\\InterfaceLogging.rgs"
+IDR_INTERFACEDISTRIBUTIONLISTS REGISTRY                "..\\COM\\InterfaceDistributionLists.rgs"
+IDR_INTERFACEDISTRIBUTIONLIST REGISTRY                "..\\COM\\InterfaceDistributionList.rgs"
+IDR_INTERFACEDISTRIBUTIONLISTRECIPIENTS REGISTRY                "..\\COM\\InterfaceDistributionListRecipients.rgs"
+IDR_INTERFACEDISTRIBUTIONLISTRECIPIENT REGISTRY                "..\\COM\\InterfaceDistributionListRecipient.rgs"
+IDR_INTERFACESECURITYRANGE REGISTRY                "..\\COM\\InterfaceSecurityRange.rgs"
+IDR_INTERFACESECURITYRANGES REGISTRY                "..\\COM\\InterfaceSecurityRanges.rgs"
+IDR_INTERFACEANTIVIRUS  REGISTRY                "..\\COM\\InterfaceAntiVirus.rgs"
+IDR_INTERFACEROUTE      REGISTRY                "..\\COM\\InterfaceRoute.rgs"
+IDR_INTERFACEDNSBLACKLISTS REGISTRY                "..\\COM\\InterfaceDNSBlackLists.rgs"
+IDR_INTERFACEDNSBLACKLIST REGISTRY                "..\\COM\\InterfaceDNSBlackList.rgs"
+IDR_INTERFACEAPPLICATION REGISTRY                "..\\COM\\InterfaceApplication.rgs"
+IDR_INTERFACEDOMAINS    REGISTRY                "..\\COM\\InterfaceDomains.rgs"
+IDR_INTERFACEROUTES     REGISTRY                "..\\COM\\InterfaceRoutes.rgs"
+IDR_INTERFACEROUTEADDRESS REGISTRY                "..\\COM\\InterfaceRouteAddress.rgs"
+IDR_INTERFACEROUTEADDRESSES REGISTRY                "..\\COM\\InterfaceRouteAddresses.rgs"
+IDR_INTERFACERESULT     REGISTRY                "..\\COM\\InterfaceResult.rgs"
+IDR_INTERFACECLIENT     REGISTRY                "..\\COM\\InterfaceClient.rgs"
+IDR_INTERFACEFETCHACCOUNT REGISTRY                "..\\COM\\InterfaceFetchAccount.rgs"
+IDR_INTERFACEFETCHACCOUNTS REGISTRY                "..\\COM\\InterfaceFetchAccounts.rgs"
+IDR_INTERFACESCRIPTING  REGISTRY                "..\\COM\\InterfaceScripting.rgs"
+IDR_INTERFACEDOMAINALIASES REGISTRY                "..\\COM\\InterfaceDomainAliases.rgs"
+IDR_INTERFACEDOMAINALIAS REGISTRY                "..\\COM\\InterfaceDomainAlias.rgs"
+IDR_INTERFACERULES      REGISTRY                "..\\COM\\InterfaceRules.rgs"
+IDR_INTERFACERULE       REGISTRY                "..\\COM\\InterfaceRule.rgs"
+IDR_INTERFACERULECRITERIA REGISTRY                "..\\COM\\InterfaceRuleCriteria.rgs"
+IDR_INTERFACERULECRITERIAS REGISTRY                "..\\COM\\InterfaceRuleCriterias.rgs"
+IDR_INTERFACERULEACTION REGISTRY                "..\\COM\\InterfaceRuleAction.rgs"
+IDR_INTERFACERULEACTIONS REGISTRY                "..\\COM\\InterfaceRuleActions.rgs"
+IDR_INTERFACERECIPIENTS REGISTRY                "..\\COM\\InterfaceRecipients.rgs"
+IDR_INTERFACERECIPIENT  REGISTRY                "..\\COM\\InterfaceRecipient.rgs"
+IDR_INTERFACECACHE      REGISTRY                "..\\COM\\InterfaceCache.rgs"
+IDR_INTERFACEBACKUPMANAGER REGISTRY                "..\\COM\\InterfaceBackupManager.rgs"
+IDR_INTERFACEBACKUPSETTINGS REGISTRY                "..\\COM\\InterfaceBackupSettings.rgs"
+IDR_INTERFACEBACKUP     REGISTRY                "..\\COM\\InterfaceBackup.rgs"
+IDR_INTERFACEGLOBALOBJECTS REGISTRY                "..\\COM\\InterfaceGlobalObjects.rgs"
+IDR_INTERFACEDELIVERYQUEUE REGISTRY                "..\\COM\\InterfaceDeliveryQueue.rgs"
+IDR_INTERFACELANGUAGE   REGISTRY                "..\\COM\\InterfaceLanguage.rgs"
+IDR_INTERFACEIMAPFOLDER REGISTRY                "..\\COM\\InterfaceIMAPFolder.rgs"
+IDR_INTERFACEIMAPFOLDERS REGISTRY                "..\\COM\\InterfaceIMAPFolders.rgs"
+IDR_INTERFACEEVENTLOG   REGISTRY                "..\\COM\\InterfaceEventLog.rgs"
+IDR_INTERFACESURBLSERVERS REGISTRY                "..\\COM\\InterfaceSURBLServers.rgs"
+IDR_INTERFACESURBLSERVER REGISTRY                "..\\COM\\InterfaceSURBLServer.rgs"
+IDR_INTERFACEANTISPAM   REGISTRY                "..\\COM\\InterfaceAntiSpam.rgs"
+IDR_INTERFACEBLOCKEDATTACHMENT REGISTRY                "..\\COM\\InterfaceBlockedAttachment.rgs"
+IDR_INTERFACEBLOCKEDATTACHMENTS REGISTRY                "..\\COM\\InterfaceBlockedAttachments.rgs"
+IDR_INTERFACESERVERMESSAGES REGISTRY                "..\\COM\\InterfaceServerMessages.rgs"
+IDR_INTERFACESERVERMESSAGE REGISTRY                "..\\COM\\InterfaceServerMessage.rgs"
+IDR_INTERFACETCPIPPORT  REGISTRY                "..\\COM\\InterfaceTCPIPPort.rgs"
+IDR_INTERFACETCPIPPORTS REGISTRY                "..\\COM\\InterfaceTCPIPPorts.rgs"
+IDR_INTERFACEGREYLISTINGWHITEADDRESS REGISTRY                "..\\COM\\InterfaceGreyListingWhiteAddress.rgs"
+IDR_INTERFACEGREYLISTINGWHITEADDRESSES REGISTRY                "..\\COM\\InterfaceGreyListingWhiteAddresses.rgs"
+IDR_INTERFACEWHITELISTADDRESSES REGISTRY                "..\\COM\\InterfaceWhiteListAddresses.rgs"
+IDR_INTERFACEWHITELISTADDRESS REGISTRY                "..\\COM\\InterfaceWhiteListAddress.rgs"
+IDR_INTERFACEMESSAGEHEADER REGISTRY                "..\\COM\\InterfaceMessageHeader.rgs"
+IDR_INTERFACEMESSAGEHEADERS REGISTRY                "..\\COM\\InterfaceMessageHeaders.rgs"
+IDR_INTERFACESSLCERTIFICATE REGISTRY                "..\\COM\\InterfaceSSLCertificate.rgs"
+IDR_INTERFACESSLCERTIFICATES REGISTRY                "..\\COM\\InterfaceSSLCertificates.rgs"
+IDR_INTERFACEGROUPS     REGISTRY                "..\\COM\\InterfaceGroups.rgs"
+IDR_INTERFACEGROUP      REGISTRY                "..\\COM\\InterfaceGroup.rgs"
+IDR_INTERFACEGROUPMEMBERS REGISTRY                "..\\COM\\InterfaceGroupMembers.rgs"
+IDR_INTERFACEGROUPMEMBER REGISTRY                "..\\COM\\InterfaceGroupMember.rgs"
+IDR_INTERFACEIMAPFOLDERPERMISSION REGISTRY                "..\\COM\\InterfaceIMAPFolderPermission.rgs"
+IDR_INTERFACEIMAPFOLDERPERMISSIONS REGISTRY                "..\\COM\\InterfaceIMAPFolderPermissions.rgs"
+IDR_INTERFACEIMAPFOLDERACL REGISTRY                "..\\COM\\InterfaceIMAPFolderACL.rgs"
+IDR_INTERFACEDIRECTORIES REGISTRY                "..\\COM\\InterfaceDirectories.rgs"
+IDR_INTERFACELANGUAGES REGISTRY                "..\\COM\\InterfaceLanguages.rgs"
+IDR_INTERFACELINKS REGISTRY                "..\\COM\\InterfaceLinks.rgs"
+IDR_INTERFACEINCOMINGRELAY REGISTRY                "..\\COM\\InterfaceIncomingRelay.rgs"
+IDR_INTERFACEINCOMINGRELAYS REGISTRY                "..\\COM\\InterfaceIncomingRelays.rgs"
+IDR_INTERFACEMESSAGEINDEXING REGISTRY                "..\\COM\\InterfaceMessageIndexing.rgs"
+IDR_INTERFACEDIAGNOSTICS REGISTRY                "..\\COM\\InterfaceDiagnostics.rgs"
+IDR_INTERFACEDIAGNOSTICRESULTS REGISTRY                "..\\COM\\InterfaceDiagnosticResults.rgs"
+IDR_INTERFACEDIAGNOSTICRESULT REGISTRY                "..\\COM\\InterfaceDiagnosticResult.rgs"
+
+#endif    // Swedish resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+1 TYPELIB "hMailServer.tlb"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

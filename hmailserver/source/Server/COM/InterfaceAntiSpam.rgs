@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.AntiSpam.1 = s 'AntiSpam Class'
+	{
+		CLSID = s '{A0B91A99-BCE8-4939-94EC-0881E25A1E5B}'
+	}
+	hMailServer.AntiSpam = s 'AntiSpam Class'
+	{
+		CLSID = s '{A0B91A99-BCE8-4939-94EC-0881E25A1E5B}'
+		CurVer = s 'hMailServer.AntiSpam.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A0B91A99-BCE8-4939-94EC-0881E25A1E5B} = s 'AntiSpam Class'
+		{
+			ProgID = s 'hMailServer.AntiSpam.1'
+			VersionIndependentProgID = s 'hMailServer.AntiSpam'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

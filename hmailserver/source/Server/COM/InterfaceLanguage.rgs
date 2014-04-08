@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Language.1 = s 'Language Class'
+	{
+		CLSID = s '{1C70E18B-C63D-458C-B080-64E4F94C4E83}'
+	}
+	hMailServer.Language = s 'Language Class'
+	{
+		CLSID = s '{1C70E18B-C63D-458C-B080-64E4F94C4E83}'
+		CurVer = s 'hMailServer.Language.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1C70E18B-C63D-458C-B080-64E4F94C4E83} = s 'Language Class'
+		{
+			ProgID = s 'hMailServer.Language.1'
+			VersionIndependentProgID = s 'hMailServer.Language'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

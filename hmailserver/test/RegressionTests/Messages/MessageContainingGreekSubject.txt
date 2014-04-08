@@ -1,0 +1,21 @@
+﻿Return-Path: test@test.com
+Received: from work ([127.0.0.1])
+	by WORK
+	; Thu, 22 Oct 2009 21:02:22 +0200
+Message-ID: <27816E83F3504899883967C06A911A22@work>
+From: "Test" <test@test.com>
+To: "Test" <test@test.com>
+Subject: =?utf-8?B?R1LOo86jS+aomea6luiqng==?=
+Date: Thu, 22 Oct 2009 21:02:20 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="utf-8";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.5843
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.5579
+
+Test

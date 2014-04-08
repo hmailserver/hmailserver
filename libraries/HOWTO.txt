@@ -1,0 +1,43 @@
+Building OpenSSL 0.x
+----------------
+1) Download SSL and put it into C:\Temp\OpenSSL
+2) Make sure Perl is installed
+3) Open up a command prompt and go to C:\Temp\OpenSSL\version.
+4) Run "C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+5) Run Perl Configure VC-WIN32
+6) Run ms\do_ms
+7) Run nmake -f ms\nt.mak
+
+Info:
+* Use incl32 include folder.
+
+Building OpenSSL 1.x
+----------------
+1) Download SSL and put it into C:\Temp\OpenSSL
+2) Make sure Perl is installed
+3) Open up a command prompt and go to C:\Temp\OpenSSL\version.
+4) Run "C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+5) Run Perl Configure no-asm VC-WIN32
+6) Run ms\do_ms
+7) Run nmake -f ms\nt.mak
+
+Info:
+* Use incl32 include folder.
+
+
+Building Boost < 1.44
+--------------
+1) Download Boost
+2) Download bjam.exe (separate executable). Put it in Boost\version
+
+   http://www.boost.org/users/download/
+3) Open a command prompt and navigate to the Boost directory
+4) Run bjam.exe --toolset=msvc-9.0 --build-type=complete
+
+
+Building Boost < 1.45
+--------------
+1) Download Boost
+2) Open a command prompt and navigate to the Boost directory
+3) Run bootstrap.bat
+4) Run bjam.exe --toolset=msvc-9.0 --build-type=complete

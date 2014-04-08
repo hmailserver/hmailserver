@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Attachments.1 = s 'Attachments Class'
+	{
+		CLSID = s '{63FF738A-982B-41E6-87C7-BA4AA9622B30}'
+	}
+	hMailServer.Attachments = s 'Attachments Class'
+	{
+		CLSID = s '{63FF738A-982B-41E6-87C7-BA4AA9622B30}'
+		CurVer = s 'hMailServer.Attachments.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {63FF738A-982B-41E6-87C7-BA4AA9622B30} = s 'Attachments Class'
+		{
+			ProgID = s 'hMailServer.Attachments.1'
+			VersionIndependentProgID = s 'hMailServer.Attachments'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

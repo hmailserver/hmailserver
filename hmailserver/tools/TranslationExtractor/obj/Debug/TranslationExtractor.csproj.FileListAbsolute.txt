@@ -1,0 +1,2 @@
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\tools\TranslationExtractor\bin\Debug\TranslationExtractor.exe.config
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\tools\TranslationExtractor\obj\Debug\ResolveAssemblyReference.cache

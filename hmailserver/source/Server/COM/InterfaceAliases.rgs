@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Aliases.1 = s 'Aliases Class'
+	{
+		CLSID = s '{1FE5E5F1-870A-4139-9EC1-DFFA3A9A58C8}'
+	}
+	hMailServer.Aliases = s 'Aliases Class'
+	{
+		CLSID = s '{1FE5E5F1-870A-4139-9EC1-DFFA3A9A58C8}'
+		CurVer = s 'hMailServer.Aliases.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1FE5E5F1-870A-4139-9EC1-DFFA3A9A58C8} = s 'Aliases Class'
+		{
+			ProgID = s 'hMailServer.Aliases.1'
+			VersionIndependentProgID = s 'hMailServer.Aliases'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

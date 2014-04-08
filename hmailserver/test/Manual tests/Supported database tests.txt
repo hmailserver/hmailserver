@@ -1,0 +1,32 @@
+From							 To		Result			Reason
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Internal MySQL
+
+hMailServer 3.3   			 Latest 	Error 			4.1.1 does not include required version of MySQL.
+hMailServer 3.4.1 - Uninstall first	 Latest		Error			MySQL will no longer be installed
+hMailServer 4.1.1 			 Latest 	Error 			4.1.1 does not include required version of MySQL.
+hMailServer 4.1.1 - Uninstall first	 Latest		Error			MySQL will no longer be installed
+hMailServer 4.4.3 			 Latest 	Success			4.4.3 includes required version of MySQL.
+hMailServer 4.4.3 - Uninstall first	 Latest		Error			MySQL will no longer be installed
+hMailServer 5.0	- via hMailServer 4.4.3	 Latest		Success			Supported upgrade path.
+   
+External MySQL
+
+hMailServer 3.4.1 (External MySQL) 	 		 Latest		Success			Supported upgrade path
+hMailServer 3.4.1 (External MySQL) - Uninstall first	 Latest		Success			Supported upgrade path
+
+MSSQL
+
+hMailServer 3.3   (MSSQL)  	 	 		 Latest		Success			Supported upgrade path
+hMailServer 3.3   (MSSQL) - Uninstall first	 	 Latest		Success			Supported upgrade path
+hMailServer 4.1.1 (MSSQL)			 	 Latest 	Success			Supported upgrade path.
+hMailServer 4.1.1 (MSSQL) - Uninstall first	 	 Latest 	Success			Supported upgrade path.
+hMailServer 5.0 (MSSQL) 			 	 Latest 	Success			Supported upgrade path.
+hMailServer 5.1 (MSSQL) 			 	 Latest 	Success			Supported upgrade path.
+
+SQL CE
+
+hMailServer 5.0 (MSSQL) 			 	 Latest 	Success			Supported upgrade path.
+hMailServer 5.1 (MSSQL) 			 	 Latest 	Success			Supported upgrade path.
+

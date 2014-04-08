@@ -1,0 +1,58 @@
+﻿From: "Test" <test@test.com>
+To: "Test" <test@test.com>
+Subject: test
+Date: Wed, 21 Oct 2009 15:31:03 +0200
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_007A_01CA5263.7FF716A0"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.5579
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_007A_01CA5263.7FF716A0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+GR=CE=A3=CE=A3K=E6=A8=99=E6=BA=96=E8=AA=9E
+=20
+GR=CE=A3=CE=A3K
+=20
+=C3=9F=C3=9F=C3=9F=C3=9F=C3=9F
+=20
+=C3=9FE=C3=9FE=C3=9F
+  =C3=85=C3=84=C3=96
+=E6=A8=99=E6=BA=96=E8=AA=9E=E6=A8=99=E6=BA=96=E8=AA=9E
+=20
+GR=CE=A3=CE=A3K
+=20
+=C3=9F=C3=9F=C3=9F=C3=9F=C3=9F
+=20
+=C3=9FE=C3=9FE=C3=9F
+=20
+=E6=A8=99=E6=BA=96=E8=AA=9E
+
+------=_NextPart_000_007A_01CA5263.7FF716A0
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+=EF=BB=BF<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Dutf-8" http-equiv=3DContent-Type>
+<META name=3DGENERATOR content=3D"MSHTML 8.00.6001.18812">
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff><FONT size=3D2 =
+face=3DArial>GR=CE=A3=CE=A3K</FONT><FONT size=3D2=20
+face=3DArial>=E6=A8=99=E6=BA=96=E8=AA=9E<BR>&nbsp;<BR>GR=CE=A3=CE=A3K<BR>=
+&nbsp;<BR>=C3=9F=C3=9F=C3=9F=C3=9F=C3=9F<BR>&nbsp;<BR>=C3=9FE=C3=9FE=C3=9F=
+<BR>&nbsp;=20
+=C3=85=C3=84=C3=96<BR>=E6=A8=99=E6=BA=96=E8=AA=9E=E6=A8=99=E6=BA=96=E8=AA=
+=9E<BR>&nbsp;<BR>GR=CE=A3=CE=A3K<BR>&nbsp;<BR>=C3=9F=C3=9F=C3=9F=C3=9F=C3=
+=9F<BR>&nbsp;<BR>=C3=9FE=C3=9FE=C3=9F<BR>&nbsp;<BR>=E6=A8=99=E6=BA=96=E8=AA=
+=9E</FONT>
+<DIV><FONT size=3D2 face=3DArial></FONT>&nbsp;</DIV></BODY></HTML>
+
+------=_NextPart_000_007A_01CA5263.7FF716A0--
+

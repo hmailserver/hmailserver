@@ -1,0 +1,27 @@
+HKCR
+{
+	hMailServer.IMAPFolderPermission.1 = s 'IMAPFolderPermission Class'
+	{
+		CLSID = s '{D5800098-1033-4D83-9E06-94F6E1B557F9}'
+	}
+	hMailServer.IMAPFolderPermission = s 'IMAPFolderPermission Class'
+	{
+		CLSID = s '{D5800098-1033-4D83-9E06-94F6E1B557F9}'
+		CurVer = s 'hMailServer.IMAPFolderPermission.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {D5800098-1033-4D83-9E06-94F6E1B557F9} = s 'IMAPFolderPermission Class'
+		{
+			ProgID = s 'hMailServer.IMAPFolderPermission.1'
+			VersionIndependentProgID = s 'hMailServer.IMAPFolderPermission'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{EC1250A4-0C9C-4540-981B-A7F7397F64EE}'
+		}
+	}
+}

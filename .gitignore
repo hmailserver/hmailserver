@@ -1,0 +1,16 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+hmailserver/source/Server/hMailServer/Debug/
+hmailserver/source/Server/hMailServer/hMailServer.h
+hmailserver/source/Server/hMailServer/Debug (x64)/*

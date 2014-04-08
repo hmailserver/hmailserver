@@ -1,0 +1,8 @@
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\bin\Debug\Builder.Console.exe.config
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\bin\Debug\Builder.Console.exe
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\bin\Debug\Builder.Console.pdb
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\bin\Debug\Builder.Common.dll
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\bin\Debug\Builder.Common.pdb
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\obj\Debug\ResolveAssemblyReference.cache
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\obj\Debug\Builder.Console.exe
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Console\obj\Debug\Builder.Console.pdb

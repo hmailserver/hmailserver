@@ -1,0 +1,5 @@
+Add to a text area control and confirm that the text still exists after the udpate.
+</textarea>
+
+Add to a text area control and confirm that no message box is shown after save.
+</textarea><script>alert('hej');</script>

@@ -1,0 +1,18 @@
+DKIM-Signature: v=1; a=rsa-sha1; c=simple; d=messiah.edu; h=from:to:
+	subject:date:message-id; q=dns/txt; s=test1; i=JLong@Messiah.Edu; bh=
+	a1tsxn+Nkk390KsMynntsb/bycM=; b=CZ+EhwbclRQIvdhanykJLhkpMANaS/+c
+	GTEQ/0Ziy6t4SqM9TIeRv3qfzm+4TRNxvfiEzfr5KcTyVOnIVuQW3A==
+From: Jason Long <JLong@Messiah.Edu>
+To: Nobody <nobody@messiah.edu>
+Subject: dkim test - case-differing domain name
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+
+Blah  blah  blah
+
+
+

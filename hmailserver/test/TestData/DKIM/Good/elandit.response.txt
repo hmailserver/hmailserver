@@ -1,0 +1,93 @@
+X-Spam-Checker-Version: SpamAssassin 3.2.3 (2007-08-08) on
+	DED943.maximumasp.local
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.2 required=6.3 tests=BAYES_00,RDNS_NONE,URI_HEX
+	shortcircuit=no autolearn=no version=3.2.3
+Received: from ns1.qubic.net ([208.69.177.116])
+	by mail.hmailserver.com
+	; Wed, 18 Mar 2009 01:04:50 +0100
+Received: from ns1.qubic.net (IDENT:daemon@localhost [127.0.0.1])
+	by ns1.qubic.net (8.14.4.Alpha0/8.14.4.Alpha0) with ESMTP id n2I04ken018932
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <martin@hmailserver.com>; Tue, 17 Mar 2009 17:04:48 -0700 (PDT)
+Authentication-Results: ns1.qubic.net; sender-id=none header.sender=daemon@dk.elandsys.com; spf=none smtp.mfrom=daemon@dk.elandsys.com
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=qubic.net; s=mail;
+	t=1237334688; x=1237421088;
+	bh=+Jn2BpOlhyC/CpU117At4wHG8KIBost1cVtBkY3pasQ=;
+	h=Date:Message-Id:From:To:Subject:In-Reply-To:Sender:Cc;
+	b=M36Lv2tvzyvWOCnf8YX6XCFGZ8cK61ClR2wmt8LlKEo0j2lEP+2itVOaPLNGaR7jh
+	 tY2OfkaPw4NZDECdpomILIPaiGYiReGqWjDeHWougcSWdzBps0mXpqx9Zyz1MwgHm0
+	 8w5jNzQtLNHL2XAyrr/n/3yzZxLMsTqj2TeLYkKM=
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=elandsys.com; s=mail;
+	t=1237334688; x=1237421088; i=@dk.elandsys.com;
+	bh=+Jn2BpOlhyC/CpU117At4wHG8KIBost1cVtBkY3pasQ=;
+	h=Date:Message-Id:From:To:Subject:In-Reply-To:Sender:Cc;
+	b=GVU9LVDIu/TjMSUvLVlI/LXaRmvgZYM81R9xHiPX3pJlDQ5n+QbFLymWqp0Vaw8r9
+	 8nAhSTg6J0UGl8kWZrovhq9gzH7XhaxAP+wbRA+d+/SXV4lGWGWE3s1W/XrommGlfQ
+	 oT4F7QrAcxLZ5yxc5Fu7DQmh1RWud3D8+TNbYEJA=
+DomainKey-Signature: a=rsa-sha1; s=mail; d=elandsys.com; c=simple; q=dns;
+	b=VlDE2SijDv1RJK/FGMCYg8tmB8DNFbgGJghpg6g/CdzUsiUCYMTB8tMv9I9JeakqL
+	Sbo/4XB2EF3yPnJmf3cgMnIbVU/sJLedu1ffrH/cEEgD9McRrElY3bvrspnRASJGfei
+	YReyGoTizvQ2quBCc1BaEGCt7Ppldyv/mIiCJ94=
+Received: (from daemon@localhost)
+	by ns1.qubic.net (8.14.4.Alpha0/8.14.4.Alpha0/Submit) id n2I04k9a013104;
+	Tue, 17 Mar 2009 17:04:46 -0700 (PDT)
+Date: Tue, 17 Mar 2009 17:04:46 -0700 (PDT)
+Message-Id: <200903180004.n2I04k9a013104@ns1.qubic.net>
+From: autorespond@dk.elandsys.com
+To: martin@hmailserver.com
+Subject: Auto-response from dk.elandsys.com 
+In-Reply-To: <.85.224.96.26.1237334671.squirrel@www.hmailserver.com>
+Sender: daemon@dk.elandsys.com
+Auto-Submitted: auto-replied
+
+
+DKIM Signature validation: pass
+DKIM Author Domain Signing Practices: no DNS record for _adsp._domainkey.hmailserver.com
+
+Information about DomainKeys is available at http://www.elandsys.com/resources/sendmail/domainkeys.html
+Information about DKIM is available at http://www.elandsys.com/resources/sendmail/dkim.html
+Information about ADSP is available at http://www.elandsys.com/resources/sendmail/dkim.html
+
+
+Original message:
+Received: from mail.hmailserver.com (ded943.maximumasp.com [216.128.26.134])
+	by ns1.qubic.net (8.14.4.Alpha0/8.14.4.Alpha0) with SMTP id n2I04bmO027321
+	for <autorespond+dkim@dk.elandsys.com>; Tue, 17 Mar 2009 17:04:44 -0700 (PDT)
+Authentication-Results: ns1.qubic.net; sender-id=pass header.from=martin@hmailserver.com; spf=pass smtp.mfrom=martin@hmailserver.com
+Authentication-Results: ns1.qubic.net; x-dkim-rep=neutral (0) header.d=hmailserver.com
+Authentication-Results: ns1.qubic.net; dkim=pass
+	(1024-bit key; insecure key) header.i=@hmailserver.com;
+	dkim-adsp=none (insecure policy)
+dkim-signature: v=1; a=rsa-sha256; d=hmailserver.com; s=yk9b;
+	c=relaxed/relaxed; q=dns/txt; h=From:Subject:Date:Message-ID:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=mNdt0nMoz6/YemTB2j8Byg1r2UcNOU/ZILY64dAvtTU=;
+	b=tYtqXLk7COPzt9JDt9vGXbiucF0pcMdX5bqHajq5qDbuWZUjQuNvlw4HRPeSRwTbhQm6ieAyIvZzNdIkW6nRnbqWlPWs5FrJMkf0/7dV3cnu8GnEsL78z8GIEpjc8RFnDA6dtFpZNfZpt/rFdwoYIdzH2UqPAC44Obp+7Lt9iEk=
+X-Spam-Checker-Version: SpamAssassin 3.2.3 (2007-08-08) on
+	DED943.maximumasp.local
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.6 required=6.3 tests=ALL_TRUSTED,AWL,BAYES_00,
+	TVD_SPACE_RATIO shortcircuit=no autolearn=no version=3.2.3
+Received: from www.hmailserver.com ([127.0.0.1])
+	by mail.hmailserver.com
+	; Wed, 18 Mar 2009 01:04:31 +0100
+Received: from 85.224.96.26 ([85.224.96.26])
+        (SquirrelMail authenticated user martin@hmailserver.com)
+        by www.hmailserver.com with HTTP;
+        Wed, 18 Mar 2009 01:04:31 +0100 (W. Europe Standard Time)
+Message-ID: <.85.224.96.26.1237334671.squirrel@www.hmailserver.com>
+Date: Wed, 18 Mar 2009 01:04:31 +0100 (W. Europe Standard Time)
+Subject: Test1
+From: martin@hmailserver.com
+To: autorespond+dkim@dk.elandsys.com
+User-Agent: SquirrelMail/1.4.13
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
+
+Test1
+
+
+

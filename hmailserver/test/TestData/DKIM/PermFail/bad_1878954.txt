@@ -1,0 +1,10 @@
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/simple; d=ijs.si; h=from:
+  message-id:date; q=dns/txt; s=jakla2; bh=/edzoYuyn17WXm8KeqcX/R+
+  khdQ=; b=S7zv7fa8ju7VDq20iD+0OcAE/7k3P1LvYKyIOJxeaEbXh8C06q1+Q4l
+  KUASCgesOs2M/3E7lkJdmRQvnYdX41BxkoCrI31suRpLyykIQYjM/pUoKHruEZaQ
+  3K5Ud6SVKaI2abyzNFT5Yn3QdjdKAQMfMEFC/MAfdooQml/X6SIo=
+
+this message certainly doesn't verify, since I modified it,
+but in certain versions of Mail::DKIM (e.g. 0.30.1), it crashes
+with this error:
+"Can't use an undefined value as an ARRAY reference"

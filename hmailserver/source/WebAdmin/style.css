@@ -1,0 +1,134 @@
+#mainbody
+{
+   border-left: 1px;
+   border-right: 1px;
+}
+
+#content1
+{
+   float: left;
+}
+
+#content2
+{
+   float: right;
+}
+
+
+html {
+     overflow: -moz-scrollbars-vertical;
+     overflow: scroll;
+}
+
+body {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+}
+
+p {
+	font-size: 12px;
+}
+
+.date {
+	color: #999999;
+	font-size: 10px;
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 16px;
+	color: #3F5363;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 14px;
+	color: #3F5363;
+	font-weight: bold;
+}
+
+h3 {
+	font-size: 12px;
+	color: #000000;
+	font-weight: bold;
+}
+
+h4 {
+	font-size: 12px;
+	color: #000000;
+	font-style: italic;
+	font-weight: normal;
+}
+
+
+input {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+select {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+
+textarea {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+   
+}
+
+a {
+	color: #5F7383;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #5F7383;
+	text-decoration: underline;
+}
+
+td {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.mainborder {
+	border-width: 4px;
+	border-style: solid;
+	border-color: #DDDDDD;
+   padding: 10px;
+}
+
+
+/* for the menu tree */
+.dtree {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 230px;
+}
+.dtree img {
+	border: 0px;
+	vertical-align: middle;
+}
+.dtree a {
+	color: #333;
+	text-decoration: none;
+}
+
+.dtree a.node, .dtree a.nodeSel {
+	padding: 1px 2px 1px 2px;
+}
+.dtree a.node:hover, .dtree a.nodeSel:hover {
+	color: #333;
+	text-decoration: underline;
+}
+.dtree a.nodeSel {
+	background-color: #c0d2ec;
+}
+.dtree .clip {
+	overflow: hidden;
+}

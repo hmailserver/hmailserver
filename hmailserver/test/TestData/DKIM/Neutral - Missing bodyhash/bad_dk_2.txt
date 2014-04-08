@@ -1,0 +1,18 @@
+DomainKey-Signature: a=rsa-sha1; c=simple; d=messiah.edu;
+	q=dns; s=test1; b=DmkekrvBPH2D/VSZU9vSOk/xWrllr
+	QUy9KbJf/0IiMiILDXUIdQsf0J3DgGu3I/mez54kh/1bUA9r7b0plE2CA==
+From: Jason Long <jlong@messiah.edu>
+Sender: George <george@example.com>
+To: Nobody <nobody@messiah.edu>
+Subject: domainkeys test - no h= tag
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+
+Blah  blah  blah
+
+
+

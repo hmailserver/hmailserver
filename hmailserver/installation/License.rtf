@@ -1,0 +1,784 @@
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fswiss\fprq2\fcharset0 Tahoma;}{\f1\fswiss\fprq2\fcharset128 Tahoma;}{\f2\fnil\fcharset128 OpenSymbol;}{\f3\fmodern\fprq1\fcharset0 Courier New;}{\f4\fnil\fcharset2 Wingdings;}{\f5\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue255;}
+{\stylesheet{ Normal;}{\s1 heading 1;}{\s2 heading 2;}{\s3 heading 3;}}
+{\*\generator Msftedit 5.41.21.2509;}\viewkind4\uc1\pard\sb120\sa120\lang1033\b\f0\fs28 hMailServer License Terms\par
+\fs24 Preamble\par
+\b0\f1\fs20 This is a legal agreement between you and the author of this software, Martin Knafve. By installing this software, hMailServer, you agree to be bound by the terms of this agreement to the maximum extent permitted by applicable law.\par
+\pard hMailServer is provided "as is" without any warranties of merchantability and fitness for a particular purpose. You agree to hold the author harmless for any result that may occur related to the use of this software.\line\f0\fs24\par
+\f1\fs20 The hMailServer source code is licensed under AGPLv3, with exception for 3'rd party libraries licensed otherwise. By agreeing to this license you agree to be bound both by the AGPLv3 terms and the 3'rd party component licenses. \f0\fs24\par
+\pard\sb120\sa120\lang29\f1\fs20 The main points subject to the terms of the License are:\line\par
+\pard\fi-360\li360\sa200\sl276\slmult1\f2\'81\'45\tab\f1 hMailServer may be used, free of charge, both in commercial and non-commercial environments. \lang1033\par
+\f2\'81\'45\tab\lang29\f1 The hMailServer source code may be modified to create derivate works. You may not redistribute or give users access to functionality of your derivate works over a network without also providing them with the source code, according to AGPLv3 and licenses for 3'rd party libraries. In other words, you may not create closed-source software based on hMailServer.\lang1033\f0\fs24\par
+\pard\sa200\sl276\slmult1\lang29\f1\fs20 For details, see the full licensing terms below.\par
+\pard\sb120\sa120\lang1033\b\fs24 License\b0\par
+\cf1\f3\fs20       GNU AFFERO GENERAL PUBLIC LICENSE\cf0\par
+\pard\cf1\f1             Version 3, 19 November 2007\par
+\cf0\f3\par
+\cf1\f1  Copyright (C) 2007 Free Software Foundation, Inc. <\cf0{\field{\*\fldinst{HYPERLINK "http://fsf.org/"}}{\fldrslt{\ul\cf2 http://fsf.org/}}}\cf1\f1\fs20 >\cf0\par
+\cf1  Everyone is permitted to copy and distribute verbatim copies\par
+\cf0\f3  \f1 of this license document, but changing it is not allowed.\f3\par
+\f1\par
+\cf1                 Preamble\par
+\cf0\par
+\cf1   The GNU Affero General Public License is a free, copyleft license for\par
+software and other kinds of works, specifically designed to ensure\par
+\cf0 cooperation with the community in the case of network server software.\f3\par
+\f1\par
+\cf1   The licenses for most software and other practical works are designed\par
+to take away your freedom to share and change the works. By contrast,\par
+\cf0 our General Public Licenses are intended to guarantee your freedom to\f3\par
+\f1 share and change all versions of a program--to make sure it remains free\f3\par
+\f1 software for all its users.\f3\par
+\f1\par
+\cf1   When we speak of free software, we are referring to freedom, not\par
+price.  Our General Public Licenses are designed to make sure that you\par
+\cf0 have the freedom to distribute copies of free software (and charge for\f3\par
+\f1 them if you wish), that you receive source code or can get it if you\f3\par
+\f1 want it, that you can change the software or use pieces of it in new\f3\par
+\f1 free programs, and that you know you can do these things.\f3\par
+\f1\par
+\cf1   Developers that use our General Public Licenses protect your rights\par
+with two steps: (1) assert copyright on the software, and (2) offer\par
+\cf0 you this License which gives you legal permission to copy, distribute\f3\par
+\f1 and/or modify the software.\f3\par
+\f1\par
+\cf1   A secondary benefit of defending all users' freedom is that\par
+improvements made in alternate versions of the program, if they\par
+\cf0 receive widespread use, become available for other developers to\f3\par
+\f1 incorporate.  Many developers of free software are heartened and\f3\par
+\f1 encouraged by the resulting cooperation.  However, in the case of\f3\par
+\f1 software used on network servers, this result may fail to come about.\f3\par
+\f1 The GNU General Public License permits making a modified version and\f3\par
+\f1 letting the public access it on a server without ever releasing its\f3\par
+\f1 source code to the public.\f3\par
+\f1\par
+\cf1   The GNU Affero General Public License is designed specifically to\par
+ensure that, in such cases, the modified source code becomes available\par
+\cf0 to the community.  It requires the operator of a network server to\f3\par
+\f1 provide the source code of the modified version running there to the\f3\par
+\f1 users of that server.  Therefore, public use of a modified version, on\f3\par
+\f1 a publicly accessible server, gives the public access to the source\f3\par
+\f1 code of the modified version.\f3\par
+\f1\par
+\cf1   An older license, called the Affero General Public License and\par
+published by Affero, was designed to accomplish similar goals.  This is\par
+\cf0 a different license, not a version of the Affero GPL, but Affero has\f3\par
+\f1 released a new version of the Affero GPL which permits relicensing under\f3\par
+\f1 this license.\f3\par
+\f1\par
+\cf1   The precise terms and conditions for copying, distribution and\par
+modification follow.\par
+\cf0\par
+\cf1                        TERMS AND CONDITIONS\par
+\cf0\par
+\cf1   0. Definitions.\par
+\cf0\par
+\cf1   "This License" refers to version 3 of the GNU Affero General Public License.\par
+\cf0\par
+\cf1   "Copyright" also means copyright-like laws that apply to other kinds of\par
+works, such as semiconductor masks.\par
+\cf0\par
+\cf1   "The Program" refers to any copyrightable work licensed under this\par
+License.  Each licensee is addressed as "you".  "Licensees" and\par
+\cf0 "recipients" may be individuals or organizations.\f3\par
+\f1\par
+\cf1   To "modify" a work means to copy from or adapt all or part of the work\par
+in a fashion requiring copyright permission, other than the making of an\par
+\cf0 exact copy.  The resulting work is called a "modified version" of the\f3\par
+\f1 earlier work or a work "based on" the earlier work.\f3\par
+\f1\par
+\cf1   A "covered work" means either the unmodified Program or a work based\par
+on the Program.\par
+\cf0\par
+\cf1   To "propagate" a work means to do anything with it that, without\par
+permission, would make you directly or secondarily liable for\par
+\cf0 infringement under applicable copyright law, except executing it on a\f3\par
+\f1 computer or modifying a private copy.  Propagation includes copying,\f3\par
+\f1 distribution (with or without modification), making available to the\f3\par
+\f1 public, and in some countries other activities as well.\f3\par
+\f1\par
+\cf1   To "convey" a work means any kind of propagation that enables other\par
+parties to make or receive copies.  Mere interaction with a user through\par
+\cf0 a computer network, with no transfer of a copy, is not conveying.\f3\par
+\f1\par
+\cf1   An interactive user interface displays "Appropriate Legal Notices"\par
+to the extent that it includes a convenient and prominently visible\par
+\cf0 feature that (1) displays an appropriate copyright notice, and (2)\f3\par
+\f1 tells the user that there is no warranty for the work (except to the\f3\par
+\f1 extent that warranties are provided), that licensees may convey the\f3\par
+\f1 work under this License, and how to view a copy of this License.  If\f3\par
+\f1 the interface presents a list of user commands or options, such as a\f3\par
+\f1 menu, a prominent item in the list meets this criterion.\f3\par
+\f1\par
+\cf1   1. Source Code.\par
+\cf0\par
+\cf1   The "source code" for a work means the preferred form of the work\par
+for making modifications to it.  "Object code" means any non-source\par
+\cf0 form of a work.\f3\par
+\f1\par
+\cf1   A "Standard Interface" means an interface that either is an official\par
+standard defined by a recognized standards body, or, in the case of\par
+\cf0 interfaces specified for a particular programming language, one that\f3\par
+\f1 is widely used among developers working in that language.\f3\par
+\f1\par
+\cf1   The "System Libraries" of an executable work include anything, other\par
+than the work as a whole, that (a) is included in the normal form of\par
+\cf0 packaging a Major Component, but which is not part of that Major\f3\par
+\f1 Component, and (b) serves only to enable use of the work with that\f3\par
+\f1 Major Component, or to implement a Standard Interface for which an\f3\par
+\f1 implementation is available to the public in source code form.  A\f3\par
+\f1 "Major Component", in this context, means a major essential component\f3\par
+\f1 (kernel, window system, and so on) of the specific operating system\f3\par
+\f1 (if any) on which the executable work runs, or a compiler used to\f3\par
+\f1 produce the work, or an object code interpreter used to run it.\f3\par
+\f1\par
+\cf1   The "Corresponding Source" for a work in object code form means all\par
+the source code needed to generate, install, and (for an executable\par
+\cf0 work) run the object code and to modify the work, including scripts to\f3\par
+\f1 control those activities.  However, it does not include the work's\f3\par
+\f1 System Libraries, or general-purpose tools or generally available free\f3\par
+\f1 programs which are used unmodified in performing those activities but\f3\par
+\f1 which are not part of the work.  For example, Corresponding Source\f3\par
+\f1 includes interface definition files associated with source files for\f3\par
+\f1 the work, and the source code for shared libraries and dynamically\f3\par
+\f1 linked subprograms that the work is specifically designed to require,\f3\par
+\f1 such as by intimate data communication or control flow between those\f3\par
+\f1 subprograms and other parts of the work.\f3\par
+\f1\par
+\cf1   The Corresponding Source need not include anything that users\par
+can regenerate automatically from other parts of the Corresponding\par
+\cf0 Source.\f3\par
+\f1\par
+\cf1   The Corresponding Source for a work in source code form is that\par
+same work.\par
+\cf0\par
+\cf1   2. Basic Permissions.\par
+\cf0\par
+\cf1   All rights granted under this License are granted for the term of\par
+copyright on the Program, and are irrevocable provided the stated\par
+\cf0 conditions are met.  This License explicitly affirms your unlimited\f3\par
+\f1 permission to run the unmodified Program.  The output from running a\f3\par
+\f1 covered work is covered by this License only if the output, given its\f3\par
+\f1 content, constitutes a covered work.  This License acknowledges your\f3\par
+\f1 rights of fair use or other equivalent, as provided by copyright law.\f3\par
+\f1\par
+\cf1   You may make, run and propagate covered works that you do not\par
+convey, without conditions so long as your license otherwise remains\par
+\cf0 in force.  You may convey covered works to others for the sole purpose\f3\par
+\f1 of having them make modifications exclusively for you, or provide you\f3\par
+\f1 with facilities for running those works, provided that you comply with\f3\par
+\f1 the terms of this License in conveying all material for which you do\f3\par
+\f1 not control copyright.  Those thus making or running the covered works\f3\par
+\f1 for you must do so exclusively on your behalf, under your direction\f3\par
+\f1 and control, on terms that prohibit them from making any copies of\f3\par
+\f1 your copyrighted material outside their relationship with you.\f3\par
+\f1\par
+\cf1   Conveying under any other circumstances is permitted solely under\par
+the conditions stated below.  Sublicensing is not allowed; section 10\par
+\cf0 makes it unnecessary.\f3\par
+\f1\par
+\cf1   3. Protecting Users' Legal Rights From Anti-Circumvention Law.\par
+\cf0\par
+\cf1   No covered work shall be deemed part of an effective technological\par
+measure under any applicable law fulfilling obligations under article\par
+\cf0 11 of the WIPO copyright treaty adopted on 20 December 1996, or\f3\par
+\f1 similar laws prohibiting or restricting circumvention of such\f3\par
+\f1 measures.\f3\par
+\f1\par
+\cf1   When you convey a covered work, you waive any legal power to forbid\par
+circumvention of technological measures to the extent such circumvention\par
+\cf0 is effected by exercising rights under this License with respect to\f3\par
+\f1 the covered work, and you disclaim any intention to limit operation or\f3\par
+\f1 modification of the work as a means of enforcing, against the work's\f3\par
+\f1 users, your or third parties' legal rights to forbid circumvention of\f3\par
+\f1 technological measures.\f3\par
+\f1\par
+\cf1   4. Conveying Verbatim Copies.\par
+\cf0\par
+\cf1   You may convey verbatim copies of the Program's source code as you\par
+receive it, in any medium, provided that you conspicuously and\par
+\cf0 appropriately publish on each copy an appropriate copyright notice;\f3\par
+\f1 keep intact all notices stating that this License and any\f3\par
+\f1 non-permissive terms added in accord with section 7 apply to the code;\f3\par
+\f1 keep intact all notices of the absence of any warranty; and give all\f3\par
+\f1 recipients a copy of this License along with the Program.\f3\par
+\f1\par
+\cf1   You may charge any price or no price for each copy that you convey,\par
+and you may offer support or warranty protection for a fee.\par
+\cf0\par
+\cf1   5. Conveying Modified Source Versions.\par
+\cf0\par
+\cf1   You may convey a work based on the Program, or the modifications to\par
+produce it from the Program, in the form of source code under the\par
+\cf0 terms of section 4, provided that you also meet all of these conditions:\f3\par
+\f1\par
+\cf1     a) The work must carry prominent notices stating that you modified\par
+\cf0\f3     \f1 it, and giving a relevant date.\f3\par
+\f1\par
+\cf1     b) The work must carry prominent notices stating that it is\par
+\cf0\f3     \f1 released under this License and any conditions added under section\f3\par
+    \f1 7.  This requirement modifies the requirement in section 4 to\f3\par
+    \f1 "keep intact all notices".\f3\par
+\f1\par
+\cf1     c) You must license the entire work, as a whole, under this\par
+\cf0\f3     \f1 License to anyone who comes into possession of a copy.  This\f3\par
+    \f1 License will therefore apply, along with any applicable section 7\f3\par
+    \f1 additional terms, to the whole of the work, and all its parts,\f3\par
+    \f1 regardless of how they are packaged.  This License gives no\f3\par
+    \f1 permission to license the work in any other way, but it does not\f3\par
+    \f1 invalidate such permission if you have separately received it.\f3\par
+\f1\par
+\cf1     d) If the work has interactive user interfaces, each must display\par
+\cf0\f3     \f1 Appropriate Legal Notices; however, if the Program has interactive\f3\par
+    \f1 interfaces that do not display Appropriate Legal Notices, your\f3\par
+    \f1 work need not make them do so.\f3\par
+\f1\par
+\cf1   A compilation of a covered work with other separate and independent\par
+works, which are not by their nature extensions of the covered work,\par
+\cf0 and which are not combined with it such as to form a larger program,\f3\par
+\f1 in or on a volume of a storage or distribution medium, is called an\f3\par
+\f1 "aggregate" if the compilation and its resulting copyright are not\f3\par
+\f1 used to limit the access or legal rights of the compilation's users\f3\par
+\f1 beyond what the individual works permit.  Inclusion of a covered work\f3\par
+\f1 in an aggregate does not cause this License to apply to the other\f3\par
+\f1 parts of the aggregate.\f3\par
+\f1\par
+\cf1   6. Conveying Non-Source Forms.\par
+\cf0\par
+\cf1   You may convey a covered work in object code form under the terms\par
+of sections 4 and 5, provided that you also convey the\par
+\cf0 machine-readable Corresponding Source under the terms of this License,\f3\par
+\f1 in one of these ways:\f3\par
+\f1\par
+\cf1     a) Convey the object code in, or embodied in, a physical product\par
+\cf0\f3     \f1 (including a physical distribution medium), accompanied by the\f3\par
+    \f1 Corresponding Source fixed on a durable physical medium\f3\par
+    \f1 customarily used for software interchange.\f3\par
+\f1\par
+\cf1     b) Convey the object code in, or embodied in, a physical product\par
+\cf0\f3     \f1 (including a physical distribution medium), accompanied by a\f3\par
+    \f1 written offer, valid for at least three years and valid for as\f3\par
+    \f1 long as you offer spare parts or customer support for that product\f3\par
+    \f1 model, to give anyone who possesses the object code either (1) a\f3\par
+    \f1 copy of the Corresponding Source for all the software in the\f3\par
+    \f1 product that is covered by this License, on a durable physical\f3\par
+    \f1 medium customarily used for software interchange, for a price no\f3\par
+    \f1 more than your reasonable cost of physically performing this\f3\par
+    \f1 conveying of source, or (2) access to copy the\f3\par
+    \f1 Corresponding Source from a network server at no charge.\f3\par
+\f1\par
+\cf1     c) Convey individual copies of the object code with a copy of the\par
+\cf0\f3     \f1 written offer to provide the Corresponding Source.  This\f3\par
+    \f1 alternative is allowed only occasionally and noncommercially, and\f3\par
+    \f1 only if you received the object code with such an offer, in accord\f3\par
+    \f1 with subsection 6b.\f3\par
+\f1\par
+\cf1     d) Convey the object code by offering access from a designated\par
+\cf0\f3     \f1 place (gratis or for a charge), and offer equivalent access to the\f3\par
+    \f1 Corresponding Source in the same way through the same place at no\f3\par
+    \f1 further charge.  You need not require recipients to copy the\f3\par
+    \f1 Corresponding Source along with the object code.  If the place to\f3\par
+    \f1 copy the object code is a network server, the Corresponding Source\f3\par
+    \f1 may be on a different server (operated by you or a third party)\f3\par
+    \f1 that supports equivalent copying facilities, provided you maintain\f3\par
+    \f1 clear directions next to the object code saying where to find the\f3\par
+    \f1 Corresponding Source.  Regardless of what server hosts the\f3\par
+    \f1 Corresponding Source, you remain obligated to ensure that it is\f3\par
+    \f1 available for as long as needed to satisfy these requirements.\f3\par
+\f1\par
+\cf1     e) Convey the object code using peer-to-peer transmission, provided\par
+\cf0\f3     \f1 you inform other peers where the object code and Corresponding\f3\par
+    \f1 Source of the work are being offered to the general public at no\f3\par
+    \f1 charge under subsection 6d.\f3\par
+\f1\par
+\cf1   A separable portion of the object code, whose source code is excluded\par
+from the Corresponding Source as a System Library, need not be\par
+\cf0 included in conveying the object code work.\f3\par
+\f1\par
+\cf1   A "User Product" is either (1) a "consumer product", which means any\par
+tangible personal property which is normally used for personal, family,\par
+\cf0 or household purposes, or (2) anything designed or sold for incorporation\f3\par
+\f1 into a dwelling.  In determining whether a product is a consumer product,\f3\par
+\f1 doubtful cases shall be resolved in favor of coverage.  For a particular\f3\par
+\f1 product received by a particular user, "normally used" refers to a\f3\par
+\f1 typical or common use of that class of product, regardless of the status\f3\par
+\f1 of the particular user or of the way in which the particular user\f3\par
+\f1 actually uses, or expects or is expected to use, the product.  A product\f3\par
+\f1 is a consumer product regardless of whether the product has substantial\f3\par
+\f1 commercial, industrial or non-consumer uses, unless such uses represent\f3\par
+\f1 the only significant mode of use of the product.\f3\par
+\f1\par
+\cf1   "Installation Information" for a User Product means any methods,\par
+procedures, authorization keys, or other information required to install\par
+\cf0 and execute modified versions of a covered work in that User Product from\f3\par
+\f1 a modified version of its Corresponding Source.  The information must\f3\par
+\f1 suffice to ensure that the continued functioning of the modified object\f3\par
+\f1 code is in no case prevented or interfered with solely because\f3\par
+\f1 modification has been made.\f3\par
+\f1\par
+\cf1   If you convey an object code work under this section in, or with, or\par
+specifically for use in, a User Product, and the conveying occurs as\par
+\cf0 part of a transaction in which the right of possession and use of the\f3\par
+\f1 User Product is transferred to the recipient in perpetuity or for a\f3\par
+\f1 fixed term (regardless of how the transaction is characterized), the\f3\par
+\f1 Corresponding Source conveyed under this section must be accompanied\f3\par
+\f1 by the Installation Information.  But this requirement does not apply\f3\par
+\f1 if neither you nor any third party retains the ability to install\f3\par
+\f1 modified object code on the User Product (for example, the work has\f3\par
+\f1 been installed in ROM).\f3\par
+\f1\par
+\cf1   The requirement to provide Installation Information does not include a\par
+requirement to continue to provide support service, warranty, or updates\par
+\cf0 for a work that has been modified or installed by the recipient, or for\f3\par
+\f1 the User Product in which it has been modified or installed.  Access to a\f3\par
+\f1 network may be denied when the modification itself materially and\f3\par
+\f1 adversely affects the operation of the network or violates the rules and\f3\par
+\f1 protocols for communication across the network.\f3\par
+\f1\par
+\cf1   Corresponding Source conveyed, and Installation Information provided,\par
+in accord with this section must be in a format that is publicly\par
+\cf0 documented (and with an implementation available to the public in\f3\par
+\f1 source code form), and must require no special password or key for\f3\par
+\f1 unpacking, reading or copying.\f3\par
+\f1\par
+\cf1   7. Additional Terms.\par
+\cf0\par
+\cf1   "Additional permissions" are terms that supplement the terms of this\par
+License by making exceptions from one or more of its conditions.\par
+\cf0 Additional permissions that are applicable to the entire Program shall\f3\par
+\f1 be treated as though they were included in this License, to the extent\f3\par
+\f1 that they are valid under applicable law.  If additional permissions\f3\par
+\f1 apply only to part of the Program, that part may be used separately\f3\par
+\f1 under those permissions, but the entire Program remains governed by\f3\par
+\f1 this License without regard to the additional permissions.\f3\par
+\f1\par
+\cf1   When you convey a copy of a covered work, you may at your option\par
+remove any additional permissions from that copy, or from any part of\par
+\cf0 it.  (Additional permissions may be written to require their own\f3\par
+\f1 removal in certain cases when you modify the work.)  You may place\f3\par
+\f1 additional permissions on material, added by you to a covered work,\f3\par
+\f1 for which you have or can give appropriate copyright permission.\f3\par
+\f1\par
+\cf1   Notwithstanding any other provision of this License, for material you\par
+add to a covered work, you may (if authorized by the copyright holders of\par
+\cf0 that material) supplement the terms of this License with terms:\f3\par
+\f1\par
+\cf1     a) Disclaiming warranty or limiting liability differently from the\par
+\cf0\f3     \f1 terms of sections 15 and 16 of this License; or\f3\par
+\f1\par
+\cf1     b) Requiring preservation of specified reasonable legal notices or\par
+\cf0\f3     \f1 author attributions in that material or in the Appropriate Legal\f3\par
+    \f1 Notices displayed by works containing it; or\f3\par
+\f1\par
+\cf1     c) Prohibiting misrepresentation of the origin of that material, or\par
+\cf0\f3     \f1 requiring that modified versions of such material be marked in\f3\par
+    \f1 reasonable ways as different from the original version; or\f3\par
+\f1\par
+\cf1     d) Limiting the use for publicity purposes of names of licensors or\par
+\cf0\f3     \f1 authors of the material; or\f3\par
+\f1\par
+\cf1     e) Declining to grant rights under trademark law for use of some\par
+\cf0\f3     \f1 trade names, trademarks, or service marks; or\f3\par
+\f1\par
+\cf1     f) Requiring indemnification of licensors and authors of that\par
+\cf0\f3     \f1 material by anyone who conveys the material (or modified versions of\f3\par
+    \f1 it) with contractual assumptions of liability to the recipient, for\f3\par
+    \f1 any liability that these contractual assumptions directly impose on\f3\par
+    \f1 those licensors and authors.\f3\par
+\f1\par
+\cf1   All other non-permissive additional terms are considered "further\par
+restrictions" within the meaning of section 10.  If the Program as you\par
+\cf0 received it, or any part of it, contains a notice stating that it is\f3\par
+\f1 governed by this License along with a term that is a further\f3\par
+\f1 restriction, you may remove that term.  If a license document contains\f3\par
+\f1 a further restriction but permits relicensing or conveying under this\f3\par
+\f1 License, you may add to a covered work material governed by the terms\f3\par
+\f1 of that license document, provided that the further restriction does\f3\par
+\f1 not survive such relicensing or conveying.\f3\par
+\f1\par
+\cf1   If you add terms to a covered work in accord with this section, you\par
+must place, in the relevant source files, a statement of the\par
+\cf0 additional terms that apply to those files, or a notice indicating\f3\par
+\f1 where to find the applicable terms.\f3\par
+\f1\par
+\cf1   Additional terms, permissive or non-permissive, may be stated in the\par
+form of a separately written license, or stated as exceptions;\par
+\cf0 the above requirements apply either way.\f3\par
+\f1\par
+\cf1   8. Termination.\par
+\cf0\par
+\cf1   You may not propagate or modify a covered work except as expressly\par
+provided under this License.  Any attempt otherwise to propagate or\par
+\cf0 modify it is void, and will automatically terminate your rights under\f3\par
+\f1 this License (including any patent licenses granted under the third\f3\par
+\f1 paragraph of section 11).\f3\par
+\f1\par
+\cf1   However, if you cease all violation of this License, then your\par
+license from a particular copyright holder is reinstated (a)\par
+\cf0 provisionally, unless and until the copyright holder explicitly and\f3\par
+\f1 finally terminates your license, and (b) permanently, if the copyright\f3\par
+\f1 holder fails to notify you of the violation by some reasonable means\f3\par
+\f1 prior to 60 days after the cessation.\f3\par
+\f1\par
+\cf1   Moreover, your license from a particular copyright holder is\par
+reinstated permanently if the copyright holder notifies you of the\par
+\cf0 violation by some reasonable means, this is the first time you have\f3\par
+\f1 received notice of violation of this License (for any work) from that\f3\par
+\f1 copyright holder, and you cure the violation prior to 30 days after\f3\par
+\f1 your receipt of the notice.\f3\par
+\f1\par
+\cf1   Termination of your rights under this section does not terminate the\par
+licenses of parties who have received copies or rights from you under\par
+\cf0 this License.  If your rights have been terminated and not permanently\f3\par
+\f1 reinstated, you do not qualify to receive new licenses for the same\f3\par
+\f1 material under section 10.\f3\par
+\f1\par
+\cf1   9. Acceptance Not Required for Having Copies.\par
+\cf0\par
+\cf1   You are not required to accept this License in order to receive or\par
+run a copy of the Program.  Ancillary propagation of a covered work\par
+\cf0 occurring solely as a consequence of using peer-to-peer transmission\f3\par
+\f1 to receive a copy likewise does not require acceptance.  However,\f3\par
+\f1 nothing other than this License grants you permission to propagate or\f3\par
+\f1 modify any covered work.  These actions infringe copyright if you do\f3\par
+\f1 not accept this License.  Therefore, by modifying or propagating a\f3\par
+\f1 covered work, you indicate your acceptance of this License to do so.\f3\par
+\f1\par
+\cf1   10. Automatic Licensing of Downstream Recipients.\par
+\cf0\par
+\cf1   Each time you convey a covered work, the recipient automatically\par
+receives a license from the original licensors, to run, modify and\par
+\cf0 propagate that work, subject to this License.  You are not responsible\f3\par
+\f1 for enforcing compliance by third parties with this License.\f3\par
+\f1\par
+\cf1   An "entity transaction" is a transaction transferring control of an\par
+organization, or substantially all assets of one, or subdividing an\par
+\cf0 organization, or merging organizations.  If propagation of a covered\f3\par
+\f1 work results from an entity transaction, each party to that\f3\par
+\f1 transaction who receives a copy of the work also receives whatever\f3\par
+\f1 licenses to the work the party's predecessor in interest had or could\f3\par
+\f1 give under the previous paragraph, plus a right to possession of the\f3\par
+\f1 Corresponding Source of the work from the predecessor in interest, if\f3\par
+\f1 the predecessor has it or can get it with reasonable efforts.\f3\par
+\f1\par
+\cf1   You may not impose any further restrictions on the exercise of the\par
+rights granted or affirmed under this License.  For example, you may\par
+\cf0 not impose a license fee, royalty, or other charge for exercise of\f3\par
+\f1 rights granted under this License, and you may not initiate litigation\f3\par
+\f1 (including a cross-claim or counterclaim in a lawsuit) alleging that\f3\par
+\f1 any patent claim is infringed by making, using, selling, offering for\f3\par
+\f1 sale, or importing the Program or any portion of it.\f3\par
+\f1\par
+\cf1   11. Patents.\par
+\cf0\par
+\cf1   A "contributor" is a copyright holder who authorizes use under this\par
+License of the Program or a work on which the Program is based.  The\par
+\cf0 work thus licensed is called the contributor's "contributor version".\f3\par
+\f1\par
+\cf1   A contributor's "essential patent claims" are all patent claims\par
+owned or controlled by the contributor, whether already acquired or\par
+\cf0 hereafter acquired, that would be infringed by some manner, permitted\f3\par
+\f1 by this License, of making, using, or selling its contributor version,\f3\par
+\f1 but do not include claims that would be infringed only as a\f3\par
+\f1 consequence of further modification of the contributor version.  For\f3\par
+\f1 purposes of this definition, "control" includes the right to grant\f3\par
+\f1 patent sublicenses in a manner consistent with the requirements of\f3\par
+\f1 this License.\f3\par
+\f1\par
+\cf1   Each contributor grants you a non-exclusive, worldwide, royalty-free\par
+patent license under the contributor's essential patent claims, to\par
+\cf0 make, use, sell, offer for sale, import and otherwise run, modify and\f3\par
+\f1 propagate the contents of its contributor version.\f3\par
+\f1\par
+\cf1   In the following three paragraphs, a "patent license" is any express\par
+agreement or commitment, however denominated, not to enforce a patent\par
+\cf0 (such as an express permission to practice a patent or covenant not to\f3\par
+\f1 sue for patent infringement).  To "grant" such a patent license to a\f3\par
+\f1 party means to make such an agreement or commitment not to enforce a\f3\par
+\f1 patent against the party.\f3\par
+\f1\par
+\cf1   If you convey a covered work, knowingly relying on a patent license,\par
+and the Corresponding Source of the work is not available for anyone\par
+\cf0 to copy, free of charge and under the terms of this License, through a\f3\par
+\f1 publicly available network server or other readily accessible means,\f3\par
+\f1 then you must either (1) cause the Corresponding Source to be so\f3\par
+\f1 available, or (2) arrange to deprive yourself of the benefit of the\f3\par
+\f1 patent license for this particular work, or (3) arrange, in a manner\f3\par
+\f1 consistent with the requirements of this License, to extend the patent\f3\par
+\f1 license to downstream recipients.  "Knowingly relying" means you have\f3\par
+\f1 actual knowledge that, but for the patent license, your conveying the\f3\par
+\f1 covered work in a country, or your recipient's use of the covered work\f3\par
+\f1 in a country, would infringe one or more identifiable patents in that\f3\par
+\f1 country that you have reason to believe are valid.\f3\par
+\f1\par
+\cf1   If, pursuant to or in connection with a single transaction or\par
+arrangement, you convey, or propagate by procuring conveyance of, a\par
+\cf0 covered work, and grant a patent license to some of the parties\f3\par
+\f1 receiving the covered work authorizing them to use, propagate, modify\f3\par
+\f1 or convey a specific copy of the covered work, then the patent license\f3\par
+\f1 you grant is automatically extended to all recipients of the covered\f3\par
+\f1 work and works based on it.\f3\par
+\f1\par
+\cf1   A patent license is "discriminatory" if it does not include within\par
+the scope of its coverage, prohibits the exercise of, or is\par
+\cf0 conditioned on the non-exercise of one or more of the rights that are\f3\par
+\f1 specifically granted under this License.  You may not convey a covered\f3\par
+\f1 work if you are a party to an arrangement with a third party that is\f3\par
+\f1 in the business of distributing software, under which you make payment\f3\par
+\f1 to the third party based on the extent of your activity of conveying\f3\par
+\f1 the work, and under which the third party grants, to any of the\f3\par
+\f1 parties who would receive the covered work from you, a discriminatory\f3\par
+\f1 patent license (a) in connection with copies of the covered work\f3\par
+\f1 conveyed by you (or copies made from those copies), or (b) primarily\f3\par
+\f1 for and in connection with specific products or compilations that\f3\par
+\f1 contain the covered work, unless you entered into that arrangement,\f3\par
+\f1 or that patent license was granted, prior to 28 March 2007.\f3\par
+\f1\par
+\cf1   Nothing in this License shall be construed as excluding or limiting\par
+any implied license or other defenses to infringement that may\par
+\cf0 otherwise be available to you under applicable patent law.\f3\par
+\f1\par
+\cf1   12. No Surrender of Others' Freedom.\par
+\cf0\par
+\cf1   If conditions are imposed on you (whether by court order, agreement or\par
+otherwise) that contradict the conditions of this License, they do not\par
+\cf0 excuse you from the conditions of this License.  If you cannot convey a\f3\par
+\f1 covered work so as to satisfy simultaneously your obligations under this\f3\par
+\f1 License and any other pertinent obligations, then as a consequence you may\f3\par
+\f1 not convey it at all.  For example, if you agree to terms that obligate you\f3\par
+\f1 to collect a royalty for further conveying from those to whom you convey\f3\par
+\f1 the Program, the only way you could satisfy both those terms and this\f3\par
+\f1 License would be to refrain entirely from conveying the Program.\f3\par
+\f1\par
+\cf1   13. Remote Network Interaction; Use with the GNU General Public License.\par
+\cf0\par
+\cf1   Notwithstanding any other provision of this License, if you modify the\par
+Program, your modified version must prominently offer all users\par
+\cf0 interacting with it remotely through a computer network (if your version\f3\par
+\f1 supports such interaction) an opportunity to receive the Corresponding\f3\par
+\f1 Source of your version by providing access to the Corresponding Source\f3\par
+\f1 from a network server at no charge, through some standard or customary\f3\par
+\f1 means of facilitating copying of software.  This Corresponding Source\f3\par
+\f1 shall include the Corresponding Source for any work covered by version 3\f3\par
+\f1 of the GNU General Public License that is incorporated pursuant to the\f3\par
+\f1 following paragraph.\f3\par
+\f1\par
+\cf1   Notwithstanding any other provision of this License, you have\par
+permission to link or combine any covered work with a work licensed\par
+\cf0 under version 3 of the GNU General Public License into a single\f3\par
+\f1 combined work, and to convey the resulting work.  The terms of this\f3\par
+\f1 License will continue to apply to the part which is the covered work,\f3\par
+\f1 but the work with which it is combined will remain governed by version\f3\par
+\f1 3 of the GNU General Public License.\f3\par
+\f1\par
+\cf1   14. Revised Versions of this License.\par
+\cf0\par
+\cf1   The Free Software Foundation may publish revised and/or new versions of\par
+the GNU Affero General Public License from time to time.  Such new versions\par
+\cf0 will be similar in spirit to the present version, but may differ in detail to\f3\par
+\f1 address new problems or concerns.\f3\par
+\f1\par
+\cf1   Each version is given a distinguishing version number.  If the\par
+Program specifies that a certain numbered version of the GNU Affero General\par
+\cf0 Public License "or any later version" applies to it, you have the\f3\par
+\f1 option of following the terms and conditions either of that numbered\f3\par
+\f1 version or of any later version published by the Free Software\f3\par
+\f1 Foundation.  If the Program does not specify a version number of the\f3\par
+\f1 GNU Affero General Public License, you may choose any version ever published\f3\par
+\f1 by the Free Software Foundation.\f3\par
+\f1\par
+\cf1   If the Program specifies that a proxy can decide which future\par
+versions of the GNU Affero General Public License can be used, that proxy's\par
+\cf0 public statement of acceptance of a version permanently authorizes you\f3\par
+\f1 to choose that version for the Program.\f3\par
+\f1\par
+\cf1   Later license versions may give you additional or different\par
+permissions.  However, no additional obligations are imposed on any\par
+\cf0 author or copyright holder as a result of your choosing to follow a\f3\par
+\f1 later version.\f3\par
+\f1\par
+\cf1   15. Disclaimer of Warranty.\par
+\cf0\par
+\cf1   THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY\par
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT\par
+\cf0 HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY\f3\par
+\f1 OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,\f3\par
+\f1 THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\f3\par
+\f1 PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM\f3\par
+\f1 IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF\f3\par
+\f1 ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\f3\par
+\f1\par
+\cf1   16. Limitation of Liability.\par
+\cf0\par
+\cf1   IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\par
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS\par
+\cf0 THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY\f3\par
+\f1 GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE\f3\par
+\f1 USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF\f3\par
+\f1 DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD\f3\par
+\f1 PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),\f3\par
+\f1 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF\f3\par
+\f1 SUCH DAMAGES.\f3\par
+\f1\par
+\cf1   17. Interpretation of Sections 15 and 16.\par
+\cf0\par
+\cf1   If the disclaimer of warranty and limitation of liability provided\par
+above cannot be given local legal effect according to their terms,\par
+\cf0 reviewing courts shall apply local law that most closely approximates\f3\par
+\f1 an absolute waiver of all civil liability in connection with the\f3\par
+\f1 Program, unless a warranty or assumption of liability accompanies a\f3\par
+\f1 copy of the Program in return for a fee.\f3\par
+\b\f1\par
+---------------------------------------\b0\f3\par
+\pard\sb120\sa120\f1 In addition to AGPLv3, as a special exception, the copyright holders give permission to link the code of portions of this program with the the following party libraries listed under section \ldblquote 3'rd party libraries\rdblquote  according to conditions as described in each individual license. You must obey the AGPLv3 in all respects for all of the code used other than the items listed below. \par
+\pard\sb120\sa120\sl276\slmult1\lang29\i\fs28 Fat Cow Icons\lang1033\par
+\pard\sa200\sl276\slmult1\i0\f0\fs20 Creative Commons Attribution License 3.0 License\f1\par
+\pard\f0 CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL SERVICES. DISTRIBUTION OF THIS LICENSE DOES NOT CREATE AN ATTORNEY-CLIENT RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS INFORMATION ON AN "AS-IS" BASIS. CREATIVE COMMONS MAKES NO WARRANTIES REGARDING THE INFORMATION PROVIDED, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM ITS USE.\fs24\par
+\fs20 License\fs24\par
+\fs20 THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS CREATIVE COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS PROTECTED BY COPYRIGHT AND/OR OTHER APPLICABLE LAW. ANY USE OF THE WORK OTHER THAN AS AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT LAW IS PROHIBITED.\fs24\par
+\fs20 BY EXERCISING ANY RIGHTS TO THE WORK PROVIDED HERE, YOU ACCEPT AND AGREE TO BE BOUND BY THE TERMS OF THIS LICENSE. TO THE EXTENT THIS LICENSE MAY BE CONSIDERED TO BE A CONTRACT, THE LICENSOR GRANTS YOU THE RIGHTS CONTAINED HERE IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND CONDITIONS.\fs24\par
+\fs20 1. Definitions\fs24\par
+\fs20 "Collective Work" means a work, such as a periodical issue, anthology or encyclopedia, in which the Work in its entirety in unmodified form, along with one or more other contributions, constituting separate and independent works in themselves, are assembled into a collective whole. A work that constitutes a Collective Work will not be considered a Derivative Work (as defined below) for the purposes of this License.\fs24\par
+\fs20 "Derivative Work" means a work based upon the Work or upon the Work and other pre-existing works, such as a translation, musical arrangement, dramatization, fictionalization, motion picture version, sound recording, art reproduction, abridgment, condensation, or any other form in which the Work may be recast, transformed, or adapted, except that a work that constitutes a Collective Work will not be considered a Derivative Work for the purpose of this License. For the avoidance of doubt, where the Work is a musical composition or sound recording, the synchronization of the Work in timed-relation with a moving image ("synching") will be considered a Derivative Work for the purpose of this License.\fs24\par
+\fs20 "Licensor" means the individual, individuals, entity or entities that offers the Work under the terms of this License.\fs24\par
+\fs20 "Original Author" means the individual, individuals, entity or entities who created the Work.\fs24\par
+\fs20 "Work" means the copyrightable work of authorship offered under the terms of this License.\fs24\par
+\fs20 "You" means an individual or entity exercising rights under this License who has not previously violated the terms of this License with respect to the Work, or who has received express permission from the Licensor to exercise rights under this License despite a previous violation.\fs24\par
+\fs20 2. Fair Use Rights. Nothing in this license is intended to reduce, limit, or restrict any rights arising from fair use, first sale or other limitations on the exclusive rights of the copyright owner under copyright law or other applicable laws.\fs24\par
+\par
+\fs20 3. License Grant. Subject to the terms and conditions of this License, Licensor hereby grants You a worldwide, royalty-free, non-exclusive, perpetual (for the duration of the applicable copyright) license to exercise the rights in the Work as stated below:\fs24\par
+\fs20 to reproduce the Work, to incorporate the Work into one or more Collective Works, and to reproduce the Work as incorporated in the Collective Works;\fs24\par
+\fs20 to create and reproduce Derivative Works provided that any such Derivative Work, including any translation in any medium, takes reasonable steps to clearly label, demarcate or otherwise identify that changes were made to the original Work. For example, a translation could be marked "The original work was translated from English to Spanish," or a modification could indicate "The original work has been modified.";;\fs24\par
+\fs20 to distribute copies or phonorecords of, display publicly, perform publicly, and perform publicly by means of a digital audio transmission the Work including as incorporated in Collective Works;\fs24\par
+\fs20 to distribute copies or phonorecords of, display publicly, perform publicly, and perform publicly by means of a digital audio transmission Derivative Works.\fs24\par
+\fs20 For the avoidance of doubt, where the Work is a musical composition:\fs24\par
+\fs20 Performance Royalties Under Blanket Licenses. Licensor waives the exclusive right to collect, whether individually or, in the event that Licensor is a member of a performance rights society (e.g. ASCAP, BMI, SESAC), via that society, royalties for the public performance or public digital performance (e.g. webcast) of the Work.\fs24\par
+\fs20 Mechanical Rights and Statutory Royalties. Licensor waives the exclusive right to collect, whether individually or via a music rights agency or designated agent (e.g. Harry Fox Agency), royalties for any phonorecord You create from the Work ("cover version") and distribute, subject to the compulsory license created by 17 USC Section 115 of the US Copyright Act (or the equivalent in other jurisdictions).\fs24\par
+\fs20 Webcasting Rights and Statutory Royalties. For the avoidance of doubt, where the Work is a sound recording, Licensor waives the exclusive right to collect, whether individually or via a performance-rights society (e.g. SoundExchange), royalties for the public digital performance (e.g. webcast) of the Work, subject to the compulsory license created by 17 USC Section 114 of the US Copyright Act (or the equivalent in other jurisdictions).\fs24\par
+\fs20 The above rights may be exercised in all media and formats whether now known or hereafter devised. The above rights include the right to make such modifications as are technically necessary to exercise the rights in other media and formats. All rights not expressly granted by Licensor are hereby reserved.\fs24\par
+\fs20 4. Restrictions. The license granted in Section 3 above is expressly made subject to and limited by the following restrictions:\fs24\par
+\par
+\fs20 You may distribute, publicly display, publicly perform, or publicly digitally perform the Work only under the terms of this License, and You must include a copy of, or the Uniform Resource Identifier for, this License with every copy or phonorecord of the Work You distribute, publicly display, publicly perform, or publicly digitally perform. You may not offer or impose any terms on the Work that restrict the terms of this License or the ability of a recipient of the Work to exercise the rights granted to that recipient under the terms of the License. You may not sublicense the Work. You must keep intact all notices that refer to this License and to the disclaimer of warranties. When You distribute, publicly display, publicly perform, or publicly digitally perform the Work, You may not impose any technological measures on the Work that restrict the ability of a recipient of the Work from You to exercise the rights granted to that recipient under the terms of the License. This Section 4(a) applies to the Work as incorporated in a Collective Work, but this does not require the Collective Work apart from the Work itself to be made subject to the terms of this License. If You create a Collective Work, upon notice from any Licensor You must, to the extent practicable, remove from the Collective Work any credit as required by Section 4(b), as requested. If You create a Derivative Work, upon notice from any Licensor You must, to the extent practicable, remove from the Derivative Work any credit as required by Section 4(b), as requested.\fs24\par
+\fs20 If You distribute, publicly display, publicly perform, or publicly digitally perform the Work (as defined in Section 1 above) or any Derivative Works (as defined in Section 1 above) or Collective Works (as defined in Section 1 above), You must, unless a request has been made pursuant to Section 4(a), keep intact all copyright notices for the Work and provide, reasonable to the medium or means You are utilizing: (i) the name of the Original Author (or pseudonym, if applicable) if supplied, and/or (ii) if the Original Author and/or Licensor designate another party or parties (e.g. a sponsor institute, publishing entity, journal) for attribution ("Attribution Parties") in Licensor's copyright notice, terms of service or by other reasonable means, the name of such party or parties; the title of the Work if supplied; to the extent reasonably practicable, the Uniform Resource Identifier, if any, that Licensor specifies to be associated with the Work, unless such URI does not refer to the copyright notice or licensing information for the Work; and, consistent with Section 3(b) in the case of a Derivative Work, a credit identifying the use of the Work in the Derivative Work (e.g., "French translation of the Work by Original Author," or "Screenplay based on original Work by Original Author"). The credit required by this Section 4(b) may be implemented in any reasonable manner; provided, however, that in the case of a Derivative Work or Collective Work, at a minimum such credit will appear, if a credit for all contributing authors of the Derivative Work or Collective Work appears, then as part of these credits and in a manner at least as prominent as the credits for the other contributing authors. For the avoidance of doubt, You may only use the credit required by this Section for the purpose of attribution in the manner set out above and, by exercising Your rights under this License, You may not implicitly or explicitly assert or imply any connection with, sponsorship or endorsement by the Original Author, Licensor and/or Attribution Parties, as appropriate, of You or Your use of the Work, without the separate, express prior written permission of the Original Author, Licensor and/or Attribution Parties.\fs24\par
+\fs20 5. Representations, Warranties and Disclaimer\fs24\par
+\fs20 UNLESS OTHERWISE MUTUALLY AGREED TO BY THE PARTIES IN WRITING, LICENSOR OFFERS THE WORK AS-IS AND ONLY TO THE EXTENT OF ANY RIGHTS HELD IN THE LICENSED WORK BY THE LICENSOR. THE LICENSOR MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE WORK, EXPRESS, IMPLIED, STATUTORY OR OTHERWISE, INCLUDING, WITHOUT LIMITATION, WARRANTIES OF TITLE, MARKETABILITY, MERCHANTIBILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, ACCURACY, OR THE PRESENCE OF ABSENCE OF ERRORS, WHETHER OR NOT DISCOVERABLE. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO SUCH EXCLUSION MAY NOT APPLY TO YOU.\fs24\par
+\fs20 6. Limitation on Liability. EXCEPT TO THE EXTENT REQUIRED BY APPLICABLE LAW, IN NO EVENT WILL LICENSOR BE LIABLE TO YOU ON ANY LEGAL THEORY FOR ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR EXEMPLARY DAMAGES ARISING OUT OF THIS LICENSE OR THE USE OF THE WORK, EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\fs24\par
+\fs20 7. Termination\fs24\par
+\fs20 This License and the rights granted hereunder will terminate automatically upon any breach by You of the terms of this License. Individuals or entities who have received Derivative Works (as defined in Section 1 above) or Collective Works (as defined in Section 1 above) from You under this License, however, will not have their licenses terminated provided such individuals or entities remain in full compliance with those licenses. Sections 1, 2, 5, 6, 7, and 8 will survive any termination of this License.\fs24\par
+\fs20 Subject to the above terms and conditions, the license granted here is perpetual (for the duration of the applicable copyright in the Work). Notwithstanding the above, Licensor reserves the right to release the Work under different license terms or to stop distributing the Work at any time; provided, however that any such election will not serve to withdraw this License (or any other license that has been, or is required to be, granted under the terms of this License), and this License will continue in full force and effect unless terminated as stated above.\fs24\par
+\fs20 8. Miscellaneous\fs24\par
+\fs20 Each time You distribute or publicly digitally perform the Work (as defined in Section 1 above) or a Collective Work (as defined in Section 1 above), the Licensor offers to the recipient a license to the Work on the same terms and conditions as the license granted to You under this License.\fs24\par
+\fs20 Each time You distribute or publicly digitally perform a Derivative Work, Licensor offers to the recipient a license to the original Work on the same terms and conditions as the license granted to You under this License.\fs24\par
+\fs20 If any provision of this License is invalid or unenforceable under applicable law, it shall not affect the validity or enforceability of the remainder of the terms of this License, and without further action by the parties to this agreement, such provision shall be reformed to the minimum extent necessary to make such provision valid and enforceable.\fs24\par
+\fs20 No term or provision of this License shall be deemed waived and no breach consented to unless such waiver or consent shall be in writing and signed by the party to be charged with such waiver or consent.\fs24\par
+\fs20 This License constitutes the entire agreement between the parties with respect to the Work licensed here. There are no understandings, agreements or representations with respect to the Work not specified here. Licensor shall not be bound by any additional provisions that may appear in any communication from You. This License may not be modified without the mutual written agreement of the Licensor and You.\fs24\par
+\fs20 Creative Commons Notice\fs24\par
+\fs20 Creative Commons is not a party to this License, and makes no warranty whatsoever in connection with the Work. Creative Commons will not be liable to You or any party on any legal theory for any damages whatsoever, including without limitation any general, special, incidental or consequential damages arising in connection to this license. Notwithstanding the foregoing two (2) sentences, if Creative Commons has expressly identified itself as the Licensor hereunder, it shall have all rights and obligations of Licensor.\fs24\par
+\fs20 Except for the limited purpose of indicating to the public that the Work is licensed under the CCPL, Creative Commons does not authorize the use by either party of the trademark "Creative Commons" or any related trademark or logo of Creative Commons without the prior written consent of Creative Commons. Any permitted use will be in compliance with Creative Commons' then-current trademark usage guidelines, as may be published on its website or otherwise made available upon request from time to time. For the avoidance of doubt, this trademark restriction does not form part of the License.\fs24\par
+\pard\sa200\sl276\slmult1\fs20 Creative Commons may be contacted at \lang255{\field{\*\fldinst{HYPERLINK "http://creativecommons.org/"}}{\fldrslt{\ul\cf2 http://creativecommons.org/}}}\lang1033\f0\fs20 .\fs24\par
+\pard\sb120\sa120\i\f1\fs28 Microsoft SQL Server Compact 3.5\par
+\b\i0\fs20 MICROSOFT SOFTWARE LICENSE TERMS\line MICROSOFT SQL SERVER COMPACT 3.5\par
+\b0 These license terms are an agreement between Microsoft Corporation (or based on where you live, one of its affiliates) and you.  Please read them.  They apply to the software named above, which includes the media on which you received it, if any.  The terms also apply to any Microsoft\par
+\pard\fi-363\li720\sb120\sa120\tx720\f4\fs24\'b7\f1\tab\fs20 updates,\fs24\par
+\pard\fi-363\li720\sb120\sa120\f4\'b7\f1\tab\fs20 supplements,\fs24\par
+\pard\f4\'b7\f1\tab\fs20 Internet-based services, and \f0\fs24\par
+\f4\'b7\f1\tab\fs20 support services\f0\fs24\par
+\pard\sb120\sa120\f1\fs20 for this software, unless other terms accompany those items.  If so, those terms apply.\par
+\b BY USING THE SOFTWARE, YOU ACCEPT THESE TERMS.  IF YOU DO NOT ACCEPT THEM, DO NOT USE THE SOFTWARE.\par
+If you comply with these license terms, you have the rights below.\par
+\pard\fi-357\li357\sb120\sa120\tx357\tx360 1.\tab INSTALLATION AND USE RIGHTS.  \b0 You may install and use any number of copies of the software on your devices.\fs24\par
+\pard\b\fs20 2.\tab ADDITIONAL LICENSING REQUIREMENTS AND/OR USE RIGHTS.\b0\f0\fs24\par
+\pard\fi-363\li720\sb120\sa120\b\f1\fs20 a.\tab Distributable Code.\b0   The software contains code that you are permitted to distribute in programs you develop if you comply with the terms below.\fs24\par
+\pard\s3\fi-357\li1077\sb120\sa120\tx1077\tx1440\b\fs20 i.\tab Right to Use and Distribute.\b0   The code and text files listed below are \ldblquote Distributable Code.\rdblquote\fs24\par
+\pard\fi-358\li1435\sb120\sa120\tx1435\tx1437\ul\f4\'b7\f1\tab\fs20 REDIST.TXT Files\ulnone .  You may copy and distribute the object code form of code listed in REDIST.TXT files.\fs24\par
+\pard\fi-358\li1435\sb120\sa120\ul\f4\'b7\f1\tab\fs20 Third Party Distribution\ulnone .  You may permit distributors of your programs to copy and distribute the Distributable Code as part of those programs.\fs24\par
+\pard\s3\fi-357\li1077\sb120\sa120\tx1077\tx1440\b\fs20 ii.\tab Distribution Requirements\b0 .  For any Distributable Code you distribute, you must\fs24\par
+\pard\fi-358\li1435\sb120\sa120\tx1435\tx1437\f4\'b7\f1\tab\fs20 add significant primary functionality to it in your programs;\fs24\par
+\pard\fi-358\li1435\sb120\sa120\f4\'b7\f1\tab\fs20 require distributors and external end users to agree to terms that protect it at least as much as this agreement; \fs24\par
+\pard\f4\'b7\f1\tab\fs20 display your valid copyright notice on your programs; and\f0\fs24\par
+\f4\'b7\f1\tab\fs20 indemnify, defend, and hold harmless Microsoft from any claims, including attorneys\rquote  fees, related to the distribution or use of your programs.\f0\fs24\par
+\pard\s3\fi-357\li1077\sb120\sa120\tx1077\tx1440\b\f1\fs20 iii.\tab Distribution Restrictions.  \b0 You may not\fs24\par
+\pard\fi-358\li1435\sb120\sa120\tx1435\tx1437\f4\'b7\f1\tab\fs20 alter any copyright, trademark or patent notice in the Distributable Code; \fs24\par
+\pard\fi-358\li1435\sb120\sa120\f4\'b7\f1\tab\fs20 use Microsoft\rquote s trademarks in your programs\rquote  names or in a way that suggests your programs come from or are endorsed by Microsoft; \fs24\par
+\pard\f4\'b7\f1\tab\fs20 distribute Distributable Code to run on a platform other than the Windows platform;\f0\fs24\par
+\f4\'b7\f1\tab\fs20 include Distributable Code in malicious, deceptive or unlawful programs; or\f0\fs24\par
+\f4\'b7\f1\tab\fs20 modify or distribute the source code of any Distributable Code so that any part of it becomes subject to an Excluded License.  An Excluded License is one that requires, as a condition of use, modification or distribution, that\f0\fs24\par
+\pard\fi-357\li1792\sb120\sa120\tx1792\tx1795\f4\'b7\f1\tab\fs20 the code be disclosed or distributed in source code form; or \fs24\par
+\pard\fi-357\li1792\sb120\sa120\f4\'b7\f1\tab\fs20 others have the right to modify it.\fs24\par
+\pard\fi-357\li357\sb120\sa120\b\fs20 3.\tab\caps Scope of License\caps0 .\b0   The software is licensed, not sold. This agreement only gives you some rights to use the software.  Microsoft reserves all other rights.  Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in this agreement.  In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways.    You may not\fs24\par
+\pard\fi-363\li720\sb120\sa120\f4\'b7\f1\tab\fs20 work around any technical limitations in the software;\fs24\par
+\pard\f4\'b7\f1\tab\fs20 reverse engineer, decompile or disassemble the software, except and only to the extent that applicable law expressly permits, despite this limitation;\f0\fs24\par
+\f4\'b7\f1\tab\fs20 make more copies of the software than specified in this agreement or allowed by applicable law, despite this limitation;\f0\fs24\par
+\f4\'b7\f1\tab\fs20 publish the software for others to copy;\f0\fs24\par
+\f4\'b7\f1\tab\fs20 rent, lease or lend the software; or\f0\fs24\par
+\f4\'b7\f1\tab\fs20 use the software for commercial software hosting services.\f0\fs24\par
+\pard\fi-357\li357\sb120\sa120\tx357\tx360\b\f1\fs20 4.\tab BACKUP COPY.\b0   You may make one backup copy of the software.  You may use it only to reinstall the software.\fs24\par
+\pard\fi-357\li357\sb120\sa120\b\fs20 5.\tab DOCUMENTATION.\b0   Any person that has valid access to your computer or internal network may copy and use the documentation for your internal, reference purposes.\fs24\par
+\pard\b\fs20 6.\tab TRANSFER TO A THIRD PARTY.\b0   The first user of the software may transfer it and this agreement directly to a third party.  Before the transfer, that party must agree that this agreement applies to the transfer and use of the software.  The first user must uninstall the software before transferring it separately from the device.  The first user may not retain any copies.\f0\fs24\par
+\pard\fi-357\li357\b\f1\fs20 7.\tab\caps Export Restrictions\caps0 .\b0   The software is subject to United States export laws and regulations.  You must comply with all domestic and international export laws and regulations that apply to the software.  These laws include restrictions on destinations, end users and end use.  For additional information, see \f0\fs24{\field{\*\fldinst{HYPERLINK "http://www.microsoft.com/exporting" }}{\fldrslt{\cf2\lang255\ul\f1\fs20 www.microsoft.com/exporting\f1 }}}\cf0\lang1033\ulnone\f1\fs20 .\f0\fs24\par
+\pard\fi-357\li357\sb120\sa120\b\f1\fs20 8.\tab\caps SUPPORT SERVICES.\caps0  \b0 Because this software is \ldblquote as is,\rdblquote  we may not provide support services for it.\fs24\par
+\pard\b\fs20 9.\tab\caps Entire Agreement.\b0\caps0   This agreement, and the terms for supplements, updates, Internet-based services and support services that you use, are the entire agreement for the software and support services.\f0\fs24\par
+\pard\keepn\fi-360\li360\sb120\sa120\b\f1\fs20 10.\tab\cf1\caps Applicable Law\caps0 .\cf0\b0\fs24\par
+\pard\fi-363\li720\sb120\sa120\tx720\b\fs20 a.\tab United States.\b0   If you acquired the software in the United States, Washington state law governs the interpretation of this agreement and applies to claims for breach of it, regardless of conflict of laws principles.  The laws of the state where you live govern all other claims, including claims under state consumer protection laws, unfair competition laws, and in tort.\fs24\par
+\pard\fi-363\li720\sb120\sa120\b\fs20 b.\tab Outside the United States.\b0   If you acquired the software in any other country, the laws of that country apply.\fs24\par
+\pard\fi-357\li357\sb120\sa120\tx357\tx360\b\fs20 11.\tab\caps Legal Effect.\b0\caps0   This agreement describes certain legal rights.  You may have other rights under the laws of your country.  You may also have rights with respect to the party from whom you acquired the software.  This agreement does not change your rights under the laws of your country if the laws of your country do not permit it to do so.\fs24\par
+\pard\fi-357\li357\sb120\sa120\b\fs20 12.\tab\caps Disclaimer of Warranty.\caps0    \caps The software is licensed \ldblquote as-is.\rdblquote   You bear the risk of using it.  Microsoft gives no express warranties, guarantees or conditions.  You may have additional consumer rights under your local laws which this agreement cannot change.  To the extent permitted under your local laws, Microsoft excludes the implied warranties of merchantability, fitness for a particular purpose and non-infringement.\b0\caps0\fs24\par
+\pard\fi-360\li360\sb120\sa120\tx360\b\fs20 13.\tab\caps Limitation on and Exclusion of Remedies and Damages.  You can recover from Microsoft and its suppliers only direct damages up to U.S. $5.00.  You cannot recover any other damages, including consequential, lost profits, special, indirect or incidental damages.\b0\caps0\fs24\par
+\pard\li357\sb120\sa120\fs20 This limitation applies to\par
+\pard\fi-363\li720\sb120\sa120\tx720\f4\fs24\'b7\f1\tab\fs20 anything related to the software, services, content (including code) on third party Internet sites, or third party programs; and\fs24\par
+\pard\fi-363\li720\sb120\sa120\f4\'b7\f1\tab\fs20 claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.\fs24\par
+\pard\li360\sb120\sa120\fs20 It also applies even if Microsoft knew or should have known about the possibility of the damages.  The above limitation or exclusion may not apply to you because your country may not allow the exclusion or limitation of incidental, consequential or other damages.\par
+\pard\sb120\sa120\i\fs28 OpenSSL\par
+\i0\fs20 Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\par
+\pard Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\f0\fs24\par
+ \f1\fs20 1. Redistributions of source code must retain the above copyright  notice, this list of conditions and the following disclaimer. \f0\fs24\par
+ \f1\fs20 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided ith the  distribution.\f0\fs24\par
+ \f1\fs20 3. All advertising materials mentioning features or use of this software must display the following acknowledgment:\f0\fs24\par
+\pard\sb120\sa120    "This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. (\lang255\f1\fs20{\field{\*\fldinst{HYPERLINK "http://www.OpenSSL.org/"}}{\fldrslt{\ul\cf2 http://www.OpenSSL.org/}}}\lang1033\f1\fs20 )"\f0\fs24\par
+\f1\fs20  4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to endorse or promote products derived from this software without prior written permission. For written permission, please contact licensing@OpenSSL.org.\par
+\pard\f0\fs24  \f1\fs20 5. Products derived from this software may not be called "OpenSSL" nor may "OpenSSL" appear in their names without prior written permission of the OpenSSL Project.\f0\fs24\par
+ \f1\fs20 6. Redistributions of any form whatsoever must retain the following acknowledgment:\f0\fs24\par
+\pard\sb120\sa120    "This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (\lang255\f1\fs20{\field{\*\fldinst{HYPERLINK "http://www.OpenSSL.org/"}}{\fldrslt{\ul\cf2 http://www.OpenSSL.org/}}}\lang1033\f1\fs20 )" \f0\fs24\par
+\f1\fs20 THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\par
+\pard This product includes cryptographic software written by Eric Young (\f0\fs24{\field{\*\fldinst{HYPERLINK "mailto:eay@cryptsoft.com" }}{\fldrslt{\cf2\lang255\ul\f1\fs20 eay@cryptsoft.com\f1 }}}\cf0\lang1033\ulnone\f1\fs20 ). This product includes software written by Tim Hudson (\f0\fs24{\field{\*\fldinst{HYPERLINK "mailto:tjh@cryptsoft.com" }}{\fldrslt{\cf2\lang255\ul\f1\fs20 tjh@cryptsoft.com\f1 }}}\cf0\lang1033\ulnone\f1\fs20 ).\f0\fs24\par
+\par
+\pard\sb120\sa120\i\f1\fs28 PostgreSQL interface\par
+\pard\sa200\sl276\slmult1\i0\f0\fs20 PostgreSQL Database Management System (formerly known as Postgres, then as Postgres95)\f1\par
+\pard\f0 Portions Copyright (c) 1996-2010, The PostgreSQL Global Development Group\fs24\par
+\fs20 Portions Copyright (c) 1994, The Regents of the University of California\fs24\par
+\fs20 Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the following two paragraphs appear in all copies.\fs24\par
+\fs20 IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\fs24\par
+\fs20 THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.\fs22\par
+\fs24\par
+\pard\nowidctlpar\sb120\sa120\i\fs28 7-Zip Command line version\line\pard\i0\fs20\par
+      7-Zip Copyright (C) 1999-2010 Igor Pavlov.\par
+\par
+      7za.exe is distributed under the GNU LGPL license\par
+\par
+      Notes: \par
+        You can use 7-Zip on any computer, including a computer in a commercial \par
+        organization. You don't need to register or pay for 7-Zip.\par
+\par
+\par
+      GNU LGPL information\par
+      --------------------\par
+\par
+        This library is free software; you can redistribute it and/or\par
+        modify it under the terms of the GNU Lesser General Public\par
+        License as published by the Free Software Foundation; either\par
+        version 2.1 of the License, or (at your option) any later version.\par
+\par
+        This library is distributed in the hope that it will be useful,\par
+        but WITHOUT ANY WARRANTY; without even the implied warranty of\par
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\par
+        Lesser General Public License for more details.\par
+\par
+        You can receive a copy of the GNU Lesser General Public License from \par
+        {\field{\*\fldinst{HYPERLINK "http://www.gnu.org/"}}{\fldrslt{\ul\cf2 http://www.gnu.org/}}}\f0\fs20\par
+\fs24\par
+\pard\sa200\sl276\slmult1\lang1053\b Attributions\b0\fs20\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\lang1033 This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit ({\field{\*\fldinst{HYPERLINK "http://www.OpenSSL.org/"}}{\fldrslt{\ul\cf2 http://www.OpenSSL.org/}}}\f0\fs20 )\f1\par
+\f0{\pntext\f5\'B7\tab}This product includes icons from the Fat Cow Icon library, available under the Creative Commons Attribution 3.0 license at {\field{\*\fldinst{HYPERLINK "http://www.fatcow.com/free-icons/"}}{\fldrslt{\ul\cf2 http://www.fatcow.com/free-icons/}}}\f0\fs20 .\f1\par
+\f0{\pntext\f5\'B7\tab}This product uses 7-Zip, an open source compression library. 7-Zip is licensed according to GNU LGPL (see above). 7-Zip can be found on {\field{\*\fldinst{HYPERLINK "http://www.7-zip.org"}}{\fldrslt{\ul\cf2 http://www.7-zip.org}}}\f0\fs20 .\f1\par
+}
+ 

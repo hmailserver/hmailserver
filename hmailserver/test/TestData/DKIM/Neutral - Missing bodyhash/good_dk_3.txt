@@ -1,0 +1,24 @@
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=messiah.edu; h=from:to:subject:
+	date:message-id; q=dns; s=test3; b=Y/BiKnnQFSFJs46ZZw1Qh0hovxT/L
+	+Db3izq4PAKhe3BjfhtxSNcqsnTj7QNjX/4duotVj5FWvKifkz3AVFP1A==
+Received: from x.y.test
+   by example.net
+   via TCP
+   with ESMTP
+   id ABC12345
+   for <mary@example.net>;  21 Nov 1997 10:05:43 -0600
+Received: from machine.example by x.y.test; 21 Nov 1997 10:01:22 -0600
+From: Jason Long <jlong@messiah.edu>
+To: Nobody <nobody@messiah.edu>
+Subject: domainkeys test (key has g= requirement, should pass)
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+
+Blah  blah  blah
+
+
+

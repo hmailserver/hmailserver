@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.BackupManager.1 = s 'BackupManager Class'
+	{
+		CLSID = s '{1BBE5234-D331-41DF-85D7-CAF0B00B3BF7}'
+	}
+	hMailServer.BackupManager = s 'BackupManager Class'
+	{
+		CLSID = s '{1BBE5234-D331-41DF-85D7-CAF0B00B3BF7}'
+		CurVer = s 'hMailServer.BackupManager.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1BBE5234-D331-41DF-85D7-CAF0B00B3BF7} = s 'BackupManager Class'
+		{
+			ProgID = s 'hMailServer.BackupManager.1'
+			VersionIndependentProgID = s 'hMailServer.BackupManager'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

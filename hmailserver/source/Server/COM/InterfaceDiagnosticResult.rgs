@@ -1,0 +1,26 @@
+HKCR
+{
+	hMailServer.DiagnosticResult.1 = s 'DiagnosticResult Class'
+	{
+		CLSID = s '{430C3328-6348-4A86-8E12-74B5B5EFF48D}'
+	}
+	hMailServer.DiagnosticResult = s 'DiagnosticResult Class'
+	{
+		CLSID = s '{430C3328-6348-4A86-8E12-74B5B5EFF48D}'
+		CurVer = s 'hMailServer.DiagnosticResult.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {430C3328-6348-4A86-8E12-74B5B5EFF48D} = s 'DiagnosticResult Class'
+		{
+			ProgID = s 'hMailServer.DiagnosticResult.1'
+			VersionIndependentProgID = s 'hMailServer.DiagnosticResult'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{E89A9B6A-8310-4AA4-865D-FADA515A82FC}'
+		}
+	}
+}

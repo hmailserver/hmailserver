@@ -1,0 +1,21 @@
+DKIM-Signature: v=1; a=rsa-sha1; c=simple; d=messiah.edu; h=from:to:subject:date:message-id; q=dns/txt; s=testbad8; i=jlong@messiah.edu; bh=N9OQp3Fydw5h5SJ1UDyZrgBPEDU=; b=A+2Cc4OXC/PhT/5zcWDPKh6JSidy2TC+7Ejg4vgXpIvsFU6nXFPxpT2jEpXuBvwcpXI7tAcFOFwwIwOwxIywuA==
+Received: from x.y.test
+   by example.net
+   via TCP
+   with ESMTP
+   id ABC12345
+   for <mary@example.net>;  21 Nov 1997 10:05:43 -0600
+Received: from machine.example by x.y.test; 21 Nov 1997 10:01:22 -0600
+From: Jason Long <jlong@messiah.edu>
+To: Nobody <nobody@messiah.edu>
+Subject: dkim test (badkey_8)
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+Blah  blah  blah
+
+
+

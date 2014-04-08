@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.DNSBlackLists.1 = s 'DNSBlackLists Class'
+	{
+		CLSID = s '{39ECFFB4-B9EE-46C2-A84B-32D679FB3C82}'
+	}
+	hMailServer.DNSBlackLists = s 'DNSBlackLists Class'
+	{
+		CLSID = s '{39ECFFB4-B9EE-46C2-A84B-32D679FB3C82}'
+		CurVer = s 'hMailServer.DNSBlackLists.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {39ECFFB4-B9EE-46C2-A84B-32D679FB3C82} = s 'DNSBlackLists Class'
+		{
+			ProgID = s 'hMailServer.DNSBlackLists.1'
+			VersionIndependentProgID = s 'hMailServer.DNSBlackLists'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

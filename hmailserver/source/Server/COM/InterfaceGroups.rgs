@@ -1,0 +1,27 @@
+HKCR
+{
+	hMailServer.Groups.1 = s 'Groups Class'
+	{
+		CLSID = s '{7573CF89-DF41-4079-91B1-894A0DF3E783}'
+	}
+	hMailServer.Groups = s 'Groups Class'
+	{
+		CLSID = s '{7573CF89-DF41-4079-91B1-894A0DF3E783}'
+		CurVer = s 'hMailServer.Groups.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {7573CF89-DF41-4079-91B1-894A0DF3E783} = s 'Groups Class'
+		{
+			ProgID = s 'hMailServer.Groups.1'
+			VersionIndependentProgID = s 'hMailServer.Groups'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{67D40BA0-1ED6-46C0-B8BF-F0B968FF8D0D}'
+		}
+	}
+}

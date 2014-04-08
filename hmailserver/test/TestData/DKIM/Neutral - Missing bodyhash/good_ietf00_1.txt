@@ -1,0 +1,28 @@
+Return-Path: <tony@att.com>
+X-Original-To: test@dkimtest.jason.long.name
+Delivered-To: dkimtest@mx2.messiah.edu
+Received: from voicemail.cis.att.net (unknown [12.34.200.188])
+	by mx2.messiah.edu (Postfix) with ESMTP id AF5B673483
+	for <test@dkimtest.jason.long.name>; Fri,  3 Mar 2006 10:39:09 -0500 (EST)
+Date: Fri, 3 Mar 2006 15:34:41 +0000 (GMT)
+X-Comment: Sending client does not conform to RFC822 minimum requirements
+X-Comment: Date has been added by Maillennium
+Received: from  (localhost[127.0.0.1]) by voicemail.cis.att.net (vm2) with SMTP
+          id <2006030315344118800sp98oe>; Fri, 3 Mar 2006 15:34:41 +0000
+DKIM-Signature: a=rsa-sha1;  c=relaxed/simple; d=vmt2.cis.att.net; t=1141353705; 
+ h=Date : From : MIME-Version : To : Subject : Content-Type : Content-Transfer-Encoding; s=foo; 
+ b=WECs6qf6NR7HdlerchZEyOXRiyvYZgeoZyIWvaL4A6wtz9R8xCVV9oKrjMO7/l9QYBju/UPlGiZK
+ guscixD2rQvw+zGxkdsFsarocO+aSXLPU3O1HYLWRH98PPpr5LEP
+Date: Wed, 15 Feb 2006 17:32:54 -0500
+From: Tony Hansen <tony@att.com>
+MIME-Version: 1.0
+To: dkim-test@altn.org, sa-test@sendmail.net, autorespond+dkim@dk.elandsys.com
+Subject: prefixed blanks test message   relaxed/simple
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Message-Id: <20060303153909.AF5B673483@mx2.messiah.edu>
+
+The quick brown fox jumped over the lazy dog.
+
+
+

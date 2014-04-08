@@ -1,0 +1,26 @@
+HKCR
+{
+	hMailServer.DKIM.1 = s 'DKIM Class'
+	{
+		CLSID = s '{941B11C5-592A-4B92-A35C-3D5EC4286571}'
+	}
+	hMailServer.DKIM = s 'DKIM Class'
+	{
+		CLSID = s '{941B11C5-592A-4B92-A35C-3D5EC4286571}'
+		CurVer = s 'hMailServer.DKIM.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {941B11C5-592A-4B92-A35C-3D5EC4286571} = s 'DKIM Class'
+		{
+			ProgID = s 'hMailServer.DKIM.1'
+			VersionIndependentProgID = s 'hMailServer.DKIM'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{39AB635D-35C6-4313-8391-8B8D407FE23B}'
+		}
+	}
+}

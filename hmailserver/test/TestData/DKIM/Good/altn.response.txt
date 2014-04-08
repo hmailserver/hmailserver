@@ -1,0 +1,150 @@
+X-Spam-Checker-Version: SpamAssassin 3.2.3 (2007-08-08) on
+	DED943.maximumasp.local
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.2 required=6.3 tests=BAYES_00,RDNS_NONE,
+	SPF_HELO_PASS,URI_HEX shortcircuit=no autolearn=no version=3.2.3
+Received: from c3po.altn.com ([65.240.66.134])
+	by mail.hmailserver.com
+	; Wed, 18 Mar 2009 00:41:44 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/relaxed; d=altn.com;
+	s=c3po; l=5481; t=1237333304; x=1237938104; q=dns/txt; h=DomainKey-Signature:
+	Received:Date:From:Reply-To:Subject:To:Message-ID:Mime-Version:
+	Content-Type; bh=f5A9ZsY9dXwEDkf49kBP63nIBdDXmYKc+mF2fywahbI=;
+	b=HCo47NuO80B0E9NF7jYUrB9FD3gdcvIwx8/xdEVEQumFce7rsFIKfe+PKJA8Yu
+	SN0a6OYEOfW5XsySfbLh2ZbSULKbuKVMr0tWdDeamfbo7prexHobLPhkJS13lAwp
+	dgXkut4fJvLJk17AhcvTheebvD8V+CArpD+ZCm2wESWXo=
+DomainKey-Signature: a=rsa-sha1; s=c3po; d=altn.com;
+	c=nofws; q=dns; h=from:message-id;
+	b=jS89BowiMTRAwDd/4Tp/RdOBMNTFfokg34EWEl3QfJA3kh5siWDzNEvIjDOj
+	J/PGh1bglJ6ws4ogPkLemGR5S+/TqZlhNM1tHNSQQmjX6eCc4xKKxRS8B
+	29FGc6qgoWhfDu8aXqqNev/F+UjBTzRR8syr2p4q71CC8tyQhdY7ZA=;
+X-MDAV-Processed: c3po.altn.com, Tue, 17 Mar 2009 18:41:44 -0500
+Received: from c3po.altn.com by c3po.altn.com (via RAW) (MDaemon PRO v10.0.5b)
+	for <martin@hmailserver.com>; Tue, 17 Mar 2009 18:41:39 -0500
+Date: Tue, 17 Mar 2009 18:41:39 -0500
+From: dkim-test@altn.com
+Reply-To: dkim-test@altn.com
+Subject: Auto-response from dkim-test@altn.com
+To: martin@hmailserver.com
+X-MDaemon-Deliver-To: martin@hmailserver.com
+Message-ID: <MDAEMON0005200903171841.AA4139295@c3po.altn.com>
+Mime-Version: 1.0
+X-Actual-From: dkim-test@altn.com
+X-Return-Path: <prvs=1327522c37=noreply@altn.com>
+Content-Type: multipart/mixed; boundary="0317-1841-39-PART-BREAK"
+
+   The following data may contain sections which represent BASE64 encoded
+   file attachments.  These sections will be unreadable without MIME aware
+   tools.  Seek your system administrator if you need help extracting any
+   files which may be embedded within this message.
+
+--0317-1841-39-PART-BREAK
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+I am an MDaemon DKIM/SIDF reflector running at dkim-test@altn.com
+
+The Authentication-Results header(s) below contain the results of various tests performed on your original message.
+
+If your message was DKIM signed then the canonicalized form I computed for my verifier MIGHT be attached for debugging (depending upon local configuration options).
+
+-----8<---------
+Authentication-Results: c3po.altn.com
+	spf=pass smtp.mail=martin@hmailserver.com;
+	x-ip-ptr=pass dns.ptr=ded943.maximumasp.com (ip=216.128.26.134);
+	x-ip-helo=pass smtp.helo=mail.hmailserver.com (ip=216.128.26.134);
+	x-ip-mail=pass smtp.mail=martin@hmailserver.com (ip=216.128.26.134);
+	x-vbr=hardfail header.vbr-info=hmailserver.com (domain not recognized);
+	dkim=pass header.d=hmailserver.com (b=BSHkyMKaNp; 1:0:good);
+
+-----8<---------
+X-MDAV-Processed: c3po.altn.com, Tue, 17 Mar 2009 18:41:30 -0500
+Return-path: <martin@hmailserver.com>
+Received: from mail.hmailserver.com (ded943.maximumasp.com [216.128.26.134])
+	by altn.com (c3po.altn.com)
+	(MDaemon PRO v10.0.5b)
+	with ESMTP id md50003701485.msg
+	for <dkim-test@altn.com>; Tue, 17 Mar 2009 18:41:30 -0500
+Authentication-Results: c3po.altn.com
+	spf=pass smtp.mail=martin@hmailserver.com;
+	x-ip-ptr=pass dns.ptr=ded943.maximumasp.com (ip=216.128.26.134);
+	x-ip-helo=pass smtp.helo=mail.hmailserver.com (ip=216.128.26.134);
+	x-ip-mail=pass smtp.mail=martin@hmailserver.com (ip=216.128.26.134);
+	x-vbr=hardfail header.vbr-info=hmailserver.com (domain not recognized);
+	dkim=pass header.d=hmailserver.com (b=BSHkyMKaNp; 1:0:good);
+Received-SPF: pass (c3po.altn.com: domain of martin@hmailserver.com
+	designates 216.128.26.134 as permitted sender)
+	x-spf-client=MDaemon.PRO.v10.0.5b
+	receiver=c3po.altn.com
+	client-ip=216.128.26.134
+	envelope-from=<martin@hmailserver.com>
+	helo=mail.hmailserver.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-7.40 required=4.4
+X-Spam-Report:
+	*   10 BAYES_99 BODY: Bayesian spam probability is 99 to 100%
+	*      [score: 1.0000]
+	*  -20 USER_IN_WHITELIST_TO address is listed in 'whitelist_to'
+	*  0.4 URI_HEX URI: URI hostname has long hexadecimal sequence
+	*  2.2 TVD_SPACE_RATIO BODY: TVD_SPACE_RATIO
+X-Spam-Processed: c3po.altn.com, Tue, 17 Mar 2009 18:41:30 -0500
+	(processed during SMTP session)
+X-MDPtrLookup-Result: pass dns.ptr=ded943.maximumasp.com (ip=216.128.26.134) (c3po.altn.com)
+X-MDHeloLookup-Result: pass smtp.helo=mail.hmailserver.com (ip=216.128.26.134) (c3po.altn.com)
+X-MDMailLookup-Result: pass smtp.mail=martin@hmailserver.com (ip=216.128.26.134) (c3po.altn.com)
+X-MDDKIM-Result: unapproved (c3po.altn.com)
+X-MDVBR-Result: not certified (c3po.altn.com)
+X-MDSPF-Result: unapproved (c3po.altn.com)
+X-MDCanon-File: canon-50000000663.txt
+X-Rcpt-To: dkim-test@altn.com
+X-MDRcpt-To: dkim-test@altn.com
+X-MDRemoteIP: 216.128.26.134
+X-Return-Path: martin@hmailserver.com
+X-Envelope-From: martin@hmailserver.com
+X-MDaemon-Deliver-To: dkim-test@altn.com
+dkim-signature: v=1; a=rsa-sha256; d=hmailserver.com; s=yk9b;
+	c=relaxed/relaxed; q=dns/txt; h=From:Subject:Date:Message-ID:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=g3zLYH4xKxcPrHOD18z9YfpQcnk/GaJedfustWU5uGs=;
+	b=BSHkyMKaNpcVZpLXOC+8+EHmGQQLXmajeuY53w6xIw7muoLSmu4QrOcKvECfbHhP65H7e1Ofvc+NDIHjSLgvEGwe7BkNE7Wbv/vQ4vnkAZ4RPKS7Fw34JzIH1b9kI3UTWvv3W3fwXP5K+12FuZhHJo5MVQxI6MFkB1bLwLGdHyw=
+Received: from www.hmailserver.com ([127.0.0.1])
+	by mail.hmailserver.com
+	; Wed, 18 Mar 2009 00:41:13 +0100
+Received: from 85.224.96.26 ([85.224.96.26])
+        (SquirrelMail authenticated user martin@hmailserver.com)
+        by www.hmailserver.com with HTTP;
+        Wed, 18 Mar 2009 00:41:13 +0100 (W. Europe Standard Time)
+Message-ID: <.85.224.96.26.1237333273.squirrel@www.hmailserver.com>
+Date: Wed, 18 Mar 2009 00:41:13 +0100 (W. Europe Standard Time)
+Subject: test
+From: martin@hmailserver.com
+To: dkim-test@altn.com
+User-Agent: SquirrelMail/1.4.13
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
+
+-----8<---------
+: Message contains [1] file attachments
+
+--0317-1841-39-PART-BREAK
+Content-Type: application/octet-stream; name="canon-50000000663.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <MDAEMON0005200903171841.AA4139295-1@c3po.altn.com>
+
+ZnJvbTptYXJ0aW5AaG1haWxzZXJ2ZXIuY29tDQ0Kc3ViamVjdDp0ZXN0DQ0K
+ZGF0ZTpXZWQsIDE4IE1hciAyMDA5IDAwOjQxOjEzICswMTAwIChXLiBFdXJv
+cGUgU3RhbmRhcmQgVGltZSkNDQptZXNzYWdlLWlkOjwuODUuMjI0Ljk2LjI2
+LjEyMzczMzMyNzMuc3F1aXJyZWxAd3d3LmhtYWlsc2VydmVyLmNvbT4NDQp0
+bzpka2ltLXRlc3RAYWx0bi5jb20NDQptaW1lLXZlcnNpb246MS4wDQ0KY29u
+dGVudC10eXBlOnRleHQvcGxhaW47Y2hhcnNldD1pc28tODg1OS0xDQ0KY29u
+dGVudC10cmFuc2Zlci1lbmNvZGluZzo4Yml0DQ0KdGVzdA0NCmRraW0tc2ln
+bmF0dXJlOnY9MTsgYT1yc2Etc2hhMjU2OyBkPWhtYWlsc2VydmVyLmNvbTsg
+cz15azliOyBjPXJlbGF4ZWQvcmVsYXhlZDsgcT1kbnMvdHh0OyBoPUZyb206
+U3ViamVjdDpEYXRlOk1lc3NhZ2UtSUQ6VG86TUlNRS1WZXJzaW9uOkNvbnRl
+bnQtVHlwZTpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOyBiaD1nM3pMWUg0
+eEt4Y1BySE9EMTh6OVlmcFFjbmsvR2FKZWRmdXN0V1U1dUdzPTsgYj0=
+
+--0317-1841-39-PART-BREAK--
+

@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.DistributionLists.1 = s 'DistributionLists Class'
+	{
+		CLSID = s '{C3DD0A4A-0551-442F-859A-76AAB92A6CF1}'
+	}
+	hMailServer.DistributionLists = s 'DistributionLists Class'
+	{
+		CLSID = s '{C3DD0A4A-0551-442F-859A-76AAB92A6CF1}'
+		CurVer = s 'hMailServer.DistributionLists.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {C3DD0A4A-0551-442F-859A-76AAB92A6CF1} = s 'DistributionLists Class'
+		{
+			ProgID = s 'hMailServer.DistributionLists.1'
+			VersionIndependentProgID = s 'hMailServer.DistributionLists'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

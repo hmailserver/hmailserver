@@ -1,0 +1,124 @@
+----------------------------------------------------------------------
+
+The final version of the CSI 6.0 has been released. 
+Find out why this is not just another Patch Management solution:
+http://secunia.com/blog/325/
+
+----------------------------------------------------------------------
+
+TITLE:
+Ubuntu update for libxml2
+
+SECUNIA ADVISORY ID:
+SA50800
+
+VERIFY ADVISORY:
+Secunia.com
+http://secunia.com/advisories/50800/
+Customer Area (Credentials Required)
+https://ca.secunia.com/?page=viewadvisory&vuln_id=50800
+
+RELEASE DATE:
+2012-09-28
+
+DISCUSS ADVISORY:
+http://secunia.com/advisories/50800/#comments
+
+AVAILABLE ON SITE AND IN CUSTOMER AREA:
+ * Last Update
+ * Popularity
+ * Comments
+ * Criticality Level
+ * Impact
+ * Where
+ * Solution Status
+ * Operating System / Software
+ * CVE Reference(s)
+
+http://secunia.com/advisories/50800/
+
+ONLY AVAILABLE IN CUSTOMER AREA:
+ * Authentication Level
+ * Report Reliability
+ * Secunia PoC
+ * Secunia Analysis
+ * Systems Affected
+ * Approve Distribution
+ * Remediation Status
+ * Secunia CVSS Score
+ * CVSS
+
+https://ca.secunia.com/?page=viewadvisory&vuln_id=50800
+
+ONLY AVAILABLE WITH SECUNIA CSI AND SECUNIA PSI:
+ * AUTOMATED SCANNING
+
+http://secunia.com/vulnerability_scanning/personal/
+http://secunia.com/vulnerability_scanning/corporate/wsus_sccm_3rd_third_party_patching/
+
+DESCRIPTION:
+Ubuntu has issued an update for libxml2. This fixes some
+vulnerabilities, which can be exploited by malicious people to cause
+a DoS (Denial of Service) and potentially compromise an application
+using the library.
+
+For more information:
+SA50092
+
+SOLUTION:
+Apply updated packages.
+
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+ORIGINAL ADVISORY:
+USN-1587-1:
+http://www.ubuntu.com/usn/usn-1587-1/
+
+OTHER REFERENCES:
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+DEEP LINKS:
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+EXTENDED DESCRIPTION:
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+EXTENDED SOLUTION:
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+EXPLOIT:
+Further details available in Customer Area:
+http://secunia.com/vulnerability_intelligence/
+
+----------------------------------------------------------------------
+
+About:
+This Advisory was delivered by Secunia as a free service to help
+private users keeping their systems up to date against the latest
+vulnerabilities.
+
+Subscribe:
+http://secunia.com/advisories/secunia_security_advisories/
+
+Definitions: (Criticality, Where etc.)
+http://secunia.com/advisories/about_secunia_advisories/
+
+
+Please Note:
+Secunia recommends that you verify all advisories you receive by
+clicking the link.
+Secunia NEVER sends attached files with advisories.
+Secunia does not advise people to install third party patches, only
+use those supplied by the vendor.
+
+----------------------------------------------------------------------
+
+Unsubscribe: Secunia Security Advisories
+http://secunia.com/sec_adv_unsubscribe/?email=martin%40hmailserver.com
+
+----------------------------------------------------------------------

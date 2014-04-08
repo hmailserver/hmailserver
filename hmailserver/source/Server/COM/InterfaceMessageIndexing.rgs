@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.MessageIndexing.1 = s 'MessageIndexing Class'
+	{
+		CLSID = s '{5F414F73-8E29-4E51-86F2-13C12EF9227A}'
+	}
+	hMailServer.MessageIndexing = s 'MessageIndexing Class'
+	{
+		CLSID = s '{5F414F73-8E29-4E51-86F2-13C12EF9227A}'
+		CurVer = s 'hMailServer.MessageIndexing.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {5F414F73-8E29-4E51-86F2-13C12EF9227A} = s 'MessageIndexing Class'
+		{
+			ProgID = s 'hMailServer.MessageIndexing.1'
+			VersionIndependentProgID = s 'hMailServer.MessageIndexing'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'			
+			'TypeLib' = s '{4FC99884-CCA4-4773-A6D8-84B5A095CF15}'
+		}
+	}
+}

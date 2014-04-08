@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.IMAPFolder.1 = s 'IMAPFolder Class'
+	{
+		CLSID = s '{9FCA085E-E475-4DEE-9D45-5519818DD6E0}'
+	}
+	hMailServer.IMAPFolder = s 'IMAPFolder Class'
+	{
+		CLSID = s '{9FCA085E-E475-4DEE-9D45-5519818DD6E0}'
+		CurVer = s 'hMailServer.IMAPFolder.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {9FCA085E-E475-4DEE-9D45-5519818DD6E0} = s 'IMAPFolder Class'
+		{
+			ProgID = s 'hMailServer.IMAPFolder.1'
+			VersionIndependentProgID = s 'hMailServer.IMAPFolder'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

@@ -1,0 +1,26 @@
+HKCR
+{
+	hMailServer.IncomingRelay.1 = s 'IncomingRelay Class'
+	{
+		CLSID = s '{CB3F5F58-436C-4358-8E1C-1BE1F6D822BC}'
+	}
+	hMailServer.IncomingRelay = s 'IncomingRelay Class'
+	{
+		CLSID = s '{CB3F5F58-436C-4358-8E1C-1BE1F6D822BC}'
+		CurVer = s 'hMailServer.IncomingRelay.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {CB3F5F58-436C-4358-8E1C-1BE1F6D822BC} = s 'IncomingRelay Class'
+		{
+			ProgID = s 'hMailServer.IncomingRelay.1'
+			VersionIndependentProgID = s 'hMailServer.IncomingRelay'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{8FEAA3E5-CE11-4C88-92C8-4828A3858715}'
+		}
+	}
+}

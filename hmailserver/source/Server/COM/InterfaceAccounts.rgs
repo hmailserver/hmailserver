@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Accounts.1 = s 'Accounts Class'
+	{
+		CLSID = s '{403A75B8-499A-44C1-93D3-6A8A460AA88D}'
+	}
+	hMailServer.Accounts = s 'Accounts Class'
+	{
+		CLSID = s '{403A75B8-499A-44C1-93D3-6A8A460AA88D}'
+		CurVer = s 'hMailServer.Accounts.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {403A75B8-499A-44C1-93D3-6A8A460AA88D} = s 'Accounts Class'
+		{
+			ProgID = s 'hMailServer.Accounts.1'
+			VersionIndependentProgID = s 'hMailServer.Accounts'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

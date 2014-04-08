@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.AntiVirus.1 = s 'AntiVirus Class'
+	{
+		CLSID = s '{82D6DBF9-DDDB-4C4A-A52A-92B6ED16D8EA}'
+	}
+	hMailServer.AntiVirus = s 'AntiVirus Class'
+	{
+		CLSID = s '{82D6DBF9-DDDB-4C4A-A52A-92B6ED16D8EA}'
+		CurVer = s 'hMailServer.AntiVirus.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {82D6DBF9-DDDB-4C4A-A52A-92B6ED16D8EA} = s 'AntiVirus Class'
+		{
+			ProgID = s 'hMailServer.AntiVirus.1'
+			VersionIndependentProgID = s 'hMailServer.AntiVirus'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

@@ -1,0 +1,29 @@
+1. 	Execute regression tests
+		RegressionTests
+
+2.	Execute stress tests
+		StressTest
+
+3.	Sanity tests
+		Test to restore a database backup from hMailServer.com
+		Make sure it's possible to connect to an account and access 
+		both private and public folders.
+
+4.	Execute manual upgrade tests
+
+		Upgrade from MySQL 5.1.2 using the following databases:
+
+		Database	From			Database		VMware Snapshot
+		---------------------------------------------------------------------------------------------------------------------------
+		Internal MySQL	hMailServer 5.1.2				PostgreSQL 8.3.1 + 5.1.2 + messages
+		Internal SQLCE	hMailServer 5.1.2				MySQL Internal + 5.1.2 + messages
+		External MSSQL	hMailServer 5.1.2				MSSQLCE + 5.1.2 + messages
+		External PGSQL	hMailServer 5.1.2				MSSQL 2000 + 5.1.2 + messages
+
+5.	Execute following large database upgrades:
+	
+		Database	From			Database		VMware Snapshot
+		---------------------------------------------------------------------------------------------------------------------------
+		Internal MySQL	hMailServer 5.1.2	Utah			MySQL Internal + 5.2.1 + Utah email messages
+		External MSSQL	hMailServer 5.1.2	Shanje			Not located in any VMware for performance reasons.
+

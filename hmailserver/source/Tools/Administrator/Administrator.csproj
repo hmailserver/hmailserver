@@ -1,0 +1,949 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7306C2A6-CC3C-4312-85DB-07FD0CE8D076}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>hMailServer.Administrator</RootNamespace>
+    <AssemblyName>hMailAdmin</AssemblyName>
+    <ApplicationIcon>server_connect.ico</ApplicationIcon>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>http://localhost/hMailAdmin/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ucIPAddress.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ucCheckbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ucComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ucDateTimePicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ucEmailEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ucEmailEdit.Designer.cs">
+      <DependentUpon>ucEmailEdit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ucItemsView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ucItemsView.Designer.cs">
+      <DependentUpon>ucItemsView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ucListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ucPassword.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formAbout.Designer.cs">
+      <DependentUpon>formAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formAccountFolders.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formAccountFolders.Designer.cs">
+      <DependentUpon>formAccountFolders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formActiveDirectoryAccounts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formActiveDirectoryAccounts.Designer.cs">
+      <DependentUpon>formActiveDirectoryAccounts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formApplication.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formApplication.Designer.cs">
+      <DependentUpon>formApplication.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formBlockedAttachment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formBlockedAttachment.Designer.cs">
+      <DependentUpon>formBlockedAttachment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formConnect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formConnect.Designer.cs">
+      <DependentUpon>formConnect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formExternalAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formExternalAccount.Designer.cs">
+      <DependentUpon>formExternalAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formFolderPermissions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formFolderPermissions.Designer.cs">
+      <DependentUpon>formFolderPermissions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formGreyListingWhiteAddress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formGreyListingWhiteAddress.Designer.cs">
+      <DependentUpon>formGreyListingWhiteAddress.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formInfoDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formInfoDialog.Designer.cs">
+      <DependentUpon>formInfoDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formInputDialog.Designer.cs">
+      <DependentUpon>formInputDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formMain.Designer.cs">
+      <DependentUpon>formMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formMessageViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formMessageViewer.Designer.cs">
+      <DependentUpon>formMessageViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formRule.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formRule.Designer.cs">
+      <DependentUpon>formRule.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formRuleAction.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formRuleAction.Designer.cs">
+      <DependentUpon>formRuleAction.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formRuleCriteria.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formRuleCriteria.Designer.cs">
+      <DependentUpon>formRuleCriteria.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formSelectLanguage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formSelectLanguage.Designer.cs">
+      <DependentUpon>formSelectLanguage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formSelectUsers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formSelectUsers.Designer.cs">
+      <DependentUpon>formSelectUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formServerInformation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formServerInformation.Designer.cs">
+      <DependentUpon>formServerInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ucRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formUserAccounts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formUserAccounts.Designer.cs">
+      <DependentUpon>formUserAccounts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formWhiteListAddress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formWhiteListAddress.Designer.cs">
+      <DependentUpon>formWhiteListAddress.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\IMainForm.cs" />
+    <Compile Include="Interfaces\INode.cs" />
+    <Compile Include="Interfaces\ISettingsControl.cs" />
+    <Compile Include="Main panes\ucAccount.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAccount.Designer.cs">
+      <DependentUpon>ucAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ucAccounts.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ucAccounts.Designer.cs">
+      <DependentUpon>ucAccounts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAdvanced.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAdvanced.Designer.cs">
+      <DependentUpon>ucAdvanced.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAlias.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAlias.Designer.cs">
+      <DependentUpon>ucAlias.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAliases.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAliases.Designer.cs">
+      <DependentUpon>ucAliases.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAntiSpam.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAntiSpam.Designer.cs">
+      <DependentUpon>ucAntiSpam.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAntiVirus.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAntiVirus.Designer.cs">
+      <DependentUpon>ucAntiVirus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucAutoBan.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucAutoBan.Designer.cs">
+      <DependentUpon>ucAutoBan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucBackup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucBackup.Designer.cs">
+      <DependentUpon>ucBackup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDiagnostics.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDiagnostics.Designer.cs">
+      <DependentUpon>ucDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDistributionList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDistributionList.Designer.cs">
+      <DependentUpon>ucDistributionList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDistributionLists.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDistributionLists.Designer.cs">
+      <DependentUpon>ucDistributionLists.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDNSBlackList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDNSBlackList.Designer.cs">
+      <DependentUpon>ucDNSBlackList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDNSBlackLists.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDNSBlackLists.Designer.cs">
+      <DependentUpon>ucDNSBlackLists.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDomain.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDomain.Designer.cs">
+      <DependentUpon>ucDomain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucDomains.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucDomains.Designer.cs">
+      <DependentUpon>ucDomains.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucGlobalRules.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucGlobalRules.Designer.cs">
+      <DependentUpon>ucGlobalRules.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucGreyListing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucGreyListing.Designer.cs">
+      <DependentUpon>ucGreyListing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucGroup.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucGroup.Designer.cs">
+      <DependentUpon>ucGroup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucGroups.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucGroups.Designer.cs">
+      <DependentUpon>ucGroups.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucIMAPFolders.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucIMAPFolders.Designer.cs">
+      <DependentUpon>ucIMAPFolders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucIncomingRelay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucIncomingRelay.Designer.cs">
+      <DependentUpon>ucIncomingRelay.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucIncomingRelays.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucIncomingRelays.Designer.cs">
+      <DependentUpon>ucIncomingRelays.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucIPRange.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucIPRange.Designer.cs">
+      <DependentUpon>ucIPRange.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucIPRanges.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucIPRanges.Designer.cs">
+      <DependentUpon>ucIPRanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucLogging.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucLogging.Designer.cs">
+      <DependentUpon>ucLogging.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucMirror.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucMirror.Designer.cs">
+      <DependentUpon>ucMirror.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucMXQuery.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucMXQuery.Designer.cs">
+      <DependentUpon>ucMXQuery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucPerformance.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucPerformance.Designer.cs">
+      <DependentUpon>ucPerformance.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolIMAP.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolIMAP.Designer.cs">
+      <DependentUpon>ucProtocolIMAP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolPOP3.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolPOP3.Designer.cs">
+      <DependentUpon>ucProtocolPOP3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucProtocols.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucProtocols.Designer.cs">
+      <DependentUpon>ucProtocols.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolSMTP.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucProtocolSMTP.Designer.cs">
+      <DependentUpon>ucProtocolSMTP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucRoute.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucRoute.Designer.cs">
+      <DependentUpon>ucRoute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucRoutes.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucRoutes.Designer.cs">
+      <DependentUpon>ucRoutes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucRules.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucRules.Designer.cs">
+      <DependentUpon>ucRules.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucScripts.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucScripts.Designer.cs">
+      <DependentUpon>ucScripts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucServerMessage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucServerMessage.Designer.cs">
+      <DependentUpon>ucServerMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucServerMessages.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucServerMessages.Designer.cs">
+      <DependentUpon>ucServerMessages.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucServerSendout.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucServerSendout.Designer.cs">
+      <DependentUpon>ucServerSendout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSettings.Designer.cs">
+      <DependentUpon>ucSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucSSLCertificate.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSSLCertificate.Designer.cs">
+      <DependentUpon>ucSSLCertificate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucSSLCertificates.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSSLCertificates.Designer.cs">
+      <DependentUpon>ucSSLCertificates.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucStatus.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucStatus.Designer.cs">
+      <DependentUpon>ucStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucSURBLServer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSURBLServer.Designer.cs">
+      <DependentUpon>ucSURBLServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucSURBLServers.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSURBLServers.Designer.cs">
+      <DependentUpon>ucSURBLServers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucTCPIPPort.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucTCPIPPort.Designer.cs">
+      <DependentUpon>ucTCPIPPort.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucTCPIPPorts.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucTCPIPPorts.Designer.cs">
+      <DependentUpon>ucTCPIPPorts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucUtilities.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucUtilities.Designer.cs">
+      <DependentUpon>ucUtilities.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main panes\ucWhiteListing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucWhiteListing.Designer.cs">
+      <DependentUpon>ucWhiteListing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Nodes\NodeAccount.cs" />
+    <Compile Include="Nodes\NodeAccounts.cs" />
+    <Compile Include="Nodes\NodeAdvanced.cs" />
+    <Compile Include="Nodes\NodeAlias.cs" />
+    <Compile Include="Nodes\NodeAliases.cs" />
+    <Compile Include="Nodes\NodeAntiSpam.cs" />
+    <Compile Include="Nodes\NodeAntiVirus.cs" />
+    <Compile Include="Nodes\NodeAutoBan.cs" />
+    <Compile Include="Nodes\NodeBackup.cs" />
+    <Compile Include="Nodes\NodeDiagnostics.cs" />
+    <Compile Include="Nodes\NodeDistributionList.cs" />
+    <Compile Include="Nodes\NodeDistributionLists.cs" />
+    <Compile Include="Nodes\NodeDNSBlackList.cs" />
+    <Compile Include="Nodes\NodeDNSBlackLists.cs" />
+    <Compile Include="Nodes\NodeDomain.cs" />
+    <Compile Include="Nodes\NodeDomains.cs" />
+    <Compile Include="Nodes\NodeDummy.cs" />
+    <Compile Include="Nodes\NodeGreyListing.cs" />
+    <Compile Include="Nodes\NodeGroup.cs" />
+    <Compile Include="Nodes\NodeGroups.cs" />
+    <Compile Include="Nodes\NodeIncomingRelay.cs" />
+    <Compile Include="Nodes\NodeIncomingRelays.cs" />
+    <Compile Include="Nodes\NodeIPRange.cs" />
+    <Compile Include="Nodes\NodeIPRanges.cs" />
+    <Compile Include="Nodes\NodeLogging.cs" />
+    <Compile Include="Nodes\NodeMirror.cs" />
+    <Compile Include="Nodes\NodeMXQuery.cs" />
+    <Compile Include="Nodes\NodePerformance.cs" />
+    <Compile Include="Nodes\NodeProtocolIMAP.cs" />
+    <Compile Include="Nodes\NodeProtocolPOP3.cs" />
+    <Compile Include="Nodes\NodeProtocols.cs" />
+    <Compile Include="Nodes\NodeProtocolSMTP.cs" />
+    <Compile Include="Nodes\NodeRoute.cs" />
+    <Compile Include="Nodes\NodeRoutes.cs" />
+    <Compile Include="Nodes\NodeGlobalRules.cs" />
+    <Compile Include="Nodes\NodeScripts.cs" />
+    <Compile Include="Nodes\NodeServerMessage.cs" />
+    <Compile Include="Nodes\NodeServerMessages.cs" />
+    <Compile Include="Nodes\NodeServerSendout.cs" />
+    <Compile Include="Nodes\NodeSettings.cs" />
+    <Compile Include="Nodes\NodeSSLCertificate.cs" />
+    <Compile Include="Nodes\NodeSSLCertificates.cs" />
+    <Compile Include="Nodes\NodeStatus.cs" />
+    <Compile Include="Nodes\NodeSURBLServer.cs" />
+    <Compile Include="Nodes\NodeSURBLServers.cs" />
+    <Compile Include="Nodes\NodeTCPIPPort.cs" />
+    <Compile Include="Nodes\NodeTCPIPPorts.cs" />
+    <Compile Include="Nodes\NodeUtilities.cs" />
+    <Compile Include="Nodes\NodeWelcome.cs" />
+    <Compile Include="Nodes\NodeWhiteListing.cs" />
+    <Compile Include="Nodes\Search\ISearchNodeCriteria.cs" />
+    <Compile Include="Nodes\Search\SearchNodeText.cs" />
+    <Compile Include="Nodes\Search\SearchNodeType.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ucEmailEdit.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucEmailEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ucItemsView.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucItemsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formAbout.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formAccountFolders.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formAccountFolders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formActiveDirectoryAccounts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formActiveDirectoryAccounts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formApplication.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formApplication.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formBlockedAttachment.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formBlockedAttachment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formConnect.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formConnect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formExternalAccount.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formExternalAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formFolderPermissions.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formFolderPermissions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formGreyListingWhiteAddress.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formGreyListingWhiteAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formInfoDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formInfoDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formInputDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formInputDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formMain.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formMessageViewer.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formMessageViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formRule.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formRule.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formRuleAction.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formRuleAction.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formRuleCriteria.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formRuleCriteria.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formSelectLanguage.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formSelectLanguage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formSelectUsers.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formSelectUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formServerInformation.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formServerInformation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formUserAccounts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formUserAccounts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formWhiteListAddress.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>formWhiteListAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAccount.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ucAccounts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAccounts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAdvanced.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAdvanced.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAlias.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAlias.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAliases.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAliases.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAntiSpam.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAntiSpam.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAntiVirus.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucAntiVirus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucAutoBan.resx">
+      <DependentUpon>ucAutoBan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucBackup.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucBackup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDiagnostics.resx">
+      <DependentUpon>ucDiagnostics.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDistributionList.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDistributionList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDistributionLists.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDistributionLists.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDNSBlackList.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDNSBlackList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDNSBlackLists.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDNSBlackLists.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDomain.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDomain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucDomains.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucDomains.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucGlobalRules.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucGlobalRules.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucGreyListing.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucGreyListing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucGroup.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucGroup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucGroups.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucGroups.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucIMAPFolders.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucIMAPFolders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucIncomingRelay.resx">
+      <DependentUpon>ucIncomingRelay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucIncomingRelays.resx">
+      <DependentUpon>ucIncomingRelays.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucIPRange.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucIPRange.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucIPRanges.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucIPRanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucLogging.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucLogging.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucMirror.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucMirror.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucMXQuery.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucMXQuery.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucPerformance.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucPerformance.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucProtocolIMAP.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucProtocolIMAP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucProtocolPOP3.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucProtocolPOP3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucProtocols.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucProtocols.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucProtocolSMTP.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucProtocolSMTP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucRoute.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucRoute.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucRoutes.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucRoutes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucRules.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucRules.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucScripts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucScripts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucServerMessage.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucServerMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucServerMessages.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucServerMessages.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucServerSendout.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucServerSendout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSSLCertificate.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSSLCertificate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSSLCertificates.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSSLCertificates.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucStatus.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSURBLServer.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSURBLServer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSURBLServers.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucSURBLServers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucTCPIPPort.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucTCPIPPort.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucTCPIPPorts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucTCPIPPorts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucWhiteListing.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucWhiteListing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucWelcome.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ucWelcome.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Main panes\ucWelcome.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucWelcome.Designer.cs">
+      <DependentUpon>ucWelcome.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\APICreator.cs" />
+    <Compile Include="Utilities\DirtyChecker.cs" />
+    <Compile Include="Utilities\Encryption.cs" />
+    <Compile Include="Utilities\EnumStrings.cs" />
+    <Compile Include="Utilities\FocusChanger.cs" />
+    <Compile Include="Utilities\Instances.cs" />
+    <Compile Include="Utilities\ListViewColumnSorter.cs" />
+    <Compile Include="Utilities\Localization\InternalNames.cs" />
+    <Compile Include="Utilities\Localization\Strings.cs" />
+    <Compile Include="Utilities\Settings\Server.cs" />
+    <Compile Include="Utilities\Settings\Servers.cs" />
+    <Compile Include="Utilities\Settings\UserSettings.cs" />
+    <Compile Include="Utilities\Utility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="server_connect.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="hMailServer">
+      <Guid>{DB241B59-A1B1-4C59-98FC-8D101A2995F2}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{F71569C1-E511-46E5-975C-A94C51AECC09}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

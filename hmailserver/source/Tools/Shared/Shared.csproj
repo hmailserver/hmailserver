@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F71569C1-E511-46E5-975C-A94C51AECC09}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Shared</RootNamespace>
+    <AssemblyName>Shared</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ucText.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formEnterPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formEnterPassword.designer.cs">
+      <DependentUpon>formEnterPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\formErrorMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formErrorMessage.designer.cs">
+      <DependentUpon>formErrorMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\IPropertyEditor.cs" />
+    <Compile Include="Miscellaneous\Authenticator.cs" />
+    <Compile Include="Miscellaneous\CommandLineParser.cs" />
+    <Compile Include="Miscellaneous\TabOrderManager.cs" />
+    <Compile Include="Miscellaneous\WaitCursor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Wizard\IWizardPage.cs" />
+    <Compile Include="Wizard\ucWizard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Wizard\ucWizard.designer.cs">
+      <DependentUpon>ucWizard.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Dialogs\formEnterPassword.resx">
+      <DependentUpon>formEnterPassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formErrorMessage.resx">
+      <DependentUpon>formErrorMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\ucWizard.resx">
+      <DependentUpon>ucWizard.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="hMailServer">
+      <Guid>{DB241B59-A1B1-4C59-98FC-8D101A2995F2}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.WhiteListAddress.1 = s 'WhiteListAddress Class'
+	{
+		CLSID = s '{0B18E4F3-4423-403E-B275-1D95CBD353CE}'
+	}
+	hMailServer.WhiteListAddress = s 'WhiteListAddress Class'
+	{
+		CLSID = s '{0B18E4F3-4423-403E-B275-1D95CBD353CE}'
+		CurVer = s 'hMailServer.WhiteListAddress.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {0B18E4F3-4423-403E-B275-1D95CBD353CE} = s 'WhiteListAddress Class'
+		{
+			ProgID = s 'hMailServer.WhiteListAddress.1'
+			VersionIndependentProgID = s 'hMailServer.WhiteListAddress'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

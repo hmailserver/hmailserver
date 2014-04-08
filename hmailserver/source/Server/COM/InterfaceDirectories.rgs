@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Directories.1 = s 'Directories Class'
+	{
+		CLSID = s '{1969A4DF-B1B0-4A71-8196-5FD392CA3D8A}'
+	}
+	hMailServer.Directories = s 'Directories Class'
+	{
+		CLSID = s '{1969A4DF-B1B0-4A71-8196-5FD392CA3D8A}'
+		CurVer = s 'hMailServer.Directories.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1969A4DF-B1B0-4A71-8196-5FD392CA3D8A} = s 'Directories Class'
+		{
+			ProgID = s 'hMailServer.Directories.1'
+			VersionIndependentProgID = s 'hMailServer.Directories'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{86301C62-7574-43CA-ABD8-A617A2B7B697}'
+		}
+	}
+}

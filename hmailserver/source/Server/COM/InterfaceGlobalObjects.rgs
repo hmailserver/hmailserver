@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.GlobalObjects.1 = s 'GlobalObjects Class'
+	{
+		CLSID = s '{200608D6-9849-49A4-9474-E7880B3E56FF}'
+	}
+	hMailServer.GlobalObjects = s 'GlobalObjects Class'
+	{
+		CLSID = s '{200608D6-9849-49A4-9474-E7880B3E56FF}'
+		CurVer = s 'hMailServer.GlobalObjects.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {200608D6-9849-49A4-9474-E7880B3E56FF} = s 'GlobalObjects Class'
+		{
+			ProgID = s 'hMailServer.GlobalObjects.1'
+			VersionIndependentProgID = s 'hMailServer.GlobalObjects'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

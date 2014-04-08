@@ -1,0 +1,27 @@
+HKCR
+{
+	hMailServer.IMAPFolderACL.1 = s 'IMAPFolderACL Class'
+	{
+		CLSID = s '{A5245165-D202-47B6-B8AC-DE2949936AAF}'
+	}
+	hMailServer.IMAPFolderACL = s 'IMAPFolderACL Class'
+	{
+		CLSID = s '{A5245165-D202-47B6-B8AC-DE2949936AAF}'
+		CurVer = s 'hMailServer.IMAPFolderACL.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A5245165-D202-47B6-B8AC-DE2949936AAF} = s 'IMAPFolderACL Class'
+		{
+			ProgID = s 'hMailServer.IMAPFolderACL.1'
+			VersionIndependentProgID = s 'hMailServer.IMAPFolderACL'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{EC1250A4-0C9C-4540-981B-A7F7397F64EE}'
+		}
+	}
+}

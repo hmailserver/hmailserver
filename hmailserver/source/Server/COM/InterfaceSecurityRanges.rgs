@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.SecurityRanges.1 = s 'SecurityRanges Class'
+	{
+		CLSID = s '{60A752A2-1197-4841-ADD4-CE922873E794}'
+	}
+	hMailServer.SecurityRanges = s 'SecurityRanges Class'
+	{
+		CLSID = s '{60A752A2-1197-4841-ADD4-CE922873E794}'
+		CurVer = s 'hMailServer.SecurityRanges.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {60A752A2-1197-4841-ADD4-CE922873E794} = s 'SecurityRanges Class'
+		{
+			ProgID = s 'hMailServer.SecurityRanges.1'
+			VersionIndependentProgID = s 'hMailServer.SecurityRanges'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

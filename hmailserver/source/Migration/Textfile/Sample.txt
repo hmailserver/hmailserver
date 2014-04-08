@@ -1,0 +1,20 @@
+# This is a sample hMailServer account text file, 
+# that can be imported using TextfileMigrate.exe. 
+# 
+# It has the following syntax:
+# 
+# Columns:
+# 1: Account name (not including domain name)
+# 2: Account password
+# 3: Account size (measured in MB)
+# 
+# Every line is seperated using carrige return +
+# lien feed. (standard windows text file)
+#
+
+SmallAccount1,SecretPassword,10
+SmallAccount2,SecretPassword,10
+MediumAccount1,SecretPassword,50
+MediumAccount2,SecretPassword,50
+BigAccount1,SecretPassword,100
+BigAccount2,SecretPassword,100

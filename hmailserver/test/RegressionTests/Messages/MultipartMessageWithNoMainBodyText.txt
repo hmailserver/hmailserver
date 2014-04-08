@@ -1,0 +1,30 @@
+﻿Return-Path: a@yahoo.com
+Delivered-To: source@hmailserver.com
+Message-ID: <568911.63887.qm@web58408.mail.re3.yahoo.com>
+Received: from [79.127.100.65] by web58408.mail.re3.yahoo.com via HTTP; Mon, 11 Oct 2010 08:42:09 PDT
+X-Mailer: YahooMailClassic/11.4.9 YahooMailWebService/0.8.106.282862
+Date: Mon, 11 Oct 2010 08:42:09 -0700 (PDT)
+From: A
+Subject:  B
+To: source@example.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-801297247-1286811729=:63887"
+
+--0-801297247-1286811729=:63887
+Content-Type: text/plain; charset=us-ascii
+
+
+
+Hello
+
+
+      
+
+
+      
+--0-801297247-1286811729=:63887
+Content-Type: text/html; charset=us-ascii
+
+what
+      
+--0-801297247-1286811729=:63887--

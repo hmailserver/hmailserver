@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.BackupSettings.1 = s 'BackupSettings Class'
+	{
+		CLSID = s '{E0213ECF-BAEC-4E20-9813-0F75A97D0B16}'
+	}
+	hMailServer.BackupSettings = s 'BackupSettings Class'
+	{
+		CLSID = s '{E0213ECF-BAEC-4E20-9813-0F75A97D0B16}'
+		CurVer = s 'hMailServer.BackupSettings.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {E0213ECF-BAEC-4E20-9813-0F75A97D0B16} = s 'BackupSettings Class'
+		{
+			ProgID = s 'hMailServer.BackupSettings.1'
+			VersionIndependentProgID = s 'hMailServer.BackupSettings'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

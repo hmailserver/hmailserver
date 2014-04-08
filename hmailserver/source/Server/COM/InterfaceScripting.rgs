@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Scripting.1 = s 'Scripting Class'
+	{
+		CLSID = s '{68A73A47-5B56-43A3-BC11-CFC436F3BA9E}'
+	}
+	hMailServer.Scripting = s 'Scripting Class'
+	{
+		CLSID = s '{68A73A47-5B56-43A3-BC11-CFC436F3BA9E}'
+		CurVer = s 'hMailServer.Scripting.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {68A73A47-5B56-43A3-BC11-CFC436F3BA9E} = s 'Scripting Class'
+		{
+			ProgID = s 'hMailServer.Scripting.1'
+			VersionIndependentProgID = s 'hMailServer.Scripting'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

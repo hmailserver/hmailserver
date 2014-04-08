@@ -1,0 +1,11 @@
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\bin\Debug\hMailServer builder.exe.config
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\bin\Debug\hMailServer builder.exe
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\bin\Debug\hMailServer builder.pdb
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\bin\Debug\Builder.Common.dll
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\bin\Debug\Builder.Common.pdb
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\ResolveAssemblyReference.cache
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\hMailServer_builder.frmMain.resources
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\hMailServer_builder.Properties.Resources.resources
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\hMailServer builder.csproj.GenerateResource.Cache
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\hMailServer builder.exe
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\obj\Debug\hMailServer builder.pdb

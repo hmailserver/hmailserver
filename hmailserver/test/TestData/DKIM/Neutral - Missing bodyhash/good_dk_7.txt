@@ -1,0 +1,17 @@
+DomainKey-Signature: a=rsa-sha1; c=simple; d=messiah.edu; h=from:to:subject:
+	date:message-id; q=dns; s=test1; b=rpgP51ZIZ69J8F1XOImeXrROOXPZj
+	NNkJ2GcB0wxm43/Uq0E1Mg6jyEFr/S0Y6gvDrhnjJAAxM4RQ76xPC2Odw==
+From: Jason Long <jlong@Messiah.Edu>
+To: Nobody <nobody@messiah.edu>
+Subject: domainkeys test - case-different domain names
+Date: Wed, 7 Dec 2005 09:11:00 -0500
+Message-ID: <20051207091100@test.messiah.edu>
+
+This is a test
+  More lines here
+
+
+Blah  blah  blah
+
+
+

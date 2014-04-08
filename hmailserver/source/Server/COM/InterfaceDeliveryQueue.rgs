@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.DeliveryQueue.1 = s 'DeliveryQueue Class'
+	{
+		CLSID = s '{27473BB7-4272-4693-ACA6-FD9D4C9C3FC5}'
+	}
+	hMailServer.DeliveryQueue = s 'DeliveryQueue Class'
+	{
+		CLSID = s '{27473BB7-4272-4693-ACA6-FD9D4C9C3FC5}'
+		CurVer = s 'hMailServer.DeliveryQueue.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {27473BB7-4272-4693-ACA6-FD9D4C9C3FC5} = s 'DeliveryQueue Class'
+		{
+			ProgID = s 'hMailServer.DeliveryQueue.1'
+			VersionIndependentProgID = s 'hMailServer.DeliveryQueue'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

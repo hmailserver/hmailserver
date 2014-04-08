@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Statements>
+
+   <!-- hm_message_metadata -->
+   <CreateIndex Name="idx_hm_message_metadata_msgid" Table="hm_message_metadata" Unique="false" Clustered="false">
+      <Column Name="metadata_messageid"/>
+   </CreateIndex>
+   
+   <RawSQL> <![CDATA[update hm_dbversion set value = 5310]]></RawSQL>
+   
+</Statements>
+

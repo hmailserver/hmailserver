@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Route.1 = s 'Route Class'
+	{
+		CLSID = s '{3FF9BB08-7924-4418-BADA-7D959467D51B}'
+	}
+	hMailServer.Route = s 'Route Class'
+	{
+		CLSID = s '{3FF9BB08-7924-4418-BADA-7D959467D51B}'
+		CurVer = s 'hMailServer.Route.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {3FF9BB08-7924-4418-BADA-7D959467D51B} = s 'Route Class'
+		{
+			ProgID = s 'hMailServer.Route.1'
+			VersionIndependentProgID = s 'hMailServer.Route'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

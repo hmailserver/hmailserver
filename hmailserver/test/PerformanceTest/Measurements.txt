@@ -1,0 +1,8 @@
+Comparing in-memory wildcard match for 250 items 10 000 times.
+
+- In memory: 8157, 8172 In database: 5296, 5282
+- In memory: 8204, 8203 In database: 5812, 5906
+- In memory: 8032, 8031 In database: 5812, 5813
+
+In memory algorithm: Naive.
+In database method: Using LIKE-syntax.

@@ -1,0 +1,27 @@
+HKCR
+{
+	hMailServer.Languages.1 = s 'Languages Class'
+	{
+		CLSID = s '{BE1070A2-9265-495E-B134-27FAA93916CE}'
+	}
+	hMailServer.Languages = s 'Languages Class'
+	{
+		CLSID = s '{BE1070A2-9265-495E-B134-27FAA93916CE}'
+		CurVer = s 'hMailServer.Languages.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {BE1070A2-9265-495E-B134-27FAA93916CE} = s 'Languages Class'
+		{
+			ProgID = s 'hMailServer.Languages.1'
+			VersionIndependentProgID = s 'hMailServer.Languages'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{6DB9F164-E28F-4309-ADA5-33AB2FFD35F4}'
+		}
+	}
+}

@@ -1,0 +1,5 @@
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Common\bin\Debug\Builder.Common.dll
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Common\bin\Debug\Builder.Common.pdb
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Common\obj\Debug\ResolveAssemblyReference.cache
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Common\obj\Debug\Builder.Common.dll
+C:\Dev\hMailServer\Dev\hmailserver\hmailserver\build\source\Builder.Common\obj\Debug\Builder.Common.pdb

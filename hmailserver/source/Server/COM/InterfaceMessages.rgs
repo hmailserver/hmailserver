@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Messages.1 = s 'Messages Class'
+	{
+		CLSID = s '{C04047AD-45A4-48EA-907E-2C270C95409C}'
+	}
+	hMailServer.Messages = s 'Messages Class'
+	{
+		CLSID = s '{C04047AD-45A4-48EA-907E-2C270C95409C}'
+		CurVer = s 'hMailServer.Messages.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {C04047AD-45A4-48EA-907E-2C270C95409C} = s 'Messages Class'
+		{
+			ProgID = s 'hMailServer.Messages.1'
+			VersionIndependentProgID = s 'hMailServer.Messages'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

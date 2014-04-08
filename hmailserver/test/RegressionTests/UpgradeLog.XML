@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="UnitTest">
+</Property><Property Name="Solution File" Value="C:\Dev\hMailServer\Dev\trunk\test\UnitTest\UnitTest.sln">
+</Property><Property Name="Date" Value="den 9 augusti 2008">
+</Property><Property Name="Time" Value="21:53">
+</Property></Properties><Event ErrorLevel="0" Project="UnitTest" Source="UnitTest.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="UnitTest" Source="UnitTest.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="UnitTest.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="UnitTest.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="UnitTest" Source="UnitTest.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

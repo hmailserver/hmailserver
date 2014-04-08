@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Utilities.1 = s 'Utilities Class'
+	{
+		CLSID = s '{E116DCB7-7FEC-4540-BEA1-FA1B19D05B5F}'
+	}
+	hMailServer.Utilities = s 'Utilities Class'
+	{
+		CLSID = s '{E116DCB7-7FEC-4540-BEA1-FA1B19D05B5F}'
+		CurVer = s 'hMailServer.Utilities.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {E116DCB7-7FEC-4540-BEA1-FA1B19D05B5F} = s 'Utilities Class'
+		{
+			ProgID = s 'hMailServer.Utilities.1'
+			VersionIndependentProgID = s 'hMailServer.Utilities'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

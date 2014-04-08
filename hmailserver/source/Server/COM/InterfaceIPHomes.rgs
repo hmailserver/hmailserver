@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.IPHomes.1 = s 'IPHomes Class'
+	{
+		CLSID = s '{F65C1329-530E-4312-AFEB-F8F49B753D6D}'
+	}
+	hMailServer.IPHomes = s 'IPHomes Class'
+	{
+		CLSID = s '{F65C1329-530E-4312-AFEB-F8F49B753D6D}'
+		CurVer = s 'hMailServer.IPHomes.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {F65C1329-530E-4312-AFEB-F8F49B753D6D} = s 'IPHomes Class'
+		{
+			ProgID = s 'hMailServer.IPHomes.1'
+			VersionIndependentProgID = s 'hMailServer.IPHomes'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.BlockedAttachment.1 = s 'BlockedAttachment Class'
+	{
+		CLSID = s '{773BCF69-C1C2-48CD-A8F8-E89A1F74E4B3}'
+	}
+	hMailServer.BlockedAttachment = s 'BlockedAttachment Class'
+	{
+		CLSID = s '{773BCF69-C1C2-48CD-A8F8-E89A1F74E4B3}'
+		CurVer = s 'hMailServer.BlockedAttachment.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {773BCF69-C1C2-48CD-A8F8-E89A1F74E4B3} = s 'BlockedAttachment Class'
+		{
+			ProgID = s 'hMailServer.BlockedAttachment.1'
+			VersionIndependentProgID = s 'hMailServer.BlockedAttachment'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

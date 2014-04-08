@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.TCPIPPort.1 = s 'TCPIPPort Class'
+	{
+		CLSID = s '{556DF811-3E02-4106-BCA6-C75996825E9A}'
+	}
+	hMailServer.TCPIPPort = s 'TCPIPPort Class'
+	{
+		CLSID = s '{556DF811-3E02-4106-BCA6-C75996825E9A}'
+		CurVer = s 'hMailServer.TCPIPPort.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {556DF811-3E02-4106-BCA6-C75996825E9A} = s 'TCPIPPort Class'
+		{
+			ProgID = s 'hMailServer.TCPIPPort.1'
+			VersionIndependentProgID = s 'hMailServer.TCPIPPort'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

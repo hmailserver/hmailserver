@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.Rules.1 = s 'Rules Class'
+	{
+		CLSID = s '{624F494B-347A-4285-9506-C54154D50B2A}'
+	}
+	hMailServer.Rules = s 'Rules Class'
+	{
+		CLSID = s '{624F494B-347A-4285-9506-C54154D50B2A}'
+		CurVer = s 'hMailServer.Rules.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {624F494B-347A-4285-9506-C54154D50B2A} = s 'Rules Class'
+		{
+			ProgID = s 'hMailServer.Rules.1'
+			VersionIndependentProgID = s 'hMailServer.Rules'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

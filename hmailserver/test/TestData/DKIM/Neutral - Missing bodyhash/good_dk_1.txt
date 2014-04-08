@@ -1,0 +1,39 @@
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=AEpft01eHCTIX08AdBaACL0/1Qs+/xDO8CuOJI+MJWJyJX4elu9ciIUDee6SrnF0+RmDAYDKKfU7ImKhLZMJ/iB+aYC4d2HMp0YOUQfHyPUIc5IyurGpp9Rz7AY+9X+kj2eC3w7NrzRldLmnbrWRy+/XOpjF550uq/nwbMhmxLU=  ;
+Message-ID: <20061010193027.29989.qmail@web34101.mail.mud.yahoo.com>
+Received: from [153.42.34.240] by web34101.mail.mud.yahoo.com via HTTP; Tue, 10 Oct 2006 12:30:27 PDT
+Date: Tue, 10 Oct 2006 12:30:27 -0700 (PDT)
+From: Jason Long <jasona17055@yahoo.com>
+Subject: test from Yahoo
+To: test@dktest.jason.long.name
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-237517700-1160508627=:29354"
+Content-Transfer-Encoding: 8bit
+
+--0-237517700-1160508627=:29354
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+This is testing DomainKeys from Yahoo.
+
+ 				
+---------------------------------
+Get your own web address for just $1.99/1st yr. We'll help. Yahoo! Small Business.
+--0-237517700-1160508627=:29354
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+This is testing DomainKeys from Yahoo.<br><p>&#32;
+	
+
+	
+		<hr size=1>Get your own <a href=" http://us.rd.yahoo.com/evt=43290/*http://smallbusiness.yahoo.com/domains"
+>web address for just $1.99/1st yr</a>. We'll help. <a href="http://us.rd.yahoo.com/evt=41244/*http://smallbusiness.yahoo.com/"
+>Yahoo! Small Business</a>.
+
+--0-237517700-1160508627=:29354--
+
+
+

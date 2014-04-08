@@ -1,0 +1,101 @@
+5121, PersistentACLPermission::SaveObject, ACL item of type PTAnyone not initialized correctly.
+5122, SQLCEConnection::_UpgradeDatabase(), Failed to create instance of SQL CE Engine.
+5123, SQLCEConnection::_UpgradeDatabase(), Failed to upgrade SQL CE database. HRESULT:
+5124, SQLCEConnection::_UpgradeDatabase(), Moving of current database file to backup location failed.
+5125, SQLCEConnection::_UpgradeDatabase(), Moving of upgraded database file to current database file failed.
+5126, IMAPFolders::Refresh(), Unable to retrieve folder list for account. Folder recursion not parseable. Account: %I64d, Parent: %%I64d
+5127, IOOperationList::_LogError, An error occured while logging error. Error: %s
+5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
+5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
+5129, TCPConnection::HandleHandshake, SSL handshake with client failed
+5131, IOOperationQueue::Pop, Trying to pop empty queue
+5134, TCPConnection::HandleResolve, Call to async_connect failed. Error: %s
+5135, IOCPQueueWorkerTask::DoWork, An error occured while handling asynchronous requests.
+5136, TCPConnection::HandleRead, An error occured while parsing buffer.
+5137, TCPConnection::PostTimeout, An error occured while sending a timeout message to the client.
+5138, TCPConnection::_ProcessOperationQueue, An error occured while processing the queue.
+5139, TCPConnection::Disconnect, An error occured while setting connection termination flag.
+5140, TCPConnection::HandleRead, HandleRead called even though there are no outstanding operations.
+5141, TCPConnection::HandleRead, An error occured while handling read operation.
+5142, TCPConnection::HandleWrite, HandleWrite called even though there are no outstanding operations.
+5143, TCPServer::GetPassword, The private key file has a password. hMailServer does not support this.
+5144, TCPConnection::PrepareContext, An eror occured while preparing SSL context.
+5155, Encoding::DecodeBase64, Decoding buffer is not correct.
+5156, SMTPDeliverer::_DeliverToLocalAccounts, The recipient account appears to have been deleted after the message was received. Aborting delivery.
+5157, SpamAssassinClient::OnReadError, There was a communication error with SpamAssassin. Test aborted.
+5158, MessageIndexer::DoWork(), An error occured while indexing messages. The indexing was aborted.
+5159, PersistentMessage::_MoveMessageFileToFolder, The folder specifier was empty. Aborting move.>>>>>>> .merge-right.r1220
+5160, DateTime::ToInt(), Tried to convert non-date to integral representation.
+5201, RuleApplier::_ApplyActionCopy, Tried to convert non-date to integral representation.
+5202, IMAPSortHeaderField::operator(), An error occurred while sorting. Check system locale settings.
+5203, MimeParameterRFC2184Decoder::Decode, Unable to decode MIME parameter according to RFC 2184.
+5204, Messages::Refresh(), Refresh not supported on the current collection.
+5205, PersistentMessage::AddObject, Refresh not supported on the current collection.
+5206, PersistentIMAPFolder::GetUserInboxFolder, Refresh not supported on the current collection.
+5207, PersistentIMAPFolder::_GetCurrentUID, Current UID for folder %I64d could not be looked up
+5208, SMTPDeliverer::DeliverMessage, Attempting to delete message %I64d even though it's been delivered to user account.
+5209, SMTPDeliverer::_DeliverToLocalAccount, Failed to create account-level message.
+5210, PersistentMessage::ReadObject, The message %I64d in mailbox %I64d in account %I64d has no UID set.
+5211, TCPConnection::CancelLogoutTimer, The message %I64d in mailbox %I64d in account %I64d has no UID set.
+5212, Collection::XMLLoad, Failed to save object %s. Error: %s
+5213, PersistentMessage::AddObject, Aborting save since no folder was specified.
+5301, PGRecordset::GetIsNull, An error occured while checking for null.
+5302, MySQLRecordset::GetIsNull, An error occured while checking for null.
+5303, PersistentIMAPFolder::_GetCurrentUID, Current UID for folder %I64d could not be looked up. Folder does not eixst.
+5304, DALRecordset::_ReportEOFError, Trying to access data in recordset which was EOF. Field name: %s.
+5305, DKIMSigner::Sign, Either the selector or private key file was not specified.
+5306, DKIMSigner::Sign, Message signing using DKIM failed.
+5307, DKIM::Sign, Creation of canonicalization method failed.
+5308, DKIM::Sign, Failed to create siganture.
+5309, DKIM::_SignHash, Unable to read the private key file into memory.
+5310, DKIM::_SignHash, Unable to parse the private key file.
+5311, DKIM::_SignHash, Call to EVP_SignFinal failed.
+5312, DKIM::_SignHash, Call to EVP_SignUpdate failed.
+5313, CriticalSection::CriticalSection, Initialization of critical section failed. Out of memory?
+5313, CriticalSection::Enter, EnterCriticalSection gave an exception. Out of memory?
+5314, CriticalSection::Enter, Trying to enter uninitialied critical section. Out of memory?
+5315, DeliveryTask::DoWork, An error occurred while running a delivery task. Error number: %d, Description: %s.
+5316, ExternalFetchTask::DoWork, An error occurred while download messages from external account. Error number: %d, Description: %s
+5317, ExternalFetchTask::DoWork, An error occurred while download messages from external account. 
+5318, Thread::AssignTask, Assigning task to thread even though thread already has task.
+5319, Thread::ThreadFunc, Unable to notify queue that thread is ready.
+5320, Thread::ThreadFunc, The task is unavailable.
+5321, TCPConnection::Connect, An unknown error occurred while connecting.
+5322, TCPConnection::HandleResolve, An unknown error occurred while handling TCP/IP resolve.
+5323, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting asynchronous connect.
+5324, TCPConnection::HandleConnect, An unknown error occurred while handling asynchronous connect.
+5325, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting connection.
+5326, TCPConnection::_StartAsyncConnect, An unknown error occurred while handling handshake.
+5327, TCPConnection::PostWrite, An unknown error occurred while posting write buffer.
+5328, TCPConnection::PostWrite, An unknown error occurred while posting write buffer.
+5329, TCPConnection::Write, An unknown error occurred while writing buffer.
+5330, TCPConnection::Shutdown, An unknown error occurred while shutting down socket.
+5331, TCPConnection::PostRead, An unknown error occurred while posting read buffer.
+5332, TCPConnection::PostRead, An unknown error occurred while starting async reading
+5333, TCPConnection::UpdateLogoutTimer, An unknown error occurred while updating logout timer.
+5334, TCPConnection::CancelLogoutTimer, An unknown error occurred while canceling logout timer.
+5335, TCPConnection::PostDisconnect, An unknown error occurred while posting disconnect.
+5336, TCPConnection::Disconnect, An unknown error occurred while disconnecting.
+5337, TCPConnection::OnTimeout, An unknown error occurred while disconnecting.
+5338, TCPConnection::PostShutdown, An unknown error occurred while posting shutdown.
+5339, TCPConnection::HandleWrite, An unknown error occurred while handling buffer write.
+5341, MailboxChangeNotifier::ReportChange, Client wasn't unsubscribed. Unsubscribing now.
+5343, POP3ClientConnection::_ParseUIDLResponse, The remote server returned an error to the UIDL command: {0}
+5400, ProcessLauncher::Launch, There was an error launching external process {0}. Timeout after {1}. Will continue to wait.
+5401, ProcessLauncher::Launch, There was an error launching external process {0}. Process start failed. Windows error code: {1}
+5402, ProcessLauncher::Launch, Wait abandoned.
+5403, ProcessLauncher::Launch, Failed to wait. Windows error code: {0}.
+5404, ProcessLauncher::Launch, Wait abandoned (infinite wait).
+5405, ProcessLauncher::Launch, Failed to wait. Windows error code: {0}.
+5406, VirusScanner::_ReportScanningError, <scanner specific error messaeg>
+5407, SQLStatement::<func>, Unknown database type {0}
+5408, TransparentTransmissionBuffer::Append. Buffer: %d, pBuffer: %d, Size: %d
+5409, TransparentTransmissionBuffer::Append. Error when checking for linebreaks.
+5410, ByteBuffer::~ByteBuffer. Error when emptying buffer. This: %d
+5411, TransparentTransmissionBuffer::Append. pBuffer is NULL
+5412, TransparentTransmissionBuffer::Append. m_pBuffer is NULL
+5413, TransparentTransmissionBuffer::Append. Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d
+5414, POP3Connection::_ReadAndSend. An unknown error occurred while reading and sending file data.
+5415, IniFileSettings::LoadSettings, Error determening database type. Type: {0}
+
+
