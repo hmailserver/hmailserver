@@ -23,3 +23,7 @@ _ReSharper.*/
 hmailserver/source/Server/hMailServer/Debug/
 hmailserver/source/Server/hMailServer/hMailServer.h
 hmailserver/source/Server/hMailServer/Debug (x64)/*
+hmailserver/source/WebAdmin/include_versioncheck.php
+hmailserver/source/Server/hMailServer/hMailServer.ncb
+hmailserver/source/Server/hMailServer/hMailServer_i.c
+hmailserver/source/Server/hMailServer/hMailServer_p.c
