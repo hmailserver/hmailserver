@@ -67,16 +67,14 @@ namespace HM
          {
             // check if a route exists with the same name and account.
             bool found = false;
-            vector<shared_ptr<Route> > vecRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemsByName(sDomain);
-            boost_foreach(shared_ptr<Route> route, vecRoutes)
+            shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
+            if (route)
             {
                if (route->ToAllAddresses() || route->GetAddresses()->GetItemByName(sMirrorAddress))
                {
                   found = true;
-                  break;
                }
             }
-
 
             if (!found)
             {

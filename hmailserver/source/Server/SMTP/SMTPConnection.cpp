@@ -1783,27 +1783,15 @@ namespace HM
       String sLogData;
 
       bool bIsRouteDomain = false;
-      vector<shared_ptr<Route> > routes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemsByName(sETRNDomain.ToLower());
+      shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
 
       // See if sender supplied param matches one of our domains
-      if (routes.size() > 0)
-       {
-          boost_foreach(shared_ptr<Route> route, routes)
-          {
-             if (route->GetName() == sETRNDomain2) 
-             {
-             bIsRouteDomain = true;
-             break;
-             }
-          }
-       }       
-
-      if (bIsRouteDomain)
+      if (route && route->GetName() == sETRNDomain2)
       {
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Route found, continuing..");      
 
          shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
-         shared_ptr<Route> pRoute = pRoutes->GetItemByName(sETRNDomain.ToLower());
+         shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
 
          if (pRoute)
          {
@@ -2032,17 +2020,14 @@ namespace HM
        const String senderAddress = m_pCurrentMessage->GetFromAddress();
 
        String senderDomainName = StringParser::ExtractDomain(senderAddress);
-       vector<shared_ptr<Route> > routes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemsByName(senderDomainName);
+       shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(senderDomainName);
 
-       if (routes.size() > 0)
+       if (route)
        {
-          boost_foreach(shared_ptr<Route> route, routes)
+          if (route->ToAllAddresses() || route->GetAddresses()->GetItemByName(senderAddress))
           {
-             if (route->ToAllAddresses() || route->GetAddresses()->GetItemByName(senderAddress))
-             {
-                if (route->GetTreatSenderAsLocalDomain())
-                   return true;
-             }
+             if (route->GetTreatSenderAsLocalDomain())
+                return true;
           }
        }       
 

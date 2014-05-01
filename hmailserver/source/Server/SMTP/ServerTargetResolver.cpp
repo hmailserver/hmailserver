@@ -183,7 +183,7 @@ namespace HM
       shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
 
       // Check if we have any route for this domain.
-      shared_ptr<Route> pRoute = pSMTPConfig->GetRoutes()->GetItemByName(sDomain);
+      shared_ptr<Route> pRoute = pSMTPConfig->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
 
       if (pRoute)
       {

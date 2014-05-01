@@ -301,18 +301,14 @@ namespace HM
    {
       shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
 
-      vector<shared_ptr<Route> > vecRoutes = pRoutes->GetItemsByName(route->GetName());
- 
-      boost_foreach(shared_ptr<Route> pExistingRoute, vecRoutes)
+      shared_ptr<Route> existingRoute = pRoutes->GetItemByName(route->GetName());
+      if (existingRoute && existingRoute->GetID() != route->GetID())
       {
-         if (route->GetID() == 0 || route->GetID() != pExistingRoute->GetID())
-         {
-            resultDescription = "Another route with this name already exists.";
-            return false;
-         }
+        resultDescription = "Another route with this name already exists.";
+        return false;  
       }
-
-      return "";
+ 
+      return true;
    }
 
 }

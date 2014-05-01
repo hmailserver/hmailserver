@@ -21,8 +21,7 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      vector<shared_ptr<Route> > GetItemsByName(const String &sRouteName);
-
+      shared_ptr<Route>  GetItemByNameWithWildcardMatch(const String &domainName);
    protected:
 
       virtual String GetCollectionName() const {return "Routes"; }

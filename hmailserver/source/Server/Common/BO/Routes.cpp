@@ -32,25 +32,24 @@ namespace HM
       _DBLoad(sSQL);
    }
 
-   vector<shared_ptr<Route> >
-   Routes::GetItemsByName(const String &sRouteName)
+   shared_ptr<Route> 
+   Routes::GetItemByNameWithWildcardMatch(const String &domainName)
    {
       vector<shared_ptr<Route> >::iterator iter = vecObjects.begin();
       vector<shared_ptr<Route> >::iterator iterEnd = vecObjects.end();
-
-      vector<shared_ptr<Route> > vecResult;
 
       for (; iter != iterEnd; iter++)
       {
          shared_ptr<Route> pRoute = (*iter);
 
-         if (pRoute->DomainName().CompareNoCase(sRouteName) == 0)
+         if (StringParser::WildcardMatchNoCase(pRoute->DomainName(), domainName))
          {
-            vecResult.push_back(pRoute);
+            return pRoute;
          }
       }
 
-      return vecResult;
+      shared_ptr<Route> empty;
+      return empty;
    }
 
 }

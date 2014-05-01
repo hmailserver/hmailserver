@@ -157,26 +157,18 @@ namespace HM
 
          // We have not found the recipient yet. Check if the original address matches a route.
          String recipientDomain = StringParser::ExtractDomain(recipientAddress);
-         vector<shared_ptr<Route> > vecRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemsByName(recipientDomain);
+         shared_ptr<Route> pRoute = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
          
-         if (vecRoutes.size() > 0)
+         if (pRoute)
          {
-            vector<shared_ptr<Route> >::iterator iter = vecRoutes.begin();
-            vector<shared_ptr<Route> >::iterator iterEnd = vecRoutes.end();
-
-            for (; iter != iterEnd; iter++)
+            if (pRoute->ToAllAddresses() || pRoute->GetAddresses()->GetItemByName(recipientAddress))
             {
-               shared_ptr<Route> pRoute = (*iter);
+               if (iRecursionLevel == 1)
+                  bTreatSecurityAsLocal = pRoute->GetTreatRecipientAsLocalDomain();
 
-               if (pRoute->ToAllAddresses() || pRoute->GetAddresses()->GetItemByName(recipientAddress))
-               {
-                  if (iRecursionLevel == 1)
-                     bTreatSecurityAsLocal = pRoute->GetTreatRecipientAsLocalDomain();
-
-                  return DP_Possible;
-               }
+               return DP_Possible;
             }
-
+      
             // We found routes matching the recipients domain, but the recipient 
             // doesn't exist in any of them.
             // Temp fail in case route list is not up-to-date
@@ -324,28 +316,15 @@ namespace HM
       // 2) The domain is not local. 
       // When we get here, one of these are true.
       String recipientDomain = StringParser::ExtractDomain(recipientAddress);
-      vector<shared_ptr<Route> > vecRoutes = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemsByName(recipientDomain);
-      if (vecRoutes.size() > 0)
+      shared_ptr<Route> pRoute = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
+      if (pRoute)
       {
-         vector<shared_ptr<Route> >::iterator iter = vecRoutes.begin();
-         vector<shared_ptr<Route> >::iterator iterEnd = vecRoutes.end();
-
-         bool recipientExists = false;
          bool isLocalName = false;
-         for (; iter != iterEnd; iter++)
-         {
-            // Check whether we should route to all, or if we should allow route to this specific address
-            shared_ptr<Route> pRoute = (*iter);
-            if (pRoute->ToAllAddresses() || pRoute->GetAddresses()->GetItemByName(recipientAddress))
-            {
-               recipientExists = true;
-               isLocalName = pRoute->GetTreatRecipientAsLocalDomain();
-               break;
-            }
-         }
 
-         if (recipientExists)
+         if (pRoute->ToAllAddresses() || pRoute->GetAddresses()->GetItemByName(recipientAddress))
          {
+            isLocalName = pRoute->GetTreatRecipientAsLocalDomain();
+
             shared_ptr<MessageRecipient> NewRecipient = shared_ptr<MessageRecipient>(new MessageRecipient);
             NewRecipient->SetAddress(recipientAddress);
             NewRecipient->SetOriginalAddress(sOriginalAddress);
@@ -357,7 +336,6 @@ namespace HM
          }
 
          return;
-
       }
 
       if (bIsLocalDomain)

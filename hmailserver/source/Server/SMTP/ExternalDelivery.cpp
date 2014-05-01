@@ -600,7 +600,7 @@ namespace HM
          String sAddress = (*iterAddress).first;
          String sDomainName = StringParser::ExtractDomain (sAddress).ToLower();
          
-         shared_ptr<Route> pRoute = pRoutes->GetItemByName(sDomainName);
+         shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sDomainName);
 
          if (pRoute)
          {
