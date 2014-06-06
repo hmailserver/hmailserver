@@ -71,9 +71,7 @@ namespace HM
 
       void OnPropertyChanged(shared_ptr<Property> pProperty);
 
-   protected:
-
-      virtual bool OnDatabaseConnected(String &sErrorMessage);
+      bool OnDatabaseConnected(String &sErrorMessage);
 
    private:
 

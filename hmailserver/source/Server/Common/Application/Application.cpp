@@ -133,9 +133,6 @@ namespace HM
       
       if (!OnDatabaseConnected(sErrorMessage))
       {
-         // This database is not compatible. 
-         sErrorMessage = "Database initialization failed.";
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5010, "Application::InitInstance", sErrorMessage);
          return false;
       }
 
@@ -195,6 +192,7 @@ namespace HM
       {
          sErrorMessage = "Database version could not be detected.";
          m_sLastConnectErrorMessage = sErrorMessage;
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5010, "Application::OnDatabaseConnected", sErrorMessage);
          return false;
       }
 
