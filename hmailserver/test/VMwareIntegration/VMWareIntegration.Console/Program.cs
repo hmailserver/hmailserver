@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using VMwareIntegration.Common;
@@ -11,8 +12,13 @@ namespace VMwareIntegration.Console
 {
    class Program
    {
+      private static string _logFile;
+
       static int Main(string[] args)
       {
+         var softwareUnderTest = args[0];
+         _logFile = args[1];
+
          System.Console.WriteLine("Loading test suite...");
 
          // Load static container of all tests.
@@ -32,7 +38,7 @@ namespace VMwareIntegration.Console
 
             System.Console.WriteLine(message);
 
-            TestRunner runner = new TestRunner(true, environment, true);
+            TestRunner runner = new TestRunner(true, environment, true, softwareUnderTest);
             runner.TestCompleted += runner_TestCompleted;
             if (!runner.Run())
                return -1;
@@ -46,12 +52,18 @@ namespace VMwareIntegration.Console
       static void runner_TestCompleted(bool result, string message, string failureText)
       {
          if (result)
-            System.Console.WriteLine("The test completed successfully.");
+            LogText("The test completed successfully.");
          else
          {
-            System.Console.WriteLine("The test failed.");
-            System.Console.WriteLine(failureText);
+            LogText("The test failed.");
+            LogText(failureText);
          }
+      }
+
+      private static void LogText(string text)
+      {
+         System.Console.WriteLine(text);
+         File.AppendAllText(_logFile, text);
       }
    }
 }

@@ -44,9 +44,6 @@ namespace VMwareIntegration
          ListViewItem item = listStatus.Items.Add("Tester");
          item.SubItems.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-         item = listStatus.Items.Add("Test subject");
-         item.SubItems.Add(TestSettings.GetSoftwareUnderTest());
-
          item = listStatus.Items.Add("Test fixture");
          item.SubItems.Add(TestSettings.GetFixturePath());
       }
@@ -130,7 +127,7 @@ namespace VMwareIntegration
                ReportStatusForCurrentItem("Started " + DateTime.Now.ToShortTimeString(), "");
 
                TestEnvironment environment = item.Tag as TestEnvironment;
-               TestRunner runner = new TestRunner(false, environment, checkStopOnError.Checked);
+               TestRunner runner = new TestRunner(false, environment, checkStopOnError.Checked, textSoftwareUnderTest.Text );
 
                runner.TestCompleted += new TestRunner.TestCompletedDelegate(runner_TestCompleted);
                _runThread = new Thread(new ThreadStart(runner.RunThread));
@@ -181,7 +178,9 @@ namespace VMwareIntegration
 
       private void buttonRunSelected_Click(object sender, EventArgs e)
       {
-         if (MessageBox.Show("Is this the correct hMailServer installation program?" + Environment.NewLine + Environment.NewLine + Path.GetFileName(TestSettings.GetSoftwareUnderTest()), "Test subject", MessageBoxButtons.YesNoCancel) != DialogResult.Yes)
+         var softwareUnderTest = textSoftwareUnderTest.Text;
+
+         if (MessageBox.Show("Is this the correct hMailServer installation program?" + Environment.NewLine + Environment.NewLine + Path.GetFileName(softwareUnderTest), "Test subject", MessageBoxButtons.YesNoCancel) != DialogResult.Yes)
             return;
          
          StartNextTest();

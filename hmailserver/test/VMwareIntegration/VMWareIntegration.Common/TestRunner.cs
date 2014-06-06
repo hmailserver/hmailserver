@@ -23,11 +23,14 @@ namespace VMwareIntegration.Common
 
       public event TestCompletedDelegate TestCompleted;
 
-      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError)
+      private string _softwareUnderTest;
+
+      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
       {
          _environment = environment;
          _stopOnError = stopOnError;
          _embedded = embedded;
+         _softwareUnderTest = softwareUnderTest;
       }
 
       public void RunThread()
@@ -85,7 +88,7 @@ namespace VMwareIntegration.Common
             string runTestScripts = fixtureSourcePath + @"\" + runTestsScriptName;
             string guestTestPath = @"C:\Nunit";
 
-            string softwareUnderTestFullPath = TestSettings.GetSoftwareUnderTest();
+            string softwareUnderTestFullPath = _softwareUnderTest;
             string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
 
             string softwareUnderTestSilentParmas = "/SILENT";

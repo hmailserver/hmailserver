@@ -13,31 +13,6 @@ namespace VMwareIntegration.Common
    public class TestSettings
    {
       /// <summary>
-      /// Determine the output executable to test.
-      /// </summary>
-      /// <returns></returns>
-      public static string GetSoftwareUnderTest()
-      {
-         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         string outputDir = Path.Combine(currentDir, @"..\..\..\..\..\Installation\Output");
-
-         DirectoryInfo dir = new DirectoryInfo(outputDir);
-         FileInfo[] files = dir.GetFiles("*.exe");
-
-         List<string> fileNames = new List<string>();
-         foreach (FileInfo file in files)
-         {
-            fileNames.Add(file.Name);
-         }
-         fileNames.Sort();
-
-         string last = fileNames[files.Length - 1];
-
-         return Path.GetFullPath(Path.Combine(outputDir, last));
-
-      }
-
-      /// <summary>
       /// Determine the fixture path.  
       /// </summary>
       /// <returns></returns>

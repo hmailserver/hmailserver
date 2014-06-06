@@ -47,6 +47,8 @@
          this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
          this.timer = new System.Windows.Forms.Timer(this.components);
          this.buttonStop = new System.Windows.Forms.Button();
+         this.label1 = new System.Windows.Forms.Label();
+         this.textSoftwareUnderTest = new System.Windows.Forms.TextBox();
          this.SuspendLayout();
          // 
          // listConfigurations
@@ -61,10 +63,10 @@
             this.columnSnapshot,
             this.columnStatus});
          this.listConfigurations.FullRowSelect = true;
-         this.listConfigurations.Location = new System.Drawing.Point(9, 13);
+         this.listConfigurations.Location = new System.Drawing.Point(9, 56);
          this.listConfigurations.Name = "listConfigurations";
          this.listConfigurations.ShowItemToolTips = true;
-         this.listConfigurations.Size = new System.Drawing.Size(900, 348);
+         this.listConfigurations.Size = new System.Drawing.Size(900, 305);
          this.listConfigurations.TabIndex = 0;
          this.listConfigurations.UseCompatibleStateImageBehavior = false;
          this.listConfigurations.View = System.Windows.Forms.View.Details;
@@ -208,11 +210,29 @@
          this.buttonStop.UseVisualStyleBackColor = true;
          this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
          // 
+         // label1
+         // 
+         this.label1.AutoSize = true;
+         this.label1.Location = new System.Drawing.Point(10, 13);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(99, 13);
+         this.label1.TabIndex = 9;
+         this.label1.Text = "Software under test";
+         // 
+         // textSoftwareUnderTest
+         // 
+         this.textSoftwareUnderTest.Location = new System.Drawing.Point(13, 30);
+         this.textSoftwareUnderTest.Name = "textSoftwareUnderTest";
+         this.textSoftwareUnderTest.Size = new System.Drawing.Size(415, 20);
+         this.textSoftwareUnderTest.TabIndex = 10;
+         // 
          // formConfigurations
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(917, 573);
+         this.Controls.Add(this.textSoftwareUnderTest);
+         this.Controls.Add(this.label1);
          this.Controls.Add(this.buttonStop);
          this.Controls.Add(this.listStatus);
          this.Controls.Add(this.checkShutdownOnSuccess);
@@ -253,5 +273,7 @@
       private System.Windows.Forms.ColumnHeader columnHeader2;
       private System.Windows.Forms.Timer timer;
       private System.Windows.Forms.Button buttonStop;
+      private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.TextBox textSoftwareUnderTest;
    }
 }
