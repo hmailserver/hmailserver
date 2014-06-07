@@ -30,6 +30,12 @@ namespace HM
          return false;
       }
 
+      if (oParser.GetNoOfCommands() == 0)
+      {
+         sErrorMessage = "Found no SQL commands in file : " + sFile;
+         return false;
+      }
+
       // 30 minute timeout per statement. Should hopefully never be needed.
       connectionObject->SetTimeout(60 * 30);
 
