@@ -61,7 +61,6 @@ namespace DBSetupQuick
          if (CommandLineParser.ContainsArgument("password"))
             adminPassword = CommandLineParser.GetArgument("password");
 
-         Authenticator authenticator = new Authenticator();
          if (!Authenticator.AuthenticateUser(_application, adminPassword))
             return;
 

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace hMailServer.Shared
 {
-   public class Authenticator
+   public static class Authenticator
    {
       public static bool AuthenticateUser(hMailServer.Application application, string password)
       {
