@@ -26,7 +26,6 @@ namespace VMwareIntegration.Common
 
       static void AddBasicTestEnvironments(List<TestEnvironment> listEnvironments)
       {
-         TestWindows2000(listEnvironments);
          TestXPSP2(listEnvironments);
          TestWindows2003(listEnvironments);
          TestWindows2008(listEnvironments);
@@ -84,12 +83,6 @@ namespace VMwareIntegration.Common
       {
          // Two basics using internal database
          listEnvironments.Add(new TestEnvironment("Windows 2008", "New installation", "Internal", Windows2008Path, "Windows Server 2008"));
-      }
-
-      private static void TestWindows2000(List<TestEnvironment> listEnvironments)
-      {
-         // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows 2000", "New installation", "Internal", Windows2000Path, "Service Pack 4"));
       }
 
       private static void TestWindows2003(List<TestEnvironment> listEnvironments)
