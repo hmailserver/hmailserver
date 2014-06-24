@@ -27,3 +27,4 @@ hmailserver/source/WebAdmin/include_versioncheck.php
 hmailserver/source/Server/hMailServer/hMailServer.ncb
 hmailserver/source/Server/hMailServer/hMailServer_i.c
 hmailserver/source/Server/hMailServer/hMailServer_p.c
+hmailserver/source/Server/hMailServer/x64/*
