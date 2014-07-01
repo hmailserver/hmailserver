@@ -58,12 +58,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries\boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
+				AdditionalIncludeDirectories="..\..\..\..\Libraries\boost_1_55_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				WarnAsError="true"
@@ -163,12 +163,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries\boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
+				AdditionalIncludeDirectories="..\..\..\..\Libraries\boost_1_55_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				WarnAsError="true"
@@ -226,7 +226,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -268,10 +268,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP&#x0D;&#x0A;"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
+				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_55_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB"
 				ExceptionHandling="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				WarnAsError="false"
@@ -327,7 +327,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\win32\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\win32\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -369,10 +369,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP&#x0D;&#x0A;"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
+				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_55_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB"
 				ExceptionHandling="2"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				WarnAsError="false"
@@ -428,7 +428,63 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug (x64)|Win32"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration

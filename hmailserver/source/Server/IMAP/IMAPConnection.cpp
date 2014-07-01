@@ -665,7 +665,7 @@ namespace HM
 
       std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_IDLE);
       shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
-      shared_ptr<IMAPCommandIdle> pIdleCommand = boost::shared_static_cast<IMAPCommandIdle>(pCommand);
+      shared_ptr<IMAPCommandIdle> pIdleCommand = boost::static_pointer_cast<IMAPCommandIdle>(pCommand);
       pIdleCommand->Finish(true);
    }
 

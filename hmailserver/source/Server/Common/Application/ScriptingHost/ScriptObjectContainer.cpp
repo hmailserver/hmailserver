@@ -67,7 +67,7 @@ namespace HM
       case ScriptObject::OTResult:
          {
             CComObject<InterfaceResult> *pResultInt = new CComObject<InterfaceResult>();
-            shared_ptr<Result> pResult = shared_static_cast<Result>(pObj->pObject);
+            shared_ptr<Result> pResult = static_pointer_cast<Result>(pObj->pObject);
             pResultInt->AttachItem(pResult);
             pResultInt->QueryInterface(ppunkItem);
             return true;
@@ -75,7 +75,7 @@ namespace HM
       case ScriptObject::OTMessage:
          {
             CComObject<InterfaceMessage> *pInterface = new CComObject<InterfaceMessage>();
-            shared_ptr<Message> pObject = shared_static_cast<Message>(pObj->pObject);
+            shared_ptr<Message> pObject = static_pointer_cast<Message>(pObj->pObject);
             pInterface->AttachItem(pObject);
             pInterface->QueryInterface(ppunkItem);
            
@@ -84,7 +84,7 @@ namespace HM
       case ScriptObject::OTClient:
          {
             CComObject<InterfaceClient> *pInterface = new CComObject<InterfaceClient>();
-            shared_ptr<ClientInfo> pObject = shared_static_cast<ClientInfo>(pObj->pObject);
+            shared_ptr<ClientInfo> pObject = static_pointer_cast<ClientInfo>(pObj->pObject);
             
             pInterface->AttachItem(pObject);
             pInterface->QueryInterface(ppunkItem);
@@ -99,7 +99,7 @@ namespace HM
       case ScriptObject::OTFetchAccount:
          {
             CComObject<InterfaceFetchAccount> *pInterface = new CComObject<InterfaceFetchAccount>();
-            shared_ptr<FetchAccount> pObject = shared_static_cast<FetchAccount>(pObj->pObject);
+            shared_ptr<FetchAccount> pObject = static_pointer_cast<FetchAccount>(pObj->pObject);
             pInterface->AttachItem(pObject);
             pInterface->QueryInterface(ppunkItem);
 

@@ -81,7 +81,7 @@ namespace HM
             return nothing;
          }
 
-         shared_ptr<MessageIndexer> result = shared_static_cast<MessageIndexer>(task);
+         shared_ptr<MessageIndexer> result = static_pointer_cast<MessageIndexer>(task);
          return result;
       }
       catch (...)
