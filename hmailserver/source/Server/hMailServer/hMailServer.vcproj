@@ -90,7 +90,7 @@
 				ShowProgress="0"
 				OutputFile="$(OutDir)/hMailServer.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs&quot;;..\..\..\..\Libraries\pgsql8.2.4"
+				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs\win32&quot;;..\..\..\..\Libraries\pgsql8.2.4"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -121,211 +121,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="&quot;$(TargetPath)&quot; /Register"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfATL="1"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			ManagedExtensions="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="NET STOP hMailServer&#x0D;&#x0A;EXIT 0&#x0D;&#x0A;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="1"
-				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/hMailServer.tlb"
-				HeaderFileName="hMailServer.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="hMailServer_i.c"
-				ProxyFileName="hMailServer_p.c"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP&#x0D;&#x0A;"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB"
-				ExceptionHandling="2"
-				RuntimeLibrary="0"
-				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				WarnAsError="false"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalOptions="/SAFESEH /ignore:4099"
-				AdditionalDependencies="libeay32.lib ssleay32.lib Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib"
-				OutputFile="$(OutDir)/hMailServer.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs&quot;;..\..\..\..\Libraries\pgsql8.2.4"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/hMailServer.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Performing registration"
-				CommandLine="&quot;$(TargetPath)&quot; /Register"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug (x64)|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfATL="1"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="NET STOP hMailServer&#x0D;&#x0A;EXIT 0&#x0D;&#x0A;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="1"
-				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/hMailServer.tlb"
-				HeaderFileName="hMailServer.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="hMailServer_i.c"
-				ProxyFileName="hMailServer_p.c"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\Libraries\boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB"
-				MinimalRebuild="true"
-				ExceptionHandling="2"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				WarnAsError="false"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalOptions="/ignore:4099"
-				AdditionalDependencies="Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib libeay32.lib ssleay32.lib"
-				ShowProgress="0"
-				OutputFile="$(OutDir)/hMailServer.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs&quot;;..\..\..\..\Libraries\pgsql8.2.4"
-				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				FixedBaseAddress="1"
-				ImportLibrary="$(OutDir)/hMailServer.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Performing registration"
-				CommandLine="&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\win32\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -399,7 +195,7 @@
 				ShowProgress="0"
 				OutputFile="$(OutDir)/hMailServer.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs&quot;;..\..\..\..\Libraries\pgsql8.2.4"
+				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs\x64&quot;;..\..\..\..\Libraries\pgsql8.2.4"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -430,7 +226,108 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfATL="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			ManagedExtensions="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="NET STOP hMailServer&#x0D;&#x0A;EXIT 0&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/hMailServer.tlb"
+				HeaderFileName="hMailServer.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="hMailServer_i.c"
+				ProxyFileName="hMailServer_p.c"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP&#x0D;&#x0A;"
+				AdditionalIncludeDirectories="..\..\..\..\Libraries/boost_1_52_0;..\..\..\..\Libraries\mssqlce3.5;&quot;..\..\..\..\Libraries\openssl-1.0.1h\include&quot;;..\..\..\..\Libraries\pgsql8.2.4\include"
+				PreprocessorDefinitions="WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB"
+				ExceptionHandling="2"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				WarnAsError="false"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
+				AdditionalOptions="/SAFESEH /ignore:4099"
+				AdditionalDependencies="libeay32.lib ssleay32.lib Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib"
+				OutputFile="$(OutDir)/hMailServer.exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs\win32&quot;;..\..\..\..\Libraries\pgsql8.2.4"
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="$(OutDir)/hMailServer.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Performing registration"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\win32\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
 			/>
 		</Configuration>
 		<Configuration
@@ -501,7 +398,7 @@
 				AdditionalDependencies="libeay32.lib ssleay32.lib Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib"
 				OutputFile="$(OutDir)/hMailServer.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs&quot;;..\..\..\..\Libraries\pgsql8.2.4"
+				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs\x64&quot;;..\..\..\..\Libraries\pgsql8.2.4"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -531,7 +428,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Performing registration"
-				CommandLine="&quot;$(TargetPath)&quot; /Register"
+				CommandLine="copy $(SolutionDir)..\..\..\..\libraries\openssl-1.0.1h\libs\x64\*.dll $(OutDir)&#x0D;&#x0A;&quot;$(TargetPath)&quot; /Register"
 			/>
 		</Configuration>
 		<Configuration
@@ -669,23 +566,15 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="1"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug (x64)|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="1"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1192,23 +1081,15 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Debug (x64)|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
 							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -1264,23 +1145,15 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Debug (x64)|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)/$(InputName)1.obj"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
 							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								ObjectFile="$(IntDir)/$(InputName)1.obj"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -5056,23 +4929,15 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug (x64)|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"

@@ -74,6 +74,8 @@ Source: "System files\dnsapi.dll"; DestDir: "{sys}"; Flags: uninsneveruninstall 
 Source: "System files\ATL\atl70.dll"; DestDir: "{sys}";  Components: server;
 Source: "SQLCE\SSCERuntime-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
 Source: ".\Extras\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "..\..\libraries\openssl-1.0.1h\libs\win32\libeay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "..\..\libraries\openssl-1.0.1h\libs\win32\ssleay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
 
 ; Main server
 Source: "..\source\server\hMailServer\Release\hMailServer.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;

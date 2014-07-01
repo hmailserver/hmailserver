@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.IO;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -27,10 +28,19 @@ namespace RegressionTests.SSL
          string sslPath = Environment.CurrentDirectory;
          Environment.CurrentDirectory = originalPath;
 
+         var exampleCert = Path.Combine(sslPath, "example.crt");
+         var exampleKey = Path.Combine(sslPath, "example.key");
+
+         if (!File.Exists(exampleCert))
+            Assert.Fail("Certificate " + exampleCert + " was not found");
+         if (!File.Exists(exampleKey))
+            Assert.Fail("Private key " + exampleKey + " was not found");
+
+
          SSLCertificate sslCertificate = _application.Settings.SSLCertificates.Add();
          sslCertificate.Name = "Example";
-         sslCertificate.CertificateFile = sslPath + "\\example.crt";
-         sslCertificate.PrivateKeyFile = sslPath + "\\example.key";
+         sslCertificate.CertificateFile = exampleCert;
+         sslCertificate.PrivateKeyFile = exampleKey;
          sslCertificate.Save();
 
          return sslCertificate;

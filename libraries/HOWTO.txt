@@ -1,25 +1,12 @@
-Building OpenSSL 0.x
-----------------
-1) Download SSL and put it into C:\Temp\OpenSSL
-2) Make sure Perl is installed
-3) Open up a command prompt and go to C:\Temp\OpenSSL\version.
-4) Run "C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
-5) Run Perl Configure VC-WIN32
-6) Run ms\do_ms
-7) Run nmake -f ms\nt.mak
-
-Info:
-* Use incl32 include folder.
-
 Building OpenSSL 1.x
 ----------------
 1) Download SSL and put it into C:\Temp\OpenSSL
 2) Make sure Perl is installed
-3) Open up a command prompt and go to C:\Temp\OpenSSL\version.
-4) Run "C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+3) Open up a Visual Studio 2008 Command prompt (NOTE: Not x64)
+4) Change dir to C:\Temp\OpenSSL\version.
 5) Run Perl Configure no-asm VC-WIN32
 6) Run ms\do_ms
-7) Run nmake -f ms\nt.mak
+7) Run nmake -f ms\ntdll.mak
 
 Info:
 * Use incl32 include folder.
