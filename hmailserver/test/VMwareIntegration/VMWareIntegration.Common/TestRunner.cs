@@ -15,18 +15,20 @@ namespace VMwareIntegration.Common
       private TestEnvironment _environment;
       private bool _stopOnError;
       private bool _embedded;
-      public delegate void TestCompletedDelegate(bool result, string message, string failureText);
+      public delegate void TestCompletedDelegate(int testIndex, bool result, string message, string failureText);
 
       public event TestCompletedDelegate TestCompleted;
 
       private string _softwareUnderTest;
+      private int _testIndex;
 
-      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
+      public TestRunner(bool embedded, int testIndex, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
       {
          _environment = environment;
          _stopOnError = stopOnError;
          _embedded = embedded;
          _softwareUnderTest = softwareUnderTest;
+         _testIndex = testIndex;
       }
 
       public void RunThread()
@@ -57,7 +59,7 @@ namespace VMwareIntegration.Common
             string text = success ? "Success" : "Failure";
 
             text = text + " " + ts.ToString().Substring(0, 8);
-            TestCompleted(success, text, failureText);
+            TestCompleted(_testIndex, success, text, failureText);
          }
          catch (Exception)
          {

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using VMwareIntegration.Common;
 
 namespace VMwareIntegration.Console
@@ -27,38 +29,53 @@ namespace VMwareIntegration.Console
          List<TestEnvironment> listEnvironments = new List<TestEnvironment>();
          TestEnvironments.AddAll(listEnvironments);
 
-         int testIndex = 1;
+         int testIndex = 0;
 
-         foreach (TestEnvironment environment in listEnvironments)
+         var options = new ParallelOptions()
+            {
+               MaxDegreeOfParallelism = 4
+            };
+
+         // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
+         var environmentsGroupedByVmwareImage = listEnvironments.GroupBy(item => item.VMwarePath);
+
+         Parallel.ForEach(environmentsGroupedByVmwareImage, options, environmentGroup =>
          {
-            string message = string.Format("{5} - Running test {3} / {4} - {0} on {1} (Snapshot: {2})",
-               environment.Description,
-               environment.OperatingSystem,
-               environment.SnapshotName,
-               testIndex,
-               listEnvironments.Count,
-               DateTime.Now);
+            foreach (var environment in environmentGroup)
+            {
+               int localIndex = Interlocked.Increment(ref testIndex);
 
-            LogText(message);
+               string message = string.Format("{5} - Running test {3} / {4} - {0} on {1} (Snapshot: {2})",
+                  environment.Description,
+                  environment.OperatingSystem,
+                  environment.SnapshotName,
+                  localIndex,
+                  listEnvironments.Count,
+                  DateTime.Now);
 
-            TestRunner runner = new TestRunner(true, environment, true, softwareUnderTest);
-            runner.TestCompleted += runner_TestCompleted;
-            if (!runner.Run())
-               return -1;
+               LogText(message);
 
-            testIndex++;
-         }
+               TestRunner runner = new TestRunner(true, localIndex, environment, true, softwareUnderTest);
+               runner.TestCompleted += runner_TestCompleted;
+               if (!runner.Run())
+               {
+
+                  throw new Exception("Unable to run test.");
+               }
+            }
+
+         });
 
          return 0;
       }
 
-      static void runner_TestCompleted(bool result, string message, string failureText)
+      static void runner_TestCompleted(int testIndex, bool result, string message, string failureText)
       {
          if (result)
-            LogText("The test completed successfully.");
+            LogText(string.Format("The test {0} completed successfully.", testIndex));
          else
          {
-            LogText("The test failed.");
+            LogText(string.Format("The test {0} failed.", testIndex));
             LogText(failureText);
          }
       }
