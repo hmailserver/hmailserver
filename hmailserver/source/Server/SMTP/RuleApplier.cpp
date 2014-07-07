@@ -27,10 +27,9 @@
 
 #include "SMTPConfiguration.h"
 
-// Scripting includes
-#include "../Common/Application/ScriptingHost/ScriptServer.h"
-#include "../Common/Application/ScriptingHost/ScriptObjectContainer.h"
-#include "../Common/Application/ScriptingHost/Result.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+#include "../Common/Scripting/Result.h"
 
 #include "../Common/BO/MessageRecipient.h"
 

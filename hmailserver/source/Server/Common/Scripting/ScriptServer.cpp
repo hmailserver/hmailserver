@@ -4,7 +4,7 @@
 #include "StdAfx.h"
 
 
-#include "../../../hMailServer/hMailServer.h"
+#include "../../hMailServer/hMailServer.h"
 
 
 #include "ScriptServer.h"

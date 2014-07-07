@@ -3,13 +3,13 @@
 
 #include "StdAfx.h"
 
-#include "../../../hMailServer/hMailServer.h"   
+//#include "../../hMailServer/hMailServer.h"   
 
-#include "../../../COM/InterfaceResult.h"
-#include "../../../COM/InterfaceMessage.h"
-#include "../../../COM/InterfaceClient.h"
-#include "../../../COM/InterfaceEventLog.h"
-#include "../../../COM/InterfaceFetchAccount.h"
+#include "../../COM/InterfaceResult.h"
+#include "../../COM/InterfaceMessage.h"
+#include "../../COM/InterfaceClient.h"
+#include "../../COM/InterfaceEventLog.h"
+#include "../../COM/InterfaceFetchAccount.h"
 
 //#include "IScriptObject.h"
 #include "ScriptObjectContainer.h"

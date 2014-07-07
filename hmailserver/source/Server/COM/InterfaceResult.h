@@ -6,7 +6,7 @@
 #include "../hMailServer/resource.h"       // main symbols
 
 #include "../hMailServer/hMailServer.h"
-#include "../Common/Application/ScriptingHost/Result.h"
+#include "../Common/Scripting/Result.h"
 
 // InterfaceResult
 

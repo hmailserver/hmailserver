@@ -6,8 +6,8 @@
 
 #include "FetchAccountUIDList.h"
 
-#include "../Common/Application/ScriptingHost/Result.h"
-#include "../Common/EventHandlers/Events.h"
+#include "../Common/Scripting/Result.h"
+#include "../Common/Scripting/Events.h"
 #include "../Common/BO/FetchAccount.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/MessageData.h"

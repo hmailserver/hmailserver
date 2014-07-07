@@ -14,7 +14,7 @@
 #include "../common/BO/MessageRecipients.h"
 #include "../common/BO/Routes.h"
 
-#include "../common/EventHandlers/Events.h"
+#include "../common/Scripting/Events.h"
 
 #include "../common/Persistence/PersistentMessageRecipient.h"
 #include "../common/Persistence/PersistentMessage.h"

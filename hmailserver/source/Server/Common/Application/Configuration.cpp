@@ -12,7 +12,7 @@
 #include "../Application/Property.h"
 #include "../Cache/CacheContainer.h"
 #include "../Application/ObjectCache.h"
-#include "..\Application\ScriptingHost\ScriptServer.h"
+#include "..\Scripting\ScriptServer.h"
 #include "..\Util\TLD.h"
 #include "..\TCPIP\LocalIPAddresses.h"
 

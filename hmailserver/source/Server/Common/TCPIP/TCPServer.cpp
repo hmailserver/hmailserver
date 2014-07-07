@@ -10,10 +10,10 @@
 #include <string>
 
 
-#include "../Application/ScriptingHost/ScriptServer.h"
-#include "../Application/ScriptingHost/ScriptObjectContainer.h"
-#include "../Application/ScriptingHost/Result.h"
-#include "../Application/ClientInfo.h"
+#include "../Scripting/ScriptServer.h"
+#include "../Scripting/ScriptObjectContainer.h"
+#include "../Scripting/Result.h"
+#include "../Scripting/ClientInfo.h"
 #include "../Persistence/PersistentSecurityRange.h"
 
 #include "../Application/SessionManager.h"

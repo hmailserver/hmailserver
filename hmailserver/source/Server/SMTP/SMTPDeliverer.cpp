@@ -25,7 +25,7 @@
 #include "../common/Util/MessageAttachmentStripper.h"
 #include "../common/Util/MessageUtilities.h"
 
-#include "../common/EventHandlers/Events.h"
+#include "../common/Scripting/Events.h"
 
 #include "../common/Persistence/PersistentMessage.h"
 #include "../common/Persistence/PersistentIMAPFolder.h"

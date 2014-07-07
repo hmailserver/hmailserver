@@ -5,7 +5,7 @@
 #include "COMError.h"
 #include "..\COM\InterfaceClient.h"
 
-#include "../Common/Application/ClientInfo.h"
+#include "../Common/Scripting/ClientInfo.h"
 
 // InterfaceClient
 

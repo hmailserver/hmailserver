@@ -7,9 +7,9 @@
 
 #include "Backup.h"
 
-#include "ScriptingHost/ScriptServer.h"
-#include "ScriptingHost/ScriptObjectContainer.h"
-#include "ScriptingHost/Result.h"
+#include "../Scripting/ScriptServer.h"
+#include "../Scripting/ScriptObjectContainer.h"
+#include "../Scripting/Result.h"
 
 #include "..\Util\Compression.h"
 

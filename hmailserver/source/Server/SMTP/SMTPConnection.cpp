@@ -18,7 +18,7 @@
 #include "../common/util/Utilities.h"
 #include "../common/util/File.h"
 #include "../common/util/Time.h"
-#include "../common/Application/ClientINfo.h"
+#include "../common/Scripting/ClientInfo.h"
 #include "../common/AntiSpam/SpamTestResult.h"
 #include "../Common/UTil/Math.h"
 #include "../Common/UTil/SignatureAdder.h"
@@ -54,9 +54,9 @@
 #include "../Common/AntiSpam/SpamProtection.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
-#include "../Common/Application/ScriptingHost/ScriptServer.h"
-#include "../Common/Application/ScriptingHost/ScriptObjectContainer.h"
-#include "../Common/Application/ScriptingHost/Result.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+#include "../Common/Scripting/Result.h"
 
 #include "../Common/Application/IniFileSettings.h"
 

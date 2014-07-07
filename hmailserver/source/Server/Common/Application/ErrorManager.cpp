@@ -14,8 +14,8 @@
 
 
 #ifndef _ERROR_LOGGING_IN_MESSAGE_BOXES
-   #include "ScriptingHost/ScriptServer.h"
-   #include "ScriptingHost/ScriptObjectContainer.h"
+   #include "../Scripting/ScriptServer.h"
+   #include "../Scripting/ScriptObjectContainer.h"
 #endif
 
 namespace HM

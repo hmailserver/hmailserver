@@ -5,7 +5,7 @@
 #include "COMError.h"
 #include "InterfaceScripting.h"
 
-#include "..\Common\Application\ScriptingHost\ScriptServer.h"
+#include "..\Common\Scripting\ScriptServer.h"
 
 bool 
 InterfaceScripting::LoadSettings()

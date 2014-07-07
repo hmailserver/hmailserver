@@ -9,13 +9,13 @@
 #include "../BO/Account.h"
 #include "../BO/Message.h"
 
-#include "../Application/ScriptingHost/ScriptServer.h"
-#include "../Application/ScriptingHost/ScriptObjectContainer.h"
-#include "../Application/ScriptingHost/Result.h"
-
 #include "../Persistence/PersistentMessage.h"
 
 #include "../Util/AWStats.h"
+
+#include "ScriptServer.h"
+#include "ScriptObjectContainer.h"
+#include "Result.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

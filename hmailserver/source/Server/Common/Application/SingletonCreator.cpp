@@ -12,7 +12,7 @@
 #include "..\Util\TLD.h"
 #include "..\Application\ObjectCache.h"
 #include "..\Application\IniFileSettings.h"
-#include "..\Application\ScriptingHost\ScriptServer.h"
+#include "..\Scripting\ScriptServer.h"
 #include "..\Application\Reinitializator.h"
 #include "..\TCPIP\LocalIPAddresses.h"
 #include "..\..\IMAP\StaticIMAPCommandHandlers.h"

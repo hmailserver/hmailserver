@@ -2620,27 +2620,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\Common\Application\ScriptingHost\Result.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Application\ScriptingHost\Result.h"
-							>
-						</File>
-						<File
 							RelativePath="..\Common\Application\Scheduler.cpp"
 							>
 						</File>
 						<File
 							RelativePath="..\Common\Application\Scheduler.h"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Application\ScriptingHost\ScriptObjectContainer.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Application\ScriptingHost\ScriptObjectContainer.h"
 							>
 						</File>
 						<File
@@ -2667,22 +2651,6 @@
 							RelativePath="..\Common\Application\TimeoutCalculator.h"
 							>
 						</File>
-						<Filter
-							Name="ScriptingHost"
-							>
-							<File
-								RelativePath="..\Common\Application\ScriptingHost\ScriptServer.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\Common\Application\ScriptingHost\ScriptServer.h"
-								>
-							</File>
-							<File
-								RelativePath="..\Common\Application\ScriptingHost\ScriptSite.h"
-								>
-							</File>
-						</Filter>
 					</Filter>
 					<Filter
 						Name="SQL"
@@ -2947,18 +2915,6 @@
 								>
 							</File>
 						</Filter>
-					</Filter>
-					<Filter
-						Name="Events"
-						>
-						<File
-							RelativePath="..\Common\EventHandlers\Events.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\EventHandlers\Events.h"
-							>
-						</File>
 					</Filter>
 					<Filter
 						Name="Persistence"
@@ -3796,14 +3752,6 @@
 							>
 						</File>
 						<File
-							RelativePath="..\Common\Application\ClientInfo.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Application\ClientInfo.h"
-							>
-						</File>
-						<File
 							RelativePath="..\Common\Util\Compression.cpp"
 							>
 						</File>
@@ -4261,6 +4209,54 @@
 						</File>
 						<File
 							RelativePath="..\Common\AntiVirus\VirusScanningResult.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Scripting"
+						>
+						<File
+							RelativePath="..\Common\Scripting\ClientInfo.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ClientInfo.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\Events.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\Events.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\Result.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\Result.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ScriptObjectContainer.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ScriptObjectContainer.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ScriptServer.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ScriptServer.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Scripting\ScriptSite.h"
 							>
 						</File>
 					</Filter>
