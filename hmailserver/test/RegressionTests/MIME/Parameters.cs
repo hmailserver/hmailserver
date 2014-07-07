@@ -28,7 +28,7 @@ namespace RegressionTests.MIME
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
-         Assert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
+         CustomAssert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
       }
 
       [Test]
@@ -49,7 +49,7 @@ namespace RegressionTests.MIME
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
-         Assert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
+         CustomAssert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
       }
 
       [Test]
@@ -70,7 +70,7 @@ namespace RegressionTests.MIME
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
-         Assert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
+         CustomAssert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
       }
 
       [Test]
@@ -91,7 +91,7 @@ namespace RegressionTests.MIME
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
-         Assert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
+         CustomAssert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
       }
 
       [Test]
@@ -112,7 +112,7 @@ namespace RegressionTests.MIME
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
-         Assert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
+         CustomAssert.IsTrue(result.Contains("(\"CHARSET\" \"iso-8859-1\")"), result);
       }
    }
 }

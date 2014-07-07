@@ -129,7 +129,7 @@ namespace RegressionTests.POP3
             POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
 
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(_message));
+            CustomAssert.IsTrue(downloadedMessage.Contains(_message));
          }
       }
 
@@ -165,7 +165,7 @@ namespace RegressionTests.POP3
 
             POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(_message));
+            CustomAssert.IsTrue(downloadedMessage.Contains(_message));
          }
       }
 
@@ -216,7 +216,7 @@ namespace RegressionTests.POP3
 
             POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(messageContent));
+            CustomAssert.IsTrue(downloadedMessage.Contains(messageContent));
          }
       }
    }

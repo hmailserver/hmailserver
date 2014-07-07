@@ -53,7 +53,7 @@ namespace RegressionTests.Shared
 
          // Don't return until we have started to listen. This is done to prevent
          // someone from trying to continue the test before we're ready.
-         Assert.IsTrue(_listenThreadStarted.WaitOne(TimeSpan.FromSeconds(15), false));
+         CustomAssert.IsTrue(_listenThreadStarted.WaitOne(TimeSpan.FromSeconds(15), false));
 
          if (_workerThreadException != null)
             throw _workerThreadException;
@@ -170,22 +170,22 @@ namespace RegressionTests.Shared
          string log = TestSetup.ReadCurrentDefaultLog();
 
          if (_numberOfConnectedClients < _maxNumberOfConnections)
-            Assert.Fail(
+            CustomAssert.Fail(
                string.Format(
-                  "Client did not connect to simulated server. Expected connection count: {0}, Actual: {1}\r\nLog:\r\n{2}",
-                  _maxNumberOfConnections, _numberOfConnectedClients, log));
+                  "At {0} - Client did not connect to simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
+                  DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
          else
-            Assert.Fail(
+            CustomAssert.Fail(
                string.Format(
-                  "Client did not disconnect from simulated server. Expected connection count: {0}, Actual: {1}\r\nLog:\r\n{2}",
-                  _maxNumberOfConnections, _numberOfConnectedClients, log));
+                  "At {0} - Client did not disconnect from simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
+                  DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
       }
 
       public void Dispose()
       {
          _stopServerEvent.Set();
 
-         Assert.IsTrue(_workerThreadFinished.WaitOne(TimeSpan.FromSeconds(15), false));
+         CustomAssert.IsTrue(_workerThreadFinished.WaitOne(TimeSpan.FromSeconds(15), false));
 
          if (_tcpListener != null)
             _tcpListener.Stop();

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -37,7 +38,7 @@ namespace RegressionTests.Shared
             account = application.Authenticate("Administrator", "");
 
          if (account == null)
-            Assert.Fail("hMailServer API authentication failed");
+            CustomAssert.Fail("hMailServer API authentication failed");
 
          _settings = application.Settings;
       }
@@ -143,7 +144,7 @@ namespace RegressionTests.Shared
          if (File.Exists(GetErrorLogFileName()))
          {
             string contents = File.ReadAllText(GetErrorLogFileName());
-            Assert.Fail(contents);
+            CustomAssert.Fail(contents);
          }
 
          if (File.Exists(GetEventLogFileName()))
@@ -346,7 +347,7 @@ namespace RegressionTests.Shared
          string message = string.Format(
             "Message queue does not contain correct number of messages. Actual: {0}, Expected: {1}",
             currentCount, count);
-         Assert.Fail(message);
+         CustomAssert.Fail(message);
       }
 
       private void RemoveAllRules()
@@ -655,7 +656,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(100);
          }
 
-         Assert.Fail("Delivery queue not empty");
+         CustomAssert.Fail("Delivery queue not empty");
       }
 
       public string AssertLiveLogContents()
@@ -692,7 +693,7 @@ namespace RegressionTests.Shared
          }
          catch (Exception)
          {
-            Assert.Ignore("Unable to start SpamAssassin process. Is SpamAssassin installed?");
+            CustomAssert.Inconclusive("Unable to start SpamAssassin process. Is SpamAssassin installed?");
          }
       }
 
@@ -725,11 +726,11 @@ namespace RegressionTests.Shared
                Thread.Sleep(1000);
             }
 
-            Assert.Fail("ClamD process not starting up.");
+            CustomAssert.Fail("ClamD process not starting up.");
          }
          catch (Exception)
          {
-            Assert.Ignore("Unable to start ClamD process. Is ClamAV installed?");
+            CustomAssert.Inconclusive("Unable to start ClamD process. Is ClamAV installed?");
          }
       }
 
@@ -766,7 +767,7 @@ namespace RegressionTests.Shared
          }
 
          string error = "Wrong number of messages in mailbox " + folder.Name;
-         Assert.Fail(error);
+         CustomAssert.Fail(error);
       }
 
       public static Message AssertRetrieveFirstMessage(IMAPFolder folder)
@@ -784,7 +785,7 @@ namespace RegressionTests.Shared
          }
 
          string error = "Could not retrieve message from folder";
-         Assert.Fail(error);
+         CustomAssert.Fail(error);
 
          return null;
       }
@@ -807,7 +808,7 @@ namespace RegressionTests.Shared
          }
 
          string error = "Folder could not be found " + folderName;
-         Assert.Fail(error);
+         CustomAssert.Fail(error);
          return null;
       }
 
@@ -839,7 +840,7 @@ namespace RegressionTests.Shared
             }
          }
 
-         Assert.Fail("Failed to delete default log file during test");
+         CustomAssert.Fail("Failed to delete default log file during test");
       }
 
       public static string ReadCurrentDefaultLog()
@@ -931,7 +932,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(100);
          }
 
-         Assert.Fail("Expected file does not exist:" + file);
+         CustomAssert.Fail("Expected file does not exist:" + file);
       }
 
       public static void AssertReportedError()
@@ -943,7 +944,7 @@ namespace RegressionTests.Shared
       public static void AssertReportedError(string content)
       {
          string errorLog = ReadAndDeleteErrorLog();
-         Assert.IsTrue(errorLog.Contains(content), errorLog);
+         CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
       }
 
 
@@ -985,7 +986,7 @@ namespace RegressionTests.Shared
             }
          }
 
-         Assert.AreEqual(expectedFileCount, count);
+         CustomAssert.AreEqual(expectedFileCount, count);
       }
 
       public static string GetCurrentMIMEDateTime()
@@ -1066,20 +1067,23 @@ namespace RegressionTests.Shared
          return dateString;
       }
 
-      internal static IPAddress GetLocalIPAddress()
+      internal static IPAddress GetLocalIpAddress()
       {
          // Connect to another local address.
          IPHostEntry iphostentry = Dns.GetHostEntry(Dns.GetHostName());
 
          foreach (IPAddress ipaddress in iphostentry.AddressList)
          {
-            if (ipaddress.ToString().Contains(".") && !ipaddress.ToString().Contains("127.0.0"))
+            if (ipaddress.AddressFamily == AddressFamily.InterNetwork)
             {
-               return ipaddress;
+               if (ipaddress.ToString().Contains("192.168."))
+               {
+                  return ipaddress;
+               }
             }
          }
 
-         Assert.Fail("No local internet address found.");
+         CustomAssert.Fail("No local internet address found.");
          return null;
       }
 

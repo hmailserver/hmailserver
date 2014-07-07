@@ -74,20 +74,20 @@ namespace RegressionTests.IMAP
 
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
 
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
 
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[1].UID);
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 3);
 
-         Assert.AreEqual(3, inboxFolder.CurrentUID);
-         Assert.AreEqual(3, inboxFolder.Messages[2].UID);
+         CustomAssert.AreEqual(3, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(3, inboxFolder.Messages[2].UID);
       }
 
       [Test]
@@ -102,23 +102,23 @@ namespace RegressionTests.IMAP
 
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
 
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
          POP3Simulator.AssertGetFirstMessageText(testAccount.Address, "test");
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
 
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[0].UID);
          POP3Simulator.AssertGetFirstMessageText(testAccount.Address, "test");
 
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
 
-         Assert.AreEqual(3, inboxFolder.CurrentUID);
-         Assert.AreEqual(3, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(3, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(3, inboxFolder.Messages[0].UID);
       }
 
       [Test]
@@ -132,13 +132,13 @@ namespace RegressionTests.IMAP
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[1].UID);
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
          CreateMoveRule(testAccount.Rules, "TestFolder");
 
@@ -152,8 +152,8 @@ namespace RegressionTests.IMAP
 
          // Since the message is placed in a new folder, it should receive a unique UID.
          TestSetup.AssertFolderMessageCount(testFolder, 1);
-         Assert.AreEqual(1, testFolder.CurrentUID);
-         Assert.AreEqual(1, testFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, testFolder.CurrentUID);
+         CustomAssert.AreEqual(1, testFolder.Messages[0].UID);
       }
 
       [Test]
@@ -167,13 +167,13 @@ namespace RegressionTests.IMAP
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[1].UID);
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
          CreateMoveRule(_application.Rules, "TestFolder");
 
@@ -187,9 +187,9 @@ namespace RegressionTests.IMAP
          TestSetup.AssertFolderMessageCount(testFolder, 1);
 
          // Since the message is placed in a new folder, it should receive a unique UID.
-         Assert.AreEqual(1, testFolder.Messages.Count);
-         Assert.AreEqual(1, testFolder.CurrentUID);
-         Assert.AreEqual(1, testFolder.Messages[0].UID);
+         CustomAssert.AreEqual(1, testFolder.Messages.Count);
+         CustomAssert.AreEqual(1, testFolder.CurrentUID);
+         CustomAssert.AreEqual(1, testFolder.Messages[0].UID);
       }
 
       [Test]
@@ -205,21 +205,21 @@ namespace RegressionTests.IMAP
                                                                                 "test");
 
          var sim = new IMAPSimulator();
-         Assert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
+         CustomAssert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[1].UID);
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
          CreateMessageModificationRule(testAccount.Rules);
          CreateMoveRule(testAccount.Rules, "TestFolder");
@@ -234,13 +234,13 @@ namespace RegressionTests.IMAP
          TestSetup.AssertFolderMessageCount(testFolder, 1);
 
          // The UID for the inbox should be the same as before.
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
 
          // Since the message is placed in a new folder, it should receive a unique UID.
-         Assert.IsTrue(sim.Status("TestFolder", "UIDNEXT").Contains("UIDNEXT 2"));
-         Assert.AreEqual(1, testFolder.Messages.Count);
-         Assert.AreEqual(1, testFolder.CurrentUID);
-         Assert.AreEqual(1, testFolder.Messages[0].UID);
+         CustomAssert.IsTrue(sim.Status("TestFolder", "UIDNEXT").Contains("UIDNEXT 2"));
+         CustomAssert.AreEqual(1, testFolder.Messages.Count);
+         CustomAssert.AreEqual(1, testFolder.CurrentUID);
+         CustomAssert.AreEqual(1, testFolder.Messages[0].UID);
       }
 
       [Test]
@@ -255,21 +255,21 @@ namespace RegressionTests.IMAP
                                                                                 "test");
 
          var sim = new IMAPSimulator();
-         Assert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
+         CustomAssert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
-         Assert.AreEqual(1, inboxFolder.CurrentUID);
-         Assert.AreEqual(1, inboxFolder.Messages[0].UID);
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
+         CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
          POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
-         Assert.AreEqual(2, inboxFolder.CurrentUID);
-         Assert.AreEqual(2, inboxFolder.Messages[1].UID);
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
+         CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
+         CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
 
          CreateMessageModificationRule(_application.Rules);
          CreateMoveRule(_application.Rules, "TestFolder");
@@ -284,13 +284,13 @@ namespace RegressionTests.IMAP
          TestSetup.AssertFolderMessageCount(testFolder, 1);
 
          // Inbox UID should not have changed since nothing has been added to the inbox.
-         Assert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
+         CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
 
          // Since the message is placed in a new folder, it should receive a unique UID.
          string status = sim.Status("TestFolder", "UIDNEXT");
-         Assert.IsTrue(status.Contains("UIDNEXT 2"), status);
-         Assert.AreEqual(1, testFolder.CurrentUID);
-         Assert.AreEqual(1, testFolder.Messages[0].UID);
+         CustomAssert.IsTrue(status.Contains("UIDNEXT 2"), status);
+         CustomAssert.AreEqual(1, testFolder.CurrentUID);
+         CustomAssert.AreEqual(1, testFolder.Messages[0].UID);
       }
    }
 }

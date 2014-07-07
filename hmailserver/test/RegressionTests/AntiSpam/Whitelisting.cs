@@ -58,13 +58,13 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          obAddresses.DeleteByDBID(obAddress.ID);
 
          // Check that it's detected as spam again.
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
@@ -79,11 +79,11 @@ namespace RegressionTests.AntiSpam
 
          string address = @"A%B/C\D_@microsoft.com";
          obAddress.EmailAddress = address;
-         Assert.AreEqual(address, obAddress.EmailAddress);
+         CustomAssert.AreEqual(address, obAddress.EmailAddress);
 
          address = @"\%%%__\_@microsoft.com";
          obAddress.EmailAddress = address;
-         Assert.AreEqual(address, obAddress.EmailAddress);
+         CustomAssert.AreEqual(address, obAddress.EmailAddress);
       }
 
       [Test]
@@ -114,13 +114,13 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          obAddresses.DeleteByDBID(obAddress.ID);
 
          // Check that it's deteceted as spam again.
-         Assert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                    "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
@@ -145,9 +145,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("white/list@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("white/list@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
@@ -172,13 +172,13 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("white%list@micro_soft.com", "whitelist@test.com",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("white%list@micro_soft.com", "whitelist@test.com",
                                                       "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whiteAlist@micro_soft.com", "whitelist@test.com",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whiteAlist@micro_soft.com", "whitelist@test.com",
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whiteAlist@microEsoft.com", "whitelist@test.com",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whiteAlist@microEsoft.com", "whitelist@test.com",
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
@@ -205,13 +205,13 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@icrosoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@icrosoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@icrosoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@icrosoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 2);
@@ -237,10 +237,10 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("white'list@micro_soft.com", "whitelist@test.com",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("white'list@micro_soft.com", "whitelist@test.com",
                                                       "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@micro_soft.com", "whitelist@test.com",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@micro_soft.com", "whitelist@test.com",
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
@@ -266,14 +266,14 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("blacklist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("blacklist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("whitesomething@microsoft.com", "whitelist@test.com",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("whitesomething@microsoft.com", "whitelist@test.com",
                                                       "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("blacksomething@microsoft.com", "whitelist@test.com",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("blacksomething@microsoft.com", "whitelist@test.com",
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
@@ -287,7 +287,7 @@ namespace RegressionTests.AntiSpam
 
          if (addresses.Length == 0)
          {
-            Assert.Inconclusive("IPv6 not available.");
+            CustomAssert.Inconclusive("IPv6 not available.");
          }
 
          var firstAddress = addresses[0];
@@ -327,7 +327,7 @@ namespace RegressionTests.AntiSpam
 
          // Make sure we are now blacklisted.
          var smtpClient = new SMTPClientSimulator(false, 25, IPAddress.Parse(firstAddress));
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          // White list all IPv6 addresses
          foreach (var address in addresses)
@@ -341,7 +341,7 @@ namespace RegressionTests.AntiSpam
          }
 
          // Make sure we can now send again.
-         Assert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
@@ -353,7 +353,7 @@ namespace RegressionTests.AntiSpam
 
          if (addresses.Length == 0)
          {
-            Assert.Inconclusive("IPv6 not available.");
+            CustomAssert.Inconclusive("IPv6 not available.");
          }
 
          var firstAddress = addresses[0];
@@ -393,7 +393,7 @@ namespace RegressionTests.AntiSpam
 
          // Make sure we are now blacklisted.
          var smtpClient = new SMTPClientSimulator(false, 25, IPAddress.Parse(firstAddress));
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          // White list all IPv6 addresses
          var obAddress = _antiSpam.WhiteListAddresses.Add();
@@ -404,7 +404,7 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Make sure we can now send again.
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
       }
 
       [Test]
@@ -421,7 +421,7 @@ namespace RegressionTests.AntiSpam
 
          // Make sure we are now blacklisted.
          var smtpClient = new SMTPClientSimulator(false, 25, IPAddress.Parse(firstAddress));
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          // White list all IPv4 addresses
          foreach (var address in addresses)
@@ -435,7 +435,7 @@ namespace RegressionTests.AntiSpam
          }
 
          // Make sure we can now send again.
-         Assert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
@@ -451,7 +451,7 @@ namespace RegressionTests.AntiSpam
 
          // Make sure we are now blacklisted.
          var smtpClient = new SMTPClientSimulator(false, 25);
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          // White list all IPv4 addresses
          var obAddress = _antiSpam.WhiteListAddresses.Add();
@@ -462,7 +462,7 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Make sure we are still blacklisted.
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
       }
 
       [Test]
@@ -472,7 +472,7 @@ namespace RegressionTests.AntiSpam
 
          if (addresses.Length == 0)
          {
-            Assert.Inconclusive("IPv6 not available.");
+            CustomAssert.Inconclusive("IPv6 not available.");
          }
 
          var firstAddress = addresses[0];
@@ -512,7 +512,7 @@ namespace RegressionTests.AntiSpam
 
          // Make sure we are now blacklisted.
          var smtpClient = new SMTPClientSimulator(false, 25, IPAddress.Parse(firstAddress));
-         Assert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsFalse(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          // White list all IPv6 addresses
          var obAddress = _antiSpam.WhiteListAddresses.Add();
@@ -523,7 +523,7 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Make sure we can now send again.
-         Assert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
+         CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
          POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }

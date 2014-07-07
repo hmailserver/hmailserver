@@ -64,7 +64,7 @@ namespace RegressionTests.POP3.Fetching
             POP3Simulator.AssertMessageCount(account.Address, "test", 1);
 
             Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
-            Assert.IsFalse(message.get_Flag(eMessageFlag.eMFVirusScan));
+            CustomAssert.IsFalse(message.get_Flag(eMessageFlag.eMFVirusScan));
          }
       }
 
@@ -98,7 +98,7 @@ namespace RegressionTests.POP3.Fetching
             POP3Simulator.AssertMessageCount(account.Address, "test", 1);
 
             Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
-            Assert.IsTrue(message.get_Flag(eMessageFlag.eMFVirusScan));
+            CustomAssert.IsTrue(message.get_Flag(eMessageFlag.eMFVirusScan));
          }
       }
 
@@ -143,7 +143,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsTrue(downloadedMessage.Contains(message));
+            CustomAssert.IsTrue(downloadedMessage.Contains(message));
          }
       }
 
@@ -189,7 +189,7 @@ namespace RegressionTests.POP3.Fetching
             for (int i = 0; i <= 10; i++)
             {
                if (i == 5)
-                  Assert.Fail("No connection: " + contentSoFar);
+                  CustomAssert.Fail("No connection: " + contentSoFar);
 
                contentSoFar = TestSetup.ReadCurrentDefaultLog();
                if (contentSoFar.Contains("SSL handshake with client failed."))
@@ -208,7 +208,7 @@ namespace RegressionTests.POP3.Fetching
             for (int i = 0; i <= 10; i++)
             {
                if (i == 5)
-                  Assert.Fail("No connection: " + contentSoFar);
+                  CustomAssert.Fail("No connection: " + contentSoFar);
 
                contentSoFar = TestSetup.ReadCurrentDefaultLog();
                if (contentSoFar.Contains("SSL handshake with client failed."))
@@ -265,8 +265,8 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsTrue(downloadedMessage.Contains(message));
-            Assert.AreEqual(1, pop3Server.DeletedMessages.Count);
+            CustomAssert.IsTrue(downloadedMessage.Contains(message));
+            CustomAssert.AreEqual(1, pop3Server.DeletedMessages.Count);
          }
       }
 
@@ -315,7 +315,7 @@ namespace RegressionTests.POP3.Fetching
 
             POP3Simulator.AssertMessageCount(account.Address, "test", 3);
 
-            Assert.AreEqual(3, pop3Server.DeletedMessages.Count);
+            CustomAssert.AreEqual(3, pop3Server.DeletedMessages.Count);
          }
       }
 
@@ -370,7 +370,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
             POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+            CustomAssert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
             POP3Simulator.AssertMessageCount(account2.Address, "test", 0);
             POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
@@ -441,12 +441,12 @@ namespace RegressionTests.POP3.Fetching
                string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
                POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
                POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
-               Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+               CustomAssert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
                // Make sure the exernal recipient has received his copy.
                smtpServer.WaitForCompletion();
                string messageData = smtpServer.MessageData;
-               Assert.IsTrue(messageData.Contains(messageData), messageData);
+               CustomAssert.IsTrue(messageData.Contains(messageData), messageData);
 
                TestSetup.AssertRecipientsInDeliveryQueue(0, false);
             }
@@ -509,7 +509,7 @@ namespace RegressionTests.POP3.Fetching
             fa.Delete();
 
             string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(recipientAccount1.Address, "test");
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+            CustomAssert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
          }
@@ -567,8 +567,8 @@ namespace RegressionTests.POP3.Fetching
             POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
             POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
 
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
-            Assert.IsTrue(downloadedMessage2.Contains(message), downloadedMessage2);
+            CustomAssert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+            CustomAssert.IsTrue(downloadedMessage2.Contains(message), downloadedMessage2);
          }
       }
 
@@ -614,7 +614,7 @@ namespace RegressionTests.POP3.Fetching
 
             string error = TestSetup.ReadAndDeleteErrorLog();
 
-            Assert.IsTrue(error.Contains("-ERR unhandled command"));
+            CustomAssert.IsTrue(error.Contains("-ERR unhandled command"));
          }
       }
 
@@ -671,7 +671,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsFalse(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
+            CustomAssert.IsFalse(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
          }
       }
 
@@ -793,7 +793,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsTrue(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
+            CustomAssert.IsTrue(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
          }
       }
 
@@ -1148,7 +1148,7 @@ namespace RegressionTests.POP3.Fetching
                   return;
             }
 
-            Assert.Fail("Downloaded messages did not match uploaded messages.");
+            CustomAssert.Fail("Downloaded messages did not match uploaded messages.");
          }
       }
 

@@ -51,9 +51,9 @@ namespace RegressionTests.Infrastructure
          string sSWE = oLanguageSwedish.get_String("File");
          string sENG = oLanguageEnglish.get_String("File");
 
-         Assert.AreEqual(sENG, "File");
-         Assert.AreNotEqual(sSWE, sENG);
-         Assert.AreNotEqual(sSWE, "");
+         CustomAssert.AreEqual(sENG, "File");
+         CustomAssert.AreNotEqual(sSWE, sENG);
+         CustomAssert.AreNotEqual(sSWE, "");
       }
    }
 }

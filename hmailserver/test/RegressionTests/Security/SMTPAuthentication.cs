@@ -46,16 +46,16 @@ namespace RegressionTests.Security
 
          string result1, result2, result3, result4;
 
-         Assert.IsFalse(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result1));
-         Assert.IsFalse(oSMTP.Send(account1.Address, "externaladdress@gmail.com", "Mail 1", "Mail 1", out result2));
-         Assert.IsFalse(oSMTP.Send("externaladdress@gmail.com", account1.Address, "Mail 1", "Mail 1", out result3));
-         Assert.IsFalse(oSMTP.Send("externaladdress@gmail.com", "externaladdress@gmail.com", "Mail 1", "Mail 1",
+         CustomAssert.IsFalse(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result1));
+         CustomAssert.IsFalse(oSMTP.Send(account1.Address, "externaladdress@gmail.com", "Mail 1", "Mail 1", out result2));
+         CustomAssert.IsFalse(oSMTP.Send("externaladdress@gmail.com", account1.Address, "Mail 1", "Mail 1", out result3));
+         CustomAssert.IsFalse(oSMTP.Send("externaladdress@gmail.com", "externaladdress@gmail.com", "Mail 1", "Mail 1",
                                    out result4));
 
-         Assert.IsTrue(result1.Contains("550 Delivery is not allowed to this address."));
-         Assert.IsTrue(result2.Contains("550 Delivery is not allowed to this address."));
-         Assert.IsTrue(result3.Contains("550 Delivery is not allowed to this address."));
-         Assert.IsTrue(result4.Contains("550 Delivery is not allowed to this address."));
+         CustomAssert.IsTrue(result1.Contains("550 Delivery is not allowed to this address."));
+         CustomAssert.IsTrue(result2.Contains("550 Delivery is not allowed to this address."));
+         CustomAssert.IsTrue(result3.Contains("550 Delivery is not allowed to this address."));
+         CustomAssert.IsTrue(result4.Contains("550 Delivery is not allowed to this address."));
       }
 
       [Test]
@@ -69,17 +69,17 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send("externaladdress@example.com", "someexternaladdress@example.com", "Mail 1",
+         CustomAssert.IsFalse(oSMTP.Send("externaladdress@example.com", "someexternaladdress@example.com", "Mail 1",
                                    "Mail 1", out result));
-         Assert.IsTrue(result.Contains("SMTP authentication is required."));
+         CustomAssert.IsTrue(result.Contains("SMTP authentication is required."));
 
          range.RequireSMTPAuthExternalToExternal = false;
          range.AllowDeliveryFromRemoteToRemote = false;
          range.Save();
 
-         Assert.IsFalse(oSMTP.Send("externaladdress@example.com", "someexternaladdress@example.com", "Mail 1",
+         CustomAssert.IsFalse(oSMTP.Send("externaladdress@example.com", "someexternaladdress@example.com", "Mail 1",
                                    "Mail 1", out result));
-         Assert.IsTrue(result.Contains("550 Delivery is not allowed to this address."));
+         CustomAssert.IsTrue(result.Contains("550 Delivery is not allowed to this address."));
       }
 
       [Test]
@@ -94,12 +94,12 @@ namespace RegressionTests.Security
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var oSMTP = new SMTPClientSimulator();
-         Assert.IsFalse(oSMTP.Send("someexternaladdress@example.com", account1.Address, "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(oSMTP.Send("someexternaladdress@example.com", account1.Address, "Mail 1", "Mail 1"));
 
          range.RequireSMTPAuthExternalToLocal = false;
          range.Save();
 
-         Assert.IsTrue(oSMTP.Send("someexternaladdress@example.com", account1.Address, "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("someexternaladdress@example.com", account1.Address, "Mail 1", "Mail 1"));
          TestSetup.AssertRecipientsInDeliveryQueue(0);
       }
 
@@ -132,11 +132,11 @@ namespace RegressionTests.Security
 
             // Make sure we can't send to this route without using smtp auth.
             var oSMTP = new SMTPClientSimulator();
-            Assert.IsTrue(oSMTP.Send("someexternaladdress@example.com", "dummy@dummy-example.com", "Mail 1", "Mail 1"));
+            CustomAssert.IsTrue(oSMTP.Send("someexternaladdress@example.com", "dummy@dummy-example.com", "Mail 1", "Mail 1"));
 
             server.WaitForCompletion();
          
-            Assert.IsTrue(server.MessageData.Contains("Mail 1"), server.MessageData);
+            CustomAssert.IsTrue(server.MessageData.Contains("Mail 1"), server.MessageData);
          }
       }
 
@@ -153,9 +153,9 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send(account1.Address, "someexternaladdress@example.com", "Mail 1", "Mail 1",
+         CustomAssert.IsFalse(oSMTP.Send(account1.Address, "someexternaladdress@example.com", "Mail 1", "Mail 1",
                                    out result));
-         Assert.IsTrue(result.Contains("SMTP authentication is required"));
+         CustomAssert.IsTrue(result.Contains("SMTP authentication is required"));
       }
 
       [Test]
@@ -171,13 +171,13 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result));
-         Assert.IsTrue(result.Contains("SMTP authentication is required."));
+         CustomAssert.IsFalse(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(result.Contains("SMTP authentication is required."));
 
          range.RequireSMTPAuthLocalToLocal = false;
          range.Save();
 
-         Assert.IsTrue(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result));
          TestSetup.AssertRecipientsInDeliveryQueue(0);
       }
 
@@ -201,7 +201,7 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsFalse(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
       }
 
       [Test]
@@ -224,10 +224,10 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
          string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
-         Assert.IsTrue(text.Contains("Mail 1"));
+         CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 
       [Test]
@@ -248,8 +248,8 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send("someone@dummy-example.com", "test@example.com", "Mail 1", "Mail 1", out result));
-         Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
+         CustomAssert.IsFalse(oSMTP.Send("someone@dummy-example.com", "test@example.com", "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(result.Contains("530 SMTP authentication is required."));
       }
 
       [Test]
@@ -272,8 +272,8 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
-         Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
+         CustomAssert.IsFalse(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(result.Contains("530 SMTP authentication is required."));
       }
 
       [Test]
@@ -296,10 +296,10 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
          string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
-         Assert.IsTrue(text.Contains("Mail 1"));
+         CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 
 
@@ -323,7 +323,7 @@ namespace RegressionTests.Security
 
             var oSMTP = new SMTPClientSimulator();
             string result;
-            Assert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
+            CustomAssert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
 
             server.WaitForCompletion();
 
@@ -346,10 +346,10 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
          string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
-         Assert.IsTrue(text.Contains("Mail 1"));
+         CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 
       [Test]
@@ -374,7 +374,7 @@ namespace RegressionTests.Security
 
             var oSMTP = new SMTPClientSimulator();
             string result;
-            Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", "test@dummy-example.com", "Mail 1", "Mail 1",
+            CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", "test@dummy-example.com", "Mail 1", "Mail 1",
                                      out result));
 
             server.WaitForCompletion();
@@ -397,8 +397,8 @@ namespace RegressionTests.Security
 
          var oSMTP = new SMTPClientSimulator();
          string result;
-         Assert.IsFalse(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
-         Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
+         CustomAssert.IsFalse(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
+         CustomAssert.IsTrue(result.Contains("530 SMTP authentication is required."));
       }
 
 
@@ -429,7 +429,7 @@ namespace RegressionTests.Security
 
             var oSMTP = new SMTPClientSimulator();
             string result;
-            Assert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
+            CustomAssert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
 
             server.WaitForCompletion();
 
@@ -458,7 +458,7 @@ namespace RegressionTests.Security
 
             var oSMTP = new SMTPClientSimulator();
             string result;
-            Assert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
+            CustomAssert.IsTrue(oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
 
             server.WaitForCompletion();
 

@@ -52,10 +52,10 @@ namespace RegressionTests.AntiSpam
          hMailServer.AntiSpam antiSpam = _settings.AntiSpam;
 
          string resultText;
-         Assert.IsTrue(antiSpam.TestSpamAssassinConnection("localhost", 783, out resultText));
-         Assert.IsTrue(resultText.Contains("Content analysis details:"));
+         CustomAssert.IsTrue(antiSpam.TestSpamAssassinConnection("localhost", 783, out resultText));
+         CustomAssert.IsTrue(resultText.Contains("Content analysis details:"));
 
-         Assert.IsFalse(antiSpam.TestSpamAssassinConnection("localhost", 0, out resultText));
+         CustomAssert.IsFalse(antiSpam.TestSpamAssassinConnection("localhost", 0, out resultText));
       }
 
 
@@ -65,11 +65,11 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
+         CustomAssert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
          if (!sMessageContents.Contains("X-Spam-Status"))
          {
-            Assert.Fail("SpamAssassin did not run");
+            CustomAssert.Fail("SpamAssassin did not run");
          }
       }
 
@@ -125,7 +125,7 @@ namespace RegressionTests.AntiSpam
          string score = sMessageContents.Substring(scoreStart, scoreLength);
          double scoreValue = Convert.ToDouble(score);
 
-         Assert.Greater(scoreValue, 500);
+         CustomAssert.Greater(scoreValue, 500);
       }
 
       [Test]
@@ -140,7 +140,7 @@ namespace RegressionTests.AntiSpam
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
          int scoreStart = sMessageContents.IndexOf("X-hMailServer-Reason-Score");
-         Assert.AreNotSame(0, scoreStart);
+         CustomAssert.AreNotEqual(0, scoreStart);
 
          scoreStart = sMessageContents.IndexOf(":", scoreStart) + 2;
          int scoreEnd = sMessageContents.IndexOf("\r\n", scoreStart);
@@ -148,7 +148,7 @@ namespace RegressionTests.AntiSpam
          string score = sMessageContents.Substring(scoreStart, scoreLength);
 
          double scoreValue = Convert.ToDouble(score);
-         Assert.Less(scoreValue, 10);
+         CustomAssert.Less(scoreValue, 10);
       }
 
       [Test]
@@ -169,10 +169,10 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
+         CustomAssert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-         Assert.IsFalse(sMessageContents.Contains("X-Spam-Status"));
+         CustomAssert.IsFalse(sMessageContents.Contains("X-Spam-Status"));
       }
 
       [Test]
@@ -189,7 +189,7 @@ namespace RegressionTests.AntiSpam
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
          int scoreStart = sMessageContents.IndexOf("X-hMailServer-Reason-Score");
-         Assert.AreNotSame(-1, scoreStart, sMessageContents);
+         CustomAssert.AreNotEqual(-1, scoreStart, sMessageContents);
 
          try
          {
@@ -197,19 +197,19 @@ namespace RegressionTests.AntiSpam
          }
          catch (Exception)
          {
-            Assert.Fail(sMessageContents);
+            CustomAssert.Fail(sMessageContents);
          }
 
-         Assert.AreNotSame(-1, scoreStart, sMessageContents);
+         CustomAssert.AreNotEqual(-1, scoreStart, sMessageContents);
 
          int scoreEnd = sMessageContents.IndexOf("\r\n", scoreStart);
-         Assert.AreNotSame(-1, scoreEnd, sMessageContents);
+         CustomAssert.AreNotEqual(-1, scoreEnd, sMessageContents);
 
          int scoreLength = scoreEnd - scoreStart;
          string score = sMessageContents.Substring(scoreStart, scoreLength);
 
          double scoreValue = Convert.ToDouble(score);
-         Assert.Greater(scoreValue, 100);
+         CustomAssert.Greater(scoreValue, 100);
       }
 
       [Test]
@@ -223,16 +223,16 @@ namespace RegressionTests.AntiSpam
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
          if (!sMessageContents.Contains("X-Spam-Status: Yes"))
-            Assert.Fail("Spam message not treated as spam (no X-Spam-Status-header).");
+            CustomAssert.Fail("Spam message not treated as spam (no X-Spam-Status-header).");
 
          if (!sMessageContents.Contains("X-hMailServer-Spam"))
-            Assert.Fail("Spam message not treated as spam (no X-hMailServer-Spam header).");
+            CustomAssert.Fail("Spam message not treated as spam (no X-hMailServer-Spam header).");
 
          if (!sMessageContents.Contains("X-hMailServer-Reason"))
-            Assert.Fail("Spam message not treated as spam (no X-hMailServer-Reason header).");
+            CustomAssert.Fail("Spam message not treated as spam (no X-hMailServer-Reason header).");
 
          if (!sMessageContents.Contains("X-hMailServer-Reason-Score"))
-            Assert.Fail("Spam message not treated as spam (no X-hMailServer-Reason-Score header).");
+            CustomAssert.Fail("Spam message not treated as spam (no X-hMailServer-Reason-Score header).");
       }
 
       [Test]
@@ -247,10 +247,10 @@ namespace RegressionTests.AntiSpam
          string fullMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
          string messageHeader = fullMessage.Substring(0, fullMessage.IndexOf("\r\n\r\n"));
-         Assert.IsTrue(messageHeader.Contains("Received:"));
-         Assert.IsTrue(messageHeader.Contains("Return-Path:"));
-         Assert.IsTrue(messageHeader.Contains("From:"));
-         Assert.IsTrue(messageHeader.Contains("Subject: ThisIsSpam"));
+         CustomAssert.IsTrue(messageHeader.Contains("Received:"));
+         CustomAssert.IsTrue(messageHeader.Contains("Return-Path:"));
+         CustomAssert.IsTrue(messageHeader.Contains("From:"));
+         CustomAssert.IsTrue(messageHeader.Contains("Subject: ThisIsSpam"));
          
       }
 
@@ -273,7 +273,7 @@ namespace RegressionTests.AntiSpam
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-         Assert.IsFalse(sMessageContents.Contains("X-Spam-Status: Yes"));
+         CustomAssert.IsFalse(sMessageContents.Contains("X-Spam-Status: Yes"));
       }
    }
 }

@@ -47,8 +47,8 @@ namespace RegressionTests.AntiVirus
          SMTPClientSimulator.StaticSendRaw("test@test.com", "test@test.com", messageText);
 
          Message message = TestSetup.AssertRetrieveFirstMessage(account1.IMAPFolders.get_ItemByName("INBOX"));
-         Assert.AreEqual(1, message.Attachments.Count);
-         Assert.AreEqual("AUTOEXEC.BAT.txt", message.Attachments[0].Filename);
+         CustomAssert.AreEqual(1, message.Attachments.Count);
+         CustomAssert.AreEqual("AUTOEXEC.BAT.txt", message.Attachments[0].Filename);
 
          string tempFile = Path.GetTempFileName();
          message.Attachments[0].SaveAs(tempFile);
@@ -62,7 +62,7 @@ namespace RegressionTests.AntiVirus
                                                                                            message.Attachments[0].
                                                                                               Filename.Length - 4));
 
-         Assert.IsTrue(contents.Contains(removedMessage));
+         CustomAssert.IsTrue(contents.Contains(removedMessage));
          File.Delete(tempFile);
       }
    }

@@ -37,7 +37,7 @@ namespace RegressionTests.Stress
 
          TimeSpan executionTime = DateTime.Now - timeBeforeDelete;
 
-         Assert.Greater(1500, executionTime.TotalMilliseconds);
+         CustomAssert.Greater(1500, executionTime.TotalMilliseconds);
       }
 
       [Test]
@@ -64,7 +64,7 @@ namespace RegressionTests.Stress
          }
 
          watch.Stop();
-         Assert.Greater(10000, watch.ElapsedMilliseconds);
+         CustomAssert.Greater(10000, watch.ElapsedMilliseconds);
 
          // an error log file may have been created. if we're using MySQL,
          // the value may have been silently truncated.
@@ -124,7 +124,7 @@ namespace RegressionTests.Stress
          File.Delete(message.Filename);
 
          string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
-         Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
+         CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
 
          TestSetup.AssertReportedError();
       }
@@ -151,7 +151,7 @@ namespace RegressionTests.Stress
          parent.Delete(true);
 
          string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
-         Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
+         CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          TestSetup.AssertReportedError();
       }
 
@@ -182,7 +182,7 @@ namespace RegressionTests.Stress
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");
 
-         Assert.IsTrue(result.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
+         CustomAssert.IsTrue(result.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          TestSetup.AssertReportedError();
       }
    }

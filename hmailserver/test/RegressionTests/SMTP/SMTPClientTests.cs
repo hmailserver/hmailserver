@@ -65,7 +65,7 @@ namespace RegressionTests.SMTP
       [Description("Make sure that the bounce message doesn't include a SMTP auth password")]
       public void TestAuthFailurePasswordInBounce()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -88,7 +88,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -97,8 +97,8 @@ namespace RegressionTests.SMTP
 
             string messageText = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsFalse(messageText.Contains("MySecretPassword"));
-            Assert.IsTrue(messageText.Contains("<Password removed>"));
+            CustomAssert.IsFalse(messageText.Contains("MySecretPassword"));
+            CustomAssert.IsTrue(messageText.Contains("<Password removed>"));
          }
       }
 
@@ -108,7 +108,7 @@ namespace RegressionTests.SMTP
          )]
       public void TestDeliverToMyselfOnLocalPort()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // Add a route so we can conenct to localhost.
          AddRoutePointingAtLocalhost(1, 25, false);
@@ -129,7 +129,7 @@ namespace RegressionTests.SMTP
          TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
          string message = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
-         Assert.IsTrue(message.Contains("this would mean connecting to myself."));
+         CustomAssert.IsTrue(message.Contains("this would mean connecting to myself."));
       }
 
       [Test]
@@ -176,7 +176,7 @@ namespace RegressionTests.SMTP
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
 
          oPorts.SetDefault();
@@ -187,7 +187,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestDeliverySuccess250Recipients()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -212,21 +212,21 @@ namespace RegressionTests.SMTP
             for (int i = 0; i < 250; i++)
                recipients.Add("user" + i.ToString() + "@dummy-example.com");
 
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
       [Test]
       public void TestDeliverySuccess50Recipients()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
 
          // No valid recipients...
@@ -251,14 +251,14 @@ namespace RegressionTests.SMTP
                recipients.Add("user" + i.ToString() + "@dummy-example.com");
 
             if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+               CustomAssert.Fail("Delivery failed");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -268,7 +268,7 @@ namespace RegressionTests.SMTP
          )]
       public void TestDeliverySuccessDisconnectAfterMessageAccept()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -288,21 +288,21 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "DisconnectAfterAcceptBeforeQuit"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "DisconnectAfterAcceptBeforeQuit"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("DisconnectAfterAcceptBeforeQuit"));
+            CustomAssert.IsTrue(server.MessageData.Contains("DisconnectAfterAcceptBeforeQuit"));
          }
       }
 
       [Test]
       public void TestDeliverySuccessSingleRecipient()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -321,16 +321,16 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
-            Assert.IsTrue(server.Conversation.Contains("\r\nDATA\r\n"));
+            CustomAssert.IsTrue(server.Conversation.Contains("\r\nDATA\r\n"));
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -338,7 +338,7 @@ namespace RegressionTests.SMTP
       [Description("Test delivery to a server which accepts the message but does not respond to QUIT.")]
       public void TestDeliverySuccessSingleRecipientMissingQuitResponse()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -358,14 +358,14 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "DeliverySuccessNoQuitResponse"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "DeliverySuccessNoQuitResponse"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsTrue(server.MessageData.Contains("DeliverySuccessNoQuitResponse"));
+            CustomAssert.IsTrue(server.MessageData.Contains("DeliverySuccessNoQuitResponse"));
          }
       }
 
@@ -373,7 +373,7 @@ namespace RegressionTests.SMTP
       [Description("In this test, the server will respond with a permanent-error on the MAIL FROM command.")]
       public void TestErrorOnMailFrom()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -393,7 +393,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -402,8 +402,8 @@ namespace RegressionTests.SMTP
 
             string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsTrue(bounceMessage.Contains("MAIL FROM:<test@test.com>"));
-            Assert.IsTrue(bounceMessage.Contains("Remote server replied: 561"));
+            CustomAssert.IsTrue(bounceMessage.Contains("MAIL FROM:<test@test.com>"));
+            CustomAssert.IsTrue(bounceMessage.Contains("Remote server replied: 561"));
          }
       }
 
@@ -414,7 +414,7 @@ namespace RegressionTests.SMTP
          _application.Settings.SMTPNoOfTries = 3;
          _application.Settings.SMTPMinutesBetweenTry = 60;
 
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
@@ -433,7 +433,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -443,9 +443,9 @@ namespace RegressionTests.SMTP
 
             string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsTrue(bounce.Contains("test@dummy-example.com"));
-            Assert.IsTrue(bounce.Contains("Remote server closed connection."));
-            Assert.IsTrue(bounce.Contains("Tried 1 time(s)"));
+            CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
+            CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
+            CustomAssert.IsTrue(bounce.Contains("Tried 1 time(s)"));
          }
       }
 
@@ -457,7 +457,7 @@ namespace RegressionTests.SMTP
          _application.Settings.SMTPNoOfTries = 3;
          _application.Settings.SMTPMinutesBetweenTry = 60;
 
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
@@ -476,14 +476,14 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "test of error after accepted delivery"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "test of error after accepted delivery"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            Assert.IsTrue(server.MessageData.Contains("test of error after accepted delivery"));
+            CustomAssert.IsTrue(server.MessageData.Contains("test of error after accepted delivery"));
          }
       }
 
@@ -494,7 +494,7 @@ namespace RegressionTests.SMTP
          _application.Settings.SMTPNoOfTries = 3;
          _application.Settings.SMTPMinutesBetweenTry = 60;
 
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
@@ -513,7 +513,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -523,9 +523,9 @@ namespace RegressionTests.SMTP
 
             string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsTrue(bounce.Contains("test@dummy-example.com"));
-            Assert.IsTrue(bounce.Contains("Remote server closed connection."));
-            Assert.IsTrue(bounce.Contains("Tried 1 time(s)"));
+            CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
+            CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
+            CustomAssert.IsTrue(bounce.Contains("Tried 1 time(s)"));
          }
       }
 
@@ -536,7 +536,7 @@ namespace RegressionTests.SMTP
          _application.Settings.SMTPNoOfTries = 3;
          _application.Settings.SMTPMinutesBetweenTry = 60;
 
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
@@ -555,7 +555,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send(_account.Address, recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -565,9 +565,9 @@ namespace RegressionTests.SMTP
 
             string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsTrue(bounce.Contains("test@dummy-example.com"));
-            Assert.IsTrue(bounce.Contains("Remote server closed connection."));
-            Assert.IsTrue(bounce.Contains("Tried 1 time(s)"));
+            CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
+            CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
+            CustomAssert.IsTrue(bounce.Contains("Tried 1 time(s)"));
          }
       }
 
@@ -579,7 +579,7 @@ namespace RegressionTests.SMTP
          _application.Settings.Logging.LogTCPIP = true;
          _application.Settings.Logging.LogDebug = true;
 
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -598,7 +598,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             string undeliveredMessages = _status.UndeliveredMessages;
 
@@ -608,7 +608,7 @@ namespace RegressionTests.SMTP
             // wait for the message to be delivered.
             for (int i = 1; i <= 40; i++)
             {
-               Assert.IsFalse(i == 40);
+               CustomAssert.IsFalse(i == 40);
 
                if (_status.UndeliveredMessages.Contains("\ttest@test.com") || _status.UndeliveredMessages.Length == 0)
                   break;
@@ -620,8 +620,8 @@ namespace RegressionTests.SMTP
 
             string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsTrue(bounceMessage.Contains("Remote server (127.0.0.1) issued an error."));
-            Assert.IsTrue(bounceMessage.Contains("550 test@dummy-example.com"));
+            CustomAssert.IsTrue(bounceMessage.Contains("Remote server (127.0.0.1) issued an error."));
+            CustomAssert.IsTrue(bounceMessage.Contains("550 test@dummy-example.com"));
          }
       }
 
@@ -632,7 +632,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestMultipleHostsHalfDeliveryOnFirstPermanentOnSecond()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -664,7 +664,7 @@ namespace RegressionTests.SMTP
             recipients.Add("user2@dummy-example.com");
             recipients.Add("user3@dummy-example.com");
 
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Accepted message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Accepted message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -674,17 +674,17 @@ namespace RegressionTests.SMTP
 
             string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-            Assert.IsFalse(bounceMessage.Contains("RCPT TO:<user1@dummy-example.com>"));
-            Assert.IsFalse(bounceMessage.Contains("RCPT TO:<user2@dummy-example.com>"));
-            Assert.IsTrue(bounceMessage.Contains("RCPT TO:<user3@dummy-example.com>"));
-            Assert.IsTrue(bounceMessage.Contains("500 user3@dummy-example.com"));
+            CustomAssert.IsFalse(bounceMessage.Contains("RCPT TO:<user1@dummy-example.com>"));
+            CustomAssert.IsFalse(bounceMessage.Contains("RCPT TO:<user2@dummy-example.com>"));
+            CustomAssert.IsTrue(bounceMessage.Contains("RCPT TO:<user3@dummy-example.com>"));
+            CustomAssert.IsTrue(bounceMessage.Contains("500 user3@dummy-example.com"));
          }
       }
 
       [Test]
       public void TestMultipleHostsTemporaryFailure()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -711,7 +711,7 @@ namespace RegressionTests.SMTP
             recipients.Add("user3@dummy-example.com");
 
             if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+               CustomAssert.Fail("Delivery failed");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -721,9 +721,9 @@ namespace RegressionTests.SMTP
          TestSetup.AssertRecipientsInDeliveryQueue(1);
 
          // Check so that only user 3 remains in the queue.
-         Assert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user1@dummy-example.com"));
-         Assert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user2@dummy-example.com"));
-         Assert.AreNotEqual(-1, _status.UndeliveredMessages.IndexOf("user3@dummy-example.com"));
+         CustomAssert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user1@dummy-example.com"));
+         CustomAssert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user2@dummy-example.com"));
+         CustomAssert.AreNotEqual(-1, _status.UndeliveredMessages.IndexOf("user3@dummy-example.com"));
 
          using (var server = new SMTPServerSimulator(2, smtpServerPort))
          {
@@ -737,18 +737,18 @@ namespace RegressionTests.SMTP
 
             string bounceMessage = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
 
-            Assert.IsFalse(bounceMessage.Contains("user1@dummy-example.com"));
-            Assert.IsFalse(bounceMessage.Contains("user2@dummy-example.com"));
-            Assert.IsTrue(bounceMessage.Contains("user3@dummy-example.com"));
-            Assert.IsTrue(bounceMessage.Contains("499 user3@dummy-example.com"));
-            Assert.IsTrue(bounceMessage.Contains("Tried 2 time(s)"));
+            CustomAssert.IsFalse(bounceMessage.Contains("user1@dummy-example.com"));
+            CustomAssert.IsFalse(bounceMessage.Contains("user2@dummy-example.com"));
+            CustomAssert.IsTrue(bounceMessage.Contains("user3@dummy-example.com"));
+            CustomAssert.IsTrue(bounceMessage.Contains("499 user3@dummy-example.com"));
+            CustomAssert.IsTrue(bounceMessage.Contains("Tried 2 time(s)"));
          }
       }
 
       [Test]
       public void TestMultipleHostsTemporaryFailureDeliveryOnSecondServer()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -781,7 +781,7 @@ namespace RegressionTests.SMTP
             recipients.Add("user3@dummy-example.com");
 
             if (!smtp.Send("test@test.com", recipients, "Test", "Accepted message"))
-               Assert.Fail("Delivery failed");
+               CustomAssert.Fail("Delivery failed");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -789,14 +789,14 @@ namespace RegressionTests.SMTP
             // Trigger a sending of the bounce message.
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            Assert.IsTrue(server.MessageData.Contains("Accepted message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Accepted message"));
          }
       }
 
       [Test]
       public void TestPartialTemporaryErrorFailure()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -822,7 +822,7 @@ namespace RegressionTests.SMTP
             recipients.Add("user3@dummy-example.com");
 
             if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+               CustomAssert.Fail("Delivery failed");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -830,11 +830,11 @@ namespace RegressionTests.SMTP
             // Trigger a sending of the bounce message.
             TestSetup.AssertRecipientsInDeliveryQueue(1);
 
-            Assert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user1@dummy-example.com"));
-            Assert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user2@dummy-example.com"));
-            Assert.AreNotEqual(-1, _status.UndeliveredMessages.IndexOf("user3@dummy-example.com"));
+            CustomAssert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user1@dummy-example.com"));
+            CustomAssert.AreEqual(-1, _status.UndeliveredMessages.IndexOf("user2@dummy-example.com"));
+            CustomAssert.AreNotEqual(-1, _status.UndeliveredMessages.IndexOf("user3@dummy-example.com"));
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
 
          // Attempt to deliver the message again.
@@ -849,18 +849,18 @@ namespace RegressionTests.SMTP
             TestSetup.AssertRecipientsInDeliveryQueue(0);
             string bounceMessage = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
 
-            Assert.IsTrue(bounceMessage.Contains("400 user3@dummy-example.com"));
-            Assert.IsTrue(bounceMessage.Contains("Tried 2 time(s)"));
+            CustomAssert.IsTrue(bounceMessage.Contains("400 user3@dummy-example.com"));
+            CustomAssert.IsTrue(bounceMessage.Contains("Tried 2 time(s)"));
 
-            Assert.IsFalse(bounceMessage.Contains("user2@dummy-example.com"));
-            Assert.IsFalse(bounceMessage.Contains("user1@dummy-example.com"));
+            CustomAssert.IsFalse(bounceMessage.Contains("user2@dummy-example.com"));
+            CustomAssert.IsFalse(bounceMessage.Contains("user1@dummy-example.com"));
          }
       }
 
       [Test]
       public void TestPermanentFailure()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 542;
@@ -878,19 +878,19 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
-            Assert.IsFalse(server.Conversation.Contains("\r\nDATA\r\n"));
+            CustomAssert.IsFalse(server.Conversation.Contains("\r\nDATA\r\n"));
          }
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
          string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         Assert.IsTrue(bounce.Contains("Remote server replied: 542 test@dummy-example.com"));
+         CustomAssert.IsTrue(bounce.Contains("Remote server replied: 542 test@dummy-example.com"));
       }
 
       [Test]
@@ -898,7 +898,7 @@ namespace RegressionTests.SMTP
       [Ignore]
       public void TestSMTPClientTimeout()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -922,7 +922,7 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -934,7 +934,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestTemporaryFailure()
       {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 452;
@@ -952,12 +952,12 @@ namespace RegressionTests.SMTP
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@dummy-example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", "Test message"));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
-            Assert.AreNotEqual(0, _status.UndeliveredMessages.Length);
+            CustomAssert.AreNotEqual(0, _status.UndeliveredMessages.Length);
          }
          
          using (var server = new SMTPServerSimulator(1, smtpServerPort))// Start to listen again.
@@ -971,14 +971,14 @@ namespace RegressionTests.SMTP
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
-            Assert.IsFalse(server.Conversation.Contains("\r\nDATA\r\n"));
+            CustomAssert.IsFalse(server.Conversation.Contains("\r\nDATA\r\n"));
          }
 
          // Now the message has bounced.
          string message = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         Assert.IsTrue(message.Contains("452 test@dummy-example.com"));
-         Assert.IsTrue(message.Contains("Tried 2 time(s)"));
+         CustomAssert.IsTrue(message.Contains("452 test@dummy-example.com"));
+         CustomAssert.IsTrue(message.Contains("Tried 2 time(s)"));
       }
    }
 }

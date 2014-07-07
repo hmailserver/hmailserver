@@ -64,9 +64,9 @@ namespace RegressionTests.AntiSpam
 
          string result = TestSetup.ReadCurrentDefaultLog();
 
-         Assert.IsTrue(result.Contains(".zen.spamhaus.org, 0 addresses found: (none), Match: False"), result);
-         Assert.IsTrue(result.Contains(".dnsbl.njabl.org, 0 addresses found: (none), Match: False"), result);
-         Assert.IsFalse(result.Contains(".bl.spamcop.net, 0 addresses found:"), result);
+         CustomAssert.IsTrue(result.Contains(".zen.spamhaus.org, 0 addresses found: (none), Match: False"), result);
+         CustomAssert.IsTrue(result.Contains(".dnsbl.njabl.org, 0 addresses found: (none), Match: False"), result);
+         CustomAssert.IsFalse(result.Contains(".bl.spamcop.net, 0 addresses found:"), result);
       }
 
       [Test]
@@ -85,7 +85,7 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
+         CustomAssert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
       }
 
       [Test]
@@ -160,7 +160,7 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         Assert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         CustomAssert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb));
 
@@ -209,7 +209,7 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         Assert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         CustomAssert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb));
 
@@ -284,7 +284,7 @@ namespace RegressionTests.AntiSpam
                     "Wrapped URL - <a href=3D\"http://surbl-org-perm\r\nanent-test-point.com\">Test</a>");
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Non-spam message detected as spam");
+         CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Non-spam message detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
@@ -366,8 +366,8 @@ namespace RegressionTests.AntiSpam
 
          // Check that it has been logged.
          string contents = TestSetup.ReadExistingTextFile(debugLog);
-         Assert.IsTrue(contents.Contains("Total spam score: 12"));
-         Assert.IsTrue(contents.Contains("Spam test: SpamTestSPF, Score: 12"));
+         CustomAssert.IsTrue(contents.Contains("Total spam score: 12"));
+         CustomAssert.IsTrue(contents.Contains("Spam test: SpamTestSPF, Score: 12"));
 
          TestSetup.AssertDeleteFile(debugLog);
       }
@@ -464,7 +464,7 @@ namespace RegressionTests.AntiSpam
              sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Non-Spam message detected as spam");
 
-         Assert.IsTrue(sMessageContents.Contains(_domain.SignaturePlainText));
+         CustomAssert.IsTrue(sMessageContents.Contains(_domain.SignaturePlainText));
 
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
@@ -475,7 +475,7 @@ namespace RegressionTests.AntiSpam
              !sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Spam message not detected as spam");
 
-         Assert.IsTrue(sMessageContents.Contains(_domain.SignaturePlainText));
+         CustomAssert.IsTrue(sMessageContents.Contains(_domain.SignaturePlainText));
       }
 
       [Test]
@@ -498,7 +498,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                                                       "This is a test message without a SURBL url: -> http://www.youtube.com/ <-"));
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -537,7 +537,7 @@ namespace RegressionTests.AntiSpam
                     "Wrapped URL - <a href=3D\"http://surbl-org-perma=\r\nnent-test-point.com\">Test</a>");
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
+         CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
@@ -571,7 +571,7 @@ namespace RegressionTests.AntiSpam
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\r\nHello\">Test</a>");
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
+         CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
@@ -605,7 +605,7 @@ namespace RegressionTests.AntiSpam
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\n");
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
+         CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
@@ -644,8 +644,8 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Active = false;
          oSURBLServer.Save();
 
-         Assert.IsFalse(TestSetup.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com'.multi.surbl.org"));
-         Assert.IsTrue(TestSetup.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com.multi.surbl.org"));
+         CustomAssert.IsFalse(TestSetup.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com'.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com.multi.surbl.org"));
       }
 
       [Test]
@@ -678,14 +678,14 @@ namespace RegressionTests.AntiSpam
                     "Wrapped URL - <a href=3D\"http://test.example1fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example2fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example3fdafdsfds.com\">Test</a>\r\n");
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
+         CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
 
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example1fdafdsfds.com.multi.surbl.org"));
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example2fdafdsfds.com.multi.surbl.org"));
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example3fdafdsfds.com.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example1fdafdsfds.com.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example2fdafdsfds.com.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: example3fdafdsfds.com.multi.surbl.org"));
       }
 
       [Test]
@@ -717,17 +717,17 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match", TestResources.SecuniaBody1);
 
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
+         CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
          oSURBLServer.Save();
 
 
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: 2 unique addresses found."));
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Found URL: secunia.com"));
-         Assert.IsFalse(TestSetup.DefaultLogContains("SURBL: Found URL: ecunia.com"));
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: secunia.com.multi.surbl.org"));
-         Assert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: ubuntu.com.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: 2 unique addresses found."));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Found URL: secunia.com"));
+         CustomAssert.IsFalse(TestSetup.DefaultLogContains("SURBL: Found URL: ecunia.com"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: secunia.com.multi.surbl.org"));
+         CustomAssert.IsTrue(TestSetup.DefaultLogContains("SURBL: Lookup: ubuntu.com.multi.surbl.org"));
       }
    }
 }

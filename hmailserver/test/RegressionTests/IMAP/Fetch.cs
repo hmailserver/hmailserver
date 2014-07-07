@@ -41,7 +41,7 @@ namespace RegressionTests.IMAP
          oSimulator.Disconnect();
 
          // utf-8 representation of 本本本.zip:
-         Assert.IsTrue(result.Contains("=?utf-8?B?5pys5pys5pys?=.zip"));
+         CustomAssert.IsTrue(result.Contains("=?utf-8?B?5pys5pys5pys?=.zip"));
       }
 
       [Test]
@@ -63,11 +63,11 @@ namespace RegressionTests.IMAP
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");
-         Assert.IsTrue(result.Contains("SampleBody1"), result);
+         CustomAssert.IsTrue(result.Contains("SampleBody1"), result);
          result = sim.Fetch("2 BODY[1]");
-         Assert.IsTrue(result.Contains("SampleBody2"), result);
+         CustomAssert.IsTrue(result.Contains("SampleBody2"), result);
          result = sim.Fetch("3 BODY[1]");
-         Assert.IsTrue(result.Contains("SampleBody3"), result);
+         CustomAssert.IsTrue(result.Contains("SampleBody3"), result);
       }
 
       [Test]
@@ -99,8 +99,8 @@ namespace RegressionTests.IMAP
          string bodyResponse = oSimulator.Fetch("1 BODY");
          oSimulator.Disconnect();
 
-         Assert.IsTrue(bodyStructureResponse.Contains("BOUNDARY"));
-         Assert.IsFalse(bodyResponse.Contains("BOUNDARY"));
+         CustomAssert.IsTrue(bodyStructureResponse.Contains("BOUNDARY"));
+         CustomAssert.IsFalse(bodyResponse.Contains("BOUNDARY"));
       }
 
       [Test]
@@ -128,7 +128,7 @@ namespace RegressionTests.IMAP
          string result = oSimulator.Fetch("1 ENVELOPE");
          oSimulator.Disconnect();
 
-         Assert.IsTrue(result.Contains("Wed, 22 Apr 2009 11:05:09 GMT"));
+         CustomAssert.IsTrue(result.Contains("Wed, 22 Apr 2009 11:05:09 GMT"));
       }
 
       [Test]
@@ -145,7 +145,7 @@ namespace RegressionTests.IMAP
                           "Hello" + Environment.NewLine;
 
          var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         CustomAssert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
 
          POP3Simulator.AssertMessageCount(account.Address, "test", 1);
 
@@ -157,11 +157,11 @@ namespace RegressionTests.IMAP
          oSimulator.Disconnect();
 
 
-         Assert.IsTrue(result.Contains("Subject: Something"));
-         Assert.IsTrue(result.Contains("From: Someone <someone@example.com>"));
+         CustomAssert.IsTrue(result.Contains("Subject: Something"));
+         CustomAssert.IsTrue(result.Contains("From: Someone <someone@example.com>"));
          // The feedback should end with an empty header line.
-         Assert.IsTrue(result.Contains("\r\n\r\n)"));
-         Assert.IsFalse(result.Contains("Received:"));
+         CustomAssert.IsTrue(result.Contains("\r\n\r\n)"));
+         CustomAssert.IsFalse(result.Contains("Received:"));
       }
 
       [Test]
@@ -178,7 +178,7 @@ namespace RegressionTests.IMAP
                           "Hello" + Environment.NewLine;
 
          var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         CustomAssert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
 
          POP3Simulator.AssertMessageCount(account.Address, "test", 1);
 
@@ -190,11 +190,11 @@ namespace RegressionTests.IMAP
          oSimulator.Disconnect();
 
 
-         Assert.IsTrue(result.Contains("Received:"), result);
-         Assert.IsFalse(result.Contains("Subject:"), result);
-         Assert.IsFalse(result.Contains("From:"), result);
+         CustomAssert.IsTrue(result.Contains("Received:"), result);
+         CustomAssert.IsFalse(result.Contains("Subject:"), result);
+         CustomAssert.IsFalse(result.Contains("From:"), result);
          // The feedback should end with an empty header line.
-         Assert.IsTrue(result.Contains("\r\n\r\n)"), result);
+         CustomAssert.IsTrue(result.Contains("\r\n\r\n)"), result);
       }
 
       [Test]
@@ -211,11 +211,11 @@ namespace RegressionTests.IMAP
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("0 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 OK FETCH completed"));
+         CustomAssert.IsTrue(result.StartsWith("A01 OK FETCH completed"));
          result = sim.Fetch("-1 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 BAD"));
+         CustomAssert.IsTrue(result.StartsWith("A01 BAD"));
          result = sim.Fetch("-100 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 BAD"));
+         CustomAssert.IsTrue(result.StartsWith("A01 BAD"));
       }
    }
 }

@@ -32,9 +32,9 @@ namespace RegressionTests.SSL
          var exampleKey = Path.Combine(sslPath, "example.key");
 
          if (!File.Exists(exampleCert))
-            Assert.Fail("Certificate " + exampleCert + " was not found");
+            CustomAssert.Fail("Certificate " + exampleCert + " was not found");
          if (!File.Exists(exampleKey))
-            Assert.Fail("Private key " + exampleKey + " was not found");
+            CustomAssert.Fail("Private key " + exampleKey + " was not found");
 
 
          SSLCertificate sslCertificate = _application.Settings.SSLCertificates.Add();
@@ -89,13 +89,13 @@ namespace RegressionTests.SSL
 
          var cs = new TcpSocket();
          if (!cs.Connect(250))
-            Assert.Fail("Could not connect to SSL server.");
+            CustomAssert.Fail("Could not connect to SSL server.");
 
          cs.Disconnect();
 
          for (int i = 0; i <= 40; i++)
          {
-            Assert.IsTrue(i != 40);
+            CustomAssert.IsTrue(i != 40);
 
             string liveLog = _application.Settings.Logging.LiveLog;
             if (liveLog.Contains("SSL handshake with client failed."))
@@ -120,10 +120,10 @@ namespace RegressionTests.SSL
             {
                var imapSim = new IMAPSimulator(true, 14300);
                imapSim.ConnectAndLogon(account.Address, "test");
-               Assert.IsTrue(imapSim.SelectFolder("Inbox"), "SelectInbox");
+               CustomAssert.IsTrue(imapSim.SelectFolder("Inbox"), "SelectInbox");
                imapSim.CreateFolder("Test");
-               Assert.IsTrue(imapSim.SelectFolder("Test"), "SelectTest");
-               Assert.IsTrue(imapSim.Logout(), "Logout");
+               CustomAssert.IsTrue(imapSim.SelectFolder("Test"), "SelectTest");
+               CustomAssert.IsTrue(imapSim.Logout(), "Logout");
 
                imapSim.Disconnect();
                break;
@@ -142,7 +142,7 @@ namespace RegressionTests.SSL
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3-ssl@test.com", "test");
 
          var smtpSim = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
+         CustomAssert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
 
          for (int i = 0; i < 10; i++)
          {
@@ -152,7 +152,7 @@ namespace RegressionTests.SSL
                var pop3Sim = new POP3Simulator(true, 11000);
                string text = pop3Sim.GetFirstMessageText(account.Address, "test");
 
-               Assert.IsTrue(text.Contains("MyBody"));
+               CustomAssert.IsTrue(text.Contains("MyBody"));
 
                break;
             }
@@ -179,7 +179,7 @@ namespace RegressionTests.SSL
             try
             {
                var smtpSim = new SMTPClientSimulator(true, 250);
-               Assert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
+               CustomAssert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
 
                break;
             }
@@ -193,7 +193,7 @@ namespace RegressionTests.SSL
          POP3Simulator.AssertMessageCount(account.Address, "test", i + 1);
          var pop3Sim = new POP3Simulator(false, 110);
          string text = pop3Sim.GetFirstMessageText(account.Address, "test");
-         Assert.IsTrue(text.Contains("MyBody"));
+         CustomAssert.IsTrue(text.Contains("MyBody"));
       }
    }
 }

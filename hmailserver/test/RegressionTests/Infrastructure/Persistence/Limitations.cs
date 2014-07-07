@@ -25,7 +25,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Account containing forward slash was permitted");
+         CustomAssert.Fail("Account containing forward slash was permitted");
       }
 
       [Test]
@@ -39,7 +39,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Account containing forward slash was permitted");
+         CustomAssert.Fail("Account containing forward slash was permitted");
       }
 
       [Test]
@@ -60,7 +60,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Domain alias with same name as domain was permitted.");
+         CustomAssert.Fail("Domain alias with same name as domain was permitted.");
       }
 
       [Test]
@@ -79,7 +79,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Domain alias with same name as domain was permitted.");
+         CustomAssert.Fail("Domain alias with same name as domain was permitted.");
       }
 
       [Test]
@@ -107,7 +107,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Max account size limit exceeded.");
+         CustomAssert.Fail("Max account size limit exceeded.");
       }
 
       [Test]
@@ -126,7 +126,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Max account size limit exceeded (max size = 0)");
+         CustomAssert.Fail("Max account size limit exceeded (max size = 0)");
       }
 
       [Test]
@@ -149,7 +149,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Number of accounts exceeded max no of accounts");
+         CustomAssert.Fail("Number of accounts exceeded max no of accounts");
       }
 
       [Test]
@@ -173,7 +173,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Number of aliases exceeded max no of accounts");
+         CustomAssert.Fail("Number of aliases exceeded max no of accounts");
       }
 
       [Test]
@@ -196,7 +196,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Number of aliases exceeded max no of accounts");
+         CustomAssert.Fail("Number of aliases exceeded max no of accounts");
       }
 
       [Test]
@@ -213,13 +213,13 @@ namespace RegressionTests.Infrastructure.Persistence
             message.Append("ABCDEFGH");
          }
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
                                                       message.ToString()));
          POP3Simulator.AssertMessageCount("test@test.com", "secret1", 1);
          _domain.MaxMessageSize = 50;
          _domain.Save();
 
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
                                                        message.ToString()));
       }
 
@@ -244,7 +244,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Max domain size limit exceeded.");
+         CustomAssert.Fail("Max domain size limit exceeded.");
       }
 
       [Test]
@@ -262,7 +262,7 @@ namespace RegressionTests.Infrastructure.Persistence
             return;
          }
 
-         Assert.Fail("Max domain size limit exceeded.");
+         CustomAssert.Fail("Max domain size limit exceeded.");
       }
 
       [Test]
@@ -279,7 +279,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Duplicate domain name was permitted.");
+         CustomAssert.Fail("Duplicate domain name was permitted.");
       }
 
 
@@ -299,7 +299,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Duplicate domain name was permitted.");
+         CustomAssert.Fail("Duplicate domain name was permitted.");
       }
 
       [Test]
@@ -319,7 +319,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Domain with same name as domain alias was permitted.");
+         CustomAssert.Fail("Domain with same name as domain alias was permitted.");
       }
 
       [Test]
@@ -353,7 +353,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Duplicate account was permitted");
+         CustomAssert.Fail("Duplicate account was permitted");
       }
 
       [Test]
@@ -369,7 +369,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Alias with same name as account was permitted.");
+         CustomAssert.Fail("Alias with same name as account was permitted.");
       }
 
       [Test]
@@ -387,7 +387,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Distribution list with same name as alias was permitted.");
+         CustomAssert.Fail("Distribution list with same name as alias was permitted.");
       }
 
       [Test]
@@ -403,7 +403,7 @@ namespace RegressionTests.Infrastructure.Persistence
          {
             return;
          }
-         Assert.Fail("Two groups with same name was permitted.");
+         CustomAssert.Fail("Two groups with same name was permitted.");
       }
 
       [Test]

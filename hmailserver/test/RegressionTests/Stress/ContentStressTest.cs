@@ -23,7 +23,7 @@ namespace RegressionTests.Stress
          }
 
          var sim = new SMTPClientSimulator();
-         Assert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
+         CustomAssert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
       }
 
 
@@ -58,18 +58,18 @@ namespace RegressionTests.Stress
          string command = "A03 NOOP " + sb;
 
          var socket = new TcpSocket();
-         Assert.IsTrue(socket.Connect(143));
+         CustomAssert.IsTrue(socket.Connect(143));
          socket.Receive();
          socket.Send(command);
 
          try
          {
             string response = socket.Receive();
-            Assert.IsTrue(response.StartsWith("* BYE"));
+            CustomAssert.IsTrue(response.StartsWith("* BYE"));
          }
          catch (SocketException ex)
          {
-            Assert.IsTrue(ex.ErrorCode == 10054);
+            CustomAssert.IsTrue(ex.ErrorCode == 10054);
          }
 
 
@@ -90,12 +90,12 @@ namespace RegressionTests.Stress
          string command = "NOOP " + sb;
 
          var socket = new TcpSocket();
-         Assert.IsTrue(socket.Connect(110));
+         CustomAssert.IsTrue(socket.Connect(110));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         Assert.IsFalse(response.StartsWith("+OK"));
+         CustomAssert.IsFalse(response.StartsWith("+OK"));
 
          socket.Disconnect();
       }
@@ -114,12 +114,12 @@ namespace RegressionTests.Stress
          string command = "HELO " + sb;
 
          var socket = new TcpSocket();
-         Assert.IsTrue(socket.Connect(25));
+         CustomAssert.IsTrue(socket.Connect(25));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         Assert.IsTrue(response.StartsWith("500"));
+         CustomAssert.IsTrue(response.StartsWith("500"));
 
          socket.Disconnect();
       }
@@ -208,8 +208,8 @@ namespace RegressionTests.Stress
 
          string sContents = POP3Simulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 
-         Assert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
-         Assert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);
+         CustomAssert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
+         CustomAssert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);
       }
    }
 }

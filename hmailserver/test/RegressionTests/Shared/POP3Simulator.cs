@@ -246,7 +246,7 @@ namespace RegressionTests.Shared
          sData =
             _socket.ReadUntil(new List<string>
                                  {"+OK Mailbox locked and ready", "-ERR Invalid user name or password."});
-         Assert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
+         CustomAssert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
 
          _socket.Send("LIST\r\n");
          sData = _socket.ReadUntil("+OK");
@@ -289,7 +289,7 @@ namespace RegressionTests.Shared
                return;
 
             if (actualCount > expectedCount)
-               Assert.Fail(
+               CustomAssert.Fail(
                   string.Format(
                      "Actual count exceeds expected count. Account name: {2}, Actual: {0}, Expected: {1}.",
                      actualCount, expectedCount, accountName));
@@ -298,7 +298,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(50);
          }
 
-         Assert.Fail(string.Format("Wrong number of messages in inbox for {0}. Actual: {1}, Expected: {2}",
+         CustomAssert.Fail(string.Format("Wrong number of messages in inbox for {0}. Actual: {1}, Expected: {2}",
                                    accountName, actualCount, expectedCount));
       }
 
@@ -318,7 +318,7 @@ namespace RegressionTests.Shared
          string text = pop3.GetFirstMessageText(accountName, accountPassword);
 
          if (text.Length == 0)
-            Assert.Fail("Message was found but contents could not be received");
+            CustomAssert.Fail("Message was found but contents could not be received");
 
          return text;
       }

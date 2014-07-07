@@ -37,14 +37,14 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL
-         Assert.IsFalse(oSMTP.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(oSMTP.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
 
          DomainAlias oDA = _domain.DomainAliases.Add();
          oDA.AliasName = "dummy-example.com";
          oDA.Save();
 
          // THIS MESSAGE SHOULD SUCCEED
-         Assert.IsTrue(oSMTP.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1"));
          IMAPSimulator.AssertMessageCount("test@dummy-example.com", "test", "Inbox", 1);
       }
 
@@ -65,7 +65,7 @@ namespace RegressionTests.SMTP
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient4@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
 
          IMAPSimulator.AssertMessageCount("recipient1@test.com", "test", "Inbox", 1);
          IMAPSimulator.AssertMessageCount("recipient2@test.com", "test", "Inbox", 1);
@@ -88,11 +88,11 @@ namespace RegressionTests.SMTP
          }
          catch (Exception ex)
          {
-            Assert.IsTrue(ex.Message.Contains("The recipient address is empty"));
+            CustomAssert.IsTrue(ex.Message.Contains("The recipient address is empty"));
             return;
          }
 
-         Assert.Fail("No error reported when creating distribution list recipient with empty address");
+         CustomAssert.Fail("No error reported when creating distribution list recipient with empty address");
       }
 
       [Test]
@@ -119,9 +119,9 @@ namespace RegressionTests.SMTP
 
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
-         Assert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 2", "Mail 2"));
-         Assert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 3", "Mail 3"));
+         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 2", "Mail 2"));
+         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 3", "Mail 3"));
 
          IMAPSimulator.AssertMessageCount("recipient1@test.com", "test", "Inbox", 3);
          IMAPSimulator.AssertMessageCount("recipient2@test.com", "test", "Inbox", 3);
@@ -138,7 +138,7 @@ namespace RegressionTests.SMTP
          oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient8@test.com", "test");
          oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         Assert.IsTrue(oSMTP.Send("test@test.com", "list2@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "list2@test.com", "Mail 1", "Mail 1"));
 
          IMAPSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 1);
 
@@ -154,17 +154,17 @@ namespace RegressionTests.SMTP
          oList.RequireSMTPAuth = false;
          oList.Save();
 
-         Assert.IsFalse(oSMTP.Send("test@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
-         Assert.IsTrue(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(oSMTP.Send("test@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
          IMAPSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 2);
 
          oList.Mode = eDistributionListMode.eLMMembership;
          oList.Save();
 
-         Assert.IsFalse(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
 
          // THIS MESSAGE SHOULD SUCCED 
-         Assert.IsTrue(oSMTP.Send("recipient5@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("recipient5@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
          IMAPSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 3);
       }
 
@@ -200,7 +200,7 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL - Membership required, unknown sender domain
-         Assert.IsFalse(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
          oList3.Delete();
 
@@ -215,7 +215,7 @@ namespace RegressionTests.SMTP
          oList3.Mode = eDistributionListMode.eLMMembership;
          oList3.Save();
 
-         Assert.IsTrue(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
          IMAPSimulator.AssertMessageCount("account1@test.com", "test", "Inbox", 1);
          IMAPSimulator.AssertMessageCount("account2@test.com", "test", "Inbox", 1);
@@ -271,7 +271,7 @@ namespace RegressionTests.SMTP
             };
 
          var smtpClient = new SMTPClientSimulator();
-         Assert.IsTrue(smtpClient.Send(test.Address, recipients, "test" , "test"));
+         CustomAssert.IsTrue(smtpClient.Send(test.Address, recipients, "test" , "test"));
 
          IMAPSimulator.AssertMessageCount("acc2@test.com", "test", "Inbox", 1); // Member in list
          IMAPSimulator.AssertMessageCount("acc3@test.com", "test", "Inbox", 1); // Member in list

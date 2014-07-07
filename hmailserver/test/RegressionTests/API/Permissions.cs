@@ -22,7 +22,7 @@ namespace RegressionTests.API
 
          var newApp = new Application();
          Account authenticated = newApp.Authenticate(account.Address, "test");
-         Assert.IsNotNull(authenticated);
+         CustomAssert.IsNotNull(authenticated);
 
          // This should throw an exception.
          Domain newDomain = newApp.Domains.Add();
@@ -41,7 +41,7 @@ namespace RegressionTests.API
 
          var newApp = new Application();
          Account authenticated = newApp.Authenticate(account.Address, "test");
-         Assert.IsNotNull(authenticated);
+         CustomAssert.IsNotNull(authenticated);
 
          // This should throw an exception.
          Domain newDomain = newApp.Domains.Add();
@@ -60,7 +60,7 @@ namespace RegressionTests.API
 
          var newApp = new Application();
          Account authenticated = newApp.Authenticate(account.Address, "test");
-         Assert.IsNotNull(authenticated);
+         CustomAssert.IsNotNull(authenticated);
 
          // This should throw an exception.
          Domain newDomain = newApp.Domains.Add();
@@ -78,9 +78,9 @@ namespace RegressionTests.API
 
          var newApp = new Application();
          Account authenticated = newApp.Authenticate(account.Address, "test");
-         Assert.IsNotNull(authenticated);
+         CustomAssert.IsNotNull(authenticated);
 
-         Assert.AreEqual(1, newApp.Domains.Count);
+         CustomAssert.AreEqual(1, newApp.Domains.Count);
 
          // Retrieve our domain.
          Domain newDomain = newApp.Domains[0];
@@ -101,9 +101,9 @@ namespace RegressionTests.API
 
          var newApp = new Application();
          Account authenticated = newApp.Authenticate(account.Address, "test");
-         Assert.IsNotNull(authenticated);
+         CustomAssert.IsNotNull(authenticated);
 
-         Assert.AreEqual(1, newApp.Domains.Count);
+         CustomAssert.AreEqual(1, newApp.Domains.Count);
 
          // Retrieve our domain.
          Domain newDomain = newApp.Domains[0];

@@ -44,12 +44,12 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -92,12 +92,12 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -140,13 +140,13 @@ namespace RegressionTests.SMTP
                   "user4@test.com"
                };
 
-            Assert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
+            CustomAssert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
-            Assert.AreEqual(deliveryResults.Count, server.RcptTosReceived);
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.AreEqual(deliveryResults.Count, server.RcptTosReceived);
          }
       }
 
@@ -181,12 +181,12 @@ namespace RegressionTests.SMTP
             routeAddress.Save();
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
+            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 

@@ -36,9 +36,9 @@ namespace RegressionTests.Infrastructure
          // Wait for the auto-reply.
          string text = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
-         Assert.IsFalse(text.Contains("Return-Path: account2@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: account1@test.com"));
-         Assert.IsTrue(text.Contains("Return-Path: original-address@test.com"));
+         CustomAssert.IsFalse(text.Contains("Return-Path: account2@test.com"));
+         CustomAssert.IsFalse(text.Contains("Return-Path: account1@test.com"));
+         CustomAssert.IsTrue(text.Contains("Return-Path: original-address@test.com"));
       }
 
       [Test]
@@ -80,9 +80,9 @@ namespace RegressionTests.Infrastructure
          // Wait for the auto-reply.
          string text = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
-         Assert.IsTrue(text.Contains("Return-Path: account-a@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: account2@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: external@test.com"));
+         CustomAssert.IsTrue(text.Contains("Return-Path: account-a@test.com"));
+         CustomAssert.IsFalse(text.Contains("Return-Path: account2@test.com"));
+         CustomAssert.IsFalse(text.Contains("Return-Path: external@test.com"));
       }
 
       [Test]
@@ -151,7 +151,7 @@ namespace RegressionTests.Infrastructure
          if (s.ToLower().IndexOf("re: test message") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
 
-         Assert.IsTrue(s.Contains("Auto-Submitted: auto-replied"));
+         CustomAssert.IsTrue(s.Contains("Auto-Submitted: auto-replied"));
 
          oAccount2.VacationMessageIsOn = false;
          oAccount2.Save();
@@ -319,7 +319,7 @@ namespace RegressionTests.Infrastructure
          {
             string[] files = Directory.GetFiles(dir);
 
-            Assert.AreEqual(0, files.Length);
+            CustomAssert.AreEqual(0, files.Length);
          }
       }
 
@@ -346,7 +346,7 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          var oSMTP = new SMTPClientSimulator();
-         Assert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
+         CustomAssert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
 
          // Make sure that that a forward is made if no rule is set up.
          POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 1);
@@ -378,7 +378,7 @@ namespace RegressionTests.Infrastructure
          oRule.Save();
 
          // Make sure that that a forward is made if no rule is set up.
-         Assert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
+         CustomAssert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
          POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 0);
          _application.SubmitEMail();
          POP3Simulator.AssertMessageCount(oAccount3.Address, "test", 0);

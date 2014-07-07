@@ -66,10 +66,10 @@ namespace RegressionTests.Infrastructure
          smtpSimulator.Send("test@alias.com", account3.Address, "Test", "test1@test1.com");
          smtpSimulator.Send("test@alias.com", account4.Address, "Test", "test2@test1.com");
 
-         Assert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account1.Address, "test").Contains(account1.Address));
-         Assert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account2.Address, "test").Contains(account2.Address));
-         Assert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account3.Address, "test").Contains(account3.Address));
-         Assert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account4.Address, "test").Contains(account4.Address));
+         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account1.Address, "test").Contains(account1.Address));
+         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account2.Address, "test").Contains(account2.Address));
+         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account3.Address, "test").Contains(account3.Address));
+         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account4.Address, "test").Contains(account4.Address));
       }
 
       [Test]

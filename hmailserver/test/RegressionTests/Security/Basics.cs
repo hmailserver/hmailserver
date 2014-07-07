@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -17,16 +18,16 @@ namespace RegressionTests.Security
 
          string message;
          var sim = new POP3Simulator();
-         Assert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
+         CustomAssert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
 
 
          var simIMAP = new IMAPSimulator();
-         Assert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
-         Assert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
+         CustomAssert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
+         CustomAssert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 
          var simSMTP = new SMTPClientSimulator();
-         Assert.IsFalse(simSMTP.ConnectAndLogon(25, "dGVzdEB0ZXN0LmNvbQ==", "", out message));
-         Assert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
+         CustomAssert.IsFalse(simSMTP.ConnectAndLogon(25, "dGVzdEB0ZXN0LmNvbQ==", "", out message));
+         CustomAssert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
       }
    }
 }

@@ -27,7 +27,7 @@ namespace RegressionTests.Infrastructure
             Thread.Sleep(100);
          }
 
-         Assert.Fail("Session count incorrect");
+         CustomAssert.Fail("Session count incorrect");
       }
 
       [Test]

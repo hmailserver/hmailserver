@@ -24,8 +24,8 @@ namespace RegressionTests.Shared
       {
          _socket = new TcpSocket();
 
-         Assert.IsTrue(ConnectAndLogon(username, password));
-         Assert.IsTrue(SelectFolder(mailbox));
+         CustomAssert.IsTrue(ConnectAndLogon(username, password));
+         CustomAssert.IsTrue(SelectFolder(mailbox));
       }
 
       public IMAPSimulator(bool useSSL, int port)
@@ -245,7 +245,7 @@ namespace RegressionTests.Shared
          else if (result.StartsWith("A01 OK"))
             return true;
 
-         Assert.Fail("IMAPSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result);
+         CustomAssert.Fail(string.Format("IMAPSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
          return false;
       }
 
@@ -542,7 +542,7 @@ namespace RegressionTests.Shared
 
          if (!sData.Contains("A01 OK"))
          {
-            Assert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
+            CustomAssert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
             return 0;
          }
 
@@ -552,7 +552,7 @@ namespace RegressionTests.Shared
 
          if (iLength == 0)
          {
-            Assert.Fail("Unparseable SELECT response");
+            CustomAssert.Fail("Unparseable SELECT response");
          }
 
          string sValue = sData.Substring(iStartPos, iLength);
@@ -631,7 +631,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(25);
          }
 
-         Assert.Fail("Folder not found: " + folderName);
+         CustomAssert.Fail("Folder not found: " + folderName);
       }
 
 
@@ -645,7 +645,7 @@ namespace RegressionTests.Shared
          }
 
          var oIMAP = new IMAPSimulator();
-         Assert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
+         CustomAssert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
 
          if (expectedCount != 0)
             oIMAP.AssertFolderExists(folderName);
@@ -673,7 +673,7 @@ namespace RegressionTests.Shared
 
          string error = "Wrong number of messages in mailbox " + folderName + " in account " + accountName +
                         " Actual: " + currentCount.ToString() + " Expected: " + expectedCount.ToString();
-         Assert.Fail(error);
+         CustomAssert.Fail(error);
       }
 
       public string NOOP()

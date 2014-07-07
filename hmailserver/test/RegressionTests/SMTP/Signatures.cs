@@ -41,7 +41,7 @@ namespace RegressionTests.SMTP
 
          string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
-         Assert.IsTrue(sMessageData.Contains("Regards Martin Knafve"));
+         CustomAssert.IsTrue(sMessageData.Contains("Regards Martin Knafve"));
       }
 
       /// <summary>
@@ -158,7 +158,7 @@ namespace RegressionTests.SMTP
 
          string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
-         Assert.IsTrue(sMessageData.Contains("Regards Knafve, Martin"));
+         CustomAssert.IsTrue(sMessageData.Contains("Regards Knafve, Martin"));
       }
 
       [Test]
@@ -217,7 +217,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-         Assert.IsFalse(messageData.Contains(domain.SignaturePlainText));
+         CustomAssert.IsFalse(messageData.Contains(domain.SignaturePlainText));
       }
 
       /// <summary>
@@ -239,7 +239,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-         Assert.IsTrue(messageData.Contains(domain.SignaturePlainText));
+         CustomAssert.IsTrue(messageData.Contains(domain.SignaturePlainText));
       }
 
       /// <summary>
@@ -262,7 +262,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
-         Assert.IsTrue(messageData.Contains("%User.FirstName%"));
+         CustomAssert.IsTrue(messageData.Contains("%User.FirstName%"));
       }
    }
 }

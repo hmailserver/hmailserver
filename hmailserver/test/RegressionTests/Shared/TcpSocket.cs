@@ -157,7 +157,7 @@ namespace RegressionTests.Shared
          
          if (_useSslSocket)
          {
-            Assert.IsTrue(_tcpClient.Connected);
+            CustomAssert.IsTrue(_tcpClient.Connected);
 
             byte[] message = Encoding.UTF8.GetBytes(s);
             _sslStream.Write(message);
@@ -165,7 +165,7 @@ namespace RegressionTests.Shared
          }
          else
          {
-            Assert.IsTrue(_socket.Connected);
+            CustomAssert.IsTrue(_socket.Connected);
 
             Byte[] buf = Encoding.UTF8.GetBytes(s);
             _socket.Send(buf, buf.Length, 0);
@@ -189,7 +189,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(10);
          }
 
-         Assert.Fail("Timeout while waiting for server response: " + text);
+         CustomAssert.Fail("Timeout while waiting for server response: " + text);
          return "";
       }
 
@@ -211,7 +211,7 @@ namespace RegressionTests.Shared
             result += Receive();
          }
 
-         Assert.Fail("Timeout while waiting for server response.");
+         CustomAssert.Fail("Timeout while waiting for server response.");
          return "";
       }
 
@@ -249,9 +249,7 @@ namespace RegressionTests.Shared
                messageData.Append(s);
             } while (_socket.Available > 0);
          }
-
          
-
          return messageData.ToString();
       }
 

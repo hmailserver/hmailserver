@@ -27,6 +27,9 @@ namespace RegressionTests.Shared
          _domain = SingletonProvider<TestSetup>.Instance.DoBasicSetup();
 
          TestSetup.DeleteCurrentDefaultLog();
+
+         // make sure we have internet access.
+         TestSetup.GetLocalIpAddress();
       }
    }
 }
