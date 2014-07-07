@@ -13,19 +13,22 @@ namespace VMwareIntegration.Console
    class Program
    {
       private static string _logFile;
+      private static object _outputLogLock = new object();
 
       static int Main(string[] args)
       {
          var softwareUnderTest = args[0];
          _logFile = args[1];
+         _logFile = _logFile.Replace("%TIMESTAMP%", DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
 
-         System.Console.WriteLine("Loading test suite...");
+         LogText("Loading test suite...");
 
          // Load static container of all tests.
          List<TestEnvironment> listEnvironments = new List<TestEnvironment>();
          TestEnvironments.AddAll(listEnvironments);
 
          int testIndex = 1;
+
          foreach (TestEnvironment environment in listEnvironments)
          {
             string message = string.Format("{5} - Running test {3} / {4} - {0} on {1} (Snapshot: {2})",
@@ -36,7 +39,7 @@ namespace VMwareIntegration.Console
                listEnvironments.Count,
                DateTime.Now);
 
-            System.Console.WriteLine(message);
+            LogText(message);
 
             TestRunner runner = new TestRunner(true, environment, true, softwareUnderTest);
             runner.TestCompleted += runner_TestCompleted;
@@ -62,8 +65,11 @@ namespace VMwareIntegration.Console
 
       private static void LogText(string text)
       {
-         System.Console.WriteLine(text);
-         File.AppendAllText(_logFile, text);
+         lock (_outputLogLock)
+         {
+            System.Console.WriteLine(text);
+            File.AppendAllText(_logFile, text + Environment.NewLine);
+         }
       }
    }
 }

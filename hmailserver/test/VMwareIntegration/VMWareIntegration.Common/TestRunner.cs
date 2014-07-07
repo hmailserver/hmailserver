@@ -2,19 +2,15 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using VixCOM;
 using System.Xml;
-using System.Reflection;
 using System.Threading;
 
 namespace VMwareIntegration.Common
 {
    public class TestRunner
    {
-       private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.5.3";
+      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.5.3";
       
       private TestEnvironment _environment;
       private bool _stopOnError;
@@ -101,8 +97,7 @@ namespace VMwareIntegration.Common
             vm.LoginInGuest("VMware", "vmware");
 
             // Make sure we have an IP address.
-            vm.RunProgramInGuest("ipconfig.exe", "/renew");
-            vm.RunProgramInGuest("ipconfig.exe", "/renew");
+            EnsureNetworkAccess(vm);
 
             // Set up test paths.
             vm.CreateDirectory(guestTestPath);
@@ -128,6 +123,22 @@ namespace VMwareIntegration.Common
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
+            bool useLocalVersion = false;
+
+            if (useLocalVersion)
+            {
+               const string localPath =
+                  @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
+
+               RunScriptInGuest(vm, "NET STOP HMAILSERVER");
+               RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
+               RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
+               vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
+               vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+               RunScriptInGuest(vm, "NET START HMAILSERVER");
+            }
+
+
             // Run NUnit
             vm.RunProgramInGuest(guestTestPath + "\\" + runTestsScriptName, "");
 
@@ -138,10 +149,10 @@ namespace VMwareIntegration.Common
             XmlDocument doc = new XmlDocument();
             doc.Load(localResultFile);
 
-            string failures = doc.LastChild.Attributes["failures"].Value;
-            int failureCount = Convert.ToInt32(failures);
-
-            if (failureCount == 0)
+            int failureCount = Convert.ToInt32(doc.LastChild.Attributes["failures"].Value);
+            int errorCount = Convert.ToInt32(doc.LastChild.Attributes["errors"].Value);
+            
+            if (failureCount == 0 && errorCount == 0)
                return;
 
             string resultContent = File.ReadAllText(localResultFile);
@@ -169,6 +180,40 @@ namespace VMwareIntegration.Common
                   vm.PowerOff();
             }
          }
+      }
+
+      private void RunScriptInGuest(VMware vmware, string script)
+      {
+         string scriptFile = Path.ChangeExtension(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()), ".bat");
+         File.WriteAllText(scriptFile, script);
+
+         var guestScriptName = string.Format(@"C:\{0}.bat", Guid.NewGuid().ToString("N"));
+         vmware.CopyFileToGuest(scriptFile, guestScriptName);
+
+         vmware.RunProgramInGuest(guestScriptName, string.Empty);
+      }
+
+      private void EnsureNetworkAccess(VMware vmware)
+      {
+         string pingResultData = string.Empty;
+
+         for (int i = 0; i < 5; i++)
+         {
+            string script = "ipconfig /renew\r\nping www.google.com -n 1 > C:\\pingresult.txt";
+            RunScriptInGuest(vmware, script);
+
+            string pingResultFile = Path.Combine(Path.GetTempPath(), "pingresult.txt");
+
+            vmware.CopyFileToHost("C:\\pingresult.txt", pingResultFile);
+
+            pingResultData = File.ReadAllText(pingResultFile);
+
+            if (pingResultData.Contains("Reply from "))
+               return;
+         }
+
+         throw new Exception("No network access. Ping result: " + pingResultData);
+
       }
 
       static string ProgramFilesx86()

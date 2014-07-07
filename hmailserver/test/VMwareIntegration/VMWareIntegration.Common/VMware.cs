@@ -207,7 +207,6 @@ namespace VMwareIntegration.Common
       {
          VixCOM.IJob job = _virtualMachine.RunProgramInGuest(fullPath, param, 0, null, null);
          UInt64 err = job.WaitWithoutResults();
-
          
          if (lib.ErrorIndicatesFailure(err))
          {
