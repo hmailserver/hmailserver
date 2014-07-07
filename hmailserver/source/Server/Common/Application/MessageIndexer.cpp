@@ -19,7 +19,7 @@
 
 namespace HM
 {
-   CriticalSection MessageIndexer::_starterLock;
+   boost::recursive_mutex MessageIndexer::_starterMutex;
 
    MessageIndexer::MessageIndexer() :
       Task("MessageIndexer")
@@ -35,7 +35,7 @@ namespace HM
    void
    MessageIndexer::Start()
    {
-      CriticalSectionScope scope(_starterLock);
+      boost::lock_guard<boost::recursive_mutex> guard(_starterMutex);
 
       shared_ptr<MessageIndexer> indexer = _GetRunningIndexer();
 
@@ -58,7 +58,7 @@ namespace HM
    {
       LOG_DEBUG("Stopping message indexing thread...");
 
-      CriticalSectionScope scope(_starterLock);
+      boost::lock_guard<boost::recursive_mutex> guard(_starterMutex);
 
       shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetRandomWorkQueue();
       pWorkQueue->StopTask("MessageIndexer");

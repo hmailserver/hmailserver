@@ -19,6 +19,6 @@ namespace HM
 
       std::map<__int64, __int64> _accountSizes;
 
-      CriticalSection _lock;
+      boost::recursive_mutex _mutex;
    };
 }

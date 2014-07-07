@@ -39,7 +39,7 @@ namespace HM
 
       std::map<__int64, shared_ptr<IMAPFolders> > m_mapFolders;
       
-      static CriticalSection m_hFetchListCriticalSection; 
+      static boost::recursive_mutex _fetchListMutex;
       
       bool m_bEnabled;
    

@@ -67,7 +67,7 @@ namespace HM
       // If there are cached updates for this folder but the client
       // don't want to look at the folder any more, the cached updates
       // will be gone.
-      CriticalSectionScope scope(_critSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       _cachedChanges.clear();
    }
 
@@ -106,7 +106,7 @@ namespace HM
    void 
    IMAPNotificationClient::_CacheChangeNotification(shared_ptr<ChangeNotification> pChangeNotification)
    {
-      CriticalSectionScope scope(_critSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       _cachedChanges.push_back(pChangeNotification);
    }
 
@@ -122,7 +122,7 @@ namespace HM
       if (!connection)
          return;
 
-      CriticalSectionScope scope(_critSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       int lastExists = -1;
       int lastRecent = -1;

@@ -22,7 +22,7 @@ namespace HM
 
    private:
 
-      CriticalSection m_csMessage;
+      boost::recursive_mutex _mutex;
       std::map<__int64, shared_ptr<Message> > m_mapMessage;
 
    };

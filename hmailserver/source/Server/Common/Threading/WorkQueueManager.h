@@ -28,7 +28,7 @@ namespace HM
 
       std::map<int, shared_ptr<WorkQueue> >::iterator _GetQueueIterator(const String &sQueueName);
 
-      CriticalSection m_csWorkQueues;
+      boost::recursive_mutex _mutex;
       std::map<int, shared_ptr<WorkQueue> > m_mapWorkQueues;
      
    };

@@ -38,7 +38,7 @@ namespace HM
       // Properties used to determine how long objects 
       // should be stored and the current statistics
 
-      CriticalSection m_oAccessCritSec;
+      boost::recursive_mutex _mutex;
       // All access to the container is restricted by
       // a critical section
       
@@ -59,7 +59,7 @@ namespace HM
    void
    Cache<T,P>::Clear()
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       m_mapObjects.clear();
       m_iNoOfMisses = 0;
@@ -92,7 +92,7 @@ namespace HM
    int
    Cache<T,P>::GetHitRate()
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (m_iNoOfHits == 0)
          return 0;
@@ -106,7 +106,7 @@ namespace HM
    void 
    Cache<T,P>::RemoveObject(shared_ptr<T> pObject)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(pObject->GetName());
    
@@ -119,7 +119,7 @@ namespace HM
    void 
    Cache<T,P>::RemoveObject(const String &sName)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(sName);
 
@@ -132,7 +132,7 @@ namespace HM
    void 
    Cache<T,P>::RemoveObject(__int64 iID)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Find the domain using the ID
       std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.begin();
@@ -155,7 +155,7 @@ namespace HM
    shared_ptr<const T> 
    Cache<T,P>::GetObject(const String &sName)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (m_bEnabled)
       {
@@ -192,7 +192,7 @@ namespace HM
    shared_ptr<const T> 
    Cache<T,P>::GetObject(__int64 iID)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (m_bEnabled)
       {
@@ -234,7 +234,7 @@ namespace HM
    void 
    Cache<T,P>::_AddToCache(shared_ptr<T> pObject)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Object must be saved before it can be cached.
 #ifdef DEBUG

@@ -13,7 +13,7 @@
 namespace HM
 {
    std::set<std::pair<int, int> > FolderManipulationLock::m_setFolders;
-   CriticalSection FolderManipulationLock::m_CriticalSection;
+   boost::recursive_mutex FolderManipulationLock::_mutex;
 
    FolderManipulationLock::FolderManipulationLock(int iAccountID, int iFolderID) :
       _hasLock(false)
@@ -56,7 +56,7 @@ namespace HM
          // between each attempt, but we don't want to lock the critical
          // section meanwhile. Hence the inner scope here:
          {
-            CriticalSectionScope scope(m_CriticalSection);
+            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
             if (m_setFolders.find(lockPair) == m_setFolders.end())
             {
@@ -73,7 +73,7 @@ namespace HM
    void
    FolderManipulationLock::Release(std::pair<int, int> lockPair)
    {
-      CriticalSectionScope scope(m_CriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::set<std::pair<int, int>>::iterator iterPos = m_setFolders.find(lockPair);
       if (iterPos != m_setFolders.end())

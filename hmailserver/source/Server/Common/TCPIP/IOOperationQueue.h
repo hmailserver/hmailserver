@@ -23,7 +23,7 @@ namespace HM
 
    private:
 
-      CriticalSection _criticalSection;
+      boost::recursive_mutex _mutex;
 
       std::deque<shared_ptr<IOOperation> > _queueOperations;
       

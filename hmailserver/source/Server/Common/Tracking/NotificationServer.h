@@ -30,7 +30,7 @@ namespace HM
       std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> > _messageChangeSubscribers;
       std::multimap<__int64, shared_ptr<NotificationClientSubscription> > _folderListChangeSubscribers;
 
-      CriticalSection _criticalSection;
+      boost::recursive_mutex _mutex;
 
       __int64 _subscriptionCounter;
    };

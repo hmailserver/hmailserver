@@ -38,7 +38,7 @@ namespace HM
 
          if (dwWaitResult == WAIT_OBJECT_0)
          {
-            CriticalSectionScope scope (m_oVecCritSec);
+            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
             m_vecScheduledTasks.clear();
 
@@ -51,7 +51,7 @@ namespace HM
    void
    Scheduler::_RunTasks()
    {
-      CriticalSectionScope scope(m_oVecCritSec); 
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vector<shared_ptr<ScheduledTask >>::iterator iterTask;
 
@@ -83,7 +83,7 @@ namespace HM
    void
    Scheduler::ScheduleTask(shared_ptr<ScheduledTask> pTask)
    {
-      CriticalSectionScope scope(m_oVecCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // If task should only be run once, run it now.
       if (pTask->GetReoccurance() == ScheduledTask::RunOnce)

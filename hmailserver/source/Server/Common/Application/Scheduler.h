@@ -28,7 +28,7 @@ namespace HM
 
       Event m_hStopTask;      
 
-      CriticalSection m_oVecCritSec;
+      boost::recursive_mutex _mutex;
       vector<shared_ptr<ScheduledTask >> m_vecScheduledTasks;
 
    };

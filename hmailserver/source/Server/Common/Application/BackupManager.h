@@ -36,7 +36,7 @@ namespace HM
  
    private:
 
-      CriticalSection m_oStatusCritSec;
+      boost::recursive_mutex _mutex;
       String m_sLog;
       bool m_bIsRunning;
    };

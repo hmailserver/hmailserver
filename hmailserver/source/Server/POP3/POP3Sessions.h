@@ -22,7 +22,7 @@ namespace HM
 
       std::set<__int64> m_vecLockedAccounts;
 
-      CriticalSection m_oCritSec;
+      boost::recursive_mutex _mutex;
    };
 
 }

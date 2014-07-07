@@ -433,6 +433,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug (x64)|Win32"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -3812,14 +3813,6 @@
 						</File>
 						<File
 							RelativePath="..\Common\Util\Compression.h"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Util\CriticalSection.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Util\CriticalSection.h"
 							>
 						</File>
 						<File

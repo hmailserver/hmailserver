@@ -41,8 +41,8 @@ namespace HM
 
       shared_ptr<DALConnection> _GetConnection();
       void _ReleaseConnection(shared_ptr<DALConnection> pConn);
-     
-      CriticalSection m_oCritSec;
+ 
+      boost::recursive_mutex _mutex;
       
       std::set<shared_ptr<DALConnection> > m_setBusyConnections;
       std::set<shared_ptr<DALConnection> > m_setAvailableConnections;

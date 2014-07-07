@@ -29,7 +29,7 @@ namespace HM
    void 
    ObjectCache::SetDomainAliasesNeedsReload()
    {
-      CriticalSectionScope scope(m_oDACritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
 
       m_bDomainAliasesNeedsReload = true;
    }
@@ -37,7 +37,7 @@ namespace HM
    shared_ptr<DomainAliases> 
    ObjectCache::GetDomainAliases()
    {
-      CriticalSectionScope scope(m_oDACritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
 
       if (!m_pDomainAliases || m_bDomainAliasesNeedsReload)
       {
@@ -53,7 +53,7 @@ namespace HM
    void 
    ObjectCache::SetGlobalRulesNeedsReload()
    {
-      CriticalSectionScope scope(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
 
       m_bGlobalRulesNeedsReload = true;
    }
@@ -62,7 +62,7 @@ namespace HM
    shared_ptr<Rules> 
    ObjectCache::GetGlobalRules()
    {
-      CriticalSectionScope scope(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
 
       if (!m_pGlobalRules || m_bGlobalRulesNeedsReload)
       {
@@ -78,7 +78,7 @@ namespace HM
    void 
    ObjectCache::SetAccountRulesNeedsReload(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_oARCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
 
       set<__int64>::iterator iterRefresh = m_setAccountRulesToRefresh.find(iAccountID);      
       if (iterRefresh == m_setAccountRulesToRefresh.end())
@@ -88,7 +88,7 @@ namespace HM
    shared_ptr<Rules> 
    ObjectCache::GetAccountRules(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_oARCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
 
       // First find the rules.
       map<__int64, shared_ptr<Rules> >::iterator iterRules = m_mapAccountRules.find(iAccountID);
@@ -121,8 +121,8 @@ namespace HM
    void 
    ObjectCache::ClearRuleCaches()
    {
-      CriticalSectionScope scopeAccountRules(m_oARCritSec);
-      CriticalSectionScope scopeGlobalRules(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> globalRulesGuard(_globalRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> accontRulesGuard(_accountRulesMutex);
 
       m_pGlobalRules.reset();
       m_mapAccountRules.clear();

@@ -387,6 +387,7 @@ namespace HM
 
       try
       {
+
          stage = 1;
          // Pick out the next item to process...
          shared_ptr<IOOperation> operation = _operationQueue.Front();
@@ -696,26 +697,27 @@ namespace HM
       {
          LOG_DEBUG("Closing TCP/IP socket");
 
+         // Perform graceful shutdown. No more operations will be performed. 
          Shutdown(boost::asio::socket_base::shutdown_both, false);
 
-         try
-         {
-            GetSocket().close();
-         }
-         catch (boost::system::system_error error)
-         {
-            // We failed to send the data to the client. Log an message in the log, 
-            // and switch of operation-in-progress flag. We don't log this as an 
-            // error since it most likely isn't.
-            String sMessage;
-            sMessage.Format(_T("TCPConnection - Closing of socket failed. Error code: %d, Message: %s"), error.code().value(), String(error.what()));
-            LOG_TCPIP(sMessage);
-         }
-         catch (...)
-         {
-            LOG_DEBUG("GetSocket().close() threw");
-            // Eat the exception. Not immediately critical.
-         }
+         //try
+         //{
+         //   GetSocket().close();
+         //}
+         //catch (boost::system::system_error error)
+         //{
+         //   // We failed to send the data to the client. Log an message in the log, 
+         //   // and switch of operation-in-progress flag. We don't log this as an 
+         //   // error since it most likely isn't.
+         //   String sMessage;
+         //   sMessage.Format(_T("TCPConnection - Closing of socket failed. Error code: %d, Message: %s"), error.code().value(), String(error.what()));
+         //   LOG_TCPIP(sMessage);
+         //}
+         //catch (...)
+         //{
+         //   LOG_DEBUG("GetSocket().close() threw");
+         //   // Eat the exception. Not immediately critical.
+         //}
       }
       catch (...)
       {
@@ -829,26 +831,19 @@ namespace HM
          {
             if (error.value() != 0)
             {
-               // This isn't really an error.
-               bool isClientDisconnectedError = error.value() == 2;
-               
-               if (isClientDisconnectedError == false)
-               {
-                  _protocolParser->OnReadError(error.value());
+               _protocolParser->OnReadError(error.value());
 
-                  String message;
-                  message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
-                  ReportDebugMessage(message, error);
-               }
+               String message;
+               message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
+               ReportDebugMessage(message, error);
 
                if (error.value() == boost::asio::error::not_found)
                {
                   // read buffer is full...
                   _protocolParser->OnExcessiveDataReceived();
-                  PostDisconnect();
-                  return;
                }
 
+               PostDisconnect();
                return;
             }
          }
@@ -972,8 +967,11 @@ namespace HM
 
          if (error.value() != 0)
          {
-            ReportDebugMessage("The write operation failed.", error);
-            return;
+            String message;
+            message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
+            ReportDebugMessage(message, error);
+
+            PostDisconnect();
          }
 
          bool containsQueuedSendOperations = false;

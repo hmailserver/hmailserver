@@ -41,7 +41,7 @@ namespace HM
       void _SendFLAGS(const std::set<__int64> & vecMessages);
       void _SendMessage(int iExists);
 
-      CriticalSection _critSec;
+      boost::recursive_mutex _mutex;
       vector<shared_ptr<ChangeNotification> > _cachedChanges;
       
       weak_ptr<IMAPConnection> _parentConnection;

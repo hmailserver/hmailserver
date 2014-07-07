@@ -144,14 +144,14 @@ namespace HM
    void 
    BackupManager::SetStatus(const String &sStatus)
    {
-      CriticalSectionScope scope(m_oStatusCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       m_sLog += sStatus + "\r\n";
    }
 
    String 
    BackupManager::GetStatus()
    {
-      CriticalSectionScope scope(m_oStatusCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       String sVal = m_sLog;
       return sVal;
    }

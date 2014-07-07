@@ -43,7 +43,7 @@ namespace HM
    {
       set<shared_ptr<NotificationClient> > clientsToNotify;
 
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       switch (changeNotification->GetType())
       {
@@ -102,7 +102,7 @@ namespace HM
       {
          std::pair<__int64, __int64> folderSpecifier = std::make_pair(accountID, folderID);
 
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          _subscriptionCounter++;
          shared_ptr<NotificationClientSubscription> subscription = 
@@ -129,7 +129,7 @@ namespace HM
       {
          std::pair<__int64, __int64> folderSpecifier = std::make_pair(iAccountID, iFolderID);
 
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iter = _messageChangeSubscribers.find(folderSpecifier);
          if (iter == _messageChangeSubscribers.end())
@@ -162,7 +162,7 @@ namespace HM
    {
       try
       {
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          _subscriptionCounter++;
          shared_ptr<NotificationClientSubscription> subscription = 
@@ -187,7 +187,7 @@ namespace HM
    {
       try
       {
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          std::multimap<__int64, shared_ptr<NotificationClientSubscription> >::iterator iter = _folderListChangeSubscribers.find(accountID);
          if (iter == _folderListChangeSubscribers.end())

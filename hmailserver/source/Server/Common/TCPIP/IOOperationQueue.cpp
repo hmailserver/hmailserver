@@ -26,7 +26,7 @@ namespace HM
    void
    IOOperationQueue::Push(shared_ptr<IOOperation> operation)
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       _queueOperations.push_back(operation);
    }
@@ -34,7 +34,7 @@ namespace HM
    void
    IOOperationQueue::Pop(IOOperation::OperationType type)
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (_ongoingOperations.size() == 0)
       {
@@ -63,7 +63,7 @@ namespace HM
    bool 
    IOOperationQueue::ContainsQueuedSendOperation()
    {
-      CriticalSectionScope scope (_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (_queueOperations.empty())
          return false;
@@ -80,7 +80,7 @@ namespace HM
    shared_ptr<IOOperation>
    IOOperationQueue::Front()
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Do we have any items to process? If not, not much to do.
       if (_queueOperations.empty())

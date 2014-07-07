@@ -120,7 +120,7 @@ namespace HM
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
 
-      CriticalSectionScope scope(m_oCSSpamMessgeDropped);
+      boost::lock_guard<boost::recursive_mutex> guard(_spamMessageDroppedMutex);
       m_iNumberOfSpamMessagesDetected++;
    }
 
@@ -133,10 +133,9 @@ namespace HM
    void
    ServerStatus::OnVirusRemoved()
    {
-
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
-      CriticalSectionScope scope(m_oCSVirusesRemoved);
+      boost::lock_guard<boost::recursive_mutex> guard(_virusRemovedMutex);
 
       m_iNumberOfVirusesRemoved++;
    }

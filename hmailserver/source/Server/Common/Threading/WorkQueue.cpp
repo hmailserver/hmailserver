@@ -90,7 +90,7 @@ namespace HM
    void 
    WorkQueue::AddTask(shared_ptr<Task> pTask)
    {
-      CriticalSectionScope scope(m_csPendingTasks);
+      boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
       m_qPendingTasks.push(pTask);
 
       m_hCheckForTask.Set();
@@ -103,7 +103,7 @@ namespace HM
       if (m_qtType == eQTPreLoad || 
           m_qtType == eQTFixedSize)
       {
-         CriticalSectionScope scope(m_csThreads);
+         boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
          for (unsigned int i = 0; i < m_iBaseLineThreadCount; i++)
          {
             shared_ptr<Thread> pThread = shared_ptr<Thread>(new Thread(this));
@@ -125,7 +125,7 @@ namespace HM
          m_hStopQueue.Set();
 
          // Stop all running threads
-         CriticalSectionScope scope(m_csThreads);
+         boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
 
          // Create a copy of the map. Since pThread->Stop() may cause threads
          // being removed from the map, it's important that we work on a copy
@@ -159,7 +159,7 @@ namespace HM
    // Returns true if any running threads exists. False otherwise.
    //---------------------------------------------------------------------------
    {
-      CriticalSectionScope scope(m_csThreads);
+      boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
 
       return !m_mapThreads.empty();
    }
@@ -192,7 +192,7 @@ namespace HM
          else
          {
             stage = 4;
-            CriticalSectionScope scope(m_csThreads);
+            boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
             stage = 5;
 
             if (m_mapThreads.size() <= m_iBaseLineThreadCount)
@@ -243,7 +243,7 @@ namespace HM
    {
       // The thread has exited running state. It should
       // be removed from our list of threads.
-      CriticalSectionScope scope(m_csThreads);
+      boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
 
       // Close the thread handle and remove it
       // from our list. The thread is dead.
@@ -289,7 +289,7 @@ namespace HM
                return;
             }
 
-            CriticalSectionScope scopePendingTasks(m_csPendingTasks);
+            boost::lock_guard<boost::recursive_mutex> guardPendingTasks(_pendingTaskMutex);
 
             if (m_bPause || m_qPendingTasks.size() == 0)
             {
@@ -301,7 +301,7 @@ namespace HM
             // We have got something to do. Try to 
             // find a free thread for the task.
 
-            CriticalSectionScope scopeThreads(m_csThreads);
+            boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
 
             while (!m_qPendingTasks.empty())
             {
@@ -331,7 +331,6 @@ namespace HM
                   m_mapThreads[pThread->GetHandle()] = pThread;
                }
 
-               CriticalSectionScope scope (m_csPendingTasks);
                // Pick the next task from the queue
                shared_ptr<Task> pTask = m_qPendingTasks.front();
 
@@ -359,7 +358,7 @@ namespace HM
    // Thread safe
    //---------------------------------------------------------------------------
    {
-      CriticalSectionScope scope(m_csPendingTasks);
+      boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
       int size = m_qPendingTasks.size();
 
       return size;
@@ -375,7 +374,7 @@ namespace HM
       try
       {
          // Clears the queue of tasks. 
-         CriticalSectionScope scope(m_csPendingTasks);
+         boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
 
          // There's no std::queue::clear(). Am I the 
          // first one who needs to  clear a queue?! 
@@ -427,8 +426,8 @@ namespace HM
    void 
    WorkQueue::StopTask(const String &name)
    {
-      CriticalSectionScope scopeTasks(m_csPendingTasks);
-      CriticalSectionScope scopeThreads(m_csThreads);
+      boost::lock_guard<boost::recursive_mutex> guardTasks(_pendingTaskMutex);
+      boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
 
       bool isQueued = false;
       shared_ptr<Task> task = GetTaskByName(name, isQueued);
@@ -479,8 +478,8 @@ namespace HM
    // Returns a task by its given name. Very costful operation.
    //---------------------------------------------------------------------------
    {
-      CriticalSectionScope scopeTasks(m_csPendingTasks);
-      CriticalSectionScope scopeThreads(m_csThreads);
+      boost::lock_guard<boost::recursive_mutex> guardTasks(_pendingTaskMutex);
+      boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
 
       isQueued = false;
 

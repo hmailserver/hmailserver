@@ -42,8 +42,8 @@ namespace HM
       int m_iNumberOfSpamMessagesDetected;
       int m_iNumberOfVirusesRemoved;
 
-      CriticalSection m_oCSSpamMessgeDropped;
-      CriticalSection m_oCSVirusesRemoved;
+      boost::recursive_mutex _spamMessageDroppedMutex;
+      boost::recursive_mutex _virusRemovedMutex;
 
       ServerState m_eState;
    };

@@ -137,9 +137,6 @@ namespace HM
       int  m_iLogLevel;      
       int  m_iMaxLogLineLen;      
 
-      CriticalSection m_oCritSec;
-      CriticalSection m_oCritSecLiveLog;
-
       String m_sLiveLog;
       int m_iLogMask;
 
@@ -151,7 +148,9 @@ namespace HM
       File _IMAPLogFile;
       File _POP3LogFile;
       File _SMTPLogFile;
-      
+
+      boost::recursive_mutex _mtx;
+      boost::recursive_mutex _mtxLiveLog;
    };
 
 }

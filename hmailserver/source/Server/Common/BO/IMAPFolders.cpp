@@ -40,7 +40,7 @@ namespace HM
    void
    IMAPFolders::Refresh()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vecObjects.clear();
 
@@ -148,7 +148,7 @@ namespace HM
    shared_ptr<IMAPFolder> 
    IMAPFolders::GetFolderByName(const String &sName, bool bRecursive)
    { 
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost_foreach(shared_ptr<IMAPFolder> pFolder, vecObjects)
       {
@@ -177,7 +177,7 @@ namespace HM
    shared_ptr<IMAPFolder>
    IMAPFolders::GetFolderByFullPath(const String &sPath)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
 
@@ -189,7 +189,7 @@ namespace HM
    shared_ptr<IMAPFolder>
    IMAPFolders::GetFolderByFullPath(const std::vector<String> &vecFolders)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       shared_ptr<IMAPFolder> pCurFolder;
       size_t lNoOfParts= vecFolders.size();
@@ -217,7 +217,7 @@ namespace HM
    void
    IMAPFolders::RemoveFolder(shared_ptr<IMAPFolder> pFolderToRemove)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vector<shared_ptr<IMAPFolder> >::iterator iterCurPos = vecObjects.begin();
       vector<shared_ptr<IMAPFolder> >::iterator iterEnd = vecObjects.end();
@@ -241,7 +241,7 @@ namespace HM
                            const std::vector<String> &vecFolderPath, 
                            bool bAutoSubscribe)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
 
@@ -302,7 +302,7 @@ namespace HM
    shared_ptr<IMAPFolder> 
    IMAPFolders::GetItemByDBIDRecursive(__int64 lFolderID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<shared_ptr<IMAPFolder> >::iterator iterCurPos = vecObjects.begin();
 

@@ -34,7 +34,7 @@ namespace HM
       shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, qtType, sQueueName));
       pWorkQueue->Start();
 
-      CriticalSectionScope scope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       int iQueueID = m_mapWorkQueues.size() + 1;
       m_mapWorkQueues[iQueueID] = pWorkQueue;
 
@@ -49,7 +49,7 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       // Add the task to the work queue
-      CriticalSectionScope scope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = m_mapWorkQueues.find(iQueueID);
 
@@ -77,7 +77,7 @@ namespace HM
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue;
 
       {
-         CriticalSectionScope scope(m_csWorkQueues);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          iterQueue = _GetQueueIterator(sQueueName);
          if (iterQueue == m_mapWorkQueues.end())
@@ -106,7 +106,7 @@ namespace HM
             // Wait for the queue to be stopped.
             WaitForSingleObject(pQueue->GetQueueThreadHandle(), 3000);
 
-            CriticalSectionScope scope(m_csWorkQueues);
+            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
             m_mapWorkQueues.erase(iterQueue);
 
             return;
@@ -119,7 +119,7 @@ namespace HM
       }
 
       
-      CriticalSectionScope workQueueScope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       m_mapWorkQueues.erase(iterQueue);
 
    }
@@ -131,7 +131,7 @@ namespace HM
    // Returns the queue with a specific name. 
    //---------------------------------------------------------------------------
    {
-      CriticalSectionScope scope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = _GetQueueIterator(sQueueName);
       if (iterQueue != m_mapWorkQueues.end())

@@ -360,7 +360,7 @@ namespace HM
    bool
    Logger::_WriteData(const String &sData, LogType lt)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mtx);
 
       File *file = _GetCurrentLogFile(lt);
 
@@ -439,7 +439,7 @@ namespace HM
    void
    Logger::_LogLive(String &sMessage)
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
 
       // Check if we are still enabled. It could be that 
       // we have just disabled ourselves.
@@ -459,7 +459,7 @@ namespace HM
    void 
    Logger::EnableLiveLogging(bool bEnable)
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
       m_sLiveLog.Empty();
 
       m_bEnableLiveLog = bEnable;
@@ -492,7 +492,7 @@ namespace HM
    String 
    Logger::GetLiveLog()
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
 
       String sResult;
       sResult = m_sLiveLog;

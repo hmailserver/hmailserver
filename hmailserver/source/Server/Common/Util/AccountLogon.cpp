@@ -24,7 +24,7 @@
 
 namespace HM
 {
-   CriticalSection AccountLogon::_IPRangeCreationLock;
+   boost::recursive_mutex AccountLogon::_ipRangeCreationMutex;
 
    AccountLogon::AccountLogon(void)
    {
@@ -101,7 +101,7 @@ namespace HM
       // will result in a DB error. To prevent this, we use locking to
       // ensure that only one IP range is created at a time.
 
-      CriticalSectionScope scope(_IPRangeCreationLock);
+      boost::lock_guard<boost::recursive_mutex> guard(_ipRangeCreationMutex);
 
       DateTime dt = DateTime::GetCurrentTime();         
       DateTimeSpan span;

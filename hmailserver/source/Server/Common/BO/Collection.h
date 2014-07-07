@@ -48,7 +48,7 @@ namespace HM
       bool _DBLoad(const String &sSQL);
       bool _DBLoad(const SQLCommand &command);
 
-      CriticalSection _lock;
+      mutable boost::recursive_mutex _mutex;
 
       vector<shared_ptr<T> > vecObjects;
    };
@@ -57,7 +57,7 @@ namespace HM
    template <class T, class P> 
    bool Collection<T,P>::XMLStore(XNode *pParentNode, int iBackupOptions)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (vecObjects.size() == 0)
          return true;
@@ -81,7 +81,7 @@ namespace HM
    template <class T, class P> 
    bool Collection<T,P>::XMLLoad(XNode *pBackupNode, int iRestoreOptions)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // First delete the currently existing items.
       if (!DeleteAll())
@@ -134,7 +134,7 @@ namespace HM
    template <class T, class P> 
    shared_ptr<T> Collection<T,P>::GetItem(unsigned int Index) const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       shared_ptr<T> pRet;
 
@@ -147,7 +147,7 @@ namespace HM
    template <class T, class P> 
    shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID) const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       int index = 0;
       return GetItemByDBID(DBID, index);
@@ -156,7 +156,7 @@ namespace HM
    template <class T, class P> 
    shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID, int &foundIndex) const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       foundIndex = 0;
 
@@ -177,7 +177,7 @@ namespace HM
    template <class T, class P> 
    bool Collection<T,P>::DeleteItemByDBID(__int64 DBID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vector<shared_ptr<T> >::iterator iter = vecObjects.begin();
       vector<shared_ptr<T> >::iterator iterEnd = vecObjects.end();
@@ -199,7 +199,7 @@ namespace HM
    template <class T, class P> 
    bool Collection<T,P>::DeleteAll()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost_foreach(shared_ptr<T> object, vecObjects)
       {
@@ -214,7 +214,7 @@ namespace HM
    template <class T, class P> 
    bool Collection<T,P>::DeleteItem(unsigned int index)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (index >= vecObjects.size())
          return false;
@@ -229,7 +229,7 @@ namespace HM
    template <class T, class P> 
    shared_ptr<T> Collection<T,P>::GetItemByName(const String &sName) const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vector<shared_ptr<T> >::const_iterator iter = vecObjects.begin();
       
@@ -252,7 +252,7 @@ namespace HM
    template <class T, class P>  
    bool Collection<T,P>::_DBLoad(const SQLCommand &command)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       vecObjects.clear();
 

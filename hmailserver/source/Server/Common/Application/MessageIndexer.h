@@ -32,8 +32,8 @@ namespace HM
       Event _stopRunning;
       Event _indexNow;
 
-      static CriticalSection _starterLock; 
-	  int iIndexRunCount;
+      static boost::recursive_mutex _starterMutex; 
+	   int iIndexRunCount;
 
    };
 }

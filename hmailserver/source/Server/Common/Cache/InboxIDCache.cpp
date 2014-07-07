@@ -30,7 +30,7 @@ namespace HM
       if (!_enabled)
          return;
    
-      CriticalSectionScope scope (_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       _inboxID.clear();
    }
@@ -40,7 +40,7 @@ namespace HM
    {
       if (_enabled)
       {
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
          std::map<__int64, __int64>::iterator iter = _inboxID.find(accountID);
 
          if (iter != _inboxID.end())
@@ -54,7 +54,7 @@ namespace HM
 
       if (_enabled)
       {
-         CriticalSectionScope scope(_criticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
          _inboxID[accountID] = inboxID;
       }
 

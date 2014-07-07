@@ -120,7 +120,8 @@ namespace HM
    void
    DatabaseConnectionManager::Disconnect()
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
       //std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setAvailableConnections.begin();
       boost_foreach(shared_ptr<DALConnection> pConnection, m_setAvailableConnections)
       {
@@ -195,7 +196,7 @@ namespace HM
    void
    DatabaseConnectionManager::_ReleaseConnection(shared_ptr<DALConnection> pConnection)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setBusyConnections.find(pConnection);
       if (iterConnection == m_setBusyConnections.end())
@@ -231,7 +232,7 @@ namespace HM
       {
          // We want to sleep outside of the lock-scope. Hence the inner scope here.
          {
-            CriticalSectionScope scope(m_oCritSec);
+            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
             // Locate an available connection
             std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setAvailableConnections.begin();
@@ -298,7 +299,7 @@ namespace HM
    bool
    DatabaseConnectionManager::GetIsConnected()
    {
-      CriticalSectionScope scope (m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       size_t iNoOfConnections = m_setBusyConnections.size() + m_setAvailableConnections.size();
 
       if (iNoOfConnections == 0)

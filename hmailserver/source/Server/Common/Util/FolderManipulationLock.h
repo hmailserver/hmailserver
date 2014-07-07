@@ -20,7 +20,7 @@ namespace HM
 
       static set<std::pair<int, int> > m_setFolders;
       
-      static CriticalSection m_CriticalSection; 
+      static boost::recursive_mutex _mutex; 
 
       bool _hasLock;
 

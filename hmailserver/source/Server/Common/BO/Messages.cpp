@@ -31,7 +31,7 @@ namespace HM
    std::vector<shared_ptr<Message>>
    Messages::GetCopy()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<shared_ptr<Message>> result;
 
@@ -48,7 +48,7 @@ namespace HM
    long
    Messages::GetNoOfSeen() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       long lNoOfSeen = 0;
 
@@ -64,7 +64,7 @@ namespace HM
    long
    Messages::GetNoOfRecent() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       long lNoOfRecent = 0;
 
@@ -81,7 +81,7 @@ namespace HM
    long
    Messages::GetSize() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       long lSize = 0;
 
@@ -96,7 +96,7 @@ namespace HM
    __int64
    Messages::GetFirstUnseenUID() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost_foreach(shared_ptr<Message> message, vecObjects)
       {
@@ -111,7 +111,7 @@ namespace HM
    void
    Messages::Save()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       LOG_DEBUG("Messages::Save()");
 
@@ -132,7 +132,7 @@ namespace HM
    std::vector<int>
    Messages::Expunge()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost::function<void()> func;
       std::set<int> uids;
@@ -143,7 +143,7 @@ namespace HM
    std::vector<int>
    Messages::Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const boost::function<void()> &func)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<int> vecExpungedMessages;
       std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
@@ -183,7 +183,7 @@ namespace HM
    std::vector<int>
    Messages::DeleteMessages()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
       std::vector<int> vecExpungedMessages;
@@ -207,16 +207,14 @@ namespace HM
    void
    Messages::UndeleteAll()
    {
-      CriticalSectionScope scope(_lock);
-
-
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
    }
 
    void
    Messages::Refresh()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
 	  // int startTime = GetTickCount();
 
@@ -314,7 +312,7 @@ namespace HM
    void
    Messages::AddToCollection(shared_ptr<DALRecordset> pRS)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (!pRS->IsEOF())
       {
@@ -358,7 +356,7 @@ namespace HM
    // Deletes a message from the collection with the given database identifier.
    //---------------------------------------------------------------------------()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost_foreach(shared_ptr<Message> pCurMsg, vecObjects)
       {
@@ -375,7 +373,7 @@ namespace HM
    void  
    Messages::SetFlagRecentOnMessages(bool bRecent)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       boost_foreach(shared_ptr<Message> message, vecObjects)
       {
@@ -386,7 +384,7 @@ namespace HM
    bool
    Messages::PreSaveObject(shared_ptr<Message> pMessage, XNode *node)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       pMessage->SetAccountID(m_iAccountID);
       pMessage->SetFolderID(m_iFolderID);
@@ -402,7 +400,7 @@ namespace HM
    // an object, that has already been deleted in the database.
    //---------------------------------------------------------------------------()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
 
@@ -426,7 +424,7 @@ namespace HM
    shared_ptr<Message>
    Messages::GetItemByUID(unsigned int uid, unsigned int &foundIndex)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       foundIndex = 0;
       boost_foreach(shared_ptr<Message> item, vecObjects)
       {

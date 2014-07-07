@@ -22,7 +22,7 @@
 
 namespace HM
 {
-   CriticalSection IMAPFolderContainer::m_hFetchListCriticalSection;
+   boost::recursive_mutex IMAPFolderContainer::_fetchListMutex;
 
    IMAPFolderContainer::IMAPFolderContainer()
    {
@@ -37,7 +37,7 @@ namespace HM
    shared_ptr<IMAPFolders> 
    IMAPFolderContainer::GetFoldersForAccount(__int64 AccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
 
       std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = m_mapFolders.find(AccountID);
       
@@ -68,7 +68,7 @@ namespace HM
    void
    IMAPFolderContainer::SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
 
       shared_ptr<IMAPFolder> pFolder;
       if (AccountID == 0)
@@ -101,7 +101,7 @@ namespace HM
    void 
    IMAPFolderContainer::UncacheAccount(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
 
       std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = m_mapFolders.find(iAccountID); 
 
@@ -116,7 +116,7 @@ namespace HM
    bool 
    IMAPFolderContainer::Clear()
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
 
       bool bCleared = !m_mapFolders.empty();
 
@@ -171,7 +171,7 @@ namespace HM
       }
       else
       {
-         CriticalSectionScope scope(m_hFetchListCriticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
 
          std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = m_mapFolders.find(accountID);
 

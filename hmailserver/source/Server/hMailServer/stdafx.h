@@ -95,6 +95,8 @@
 #include <boost/function.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/lock_guard.hpp>
 
 #define boost_foreach BOOST_FOREACH
 
@@ -112,7 +114,6 @@ using namespace boost;
 
    #include "..\Common\Util\XMLite.h"
    #include "..\Common\Util\Singleton.h"
-   #include "..\Common\Util\CriticalSection.h"
    #include "..\Common\Application\Constants.h"
    #include "..\Common\Application\PropertySet.h"
    #include "..\Common\Application\Configuration.h"

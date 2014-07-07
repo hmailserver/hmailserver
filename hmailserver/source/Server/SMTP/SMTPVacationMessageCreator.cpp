@@ -138,7 +138,7 @@ namespace HM
 
       try
       {
-         CriticalSectionScope scope(m_oCriticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          multimap<String, String>::iterator iter = mapVacationMessageRecipients.find(sFrom);
 
@@ -181,7 +181,7 @@ namespace HM
    {
       try
       {
-         CriticalSectionScope scope(m_oCriticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
             mapVacationMessageRecipients.equal_range(sUserAddress);

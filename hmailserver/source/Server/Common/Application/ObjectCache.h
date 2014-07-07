@@ -36,10 +36,9 @@ namespace HM
       map<__int64, shared_ptr<Rules> > m_mapAccountRules;
       set<__int64> m_setAccountRulesToRefresh;
 
-      CriticalSection m_oDACritSec;
-      CriticalSection m_oGRCritSec;
-      CriticalSection m_oARCritSec;
-
+      boost::recursive_mutex _domainAliasesMutex;
+      boost::recursive_mutex _globalRulesMutex;
+      boost::recursive_mutex _accountRulesMutex;
 
    };
 }

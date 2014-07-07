@@ -26,7 +26,7 @@ namespace HM
    void
    AccountSizeCache::ModifySize(__int64 accountID, __int64 iSize, bool bIncrease)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
       if (iter == _accountSizes.end())
@@ -45,7 +45,7 @@ namespace HM
    void
    AccountSizeCache::Reset(__int64 accountID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
       if (iter == _accountSizes.end())
@@ -58,7 +58,7 @@ namespace HM
    __int64
    AccountSizeCache::GetSize(__int64 accountID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
       if (iter == _accountSizes.end())

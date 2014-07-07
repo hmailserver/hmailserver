@@ -54,10 +54,10 @@ namespace HM
    private:
 
       queue<shared_ptr<Task> > m_qPendingTasks;
-      CriticalSection m_csPendingTasks;
+      boost::recursive_mutex _pendingTaskMutex;
 
       map<HANDLE, shared_ptr<Thread> > m_mapThreads;
-      CriticalSection m_csThreads;
+      boost::recursive_mutex _threadsMutex;
 
       unsigned int m_iMaxSimultaneous;
       unsigned int m_iBaseLineThreadCount;

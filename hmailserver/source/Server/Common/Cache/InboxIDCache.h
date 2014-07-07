@@ -17,7 +17,7 @@ namespace HM
 
    private:
 
-      CriticalSection _criticalSection;
+      boost::recursive_mutex _mutex;
       std::map<__int64, __int64 > _inboxID;
 
       bool _enabled;
