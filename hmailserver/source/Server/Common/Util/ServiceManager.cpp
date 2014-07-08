@@ -34,11 +34,6 @@ namespace HM
 
       if (hSCManager == NULL)
       {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("OpenSCManager failed. (%d)"), GetLastError());
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5054, "ServiceManager::RegisterService", sErrorMessage);
-
          return false;
       }
 

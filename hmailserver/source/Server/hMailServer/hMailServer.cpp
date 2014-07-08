@@ -211,7 +211,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       HM::ServiceManager hSCM;
       if (!hSCM.RegisterService("hMailServer", "hMailServer"))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: RegisterService failed.");
+         return -1;         
       }
    }
 
@@ -219,14 +219,11 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    {
       if (FAILED(_AtlModule.RegisterAppId()))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: _AtlModule.RegisterAppId() failed.");
-         return 0;
+         return -1;
       }
-
       if (FAILED(_AtlModule.RegisterServer(TRUE)))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: _AtlModule.RegisterServer failed.");
-         return 0;
+         return -1;
       }
 
       return 0;
@@ -315,6 +312,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    
    return iRet;
 }
+
 
 DWORD WINAPI StartServiceInitialization(LPVOID vd)
 {
