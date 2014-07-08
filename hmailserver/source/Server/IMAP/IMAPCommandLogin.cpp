@@ -34,7 +34,7 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetIPAddress(), sUsername, sPassword, disconnect);
+      shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetRemoteEndpointAddress(), sUsername, sPassword, disconnect);
 
       if (disconnect)
       {

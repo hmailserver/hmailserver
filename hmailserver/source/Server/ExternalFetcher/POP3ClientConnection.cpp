@@ -42,11 +42,16 @@
 
 namespace HM
 {
-   POP3ClientConnection::POP3ClientConnection(shared_ptr<FetchAccount> pAccount) :
+   POP3ClientConnection::POP3ClientConnection(shared_ptr<FetchAccount> pAccount,
+                                              bool useSSL,
+                                              boost::asio::io_service& io_service, 
+                                              boost::asio::ssl::context& context) :
+      AnsiStringConnection(useSSL, io_service, context),
       m_pAccount(pAccount),
       m_eCurrentState(StateConnected),
       m_bPendingDisconnect(false)
    {
+
       m_bAwaitingMultilineResponse = false;
 
       /*
@@ -630,7 +635,7 @@ namespace HM
       // Since this may be a time-consuming task, do it asynchronously
       shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
          shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-         (boost::bind(&POP3ClientConnection::_HandlePOP3FinalizationTaskCompleted, shared_from_this()), GetTCPConnectionTemporaryPointer()));
+         (boost::bind(&POP3ClientConnection::_HandlePOP3FinalizationTaskCompleted, this), shared_from_this()));
 
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
@@ -1001,7 +1006,7 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::_LogPOP3String(const String &sLogString, bool bSent) const
+   POP3ClientConnection::_LogPOP3String(const String &sLogString, bool bSent)
    {
       String sTemp;
 
@@ -1095,7 +1100,7 @@ namespace HM
    }
    // This is temp function to log ETRN client commands to SMTP
    void
-   POP3ClientConnection::_LogSMTPString(const String &sLogString, bool bSent) const
+   POP3ClientConnection::_LogSMTPString(const String &sLogString, bool bSent)
    {
       String sTemp;
 
@@ -1129,8 +1134,4 @@ namespace HM
 
       SendData(sData + "\r\n");
    }
-
-
-
-
 }

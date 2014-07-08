@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../common/TCPIP/ProtocolParser.h"
+#include "../common/TCPIP/AnsiStringConnection.h"
 
 namespace HM
 {
@@ -14,10 +14,14 @@ namespace HM
    class Result;
    class FetchAccountUIDList;
 
-   class POP3ClientConnection : public ProtocolParser, public boost::enable_shared_from_this<POP3ClientConnection>
+   class POP3ClientConnection : 
+      public AnsiStringConnection
    {
    public:
-      POP3ClientConnection(shared_ptr<FetchAccount> pAccount);
+      POP3ClientConnection(shared_ptr<FetchAccount> pAccount, 
+         bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
       ~POP3ClientConnection(void);
 
       virtual void ParseData(const AnsiString &Request);
@@ -55,10 +59,10 @@ namespace HM
       bool _CommandIsSuccessfull(const String &sData);
 
       // Logs a line in the POP3 log.
-      void _LogPOP3String(const String &sLogString, bool bSent) const;
+      void _LogPOP3String(const String &sLogString, bool bSent);
 
       // This is temp function to log ETRN client commands to SMTP
-      void _LogSMTPString(const String &sLogString, bool bSent) const;
+      void _LogSMTPString(const String &sLogString, bool bSent);
 
       void _ParseStateConnected(const String &sData);
       void _ParseUsernameSent(const String &sData);

@@ -21,13 +21,16 @@
 namespace HM
 {
 
-   SMTPClientConnection::SMTPClientConnection() :
-      m_CurrentState(HELO),
-      m_bUseSMTPAuth(false),
-      m_iCurRecipient(-1),
-      m_bSessionEnded(false),
-      m_bPendingDisconnect(false),
-      _transmissionBuffer(true)
+   SMTPClientConnection::SMTPClientConnection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context) :
+         AnsiStringConnection(useSSL, io_service, context),
+         m_CurrentState(HELO),
+         m_bUseSMTPAuth(false),
+         m_iCurRecipient(-1),
+         m_bSessionEnded(false),
+         m_bPendingDisconnect(false),
+         _transmissionBuffer(true)
    {
       
       /* RFC 2821:    
@@ -88,7 +91,7 @@ namespace HM
       LOG_DEBUG("SMTPClientConnection::_ParseASCII()");
 
       String sData = "RECEIVED: " + Request;
-      LOG_SMTP_CLIENT(GetSessionID(), GetIPAddress().ToString(), sData);
+      LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), sData);
 
       // Below 3 lines is fix of the problem that occurs when the remote server answers
       // with 2 line in his welcome message.
@@ -346,7 +349,7 @@ namespace HM
    }
 
    void
-   SMTPClientConnection::_LogSentCommand(const String &sData) const
+   SMTPClientConnection::_LogSentCommand(const String &sData)
    {
       if (!(Logger::Instance()->GetLogMask() & Logger::LSSMTP))
          return;
@@ -605,7 +608,7 @@ namespace HM
          return;
       }
 
-      _transmissionBuffer.Initialize(this);
+      _transmissionBuffer.Initialize(shared_from_this());
 
       shared_ptr<ByteBuffer> pBuf = _currentFile.ReadChunk(GetBufferSize());
 

@@ -28,37 +28,31 @@ namespace HM
       String tempFile = FileUtilities::GetTempFileName();
       FileUtilities::WriteToFile(tempFile, bodyText, false);
 
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile));
+      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
+      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
-      shared_ptr<TCPConnection> pClientConnection = Application::Instance()->GetIOCPServer()->CreateConnection();
-      pClientConnection->Start(pSAClient);
+      bool testCompleted;
+
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, false, pIOCPServer->GetIOService(), ctx, message, testCompleted));
+
+      pSAClient->Start();
 
       // Copy the event so that we know when we've disconnected.
-      Event disconnectEvent(pClientConnection->GetConnectionTerminationEvent());
+      Event disconnectEvent(pSAClient->GetConnectionTerminationEvent());
 
+      
       // Here we handle of the ownership to the TCPIP-connection layer.
-      if (pClientConnection->Connect(hostName, port, IPAddress()))
+      if (pSAClient->Connect(hostName, port, IPAddress()))
       {
          // Make sure we keep no references to the TCP connection so that it
          // can be terminated whenever. We're longer own the connection.
-         pClientConnection.reset();
+         pSAClient.reset();
 
          disconnectEvent.Wait();
       }
 
-      // Copy back the file...
-      if (pSAClient->FinishTesting())
-      {
-         message = FileUtilities::ReadCompleteTextFile(tempFile);
-         FileUtilities::DeleteFile(tempFile);
-         return true;
-      }
-      else
-      {
-         message = "Unable to connect to the specified SpamAssassin server.";
-         FileUtilities::DeleteFile(tempFile);
-         return false;
-      }
+      return testCompleted;
+
    }
 
 }

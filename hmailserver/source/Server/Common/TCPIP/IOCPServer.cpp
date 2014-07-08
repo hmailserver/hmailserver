@@ -20,6 +20,10 @@
 #include "IOCPQueueWorkerTask.h"
 #include "SocketConstants.h"
 
+#include "../../SMTP/SMTPConnection.h"
+#include "../../IMAP/IMAPConnection.h"
+#include "../../POP3/POP3Connection.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -86,8 +90,27 @@ namespace HM
          if (m_setSessionTypes.find(st) == m_setSessionTypes.end())
             continue;
 
-         
-         shared_ptr<TCPServer> pTCPServer = shared_ptr<TCPServer> (new TCPServer(_io_service, address, iPort, st, pSSLCertificate));
+         shared_ptr<TCPConnectionFactory> pConnectionFactory;
+         shared_ptr<TCPServer> pTCPServer;
+
+         switch (st)
+         {
+         case STSMTP:
+            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new SMTPConnectionFactory());
+            break;
+         case STIMAP:
+            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new IMAPConnectionFactory());
+            break;
+         case STPOP3:
+            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new POP3ConnectionFactory());
+            break;
+
+         default:
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOCPServer::DoWork()", "Unable to start server- Unsupported session type.");
+            break;
+         }
+
+         pTCPServer = shared_ptr<TCPServer>(new TCPServer(_io_service, address, iPort, st, pSSLCertificate, pConnectionFactory));
 
          pTCPServer->Run();
 
@@ -127,25 +150,6 @@ namespace HM
       // acceptex sockets are dropped.
       WorkQueueManager::Instance()->RemoveQueue("IOCPQueue");
 
-   }
-
-   shared_ptr<TCPConnection> 
-   IOCPServer::CreateConnection(boost::asio::ssl::context& context)
-   {
-      TCPConnection::PrepareSSLContext(context);
-      
-      shared_ptr<TCPConnection> pNewConnection = shared_ptr<TCPConnection> (new TCPConnection(true, _io_service, context));
-
-      return pNewConnection;
-   }
-
-
-   shared_ptr<TCPConnection> 
-   IOCPServer::CreateConnection()
-   {
-      shared_ptr<TCPConnection> pNewConnection = shared_ptr<TCPConnection> (new TCPConnection(false, _io_service, _dummy_context));
-
-      return pNewConnection;
    }
 
    void

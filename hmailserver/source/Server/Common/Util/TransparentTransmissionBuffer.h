@@ -33,7 +33,7 @@ namespace HM
       void Append(const BYTE *pBuffer, int iBufferSize);
       bool Flush(bool bForce = false);
       
-      bool Initialize(ProtocolParser *pProtocolParser);
+      bool Initialize(weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
 
       void SetMaxSizeKB(int maxSize);
@@ -82,7 +82,7 @@ namespace HM
       
       // Output types
       File m_oFile;
-      ProtocolParser *m_pProtocolParser;
+      weak_ptr<TCPConnection> m_pTCPConnection;
 
       unsigned    int m_iDataSent;
       unsigned int m_iMaxSizeKB;

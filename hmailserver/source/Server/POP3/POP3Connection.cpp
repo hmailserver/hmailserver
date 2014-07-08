@@ -40,7 +40,10 @@
 namespace HM
 {
 
-   POP3Connection::POP3Connection() :
+   POP3Connection::POP3Connection(bool useSSL,
+      boost::asio::io_service& io_service, 
+      boost::asio::ssl::context& context) :
+      AnsiStringConnection(useSSL, io_service, context),
       m_CurrentState(AUTHENTICATION),
        m_oTransmissionBuffer(true),
       m_bPendingDisconnect(false)
@@ -93,7 +96,7 @@ namespace HM
 
 
    void 
-   POP3Connection::_LogClientCommand(const String &sClientData) const
+   POP3Connection::_LogClientCommand(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -357,7 +360,7 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      _account = accountLogon.Logon(GetIPAddress(), m_Username, m_Password, disconnect);
+      _account = accountLogon.Logon(GetRemoteEndpointAddress(), m_Username, m_Password, disconnect);
 
       if (disconnect)
       {
@@ -573,7 +576,7 @@ namespace HM
    {  
       String fileName = PersistentMessage::GetFileName(_account, message);
 
-      m_oTransmissionBuffer.Initialize(this);
+      m_oTransmissionBuffer.Initialize(shared_from_this());
       
       if (!_currentFile.Open(fileName, File::OTReadOnly))
       {

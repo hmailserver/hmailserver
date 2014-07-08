@@ -5,19 +5,20 @@
 
 #include "../common/Util/File.h"
 #include "../common/Util/TransparentTransmissionBuffer.h"
-#include "../Common/TCPIP/ProtocolParser.h"
-
+#include "../Common/TCPIP/AnsiStringConnection.h"
 
 namespace HM
 {
    class Messages;
    class ByteBuffer;
 
-   class POP3Connection : public ProtocolParser
+   class POP3Connection : public AnsiStringConnection
    {
    public:
 
-	   POP3Connection();
+      POP3Connection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~POP3Connection();
 
       virtual void ParseData(const AnsiString &Request);
@@ -76,7 +77,7 @@ namespace HM
 
       POP3Command GetCommand(ConnectionState currentState, String command);
 
-      void _LogClientCommand(const String &sClientData) const;
+      void _LogClientCommand(const String &sClientData);
       void _GetMailboxContents(int &iNoOfMessages, __int64 &iTotalBytes);
 
       ParseResult _ProtocolRETR(const String &Parameter);

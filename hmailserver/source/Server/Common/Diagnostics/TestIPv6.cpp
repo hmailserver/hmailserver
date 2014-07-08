@@ -5,6 +5,9 @@
 #include "TestIPV6.h"
 
 #include "../TCPIP/TCPServer.h"
+#include "../../SMTP/SMTPConnection.h"
+
+
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

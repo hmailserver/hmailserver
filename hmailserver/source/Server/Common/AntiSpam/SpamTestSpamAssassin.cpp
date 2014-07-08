@@ -53,30 +53,30 @@ namespace HM
       shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
       
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename));
+      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
+      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
-      shared_ptr<TCPConnection> pClientConnection = Application::Instance()->GetIOCPServer()->CreateConnection();
-      pClientConnection->Start(pSAClient);
+      String message;
+      bool testCompleted;
+
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, false, pIOCPServer->GetIOService(), ctx, message, testCompleted));
+      pSAClient->Start();
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();
       // Copy the event so that we know when we've disconnected.
-      Event disconnectEvent(pClientConnection->GetConnectionTerminationEvent());
+      Event disconnectEvent(pSAClient->GetConnectionTerminationEvent());
 
       // Here we handle of the ownership to the TCPIP-connection layer.
-      if (pClientConnection->Connect(sHost, iPort, IPAddress()))
+      if (pSAClient->Connect(sHost, iPort, IPAddress()))
       {
          // Make sure we keep no references to the TCP connection so that it
          // can be terminated whenever. We're longer own the connection.
-         pClientConnection.reset();
+         pSAClient.reset();
 
          disconnectEvent.Wait();
       }
-
-      // Copy back the file...
-      pSAClient->FinishTesting();
-      
-       
+     
       // Check if the message is tagged as spam.
       shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
       pMessageData->RefreshFromMessage();

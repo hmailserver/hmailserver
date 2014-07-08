@@ -54,11 +54,9 @@ namespace HM
       }
    }
 
-   shared_ptr<ProtocolParser>
+   bool
    SessionManager::CreateConnection(SessionType t, shared_ptr<SecurityRange> securityRange)
    {
-      shared_ptr<ProtocolParser> pParser;
-
       // Check max per protocol
       int iMaxConnections = 0;
       switch (t)
@@ -67,7 +65,7 @@ namespace HM
          {
             iMaxConnections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
             if (iMaxConnections > 0 && m_iNoOfSMTPConnections >= iMaxConnections)
-               return pParser;
+               return false;
 
             break;
          }
@@ -75,7 +73,7 @@ namespace HM
          {
             iMaxConnections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
             if (iMaxConnections > 0 && m_iNoOfPOP3Connections >= iMaxConnections)
-               return pParser;
+               return false;
 
             break;
          }
@@ -83,7 +81,7 @@ namespace HM
          {
             iMaxConnections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
             if (iMaxConnections > 0 && m_iNoOfIMAPConnections >= iMaxConnections)
-               return pParser;
+               return false;
             break;
          }
       }
@@ -95,15 +93,15 @@ namespace HM
       {
          case STSMTP:
             if (!securityRange->GetAllowSMTP())
-               return pParser;
+               return false;
             break;
          case STPOP3:
             if (!securityRange->GetAllowPOP3())
-               return pParser;
+               return false;
             break;
          case STIMAP:
             if (!securityRange->GetAllowIMAP())
-               return pParser;
+               return false;
             break;
       }
 
@@ -113,24 +111,21 @@ namespace HM
       case STSMTP:
          {
             InterlockedIncrement(&m_iNoOfSMTPConnections);
-            pParser = shared_ptr<SMTPConnection>(new SMTPConnection());
             break;
          }
       case STPOP3:
          {
             InterlockedIncrement(&m_iNoOfPOP3Connections);
-            pParser = shared_ptr<POP3Connection>(new POP3Connection());
             break;
          }
       case STIMAP:
          {
             InterlockedIncrement(&m_iNoOfIMAPConnections);
-            pParser = shared_ptr<IMAPConnection>(new IMAPConnection());
             break;
          }
       }
 
-      return pParser;
+      return true;
    }
 
    long

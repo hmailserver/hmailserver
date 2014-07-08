@@ -3,19 +3,21 @@
 
 #pragma once
 
-#include "../common/TCPIP/ProtocolParser.h"
 #include "../common/Util/TransparentTransmissionBuffer.h"
 #include "../common/BO/Message.h"
+#include "../common/TCPIP/AnsiStringConnection.h"
 
 namespace HM
 {
    class ByteBuffer;
    class MessageRecipient;
   
-   class SMTPClientConnection : public ProtocolParser  
+   class SMTPClientConnection : public AnsiStringConnection
    {
    public:
-	   SMTPClientConnection();
+      SMTPClientConnection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~SMTPClientConnection();
 
       void OnCouldNotConnect(const AnsiString &sErrorDescription);
@@ -47,7 +49,7 @@ namespace HM
       bool IsTransientNegative(int lErrorCode);
       
 
-      void _LogSentCommand(const String &sData) const;
+      void _LogSentCommand(const String &sData);
       void _StartSendFile(const String &sFilename);
 
       void _SendQUIT();

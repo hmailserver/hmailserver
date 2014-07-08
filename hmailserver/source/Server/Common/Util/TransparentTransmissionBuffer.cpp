@@ -6,7 +6,6 @@
 #include ".\transparenttransmissionbuffer.h"
 
 #include "ByteBuffer.h"
-#include "../TCPIP/ProtocolParser.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -32,10 +31,9 @@ namespace HM
    }
 
    bool
-   TransparentTransmissionBuffer::Initialize(ProtocolParser *pProtocolParser)
+   TransparentTransmissionBuffer::Initialize(weak_ptr<TCPConnection> pTCPConnection)
    {
-      m_pProtocolParser = pProtocolParser;
-
+      m_pTCPConnection = pTCPConnection;
 
       m_iDataSent = 0;
 
@@ -226,8 +224,11 @@ namespace HM
             // The parsed buffer can now be sent.
             if (m_bIsSending)
             {
-               if (!m_pProtocolParser->SendData(pOutBuffer))
-                  return false;
+               if (shared_ptr<TCPConnection> connection = m_pTCPConnection.lock())
+               {
+                  connection->PostWrite(pOutBuffer);
+               }
+               
             }
             else 
             {

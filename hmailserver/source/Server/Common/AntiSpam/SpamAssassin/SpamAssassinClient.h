@@ -3,16 +3,20 @@
 
 #pragma once
 
-#include "../../TCPIP/ProtocolParser.h"
+#include "../../TCPIP/AnsiStringConnection.h"
 
 namespace HM
 {
    class File;
 
-   class SpamAssassinClient : public ProtocolParser
+   class SpamAssassinClient : public AnsiStringConnection
    {
    public:
-      SpamAssassinClient(const String &sFile);
+      SpamAssassinClient(const String &sFile, bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context,
+         String &message,
+         bool &testCompleted);
       ~SpamAssassinClient(void);
 
       virtual void ParseData(const AnsiString &Request);
@@ -38,8 +42,11 @@ namespace HM
       String m_sCommandBuffer;
 
       String m_sMessageFile;
-	  int m_iSpamDSize;
-	  int m_iMessageSize;
+	   int m_iSpamDSize;
+	   int m_iMessageSize;
       shared_ptr<File> m_pResult;
+
+      String &m_sMessage;
+      bool &m_TestCompleted;
   };
 }

@@ -12,7 +12,6 @@ typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
 
 namespace HM
 {
-   class ProtocolParser;
    class ByteBuffer;
    class SecurityRange;
 
@@ -40,7 +39,7 @@ namespace HM
 
       int GetBufferSize() {return BufferSize; }
       bool Connect(const AnsiString &remoteServer, long remotePort, const IPAddress &localAddress);
-      void Start(shared_ptr<ProtocolParser> protocolParser);
+      void Start();
       void SetReceiveBinary(bool binary);
 
       void PostWrite(const AnsiString &sData);
@@ -63,13 +62,27 @@ namespace HM
       void SetSecurityRange(shared_ptr<SecurityRange> securityRange);
       shared_ptr<SecurityRange> GetSecurityRange();
 
-      shared_ptr<TCPConnection> GetSharedFromThis();
-
       Event GetConnectionTerminationEvent() {return _connectionTermination;}
 
       int GetSessionID();
 
       bool ReportReadErrors(bool newValue);
+
+   protected:
+
+      void SetTimeout(int seconds);
+      AnsiString GetIPAddressString();
+
+      virtual void OnCouldNotConnect(const AnsiString &sErrorDescription) {};
+      virtual void OnConnected() = 0;
+      virtual void OnConnectionTimeout() = 0;
+      virtual void OnExcessiveDataReceived() = 0;
+      virtual void OnDataSent() {};
+      virtual void OnReadError(int errorCode) {};
+
+      /* PARSING METHODS */
+      virtual void ParseData(const AnsiString &sAnsiString) = 0;
+      virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
    private:
       
       void _StartAsyncConnect(tcp::resolver::iterator endpoint_iterator);
@@ -104,7 +117,6 @@ namespace HM
       boost::asio::ip::tcp::resolver _resolver;
       boost::asio::deadline_timer _timer;
       boost::asio::streambuf _receiveBuffer;
-      shared_ptr<ProtocolParser> _protocolParser;
       
       IOOperationQueue _operationQueue;
 
@@ -117,6 +129,8 @@ namespace HM
 
       shared_ptr<SecurityRange> _securityRange;
 
+      int _sessionID;
+      int _timeout;
    };
 
 }

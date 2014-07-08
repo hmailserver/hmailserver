@@ -4,7 +4,7 @@
 #pragma once
 
 
-#include "../Common/TCPIP/ProtocolParser.h"
+#include "../Common/TCPIP/AnsiStringConnection.h"
 #include "RecipientParser.h"
 #include "../Common/BO/Collection.h"
 #include "../common/persistence/PersistentDomain.h"
@@ -38,11 +38,12 @@ namespace HM
       SMTP_COMMAND_ETRN = 1013
    };
 
-   class SMTPConnection : public ProtocolParser, 
-                          public boost::enable_shared_from_this<SMTPConnection>
+   class SMTPConnection : public AnsiStringConnection
    {
    public:
-	   SMTPConnection();
+      SMTPConnection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~SMTPConnection();
       
    protected:
@@ -81,7 +82,7 @@ namespace HM
 
       bool _CheckLineEndings() const;
 
-      void _LogClientCommand(const String &sClientData) const;
+      void _LogClientCommand(const String &sClientData);
 
       void _LogAwstatsMessageRejected();
       
@@ -144,7 +145,7 @@ namespace HM
 
       void _SendErrorResponse(int iErrorCode, const String &sResponse);
 
-      bool _GetDoSpamProtection() const;
+      bool _GetDoSpamProtection();
 
       bool _GetIsLocalSender();
 

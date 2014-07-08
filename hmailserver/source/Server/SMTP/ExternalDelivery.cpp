@@ -339,25 +339,17 @@ namespace HM
    {
       LOG_DEBUG("SD::_InitiateExternalConnection");
 
-      shared_ptr<SMTPClientConnection> pSMTPProtocolParser = shared_ptr<SMTPClientConnection>(new SMTPClientConnection());
-      pSMTPProtocolParser->SetDelivery(_originalMessage, vecRecipients);
-
       shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
 
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
-      shared_ptr<TCPConnection> pClientConnection;
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL(), pIOCPServer->GetIOService(), ctx));
 
-      if (serverInfo->GetUseSSL())
-         pClientConnection = pIOCPServer->CreateConnection(ctx);
-      else
-         pClientConnection = pIOCPServer->CreateConnection();
-
-      pClientConnection->Start(pSMTPProtocolParser);
+      pClientConnection->SetDelivery(_originalMessage, vecRecipients);
+      pClientConnection->Start();
 
       if (!serverInfo->GetUsername().IsEmpty())
-         pSMTPProtocolParser->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
-
+         pClientConnection->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
 
       // Determine what local IP dadress to use.
       IPAddress localAddress = _GetLocalAddress();

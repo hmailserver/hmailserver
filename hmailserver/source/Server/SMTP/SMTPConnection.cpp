@@ -69,7 +69,10 @@ using namespace std;
 
 namespace HM
 {
-   SMTPConnection::SMTPConnection() :  
+   SMTPConnection::SMTPConnection(bool useSSL,
+      boost::asio::io_service& io_service, 
+      boost::asio::ssl::context& context) :  
+      AnsiStringConnection(useSSL, io_service, context),
       m_bRejectedByDelayedGreyListing(false),
       m_CurrentState(AUTHENTICATION),
       m_bTraceHeadersWritten(true),
@@ -165,7 +168,7 @@ namespace HM
    }
 
    void 
-   SMTPConnection::_LogClientCommand(const String &sClientData) const
+   SMTPConnection::_LogClientCommand(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -391,7 +394,7 @@ namespace HM
 
                pClientInfo->SetUsername(m_sUsername);
                pClientInfo->SetIPAddress(GetIPAddressString());
-               pClientInfo->SetPort(GetLocalPort());
+               pClientInfo->SetPort(GetLocalEndpointPort());
                pClientInfo->SetHELO(m_sHeloHost);
 
                pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
@@ -453,7 +456,7 @@ namespace HM
    {
       // Check if spam protection is enabled for this IP address.
       if (!GetSecurityRange()->GetSpamProtection() ||
-           SpamProtection::IsWhiteListed(sFromAddress, GetIPAddress()))
+           SpamProtection::IsWhiteListed(sFromAddress, GetRemoteEndpointAddress()))
       {
          m_spType = SPNone;
          return;
@@ -461,7 +464,7 @@ namespace HM
 
       shared_ptr<IncomingRelays> incomingRelays = Configuration::Instance()->GetSMTPConfiguration()->GetIncomingRelays();
       // Check if we should do it before or after data transfer
-      if (incomingRelays->IsIncomingRelay(GetIPAddress()))
+      if (incomingRelays->IsIncomingRelay(GetRemoteEndpointAddress()))
          m_spType = SPPostTransmission;
       else 
          m_spType = SPPreTransmission;
@@ -557,7 +560,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!_DoSpamProtection(SPPreTransmission, sFromAddress, m_sHeloHost, GetIPAddress()))
+            if (!_DoSpamProtection(SPPreTransmission, sFromAddress, m_sHeloHost, GetRemoteEndpointAddress()))
                return false;
          }
       }
@@ -795,7 +798,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!_DoSpamProtection(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetIPAddress()))
+            if (!_DoSpamProtection(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
             {
                AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
                return;
@@ -808,7 +811,7 @@ namespace HM
          shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
          const String sToAddress = pDA->ApplyAliasesOnAddress(sRecipientAddress);
 
-         if (!SpamProtection::Instance()->PerformGreyListing(m_pCurrentMessage, m_setSpamTestResults, sToAddress, GetIPAddress()))
+         if (!SpamProtection::Instance()->PerformGreyListing(m_pCurrentMessage, m_setSpamTestResults, sToAddress, GetRemoteEndpointAddress()))
          {
             if (m_pCurrentMessage->GetFromAddress().IsEmpty())
             {
@@ -858,14 +861,14 @@ namespace HM
       if (spType == SPPreTransmission)
       {
          set<shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetIPAddress(), hostName);
+            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName);
 
          m_setSpamTestResults.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
          set<shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetIPAddress(), m_pCurrentMessage);
+            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), m_pCurrentMessage);
 
          m_setSpamTestResults.insert(setResult.begin(), setResult.end());
 
@@ -1064,7 +1067,7 @@ namespace HM
       // Since this may be a time-consuming task, do it asynchronously
       shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
          shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-            (boost::bind(&SMTPConnection::_HandleSMTPFinalizationTaskCompleted, shared_from_this()), GetTCPConnectionTemporaryPointer()));
+            (boost::bind(&SMTPConnection::_HandleSMTPFinalizationTaskCompleted, this), shared_from_this()));
       
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
@@ -1371,7 +1374,7 @@ namespace HM
 
          pClientInfo->SetUsername(m_sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
-         pClientInfo->SetPort(GetLocalPort());
+         pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(m_sHeloHost);
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
@@ -1864,7 +1867,7 @@ namespace HM
       AccountLogon accountLogon;
       bool disconnect;
 
-      shared_ptr<const Account> pAccount = accountLogon.Logon(GetIPAddress(), m_sUsername, m_sPassword, disconnect);
+      shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), m_sUsername, m_sPassword, disconnect);
          
       if (disconnect)
       {
@@ -1976,7 +1979,7 @@ namespace HM
       else
       {
          // Do normal post transmission spam protection. (typically SURBL)
-         if (!_DoSpamProtection(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetIPAddress()))
+         if (!_DoSpamProtection(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
          {
             // We should stop message delivery
             return false;
@@ -1989,7 +1992,7 @@ namespace HM
 
 
    bool 
-   SMTPConnection::_GetDoSpamProtection() const
+   SMTPConnection::_GetDoSpamProtection()
    {
       if (_isAuthenticated)
          return false;
@@ -1999,7 +2002,7 @@ namespace HM
 
       if (m_pCurrentMessage)
       {
-         if (SpamProtection::IsWhiteListed(m_pCurrentMessage->GetFromAddress(), GetIPAddress()))
+         if (SpamProtection::IsWhiteListed(m_pCurrentMessage->GetFromAddress(), GetRemoteEndpointAddress()))
             return false;
       }
 

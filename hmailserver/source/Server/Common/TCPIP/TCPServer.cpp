@@ -27,7 +27,7 @@ using boost::asio::ip::tcp;
 
 namespace HM
 {
-   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate) :
+   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory) :
       _acceptor(io_service),
       _context(io_service, boost::asio::ssl::context::sslv23),
       _ipaddress(ipaddress),
@@ -35,8 +35,10 @@ namespace HM
    {
       _sessionType = sessionType;
       _certificate = certificate;
+      _connectionFactory = connectionFactory;
    }
 
+   
    TCPServer::~TCPServer(void)
    {
    }
@@ -198,7 +200,6 @@ namespace HM
       return "";
    }
 
-
    void
    TCPServer::Run()
    {
@@ -221,14 +222,14 @@ namespace HM
       {
          bool useSSL = _certificate != 0;
          
-         shared_ptr<TCPConnection> pNewConnection = shared_ptr<TCPConnection> (new TCPConnection(useSSL, _acceptor.get_io_service(), _context));
+         shared_ptr<TCPConnection> pNewConnection = _connectionFactory->Create(useSSL, _acceptor.get_io_service(), _context);
 
          _acceptor.async_accept(pNewConnection->GetSocket(),
             boost::bind(&TCPServer::HandleAccept, this, pNewConnection,
             boost::asio::placeholders::error));
       }
    }
-
+   
    void
    TCPServer::StopAccept()
    {
@@ -279,10 +280,9 @@ namespace HM
             return;
          }
 
-         shared_ptr<ProtocolParser> pProtocolParser = 
-            SessionManager::Instance()->CreateConnection(_sessionType, securityRange);
+         bool allow = SessionManager::Instance()->CreateConnection(_sessionType, securityRange);
 
-         if (!pProtocolParser)
+         if (!allow)
          {
             // Session creation failed. May not be matching IP range, or enough connections have been created.
             String message;
@@ -307,7 +307,7 @@ namespace HM
             return;
 
          pConnection->SetSecurityRange(securityRange);
-         pConnection->Start(pProtocolParser);
+         pConnection->Start();
       }
       else
       {
@@ -363,7 +363,7 @@ namespace HM
 
       return true;
    }
-   
+ 
    bool 
    TCPServer::HasIPV6()
    {

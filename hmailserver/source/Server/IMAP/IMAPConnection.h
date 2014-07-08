@@ -4,10 +4,8 @@
 #pragma once
 
 
-#include "../Common/TCPIP/ProtocolParser.h"
-
 #include "IMAPNotificationClient.h"
-
+#include "../Common/TCPIP/AnsiStringConnection.h"
 
 using namespace std;
 
@@ -33,11 +31,12 @@ namespace HM
       std::vector<String> vecLiteralData;
    };
 
-   class IMAPConnection : public ProtocolParser, 
-                          public boost::enable_shared_from_this<IMAPConnection>
+   class IMAPConnection : public AnsiStringConnection
    {
    public:
-	   IMAPConnection();
+      IMAPConnection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~IMAPConnection();
       void Initialize();
 
@@ -112,16 +111,9 @@ namespace HM
 
       void Login(shared_ptr<const Account> account);
       void Logout(const String &goodbyeMessage);
-
-      void SetReceiveBinary(bool binary);
-   
+  
       bool IsAuthenticated();
       bool GetCurrentFolderReadOnly() {return _currentFolderReadOnly; }
-
-      IPAddress GetIPAddress()
-      {
-         return ProtocolParser::GetIPAddress();
-      }
 
       shared_ptr<IMAPNotificationClient> GetNotificationClient() {return _notificationClient;}
 
@@ -130,7 +122,7 @@ namespace HM
       virtual void OnConnected();
       virtual AnsiString GetCommandSeparator() const;
 
-      void _LogClientCommand(const String &sClientData) const;
+      void _LogClientCommand(const String &sClientData);
       
       virtual void OnExcessiveDataReceived();
       virtual void OnConnectionTimeout();

@@ -4,7 +4,6 @@
 #include "StdAfx.h"
 #include "TCPConnection.h"
 
-#include "ProtocolParser.h"
 #include "../Util/ByteBuffer.h"
 
 #include "../BO/TCPIPPorts.h"
@@ -37,11 +36,18 @@ namespace HM
       _hasTimeout(false),
       _receiveBuffer(250000)
    {
+      _sessionID = Application::Instance()->GetUniqueID();
 
+      if (useSSL)
+         TCPConnection::PrepareSSLContext(context);
+
+      LOG_DEBUG("Creating session " + StringParser::IntToString(_sessionID));
    }
 
    TCPConnection::~TCPConnection(void)
    {
+      LOG_DEBUG("Ending session " + StringParser::IntToString(_sessionID));
+
       try
       {
          _connectionTermination.Set(); 
@@ -155,8 +161,9 @@ namespace HM
          if (err)
          {
             AnsiString error = err.message();
-            if (_protocolParser)
-               _protocolParser->OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
+            
+            OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
+
             return;
          }
 
@@ -183,8 +190,7 @@ namespace HM
             String sMessage; 
             sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), _remoteServer, _remotePort);
 
-            if (_protocolParser)
-               _protocolParser->OnCouldNotConnect(sMessage);
+            OnCouldNotConnect(sMessage);
 
             LOG_TCPIP(_T("TCPConnection - ") + sMessage);
 
@@ -235,9 +241,7 @@ namespace HM
             }
             
             AnsiString error = err.message();
-
-            if (_protocolParser)
-               _protocolParser->OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
+            OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
 
             return;
          }
@@ -255,7 +259,7 @@ namespace HM
          else
          {
             // Send welcome message to client.
-            _protocolParser->OnConnected();
+            OnConnected();
          }
       }
       catch (...)
@@ -266,13 +270,10 @@ namespace HM
    }
 
    void 
-   TCPConnection::Start(shared_ptr<ProtocolParser> protocolParser)
+   TCPConnection::Start()
    {
       try
       {
-         _protocolParser = protocolParser;
-         _protocolParser->Initialize(this);
-
          if (_useSSL)
          {
             try
@@ -297,7 +298,7 @@ namespace HM
             if (GetSocket().is_open())
             {
                // Send welcome message to client.
-               _protocolParser->OnConnected();
+               OnConnected();
             }
          }
       }
@@ -316,7 +317,7 @@ namespace HM
          if (!error)
          {
             // Send welcome message to client.
-            _protocolParser->OnConnected();
+            OnConnected();
          }
          else
          {
@@ -487,8 +488,6 @@ namespace HM
    {
       try
       {
-         int timeout = _protocolParser->GetTimeout();
-
          function<void (const boost::system::error_code&, size_t)> handleWriteFunction =
             boost::bind(&TCPConnection::HandleWrite, shared_from_this(),
             boost::asio::placeholders::error,
@@ -641,8 +640,7 @@ namespace HM
       try
       {
          // Put a timeout...
-         int timeout = _protocolParser->GetTimeout();
-         _timer.expires_from_now(boost::posix_time::seconds(timeout));
+         _timer.expires_from_now(boost::posix_time::seconds(_timeout));
          _timer.async_wait(bind(&TCPConnection::OnTimeout, 
             boost::weak_ptr<TCPConnection>(shared_from_this()), _1));
       }
@@ -771,7 +769,7 @@ namespace HM
 
          _hasTimeout = true;
 
-         _protocolParser->OnConnectionTimeout();
+         OnConnectionTimeout();
 
          PostDisconnect();
       }
@@ -831,7 +829,7 @@ namespace HM
          {
             if (error.value() != 0)
             {
-               _protocolParser->OnReadError(error.value());
+               OnReadError(error.value());
 
                String message;
                message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
@@ -840,7 +838,7 @@ namespace HM
                if (error.value() == boost::asio::error::not_found)
                {
                   // read buffer is full...
-                  _protocolParser->OnExcessiveDataReceived();
+                  OnExcessiveDataReceived();
                }
 
                PostDisconnect();
@@ -879,7 +877,7 @@ namespace HM
 
                try
                {
-                  _protocolParser->ParseData(pBuffer);
+                  ParseData(pBuffer);
                }
                catch (boost::system::system_error error)
                {
@@ -918,7 +916,7 @@ namespace HM
 
             try
             {
-               _protocolParser->ParseData(s);
+               ParseData(s);
             }
             catch (boost::system::system_error error)
             {
@@ -990,7 +988,7 @@ namespace HM
          {
             try
             {
-               _protocolParser->OnDataSent();
+               OnDataSent();
             }
             catch (...)
             {
@@ -1132,18 +1130,12 @@ namespace HM
       return _securityRange;
    }
 
-   shared_ptr<TCPConnection> 
-   TCPConnection::GetSharedFromThis()
-   {
-      return shared_from_this();
-   }
-
    int
    TCPConnection::GetSessionID()
    {
       try
       {
-         int sessionID = _protocolParser->GetSessionID();
+         int sessionID = _sessionID;
          return sessionID;
       }
       catch (...)
@@ -1151,4 +1143,17 @@ namespace HM
          return 0;
       }
    }
+
+   void 
+   TCPConnection::SetTimeout(int seconds)
+   {
+      _timeout = seconds;
+   }
+
+   AnsiString 
+   TCPConnection::GetIPAddressString()
+   {
+      return GetRemoteEndpointAddress().ToString();
+   }
+
 }

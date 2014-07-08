@@ -17,14 +17,23 @@
 
 namespace HM
 {
-   SpamAssassinClient::SpamAssassinClient(const String &sFile) 
+   SpamAssassinClient::SpamAssassinClient(const String &sFile,
+                                          bool useSSL,
+                                          boost::asio::io_service& io_service, 
+                                          boost::asio::ssl::context& context,
+                                          String &message,
+                                          bool &testCompleted) :
+               AnsiStringConnection(useSSL, io_service, context),
+               m_sMessage(message),
+               m_TestCompleted(testCompleted)
+
    {
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSAMinTimeout(), IniFileSettings::Instance()->GetSAMaxTimeout()));
       
       m_sMessageFile = sFile;
-	  m_iSpamDSize = -1;
-	  m_iMessageSize = -1;
+	   m_iSpamDSize = -1;
+	   m_iMessageSize = -1;
    }
 
 
@@ -120,7 +129,17 @@ namespace HM
    void
    SpamAssassinClient::ParseData(const AnsiString &sData)
    {
-      
+      // Copy back the file...
+      if (FinishTesting())
+      {
+         m_sMessage = FileUtilities::ReadCompleteTextFile(m_sMessageFile);
+         FileUtilities::DeleteFile(m_sMessageFile);
+      }
+      else
+      {
+         m_sMessage = "Unable to connect to the specified SpamAssassin server.";
+         FileUtilities::DeleteFile(m_sMessageFile);
+      }
    }
 
    void

@@ -48,7 +48,10 @@
 
 namespace HM
 {
-   IMAPConnection::IMAPConnection() :
+   IMAPConnection::IMAPConnection(bool useSSL,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context) :
+      AnsiStringConnection(useSSL, io_service, context),
       m_bIsIdling(false),
       m_iLiteralDataToReceive(0),
       m_bPendingDisconnect(false),
@@ -117,12 +120,12 @@ namespace HM
       mapCommandHandlers[IMAP_APPEND] = shared_ptr<IMAPCommandAppend>(new IMAPCommandAppend());
       mapCommandHandlers[IMAP_SEARCH] = shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(false));
       mapCommandHandlers[IMAP_SORT] = shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(true));
-      mapCommandHandlers[IMAP_IDLE] = shared_ptr<IMAPCommandIdle>(new IMAPCommandIdle(shared_from_this()));
+      mapCommandHandlers[IMAP_IDLE] = shared_ptr<IMAPCommandIdle>(new IMAPCommandIdle(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this())));
 
       mapStaticHandlers = StaticIMAPCommandHandlers::Instance()->GetStaticHandlers();
 
       _notificationClient = shared_ptr<IMAPNotificationClient>(new IMAPNotificationClient());
-      _notificationClient->SetConnection(shared_from_this());
+      _notificationClient->SetConnection(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()));
    }
 
    void 
@@ -132,7 +135,7 @@ namespace HM
       IMAPCommand* pCommand = (*iterCommandHandler).second.get();
       IMAPCommandAppend * pCommandAppend  = static_cast<IMAPCommandAppend*>(pCommand);
 
-      pCommandAppend->ParseBinary(shared_from_this(), pByteBuffer);
+      pCommandAppend->ParseBinary(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()), pByteBuffer);
    }
 
    void
@@ -298,7 +301,7 @@ namespace HM
    }
 
    void 
-   IMAPConnection::_LogClientCommand(const String &sClientData) const
+   IMAPConnection::_LogClientCommand(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -435,7 +438,7 @@ namespace HM
    {
       m_bPendingDisconnect = true;
 
-      ProtocolParser::PostDisconnect();
+      PostDisconnect();
    }
 
    bool
@@ -618,7 +621,7 @@ namespace HM
                iterStr++;
             }
             
-            IMAPResult result = pCommand->ExecuteCommand(shared_from_this(),  pArgument);
+            IMAPResult result = pCommand->ExecuteCommand(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
 
             if (result.GetResult() == IMAPResult::ResultOK)
             {
@@ -811,12 +814,6 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       m_pDelayedChangeNotification = pNotification;
-   }
-
-   void
-   IMAPConnection::SetReceiveBinary(bool binary)
-   {
-      ProtocolParser::SetReceiveBinary(binary);
    }
 
    bool 
