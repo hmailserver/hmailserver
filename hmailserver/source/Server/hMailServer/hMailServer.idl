@@ -1112,9 +1112,9 @@ interface IInterfaceDistributionList : IDispatch
    [propget, id(1), helpstring("The unique database identifier for the distribution list.")] HRESULT ID([out, retval] long* pVal);
    [id(2), helpstring("Deletes the distribution list from the database.")] HRESULT Delete();
    [id(4), helpstring("Saves the distribution list in the database.")] HRESULT Save();
-   [propget, id(5), helpstring("The name of the distribution list.")] HRESULT Active([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(5), helpstring("The name of the distribution list.")] HRESULT Active([in] VARIANT_BOOL newVal);
-   [propget, id(6), helpstring("The recipients of the distribution list.")] HRESULT Recipients([out, retval] IInterfaceDistributionListRecipients **pVal);
+   [propget, id(5), helpstring("True if the distribution list is active, false otherwise")] HRESULT Active([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(5), helpstring("True if the distribution list is active, false otherwise")] HRESULT Active([in] VARIANT_BOOL newVal);
+   [propget, id(6), helpstring("The recipients in the distribution list.")] HRESULT Recipients([out, retval] IInterfaceDistributionListRecipients **pVal);
    [propget, id(7), helpstring("The address of the distribution list.")] HRESULT Address([out, retval] BSTR  * pVal);
    [propput, id(7), helpstring("The address of the distribution list.")] HRESULT Address([in] BSTR newVal);
    [propget, id(8), helpstring("Sets wether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([out, retval] VARIANT_BOOL* pVal);
