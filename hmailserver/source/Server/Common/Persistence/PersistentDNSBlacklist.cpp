@@ -46,7 +46,7 @@ namespace HM
    }
 
    bool 
-   PersistentDNSBlackList::SaveObject(shared_ptr<DNSBlackList> pObject, String &errorMessage)
+   PersistentDNSBlackList::SaveObject(shared_ptr<DNSBlackList> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }

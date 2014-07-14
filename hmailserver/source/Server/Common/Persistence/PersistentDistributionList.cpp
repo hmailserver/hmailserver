@@ -109,13 +109,13 @@ namespace HM
    PersistentDistributionList::SaveObject(shared_ptr<DistributionList> pDistList)
    {
       String sErrorMessage;
-      return SaveObject(pDistList, sErrorMessage);
+      return SaveObject(pDistList, sErrorMessage, PersistenceModeNormal);
    }
 
    bool
-   PersistentDistributionList::SaveObject(shared_ptr<DistributionList> pDistList, String &sErrorMessage)
+   PersistentDistributionList::SaveObject(shared_ptr<DistributionList> pDistList, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pDistList, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pDistList, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

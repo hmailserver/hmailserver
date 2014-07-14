@@ -299,7 +299,7 @@ STDMETHODIMP InterfaceAccount::Save()
          return GetAccessDenied();
 
       String sErrorMessage;
-      if (PersistentAccount::SaveObject(m_pObject, sErrorMessage, true))
+      if (PersistentAccount::SaveObject(m_pObject, sErrorMessage, true, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

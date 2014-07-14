@@ -61,7 +61,7 @@ namespace HM
    }
 
    bool
-   PersistentRuleAction::SaveObject(shared_ptr<RuleAction> pRuleAction, String &errorMessage)
+   PersistentRuleAction::SaveObject(shared_ptr<RuleAction> pRuleAction, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pRuleAction);

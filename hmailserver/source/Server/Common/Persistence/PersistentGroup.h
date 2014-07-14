@@ -6,6 +6,7 @@
 namespace HM
 {
    class Group;
+   enum PersistenceMode;
 
    class PersistentGroup
    {
@@ -15,7 +16,7 @@ namespace HM
       
       static bool DeleteObject(shared_ptr<Group> pObject);
       static bool SaveObject(shared_ptr<Group> pObject);
-      static bool SaveObject(shared_ptr<Group> pObject, String &sErrorMessage);
+      static bool SaveObject(shared_ptr<Group> pObject, String &sErrorMessage, PersistenceMode mode);
       
       static bool ReadObject(shared_ptr<Group> pObject, shared_ptr<DALRecordset> pRS);
       static bool ReadObject(shared_ptr<Group> pAlias, const String & sName);

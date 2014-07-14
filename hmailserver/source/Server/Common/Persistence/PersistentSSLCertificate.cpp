@@ -43,7 +43,7 @@ namespace HM
    }
 
    bool 
-   PersistentSSLCertificate::SaveObject(shared_ptr<SSLCertificate> pObject, String &errorMessage)
+   PersistentSSLCertificate::SaveObject(shared_ptr<SSLCertificate> pObject, String &errorMessage,  PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);

@@ -9,6 +9,7 @@ namespace HM
    class Domain;
    class Account;
    class IMAPFolder;
+   enum PersistenceMode;
 
    class PersistentMessage 
                      
@@ -30,7 +31,7 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<Message> pMessage);
       static bool SaveObject(shared_ptr<Message> pMessage);
-      static bool SaveObject(shared_ptr<Message> pMessage, String &errorMessage);
+      static bool SaveObject(shared_ptr<Message> pMessage, String &errorMessage, PersistenceMode mode);
       static bool AddObject(const shared_ptr<Message> pMessage);
       static bool LockObject(__int64 ObjectID);
       static bool LockObject(shared_ptr<Message> pMessage );

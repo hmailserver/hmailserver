@@ -6,6 +6,7 @@
 namespace HM
 {
    class RuleCriteria;
+   enum PersistenceMode;
 
    class PersistentRuleCriteria
    {
@@ -17,7 +18,7 @@ namespace HM
       static bool ReadObject(shared_ptr<RuleCriteria> pRuleCriteria, shared_ptr<DALRecordset> pRS);
 
       
-      static bool SaveObject(shared_ptr<RuleCriteria> pRuleCriteria, String &errorMessage);
+      static bool SaveObject(shared_ptr<RuleCriteria> pRuleCriteria, String &errorMessage, PersistenceMode mode);
       static bool SaveObject(shared_ptr<RuleCriteria> pRuleCriteria);
       static bool DeleteObject(shared_ptr<RuleCriteria> pRuleCriteria);
 

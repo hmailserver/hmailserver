@@ -12,7 +12,7 @@ namespace HM
    class DomainAlias;
    class DistributionListRecipient;
    class Route;
-
+   enum PersistenceMode;
    class PreSaveLimitationsCheck
    {
    public:
@@ -20,14 +20,14 @@ namespace HM
       ~PreSaveLimitationsCheck(void);
 
 
-      static bool CheckLimitations(shared_ptr<Domain> domain, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<DomainAlias> domainAlias, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<Account> account, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<Alias> alias, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<DistributionList> list, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<Group> group, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<DistributionListRecipient> pRecipient, String &resultDescription);
-      static bool CheckLimitations(shared_ptr<Route> route, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Domain> domain, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DomainAlias> domainAlias, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Account> account, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Alias> alias, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DistributionList> list, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Group> group, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DistributionListRecipient> pRecipient, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Route> route, String &resultDescription);
     
       
    private:

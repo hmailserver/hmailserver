@@ -70,7 +70,7 @@ namespace HM
    }
 
    bool
-   PersistentRule::SaveObject(shared_ptr<Rule> pRule, String &errorMessage)
+   PersistentRule::SaveObject(shared_ptr<Rule> pRule, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage not supported yet.
       return SaveObject(pRule);

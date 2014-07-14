@@ -478,7 +478,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::SaveObject(shared_ptr<Message> pMessage, String &errorMessage)
+   PersistentMessage::SaveObject(shared_ptr<Message> pMessage, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pMessage);

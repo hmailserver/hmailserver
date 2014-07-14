@@ -141,7 +141,7 @@ STDMETHODIMP InterfaceDistributionListRecipient::Save()
          return S_FALSE;
    
       HM::String sErrorMessage;
-      if (HM::PersistentDistributionListRecipient::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentDistributionListRecipient::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
       {
          AddToParentCollection();
    

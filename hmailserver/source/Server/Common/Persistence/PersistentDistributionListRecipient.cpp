@@ -3,9 +3,10 @@
 
 #include "stdafx.h"
 #include "persistentdistributionlistrecipient.h"
-
 #include "PersistentDistributionList.h"
 #include "PreSaveLimitationsCheck.h"
+#include "PersistenceMode.h"
+
 #include "../BO/DistributionList.h"
 #include "../Cache/Cache.h"
 
@@ -92,14 +93,14 @@ namespace HM
    {
       String sErrorMessage;
 
-      return SaveObject(pRecipient, sErrorMessage);
+      return SaveObject(pRecipient, sErrorMessage, PersistenceModeNormal);
    }
 
 
    bool
-   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage)
+   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pRecipient, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pRecipient, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

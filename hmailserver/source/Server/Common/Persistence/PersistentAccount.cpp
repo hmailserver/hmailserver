@@ -9,6 +9,7 @@
 #include "PersistentIMAPFolder.h"
 #include "PersistentMessage.h"
 #include "PersistentGroupMember.h"
+#include "PersistenceMode.h"
 
 #include "../Util/File.h"
 #include "../Util/Crypt.h"
@@ -198,20 +199,20 @@ namespace HM
    PersistentAccount::SaveObject(shared_ptr<Account> pAccount)
    {
       String sErrorMessage;
-      return SaveObject(pAccount, sErrorMessage, false);
+      return SaveObject(pAccount, sErrorMessage, false, PersistenceModeNormal);
    }
 
    bool
-   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage)
+   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, PersistenceMode mode)
    {
-      return SaveObject(pAccount, sErrorMessage, false);
+      return SaveObject(pAccount, sErrorMessage, false, mode);
    }
 
 
    bool
-   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox)
+   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pAccount, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pAccount, sErrorMessage))
          return false;
 
       __int64 iID = pAccount->GetID();

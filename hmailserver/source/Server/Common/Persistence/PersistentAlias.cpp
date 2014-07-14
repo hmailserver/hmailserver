@@ -6,6 +6,7 @@
 #include "PersistentAlias.h"
 
 #include "PreSaveLimitationsCheck.h"
+#include "PersistenceMode.h"
 
 #include "../BO/Alias.h"
 #include "../Cache/Cache.h"
@@ -50,13 +51,13 @@ namespace HM
    {
       String sErrorMessage;
 
-      return SaveObject(pAlias, sErrorMessage);
+      return SaveObject(pAlias, sErrorMessage, PersistenceModeNormal);
    }
 
    bool
-   PersistentAlias::SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage)
+   PersistentAlias::SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pAlias, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pAlias, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

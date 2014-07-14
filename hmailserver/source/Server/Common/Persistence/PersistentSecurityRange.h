@@ -8,6 +8,7 @@
 namespace HM
 {
    class SecurityRange;
+   enum  PersistenceMode;
 
    class PersistentSecurityRange
    {
@@ -17,7 +18,7 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<SecurityRange> pSR);
       static bool SaveObject(shared_ptr<SecurityRange> pSR);
-      static bool SaveObject(shared_ptr<SecurityRange> pSR, String &result);
+      static bool SaveObject(shared_ptr<SecurityRange> pSR, String &result,  PersistenceMode mode);
 
       static bool ReadObject(shared_ptr<SecurityRange> pSR, shared_ptr<DALRecordset> pRS);
       static bool ReadObject(shared_ptr<SecurityRange> pSR, const SQLCommand &command);

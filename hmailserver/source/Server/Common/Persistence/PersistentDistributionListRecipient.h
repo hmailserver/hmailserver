@@ -6,7 +6,9 @@
 #include "../BO/DistributionListRecipient.h"
 
 namespace HM
-{
+{  
+   enum PersistenceMode;
+
    class PersistentDistributionListRecipient
    {
    public:
@@ -17,7 +19,7 @@ namespace HM
       static bool DeleteObject(shared_ptr<DistributionListRecipient> pRecipient);
       
       static bool SaveObject(shared_ptr<DistributionListRecipient> pRecipient);
-      static bool SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage);
+      static bool SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode);
 
       static bool ReadObject(shared_ptr<DistributionListRecipient> pRecipient, long ObjectID);
       static bool ReadObject(shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command);

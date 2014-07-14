@@ -55,7 +55,7 @@ namespace HM
    }
 
    bool
-   PersistentRuleCriteria::SaveObject(shared_ptr<RuleCriteria> pRuleCriteria, String &errorMessage)
+   PersistentRuleCriteria::SaveObject(shared_ptr<RuleCriteria> pRuleCriteria, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pRuleCriteria);

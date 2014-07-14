@@ -24,7 +24,7 @@ namespace HM
    }
 
    bool
-   PersistentRouteAddress::SaveObject(shared_ptr<RouteAddress> pRA, String &errorMessage)
+   PersistentRouteAddress::SaveObject(shared_ptr<RouteAddress> pRA, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage not supported yet.
 

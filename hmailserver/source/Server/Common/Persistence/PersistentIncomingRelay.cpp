@@ -43,7 +43,7 @@ namespace HM
    }
 
    bool
-   PersistentIncomingRelay::SaveObject(shared_ptr<IncomingRelay> pSR, String &errorMessage)
+   PersistentIncomingRelay::SaveObject(shared_ptr<IncomingRelay> pSR, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pSR);

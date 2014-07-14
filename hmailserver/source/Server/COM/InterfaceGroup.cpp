@@ -44,7 +44,7 @@ InterfaceGroup::Save()
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentGroup::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentGroup::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

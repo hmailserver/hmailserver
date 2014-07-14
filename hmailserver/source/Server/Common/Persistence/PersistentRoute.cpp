@@ -46,13 +46,13 @@ namespace HM
    PersistentRoute::SaveObject(shared_ptr<Route> pRoute)
    {
       String errorMessage;
-      return SaveObject(pRoute, errorMessage);
+      return SaveObject(pRoute, errorMessage, PersistenceModeNormal);
    }
 
    bool 
-   PersistentRoute::SaveObject(shared_ptr<Route> pRoute, String &sErrorMessage)
+   PersistentRoute::SaveObject(shared_ptr<Route> pRoute, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pRoute, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pRoute, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

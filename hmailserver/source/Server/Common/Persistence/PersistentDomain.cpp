@@ -164,13 +164,13 @@ namespace HM
    PersistentDomain::SaveObject(shared_ptr<Domain> pDomain)
    {
       String sErrorMessage;
-      return SaveObject(pDomain, sErrorMessage);
+      return SaveObject(pDomain, sErrorMessage, PersistenceModeNormal);
    }
 
    bool
-   PersistentDomain::SaveObject(shared_ptr<Domain> pDomain, String &sErrorMessage)
+   PersistentDomain::SaveObject(shared_ptr<Domain> pDomain, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pDomain, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pDomain, sErrorMessage))
          return false;
 
       __int64 iID = pDomain->GetID();

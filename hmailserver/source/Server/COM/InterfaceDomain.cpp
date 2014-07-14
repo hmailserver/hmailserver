@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "InterfaceDomain.h"
-
 #include "InterfaceDomain.h"
 #include "InterfaceAccounts.h"
 #include "InterfaceAliases.h"
@@ -18,6 +17,7 @@
 #include "../Common/BO/Domains.h"
 
 #include "../Common/persistence/PersistentDomain.h"
+#include "../Common/persistence/PersistenceMode.h"
 
 #include "InterfaceDomains.h"
 
@@ -203,7 +203,7 @@ STDMETHODIMP InterfaceDomain::Save()
    
       // Save object in the database.
       HM::String sErrorMessage;
-      if (HM::PersistentDomain::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentDomain::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

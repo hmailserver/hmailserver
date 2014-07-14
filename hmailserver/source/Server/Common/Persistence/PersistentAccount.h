@@ -6,6 +6,7 @@
 namespace HM
 {
    class Account;
+   enum PersistenceMode;
 
    class PersistentAccount 
    {
@@ -15,8 +16,8 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<Account> pAccount);
       static bool SaveObject(shared_ptr<Account> pAccount);
-      static bool SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage);
-      static bool SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox);
+      static bool SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, PersistenceMode mode);
+      static bool SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox, PersistenceMode mode);
       static bool DeleteMessages(shared_ptr<Account> pAccount);
 
       static __int64 GetMessageBoxSize(__int64 iAccountID);

@@ -7,6 +7,7 @@
 #include "..\Application\ObjectCache.h"
 
 #include "PreSaveLimitationsCheck.h"
+#include "PersistenceMode.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -74,14 +75,14 @@ namespace HM
    PersistentDomainAlias::SaveObject(shared_ptr<DomainAlias> oDA)
    {
       String sErrorMessage;
-      return SaveObject(oDA, sErrorMessage);
+      return SaveObject(oDA, sErrorMessage, PersistenceModeNormal);
    }
 
 
    bool 
-   PersistentDomainAlias::SaveObject(shared_ptr<DomainAlias> oDA, String &sErrorMessage)
+   PersistentDomainAlias::SaveObject(shared_ptr<DomainAlias> oDA, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(oDA, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, oDA, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

@@ -248,7 +248,7 @@ STDMETHODIMP InterfaceRoute::Save()
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentRoute::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentRoute::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

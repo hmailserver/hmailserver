@@ -5,7 +5,7 @@
 
 #include "../BO/FetchAccountUID.h"
 #include "PersistentFetchAccountUID.h"
-
+#include "PersistenceMode.h"
 #include "../Util/Time.h"
 
 #ifdef _DEBUG
@@ -30,14 +30,14 @@ namespace HM
       shared_ptr<FetchAccountUID> newUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(0, iFAID, sValue, Time::GetCurrentDateTime()));
 
       String message;
-      if (!SaveObject(newUID, message))
+      if (!SaveObject(newUID, message, PersistenceModeNormal))
          return 0;
 
       return newUID->GetID();
    }
 
    bool
-   PersistentFetchAccountUID::SaveObject(shared_ptr<FetchAccountUID> pUID, String &result)
+   PersistentFetchAccountUID::SaveObject(shared_ptr<FetchAccountUID> pUID, String &result, PersistenceMode mode)
    {
       SQLStatement oStatement;
 

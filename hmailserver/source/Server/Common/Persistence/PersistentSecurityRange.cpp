@@ -2,7 +2,9 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
+
 #include "PersistentSecurityRange.h"
+#include "PersistenceMode.h"
 
 #include "../BO/SecurityRange.h"
 
@@ -50,11 +52,11 @@ namespace HM
    {
       String result;
 
-      return SaveObject(pSR, result);
+      return SaveObject(pSR, result, PersistenceModeNormal);
    }
 
    bool
-   PersistentSecurityRange::SaveObject(shared_ptr<SecurityRange> pSR, String &result)
+   PersistentSecurityRange::SaveObject(shared_ptr<SecurityRange> pSR, String &result,  PersistenceMode mode)
    {
       if (!Validate(pSR, result))
          return false;

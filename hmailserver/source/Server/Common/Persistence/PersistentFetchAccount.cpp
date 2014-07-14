@@ -140,7 +140,7 @@ namespace HM
    }
 
    bool 
-   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA, String &errorMessage)
+   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - Not supported yet.
       return SaveObject(pFA);

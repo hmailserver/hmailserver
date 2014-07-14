@@ -196,7 +196,7 @@ STDMETHODIMP InterfaceAlias::Save()
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentAlias::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentAlias::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

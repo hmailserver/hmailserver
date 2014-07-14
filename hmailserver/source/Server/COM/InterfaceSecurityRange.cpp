@@ -44,7 +44,7 @@ STDMETHODIMP InterfaceSecurityRange::Save()
          return m_pAuthentication->GetAccessDenied();
    
       HM::String result;
-      if (HM::PersistentSecurityRange::SaveObject(m_pObject, result))
+      if (HM::PersistentSecurityRange::SaveObject(m_pObject, result, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

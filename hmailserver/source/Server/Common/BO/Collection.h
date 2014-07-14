@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include "../Persistence/PersistenceMode.h"
+
 namespace HM
 {
+
    template <class T, class P>
    class Collection
    {
@@ -105,7 +108,7 @@ namespace HM
             if (PreSaveObject(pItem, pChildNode))
             {
                String result; 
-               if (!P::SaveObject(pItem, result))
+               if (!P::SaveObject(pItem, result, PersistenceModeRestore))
                {
                   // Handle failure..
                   String message;

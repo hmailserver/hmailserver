@@ -6,6 +6,7 @@
 namespace HM
 {
    class SSLCertificate;
+   enum  PersistenceMode;
 
    class PersistentSSLCertificate
    {
@@ -15,7 +16,7 @@ namespace HM
       
       static bool DeleteObject(shared_ptr<SSLCertificate> pObject);
       static bool SaveObject(shared_ptr<SSLCertificate> pObject);
-      static bool SaveObject(shared_ptr<SSLCertificate> pObject, String &errorMessage);
+      static bool SaveObject(shared_ptr<SSLCertificate> pObject, String &errorMessage,  PersistenceMode mode);
       static bool ReadObject(shared_ptr<SSLCertificate> pObject, shared_ptr<DALRecordset> pRS);
 
    };

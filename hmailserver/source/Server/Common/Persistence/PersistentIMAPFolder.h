@@ -8,6 +8,7 @@ namespace HM
 
    class IMAPFolder;
    class ACL;
+   enum PersistenceMode;
 
    class PersistentIMAPFolder
    {
@@ -18,7 +19,7 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<IMAPFolder> pFolder);
       static bool DeleteObject(shared_ptr<IMAPFolder> pFolder, bool forceDelete);
-      static bool SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage);
+      static bool SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage, PersistenceMode mode);
       static bool SaveObject(shared_ptr<IMAPFolder> pFolder);
       static bool DeleteByAccount(__int64 iAccountID);
 

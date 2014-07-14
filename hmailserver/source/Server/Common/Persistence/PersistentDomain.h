@@ -6,6 +6,7 @@
 namespace HM
 {
    class Domain;
+   enum PersistenceMode;
 
    class PersistentDomain
    {
@@ -15,7 +16,7 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<Domain> pDomain);
       static bool SaveObject(shared_ptr<Domain> pDomain);
-      static bool SaveObject(shared_ptr<Domain> pDomain, String &sErrorMessage);
+      static bool SaveObject(shared_ptr<Domain> pDomain, String &sErrorMessage, PersistenceMode mode);
 
       static bool ReadObject(shared_ptr<Domain> pDomain, shared_ptr<DALRecordset> pRS);
       static bool ReadObject(shared_ptr<Domain> pDomain, const String & sDomainName);

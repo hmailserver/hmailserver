@@ -12,6 +12,8 @@
 #include "..\SQL\SQLStatement.h"
 #include "../Cache/Cache.h"
 
+#include "PersistenceMode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -93,13 +95,13 @@ namespace HM
    PersistentGroup::SaveObject(shared_ptr<Group> pGroup)
    {
       String sErrorMessage;
-      return SaveObject(pGroup, sErrorMessage);
+      return SaveObject(pGroup, sErrorMessage, PersistenceModeNormal);
    }
 
    bool 
-   PersistentGroup::SaveObject(shared_ptr<Group> pGroup, String &sErrorMessage)
+   PersistentGroup::SaveObject(shared_ptr<Group> pGroup, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pGroup, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pGroup, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

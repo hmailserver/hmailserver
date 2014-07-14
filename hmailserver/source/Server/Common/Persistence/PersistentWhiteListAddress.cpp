@@ -48,7 +48,7 @@ namespace HM
    }
 
    bool 
-   PersistentWhiteListAddress::SaveObject(shared_ptr<WhiteListAddress> pObject, String &errorMessage)
+   PersistentWhiteListAddress::SaveObject(shared_ptr<WhiteListAddress> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }

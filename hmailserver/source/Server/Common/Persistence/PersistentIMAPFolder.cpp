@@ -89,7 +89,7 @@ namespace HM
    }
 
    bool
-   PersistentIMAPFolder::SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage)
+   PersistentIMAPFolder::SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage not supported yet.
       return SaveObject(pFolder);

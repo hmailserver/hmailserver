@@ -48,7 +48,7 @@ namespace HM
    }
 
    bool 
-   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage)
+   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
 

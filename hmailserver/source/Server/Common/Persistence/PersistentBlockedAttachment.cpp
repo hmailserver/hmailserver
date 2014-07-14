@@ -42,7 +42,7 @@ namespace HM
    }
 
    bool 
-   PersistentBlockedAttachment::SaveObject(shared_ptr<BlockedAttachment> pObject, String &errorMessage)
+   PersistentBlockedAttachment::SaveObject(shared_ptr<BlockedAttachment> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage -- not supported yet.
       return SaveObject(pObject);

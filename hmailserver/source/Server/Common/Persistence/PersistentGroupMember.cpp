@@ -56,7 +56,7 @@ namespace HM
    }
 
    bool 
-   PersistentGroupMember::SaveObject(shared_ptr<GroupMember> pObject, String &errorMessage)
+   PersistentGroupMember::SaveObject(shared_ptr<GroupMember> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);

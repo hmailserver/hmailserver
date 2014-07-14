@@ -112,7 +112,7 @@ namespace HM
    }
 
    bool 
-   PersistentACLPermission::SaveObject(shared_ptr<ACLPermission> pObject, String &errorMessage)
+   PersistentACLPermission::SaveObject(shared_ptr<ACLPermission> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }

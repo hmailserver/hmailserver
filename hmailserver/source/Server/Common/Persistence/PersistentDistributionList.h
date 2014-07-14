@@ -6,7 +6,8 @@
 
 namespace HM
 {
-   class DistributionList;
+   class DistributionList; 
+   enum PersistenceMode;
 
    class PersistentDistributionList
    {
@@ -17,7 +18,7 @@ namespace HM
       static bool DeleteObject(shared_ptr<DistributionList> pDistList);
       
       static bool SaveObject(shared_ptr<DistributionList> pDistList);
-      static bool SaveObject(shared_ptr<DistributionList> pDistList, String &sErrorMessage);
+      static bool SaveObject(shared_ptr<DistributionList> pDistList, String &sErrorMessage, PersistenceMode mode);
 
       static bool ReadObject(shared_ptr<DistributionList> pDistList, const String &sAddress);
       static bool ReadObject(shared_ptr<DistributionList> pDistList, __int64 ObjectID);

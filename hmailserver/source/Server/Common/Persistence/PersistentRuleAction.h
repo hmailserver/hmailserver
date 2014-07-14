@@ -6,6 +6,7 @@
 namespace HM
 {
    class RuleAction;
+   enum PersistenceMode;
 
    class PersistentRuleAction
    {
@@ -16,7 +17,7 @@ namespace HM
       static bool ReadObject(shared_ptr<RuleAction> pRuleAction, const SQLCommand& sSQL);
       static bool ReadObject(shared_ptr<RuleAction> pRuleAction, shared_ptr<DALRecordset> pRS);
 
-      static bool SaveObject(shared_ptr<RuleAction> pRule, String &errorMessage);
+      static bool SaveObject(shared_ptr<RuleAction> pRule, String &errorMessage, PersistenceMode mode);
       static bool SaveObject(shared_ptr<RuleAction> pRule);
       static bool DeleteObject(shared_ptr<RuleAction> pRule);
 

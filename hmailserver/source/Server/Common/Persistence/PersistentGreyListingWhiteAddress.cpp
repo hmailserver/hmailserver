@@ -42,7 +42,7 @@ namespace HM
    }
 
    bool 
-   PersistentGreyListingWhiteAddress::SaveObject(shared_ptr<GreyListingWhiteAddress> pObject, String &errorMessage)
+   PersistentGreyListingWhiteAddress::SaveObject(shared_ptr<GreyListingWhiteAddress> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);

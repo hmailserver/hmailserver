@@ -50,8 +50,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<Account> account, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Account> account, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       if (account->GetVacationMessage().GetLength() > 1000)
       {
          resultDescription = "The auto reply message length exceeds the 1000 character limit.";
@@ -141,8 +144,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<DistributionListRecipient> recipient, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DistributionListRecipient> recipient, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       if (recipient->GetAddress().GetLength() == 0)
       {
          resultDescription = "The recipient address is empty";
@@ -153,8 +159,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<Alias> alias, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Alias> alias, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       shared_ptr<Domain> domain = GetDomain(alias->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeAlias, alias->GetID(), alias->GetName()))      
@@ -175,8 +184,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<DistributionList> list, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DistributionList> list, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       shared_ptr<Domain> domain = GetDomain(list->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeList,list->GetID(), list->GetAddress()))      
@@ -196,8 +208,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<Group> group, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Group> group, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(group->GetName());
 
       if (pGroup && (group->GetID() == 0 || group->GetID() != pGroup->GetID()))
@@ -219,6 +234,7 @@ namespace HM
    bool 
    PreSaveLimitationsCheck::GetDuplicateExist(shared_ptr<Domain> domain, ObjectType objectType, __int64 objectID, const String &objectName)
    {
+
       shared_ptr<Account> pAccount = shared_ptr<Account>(new Account);
       if (PersistentAccount::ReadObject(pAccount, objectName))
       {
@@ -244,8 +260,11 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<Domain> domain, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Domain> domain, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domain->GetName());
 
       if (pDomain && (domain->GetID() == 0 || domain->GetID() != pDomain->GetID()))
@@ -274,8 +293,12 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<DomainAlias> domainAlias, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DomainAlias> domainAlias, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
+
       shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domainAlias->GetName());
 
       if (pDomain)
@@ -297,8 +320,11 @@ namespace HM
    }
 
    bool 
-   PreSaveLimitationsCheck::CheckLimitations(shared_ptr<Route> route, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Route> route, String &resultDescription)
    {
+      if (mode == PersistenceModeRestore)
+         return true;
+
       shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
 
       shared_ptr<Route> existingRoute = pRoutes->GetItemByName(route->GetName());

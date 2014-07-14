@@ -6,6 +6,7 @@
 namespace HM
 {
    class Alias;
+   enum PersistenceMode;
 
    class PersistentAlias
    {
@@ -15,7 +16,7 @@ namespace HM
 
       static bool DeleteObject(shared_ptr<Alias> pAlias);
       static bool SaveObject(shared_ptr<Alias> pAlias);
-      static bool SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage);
+      static bool SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode);
 
       static bool ReadObject(shared_ptr<Alias> pAlias, shared_ptr<DALRecordset> pRS);
       static bool ReadObject(shared_ptr<Alias> pAlias, const String & sAddress);

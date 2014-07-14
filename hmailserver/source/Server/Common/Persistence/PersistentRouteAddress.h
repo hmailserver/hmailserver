@@ -6,6 +6,7 @@
 namespace HM
 {
    class RouteAddress;
+   enum PersistenceMode;
 
    class PersistentRouteAddress
    {
@@ -14,7 +15,7 @@ namespace HM
 	   virtual ~PersistentRouteAddress();
 
       static bool SaveObject(shared_ptr<RouteAddress> pRA);
-      static bool SaveObject(shared_ptr<RouteAddress> pRA, String &errorMessage);
+      static bool SaveObject(shared_ptr<RouteAddress> pRA, String &errorMessage, PersistenceMode mode);
       static bool DeleteObject(shared_ptr<RouteAddress> pRA);
       static bool DeleteByRoute(__int64 RouteID);
 

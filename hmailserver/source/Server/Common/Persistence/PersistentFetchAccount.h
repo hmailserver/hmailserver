@@ -7,6 +7,7 @@ namespace HM
 {
    class FetchAccount;
    class FetchAccountUIDs;
+   enum PersistenceMode;
 
    class PersistentFetchAccount
    {
@@ -20,7 +21,7 @@ namespace HM
 		static bool IsLocked(__int64 ID);
       static bool ReadObject(shared_ptr<FetchAccount> pFA, const SQLCommand& command);
       static bool ReadObject(shared_ptr<FetchAccount> oFA, shared_ptr<DALRecordset> pRS);
-      static bool SaveObject(shared_ptr<FetchAccount> oFA, String &errorMessage);
+      static bool SaveObject(shared_ptr<FetchAccount> oFA, String &errorMessage,PersistenceMode mode);
       static bool SaveObject(shared_ptr<FetchAccount> oFA);
       static bool DeleteObject(shared_ptr<FetchAccount> pFA);
       static void DeleteByAccountID(__int64 ID);

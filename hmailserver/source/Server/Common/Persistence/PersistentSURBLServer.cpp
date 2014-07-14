@@ -46,7 +46,7 @@ namespace HM
    }
 
    bool 
-   PersistentSURBLServer::SaveObject(shared_ptr<SURBLServer> pObject, String &errorMessage)
+   PersistentSURBLServer::SaveObject(shared_ptr<SURBLServer> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);
