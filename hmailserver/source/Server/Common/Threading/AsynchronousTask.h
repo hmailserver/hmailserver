@@ -12,6 +12,7 @@ namespace HM
    {
    public:
       AsynchronousTask(boost::function<void()> functionToRun, shared_ptr<T> parentHolder) :
+         Task("AsynchronousTask"),
          _asynchronousFunction(functionToRun),
          _parentHolder(parentHolder)
       {
@@ -31,11 +32,6 @@ namespace HM
 
          // Reset the shared_ptr to the parent object.
          _parentHolder.reset();
-      }
-
-      virtual void StopWork()
-      {
-         // no can do.
       }
 
    private:

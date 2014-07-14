@@ -62,8 +62,8 @@ namespace HM
 {
    Application::Application() :
       m_sServerWorkQueue("Server queue"),
-      m_sRandomWorkQueue("Random queue"),
-      m_sAsynchronousTasksQueue("Aynchronous task queue"),
+      m_sMaintenanceQueue("Maintenance queue"),
+      m_sAsynchronousTasksQueue("Asynchronous task queue"),
       m_iUniqueID(0)
    {
       m_sProdName = _T("hMailServer");
@@ -115,7 +115,7 @@ namespace HM
 
       // Start a random thread queue that can run different 
       // types of background tasks, such as backups etc.
-      WorkQueueManager::Instance()->CreateWorkQueue(100, m_sRandomWorkQueue, WorkQueue::eQTRandom);
+      WorkQueueManager::Instance()->CreateWorkQueue(5, m_sMaintenanceQueue);
 
       // Language needed for COM API
       Languages::Instance()->Load();
@@ -148,7 +148,7 @@ namespace HM
 
       // Start an asynch workqueue which processes asynchronous tasks from clients.
       WorkQueueManager::Instance()->CreateWorkQueue(Configuration::Instance()->GetAsynchronousThreads(), 
-                                                    m_sAsynchronousTasksQueue, WorkQueue::eQTFixedSize);
+                                                    m_sAsynchronousTasksQueue);
 
       return true;
    }
@@ -230,7 +230,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Close work queue
-      WorkQueueManager::Instance()->RemoveQueue(m_sRandomWorkQueue);
+      WorkQueueManager::Instance()->RemoveQueue(m_sMaintenanceQueue);
 
       WorkQueueManager::Instance()->RemoveQueue(m_sAsynchronousTasksQueue);
 
@@ -308,30 +308,24 @@ namespace HM
 
       SpamProtection::Instance()->Load();
 
-      // Create queue for server tasks, such as responsing to SMTP and 
-      // POP3 and IMAP connections
       m_pIOCPServer = shared_ptr<IOCPServer>(new IOCPServer);
-
       _RegisterSessionTypes();
 
       // Create the main work queue.
-      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, m_sServerWorkQueue, WorkQueue::eQTPreLoad);
+      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, m_sServerWorkQueue);
 
       m_pNotificationServer = shared_ptr<NotificationServer>(new NotificationServer());
       _folderManager = shared_ptr<FolderManager>(new FolderManager());
       
       // Create the scheduler. This is always in use.
-      m_pScheduler = shared_ptr<Scheduler>(new Scheduler);
+      m_pScheduler = shared_ptr<Scheduler>(new Scheduler());
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pScheduler);
 
-      // Always run the IOCP server.
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pIOCPServer);
 
-      // Always run delivery manager. Software useless without it.
       m_pSMTPDeliveryManager = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pSMTPDeliveryManager);
 
-      // ... and the external account fetch manager.
       m_pExternalFetchManager = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pExternalFetchManager);
 
@@ -339,17 +333,17 @@ namespace HM
 
       if (Configuration::Instance()->GetMessageIndexing())
       {
-         MessageIndexer::Start();
+         MessageIndexer::Instance()->Start();
       }
-
-      ServerStatus::Instance()->SetState(ServerStatus::StateRunning);
 
       m_sStartTime = Time::GetCurrentDateTime();
 
-      // Wait for the IOCP server to signal start-up.
-      _serverStartEvent.Wait();
-      _serverStartEvent.Reset();
+      m_pScheduler->GetIsStartedEvent().Wait();
+      m_pSMTPDeliveryManager->GetIsStartedEvent().Wait();
+      m_pExternalFetchManager->GetIsStartedEvent().Wait();
+      m_pIOCPServer->GetIsStartedEvent().Wait();
 
+      ServerStatus::Instance()->SetState(ServerStatus::StateRunning);
       LOG_APPLICATION("Servers started.")
 
       return true;
@@ -362,7 +356,6 @@ namespace HM
    // Registers the different session types...
    //---------------------------------------------------------------------------()
    {
-
       // Start SMTP server and delivery threads.
       if (Configuration::Instance()->GetUseSMTP())
       {
@@ -418,18 +411,26 @@ namespace HM
 
       ServerStatus::Instance()->SetState(ServerStatus::StateStopping);
 
+      LOG_DEBUG("Application::StopServers() - Removing server work queue");
       // Then remove the main server.
       WorkQueueManager::Instance()->RemoveQueue(m_sServerWorkQueue);
 
       // Unload the message list cache.
+      LOG_DEBUG("Application::StopServers() - Clearing caches");
       IMAPFolderContainer::Instance()->Clear();
 
+
       // Deinitialize servers
-      if (m_pSMTPDeliveryManager) m_pSMTPDeliveryManager.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing IOCP");
       if (m_pIOCPServer) m_pIOCPServer.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing DeliveryManager");
+      if (m_pSMTPDeliveryManager) m_pSMTPDeliveryManager.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing FetchManager");
       if (m_pExternalFetchManager) m_pExternalFetchManager.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing Scheduler");
       if (m_pScheduler) m_pScheduler.reset();
       
+      LOG_DEBUG("Application::StopServers() - Destructing Rest");
       if (m_pNotificationServer) m_pNotificationServer.reset();
       if (_folderManager) _folderManager.reset();
 
@@ -468,22 +469,13 @@ namespace HM
    }
 
    shared_ptr<WorkQueue>
-   Application::GetRandomWorkQueue()
+   Application::GetMaintenanceWorkQueue()
    {
-      shared_ptr<WorkQueue> pWorkQueue;
-      
-      for (int i = 0; i < 10; i++)
-      {
-         pWorkQueue = WorkQueueManager::Instance()->GetQueue(m_sRandomWorkQueue);
-
-         if (pWorkQueue)
-            break;
-
-         Sleep(2000);
-      }
+      shared_ptr<WorkQueue> pWorkQueue =
+         WorkQueueManager::Instance()->GetQueue(m_sMaintenanceQueue);
       
       if (!pWorkQueue)
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetRandomWorkQueue()", "Random work queue not available.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetMaintenanceWorkQueue()", "Maintenance work queue not available.");
 
       return pWorkQueue;
 
@@ -507,12 +499,6 @@ namespace HM
       int iResult = InterlockedIncrement(&m_iUniqueID);
 
       return iResult;
-   }
-
-   void 
-   Application::SetServerStartedEvent()
-   {
-      _serverStartEvent.Set();
    }
 
    void

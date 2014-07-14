@@ -13,15 +13,15 @@ namespace HM
       ~Event(void);
    
       void Wait();
-      void Set();
-      bool IsSet();
-      void Reset();
 
-      HANDLE GetHandle() const;
+      bool WaitFor(chrono::milliseconds milliseconds);
+
+      void Set();
 
    private:
 
-      bool _closeWhenWaited;
-      HANDLE m_hEvent;
+      boost::mutex mutex_;
+      boost::condition_variable set_condition_;
+      bool is_set_;
    };
 }

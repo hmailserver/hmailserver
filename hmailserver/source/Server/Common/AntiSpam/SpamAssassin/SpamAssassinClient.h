@@ -15,6 +15,7 @@ namespace HM
       SpamAssassinClient(const String &sFile, bool useSSL,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
+         shared_ptr<Event> disconnected,
          String &message,
          bool &testCompleted);
       ~SpamAssassinClient(void);

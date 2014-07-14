@@ -6,6 +6,10 @@
 
 #include "../Util/Event.h"
 
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#include <boost/atomic.hpp>
+
 namespace HM
 {
    class Task;
@@ -14,63 +18,34 @@ namespace HM
    class WorkQueue
    {
    public:
-      
-      enum QueueType
-      {
-         eQTPreLoad = 0, // Pre-create a couple of threads
-         eQTFixedSize = 1, // Pre-create a fixed number of threads
-         eQTRandom = 2 // Don't pre-create. Create if we need threads.
-      };
 
-      WorkQueue(unsigned int iMaxSimultaneous, QueueType qtType, const String &sName);
+      WorkQueue(unsigned int iMaxSimultaneous, const String &sName);
       ~WorkQueue(void);
 
       void SetMaxSimultaneous(int iMaxSimultaneous);
 
       void AddTask(shared_ptr<Task> pTask);
       void Start();
-      void ThreadFunc();
-      
-      bool OnThreadReady(Thread *pThread);
-      void OnThreadExited(Thread *pThread);
 
-      void Stop(bool bPreKillWarning);
-      bool GetRunningThreadsExists();
-
-      int GetQueueSize();
-
-      void Pause();
-      void Continue();
-      void Clear();
-      bool GetIsPaused() {return m_bPause; }
+      void Stop();
 
       const String &GetName() const;
 
-      HANDLE GetQueueThreadHandle() const {return m_hThread; }
-      
-      shared_ptr<Task> GetTaskByName(const String &name, bool &isQueued);
-      void StopTask(const String &name);
-
    private:
+      void IoServiceRunWorker();
+      void ExecuteTask(shared_ptr<Task> pTask);
 
-      queue<shared_ptr<Task> > m_qPendingTasks;
-      boost::recursive_mutex _pendingTaskMutex;
+      boost::asio::io_service io_service_;
+      boost::asio::io_service::work work_;
 
-      map<HANDLE, shared_ptr<Thread> > m_mapThreads;
-      boost::recursive_mutex _threadsMutex;
+      set<shared_ptr<Task>> runningTasks_;
+      boost::recursive_mutex runningTasksMutex_;
 
       unsigned int m_iMaxSimultaneous;
-      unsigned int m_iBaseLineThreadCount;
-
-      Event m_hCheckForTask;
-      Event m_hStopQueue;
-      HANDLE m_hThread;
 
       String m_sQueueName;
 
-      bool m_bPause;
-
-      QueueType m_qtType;
-
+      set<shared_ptr<boost::thread>> workerThreads_;
    };
+
 }

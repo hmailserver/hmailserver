@@ -9,19 +9,22 @@ namespace HM
    class Task
    {
    public:
-      Task(void);
       Task(const String &name);
       ~Task(void);
 
       virtual void DoWork() = 0;
 
-      virtual void StopWork() = 0;
-
       String GetName() const {return _name;  }
+
+      Event& GetIsStartedEvent() {return _isStarted;}
+
    protected:
 
-      
+      void SetIsStarted() {_isStarted.Set();}
+
    private:
+      
+      Event _isStarted;
 
       String _name;
    };

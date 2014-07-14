@@ -5,387 +5,163 @@
 #include "StdAfx.h"
 
 #include "WorkQueue.h"
-#include "Thread.h"
 #include "Task.h"
+
+
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
+
 #endif
 
 namespace HM
 {
-   DWORD WINAPI _StartThread(LPVOID vd)
-   {
-      HM::WorkQueue *pWQ = static_cast<HM::WorkQueue*>(vd);
-      pWQ->ThreadFunc();
-      return 0;
 
-   }
 
-   WorkQueue::WorkQueue(unsigned int iMaxSimultaneous, QueueType qtType , const String &sQueueName) :
+   WorkQueue::WorkQueue(unsigned int iMaxSimultaneous, const String &sQueueName) :
       m_sQueueName (sQueueName),
-      m_bPause (false),
-      m_qtType(qtType),
       m_iMaxSimultaneous(0),
-      m_iBaseLineThreadCount(0)
+      work_( io_service_)
    {
       SetMaxSimultaneous(iMaxSimultaneous);
 
-      m_hThread = 0;
+      LOG_DEBUG(Formatter::Format("Creating work queue {0}", m_sQueueName));
    }
 
    void 
    WorkQueue::SetMaxSimultaneous(int iMaxSimultaneous)
    {
       m_iMaxSimultaneous = iMaxSimultaneous;
-      m_iBaseLineThreadCount = 0;
-
-      if (m_qtType == eQTFixedSize)
-      {
-         // A fixed number of threads should
-         // be run.
-         m_iBaseLineThreadCount = iMaxSimultaneous;
-      }
-      else if (m_qtType == eQTPreLoad)
-      {
-         // Estimate number of required threads
-         if (m_iMaxSimultaneous == 0)
-            m_iBaseLineThreadCount = 5;
-         else
-         {
-            // Calculate number of threads to pre-create
-            m_iBaseLineThreadCount = m_iMaxSimultaneous / 3;
-            m_iBaseLineThreadCount = max(m_iBaseLineThreadCount, 10);
-            m_iBaseLineThreadCount = min(m_iBaseLineThreadCount, 50);
-
-            // Make sure it's never more than the max defined.
-            m_iBaseLineThreadCount = min(m_iBaseLineThreadCount, m_iMaxSimultaneous);
-
-         }
-      }
-      else if (m_qtType == eQTRandom)
-      {
-         if (m_iMaxSimultaneous == 0)
-         {
-            // If no maximum simultaneous threads have been specified, fall back to 100.
-            m_iMaxSimultaneous = 100;
-         }
-      }
 
       // Hard code limit to 100. Everything over this won't be good for stability.
       if (m_iMaxSimultaneous > 100)
          m_iMaxSimultaneous = 100;
-
-
    }
-
 
    WorkQueue::~WorkQueue(void)
    {
-      if (m_hThread != 0)
-         CloseHandle(m_hThread);
+     LOG_DEBUG(Formatter::Format("Destructing work queue {0}", m_sQueueName));
    }
 
    void 
    WorkQueue::AddTask(shared_ptr<Task> pTask)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
-      m_qPendingTasks.push(pTask);
+      LOG_DEBUG(Formatter::Format("Adding task {0} to work queue {1}", pTask->GetName(), m_sQueueName));
 
-      m_hCheckForTask.Set();
+      // Post a wrapped task into the queue.
+      boost::function<void ()> func = boost::bind(&WorkQueue::ExecuteTask, this, pTask);
+      io_service_.post( func );
    }
+
+   void 
+   WorkQueue::ExecuteTask(shared_ptr<Task> pTask)
+   {
+      {
+         boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
+         runningTasks_.insert(pTask);
+      }
+
+      LOG_DEBUG(Formatter::Format("Executing task {0} in work queue {1}", pTask->GetName(), m_sQueueName));
+
+      pTask->DoWork();
+
+      {
+         boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
+         set<shared_ptr<Task>>::iterator iter = runningTasks_.find(pTask);
+         runningTasks_.erase(pTask);
+      }
+   }
+
 
    void 
    WorkQueue::Start()
    {
-      // Should we start worker threads now?
-      if (m_qtType == eQTPreLoad || 
-          m_qtType == eQTFixedSize)
+      LOG_DEBUG(Formatter::Format("Starting work queue {0}", m_sQueueName));
+
+      //io_service_.reset();
+
+      for ( std::size_t i = 0; i < m_iMaxSimultaneous; ++i )
       {
-         boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
-         for (unsigned int i = 0; i < m_iBaseLineThreadCount; i++)
-         {
-            shared_ptr<Thread> pThread = shared_ptr<Thread>(new Thread(this));
-            pThread->Start();
-            m_mapThreads[pThread->GetHandle()] = pThread;
-         }
+         shared_ptr<boost::thread> thread = shared_ptr<boost::thread>
+            (new boost::thread(boost::bind( &WorkQueue::IoServiceRunWorker, this )));
+
+         workerThreads_.insert(thread);
       }
 
-      // Start thread that should delegate tasks to queues
-      m_hThread = CreateThread(NULL, 0, _StartThread, this, 0, 0);
+      LOG_DEBUG(Formatter::Format("Started work queue {0}", m_sQueueName));
    }
 
    void 
-   WorkQueue::Stop(bool bPreKillWarning)
+   WorkQueue::IoServiceRunWorker()
    {
-      try
+      LOG_DEBUG(Formatter::Format("Running worker in work queue {0}", m_sQueueName));
+      io_service_.run();
+      LOG_DEBUG(Formatter::Format("Worker exited in work queue {0}", m_sQueueName));
+   }
+
+   void 
+   WorkQueue::Stop()
+   {
+      LOG_DEBUG(Formatter::Format("Stopping working queue {0}.", m_sQueueName));
+
+      // Prevent new tasks from being started.
+      io_service_.stop();
+
+      LOG_DEBUG(Formatter::Format("Interupt and join threads in working queue {0}", m_sQueueName));
+
+      set<shared_ptr<boost::thread>> completedThreads;
+
+      int attemptCount = 10000 / 250; // 10 seconds, 250 ms between each
+
+      for (int i = 0; i < attemptCount; i++)
       {
-         // First make sure no new threads are started
-         m_hStopQueue.Set();
-
-         // Stop all running threads
-         boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
-
-         // Create a copy of the map. Since pThread->Stop() may cause threads
-         // being removed from the map, it's important that we work on a copy
-         // of it.
-         
-         map<HANDLE, shared_ptr<Thread> > mapThreads = m_mapThreads;
-         map<HANDLE, shared_ptr<Thread> >::iterator iterThread = mapThreads.begin();
-
-         while (iterThread != mapThreads.end())
+         boost_foreach (shared_ptr<boost::thread> thread, workerThreads_)
          {
-            // Tell thread to stop.
-            shared_ptr<Thread> pThread = (*iterThread).second;
-            pThread->Stop(bPreKillWarning);
-
-            iterThread++;
+            thread->interrupt();
          }
 
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4213, "WorkQueue::Stop", "An unknown error occurred while stopping queue.");
-         throw;
-      }
-
-   }
-
-   bool
-   WorkQueue::GetRunningThreadsExists()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Returns true if any running threads exists. False otherwise.
-   //---------------------------------------------------------------------------
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
-
-      return !m_mapThreads.empty();
-   }
-
-   bool 
-   WorkQueue::OnThreadReady(Thread *pThread)
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Called by a thread when it's ready for a new task. If this function
-   // returns false, the thread will stop.
-   //---------------------------------------------------------------------------
-   {
-      bool result = false;
-
-      int stage = 0;
-
-      try
-      {
-         stage = 1;   
-
-         // Check if we should stop this thread.
-         if (m_qtType == eQTRandom)
+         boost_foreach (shared_ptr<boost::thread> thread, workerThreads_)
          {
-            stage = 2;
-            // Threads should always be terminated
-            // when the queue is of type random.
-            result = false;
-            stage = 3;
+            if (thread->timed_join(boost::posix_time::milliseconds(1)))
+            {
+               completedThreads.insert(thread);
+            }
+         }
+
+         boost_foreach (shared_ptr<boost::thread> thread, completedThreads)
+         {
+            set<shared_ptr<boost::thread>>::iterator iter = workerThreads_.find(thread);
+
+            workerThreads_.erase(iter);
+         }
+
+         completedThreads.clear();
+
+         if (workerThreads_.size() == 0)
+         {
+            LOG_DEBUG(Formatter::Format("All threads are joined in queue {0}.", m_sQueueName));
+            return;
+         }
+
+         
+
+         boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
+         set<shared_ptr<Task>>::iterator iter = runningTasks_.begin();
+         if (iter != runningTasks_.end())
+         {
+            LOG_DEBUG(Formatter::Format("Still {0} remaining threads in queue {1}. First task: {2}", workerThreads_.size(), m_sQueueName, (*iter)->GetName()));
          }
          else
          {
-            stage = 4;
-            boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
-            stage = 5;
+            LOG_DEBUG(Formatter::Format("Still {0} remaining threads in queue {1}. First task: <Unknown>", workerThreads_.size(), m_sQueueName));
 
-            if (m_mapThreads.size() <= m_iBaseLineThreadCount)
-            {
-               stage = 6;
-               // Switch back to ready state so that 
-               // other task can use this thread. This must be
-               // done after the WorkQueue has decided that
-               // the thread should continue to run.
-               // 
-               pThread->SetStateReady();
-               stage = 7;
-               result = true;
-               stage = 8;
-            }
-            else
-            {
-               stage = 9;
-               result = false;
-            }
-
-            stage = 10;
          }
 
-         // The thread is ready. Signal that this queue may check
-         // for new tasks to execute. This may cause pThread to start 
-         // a new task immediately unless we're terminating it now.
-         stage = 11;
-         m_hCheckForTask.Set();
-         stage = 12;
-      }
-      catch (...)
-      {
-         String error = Formatter::Format("Failed to mark thread as ready. Stage: {0}", stage);
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4211, "WorkQueue::OnThreadReady", error);
-         throw;
+         Sleep(250);
       }
 
-      return result;
-   }
-
-   void
-   WorkQueue::OnThreadExited(Thread *pThread)
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // The thread has exited. Do clean up
-   //---------------------------------------------------------------------------
-   {
-      // The thread has exited running state. It should
-      // be removed from our list of threads.
-      boost::lock_guard<boost::recursive_mutex> guard(_threadsMutex);
-
-      // Close the thread handle and remove it
-      // from our list. The thread is dead.
-      HANDLE hThread = pThread->GetHandle();
-      pThread->CloseThread();
-
-      map<HANDLE, shared_ptr<Thread> >::iterator iterThread = m_mapThreads.find(hThread);
-      if (iterThread != m_mapThreads.end())
-         m_mapThreads.erase(iterThread);
-   }
-
-
-   void 
-   WorkQueue::ThreadFunc()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // This function is responsible for handing out tasks to threads. It sits and
-   // waits until a task arrives, and then tries to delegate the task to one of
-   // its threads.
-   //---------------------------------------------------------------------------
-   {
-      try
-      {
-         while (1)
-         {
-            // Wait for a new task that should be run.
-            int iSize = 2;
-            HANDLE handles[2];
-            handles[0] = m_hCheckForTask.GetHandle();
-            handles[1] = m_hStopQueue.GetHandle();
-
-            // Wait for a new task, a thread to be freed or for us to stop.
-            DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, INFINITE);
-
-            int iEventIndex = dwWaitResult - WAIT_OBJECT_0;
-            switch (iEventIndex)
-            {
-            case 0:
-               m_hCheckForTask.Reset();
-               break;
-            case 1:
-               m_hStopQueue.Reset();
-               return;
-            }
-
-            boost::lock_guard<boost::recursive_mutex> guardPendingTasks(_pendingTaskMutex);
-
-            if (m_bPause || m_qPendingTasks.size() == 0)
-            {
-               // We're in a pause, or there's nothing
-               // to do at the moment
-               continue;
-            }
-
-            // We have got something to do. Try to 
-            // find a free thread for the task.
-
-            boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
-
-            while (!m_qPendingTasks.empty())
-            {
-               map<HANDLE, shared_ptr<Thread> >::iterator iterThread = m_mapThreads.begin();
-               shared_ptr<Thread> pThread;
-               while (iterThread != m_mapThreads.end())
-               {
-                  if ((*iterThread).second->GetState() == Thread::Ready)
-                  {
-                     // The thread is free.
-                     pThread = (*iterThread).second;
-                     break;
-                  }
-                  iterThread++;
-               }
-               
-               if (!pThread)
-               {
-                  // No free thread found.
-                  if (m_iMaxSimultaneous > 0 && m_mapThreads.size() >= m_iMaxSimultaneous)
-                     break;
-
-                  // Create a new thread.
-                  pThread = shared_ptr<Thread>(new Thread(this));
-                  pThread->Start();
-
-                  m_mapThreads[pThread->GetHandle()] = pThread;
-               }
-
-               // Pick the next task from the queue
-               shared_ptr<Task> pTask = m_qPendingTasks.front();
-
-               // Remove task from pending queue
-               m_qPendingTasks.pop();
-   
-               pThread->AssignTask(pTask);
-            }
-
-            // No free thread found.
-            if (m_mapThreads.size() >= m_iMaxSimultaneous)
-               continue;
-         }
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4211, "WorkQueue::ThreadFunc", "An unknown error occurred while running thread.");
-      }
-   }
-
-   int 
-   WorkQueue::GetQueueSize()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Thread safe
-   //---------------------------------------------------------------------------
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
-      int size = m_qPendingTasks.size();
-
-      return size;
-   }
-
-   void 
-   WorkQueue::Clear()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Clears the queue of tasks.
-   //---------------------------------------------------------------------------
-   {
-      try
-      {
-         // Clears the queue of tasks. 
-         boost::lock_guard<boost::recursive_mutex> guard(_pendingTaskMutex);
-
-         // There's no std::queue::clear(). Am I the 
-         // first one who needs to  clear a queue?! 
-         while (!m_qPendingTasks.empty())
-            m_qPendingTasks.pop();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4212, "WorkQueue::Clear", "An unknown error occurred while clearing queue.");
-         throw;
-      }
+      LOG_DEBUG(Formatter::Format("Given up waiting for threads to join in queue {0}.", m_sQueueName));
    }
 
    const String&
@@ -396,149 +172,5 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       return m_sQueueName;
-   }
-
-   void
-   WorkQueue::Pause()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Tells the queue to stop.
-   //---------------------------------------------------------------------------
-   {
-      // Pause the work queue
-      m_bPause = true;
-   }
-
-   void
-   WorkQueue::Continue()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Tells the queue to continue to run.
-   //---------------------------------------------------------------------------
-   {
-      // Continue to run the work queue.
-      m_bPause = false;
-
-      // Signal that we should check for new tasks.
-      m_hCheckForTask.Set();
-   }
-
-   void 
-   WorkQueue::StopTask(const String &name)
-   {
-      boost::lock_guard<boost::recursive_mutex> guardTasks(_pendingTaskMutex);
-      boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
-
-      bool isQueued = false;
-      shared_ptr<Task> task = GetTaskByName(name, isQueued);
-
-      if (!task)
-         return;
-
-      if (isQueued)
-      {
-         // Defense. If something screws up, we'll quit looping..
-         int maxIterations = 10000;
-
-         // Copy all tasks except for the given one to a new list.
-         queue<shared_ptr<Task> > tempQueue;
-         while (m_qPendingTasks.size() > 0 && maxIterations > 0)
-         {
-            shared_ptr<Task> pTask = m_qPendingTasks.front();
-            m_qPendingTasks.pop();
-
-            if (pTask->GetName() != name)
-               tempQueue.push(pTask);
-
-            maxIterations--;
-         }
-
-         // Move back all items from the temporary queue to the real one...
-         maxIterations = 10000;
-         while (tempQueue.size() > 0 && maxIterations > 0) 
-         {
-            shared_ptr<Task> pTask = tempQueue.front();
-            tempQueue.pop();
-
-            m_qPendingTasks.push(pTask);
-            maxIterations--;
-         }
-      }
-      else
-      {
-         task->StopWork();
-      }
-
-   }
-
-   shared_ptr<Task> 
-   WorkQueue::GetTaskByName(const String &name, bool &isQueued)
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Returns a task by its given name. Very costful operation.
-   //---------------------------------------------------------------------------
-   {
-      boost::lock_guard<boost::recursive_mutex> guardTasks(_pendingTaskMutex);
-      boost::lock_guard<boost::recursive_mutex> guardThreads(_threadsMutex);
-
-      isQueued = false;
-
-      /*
-         We can't iterate over a queue. We need to copy the
-         entire queue to another list temporarily just to be
-         able to find the correct item. Yack.
-      */
-      shared_ptr<Task> foundTask;
-
-      // Defense. If something screws up, we'll quit looping..
-      int maxIterations = 10000;
-
-      queue<shared_ptr<Task> > tempQueue;
-      while (m_qPendingTasks.size() > 0 && maxIterations > 0)
-      {
-         shared_ptr<Task> pTask = m_qPendingTasks.front();
-         m_qPendingTasks.pop();
-
-         if (pTask->GetName() == name)
-            foundTask = pTask;
-
-         tempQueue.push(pTask);
-         
-         maxIterations--;
-      }
-
-      // Move back all items from the temporary queue to the real one...
-      maxIterations = 10000;
-      while (tempQueue.size() > 0 && maxIterations > 0) 
-      {
-         shared_ptr<Task> pTask = tempQueue.front();
-         tempQueue.pop();
-
-         m_qPendingTasks.push(pTask);
-         maxIterations--;
-      }
-
-      if (foundTask)
-      {
-         isQueued = true;
-         return foundTask;
-      }
-
-      // The task was not found in the queue. Check if it's running...
-
-
-      map<HANDLE, shared_ptr<Thread> >::iterator iter = m_mapThreads.begin();
-      map<HANDLE, shared_ptr<Thread> >::iterator iterEnd = m_mapThreads.end();
-
-      for (; iter != iterEnd; iter++)
-      {
-         shared_ptr<Task> currentTask = ((*iter).second)->GetCurrentTask();
-         if (currentTask && currentTask->GetName() == name)
-            return currentTask;
-      }
-
-
-      shared_ptr<Task> nothing;
-      return nothing;
    }
 }

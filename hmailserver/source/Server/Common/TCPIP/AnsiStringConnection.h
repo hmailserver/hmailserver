@@ -15,7 +15,8 @@ namespace HM
    public:
       AnsiStringConnection(bool useSSL,
                     boost::asio::io_service& io_service,    
-                    boost::asio::ssl::context& context);
+                    boost::asio::ssl::context& context,
+                    shared_ptr<Event> disconnected);
       ~AnsiStringConnection(void);
 
    public:

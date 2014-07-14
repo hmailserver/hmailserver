@@ -16,7 +16,7 @@ namespace HM
       ~DeliveryTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
+
    private:
       
       shared_ptr<Message> m_pMessage;

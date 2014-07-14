@@ -53,7 +53,7 @@ namespace HM
 
       shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(true));
 
-      shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetRandomWorkQueue();
+      shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetMaintenanceWorkQueue();
       if (!pWorkQueue)
       {
          m_bIsRunning = false;
@@ -91,7 +91,7 @@ namespace HM
       shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(false));
       pBackupTask->SetBackupToRestore(pBackup);
       
-      Application::Instance()->GetRandomWorkQueue()->AddTask(pBackupTask);
+      Application::Instance()->GetMaintenanceWorkQueue()->AddTask(pBackupTask);
       
       LOG_DEBUG("BackupManager::~StartRestore() - E2");
       return true;

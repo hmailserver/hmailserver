@@ -21,7 +21,8 @@ namespace HM
    public:
       TCPConnection(bool useSSL,
                     boost::asio::io_service& io_service,    
-                    boost::asio::ssl::context& context);
+                    boost::asio::ssl::context& context,
+                    shared_ptr<Event> disconnected);
       ~TCPConnection(void);
 
       enum ShutdownOption
@@ -61,8 +62,6 @@ namespace HM
 
       void SetSecurityRange(shared_ptr<SecurityRange> securityRange);
       shared_ptr<SecurityRange> GetSecurityRange();
-
-      Event GetConnectionTerminationEvent() {return _connectionTermination;}
 
       int GetSessionID();
 
@@ -125,12 +124,13 @@ namespace HM
       long _remotePort;
       bool _hasTimeout;
       String _remoteServer;
-      Event _connectionTermination;
 
       shared_ptr<SecurityRange> _securityRange;
 
       int _sessionID;
       int _timeout;
+
+      shared_ptr<Event> disconnected_;
    };
 
 }

@@ -33,16 +33,19 @@ namespace HM
 {
 
    ExternalFetchManager::ExternalFetchManager(void) :
+      Task("ExternalFetchManager"),
       m_sQueueName("External fetch queue")
    {
       int iMaxNumberOfSimultaneousTasks = IniFileSettings::Instance()->GetMaxNumberOfExternalFetchThreads();
       
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, m_sQueueName, WorkQueue::eQTRandom);
+      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, m_sQueueName);
    }
 
    ExternalFetchManager::~ExternalFetchManager(void)
    {
+      LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager")
       WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
+      LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager - Removed queue")
    }
 
    void
@@ -53,13 +56,14 @@ namespace HM
    // servers.
    //---------------------------------------------------------------------------()
    {
-      Logger::Instance()->LogDebug("ExternalFetchManager::Start()");
+      SetIsStarted();
 
-      
+      Logger::Instance()->LogDebug("ExternalFetchManager::Start()");
 
       PersistentFetchAccount::UnlockAll();
 
       m_pFetchAccounts = shared_ptr<FetchAccounts> (new FetchAccounts(0));
+
 
       while (1)
       {
@@ -93,28 +97,7 @@ namespace HM
 
          // We are currently not fetching anything
          // Sit here and wait a minute 
-         const int iSize = 2;
-         HANDLE handles[iSize];
-
-         handles[0] = m_hStopTask.GetHandle();
-         handles[1] = m_hCheckNow.GetHandle();
-         // CheckNow is used if a check is triggered by the COM API. Then we don't
-         // want to wait 60 seconds to check.
-         
-
-         DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, 60000);
-
-         int iEvent = dwWaitResult - WAIT_OBJECT_0;
-
-         switch (iEvent)
-         {
-         case 0:
-            m_hStopTask.Reset();
-            return;
-         case 1:
-            m_hCheckNow.Reset();
-            continue;
-         }
+         check_now_.WaitFor(chrono::minutes(1));
       }
 
 
@@ -155,15 +138,9 @@ namespace HM
    }
 
    void 
-   ExternalFetchManager::StopWork()
-   {
-      m_hStopTask.Set();
-   }
-
-   void 
    ExternalFetchManager::SetCheckNow()
    {
-      m_hCheckNow.Set();
+      check_now_.Set();
    }
 
 }

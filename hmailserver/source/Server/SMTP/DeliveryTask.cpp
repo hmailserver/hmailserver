@@ -16,6 +16,7 @@
 namespace HM
 {
    DeliveryTask::DeliveryTask(shared_ptr<Message> pMessage) :
+      Task("DeliveryTask"),
       m_pMessage(pMessage)
    {
       
@@ -46,12 +47,6 @@ namespace HM
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4223, "DeliveryTask::DoWork", "SMTPDeliverer::DeliverMessage() failed");
 
       }
-   }
-
-   void 
-   DeliveryTask::StopWork()
-   {
-      // Not much we can do here since SMTPDeliverer is static. 
    }
 
 }

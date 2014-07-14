@@ -57,6 +57,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,7 @@
     <Compile Include="IMAP\Examine.cs" />
     <Compile Include="IMAP\Fetch.cs" />
     <Compile Include="Infrastructure\CustomAssert.cs" />
+    <Compile Include="Infrastructure\RetryHelper.cs" />
     <Compile Include="MIME\MessageParsing.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />

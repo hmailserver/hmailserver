@@ -120,7 +120,7 @@ STDMETHODIMP InterfaceMessageIndexing::Index()
       if (!GetIsServerAdmin())
          return false;
    
-      HM::MessageIndexer::IndexNow();
+      HM::MessageIndexer::Instance()->IndexNow();
    
       return S_OK;
    }

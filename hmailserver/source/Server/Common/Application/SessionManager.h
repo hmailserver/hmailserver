@@ -8,8 +8,6 @@
 
 namespace HM
 {
-   class SocketConnection;
-   class Socket;
    class SecurityRange;
 
    class SessionManager : public Singleton<SessionManager>
@@ -20,11 +18,9 @@ namespace HM
 
        int Count();
 
-       bool CreateConnection(SessionType t, shared_ptr<SecurityRange> securityRange);
-      
-       void OnDisconnect(SessionType st);
-
-       void RegisterPreCreatedConnection(Socket* pSocket);
+       bool GetAllow(SessionType t, shared_ptr<SecurityRange> security_range);
+       void OnCreate(SessionType t);
+       void OnDestroy(SessionType st);
 
        long GetNumberOfConnections(SessionType st);
        // Returns the number of connections for a specific connection timeout

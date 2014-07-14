@@ -18,7 +18,7 @@ namespace RegressionTests.Infrastructure
          int timeout = 150;
          while (timeout > 0)
          {
-            int count = application.Status.get_SessionCount(eSessionType.eSTPOP3);
+            int count = application.Status.get_SessionCount(sessionType);
 
             if (count == expectedCount)
                return;
@@ -27,19 +27,21 @@ namespace RegressionTests.Infrastructure
             Thread.Sleep(100);
          }
 
-         CustomAssert.Fail("Session count incorrect");
+         CustomAssert.AreEqual(expectedCount, application.Status.get_SessionCount(sessionType));
       }
 
       [Test]
       public void TestImproperDisconnect()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+         AssertSessionCount(eSessionType.eSTPOP3, 0);
 
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "TimeoutTest@test.com", "test");
+         var application = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "TimeoutTest@test.com", "test");
          int iCount = application.Status.get_SessionCount(eSessionType.eSTPOP3);
 
          var oPOP3 = new POP3Simulator();
-         oPOP3.Connect(110);
+         oPOP3.ConnectAndLogon(account.Address, "test");
          AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
          oPOP3.Disconnect(); // Disconnect without sending quit
 

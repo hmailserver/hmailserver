@@ -25,10 +25,13 @@
 
 namespace HM
 {
+   /*
+      We pre-create one connection per protocol, so we set the counters to -1 here.
+   */
    SessionManager::SessionManager(void) :
-      m_iNoOfIMAPConnections(0),
-      m_iNoOfSMTPConnections(0),
-      m_iNoOfPOP3Connections(0)
+      m_iNoOfIMAPConnections(-1),
+      m_iNoOfSMTPConnections(-1),
+      m_iNoOfPOP3Connections(-1)
    {
 
    }
@@ -37,75 +40,63 @@ namespace HM
    {
    }
 
-   void 
-   SessionManager::OnDisconnect(SessionType st)
+   bool 
+   SessionManager::GetAllow(SessionType session_type, shared_ptr<SecurityRange> security_range)
    {
-      switch (st)
+      // Check that client isn't blocked by IP range.
+      switch (session_type)
       {
       case STSMTP:
-         InterlockedDecrement(&m_iNoOfSMTPConnections);
+         if (!security_range->GetAllowSMTP())
+            return false;
          break;
       case STPOP3:
-         InterlockedDecrement(&m_iNoOfPOP3Connections);
+         if (!security_range->GetAllowPOP3())
+            return false;
          break;
       case STIMAP:
-         InterlockedDecrement(&m_iNoOfIMAPConnections);
+         if (!security_range->GetAllowIMAP())
+            return false;
          break;
       }
+
+      int current_connections = GetNumberOfConnections(session_type);
+
+      // Check max per protocol
+      int max_connections = 0;
+      switch (session_type)
+      {
+      case STSMTP:
+         {
+            max_connections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
+            if (max_connections > 0 && current_connections >= max_connections)
+               return false;
+
+            break;
+         }
+      case STPOP3:
+         {
+            max_connections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
+            if (max_connections > 0 && current_connections >= max_connections)
+               return false;
+
+            break;
+         }
+      case STIMAP:
+         {
+            max_connections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
+            if (max_connections > 0 && current_connections >= max_connections)
+               return false;
+            break;
+         }
+      }
+
+      return true;
    }
 
-   bool
-   SessionManager::CreateConnection(SessionType t, shared_ptr<SecurityRange> securityRange)
+   void
+   SessionManager::OnCreate(SessionType t)
    {
-      // Check max per protocol
-      int iMaxConnections = 0;
-      switch (t)
-      {
-      case STSMTP:
-         {
-            iMaxConnections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
-            if (iMaxConnections > 0 && m_iNoOfSMTPConnections >= iMaxConnections)
-               return false;
-
-            break;
-         }
-      case STPOP3:
-         {
-            iMaxConnections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
-            if (iMaxConnections > 0 && m_iNoOfPOP3Connections >= iMaxConnections)
-               return false;
-
-            break;
-         }
-      case STIMAP:
-         {
-            iMaxConnections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
-            if (iMaxConnections > 0 && m_iNoOfIMAPConnections >= iMaxConnections)
-               return false;
-            break;
-         }
-      }
-
-
-      // Check that client isn't blocked by IP range.
-      bool bConnectionAllowed = false;
-      switch (t)
-      {
-         case STSMTP:
-            if (!securityRange->GetAllowSMTP())
-               return false;
-            break;
-         case STPOP3:
-            if (!securityRange->GetAllowPOP3())
-               return false;
-            break;
-         case STIMAP:
-            if (!securityRange->GetAllowIMAP())
-               return false;
-            break;
-      }
-
-
       switch (t)
       {
       case STSMTP:
@@ -124,9 +115,26 @@ namespace HM
             break;
          }
       }
-
-      return true;
    }
+
+
+   void 
+   SessionManager::OnDestroy(SessionType st)
+   {
+      switch (st)
+      {
+      case STSMTP:
+         InterlockedDecrement(&m_iNoOfSMTPConnections);
+         break;
+      case STPOP3:
+         InterlockedDecrement(&m_iNoOfPOP3Connections);
+         break;
+      case STIMAP:
+         InterlockedDecrement(&m_iNoOfIMAPConnections);
+         break;
+      }
+   }
+
 
    long
    SessionManager::GetNumberOfConnections(SessionType st)

@@ -11,11 +11,6 @@
 
 namespace HM
 {
-   Task::Task(void)
-   {
-      
-   }
-
    Task::Task(const String &name) :
       _name (name)
    {
@@ -26,5 +21,4 @@ namespace HM
    {
 
    }
-
 }

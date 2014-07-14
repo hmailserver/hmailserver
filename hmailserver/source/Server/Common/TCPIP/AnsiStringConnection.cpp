@@ -16,8 +16,9 @@ namespace HM
 
    AnsiStringConnection::AnsiStringConnection(bool useSSL,
                                 boost::asio::io_service& io_service, 
-                                boost::asio::ssl::context& context) :
-      TCPConnection(useSSL, io_service, context)
+                                boost::asio::ssl::context& context,
+                                shared_ptr<Event> disconnected) :
+      TCPConnection(useSSL, io_service, context, disconnected)
    {
 
    }

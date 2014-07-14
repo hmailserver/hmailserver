@@ -27,6 +27,7 @@
 #include "..\Application\SessionManager.h"
 #include "..\SQL\MySQLInterface.h"
 #include "..\Cache\AccountSizeCache.h"
+#include "..\Application\MessageIndexer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -87,6 +88,8 @@ namespace HM
 
       AccountSizeCache::CreateInstance();
       IMAPFolderContainer::CreateInstance();
+
+      MessageIndexer::CreateInstance();
    }
 
    void 
@@ -134,7 +137,7 @@ namespace HM
 
       ErrorManager::DeleteInstance();
 
-
+      MessageIndexer::DeleteInstance();
    }
 
 

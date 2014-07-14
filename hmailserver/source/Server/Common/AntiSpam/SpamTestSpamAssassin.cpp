@@ -59,13 +59,12 @@ namespace HM
       String message;
       bool testCompleted;
 
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, false, pIOCPServer->GetIOService(), ctx, message, testCompleted));
+      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, false, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
       pSAClient->Start();
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();
-      // Copy the event so that we know when we've disconnected.
-      Event disconnectEvent(pSAClient->GetConnectionTerminationEvent());
 
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(sHost, iPort, IPAddress()))
@@ -74,7 +73,7 @@ namespace HM
          // can be terminated whenever. We're longer own the connection.
          pSAClient.reset();
 
-         disconnectEvent.Wait();
+         disconnectEvent->Wait();
       }
      
       // Check if the message is tagged as spam.

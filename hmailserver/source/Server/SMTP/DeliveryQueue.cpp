@@ -8,7 +8,6 @@
 #include "DeliveryQueue.h"
 #include "SMTPDeliveryManager.h"
 
-#include "../Common/Threading/Thread.h"
 #include "../Common/Threading/WorkQueueManager.h"
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/Message.h"
@@ -24,7 +23,8 @@ namespace HM
 
    bool DeliveryQueue::m_bIsClearing = false;
 
-   DeliveryQueueClearer::DeliveryQueueClearer(void)
+   DeliveryQueueClearer::DeliveryQueueClearer(void) :
+       Task("DeliveryQueueClearer")
    {
    }
 
@@ -53,7 +53,7 @@ namespace HM
             return;
          }
          
-         pWQ->Pause();
+         pWQ->Stop();
 
          // Load the delivery queue from the database
          Messages oMessages(-1,-1);
@@ -75,10 +75,7 @@ namespace HM
          Application::Instance()->GetSMTPDeliveryManager()->UncachePendingMessages();
 
          // Make sure there doesn't exist any delivery tasks.
-         pWQ->Clear();
-
-         // Start the queue again.
-         pWQ->Continue();
+         pWQ->Start();
 
          DeliveryQueue::OnDeliveryQueueCleared();
 
@@ -110,7 +107,7 @@ namespace HM
       m_bIsClearing = true;
 
       // Use the random work queue to run the task.
-      shared_ptr<WorkQueue> pQueue = Application::Instance()->GetRandomWorkQueue();
+      shared_ptr<WorkQueue> pQueue = Application::Instance()->GetMaintenanceWorkQueue();
 
       if (!pQueue)
       {

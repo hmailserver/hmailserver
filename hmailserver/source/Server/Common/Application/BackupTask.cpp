@@ -14,6 +14,7 @@
 namespace HM
 {
    BackupTask::BackupTask(bool bDoBackup) :
+      Task("BackupTask"),
       m_bDoBackup(bDoBackup)
    {
    }
@@ -38,12 +39,6 @@ namespace HM
       Application::Instance()->GetBackupManager()->OnThreadStopped();
    }
 
-   void 
-   BackupTask::StopWork()
-   {
-      
-      
-   }
 
    void 
    BackupTask::SetBackupToRestore(shared_ptr<Backup> pBackup)

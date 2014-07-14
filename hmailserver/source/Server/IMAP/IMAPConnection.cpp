@@ -51,7 +51,7 @@ namespace HM
    IMAPConnection::IMAPConnection(bool useSSL,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) :
-      AnsiStringConnection(useSSL, io_service, context),
+      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
       m_bIsIdling(false),
       m_iLiteralDataToReceive(0),
       m_bPendingDisconnect(false),
@@ -65,6 +65,8 @@ namespace HM
 
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(5 * 60, 30 * 60));
+
+      SessionManager::Instance()->OnCreate(STIMAP);
    }
 
    IMAPConnection::~IMAPConnection()
@@ -75,7 +77,7 @@ namespace HM
       // before terminating ourselves.
       mapCommandHandlers.clear();
    
-      SessionManager::Instance()->OnDisconnect(STIMAP);
+      SessionManager::Instance()->OnDestroy(STIMAP);
 
       CloseCurrentFolder();
    }

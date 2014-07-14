@@ -7,18 +7,12 @@
 #include "StdAfx.h"
 #include ".\reinitializator.h"
 
+#include <boost/thread/thread.hpp>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
 #endif
-
-
-DWORD WINAPI _Start(LPVOID vd)
-{
-   HM::Reinitializator *pReinit = static_cast<HM::Reinitializator*>(vd);
-   pReinit->ThreadFunc();
-   return 0;
-}
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -28,69 +22,37 @@ DWORD WINAPI _Start(LPVOID vd)
 namespace HM
 {
 
-   Reinitializator::Reinitializator(void)
+   Reinitializator::Reinitializator(void) :
+      _isRunning(false)
    {
-      m_hThreadHandle = 0;
    }
 
    Reinitializator::~Reinitializator(void)
    {
-      if (m_hThreadHandle)
-      {
-         // Tell the thread to stop.
-         m_evtStopRequest.Set();
-         
-         // Wait for it to stop.
-         WaitForSingleObject(m_hThreadHandle, 5000);
 
-         // Close the handle to it.
-         CloseHandle(m_hThreadHandle);
-      }
    }
 
    void 
    Reinitializator::ReInitialize()
    {
-      if (!m_hThreadHandle)
+      if (_isRunning)
       {
-         // Create the reinitialization thread
-         m_hThreadHandle = CreateThread(NULL, 0, _Start, this, 0, 0);
+         return;
       }
 
-      // Set the event that does reinitialization.
-      m_evtReinitRequest.Set();
+      boost::function<void ()> func = boost::bind( &Reinitializator::WorkerFunc, this );
+
+      _workerThread = boost::thread(func);
    }
 
    void
-   Reinitializator::ThreadFunc()
+   Reinitializator::WorkerFunc()
    {
-      while (1)
-      {
-         // Wait for a new task.
-         const int iSize = 2;
-         HANDLE handles[iSize];
+      _isRunning = true;
 
-         handles[0] = m_evtStopRequest.GetHandle();
-         handles[1] = m_evtReinitRequest.GetHandle();
+      Application::Instance()->Reinitialize();
 
-         DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, INFINITE);
-
-         int iEvent = dwWaitResult - WAIT_OBJECT_0;
-
-         switch (iEvent)
-         {
-         case 0:
-            return;
-         }
-
-         // Reset the event so that we don't call it over
-         // and over again.
-         m_evtReinitRequest.Reset();
-
-         // Reinit now.
-         Application::Instance()->Reinitialize();
-
-      }
+      _isRunning = false;
 
    }
 }

@@ -55,7 +55,7 @@ namespace HM
 
       shared_ptr<BackupManager> GetBackupManager() {return m_pBackupManager; }
 
-      shared_ptr<WorkQueue> GetRandomWorkQueue();
+      shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
       shared_ptr<WorkQueue> GetAsyncWorkQueue();
       shared_ptr<IOCPServer> GetIOCPServer() {return m_pIOCPServer; }
       // The random work queue can run any task.
@@ -66,8 +66,6 @@ namespace HM
       String Reinitialize();
 
       int GetUniqueID();
-
-      void SetServerStartedEvent();
 
       void OnPropertyChanged(shared_ptr<Property> pProperty);
 
@@ -96,7 +94,7 @@ namespace HM
       shared_ptr<IOCPServer> m_pIOCPServer;
       shared_ptr<FolderManager> _folderManager;
 
-      const String m_sRandomWorkQueue;
+      const String m_sMaintenanceQueue;
       // The random work queue can run any type of task.
 
       const String m_sServerWorkQueue;
@@ -105,7 +103,5 @@ namespace HM
       const String m_sAsynchronousTasksQueue;
 
       long m_iUniqueID;
-
-      Event _serverStartEvent;
    };
 }

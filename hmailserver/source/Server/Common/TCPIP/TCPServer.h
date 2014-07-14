@@ -41,7 +41,7 @@ namespace HM
       void HandleAccept(shared_ptr<TCPConnection> pConnection, const boost::system::error_code& error);
 
       bool FireOnAcceptEvent(const IPAddress &remoteAddress, int port);
-
+      
       shared_ptr<TCPConnectionFactory> _connectionFactory;
 
       boost::asio::ip::tcp::acceptor _acceptor;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System.ServiceProcess;
 using NUnit.Framework;
 using hMailServer;
 

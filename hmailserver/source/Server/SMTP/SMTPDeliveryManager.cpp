@@ -29,28 +29,25 @@
 namespace HM
 {
    SMTPDeliveryManager::SMTPDeliveryManager() :
+      Task("SMTPDeliveryManager"),
       m_sQueueName("SMTP delivery queue"),
       m_bUncachePendingMessages(false)
    {
-      m_evtTimer = CreateWaitableTimer(NULL, FALSE, _T(""));
-
       m_lCurNumberOfSent = 0;
 
       int iMaxNumberOfThreads = Configuration::Instance()->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, m_sQueueName, WorkQueue::eQTPreLoad);
+      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, m_sQueueName);
    }  
 
    SMTPDeliveryManager::~SMTPDeliveryManager()
    {
-      CloseHandle(m_evtTimer);
-
       WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
    }
 
    void 
    SMTPDeliveryManager::SetDeliverMessage()
    {
-      m_evtDeliverMessage.Set();
+      deliver_messages_.Set();
    }
 
    const String &
@@ -72,10 +69,14 @@ namespace HM
    {
       LOG_DEBUG("SMTPDeliveryManager::Start()");
 
+      SetIsStarted();
+
       // Unlock all messages
       PersistentMessage::UnlockAll();
 
       shared_ptr<WorkQueue> pQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+
+      boost::mutex deliver_mutex;
 
       while (1)
       {
@@ -101,36 +102,9 @@ namespace HM
             ServerStatus::Instance()->OnMessageProcessed();
          }
 
-         _StartTimer();
-
-         const int iSize = 3;
-         HANDLE handles[iSize];
-
-         handles[0] = m_hStopRequest.GetHandle();
-         handles[1] = m_evtDeliverMessage.GetHandle();
-         handles[2] = m_evtTimer;
-      
-         DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, INFINITE);
-
-         int iEvent = dwWaitResult - WAIT_OBJECT_0;
-      
-         switch (iEvent)
-         {
-         case 0:
-            // We should stop now
-            _SendStatistics(true);
-            return;
-         case 1:
-            // --- Reset the event to give someone else the chance to 
-            //     sending emails.
-            m_evtDeliverMessage.Reset();
-            break;
-         }
-
+         deliver_messages_.WaitFor(chrono::minutes(1));
       }
-
-      _SendStatistics(true);
-      
+   
       
       return;
    }
@@ -221,38 +195,6 @@ namespace HM
       m_pPendingMessages->MoveNext();
 
       return pRetMessage;
-   }
-
-
-   void
-   SMTPDeliveryManager::_StartTimer() 
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Create a timer that sets the event in one minut.
-   //---------------------------------------------------------------------------
-   {
-
-      LARGE_INTEGER liDueTime;
-      liDueTime.QuadPart=-600000000; // every minute!
-
-      // Set the timer.
-      BOOL bResult = SetWaitableTimer(m_evtTimer, &liDueTime, NULL, NULL, NULL, FALSE);
-
-      if (bResult == 0)
-      {
-         assert(0); // error
-      }
-   }
-  
-   void 
-   SMTPDeliveryManager::StopWork()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // The thread should be stopped.
-   //---------------------------------------------------------------------------
-   {
-      // We should exit DoWork
-      m_hStopRequest.Set();
    }
 
    void 

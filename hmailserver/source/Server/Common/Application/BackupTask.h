@@ -14,7 +14,6 @@ namespace HM
       ~BackupTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
 
       void SetBackupToRestore(shared_ptr<Backup> pBackup);
 

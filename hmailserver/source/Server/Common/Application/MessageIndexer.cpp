@@ -8,7 +8,6 @@
 #include "../BO/MessageMetaData.h"
 #include "../MIME/MIME.h"
 #include "../Util/Time.h"
-#include "../Threading/WorkQueue.h"
 #include "../Persistence/PersistentMessageMetaData.h"
 #include "../Persistence/PersistentMessage.h"
 
@@ -19,10 +18,7 @@
 
 namespace HM
 {
-   boost::recursive_mutex MessageIndexer::_starterMutex;
-
-   MessageIndexer::MessageIndexer() :
-      Task("MessageIndexer")
+   MessageIndexer::MessageIndexer()
    {
       
    }
@@ -35,65 +31,26 @@ namespace HM
    void
    MessageIndexer::Start()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_starterMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(starterMutex_);
 
-      shared_ptr<MessageIndexer> indexer = _GetRunningIndexer();
-
-      if (indexer)
+      if (workerThread_.joinable())
       {
-         // already started.
-         return;
+         if (!workerThread_.timed_join(boost::posix_time::milliseconds(1)))
+         {
+            // already started.
+            return;
+         }
       }
-
-      shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetRandomWorkQueue();
-
       // Start the indexer now.
       LOG_DEBUG("Starting message indexing thread...");
-      shared_ptr<MessageIndexer> messageIndexer = shared_ptr<MessageIndexer>(new MessageIndexer);
-      pWorkQueue->AddTask(messageIndexer);
-   }
 
-   void
-   MessageIndexer::Stop()
-   {
-      LOG_DEBUG("Stopping message indexing thread...");
-
-      boost::lock_guard<boost::recursive_mutex> guard(_starterMutex);
-
-      shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetRandomWorkQueue();
-      pWorkQueue->StopTask("MessageIndexer");
-
-   }
-
-   shared_ptr<MessageIndexer>
-   MessageIndexer::_GetRunningIndexer()
-   {
-      try
-      {
-         // This is a very expensive operation. Luckily we don't need to do it very often.
-         shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetRandomWorkQueue();
-         bool queued = false;
-         shared_ptr<Task> task = pWorkQueue->GetTaskByName("MessageIndexer", queued);
-
-         if (!task)
-         {
-            shared_ptr<MessageIndexer> nothing;
-            return nothing;
-         }
-
-         shared_ptr<MessageIndexer> result = static_pointer_cast<MessageIndexer>(task);
-         return result;
-      }
-      catch (...)
-      {
-         shared_ptr<MessageIndexer> nothing;
-         return nothing;
-      }
+      boost::function<void ()> func = boost::bind( &MessageIndexer::WorkerFunc, this );
+      workerThread_ = boost::thread(func);
 
    }
 
    void
-   MessageIndexer::DoWork()
+   MessageIndexer::WorkerFunc()
    {
       LOG_DEBUG("Indexing messages...");
 
@@ -106,29 +63,12 @@ namespace HM
          {
             _IndexMessages();
 
-            // We are currently not fetching anything
-            // Sit here and wait a minute 
-            const int iSize = 2;
-            HANDLE handles[iSize];
-
-            handles[0] = _stopRunning.GetHandle();
-            handles[1] = _indexNow.GetHandle();
-
-            DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, 60000);
-
-            int iEvent = dwWaitResult - WAIT_OBJECT_0;
-
-            switch (iEvent)
-            {
-            case 0:
-               LOG_DEBUG("Message indexing thread exiting...");
-               _stopRunning.Reset();
-               return;
-            case 1:
-               _indexNow.Reset();
-               break;
-            }
+            index_now_.WaitFor(chrono::minutes(1));
          }
+      }
+      catch (thread_interrupted const&)
+      {
+         // shutting down.
       }
       catch (...)
       {
@@ -139,19 +79,15 @@ namespace HM
    void 
    MessageIndexer::IndexNow()
    {
-      shared_ptr<MessageIndexer> indexer = _GetRunningIndexer();
-
-      if (indexer)
-      {
-         indexer->_indexNow.Set();
-      }
+      index_now_.Set();
    }
 
    void
-   MessageIndexer::StopWork()
+   MessageIndexer::Stop()
    {
-      _stopRunning.Set();
+      workerThread_.interrupt();
    }
+
 
    void 
    MessageIndexer::_IndexMessages()
@@ -181,8 +117,7 @@ namespace HM
 
          boost_foreach(shared_ptr<PersistentMessageMetaData::MessageInfo> messageToIndex, messagesToIndex)
          {
-            if (_stopRunning.IsSet())
-               return;
+            boost::this_thread::interruption_point();
 
             AnsiString headerText = PersistentMessage::LoadHeader(messageToIndex->FileName, false);
 

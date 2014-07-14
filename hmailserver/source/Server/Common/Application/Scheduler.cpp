@@ -16,6 +16,7 @@
 namespace HM
 {
    Scheduler::Scheduler()
+      : Task("Scheduler")
    {  
        
    }
@@ -28,21 +29,25 @@ namespace HM
    void 
    Scheduler::DoWork()
    {
+      SetIsStarted();
+
       while (true)
       {
          // Check if there are any tasks to run.
          _RunTasks();
          
          // Wait one minute.
-         DWORD dwWaitResult = WaitForSingleObject(m_hStopTask.GetHandle(), 60000);
-
-         if (dwWaitResult == WAIT_OBJECT_0)
+         try
          {
-            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+            boost::this_thread::sleep_for(chrono::minutes(1));
+         }
+         catch (thread_interrupted const&)
+         {
+            boost::this_thread::disable_interruption disabled;
 
+            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
             m_vecScheduledTasks.clear();
 
-            m_hStopTask.Reset();
             return;
          }
       }
@@ -74,12 +79,6 @@ namespace HM
       }
    }  
 
-   void 
-   Scheduler::StopWork()
-   {
-      m_hStopTask.Set();
-   }
-
    void
    Scheduler::ScheduleTask(shared_ptr<ScheduledTask> pTask)
    {
@@ -88,7 +87,7 @@ namespace HM
       // If task should only be run once, run it now.
       if (pTask->GetReoccurance() == ScheduledTask::RunOnce)
       {
-         Application::Instance()->GetRandomWorkQueue()->AddTask(pTask);
+         Application::Instance()->GetMaintenanceWorkQueue()->AddTask(pTask);
          return;
       }
 

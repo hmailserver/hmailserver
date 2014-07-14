@@ -343,7 +343,8 @@ namespace HM
 
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL(), pIOCPServer->GetIOService(), ctx));
+      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
       pClientConnection->Start();
@@ -353,8 +354,6 @@ namespace HM
 
       // Determine what local IP dadress to use.
       IPAddress localAddress = _GetLocalAddress();
-      
-      Event disconnectEvent(pClientConnection->GetConnectionTerminationEvent());
 
       if (pClientConnection->Connect(serverInfo->GetHostName(), serverInfo->GetPort(), localAddress))
       {
@@ -362,7 +361,7 @@ namespace HM
          // can be terminated whenever. We're longer own the connection.
          pClientConnection.reset();
 
-         disconnectEvent.Wait();
+         disconnectEvent->Wait();
       }
 
       LOG_DEBUG("SD::~_InitiateExternalConnection-5");

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../Common/Threading/Task.h"
-#include "../Common/Util/Event.h"
 
 namespace HM
 {
@@ -19,7 +18,6 @@ namespace HM
 
       void SetDeliverMessage();
       void DoWork();
-      void StopWork();
    
       const String &GetQueueName() const;
 
@@ -34,23 +32,17 @@ namespace HM
       void _LoadPendingMessageList();
       shared_ptr<Message> _GetNextMessage();
 
-      void _StartTimer();
-
-      HANDLE m_evtTimer;
-
-      Event m_evtDeliverMessage;
-
       long m_lCurNumberOfSent;
 
       shared_ptr<DALRecordset> m_pPendingMessages;
-
-      Event m_hStopRequest;
       
       const String m_sQueueName;
 
       bool m_bUncachePendingMessages;
 
       int m_iQueueID;
+
+      Event deliver_messages_;
    };
 
 }

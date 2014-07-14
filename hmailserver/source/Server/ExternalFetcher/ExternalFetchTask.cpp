@@ -16,6 +16,7 @@
 namespace HM
 {
    ExternalFetchTask::ExternalFetchTask(shared_ptr<FetchAccount> pFA) : 
+      Task("ExternalFetchTask"),
       m_pFA(pFA)
    {
    }
@@ -39,6 +40,12 @@ namespace HM
          sErrorMessage.Format(_T("An error occurred while download messages from external account. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5316, "DeliveryTask::DoWork", sErrorMessage);
       }
+      catch (thread_interrupted const&)
+      {
+         // shutting down.
+         LOG_DEBUG("ExternalFetchTask::DoWork()");
+         return;
+      }
       catch (...)
       {
          String sErrorMessage = _T("An error occurred while download messages from external account.");
@@ -50,12 +57,6 @@ namespace HM
 
       // Unlock the account
       PersistentFetchAccount::Unlock(m_pFA->GetID());
-   }
-
-   void 
-   ExternalFetchTask::StopWork()
-   {
-      
    }
 
 }

@@ -6,7 +6,6 @@
 
 #include "WorkQueueManager.h"
 
-
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -23,7 +22,7 @@ namespace HM
    }
 
    int 
-   WorkQueueManager::CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName, WorkQueue::QueueType qtType)
+   WorkQueueManager::CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Creates a new work queue and adds it to the list of queues. Returns the ID
@@ -31,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       // Create the work queue
-      shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, qtType, sQueueName));
+      shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, sQueueName));
       pWorkQueue->Start();
 
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
@@ -72,6 +71,8 @@ namespace HM
    // Stops and removes a queue
    //---------------------------------------------------------------------------
    {
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - {0}", sQueueName));
+
       // Locate the work queue
       shared_ptr<WorkQueue> pQueue;
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue;
@@ -81,46 +82,27 @@ namespace HM
 
          iterQueue = _GetQueueIterator(sQueueName);
          if (iterQueue == m_mapWorkQueues.end())
-            return;
-
-         pQueue = (*iterQueue).second;
-         if (!pQueue)
-            return;
-      }
-
-      // This queue should be stopped
-      int iNumberOfStopAttempts = 10;
-      for (int i = 0; i < iNumberOfStopAttempts; i++)
-      {
-         // If it's the last stop attempt, it's no longer
-         // a warning and we should just terminate the thread.
-         bool bPreKillWarning = true;
-         if (i == iNumberOfStopAttempts-1)
-            bPreKillWarning = false;
-
-         // Issue the warning or the termination.
-         pQueue->Stop(bPreKillWarning);
-
-         if (!pQueue->GetRunningThreadsExists())      
          {
-            // Wait for the queue to be stopped.
-            WaitForSingleObject(pQueue->GetQueueThreadHandle(), 3000);
-
-            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-            m_mapWorkQueues.erase(iterQueue);
-
+            LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
             return;
          }
 
-         // The queue hasn't stoped just yet. 
-         // Wait a few more seconds.
-         Sleep(250);
-
+         pQueue = (*iterQueue).second;
+         if (!pQueue)
+         {
+            LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
+            return;
+         }
       }
 
+      pQueue->Stop();
+
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Stopped {0}", sQueueName));
       
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       m_mapWorkQueues.erase(iterQueue);
+
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Erased {0}", sQueueName));
 
    }
 

@@ -20,13 +20,10 @@ namespace HM
       void ScheduleTask(shared_ptr<ScheduledTask> pTask);
 
       void DoWork();
-      void StopWork();
 
    private:
 
       void _RunTasks();
-
-      Event m_hStopTask;      
 
       boost::recursive_mutex _mutex;
       vector<shared_ptr<ScheduledTask >> m_vecScheduledTasks;

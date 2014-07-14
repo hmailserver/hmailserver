@@ -21,7 +21,6 @@
 #include "../common/TCPIP/TCPConnection.h"
 
 #include "../common/Util/Utilities.h"
-#include "../common/Util/Event.h"
 #include "../common/Util/MessageAttachmentStripper.h"
 #include "../common/Util/MessageUtilities.h"
 

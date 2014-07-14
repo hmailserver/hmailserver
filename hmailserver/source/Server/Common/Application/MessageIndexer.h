@@ -3,37 +3,34 @@
 
 #pragma once
 
-#include "..\Threading\Task.h"
+#include <boost/thread.hpp>
 
 namespace HM
 {
 
-   class MessageIndexer : public Task
+   class MessageIndexer : public Singleton<MessageIndexer>
    {
    public:
       MessageIndexer();
       ~MessageIndexer(void);
       
-      static void Start();
-      static void Stop();
+      void Start();
+      void Stop();
 
-      virtual void DoWork();
-      virtual void StopWork();
-
-      static void IndexNow();
+      void IndexNow();
 
    private:
    
-      static shared_ptr<MessageIndexer> _GetRunningIndexer();
+
+      void WorkerFunc();
 
       void _IndexMessages();
 
-
-      Event _stopRunning;
-      Event _indexNow;
-
-      static boost::recursive_mutex _starterMutex; 
+      boost::thread workerThread_;
 	   int iIndexRunCount;
 
+      boost::recursive_mutex starterMutex_;
+
+      Event index_now_;
    };
 }

@@ -21,7 +21,8 @@ namespace HM
       POP3ClientConnection(shared_ptr<FetchAccount> pAccount, 
          bool useSSL,
          boost::asio::io_service& io_service, 
-         boost::asio::ssl::context& context);
+         boost::asio::ssl::context& context,
+         shared_ptr<Event> disconnected);
       ~POP3ClientConnection(void);
 
       virtual void ParseData(const AnsiString &Request);

@@ -596,9 +596,9 @@ namespace HM
    Configuration::SetMessageIndexing(bool enable)
    {
       if (enable)
-         MessageIndexer::Start();
+         MessageIndexer::Instance()->Start();
       else
-         MessageIndexer::Stop();
+         MessageIndexer::Instance()->Stop();
 
       _propertySet->SetBool(PROPERTY_MESSAGE_INDEXING, enable);
    }

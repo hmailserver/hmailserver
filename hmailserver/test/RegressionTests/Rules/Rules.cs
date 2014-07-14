@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.SMTP;
 using RegressionTests.Shared;
 using hMailServer;
@@ -264,6 +266,14 @@ namespace RegressionTests.Rules
          }
 
          CustomAssert.AreEqual(2, fileCount);
+
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), delegate
+            {
+               var logContent = TestSetup.ReadCurrentDefaultLog();
+               int loggedDeletionCount = new Regex(Regex.Escape("Delivery to this account was canceled by an account rule")).Matches(logContent).Count;
+
+               Assert.AreEqual(2, loggedDeletionCount);
+            });
       }
 
       [Test]
@@ -1487,6 +1497,7 @@ namespace RegressionTests.Rules
                                         "Detta ska inte hamna i mappen Inbox.Overriden.Test");
          TestSetup.AssertRecipientsInDeliveryQueue(0);
          // This should print a single recipient.
+         
          string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
          TestSetup.AssertDeleteFile(TestSetup.GetEventLogFileName());
          CustomAssert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);

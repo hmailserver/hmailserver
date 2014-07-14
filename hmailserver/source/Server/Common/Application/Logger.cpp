@@ -238,8 +238,12 @@ namespace HM
 
       String theTime = Time::GetCurrentDate();
 
-      assert(NULL != IniFileSettings::Instance());
-      m_bSepSvcLogs = IniFileSettings::Instance()->GetSepSvcLogs();
+      IniFileSettings* pIniFileSettings = IniFileSettings::Instance();
+      if (!pIniFileSettings)
+      {
+         assert(0);
+      }
+      m_bSepSvcLogs = pIniFileSettings->GetSepSvcLogs();
 
       switch (lt)
       {

@@ -16,7 +16,7 @@ namespace RegressionTests.SSL
       [TestFixtureSetUp]
       public new void TestFixtureSetUp()
       {
-         InternalSetupSMTPSSLPort();
+         SetupSSLPorts();
 
          Thread.Sleep(1000);
       }
@@ -46,7 +46,7 @@ namespace RegressionTests.SSL
          return sslCertificate;
       }
 
-      private void InternalSetupSMTPSSLPort()
+      private void SetupSSLPorts()
       {
          SSLCertificate sslCeritifcate = SetupSSLCertificate();
 

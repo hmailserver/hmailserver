@@ -33,14 +33,12 @@ namespace HM
 
       bool testCompleted;
 
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, false, pIOCPServer->GetIOService(), ctx, message, testCompleted));
+      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, false, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
 
       pSAClient->Start();
 
-      // Copy the event so that we know when we've disconnected.
-      Event disconnectEvent(pSAClient->GetConnectionTerminationEvent());
-
-      
+     
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(hostName, port, IPAddress()))
       {
@@ -48,7 +46,7 @@ namespace HM
          // can be terminated whenever. We're longer own the connection.
          pSAClient.reset();
 
-         disconnectEvent.Wait();
+         disconnectEvent->Wait();
       }
 
       return testCompleted;

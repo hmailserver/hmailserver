@@ -26,6 +26,7 @@
 #include "../Util/Encoding/Base64.h"
 #include "../Util/Encoding/ModifiedUTF7.h"
 #include "../Util/Hashing/HashCreator.h"
+#include "../Util/EventTester.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -49,12 +50,15 @@ namespace HM
    void
    ClassTester::DoTests()
    {
-	   OutputDebugString(_T("hMailServer: Testing mime parser\n"));
+      EventTester *pEventTester = new EventTester;
+      pEventTester->Test();
+      delete pEventTester;
+
+      OutputDebugString(_T("hMailServer: Testing mime parser\n"));
 	   MimeTester *pMimeTester = new MimeTester;
       pMimeTester->TestFolder("C:\\Temp\\Testdata\\martin");
 	   delete pMimeTester;
 
-      return;
       OutputDebugString(_T("hMailServer: Testing StringParser\n"));
       StringParserTester *pParser = new StringParserTester();
       pParser->Test();

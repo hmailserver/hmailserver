@@ -97,6 +97,7 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
+#include <boost/thread/condition_variable.hpp>
 
 #define boost_foreach BOOST_FOREACH
 

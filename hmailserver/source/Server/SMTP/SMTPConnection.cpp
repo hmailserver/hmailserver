@@ -72,7 +72,7 @@ namespace HM
    SMTPConnection::SMTPConnection(bool useSSL,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
-      AnsiStringConnection(useSSL, io_service, context),
+      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
       m_bRejectedByDelayedGreyListing(false),
       m_CurrentState(AUTHENTICATION),
       m_bTraceHeadersWritten(true),
@@ -85,6 +85,7 @@ namespace HM
       m_bPendingDisconnect(false),
       _isAuthenticated(false)
    {
+
       m_SMTPConf = Configuration::Instance()->GetSMTPConfiguration();
 
       /* RFC 2821:    
@@ -101,14 +102,15 @@ namespace HM
 
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSMTPDMinTimeout(), IniFileSettings::Instance()->GetSMTPDMaxTimeout()));
-//      SetTimeout(calculator.Calculate(10, 30 * 60));
+
+      SessionManager::Instance()->OnCreate(STSMTP);
    }
 
    SMTPConnection::~SMTPConnection()
    {
       _ResetCurrentMessage();
 
-      SessionManager::Instance()->OnDisconnect(STSMTP);
+      SessionManager::Instance()->OnDestroy(STSMTP);
    }
 
    void

@@ -15,7 +15,6 @@ namespace HM
       ~DeliveryQueueClearer(void);
 
       virtual void DoWork();
-      virtual void StopWork() {;}
 
    private:
 

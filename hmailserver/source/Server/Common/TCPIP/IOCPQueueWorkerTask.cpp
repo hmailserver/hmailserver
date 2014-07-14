@@ -18,7 +18,8 @@
 namespace HM
 {
    IOCPQueueWorkerTask::IOCPQueueWorkerTask(boost::asio::io_service &io_service) :
-      _io_service(io_service)
+      Task("IOCPQueueWorkerTask"),
+      io_service_(io_service)
    {
 
    }
@@ -31,7 +32,7 @@ namespace HM
       {
          try
          {
-            _io_service.run();
+            io_service_.run();
 
             continueProcess = false;
          }
@@ -53,16 +54,5 @@ namespace HM
          }
       }
    }
-
-   void 
-   IOCPQueueWorkerTask::StopWork()
-   //--------------------------------------------------------------------- ------()
-   // DESCRIPTION:
-   // Post a message that we should stop.
-   //---------------------------------------------------------------------------()
-   {
-      _io_service.stop();
-   }
-
 
 }

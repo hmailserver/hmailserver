@@ -24,7 +24,7 @@ namespace RegressionTests.Infrastructure
       public void RestartServer()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-         for (int i = 0; i < 3; i++)
+         for (int i = 0; i < 5; i++)
          {
             application.Stop();
 

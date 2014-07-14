@@ -16,7 +16,7 @@ namespace HM
       ~ExternalFetchTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
+
    private:
 
       shared_ptr<FetchAccount> m_pFA;

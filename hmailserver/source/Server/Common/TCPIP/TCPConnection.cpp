@@ -25,7 +25,8 @@ namespace HM
 
    TCPConnection::TCPConnection(bool useSSL,
                                 boost::asio::io_service& io_service, 
-                                boost::asio::ssl::context& context) :
+                                boost::asio::ssl::context& context,
+                                shared_ptr<Event> disconnected) :
       _useSSL(useSSL),
       _socket(io_service),
       _sslSocket(io_service, context),
@@ -34,7 +35,8 @@ namespace HM
       _receiveBinary(false),
       _remotePort(0),
       _hasTimeout(false),
-      _receiveBuffer(250000)
+      _receiveBuffer(250000),
+      disconnected_(disconnected)
    {
       _sessionID = Application::Instance()->GetUniqueID();
 
@@ -48,15 +50,8 @@ namespace HM
    {
       LOG_DEBUG("Ending session " + StringParser::IntToString(_sessionID));
 
-      try
-      {
-         _connectionTermination.Set(); 
-      }
-      catch (...)
-      {
-         ReportError(ErrorManager::Low, 5139, "TCPConnection::~TCPConnection", "An error occurred while setting connection termination flag.");
-         throw;
-      }
+      if (disconnected_)
+         disconnected_->Set();
 
       CancelLogoutTimer();
    }

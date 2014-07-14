@@ -17,7 +17,7 @@ namespace HM
       WorkQueueManager(void);
       ~WorkQueueManager(void);
 
-      int CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName, WorkQueue::QueueType qtType);
+      int CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName);
       void RemoveQueue(const String &sQueueName);
 
       void AddTask(int iQueueID, shared_ptr<Task> pTask);

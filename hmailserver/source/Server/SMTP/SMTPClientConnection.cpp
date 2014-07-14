@@ -23,8 +23,9 @@ namespace HM
 
    SMTPClientConnection::SMTPClientConnection(bool useSSL,
          boost::asio::io_service& io_service, 
-         boost::asio::ssl::context& context) :
-         AnsiStringConnection(useSSL, io_service, context),
+         boost::asio::ssl::context& context,
+         shared_ptr<Event> disconnected) :
+         AnsiStringConnection(useSSL, io_service, context, disconnected),
          m_CurrentState(HELO),
          m_bUseSMTPAuth(false),
          m_iCurRecipient(-1),
@@ -627,7 +628,7 @@ namespace HM
    void 
    SMTPClientConnection::_ReadAndSend()
    {
-            LOG_DEBUG("SMTPClientConnection::~_Continue sendfile");
+      LOG_DEBUG("SMTPClientConnection::~_Continue sendfile");
       // Continue sending the file..
       int bufferSize = GetBufferSize();
       shared_ptr<ByteBuffer> pBuffer = _currentFile.ReadChunk(bufferSize);

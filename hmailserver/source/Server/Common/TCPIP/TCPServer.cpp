@@ -41,6 +41,7 @@ namespace HM
    
    TCPServer::~TCPServer(void)
    {
+      LOG_DEBUG("TCPServer::~TCPServer");
    }
 
    bool
@@ -240,13 +241,18 @@ namespace HM
       _acceptor.close();
    }
 
-
    void 
    TCPServer::HandleAccept(shared_ptr<TCPConnection> pConnection,
       const boost::system::error_code& error)
    {
+      LOG_DEBUG("TCPServer - HandleAccept");
+
       if (error.value() == 995)
       {
+         String sMessage;
+         sMessage.Format(_T("TCP - AcceptEx failed. Error code: %d, Message: %s"), error.value(), String(error.message()));
+         LOG_DEBUG(sMessage);
+
          /*
              995: The I/O operation has been aborted because of either a thread exit or an application request
              
@@ -280,8 +286,11 @@ namespace HM
             return;
          }
 
-         bool allow = SessionManager::Instance()->CreateConnection(_sessionType, securityRange);
 
+         bool allow = SessionManager::Instance()->GetAllow(_sessionType, securityRange);
+
+         LOG_DEBUG("Checking for allow");
+         
          if (!allow)
          {
             // Session creation failed. May not be matching IP range, or enough connections have been created.
@@ -303,10 +312,13 @@ namespace HM
             return;
          }
 
+         LOG_DEBUG("TCPServer - pConnection->FireOnAcceptEvent()");
          if (!FireOnAcceptEvent(remoteAddress, localEndpoint.port()))
             return;
 
          pConnection->SetSecurityRange(securityRange);
+
+         LOG_DEBUG("TCPServer - pConnection->Start()");
          pConnection->Start();
       }
       else
@@ -364,6 +376,8 @@ namespace HM
       return true;
    }
  
+   
+
    bool 
    TCPServer::HasIPV6()
    {

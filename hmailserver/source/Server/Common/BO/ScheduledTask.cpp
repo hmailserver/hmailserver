@@ -12,6 +12,7 @@
 namespace HM
 {
    ScheduledTask::ScheduledTask(void) :
+      Task("ScheduledTask"),
       m_iMinutesBetweenRun(0),
       m_eReoccurance(RunOnce)
    {

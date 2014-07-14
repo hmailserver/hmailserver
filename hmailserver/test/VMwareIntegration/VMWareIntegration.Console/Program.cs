@@ -55,7 +55,7 @@ namespace VMwareIntegration.Console
 
                LogText(message);
 
-               TestRunner runner = new TestRunner(true, localIndex, environment, true, softwareUnderTest);
+               TestRunner runner = new TestRunner(true, localIndex, environment, false, softwareUnderTest);
                runner.TestCompleted += runner_TestCompleted;
                if (!runner.Run())
                {
@@ -65,6 +65,8 @@ namespace VMwareIntegration.Console
             }
 
          });
+
+         System.Console.WriteLine("All tests completed");
 
          return 0;
       }

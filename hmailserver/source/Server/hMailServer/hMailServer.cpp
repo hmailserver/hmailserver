@@ -367,6 +367,7 @@ ServiceMain(DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/)
    // Otherwise it won't work properly "on all" Win2k3 machines.
    InitializeApplication();
 
+   LOG_DEBUG("After InitializeApplication");
 
    
    // Inform the OLE SCM that it can now create objects.
@@ -450,7 +451,12 @@ void InitializeApplication()
       // We were able to connect to the database server
       // and the database is of the correct version. So
       // now we should start the TCP/IP-servers.
+      LOG_DEBUG("InitializeApplication -  StartServers()");
       HM::Application::Instance()->StartServers();
+      LOG_DEBUG("InitializeApplication -  StartServers() Done");
+
+      Sleep(5000);
+      LOG_DEBUG("InitializeApplication -  StartServers() - Slept");
    }
 
 }

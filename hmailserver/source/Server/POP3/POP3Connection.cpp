@@ -43,7 +43,7 @@ namespace HM
    POP3Connection::POP3Connection(bool useSSL,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
-      AnsiStringConnection(useSSL, io_service, context),
+      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
       m_CurrentState(AUTHENTICATION),
        m_oTransmissionBuffer(true),
       m_bPendingDisconnect(false)
@@ -61,13 +61,14 @@ namespace HM
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetPOP3DMinTimeout(), IniFileSettings::Instance()->GetPOP3DMaxTimeout()));
 
+      SessionManager::Instance()->OnCreate(STPOP3);
    }
 
    POP3Connection::~POP3Connection()
    {
       OnDisconnect();
 
-      SessionManager::Instance()->OnDisconnect(STPOP3);
+      SessionManager::Instance()->OnDestroy(STPOP3);
    }
 
    void

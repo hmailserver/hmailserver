@@ -116,7 +116,7 @@ namespace RegressionTests.Infrastructure
          _settings.MirrorEMailAddress = "mirror-test@test.com";
          _settings.AddDeliveredToHeader = true;
 
-         // Send 5 messages to this account.
+         // Send 1 messages to this account.
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("test@test.com", recipients, "INBOX", "Mirror test message");
 

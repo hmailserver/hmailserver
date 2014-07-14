@@ -14,9 +14,7 @@
 
 namespace HM
 {
-   class Socket;
-   class SocketCompletionPort;
-   class TCPConnection;
+   class TCPServer;
 
    class IOCPServer : public Task
    {
@@ -24,8 +22,7 @@ namespace HM
       IOCPServer(void);
       ~IOCPServer(void);
 
-      virtual void DoWork();
-      virtual void StopWork();
+      void DoWork();
 
       // Session types
       bool RegisterSessionType(SessionType st);
@@ -36,12 +33,13 @@ namespace HM
 
       const String m_sAsynchronousTasksQueue;
 
-      Event m_evtClose;
-      
       std::set<SessionType> m_setSessionTypes;
-      boost::asio::io_service _io_service;
-      boost::asio::ssl::context _dummy_context;
-      
+      boost::asio::io_service io_service_;
+      boost::asio::ssl::context dummy_context_;
+
+      vector<shared_ptr<TCPServer> > tcp_servers_;
+
+      boost::condition_variable do_work_dummy;
    };
 
 

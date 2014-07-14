@@ -45,8 +45,9 @@ namespace HM
    POP3ClientConnection::POP3ClientConnection(shared_ptr<FetchAccount> pAccount,
                                               bool useSSL,
                                               boost::asio::io_service& io_service, 
-                                              boost::asio::ssl::context& context) :
-      AnsiStringConnection(useSSL, io_service, context),
+                                              boost::asio::ssl::context& context,
+                                              shared_ptr<Event> disconnected) :
+      AnsiStringConnection(useSSL, io_service, context, disconnected),
       m_pAccount(pAccount),
       m_eCurrentState(StateConnected),
       m_bPendingDisconnect(false)
@@ -166,6 +167,7 @@ namespace HM
       }
       else
       {
+
        // No sense in indenting code below inward as this is temp
        // and it'd just have to be moved back.
        // **** Don't miss } below when removing the above code! ****

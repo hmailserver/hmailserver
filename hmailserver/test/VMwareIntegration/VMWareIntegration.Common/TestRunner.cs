@@ -125,7 +125,7 @@ namespace VMwareIntegration.Common
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
-            bool useLocalVersion = false;
+            bool useLocalVersion = true;
 
             if (useLocalVersion)
             {
@@ -204,7 +204,7 @@ namespace VMwareIntegration.Common
             string script = "ipconfig /renew\r\nping www.google.com -n 1 > C:\\pingresult.txt";
             RunScriptInGuest(vmware, script);
 
-            string pingResultFile = Path.Combine(Path.GetTempPath(), "pingresult.txt");
+            string pingResultFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
             vmware.CopyFileToHost("C:\\pingresult.txt", pingResultFile);
 

@@ -18,10 +18,9 @@ namespace HM
       IOCPQueueWorkerTask(boost::asio::io_service &io_service);
 
       virtual void DoWork();
-      virtual void StopWork();
 
    private:
 
-      boost::asio::io_service &_io_service;
+      boost::asio::io_service &io_service_;
    };
 }

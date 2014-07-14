@@ -32,13 +32,15 @@
 namespace HM
 {
    IOCPServer::IOCPServer(void) :
-      _dummy_context(_io_service, boost::asio::ssl::context::sslv23)
+       Task("IOCPServer"),
+       dummy_context_(io_service_, boost::asio::ssl::context::sslv23)
    {
 
    }
 
    IOCPServer::~IOCPServer(void)
    {
+      LOG_DEBUG("IOCPServer::~IOCPServer - Destructing");
    }
 
    bool 
@@ -60,6 +62,10 @@ namespace HM
    // Creates the IO completion port, creates the worker threads, listen sockets etc.
    //---------------------------------------------------------------------------()
    {
+      SetIsStarted();
+
+      LOG_DEBUG("IOCPServer::Start()");
+
       // Make sure information on which local ports are in use is reset.
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
@@ -69,7 +75,6 @@ namespace HM
       vector<shared_ptr<TCPIPPort> >::iterator iterPort = vecTCPIPPorts.begin();
       vector<shared_ptr<TCPIPPort> >::iterator iterPortEnd = vecTCPIPPorts.end();
 
-      vector<shared_ptr<TCPServer> > vecTCPServers;
 
       for (; iterPort != iterPortEnd; iterPort++)
       {
@@ -110,62 +115,69 @@ namespace HM
             break;
          }
 
-         pTCPServer = shared_ptr<TCPServer>(new TCPServer(_io_service, address, iPort, st, pSSLCertificate, pConnectionFactory));
+         pTCPServer = shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory));
 
          pTCPServer->Run();
 
-         vecTCPServers.push_back(pTCPServer);
+         tcp_servers_.push_back(pTCPServer);
       }
-      
+
+
       const int iThreadCount = Configuration::Instance()->GetTCPIPThreads();
 
       if (iThreadCount <= 0)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOCPServer::DoWork()", "The number of TCP/IP threads has been set to zero.");
 
-      int iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue", WorkQueue::eQTFixedSize);
-      
+      int iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue");
+
       shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue("IOCPQueue");
 
       // Launch a thread that holds the IOCP objects
-
       for (int i = 0; i < iThreadCount; i++)
       {
-         shared_ptr<IOCPQueueWorkerTask> pWorkerTask = shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(_io_service));
+         shared_ptr<IOCPQueueWorkerTask> pWorkerTask = shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(io_service_));
          WorkQueueManager::Instance()->AddTask(iQueueID, pWorkerTask);
       }	
 
-      // Tell application object that we're now listening. 
-      Application::Instance()->SetServerStartedEvent();
-
-      m_evtClose.Wait();
-
-      vector<shared_ptr<TCPServer> >::iterator iterServer = vecTCPServers.begin();
-      vector<shared_ptr<TCPServer> >::iterator iterEnd = vecTCPServers.end();
-      for (; iterServer != iterEnd; iterServer++)
+      try
       {
-         (*iterServer)->StopAccept();
+         boost::mutex do_work_dummy_mutex;
+         boost::mutex::scoped_lock lock(do_work_dummy_mutex);
+         do_work_dummy.wait(lock);
+
+      }
+      catch (thread_interrupted const&)
+      {
+         boost::this_thread::disable_interruption disabled;
+
+         LOG_DEBUG("IOCPServer::Stop()");
+         io_service_.stop();
+
+         vector<shared_ptr<TCPServer> >::iterator iterServer = tcp_servers_.begin();
+         vector<shared_ptr<TCPServer> >::iterator iterEnd = tcp_servers_.end();
+         for (; iterServer != iterEnd; iterServer++)
+         {
+            (*iterServer)->StopAccept();
+         }
+
+         LOG_DEBUG("IOCPServer::DoWork() - removing Queue IOCP Queue")
+            // Now the worker queues will get notifications that the outstanding
+            // acceptex sockets are dropped.
+         WorkQueueManager::Instance()->RemoveQueue("IOCPQueue");
+
+         LOG_DEBUG("IOCPServer::Stop() - Complete");
+
+
+         LOG_DEBUG("IOCPServer::Stop() - Rethrowing");
+         return;
       }
 
-      // Now the worker queues will get notifications that the outstanding
-      // acceptex sockets are dropped.
-      WorkQueueManager::Instance()->RemoveQueue("IOCPQueue");
-
-   }
-
-   void
-   IOCPServer::StopWork()
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Called when the server should be stopped.
-   //---------------------------------------------------------------------------()
-   {
-      m_evtClose.Set();
    }
 
    boost::asio::io_service &
    IOCPServer::GetIOService()
    {
-      return _io_service;
+      return io_service_;
    }
 
 
