@@ -10,8 +10,8 @@
 #include "../../Common/Util/FileUtilities.h"
 
 #include "../../Common/Util/TLD.h"
-#include "../../Common/Util/Stopwatch.h"
 
+#include <boost/timer/timer.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -87,12 +87,14 @@ namespace HM
 
 	   const int maxURLsToProcess = 15;
 
-      Stopwatch stopWatch(true);
+      boost::chrono::system_clock::time_point start_time = boost::chrono::system_clock::now();
 
       int processedAddresses = 0;
       boost_foreach (String sURL, addresses)
       {
-         if (stopWatch.GetElapsedSeconds() > 10)
+         boost::chrono::duration<double> elapsed_seconds = boost::chrono::system_clock::now() - start_time;
+
+         if (elapsed_seconds.count() > 10)
          {
 				LOG_DEBUG("SURBL: Aborting. Too long time elapsed.");
             return true;
