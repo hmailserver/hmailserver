@@ -44,7 +44,7 @@ namespace HM
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
       AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
-      m_CurrentState(AUTHENTICATION),
+      m_CurrentState(AUTHORIZATION),
       m_oTransmissionBuffer(true),
       m_bPendingDisconnect(false)
    {
@@ -74,7 +74,8 @@ namespace HM
    void
    POP3Connection::OnConnected()
    {
-      if (GetConnectionSecurity() == CSNone)
+      if (GetConnectionSecurity() == CSNone ||
+          GetConnectionSecurity() == CSSTARTTLS)
          SendBanner_();
    }
 
@@ -83,6 +84,8 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          SendBanner_();
+      else if (GetConnectionSecurity() == CSSTARTTLS)
+         PostReceive();
    }
 
    void 
@@ -141,6 +144,8 @@ namespace HM
 
       if (command == _T("NOOP"))
          resolvedCommand = NOOP;
+      if (command == _T("STLS"))
+         resolvedCommand = STLS;
       else if (command == _T("USER"))
          resolvedCommand = USER;
       else if (command == _T("PASS"))
@@ -172,12 +177,13 @@ namespace HM
 
       switch (currentState)
       {
-      case AUTHENTICATION:
+      case AUTHORIZATION:
          {
             switch (resolvedCommand)
             {
             case USER:
             case PASS:
+            case STLS:
                return resolvedCommand;
             default:
                return INVALID;
@@ -227,6 +233,7 @@ namespace HM
          PostReceive();
          break;
       case ResultStartSendMessage:
+      case ResultStartTls:
          break;
       case ResultDisconnect:
          PostDisconnect();
@@ -269,6 +276,11 @@ namespace HM
          case NOOP:
             _SendData("+OK");
             return ResultNormalResponse;
+         case STLS:
+            if (_ProtocolSTLS())
+               return ResultStartTls;
+            else
+               return ResultNormalResponse;
          case HELP:
             _SendData("+OK Normal POP3 commands allowed");
             return ResultNormalResponse;
@@ -301,8 +313,8 @@ namespace HM
             _ProtocolQUIT();
             return ResultDisconnect;
          case CAPA:
-            _SendData("+OK CAPA list follows\r\nUSER\r\nUIDL\r\nTOP\r\n.");
-            return ResultNormalResponse;
+            _ProtocolCAPA();
+            return ResultNormalResponse; 
          case INVALID:
             _SendData("-ERR Invalid command in current state." );
             return ResultNormalResponse;  
@@ -344,6 +356,17 @@ namespace HM
 
    }
 
+   void
+   POP3Connection::_ProtocolCAPA()
+   {
+      String capabilities = "USER\r\nUIDL\r\nTOP\r\n";
+
+      if (GetConnectionSecurity() == CSSTARTTLS)
+         capabilities+="STLS\r\n";
+
+      String response = "+OK CAPA list follows\r\n" + capabilities + ".";
+      _SendData(response);
+   }
 
    void
    POP3Connection::_ProtocolQUIT()
@@ -365,6 +388,20 @@ namespace HM
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       m_Username = pDA->ApplyAliasesOnAddress(Parameter);
       _SendData("+OK Send your password" );      
+   }
+
+   bool
+   POP3Connection::_ProtocolSTLS()
+   {
+      if (IsSSLConnection())
+      {
+         _SendData("-ERR Command not permitted when TLS active");
+         return false;
+      }
+
+      _SendData("+OK Begin TLS negotiation" );        
+      Handshake();
+      return true;
    }
 
    POP3Connection::ParseResult

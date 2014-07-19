@@ -111,6 +111,13 @@ namespace HM
    bool 
    TCPServer::InitSSL()
    {
+      if (!certificate_)
+      {
+         String errorMessage = Formatter::Format("Error initializing SSL. Certificate not set. Address: {0}, Port: {1}", ipaddress_.ToString(), port_);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
+         return false;
+      }
+
       try
       {
          context_.set_options(boost::asio::ssl::context::default_workarounds |

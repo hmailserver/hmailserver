@@ -45,7 +45,8 @@ namespace HM
       {
          ResultNormalResponse = 0,
          ResultStartSendMessage = 1,
-         ResultDisconnect = 2
+         ResultDisconnect = 2,
+         ResultStartTls = 3
       };
 
       enum POP3Command
@@ -63,12 +64,13 @@ namespace HM
          RSET = 10,
          DELE = 11,
          UIDL = 12,
-         CAPA = 13
+         CAPA = 13,
+         STLS = 14
       };
 
       enum ConnectionState
       {
-         AUTHENTICATION = 1,
+         AUTHORIZATION = 1,
          TRANSACTION = 2,
          UPDATE = 3,
       };
@@ -91,7 +93,8 @@ namespace HM
       bool _ProtocolSTAT(const String &sParameter);
       void _ProtocolRSET();
       void _ProtocolQUIT();
-      
+      bool _ProtocolSTLS();
+      void _ProtocolCAPA();
 
       bool _SendFileHeader(const String &sFilename, int iNoOfLines = 0);
       bool _ReadLine(HANDLE hFile, const String &sLine);
