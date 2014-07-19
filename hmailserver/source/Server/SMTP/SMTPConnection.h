@@ -56,17 +56,16 @@ namespace HM
       virtual void ParseData(const AnsiString &sRequest);
       virtual void ParseData(shared_ptr<ByteBuffer> pBuf);
 
-      virtual void _SendData(const String &sData);
-
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
 
    private:
 
+      void SendData_(const String &sData);
       void SendBanner_();
 
-      bool _TryExtractAddress(const String &mailFromParameter, String& address);
-      void _HandleSMTPFinalizationTaskCompleted();
+      bool TryExtractAddress_(const String &mailFromParameter, String& address);
+      void HandleSMTPFinalizationTaskCompleted_();
 
       virtual void InternalParseData(const AnsiString &sRequest);
 
@@ -82,84 +81,85 @@ namespace HM
          MaxNumberOfRecipients = 50000
       };
 
-      void _InitializeSpamProtectionType(const String &sFromAddress);
+      void InitializeSpamProtectionType_(const String &sFromAddress);
 
-      bool _CheckLineEndings() const;
+      bool CheckLineEndings_() const;
 
-      void _LogClientCommand(const String &sClientData);
+      void LogClientCommand_(const String &sClientData);
 
-      void _LogAwstatsMessageRejected();
+      void LogAwstatsMessageRejected_();
       
-      bool _DoSpamProtection(SpamProtectionType spType, const String &sFromAddress, const String &hostName, const IPAddress &lIPAddress);
+      bool DoSpamProtection_(SpamProtectionType spType, const String &sFromAddress, const String &hostName, const IPAddress &lIPAddress);
       // Does IP based spam protection. Returns true if we should
       // continue delivery, false otherwise.
 
-      void _ResetCurrentMessage();
+      void ResetCurrentMessage_();
       bool CheckIfValidSenderAddress(const String &sFromAddress);
       
       bool ReAuthenticateUser();
 
-      void _AppendMessageHeaders();
+      void AppendMessageHeaders_();
 
-      eSMTPCommandTypes _GetCommandType(const String &sType);
+      eSMTPCommandTypes GetCommandType_(const String &sType);
 
-      void _DoPreAcceptMessageModifications();
+      void DoPreAcceptMessageModifications_();
       // Make changes to the message before it's accepted for delivery. This is
       // for example where message signature and spam-headers are added.
 
-      void _SetMessageSignature(shared_ptr<MessageData> &pMessageData);
+      void SetMessageSignature_(shared_ptr<MessageData> &pMessageData);
       // Sets the signature of the message, based on the signature in the account
       // settings and domain settings.
 
-      bool _OnPreAcceptTransfer();
-      bool _DoPreAcceptSpamProtection();
+      bool OnPreAcceptTransfer_();
+      bool DoPreAcceptSpamProtection_();
 
-      void _ProtocolEHLO(const String &sRequest);
-      void _ProtocolHELO(const String &sRequest);
-      void _ProtocolAUTH(const String &sRequest);
-      void _ProtocolNOOP();
-      void _ProtocolRSET();
+      void ProtocolEHLO_(const String &sRequest);
+      void ProtocolHELO_(const String &sRequest);
+      void ProtocolAUTH_(const String &sRequest);
+      void ProtocolNOOP_();
+      void ProtocolRSET_();
 
-      bool _LookupRoute(const String &sToAddress, bool &bDomainIsRemote);
-      bool _ProtocolMAIL(const String &Request);
-      void _ProtocolQUIT();
-      void _ProtocolHELP();
-      void _ProtocolRCPT(const String &Request);
-      void _ProtocolETRN(const String &sRequest);
-      void _ProtocolSTARTTLS(const String &sRequest);
+      bool LookupRoute_(const String &sToAddress, bool &bDomainIsRemote);
+      bool ProtocolMAIL_(const String &Request);
+      void ProtocolQUIT_();
+      void ProtocolHELP_();
+      void ProtocolRCPT_(const String &Request);
+      void ProtocolETRN_(const String &sRequest);
+      void ProtocolSTARTTLS_(const String &sRequest);
+      void ProtocolUsername_(const String &sRequest);
+      void ProtocolPassword_(const String &sRequest);
+      void ProtocolDATA_();
 
-      void _TarpitCheckDelay();
 
-      void _AuthenticateUsingPLAIN(const String &sLine);
+      void AuthenticateUsingPLAIN_(const String &sLine);
       // Authenticates using a PLAIN line.
 
-      void _Authenticate();
+      void Authenticate_();
       // validates the username and password.
 
-      void _RestartAuthentication();
+      void RestartAuthentication_();
       // restarts the authentication process.
       
-      void _ResetLoginCredentials();
+      void ResetLoginCredentials_();
       // restarts the authentication process.
 
-      bool _SendEHLOKeywords();
+      bool SendEHLOKeywords_();
 
-      int _GetMaxMessageSize(shared_ptr<const Domain> pDomain);
+      int GetMaxMessageSize_(shared_ptr<const Domain> pDomain);
 
-      bool _ReadDomainAddressFromHelo(const String &sRequest);
+      bool ReadDomainAddressFromHelo_(const String &sRequest);
 
-      void _SendErrorResponse(int iErrorCode, const String &sResponse);
+      void SendErrorResponse_(int iErrorCode, const String &sResponse);
 
-      bool _GetDoSpamProtection();
+      bool GetDoSpamProtection_();
 
-      bool _GetIsLocalSender();
+      bool GetIsLocalSender_();
 
-      String _GetSpamTestResultMessage(set<shared_ptr<SpamTestResult> > testResult) const;
+      String GetSpamTestResultMessage_(set<shared_ptr<SpamTestResult> > testResult) const;
 
       enum ConnectionState
       {
-         AUTHENTICATION = 1,
-         SMTPSELECTAUTH = 2,
+         INITIAL = 1,
          SMTPUSERNAME = 3,
          SMTPUPASSWORD = 4,
          HEADER = 5,
@@ -187,7 +187,7 @@ namespace HM
 
       shared_ptr<SMTPConfiguration> m_SMTPConf;
    
-      AuthenticationType _requestedAuthenticationType;
+      AuthenticationType requestedAuthenticationType_;
       
       DWORD m_lMessageStartTC;
 
@@ -210,9 +210,9 @@ namespace HM
 
       bool m_bReAuthenticateUser;
       bool m_bPendingDisconnect;
-      bool _isAuthenticated;
+      bool isAuthenticated_;
       SpamProtectionType m_spType;
 
-      RecipientParser _recipientParser;
+      RecipientParser recipientParser_;
    };
 }

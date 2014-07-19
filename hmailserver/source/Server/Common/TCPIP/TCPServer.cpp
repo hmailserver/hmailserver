@@ -9,7 +9,6 @@
 #include <iostream>
 #include <string>
 
-
 #include "../Scripting/ScriptServer.h"
 #include "../Scripting/ScriptObjectContainer.h"
 #include "../Scripting/Result.h"
@@ -355,8 +354,6 @@ namespace HM
             return;
 
          pConnection->SetSecurityRange(securityRange);
-
-         LOG_DEBUG("TCPServer - pConnection->Start()");
          pConnection->Start();
       }
       else

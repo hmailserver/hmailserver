@@ -97,5 +97,6 @@
 5413, TransparentTransmissionBuffer::Append. Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d
 5414, POP3Connection::_ReadAndSend. An unknown error occurred while reading and sending file data.
 5415, IniFileSettings::LoadSettings, Error determening database type. Type: {0}
+5500, SMTPConnection::InternalParseData, Received unexpected string data: {0}
 
 

@@ -28,7 +28,8 @@ namespace HM
                                 boost::asio::ssl::context& context,
                                 shared_ptr<Event> disconnected) :
       connection_security_(connection_security),
-      _sslSocket(io_service, context),
+      socket_(io_service),
+      _sslSocket(socket_, context),
       _resolver(io_service),
       _timer(io_service),
       _receiveBinary(false),
@@ -54,15 +55,6 @@ namespace HM
       CancelLogoutTimer();
    }
 
-   ssl_socket::lowest_layer_type& 
-   TCPConnection::GetSocket()
-   {
-      if (is_ssl_)
-         return _sslSocket.lowest_layer();
-      else
-         return _sslSocket.next_layer();
-   }
-
    bool
    TCPConnection::Connect(const AnsiString &remoteServer, long remotePort, const IPAddress &localAddress)
    {
@@ -76,20 +68,22 @@ namespace HM
          if (!localAddress.IsAny())
          {
 
+
             try
             {
                if (localAddress.GetType() == IPAddress::IPV4)
-                  GetSocket().open(boost::asio::ip::tcp::v4());
+                  socket_.open(boost::asio::ip::tcp::v4());
                else if (localAddress.GetType() == IPAddress::IPV6)
-                  GetSocket().open(boost::asio::ip::tcp::v6());
-               GetSocket().bind(boost::asio::ip::tcp::endpoint(localAddress.GetAddress(), 0));
+                  socket_.open(boost::asio::ip::tcp::v6());
+
+               socket_.bind(boost::asio::ip::tcp::endpoint(localAddress.GetAddress(), 0));
             }
             catch (boost::system::system_error error)
             {
                try
                {
                   // this may throw...
-                  GetSocket().close();
+                  socket_.close();
                }
                catch (...)
                {
@@ -194,9 +188,9 @@ namespace HM
          // will be tried until we successfully establish a connection.
          try
          {
-            GetSocket().async_connect(endpoint,
+            socket_.async_connect(endpoint,
                boost::bind(&TCPConnection::HandleConnect, shared_from_this(),
-               boost::asio::placeholders::error, ++endpoint_iterator));
+                  boost::asio::placeholders::error, ++endpoint_iterator));
          }
          catch (boost::system::system_error error)
          {
@@ -225,7 +219,7 @@ namespace HM
             // Are there more addresses we should attempt to connect to?
             if (endpoint_iterator != tcp::resolver::iterator())
             {
-               GetSocket().close();
+               socket_.close();
 
                // Attemp with the next address.
                _StartAsyncConnect(endpoint_iterator);
@@ -239,8 +233,7 @@ namespace HM
             return;
          }
 
-         // Send welcome message to client.
-         OnConnected();
+         Start();
       }
       catch (...)
       {
@@ -264,31 +257,11 @@ namespace HM
    void 
    TCPConnection::Start()
    {
-      try
-      {
-         OnConnected();
+      OnConnected();
 
-         if (connection_security_ == CSSSL)
-         {
-            try
-            {
-               if (GetSocket().is_open())
-               {
-                  Handshake();
-               }
-            }
-            catch (boost::system::system_error error)
-            {
-               String sMessage;
-               sMessage.Format(_T("TCPConnection - Call to async_handshake failed. Error code: %d, Message: %s"), error.code().value(), String(error.what()));
-               LOG_TCPIP(sMessage);
-            }
-         }
-      }
-      catch (...)
+      if (connection_security_ == CSSSL)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5325, "TCPConnection::Start", "An unknown error occurred while starting connection.");
-         throw;
+         Handshake();
       }
    }
 
@@ -475,7 +448,7 @@ namespace HM
                   (_sslSocket, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
             else
                boost::asio::async_write
-                  (_sslSocket.next_layer(), boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
+                  (socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
 
             UpdateLogoutTimer();
          }
@@ -518,7 +491,7 @@ namespace HM
 
          try
          {
-            GetSocket().shutdown(what);
+            socket_.shutdown(what);
          }
          catch (boost::system::system_error)
          {
@@ -575,9 +548,9 @@ namespace HM
             else
             {
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(_sslSocket.next_layer(), _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
+                  boost::asio::async_read(socket_, _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
                else
-                  boost::asio::async_read_until(_sslSocket.next_layer(), _receiveBuffer, delimitor, handleReadFunction);
+                  boost::asio::async_read_until(socket_, _receiveBuffer, delimitor, handleReadFunction);
             }
 
             UpdateLogoutTimer();
@@ -996,14 +969,14 @@ namespace HM
    IPAddress 
    TCPConnection::GetRemoteEndpointAddress()
    {
-      boost::asio::ip::tcp::endpoint remoteEndpoint = GetSocket().remote_endpoint();
+      boost::asio::ip::tcp::endpoint remoteEndpoint = socket_.remote_endpoint();
       return IPAddress(remoteEndpoint.address());
    }
 
    unsigned long 
    TCPConnection::GetRemoteEndpointPort() 
    {
-      boost::asio::ip::tcp::endpoint remoteEndpoint = GetSocket().remote_endpoint();
+      boost::asio::ip::tcp::endpoint remoteEndpoint = socket_.remote_endpoint();
       unsigned long port = remoteEndpoint.port();
       return port;
    }
@@ -1012,7 +985,7 @@ namespace HM
    unsigned long 
    TCPConnection::GetLocalEndpointPort() 
    {
-      boost::asio::ip::tcp::endpoint localEndpoint = GetSocket().local_endpoint();
+      boost::asio::ip::tcp::endpoint localEndpoint = socket_.local_endpoint();
 
       return localEndpoint.port();
 
@@ -1029,7 +1002,7 @@ namespace HM
    {
       try
       {
-         IPAddress address = GetSocket().remote_endpoint().address();
+         IPAddress address = socket_.remote_endpoint().address();
 
          return address.ToString();
       }
@@ -1056,7 +1029,7 @@ namespace HM
    {
       if (!_securityRange)
       {
-         IPAddress address(GetSocket().remote_endpoint().address());
+         IPAddress address(socket_.remote_endpoint().address());
 
          _securityRange = PersistentSecurityRange::ReadMatchingIP(address);
       }

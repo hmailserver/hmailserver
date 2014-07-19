@@ -46,8 +46,6 @@ namespace HM
 
       try
       {
-         pClientConnection->Start();
-
          if (pClientConnection->Connect(pFA->GetServerAddress(), pFA->GetPort(), IPAddress()))
          {
             // Make sure we keep no references to the TCP connection so that it

@@ -61,7 +61,6 @@ namespace HM
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
       shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
-      pSAClient->Start();
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();

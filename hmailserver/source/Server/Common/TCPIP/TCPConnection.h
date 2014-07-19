@@ -9,7 +9,7 @@
 #include "IOOperationQueue.h"
 using boost::asio::ip::tcp;
 
-typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
+typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket&> ssl_socket;
 
 namespace HM
 {
@@ -37,10 +37,9 @@ namespace HM
          BufferSize = 60000
       };
 
-      ssl_socket::lowest_layer_type& GetSocket();
-
       int GetBufferSize() {return BufferSize; }
       bool Connect(const AnsiString &remoteServer, long remotePort, const IPAddress &localAddress);
+      
       void Start();
       void SetReceiveBinary(bool binary);
 
@@ -65,6 +64,8 @@ namespace HM
       int GetSessionID();
 
       bool ReportReadErrors(bool newValue);
+      
+      boost::asio::ip::tcp::socket& GetSocket() {return socket_;}
 
    protected:
 
@@ -86,6 +87,7 @@ namespace HM
       void Handshake();
 
       ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
+      bool IsSSLConnection(){return is_ssl_;}
    private:
       
       void _StartAsyncConnect(tcp::resolver::iterator endpoint_iterator);
@@ -113,7 +115,7 @@ namespace HM
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
       
-
+      boost::asio::ip::tcp::socket socket_;
       ssl_socket _sslSocket;
 
       boost::asio::ip::tcp::resolver _resolver;

@@ -74,16 +74,16 @@ namespace HM
       boost::asio::ssl::context& context) :  
       AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
       m_bRejectedByDelayedGreyListing(false),
-      m_CurrentState(AUTHENTICATION),
+      m_CurrentState(INITIAL),
       m_bTraceHeadersWritten(true),
-      _requestedAuthenticationType(AUTH_NONE),
+      requestedAuthenticationType_(AUTH_NONE),
       m_iMaxMessageSizeKB(0),
       m_iCurNoOfRCPTTO(0),
       m_iCurNoOfInvalidCommands(0),
       m_bReAuthenticateUser(false),
       m_spType(SPNone),
       m_bPendingDisconnect(false),
-      _isAuthenticated(false)
+      isAuthenticated_(false)
    {
 
       m_SMTPConf = Configuration::Instance()->GetSMTPConfiguration();
@@ -108,7 +108,7 @@ namespace HM
 
    SMTPConnection::~SMTPConnection()
    {
-      _ResetCurrentMessage();
+      ResetCurrentMessage_();
 
       SessionManager::Instance()->OnDestroy(STSMTP);
    }
@@ -143,8 +143,8 @@ namespace HM
          */
 
          m_sHeloHost.Empty();
-         _ResetLoginCredentials();
-         _ResetCurrentMessage();
+         ResetLoginCredentials_();
+         ResetCurrentMessage_();
 
          PostReceive();
       }
@@ -163,7 +163,7 @@ namespace HM
       else
          sData += sWelcome;
 
-      _SendData(sData);
+      SendData_(sData);
 
       PostReceive();
 
@@ -176,7 +176,7 @@ namespace HM
    }
 
    eSMTPCommandTypes
-   SMTPConnection::_GetCommandType(const String &sFirstWord)
+   SMTPConnection::GetCommandType_(const String &sFirstWord)
    {
       if (sFirstWord == _T("HELO"))
          return SMTP_COMMAND_HELO;
@@ -210,8 +210,9 @@ namespace HM
       return SMTP_COMMAND_UNKNOWN;
    }
 
+
    void 
-   SMTPConnection::_LogClientCommand(const String &sClientData)
+   SMTPConnection::LogClientCommand_(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -222,7 +223,7 @@ namespace HM
 
          String sLogData = sClientData;
 
-         if (m_CurrentState == SMTPUSERNAME && _requestedAuthenticationType == AUTH_PLAIN)
+         if (m_CurrentState == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
          {
             // Both user name and password in line. 
             sLogData = "***";
@@ -264,10 +265,12 @@ namespace HM
          {
          case DATA:
             PostBufferReceive();
+            break;
          case STARTTLS:
             break;
          default:
             PostReceive();
+            break;
          }
       }
    }
@@ -279,16 +282,17 @@ namespace HM
    // Parses a clients SMTP command in ASCII mode.
    //---------------------------------------------------------------------------()
    {
-      _LogClientCommand(sRequest);
+      LogClientCommand_(sRequest);
 
       if (sRequest.GetLength() > 510)
       {
          // This line is to long... is this an evil user?
-         _SendData("500 Line to long.");
+         SendData_("500 Line to long.");
          return;
       }
 
       int lFirstSpace = sRequest.Find(" ");
+      
       String sFirstWord;
       if (lFirstSpace > -1)
          sFirstWord = sRequest.Mid(0,lFirstSpace);
@@ -301,220 +305,80 @@ namespace HM
           m_iCurNoOfInvalidCommands > Configuration::Instance()->GetMaximumIncorrectCommands())
       {
          // Disconnect
-         _SendData("Too many invalid commands. Bye!");
+         SendData_("Too many invalid commands. Bye!");
          m_bPendingDisconnect = true;
          PostDisconnect();
          return;
       }
 
-      eSMTPCommandTypes eCommandType = _GetCommandType(sFirstWord);
+      eSMTPCommandTypes eCommandType = GetCommandType_(sFirstWord);
 
-      // The following commands are independent of state.
+      // The following commands are available regardless of of state.
       switch (eCommandType)
       {
-      case SMTP_COMMAND_HELP:
-         {
-            _ProtocolHELP();
-            return;
-         }
-      case SMTP_COMMAND_EHLO:
-         {
-            _ProtocolEHLO(sRequest);
-            return;
-         }
-      case SMTP_COMMAND_HELO:
-         {
-            _ProtocolHELO(sRequest);
-            return;
-         }
-      case SMTP_COMMAND_QUIT:
-         {
-            _ProtocolQUIT();
-            return;
-         }
-      case SMTP_COMMAND_NOOP:
-         {
-            _ProtocolNOOP();
-            return;
-         }
-      case SMTP_COMMAND_RSET:
-         {
-            _ProtocolRSET();
-            return;
-         }
+         case SMTP_COMMAND_HELP: ProtocolHELP_(); return; 
+         case SMTP_COMMAND_EHLO: ProtocolEHLO_(sRequest); return;
+         case SMTP_COMMAND_HELO: ProtocolHELO_(sRequest); return;
+         case SMTP_COMMAND_QUIT: ProtocolQUIT_(); return;
+         case SMTP_COMMAND_NOOP: ProtocolNOOP_(); return;
+         case SMTP_COMMAND_RSET: ProtocolRSET_(); return;
       }
 
-      if (m_CurrentState == AUTHENTICATION)
-      {  
-         if (eCommandType == SMTP_COMMAND_STARTTLS)
-         {
-            _ProtocolSTARTTLS(sRequest);
-            return;  
-         }
-         else
-         {
-            _requestedAuthenticationType = AUTH_NONE;
-            _SendErrorResponse(502, "Use HELO/EHLO first."); 
-         }
-
-         return;
-      }
-      else if (m_CurrentState == SMTPUSERNAME)
+      switch (m_CurrentState)
       {
-         if (_requestedAuthenticationType == AUTH_LOGIN)
-         {
-            StringParser::Base64Decode(sRequest, m_sUsername);
-            String sEncoded;
-            StringParser::Base64Encode("Password:", sEncoded);
-            _SendData("334 " + sEncoded);
-            m_CurrentState = SMTPUPASSWORD;
-         }
-         else
-         {
-            _AuthenticateUsingPLAIN(sRequest);
-         }
-
-         return;
-
-      }
-      else if (m_CurrentState == SMTPUPASSWORD)
-      {
-         if (_requestedAuthenticationType == AUTH_LOGIN)
-            StringParser::Base64Decode(sRequest, m_sPassword);
-         else if (_requestedAuthenticationType == AUTH_PLAIN)
-            m_sPassword = sRequest;
-
-         _Authenticate();
-
-         return;
-
-      }
-      else if (m_CurrentState == HEADER)
-      {
-         if (eCommandType == SMTP_COMMAND_STARTTLS)
-         {
-            _ProtocolSTARTTLS(sRequest);
-            return;  
-         }
-         else if (eCommandType == SMTP_COMMAND_AUTH)
-         {
-            _ProtocolAUTH(sRequest);
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_MAIL)
-         {
-            _ProtocolMAIL(sRequest);
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_RCPT)
-         {
-            _ProtocolRCPT(sRequest);
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_TURN)
-         {
-            _SendData("502 TURN disallowed.");
-         
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_ETRN)
-         {
-            _ProtocolETRN(sRequest);
-         
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_VRFY)
-         {
-            _SendData("502 VRFY disallowed.");
-         
-            return;
-         }
-         else if (eCommandType == SMTP_COMMAND_DATA)
-         {
-   
-            if (!m_pCurrentMessage)
+         case INITIAL:
             {
-               // User tried to send a mail without specifying a correct mail from or rcpt to.
-               _SendData("503 Must have sender and recipient first.");
-            
-               return;
-            }  
-            else if ( m_pCurrentMessage->GetRecipients()->GetCount() == 0)
+               requestedAuthenticationType_ = AUTH_NONE;
+               SendErrorResponse_(503, "Bad sequence of commands"); 
+               break;
+            }
+         case HEADER:
             {
-               // User tried to send a mail without specifying a correct mail from or rcpt to.
-               _SendData("503 Must have sender and recipient first.");
-            
-               return;
-            }  
-
-            // Let's add an event call on DATA so we can act on reception during SMTP conversation..
-            if (Configuration::Instance()->GetUseScriptServer())
-            {
-               shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-               shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
-               shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
-
-               pClientInfo->SetUsername(m_sUsername);
-               pClientInfo->SetIPAddress(GetIPAddressString());
-               pClientInfo->SetPort(GetLocalEndpointPort());
-               pClientInfo->SetHELO(m_sHeloHost);
-
-               pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
-               pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
-               pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
-
-               String sEventCaller = "OnSMTPData(HMAILSERVER_CLIENT, HMAILSERVER_MESSAGE)";
-               ScriptServer::Instance()->FireEvent(ScriptServer::EventOnSMTPData, sEventCaller, pContainer);
-
-               switch (pResult->GetValue())
+               switch (eCommandType)
                {
-               case 1:
-                  {
-                     String sErrorMessage = "554 Rejected";
-                     _SendData(sErrorMessage);
-                     _LogAwstatsMessageRejected();
-                     return;
-                  }
-               case 2:
-                  {
-                     String sErrorMessage = "554 " + pResult->GetMessage();
-                     _SendData(sErrorMessage);
-                     _LogAwstatsMessageRejected();
-                     return;
-                  }
-               case 3:
-                  {
-                     String sErrorMessage = "453 " + pResult->GetMessage();
-                     _SendData(sErrorMessage);
-                     _LogAwstatsMessageRejected();
-                     return;
-                  }
+                  case SMTP_COMMAND_STARTTLS: ProtocolSTARTTLS_(sRequest); break;
+                  case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
+                  case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
+                  case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
+                  case SMTP_COMMAND_TURN: SendData_("502 TURN disallowed."); break;
+                  case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
+                  case SMTP_COMMAND_VRFY: SendData_("502 VRFY disallowed."); break;
+                  case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
+                  default:
+                     SendErrorResponse_(503, "Bad sequence of commands"); 
                }
-            }      
+               break;
+            }
+         case SMTPUSERNAME:
+            {
+               if (requestedAuthenticationType_ == AUTH_LOGIN)
+               {
+                  ProtocolUsername_(sRequest);
+               }
+               else
+               {
+                  AuthenticateUsingPLAIN_(sRequest);
+               }
 
-            m_CurrentState = DATA;
-
-            m_pTransmissionBuffer = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
-            m_pTransmissionBuffer->Initialize(PersistentMessage::GetFileName(m_pCurrentMessage));
-            m_pTransmissionBuffer->SetMaxSizeKB(m_iMaxMessageSizeKB);
-
-            SetReceiveBinary(true);
-            m_bTraceHeadersWritten = true;
-            m_lMessageStartTC = GetTickCount();
-
-            _SendData("354 OK, send.");
-
-            return;
-         }
+               break;
+            }
+         case SMTPUPASSWORD:
+            {
+               ProtocolPassword_(sRequest);
+               break;
+            }
+         default:
+            {
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5500, "SMTPConnection::InternalParseData", 
+                  Formatter::Format(_T("Received unexpected string data: {0}"), sRequest));
+            }
       }
-
-      _SendErrorResponse(502, "Unimplemented command.");
-
+ 
       return;
    }
 
    void 
-   SMTPConnection::_InitializeSpamProtectionType(const String &sFromAddress)
+   SMTPConnection::InitializeSpamProtectionType_(const String &sFromAddress)
    {
       // Check if spam protection is enabled for this IP address.
       if (!GetSecurityRange()->GetSpamProtection() ||
@@ -533,39 +397,39 @@ namespace HM
    }
 
    void 
-   SMTPConnection::_ProtocolNOOP()
+   SMTPConnection::ProtocolNOOP_()
    {
-      _SendData("250 OK");
+      SendData_("250 OK");
    }
 
    void
-   SMTPConnection::_ProtocolRSET()
+   SMTPConnection::ProtocolRSET_()
    {
-      _ResetCurrentMessage();
+      ResetCurrentMessage_();
 
-      _SendData("250 OK");
+      SendData_("250 OK");
 
       return;
    }
 
    bool
-   SMTPConnection::_ProtocolMAIL(const String &Request)
+   SMTPConnection::ProtocolMAIL_(const String &Request)
    {
       if (m_pCurrentMessage) 
       {
-         _SendData("503 Issue a reset if you want to start over"); 
+         SendData_("503 Issue a reset if you want to start over"); 
          return 0;
       }
      
       if (Request.GetLength() < 10)
       {
-         _SendErrorResponse(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
          return 0;
       }
 
       if (!Request.StartsWith(_T("MAIL FROM:")))
       {
-         _SendErrorResponse(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
          return 0;
       }
 
@@ -578,9 +442,9 @@ namespace HM
 
       if (iterParam != vecParams.end())
       {
-         if (!_TryExtractAddress((*iterParam), sFromAddress))
+         if (!TryExtractAddress_((*iterParam), sFromAddress))
          {
-            _SendErrorResponse(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+            SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
             return 0;
          }         
 
@@ -607,7 +471,7 @@ namespace HM
       }
 
       // Initialize spam protection now when we know the sender address.
-      _InitializeSpamProtectionType(sFromAddress);
+      InitializeSpamProtectionType_(sFromAddress);
 
       // Apply domain name aliases to this domain name.
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
@@ -622,7 +486,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!_DoSpamProtection(SPPreTransmission, sFromAddress, m_sHeloHost, GetRemoteEndpointAddress()))
+            if (!DoSpamProtection_(SPPreTransmission, sFromAddress, m_sHeloHost, GetRemoteEndpointAddress()))
                return false;
          }
       }
@@ -642,7 +506,7 @@ namespace HM
       try
       {
          // Check the max size
-         m_iMaxMessageSizeKB = _GetMaxMessageSize(m_pSenderDomain);
+         m_iMaxMessageSizeKB = GetMaxMessageSize_(m_pSenderDomain);
 
          // Check if estimated message size exceedes our
          // maximum message size (according to RFC1653)
@@ -653,7 +517,7 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                   iEstimatedMessageSize / 1024, m_iMaxMessageSizeKB);
-            _SendData(sMessage);
+            SendData_(sMessage);
             return false;
          }
       }
@@ -692,7 +556,7 @@ namespace HM
       
       try
       {
-         _SendData("250 OK"); 
+         SendData_("250 OK"); 
       }
       catch (...)
       {
@@ -706,7 +570,7 @@ namespace HM
    bool 
    SMTPConnection::ReAuthenticateUser()
    {
-      if (!_isAuthenticated)
+      if (!isAuthenticated_)
       {
          // Nothing to re-authenticate
          return true;
@@ -718,9 +582,9 @@ namespace HM
          return true;
          
       // Reset login credentials
-      _ResetLoginCredentials();      
+      ResetLoginCredentials_();      
 
-      _SendErrorResponse(550, "Login credentials no longer valid. Please re-authenticate.");                      
+      SendErrorResponse_(550, "Login credentials no longer valid. Please re-authenticate.");                      
       
       return false;
    }
@@ -736,7 +600,7 @@ namespace HM
          {
             // Nope, we should'nt... We send the below text even
             // though RFC 822 tells us not to...
-            _SendErrorResponse(550, "Sender address must be specified.");             
+            SendErrorResponse_(550, "Sender address must be specified.");             
             return false;
          }
       }
@@ -745,7 +609,7 @@ namespace HM
          if (!StringParser::IsValidEmailAddress(sFromAddress))
          {
             // The address is not valid...
-            _SendErrorResponse(550, "The address is not valid.");
+            SendErrorResponse_(550, "The address is not valid.");
             return false;
          }
       }
@@ -754,27 +618,27 @@ namespace HM
    }
 
    void
-   SMTPConnection::_ProtocolRCPT(const String &Request)
+   SMTPConnection::ProtocolRCPT_(const String &Request)
    {
       m_iCurNoOfRCPTTO ++;
 
       if (!m_pCurrentMessage) 
       {
-         _SendData("503 must have sender first."); 
+         SendData_("503 must have sender first."); 
          return;
       }
 
       if (!Request.StartsWith(_T("RCPT TO:")))
       {
-         _SendErrorResponse(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
          return;
       }
 
       String sRecipientAddress;
 
-      if (!_TryExtractAddress(Request.Mid(8), sRecipientAddress))
+      if (!TryExtractAddress_(Request.Mid(8), sRecipientAddress))
       {
-         _SendErrorResponse(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
          return;
       }
 
@@ -783,7 +647,7 @@ namespace HM
       if (!StringParser::IsValidEmailAddress(sRecipientAddress))
       {
          // The address is not valid...
-         _SendErrorResponse(550, "A valid address is required.");
+         SendErrorResponse_(550, "A valid address is required.");
          return;
       }
 
@@ -791,7 +655,7 @@ namespace HM
       {
          // The user has added too many recipients for this message. Let's not try
          // to deliver it.
-         _SendErrorResponse(550, "Too many recipients.");
+         SendErrorResponse_(550, "Too many recipients.");
          return;
       }
 
@@ -799,17 +663,17 @@ namespace HM
       String sErrMsg = "";
       bool localDelivery = false;
       
-      RecipientParser::DeliveryPossibility dp = _recipientParser.CheckDeliveryPossibility(_isAuthenticated, m_pCurrentMessage->GetFromAddress(), sRecipientAddress, sErrMsg, localDelivery, 0);
+      RecipientParser::DeliveryPossibility dp = recipientParser_.CheckDeliveryPossibility(isAuthenticated_, m_pCurrentMessage->GetFromAddress(), sRecipientAddress, sErrMsg, localDelivery, 0);
 
       if (dp != RecipientParser::DP_Possible)
       {
          AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
-         _SendData(sErrMsg);
+         SendData_(sErrMsg);
 
          return;
       }
 
-      bool localSender = _GetIsLocalSender();
+      bool localSender = GetIsLocalSender_();
 
       bool authenticationRequired = true;
       if (localSender && localDelivery)
@@ -822,10 +686,10 @@ namespace HM
          authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthExternalToExternal();
 
       // If the user is local but not authenticated, maybe we should do SMTP authentication.
-      if (authenticationRequired && !_isAuthenticated)
+      if (authenticationRequired && !isAuthenticated_)
       {
          // Authentication is required, but the user hasn't authenticated.
-         _SendErrorResponse(530, "SMTP authentication is required.");
+         SendErrorResponse_(530, "SMTP authentication is required.");
          AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 530);
          return;
       }
@@ -845,7 +709,7 @@ namespace HM
       if (bAllowRelay == false)
       {
          // User is not allowed to send this email.
-         _SendErrorResponse(550, "Delivery is not allowed to this address.");
+         SendErrorResponse_(550, "Delivery is not allowed to this address.");
          AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
          return;
       }
@@ -860,7 +724,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!_DoSpamProtection(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+            if (!DoSpamProtection_(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
             {
                AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
                return;
@@ -868,7 +732,7 @@ namespace HM
          }
       }
 
-      if (_GetDoSpamProtection())
+      if (GetDoSpamProtection_())
       {
          shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
          const String sToAddress = pDA->ApplyAliasesOnAddress(sRecipientAddress);
@@ -889,7 +753,7 @@ namespace HM
             {
                // The sender is greylisted. We don't log to awstats here,
                // since we tell the client to try again later.
-               _SendErrorResponse(451, "Please try again later.");
+               SendErrorResponse_(451, "Please try again later.");
                return;
             }
          }
@@ -898,26 +762,26 @@ namespace HM
       // OK, the recipient is acceptable.
       shared_ptr<MessageRecipients> pRecipients = m_pCurrentMessage->GetRecipients();
       bool recipientOK = false;
-      _recipientParser.CreateMessageRecipientList(sRecipientAddress, pRecipients, recipientOK);
+      recipientParser_.CreateMessageRecipientList(sRecipientAddress, pRecipients, recipientOK);
 
       if (!recipientOK)
       {
-         _SendData("550 Unknown user");
+         SendData_("550 Unknown user");
          return;
       }
    
-      _SendData("250 OK");
+      SendData_("250 OK");
    }
 
    bool
-   SMTPConnection::_DoSpamProtection(SpamProtectionType spType, const String &sFromAddress, const String &hostName, const IPAddress & lIPAddress)
+   SMTPConnection::DoSpamProtection_(SpamProtectionType spType, const String &sFromAddress, const String &hostName, const IPAddress & lIPAddress)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Does IP based spam protection. Returns true if we should
    // continue delivery, false otherwise.   
    //---------------------------------------------------------------------------()
    {
-      if (!_GetDoSpamProtection())
+      if (!GetDoSpamProtection_())
          return true;
 
       if (spType == SPPreTransmission)
@@ -946,12 +810,12 @@ namespace HM
          ServerStatus::Instance()->OnSpamMessageDetected();
 
          // Generate a text string to send to the client.
-         String messageText = _GetSpamTestResultMessage(m_setSpamTestResults);
+         String messageText = GetSpamTestResultMessage_(m_setSpamTestResults);
 
          if (spType == SPPreTransmission)
-            _SendData("550 " + messageText);
+            SendData_("550 " + messageText);
          else
-            _SendData("554 " + messageText);
+            SendData_("554 " + messageText);
 
          String sLogMessage;
          sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress, String(GetIPAddressString()), messageText);
@@ -969,7 +833,7 @@ namespace HM
    }
 
    String 
-   SMTPConnection::_GetSpamTestResultMessage(set<shared_ptr<SpamTestResult> > testResults) const
+   SMTPConnection::GetSpamTestResultMessage_(set<shared_ptr<SpamTestResult> > testResults) const
    {
       boost_foreach(shared_ptr<SpamTestResult> result, testResults)
       {
@@ -981,21 +845,21 @@ namespace HM
    }
 
    void
-   SMTPConnection::_ProtocolQUIT()
+   SMTPConnection::ProtocolQUIT_()
    {
       // Reset the message here in case a message transmission has started, 
       // but hasn't ended. This can happen if the client sends DATA and then
       // the actual email message in the same buffer (which would be a RFC-violation).
-      _ResetCurrentMessage();
+      ResetCurrentMessage_();
 
-      _SendData("221 goodbye");
+      SendData_("221 goodbye");
       
       m_bPendingDisconnect = true;
       PostDisconnect();
    }
 
    void 
-   SMTPConnection::_AppendMessageHeaders()
+   SMTPConnection::AppendMessageHeaders_()
    {
       if (m_bTraceHeadersWritten)
       {
@@ -1090,7 +954,7 @@ namespace HM
       {
          // We need to prepend the transmission buffer
          // with the headers...
-         _AppendMessageHeaders();
+         AppendMessageHeaders_();
       }
 
       // Flush the transmission buffer
@@ -1109,14 +973,12 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("552 Message size exceeds the drop maximum message size. Size: %d KB, Max size: %d KB - DROP!"), 
                 iBufSizeKB, iMaxSizeDrop);
-            _SendData(sMessage);
-         _LogAwstatsMessageRejected();
-         _ResetCurrentMessage();
+            SendData_(sMessage);
+         LogAwstatsMessageRejected_();
+         ResetCurrentMessage_();
          SetReceiveBinary(false);
          m_bPendingDisconnect = true;
-//         PostReceive();
          PostDisconnect();
-
          return;
 
       } else {
@@ -1129,27 +991,27 @@ namespace HM
       // Since this may be a time-consuming task, do it asynchronously
       shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
          shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-            (boost::bind(&SMTPConnection::_HandleSMTPFinalizationTaskCompleted, this), shared_from_this()));
+            (boost::bind(&SMTPConnection::HandleSMTPFinalizationTaskCompleted_, this), shared_from_this()));
       
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
    
    void
-   SMTPConnection::_HandleSMTPFinalizationTaskCompleted()
+   SMTPConnection::HandleSMTPFinalizationTaskCompleted_()
    {
-      if (!_DoPreAcceptSpamProtection())
+      if (!DoPreAcceptSpamProtection_())
       {
          // This message was stopped by spam protection. The user either needs
          // to quit or start from rset again.
-         _LogAwstatsMessageRejected();
+         LogAwstatsMessageRejected_();
 
-         _ResetCurrentMessage();
+         ResetCurrentMessage_();
          SetReceiveBinary(false);
          PostReceive();
          return;
       }
 
-      _DoPreAcceptMessageModifications();
+      DoPreAcceptMessageModifications_();
 
       // Transmission has ended.
       m_pCurrentMessage->SetSize(FileUtilities::FileSize(PersistentMessage::GetFileName(m_pCurrentMessage)));
@@ -1177,7 +1039,7 @@ namespace HM
          sSenderName = sSenderName.ToLower();
          String sSenderDomain = vecParams1[1];
          sSenderDomain = sSenderDomain.ToLower();
-         bool blocalSender1 = _GetIsLocalSender();
+         bool blocalSender1 = GetIsLocalSender_();
 
          if (blocalSender1)
          {
@@ -1273,7 +1135,7 @@ namespace HM
       float dTime = ((float) GetTickCount() - (float) m_lMessageStartTC) / (float) 1000;
       double dTCDiff = Math::Round(dTime ,3);
 
-      if (_OnPreAcceptTransfer())
+      if (OnPreAcceptTransfer_())
       {
          // Add the message to the database.
          if (PersistentMessage::SaveObject(m_pCurrentMessage))
@@ -1304,7 +1166,7 @@ namespace HM
             // start a new message.
             String sResponse;
             sResponse.Format(_T("250 Queued (%.3f seconds)"), dTCDiff);
-            _SendData(sResponse);
+            SendData_(sResponse);
 
             // The message delivery is complete, or
             // it has failed. Any way, we should start
@@ -1316,10 +1178,10 @@ namespace HM
             // The delivery of the message failed. This may happen if tables are
             // corrupt in the database. We now return an error message to the sender. 
             // Hopefully, the sending server will retry later. 
-            _SendData("554 Your message was received but it could not be saved. Please retry later.");
+            SendData_("554 Your message was received but it could not be saved. Please retry later.");
 
             // Delete the file now since we could not save it in the database.
-            _ResetCurrentMessage();
+            ResetCurrentMessage_();
             
          }
       }
@@ -1328,7 +1190,7 @@ namespace HM
          // The message was rejected by _OnPreAcceptTransfer. For example
          // this may happen if the message was rejected by a script subscribing
          // to OnAcceptMessage.
-         _ResetCurrentMessage();
+         ResetCurrentMessage_();
       }
 
       SetReceiveBinary(false);
@@ -1337,7 +1199,7 @@ namespace HM
    }
 
    void
-   SMTPConnection::_DoPreAcceptMessageModifications()
+   SMTPConnection::DoPreAcceptMessageModifications_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Make changes to the message before it's accepted for delivery. This is
@@ -1358,14 +1220,14 @@ namespace HM
          ServerStatus::Instance()->OnSpamMessageDetected();
       }
 
-      _SetMessageSignature(pMsgData);
+      SetMessageSignature_(pMsgData);
 
       if (pMsgData)
          pMsgData->Write(PersistentMessage::GetFileName(m_pCurrentMessage));
    }
 
    void
-   SMTPConnection::_SetMessageSignature(shared_ptr<MessageData> &pMessageData)
+   SMTPConnection::SetMessageSignature_(shared_ptr<MessageData> &pMessageData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Sets the signature of the message, based on the signature in the account
@@ -1377,12 +1239,12 @@ namespace HM
    }
 
    bool
-   SMTPConnection::_OnPreAcceptTransfer()
+   SMTPConnection::OnPreAcceptTransfer_()
    {
       if (m_pTransmissionBuffer->GetCancelTransmission())
       {
-         _SendData("554 "  + m_pTransmissionBuffer->GetCancelMessage());
-         _LogAwstatsMessageRejected();
+         SendData_("554 "  + m_pTransmissionBuffer->GetCancelMessage());
+         LogAwstatsMessageRejected_();
          return false;
       }
 
@@ -1395,8 +1257,8 @@ namespace HM
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5019, "SMTPConnection::_OnPreAcceptTransfer", sErrorMsg);
       
-         _SendData("451 Rejected - No data saved.");
-         _LogAwstatsMessageRejected();
+         SendData_("451 Rejected - No data saved.");
+         LogAwstatsMessageRejected_();
          return false;
       }
 
@@ -1408,21 +1270,21 @@ namespace HM
          String sMessage;
          sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
             m_pTransmissionBuffer->GetSize() / 1024, m_iMaxMessageSizeKB);
-         _SendData(sMessage);
-         _LogAwstatsMessageRejected();
+         SendData_(sMessage);
+         LogAwstatsMessageRejected_();
          return false;
       }
 
       // Check for bare LF's.
       if (!Configuration::Instance()->GetSMTPConfiguration()->GetAllowIncorrectLineEndings())
       {
-         if (!_CheckLineEndings())
+         if (!CheckLineEndings_())
          {
             String sMessage;
             sMessage.Format(_T("554 Rejected - Message containing bare LF's."));
             
-            _SendData(sMessage);
-            _LogAwstatsMessageRejected();
+            SendData_(sMessage);
+            LogAwstatsMessageRejected_();
             return false;
          }
 
@@ -1451,22 +1313,22 @@ namespace HM
          case 1:
             {
                String sErrorMessage = "554 Rejected";
-               _SendData(sErrorMessage);
-               _LogAwstatsMessageRejected();
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
                return false;
             }
          case 2:
             {
                String sErrorMessage = "554 " + pResult->GetMessage();
-               _SendData(sErrorMessage);
-               _LogAwstatsMessageRejected();
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
                return false;
             }
          case 3:
             {
                String sErrorMessage = "453 " + pResult->GetMessage();
-               _SendData(sErrorMessage);
-               _LogAwstatsMessageRejected();
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
                return false;
             }
          }
@@ -1481,7 +1343,7 @@ namespace HM
    }
 
    bool 
-   SMTPConnection::_CheckLineEndings() const
+   SMTPConnection::CheckLineEndings_() const
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks if the message contains any CR with missing LF, or any LF with
@@ -1551,7 +1413,7 @@ namespace HM
    }
 
    void 
-   SMTPConnection::_LogAwstatsMessageRejected()
+   SMTPConnection::LogAwstatsMessageRejected_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // If awstats logging is enabled, this function goes through all the recipients
@@ -1582,7 +1444,7 @@ namespace HM
    }
 
    void
-   SMTPConnection::_ResetCurrentMessage()
+   SMTPConnection::ResetCurrentMessage_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Reset the transmission buffer to free
@@ -1625,7 +1487,7 @@ namespace HM
 
 
    bool
-   SMTPConnection::_SendEHLOKeywords()
+   SMTPConnection::SendEHLOKeywords_()
    {
       String sComputerName = Utilities::ComputerName(); 
 
@@ -1642,8 +1504,13 @@ namespace HM
          sData += sSizeKeyword;
       }
 
-      if (GetConnectionSecurity() == CSSTARTTLS)
-         sData += "250-STARTTLS\r\n";
+      if (!IsSSLConnection())
+      {
+         if (GetConnectionSecurity() == CSSTARTTLS)
+         {
+            sData += "250-STARTTLS\r\n";
+         }
+      }
 
       String sAuth = "250 AUTH LOGIN";
 
@@ -1652,7 +1519,7 @@ namespace HM
 
       sData += sAuth;
 	   
-      _SendData(sData);
+      SendData_(sData);
    
       return true;
    }
@@ -1660,20 +1527,20 @@ namespace HM
    void
    SMTPConnection::OnConnectionTimeout()
    {
-      _ResetCurrentMessage();
+      ResetCurrentMessage_();
 
-      _SendData("421 Connection timeout.\r\n");
+      SendData_("421 Connection timeout.\r\n");
    }
   
    void
    SMTPConnection::OnExcessiveDataReceived()
    {
-      _ResetCurrentMessage();
-      _SendData("421 Excessive amounts of data sent to server.\r\n");
+      ResetCurrentMessage_();
+      SendData_("421 Excessive amounts of data sent to server.\r\n");
    }
 
    void 
-   SMTPConnection::_SendData(const String &sData)
+   SMTPConnection::SendData_(const String &sData)
    {
       if (Logger::Instance()->GetLogSMTP())
       {
@@ -1689,7 +1556,7 @@ namespace HM
    }
 
    bool
-   SMTPConnection::_ReadDomainAddressFromHelo(const  String &sRequest)
+   SMTPConnection::ReadDomainAddressFromHelo_(const  String &sRequest)
    {
       int iFirstSpace = sRequest.Find(_T(" "));
       
@@ -1713,59 +1580,135 @@ namespace HM
    }
 
    void
-   SMTPConnection::_ProtocolEHLO(const String &sRequest)
+   SMTPConnection::ProtocolEHLO_(const String &sRequest)
    {
 
-      if (!_ReadDomainAddressFromHelo(sRequest))
+      if (!ReadDomainAddressFromHelo_(sRequest))
       {
          // The client did not supply a parameter to
          // the helo command which is syntaxically
          // incorrect. Reject.
-         _SendErrorResponse(501, "EHLO Invalid domain address.");
+         SendErrorResponse_(501, "EHLO Invalid domain address.");
          return;
       }
 
-      _SendEHLOKeywords();
+      SendEHLOKeywords_();
 
-      if (m_CurrentState == AUTHENTICATION)
+      if (m_CurrentState == INITIAL)
          m_CurrentState = HEADER;
    }
    
    void
-   SMTPConnection::_ProtocolHELO(const String &sRequest)
+   SMTPConnection::ProtocolHELO_(const String &sRequest)
    {
-      if (!_ReadDomainAddressFromHelo(sRequest))
+      if (!ReadDomainAddressFromHelo_(sRequest))
       {
          // The client did not supply a parameter to
          // the helo command which is syntaxically
          // incorrect. Reject.
-         _SendErrorResponse(501, "HELO Invalid domain address.");
+         SendErrorResponse_(501, "HELO Invalid domain address.");
          return;
       }
 
-      _SendData("250 Hello.");
+      SendData_("250 Hello.");
 
-      if (m_CurrentState == AUTHENTICATION)
+      if (m_CurrentState == INITIAL)
          m_CurrentState = HEADER;
 
    }
 
    void
-   SMTPConnection::_ProtocolHELP()
+   SMTPConnection::ProtocolHELP_()
    {
-      _SendData("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
+      SendData_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
+   }
+
+   void
+   SMTPConnection::ProtocolDATA_()
+   {
+      if (!m_pCurrentMessage)
+      {
+         // User tried to send a mail without specifying a correct mail from or rcpt to.
+         SendData_("503 Must have sender and recipient first.");
+
+         return;
+      }  
+      else if ( m_pCurrentMessage->GetRecipients()->GetCount() == 0)
+      {
+         // User tried to send a mail without specifying a correct mail from or rcpt to.
+         SendData_("503 Must have sender and recipient first.");
+
+         return;
+      }  
+
+      // Let's add an event call on DATA so we can act on reception during SMTP conversation..
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetUsername(m_sUsername);
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetHELO(m_sHeloHost);
+
+         pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+
+         String sEventCaller = "OnSMTPData(HMAILSERVER_CLIENT, HMAILSERVER_MESSAGE)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnSMTPData, sEventCaller, pContainer);
+
+         switch (pResult->GetValue())
+         {
+         case 1:
+            {
+               String sErrorMessage = "554 Rejected";
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+         case 2:
+            {
+               String sErrorMessage = "554 " + pResult->GetMessage();
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+         case 3:
+            {
+               String sErrorMessage = "453 " + pResult->GetMessage();
+               SendData_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+         }
+      }      
+
+      m_CurrentState = DATA;
+
+      m_pTransmissionBuffer = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
+      m_pTransmissionBuffer->Initialize(PersistentMessage::GetFileName(m_pCurrentMessage));
+      m_pTransmissionBuffer->SetMaxSizeKB(m_iMaxMessageSizeKB);
+
+      SetReceiveBinary(true);
+      m_bTraceHeadersWritten = true;
+      m_lMessageStartTC = GetTickCount();
+
+      SendData_("354 OK, send.");
    }
 
    void 
-   SMTPConnection::_ProtocolAUTH(const String &sRequest)
+   SMTPConnection::ProtocolAUTH_(const String &sRequest)
    {
-      _requestedAuthenticationType = AUTH_NONE;
+      requestedAuthenticationType_ = AUTH_NONE;
 
       std::vector<String> vecParams = StringParser::SplitString(sRequest,  " ");
 
       if (vecParams.size() == 1)
       {
-         _SendErrorResponse(504, "Authentication type not specified.");
+         SendErrorResponse_(504, "Authentication type not specified.");
          return;
       }
       
@@ -1774,7 +1717,7 @@ namespace HM
 
       if (sAuthenticationType == _T("LOGIN"))
       {
-         _requestedAuthenticationType = AUTH_LOGIN;
+         requestedAuthenticationType_ = AUTH_LOGIN;
 
          String sResponse;
 
@@ -1792,37 +1735,68 @@ namespace HM
             StringParser::Base64Encode("Username:", sResponse);
          }
 
-         _SendData("334 " + sResponse);
+         SendData_("334 " + sResponse);
          return;
 
       }
       else if (sAuthenticationType == _T("PLAIN") && 
                m_SMTPConf->GetAuthAllowPlainText())
       {
-         _requestedAuthenticationType = AUTH_PLAIN;
+         requestedAuthenticationType_ = AUTH_PLAIN;
 
          // Stupid user has selected plain text authentication.
          if (vecParams.size() == 3)
          {
             // Fetch username and password directly from command.
-            _AuthenticateUsingPLAIN(vecParams[2]);
+            AuthenticateUsingPLAIN_(vecParams[2]);
          }
          else
          {
-            _SendData("334 Log on");
+            SendData_("334 Log on");
             m_CurrentState = SMTPUSERNAME;
          }
 
          return;
       }
 
-      _SendErrorResponse(504, "Authentication mechanism not supported.");
+      SendErrorResponse_(504, "Authentication mechanism not supported.");
    }
 
    void 
-   SMTPConnection::_ProtocolSTARTTLS(const String &sRequest)
+   SMTPConnection::ProtocolUsername_(const String &sRequest)
    {
-      _SendData("220 Go ahead");
+      StringParser::Base64Decode(sRequest, m_sUsername);
+      String sEncoded;
+      StringParser::Base64Encode("Password:", sEncoded);
+      SendData_("334 " + sEncoded);
+      m_CurrentState = SMTPUPASSWORD;
+
+   }
+
+   void 
+   SMTPConnection::ProtocolPassword_(const String &sRequest)
+   {
+      if (requestedAuthenticationType_ == AUTH_LOGIN)
+         StringParser::Base64Decode(sRequest, m_sPassword);
+      else if (requestedAuthenticationType_ == AUTH_PLAIN)
+         m_sPassword = sRequest;
+
+      Authenticate_();
+   }
+
+   void 
+   SMTPConnection::ProtocolSTARTTLS_(const String &sRequest)
+   {
+      const int command_length = 8;
+      bool hasParameters = sRequest.GetLength() > command_length;
+
+      if (hasParameters)
+      {
+         SendErrorResponse_(501, "Syntax error (no parameters allowed)");
+         return;
+      }
+
+      SendData_("220 Ready to start TLS");
 
       m_CurrentState = STARTTLS ;
       
@@ -1830,7 +1804,7 @@ namespace HM
    }
 
    void 
-   SMTPConnection::_ProtocolETRN(const String &sRequest)
+   SMTPConnection::ProtocolETRN_(const String &sRequest)
    {
       // RFC ETRN Codes
       //   250 OK, queuing for node <x> started
@@ -1850,7 +1824,7 @@ namespace HM
       // We need at least 1 parameter. ETRN alone results in error
       if (vecParams.size() == 1)
       {
-         _SendErrorResponse(500, "Syntax Error: No domain parameter included");
+         SendErrorResponse_(500, "Syntax Error: No domain parameter included");
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - No domain parameter included");      
          return;
       }
@@ -1888,12 +1862,12 @@ namespace HM
             {
                // Need to tell hmail to reload the settings
                //Configuration::Instance()->Load();
-               _SendData("250 OK, message queuing started for " + sETRNDomain.ToLower());
+               SendData_("250 OK, message queuing started for " + sETRNDomain.ToLower());
                LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - 250 OK, message queuing started.");      
             }
             else
             {
-               _SendData("458 Unable to queue messages for " + sETRNDomain.ToLower());
+               SendData_("458 Unable to queue messages for " + sETRNDomain.ToLower());
                LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - 458 Unable to queue messages");      
             }
          return;
@@ -1902,7 +1876,7 @@ namespace HM
        else
        {
           // Send that we don't accept ETRN for that domain or invalid param
-          _SendData("458 Error getting info for " + sETRNDomain.ToLower());
+          SendData_("458 Error getting info for " + sETRNDomain.ToLower());
           LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Could not get Route values");      
           return;
        }
@@ -1910,13 +1884,13 @@ namespace HM
      else
      {
          // Send that we don't accept ETRN for that domain or invalid param
-         _SendData("501 ETRN not supported for " + sETRNDomain.ToLower());
+         SendData_("501 ETRN not supported for " + sETRNDomain.ToLower());
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Domain is not Route");      
          return;
      }
    }
    void
-   SMTPConnection::_AuthenticateUsingPLAIN(const String &sLine)
+   SMTPConnection::AuthenticateUsingPLAIN_(const String &sLine)
    {
       String sAuthentication;
       StringParser::Base64Decode(sLine, sAuthentication);
@@ -1925,7 +1899,7 @@ namespace HM
       int iSecondTab = sAuthentication.Find(_T("\t"),1);
       if (iSecondTab < 0)
       {
-         _RestartAuthentication();
+         RestartAuthentication_();
          return;
       }
 
@@ -1933,11 +1907,11 @@ namespace HM
       m_sPassword = sAuthentication.Mid(iSecondTab+1);
 
       // Authenticate the user.
-      _Authenticate();      
+      Authenticate_();      
    }
 
    void
-   SMTPConnection::_Authenticate()
+   SMTPConnection::Authenticate_()
    {
       AccountLogon accountLogon;
       bool disconnect;
@@ -1946,7 +1920,7 @@ namespace HM
          
       if (disconnect)
       {
-         _SendErrorResponse(535, "Authentication failed. Too many invalid logon attempts.");
+         SendErrorResponse_(535, "Authentication failed. Too many invalid logon attempts.");
          m_bPendingDisconnect = true;
          PostDisconnect();
          return;
@@ -1954,30 +1928,30 @@ namespace HM
      
       if (pAccount)
       {
-         _SendData("235 authenticated.");
+         SendData_("235 authenticated.");
 
-         _isAuthenticated = true;
+         isAuthenticated_ = true;
          m_CurrentState = HEADER;
       }
       else
       {
-         _RestartAuthentication();
+         RestartAuthentication_();
       }
    }
 
    void 
-   SMTPConnection::_RestartAuthentication()
+   SMTPConnection::RestartAuthentication_()
    {
-      _ResetLoginCredentials();
+      ResetLoginCredentials_();
       
-      _SendErrorResponse(535, "Authentication failed. Restarting authentication process.");
+      SendErrorResponse_(535, "Authentication failed. Restarting authentication process.");
    }
 
    void 
-   SMTPConnection::_ResetLoginCredentials()
+   SMTPConnection::ResetLoginCredentials_()
    {
-      _requestedAuthenticationType = AUTH_NONE;
-      _isAuthenticated = false;
+      requestedAuthenticationType_ = AUTH_NONE;
+      isAuthenticated_ = false;
 
       m_CurrentState = HEADER;
       m_sUsername = "";
@@ -1986,7 +1960,7 @@ namespace HM
 
 
    int 
-   SMTPConnection::_GetMaxMessageSize(shared_ptr<const Domain> pDomain)
+   SMTPConnection::GetMaxMessageSize_(shared_ptr<const Domain> pDomain)
    {
       int iMaxMessageSizeKB = m_SMTPConf->GetMaxMessageSize();
       
@@ -2004,23 +1978,23 @@ namespace HM
    }
 
    void 
-   SMTPConnection::_SendErrorResponse(int iErrorCode, const String &sResponse)
+   SMTPConnection::SendErrorResponse_(int iErrorCode, const String &sResponse)
    {
       String sData;
       sData.Format(_T("%d %s"), iErrorCode, sResponse);
       
-      _SendData(sData);
+      SendData_(sData);
 
       if (iErrorCode >= 500 && iErrorCode <= 599)
          m_iCurNoOfInvalidCommands++;   
    }
 
    bool
-   SMTPConnection::_DoPreAcceptSpamProtection()
+   SMTPConnection::DoPreAcceptSpamProtection_()
    {
       if (m_bRejectedByDelayedGreyListing)
       {
-         _SendErrorResponse(450, "Please try again later.");
+         SendErrorResponse_(450, "Please try again later.");
          // Don't log to awstats here, since we tell the client to try again later.
          return false;
       }
@@ -2038,13 +2012,13 @@ namespace HM
          MessageUtilities::RetrieveOriginatingAddress(m_pCurrentMessage, hostName, iIPAddress);
       
          // Do spam protection now using the IP address in the header.
-         if (!_DoSpamProtection(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
+         if (!DoSpamProtection_(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
          {
             // We should stop the message delivery.
             return false;
          }
 
-         if (!_DoSpamProtection(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
+         if (!DoSpamProtection_(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
          {
             // We should stop the message delivery.
             return false;
@@ -2054,7 +2028,7 @@ namespace HM
       else
       {
          // Do normal post transmission spam protection. (typically SURBL)
-         if (!_DoSpamProtection(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+         if (!DoSpamProtection_(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
          {
             // We should stop message delivery
             return false;
@@ -2067,9 +2041,9 @@ namespace HM
 
 
    bool 
-   SMTPConnection::_GetDoSpamProtection()
+   SMTPConnection::GetDoSpamProtection_()
    {
-      if (_isAuthenticated)
+      if (isAuthenticated_)
          return false;
 
       if (!GetSecurityRange()->GetSpamProtection())
@@ -2090,7 +2064,7 @@ namespace HM
       - the sender address matches a route address.
    */
    bool
-   SMTPConnection::_GetIsLocalSender()
+   SMTPConnection::GetIsLocalSender_()
    {
        if (m_pSenderDomain && m_pSenderDomain->GetIsActive())
           return true;
@@ -2114,7 +2088,7 @@ namespace HM
    }
 
    bool 
-   SMTPConnection::_TryExtractAddress(const String &mailFromParameter, String& address)
+   SMTPConnection::TryExtractAddress_(const String &mailFromParameter, String& address)
    {
       // Start of by removing any leading and trailing space.
       address = mailFromParameter;

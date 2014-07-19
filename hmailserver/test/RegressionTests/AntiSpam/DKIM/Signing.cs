@@ -52,6 +52,7 @@ namespace RegressionTests.AntiSpam.DKIM
          int port = TestSetup.GetNextFreePort();
          using (var server = new SMTPServerSimulator(1, port))
          {
+            server.SecondsToWaitBeforeTerminate = 60;
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 

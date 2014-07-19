@@ -35,9 +35,6 @@ namespace HM
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
       shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
-
-      pSAClient->Start();
-
      
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(hostName, port, IPAddress()))

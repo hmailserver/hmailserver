@@ -347,7 +347,6 @@ namespace HM
       shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL()? CSSSL : CSNone, pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
-      pClientConnection->Start();
 
       if (!serverInfo->GetUsername().IsEmpty())
          pClientConnection->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
