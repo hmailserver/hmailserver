@@ -37,6 +37,10 @@ namespace hMailServer.Administrator
             comboProtocol.AddItem("POP3", eSessionType.eSTPOP3);
             comboProtocol.AddItem("IMAP", eSessionType.eSTIMAP);
 
+            comboConnectionSecurity.AddItem("None", eConnectionSecurity.eCSNone);
+            comboConnectionSecurity.AddItem("STARTTLS", eConnectionSecurity.eCSSTARTTLS);
+            comboConnectionSecurity.AddItem("SSL/TLS", eConnectionSecurity.eCSTLS);
+
             ListSSLCertificates();
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
@@ -64,9 +68,9 @@ namespace hMailServer.Administrator
 
             textIPAddress.Text = _representedObject.Address;
             textTCPIPPort.Number = _representedObject.PortNumber;
-            checkEnableSSL.Checked = _representedObject.UseSSL;
             comboProtocol.SelectedValue = _representedObject.Protocol;
             comboSSLCertificate.SelectedValue = _representedObject.SSLCertificateID;
+            comboConnectionSecurity.SelectedValue = _representedObject.ConnectionSecurity;
 
             EnableDisable();
         }
@@ -105,7 +109,7 @@ namespace hMailServer.Administrator
 
             _representedObject.Address = textIPAddress.Text;
             _representedObject.PortNumber = textTCPIPPort.Number;
-            _representedObject.UseSSL = checkEnableSSL.Checked;
+            _representedObject.ConnectionSecurity = (eConnectionSecurity) comboConnectionSecurity.SelectedValue;
             _representedObject.Protocol = (hMailServer.eSessionType)comboProtocol.SelectedValue;
 
             if (comboSSLCertificate.SelectedValue == null)
@@ -152,14 +156,14 @@ namespace hMailServer.Administrator
             OnContentChanged();
         }
 
-        private void checkEnableSSL_CheckedChanged(object sender, EventArgs e)
-        {
-            EnableDisable();
-        }
-
         private void EnableDisable()
         {
-            comboSSLCertificate.Enabled = checkEnableSSL.Checked;
+            comboSSLCertificate.Enabled = comboConnectionSecurity.SelectedIndex > 0;
+        }
+
+        private void comboConnectionSecurity_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           EnableDisable();
         }
 
     }

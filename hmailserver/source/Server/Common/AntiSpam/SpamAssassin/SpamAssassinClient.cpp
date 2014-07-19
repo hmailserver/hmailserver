@@ -18,13 +18,12 @@
 namespace HM
 {
    SpamAssassinClient::SpamAssassinClient(const String &sFile,
-                                          bool useSSL,
                                           boost::asio::io_service& io_service, 
                                           boost::asio::ssl::context& context,
                                           shared_ptr<Event> disconnected,
                                           String &message,
                                           bool &testCompleted) :
-               AnsiStringConnection(useSSL, io_service, context, disconnected),
+               AnsiStringConnection(CSNone, io_service, context, disconnected),
                m_sMessage(message),
                m_TestCompleted(testCompleted)
 

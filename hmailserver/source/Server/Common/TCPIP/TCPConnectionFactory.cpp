@@ -17,31 +17,31 @@
 namespace HM
 {
    shared_ptr<TCPConnection>
-   SMTPConnectionFactory::Create(bool useSSL,
+   SMTPConnectionFactory::Create(ConnectionSecurity connection_security,
                                     boost::asio::io_service& io_service, 
                                     boost::asio::ssl::context& context)
    {
-      SMTPConnection* smtpConn = new SMTPConnection(useSSL, io_service, context);
+      SMTPConnection* smtpConn = new SMTPConnection(connection_security, io_service, context);
 
       return shared_ptr<TCPConnection>(smtpConn);
    }
 
    shared_ptr<TCPConnection>
-   POP3ConnectionFactory::Create(bool useSSL,
+   POP3ConnectionFactory::Create(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context)
    {
-      POP3Connection* smtpConn = new POP3Connection(useSSL, io_service, context);
+      POP3Connection* smtpConn = new POP3Connection(connection_security, io_service, context);
 
       return shared_ptr<TCPConnection>(smtpConn);
    }
 
    shared_ptr<TCPConnection>
-   IMAPConnectionFactory::Create(bool useSSL,
+   IMAPConnectionFactory::Create(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context)
    {
-      IMAPConnection* smtpConn = new IMAPConnection(useSSL, io_service, context);
+      IMAPConnection* smtpConn = new IMAPConnection(connection_security, io_service, context);
 
       return shared_ptr<TCPConnection>(smtpConn);
    }

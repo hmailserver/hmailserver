@@ -43,11 +43,11 @@
 namespace HM
 {
    POP3ClientConnection::POP3ClientConnection(shared_ptr<FetchAccount> pAccount,
-                                              bool useSSL,
+                                              ConnectionSecurity connectionSecurity,
                                               boost::asio::io_service& io_service, 
                                               boost::asio::ssl::context& context,
                                               shared_ptr<Event> disconnected) :
-      AnsiStringConnection(useSSL, io_service, context, disconnected),
+      AnsiStringConnection(connectionSecurity, io_service, context, disconnected),
       m_pAccount(pAccount),
       m_eCurrentState(StateConnected),
       m_bPendingDisconnect(false)
@@ -75,7 +75,15 @@ namespace HM
    void
    POP3ClientConnection::OnConnected()
    {
-      PostReceive();
+      if (GetConnectionSecurity() == CSNone)
+         PostReceive();
+   }
+
+   void
+   POP3ClientConnection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)
+         PostReceive();
    }
 
    AnsiString 

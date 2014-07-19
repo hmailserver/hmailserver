@@ -123,4 +123,4 @@
 #define PROPERTY_CLAMAV_PORT                 _T("ClamAVPort")
 
 
-#define REQUIRED_DB_VERSION            5400
+#define REQUIRED_DB_VERSION            5500

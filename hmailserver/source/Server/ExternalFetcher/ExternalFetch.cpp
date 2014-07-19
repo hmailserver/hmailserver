@@ -42,7 +42,7 @@ namespace HM
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetUseSSL(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
+      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetUseSSL() ? CSSSL : CSNone, pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
       try
       {

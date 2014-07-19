@@ -35,13 +35,14 @@ namespace HM
       SMTP_COMMAND_DATA = 1010,
       SMTP_COMMAND_RSET = 1011,
       SMTP_COMMAND_NOOP = 1012,
-      SMTP_COMMAND_ETRN = 1013
+      SMTP_COMMAND_ETRN = 1013,
+      SMTP_COMMAND_STARTTLS = 1014
    };
 
    class SMTPConnection : public AnsiStringConnection
    {
    public:
-      SMTPConnection(bool useSSL,
+      SMTPConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
 	   virtual ~SMTPConnection();
@@ -49,6 +50,7 @@ namespace HM
    protected:
 
       virtual void OnConnected();
+      virtual void OnHandshakeCompleted();
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void ParseData(const AnsiString &sRequest);
@@ -60,6 +62,8 @@ namespace HM
       virtual void OnExcessiveDataReceived();
 
    private:
+
+      void SendBanner_();
 
       bool _TryExtractAddress(const String &mailFromParameter, String& address);
       void _HandleSMTPFinalizationTaskCompleted();
@@ -122,6 +126,7 @@ namespace HM
       void _ProtocolHELP();
       void _ProtocolRCPT(const String &Request);
       void _ProtocolETRN(const String &sRequest);
+      void _ProtocolSTARTTLS(const String &sRequest);
 
       void _TarpitCheckDelay();
 
@@ -158,7 +163,8 @@ namespace HM
          SMTPUSERNAME = 3,
          SMTPUPASSWORD = 4,
          HEADER = 5,
-         DATA = 6
+         DATA = 6,
+         STARTTLS = 7
       };
   
       enum AuthenticationType

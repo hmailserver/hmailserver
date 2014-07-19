@@ -34,7 +34,7 @@ namespace HM
    class IMAPConnection : public AnsiStringConnection
    {
    public:
-      IMAPConnection(bool useSSL,
+      IMAPConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
 	   virtual ~IMAPConnection();
@@ -120,6 +120,7 @@ namespace HM
    protected:
 
       virtual void OnConnected();
+      virtual void OnHandshakeCompleted();
       virtual AnsiString GetCommandSeparator() const;
 
       void _LogClientCommand(const String &sClientData);
@@ -135,6 +136,7 @@ namespace HM
 
    private:
 
+      void SendBanner_();
       void _SetAccount(shared_ptr<const Account> account) { _account = account; }
 
       void _Disconnect();
@@ -170,7 +172,6 @@ namespace HM
       shared_ptr<IMAPNotificationClient> _notificationClient;
 
       int  m_iLogLevel;      
-
    };
    
 }

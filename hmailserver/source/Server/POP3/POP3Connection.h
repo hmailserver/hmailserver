@@ -16,7 +16,7 @@ namespace HM
    {
    public:
 
-      POP3Connection(bool useSSL,
+      POP3Connection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
 	   virtual ~POP3Connection();
@@ -37,7 +37,7 @@ namespace HM
       virtual void OnDisconnect();
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
-
+      virtual void OnHandshakeCompleted();
    private:
 
 
@@ -80,6 +80,7 @@ namespace HM
       void _LogClientCommand(const String &sClientData);
       void _GetMailboxContents(int &iNoOfMessages, __int64 &iTotalBytes);
 
+      void SendBanner_();
       ParseResult _ProtocolRETR(const String &Parameter);
       bool _ProtocolLIST(const String &sParameter);
       bool _ProtocolDELE(const String &Parameter);

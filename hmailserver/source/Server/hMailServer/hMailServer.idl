@@ -354,6 +354,19 @@ typedef
 } eSessionType;
 
 typedef
+[uuid(122C5B58-9A23-40f5-83C0-7B683D156522),
+	helpstring("Connection security")] 
+	enum 
+{
+	[helpstring("None.")] 
+	eCSNone = 0,
+	[helpstring("SSL")] 
+	eCSTLS = 1,
+	[helpstring("STARTTLS.")] 
+	eCSSTARTTLS = 2,
+} eConnectionSecurity;
+
+typedef
 [uuid(90745436-4C3F-11D9-AD17-A0BCEA20CD08),
 	helpstring("Signature method")] 
 	enum 
@@ -2317,6 +2330,8 @@ interface IInterfaceTCPIPPort : IDispatch
    [propget, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([out, retval] long *pVal);
    [propput, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([in] long newVal);
    [id(8), helpstring("Deletes the object from the database.")] HRESULT Delete();
+   [propget, id(9), helpstring("Use STARTTLS for this TCP/IP port.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(9), helpstring("Use SSTARTTLSSL for this TCP/IP port.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
 };
 
 

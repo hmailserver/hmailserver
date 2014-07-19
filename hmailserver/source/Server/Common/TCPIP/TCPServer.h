@@ -22,7 +22,7 @@ namespace HM
    class TCPServer
    {
    public:
-      TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory);
+      TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security);
       ~TCPServer(void);
 
       void Run();
@@ -32,6 +32,8 @@ namespace HM
 
    private:
       
+      void ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
+
       std::string GetPassword() const;
 
       bool InitSSL();
@@ -42,14 +44,16 @@ namespace HM
 
       bool FireOnAcceptEvent(const IPAddress &remoteAddress, int port);
       
-      shared_ptr<TCPConnectionFactory> _connectionFactory;
+      shared_ptr<TCPConnectionFactory> connectionFactory_;
 
-      boost::asio::ip::tcp::acceptor _acceptor;
-      boost::asio::ssl::context _context;
-      SessionType _sessionType;
-      shared_ptr<SSLCertificate> _certificate;
+      boost::asio::ip::tcp::acceptor acceptor_;
+      boost::asio::ssl::context context_;
+      SessionType sessionType_;
+      shared_ptr<SSLCertificate> certificate_;
 
-      IPAddress _ipaddress;
-      int _port;
+      IPAddress ipaddress_;
+      int port_;
+
+      ConnectionSecurity connection_security_;
    };
 }

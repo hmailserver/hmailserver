@@ -82,11 +82,12 @@ namespace HM
          IPAddress address = pPort->GetAddress();
          int iPort = pPort->GetPortNumber();
          SessionType st = pPort->GetProtocol();
-         bool bUseSSL = pPort->GetUseSSL();
+         ConnectionSecurity connection_security = pPort->GetConnectionSecurity();
 
          shared_ptr<SSLCertificate> pSSLCertificate;
 
-         if (bUseSSL)
+         if (connection_security == CSSSL ||
+             connection_security == CSSTARTTLS)
          {
             shared_ptr<SSLCertificates> pSSLCertificates = Configuration::Instance()->GetSSLCertificates();
             pSSLCertificate = pSSLCertificates->GetItemByDBID(pPort->GetSSLCertificateID());
@@ -115,7 +116,7 @@ namespace HM
             break;
          }
 
-         pTCPServer = shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory));
+         pTCPServer = shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory, connection_security));
 
          pTCPServer->Run();
 

@@ -325,9 +325,9 @@ create table hm_fetchaccounts
 	faprocessmimerecipients smallint not null,
 	faprocessmimedate smallint not null,
 	fausessl smallint not null,
-   fauseantispam smallint not null,
-   fauseantivirus smallint not null,
-   faenablerouterecipients smallint not null
+    fauseantispam smallint not null,
+    fauseantivirus smallint not null,
+    faenablerouterecipients smallint not null
 );
 
 create table hm_fetchaccounts_uids
@@ -439,8 +439,8 @@ create table hm_tcpipports
 	portprotocol smallint not null,
 	portnumber int not null,
 	portaddress1 bigint not null,
-   portaddress2 bigint null,
-	portusessl smallint not null,
+    portaddress2 bigint null,
+	portconnectionsecurity smallint not null,
 	portsslcertificateid bigint not null
 );
 

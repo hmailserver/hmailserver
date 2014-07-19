@@ -15,7 +15,7 @@ namespace HM
    class SMTPClientConnection : public AnsiStringConnection
    {
    public:
-      SMTPClientConnection(bool useSSL,
+      SMTPClientConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
          shared_ptr<Event> disconnected);
@@ -32,6 +32,7 @@ namespace HM
    protected:
 
       virtual void OnConnected();
+      virtual void OnHandshakeCompleted();
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void _SendData(const String &sData);

@@ -13,10 +13,10 @@
 namespace HM
 {
    TCPIPPort::TCPIPPort(void) :
-      m_bUseSSL(false),
       m_iPortNumber(0),
       m_iPortProtocol(STUnknown),
-      m_iSSLCertificateID(0)
+      m_iSSLCertificateID(0),
+      connection_security_(CSNone)
    {
 
    }
@@ -42,8 +42,8 @@ namespace HM
       pNode->AppendAttr(_T("Name"), GetName());
       pNode->AppendAttr(_T("PortProtocol"), StringParser::IntToString(m_iPortProtocol));
       pNode->AppendAttr(_T("PortNumber"), StringParser::IntToString(m_iPortNumber));
-      pNode->AppendAttr(_T("UseSSL"), m_bUseSSL ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("Address"), String(_address.ToString()));
+      pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
+      pNode->AppendAttr(_T("Address"), String(address_.ToString()));
       
       if (m_iSSLCertificateID > 0)
       {
@@ -58,9 +58,19 @@ namespace HM
    {
       m_iPortProtocol = (SessionType) _ttoi(pNode->GetAttrValue(_T("PortProtocol")));
       m_iPortNumber = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
-      m_bUseSSL = pNode->GetAttrValue(_T("UseSSL")) == _T("1");
-      _address.TryParse(pNode->GetAttrValue(_T("Address")));
+
+      address_.TryParse(pNode->GetAttrValue(_T("Address")));
       m_iSSLCertificateID  = _GetSSLCertificateID(pNode->GetAttrValue(_T("SSLCertificateName")));
+
+      // Backwards compatibiltiy
+      if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
+      {
+         connection_security_ = CSSSL;
+      }
+      else
+      {
+         connection_security_ = (ConnectionSecurity) _ttoi(pNode->GetAttrValue(_T("ConnectionSecurity")));
+      }
 
       return true;
    }
@@ -110,18 +120,18 @@ namespace HM
    void 
    TCPIPPort::SetAddress(const IPAddress &address)
    {
-      _address = address;
+      address_ = address;
    }
 
    String
    TCPIPPort::GetAddressString() const
    {
-      return _address.ToString();
+      return address_.ToString();
    }
 
    IPAddress
    TCPIPPort::GetAddress() const
    {
-      return _address;
+      return address_;
    }
 }

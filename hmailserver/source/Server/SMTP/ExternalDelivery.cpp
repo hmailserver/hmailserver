@@ -344,7 +344,7 @@ namespace HM
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL()? CSSSL : CSNone, pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
       pClientConnection->Start();

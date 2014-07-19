@@ -69,10 +69,10 @@ using namespace std;
 
 namespace HM
 {
-   SMTPConnection::SMTPConnection(bool useSSL,
+   SMTPConnection::SMTPConnection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
-      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
+      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
       m_bRejectedByDelayedGreyListing(false),
       m_CurrentState(AUTHENTICATION),
       m_bTraceHeadersWritten(true),
@@ -113,9 +113,47 @@ namespace HM
       SessionManager::Instance()->OnDestroy(STSMTP);
    }
 
+
    void
    SMTPConnection::OnConnected()
    {
+      if (GetConnectionSecurity() == CSNone ||
+          GetConnectionSecurity() == CSSTARTTLS)
+      {
+         SendBanner_();
+      }
+
+   }
+
+   void
+   SMTPConnection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)
+      {
+         SendBanner_();
+      }
+      else if (GetConnectionSecurity() == CSSTARTTLS)
+      {
+         /*
+           Upon completion of the TLS handshake, the SMTP protocol is reset to
+           the initial state (the state in SMTP after a server issues a 220
+           service ready greeting). The server MUST discard any knowledge
+           obtained from the client, such as the argument to the EHLO command,
+           which was not obtained from the TLS negotiation itself.
+         */
+
+         m_sHeloHost.Empty();
+         _ResetLoginCredentials();
+         _ResetCurrentMessage();
+
+         PostReceive();
+      }
+   }
+
+   void 
+   SMTPConnection::SendBanner_()
+   {
+
       String sWelcome = Configuration::Instance()->GetSMTPConfiguration()->GetWelcomeMessage();
 
       String sData = "220 ";
@@ -128,6 +166,7 @@ namespace HM
       _SendData(sData);
 
       PostReceive();
+
    }
 
    AnsiString 
@@ -165,6 +204,8 @@ namespace HM
          return SMTP_COMMAND_NOOP;
       else if (sFirstWord == _T("ETRN"))
          return SMTP_COMMAND_ETRN;
+      else if (sFirstWord == _T("STARTTLS"))
+         return SMTP_COMMAND_STARTTLS;
 
       return SMTP_COMMAND_UNKNOWN;
    }
@@ -219,10 +260,15 @@ namespace HM
 
       if (m_bPendingDisconnect == false)
       {
-         if (m_CurrentState == DATA)
+         switch (m_CurrentState)
+         {
+         case DATA:
             PostBufferReceive();
-         else
+         case STARTTLS:
+            break;
+         default:
             PostReceive();
+         }
       }
    }
 
@@ -299,9 +345,18 @@ namespace HM
       }
 
       if (m_CurrentState == AUTHENTICATION)
-      {      
-         _requestedAuthenticationType = AUTH_NONE;
-         _SendErrorResponse(502, "Use HELO/EHLO first."); 
+      {  
+         if (eCommandType == SMTP_COMMAND_STARTTLS)
+         {
+            _ProtocolSTARTTLS(sRequest);
+            return;  
+         }
+         else
+         {
+            _requestedAuthenticationType = AUTH_NONE;
+            _SendErrorResponse(502, "Use HELO/EHLO first."); 
+         }
+
          return;
       }
       else if (m_CurrentState == SMTPUSERNAME)
@@ -336,7 +391,12 @@ namespace HM
       }
       else if (m_CurrentState == HEADER)
       {
-         if (eCommandType == SMTP_COMMAND_AUTH)
+         if (eCommandType == SMTP_COMMAND_STARTTLS)
+         {
+            _ProtocolSTARTTLS(sRequest);
+            return;  
+         }
+         else if (eCommandType == SMTP_COMMAND_AUTH)
          {
             _ProtocolAUTH(sRequest);
             return;
@@ -1582,6 +1642,9 @@ namespace HM
          sData += sSizeKeyword;
       }
 
+      if (GetConnectionSecurity() == CSSTARTTLS)
+         sData += "250-STARTTLS\r\n";
+
       String sAuth = "250 AUTH LOGIN";
 
       if (m_SMTPConf->GetAuthAllowPlainText())
@@ -1754,6 +1817,16 @@ namespace HM
       }
 
       _SendErrorResponse(504, "Authentication mechanism not supported.");
+   }
+
+   void 
+   SMTPConnection::_ProtocolSTARTTLS(const String &sRequest)
+   {
+      _SendData("220 Go ahead");
+
+      m_CurrentState = STARTTLS ;
+      
+      Handshake();
    }
 
    void 

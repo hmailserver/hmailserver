@@ -48,10 +48,10 @@
 
 namespace HM
 {
-   IMAPConnection::IMAPConnection(bool useSSL,
+   IMAPConnection::IMAPConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) :
-      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
+      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
       m_bIsIdling(false),
       m_iLiteralDataToReceive(0),
       m_bPendingDisconnect(false),
@@ -85,9 +85,22 @@ namespace HM
    void
    IMAPConnection::OnConnected()
    {
-
       Initialize();
 
+      if (GetConnectionSecurity() == CSNone)      
+         SendBanner_();
+   }
+
+   void
+   IMAPConnection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)      
+         SendBanner_();
+   }
+
+   void 
+   IMAPConnection::SendBanner_()
+   {
       String sWelcome = Configuration::Instance()->GetIMAPConfiguration()->GetWelcomeMessage();
 
       String sData = "* OK ";
@@ -102,7 +115,6 @@ namespace HM
       SendAsciiData(sData);
 
       PostReceive();
-
    }
 
    AnsiString 

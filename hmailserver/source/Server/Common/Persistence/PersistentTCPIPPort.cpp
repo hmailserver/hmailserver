@@ -40,7 +40,7 @@ namespace HM
       pObject->SetID (pRS->GetLongValue("portid"));
       pObject->SetProtocol((SessionType) pRS->GetLongValue("portprotocol"));
       pObject->SetPortNumber(pRS->GetLongValue("portnumber"));
-      pObject->SetUseSSL(pRS->GetLongValue("portusessl") ? true : false);
+      pObject->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("portconnectionsecurity"));
       pObject->SetAddress(helper.Construct(pRS, "portaddress1", "portaddress2"));
       pObject->SetSSLCertificateID(pRS->GetLongValue("portsslcertificateid"));
       
@@ -84,7 +84,7 @@ namespace HM
       oStatement.AddColumn("portnumber", pObject->GetPortNumber());
       oStatement.AddColumnInt64("portsslcertificateid", pObject->GetSSLCertificateID());
       helper.AppendStatement(oStatement, pObject->GetAddress(), "portaddress1", "portaddress2");
-      oStatement.AddColumn("portusessl", pObject->GetUseSSL());
+      oStatement.AddColumn("portconnectionsecurity", pObject->GetConnectionSecurity());
       
       bool bNewObject = pObject->GetID() == 0;
 

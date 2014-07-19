@@ -582,8 +582,8 @@ create table hm_tcpipports
 	portprotocol tinyint not null,
 	portnumber int not null,
 	portaddress1 bigint not null,
-   portaddress2 bigint null,
-	portusessl tinyint not null,
+    portaddress2 bigint null,
+	portconnectionsecurity tinyint not null,
 	portsslcertificateid bigint not null
 ) 
 

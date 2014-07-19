@@ -29,8 +29,8 @@ namespace HM
       __int64 GetSSLCertificateID() const  {return m_iSSLCertificateID; }
       void SetSSLCertificateID(int iSSLCertificateID) {m_iSSLCertificateID = iSSLCertificateID;}
 
-      bool GetUseSSL() const  {return m_bUseSSL; }
-      void SetUseSSL(bool bNewVal) {m_bUseSSL = bNewVal;}
+      ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
+      void SetConnectionSecurity(ConnectionSecurity connection_security) {connection_security_ = connection_security;}
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -43,10 +43,10 @@ namespace HM
 
       SessionType m_iPortProtocol;
       int m_iPortNumber;
-      bool m_bUseSSL;
-
       int m_iSSLCertificateID;
 
-      IPAddress _address;
+      ConnectionSecurity connection_security_;
+
+      IPAddress address_;
    };
 }

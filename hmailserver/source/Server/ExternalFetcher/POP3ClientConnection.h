@@ -19,7 +19,7 @@ namespace HM
    {
    public:
       POP3ClientConnection(shared_ptr<FetchAccount> pAccount, 
-         bool useSSL,
+         ConnectionSecurity connectionSecurity,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
          shared_ptr<Event> disconnected);
@@ -36,6 +36,7 @@ namespace HM
    protected:
 
      virtual void OnConnected();
+     virtual void OnHandshakeCompleted();
      virtual void OnConnectionTimeout();
      virtual void OnExcessiveDataReceived();
 

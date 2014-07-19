@@ -13,7 +13,7 @@ namespace HM
       public TCPConnection
    {
    public:
-      AnsiStringConnection(bool useSSL,
+      AnsiStringConnection(ConnectionSecurity connection_security,
                     boost::asio::io_service& io_service,    
                     boost::asio::ssl::context& context,
                     shared_ptr<Event> disconnected);

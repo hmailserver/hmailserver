@@ -5,6 +5,7 @@
 
 #include "../Util/Event.h"
 
+#include "SocketConstants.h"
 #include "IOOperationQueue.h"
 using boost::asio::ip::tcp;
 
@@ -19,7 +20,7 @@ namespace HM
       public boost::enable_shared_from_this<TCPConnection>
    {
    public:
-      TCPConnection(bool useSSL,
+      TCPConnection(ConnectionSecurity connection_security,
                     boost::asio::io_service& io_service,    
                     boost::asio::ssl::context& context,
                     shared_ptr<Event> disconnected);
@@ -58,8 +59,6 @@ namespace HM
       void UpdateLogoutTimer();
       void CancelLogoutTimer();
 
-      static bool PrepareSSLContext(boost::asio::ssl::context &ctx);
-
       void SetSecurityRange(shared_ptr<SecurityRange> securityRange);
       shared_ptr<SecurityRange> GetSecurityRange();
 
@@ -74,6 +73,7 @@ namespace HM
 
       virtual void OnCouldNotConnect(const AnsiString &sErrorDescription) {};
       virtual void OnConnected() = 0;
+      virtual void OnHandshakeCompleted() = 0;
       virtual void OnConnectionTimeout() = 0;
       virtual void OnExcessiveDataReceived() = 0;
       virtual void OnDataSent() {};
@@ -82,6 +82,10 @@ namespace HM
       /* PARSING METHODS */
       virtual void ParseData(const AnsiString &sAnsiString) = 0;
       virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
+
+      void Handshake();
+
+      ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
    private:
       
       void _StartAsyncConnect(tcp::resolver::iterator endpoint_iterator);
@@ -108,19 +112,19 @@ namespace HM
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
-      static void ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
+      
 
-      boost::asio::ip::tcp::socket _socket;
       ssl_socket _sslSocket;
 
       boost::asio::ip::tcp::resolver _resolver;
       boost::asio::deadline_timer _timer;
       boost::asio::streambuf _receiveBuffer;
-      
+      boost::asio::ssl::context& context_;
+
       IOOperationQueue _operationQueue;
 
       bool _receiveBinary;
-      bool _useSSL;
+      ConnectionSecurity connection_security_;
       long _remotePort;
       bool _hasTimeout;
       String _remoteServer;
@@ -131,6 +135,7 @@ namespace HM
       int _timeout;
 
       shared_ptr<Event> disconnected_;
+      bool is_ssl_;
    };
 
 }

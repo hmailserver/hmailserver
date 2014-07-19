@@ -27,15 +27,17 @@ using boost::asio::ip::tcp;
 
 namespace HM
 {
-   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory) :
-      _acceptor(io_service),
-      _context(io_service, boost::asio::ssl::context::sslv23),
-      _ipaddress(ipaddress),
-      _port(port)
+   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
+      acceptor_(io_service),
+      context_(io_service, boost::asio::ssl::context::tlsv1),
+      ipaddress_(ipaddress),
+      port_(port),
+      connection_security_(connection_security)
    {
-      _sessionType = sessionType;
-      _certificate = certificate;
-      _connectionFactory = connectionFactory;
+      sessionType_ = sessionType;
+      certificate_ = certificate;
+      connectionFactory_ = connectionFactory;
+
    }
 
    
@@ -47,12 +49,12 @@ namespace HM
    bool
    TCPServer::InitAcceptor()
    {
-      boost::asio::ip::tcp::endpoint endpoint(_ipaddress.GetAddress(), _port);
+      boost::asio::ip::tcp::endpoint endpoint(ipaddress_.GetAddress(), port_);
 
       try
       {
-         _acceptor.open(endpoint.protocol());
-         _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false));
+         acceptor_.open(endpoint.protocol());
+         acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false));
       }
       catch (boost::system::system_error error)
       {
@@ -60,7 +62,7 @@ namespace HM
 
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to initialize local acceptor. Error: %s. Address: %s, Port: %d."), 
-            msg, String(_ipaddress.ToString()), _port);
+            msg, String(ipaddress_.ToString()), port_);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4316, "TCPServer::Run()", sErrorMessage);
 
@@ -69,7 +71,7 @@ namespace HM
 
       try
       {
-         _acceptor.bind(endpoint);
+         acceptor_.bind(endpoint);
 
       }
       catch (boost::system::system_error error)
@@ -79,7 +81,7 @@ namespace HM
          String sErrorMessage = Formatter::Format("Failed to bind to local port. Error: {0}. Address: {1}, Error code: {2}, Port: {3}. This is often caused by another server listening on the same port."
                                                   "To determine which server is listening on the port, telnet your server on port {4}. Make sure that no other email server is running "
                                                   "and listening on this port, and then restart the hMailServer service.", 
-                                                   msg, String(_ipaddress.ToString()), error.code().value(), _port, _port);
+                                                   msg, String(ipaddress_.ToString()), error.code().value(), port_, port_);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4316, "TCPServer::Run()", sErrorMessage);
 
@@ -88,14 +90,14 @@ namespace HM
 
       try
       {
-         _acceptor.listen();
+         acceptor_.listen();
       }
       catch (boost::system::system_error error)
       {
          String msg = error.what();
 
          String sErrorMessage = Formatter::Format("Failed to listen on local port. Error: {0}. Error code: {1}, Address: {2}, Port: {3}",
-                                          msg, error.code().value(), String(_ipaddress.ToString()), _port);
+                                          msg, error.code().value(), String(ipaddress_.ToString()), port_);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4317, "TCPServer::Run()", sErrorMessage);
 
@@ -112,7 +114,7 @@ namespace HM
    {
       try
       {
-         _context.set_options(boost::asio::ssl::context::default_workarounds |
+         context_.set_options(boost::asio::ssl::context::default_workarounds |
                               boost::asio::ssl::context::no_sslv2);
       }
       catch (boost::system::system_error ec)
@@ -121,7 +123,7 @@ namespace HM
 
          String errorMessage;
          errorMessage.Format(_T("Failed to set SSL context options. Address: %s, Port: %i, Error: %s"), 
-            String(_ipaddress.ToString()), _port, asioError);
+            String(ipaddress_.ToString()), port_, asioError);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
 
@@ -129,13 +131,13 @@ namespace HM
 
       }
 
-      AnsiString certificateFile = _certificate->GetCertificateFile();
-      AnsiString privateKeyFile = _certificate->GetPrivateKeyFile();
+      AnsiString certificateFile = certificate_->GetCertificateFile();
+      AnsiString privateKeyFile = certificate_->GetPrivateKeyFile();
 
 
       try
       {
-         _context.use_certificate_file(certificateFile, boost::asio::ssl::context::pem);
+         context_.use_certificate_file(certificateFile, boost::asio::ssl::context::pem);
       }
       catch (boost::system::system_error ec)
       {
@@ -143,7 +145,7 @@ namespace HM
 
          String errorMessage;
          errorMessage.Format(_T("Failed to load certificate file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(certificateFile), String(_ipaddress.ToString()), _port, asioError);
+            String(certificateFile), String(ipaddress_.ToString()), port_, asioError);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
 
@@ -152,7 +154,7 @@ namespace HM
 
       try
       {
-         _context.use_certificate_chain_file(certificateFile);
+         context_.use_certificate_chain_file(certificateFile);
       }
       catch (boost::system::system_error ec)
       {
@@ -160,7 +162,7 @@ namespace HM
 
          String errorMessage;
          errorMessage.Format(_T("Failed to load certificate chain from certificate file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(certificateFile), String(_ipaddress.ToString()), _port, asioError);
+            String(certificateFile), String(ipaddress_.ToString()), port_, asioError);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
 
@@ -169,8 +171,8 @@ namespace HM
       
       try
       {
-         _context.set_password_callback(boost::bind(&TCPServer::GetPassword, this));
-         _context.use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem);
+         context_.set_password_callback(boost::bind(&TCPServer::GetPassword, this));
+         context_.use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem);
       }
       catch (boost::system::system_error ec)
       {
@@ -178,7 +180,7 @@ namespace HM
 
          String errorMessage;
          errorMessage.Format(_T("Failed to load private key file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(privateKeyFile), String(_ipaddress.ToString()), _port, asioError);
+            String(privateKeyFile), String(ipaddress_.ToString()), port_, asioError);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
 
@@ -190,6 +192,42 @@ namespace HM
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
 
       }
+
+      boost::system::error_code errorCode;
+      context_.set_options(boost::asio::ssl::context::default_workarounds |
+                           boost::asio::ssl::context::no_sslv2);
+
+      if (errorCode.value() != 0)
+      {
+         String errorMessage;
+         errorMessage.Format(_T("Failed to set default workarounds."));
+
+         ReportInitError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
+
+         return false;
+      }
+
+      if (IniFileSettings::Instance()->GetUseSSLVerifyPeer())
+      {
+         context_.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert, errorCode);
+         if (errorCode.value() != 0)
+         {
+            String errorMessage;
+            errorMessage.Format(_T("Failed to enable peer verification."));
+            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
+
+            return false;
+         }
+
+         context_.add_verify_path(AnsiString(IniFileSettings::Instance()->GetCertificateAuthorityDirectory()), errorCode);
+         if (errorCode.value() != 0)
+         {
+            String errorMessage;
+            errorMessage.Format(_T("Failed to add path to Certificate Authority files."));
+            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
+            return false;
+         }
+      }      
      
       return true;
    }
@@ -204,7 +242,8 @@ namespace HM
    void
    TCPServer::Run()
    {
-      if (_certificate)
+      if (connection_security_ == CSSSL ||
+          connection_security_ == CSSTARTTLS)
       {
          if (!InitSSL())
             return;
@@ -219,13 +258,12 @@ namespace HM
    void
    TCPServer::StartAccept()
    {
-      if (_acceptor.is_open())
+      if (acceptor_.is_open())
       {
-         bool useSSL = _certificate != 0;
-         
-         shared_ptr<TCPConnection> pNewConnection = _connectionFactory->Create(useSSL, _acceptor.get_io_service(), _context);
+        
+         shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, acceptor_.get_io_service(), context_);
 
-         _acceptor.async_accept(pNewConnection->GetSocket(),
+         acceptor_.async_accept(pNewConnection->GetSocket(),
             boost::bind(&TCPServer::HandleAccept, this, pNewConnection,
             boost::asio::placeholders::error));
       }
@@ -236,9 +274,9 @@ namespace HM
    {
       // eat any errors thrown by cancel:
       boost::system::error_code error;
-      _acceptor.cancel(error);
+      acceptor_.cancel(error);
 
-      _acceptor.close();
+      acceptor_.close();
    }
 
    void 
@@ -275,7 +313,7 @@ namespace HM
          IPAddress localAddress (localEndpoint.address());
          IPAddress remoteAddress (remoteEndpoint.address());
 
-         String sMessage = Formatter::Format("TCP - {0} connected to {1}:{2}.", remoteAddress.ToString(), localAddress.ToString(), _port);
+         String sMessage = Formatter::Format("TCP - {0} connected to {1}:{2}.", remoteAddress.ToString(), localAddress.ToString(), port_);
          LOG_TCPIP(sMessage);
 
          shared_ptr<SecurityRange> securityRange = PersistentSecurityRange::ReadMatchingIP(remoteAddress);
@@ -287,7 +325,7 @@ namespace HM
          }
 
 
-         bool allow = SessionManager::Instance()->GetAllow(_sessionType, securityRange);
+         bool allow = SessionManager::Instance()->GetAllow(sessionType_, securityRange);
 
          LOG_DEBUG("Checking for allow");
          
@@ -384,5 +422,15 @@ namespace HM
       IPAddress address;
       return address.TryParse("::F", false);
    }
+
+   void 
+   TCPServer::ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
+   {
+      String formattedMessage;
+      formattedMessage.Format(_T("%s, Error code: %d, Message: %s"), message, error.code().value(), String(error.what()));
+      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
+   }
+
+
 
 }

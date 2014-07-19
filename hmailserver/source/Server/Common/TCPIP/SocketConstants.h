@@ -6,8 +6,6 @@
 namespace HM
 {
 
-   #define MAX_BUFF_SIZE       20000
-
    enum SessionType
    {
       STUnknown = 0,
@@ -17,6 +15,14 @@ namespace HM
       STPOP3Client = 4,
       STIMAP = 5,
       STListening = 6,
+   };
+
+   enum ConnectionSecurity 
+   {
+      CSNone     = 0,
+      CSSSL      = 1,
+      CSSTARTTLS = 2
+
    };
 
 }

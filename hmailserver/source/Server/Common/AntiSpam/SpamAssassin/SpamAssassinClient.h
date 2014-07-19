@@ -12,7 +12,7 @@ namespace HM
    class SpamAssassinClient : public AnsiStringConnection
    {
    public:
-      SpamAssassinClient(const String &sFile, bool useSSL,
+      SpamAssassinClient(const String &sFile, 
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
          shared_ptr<Event> disconnected,
@@ -31,6 +31,7 @@ namespace HM
       virtual void OnCouldNotConnect(const AnsiString &sErrorDescription);
       virtual void OnReadError(int errorCode);
       virtual void OnConnected();
+      virtual void OnHandshakeCompleted() {};
       virtual AnsiString GetCommandSeparator() const;
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();

@@ -21,11 +21,11 @@
 namespace HM
 {
 
-   SMTPClientConnection::SMTPClientConnection(bool useSSL,
+   SMTPClientConnection::SMTPClientConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
          shared_ptr<Event> disconnected) :
-         AnsiStringConnection(useSSL, io_service, context, disconnected),
+         AnsiStringConnection(connection_security, io_service, context, disconnected),
          m_CurrentState(HELO),
          m_bUseSMTPAuth(false),
          m_iCurRecipient(-1),
@@ -54,7 +54,15 @@ namespace HM
    void
    SMTPClientConnection::OnConnected()
    {
-      PostReceive();
+      if (GetConnectionSecurity() == CSNone)
+         PostReceive();
+   }
+
+   void
+   SMTPClientConnection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)
+         PostReceive();
    }
 
    AnsiString 

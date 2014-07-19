@@ -40,12 +40,12 @@
 namespace HM
 {
 
-   POP3Connection::POP3Connection(bool useSSL,
+   POP3Connection::POP3Connection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
-      AnsiStringConnection(useSSL, io_service, context, shared_ptr<Event>()),
+      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
       m_CurrentState(AUTHENTICATION),
-       m_oTransmissionBuffer(true),
+      m_oTransmissionBuffer(true),
       m_bPendingDisconnect(false)
    {
       /*
@@ -73,6 +73,20 @@ namespace HM
 
    void
    POP3Connection::OnConnected()
+   {
+      if (GetConnectionSecurity() == CSNone)
+         SendBanner_();
+   }
+
+   void
+   POP3Connection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)
+         SendBanner_();
+   }
+
+   void 
+   POP3Connection::SendBanner_()
    {
       String sData;
 

@@ -425,7 +425,7 @@ create table hm_tcpipports
 	portnumber int not null,
 	portaddress1 bigint not null,
    portaddress2 bigint null,
-	portusessl tinyint not null,
+	portconnectionsecurity tinyint not null,
 	portsslcertificateid bigint not null
 ) DEFAULT CHARSET=utf8;
 

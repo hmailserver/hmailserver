@@ -14,11 +14,11 @@ namespace HM
 {
   
 
-   AnsiStringConnection::AnsiStringConnection(bool useSSL,
+   AnsiStringConnection::AnsiStringConnection(ConnectionSecurity connection_security,
                                 boost::asio::io_service& io_service, 
                                 boost::asio::ssl::context& context,
                                 shared_ptr<Event> disconnected) :
-      TCPConnection(useSSL, io_service, context, disconnected)
+      TCPConnection(connection_security, io_service, context, disconnected)
    {
 
    }

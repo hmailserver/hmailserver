@@ -23,12 +23,11 @@ namespace HM
 {
   
 
-   TCPConnection::TCPConnection(bool useSSL,
+   TCPConnection::TCPConnection(ConnectionSecurity connection_security,
                                 boost::asio::io_service& io_service, 
                                 boost::asio::ssl::context& context,
                                 shared_ptr<Event> disconnected) :
-      _useSSL(useSSL),
-      _socket(io_service),
+      connection_security_(connection_security),
       _sslSocket(io_service, context),
       _resolver(io_service),
       _timer(io_service),
@@ -36,12 +35,11 @@ namespace HM
       _remotePort(0),
       _hasTimeout(false),
       _receiveBuffer(250000),
-      disconnected_(disconnected)
+      disconnected_(disconnected),
+      context_(context),
+      is_ssl_(false)
    {
       _sessionID = Application::Instance()->GetUniqueID();
-
-      if (useSSL)
-         TCPConnection::PrepareSSLContext(context);
 
       LOG_DEBUG("Creating session " + StringParser::IntToString(_sessionID));
    }
@@ -59,10 +57,10 @@ namespace HM
    ssl_socket::lowest_layer_type& 
    TCPConnection::GetSocket()
    {
-      if (_useSSL)
+      if (is_ssl_)
          return _sslSocket.lowest_layer();
       else
-         return _socket;
+         return _sslSocket.next_layer();
    }
 
    bool
@@ -241,21 +239,8 @@ namespace HM
             return;
          }
 
-         if (_useSSL)
-         {
-            boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
-               boost::asio::ssl::stream_base::client :
-               boost::asio::ssl::stream_base::server;
-               
-            _sslSocket.async_handshake(handshakeType,
-               boost::bind(&TCPConnection::HandleHandshake, shared_from_this(),
-               boost::asio::placeholders::error));
-         }
-         else
-         {
-            // Send welcome message to client.
-            OnConnected();
-         }
+         // Send welcome message to client.
+         OnConnected();
       }
       catch (...)
       {
@@ -265,20 +250,31 @@ namespace HM
    }
 
    void 
+   TCPConnection::Handshake()
+   {
+      boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
+         boost::asio::ssl::stream_base::client :
+      boost::asio::ssl::stream_base::server;
+
+      _sslSocket.async_handshake(handshakeType,
+         boost::bind(&TCPConnection::HandleHandshake, shared_from_this(),
+         boost::asio::placeholders::error));
+   }
+
+   void 
    TCPConnection::Start()
    {
       try
       {
-         if (_useSSL)
+         OnConnected();
+
+         if (connection_security_ == CSSSL)
          {
             try
             {
                if (GetSocket().is_open())
                {
-
-                  _sslSocket.async_handshake(boost::asio::ssl::stream_base::server,
-                     boost::bind(&TCPConnection::HandleHandshake, shared_from_this(),
-                     boost::asio::placeholders::error));
+                  Handshake();
                }
             }
             catch (boost::system::system_error error)
@@ -286,14 +282,6 @@ namespace HM
                String sMessage;
                sMessage.Format(_T("TCPConnection - Call to async_handshake failed. Error code: %d, Message: %s"), error.code().value(), String(error.what()));
                LOG_TCPIP(sMessage);
-            }
-         }
-         else
-         {
-            if (GetSocket().is_open())
-            {
-               // Send welcome message to client.
-               OnConnected();
             }
          }
       }
@@ -312,7 +300,8 @@ namespace HM
          if (!error)
          {
             // Send welcome message to client.
-            OnConnected();
+            is_ssl_ = true;
+            OnHandshakeCompleted();
          }
          else
          {
@@ -460,15 +449,6 @@ namespace HM
       formattedMessage.Format(_T("%s Remote IP: %s"), message, SafeGetIPAddress());
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
    }
-
-   void 
-   TCPConnection::ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
-   {
-      String formattedMessage;
-      formattedMessage.Format(_T("%s, Error code: %d, Message: %s"), message, error.code().value(), String(error.what()));
-      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
-   }
-
    void 
    TCPConnection::ReportDebugMessage(const String &message, const boost::system::error_code &error)
    {
@@ -490,12 +470,12 @@ namespace HM
 
          try
          {
-            if (_useSSL)
+            if (is_ssl_)
                boost::asio::async_write
                   (_sslSocket, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
             else
                boost::asio::async_write
-                  (_socket, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
+                  (_sslSocket.next_layer(), boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
 
             UpdateLogoutTimer();
          }
@@ -585,7 +565,7 @@ namespace HM
 
          try
          {
-            if (_useSSL)
+            if (is_ssl_)
             {
                if (delimitor.GetLength() == 0)
                   boost::asio::async_read(_sslSocket, _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
@@ -595,9 +575,9 @@ namespace HM
             else
             {
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(_socket, _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
+                  boost::asio::async_read(_sslSocket.next_layer(), _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
                else
-                  boost::asio::async_read_until(_socket, _receiveBuffer, delimitor, handleReadFunction);
+                  boost::asio::async_read_until(_sslSocket.next_layer(), _receiveBuffer, delimitor, handleReadFunction);
             }
 
             UpdateLogoutTimer();
@@ -1063,47 +1043,6 @@ namespace HM
    TCPConnection::IsClient()
    {
       return _remoteServer.GetLength() > 0;
-   }
-
-   bool 
-   TCPConnection::PrepareSSLContext(boost::asio::ssl::context &ctx)
-   {
-      boost::system::error_code errorCode;
-      ctx.set_options(boost::asio::ssl::context::default_workarounds |
-							 boost::asio::ssl::context::no_sslv2);
-
-      if (errorCode.value() != 0)
-      {
-         String errorMessage;
-         errorMessage.Format(_T("Failed to set default workarounds."));
-         ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
-
-         return false;
-      }
-
-      if (IniFileSettings::Instance()->GetUseSSLVerifyPeer())
-      {
-         ctx.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert, errorCode);
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to enable peer verification."));
-            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
-
-            return false;
-         }
-
-         ctx.add_verify_path(AnsiString(IniFileSettings::Instance()->GetCertificateAuthorityDirectory()), errorCode);
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to add path to Certificate Authority files."));
-            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
-            return false;
-         }
-      }      
-
-      return true;
    }
 
    void  
