@@ -42,7 +42,7 @@ namespace HM
          sResponse += pArgument->Tag() + " BAD Goodbye\r\n";
          pConnection->Logout(sResponse);   
 
-         return IMAPResult();
+         return IMAPResult(IMAPResult::ResultOKSupressRead, "");
       } 
 
       if (!pAccount)

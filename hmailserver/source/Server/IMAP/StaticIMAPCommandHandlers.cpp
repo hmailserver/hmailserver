@@ -30,7 +30,7 @@
 #include "IMAPCommandDeleteAcl.h"
 #include "IMAPCommandSetAcl.h"
 #include "IMAPCommandListRights.h"
-
+#include "IMAPCommandStartTls.h"
 
 // IMAP QUOTA EXTENSION
 #include "IMAPCommandGetQuota.h"
@@ -88,6 +88,7 @@ namespace HM
       mapCommandHandlers[IMAPConnection::IMAP_DELETEACL] = shared_ptr<IMAPCommandDeleteAcl>(new IMAPCommandDeleteAcl());
       mapCommandHandlers[IMAPConnection::IMAP_SETACL] = shared_ptr<IMAPCommandSetAcl>(new IMAPCommandSetAcl());
       mapCommandHandlers[IMAPConnection::IMAP_LISTRIGHTS] = shared_ptr<IMAPCommandListRights>(new IMAPCommandListRights());
+      mapCommandHandlers[IMAPConnection::IMAP_STARTTLS] = shared_ptr<IMAPCommandStartTls>(new IMAPCommandStartTls());
       
    }
 

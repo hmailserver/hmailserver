@@ -5,6 +5,8 @@
 #include "Formatter.h"
 #include "FormatArgument.h"
 
+#include "../Unicode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -68,6 +70,49 @@ namespace HM
       arguments.push_back(argument5);
 
       return Format(fmt, arguments);
+   }
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1)
+   {
+       String value = Format(fmt, argument1);
+
+       return Unicode::ToANSI(value);
+   }
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2)
+   {
+      String value = Format(fmt, argument1, argument2);
+
+      return Unicode::ToANSI(value);
+   }
+
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2, const FormatArgument &argument3)
+   {
+      String value = Format(fmt, argument1, argument2, argument3);
+
+      return Unicode::ToANSI(value);
+   }
+
+
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4)
+   {
+      String value = Format(fmt, argument1, argument2, argument3, argument4);
+
+      return Unicode::ToANSI(value);
+   }
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4, const FormatArgument &argument5)
+   {
+      String value = Format(fmt, argument1, argument2, argument5);
+
+      return Unicode::ToANSI(value);
    }
 
 

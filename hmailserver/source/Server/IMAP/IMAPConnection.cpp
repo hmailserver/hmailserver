@@ -87,7 +87,8 @@ namespace HM
    {
       Initialize();
 
-      if (GetConnectionSecurity() == CSNone)      
+      if (GetConnectionSecurity() == CSNone ||
+          GetConnectionSecurity() == CSSTARTTLS)      
          SendBanner_();
    }
 
@@ -96,6 +97,8 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)      
          SendBanner_();
+      else if (GetConnectionSecurity() == CSSTARTTLS)
+         PostReceive();
    }
 
    void 
@@ -159,19 +162,6 @@ namespace HM
    // Parses a client POP3 command.
    //---------------------------------------------------------------------------()
    {
-      InternalParseData(Request);
-      
-      if (m_bPendingDisconnect == false)
-         PostReceive();
-   }
-
-   void
-   IMAPConnection::InternalParseData(const String &Request)
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Parses a client command. Handles literals as well.
-   //---------------------------------------------------------------------------()
-   {
       _LogClientCommand(Request);
 
       bool bHasLiterals = false;
@@ -184,9 +174,9 @@ namespace HM
       int iSpace = m_sCommandBuffer.Find(_T(" "));
       String sTag = m_sCommandBuffer.Mid(0, iSpace);
       String sCommand = m_sCommandBuffer.Mid(iSpace+1, iLineEnd - (iSpace+1));
-   
+
       shared_ptr<IMAPClientCommand> pCommand = shared_ptr<IMAPClientCommand>(new IMAPClientCommand);
-      
+
       // Check if we should receive any literal data.
       if (m_iLiteralDataToReceive == 0)
       {
@@ -194,6 +184,7 @@ namespace HM
          {
             // The client is not permitted to send the octets of the literal unless
             // the server indicates that it expects it. 
+            PostReceive();
             return;
          }
       }
@@ -207,7 +198,8 @@ namespace HM
          {
             // Tell the client that we expects more data.
             SendAsciiData("+ Ready for additional command text.\r\n");
-            return;            
+            PostReceive();
+            return;
          }
          else
          {
@@ -220,10 +212,13 @@ namespace HM
             m_sLiteralBuffer = "";
 
             if (_AskForLiteralData(sRemaining))
-               return ;
+            {
+               PostReceive();
+               return;
+            }
          }
       }
-      
+
       if (bHasLiterals)
       {
          std::vector<String> vecCommand = StringParser::SplitString(m_sCommandBuffer, "\r\n");
@@ -261,15 +256,12 @@ namespace HM
                // We have to take the remaining literal from the next line.
             }
          }
-
       }
- 
+
       pCommand->Tag = sTag;
       pCommand->Command = sCommand;
-      
-      vecIncoming.push_back(pCommand);
 
-      AnswerCommand();
+      AnswerCommand(pCommand);
 
       m_sCommandBuffer.Empty();
    }
@@ -553,118 +545,130 @@ namespace HM
          return IMAP_SETACL;
       else if (sCommand == _T("LISTRIGHTS"))
          return IMAP_LISTRIGHTS;
+      else if (sCommand == _T("STARTTLS"))
+         return IMAP_STARTTLS;
 
       return IMAP_UNKNOWN;
    }
 
-   void 
-   IMAPConnection::AnswerCommand()
+   void
+   IMAPConnection::AnswerCommand(shared_ptr<IMAPClientCommand> command)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Handles a single client command.
    //---------------------------------------------------------------------------()
    {
-      std::vector<shared_ptr<IMAPClientCommand> >::iterator iterCommand = vecIncoming.begin();
+      // Find the command handler.
 
-      if (iterCommand != vecIncoming.end())
+      String sCommandTag = command->Tag;
+      String sCommandValue = command->Command;
+
+      int iSpace = sCommandValue.Find(_T(" "));
+      String sCommandName = "";
+      if (iSpace >= 0)
+         sCommandName = sCommandValue.Mid(0, iSpace);
+      else
+         sCommandName = sCommandValue;
+
+      if (m_bIsIdling)
       {
-         // Find the command handler.
-
-         String sCommandTag = (*iterCommand)->Tag;
-         String sCommandValue = (*iterCommand)->Command;
-
-         int iSpace = sCommandValue.Find(_T(" "));
-         String sCommandName = "";
-         if (iSpace >= 0)
-            sCommandName = sCommandValue.Mid(0, iSpace);
-         else
-            sCommandName = sCommandValue;
-
-         if (m_bIsIdling)
-         {
-            _EndIdleMode();
-            
-            // Remove command
-            vecIncoming.erase(iterCommand);
-            
-            return;
-         }
-
-         if (sCommandTag.IsEmpty() || sCommandValue.IsEmpty())
-         {
-            // No space found in the command line.
-            SendAsciiData(sCommandValue + " BAD NULL COMMAND\r\n");
-            
-            // Remove this command since it's no good.
-            vecIncoming.erase(iterCommand);
-
-            return;
-         }
-
-         eIMAPCommandType eCommand = GetCommandType(sCommandName);
-
-         bool bHandlerFound = false;
+         _EndIdleMode();
          
-         std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(eCommand);
-
-         if (iterCommandHandler != mapCommandHandlers.end())
-            bHandlerFound = true;
-         else
-         {
-            // Find handler in the static space.
-            iterCommandHandler = mapStaticHandlers.find(eCommand);     
-
-            if (iterCommandHandler != mapStaticHandlers.end())
-               bHandlerFound = true;
-         }
-
-         if (bHandlerFound)
-         {
-            shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
-
-            shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument> (new IMAPCommandArgument);
-
-            pArgument->Command(sCommandValue);
-            pArgument->Tag(sCommandTag);
-            
-            // Add literals.
-            std::vector<String>::iterator iterStr = (*iterCommand)->vecLiteralData.begin();
-            while (iterStr != (*iterCommand)->vecLiteralData.end())
-            {
-               pArgument->AddLiteral(*iterStr);
-               iterStr++;
-            }
-            
-            IMAPResult result = pCommand->ExecuteCommand(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
-
-            if (result.GetResult() == IMAPResult::ResultOK)
-            {
-               // If a delayed notification has been specified by the command, submit it now.
-               if (m_pDelayedChangeNotification)
-               {
-                  Application::Instance()->GetNotificationServer()->SendNotification(_notificationClient, m_pDelayedChangeNotification);
-                  m_pDelayedChangeNotification.reset();
-               }
-            }
-            else if (result.GetResult() == IMAPResult::ResultBad)
-            {
-               SendAsciiData(sCommandTag + " BAD " + result.GetMessage() + "\r\n");
-            }
-            else if (result.GetResult() == IMAPResult::ResultNo)
-            {
-               SendAsciiData(sCommandTag + " NO " + result.GetMessage() + "\r\n");
-            }
-
-         }
-
-         // Report updates on the current folder.
-         if (m_pCurrentFolder)
-            NotifyFolderChange();
-      
-         vecIncoming.erase(iterCommand);
-      
+         // Remove command
+         PostReceive();
+         return;
       }
 
+      if (sCommandTag.IsEmpty() || sCommandValue.IsEmpty())
+      {
+         // No space found in the command line.
+         SendAsciiData(sCommandValue + " BAD NULL COMMAND\r\n");
+         
+         // Remove this command since it's no good.
+         PostReceive();
+         return;
+      }
+
+      eIMAPCommandType eCommand = GetCommandType(sCommandName);
+
+      bool bHandlerFound = false;
+      
+      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(eCommand);
+
+      if (iterCommandHandler != mapCommandHandlers.end())
+         bHandlerFound = true;
+      else
+      {
+         // Find handler in the static space.
+         iterCommandHandler = mapStaticHandlers.find(eCommand);     
+
+         if (iterCommandHandler != mapStaticHandlers.end())
+            bHandlerFound = true;
+      }
+
+      if (!bHandlerFound)
+      {
+         // Should never happen. If the command is not known to hMailServer, it is classified as
+         // IMAP_UNKNOWN. This command is set up int he static command handlers.
+         throw new std::logic_error(Formatter::FormatAsAnsi("Handler for {0} was not found.", sCommandName));
+         assert(0);
+         return;
+      }
+      
+      shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
+
+      shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument> (new IMAPCommandArgument);
+      pArgument->Command(sCommandValue);
+      pArgument->Tag(sCommandTag);
+      
+      // Add literals.
+      std::vector<String>::iterator iterStr = command->vecLiteralData.begin();
+      while (iterStr != command->vecLiteralData.end())
+      {
+         pArgument->AddLiteral(*iterStr);
+         iterStr++;
+      }
+      
+      bool postReceive = true;
+      
+      IMAPResult result = pCommand->ExecuteCommand(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
+
+      if (result.GetResult() == IMAPResult::ResultOK)
+      {
+         // If a delayed notification has been specified by the command, submit it now.
+         if (m_pDelayedChangeNotification)
+         {
+            Application::Instance()->GetNotificationServer()->SendNotification(_notificationClient, m_pDelayedChangeNotification);
+            m_pDelayedChangeNotification.reset();
+         }
+
+         postReceive = true;
+      }
+      else if (result.GetResult() == IMAPResult::ResultOKSupressRead)
+      {
+         /* We're either disconnecting, or we're starting a TLS session */ 
+      }
+      else if (result.GetResult() == IMAPResult::ResultBad)
+      {
+         SendAsciiData(sCommandTag + " BAD " + result.GetMessage() + "\r\n");
+         postReceive = true;
+      }
+      else if (result.GetResult() == IMAPResult::ResultNo)
+      {
+         SendAsciiData(sCommandTag + " NO " + result.GetMessage() + "\r\n");
+         postReceive = true;
+      }
+      else
+      {
+         throw new std::logic_error(Formatter::FormatAsAnsi("Unsupported IMAP Result: {0}", result.GetResult()));
+      }
+
+      // Report updates on the current folder.
+      if (m_pCurrentFolder)
+         NotifyFolderChange();
+
+      if (postReceive)
+         PostReceive();
    }
 
    void 
@@ -883,6 +887,13 @@ namespace HM
    IMAPConnection::IsAuthenticated()
    {
       return _account;
+   }
+
+   void
+   IMAPConnection::StartHandshake()
+   {
+      Handshake();
+
    }
 }
 

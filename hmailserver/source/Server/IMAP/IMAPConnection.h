@@ -76,7 +76,8 @@ namespace HM
          IMAP_GETACL = 131,
          IMAP_SETACL = 132,
          IMAP_DELETEACL = 133,
-         IMAP_LISTRIGHTS = 134
+         IMAP_LISTRIGHTS = 134,
+         IMAP_STARTTLS = 135
       };
 
       void ParseData(const AnsiString &Request);
@@ -117,6 +118,7 @@ namespace HM
 
       shared_ptr<IMAPNotificationClient> GetNotificationClient() {return _notificationClient;}
 
+      void StartHandshake();
    protected:
 
       virtual void OnConnected();
@@ -130,7 +132,6 @@ namespace HM
             
       eIMAPCommandType GetCommandType(String & sCommand);
 
-      std::vector<shared_ptr<IMAPClientCommand> > vecIncoming;
       std::map<eIMAPCommandType, shared_ptr<IMAPCommand> > mapCommandHandlers;
       std::map<eIMAPCommandType, shared_ptr<IMAPCommand> > mapStaticHandlers;
 
@@ -142,14 +143,12 @@ namespace HM
       void _Disconnect();
       bool _IsReceivingLiteralDataForLoginCommand() const;
 
-      void InternalParseData(const String &Request);
-
       bool _AskForLiteralData(const String &sInput);
 
       void _EndIdleMode();
       int _GetLiteralSize(const String &sCommand);
 
-      void AnswerCommand();
+      void AnswerCommand(shared_ptr<IMAPClientCommand> command);
       shared_ptr<const Account> _account;
 
       shared_ptr<IMAPFolders> m_pIMAPFolders;

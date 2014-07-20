@@ -67,6 +67,8 @@ namespace HM
       
       boost::asio::ip::tcp::socket& GetSocket() {return socket_;}
 
+      ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
+
    protected:
 
       void SetTimeout(int seconds);
@@ -86,7 +88,7 @@ namespace HM
 
       void Handshake();
 
-      ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
+      
       bool IsSSLConnection(){return is_ssl_;}
    private:
       

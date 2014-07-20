@@ -32,6 +32,9 @@ namespace HM
       if (pConfig->GetUseIMAPACL())
          sResponse += " ACL";
 
+      if (pConnection->GetConnectionSecurity() == CSSTARTTLS)
+         sResponse += " STARTTLS";
+
       sResponse += " NAMESPACE RIGHTS=texk";
 
       sResponse += "\r\n";

@@ -13,7 +13,8 @@ namespace HM
       {
          ResultOK = 1,
          ResultBad = 2,
-         ResultNo = 3
+         ResultNo = 3,
+         ResultOKSupressRead = 4
       };
       
       IMAPResult();
@@ -25,12 +26,12 @@ namespace HM
 
       const Result& GetResult() const {return _result;}
       const AnsiString& GetMessage() const {return _message;}
-
+      
    private:
 
       Result _result;
       AnsiString _message;
-      
+
    };
 
 }

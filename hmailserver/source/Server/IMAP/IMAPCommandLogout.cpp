@@ -23,6 +23,6 @@ namespace HM
 
       pConnection->Logout(sResponse);
 
-      return IMAPResult();
+      return IMAPResult(IMAPResult::ResultOKSupressRead, "");
    }
 }
