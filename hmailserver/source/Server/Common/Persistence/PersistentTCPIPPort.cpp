@@ -8,6 +8,8 @@
 #include "..\SQL\SQLStatement.h"
 #include "../SQL/IPAddressSQLHelper.h"
 
+#include "../Persistence/PersistenceMode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -50,17 +52,19 @@ namespace HM
    bool 
    PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode)
    {
-      // errorMessage - not supported yet.
+      if (mode == PersistenceModeNormal)
+      {
+         if (pObject->GetSSLCertificateID() == 0 &&
+             (pObject->GetConnectionSecurity() == CSSSL || pObject->GetConnectionSecurity() == CSSTARTTLS))
+         {
+            errorMessage = "Certificate must be specified.";
+            return false;
+         }
+      }
 
-      return SaveObject(pObject);
-   }
-
-   bool 
-   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject)
-   {
       SQLStatement oStatement;
       oStatement.SetTable("hm_tcpipports");
-      
+
       if (pObject->GetID() == 0)
       {
          oStatement.SetStatementType(SQLStatement::STInsert);

@@ -39,14 +39,17 @@ InterfaceTCPIPPort::Save()
 
       if (!m_pAuthentication->GetIsServerAdmin())
          return m_pAuthentication->GetAccessDenied();
-   
-      if (HM::PersistentTCPIPPort::SaveObject(m_pObject))
+
+      HM::String error_message;
+      if (HM::PersistentTCPIPPort::SaveObject(m_pObject, error_message, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
+
+         return S_OK;
       }
    
-      return S_OK;
+      return COMError::GenerateError(error_message);
    }
    catch (...)
    {

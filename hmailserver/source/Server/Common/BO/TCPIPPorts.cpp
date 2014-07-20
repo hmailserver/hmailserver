@@ -57,20 +57,22 @@ namespace HM
       // Delete all existing ports and then add new ones.
       DeleteAll();
 
+      String error_message;
+
       shared_ptr<TCPIPPort> pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(25);
       pTCPIPPort->SetProtocol(STSMTP);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(110);
       pTCPIPPort->SetProtocol(STPOP3);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(143);
       pTCPIPPort->SetProtocol(STIMAP);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       Refresh();
    }
