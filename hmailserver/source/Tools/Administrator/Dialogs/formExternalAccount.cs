@@ -36,6 +36,7 @@ namespace hMailServer.Administrator.Dialogs
          buttonDownloadNow.Enabled = false;
          
          comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
+         comboConnectionSecurity.SelectedIndex = 0;
 
          EnableDisable();
       }
