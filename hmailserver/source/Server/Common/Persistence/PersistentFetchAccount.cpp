@@ -102,7 +102,7 @@ namespace HM
       oFA->SetDaysToKeep(pRS->GetLongValue("fadaystokeep"));
       oFA->SetProcessMIMERecipients(pRS->GetLongValue("faprocessmimerecipients") == 1);
       oFA->SetProcessMIMEDate(pRS->GetLongValue("faprocessmimedate") == 1);
-      oFA->SetUseSSL(pRS->GetLongValue("fausessl") == 1);
+      oFA->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("faconnectionsecurity"));
       oFA->SetNextTry(pRS->GetStringValue("fanexttry"));
       oFA->SetUseAntiSpam(pRS->GetLongValue("fauseantispam") == 1);
       oFA->SetUseAntiVirus(pRS->GetLongValue("fauseantivirus") == 1);
@@ -167,7 +167,7 @@ namespace HM
       oStatement.AddColumn("fanexttry", Time::GetCurrentDateTime());
       oStatement.AddColumn("faprocessmimerecipients", pFA->GetProcessMIMERecipients());
       oStatement.AddColumn("faprocessmimedate", pFA->GetProcessMIMEDate());
-      oStatement.AddColumn("fausessl", pFA->GetUseSSL());
+      oStatement.AddColumn("faconnectionsecurity", pFA->GetConnectionSecurity());
       oStatement.AddColumn("fauseantispam", pFA->GetUseAntiSpam());
       oStatement.AddColumn("fauseantivirus", pFA->GetUseAntiVirus());
       oStatement.AddColumn("faenablerouterecipients", pFA->GetEnableRouteRecipients());

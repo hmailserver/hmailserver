@@ -1731,7 +1731,7 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerUseSSL(VARIANT_BOOL *pVal)
       if (!m_pConfig)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerUseSSL() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity() == HM::CSSSL? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1747,7 +1747,45 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerUseSSL(VARIANT_BOOL newVal)
       if (!m_pConfig)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerUseSSL(newVal== VARIANT_TRUE);
+      if (newVal == VARIANT_TRUE)
+         m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSSSL);
+      else
+         m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSNone);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP InterfaceSettings::put_SMTPRelayerConnectionSecurity(eConnectionSecurity newVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity((HM::ConnectionSecurity) newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SMTPRelayerConnectionSecurity(eConnectionSecurity *pVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+      *pVal = (eConnectionSecurity) m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity();
+
       return S_OK;
    }
    catch (...)

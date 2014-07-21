@@ -14,6 +14,8 @@
 
 #include "../Common/Util/BlowFish.h"
 
+#include "../Common/TCPIP/SocketConstants.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -163,15 +165,15 @@ namespace HM
    }
 
    void 
-   SMTPConfiguration::SetSMTPRelayerUseSSL(bool bNewwValue)
+   SMTPConfiguration::SetSMTPRelayerConnectionSecurity(ConnectionSecurity connection_security)
    {
-      _GetSettings()->SetBool(PROPERTY_SMTPRELAYERUSESSL, bNewwValue);
+      _GetSettings()->SetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY, connection_security);
    }
 
-   bool
-   SMTPConfiguration::GetSMTPRelayerUseSSL()
+   ConnectionSecurity
+   SMTPConfiguration::GetSMTPRelayerConnectionSecurity()
    {
-      return _GetSettings()->GetBool(PROPERTY_SMTPRELAYERUSESSL);
+      return (ConnectionSecurity) _GetSettings()->GetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY);
    }
 
    int

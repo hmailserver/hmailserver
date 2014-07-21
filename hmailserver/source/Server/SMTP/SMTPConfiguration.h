@@ -8,7 +8,8 @@ namespace HM
    class Routes;
    class DNSBlackLists;
    class BlockedAttachments;
-   
+   enum ConnectionSecurity;
+
    class SMTPConfiguration
    {
    public:
@@ -30,8 +31,8 @@ namespace HM
       void SetSMTPRelayerPort(long lPort);
       long GetSMTPRelayerPort();
 
-      void SetSMTPRelayerUseSSL(bool bNewValue);
-      bool GetSMTPRelayerUseSSL();
+      void SetSMTPRelayerConnectionSecurity(ConnectionSecurity connection_security);
+      ConnectionSecurity GetSMTPRelayerConnectionSecurity();
 
       void SetMaxNoOfDeliveryThreads(int lNewValue);
 

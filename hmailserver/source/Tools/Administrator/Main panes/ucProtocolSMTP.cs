@@ -23,6 +23,8 @@ namespace hMailServer.Administrator
             DirtyChecker.SubscribeToChange(this, OnContentChanged);
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
+
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
         }
 
         public void OnLeavePage()
@@ -64,7 +66,7 @@ namespace hMailServer.Administrator
             textSMTPRelayerPort.Number = settings.SMTPRelayerPort;
             chkSMTPRelayerRequiresAuth.Checked = settings.SMTPRelayerRequiresAuthentication;
             textSMTPRelayerUsername.Text = settings.SMTPRelayerUsername;
-            checkUseSSL.Checked = settings.SMTPRelayerUseSSL;
+            comboConnectionSecurity.SelectedValue = settings.SMTPRelayerConnectionSecurity;
 
             checkSendStatistics.Checked = settings.SendStatistics;
 
@@ -101,7 +103,7 @@ namespace hMailServer.Administrator
             settings.SMTPRelayerPort = textSMTPRelayerPort.Number;
             settings.SMTPRelayerRequiresAuthentication = chkSMTPRelayerRequiresAuth.Checked;
             settings.SMTPRelayerUsername = textSMTPRelayerUsername.Text;
-            settings.SMTPRelayerUseSSL = checkUseSSL.Checked;
+            settings.SMTPRelayerConnectionSecurity = (eConnectionSecurity)comboConnectionSecurity.SelectedValue;
 
             if (textSMTPRelayerPassword.Dirty)
                 settings.SetSMTPRelayerPassword(textSMTPRelayerPassword.Password);

@@ -35,6 +35,8 @@ namespace hMailServer.Administrator
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
 
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
+
             EnableDisable();
         }
 
@@ -73,7 +75,7 @@ namespace hMailServer.Administrator
             textTargetSMTPHost.Text = _representedObject.TargetSMTPHost;
             textTargetSMTPPort.Number = _representedObject.TargetSMTPPort;
 
-            checkUseSSL.Checked = _representedObject.UseSSL;
+            comboConnectionSecurity.SelectedValue = _representedObject.ConnectionSecurity;
 
             radioTreatSenderAsLocalDomain.Checked = _representedObject.TreatSenderAsLocalDomain;
             radioTreatSenderAsExternalDomain.Checked = !radioTreatSenderAsLocalDomain.Checked;
@@ -114,7 +116,7 @@ namespace hMailServer.Administrator
             _representedObject.TargetSMTPHost = textTargetSMTPHost.Text;
             _representedObject.TargetSMTPPort = textTargetSMTPPort.Number;
 
-            _representedObject.UseSSL = checkUseSSL.Checked;
+            _representedObject.ConnectionSecurity = (eConnectionSecurity) comboConnectionSecurity.SelectedValue;
 
             _representedObject.TreatSenderAsLocalDomain = radioTreatSenderAsLocalDomain.Checked;
             _representedObject.TreatRecipientAsLocalDomain = radioTreatRecipientAsLocalDomain.Checked;

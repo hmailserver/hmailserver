@@ -38,7 +38,6 @@ namespace hMailServer.Administrator
            this.radioTreatSenderAsExternalDomain = new hMailServer.Administrator.Controls.ucRadioButton();
            this.radioTreatSenderAsLocalDomain = new hMailServer.Administrator.Controls.ucRadioButton();
            this.labelTreatThisRouteAs = new System.Windows.Forms.Label();
-           this.checkUseSSL = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textTargetSMTPPort = new hMailServer.Shared.ucText();
            this.labelTargetSMTPPort = new System.Windows.Forms.Label();
            this.textTargetSMTPHost = new hMailServer.Shared.ucText();
@@ -76,6 +75,8 @@ namespace hMailServer.Administrator
            this.ucText2 = new hMailServer.Shared.ucText();
            this.ucText3 = new hMailServer.Shared.ucText();
            this.ucText4 = new hMailServer.Shared.ucText();
+           this.labelConnectionSecurity = new System.Windows.Forms.Label();
+           this.comboConnectionSecurity = new hMailServer.Administrator.Controls.ucComboBox();
            this.tabControl.SuspendLayout();
            this.tabPage1.SuspendLayout();
            this.panel2.SuspendLayout();
@@ -98,9 +99,10 @@ namespace hMailServer.Administrator
            // 
            // tabPage1
            // 
+           this.tabPage1.Controls.Add(this.labelConnectionSecurity);
+           this.tabPage1.Controls.Add(this.comboConnectionSecurity);
            this.tabPage1.Controls.Add(this.panel2);
            this.tabPage1.Controls.Add(this.panel1);
-           this.tabPage1.Controls.Add(this.checkUseSSL);
            this.tabPage1.Controls.Add(this.textTargetSMTPPort);
            this.tabPage1.Controls.Add(this.labelTargetSMTPPort);
            this.tabPage1.Controls.Add(this.textTargetSMTPHost);
@@ -123,7 +125,7 @@ namespace hMailServer.Administrator
            this.panel2.Controls.Add(this.radioTreatRecipientAsExternalDomain);
            this.panel2.Controls.Add(this.radioTreatRecipientAsLocalDomain);
            this.panel2.Controls.Add(this.labelTreatSenderAsLocalDomain);
-           this.panel2.Location = new System.Drawing.Point(8, 307);
+           this.panel2.Location = new System.Drawing.Point(8, 335);
            this.panel2.Name = "panel2";
            this.panel2.Size = new System.Drawing.Size(523, 51);
            this.panel2.TabIndex = 17;
@@ -164,7 +166,7 @@ namespace hMailServer.Administrator
            this.panel1.Controls.Add(this.radioTreatSenderAsExternalDomain);
            this.panel1.Controls.Add(this.radioTreatSenderAsLocalDomain);
            this.panel1.Controls.Add(this.labelTreatThisRouteAs);
-           this.panel1.Location = new System.Drawing.Point(9, 250);
+           this.panel1.Location = new System.Drawing.Point(9, 278);
            this.panel1.Name = "panel1";
            this.panel1.Size = new System.Drawing.Size(523, 51);
            this.panel1.TabIndex = 16;
@@ -200,21 +202,12 @@ namespace hMailServer.Administrator
            this.labelTreatThisRouteAs.TabIndex = 13;
            this.labelTreatThisRouteAs.Text = "When sender matches route, treat sender as";
            // 
-           // checkUseSSL
-           // 
-           this.checkUseSSL.AutoSize = true;
-           this.checkUseSSL.Location = new System.Drawing.Point(9, 217);
-           this.checkUseSSL.Name = "checkUseSSL";
-           this.checkUseSSL.Size = new System.Drawing.Size(68, 17);
-           this.checkUseSSL.TabIndex = 9;
-           this.checkUseSSL.Text = "Use SSL";
-           this.checkUseSSL.UseVisualStyleBackColor = true;
-           // 
            // textTargetSMTPPort
            // 
            this.textTargetSMTPPort.Location = new System.Drawing.Point(204, 190);
            this.textTargetSMTPPort.Name = "textTargetSMTPPort";
            this.textTargetSMTPPort.Number = 0;
+           this.textTargetSMTPPort.Number64 = ((long)(0));
            this.textTargetSMTPPort.Numeric = true;
            this.textTargetSMTPPort.Size = new System.Drawing.Size(85, 20);
            this.textTargetSMTPPort.TabIndex = 8;
@@ -233,6 +226,7 @@ namespace hMailServer.Administrator
            this.textTargetSMTPHost.Location = new System.Drawing.Point(8, 190);
            this.textTargetSMTPHost.Name = "textTargetSMTPHost";
            this.textTargetSMTPHost.Number = 0;
+           this.textTargetSMTPHost.Number64 = ((long)(0));
            this.textTargetSMTPHost.Numeric = false;
            this.textTargetSMTPHost.Size = new System.Drawing.Size(190, 20);
            this.textTargetSMTPHost.TabIndex = 6;
@@ -252,6 +246,7 @@ namespace hMailServer.Administrator
            this.textDescription.Multiline = true;
            this.textDescription.Name = "textDescription";
            this.textDescription.Number = 0;
+           this.textDescription.Number64 = ((long)(0));
            this.textDescription.Numeric = false;
            this.textDescription.Size = new System.Drawing.Size(282, 91);
            this.textDescription.TabIndex = 4;
@@ -270,6 +265,7 @@ namespace hMailServer.Administrator
            this.textDomainName.Location = new System.Drawing.Point(6, 26);
            this.textDomainName.Name = "textDomainName";
            this.textDomainName.Number = 0;
+           this.textDomainName.Number64 = ((long)(0));
            this.textDomainName.Numeric = false;
            this.textDomainName.Size = new System.Drawing.Size(187, 20);
            this.textDomainName.TabIndex = 2;
@@ -432,6 +428,7 @@ namespace hMailServer.Administrator
            this.textUsername.Location = new System.Drawing.Point(33, 154);
            this.textUsername.Name = "textUsername";
            this.textUsername.Number = 0;
+           this.textUsername.Number64 = ((long)(0));
            this.textUsername.Numeric = false;
            this.textUsername.Size = new System.Drawing.Size(187, 20);
            this.textUsername.TabIndex = 15;
@@ -452,6 +449,7 @@ namespace hMailServer.Administrator
            this.textNumberOfMinutesBetween.Location = new System.Drawing.Point(11, 75);
            this.textNumberOfMinutesBetween.Name = "textNumberOfMinutesBetween";
            this.textNumberOfMinutesBetween.Number = 60;
+           this.textNumberOfMinutesBetween.Number64 = ((long)(60));
            this.textNumberOfMinutesBetween.Numeric = true;
            this.textNumberOfMinutesBetween.Size = new System.Drawing.Size(85, 20);
            this.textNumberOfMinutesBetween.TabIndex = 12;
@@ -462,6 +460,7 @@ namespace hMailServer.Administrator
            this.textNumberOfTries.Location = new System.Drawing.Point(11, 27);
            this.textNumberOfTries.Name = "textNumberOfTries";
            this.textNumberOfTries.Number = 4;
+           this.textNumberOfTries.Number64 = ((long)(4));
            this.textNumberOfTries.Numeric = true;
            this.textNumberOfTries.Size = new System.Drawing.Size(85, 20);
            this.textNumberOfTries.TabIndex = 10;
@@ -549,6 +548,7 @@ namespace hMailServer.Administrator
            this.ucText1.Location = new System.Drawing.Point(204, 190);
            this.ucText1.Name = "ucText1";
            this.ucText1.Number = 0;
+           this.ucText1.Number64 = ((long)(0));
            this.ucText1.Numeric = true;
            this.ucText1.Size = new System.Drawing.Size(85, 20);
            this.ucText1.TabIndex = 8;
@@ -558,6 +558,7 @@ namespace hMailServer.Administrator
            this.ucText2.Location = new System.Drawing.Point(8, 190);
            this.ucText2.Name = "ucText2";
            this.ucText2.Number = 0;
+           this.ucText2.Number64 = ((long)(0));
            this.ucText2.Numeric = false;
            this.ucText2.Size = new System.Drawing.Size(190, 20);
            this.ucText2.TabIndex = 6;
@@ -568,6 +569,7 @@ namespace hMailServer.Administrator
            this.ucText3.Multiline = true;
            this.ucText3.Name = "ucText3";
            this.ucText3.Number = 0;
+           this.ucText3.Number64 = ((long)(0));
            this.ucText3.Numeric = false;
            this.ucText3.Size = new System.Drawing.Size(282, 91);
            this.ucText3.TabIndex = 4;
@@ -577,9 +579,28 @@ namespace hMailServer.Administrator
            this.ucText4.Location = new System.Drawing.Point(6, 26);
            this.ucText4.Name = "ucText4";
            this.ucText4.Number = 0;
+           this.ucText4.Number64 = ((long)(0));
            this.ucText4.Numeric = false;
            this.ucText4.Size = new System.Drawing.Size(187, 20);
            this.ucText4.TabIndex = 2;
+           // 
+           // labelConnectionSecurity
+           // 
+           this.labelConnectionSecurity.AutoSize = true;
+           this.labelConnectionSecurity.Location = new System.Drawing.Point(7, 216);
+           this.labelConnectionSecurity.Name = "labelConnectionSecurity";
+           this.labelConnectionSecurity.Size = new System.Drawing.Size(100, 13);
+           this.labelConnectionSecurity.TabIndex = 64;
+           this.labelConnectionSecurity.Text = "Connection security";
+           // 
+           // comboConnectionSecurity
+           // 
+           this.comboConnectionSecurity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+           this.comboConnectionSecurity.FormattingEnabled = true;
+           this.comboConnectionSecurity.Location = new System.Drawing.Point(9, 232);
+           this.comboConnectionSecurity.Name = "comboConnectionSecurity";
+           this.comboConnectionSecurity.Size = new System.Drawing.Size(171, 21);
+           this.comboConnectionSecurity.TabIndex = 63;
            // 
            // ucRoute
            // 
@@ -617,7 +638,6 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelDescription;
        private hMailServer.Shared.ucText textDomainName;
        private System.Windows.Forms.Label labelDomain;
-       private hMailServer.Administrator.Controls.ucCheckbox checkUseSSL;
        private hMailServer.Shared.ucText textNumberOfMinutesBetween;
        private System.Windows.Forms.Label labelNoOfMinutesBetween;
        private hMailServer.Shared.ucText textNumberOfTries;
@@ -653,5 +673,7 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucRadioButton radioTreatSenderAsExternalDomain;
        private hMailServer.Administrator.Controls.ucRadioButton radioTreatSenderAsLocalDomain;
        private System.Windows.Forms.Label labelTreatThisRouteAs;
+       private System.Windows.Forms.Label labelConnectionSecurity;
+       private hMailServer.Administrator.Controls.ucComboBox comboConnectionSecurity;
     }
 }

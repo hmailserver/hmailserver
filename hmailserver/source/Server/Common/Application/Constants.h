@@ -88,7 +88,7 @@
 #define PROPERTY_SMTPDISCONNECTINVALIDCLIENTS   _T("disconnectinvalidclients")
 #define PROPERTY_SMTPMAXINCORRECTCOMMANDS       _T("maximumincorrectcommands")
 
-#define PROPERTY_SMTPRELAYERUSESSL              _T("smtprelayerusessl")
+#define PROPERTY_SMTPRELAYERCONNECTIONSECURITY  _T("smtprelayerconnectionsecurity")
 
 #define PROPERTY_ADDDELIVEREDTOHEADER           _T("adddeliveredtoheader")
 

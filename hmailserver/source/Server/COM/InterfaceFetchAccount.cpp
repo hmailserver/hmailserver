@@ -491,7 +491,7 @@ STDMETHODIMP InterfaceFetchAccount::get_UseSSL(VARIANT_BOOL *pVal)
       if (!m_pObject)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUseSSL() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = m_pObject->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -508,7 +508,44 @@ STDMETHODIMP InterfaceFetchAccount::put_UseSSL(VARIANT_BOOL newVal)
       if (!m_pObject)
          return GetAccessDenied();
 
-      m_pObject->SetUseSSL(newVal == VARIANT_TRUE ? true : false);
+      if (newVal == VARIANT_TRUE)
+         m_pObject->SetConnectionSecurity(HM::CSSSL);
+      else
+         m_pObject->SetConnectionSecurity(HM::CSNone);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceFetchAccount::put_ConnectionSecurity(eConnectionSecurity newVal)
+{
+   try
+   {
+      if (!m_pObject)
+         return GetAccessDenied();
+
+      m_pObject->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceFetchAccount::get_ConnectionSecurity(eConnectionSecurity *pVal)
+{
+   try
+   {
+      if (!m_pObject)
+         return GetAccessDenied();
+
+      *pVal = (eConnectionSecurity) m_pObject->GetConnectionSecurity();
+
       return S_OK;
    }
    catch (...)

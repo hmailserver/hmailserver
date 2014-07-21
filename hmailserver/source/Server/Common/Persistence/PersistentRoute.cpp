@@ -72,7 +72,7 @@ namespace HM
       oStatement.AddColumn("routeauthenticationpassword", Crypt::Instance()->EnCrypt(pRoute->GetRelayerAuthPassword(), Crypt::ETBlowFish));
       oStatement.AddColumn("routetreatsecurityaslocal", pRoute->GetTreatRecipientAsLocalDomain() ? 1 : 0);
       oStatement.AddColumn("routetreatsenderaslocaldomain", pRoute->GetTreatSenderAsLocalDomain() ? 1 : 0);
-      oStatement.AddColumn("routeusessl", pRoute->GetUseSSL() ? 1 : 0);
+      oStatement.AddColumn("routeconnectionsecurity", pRoute->GetConnectionSecurity() );
 
       if (pRoute->GetID() == 0)
       {
@@ -136,7 +136,7 @@ namespace HM
 
       pRoute->SetRelayerAuthUsername(pRS->GetStringValue("routeauthenticationusername"));
       pRoute->SetRelayerAuthPassword(Crypt::Instance()->DeCrypt(pRS->GetStringValue("routeauthenticationpassword"), Crypt::ETBlowFish));
-      pRoute->SetUseSSL(pRS->GetLongValue("routeusessl") ? true : false);
+      pRoute->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("routeconnectionsecurity"));
 
       return true;
    }

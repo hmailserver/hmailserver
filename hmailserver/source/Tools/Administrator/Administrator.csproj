@@ -889,6 +889,7 @@
       <DependentUpon>ucWelcome.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\APICreator.cs" />
+    <Compile Include="Utilities\ConnectionSecurityTypes.cs" />
     <Compile Include="Utilities\DirtyChecker.cs" />
     <Compile Include="Utilities\Encryption.cs" />
     <Compile Include="Utilities\EnumStrings.cs" />

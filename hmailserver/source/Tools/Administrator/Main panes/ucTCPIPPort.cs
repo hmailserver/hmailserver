@@ -36,11 +36,9 @@ namespace hMailServer.Administrator
             comboProtocol.AddItem("SMTP", eSessionType.eSTSMTP);
             comboProtocol.AddItem("POP3", eSessionType.eSTPOP3);
             comboProtocol.AddItem("IMAP", eSessionType.eSTIMAP);
-
-            comboConnectionSecurity.AddItem("None", eConnectionSecurity.eCSNone);
-            comboConnectionSecurity.AddItem("STARTTLS", eConnectionSecurity.eCSSTARTTLS);
-            comboConnectionSecurity.AddItem("SSL/TLS", eConnectionSecurity.eCSTLS);
-
+          
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
+            
             ListSSLCertificates();
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);

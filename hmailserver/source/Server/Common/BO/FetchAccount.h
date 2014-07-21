@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "../TCPIP/SocketConstants.h"
+
 namespace HM
 {
 
@@ -57,8 +59,8 @@ namespace HM
       bool GetProcessMIMEDate() const {return m_bProcessMIMEDate; }
       void SetProcessMIMEDate(bool bNewVal) {m_bProcessMIMEDate = bNewVal; }
 
-      bool GetUseSSL() const {return m_bUseSSL; }
-      void SetUseSSL(bool bNewVal) {m_bUseSSL = bNewVal; }
+      ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
+      void SetConnectionSecurity(ConnectionSecurity connection_security) {connection_security_ = connection_security; }
 
       String GetNextTry() const {return m_sNextTry;}
       void SetNextTry(const String &sNextTry) {m_sNextTry = sNextTry;}
@@ -103,5 +105,6 @@ namespace HM
 
       bool _enableRouteRecipients;
 
+      ConnectionSecurity connection_security_;
    };
 }

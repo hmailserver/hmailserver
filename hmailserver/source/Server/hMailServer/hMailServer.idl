@@ -646,6 +646,8 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(89), helpstring("Gets an object containing settings related to message indexing.")] HRESULT MessageIndexing([out, retval] IInterfaceMessageIndexing **pVal);
    [propget, id(90), helpstring("Gets or sets the maximum number of hosts hMailServer should perform SMTP-delivery to.")] HRESULT MaxNumberOfMXHosts([out, retval] long *pVal);
    [propput, id(90), helpstring("Gets or sets the maximum number of hosts hMailServer should perform SMTP-delivery to.")] HRESULT MaxNumberOfMXHosts([in] long newVal);
+   [propget, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([in] eConnectionSecurity newVal);
 
 
 };
@@ -1365,6 +1367,9 @@ interface IInterfaceRoute : IDispatch
    [propget, id(18), helpstring("When email is sent to the route domain name, treat recipient domain as a local domain.")] HRESULT TreatRecipientAsLocalDomain([out, retval] VARIANT_BOOL *pVal);
 	[propput, id(18), helpstring("When email is sent to the route domain name, treat recipient domain as a local domain.")] HRESULT TreatRecipientAsLocalDomain([in] VARIANT_BOOL newVal);
 
+   [propget, id(19), helpstring("Connection security for the route.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(19), helpstring("Connection security for the route.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
+
 };
 
 
@@ -1595,6 +1600,8 @@ interface IInterfaceFetchAccount : IDispatch{
    [propget, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([out, retval] VARIANT_BOOL *pVal);
 	[propput, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([in] VARIANT_BOOL newVal);
 	[propget, id(22), helpstring("Gets whether the fetch account is currently locked")] HRESULT IsLocked([out, retval] VARIANT_BOOL* pVal);
+   [propget, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
 
 };
 [
@@ -2330,8 +2337,8 @@ interface IInterfaceTCPIPPort : IDispatch
    [propget, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([out, retval] long *pVal);
    [propput, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([in] long newVal);
    [id(8), helpstring("Deletes the object from the database.")] HRESULT Delete();
-   [propget, id(9), helpstring("Use STARTTLS for this TCP/IP port.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
-   [propput, id(9), helpstring("Use SSTARTTLSSL for this TCP/IP port.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
+   [propget, id(9), helpstring("Connection security for this TCP/IP port.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(9), helpstring("Connection security for this TCP/IP port.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
 };
 
 

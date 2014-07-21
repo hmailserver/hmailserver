@@ -102,7 +102,7 @@ namespace HM
          shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
 
          if (!serverInfo)
-            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", false));
+            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", CSNone));
 
          serverInfos.insert(std::make_pair(serverInfo, vecRecipients));
       }
@@ -178,7 +178,7 @@ namespace HM
       long lPort = 0;
       String sUsername;
       String sPassword;
-      bool bUseSSL = false;
+      ConnectionSecurity connection_security = CSNone;
 
       shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
 
@@ -189,7 +189,7 @@ namespace HM
       {
          sSMTPHost = pRoute->TargetSMTPHost();
          lPort = pRoute->TargetSMTPPort();
-         bUseSSL = pRoute->GetUseSSL();
+         connection_security = pRoute->GetConnectionSecurity();
 
          if (pRoute->GetRelayerRequiresAuth())
          {
@@ -215,7 +215,7 @@ namespace HM
                sPassword = pSMTPConfig->GetSMTPRelayerPassword();
             }
 
-            bUseSSL = pSMTPConfig->GetSMTPRelayerUseSSL();
+            connection_security = pSMTPConfig->GetSMTPRelayerConnectionSecurity();
          }
       }
 
@@ -224,7 +224,7 @@ namespace HM
          return shared_ptr<ServerInfo>();
       }
 
-      shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, sSMTPHost, lPort, sUsername, sPassword, bUseSSL));
+      shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, sSMTPHost, lPort, sUsername, sPassword, connection_security));
       return serverInfo;
 
    }

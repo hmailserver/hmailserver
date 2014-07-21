@@ -216,7 +216,7 @@ namespace HM
          // MX record preference, we have to do it manually.
          dnsQueryOK = resolver.GetEmailServers(serverInfo->GetHostName(), saMailServers);
 
-         serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, "", 25, "", "", false));
+         serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, "", 25, "", "", CSNone));
       }
 
       shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
@@ -344,14 +344,14 @@ namespace HM
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetUseSSL()? CSSSL : CSNone, pIOCPServer->GetIOService(), ctx, disconnectEvent));
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
 
       if (!serverInfo->GetUsername().IsEmpty())
          pClientConnection->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
 
-      // Determine what local IP dadress to use.
+      // Determine what local IP address to use.
       IPAddress localAddress = _GetLocalAddress();
 
       if (pClientConnection->Connect(serverInfo->GetHostName(), serverInfo->GetPort(), localAddress))

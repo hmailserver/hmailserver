@@ -67,10 +67,10 @@ namespace HM
       pNode->AppendAttr(_T("Active"), m_bIsActive ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ProcessMIMERecipients"), m_bProcessMIMERecipients ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ProcessMIMEDate"), m_bProcessMIMEDate ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseSSL"), m_bUseSSL ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("UseAntiSpam"), _useAntiSpam ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("UseAntiVirus"), _useAntiVirus ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("EnableRouteRecipients"), _enableRouteRecipients ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
 
       if (!GetUIDs()->XMLStore(pNode, iOptions))
          return false;
@@ -92,10 +92,19 @@ namespace HM
       m_bIsActive = (pNode->GetAttrValue(_T("Active")) == _T("1"));
       m_bProcessMIMERecipients = (pNode->GetAttrValue(_T("ProcessMIMERecipients")) == _T("1"));
       m_bProcessMIMEDate = (pNode->GetAttrValue(_T("ProcessMIMEDate")) == _T("1"));
-      m_bUseSSL = (pNode->GetAttrValue(_T("UseSSL")) == _T("1"));
       _useAntiSpam = (pNode->GetAttrValue(_T("UseAntiSpam")) == _T("1"));
       _useAntiVirus = (pNode->GetAttrValue(_T("UseAntiVirus")) == _T("1"));
       _enableRouteRecipients = (pNode->GetAttrValue(_T("EnableRouteRecipients")) == _T("1"));
+
+      // Backwards compatibiltiy
+      if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
+      {
+         connection_security_ = CSSSL;
+      }
+      else
+      {
+         connection_security_ = (ConnectionSecurity) _ttoi(pNode->GetAttrValue(_T("ConnectionSecurity")));
+      }
 
       return true;
    }

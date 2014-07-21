@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../TCPIP/SocketConstants.h"
+
 namespace HM
 {
    class RouteAddresses;
@@ -49,8 +51,8 @@ namespace HM
       void SetTreatSenderAsLocalDomain(bool bNewVal) {m_bTreatSenderAsLocalDomain = bNewVal; }
 
 
-      bool GetUseSSL() const  {return m_bUseSSL; }
-      void SetUseSSL(bool bNewVal) {m_bUseSSL = bNewVal; }
+      ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
+      void SetConnectionSecurity(ConnectionSecurity connectio_security) {connection_security_ = connectio_security; }
 
       shared_ptr<RouteAddresses> GetAddresses();
    
@@ -71,7 +73,7 @@ namespace HM
       bool m_bRelayerRequiresAuthentication;
       String m_sRelayerAuthUsername;
       String m_sRelayerAuthPassword;
-      bool m_bUseSSL;
+      ConnectionSecurity connection_security_;
       bool m_bTreatRecipientAsLocalDomain;
       bool m_bTreatSenderAsLocalDomain;
 

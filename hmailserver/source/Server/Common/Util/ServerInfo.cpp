@@ -11,13 +11,13 @@
 
 namespace HM
 {
-   ServerInfo::ServerInfo(bool fixed, const String &hostName, int port, const String&userName, const String &passWord, bool useSSL) :
-      _fixed (fixed),
-      _hostName(hostName),
-      _port(port),
-      _userName(userName),
-      _passWord(passWord),
-      _useSSL(useSSL)
+   ServerInfo::ServerInfo(bool fixed, const String &hostName, int port, const String&userName, const String &passWord, ConnectionSecurity connection_security) :
+      fixed_(fixed),
+      hostName_(hostName),
+      port_(port),
+      userName_(userName),
+      passWord_(passWord),
+      connection_security_(connection_security)
    {
 
    }
@@ -30,53 +30,53 @@ namespace HM
    bool
    ServerInfo::GetFixed()
    {
-      return _fixed;
+      return fixed_;
    }
 
    String 
    ServerInfo::GetHostName()
    {
-      return _hostName;
+      return hostName_;
    }
 
    void 
    ServerInfo::SetHostName(const String &hostName)
    {
-      _hostName = hostName;
+      hostName_ = hostName;
    }
 
    int 
    ServerInfo::GetPort()
    {
-      return _port;
+      return port_;
    }
 
    String 
    ServerInfo::GetUsername()
    {
-      return _userName;
+      return userName_;
    }
 
    String 
    ServerInfo::GetPassword()
    {
-      return _passWord;
+      return passWord_;
    }
 
-   bool 
-   ServerInfo::GetUseSSL()
+   ConnectionSecurity 
+   ServerInfo::GetConnectionSecurity()
    {
-      return _useSSL;
+      return connection_security_;
    }
 
    bool 
    ServerInfo::operator== (const ServerInfo &other) const
    {
-      return _fixed == other._fixed &&
-         _hostName == other._hostName &&
-         _port == other._port &&
-         _userName == other._userName &&
-         _passWord == other._passWord &&
-         _useSSL == other._useSSL;
+      return fixed_ == other.fixed_ &&
+         hostName_ == other.hostName_ &&
+         port_ == other.port_ &&
+         userName_ == other.userName_ &&
+         passWord_ == other.passWord_ &&
+         connection_security_ == other.connection_security_;
    }
 }

@@ -98,7 +98,9 @@ END_COM_MAP()
 
    STDMETHOD(get_UseSSL)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_UseSSL)(/*[in]*/ VARIANT_BOOL newVal);
-
+   
+   STDMETHOD(get_ConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_ConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
 
    STDMETHOD(Save)();
    STDMETHOD(Delete)();

@@ -16,7 +16,7 @@
 namespace HM
 {
    Route::Route() : 
-      m_bUseSSL(false),
+      connection_security_(CSNone),
       m_bToAllAddresses(true),
       m_bRelayerRequiresAuthentication(false),
       m_bTreatRecipientAsLocalDomain(false),
@@ -64,7 +64,7 @@ namespace HM
       pNode->AppendAttr(_T("Password"), Crypt::Instance()->EnCrypt(m_sRelayerAuthPassword, Crypt::ETBlowFish));
       pNode->AppendAttr(_T("TreatRecipientAsLocalDomain"), m_bTreatRecipientAsLocalDomain ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("TreatSenderAsLocalDomain"), m_bTreatSenderAsLocalDomain ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseSSL"), m_bUseSSL ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
 
       return GetAddresses()->XMLStore(pNode, iOptions);
 
@@ -85,7 +85,16 @@ namespace HM
       m_sRelayerAuthPassword = Crypt::Instance()->DeCrypt(pNode->GetAttrValue(_T("Password")), Crypt::ETBlowFish);
       m_bTreatRecipientAsLocalDomain = pNode->GetAttrValue(_T("TreatRecipientAsLocalDomain")) == _T("1");
       m_bTreatSenderAsLocalDomain = pNode->GetAttrValue(_T("TreatSenderAsLocalDomain")) == _T("1");
-      m_bUseSSL = pNode->GetAttrValue(_T("UseSSL")) == _T("1");
+
+      // Backwards compatibiltiy
+      if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
+      {
+         connection_security_ = CSSSL;
+      }
+      else
+      {
+         connection_security_ = (ConnectionSecurity) _ttoi(pNode->GetAttrValue(_T("ConnectionSecurity")));
+      }
 
       return true;
    }
