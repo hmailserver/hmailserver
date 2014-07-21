@@ -843,11 +843,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Com\InterfaceClient.rgs"
+						RelativePath=".\InterfaceClient.rgs"
 						>
 					</File>
 					<File
-						RelativePath=".\InterfaceClient.rgs"
+						RelativePath="..\Com\InterfaceClient.rgs"
 						>
 					</File>
 					<File
@@ -1399,11 +1399,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Com\InterfaceResult.rgs"
+						RelativePath="..\COM\InterfaceResult.rgs"
 						>
 					</File>
 					<File
-						RelativePath="..\COM\InterfaceResult.rgs"
+						RelativePath="..\Com\InterfaceResult.rgs"
 						>
 					</File>
 					<File
@@ -1696,11 +1696,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceAntiSpam.rgs"
+							RelativePath=".\InterfaceAntiSpam.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceAntiSpam.rgs"
+							RelativePath="..\COM\InterfaceAntiSpam.rgs"
 							>
 						</File>
 						<File
@@ -1708,11 +1708,11 @@
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceBlockedAttachment.rgs"
+							RelativePath="..\COM\InterfaceBlockedAttachment.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceBlockedAttachment.rgs"
+							RelativePath=".\InterfaceBlockedAttachment.rgs"
 							>
 						</File>
 						<File
@@ -1736,19 +1736,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceGreyListingWhiteAddress.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceGreyListingWhiteAddress.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceGreyListingWhiteAddresses.rgs"
+							RelativePath="..\COM\InterfaceGreyListingWhiteAddress.rgs"
 							>
 						</File>
 						<File
 							RelativePath=".\InterfaceGreyListingWhiteAddresses.rgs"
+							>
+						</File>
+						<File
+							RelativePath="..\COM\InterfaceGreyListingWhiteAddresses.rgs"
 							>
 						</File>
 						<File
@@ -1760,11 +1760,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceIMAPFolders.rgs"
+							RelativePath=".\InterfaceIMAPFolders.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceIMAPFolders.rgs"
+							RelativePath="..\COM\InterfaceIMAPFolders.rgs"
 							>
 						</File>
 						<File
@@ -1776,19 +1776,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceServerMessage.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceServerMessage.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceServerMessages.rgs"
+							RelativePath="..\COM\InterfaceServerMessage.rgs"
 							>
 						</File>
 						<File
 							RelativePath="..\COM\InterfaceServerMessages.rgs"
+							>
+						</File>
+						<File
+							RelativePath=".\InterfaceServerMessages.rgs"
 							>
 						</File>
 						<File
@@ -1800,19 +1800,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceTCPIPPort.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceTCPIPPort.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceTCPIPPorts.rgs"
+							RelativePath="..\COM\InterfaceTCPIPPort.rgs"
 							>
 						</File>
 						<File
 							RelativePath=".\InterfaceTCPIPPorts.rgs"
+							>
+						</File>
+						<File
+							RelativePath="..\COM\InterfaceTCPIPPorts.rgs"
 							>
 						</File>
 						<File
@@ -5020,15 +5020,463 @@
 			Name="Database scripts"
 			>
 			<File
-				RelativePath="..\DBScripts\CreateTablesMSSQL.sql"
+				RelativePath="..\..\DBScripts\CreateTablesMSSQL.sql"
 				>
 			</File>
 			<File
-				RelativePath="..\DBScripts\CreateTablesMYSQL.sql"
+				RelativePath="..\..\DBScripts\CreateTablesMYSQL.sql"
 				>
 			</File>
 			<File
 				RelativePath="..\..\DBScripts\CreateTablesPGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\ScriptPrerequisitesMSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\ScriptPrerequisitesPGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade0to1100MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade0to1100MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1100to1200MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1100to1200MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1200to1400MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1200to1400MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1400to1410MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1400to1410MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1410to1500MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1410to1500MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1500to1600MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1500to1600MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1600to1700MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1600to1700MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1700to2000MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade1700to2000MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade2000to3000MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade2000to3000MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3000to3001MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3000to3001MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3001to3100MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3001to3100MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3100to3200MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3100to3200MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3200to3300MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3200to3300MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3300to3301MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3300to3301MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3301to3400MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3301to3400MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3400to3401MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3400to3401MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3401to3402MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3401to3402MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3402to4000MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade3402to4000MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4000to4100MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4000to4100MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4100to4200MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4100to4200MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4200to4300MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4200to4300MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4300to4301MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4300to4301MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4301to4400MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4301to4400MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4400to4401MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4400to4401MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4401to4402MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4401to4402MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4402to5000MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade4402to5000MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5000to5001MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5000to5001MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5001to5002MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5001to5002MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5001to5002MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5001to5002PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5002to5003MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5002to5003MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5002to5003MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5002to5003PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5003to5004MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5003to5004MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5003to5004MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5003to5004PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5004to5005MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5004to5005MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5004to5005MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5004to5005PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5005to5006MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5005to5006MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5005to5006MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5005to5006PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5006to5100MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5006to5100MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5006to5100MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5006to5100PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5100to5110MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5100to5110MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5100to5110MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5100to5110PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5110to5200MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5110to5200MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5110to5200MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5110to5200PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5200to5201MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5200to5201MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5200to5201MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5200to5201PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5201to5300MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5201to5300MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5201to5300MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5201to5300PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5300to5310MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5300to5310MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5300to5310MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5300to5310PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5310to5320MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5310to5320MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5310to5320MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5310to5320PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5320to5400MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5320to5400MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5320to5400MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5320to5400PGSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5400to5500MSSQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5400to5500MSSQLCE.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5400to5500MySQL.sql"
+				>
+			</File>
+			<File
+				RelativePath="..\..\DBScripts\Upgrade5400to5500PGSQL.sql"
 				>
 			</File>
 		</Filter>
