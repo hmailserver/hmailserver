@@ -271,7 +271,7 @@ create table hm_routes
   routeauthenticationusername varchar(255) NOT NULL,
   routeauthenticationpassword varchar(255) NOT NULL,
   routetreatsecurityaslocal smallint NOT NULL,
-  routeusessl smallint not null,
+  routeconnectionsecurity smallint not null,
   routetreatsenderaslocaldomain smallint NOT NULL
 );
 
@@ -324,7 +324,7 @@ create table hm_fetchaccounts
 	falocked smallint not null,
 	faprocessmimerecipients smallint not null,
 	faprocessmimedate smallint not null,
-	fausessl smallint not null,
+	faconnectionsecurity smallint not null,
     fauseantispam smallint not null,
     fauseantivirus smallint not null,
     faenablerouterecipients smallint not null
@@ -703,7 +703,7 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('al
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('distributionlistcachettl', '', 60);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('smtprelayerusessl', '', 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('smtprelayerconnectionsecurity', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('adddeliveredtoheader', '', 0);
 
