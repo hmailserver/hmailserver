@@ -13,16 +13,16 @@ namespace RegressionTests.Shared
    public class IMAPSimulator
    {
       private readonly int _port = 143;
-      private readonly TcpConnection _socket;
+      private readonly TcpConnection _tcpConnection;
 
       public IMAPSimulator()
       {
-         _socket = new TcpConnection();
+         _tcpConnection = new TcpConnection();
       }
 
       public IMAPSimulator(string username, string password, string mailbox)
       {
-         _socket = new TcpConnection();
+         _tcpConnection = new TcpConnection();
 
          CustomAssert.IsTrue(ConnectAndLogon(username, password));
          CustomAssert.IsTrue(SelectFolder(mailbox));
@@ -30,22 +30,22 @@ namespace RegressionTests.Shared
 
       public IMAPSimulator(bool useSSL, int port)
       {
-         _socket = new TcpConnection(useSSL);
+         _tcpConnection = new TcpConnection(useSSL);
          _port = port;
       }
 
 
       public bool TestConnect(int iPort)
       {
-         bool bRetVal = _socket.Connect(iPort);
-         _socket.Disconnect();
+         bool bRetVal = _tcpConnection.Connect(iPort);
+         _tcpConnection.Disconnect();
          return bRetVal;
       }
 
       public string Connect()
       {
-         _socket.Connect(_port);
-         string sData = _socket.Receive();
+         _tcpConnection.Connect(_port);
+         string sData = _tcpConnection.Receive();
 
          return sData;
       }
@@ -59,13 +59,13 @@ namespace RegressionTests.Shared
 
       public void Disconnect()
       {
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
       }
 
       public bool Logout()
       {
-         _socket.Send("A01 LOGOUT\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send("A01 LOGOUT\r\n");
+         string sData = _tcpConnection.Receive();
 
          if (sData.StartsWith("*"))
             return true;
@@ -88,35 +88,35 @@ namespace RegressionTests.Shared
 
       public void LogonWithLiteral(string sUsername, string sPassword)
       {
-         _socket.Send("A01 LOGIN " + sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send("A01 LOGIN " + sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
+         string sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
             throw new Exception("Literal ready not received");
 
-         _socket.Send(sPassword + "\r\n");
+         _tcpConnection.Send(sPassword + "\r\n");
 
-         sData = _socket.Receive();
+         sData = _tcpConnection.Receive();
          if (sData.StartsWith("A01 NO") || sData.StartsWith("+ Ready"))
             throw new Exception("Logon failed");
 
          // Logon using two literals.
 
-         _socket.Send("A01 LOGIN {" + sUsername.Length.ToString() + "}\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("A01 LOGIN {" + sUsername.Length.ToString() + "}\r\n");
+         sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
             throw new Exception("Literal ready not received");
 
-         _socket.Send(sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send(sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
+         sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
             throw new Exception("Literal ready not received");
 
-         _socket.Send(sPassword + "\r\n");
+         _tcpConnection.Send(sPassword + "\r\n");
 
-         sData = _socket.Receive();
+         sData = _tcpConnection.Receive();
          if (sData.StartsWith("A01 NO") || sData.StartsWith("+ Ready"))
             throw new Exception("Logon failed");
       }
@@ -141,8 +141,8 @@ namespace RegressionTests.Shared
                                         identifier,
                                         access
             );
-         _socket.Send(command);
-         string result = _socket.Receive();
+         _tcpConnection.Send(command);
+         string result = _tcpConnection.Receive();
 
          return result.StartsWith("A01 OK");
       }
@@ -152,8 +152,8 @@ namespace RegressionTests.Shared
          string command = string.Format("A01 DELETEACL \"{0}\" {1}\r\n",
                                         sFolder,
                                         identifier);
-         _socket.Send(command);
-         string result = _socket.Receive();
+         _tcpConnection.Send(command);
+         string result = _tcpConnection.Receive();
 
          return result.StartsWith("A01 OK");
       }
@@ -162,8 +162,8 @@ namespace RegressionTests.Shared
       {
          string command = string.Format("A01 GETACL \"{0}\"\r\n",
                                         sFolder);
-         _socket.Send(command);
-         string result = _socket.Receive();
+         _tcpConnection.Send(command);
+         string result = _tcpConnection.Receive();
 
          return result;
       }
@@ -172,8 +172,8 @@ namespace RegressionTests.Shared
       {
          string command = string.Format("A01 MYRIGHTS \"{0}\"\r\n",
                                         sFolder);
-         _socket.Send(command);
-         string result = _socket.Receive();
+         _tcpConnection.Send(command);
+         string result = _tcpConnection.Receive();
 
          return result;
       }
@@ -198,16 +198,16 @@ namespace RegressionTests.Shared
       {
          string command = string.Format("A01 LISTRIGHTS \"{0}\" \"{1}\"\r\n",
                                         sFolder, identifier);
-         _socket.Send(command);
-         string result = _socket.Receive();
+         _tcpConnection.Send(command);
+         string result = _tcpConnection.Receive();
 
          return result;
       }
 
       public bool Subscribe(string sFolder)
       {
-         _socket.Send("A01 SUBSCRIBE " + sFolder + "\r\n");
-         string result = _socket.Receive().Substring(0, 6);
+         _tcpConnection.Send("A01 SUBSCRIBE " + sFolder + "\r\n");
+         string result = _tcpConnection.Receive().Substring(0, 6);
 
          if (result.StartsWith("A01 OK"))
             return true;
@@ -217,8 +217,8 @@ namespace RegressionTests.Shared
 
       public bool Unsubscribe(string sFolder)
       {
-         _socket.Send("A01 UNSUBSCRIBE \"" + sFolder + "\"\r\n");
-         string result = _socket.Receive().Substring(0, 6);
+         _tcpConnection.Send("A01 UNSUBSCRIBE \"" + sFolder + "\"\r\n");
+         string result = _tcpConnection.Receive().Substring(0, 6);
 
          if (result.StartsWith("A01 OK"))
             return true;
@@ -229,16 +229,16 @@ namespace RegressionTests.Shared
 
       public bool CheckFolder(string sFolder)
       {
-         _socket.Send("A01 CHECK " + sFolder + "\r\n");
-         string result = _socket.Receive().Substring(0, 6);
+         _tcpConnection.Send("A01 CHECK " + sFolder + "\r\n");
+         string result = _tcpConnection.Receive().Substring(0, 6);
 
          return result.StartsWith("A01 OK");
       }
 
       public bool Close()
       {
-         _socket.Send("A01 CLOSE\r\n");
-         string result = _socket.Receive();
+         _tcpConnection.Send("A01 CLOSE\r\n");
+         string result = _tcpConnection.Receive();
 
          if (result.StartsWith("A01 BAD"))
             return false;
@@ -270,9 +270,9 @@ namespace RegressionTests.Shared
             throw new Exception(message);
          }
 
-         _socket.Send(folderName + "\r\n");
+         _tcpConnection.Send(folderName + "\r\n");
 
-         text = _socket.Receive();
+         text = _tcpConnection.Receive();
          return text.StartsWith("*");
       }
 
@@ -323,8 +323,8 @@ namespace RegressionTests.Shared
 
       public bool DeleteFolder(string sFolder)
       {
-         _socket.Send("A01 DELETE " + sFolder + "\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send("A01 DELETE " + sFolder + "\r\n");
+         string sData = _tcpConnection.Receive();
 
          if (sData.StartsWith("A01 OK"))
             return true;
@@ -383,8 +383,8 @@ namespace RegressionTests.Shared
 
       public bool StartIdle()
       {
-         _socket.Send("A01 IDLE\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send("A01 IDLE\r\n");
+         string sData = _tcpConnection.Receive();
          return sData.StartsWith("+ idling");
       }
 
@@ -394,14 +394,14 @@ namespace RegressionTests.Shared
 
          if (force == false)
          {
-            output = _socket.Receive();
+            output = _tcpConnection.Receive();
          }
 
-         _socket.Send("DONE\r\n");
+         _tcpConnection.Send("DONE\r\n");
 
          for (int i = 0; i < 10; i++)
          {
-            output += _socket.Receive();
+            output += _tcpConnection.Receive();
 
             if (output.Contains("OK IDLE terminated"))
                return true;
@@ -412,7 +412,7 @@ namespace RegressionTests.Shared
 
       public bool GetPendingDataExists()
       {
-         return _socket.Peek();
+         return _tcpConnection.Peek();
       }
 
       /// <summary>
@@ -531,8 +531,8 @@ namespace RegressionTests.Shared
       public string GetCapabilities()
       {
          // Capability
-         _socket.Send("A01 CAPABILITY\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send("A01 CAPABILITY\r\n");
+         string sData = _tcpConnection.Receive();
          return sData;
       }
 
@@ -563,14 +563,14 @@ namespace RegressionTests.Shared
       public string Send(string s)
       {
          // Capability
-         _socket.Send(s + "\r\n");
-         string sData = _socket.Receive();
+         _tcpConnection.Send(s + "\r\n");
+         string sData = _tcpConnection.Receive();
          return sData;
       }
 
       public void SendRaw(string s)
       {
-         _socket.Send(s);
+         _tcpConnection.Send(s);
       }
 
       public string SendSingleCommand(string command)
@@ -599,7 +599,7 @@ namespace RegressionTests.Shared
             else
                result += Receive();
 
-            if (!_socket.IsConnected)
+            if (!_tcpConnection.IsConnected)
                return result;
 
             if (DateTime.Now - startTime > new TimeSpan(0, 0, 30))
@@ -612,12 +612,12 @@ namespace RegressionTests.Shared
 
       public string Receive()
       {
-         return _socket.Receive();
+         return _tcpConnection.Receive();
       }
 
       public string ReceiveUntil(string characters)
       {
-         return _socket.ReadUntil(characters);
+         return _tcpConnection.ReadUntil(characters);
       }
 
       private void AssertFolderExists(string folderName)
@@ -679,6 +679,11 @@ namespace RegressionTests.Shared
       public string NOOP()
       {
          return SendSingleCommand("A01 NOOP");
+      }
+
+      public void Handshake()
+      {
+         _tcpConnection.Handshake();
       }
    }
 }

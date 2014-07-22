@@ -629,7 +629,7 @@ namespace HM
          iterStr++;
       }
       
-      bool postReceive = true;
+      bool postReceive = false;
       
       IMAPResult result = pCommand->ExecuteCommand(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
 

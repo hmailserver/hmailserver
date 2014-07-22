@@ -13,245 +13,251 @@ using System.Threading;
 
 namespace RegressionTests.Shared
 {
-    /// <summary>
-    /// Summary description for ClientSocket.
-    /// </summary>
-    public class TcpConnection : IDisposable
-    {
-        private readonly bool _useSslSocket;
+   /// <summary>
+   /// Summary description for ClientSocket.
+   /// </summary>
+   public class TcpConnection : IDisposable
+   {
+      private bool _useSslSocket;
 
-        public TcpConnection()
-        {
+      public TcpConnection()
+      {
 
-        }
+      }
 
-        public TcpConnection(bool useSSL)
-        {
-            _useSslSocket = useSSL;
-        }
+      public TcpConnection(bool useSSL)
+      {
+         _useSslSocket = useSSL;
+      }
 
-        public TcpConnection(TcpClient client)
-        {
-            _tcpClient = client;
-        }
+      public TcpConnection(TcpClient client)
+      {
+         _tcpClient = client;
+      }
 
-        public bool IsConnected
-        {
-            get { return _tcpClient.Connected; }
-        }
+      public bool IsConnected
+      {
+         get { return _tcpClient.Connected; }
+      }
 
-        public bool Connect(int iPort)
-        {
-            return Connect(null, iPort);
-        }
+      public bool Connect(int iPort)
+      {
+         return Connect(null, iPort);
+      }
 
-        private IPAddress GetHostAddress(string hostName, bool allowIPv6)
-        {
-            var addresses = Dns.GetHostEntry(hostName).AddressList;
+      private IPAddress GetHostAddress(string hostName, bool allowIPv6)
+      {
+         var addresses = Dns.GetHostEntry(hostName).AddressList;
 
-            foreach (IPAddress address in addresses)
-            {
-                if (address.AddressFamily == AddressFamily.InterNetworkV6 && allowIPv6)
-                    return address;
-                else if (address.AddressFamily == AddressFamily.InterNetwork)
-                    return address;
-            }
+         foreach (IPAddress address in addresses)
+         {
+            if (address.AddressFamily == AddressFamily.InterNetworkV6 && allowIPv6)
+               return address;
+            else if (address.AddressFamily == AddressFamily.InterNetwork)
+               return address;
+         }
 
-            return null;
-        }
+         return null;
+      }
 
-        public bool Connect(IPAddress ipaddress, int iPort)
-        {
-            IPEndPoint endPoint;
+      public bool Connect(IPAddress ipaddress, int iPort)
+      {
+         IPEndPoint endPoint;
 
-            if (ipaddress != null)
-                endPoint = new IPEndPoint(ipaddress, iPort);
-            else
-                endPoint = new IPEndPoint(GetHostAddress("localhost", false), iPort);
+         if (ipaddress != null)
+            endPoint = new IPEndPoint(ipaddress, iPort);
+         else
+            endPoint = new IPEndPoint(GetHostAddress("localhost", false), iPort);
 
-            try
-            {
-                _tcpClient = new TcpClient(endPoint.Address.ToString(), iPort);
-            }
-            catch
-            {
-                return false;
-            }
-
-            _tcpClient.Client.Blocking = true;
-
-            if (_useSslSocket)
-            {
-                // Create an SSL stream that will close the client's stream.
-                _sslStream = new SslStream(_tcpClient.GetStream(), false,
-                                           ValidateServerCertificate, null);
-
-                try
-                {
-                    _sslStream.AuthenticateAsClient("localhost");
-                }
-                catch (AuthenticationException)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-            
-            return true;
-        }
-
-        public bool IsPortOpen(int iPort)
-        {
-            if (!Connect(iPort))
-                return false;
-
-            try
-            {
-                for (int i = 0; i < 40; i++)
-                {
-                    if (_tcpClient.Available > 0)
-                        return true;
-
-                    Thread.Sleep(25);
-                }
-            }
-            finally
-            {
-                Disconnect();
-            }
-
+         try
+         {
+            _tcpClient = new TcpClient(endPoint.Address.ToString(), iPort);
+         }
+         catch
+         {
             return false;
-        }
+         }
 
-        public void Disconnect()
-        {
-            if (_useSslSocket)
-                _sslStream.Close();
-                
-            _tcpClient.Close();
-        }
+         _tcpClient.Client.Blocking = true;
 
-        public void Send(string s)
-        {
-            if (!_tcpClient.Connected)
-                throw new InvalidOperationException("Connection closed - Unable to send data.");
+         if (_useSslSocket)
+            if (!Handshake())
+               return false;
+         
+         return true;
+      }
 
-            if (_useSslSocket)
+      public bool IsPortOpen(int iPort)
+      {
+         if (!Connect(iPort))
+            return false;
+
+         try
+         {
+            for (int i = 0; i < 40; i++)
             {
-                var message = Encoding.UTF8.GetBytes(s);
-                _sslStream.Write(message);
-                _sslStream.Flush();
+               if (_tcpClient.Available > 0)
+                  return true;
+
+               Thread.Sleep(25);
             }
-            else
-            {
-                var buf = Encoding.UTF8.GetBytes(s);
-                var stream = _tcpClient.GetStream();
-
-                stream.Write(buf, 0, buf.Length);
-            }
-        }
-
-        public string ReadUntil(string text)
-        {
-            string result = Receive();
-
-            for (int i = 0; i < 1000; i++)
-            {
-                if (result.Contains(text))
-                    return result;
-
-                if (!_tcpClient.Connected)
-                    return "";
-
-                result += Receive();
-
-                Thread.Sleep(10);
-            }
-
-            throw new InvalidOperationException("Timeout while waiting for server response: " + text);
-        }
-
-
-        public string ReadUntil(List<string> possibleReplies)
-        {
-            string result = Receive();
-
-            for (int i = 0; i < 1000; i++)
-            {
-                foreach (string s in possibleReplies)
-                {
-                    if (result.Contains(s))
-                        return result;
-                }
-
-                Thread.Sleep(10);
-
-                result += Receive();
-            }
-
-            throw new InvalidOperationException("Timeout while waiting for server response");
-        }
-
-        public string Receive()
-        {
-            if (!_tcpClient.Connected)
-                return "";
-
-            var messageData = new StringBuilder();
-            var buffer = new byte[2048];
-            int bytes;
-
-            if (_useSslSocket)
-            {
-                do
-                {
-                    bytes = _sslStream.Read(buffer, 0, buffer.Length);
-                    Decoder decoder = Encoding.UTF8.GetDecoder();
-                    var chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
-                    decoder.GetChars(buffer, 0, bytes, chars, 0);
-                    messageData.Append(chars);
-                } while (_tcpClient.Available > 0);
-            }
-            else
-            {
-                do
-                {
-                    var stream = _tcpClient.GetStream();
-
-                    bytes = stream.Read(buffer, 0, buffer.Length);
-                    char[] chars = Encoding.ASCII.GetChars(buffer);
-                    var s = new string(chars, 0, bytes);
-
-                    messageData.Append(s);
-                } while (_tcpClient.Available > 0);
-            }
-
-            return messageData.ToString();
-        }
-
-        public bool Peek()
-        {
-            return _tcpClient.Available > 0;
-        }
-
-        private SslStream _sslStream;
-        private TcpClient _tcpClient;
-
-        // The following method is invoked by the RemoteCertificateValidationDelegate.
-        public static bool ValidateServerCertificate(
-           object sender,
-           X509Certificate certificate,
-           X509Chain chain,
-           SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
-
-        public void Dispose()
-        {
+         }
+         finally
+         {
             Disconnect();
-        }
+         }
 
-    }
+         return false;
+      }
+
+      public void Disconnect()
+      {
+         if (_useSslSocket)
+            _sslStream.Close();
+
+         _tcpClient.Close();
+      }
+
+      public bool Handshake()
+      {
+         // Create an SSL stream that will close the client's stream.
+         _sslStream = new SslStream(_tcpClient.GetStream(), false,
+                                    ValidateServerCertificate, null);
+
+         try
+         {
+            _sslStream.AuthenticateAsClient("localhost");
+         }
+         catch (AuthenticationException)
+         {
+            return false;
+         }
+
+
+         _useSslSocket = true;
+         return true;
+      }
+
+      public void Send(string s)
+      {
+         if (!_tcpClient.Connected)
+            throw new InvalidOperationException("Connection closed - Unable to send data.");
+
+         if (_useSslSocket)
+         {
+            var message = Encoding.UTF8.GetBytes(s);
+            _sslStream.Write(message);
+            _sslStream.Flush();
+         }
+         else
+         {
+            var buf = Encoding.UTF8.GetBytes(s);
+            var stream = _tcpClient.GetStream();
+
+            stream.Write(buf, 0, buf.Length);
+         }
+      }
+
+      public string ReadUntil(string text)
+      {
+         string result = Receive();
+
+         for (int i = 0; i < 1000; i++)
+         {
+            if (result.Contains(text))
+               return result;
+
+            if (!_tcpClient.Connected)
+               return "";
+
+            result += Receive();
+
+            Thread.Sleep(10);
+         }
+
+         throw new InvalidOperationException("Timeout while waiting for server response: " + text);
+      }
+
+
+      public string ReadUntil(List<string> possibleReplies)
+      {
+         string result = Receive();
+
+         for (int i = 0; i < 1000; i++)
+         {
+            foreach (string s in possibleReplies)
+            {
+               if (result.Contains(s))
+                  return result;
+            }
+
+            Thread.Sleep(10);
+
+            result += Receive();
+         }
+
+         throw new InvalidOperationException("Timeout while waiting for server response");
+      }
+
+      public string Receive()
+      {
+         if (!_tcpClient.Connected)
+            return "";
+
+         var messageData = new StringBuilder();
+         var buffer = new byte[2048];
+         int bytes;
+
+         if (_useSslSocket)
+         {
+            do
+            {
+               bytes = _sslStream.Read(buffer, 0, buffer.Length);
+               Decoder decoder = Encoding.UTF8.GetDecoder();
+               var chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
+               decoder.GetChars(buffer, 0, bytes, chars, 0);
+               messageData.Append(chars);
+            } while (_tcpClient.Available > 0);
+         }
+         else
+         {
+            do
+            {
+               var stream = _tcpClient.GetStream();
+
+               bytes = stream.Read(buffer, 0, buffer.Length);
+               char[] chars = Encoding.ASCII.GetChars(buffer);
+               var s = new string(chars, 0, bytes);
+
+               messageData.Append(s);
+            } while (_tcpClient.Available > 0);
+         }
+
+         return messageData.ToString();
+      }
+
+      public bool Peek()
+      {
+         return _tcpClient.Available > 0;
+      }
+
+      private SslStream _sslStream;
+      private TcpClient _tcpClient;
+
+      // The following method is invoked by the RemoteCertificateValidationDelegate.
+      public static bool ValidateServerCertificate(
+         object sender,
+         X509Certificate certificate,
+         X509Chain chain,
+         SslPolicyErrors sslPolicyErrors)
+      {
+         return true;
+      }
+
+      public void Dispose()
+      {
+         Disconnect();
+      }
+
+   }
 }

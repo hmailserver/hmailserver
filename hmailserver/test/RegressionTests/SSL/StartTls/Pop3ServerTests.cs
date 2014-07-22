@@ -46,5 +46,20 @@ namespace RegressionTests.SSL.StartTls
 
             CustomAssert.IsTrue(data.Contains("STLS"));
         }
+
+        [Test]
+        public void StlsCommandShouldSwithToTls()
+        {
+           var pop3Simulator = new POP3Simulator(false, 11000);
+           pop3Simulator.Connect();
+           string banner;
+           pop3Simulator.ReceiveBanner(out banner);
+           pop3Simulator.STLS();
+           pop3Simulator.Handshake();
+
+           // run over TLS.
+           pop3Simulator.HELP();
+
+        }
     }
 }

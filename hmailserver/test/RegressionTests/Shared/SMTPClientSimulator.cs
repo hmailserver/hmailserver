@@ -13,7 +13,7 @@ namespace RegressionTests.Shared
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 25;
-      private readonly TcpConnection _socket;
+      private readonly TcpConnection _tcpConnection;
 
       public SMTPClientSimulator() :
          this(false, 25)
@@ -27,26 +27,26 @@ namespace RegressionTests.Shared
 
       public SMTPClientSimulator(bool useSSL, int port, IPAddress ipaddress)
       {
-         _socket = new TcpConnection(useSSL);
+         _tcpConnection = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
       }
 
       public bool IsConnected
       {
-         get { return _socket.IsConnected; }
+         get { return _tcpConnection.IsConnected; }
       }
 
       public bool TestConnect(int iPort)
       {
-         bool bRetVal = _socket.Connect(_ipaddress, iPort);
-         _socket.Disconnect();
+         bool bRetVal = _tcpConnection.Connect(_ipaddress, iPort);
+         _tcpConnection.Disconnect();
          return bRetVal;
       }
 
       public void Connect()
       {
-         _socket.Connect(_port);
+         _tcpConnection.Connect(_port);
       }
 
       public bool ConnectAndLogon(string base64Username, string base64Password, out string errorMessage)
@@ -82,17 +82,17 @@ namespace RegressionTests.Shared
 
       public void Disconnect()
       {
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
       }
 
       public void Send(string sData)
       {
-         _socket.Send(sData);
+         _tcpConnection.Send(sData);
       }
 
       public string Receive()
       {
-         return _socket.Receive();
+         return _tcpConnection.Receive();
       }
 
       public string SendAndReceive(string sData)
@@ -101,35 +101,40 @@ namespace RegressionTests.Shared
          return Receive();
       }
 
+      public void Handshake()
+      {
+         _tcpConnection.Handshake();
+      }
+
       public string GetWelcomeMessage()
       {
-         _socket.Connect(_port);
-         string sData = _socket.Receive();
+         _tcpConnection.Connect(_port);
+         string sData = _tcpConnection.Receive();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
          return sData;
       }
 
       public bool Send(string sFrom, List<string> lstRecipients, string sSubject, string sBody)
       {
-         if (!_socket.Connect(_ipaddress, _port))
+         if (!_tcpConnection.Connect(_ipaddress, _port))
             return false;
 
          // Receive welcome message.
-         string sData = _socket.Receive();
+         string sData = _tcpConnection.Receive();
 
-         _socket.Send("HELO 127.0.0.1\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("HELO 127.0.0.1\r\n");
+         sData = _tcpConnection.Receive();
 
          // User
-         _socket.Send("MAIL FROM:<" + sFrom + ">\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("MAIL FROM:<" + sFrom + ">\r\n");
+         sData = _tcpConnection.Receive();
 
          string sCommaSeparatedRecipients = "";
          foreach (string sRecipient in lstRecipients)
          {
-            _socket.Send("RCPT TO:<" + sRecipient + ">\r\n");
-            sData = _socket.Receive();
+            _tcpConnection.Send("RCPT TO:<" + sRecipient + ">\r\n");
+            sData = _tcpConnection.Receive();
 
             if (!sData.StartsWith("250"))
                return false;
@@ -141,36 +146,36 @@ namespace RegressionTests.Shared
          }
 
          // Select inbox
-         _socket.Send("DATA\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("DATA\r\n");
+         sData = _tcpConnection.Receive();
 
          if (sCommaSeparatedRecipients.Length > 5000)
             sCommaSeparatedRecipients = sCommaSeparatedRecipients.Substring(0, 5000);
 
-         _socket.Send("From: " + sFrom + "\r\n");
-         _socket.Send("To: " + sCommaSeparatedRecipients + "\r\n");
-         _socket.Send("Subject: " + sSubject + "\r\n");
-         _socket.Send("Date: " + TestSetup.GetCurrentMIMEDateTime() + "\r\n");
+         _tcpConnection.Send("From: " + sFrom + "\r\n");
+         _tcpConnection.Send("To: " + sCommaSeparatedRecipients + "\r\n");
+         _tcpConnection.Send("Subject: " + sSubject + "\r\n");
+         _tcpConnection.Send("Date: " + TestSetup.GetCurrentMIMEDateTime() + "\r\n");
 
-         _socket.Send("\r\n");
+         _tcpConnection.Send("\r\n");
 
          // Send body
 
-         _socket.Send(sBody);
+         _tcpConnection.Send(sBody);
 
-         _socket.Send("\r\n");
-         _socket.Send(".\r\n");
+         _tcpConnection.Send("\r\n");
+         _tcpConnection.Send(".\r\n");
 
          // Wait for OK.
-         sData = _socket.Receive();
+         sData = _tcpConnection.Receive();
          if (sData.Substring(0, 3) != "250")
             return false;
 
          // Quit again
-         _socket.Send("QUIT\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("QUIT\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
 
          return true;
       }
@@ -184,20 +189,20 @@ namespace RegressionTests.Shared
 
       public bool Send(string sFrom, string sTo, string sSubject, string sBody, out string result)
       {
-         _socket.Connect(_ipaddress, _port);
+         _tcpConnection.Connect(_ipaddress, _port);
 
          // Receive welcome message.
-         string sData = _socket.Receive();
+         string sData = _tcpConnection.Receive();
 
-         _socket.Send("HELO example.com\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("HELO example.com\r\n");
+         sData = _tcpConnection.Receive();
 
          // User
-         _socket.Send("MAIL FROM:<" + sFrom + ">\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("MAIL FROM:<" + sFrom + ">\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Send("RCPT TO:<" + sTo + ">\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("RCPT TO:<" + sTo + ">\r\n");
+         sData = _tcpConnection.Receive();
          if (sData.StartsWith("2") == false)
          {
             result = sData;
@@ -205,24 +210,24 @@ namespace RegressionTests.Shared
          }
 
          // Select inbox
-         _socket.Send("DATA\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("DATA\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Send("From: " + sFrom + "\r\n");
-         _socket.Send("To: " + sTo + "\r\n");
-         _socket.Send("Subject: " + sSubject + "\r\n");
+         _tcpConnection.Send("From: " + sFrom + "\r\n");
+         _tcpConnection.Send("To: " + sTo + "\r\n");
+         _tcpConnection.Send("Subject: " + sSubject + "\r\n");
 
-         _socket.Send("\r\n");
+         _tcpConnection.Send("\r\n");
 
          // Send body
 
-         _socket.Send(sBody);
+         _tcpConnection.Send(sBody);
 
-         _socket.Send("\r\n");
-         _socket.Send(".\r\n");
+         _tcpConnection.Send("\r\n");
+         _tcpConnection.Send(".\r\n");
 
          // Wait for OK.
-         sData = _socket.Receive();
+         sData = _tcpConnection.Receive();
          if (sData.Substring(0, 3) != "250")
          {
             result = sData;
@@ -230,10 +235,10 @@ namespace RegressionTests.Shared
          }
 
          // Quit again
-         _socket.Send("QUIT\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("QUIT\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
 
          result = "";
          return true;
@@ -241,45 +246,45 @@ namespace RegressionTests.Shared
 
       public bool SendRaw(string sFrom, string sTo, string text)
       {
-         if (!_socket.Connect(_port))
+         if (!_tcpConnection.Connect(_port))
             return false;
 
          // Receive welcome message.
-         string sData = _socket.Receive();
+         string sData = _tcpConnection.Receive();
 
-         _socket.Send("HELO 127.0.0.1\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("HELO 127.0.0.1\r\n");
+         sData = _tcpConnection.Receive();
 
          // User
-         _socket.Send("MAIL FROM:<" + sFrom + ">\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("MAIL FROM:<" + sFrom + ">\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Send("RCPT TO:<" + sTo + ">\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("RCPT TO:<" + sTo + ">\r\n");
+         sData = _tcpConnection.Receive();
          if (sData.StartsWith("2") == false)
             return false;
 
          // Send the message.
-         _socket.Send("DATA\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("DATA\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Send(text);
+         _tcpConnection.Send(text);
 
-         _socket.Send("\r\n");
-         _socket.Send(".\r\n");
+         _tcpConnection.Send("\r\n");
+         _tcpConnection.Send(".\r\n");
 
          // Wait for OK.
-         sData = _socket.Receive();
+         sData = _tcpConnection.Receive();
 
          bool success = sData.Substring(0, 3) == "250";
          if (!success)
             return false;
 
          // Quit again
-         _socket.Send("QUIT\r\n");
-         sData = _socket.Receive();
+         _tcpConnection.Send("QUIT\r\n");
+         sData = _tcpConnection.Receive();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
 
          return success;
       }

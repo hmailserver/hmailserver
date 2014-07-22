@@ -14,16 +14,16 @@ namespace RegressionTests.Shared
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 110;
-      private readonly TcpConnection _socket;
+      private readonly TcpConnection _tcpConnection;
 
       public POP3Simulator()
       {
-         _socket = new TcpConnection();
+         _tcpConnection = new TcpConnection();
       }
 
       public POP3Simulator(IPAddress ipaddress, bool useSSL, int port)
       {
-         _socket = new TcpConnection(useSSL);
+         _tcpConnection = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
       }
@@ -35,27 +35,27 @@ namespace RegressionTests.Shared
 
       public bool Connect()
       {
-         return _socket.Connect(_ipaddress, _port);
+         return _tcpConnection.Connect(_ipaddress, _port);
       }
 
       public void Disconnect()
       {
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
       }
 
       public bool TestConnect(int iPort)
       {
-         bool bRetVal = _socket.Connect(_ipaddress, iPort);
-         _socket.Disconnect();
+         bool bRetVal = _tcpConnection.Connect(_ipaddress, iPort);
+         _tcpConnection.Disconnect();
          return bRetVal;
       }
 
       public string GetWelcomeMessage()
       {
-         _socket.Connect(_ipaddress, _port);
-         string sData = _socket.Receive();
+         _tcpConnection.Connect(_ipaddress, _port);
+         string sData = _tcpConnection.Receive();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
          return sData;
       }
 
@@ -63,40 +63,45 @@ namespace RegressionTests.Shared
       {
          errorMessage = "";
          if (!Connect())
-             return false;
+            return false;
 
-        
-         if (!ReceiveBanner(out errorMessage)) 
-             return false;
 
-          _socket.Send("USER " + username + "\r\n");
+         if (!ReceiveBanner(out errorMessage))
+            return false;
 
-         errorMessage = _socket.ReadUntil("+OK Send your password");
+         _tcpConnection.Send("USER " + username + "\r\n");
+
+         errorMessage = _tcpConnection.ReadUntil("+OK Send your password");
          if (!errorMessage.StartsWith("+OK"))
             return false;
 
-         _socket.Send("PASS " + password + "\r\n");
-         errorMessage = _socket.ReadUntil(new List<string> {"+OK", "-ERR"});
+         _tcpConnection.Send("PASS " + password + "\r\n");
+         errorMessage = _tcpConnection.ReadUntil(new List<string> { "+OK", "-ERR" });
 
          return errorMessage.StartsWith("+OK");
       }
 
-       public bool ReceiveBanner(out string errorMessage)
-       {
-           errorMessage = string.Empty;
+      public bool ReceiveBanner(out string errorMessage)
+      {
+         errorMessage = string.Empty;
 
-            // Receive welcome message.
-           var message = _socket.ReadUntil("+OK");
-           if (!message.StartsWith("+OK"))
-           {
-               errorMessage = message;
-               return false;
-           }
+         // Receive welcome message.
+         var message = _tcpConnection.ReadUntil("+OK");
+         if (!message.StartsWith("+OK"))
+         {
+            errorMessage = message;
+            return false;
+         }
 
-           return true;
-       }
+         return true;
+      }
 
-       public bool ConnectAndLogon(string username, string password)
+      public void Handshake()
+      {
+         _tcpConnection.Handshake();
+      }
+
+      public bool ConnectAndLogon(string username, string password)
       {
          string errorMessage;
 
@@ -105,7 +110,7 @@ namespace RegressionTests.Shared
 
       public string RETR(int index)
       {
-         _socket.Send("RETR " + index.ToString() + "\r\n");
+         _tcpConnection.Send("RETR " + index.ToString() + "\r\n");
 
          var result = new StringBuilder();
 
@@ -115,11 +120,11 @@ namespace RegressionTests.Shared
          {
             if (eofCheck.IndexOf("-ERR no such message") >= 0)
             {
-               _socket.Disconnect();
+               _tcpConnection.Disconnect();
                return "";
             }
 
-            string data = _socket.Receive();
+            string data = _tcpConnection.Receive();
 
             eofCheck += data;
 
@@ -139,17 +144,17 @@ namespace RegressionTests.Shared
       {
          string sRetVal = "";
 
-         _socket.Send("LIST\r\n");
+         _tcpConnection.Send("LIST\r\n");
 
          while (sRetVal.IndexOf("\r\n.\r\n") < 0)
          {
             if (sRetVal.IndexOf("-ERR No such message") >= 0)
             {
-               _socket.Disconnect();
+               _tcpConnection.Disconnect();
                return "";
             }
 
-            sRetVal += _socket.Receive();
+            sRetVal += _tcpConnection.Receive();
          }
 
          return sRetVal;
@@ -160,9 +165,9 @@ namespace RegressionTests.Shared
       {
          string sRetVal;
 
-         _socket.Send("LIST " + index.ToString() + "\r\n");
+         _tcpConnection.Send("LIST " + index.ToString() + "\r\n");
 
-         sRetVal = _socket.Receive();
+         sRetVal = _tcpConnection.Receive();
 
          return sRetVal;
       }
@@ -171,17 +176,17 @@ namespace RegressionTests.Shared
       {
          string sRetVal = "";
 
-         _socket.Send("UIDL\r\n");
+         _tcpConnection.Send("UIDL\r\n");
 
          while (sRetVal.IndexOf("\r\n.\r\n") < 0)
          {
             if (sRetVal.IndexOf("-ERR No such message") >= 0)
             {
-               _socket.Disconnect();
+               _tcpConnection.Disconnect();
                return "";
             }
 
-            sRetVal += _socket.Receive();
+            sRetVal += _tcpConnection.Receive();
          }
 
          return sRetVal;
@@ -191,28 +196,44 @@ namespace RegressionTests.Shared
       {
          string sRetVal;
 
-         _socket.Send("UIDL " + index.ToString() + "\r\n");
+         _tcpConnection.Send("UIDL " + index.ToString() + "\r\n");
 
-         sRetVal = _socket.Receive();
+         sRetVal = _tcpConnection.Receive();
 
          return sRetVal;
       }
 
       public bool DELE(int index)
       {
-         _socket.Send("DELE " + index.ToString() + "\r\n");
-         string data = _socket.ReadUntil(new List<string> {"+OK msg deleted", "-ERR No such message"});
+         _tcpConnection.Send("DELE " + index.ToString() + "\r\n");
+         string data = _tcpConnection.ReadUntil(new List<string> { "+OK msg deleted", "-ERR No such message" });
          return data.StartsWith("+OK msg deleted");
+      }
+
+      public bool HELP()
+      {
+         _tcpConnection.Send("HELP\r\n");
+         _tcpConnection.ReadUntil(new List<string> { "+OK Normal POP3 commands allowed" });
+
+         return true;
+      }
+
+      public bool STLS()
+      {
+         _tcpConnection.Send("STLS\r\n");
+         _tcpConnection.ReadUntil(new List<string> { "+OK Begin TLS negotiation" });
+
+         return true;
       }
 
       public string TOP(int index, int rows)
       {
          if (rows > 0)
-            _socket.Send("TOP " + index.ToString() + " " + rows.ToString() + "\r\n");
+            _tcpConnection.Send("TOP " + index.ToString() + " " + rows.ToString() + "\r\n");
          else
-            _socket.Send("TOP " + index.ToString() + "\r\n");
+            _tcpConnection.Send("TOP " + index.ToString() + "\r\n");
 
-         string sRetVal = _socket.Receive();
+         string sRetVal = _tcpConnection.Receive();
          while (sRetVal.IndexOf("\r\n.\r\n") < 0)
          {
             if (sRetVal.IndexOf("-ERR No such message") >= 0)
@@ -220,7 +241,7 @@ namespace RegressionTests.Shared
                return sRetVal;
             }
 
-            sRetVal += _socket.Receive();
+            sRetVal += _tcpConnection.Receive();
          }
 
          return sRetVal;
@@ -229,15 +250,15 @@ namespace RegressionTests.Shared
 
       public void QUIT()
       {
-         _socket.Send("QUIT\r\n");
-         _socket.ReadUntil("+OK");
+         _tcpConnection.Send("QUIT\r\n");
+         _tcpConnection.ReadUntil("+OK");
       }
 
-       public string CAPA()
-       {
-           _socket.Send("CAPA\r\n");
-           return _socket.Receive();
-       }
+      public string CAPA()
+      {
+         _tcpConnection.Send("CAPA\r\n");
+         return _tcpConnection.Receive();
+      }
 
       public string GetFirstMessageText(string sUsername, string sPassword)
       {
@@ -247,29 +268,28 @@ namespace RegressionTests.Shared
          DELE(1);
          QUIT();
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
 
          return sRetVal;
       }
 
       public int GetMessageCount(string sUsername, string sPassword)
       {
-         _socket.Connect(_port);
+         _tcpConnection.Connect(_port);
 
          // Receive welcome message.
-         string sData = _socket.Receive();
+         string sData = _tcpConnection.Receive();
 
-         _socket.Send("USER " + sUsername + "\r\n");
-         sData = _socket.ReadUntil("+OK Send your password");
+         _tcpConnection.Send("USER " + sUsername + "\r\n");
+         sData = _tcpConnection.ReadUntil("+OK Send your password");
 
-         _socket.Send("PASS " + sPassword + "\r\n");
+         _tcpConnection.Send("PASS " + sPassword + "\r\n");
          sData =
-            _socket.ReadUntil(new List<string>
-                                 {"+OK Mailbox locked and ready", "-ERR Invalid user name or password."});
+            _tcpConnection.ReadUntil(new List<string> { "+OK Mailbox locked and ready", "-ERR Invalid user name or password." });
          CustomAssert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
 
-         _socket.Send("LIST\r\n");
-         sData = _socket.ReadUntil("+OK");
+         _tcpConnection.Send("LIST\r\n");
+         sData = _tcpConnection.ReadUntil("+OK");
 
          // Check EXISTS header.
          int iStartPos = 4;
@@ -277,10 +297,10 @@ namespace RegressionTests.Shared
          int iLength = iEndPos - iStartPos;
          string sValue = sData.Substring(iStartPos, iLength);
 
-         _socket.Send("QUIT\r\n");
-         sData = _socket.ReadUntil("+OK POP3 server saying goodbye...");
+         _tcpConnection.Send("QUIT\r\n");
+         sData = _tcpConnection.ReadUntil("+OK POP3 server saying goodbye...");
 
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
 
          return Convert.ToInt32(sValue);
       }

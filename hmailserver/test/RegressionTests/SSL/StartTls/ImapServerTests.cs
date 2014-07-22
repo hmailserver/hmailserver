@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -22,9 +19,9 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void IfStartTlsNotEnabledStartTlsShouldNotBeShownInEhloResponse()
         {
-            var smtpClientSimulator = new IMAPSimulator(false, 143);
-            smtpClientSimulator.Connect();
-            var data = smtpClientSimulator.GetCapabilities();
+           var imapSimulator = new IMAPSimulator(false, 143);
+            imapSimulator.Connect();
+            var data = imapSimulator.GetCapabilities();
 
             CustomAssert.IsFalse(data.Contains("STARTTLS"));
         }
@@ -32,11 +29,24 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
         {
-            var smtpClientSimulator = new IMAPSimulator(false, 14300);
-            smtpClientSimulator.Connect();
-            var data = smtpClientSimulator.GetCapabilities();
+            var imapSimulator = new IMAPSimulator(false, 14300);
+            imapSimulator.Connect();
+            var data = imapSimulator.GetCapabilities();
 
             CustomAssert.IsTrue(data.Contains("STARTTLS"));
+        }
+
+        [Test]
+        public void StlsCommandShouldSwithToTls()
+        {
+           var imapSimulator = new IMAPSimulator(false, 14300);
+           imapSimulator.Connect();
+           var data = imapSimulator.GetCapabilities();
+           imapSimulator.SendSingleCommand("A01 STARTTLS");
+           imapSimulator.Handshake();
+
+           // command is sent over TLS.
+           imapSimulator.GetCapabilities();
         }
     }
 }
