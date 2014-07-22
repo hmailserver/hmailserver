@@ -54,7 +54,7 @@ namespace RegressionTests.Security
       {
          string log = _settings.Logging.CurrentDefaultLog;
 
-         for (int i = 1; i <= 5; i++)
+         for (int i = 1; i <= 10; i++)
          {
             string text = string.Empty;
 

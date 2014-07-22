@@ -98,7 +98,6 @@ namespace HM
 
       bool m_bProcessMIMERecipients;
       bool m_bProcessMIMEDate;
-      bool m_bUseSSL;
 
       bool _useAntiSpam;
       bool _useAntiVirus;

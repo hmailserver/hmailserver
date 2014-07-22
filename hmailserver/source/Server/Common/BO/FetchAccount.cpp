@@ -26,10 +26,10 @@ namespace HM
       m_bProcessMIMERecipients(false),
       m_bProcessMIMEDate(false),
       m_iServerType(POP3),
-      m_bUseSSL(false),
       _useAntiSpam(false),
       _useAntiVirus(false),
-      _enableRouteRecipients(false)
+      _enableRouteRecipients(false),
+      connection_security_(CSNone)      
    {
  
    }

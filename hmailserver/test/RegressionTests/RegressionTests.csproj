@@ -184,6 +184,7 @@
     <Compile Include="SMTP\Routes.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
     <Compile Include="Shared\SMTPServerSimulator.cs" />
+    <Compile Include="SSL\StartTls\SmtpServerTests.cs" />
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
