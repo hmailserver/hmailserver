@@ -57,7 +57,7 @@ namespace RegressionTests.Stress
 
          string command = "A03 NOOP " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          CustomAssert.IsTrue(socket.Connect(143));
          socket.Receive();
          socket.Send(command);
@@ -89,7 +89,7 @@ namespace RegressionTests.Stress
 
          string command = "NOOP " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          CustomAssert.IsTrue(socket.Connect(110));
          socket.Receive();
          socket.Send(command + "\r\n");
@@ -113,7 +113,7 @@ namespace RegressionTests.Stress
 
          string command = "HELO " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          CustomAssert.IsTrue(socket.Connect(25));
          socket.Receive();
          socket.Send(command + "\r\n");

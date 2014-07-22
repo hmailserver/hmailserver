@@ -13,16 +13,16 @@ namespace RegressionTests.Shared
    public class IMAPSimulator
    {
       private readonly int _port = 143;
-      private readonly TcpSocket _socket;
+      private readonly TcpConnection _socket;
 
       public IMAPSimulator()
       {
-         _socket = new TcpSocket();
+         _socket = new TcpConnection();
       }
 
       public IMAPSimulator(string username, string password, string mailbox)
       {
-         _socket = new TcpSocket();
+         _socket = new TcpConnection();
 
          CustomAssert.IsTrue(ConnectAndLogon(username, password));
          CustomAssert.IsTrue(SelectFolder(mailbox));
@@ -30,7 +30,7 @@ namespace RegressionTests.Shared
 
       public IMAPSimulator(bool useSSL, int port)
       {
-         _socket = new TcpSocket(useSSL);
+         _socket = new TcpConnection(useSSL);
          _port = port;
       }
 
@@ -599,7 +599,7 @@ namespace RegressionTests.Shared
             else
                result += Receive();
 
-            if (!_socket.Connected)
+            if (!_socket.IsConnected)
                return result;
 
             if (DateTime.Now - startTime > new TimeSpan(0, 0, 30))

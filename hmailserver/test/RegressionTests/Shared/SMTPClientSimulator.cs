@@ -13,7 +13,7 @@ namespace RegressionTests.Shared
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 25;
-      private readonly TcpSocket _socket;
+      private readonly TcpConnection _socket;
 
       public SMTPClientSimulator() :
          this(false, 25)
@@ -27,14 +27,14 @@ namespace RegressionTests.Shared
 
       public SMTPClientSimulator(bool useSSL, int port, IPAddress ipaddress)
       {
-         _socket = new TcpSocket(useSSL);
+         _socket = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
       }
 
       public bool IsConnected
       {
-         get { return _socket.Connected; }
+         get { return _socket.IsConnected; }
       }
 
       public bool TestConnect(int iPort)
@@ -44,14 +44,14 @@ namespace RegressionTests.Shared
          return bRetVal;
       }
 
-      public void Connect(int iPort)
+      public void Connect()
       {
-         _socket.Connect(iPort);
+         _socket.Connect(_port);
       }
 
-      public bool ConnectAndLogon(int port, string base64Username, string base64Password, out string errorMessage)
+      public bool ConnectAndLogon(string base64Username, string base64Password, out string errorMessage)
       {
-         Connect(port);
+         Connect();
 
          errorMessage = Receive();
          if (!errorMessage.StartsWith("220"))

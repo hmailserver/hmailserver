@@ -67,7 +67,7 @@
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
-    <Compile Include="Shared\TcpSocket.cs" />
+    <Compile Include="Shared\TcpConnection.cs" />
     <Compile Include="Infrastructure\Delivery.cs" />
     <Compile Include="Infrastructure\DomainServices.cs" />
     <Compile Include="IMAP\Basics.cs" />
@@ -180,10 +180,14 @@
     <Compile Include="POP3\Fetching\LockHelper.cs" />
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
     <Compile Include="Shared\SMTPClientSimulator.cs" />
+    <Compile Include="Shared\TestTracer.cs" />
     <Compile Include="SMTP\DistributionLists.cs" />
     <Compile Include="SMTP\Routes.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
     <Compile Include="Shared\SMTPServerSimulator.cs" />
+    <Compile Include="SSL\SslSetup.cs" />
+    <Compile Include="SSL\StartTls\ImapServerTests.cs" />
+    <Compile Include="SSL\StartTls\Pop3ServerTests.cs" />
     <Compile Include="SSL\StartTls\SmtpServerTests.cs" />
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>

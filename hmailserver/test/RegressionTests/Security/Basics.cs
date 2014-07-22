@@ -26,7 +26,7 @@ namespace RegressionTests.Security
          CustomAssert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 
          var simSMTP = new SMTPClientSimulator();
-         CustomAssert.IsFalse(simSMTP.ConnectAndLogon(25, "dGVzdEB0ZXN0LmNvbQ==", "", out message));
+         CustomAssert.IsFalse(simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
          CustomAssert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
       }
    }

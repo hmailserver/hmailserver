@@ -42,7 +42,7 @@ namespace RegressionTests.SMTP
          DateTime lastLogonTimeBefore = Convert.ToDateTime(account.LastLogonTime);
 
          Thread.Sleep(1000);
-         var sock = new TcpSocket();
+         var sock = new TcpConnection();
          sock.Connect(25);
          CustomAssert.IsTrue(sock.Receive().StartsWith("220"));
          sock.Send("EHLO test.com\r\n");
@@ -286,7 +286,7 @@ namespace RegressionTests.SMTP
          Settings settings = _settings;
          settings.HostName = "examplify.com";
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          CustomAssert.IsTrue(socket.Connect(25));
          string result = socket.Receive();
          socket.Send("EHLO example.com\r\n");
@@ -300,7 +300,7 @@ namespace RegressionTests.SMTP
       {
          var oSimulator = new SMTPClientSimulator();
 
-         oSimulator.Connect(25);
+         oSimulator.Connect();
 
          string sWelcome = oSimulator.Receive();
 
@@ -352,7 +352,7 @@ namespace RegressionTests.SMTP
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect(25);
+         oSMTP.Connect();
 
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
@@ -620,7 +620,7 @@ namespace RegressionTests.SMTP
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect(25);
+         oSMTP.Connect();
 
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
@@ -654,7 +654,7 @@ namespace RegressionTests.SMTP
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect(25);
+         oSMTP.Connect();
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("250"));
@@ -797,7 +797,7 @@ namespace RegressionTests.SMTP
          settings.MaxNumberOfInvalidCommands = 3;
 
          var sim = new SMTPClientSimulator();
-         sim.Connect(25);
+         sim.Connect();
          sim.Send("EHLO test.com\r\n");
 
          for (int i = 1; i <= 6; i++)
@@ -841,7 +841,7 @@ namespace RegressionTests.SMTP
          settings.MaxNumberOfInvalidCommands = 3;
 
          var sim = new SMTPClientSimulator();
-         sim.Connect(25);
+         sim.Connect();
          sim.Receive(); // banner
 
          sim.SendAndReceive("HELO\r\n");
@@ -874,7 +874,7 @@ namespace RegressionTests.SMTP
          settings.AntiSpam.GreyListingEnabled = true;
 
          var sim = new SMTPClientSimulator();
-         sim.Connect(25);
+         sim.Connect();
          string res = sim.Receive();
          sim.Send("EHLO test.com\r\n");
          res = sim.Receive();

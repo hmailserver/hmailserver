@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using hMailServer;
@@ -10,7 +9,7 @@ using RegressionTests.Shared;
 namespace RegressionTests.SSL.StartTls
 {
     [TestFixture]
-    public class SmtpServerTests : TestFixtureBase
+    class ImapServerTests : TestFixtureBase
     {
         [TestFixtureSetUp]
         public new void TestFixtureSetUp()
@@ -23,10 +22,9 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void IfStartTlsNotEnabledStartTlsShouldNotBeShownInEhloResponse()
         {
-            var smtpClientSimulator = new SMTPClientSimulator(false, 25);
+            var smtpClientSimulator = new IMAPSimulator(false, 143);
             smtpClientSimulator.Connect();
-            var data1 = smtpClientSimulator.Receive();
-            var data = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+            var data = smtpClientSimulator.GetCapabilities();
 
             CustomAssert.IsFalse(data.Contains("STARTTLS"));
         }
@@ -34,13 +32,11 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
         {
-            var smtpClientSimulator = new SMTPClientSimulator(false, 250);
+            var smtpClientSimulator = new IMAPSimulator(false, 14300);
             smtpClientSimulator.Connect();
-            var data1 = smtpClientSimulator.Receive();
-            var data = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+            var data = smtpClientSimulator.GetCapabilities();
 
             CustomAssert.IsTrue(data.Contains("STARTTLS"));
         }
-
     }
 }

@@ -78,7 +78,7 @@ namespace RegressionTests.Stress
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          application.Stop();
 
-         var sock = new TcpSocket();
+         var sock = new TcpConnection();
          using (var serverSocket = new TcpServer(1, 25))
          {
             serverSocket.StartListen();
@@ -87,11 +87,11 @@ namespace RegressionTests.Stress
             
             // make sure it's possible to connect to the non blocked port.
 
-            sock.CanConnect(110);
-            sock.CanConnect(143);
+            sock.IsPortOpen(110);
+            sock.IsPortOpen(143);
 
             //let this our temp server die.
-            sock.CanConnect(25);
+            sock.IsPortOpen(25);
 
             // make sure that hMailServer reported an error during start up because the ports were blocked.
             TestSetup.AssertReportedError();
@@ -101,7 +101,7 @@ namespace RegressionTests.Stress
          application.Stop();
 
          application.Start();
-         sock.CanConnect(25);
+         sock.IsPortOpen(25);
       }
 
       [Test]

@@ -38,6 +38,8 @@ namespace RegressionTests.SSL
          _application.Start();
 
          TestSetup.AssertReportedError();
+
+         SingletonProvider<TestSetup>.Instance.DoBasicSetup();
       }
    }
 }

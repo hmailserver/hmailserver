@@ -227,8 +227,8 @@ namespace RegressionTests.API
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
 
-         var socket = new TcpSocket();
-         CustomAssert.IsTrue(socket.CanConnect(25));
+         var socket = new TcpConnection();
+         CustomAssert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);
@@ -260,8 +260,8 @@ namespace RegressionTests.API
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
 
-         var socket = new TcpSocket();
-         CustomAssert.IsTrue(socket.CanConnect(25));
+         var socket = new TcpConnection();
+         CustomAssert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);

@@ -221,7 +221,7 @@ namespace RegressionTests.Security
       {
          var sim = new SMTPClientSimulator();
          string errorMsg;
-         sim.ConnectAndLogon(25, GetUsername(), GetPassword(), out errorMsg);
+         sim.ConnectAndLogon(GetUsername(), GetPassword(), out errorMsg);
          EnsureNoPassword();
       }
 
@@ -230,7 +230,7 @@ namespace RegressionTests.Security
       {
          _settings.AllowSMTPAuthPlain = true;
 
-         var sock = new TcpSocket();
+         var sock = new TcpConnection();
          sock.Connect(25);
          CustomAssert.IsTrue(sock.Receive().StartsWith("220"));
          sock.Send("EHLO test.com\r\n");
@@ -250,7 +250,7 @@ namespace RegressionTests.Security
       {
          _settings.AllowSMTPAuthPlain = true;
 
-         var sock = new TcpSocket();
+         var sock = new TcpConnection();
          sock.Connect(25);
          CustomAssert.IsTrue(sock.Receive().StartsWith("220"));
          sock.Send("EHLO test.com\r\n");

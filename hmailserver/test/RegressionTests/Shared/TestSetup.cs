@@ -65,6 +65,8 @@ namespace RegressionTests.Shared
 
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
 
+         _settings.TCPIPPorts.SetDefault();
+
          _settings.SecurityRanges.SetDefault();
 
          DisableSpamProtection();
@@ -76,9 +78,8 @@ namespace RegressionTests.Shared
          ClearGreyListingWhiteAddresses();
          EnableLogging(true);
 
-
          _settings.SSLCertificates.Clear();
-         _settings.TCPIPPorts.SetDefault();
+         
 
          if (_settings.AutoBanOnLogonFailure)
             _settings.AutoBanOnLogonFailure = false;
@@ -720,7 +721,7 @@ namespace RegressionTests.Shared
             // Wait for clamav to start up.
             for (int i = 0; i < 10; i++)
             {
-               var sock = new TcpSocket();
+               var sock = new TcpConnection();
                if (sock.Connect(3310))
                   return;
                Thread.Sleep(1000);
@@ -918,10 +919,13 @@ namespace RegressionTests.Shared
             {
                if (File.Exists(file))
                {
-                  if (delete)
-                     File.Delete(file);
+                   if (delete)
+                   {
+                       TestTracer.WriteTraceInfo("Deleting file {0}...", file);
+                       File.Delete(file);
+                   }
 
-                  return;
+                   return;
                }
             }
             catch (Exception)

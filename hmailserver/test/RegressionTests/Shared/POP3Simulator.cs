@@ -14,16 +14,16 @@ namespace RegressionTests.Shared
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 110;
-      private readonly TcpSocket _socket;
+      private readonly TcpConnection _socket;
 
       public POP3Simulator()
       {
-         _socket = new TcpSocket();
+         _socket = new TcpConnection();
       }
 
       public POP3Simulator(IPAddress ipaddress, bool useSSL, int port)
       {
-         _socket = new TcpSocket(useSSL);
+         _socket = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
       }
@@ -33,9 +33,9 @@ namespace RegressionTests.Shared
       {
       }
 
-      public bool Connect(int iPort)
+      public bool Connect()
       {
-         return _socket.Connect(_ipaddress, iPort);
+         return _socket.Connect(_ipaddress, _port);
       }
 
       public void Disconnect()
@@ -62,15 +62,14 @@ namespace RegressionTests.Shared
       public bool ConnectAndLogon(string username, string password, out string errorMessage)
       {
          errorMessage = "";
-         if (!_socket.Connect(_ipaddress, _port))
-            return false;
+         if (!Connect())
+             return false;
 
-         // Receive welcome message.
-         errorMessage = _socket.ReadUntil("+OK");
-         if (!errorMessage.StartsWith("+OK"))
-            return false;
+        
+         if (!ReceiveBanner(out errorMessage)) 
+             return false;
 
-         _socket.Send("USER " + username + "\r\n");
+          _socket.Send("USER " + username + "\r\n");
 
          errorMessage = _socket.ReadUntil("+OK Send your password");
          if (!errorMessage.StartsWith("+OK"))
@@ -82,7 +81,22 @@ namespace RegressionTests.Shared
          return errorMessage.StartsWith("+OK");
       }
 
-      public bool ConnectAndLogon(string username, string password)
+       public bool ReceiveBanner(out string errorMessage)
+       {
+           errorMessage = string.Empty;
+
+            // Receive welcome message.
+           var message = _socket.ReadUntil("+OK");
+           if (!message.StartsWith("+OK"))
+           {
+               errorMessage = message;
+               return false;
+           }
+
+           return true;
+       }
+
+       public bool ConnectAndLogon(string username, string password)
       {
          string errorMessage;
 
@@ -218,6 +232,12 @@ namespace RegressionTests.Shared
          _socket.Send("QUIT\r\n");
          _socket.ReadUntil("+OK");
       }
+
+       public string CAPA()
+       {
+           _socket.Send("CAPA\r\n");
+           return _socket.Receive();
+       }
 
       public string GetFirstMessageText(string sUsername, string sPassword)
       {

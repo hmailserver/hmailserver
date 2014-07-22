@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using NUnit.Framework;
 
 namespace RegressionTests.Shared
 {
@@ -26,7 +25,7 @@ namespace RegressionTests.Shared
       private Thread _serverThread;
       private TcpListener _tcpListener;
       private Exception _workerThreadException;
-      private TcpSocket _socket;
+      private TcpConnection _tcpConnection;
 
       private string _conversation;
 
@@ -117,11 +116,11 @@ namespace RegressionTests.Shared
       {
          try
          {
-            _socket = null;
+            _tcpConnection = null;
 
             try
             {
-               _socket = new TcpSocket(_tcpListener.EndAcceptSocket(asyncResult));
+               _tcpConnection = new TcpConnection(_tcpListener.EndAcceptTcpClient(asyncResult));
             }
             catch (ObjectDisposedException)
             {
@@ -142,10 +141,10 @@ namespace RegressionTests.Shared
 
       private void DisposeSocket()
       {
-         if (_socket != null)
+         if (_tcpConnection != null)
          {
-            _socket.Dispose();
-            _socket = null;
+            _tcpConnection.Dispose();
+            _tcpConnection = null;
          }   
       }
 
@@ -195,32 +194,32 @@ namespace RegressionTests.Shared
 
       public void Disconnect()
       {
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
       }
 
       public void Send(string s)
       {
          _conversation += s;
-         _socket.Send(s);
+         _tcpConnection.Send(s);
       }
       
       public string Receive()
       {
-         string data = _socket.Receive();
+         string data = _tcpConnection.Receive();
          _conversation += data;
          return data;
       }
 
       public string ReadUntil(string text)
       {
-         string data = _socket.ReadUntil(text);
+         string data = _tcpConnection.ReadUntil(text);
          _conversation += data;
          return data;
       }
 
       public string ReadUntil(List<string> possibleReplies)
       {
-         string data =_socket.ReadUntil(possibleReplies);
+         string data =_tcpConnection.ReadUntil(possibleReplies);
          _conversation += data;
          return data;
       }
