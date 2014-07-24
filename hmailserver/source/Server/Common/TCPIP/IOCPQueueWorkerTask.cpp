@@ -36,6 +36,11 @@ namespace HM
 
             continueProcess = false;
          }
+         catch (thread_interrupted const&)
+         {
+            
+            return;
+         }
          catch (boost::system::system_error error)
          {
             String sErrorMessage;

@@ -129,15 +129,7 @@ namespace VMwareIntegration.Common
 
             if (useLocalVersion)
             {
-               const string localPath =
-                  @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
-
-               RunScriptInGuest(vm, "NET STOP HMAILSERVER");
-               RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
-               RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
-               vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
-               vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
-               RunScriptInGuest(vm, "NET START HMAILSERVER");
+               CopyLocalVersion(vm);
             }
 
 
@@ -182,6 +174,19 @@ namespace VMwareIntegration.Common
                   vm.PowerOff();
             }
          }
+      }
+
+      private void CopyLocalVersion(VMware vm)
+      {
+         const string localPath =
+            @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
+
+         RunScriptInGuest(vm, "NET STOP HMAILSERVER");
+         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
+         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
+         vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
+         vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+         RunScriptInGuest(vm, "NET START HMAILSERVER");
       }
 
       private void RunScriptInGuest(VMware vmware, string script)

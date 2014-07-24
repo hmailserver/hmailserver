@@ -137,6 +137,7 @@ namespace HM
 
    private:
 
+      bool InternalParseData(const AnsiString &Request);
       void SendBanner_();
       void _SetAccount(shared_ptr<const Account> account) { _account = account; }
 
@@ -148,7 +149,7 @@ namespace HM
       void _EndIdleMode();
       int _GetLiteralSize(const String &sCommand);
 
-      void AnswerCommand(shared_ptr<IMAPClientCommand> command);
+      bool AnswerCommand(shared_ptr<IMAPClientCommand> command);
       shared_ptr<const Account> _account;
 
       shared_ptr<IMAPFolders> m_pIMAPFolders;

@@ -64,15 +64,42 @@ namespace HM
 
       LOG_DEBUG(Formatter::Format("Executing task {0} in work queue {1}", pTask->GetName(), m_sQueueName));
 
-      pTask->DoWork();
-
+      try
       {
-         boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
-         set<shared_ptr<Task>>::iterator iter = runningTasks_.find(pTask);
-         runningTasks_.erase(pTask);
+         pTask->DoWork();
       }
+      catch (thread_interrupted const&)
+      {
+          boost::this_thread::disable_interruption disabled;
+          RemoveRunningTask_(pTask);
+          return;
+      }
+      catch (boost::system::system_error error)
+      {
+         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5501, "WorkQueue::ExecuteTask", exception_text, error);
+      }
+      catch (std::exception error)
+      {
+         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5501, "WorkQueue::ExecuteTask", exception_text, error);
+      }
+      catch (...)
+      {
+         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5317, "WorkQueue::ExecuteTask", exception_text);
+      }
+
+      RemoveRunningTask_(pTask);
    }
 
+   void
+   WorkQueue::RemoveRunningTask_(shared_ptr<Task> task)
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
+      set<shared_ptr<Task>>::iterator iter = runningTasks_.find(task);
+      runningTasks_.erase(task);
+   }
 
    void 
    WorkQueue::Start()

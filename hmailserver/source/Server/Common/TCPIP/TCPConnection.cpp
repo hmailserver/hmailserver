@@ -43,6 +43,7 @@ namespace HM
       _sessionID = Application::Instance()->GetUniqueID();
 
       LOG_DEBUG("Creating session " + StringParser::IntToString(_sessionID));
+
    }
 
    TCPConnection::~TCPConnection(void)

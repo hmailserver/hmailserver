@@ -64,7 +64,7 @@ namespace RegressionTests.Shared
 
       public bool Logout()
       {
-         _tcpConnection.Send("A01 LOGOUT\r\n");
+         _tcpConnection.Send("A99 LOGOUT\r\n");
          string sData = _tcpConnection.Receive();
 
          if (sData.StartsWith("*"))
@@ -92,33 +92,33 @@ namespace RegressionTests.Shared
          string sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            throw new Exception("Literal ready not received");
+            CustomAssert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sPassword + "\r\n");
 
          sData = _tcpConnection.Receive();
          if (sData.StartsWith("A01 NO") || sData.StartsWith("+ Ready"))
-            throw new Exception("Logon failed");
+            CustomAssert.Fail("Logon failed");
 
          // Logon using two literals.
 
-         _tcpConnection.Send("A01 LOGIN {" + sUsername.Length.ToString() + "}\r\n");
+         _tcpConnection.Send("A02 LOGIN {" + sUsername.Length.ToString() + "}\r\n");
          sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            throw new Exception("Literal ready not received");
+            CustomAssert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
          sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            throw new Exception("Literal ready not received");
+            CustomAssert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sPassword + "\r\n");
 
          sData = _tcpConnection.Receive();
-         if (sData.StartsWith("A01 NO") || sData.StartsWith("+ Ready"))
-            throw new Exception("Logon failed");
+         if (sData.StartsWith("A02 NO") || sData.StartsWith("+ Ready"))
+            CustomAssert.Fail("Logon failed.");
       }
 
       public bool CreateFolder(string sFolder)
@@ -126,9 +126,9 @@ namespace RegressionTests.Shared
          sFolder = sFolder.Replace("\\", "\\\\");
          sFolder = sFolder.Replace("\"", "\\\"");
 
-         string result = SendSingleCommand("A01 CREATE \"" + sFolder + "\"");
+         string result = SendSingleCommand("A03 CREATE \"" + sFolder + "\"");
 
-         if (result.StartsWith("A01 OK"))
+         if (result.StartsWith("A03 OK"))
             return true;
          else
             return false;
@@ -136,7 +136,7 @@ namespace RegressionTests.Shared
 
       public bool SetACL(string sFolder, string identifier, string access)
       {
-         string command = string.Format("A01 SETACL {0} {1} {2}\r\n",
+         string command = string.Format("A04 SETACL {0} {1} {2}\r\n",
                                         sFolder,
                                         identifier,
                                         access
@@ -144,23 +144,23 @@ namespace RegressionTests.Shared
          _tcpConnection.Send(command);
          string result = _tcpConnection.Receive();
 
-         return result.StartsWith("A01 OK");
+         return result.StartsWith("A04 OK");
       }
 
       public bool DeleteACL(string sFolder, string identifier)
       {
-         string command = string.Format("A01 DELETEACL \"{0}\" {1}\r\n",
+         string command = string.Format("A05 DELETEACL \"{0}\" {1}\r\n",
                                         sFolder,
                                         identifier);
          _tcpConnection.Send(command);
          string result = _tcpConnection.Receive();
 
-         return result.StartsWith("A01 OK");
+         return result.StartsWith("A05 OK");
       }
 
       public string GetACL(string sFolder)
       {
-         string command = string.Format("A01 GETACL \"{0}\"\r\n",
+         string command = string.Format("A06 GETACL \"{0}\"\r\n",
                                         sFolder);
          _tcpConnection.Send(command);
          string result = _tcpConnection.Receive();
@@ -170,7 +170,7 @@ namespace RegressionTests.Shared
 
       public string GetMyRights(string sFolder)
       {
-         string command = string.Format("A01 MYRIGHTS \"{0}\"\r\n",
+         string command = string.Format("A07 MYRIGHTS \"{0}\"\r\n",
                                         sFolder);
          _tcpConnection.Send(command);
          string result = _tcpConnection.Receive();
@@ -181,7 +181,7 @@ namespace RegressionTests.Shared
 
       public string Status(string folderName, string dataItem)
       {
-         string command = string.Format("A01 STATUS \"{0}\" ({1})", folderName, dataItem);
+         string command = string.Format("A08 STATUS \"{0}\" ({1})", folderName, dataItem);
 
          return SendSingleCommand(command);
       }
@@ -189,14 +189,14 @@ namespace RegressionTests.Shared
 
       public string GetQuota(string folderName)
       {
-         string command = string.Format("A01 GETQUOTA \"{0}\"", folderName);
+         string command = string.Format("A09 GETQUOTA \"{0}\"", folderName);
 
          return SendSingleCommand(command);
       }
 
       public string ListRights(string sFolder, string identifier)
       {
-         string command = string.Format("A01 LISTRIGHTS \"{0}\" \"{1}\"\r\n",
+         string command = string.Format("A10 LISTRIGHTS \"{0}\" \"{1}\"\r\n",
                                         sFolder, identifier);
          _tcpConnection.Send(command);
          string result = _tcpConnection.Receive();
@@ -206,10 +206,10 @@ namespace RegressionTests.Shared
 
       public bool Subscribe(string sFolder)
       {
-         _tcpConnection.Send("A01 SUBSCRIBE " + sFolder + "\r\n");
+         _tcpConnection.Send("A11 SUBSCRIBE " + sFolder + "\r\n");
          string result = _tcpConnection.Receive().Substring(0, 6);
 
-         if (result.StartsWith("A01 OK"))
+         if (result.StartsWith("A11 OK"))
             return true;
          else
             return false;
@@ -217,10 +217,10 @@ namespace RegressionTests.Shared
 
       public bool Unsubscribe(string sFolder)
       {
-         _tcpConnection.Send("A01 UNSUBSCRIBE \"" + sFolder + "\"\r\n");
+         _tcpConnection.Send("A12 UNSUBSCRIBE \"" + sFolder + "\"\r\n");
          string result = _tcpConnection.Receive().Substring(0, 6);
 
-         if (result.StartsWith("A01 OK"))
+         if (result.StartsWith("A12 OK"))
             return true;
          else
             return false;
@@ -229,20 +229,20 @@ namespace RegressionTests.Shared
 
       public bool CheckFolder(string sFolder)
       {
-         _tcpConnection.Send("A01 CHECK " + sFolder + "\r\n");
+         _tcpConnection.Send("A13 CHECK " + sFolder + "\r\n");
          string result = _tcpConnection.Receive().Substring(0, 6);
 
-         return result.StartsWith("A01 OK");
+         return result.StartsWith("A13 OK");
       }
 
       public bool Close()
       {
-         _tcpConnection.Send("A01 CLOSE\r\n");
+         _tcpConnection.Send("A14 CLOSE\r\n");
          string result = _tcpConnection.Receive();
 
-         if (result.StartsWith("A01 BAD"))
+         if (result.StartsWith("A14 BAD"))
             return false;
-         else if (result.StartsWith("A01 OK"))
+         else if (result.StartsWith("A14 OK"))
             return true;
 
          CustomAssert.Fail(string.Format("IMAPSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
@@ -253,13 +253,13 @@ namespace RegressionTests.Shared
       {
          sFolder = sFolder.Replace("\\", "\\\\");
          sFolder = sFolder.Replace("\"", "\\\"");
-         string sData = SendSingleCommand("A01 SELECT " + sFolder);
+         string sData = SendSingleCommand("A15 SELECT " + sFolder);
          return sData.StartsWith("*");
       }
 
       public bool SelectFolder(string folderName, out string text)
       {
-         string sData = Send("A01 SELECT {" + folderName.Length + "}");
+         string sData = Send("A16 SELECT {" + folderName.Length + "}");
 
          if (sData.IndexOf("+ Ready") != 0)
          {
@@ -267,7 +267,7 @@ namespace RegressionTests.Shared
                                            DateTime.Now.ToShortDateString(),
                                            sData);
 
-            throw new Exception(message);
+            CustomAssert.Fail(message);
          }
 
          _tcpConnection.Send(folderName + "\r\n");
@@ -286,7 +286,7 @@ namespace RegressionTests.Shared
 
       public string Fetch(string sParameters)
       {
-         string sData = SendSingleCommand("A01 FETCH " + sParameters);
+         string sData = SendSingleCommand("A17 FETCH " + sParameters);
 
          return sData;
       }
@@ -298,8 +298,8 @@ namespace RegressionTests.Shared
 
       public bool Copy(int messageIndex, string destinationFolder)
       {
-         string sData = SendSingleCommand("A01 COPY 1 \"" + destinationFolder + "\"");
-         return sData.StartsWith("A01 OK");
+         string sData = SendSingleCommand("A18 COPY 1 \"" + destinationFolder + "\"");
+         return sData.StartsWith("A18 OK");
       }
 
       public bool RenameFolder(string from, string to)
@@ -310,23 +310,23 @@ namespace RegressionTests.Shared
 
       public bool RenameFolder(string from, string to, out string result)
       {
-         result = SendSingleCommand(string.Format("A01 RENAME \"{0}\" \"{1}\"", from, to));
-         return result.StartsWith("A01 OK");
+         result = SendSingleCommand(string.Format("A19 RENAME \"{0}\" \"{1}\"", from, to));
+         return result.StartsWith("A19 OK");
       }
 
       public string ExamineFolder(string sFolder)
       {
-         string sData = SendSingleCommand("A01 EXAMINE " + sFolder);
+         string sData = SendSingleCommand("A20 EXAMINE " + sFolder);
          return sData;
       }
 
 
       public bool DeleteFolder(string sFolder)
       {
-         _tcpConnection.Send("A01 DELETE " + sFolder + "\r\n");
+         _tcpConnection.Send("A21 DELETE " + sFolder + "\r\n");
          string sData = _tcpConnection.Receive();
 
-         if (sData.StartsWith("A01 OK"))
+         if (sData.StartsWith("A21 OK"))
             return true;
          else
             return false;
@@ -335,10 +335,10 @@ namespace RegressionTests.Shared
       public bool SetFlagOnMessage(int index, bool bSet, string sFlag)
       {
          string sSetUnset = bSet ? "+" : "-";
-         string sData = "A01 STORE " + index.ToString() + " " + sSetUnset + "FLAGS (" + sFlag + ")";
+         string sData = "A22 STORE " + index.ToString() + " " + sSetUnset + "FLAGS (" + sFlag + ")";
          string result = SendSingleCommand(sData);
 
-         if (result.Contains("A01 OK"))
+         if (result.Contains("A22 OK"))
             return true;
          else
             return false;
@@ -351,7 +351,7 @@ namespace RegressionTests.Shared
 
       public string Sort(string sSearchString)
       {
-         string sData = SendSingleCommand("A01 SORT " + sSearchString);
+         string sData = SendSingleCommand("A23 SORT " + sSearchString);
 
          int iStart = sData.IndexOf(" ", 4) + 1;
          int iLineEnd = sData.IndexOf("\r\n");
@@ -367,7 +367,7 @@ namespace RegressionTests.Shared
 
       public string Search(string sSearchString)
       {
-         string sData = SendSingleCommand("A01 SEARCH " + sSearchString);
+         string sData = SendSingleCommand("A24 SEARCH " + sSearchString);
 
          int iStart = sData.IndexOf(" ", 4) + 1;
          int iLineEnd = sData.IndexOf("\r\n");
@@ -383,7 +383,7 @@ namespace RegressionTests.Shared
 
       public bool StartIdle()
       {
-         _tcpConnection.Send("A01 IDLE\r\n");
+         _tcpConnection.Send("A25 IDLE\r\n");
          string sData = _tcpConnection.Receive();
          return sData.StartsWith("+ idling");
       }
@@ -455,7 +455,7 @@ namespace RegressionTests.Shared
 
       public string List(string wildcard, bool unescapeResponse)
       {
-         string result = SendSingleCommand("A01 LIST \"\" \"" + wildcard + "\"");
+         string result = SendSingleCommand("A26 LIST \"\" \"" + wildcard + "\"");
 
          if (unescapeResponse)
          {
@@ -468,7 +468,7 @@ namespace RegressionTests.Shared
 
       public string List(string reference, string wildcard, bool unescapeResponse)
       {
-         string result = SendSingleCommand("A01 LIST \"" + reference + "\" \"" + wildcard + "\"");
+         string result = SendSingleCommand("A27 LIST \"" + reference + "\" \"" + wildcard + "\"");
 
          if (unescapeResponse)
          {
@@ -491,7 +491,7 @@ namespace RegressionTests.Shared
 
       public string LSUB(string reference, string wildcard)
       {
-         string result = SendSingleCommand("A01 LSUB \"" + reference + "\" \"" + wildcard + "\"");
+         string result = SendSingleCommand("A28 LSUB \"" + reference + "\" \"" + wildcard + "\"");
 
          result = result.Replace("\\\\", "\\");
          result = result.Replace("\\\"", "\"");
@@ -506,13 +506,13 @@ namespace RegressionTests.Shared
 
       public bool SetDeletedFlag(int messageIndex)
       {
-         string result = SendSingleCommand("A01 STORE " + messageIndex + " +FLAGS (\\Deleted)");
+         string result = SendSingleCommand("A29 STORE " + messageIndex + " +FLAGS (\\Deleted)");
          return result.StartsWith("*");
       }
 
       public bool SetSeenFlag(int messageIndex)
       {
-         string result = SendSingleCommand("A01 STORE " + messageIndex + " +FLAGS (\\Seen)");
+         string result = SendSingleCommand("A30 STORE " + messageIndex + " +FLAGS (\\Seen)");
          return result.StartsWith("*");
       }
 
@@ -524,23 +524,23 @@ namespace RegressionTests.Shared
 
       public bool Expunge(out string result)
       {
-         result = SendSingleCommand("A01 EXPUNGE");
+         result = SendSingleCommand("A31 EXPUNGE");
          return result.StartsWith("*");
       }
 
       public string GetCapabilities()
       {
          // Capability
-         _tcpConnection.Send("A01 CAPABILITY\r\n");
+         _tcpConnection.Send("A32 CAPABILITY\r\n");
          string sData = _tcpConnection.Receive();
          return sData;
       }
 
       public int GetMessageCount(string sFolder)
       {
-         string sData = SendSingleCommand("A01 SELECT " + sFolder);
+         string sData = SendSingleCommand("A33 SELECT " + sFolder);
 
-         if (!sData.Contains("A01 OK"))
+         if (!sData.Contains("A33 OK"))
          {
             CustomAssert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
             return 0;
@@ -603,7 +603,7 @@ namespace RegressionTests.Shared
                return result;
 
             if (DateTime.Now - startTime > new TimeSpan(0, 0, 30))
-               throw new Exception("Timeout while waiting for data.");
+               CustomAssert.Fail("Timeout while waiting for data.");
          }
 
          return result;
@@ -678,7 +678,7 @@ namespace RegressionTests.Shared
 
       public string NOOP()
       {
-         return SendSingleCommand("A01 NOOP");
+         return SendSingleCommand("A34 NOOP");
       }
 
       public void Handshake()

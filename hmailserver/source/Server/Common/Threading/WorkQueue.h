@@ -32,6 +32,9 @@ namespace HM
       const String &GetName() const;
 
    private:
+
+      void WorkQueue::RemoveRunningTask_(shared_ptr<Task> task);
+
       void IoServiceRunWorker();
       void ExecuteTask(shared_ptr<Task> pTask);
 

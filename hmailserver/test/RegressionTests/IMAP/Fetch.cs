@@ -211,11 +211,11 @@ namespace RegressionTests.IMAP
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("0 BODY[1]");
-         CustomAssert.IsTrue(result.StartsWith("A01 OK FETCH completed"));
+         CustomAssert.IsTrue(result.StartsWith("A17 OK FETCH completed"));
          result = sim.Fetch("-1 BODY[1]");
-         CustomAssert.IsTrue(result.StartsWith("A01 BAD"));
+         CustomAssert.IsTrue(result.StartsWith("A17 BAD"));
          result = sim.Fetch("-100 BODY[1]");
-         CustomAssert.IsTrue(result.StartsWith("A01 BAD"));
+         CustomAssert.IsTrue(result.StartsWith("A17 BAD"));
       }
    }
 }

@@ -28,29 +28,9 @@ namespace HM
    void 
    ExternalFetchTask::DoWork()
    {
-      try
-      {
-         // Do the actual delivery of the message.
-         ExternalFetch oFetcher;
-         oFetcher.Start(m_pFA);
-      }
-      catch (boost::system::system_error error)
-      {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("An error occurred while download messages from external account. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5316, "DeliveryTask::DoWork", sErrorMessage);
-      }
-      catch (thread_interrupted const&)
-      {
-         // shutting down.
-         LOG_DEBUG("ExternalFetchTask::DoWork()");
-         return;
-      }
-      catch (...)
-      {
-         String sErrorMessage = _T("An error occurred while download messages from external account.");
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5317, "DeliveryTask::DoWork", sErrorMessage);
-      }
+      // Do the actual delivery of the message.
+      ExternalFetch oFetcher;
+      oFetcher.Start(m_pFA);
 
       // Set next fetch time 
       PersistentFetchAccount::SetNextTryTime(m_pFA);

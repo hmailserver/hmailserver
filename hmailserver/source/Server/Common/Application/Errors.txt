@@ -54,7 +54,6 @@
 5313, CriticalSection::CriticalSection, Initialization of critical section failed. Out of memory?
 5313, CriticalSection::Enter, EnterCriticalSection gave an exception. Out of memory?
 5314, CriticalSection::Enter, Trying to enter uninitialied critical section. Out of memory?
-5315, DeliveryTask::DoWork, An error occurred while running a delivery task. Error number: %d, Description: %s.
 5316, ExternalFetchTask::DoWork, An error occurred while download messages from external account. Error number: %d, Description: %s
 5317, ExternalFetchTask::DoWork, An error occurred while download messages from external account. 
 5318, Thread::AssignTask, Assigning task to thread even though thread already has task.
@@ -98,5 +97,11 @@
 5414, POP3Connection::_ReadAndSend. An unknown error occurred while reading and sending file data.
 5415, IniFileSettings::LoadSettings, Error determening database type. Type: {0}
 5500, SMTPConnection::InternalParseData, Received unexpected string data: {0}
+5501, ExternalFetch::Start, Connect() threw a system_error error.
+5502, ExternalDelivery::_InitiateExternalConnection, Connect() threw a system_error error.
+5503, SpamTestSpamAssassin::RunTest
+5503, WorkQueue::ExecuteTask, An error occured while executing task {0}
+
+
 
 

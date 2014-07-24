@@ -21,6 +21,8 @@ namespace HM
       };
 
       void ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription);
+      void ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::system_error &error);
+      void ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error);
       
       static int GetNativeErrorCode(IErrorInfo *pIErrorInfo);
 

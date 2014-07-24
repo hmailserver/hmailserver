@@ -69,6 +69,7 @@ namespace HM
 
       ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
 
+      
    protected:
 
       void SetTimeout(int seconds);

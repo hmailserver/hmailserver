@@ -162,6 +162,13 @@ namespace HM
    // Parses a client POP3 command.
    //---------------------------------------------------------------------------()
    {
+      if (InternalParseData(Request))
+         PostReceive();
+   }
+
+   bool 
+   IMAPConnection::InternalParseData(const AnsiString &Request)
+   {
       _LogClientCommand(Request);
 
       bool bHasLiterals = false;
@@ -184,8 +191,7 @@ namespace HM
          {
             // The client is not permitted to send the octets of the literal unless
             // the server indicates that it expects it. 
-            PostReceive();
-            return;
+            return true;
          }
       }
       else
@@ -198,8 +204,7 @@ namespace HM
          {
             // Tell the client that we expects more data.
             SendAsciiData("+ Ready for additional command text.\r\n");
-            PostReceive();
-            return;
+            return true;
          }
          else
          {
@@ -213,8 +218,7 @@ namespace HM
 
             if (_AskForLiteralData(sRemaining))
             {
-               PostReceive();
-               return;
+               return true;
             }
          }
       }
@@ -261,9 +265,9 @@ namespace HM
       pCommand->Tag = sTag;
       pCommand->Command = sCommand;
 
-      AnswerCommand(pCommand);
-
       m_sCommandBuffer.Empty();
+
+      return AnswerCommand(pCommand);
    }
 
    bool 
@@ -551,7 +555,7 @@ namespace HM
       return IMAP_UNKNOWN;
    }
 
-   void
+   bool
    IMAPConnection::AnswerCommand(shared_ptr<IMAPClientCommand> command)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
@@ -575,8 +579,7 @@ namespace HM
          _EndIdleMode();
          
          // Remove command
-         PostReceive();
-         return;
+         return true;
       }
 
       if (sCommandTag.IsEmpty() || sCommandValue.IsEmpty())
@@ -585,8 +588,7 @@ namespace HM
          SendAsciiData(sCommandValue + " BAD NULL COMMAND\r\n");
          
          // Remove this command since it's no good.
-         PostReceive();
-         return;
+         return true;
       }
 
       eIMAPCommandType eCommand = GetCommandType(sCommandName);
@@ -611,9 +613,8 @@ namespace HM
          // Should never happen. If the command is not known to hMailServer, it is classified as
          // IMAP_UNKNOWN. This command is set up int he static command handlers.
          throw new std::logic_error(Formatter::FormatAsAnsi("Handler for {0} was not found.", sCommandName));
-         assert(0);
-         return;
       }
+
       
       shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
 
@@ -667,8 +668,7 @@ namespace HM
       if (m_pCurrentFolder)
          NotifyFolderChange();
 
-      if (postReceive)
-         PostReceive();
+      return postReceive;
    }
 
    void 

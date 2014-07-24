@@ -108,9 +108,9 @@ namespace VMwareIntegration.Common
       static void AddUpgradeTests(List<TestEnvironment> listEnvironments)
       {
          listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "PostgreSQL 8.3.1", WindowxXPPath, "hMailServer 5.0 B289 (PostgreSQL 8.3.1)"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal", WindowxXPPath, "hMailServer 4.4.1 (Internal)"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal", WindowxXPPath, "hMailServer 4.4.1 (Internal  MySQL)"));
          listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "SQL Server", WindowxXPPath, "hMailServer 4.4.1 (SQL Server)"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal",WindowxXPPath, "hMailServer 5.0 (B289, Internal)"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal", WindowxXPPath, "hMailServer 5.0 (B289, Internal SQL CE)"));
          listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "SQL Server 2000", WindowxXPPath, "hMailServer 3.3 (B57, SQL Server 2000)"));
 
       }

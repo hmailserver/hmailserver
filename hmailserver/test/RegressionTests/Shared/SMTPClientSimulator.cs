@@ -173,6 +173,7 @@ namespace RegressionTests.Shared
 
          // Quit again
          _tcpConnection.Send("QUIT\r\n");
+         
          sData = _tcpConnection.Receive();
 
          _tcpConnection.Disconnect();

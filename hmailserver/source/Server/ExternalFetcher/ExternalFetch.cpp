@@ -44,21 +44,13 @@ namespace HM
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
       shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetConnectionSecurity(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
 
-      try
+      if (pClientConnection->Connect(pFA->GetServerAddress(), pFA->GetPort(), IPAddress()))
       {
-         if (pClientConnection->Connect(pFA->GetServerAddress(), pFA->GetPort(), IPAddress()))
-         {
-            // Make sure we keep no references to the TCP connection so that it
-            // can be terminated whenever. We're longer own the connection.
-            pClientConnection.reset();
+         // Make sure we keep no references to the TCP connection so that it
+         // can be terminated whenever. We're longer own the connection.
+         pClientConnection.reset();
 
-            disconnectEvent->Wait();
-         }
-         
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5077, "ExternalFetch::Start", "Start() threw an unhandled exception.");
+         disconnectEvent->Wait();
       }
 
       LOG_DEBUG("ExternalFetch::~Start");

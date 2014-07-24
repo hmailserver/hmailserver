@@ -32,8 +32,6 @@ namespace HM
 
    private:
       
-      void ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
-
       std::string GetPassword() const;
 
       bool InitSSL();

@@ -30,23 +30,7 @@ namespace HM
    DeliveryTask::DoWork()
    {
       // Do our delivery work.
-
-      try
-      {
-         SMTPDeliverer::DeliverMessage(m_pMessage);
-      }
-      catch (boost::system::system_error error)
-      {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("An error occurred while running a delivery task. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5315, "DeliveryTask::DoWork", sErrorMessage);
-      }
-      catch (...)
-      {
-         // Something went wrong.
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4223, "DeliveryTask::DoWork", "SMTPDeliverer::DeliverMessage() failed");
-
-      }
+      SMTPDeliverer::DeliverMessage(m_pMessage);
    }
 
 }

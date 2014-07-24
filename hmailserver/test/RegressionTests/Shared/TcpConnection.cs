@@ -73,6 +73,7 @@ namespace RegressionTests.Shared
          {
             _tcpClient = new TcpClient(endPoint.Address.ToString(), iPort);
          }
+
          catch
          {
             return false;
@@ -201,21 +202,22 @@ namespace RegressionTests.Shared
 
       public string Receive()
       {
-         if (!_tcpClient.Connected)
-            return "";
-
          var messageData = new StringBuilder();
+
          var buffer = new byte[2048];
-         int bytes;
+         int bytesRead;
 
          if (_useSslSocket)
          {
             do
             {
-               bytes = _sslStream.Read(buffer, 0, buffer.Length);
+               if (!_sslStream.CanRead)
+                  return "";
+
+               bytesRead = _sslStream.Read(buffer, 0, buffer.Length);
                Decoder decoder = Encoding.UTF8.GetDecoder();
-               var chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
-               decoder.GetChars(buffer, 0, bytes, chars, 0);
+               var chars = new char[decoder.GetCharCount(buffer, 0, bytesRead)];
+               decoder.GetChars(buffer, 0, bytesRead, chars, 0);
                messageData.Append(chars);
             } while (_tcpClient.Available > 0);
          }
@@ -225,15 +227,18 @@ namespace RegressionTests.Shared
             {
                var stream = _tcpClient.GetStream();
 
-               bytes = stream.Read(buffer, 0, buffer.Length);
-               char[] chars = Encoding.ASCII.GetChars(buffer);
-               var s = new string(chars, 0, bytes);
+               if (!stream.CanRead)
+                  return "";
 
+               bytesRead = stream.Read(buffer, 0, buffer.Length);
+               char[] chars = Encoding.ASCII.GetChars(buffer);
+               var s = new string(chars, 0, bytesRead);
                messageData.Append(s);
             } while (_tcpClient.Available > 0);
          }
 
          return messageData.ToString();
+
       }
 
       public bool Peek()

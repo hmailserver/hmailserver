@@ -208,7 +208,7 @@ namespace HM
          String errorMessage;
          errorMessage.Format(_T("Failed to set default workarounds."));
 
-         ReportInitError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
 
          return false;
       }
@@ -220,7 +220,7 @@ namespace HM
          {
             String errorMessage;
             errorMessage.Format(_T("Failed to enable peer verification."));
-            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
 
             return false;
          }
@@ -230,7 +230,7 @@ namespace HM
          {
             String errorMessage;
             errorMessage.Format(_T("Failed to add path to Certificate Authority files."));
-            ReportInitError(ErrorManager::Medium, 5144, "TCPConnection::PrepareContext", errorMessage, errorCode);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
             return false;
          }
       }      
@@ -427,13 +427,6 @@ namespace HM
       return address.TryParse("::F", false);
    }
 
-   void 
-   TCPServer::ReportInitError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
-   {
-      String formattedMessage;
-      formattedMessage.Format(_T("%s, Error code: %d, Message: %s"), message, error.code().value(), String(error.what()));
-      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
-   }
 
 
 

@@ -64,7 +64,7 @@ namespace RegressionTests.Security
             }
             catch
             {
-               if (i == 5)
+               if (i == 10)
                   throw;
 
                Thread.Sleep(1000);

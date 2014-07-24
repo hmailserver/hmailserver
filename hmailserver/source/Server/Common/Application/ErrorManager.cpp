@@ -101,6 +101,24 @@ namespace HM
    }
 
    void 
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::system_error &error)
+   {
+      String formatted_message;
+      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.code().value(), String(error.what()));
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
+   void 
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
+   {
+      String formatted_message;
+      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.what());
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
+   void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription)
    {
 #ifdef _ERROR_LOGGING_IN_MESSAGE_BOXES
