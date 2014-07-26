@@ -42,14 +42,19 @@ namespace HM
 
    private:
 
-      virtual void InternalParseData(const AnsiString &Request);
-	  void _ReadAndSend();
+      void _ProtocolStateHELOEHLO();
+      void _ProtocolSendMailFrom();
+      void _ProtocolHELOEHLOSent(const AnsiString &request);
+      void _ProtocolMailFromSent();
+      void _ProtocolRcptToSent(int code, const AnsiString &request);
+      void _ProtocolData();
+      
+
+      bool InternalParseData(const AnsiString &Request);
+  	   void _ReadAndSend();
 	  
       bool IsPositiveCompletion(int iErrorCode);
-      bool IsPositiveIntermediate(int lErrorCode);
       bool IsPermanentNegative(int lErrorCode);
-      bool IsTransientNegative(int lErrorCode);
-      
 
       void _LogSentCommand(const String &sData);
       void _StartSendFile(const String &sFilename);
@@ -58,7 +63,6 @@ namespace HM
 
       void _ProtocolSendUsername();
       void _ProtocolSendPassword();
-      bool _ProtocolPassswordCheck(int iCode, const String &sServerLine);
 
       void _UpdateAllRecipientsWithError(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError);
       void _UpdateRecipientWithError(int iErrorCode, const AnsiString &sResponse,shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError);
@@ -71,19 +75,17 @@ namespace HM
 	      HELO = 1,
          HELOSENT = 9,
          EHLOSENT = 10,
-         SENDUSERNAME = 11,
-         SENDPASSWORD = 12,
-         PASSWORDCHECK = 13,
-         MAILFROM = 2,
+         AUTHLOGINSENT = 11,
+         USERNAMESENT = 12,
+         PASSWORDSENT = 13,
          MAILFROMSENT = 3,
-         RCPTTO = 4,
          RCPTTOSENT = 5,
          DATAQUESTION = 6,
-         DATA = 7,
+         DATACOMMANDSENT = 7,
          SENDINGDATA = 13,
          DATASENT = 8,
-         QUITSENT = 14
-         
+         QUITSENT = 14,
+         STARTTLSSENT = 15
       };
 
       void _SetState(ConnectionState eCurState);
@@ -111,11 +113,10 @@ namespace HM
       bool m_bSessionEnded;
 
       AnsiString m_sLastSentData;
-
-      bool m_bPendingDisconnect;
       
       File _currentFile;   
       TransparentTransmissionBuffer _transmissionBuffer;
 
+      AnsiString m_sMultiLineResponseBuffer;
    };
 }

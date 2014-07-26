@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
+using System.Text;
 using System.Threading;
 using hMailServer;
+using RegressionTests.SSL;
 
 namespace RegressionTests.Shared
 {
@@ -113,9 +116,31 @@ namespace RegressionTests.Shared
 
       private bool ProcessCommand(string command)
       {
-         if (command.ToUpper().StartsWith("HELO") || command.ToUpper().StartsWith("EHLO"))
+         if (command.ToUpper().StartsWith("HELO"))
          {
             Send("250 Test Server - Helo\r\n");
+            return false;
+         }
+
+         if (command.ToUpper().StartsWith("EHLO"))
+         {
+            var response = new StringBuilder(); 
+            
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLS)
+            {
+               response.AppendLine("250-STARTTLS");
+            }
+
+            response.AppendLine("250 AUTH LOGIN PLAIN");
+
+            Send(response.ToString());
+            return false;
+         }
+
+         if (command.ToUpper().StartsWith("STARTTLS"))
+         {
+            Send("220 Ready to start TLS\r\n");
+            _tcpConnection.HandshakeAsServer(SslSetup.GetCertificate());
             return false;
          }
 
@@ -123,12 +148,6 @@ namespace RegressionTests.Shared
          {
             Send("334 VXNlcm5hbWU6\r\n");
             _expectingUsername = true;
-            return false;
-         }
-
-         if (command.ToUpper().StartsWith("AUTH LOGIN"))
-         {
-            Send("334 VXNlcm5hbWU6\r\n");
             return false;
          }
 

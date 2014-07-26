@@ -108,9 +108,6 @@ namespace RegressionTests.SMTP
       [Description("Issue 226. Domain alias rewrites sender address.")]
       public void DomainAliasesShouldNotRewriteRecipientList()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
-
          DomainAlias oDA = _domain.DomainAliases.Add();
          oDA.AliasName = "dummy-example.com";
          oDA.Save();
@@ -128,7 +125,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSTLS);
+            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
 
             // Now send a message from test@test.com to test@otherdomain.com.
             // Error scenario:
@@ -138,7 +135,7 @@ namespace RegressionTests.SMTP
             //
             // This should not happen. Otherdomain.com is an alias for test.com,
             // but we shouldn't actually modify the recipient address just because
-            // of this?
+            // of this.
             var smtpClient = new SMTPClientSimulator();
             CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 

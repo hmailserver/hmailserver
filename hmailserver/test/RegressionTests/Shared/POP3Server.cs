@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using hMailServer;
+using RegressionTests.SSL;
 
 namespace RegressionTests.Shared
 {
@@ -86,6 +88,25 @@ namespace RegressionTests.Shared
          if (command.ToLower().StartsWith("user"))
          {
             Send("+OK\r\n");
+            return true;
+         }
+
+         if (command.ToLower().StartsWith("capa"))
+         {
+            string capabilities = "USER\r\nUIDL\r\nTOP\r\n";
+
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLS)
+               capabilities += "STLS\r\n";
+
+            string response = "+OK CAPA list follows\r\n" + capabilities + "." + "\r\n";
+            Send(response);
+            return true;
+         }
+
+         if (command.ToLower().StartsWith("stls"))
+         {
+            Send("+OK Begin TLS negotiation\r\n");
+            _tcpConnection.HandshakeAsServer(SslSetup.GetCertificate());
             return true;
          }
 

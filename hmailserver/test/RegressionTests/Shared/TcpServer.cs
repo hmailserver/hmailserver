@@ -27,9 +27,9 @@ namespace RegressionTests.Shared
       private Thread _serverThread;
       private TcpListener _tcpListener;
       private Exception _workerThreadException;
-      private TcpConnection _tcpConnection;
+      protected TcpConnection _tcpConnection;
 
-      private eConnectionSecurity _connectionSecurity;
+      protected eConnectionSecurity _connectionSecurity;
 
       private string _conversation;
 

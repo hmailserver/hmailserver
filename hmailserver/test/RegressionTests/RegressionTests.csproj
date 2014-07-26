@@ -177,6 +177,7 @@
     <Compile Include="Infrastructure\RetryHelper.cs" />
     <Compile Include="MIME\MessageParsing.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
+    <Compile Include="POP3\Fetching\ExternalAccountSslTests.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
     <Compile Include="Shared\SMTPClientSimulator.cs" />

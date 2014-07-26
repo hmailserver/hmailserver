@@ -341,6 +341,7 @@ namespace HM
 
       shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
 
+
       boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;

@@ -43,16 +43,18 @@ namespace HM
       void _SendData(const String &sData) ;
    
    // This is temp function to log ETRN client commands to SMTP
-      void _SendData2(const String &sData) ;
+      void _SendDataLogAsSMTP(const String &sData) ;
 
    private:
 
+      void _SendCAPA();
+      bool _HandleEtrn(const String &account_name);
       int _GetDaysToKeep(const String &sUID);
       void _FireOnExternalAccountDownload(shared_ptr<Message> message, const String &uid);
 
       void _HandlePOP3FinalizationTaskCompleted();
 
-      void InternalParseData(const String &sRequest);
+      bool InternalParseData(const String &sRequest);
 
       void _CreateRecipentList(shared_ptr<MimeHeader> pHeader);
 
@@ -67,11 +69,13 @@ namespace HM
       void _LogSMTPString(const String &sLogString, bool bSent);
 
       void _ParseStateConnected(const String &sData);
+      void _ParseStateCAPASent(const String &sData);
+      bool _ParseStateSTLSSent(const String &sData);
       void _ParseUsernameSent(const String &sData);
       void _ParsePasswordSent(const String &sData);
       void _ParseUIDLResponse(const String &sData);
       void _ParseRETRResponse(const String &sData);
-      void _ParseQuitResponse(const String &sData);
+      bool _ParseQuitResponse(const String &sData);
       void _ParseDELEResponse(const String &sData);
       bool _RequestNextMessage();
 
@@ -94,7 +98,7 @@ namespace HM
       void _ParseMessageHeaders();
       void _SaveMessage();
       bool _DoSpamProtection();
-      
+      void _SendUserName();
       void _StartMailboxCleanup();
       // Triggers a clean up start.
 
@@ -115,23 +119,20 @@ namespace HM
 
       enum State
       {
-         StateConnected = 1,
-         StateUsernameSent = 2,
-         StatePasswordSent = 3,
-         StateUIDLRequestSent = 4,
-         StateRETRSent = 5,
-         StateDELESent = 6,
-         StateQUITSent = 100
+         StateConnected,
+         StateCAPASent,
+         StateSTLSSent,
+         StateUsernameSent,
+         StatePasswordSent,
+         StateUIDLRequestSent,
+         StateRETRSent,
+         StateDELESent,
+         StateQUITSent
       };
 
       State m_eCurrentState;
-
-      bool m_bAwaitingMultilineResponse;
-      // True if the POP3ClientConnection class expects
-      // a multi-line response from the server on the
-      // other side.
      
-      String m_sCommandBuffer;
+      AnsiString m_sCommandBuffer;
 
       map<int ,String> m_mapUIDLResponse;
       // The messages on the server (id,UID)
@@ -146,8 +147,6 @@ namespace HM
       String m_sReceivingAccountAddress;
 
       shared_ptr<TransparentTransmissionBuffer> m_pTransmissionBuffer;
-
-      bool m_bPendingDisconnect;
 
       map<String, shared_ptr<Result> > _eventResults;
 

@@ -52,7 +52,7 @@ namespace RegressionTests.Security
 
       private void EnsureNoPassword()
       {
-         string log = _settings.Logging.CurrentDefaultLog;
+         string logFileName = _settings.Logging.CurrentDefaultLog;
 
          for (int i = 1; i <= 10; i++)
          {
@@ -60,7 +60,11 @@ namespace RegressionTests.Security
 
             try
             {
-               text = File.ReadAllText(log);
+               using (var fileStream = File.Open(logFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+               using (var streamReader = new StreamReader(fileStream))
+               {
+                  text = streamReader.ReadToEnd();
+               }
             }
             catch
             {

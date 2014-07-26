@@ -49,11 +49,8 @@ namespace HM
                                               shared_ptr<Event> disconnected) :
       AnsiStringConnection(connectionSecurity, io_service, context, disconnected),
       m_pAccount(pAccount),
-      m_eCurrentState(StateConnected),
-      m_bPendingDisconnect(false)
+      m_eCurrentState(StateConnected)
    {
-
-      m_bAwaitingMultilineResponse = false;
 
       /*
       RFC 1939, Basic Operation
@@ -75,7 +72,8 @@ namespace HM
    void
    POP3ClientConnection::OnConnected()
    {
-      if (GetConnectionSecurity() == CSNone)
+      if (GetConnectionSecurity() == CSNone || 
+          GetConnectionSecurity() == CSSTARTTLS)
          PostReceive();
    }
 
@@ -84,6 +82,11 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          PostReceive();
+      else if (GetConnectionSecurity() == CSSTARTTLS)
+      {
+         _SendUserName();
+         PostReceive();
+      }
    }
 
    AnsiString 
@@ -95,74 +98,125 @@ namespace HM
    void
    POP3ClientConnection::ParseData(const AnsiString &sRequest)
    {
-      InternalParseData(sRequest);
+      bool commandBufferIsEmpty = m_sCommandBuffer.empty();
 
-      if (m_bPendingDisconnect == false)
-         PostReceive();
-   }
-
-   void
-   POP3ClientConnection::InternalParseData(const String &sRequest)
-   {
-	  bool commandBufferIsEmpty = m_sCommandBuffer.empty();
-	
       m_sCommandBuffer.append(sRequest);
-      m_sCommandBuffer.append(_T("\r\n"));
+      m_sCommandBuffer.append("\r\n");
 
-      if (m_bAwaitingMultilineResponse)
+      bool is_awaiting_multiline_response  = m_eCurrentState == StateCAPASent ||
+                                             m_eCurrentState == StateUIDLRequestSent;
+
+      if (is_awaiting_multiline_response)
       {
-         if (sRequest != _T("."))
-		 {
-			if (commandBufferIsEmpty && !_CommandIsSuccessfull(sRequest))
+         if (sRequest != ".")
+         {
+            if (commandBufferIsEmpty && !_CommandIsSuccessfull(sRequest))
             {
                // An error has occured. Don't continue multiline
                // buffering, so that we can handle the error below.
             }
             else
             {
+               PostReceive();
                return;
             }
-		 }
-
-         m_bAwaitingMultilineResponse = false;
+         }
       }
 
+      bool postReceive = InternalParseData(sRequest);
+
+      // The ASCII buffer has been parsed, so we
+      // may clear it now.
+      m_sCommandBuffer.Empty();
+
+      if (postReceive)
+         PostReceive();
+   }
+
+   bool
+   POP3ClientConnection::InternalParseData(const String &sRequest)
+   {
       // This code is temporary home of ETRN client settings in GUI
       // It checks External Account for ETRN domain.com for name
       // and if found uses that info to perform ETRN client connections
-      String sTest1 = m_pAccount->GetName();
-      if (sTest1.StartsWith(_T("ETRN")))
+      String sAccountName = m_pAccount->GetName();
+      if (sAccountName.StartsWith(_T("ETRN")))
       {
-
-      _LogSMTPString(m_sCommandBuffer, false);
-
-      std::vector<String> vecParams = StringParser::SplitString(sTest1, " ");
-      if (vecParams.size() == 2)
+         _HandleEtrn(sAccountName);
+         return true;
+      }
+      else
       {
+          // No sense in indenting code below inward as this is temp
+          // and it'd just have to be moved back.
+          // **** Don't miss } below when removing the above code! ****
+
+         _LogPOP3String(m_sCommandBuffer, false);
 
          bool bRetVal = true;
          switch (m_eCurrentState)
-            {
+         {
+         case StateConnected:
+            _ParseStateConnected(m_sCommandBuffer);
+            return true;
+         case StateCAPASent:
+            _ParseStateCAPASent(m_sCommandBuffer);
+            return true;
+         case StateSTLSSent:
+            return _ParseStateSTLSSent(m_sCommandBuffer);
+         case StateUsernameSent:
+            _ParseUsernameSent(m_sCommandBuffer);
+            return true;
+         case StatePasswordSent:
+            _ParsePasswordSent(m_sCommandBuffer);
+            return true;
+         case StateUIDLRequestSent:
+            _ParseUIDLResponse(m_sCommandBuffer);
+            return true;
+         case StateQUITSent:
+            return _ParseQuitResponse(m_sCommandBuffer);
+         case StateDELESent:
+            _ParseDELEResponse(m_sCommandBuffer);
+            return true;
+         }
+   
+         // This will be removed too when ETRN code is moved
+       }
 
+      return true;
+   }
+
+   bool
+   POP3ClientConnection::_HandleEtrn(const String &account_name)
+   {
+      _LogSMTPString(m_sCommandBuffer, false);
+
+      std::vector<String> vecParams = StringParser::SplitString(account_name, " ");
+      if (vecParams.size() == 2)
+      {
+         bool bRetVal = true;
+         switch (m_eCurrentState)
+         {
             // Re-using POP states names for now
-            case StateConnected:
-               // Realize we shouldn't blindly send but this works for now
-              _SendData2("HELO " + vecParams[1]);
-               m_eCurrentState = StateUsernameSent;
-               break;
+         case StateConnected:
+            // Realize we shouldn't blindly send but this works for now
+            _SendDataLogAsSMTP("HELO " + vecParams[1]);
+            m_eCurrentState = StateUsernameSent;
+            return true;
+         case StateUsernameSent:
+            _SendDataLogAsSMTP("ETRN " + vecParams[1]);
+            Sleep(20);
+            m_eCurrentState = StateUIDLRequestSent;
+            return true;
+         case StateUIDLRequestSent:
+            _SendDataLogAsSMTP("QUIT");
+            m_eCurrentState = StateQUITSent;
+            Sleep(20);
+            return true;
 
-            case StateUsernameSent:
-               _SendData2("ETRN " + vecParams[1]);
-               Sleep(20);
-               m_eCurrentState = StateUIDLRequestSent;
-               break;
-
-            case StateUIDLRequestSent:
-               _SendData2("QUIT");
-               m_eCurrentState = StateQUITSent;
-               Sleep(20);
-               break;
-            }
+         default:
+            return false;
+         }
       }
       else
       {
@@ -171,44 +225,8 @@ namespace HM
          Sleep(20);
          _SendData("QUIT");
          _ParseQuitResponse(m_sCommandBuffer);
-       }
+         return false;
       }
-      else
-      {
-
-       // No sense in indenting code below inward as this is temp
-       // and it'd just have to be moved back.
-       // **** Don't miss } below when removing the above code! ****
-
-      _LogPOP3String(m_sCommandBuffer, false);
-
-      bool bRetVal = true;
-      switch (m_eCurrentState)
-      {
-      case StateConnected:
-         _ParseStateConnected(m_sCommandBuffer);
-         break;
-      case StateUsernameSent:
-         _ParseUsernameSent(m_sCommandBuffer);
-         break;
-      case StatePasswordSent:
-         _ParsePasswordSent(m_sCommandBuffer);
-         break;
-      case StateUIDLRequestSent:
-         _ParseUIDLResponse(m_sCommandBuffer);
-         break;
-      case StateQUITSent:
-         _ParseQuitResponse(m_sCommandBuffer);
-         break;
-      case StateDELESent:
-         _ParseDELEResponse(m_sCommandBuffer);
-         break;
-      }
-// This will be removed too when ETRN code is moved
-    }
-      // The ASCII buffer has been parsed, so we
-      // may clear it now.
-      m_sCommandBuffer.Empty();
    }
 
    void
@@ -216,22 +234,77 @@ namespace HM
    {
       if (_CommandIsSuccessfull(sData))
       {
-         // We have connected successfully.
-         // Time to send the username.
-
-         String sResponse;
-         sResponse.Format(_T("USER %s"), m_pAccount->GetUsername());
-
-         _SendData(sResponse);
-
-         m_eCurrentState = StateUsernameSent;
-         return;
+         if (GetConnectionSecurity() == CSSTARTTLS)
+         {
+            _SendCAPA();
+            return;
+         }
+         else
+         {
+            _SendUserName();
+            return;
+         }
       }
 
       // Disconnect immediately.
       LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon USER command.");
       _QuitNow();
       return;
+   }
+
+   void
+   POP3ClientConnection::_SendUserName()
+   {
+      // We have connected successfully.
+      // Time to send the username.
+
+      String sResponse;
+      sResponse.Format(_T("USER %s"), m_pAccount->GetUsername());
+
+      _SendData(sResponse);
+
+      m_eCurrentState = StateUsernameSent;
+   }
+
+   void
+   POP3ClientConnection::_SendCAPA()
+   {
+      // We have connected successfully.
+      // Time to send the username.
+      _SendData(_T("CAPA"));
+
+      m_eCurrentState = StateCAPASent;
+   }
+
+   void
+   POP3ClientConnection::_ParseStateCAPASent(const String &sData)
+   {
+      if (!_CommandIsSuccessfull(sData) || !sData.Contains(_T("STLS")))
+      {
+         String message = 
+            Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", m_pAccount->GetName());
+         
+         LOG_APPLICATION(message)
+         _QuitNow();
+         return;
+      }
+
+      _SendData("STLS");
+      m_eCurrentState = StateSTLSSent;
+   }
+
+   bool
+   POP3ClientConnection::_ParseStateSTLSSent(const String &sData)
+   {
+      if (_CommandIsSuccessfull(sData))
+      {
+         Handshake();
+         return false;
+      }
+
+      // Disconnect immediately.
+      _QuitNow();
+      return true;
    }
 
    void 
@@ -270,9 +343,6 @@ namespace HM
          sResponse.Format(_T("UIDL"));
          
          _SendData(sResponse);
-
-         m_bAwaitingMultilineResponse = true;
-
          return;
       }
 
@@ -467,20 +537,17 @@ namespace HM
       m_eCurrentState = StateQUITSent;
    }
 
-   void 
+   bool 
    POP3ClientConnection::_ParseQuitResponse(const String &sData)
    {
       if (_CommandIsSuccessfull(sData))
       {
          // We have quitted successfully.
-         // Disconnect
-         m_bPendingDisconnect = true;
          PostDisconnect();
-         return;
       }
 
       // Quit anyway
-      return;
+      return false;
    }
 
    void 
@@ -1138,7 +1205,7 @@ namespace HM
 
    // This is temp function to log ETRN client commands to SMTP
    void
-   POP3ClientConnection::_SendData2(const String &sData) 
+   POP3ClientConnection::_SendDataLogAsSMTP(const String &sData) 
    {
       _LogSMTPString(sData, true);
 

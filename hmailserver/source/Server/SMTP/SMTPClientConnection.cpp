@@ -30,7 +30,6 @@ namespace HM
          m_bUseSMTPAuth(false),
          m_iCurRecipient(-1),
          m_bSessionEnded(false),
-         m_bPendingDisconnect(false),
          _transmissionBuffer(true)
    {
       
@@ -54,8 +53,11 @@ namespace HM
    void
    SMTPClientConnection::OnConnected()
    {
-      if (GetConnectionSecurity() == CSNone)
+      if (GetConnectionSecurity() == CSNone || 
+          GetConnectionSecurity() == CSSTARTTLS)
+      {
          PostReceive();
+      }
    }
 
    void
@@ -63,6 +65,11 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          PostReceive();
+      else if (GetConnectionSecurity() == CSSTARTTLS)
+      {
+         _ProtocolStateHELOEHLO();
+         PostReceive();
+      }
    }
 
    AnsiString 
@@ -88,28 +95,37 @@ namespace HM
    // Parses a server SMTP cmmand.
    //---------------------------------------------------------------------------()
    {
-      InternalParseData(Request);
+      m_sMultiLineResponseBuffer += Request;
 
-      if (m_bPendingDisconnect == false)
+      if (m_sMultiLineResponseBuffer.GetLength() > 10000)
+      {
+         _UpdateAllRecipientsWithError(500, "Unexpected response from server (too long).", false);
+         return;
+      }
+
+      if (Request.GetLength() > 3 && (Request.GetAt(3) == '-'))
+      {
+         // Multi-line response. Wait for full buffer.
+         m_sMultiLineResponseBuffer += "\r\n";
+         PostReceive();
+         return;
+      }
+
+      bool postReceive = InternalParseData(m_sMultiLineResponseBuffer);
+
+      m_sMultiLineResponseBuffer.Empty();
+
+      if (postReceive)
          PostReceive();
    }
 
-   void
+   bool
    SMTPClientConnection::InternalParseData(const AnsiString  &Request)
    {
       LOG_DEBUG("SMTPClientConnection::_ParseASCII()");
 
       String sData = "RECEIVED: " + Request;
       LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), sData);
-
-      // Below 3 lines is fix of the problem that occurs when the remote server answers
-      // with 2 line in his welcome message.
-      String sMinus = "-";
-      if ((Request.GetLength() > 3) && (Request.GetAt(3) == sMinus.GetAt(0)))
-      {
-         LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 1");
-         return;
-      }
 
       int lFirstSpace = Request.Find(" ");
    
@@ -118,160 +134,122 @@ namespace HM
          sFirstWordTemp = Request;
       else
          sFirstWordTemp = Request.Mid(0, lFirstSpace);
+
       sFirstWordTemp.MakeUpper();
       int iCode = atoi(sFirstWordTemp);
+   
+      bool ifFailureFailAllRecipientsAndQuit = 
+         m_CurrentState == HELO ||
+         m_CurrentState == HELOSENT ||
+         m_CurrentState == EHLOSENT || 
+         m_CurrentState == STARTTLSSENT ||
+         m_CurrentState == AUTHLOGINSENT ||
+         m_CurrentState == USERNAMESENT || 
+         m_CurrentState == PASSWORDSENT ||
+         m_CurrentState == MAILFROMSENT ||
+         m_CurrentState == DATACOMMANDSENT ||
+         m_CurrentState == DATASENT ||
+         m_CurrentState == PASSWORDSENT;
 
-      // We should not update all recipient's if we've just sent a
-      // RCPT TO. We should only update the specific one we've just
-      // sent to.
-      // 
-      // Also, we should not update state if we've just sent QUIT to
-      // the server. At the time we send QUIT, the message has already
-      // been either accepted for delivery and rejected. Any error after
-      // this isn't relvat.
-      if (m_CurrentState != RCPTTOSENT && m_CurrentState != QUITSENT)
+      if (ifFailureFailAllRecipientsAndQuit)
       {
-         if (IsPermanentNegative(iCode))
+         if (!IsPositiveCompletion(iCode))
          {
             _UpdateAllRecipientsWithError(iCode, Request, false);
             _SendQUIT();
-            return;
-         }
-         else if (IsTransientNegative(iCode))
-         {
-            _UpdateAllRecipientsWithError(iCode, Request, false);
-            _SendQUIT();
-            return;
+            return true;
          }
       }
-   
+
       switch (m_CurrentState)
       {
-      case SENDUSERNAME:
+      case HELO:
+         _ProtocolStateHELOEHLO();  
+         return true;
+      case HELOSENT:
+      case EHLOSENT:
+         _ProtocolHELOEHLOSent(Request);
+         return true;
+      case STARTTLSSENT:
+         Handshake();
+         return false;
+      case AUTHLOGINSENT:
          _ProtocolSendUsername();
-         break;
-      case SENDPASSWORD:
+         return true;
+      case USERNAMESENT:
          _ProtocolSendPassword();
-         break;
-      case PASSWORDCHECK:
-         if (!_ProtocolPassswordCheck(iCode, Request))
-         {
-            // Authentication failed. We have just sent
-            // a quit command.
-            return;
-         }
-
-         break;
+         return true;
+      case PASSWORDSENT:
+         _ProtocolSendMailFrom();
+         return true;
+      case MAILFROMSENT:
+         _ProtocolMailFromSent();
+         return true;
+      case DATACOMMANDSENT:
+         _ProtocolData();
+         return true;
+      case DATASENT:
+         _SendQUIT();
+         _UpdateSuccessfulRecipients();
+         return true;
+      case RCPTTOSENT:
+         _ProtocolRcptToSent(iCode, Request);
+         return true;
+      case QUITSENT:
+         // We just received a reply on our QUIT. Time to disconnect.
+         PostDisconnect();
+         return false;
       }
-      
-      if (m_CurrentState == HELO)
+
+      return true;
+   }
+
+   void
+   SMTPClientConnection::_ProtocolStateHELOEHLO()
+   {
+      String sComputerName = Utilities::ComputerName(); 
+
+      if (m_bUseSMTPAuth || GetConnectionSecurity() == CSSTARTTLS)
       {
-         if (iCode == 220)
-         {
-			   String sComputerName = Utilities::ComputerName(); 
-      
-            if (m_bUseSMTPAuth)
-            {
-               _SendData("EHLO " + sComputerName);
-               _SetState(EHLOSENT);
-            }
-            else
-            {
-               _SendData("HELO " + sComputerName);
-               _SetState(HELOSENT);
-            }
-        
-            LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 2");
-
-            return ;
-         }
-         else
-         {
-            LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 3");
-            _UpdateAllRecipientsWithError(iCode, Request, false);
-            _SendQUIT();
-            return;
-         }
+         _SendData("EHLO " + sComputerName);
+         _SetState(EHLOSENT);
       }
-
-      if (m_CurrentState == EHLOSENT)
+      else
       {
-         // Ask the server to initiate login process.
-         _SendData("AUTH LOGIN");
-         _SetState(SENDUSERNAME);
-         return ;
+         _SendData("HELO " + sComputerName);
+         _SetState(HELOSENT);
+      }
+   }
+
+   void
+   SMTPClientConnection::_ProtocolMailFromSent()
+   {
+      shared_ptr<MessageRecipient> pRecipient = _GetNextRecipient();
+      if (!pRecipient) 
+      {
+         _SendQUIT();
+         return;
       }
 
-      if (m_CurrentState == HELOSENT)
-      {
-         if (IsPositiveCompletion(iCode))
-         {
-            // --- Server accepted HELO. Go to HEADER/MAILFROM state.
-            _SetState(MAILFROM);
-         }
-	      else
-         {
-            _UpdateAllRecipientsWithError(iCode, Request, false);
-         }
-      }
+      String sRecipient = pRecipient->GetAddress();
+      String sData = "RCPT TO:<" + sRecipient + ">";
+      _SendData(sData);
+      m_CurrentState = RCPTTOSENT;
+   }
    
-
-      if (m_CurrentState == MAILFROM)
-      {
-         String sFrom = m_pDeliveryMessage->GetFromAddress();
-         String sData = "MAIL FROM:<" + sFrom + ">";
-         _SendData(sData);
-         m_CurrentState = MAILFROMSENT;
-         LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 4");
-         return;
-      }
-
-      if (m_CurrentState == MAILFROMSENT)
-      {
-         if (IsPositiveCompletion(iCode))
-         {
-            // --- Server accepted mail from. Go to header/rcpt to state.
-            m_CurrentState = RCPTTO;
-         }
-         else
-         {
-            LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 5");
-            _UpdateAllRecipientsWithError(iCode, Request, false);
-         }
-
-      }
-
-      if (m_CurrentState == RCPTTO)
-      {
-         LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 6");
-
-         shared_ptr<MessageRecipient> pRecipient = _GetNextRecipient();
-         if (!pRecipient) 
-         {
-            _SendQUIT();
-            return;
-         }
-         
-         String sRecipient = pRecipient->GetAddress();
-         String sData = "RCPT TO:<" + sRecipient + ">";
-         _SendData(sData);
-         m_CurrentState = RCPTTOSENT;
-
-         return;
-
-      }
-
-      if (m_CurrentState == RCPTTOSENT)
+   void
+   SMTPClientConnection::_ProtocolRcptToSent(int code, const AnsiString &request)
+   {
       {
          if (m_iCurRecipient < m_vecRecipients.size())
          {
-            if (IsPositiveCompletion(iCode))
+            if (IsPositiveCompletion(code))
             {
                _actualRecipients.insert(m_vecRecipients[m_iCurRecipient]);
             }
             else
             {
-               _UpdateRecipientWithError(iCode, Request, m_vecRecipients[m_iCurRecipient], false);
+               _UpdateRecipientWithError(code, request, m_vecRecipients[m_iCurRecipient], false);
             }
          }
 
@@ -287,61 +265,67 @@ namespace HM
             if (_actualRecipients.size() == 0)
             {
                _SendQUIT();
-               return;
+            }
+            else
+            {
+               _SendData("DATA");
+               m_CurrentState = DATACOMMANDSENT;
             }
             
-            m_CurrentState = DATAQUESTION;
          }
       }
+   }
 
-      if (m_CurrentState == DATAQUESTION)
-      {
-         _SendData("DATA");
-         m_CurrentState = DATA;
-         LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 7");
-         return;
-      }
 
-      if (m_CurrentState == DATA)
+   void
+   SMTPClientConnection::_ProtocolData()
+   {
+      // Send the data!
+      const String fileName = PersistentMessage::GetFileName(m_pDeliveryMessage);
+      LOG_DEBUG("SMTPClientConnection::~_BEFORE SendFile");
+      _StartSendFile(fileName);
+      LOG_DEBUG("SMTPClientConnection::~_AFTER SendFile");
+   }
+
+   void
+   SMTPClientConnection::_ProtocolHELOEHLOSent(const AnsiString &request)
+   {
+      if (GetConnectionSecurity() == CSSTARTTLS &&
+         !IsSSLConnection())
       {
-         if (IsPositiveIntermediate(iCode))
+         if (!request.Contains("STARTTLS"))
          {
-            // Send the data!
-            const String fileName = PersistentMessage::GetFileName(m_pDeliveryMessage);
-            LOG_DEBUG("SMTPClientConnection::~_BEFORE SendFile");
-            _StartSendFile(fileName);
-            LOG_DEBUG("SMTPClientConnection::~_AFTER SendFile");
-            return;
-         }
-      }
-
-      if (m_CurrentState == DATASENT)
-      {
-            LOG_DEBUG("SMTPClientConnection::~_BEFORE SendQUIT");
-         _SendQUIT();
-            LOG_DEBUG("SMTPClientConnection::~_AFTER SendQUIT");
-
-         if (IsPositiveCompletion(iCode))
-         {
-            _UpdateSuccessfulRecipients();
-            LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 9");
-            return;
+            _UpdateAllRecipientsWithError(500, "Server does not support STARTTLS", false);
+            _SendQUIT();
          }
          else
          {
-            _UpdateAllRecipientsWithError(iCode, Request, false);
-            LOG_DEBUG("SMTPClientConnection::~_ParseASCII() - 10");
+            _SendData("STARTTLS");
+            _SetState(STARTTLSSENT);
          }
-
-         return;
       }
-
-      if (m_CurrentState == QUITSENT)
-      {     
-         // We just received a reply on our QUIT. Time to disconnect.
-         m_bPendingDisconnect = true;
-         PostDisconnect();
+      else
+      {
+         if (m_bUseSMTPAuth)
+         {
+            // Ask the server to initiate login process.
+            _SendData("AUTH LOGIN");
+            _SetState(AUTHLOGINSENT);
+         }
+         else
+         {
+            _ProtocolSendMailFrom();
+         }
       }
+   }
+
+   void
+   SMTPClientConnection::_ProtocolSendMailFrom()
+   {
+      String sFrom = m_pDeliveryMessage->GetFromAddress();
+      String sData = "MAIL FROM:<" + sFrom + ">";
+      _SendData(sData);
+      m_CurrentState = MAILFROMSENT;
    }
 
    //---------------------------------------------------------------------------()
@@ -365,7 +349,7 @@ namespace HM
 
       String sLogData = sData;
 
-      if (m_CurrentState == PASSWORDCHECK)
+      if (m_CurrentState == PASSWORDSENT)
       {
          // Password has been sent. Remove from log.
          sLogData = "***";
@@ -385,7 +369,7 @@ namespace HM
    {
       _LogSentCommand(sData);
 
-      if (m_CurrentState == PASSWORDCHECK)
+      if (m_CurrentState == PASSWORDSENT)
          m_sLastSentData = _T("<Password removed>");
       else
       {
@@ -428,27 +412,10 @@ namespace HM
    }
 
    bool 
-   SMTPClientConnection::IsTransientNegative(int lErrorCode)
-   {
-      if (lErrorCode >= 400 && lErrorCode <= 499)
-         return true;
-      else
-         return false;
-   }
-
-   bool 
    SMTPClientConnection::IsPositiveCompletion(int lErrorCode)
    {
-      if (lErrorCode >= 200 && lErrorCode <= 299)
-         return true;
-      else
-         return false;
-   }
-
-   bool 
-   SMTPClientConnection::IsPositiveIntermediate(int lErrorCode)
-   {
-      if (lErrorCode >= 300 && lErrorCode <= 399)
+      if ((lErrorCode >= 200 && lErrorCode <= 299 ||
+           lErrorCode >= 300 && lErrorCode <= 399))
          return true;
       else
          return false;
@@ -541,7 +508,7 @@ namespace HM
       StringParser::Base64Encode(m_sUsername, sOut);      
       _SendData(sOut);
       
-      _SetState(SENDPASSWORD);
+      _SetState(USERNAMESENT);
    }
 
    void
@@ -550,29 +517,8 @@ namespace HM
       String sOut;
       StringParser::Base64Encode(m_sPassword, sOut);      
       
-      _SetState(PASSWORDCHECK);
-
+      _SetState(PASSWORDSENT);
       _SendData(sOut);
-   }
-
-   bool
-   SMTPClientConnection::_ProtocolPassswordCheck(int iCode, const String &sServerLine)
-   {
-      if (!IsPositiveCompletion(iCode))
-      {
-         // Authentication failed with an permanent error.
-         String sErrorMessage = "Authentication error. Server response: " + sServerLine;
-         _UpdateAllRecipientsWithError(iCode, sErrorMessage, false);
-
-         _SendQUIT();
-
-         return false;
-      }
-      
-      // The server accepted our authentication.
-      _SetState(MAILFROM);
-      return true;
-     
    }
 
    void
