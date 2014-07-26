@@ -17,6 +17,8 @@ namespace VMwareIntegration.Console
       private static string _logFile;
       private static object _outputLogLock = new object();
 
+      private static object _lockCounterTest = new object();
+
       static int Main(string[] args)
       {
          var softwareUnderTest = args[0];
@@ -43,31 +45,39 @@ namespace VMwareIntegration.Console
          {
             foreach (var environment in environmentGroup)
             {
-               int localIndex = Interlocked.Increment(ref testIndex);
+               int localIndex;
 
-               string message = string.Format("{5} - Running test {3} / {4} - {0} on {1} (Snapshot: {2})",
-                  environment.Description,
-                  environment.OperatingSystem,
-                  environment.SnapshotName,
-                  localIndex,
-                  listEnvironments.Count,
-                  DateTime.Now);
+               lock (_lockCounterTest)
+               {
+                  localIndex = ++testIndex;
 
-               LogText(message);
+                  string message =
+                     string.Format("{0}: {1}/{2} - Test: {3} on {4} with db {5}. Image: {6} (Snapshot: {7})",
+                        DateTime.Now,
+                        localIndex,
+                        listEnvironments.Count,
+                        environment.Description,
+                        environment.OperatingSystem,
+                        environment.DatabaseType,
+                        Path.GetFileName(environment.VMwarePath),
+                        environment.SnapshotName);
+
+                  LogText(message);
+               }
 
                TestRunner runner = new TestRunner(true, localIndex, environment, false, softwareUnderTest);
                runner.TestCompleted += runner_TestCompleted;
                if (!runner.Run())
                {
-
                   throw new Exception("Unable to run test.");
                }
             }
 
          });
 
-         System.Console.WriteLine("All tests completed");
+         System.Console.WriteLine("All tests completed. Press Enter to exit.");
 
+         System.Console.ReadLine();
          return 0;
       }
 

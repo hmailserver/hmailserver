@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using hMailServer;
 
 namespace RegressionTests.Shared
 {
@@ -33,10 +34,17 @@ namespace RegressionTests.Shared
       private SimulatedErrorType _simulatedError;
       private bool _transmittingData;
 
-      public SMTPServerSimulator(int maxNumberOfConnections, int port) :
-         base(maxNumberOfConnections, port)
+      
+      public SMTPServerSimulator(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity) :
+         base(maxNumberOfConnections, port, connectionSecurity)
       {
          _recipientResults = new List<Dictionary<string, int>>();
+      }
+
+      public SMTPServerSimulator(int maxNumberOfConnections, int port) :
+         this(maxNumberOfConnections, port, eConnectionSecurity.eCSNone)
+      {
+         
       }
 
       public int RcptTosReceived { get; set; }

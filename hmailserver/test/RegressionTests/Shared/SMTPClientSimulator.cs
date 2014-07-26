@@ -103,7 +103,7 @@ namespace RegressionTests.Shared
 
       public void Handshake()
       {
-         _tcpConnection.Handshake();
+         _tcpConnection.HandshakeAsClient();
       }
 
       public string GetWelcomeMessage()

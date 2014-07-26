@@ -8,6 +8,7 @@ using RegressionTests.SMTP;
 using RegressionTests.Shared;
 using hMailServer;
 using System.Text;
+using RegressionTests.SSL;
 
 namespace RegressionTests.POP3.Fetching
 {
@@ -218,6 +219,50 @@ namespace RegressionTests.POP3.Fetching
             }
 
             pop3Server.WaitForCompletion();
+
+            fa.Delete();
+         }
+      }
+
+      [Test]
+      public void TestBasicExternalAccountSSL()
+      {
+         var messages = new List<string>();
+
+         string message = "From: Martin@example.com\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Hello!";
+
+         messages.Add(message);
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSTLS))
+         {
+            pop3Server.SetCertificate(SslSetup.GetCertificate());
+            pop3Server.StartListen();
+
+            TestSetup.DeleteCurrentDefaultLog();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.ConnectionSecurity = eConnectionSecurity.eCSTLS;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+            pop3Server.WaitForCompletion();
+
+            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using hMailServer;
 
 namespace RegressionTests.Shared
 {
@@ -18,8 +19,15 @@ namespace RegressionTests.Shared
          MessageAndTerminatonTogether = 2
       }
 
+      
       public POP3Server(int maxNumberOfConnections, int port, List<string> messages) :
-         base(maxNumberOfConnections, port)
+         this(maxNumberOfConnections, port, messages, eConnectionSecurity.eCSNone)
+      {
+         
+      }
+
+      public POP3Server(int maxNumberOfConnections, int port, List<string> messages, eConnectionSecurity connectionSecurity) :
+         base(maxNumberOfConnections, port, connectionSecurity)
       {
          _messages = messages;
          DeletedMessages = new List<int>();

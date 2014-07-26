@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using hMailServer;
 
 namespace RegressionTests.Shared
 {
@@ -27,14 +29,24 @@ namespace RegressionTests.Shared
       private Exception _workerThreadException;
       private TcpConnection _tcpConnection;
 
+      private eConnectionSecurity _connectionSecurity;
+
       private string _conversation;
 
-      public TcpServer(int maxNumberOfConnections, int port)
+      private X509Certificate2 _localCertificate;
+
+      public TcpServer(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity)
       {
          _maxNumberOfConnections = maxNumberOfConnections;
          _port = port;
+         _connectionSecurity = connectionSecurity;
 
          SecondsToWaitBeforeTerminate = 15;
+      }
+
+      public void SetCertificate(X509Certificate2 certificate)
+      {
+         _localCertificate = certificate;
       }
 
       public int SecondsToWaitBeforeTerminate { get; set; }
@@ -125,6 +137,11 @@ namespace RegressionTests.Shared
             catch (ObjectDisposedException)
             {
                return;
+            }
+
+            if (_connectionSecurity == eConnectionSecurity.eCSTLS)
+            {
+               _tcpConnection.HandshakeAsServer(_localCertificate);
             }
 
             _numberOfConnectedClients++;

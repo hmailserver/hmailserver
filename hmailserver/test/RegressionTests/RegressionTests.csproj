@@ -81,7 +81,7 @@
     <Compile Include="Rules\Rules.cs" />
     <Compile Include="Shared\SingletonProvider.cs" />
     <Compile Include="SMTP\Basics.cs" />
-    <Compile Include="SSL\Basics.cs" />
+    <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
     <Compile Include="Shared\TestSetup.cs" />
@@ -185,6 +185,7 @@
     <Compile Include="SMTP\Routes.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
     <Compile Include="Shared\SMTPServerSimulator.cs" />
+    <Compile Include="SSL\SmtpDeliverySslTests.cs" />
     <Compile Include="SSL\SslSetup.cs" />
     <Compile Include="SSL\StartTls\ImapServerTests.cs" />
     <Compile Include="SSL\StartTls\Pop3ServerTests.cs" />

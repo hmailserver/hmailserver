@@ -192,10 +192,18 @@ namespace VMwareIntegration.Common
       private void RunScriptInGuest(VMware vmware, string script)
       {
          string scriptFile = Path.ChangeExtension(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()), ".bat");
+         var guestScriptName = string.Format(@"C:\{0}.bat", Guid.NewGuid().ToString("N"));
+
          File.WriteAllText(scriptFile, script);
 
-         var guestScriptName = string.Format(@"C:\{0}.bat", Guid.NewGuid().ToString("N"));
-         vmware.CopyFileToGuest(scriptFile, guestScriptName);
+         try
+         {
+            vmware.CopyFileToGuest(scriptFile, guestScriptName);
+         }
+         finally
+         {
+            File.Delete(scriptFile);
+         }
 
          vmware.RunProgramInGuest(guestScriptName, string.Empty);
       }

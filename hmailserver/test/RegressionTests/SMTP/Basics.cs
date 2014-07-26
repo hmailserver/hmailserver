@@ -128,7 +128,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true);
+            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSTLS);
 
             // Now send a message from test@test.com to test@otherdomain.com.
             // Error scenario:

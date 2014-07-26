@@ -29,7 +29,7 @@ namespace RegressionTests.SMTP
       private Status _status;
       private Account _account;
 
-      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal)
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
       {
          // Add a route pointing at localhost
          Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
@@ -42,9 +42,15 @@ namespace RegressionTests.SMTP
          route.MinutesBetweenTry = 5;
          route.TreatRecipientAsLocalDomain = true;
          route.TreatSenderAsLocalDomain = true;
+         route.ConnectionSecurity = connectionSecurity;
          route.Save();
 
          return route;
+      }
+
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal)
+      {
+         return AddRoutePointingAtLocalhost(numberOfTries, port, treatSecurityAsLocal, eConnectionSecurity.eCSNone);
       }
 
       public static Route AddRoutePointingAtLocalhostMultipleHosts(int numberOfTries, int port)

@@ -79,7 +79,7 @@ namespace RegressionTests.Stress
          application.Stop();
 
          var sock = new TcpConnection();
-         using (var serverSocket = new TcpServer(1, 25))
+         using (var serverSocket = new TcpServer(1, 25, eConnectionSecurity.eCSNone))
          {
             serverSocket.StartListen();
 
