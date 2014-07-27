@@ -18,7 +18,7 @@ namespace hMailServer.Administrator
 {
     public partial class ucDistributionList : UserControl, ISettingsControl
     {
-        private hMailServer.DistributionList representedObject;
+        private hMailServer.DistributionList _representedObject;
         private int _domainID;
 
         public ucDistributionList(int domainID, int listID)
@@ -33,7 +33,7 @@ namespace hMailServer.Administrator
 
             if (listID > 0)
             {
-                representedObject = links.get_DistributionList(listID);
+                _representedObject = links.get_DistributionList(listID);
                 Marshal.ReleaseComObject(links);
             }
 
@@ -50,8 +50,8 @@ namespace hMailServer.Administrator
 
         public void OnLeavePage()
         {
-            if (representedObject != null)
-                Marshal.ReleaseComObject(representedObject);
+            if (_representedObject != null)
+                Marshal.ReleaseComObject(_representedObject);
         }
 
         public bool Dirty
@@ -65,7 +65,7 @@ namespace hMailServer.Administrator
 
         private void EnableDisableTabs()
         {
-            tabControl.TabPages[1].Enabled = representedObject != null;
+            tabControl.TabPages[1].Enabled = _representedObject != null;
         }
 
         private void OnContentChanged()
@@ -82,18 +82,18 @@ namespace hMailServer.Administrator
         {
             EnableDisableTabs();
 
-            if (representedObject == null)
+            if (_representedObject == null)
                 return;
 
-            textAddress.Text = representedObject.Address;
-            checkEnabled.Checked = representedObject.Active;
+            textAddress.Text = _representedObject.Address;
+            checkEnabled.Checked = _representedObject.Active;
 
-            radioModePublic.Checked = representedObject.Mode == eDistributionListMode.eLMPublic;
-            radioModeMembership.Checked = representedObject.Mode == eDistributionListMode.eLMMembership;
-            optModeAnnouncements.Checked = representedObject.Mode == eDistributionListMode.eLMAnnouncement;
+            radioModePublic.Checked = _representedObject.Mode == eDistributionListMode.eLMPublic;
+            radioModeMembership.Checked = _representedObject.Mode == eDistributionListMode.eLMMembership;
+            optModeAnnouncements.Checked = _representedObject.Mode == eDistributionListMode.eLMAnnouncement;
 
-            textRequireAddress.Text = representedObject.RequireSenderAddress;
-            checkRequireSMTPAuthentication.Checked = representedObject.RequireSMTPAuth;
+            textRequireAddress.Text = _representedObject.RequireSenderAddress;
+            checkRequireSMTPAuthentication.Checked = _representedObject.RequireSMTPAuth;
 
             ListRecipients();
         }
@@ -102,34 +102,34 @@ namespace hMailServer.Administrator
         public bool SaveData()
         {
             bool newObject = false;
-            if (representedObject == null)
+            if (_representedObject == null)
             {
                 hMailServer.Domain domain = APICreator.GetDomain(_domainID);
 
                 hMailServer.DistributionLists lists = domain.DistributionLists;
-                representedObject = lists.Add();
+                _representedObject = lists.Add();
                 newObject = true;
 
                 Marshal.ReleaseComObject(lists);
                 Marshal.ReleaseComObject(domain);
             }
 
-            representedObject.Address = textAddress.Text;
-            representedObject.Active = checkEnabled.Checked;
+            _representedObject.Address = textAddress.Text;
+            _representedObject.Active = checkEnabled.Checked;
 
             if (radioModePublic.Checked)
-                representedObject.Mode = eDistributionListMode.eLMPublic;
+                _representedObject.Mode = eDistributionListMode.eLMPublic;
 
             if (radioModeMembership.Checked)
-                representedObject.Mode = eDistributionListMode.eLMMembership;
+                _representedObject.Mode = eDistributionListMode.eLMMembership;
 
             if (optModeAnnouncements.Checked)
-                representedObject.Mode = eDistributionListMode.eLMAnnouncement;
+                _representedObject.Mode = eDistributionListMode.eLMAnnouncement;
 
-            representedObject.RequireSenderAddress = textRequireAddress.Text;
-            representedObject.RequireSMTPAuth = checkRequireSMTPAuthentication.Checked;
+            _representedObject.RequireSenderAddress = textRequireAddress.Text;
+            _representedObject.RequireSMTPAuth = checkRequireSMTPAuthentication.Checked;
 
-            representedObject.Save();
+            _representedObject.Save();
 
             // Refresh the node in the tree if the name has changed.
             IMainForm mainForm = Instances.MainForm;
@@ -140,7 +140,7 @@ namespace hMailServer.Administrator
 
             if (newObject)
             {
-                SearchNodeText crit = new SearchNodeText(representedObject.Address);
+                SearchNodeText crit = new SearchNodeText(_representedObject.Address);
                 mainForm.SelectNode(crit);
             }
 
@@ -163,7 +163,7 @@ namespace hMailServer.Administrator
 
             if (inputDialog.ShowDialog() == DialogResult.OK)
             {
-                hMailServer.DistributionListRecipients recipients = representedObject.Recipients;
+                hMailServer.DistributionListRecipients recipients = _representedObject.Recipients;
                 hMailServer.DistributionListRecipient recipient = recipients.Add();
 
                 recipient.RecipientAddress = inputDialog.Value;
@@ -184,7 +184,7 @@ namespace hMailServer.Administrator
 
             if (selectUsers.ShowDialog() == DialogResult.OK)
             {
-                hMailServer.DistributionListRecipients recipients = representedObject.Recipients;
+                hMailServer.DistributionListRecipients recipients = _representedObject.Recipients;
 
                 List<string> listUsers = selectUsers.GetSelectedTexts();
 
@@ -205,26 +205,34 @@ namespace hMailServer.Administrator
 
         private void ListRecipients()
         {
-            listRecipients.Items.Clear();
+           using (new WaitCursor())
+           {
+              listRecipients.Items.Clear();
 
-            hMailServer.DistributionListRecipients recipients = representedObject.Recipients;
+              var listViewItems = new List<ListViewItem>();
 
-            for (int i = 0; i < recipients.Count; i++)
-            {
-                hMailServer.DistributionListRecipient recipient = recipients[i];
+              hMailServer.DistributionListRecipients recipients = _representedObject.Recipients;
 
-                ListViewItem item = listRecipients.Items.Add(recipient.RecipientAddress);
-                item.Tag = recipient.ID;
+              for (int i = 0; i < recipients.Count; i++)
+              {
+                 hMailServer.DistributionListRecipient recipient = recipients[i];
 
-                Marshal.ReleaseComObject(recipient);
-            }
+                 var item = new ListViewItem(recipient.RecipientAddress) {Tag = recipient.ID};
 
-            Marshal.ReleaseComObject(recipients);
+                 listViewItems.Add(item);
+
+                 Marshal.ReleaseComObject(recipient);
+              }
+
+              Marshal.ReleaseComObject(recipients);
+
+              listRecipients.Items.AddRange(listViewItems.ToArray());
+           }
         }
 
         private void buttonDeleteRecipient_Click(object sender, EventArgs e)
         {
-            hMailServer.DistributionListRecipients recipients = representedObject.Recipients;
+            hMailServer.DistributionListRecipients recipients = _representedObject.Recipients;
 
             foreach (ListViewItem item in listRecipients.SelectedItems)
             {
@@ -251,7 +259,7 @@ namespace hMailServer.Administrator
             formInputDialog inputDialog = new formInputDialog();
 
             int id = Convert.ToInt32(listRecipients.SelectedItems[0].Tag);
-            hMailServer.DistributionListRecipients recipients = representedObject.Recipients;
+            hMailServer.DistributionListRecipients recipients = _representedObject.Recipients;
             hMailServer.DistributionListRecipient recipient = recipients.get_ItemByDBID(id);
 
             inputDialog.Title = "Address";
@@ -291,6 +299,14 @@ namespace hMailServer.Administrator
         private void listRecipients_DoubleClick(object sender, EventArgs e)
         {
             EditSelectedItem();
+        }
+
+        private void buttonImport_Click(object sender, EventArgs e)
+        {
+           var importMembers = new formImportMembers(_representedObject);
+           importMembers.ShowDialog();
+
+           ListRecipients();
         }
 
     }
