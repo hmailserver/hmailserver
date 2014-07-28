@@ -117,8 +117,6 @@ namespace HM
    // Deliveres the message to external accounts (recipients not on this server).
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG("Performing external delivery");
-
       String sFirstRecipientAddress = vecRecipients[0]->GetAddress();
       if (sFirstRecipientAddress.IsEmpty())
       {
@@ -162,7 +160,6 @@ namespace HM
          if (!bTryNextServer)
          {
             // All deliveries are complete or fatal. 
-            LOG_DEBUG("SD::~_DeliverToExternalAccounts-1");
             return;
          }
 
@@ -174,10 +171,6 @@ namespace HM
             break;
          }
       }
-
-      LOG_DEBUG("SD::~_DeliverToExternalAccounts-2");
-
-
    }
 
    /// Resolves IP addresses for the recipient servers. This will either be a MX 
@@ -337,7 +330,7 @@ namespace HM
    // Connects to a remote server and delivers the message to it.
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG("SD::_InitiateExternalConnection");
+      LOG_DEBUG(Formatter::Format("Starting external delivery process. Server: {0}:{1}, Security: {2}, User name: {3}", serverInfo->GetHostName(), serverInfo->GetPort(), serverInfo->GetConnectionSecurity(), serverInfo->GetUsername()));
 
       shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
 
@@ -364,7 +357,7 @@ namespace HM
          disconnectEvent->Wait();
       }
 
-      LOG_DEBUG("SD::~_InitiateExternalConnection-5");
+      LOG_DEBUG("External delivery process completed");
 
    }
 
@@ -403,7 +396,7 @@ namespace HM
    // good, the recipient is deleted from the database.
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG("Collect delivery result");
+      LOG_DEBUG("Summarizing delivery result");
 
       // Check how the delivery went.
       boost_foreach(shared_ptr<MessageRecipient> recipient, vecRecipients)
@@ -443,7 +436,7 @@ namespace HM
 
       }  
 
-      LOG_DEBUG("Collect delivery result - Done");
+      LOG_DEBUG("Summarized delivery results");
    }
 
    /// Checks if we should reschedule the message for later delivery. If so, we do.

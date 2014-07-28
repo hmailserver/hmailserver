@@ -246,6 +246,8 @@ namespace HM
    void 
    TCPConnection::Handshake()
    {
+      LOG_DEBUG(Formatter::Format("Initiating SSL/TLS handshake for session {0}", _sessionID));
+
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :
       boost::asio::ssl::stream_base::server;
@@ -258,6 +260,8 @@ namespace HM
    void 
    TCPConnection::Start()
    {
+      LOG_DEBUG(Formatter::Format("TCP connection started for session {0}", _sessionID));
+
       OnConnected();
 
       if (connection_security_ == CSSSL)

@@ -122,8 +122,6 @@ namespace HM
    bool
    SMTPClientConnection::InternalParseData(const AnsiString  &Request)
    {
-      LOG_DEBUG("SMTPClientConnection::_ParseASCII()");
-
       String sData = "RECEIVED: " + Request;
       LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), sData);
 
@@ -282,9 +280,7 @@ namespace HM
    {
       // Send the data!
       const String fileName = PersistentMessage::GetFileName(m_pDeliveryMessage);
-      LOG_DEBUG("SMTPClientConnection::~_BEFORE SendFile");
       _StartSendFile(fileName);
-      LOG_DEBUG("SMTPClientConnection::~_AFTER SendFile");
    }
 
    void
@@ -601,26 +597,18 @@ namespace HM
          pBuffer = _currentFile.ReadChunk(bufferSize);
       }
 
-       LOG_DEBUG("SMTPClientConnection::~_SendFile done close file");
       // We're done sending!
       _currentFile.Close();
 
       // No more data to send. Make sure all buffered data is flushed.
       _transmissionBuffer.Flush(true);
 
-      LOG_DEBUG("SMTPClientConnection::~_SendFile flushed buffer");
-
       // We're ready to receive the Message accepted-response.
-      LOG_DEBUG("SMTPClientConnection::~_SendFile DATASENT set");
-
       // No \r\n on end because SendData adds
       _SendData("\r\n.");
 
-      LOG_DEBUG("SMTPClientConnection::~_SendFile . sent");
-
       // State change moved to AFTER crlf.crlf to help with race condition
       m_CurrentState = DATASENT;
-      LOG_DEBUG("SMTPClientConnection::~_SendFile DATASENT set");
       return;
    }
 

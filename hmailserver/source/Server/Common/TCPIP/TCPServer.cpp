@@ -289,8 +289,6 @@ namespace HM
    TCPServer::HandleAccept(shared_ptr<TCPConnection> pConnection,
       const boost::system::error_code& error)
    {
-      LOG_DEBUG("TCPServer - HandleAccept");
-
       if (error.value() == 995)
       {
          String sMessage;
@@ -332,9 +330,7 @@ namespace HM
 
 
          bool allow = SessionManager::Instance()->GetAllow(sessionType_, securityRange);
-
-         LOG_DEBUG("Checking for allow");
-         
+        
          if (!allow)
          {
             // Session creation failed. May not be matching IP range, or enough connections have been created.
@@ -356,7 +352,6 @@ namespace HM
             return;
          }
 
-         LOG_DEBUG("TCPServer - pConnection->FireOnAcceptEvent()");
          if (!FireOnAcceptEvent(remoteAddress, localEndpoint.port()))
             return;
 
