@@ -21,7 +21,8 @@ namespace HM
    {
       CSNone     = 0,
       CSSSL      = 1,
-      CSSTARTTLS = 2
+      CSSTARTTLSOptional = 2,
+      CSSTARTTLSRequired = 3
 
    };
 

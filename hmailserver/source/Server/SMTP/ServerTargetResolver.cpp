@@ -102,7 +102,10 @@ namespace HM
          shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
 
          if (!serverInfo)
-            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", CSNone));
+         {
+            shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", pSMTPConfig->GetSMTPConnectionSecurity()));
+         }
 
          serverInfos.insert(std::make_pair(serverInfo, vecRecipients));
       }

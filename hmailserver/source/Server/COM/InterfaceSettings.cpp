@@ -1794,6 +1794,40 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerConnectionSecurity(eConnectionSec
    }
 }
 
+STDMETHODIMP InterfaceSettings::put_SMTPConnectionSecurity(eConnectionSecurity newVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+      m_pConfig->GetSMTPConfiguration()->SetSMTPConnectionSecurity((HM::ConnectionSecurity) newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SMTPConnectionSecurity(eConnectionSecurity *pVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+      *pVal = (eConnectionSecurity) m_pConfig->GetSMTPConfiguration()->GetSMTPConnectionSecurity();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
 STDMETHODIMP InterfaceSettings::get_AddDeliveredToHeader(VARIANT_BOOL *pVal)
 {
    try

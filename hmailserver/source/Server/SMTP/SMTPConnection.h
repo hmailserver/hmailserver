@@ -61,6 +61,7 @@ namespace HM
 
    private:
 
+      bool CheckStartTlsRequired_();
       void SendData_(const String &sData);
       void SendBanner_();
 
@@ -120,7 +121,7 @@ namespace HM
       void ProtocolRSET_();
 
       bool LookupRoute_(const String &sToAddress, bool &bDomainIsRemote);
-      bool ProtocolMAIL_(const String &Request);
+      void ProtocolMAIL_(const String &Request);
       void ProtocolQUIT_();
       void ProtocolHELP_();
       void ProtocolRCPT_(const String &Request);

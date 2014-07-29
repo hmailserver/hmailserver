@@ -126,7 +126,8 @@ namespace RegressionTests.Shared
          {
             var response = new StringBuilder(); 
             
-            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLS)
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLSRequired ||
+                _connectionSecurity == eConnectionSecurity.eCSSTARTTLSOptional)
             {
                response.AppendLine("250-STARTTLS");
             }
@@ -146,6 +147,13 @@ namespace RegressionTests.Shared
 
          if (command.ToUpper().StartsWith("AUTH LOGIN"))
          {
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLSRequired &&
+                !_tcpConnection.IsSslConnection)
+            {
+               Send("503 STARTTLS required..\r\n");
+               return false;
+            }
+
             Send("334 VXNlcm5hbWU6\r\n");
             _expectingUsername = true;
             return false;
@@ -153,6 +161,13 @@ namespace RegressionTests.Shared
 
          if (command.ToUpper().StartsWith("MAIL"))
          {
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLSRequired &&
+                !_tcpConnection.IsSslConnection)
+            {
+               Send("503 STARTTLS required..\r\n");
+               return false;
+            }
+
             Send(_mailFromresult.ToString() + "\r\n");
 
             if (_mailFromresult == 250)

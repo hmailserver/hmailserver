@@ -87,7 +87,8 @@ namespace HM
          shared_ptr<SSLCertificate> pSSLCertificate;
 
          if (connection_security == CSSSL ||
-             connection_security == CSSTARTTLS)
+             connection_security == CSSTARTTLSOptional ||
+             connection_security == CSSTARTTLSRequired)
          {
             shared_ptr<SSLCertificates> pSSLCertificates = Configuration::Instance()->GetSSLCertificates();
             pSSLCertificate = pSSLCertificates->GetItemByDBID(pPort->GetSSLCertificateID());

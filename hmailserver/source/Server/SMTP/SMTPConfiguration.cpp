@@ -176,6 +176,18 @@ namespace HM
       return (ConnectionSecurity) _GetSettings()->GetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY);
    }
 
+   void 
+   SMTPConfiguration::SetSMTPConnectionSecurity(ConnectionSecurity connection_security)
+   {
+      _GetSettings()->SetLong(PROPERTY_SMTPCONNECTIONSECURITY, connection_security);
+   }
+
+   ConnectionSecurity
+   SMTPConfiguration::GetSMTPConnectionSecurity()
+   {
+      return (ConnectionSecurity) _GetSettings()->GetLong(PROPERTY_SMTPCONNECTIONSECURITY);
+   }
+
    int
    SMTPConfiguration::GetMaxNoOfDeliveryThreads()
    {

@@ -7,36 +7,41 @@ namespace RegressionTests.SSL
 {
    public class SslSetup
    {
-      public static void SetupSSLPorts(hMailServer.Application application, eConnectionSecurity security)
+      public static void SetupSSLPorts(hMailServer.Application application)
       {
          SSLCertificate sslCeritifcate = SetupSSLCertificate(application);
 
-         TCPIPPort port = application.Settings.TCPIPPorts.Add();
-         port.Address = "0.0.0.0";
-         port.PortNumber = 250;
-         port.ConnectionSecurity = security;
-         port.SSLCertificateID = sslCeritifcate.ID;
-         port.Protocol = eSessionType.eSTSMTP;
-         port.Save();
+         var ports = application.Settings.TCPIPPorts;
 
-         port = application.Settings.TCPIPPorts.Add();
-         port.Address = "0.0.0.0";
-         port.PortNumber = 11000;
-         port.ConnectionSecurity = security;
-         port.SSLCertificateID = sslCeritifcate.ID;
-         port.Protocol = eSessionType.eSTPOP3;
-         port.Save();
+         AddPort(ports, 25000, eConnectionSecurity.eCSNone, sslCeritifcate.ID, eSessionType.eSTSMTP);
+         AddPort(ports, 11000, eConnectionSecurity.eCSNone, sslCeritifcate.ID, eSessionType.eSTPOP3);
+         AddPort(ports, 14300, eConnectionSecurity.eCSNone, sslCeritifcate.ID, eSessionType.eSTIMAP);
 
-         port = application.Settings.TCPIPPorts.Add();
-         port.Address = "0.0.0.0";
-         port.PortNumber = 14300;
-         port.ConnectionSecurity = security;
-         port.SSLCertificateID = sslCeritifcate.ID;
-         port.Protocol = eSessionType.eSTIMAP;
-         port.Save();
+         AddPort(ports, 25001, eConnectionSecurity.eCSTLS, sslCeritifcate.ID, eSessionType.eSTSMTP);
+         AddPort(ports, 11001, eConnectionSecurity.eCSTLS, sslCeritifcate.ID, eSessionType.eSTPOP3);
+         AddPort(ports, 14301, eConnectionSecurity.eCSTLS, sslCeritifcate.ID, eSessionType.eSTIMAP);
+
+         AddPort(ports, 25002, eConnectionSecurity.eCSSTARTTLSOptional, sslCeritifcate.ID, eSessionType.eSTSMTP);
+         AddPort(ports, 11002, eConnectionSecurity.eCSSTARTTLSOptional, sslCeritifcate.ID, eSessionType.eSTPOP3);
+         AddPort(ports, 14302, eConnectionSecurity.eCSSTARTTLSOptional, sslCeritifcate.ID, eSessionType.eSTIMAP);
+
+         AddPort(ports, 25003, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTSMTP);
+         AddPort(ports, 11003, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTPOP3);
+         AddPort(ports, 14303, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTIMAP);
 
          application.Stop();
          application.Start();
+      }
+
+      private static void AddPort(TCPIPPorts ports, int portNumber, eConnectionSecurity connectionSecurity, int sslCertificateId, eSessionType sessionType)
+      {
+         var port = ports.Add();
+         port.Address = "0.0.0.0";
+         port.PortNumber = portNumber;
+         port.ConnectionSecurity = connectionSecurity;
+         port.SSLCertificateID = sslCertificateId;
+         port.Protocol = sessionType;
+         port.Save();
       }
 
       private static string GetSslCertPath()

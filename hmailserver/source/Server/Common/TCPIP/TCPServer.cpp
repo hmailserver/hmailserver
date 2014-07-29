@@ -249,7 +249,8 @@ namespace HM
    TCPServer::Run()
    {
       if (connection_security_ == CSSSL ||
-          connection_security_ == CSSTARTTLS)
+          connection_security_ == CSSTARTTLSOptional ||
+          connection_security_ == CSSTARTTLSRequired)
       {
          if (!InitSSL())
             return;

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 
 #include "../common/BO/Account.h"
+#include "../common/BO/SecurityRange.h"
 #include "../common/BO/Message.h"
 #include "../common/BO/Messages.h"
 #include "../common/util/file.h"
@@ -75,7 +76,8 @@ namespace HM
    POP3Connection::OnConnected()
    {
       if (GetConnectionSecurity() == CSNone ||
-          GetConnectionSecurity() == CSSTARTTLS)
+          GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
          SendBanner_();
    }
 
@@ -84,8 +86,11 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          SendBanner_();
-      else if (GetConnectionSecurity() == CSSTARTTLS)
+      else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+               GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
          PostReceive();
+      }
    }
 
    void 
@@ -361,7 +366,8 @@ namespace HM
    {
       String capabilities = "USER\r\nUIDL\r\nTOP\r\n";
 
-      if (GetConnectionSecurity() == CSSTARTTLS)
+      if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
          capabilities+="STLS\r\n";
 
       String response = "+OK CAPA list follows\r\n" + capabilities + ".";
@@ -384,6 +390,19 @@ namespace HM
    void
    POP3Connection::_ProtocolUSER(const String &Parameter)
    {
+      if (GetConnectionSecurity() == CSSTARTTLSRequired &&
+          !IsSSLConnection())
+      {
+         _SendData("-ERR STLS is required.");
+         return;
+      }
+
+      if (GetSecurityRange()->GetRequireTLSForAuth() && !IsSSLConnection())
+      {
+         _SendData("-ERR A SSL/TLS-connection is required for authentication.");
+         return;
+      }
+
       // Apply domain aliases to the user name.
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       m_Username = pDA->ApplyAliasesOnAddress(Parameter);

@@ -12,6 +12,7 @@
 #include "../common/persistence/PersistentMessage.h"
 #include "../common/persistence/PersistentAccount.h"
 #include "../common/BO/Message.h"
+#include "../common/BO/SecurityRange.h"
 #include "../common/Mime/MimeCode.h"
 #include "../common/Mime/Mime.h"
 #include "../common/util/MessageUtilities.h"
@@ -118,7 +119,8 @@ namespace HM
    SMTPConnection::OnConnected()
    {
       if (GetConnectionSecurity() == CSNone ||
-          GetConnectionSecurity() == CSSTARTTLS)
+          GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
       {
          SendBanner_();
       }
@@ -132,7 +134,8 @@ namespace HM
       {
          SendBanner_();
       }
-      else if (GetConnectionSecurity() == CSSTARTTLS)
+      else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+               GetConnectionSecurity() == CSSTARTTLSRequired)
       {
          /*
            Upon completion of the TLS handshake, the SMTP protocol is reset to
@@ -412,25 +415,28 @@ namespace HM
       return;
    }
 
-   bool
+   void
    SMTPConnection::ProtocolMAIL_(const String &Request)
    {
+      if (!CheckStartTlsRequired_())
+         return;
+
       if (m_pCurrentMessage) 
       {
          SendData_("503 Issue a reset if you want to start over"); 
-         return 0;
+         return;
       }
      
       if (Request.GetLength() < 10)
       {
          SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
-         return 0;
+         return;
       }
 
       if (!Request.StartsWith(_T("MAIL FROM:")))
       {
          SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
-         return 0;
+         return;
       }
 
       // Parse the contents of the MAIL FROM: command
@@ -445,7 +451,7 @@ namespace HM
          if (!TryExtractAddress_((*iterParam), sFromAddress))
          {
             SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
-            return 0;
+            return;
          }         
 
          iterParam++;
@@ -454,7 +460,7 @@ namespace HM
       sFromAddress = DefaultDomain::ApplyDefaultDomain(sFromAddress);
 
       if (!CheckIfValidSenderAddress(sFromAddress))
-         return false;
+         return;
 
       // Parse the extensions 
       String sAuthParam;
@@ -487,7 +493,7 @@ namespace HM
             // we can start spam protection now.
 
             if (!DoSpamProtection_(SPPreTransmission, sFromAddress, m_sHeloHost, GetRemoteEndpointAddress()))
-               return false;
+               return;
          }
       }
 
@@ -518,7 +524,7 @@ namespace HM
             sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                   iEstimatedMessageSize / 1024, m_iMaxMessageSizeKB);
             SendData_(sMessage);
-            return false;
+            return ;
          }
       }
       catch (...)
@@ -530,7 +536,7 @@ namespace HM
       try
       {
          if (m_bReAuthenticateUser && !ReAuthenticateUser())
-            return false;
+            return;
       }
       catch (...)
       {
@@ -563,8 +569,6 @@ namespace HM
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10005, "SMTPConnection::_ProtocolMAIL", "Exception 5");
          throw;
       }      
-   
-      return 0;
    }
 
    bool 
@@ -1506,7 +1510,8 @@ namespace HM
 
       if (!IsSSLConnection())
       {
-         if (GetConnectionSecurity() == CSSTARTTLS)
+         if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+             GetConnectionSecurity() == CSSTARTTLSRequired)
          {
             sData += "250-STARTTLS\r\n";
          }
@@ -1699,9 +1704,31 @@ namespace HM
       SendData_("354 OK, send.");
    }
 
+   bool 
+   SMTPConnection::CheckStartTlsRequired_()
+   {
+      if (GetConnectionSecurity() == CSSTARTTLSRequired &&
+          !IsSSLConnection())
+      {
+         SendErrorResponse_(530, "Must issue STARTTLS first.");
+         return false;
+      }
+
+      return true;
+   }
+
    void 
    SMTPConnection::ProtocolAUTH_(const String &sRequest)
    {
+      if (!CheckStartTlsRequired_())
+         return;
+
+      if (GetSecurityRange()->GetRequireTLSForAuth() && !IsSSLConnection())
+      {
+         SendErrorResponse_(530, "A SSL/TLS-connection is required for authentication.");
+         return;
+      }
+
       requestedAuthenticationType_ = AUTH_NONE;
 
       std::vector<String> vecParams = StringParser::SplitString(sRequest,  " ");

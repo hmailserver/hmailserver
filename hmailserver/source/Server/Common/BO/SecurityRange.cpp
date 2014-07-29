@@ -150,6 +150,18 @@ namespace HM
    }
 
    bool
+   SecurityRange::GetRequireTLSForAuth() const
+   {
+      return GetAllowOption(IPRANGE_REQUIRE_TLS_FOR_AUTH);
+   }
+
+   void
+   SecurityRange::SetRequireTLSForAuth(bool bAllow)
+   {
+      SetAllowOption(IPRANGE_REQUIRE_TLS_FOR_AUTH, bAllow);
+   }
+
+   bool
    SecurityRange::GetAllowRelayL2L() const
    {
 	   return (m_lOptions & IPRANGE_RELAY_LOCAL_TO_LOCAL) ? true : false;

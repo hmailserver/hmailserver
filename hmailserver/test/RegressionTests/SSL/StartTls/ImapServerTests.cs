@@ -11,7 +11,7 @@ namespace RegressionTests.SSL.StartTls
         [TestFixtureSetUp]
         public new void TestFixtureSetUp()
         {
-            SslSetup.SetupSSLPorts(_application, eConnectionSecurity.eCSSTARTTLS);
+            SslSetup.SetupSSLPorts(_application);
 
             Thread.Sleep(1000);
         }
@@ -29,7 +29,7 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
         {
-            var imapSimulator = new IMAPSimulator(false, 14300);
+            var imapSimulator = new IMAPSimulator(false, 14302);
             imapSimulator.Connect();
             var data = imapSimulator.GetCapabilities();
 
@@ -39,7 +39,7 @@ namespace RegressionTests.SSL.StartTls
         [Test]
         public void StlsCommandShouldSwithToTls()
         {
-           var imapSimulator = new IMAPSimulator(false, 14300);
+           var imapSimulator = new IMAPSimulator(false, 14302);
            imapSimulator.Connect();
            var data = imapSimulator.GetCapabilities();
            imapSimulator.SendSingleCommand("A01 STARTTLS");

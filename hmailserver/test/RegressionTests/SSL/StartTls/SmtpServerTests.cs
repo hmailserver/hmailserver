@@ -15,7 +15,7 @@ namespace RegressionTests.SSL.StartTls
       [TestFixtureSetUp]
       public new void TestFixtureSetUp()
       {
-         SslSetup.SetupSSLPorts(_application, eConnectionSecurity.eCSSTARTTLS);
+         SslSetup.SetupSSLPorts(_application);
 
          Thread.Sleep(1000);
       }
@@ -34,7 +34,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 250);
+         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
          smtpClientSimulator.Connect();
          var data1 = smtpClientSimulator.Receive();
          var data = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
@@ -45,7 +45,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void StartTlsCommandShouldSwithToTls()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 250);
+         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
          smtpClientSimulator.Connect();
          var banner = smtpClientSimulator.Receive();
          var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");

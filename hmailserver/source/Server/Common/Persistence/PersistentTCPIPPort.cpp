@@ -55,7 +55,7 @@ namespace HM
       if (mode == PersistenceModeNormal)
       {
          if (pObject->GetSSLCertificateID() == 0 &&
-             (pObject->GetConnectionSecurity() == CSSSL || pObject->GetConnectionSecurity() == CSSTARTTLS))
+             (pObject->GetConnectionSecurity() == CSSSL || pObject->GetConnectionSecurity() == CSSTARTTLSOptional || pObject->GetConnectionSecurity() == CSSTARTTLSRequired))
          {
             errorMessage = "Certificate must be specified.";
             return false;

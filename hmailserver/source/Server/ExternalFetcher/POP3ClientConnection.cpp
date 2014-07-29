@@ -73,7 +73,8 @@ namespace HM
    POP3ClientConnection::OnConnected()
    {
       if (GetConnectionSecurity() == CSNone || 
-          GetConnectionSecurity() == CSSTARTTLS)
+          GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
          PostReceive();
    }
 
@@ -82,7 +83,8 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          PostReceive();
-      else if (GetConnectionSecurity() == CSSTARTTLS)
+      else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+               GetConnectionSecurity() == CSSTARTTLSRequired)
       {
          _SendUserName();
          PostReceive();
@@ -234,7 +236,8 @@ namespace HM
    {
       if (_CommandIsSuccessfull(sData))
       {
-         if (GetConnectionSecurity() == CSSTARTTLS)
+         if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+             GetConnectionSecurity() == CSSTARTTLSRequired)
          {
             _SendCAPA();
             return;
@@ -281,12 +284,21 @@ namespace HM
    {
       if (!_CommandIsSuccessfull(sData) || !sData.Contains(_T("STLS")))
       {
-         String message = 
-            Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", m_pAccount->GetName());
-         
-         LOG_APPLICATION(message)
-         _QuitNow();
-         return;
+         // STLS is not supported.
+         if (GetConnectionSecurity() == CSSTARTTLSRequired)
+         {
+            String message = 
+               Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", m_pAccount->GetName());
+            
+            LOG_APPLICATION(message)
+            _QuitNow();
+            return;
+         }
+         else
+         {
+            _SendUserName();
+            return;
+         }
       }
 
       _SendData("STLS");

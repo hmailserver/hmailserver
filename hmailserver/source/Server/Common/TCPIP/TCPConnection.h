@@ -69,7 +69,8 @@ namespace HM
 
       ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
 
-      
+      bool IsSSLConnection(){return is_ssl_;}
+
    protected:
 
       void SetTimeout(int seconds);
@@ -90,7 +91,7 @@ namespace HM
       void Handshake();
 
       
-      bool IsSSLConnection(){return is_ssl_;}
+      
    private:
       
       void _StartAsyncConnect(tcp::resolver::iterator endpoint_iterator);

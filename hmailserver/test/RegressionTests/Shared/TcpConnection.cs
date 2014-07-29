@@ -161,6 +161,11 @@ namespace RegressionTests.Shared
          return true;
       }
 
+      public bool IsSslConnection
+      {
+         get { return _useSslSocket; }
+      }
+
       public void Send(string s)
       {
          if (!_tcpClient.Connected)

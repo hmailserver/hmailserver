@@ -187,6 +187,10 @@ END_COM_MAP()
    STDMETHOD(get_SMTPRelayerConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
    STDMETHOD(put_SMTPRelayerConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
 
+   STDMETHOD(get_SMTPConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_SMTPConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
+
+
    STDMETHOD(get_AddDeliveredToHeader)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_AddDeliveredToHeader)(/*[in]*/ VARIANT_BOOL newVal);
 

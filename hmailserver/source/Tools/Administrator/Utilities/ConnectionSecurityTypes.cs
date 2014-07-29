@@ -11,7 +11,8 @@ namespace hMailServer.Administrator.Utilities
          return new Dictionary<string, object>
          {
             {"None", eConnectionSecurity.eCSNone},
-            {"STARTTLS", eConnectionSecurity.eCSSTARTTLS},
+            {"STARTTLS (Optional)", eConnectionSecurity.eCSSTARTTLSOptional},
+            {"STARTTLS (Required)", eConnectionSecurity.eCSSTARTTLSRequired},
             {"SSL/TLS", eConnectionSecurity.eCSTLS}
          };
       }

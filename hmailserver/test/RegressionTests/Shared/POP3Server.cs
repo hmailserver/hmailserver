@@ -95,7 +95,8 @@ namespace RegressionTests.Shared
          {
             string capabilities = "USER\r\nUIDL\r\nTOP\r\n";
 
-            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLS)
+            if (_connectionSecurity == eConnectionSecurity.eCSSTARTTLSRequired ||
+                _connectionSecurity == eConnectionSecurity.eCSSTARTTLSOptional)
                capabilities += "STLS\r\n";
 
             string response = "+OK CAPA list follows\r\n" + capabilities + "." + "\r\n";

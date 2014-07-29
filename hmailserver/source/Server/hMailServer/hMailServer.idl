@@ -362,8 +362,10 @@ typedef
 	eCSNone = 0,
 	[helpstring("SSL")] 
 	eCSTLS = 1,
-	[helpstring("STARTTLS.")] 
-	eCSSTARTTLS = 2,
+	[helpstring("STARTTLS (Optional).")] 
+	eCSSTARTTLSOptional = 2,
+   [helpstring("STARTTLS (Required).")] 
+	eCSSTARTTLSRequired = 3,
 } eConnectionSecurity;
 
 typedef
@@ -648,6 +650,8 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(90), helpstring("Gets or sets the maximum number of hosts hMailServer should perform SMTP-delivery to.")] HRESULT MaxNumberOfMXHosts([in] long newVal);
    [propget, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([out, retval] eConnectionSecurity *pVal);
    [propput, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([in] eConnectionSecurity newVal);
+   [propget, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([in] eConnectionSecurity newVal);
 
 
 };
@@ -1243,6 +1247,9 @@ interface IInterfaceSecurityRange : IDispatch{
 		[propput, id(27), helpstring("Require SMTP authentication for deliveries from external to local")] HRESULT RequireSMTPAuthExternalToLocal([in] VARIANT_BOOL newVal);
       [propget, id(28), helpstring("Require SMTP authentication for deliveries from external to external.")] HRESULT RequireSMTPAuthExternalToExternal([out, retval] VARIANT_BOOL *pVal);
 		[propput, id(28), helpstring("Require SMTP authentication for deliveries from external to external")] HRESULT RequireSMTPAuthExternalToExternal([in] VARIANT_BOOL newVal);
+
+      [propget, id(29), helpstring("Require users to use SSL/TLS when authenticating.")] HRESULT RequireSSLTLSForAuth([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(29), helpstring("Require users to use SSL/TLS when authenticating.")] HRESULT RequireSSLTLSForAuth([in] VARIANT_BOOL newVal);
 };
 
 [

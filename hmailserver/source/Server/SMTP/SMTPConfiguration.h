@@ -34,6 +34,9 @@ namespace HM
       void SetSMTPRelayerConnectionSecurity(ConnectionSecurity connection_security);
       ConnectionSecurity GetSMTPRelayerConnectionSecurity();
 
+      void SetSMTPConnectionSecurity(ConnectionSecurity connection_security);
+      ConnectionSecurity GetSMTPConnectionSecurity();
+
       void SetMaxNoOfDeliveryThreads(int lNewValue);
 
       String GetWelcomeMessage() const;

@@ -33,6 +33,7 @@ namespace HM
          IPRANGE_SMTP_AUTH_EXTERNAL_TO_LOCAL = 32768,
          IPRANGE_SMTP_AUTH_EXTERNAL_TO_EXTERNAL = 65536,
 
+         IPRANGE_REQUIRE_TLS_FOR_AUTH = 131072
       };
 
 
@@ -103,6 +104,10 @@ namespace HM
 
       DateTime GetExpiresTime() const;
       void SetExpiresTime(const DateTime &expiresTime);
+
+      bool GetRequireTLSForAuth() const ;
+      void SetRequireTLSForAuth(bool require);
+
 
       bool XMLStore (XNode *pParentNode, int iOptions);
       bool XMLLoad (XNode *pSecurityRangeNode, int iOptions);

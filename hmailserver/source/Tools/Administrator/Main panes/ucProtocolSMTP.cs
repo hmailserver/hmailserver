@@ -61,6 +61,9 @@ namespace hMailServer.Administrator
 
             textNoOfRetries.Number = settings.SMTPNoOfTries;
             textMinutesBetween.Number = settings.SMTPMinutesBetweenTry;
+            chkSmtpDeliveryConnectionSecurity.Checked = settings.SMTPConnectionSecurity ==
+                                                       eConnectionSecurity.eCSSTARTTLSOptional;
+
             textHostName.Text = settings.HostName;
             textSMTPRelayer.Text = settings.SMTPRelayer;
             textSMTPRelayerPort.Number = settings.SMTPRelayerPort;
@@ -98,6 +101,8 @@ namespace hMailServer.Administrator
 
             settings.SMTPNoOfTries = textNoOfRetries.Number;
             settings.SMTPMinutesBetweenTry = textMinutesBetween.Number;
+            settings.SMTPConnectionSecurity =  chkSmtpDeliveryConnectionSecurity.Checked ? eConnectionSecurity.eCSSTARTTLSOptional : eConnectionSecurity.eCSNone;
+           
             settings.HostName = textHostName.Text;
             settings.SMTPRelayer = textSMTPRelayer.Text;
             settings.SMTPRelayerPort = textSMTPRelayerPort.Number;

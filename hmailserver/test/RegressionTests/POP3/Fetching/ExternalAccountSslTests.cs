@@ -162,7 +162,7 @@ namespace RegressionTests.POP3.Fetching
             fa.Name = "Test";
             fa.Username = "test@example.com";
             fa.Password = "test";
-            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLS;
+            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSRequired;
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
@@ -208,7 +208,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSSTARTTLS))
+         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -223,7 +223,7 @@ namespace RegressionTests.POP3.Fetching
             fa.Name = "Test";
             fa.Username = "test@example.com";
             fa.Password = "test";
-            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLS;
+            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSRequired;
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;

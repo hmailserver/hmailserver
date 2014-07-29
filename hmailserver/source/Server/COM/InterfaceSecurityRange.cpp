@@ -692,6 +692,38 @@ STDMETHODIMP InterfaceSecurityRange::put_EnableAntiVirus(VARIANT_BOOL newVal)
    }
 }
 
+STDMETHODIMP InterfaceSecurityRange::get_RequireSSLTLSForAuth(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!m_pObject)
+         return GetAccessDenied();
+
+      *pVal = m_pObject->GetRequireTLSForAuth() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSecurityRange::put_RequireSSLTLSForAuth(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!m_pObject)
+         return GetAccessDenied();
+
+      m_pObject->SetRequireTLSForAuth(newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceSecurityRange::get_IsForwardingRelay(VARIANT_BOOL *pVal)
 {
    try

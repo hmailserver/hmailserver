@@ -88,8 +88,11 @@ namespace HM
       Initialize();
 
       if (GetConnectionSecurity() == CSNone ||
-          GetConnectionSecurity() == CSSTARTTLS)      
+          GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)      
+      {
          SendBanner_();
+      }
    }
 
    void
@@ -97,8 +100,11 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)      
          SendBanner_();
-      else if (GetConnectionSecurity() == CSSTARTTLS)
+      else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+               GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
          PostReceive();
+      }
    }
 
    void 

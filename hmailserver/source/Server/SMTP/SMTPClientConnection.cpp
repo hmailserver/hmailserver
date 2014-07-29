@@ -54,7 +54,8 @@ namespace HM
    SMTPClientConnection::OnConnected()
    {
       if (GetConnectionSecurity() == CSNone || 
-          GetConnectionSecurity() == CSSTARTTLS)
+          GetConnectionSecurity() == CSSTARTTLSRequired ||
+          GetConnectionSecurity() == CSSTARTTLSOptional)
       {
          PostReceive();
       }
@@ -65,7 +66,8 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSSL)
          PostReceive();
-      else if (GetConnectionSecurity() == CSSTARTTLS)
+      else if (GetConnectionSecurity() == CSSTARTTLSRequired ||
+               GetConnectionSecurity() == CSSTARTTLSOptional)
       {
          _ProtocolStateHELOEHLO();
          PostReceive();
@@ -207,7 +209,7 @@ namespace HM
    {
       String sComputerName = Utilities::ComputerName(); 
 
-      if (m_bUseSMTPAuth || GetConnectionSecurity() == CSSTARTTLS)
+      if (m_bUseSMTPAuth || GetConnectionSecurity() == CSSTARTTLSRequired  || GetConnectionSecurity() == CSSTARTTLSOptional)
       {
          _SendData("EHLO " + sComputerName);
          _SetState(EHLOSENT);
@@ -286,32 +288,35 @@ namespace HM
    void
    SMTPClientConnection::_ProtocolHELOEHLOSent(const AnsiString &request)
    {
-      if (GetConnectionSecurity() == CSSTARTTLS &&
-         !IsSSLConnection())
+      if (!IsSSLConnection() && 
+          (GetConnectionSecurity() == CSSTARTTLSRequired ||  GetConnectionSecurity() == CSSTARTTLSOptional))
       {
          if (!request.Contains("STARTTLS"))
          {
-            _UpdateAllRecipientsWithError(500, "Server does not support STARTTLS", false);
-            _SendQUIT();
+            if (GetConnectionSecurity() == CSSTARTTLSRequired)
+            {
+               _UpdateAllRecipientsWithError(500, "Server does not support STARTTLS", false);
+               _SendQUIT();
+               return;
+            }
          }
          else
          {
             _SendData("STARTTLS");
             _SetState(STARTTLSSENT);
+            return;
          }
+      }
+
+      if (m_bUseSMTPAuth)
+      {
+         // Ask the server to initiate login process.
+         _SendData("AUTH LOGIN");
+         _SetState(AUTHLOGINSENT);
       }
       else
       {
-         if (m_bUseSMTPAuth)
-         {
-            // Ask the server to initiate login process.
-            _SendData("AUTH LOGIN");
-            _SetState(AUTHLOGINSENT);
-         }
-         else
-         {
-            _ProtocolSendMailFrom();
-         }
+         _ProtocolSendMailFrom();
       }
    }
 

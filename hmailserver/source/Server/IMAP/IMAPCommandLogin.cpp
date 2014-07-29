@@ -8,6 +8,7 @@
 
 #include "../common/Util/AccountLogon.h"
 #include "../common/BO/Account.h"
+#include "../common/BO/SecurityRange.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -19,6 +20,19 @@ namespace HM
    IMAPResult
    IMAPCommandLOGIN::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
    {
+      if (pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
+         if (!pConnection->IsSSLConnection())
+         {
+            return IMAPResult(IMAPResult::ResultBad, "STARTTLS is required.");
+         }
+      }
+
+      if (pConnection->GetSecurityRange()->GetRequireTLSForAuth() && !pConnection->IsSSLConnection())
+      {
+         return IMAPResult(IMAPResult::ResultBad, "A SSL/TLS-connection is required for authentication.");
+      }
+
       shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       
       pParser->Parse(pArgument);

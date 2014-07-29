@@ -16,7 +16,7 @@ namespace RegressionTests.SSL
       [TestFixtureSetUp]
       public new void TestFixtureSetUp()
       {
-         SslSetup.SetupSSLPorts(_application, eConnectionSecurity.eCSTLS);
+         SslSetup.SetupSSLPorts(_application);
 
          Thread.Sleep(1000);
       }
@@ -32,7 +32,7 @@ namespace RegressionTests.SSL
          _application.Settings.Logging.EnableLiveLogging(true);
 
          var cs = new TcpConnection();
-         if (!cs.Connect(250))
+         if (!cs.Connect(25001))
             CustomAssert.Fail("Could not connect to SSL server.");
 
          cs.Disconnect();
@@ -62,7 +62,7 @@ namespace RegressionTests.SSL
          {
             try
             {
-               var imapSim = new IMAPSimulator(true, 14300);
+               var imapSim = new IMAPSimulator(true, 14301);
                imapSim.ConnectAndLogon(account.Address, "test");
                CustomAssert.IsTrue(imapSim.SelectFolder("Inbox"), "SelectInbox");
                imapSim.CreateFolder("Test");
@@ -93,7 +93,7 @@ namespace RegressionTests.SSL
             try
             {
                POP3Simulator.AssertMessageCount(account.Address, "test", 1);
-               var pop3Sim = new POP3Simulator(true, 11000);
+               var pop3Sim = new POP3Simulator(true, 11001);
                string text = pop3Sim.GetFirstMessageText(account.Address, "test");
 
                CustomAssert.IsTrue(text.Contains("MyBody"));
@@ -122,7 +122,7 @@ namespace RegressionTests.SSL
          {
             try
             {
-               var smtpSim = new SMTPClientSimulator(true, 250);
+               var smtpSim = new SMTPClientSimulator(true, 25001);
                CustomAssert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
 
                break;
