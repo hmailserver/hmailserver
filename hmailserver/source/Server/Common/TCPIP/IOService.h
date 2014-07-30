@@ -16,30 +16,33 @@ namespace HM
 {
    class TCPServer;
 
-   class IOCPServer : public Task
+   class IOService : public Task
    {
    public:
-      IOCPServer(void);
-      ~IOCPServer(void);
+      IOService(void);
+      ~IOService(void);
 
       void DoWork();
+
+      void Initialize();
 
       // Session types
       bool RegisterSessionType(SessionType st);
 
       boost::asio::io_service &GetIOService();
-
+      boost::asio::ssl::context &GetClientContext();
    private:
 
       const String m_sAsynchronousTasksQueue;
 
       std::set<SessionType> m_setSessionTypes;
       boost::asio::io_service io_service_;
-      boost::asio::ssl::context dummy_context_;
 
       vector<shared_ptr<TCPServer> > tcp_servers_;
 
       boost::condition_variable do_work_dummy;
+
+      boost::asio::ssl::context client_context_;
    };
 
 

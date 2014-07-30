@@ -12,8 +12,10 @@
 
 #include "SpamAssassin/SpamAssassinClient.h"
 
-#include "../TCPIP/IOCPServer.h"
+#include "../TCPIP/IOService.h"
 #include "../TCPIP/TCPConnection.h"
+#include "../TCPIP/SslContextInitializer.h"
+
 #include "../BO/MessageData.h"
 #include "../BO/Message.h"
 #include "../Util/event.h"
@@ -53,14 +55,13 @@ namespace HM
       shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
       
-      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
-      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
+      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       String message;
       bool testCompleted;
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, message, testCompleted));
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();

@@ -184,6 +184,7 @@
     <Compile Include="Shared\TestTracer.cs" />
     <Compile Include="SMTP\DistributionLists.cs" />
     <Compile Include="SMTP\Routes.cs" />
+    <Compile Include="SMTP\SMTPClientStartTLSTests.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
     <Compile Include="Shared\SMTPServerSimulator.cs" />
     <Compile Include="SSL\SmtpDeliverySslTests.cs" />

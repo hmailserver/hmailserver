@@ -6,8 +6,9 @@
 #include "SpamAssassinTestConnect.h"
 #include "SpamAssassinClient.h"
 
-#include "../../TCPIP/IOCPServer.h"
+#include "../../TCPIP/IOService.h"
 #include "../../TCPIP/TCPConnection.h"
+#include "../../TCPIP/SslContextInitializer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -28,13 +29,12 @@ namespace HM
       String tempFile = FileUtilities::GetTempFileName();
       FileUtilities::WriteToFile(tempFile, bodyText, false);
 
-      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
-      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
+      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       bool testCompleted;
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOCPServer->GetIOService(), ctx, disconnectEvent, message, testCompleted));
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, message, testCompleted));
      
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(hostName, port, IPAddress()))

@@ -43,7 +43,7 @@
 #include "SessionManager.h"
 
 #include "../../SMTP/GreyListCleanerTask.h"
-#include "../TCPIP/IOCPServer.h"
+#include "../TCPIP/IOService.h"
 
 #include "../BO/Message.h"
 #include "../BO/Domain.h"
@@ -308,7 +308,8 @@ namespace HM
 
       SpamProtection::Instance()->Load();
 
-      m_pIOCPServer = shared_ptr<IOCPServer>(new IOCPServer);
+      m_pIOService = shared_ptr<IOService>(new IOService);
+      m_pIOService->Initialize();
       _RegisterSessionTypes();
 
       // Create the main work queue.
@@ -321,7 +322,7 @@ namespace HM
       m_pScheduler = shared_ptr<Scheduler>(new Scheduler());
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pScheduler);
 
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pIOCPServer);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pIOService);
 
       m_pSMTPDeliveryManager = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pSMTPDeliveryManager);
@@ -341,7 +342,7 @@ namespace HM
       m_pScheduler->GetIsStartedEvent().Wait();
       m_pSMTPDeliveryManager->GetIsStartedEvent().Wait();
       m_pExternalFetchManager->GetIsStartedEvent().Wait();
-      m_pIOCPServer->GetIsStartedEvent().Wait();
+      m_pIOService->GetIsStartedEvent().Wait();
 
       ServerStatus::Instance()->SetState(ServerStatus::StateRunning);
       LOG_APPLICATION("Servers started.")
@@ -359,17 +360,17 @@ namespace HM
       // Start SMTP server and delivery threads.
       if (Configuration::Instance()->GetUseSMTP())
       {
-         m_pIOCPServer->RegisterSessionType(STSMTP);
+         m_pIOService->RegisterSessionType(STSMTP);
       }
 
       if (Configuration::Instance()->GetUsePOP3())
       {
-         m_pIOCPServer->RegisterSessionType(STPOP3);
+         m_pIOService->RegisterSessionType(STPOP3);
       }
 
       if (Configuration::Instance()->GetUseIMAP())
       {
-         m_pIOCPServer->RegisterSessionType(STIMAP);
+         m_pIOService->RegisterSessionType(STIMAP);
       }
    }
 
@@ -422,7 +423,7 @@ namespace HM
 
       // Deinitialize servers
       LOG_DEBUG("Application::StopServers() - Destructing IOCP");
-      if (m_pIOCPServer) m_pIOCPServer.reset();
+      if (m_pIOService) m_pIOService.reset();
       LOG_DEBUG("Application::StopServers() - Destructing DeliveryManager");
       if (m_pSMTPDeliveryManager) m_pSMTPDeliveryManager.reset();
       LOG_DEBUG("Application::StopServers() - Destructing FetchManager");

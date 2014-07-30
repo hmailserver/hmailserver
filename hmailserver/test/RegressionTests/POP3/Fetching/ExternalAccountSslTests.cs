@@ -16,7 +16,7 @@ namespace RegressionTests.POP3.Fetching
 
       [Test]
       [Description("Tests to connect to a normal non-SSL POP3 server using SSL. An error should be reported and hMailServer should disconnect correctly.")]
-      public void TestBasicExternalAccountSSLEvenThoughNotSupported()
+      public void POP3ServerNotSupportingSSL()
       {
          var messages = new List<string>();
 
@@ -90,7 +90,7 @@ namespace RegressionTests.POP3.Fetching
       }
 
       [Test]
-      public void TestBasicExternalAccountSSL()
+      public void POP3ServerSupportingSSL()
       {
          var messages = new List<string>();
 
@@ -134,7 +134,7 @@ namespace RegressionTests.POP3.Fetching
       }
 
       [Test]
-      public void TestBasicExternalAccountStartTlsEvenThoughNotSupported()
+      public void POP3ServerNOTSupportingStartTLS_StartTLSRequired()
       {
          var messages = new List<string>();
 
@@ -195,7 +195,51 @@ namespace RegressionTests.POP3.Fetching
       }
 
       [Test]
-      public void TestBasicExternalAccountStartTls()
+      public void POP3ServerNOTSupportingStartTLS_StartTLSOptional()
+      {
+         var messages = new List<string>();
+
+         string message = "From: Martin@example.com\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Hello!";
+
+         messages.Add(message);
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSNone))
+         {
+            pop3Server.SetCertificate(SslSetup.GetCertificate());
+            pop3Server.StartListen();
+
+            TestSetup.DeleteCurrentDefaultLog();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSOptional;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+            pop3Server.WaitForCompletion();
+
+            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+
+            fa.Delete();
+         }
+      }
+
+      [Test]
+      public void POP3ServerSupportingStartTLS_StartTLSRequired()
       {
          var messages = new List<string>();
 
@@ -224,6 +268,50 @@ namespace RegressionTests.POP3.Fetching
             fa.Username = "test@example.com";
             fa.Password = "test";
             fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSRequired;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+            pop3Server.WaitForCompletion();
+
+            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+
+            fa.Delete();
+         }
+      }
+
+      [Test]
+      public void POP3ServerSupportingStartTLS_StartTLSOptional()
+      {
+         var messages = new List<string>();
+
+         string message = "From: Martin@example.com\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Hello!";
+
+         messages.Add(message);
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
+         {
+            pop3Server.SetCertificate(SslSetup.GetCertificate());
+            pop3Server.StartListen();
+
+            TestSetup.DeleteCurrentDefaultLog();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSOptional;
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;

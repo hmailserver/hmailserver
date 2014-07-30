@@ -603,6 +603,18 @@ namespace HM
       _propertySet->SetBool(PROPERTY_MESSAGE_INDEXING, enable);
    }
 
+   bool
+   Configuration::GetVerifyRemoteServerSslCertificate() const
+   {
+      return GetSettings()->GetBool(PROPERTY_VERIFYREMOTESERVERSSLCERTIFICATE);
+   }
+
+   void
+   Configuration::SetVerifyRemoteServerSslCertificate(bool UseSMTP)
+   {
+      GetSettings()->SetBool(PROPERTY_VERIFYREMOTESERVERSSLCERTIFICATE, UseSMTP);
+   }
+
    bool 
    Configuration::XMLStore(XNode *pBackupNode)
    {

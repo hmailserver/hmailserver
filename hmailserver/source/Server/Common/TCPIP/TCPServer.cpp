@@ -17,6 +17,10 @@
 
 #include "../Application/SessionManager.h"
 
+#include "../Util/Encoding/Base64.h"
+
+#include "SslContextInitializer.h"
+
 using boost::asio::ip::tcp;
 
 #ifdef _DEBUG
@@ -36,7 +40,6 @@ namespace HM
       sessionType_ = sessionType;
       certificate_ = certificate;
       connectionFactory_ = connectionFactory;
-
    }
 
    
@@ -107,143 +110,7 @@ namespace HM
 
 
    }
-
-   bool 
-   TCPServer::InitSSL()
-   {
-      if (!certificate_)
-      {
-         String errorMessage = Formatter::Format("Error initializing SSL. Certificate not set. Address: {0}, Port: {1}", ipaddress_.ToString(), port_);
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-         return false;
-      }
-
-      try
-      {
-         context_.set_options(boost::asio::ssl::context::default_workarounds |
-                              boost::asio::ssl::context::no_sslv2);
-      }
-      catch (boost::system::system_error ec)
-      {
-         String asioError = ec.what();
-
-         String errorMessage;
-         errorMessage.Format(_T("Failed to set SSL context options. Address: %s, Port: %i, Error: %s"), 
-            String(ipaddress_.ToString()), port_, asioError);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-
-         return false;
-
-      }
-
-      AnsiString certificateFile = certificate_->GetCertificateFile();
-      AnsiString privateKeyFile = certificate_->GetPrivateKeyFile();
-
-
-      try
-      {
-         context_.use_certificate_file(certificateFile, boost::asio::ssl::context::pem);
-      }
-      catch (boost::system::system_error ec)
-      {
-         String asioError = ec.what();
-
-         String errorMessage;
-         errorMessage.Format(_T("Failed to load certificate file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(certificateFile), String(ipaddress_.ToString()), port_, asioError);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-
-         return false;
-      }
-
-      try
-      {
-         context_.use_certificate_chain_file(certificateFile);
-      }
-      catch (boost::system::system_error ec)
-      {
-         String asioError = ec.what();
-
-         String errorMessage;
-         errorMessage.Format(_T("Failed to load certificate chain from certificate file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(certificateFile), String(ipaddress_.ToString()), port_, asioError);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-
-         return false;
-      }
-      
-      try
-      {
-         context_.set_password_callback(boost::bind(&TCPServer::GetPassword, this));
-         context_.use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem);
-      }
-      catch (boost::system::system_error ec)
-      {
-         String asioError = ec.what();
-
-         String errorMessage;
-         errorMessage.Format(_T("Failed to load private key file. Path: %s, Address: %s, Port: %i, Error: %s"), 
-            String(privateKeyFile), String(ipaddress_.ToString()), port_, asioError);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-
-         return false;
-      }
-      catch (...)
-      {
-         String errorMessage = "Error initializing SSL";
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5113, "TCPServer::InitSSL()", errorMessage);
-
-      }
-
-      boost::system::error_code errorCode;
-      context_.set_options(boost::asio::ssl::context::default_workarounds |
-                           boost::asio::ssl::context::no_sslv2);
-
-      if (errorCode.value() != 0)
-      {
-         String errorMessage;
-         errorMessage.Format(_T("Failed to set default workarounds."));
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
-
-         return false;
-      }
-
-      if (IniFileSettings::Instance()->GetUseSSLVerifyPeer())
-      {
-         context_.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert, errorCode);
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to enable peer verification."));
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
-
-            return false;
-         }
-
-         context_.add_verify_path(AnsiString(IniFileSettings::Instance()->GetCertificateAuthorityDirectory()), errorCode);
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to add path to Certificate Authority files."));
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPServer::InitSSL", errorMessage, errorCode);
-            return false;
-         }
-      }      
-     
-      return true;
-   }
-
-   std::string 
-   TCPServer::GetPassword() const
-   {
-      ErrorManager::Instance()->ReportError(ErrorManager::High, 5143, "TCPServer::GetPassword()", "The private key file has a password. hMailServer does not support this.");
-      return "";
-   }
+  
 
    void
    TCPServer::Run()
@@ -252,7 +119,7 @@ namespace HM
           connection_security_ == CSSTARTTLSOptional ||
           connection_security_ == CSSTARTTLSRequired)
       {
-         if (!InitSSL())
+         if (!SslContextInitializer::InitServer(context_, certificate_, ipaddress_.ToString(), port_))
             return;
       }
 

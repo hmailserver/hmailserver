@@ -30,14 +30,14 @@ namespace HM
       m_iGreylistingExpirationInterval(240),
       _preferredHashAlgorithm(3),
       m_bDNSBlChecksAfterMailFrom(false),
-      _useSSLVerifyPeer(false),
       m_iLogLevel(0),
       m_iMaxLogLineLen(500),
       m_iQuickRetries(0),
       m_iQuickRetriesMinutes(0),
       m_iQueueRandomnessMinutes(0),
       m_iMXTriesFactor(0),
-      m_eSQLDBType(HM::DatabaseSettings::TypeUnknown)
+      m_eSQLDBType(HM::DatabaseSettings::TypeUnknown),
+      _manualCAFilesExists(false)
    {
 
    }
@@ -172,7 +172,7 @@ namespace HM
       //Probably need some more sanity checks on these settings but for now we assume user has some sense
 
       // check if we should validate peer's.
-      _useSSLVerifyPeer = FileUtilities::GetFilesInDirectory(GetCertificateAuthorityDirectory()).size() > 0;
+      _manualCAFilesExists = FileUtilities::GetFilesInDirectory(GetCertificateAuthorityDirectory()).size() > 0;
    }
 
    bool 

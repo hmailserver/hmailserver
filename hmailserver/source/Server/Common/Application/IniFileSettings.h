@@ -109,8 +109,7 @@ namespace HM
       bool GetBackupMessagesDBOnly () const { return m_bBackupMessagesDBOnly; }
       bool GetAddXAuthUserIP () const { return m_bAddXAuthUserIP; }
 
-      bool GetUseSSLVerifyPeer() {return _useSSLVerifyPeer;}
-      
+      bool GetManulCAFilesExists() {return _manualCAFilesExists;}
 
    private:   
 
@@ -154,7 +153,7 @@ namespace HM
       static String m_sIniFile;
 
       bool m_bDNSBlChecksAfterMailFrom;
-      bool _useSSLVerifyPeer;
+      bool _manualCAFilesExists;
       bool m_bSepSvcLogs;
       int m_iLogLevel;
       int m_iMaxLogLineLen;

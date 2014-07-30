@@ -34,8 +34,6 @@ namespace HM
       
       std::string GetPassword() const;
 
-      bool InitSSL();
-
       bool InitAcceptor();
       void StartAccept();
       void HandleAccept(shared_ptr<TCPConnection> pConnection, const boost::system::error_code& error);

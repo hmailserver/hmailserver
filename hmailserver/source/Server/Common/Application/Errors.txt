@@ -101,6 +101,8 @@
 5502, ExternalDelivery::_InitiateExternalConnection, Connect() threw a system_error error.
 5503, SpamTestSpamAssassin::RunTest
 5503, WorkQueue::ExecuteTask, An error occured while executing task {0}
+5504, Failed to open Windows certificate store. GetLastError() == {0}
+5505, Failed to open add CA certificate.
 
 
 

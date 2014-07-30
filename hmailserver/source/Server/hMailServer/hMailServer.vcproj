@@ -86,7 +86,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/ignore:4099"
-				AdditionalDependencies="Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib libeay32.lib ssleay32.lib"
+				AdditionalDependencies="Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib libeay32.lib ssleay32.lib crypt32.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)/hMailServer.exe"
 				LinkIncremental="2"
@@ -294,7 +294,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/SAFESEH /ignore:4099"
-				AdditionalDependencies="libeay32.lib ssleay32.lib Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib Adsiid.lib activeds.lib IPHlpAPI.lib Dnsapi.lib Ws2_32.lib libpq.lib crypt32.lib"
 				OutputFile="$(OutDir)/hMailServer.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\Libraries\boost_libs;&quot;..\..\..\..\Libraries\openssl-1.0.1h\libs\win32&quot;;..\..\..\..\Libraries\pgsql8.2.4"
@@ -3492,22 +3492,6 @@
 							>
 						</File>
 						<File
-							RelativePath="..\Common\TCPIP\IOCPQueueWorkerTask.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\TCPIP\IOCPQueueWorkerTask.h"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\TCPIP\IOCPServer.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\TCPIP\IOCPServer.h"
-							>
-						</File>
-						<File
 							RelativePath="..\Common\TCPIP\IOOperation.cpp"
 							>
 						</File>
@@ -3524,6 +3508,22 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\TCPIP\IOQueueWorkerTask.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\TCPIP\IOQueueWorkerTask.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\TCPIP\IOService.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\TCPIP\IOService.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Tcpip\LocalIPAddresses.cpp"
 							>
 						</File>
@@ -3533,6 +3533,14 @@
 						</File>
 						<File
 							RelativePath="..\Common\Tcpip\SocketConstants.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\TCPIP\SslContextInitializer.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\TCPIP\SslContextInitializer.h"
 							>
 						</File>
 						<File

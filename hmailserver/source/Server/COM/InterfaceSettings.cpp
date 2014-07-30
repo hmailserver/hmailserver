@@ -2217,3 +2217,40 @@ STDMETHODIMP InterfaceSettings::put_MaxNumberOfMXHosts(long newVal)
    }
 }
 
+
+STDMETHODIMP InterfaceSettings::get_VerifyRemoteServerSslCertificate(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+
+      if (m_pConfig->GetVerifyRemoteServerSslCertificate())
+         *pVal = VARIANT_TRUE;
+      else
+         *pVal = VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_VerifyRemoteServerSslCertificate(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!m_pConfig)
+         return GetAccessDenied();
+
+      m_pConfig->SetVerifyRemoteServerSslCertificate(newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}

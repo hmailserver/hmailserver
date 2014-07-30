@@ -3,7 +3,7 @@
 
 #include "StdAfx.h"
 
-#include "IOCPServer.h"
+#include "IOService.h"
 
 #include "TCPServer.h"
 #include "TCPConnection.h"
@@ -17,8 +17,9 @@
 #include "../BO/TCPIPPort.h"
 #include "../BO/TCPIPPorts.h"
 
-#include "IOCPQueueWorkerTask.h"
+#include "IOQueueWorkerTask.h"
 #include "SocketConstants.h"
+#include "SslContextInitializer.h"
 
 #include "../../SMTP/SMTPConnection.h"
 #include "../../IMAP/IMAPConnection.h"
@@ -31,20 +32,20 @@
 
 namespace HM
 {
-   IOCPServer::IOCPServer(void) :
-       Task("IOCPServer"),
-       dummy_context_(io_service_, boost::asio::ssl::context::sslv23)
+   IOService::IOService(void) :
+       Task("IOService"),
+       client_context_(io_service_, boost::asio::ssl::context::sslv23)
    {
-
+      
    }
 
-   IOCPServer::~IOCPServer(void)
+   IOService::~IOService(void)
    {
-      LOG_DEBUG("IOCPServer::~IOCPServer - Destructing");
+      LOG_DEBUG("IOService::~IOService - Destructing");
    }
 
    bool 
-   IOCPServer::RegisterSessionType(SessionType st)
+   IOService::RegisterSessionType(SessionType st)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Registers a new connection type.
@@ -55,8 +56,14 @@ namespace HM
       return true;
    }
 
+   void 
+   IOService::Initialize()
+   {
+      SslContextInitializer::InitClient(client_context_);
+   }
+
    void
-   IOCPServer::DoWork()
+   IOService::DoWork()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Creates the IO completion port, creates the worker threads, listen sockets etc.
@@ -64,7 +71,9 @@ namespace HM
    {
       SetIsStarted();
 
-      LOG_DEBUG("IOCPServer::Start()");
+      
+
+      LOG_DEBUG("IOService::Start()");
 
       // Make sure information on which local ports are in use is reset.
       LocalIPAddresses::Instance()->LoadIPAddresses();
@@ -113,7 +122,7 @@ namespace HM
             break;
 
          default:
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOCPServer::DoWork()", "Unable to start server- Unsupported session type.");
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOService::DoWork()", "Unable to start server- Unsupported session type.");
             break;
          }
 
@@ -128,7 +137,7 @@ namespace HM
       const int iThreadCount = Configuration::Instance()->GetTCPIPThreads();
 
       if (iThreadCount <= 0)
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOCPServer::DoWork()", "The number of TCP/IP threads has been set to zero.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOService::DoWork()", "The number of TCP/IP threads has been set to zero.");
 
       int iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue");
 
@@ -152,7 +161,7 @@ namespace HM
       {
          boost::this_thread::disable_interruption disabled;
 
-         LOG_DEBUG("IOCPServer::Stop()");
+         LOG_DEBUG("IOService::Stop()");
          io_service_.stop();
 
          vector<shared_ptr<TCPServer> >::iterator iterServer = tcp_servers_.begin();
@@ -162,22 +171,25 @@ namespace HM
             (*iterServer)->StopAccept();
          }
 
-         LOG_DEBUG("IOCPServer::DoWork() - removing Queue IOCP Queue")
+         LOG_DEBUG("IOService::DoWork() - removing Queue IOCP Queue")
             // Now the worker queues will get notifications that the outstanding
             // acceptex sockets are dropped.
          WorkQueueManager::Instance()->RemoveQueue("IOCPQueue");
 
-         LOG_DEBUG("IOCPServer::Stop() - Complete");
-
-
-         LOG_DEBUG("IOCPServer::Stop() - Rethrowing");
+         LOG_DEBUG("IOService::Stop() - Complete");
          return;
       }
 
    }
 
+   boost::asio::ssl::context &
+   IOService::GetClientContext()
+   {
+      return client_context_;
+   }
+
    boost::asio::io_service &
-   IOCPServer::GetIOService()
+   IOService::GetIOService()
    {
       return io_service_;
    }

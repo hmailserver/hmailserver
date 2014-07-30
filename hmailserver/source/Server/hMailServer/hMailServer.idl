@@ -652,6 +652,8 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([in] eConnectionSecurity newVal);
    [propget, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([out, retval] eConnectionSecurity *pVal);
    [propput, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([in] eConnectionSecurity newVal);
+   [propget, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteServerSslCertificate([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteServerSslCertificate([in] VARIANT_BOOL newVal);
 
 
 };

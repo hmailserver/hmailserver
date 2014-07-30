@@ -222,7 +222,9 @@ END_COM_MAP()
 
    STDMETHOD(get_MaxNumberOfMXHosts)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_MaxNumberOfMXHosts)(/*[in]*/ long newVal);
-
+   
+   STDMETHOD(get_VerifyRemoteServerSslCertificate)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_VerifyRemoteServerSslCertificate)(/*[in]*/ VARIANT_BOOL newVal);
 
    bool LoadSettings();
 

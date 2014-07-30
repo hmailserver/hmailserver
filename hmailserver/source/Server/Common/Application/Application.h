@@ -14,7 +14,7 @@ namespace HM
    class DatabaseConnectionManager;
    class Scheduler;
    class WorkQueue;
-   class IOCPServer;
+   class IOService;
    class ServerMessages;
    class NotificationServer;
    class FolderManager;
@@ -57,7 +57,7 @@ namespace HM
 
       shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
       shared_ptr<WorkQueue> GetAsyncWorkQueue();
-      shared_ptr<IOCPServer> GetIOCPServer() {return m_pIOCPServer; }
+      shared_ptr<IOService> GetIOService() {return m_pIOService; }
       // The random work queue can run any task.
 
       shared_ptr<NotificationServer> GetNotificationServer();
@@ -91,7 +91,7 @@ namespace HM
       shared_ptr<BackupManager> m_pBackupManager;
       shared_ptr<Scheduler> m_pScheduler;
       shared_ptr<NotificationServer> m_pNotificationServer;
-      shared_ptr<IOCPServer> m_pIOCPServer;
+      shared_ptr<IOService> m_pIOService;
       shared_ptr<FolderManager> _folderManager;
 
       const String m_sMaintenanceQueue;

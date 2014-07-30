@@ -61,5 +61,50 @@ namespace RegressionTests.SSL.StartTls
          // We're now on SSL.
       }
 
+      [Test]
+      public void IfStlsRequiredLogonShouldSucceedIfStls()
+      {
+         var smtpClientSimulator = new SMTPClientSimulator(false, 25003);
+         smtpClientSimulator.Connect();
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.Handshake();
+
+         var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
+         CustomAssert.IsTrue(loginResult.StartsWith("334"));
+      }
+
+      [Test]
+      public void IfStlsRequiredLogonShouldFailIfNoStls()
+      {
+         var smtpClientSimulator = new SMTPClientSimulator(false, 25003);
+         smtpClientSimulator.Connect();
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
+         CustomAssert.IsTrue(loginResult.StartsWith("530 Must issue STARTTLS first."));
+      }
+
+      [Test]
+      public void IfStlsOptionalButSslRequiredByIpRangeForAuthThenAuthShouldFail()
+      {
+         var range = SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
+         range.RequireSSLTLSForAuth = true;
+         range.Save();
+
+         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+         smtpClientSimulator.Connect();
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
+         CustomAssert.IsTrue(loginResult.StartsWith("530 A SSL/TLS-connection is required for authentication.")); // must run starttls first.
+      }
    }
 }

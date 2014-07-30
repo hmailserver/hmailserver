@@ -9,9 +9,10 @@
 #include "..\Common\BO\SecurityRange.h"
 #include "../common/Util/Event.h"
 #include "../Common/Util/Utilities.h"
-#include "../Common/TCPIP/IOCPServer.h"
+#include "../Common/TCPIP/IOService.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../common/TCPIP/TCPConnection.h"
+#include "../common/TCPIP/SslContextInitializer.h"
 #include "POP3ClientConnection.h"
 
 
@@ -37,12 +38,10 @@ namespace HM
    {  
       LOG_DEBUG("ExternalFetch::Start");
       
-      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
-
-      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
+      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetConnectionSecurity(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
+      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent));
 
       if (pClientConnection->Connect(pFA->GetServerAddress(), pFA->GetPort(), IPAddress()))
       {

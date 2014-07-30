@@ -172,6 +172,14 @@ namespace RegressionTests.Shared
          return sRetVal;
       }
 
+      public string User(string userName)
+      {
+         _tcpConnection.Send("USER " + userName + "\r\n");
+
+         return _tcpConnection.Receive();
+      }
+
+
       public string UIDL()
       {
          string sRetVal = "";

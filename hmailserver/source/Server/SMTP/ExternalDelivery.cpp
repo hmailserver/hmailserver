@@ -20,7 +20,8 @@
 #include "../common/Persistence/PersistentMessage.h"
 
 #include "../common/TCPIP/DNSResolver.h"
-#include "../common/TCPIP/IOCPServer.h"
+#include "../common/TCPIP/IOService.h"
+#include "../common/TCPIP/SslContextInitializer.h"
 
 #include "../Common/Util/AWstats.h"
 #include "../common/Util/ServerInfo.h"
@@ -332,13 +333,10 @@ namespace HM
    {
       LOG_DEBUG(Formatter::Format("Starting external delivery process. Server: {0}:{1}, Security: {2}, User name: {3}", serverInfo->GetHostName(), serverInfo->GetPort(), serverInfo->GetConnectionSecurity(), serverInfo->GetUsername()));
 
-      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
-
-
-      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
+      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOCPServer->GetIOService(), ctx, disconnectEvent));
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
 
