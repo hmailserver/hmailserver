@@ -35,11 +35,11 @@ namespace VMwareIntegration.Console
 
          var options = new ParallelOptions()
             {
-               MaxDegreeOfParallelism = 4
+               MaxDegreeOfParallelism = 6
             };
 
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
-         var environmentsGroupedByVmwareImage = listEnvironments.GroupBy(item => item.VMwarePath);
+         var environmentsGroupedByVmwareImage = listEnvironments.GroupBy(item => item.VMwarePath).ToList();
 
          Parallel.ForEach(environmentsGroupedByVmwareImage, options, environmentGroup =>
          {

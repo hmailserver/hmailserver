@@ -125,7 +125,7 @@ namespace VMwareIntegration.Common
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
-            bool useLocalVersion = true;
+            bool useLocalVersion = false;
 
             if (useLocalVersion)
             {
