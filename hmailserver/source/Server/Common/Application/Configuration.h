@@ -149,8 +149,8 @@ namespace HM
       bool GetMessageIndexing();
       void SetMessageIndexing(bool enable);
 
-      bool GetVerifyRemoteServerSslCertificate() const;
-      void SetVerifyRemoteServerSslCertificate(bool newValue);
+      bool GetVerifyRemoteSslCertificate() const;
+      void SetVerifyRemoteSslCertificate(bool newValue);
 
 
       shared_ptr<PropertySet> GetSettings() const;

@@ -2218,7 +2218,7 @@ STDMETHODIMP InterfaceSettings::put_MaxNumberOfMXHosts(long newVal)
 }
 
 
-STDMETHODIMP InterfaceSettings::get_VerifyRemoteServerSslCertificate(VARIANT_BOOL *pVal)
+STDMETHODIMP InterfaceSettings::get_VerifyRemoteSslCertificate(VARIANT_BOOL *pVal)
 {
    try
    {
@@ -2226,7 +2226,7 @@ STDMETHODIMP InterfaceSettings::get_VerifyRemoteServerSslCertificate(VARIANT_BOO
          return GetAccessDenied();
 
 
-      if (m_pConfig->GetVerifyRemoteServerSslCertificate())
+      if (m_pConfig->GetVerifyRemoteSslCertificate())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -2239,14 +2239,14 @@ STDMETHODIMP InterfaceSettings::get_VerifyRemoteServerSslCertificate(VARIANT_BOO
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_VerifyRemoteServerSslCertificate(VARIANT_BOOL newVal)
+STDMETHODIMP InterfaceSettings::put_VerifyRemoteSslCertificate(VARIANT_BOOL newVal)
 {
    try
    {
       if (!m_pConfig)
          return GetAccessDenied();
 
-      m_pConfig->SetVerifyRemoteServerSslCertificate(newVal == VARIANT_TRUE);
+      m_pConfig->SetVerifyRemoteSslCertificate(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)

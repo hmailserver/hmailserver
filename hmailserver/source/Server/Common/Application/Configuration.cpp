@@ -604,15 +604,15 @@ namespace HM
    }
 
    bool
-   Configuration::GetVerifyRemoteServerSslCertificate() const
+   Configuration::GetVerifyRemoteSslCertificate() const
    {
-      return GetSettings()->GetBool(PROPERTY_VERIFYREMOTESERVERSSLCERTIFICATE);
+      return GetSettings()->GetBool(PROPERTY_VERIFYREMOTESSLCERTIFICATE);
    }
 
    void
-   Configuration::SetVerifyRemoteServerSslCertificate(bool UseSMTP)
+   Configuration::SetVerifyRemoteSslCertificate(bool UseSMTP)
    {
-      GetSettings()->SetBool(PROPERTY_VERIFYREMOTESERVERSSLCERTIFICATE, UseSMTP);
+      GetSettings()->SetBool(PROPERTY_VERIFYREMOTESSLCERTIFICATE, UseSMTP);
    }
 
    bool 

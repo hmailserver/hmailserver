@@ -767,7 +767,7 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Cl
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SmtpDeliveryConnectionSecurity', '', 0);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteServerSslCertificate', '', 1);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteSslCertificate', '', 1);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 

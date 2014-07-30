@@ -118,7 +118,7 @@
 
 #define PROPERTY_MAX_NUMBER_OF_MXHOSTS          _T("MaxNumberOfMXHosts")
 #define PROPERTY_SMTPCONNECTIONSECURITY         _T("SmtpDeliveryConnectionSecurity")
-#define PROPERTY_VERIFYREMOTESERVERSSLCERTIFICATE     _T("VerifyRemoteServerSslCertificate")
+#define PROPERTY_VERIFYREMOTESSLCERTIFICATE     _T("VerifyRemoteSslCertificate")
 
 #define PROPERTY_CLAMAV_ENABLED              _T("ClamAVEnabled")
 #define PROPERTY_CLAMAV_HOST                 _T("ClamAVHost")

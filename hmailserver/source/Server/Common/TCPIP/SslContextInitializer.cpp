@@ -175,7 +175,7 @@ namespace HM
          return false;
       }
 
-      if (Configuration::Instance()->GetVerifyRemoteServerSslCertificate())
+      if (Configuration::Instance()->GetVerifyRemoteSslCertificate())
       {
          context.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert, errorCode);
          if (errorCode.value() != 0)
