@@ -9,7 +9,7 @@ namespace HM
    class MessageRecipient;
    class RuleResult;
    class ServerInfo;
-
+   class HostNameAndIpAddress;
 
    class ExternalDelivery
    {
@@ -21,10 +21,12 @@ namespace HM
 
    private:
 
-      void _DeliverToExternalDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
-      void _InitiateExternalConnection(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
 
-      bool _ResolveRecipientServer(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<String> &saMailServers);
+
+      void _DeliverToSingleDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
+      void _DeliverToSingleServer(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
+
+      bool _ResolveRecipientServers(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<HostNameAndIpAddress> &saMailServers);
       bool _RecipientWithNonFatalDeliveryErrorExists(vector<shared_ptr<MessageRecipient> > &vecRecipients);
       void _HandleExternalDeliveryFailure(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bIsFatal, String &sErrorString);
       void _HandleNoRecipientServers(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer);

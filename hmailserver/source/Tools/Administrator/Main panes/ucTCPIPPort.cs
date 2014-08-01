@@ -37,7 +37,7 @@ namespace hMailServer.Administrator
             comboProtocol.AddItem("POP3", eSessionType.eSTPOP3);
             comboProtocol.AddItem("IMAP", eSessionType.eSTIMAP);
           
-            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get(true));
             
             ListSSLCertificates();
 

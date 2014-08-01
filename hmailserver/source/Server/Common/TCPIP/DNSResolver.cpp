@@ -7,6 +7,8 @@
 #include <windns.h>
 #include <boost/asio.hpp>
 
+#include "HostNameAndIpAddress.h"
+
 using boost::asio::ip::tcp;
 
 #ifdef _DEBUG
@@ -317,7 +319,7 @@ namespace HM
    }
 
    bool
-   DNSResolver::GetEmailServers(const String &sDomainName, std::vector<String> &saFoundNames )
+   DNSResolver::GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames )
    {
       LOG_SMTP(0,"TCP","DNS - MX Lookup: " + sDomainName);
 
@@ -344,13 +346,24 @@ namespace HM
                name unless they are located using the MX RRs;
                (implemented here)
             */
-            if (!GetARecords(sDomainName, saFoundNames))
+
+            std::vector<String> a_records;
+            if (!GetARecords(sDomainName, a_records))
             {
                String logMessage;
                logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName);
                LOG_DEBUG(logMessage);
 
                return false;
+            }
+
+            boost_foreach(String record, a_records)
+            {
+               HostNameAndIpAddress hostAndAddress;
+               hostAndAddress.SetHostName(sDomainName);
+               hostAndAddress.SetIpAddress(record);
+
+               saFoundNames.push_back(hostAndAddress);
             }
          }
          else
@@ -366,7 +379,8 @@ namespace HM
                // Resolve to domain name to IP address and put it in the list.
                int iCountBefore = saFoundNames.size();
 
-               if (!GetARecords(domain, saFoundNames))
+               std::vector<String> a_records;
+               if (!GetARecords(domain, a_records))
                   continue;
 
                dnsSuccess = true;
@@ -381,8 +395,17 @@ namespace HM
                      // Okay, this is an invalid MX record. The MX record should always contain 
                      // a host name but in this case it appears an IP address. We'll be kind to
                      // the domain owner and still deliver the email to him.
-                     saFoundNames.push_back(domain);
+                     a_records.push_back(domain);
                   }
+               }
+
+               boost_foreach(String record, a_records)
+               {
+                  HostNameAndIpAddress hostAndAddress;
+                  hostAndAddress.SetHostName(sDomainName);
+                  hostAndAddress.SetIpAddress(record);
+
+                  saFoundNames.push_back(hostAndAddress);
                }
             }
 
@@ -409,8 +432,27 @@ namespace HM
          throw;
       }
 
-      StringParser::RemoveDuplicateItems(saFoundNames);
+            
+      // Remove duplicate names.
+      std::vector<HostNameAndIpAddress>::iterator iter = saFoundNames.begin();
+      std::set<String> duplicateCheck;
 
+      while (iter != saFoundNames.end())
+      {
+         String name = (*iter).GetIpAddress();
+         if (duplicateCheck.find(name) != duplicateCheck.end())
+         {
+            // We found a duplicate. Remove it.
+            iter = saFoundNames.erase(iter);
+         }
+         else
+         {
+            // This is not a duplicate. Move to next.
+            iter++;
+
+            duplicateCheck.insert(name);
+         }
+      }
 
       return true;
    }
@@ -454,23 +496,5 @@ namespace HM
       return false;
    }
 
-
-   #ifdef _DEBUG
-   void DNSResolverTester::Test()
-   {
-      DNSResolver resolver;
-      int iStart = GetTickCount();
-      for (int i = 1; i < 25; i++)
-      {
-         std::vector<String> vecFoundNames;
-         resolver.GetEmailServers("hmailserver.com", vecFoundNames);
-      }
-      int iStop = GetTickCount();
-      int iDiff = iStop - iStart;
-      String sResult;
-      sResult.Format(_T("%d"), iDiff);
-
-      OutputDebugString(sResult);
-   }
-   #endif
 }
+

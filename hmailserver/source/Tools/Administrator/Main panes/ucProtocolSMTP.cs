@@ -24,7 +24,7 @@ namespace hMailServer.Administrator
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
 
-            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get());
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get(true));
         }
 
         public void OnLeavePage()

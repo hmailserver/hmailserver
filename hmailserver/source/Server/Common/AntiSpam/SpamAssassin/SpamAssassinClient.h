@@ -32,6 +32,7 @@ namespace HM
       virtual void OnReadError(int errorCode);
       virtual void OnConnected();
       virtual void OnHandshakeCompleted() {};
+      virtual void OnHandshakeFailed() {};
       virtual AnsiString GetCommandSeparator() const;
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();

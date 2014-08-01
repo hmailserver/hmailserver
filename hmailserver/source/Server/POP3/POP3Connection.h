@@ -38,6 +38,7 @@ namespace HM
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
       virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed() {};
    private:
 
 

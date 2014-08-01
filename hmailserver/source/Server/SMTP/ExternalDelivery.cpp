@@ -22,6 +22,7 @@
 #include "../common/TCPIP/DNSResolver.h"
 #include "../common/TCPIP/IOService.h"
 #include "../common/TCPIP/SslContextInitializer.h"
+#include "../common/TCPIP/HostNameAndIpAddress.h"
 
 #include "../Common/Util/AWstats.h"
 #include "../common/Util/ServerInfo.h"
@@ -89,7 +90,7 @@ namespace HM
                iterRecipient + 1 == vecRecipientsOnDomain.end())
             {
                // Deliver the message to the remote server.
-               _DeliverToExternalDomain(batch, serverInfo);
+               _DeliverToSingleDomain(batch, serverInfo);
 
                // Check what status we got on the external deliveries.
                _CollectDeliveryResult(serverInfo->GetHostName(), batch, saErrorMessages, mapFailedDueToNonFatalError);    
@@ -112,7 +113,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::_DeliverToExternalDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo)
+   ExternalDelivery::_DeliverToSingleDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Deliveres the message to external accounts (recipients not on this server).
@@ -125,10 +126,10 @@ namespace HM
          return;
       }
 
-      vector<String> saMailServers;
+      vector<HostNameAndIpAddress> mail_servers;
 
       // Run DNS query to find the recipient servers IP addresses.
-      if (!_ResolveRecipientServer(serverInfo, vecRecipients, saMailServers))
+      if (!_ResolveRecipientServers(serverInfo, vecRecipients, mail_servers))
          return;
 
       m_iMXTriesFactor = IniFileSettings::Instance()->GetMXTriesFactor();
@@ -137,28 +138,43 @@ namespace HM
       // occurs, (an exception with eFatalError), we should stop trying
       // and just return an error message.
 
-      for (unsigned int i = 0; i < saMailServers.size(); i++)
+      for (unsigned int i = 0; i < mail_servers.size(); i++)
       {
-         String sHostName = saMailServers[i];
-         serverInfo->SetHostName(sHostName);
-
          // Create a list of the remaining recipients. These are the recipients we have
          // not yet delivered to on a previous server (where i > 0). 
          vector<shared_ptr<MessageRecipient> > remainingRecipients;
          boost_foreach(shared_ptr<MessageRecipient> recipient, vecRecipients)
          {
             if (recipient->GetDeliveryResult() == MessageRecipient::ResultUndefined ||
-               recipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
+                recipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
             {
                remainingRecipients.push_back(recipient);
             }
          }
 
-         _InitiateExternalConnection(remainingRecipients, serverInfo);
+         _DeliverToSingleServer(remainingRecipients, serverInfo);
 
-         bool bTryNextServer = _RecipientWithNonFatalDeliveryErrorExists(vecRecipients);
+         bool retryWithoutStartTls = false;
 
-         if (!bTryNextServer)
+         boost_foreach(shared_ptr<MessageRecipient> recipient, remainingRecipients)
+         {
+            if (recipient->GetDeliveryResult() == MessageRecipient::ResultOptionalHandshakeFailed)
+            {
+               recipient->SetDeliveryResult(MessageRecipient::ResultUndefined);
+               retryWithoutStartTls = true;
+            }
+         }
+
+         if (retryWithoutStartTls)
+         {
+            serverInfo->DisableConnectionSecurity();
+
+            _DeliverToSingleServer(remainingRecipients, serverInfo);
+         }
+
+         bool try_next_server = _RecipientWithNonFatalDeliveryErrorExists(vecRecipients);
+
+         if (!try_next_server)
          {
             // All deliveries are complete or fatal. 
             return;
@@ -177,20 +193,22 @@ namespace HM
    /// Resolves IP addresses for the recipient servers. This will either be a MX 
    /// lookup, or a A lookup, if SMTP relaying is used.
    bool 
-   ExternalDelivery::_ResolveRecipientServer(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<String> &saMailServers)
+   ExternalDelivery::_ResolveRecipientServers(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<HostNameAndIpAddress> &saMailServers)
    {
       DNSResolver resolver;
 
       // Resolve the specified hosts.
       bool dnsQueryOK = false;
 
+      bool is_fixed = serverInfo->GetFixed();
+
       if (serverInfo->GetFixed())
       {
          String relayServer = serverInfo->GetHostName();
+         vector<String> mailServerHosts;
 
          LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Relaying to host " + relayServer + ".");      
-
-         vector<String> mailServerHosts;
+         
          if (relayServer.Find(_T("|")) > 0)
             mailServerHosts = StringParser::SplitString(relayServer, "|");
          else
@@ -198,9 +216,17 @@ namespace HM
 
          boost_foreach(String host, mailServerHosts)
          {
-            // The actual resolution of these host names to IP addresses,
-            // are taken care of by TCPConnection::Connect.
-            saMailServers.push_back(host);
+            vector<String> ip_addresses;
+            dnsQueryOK = resolver.GetARecords(relayServer, ip_addresses);
+
+            boost_foreach(String ip_address, ip_addresses)
+            {
+               HostNameAndIpAddress hostNameAndIpAddress;
+               hostNameAndIpAddress.SetHostName(relayServer);
+               hostNameAndIpAddress.SetIpAddress(ip_address);
+
+               saMailServers.push_back(hostNameAndIpAddress);
+            }
          }
       }
       else
@@ -209,8 +235,6 @@ namespace HM
          // resolution, but since this is a matter of MX resolution and comparing
          // MX record preference, we have to do it manually.
          dnsQueryOK = resolver.GetEmailServers(serverInfo->GetHostName(), saMailServers);
-
-         serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, "", 25, "", "", CSNone));
       }
 
       shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
@@ -225,7 +249,7 @@ namespace HM
       // Check if any servers exists.
       if (saMailServers.size() == 0)
       {
-         _HandleNoRecipientServers(vecRecipients, dnsQueryOK, serverInfo->GetFixed());
+         _HandleNoRecipientServers(vecRecipients, dnsQueryOK, is_fixed);
          return false;
       }
 
@@ -324,19 +348,24 @@ namespace HM
    }
 
    void
-   ExternalDelivery::_InitiateExternalConnection(vector<shared_ptr<MessageRecipient> > &vecRecipients,
-                                                 shared_ptr<ServerInfo> serverInfo)
+   ExternalDelivery::_DeliverToSingleServer(vector<shared_ptr<MessageRecipient> > &vecRecipients,
+                                            shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Connects to a remote server and delivers the message to it.
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG(Formatter::Format("Starting external delivery process. Server: {0}:{1}, Security: {2}, User name: {3}", serverInfo->GetHostName(), serverInfo->GetPort(), serverInfo->GetConnectionSecurity(), serverInfo->GetUsername()));
+      LOG_DEBUG(Formatter::Format("Starting external delivery process. Server: {0} ({1}), Port: {2}, Security: {3}, User name: {4}", 
+         serverInfo->GetHostName(), 
+         serverInfo->GetIpAddress(), 
+         serverInfo->GetPort(), 
+         serverInfo->GetConnectionSecurity(), 
+         serverInfo->GetUsername()));
 
       shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent));
+      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
 
       pClientConnection->SetDelivery(_originalMessage, vecRecipients);
 
@@ -346,10 +375,10 @@ namespace HM
       // Determine what local IP address to use.
       IPAddress localAddress = _GetLocalAddress();
 
-      if (pClientConnection->Connect(serverInfo->GetHostName(), serverInfo->GetPort(), localAddress))
+      if (pClientConnection->Connect(serverInfo->GetIpAddress(), serverInfo->GetPort(), localAddress))
       {
          // Make sure we keep no references to the TCP connection so that it
-         // can be terminated whenever. We're longer own the connection.
+         // can be terminated whenever. We're no longer own the connection.
          pClientConnection.reset();
 
          disconnectEvent->Wait();

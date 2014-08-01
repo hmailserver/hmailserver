@@ -57,14 +57,22 @@ namespace HM
    }
 
    bool
-   TCPConnection::Connect(const AnsiString &remoteServer, long remotePort, const IPAddress &localAddress)
+   TCPConnection::Connect(const AnsiString &remote_ip_address, long remotePort, const IPAddress &localAddress)
    {
       try
       {
-         LOG_TCPIP("Connecting to " + remoteServer + "...");
+#if _DEBUG
+         if (!StringParser::IsValidIPAddress(remote_ip_address))
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 5506, "TCPConnection::Connect", 
+               Formatter::Format("Attempting to connect to {0} - Not a valid IP address.", remote_ip_address));
+         }
+#endif
+
+         LOG_TCPIP("Connecting to " + _remote_ip_address + "...");
 
          _remotePort = remotePort;
-         _remoteServer = remoteServer;
+         _remote_ip_address = remote_ip_address;
 
          if (!localAddress.IsAny())
          {
@@ -101,7 +109,7 @@ namespace HM
 
    #ifdef _DEBUG
          String sMessage;
-         sMessage.Format(_T("RESOLVE: %s\r\n"), String(remoteServer));
+         sMessage.Format(_T("RESOLVE: %s\r\n"), String(_remote_ip_address));
    #endif 
 
          // Start an asynchronous resolve to translate the server and service names
@@ -110,7 +118,7 @@ namespace HM
          
          boost::asio::ip::resolver_query_base::flags flags;
 
-         if (StringParser::IsValidIPAddress(remoteServer))
+         if (StringParser::IsValidIPAddress(_remote_ip_address))
          {
             flags = tcp::resolver::query::passive |
                     tcp::resolver::query::numeric_host |
@@ -124,7 +132,7 @@ namespace HM
          }
 
 
-         tcp::resolver::query query(remoteServer, sPort, flags);
+         tcp::resolver::query query(remote_ip_address, sPort, flags);
 
          _resolver.async_resolve(query,
             boost::bind(&TCPConnection::HandleResolve, shared_from_this(),
@@ -135,7 +143,7 @@ namespace HM
       }
       catch (...)
       {
-         String errorMessage = Formatter::Format("An unknown error occurred while connecting to {0} on port {1}", remoteServer, remotePort);
+         String errorMessage = Formatter::Format("An unknown error occurred while connecting to {0} on port {1}", remote_ip_address, remotePort);
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5321, "TCPConnection::Connect", errorMessage);
          throw;
       }
@@ -150,7 +158,7 @@ namespace HM
          {
             AnsiString error = err.message();
             
-            OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
+            OnCouldNotConnect("IP address: " + _remote_ip_address + ", message: " + error);
 
             return;
          }
@@ -176,7 +184,7 @@ namespace HM
          if (LocalIPAddresses::Instance()->IsLocalPort(endpoint.address(), _remotePort))
          {
             String sMessage; 
-            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), _remoteServer, _remotePort);
+            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), _remote_ip_address, _remotePort);
 
             OnCouldNotConnect(sMessage);
 
@@ -229,7 +237,7 @@ namespace HM
             }
             
             AnsiString error = err.message();
-            OnCouldNotConnect("Host name: " + _remoteServer + ", message: " + error);
+            OnCouldNotConnect("Host name: " + _remote_ip_address + ", message: " + error);
 
             return;
          }
@@ -246,6 +254,18 @@ namespace HM
    void 
    TCPConnection::Handshake()
    {
+      return Handshake("");
+   }
+
+   void 
+   TCPConnection::Handshake(const AnsiString &expected_remote_hostname)
+   {
+      if (!expected_remote_hostname.IsEmpty())
+      {
+         _sslSocket.set_verify_mode(boost::asio::ssl::verify_peer);
+         _sslSocket.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));
+      }
+
       LOG_DEBUG(Formatter::Format("Initiating SSL/TLS handshake for session {0}", _sessionID));
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
@@ -288,6 +308,8 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()), SafeGetIPAddress());
             LOG_TCPIP(sMessage);
+
+            OnHandshakeFailed();
 
          }
       }
@@ -1020,7 +1042,7 @@ namespace HM
    bool
    TCPConnection::IsClient()
    {
-      return _remoteServer.GetLength() > 0;
+      return _remote_ip_address.GetLength() > 0;
    }
 
    void  

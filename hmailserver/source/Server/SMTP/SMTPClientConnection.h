@@ -18,7 +18,8 @@ namespace HM
       SMTPClientConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
-         shared_ptr<Event> disconnected);
+         shared_ptr<Event> disconnected,
+         AnsiString remote_hostname);
 	   virtual ~SMTPClientConnection();
 
       void OnCouldNotConnect(const AnsiString &sErrorDescription);
@@ -28,11 +29,11 @@ namespace HM
       int SetDelivery(shared_ptr<Message> pDelMsg, std::vector<shared_ptr<MessageRecipient> > &vecRecipients);
            
       void SetAuthInfo(const String &sUsername, const String &sPassword);
-
    protected:
 
       virtual void OnConnected();
       virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed();
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void _SendData(const String &sData);
@@ -42,14 +43,15 @@ namespace HM
 
    private:
 
-      void _ProtocolStateHELOEHLO();
+      void _ProtocolStateHELOEHLO(const AnsiString &request);
       void _ProtocolSendMailFrom();
       void _ProtocolHELOEHLOSent(const AnsiString &request);
+      void _ProtocolSTARTTLSSent(int code);
       void _ProtocolMailFromSent();
       void _ProtocolRcptToSent(int code, const AnsiString &request);
       void _ProtocolData();
-      
 
+      void HandleHandshakeFailure_();
       bool InternalParseData(const AnsiString &Request);
   	   void _ReadAndSend();
 	  
@@ -70,11 +72,12 @@ namespace HM
       shared_ptr<MessageRecipient> _GetNextRecipient();
       void _UpdateSuccessfulRecipients();
 
+      bool GetServerSupportsESMTP_();
+
       enum ConnectionState
       {
 	      HELO = 1,
          HELOSENT = 9,
-         EHLOSENT = 10,
          AUTHLOGINSENT = 11,
          USERNAMESENT = 12,
          PASSWORDSENT = 13,
@@ -118,5 +121,8 @@ namespace HM
       TransparentTransmissionBuffer _transmissionBuffer;
 
       AnsiString m_sMultiLineResponseBuffer;
+
+      AnsiString remoteServerBanner_;
+      AnsiString expected_remote_hostname_;
    };
 }

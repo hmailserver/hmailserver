@@ -123,6 +123,7 @@ namespace HM
 
       virtual void OnConnected();
       virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed() {};
       virtual AnsiString GetCommandSeparator() const;
 
       void _LogClientCommand(const String &sClientData);

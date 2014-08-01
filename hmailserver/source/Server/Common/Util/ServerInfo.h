@@ -10,25 +10,29 @@ namespace HM
    class ServerInfo
    {
    public:
-	   ServerInfo(bool fixed, const String &hostName, int port, const String&userName, const String &passWord, ConnectionSecurity connection_security);
+	   ServerInfo(bool fixed, const String &host_name, const String &ip_address, int port, const String&userName, const String &passWord, ConnectionSecurity connection_security);
 	   virtual ~ServerInfo();
 
       bool GetFixed();
       String GetHostName();
+      String GetIpAddress();
       int GetPort ();
       String GetUsername();
       String GetPassword();
       ConnectionSecurity GetConnectionSecurity();
+      
       void SetHostName(const String &hostName);
+      void SetIpAddress(const String &ip_address);
 
-
+      void DisableConnectionSecurity();
          
       bool operator== (const ServerInfo &other) const;
 
    private:
 
       bool fixed_;
-      String hostName_;
+      String host_name_;
+      String ip_address_;
       int port_;
       String userName_;
       String passWord_;

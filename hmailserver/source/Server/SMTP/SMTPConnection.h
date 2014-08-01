@@ -51,6 +51,7 @@ namespace HM
 
       virtual void OnConnected();
       virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed() {};
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void ParseData(const AnsiString &sRequest);

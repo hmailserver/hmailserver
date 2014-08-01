@@ -22,15 +22,17 @@ namespace HM
 {
 
    SMTPClientConnection::SMTPClientConnection(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
-         boost::asio::ssl::context& context,
-         shared_ptr<Event> disconnected) :
-         AnsiStringConnection(connection_security, io_service, context, disconnected),
-         m_CurrentState(HELO),
-         m_bUseSMTPAuth(false),
-         m_iCurRecipient(-1),
-         m_bSessionEnded(false),
-         _transmissionBuffer(true)
+      boost::asio::io_service& io_service, 
+      boost::asio::ssl::context& context,
+      shared_ptr<Event> disconnected,
+      AnsiString expected_remote_hostname) :
+      AnsiStringConnection(connection_security, io_service, context, disconnected),
+      m_CurrentState(HELO),
+      m_bUseSMTPAuth(false),
+      m_iCurRecipient(-1),
+      m_bSessionEnded(false),
+      _transmissionBuffer(true),
+      expected_remote_hostname_(expected_remote_hostname)
    {
       
       /* RFC 2821:    
@@ -69,8 +71,24 @@ namespace HM
       else if (GetConnectionSecurity() == CSSTARTTLSRequired ||
                GetConnectionSecurity() == CSSTARTTLSOptional)
       {
-         _ProtocolStateHELOEHLO();
+         _ProtocolStateHELOEHLO("");
          PostReceive();
+      }
+   }
+
+   void
+   SMTPClientConnection::OnHandshakeFailed()
+   {
+      HandleHandshakeFailure_();
+   }
+
+   void
+   SMTPClientConnection::HandleHandshakeFailure_() 
+   {
+      if (GetConnectionSecurity() == CSSTARTTLSOptional)
+      {
+         boost_foreach(shared_ptr<MessageRecipient> recipient, m_vecRecipients)
+            recipient->SetDeliveryResult(MessageRecipient::ResultOptionalHandshakeFailed);
       }
    }
 
@@ -141,8 +159,6 @@ namespace HM
       bool ifFailureFailAllRecipientsAndQuit = 
          m_CurrentState == HELO ||
          m_CurrentState == HELOSENT ||
-         m_CurrentState == EHLOSENT || 
-         m_CurrentState == STARTTLSSENT ||
          m_CurrentState == AUTHLOGINSENT ||
          m_CurrentState == USERNAMESENT || 
          m_CurrentState == PASSWORDSENT ||
@@ -164,14 +180,15 @@ namespace HM
       switch (m_CurrentState)
       {
       case HELO:
-         _ProtocolStateHELOEHLO();  
+         _ProtocolStateHELOEHLO(Request);  
          return true;
       case HELOSENT:
-      case EHLOSENT:
+
          _ProtocolHELOEHLOSent(Request);
          return true;
       case STARTTLSSENT:
-         Handshake();
+         _ProtocolSTARTTLSSent(iCode);
+         Handshake(expected_remote_hostname_);
          return false;
       case AUTHLOGINSENT:
          _ProtocolSendUsername();
@@ -205,20 +222,39 @@ namespace HM
    }
 
    void
-   SMTPClientConnection::_ProtocolStateHELOEHLO()
+   SMTPClientConnection::_ProtocolStateHELOEHLO(const AnsiString &request)
    {
-      String sComputerName = Utilities::ComputerName(); 
+      if (request.GetLength() > 0)
+         remoteServerBanner_ = request;
 
-      if (m_bUseSMTPAuth || GetConnectionSecurity() == CSSTARTTLSRequired  || GetConnectionSecurity() == CSSTARTTLSOptional)
+      bool server_supports_esmtp = GetServerSupportsESMTP_();
+      if (GetConnectionSecurity() == CSSTARTTLSRequired || m_bUseSMTPAuth)
       {
-         _SendData("EHLO " + sComputerName);
-         _SetState(EHLOSENT);
+         if (!server_supports_esmtp)
+         {
+            _UpdateAllRecipientsWithError(500, "Remote server does not support ESMTP which is required for STARTTLS and authentication.", false);
+            _SendQUIT();
+            return;
+         }
       }
+
+      String computer_name = Utilities::ComputerName(); 
+
+      if (GetServerSupportsESMTP_())
+         _SendData("EHLO " + computer_name);
       else
-      {
-         _SendData("HELO " + sComputerName);
-         _SetState(HELOSENT);
-      }
+         _SendData("HELO " + computer_name);
+         
+      _SetState(HELOSENT);
+   }
+
+   bool
+   SMTPClientConnection::GetServerSupportsESMTP_()
+   {
+      if (remoteServerBanner_.Contains("ESMTP"))
+         return true;
+
+      return false;
    }
 
    void
@@ -240,39 +276,37 @@ namespace HM
    void
    SMTPClientConnection::_ProtocolRcptToSent(int code, const AnsiString &request)
    {
+      if (m_iCurRecipient < m_vecRecipients.size())
       {
-         if (m_iCurRecipient < m_vecRecipients.size())
+         if (IsPositiveCompletion(code))
          {
-            if (IsPositiveCompletion(code))
-            {
-               _actualRecipients.insert(m_vecRecipients[m_iCurRecipient]);
-            }
-            else
-            {
-               _UpdateRecipientWithError(code, request, m_vecRecipients[m_iCurRecipient], false);
-            }
-         }
-
-         shared_ptr<MessageRecipient> pRecipient = _GetNextRecipient();
-         if (pRecipient)
-         {
-            // Send next recipient.
-            _SendData("RCPT TO:<" + pRecipient->GetAddress() + ">");
-            m_CurrentState = RCPTTOSENT;
+            _actualRecipients.insert(m_vecRecipients[m_iCurRecipient]);
          }
          else
          {
-            if (_actualRecipients.size() == 0)
-            {
-               _SendQUIT();
-            }
-            else
-            {
-               _SendData("DATA");
-               m_CurrentState = DATACOMMANDSENT;
-            }
-            
+            _UpdateRecipientWithError(code, request, m_vecRecipients[m_iCurRecipient], false);
          }
+      }
+
+      shared_ptr<MessageRecipient> pRecipient = _GetNextRecipient();
+      if (pRecipient)
+      {
+         // Send next recipient.
+         _SendData("RCPT TO:<" + pRecipient->GetAddress() + ">");
+         m_CurrentState = RCPTTOSENT;
+      }
+      else
+      {
+         if (_actualRecipients.size() == 0)
+         {
+            _SendQUIT();
+         }
+         else
+         {
+            _SendData("DATA");
+            m_CurrentState = DATACOMMANDSENT;
+         }
+         
       }
    }
 
@@ -288,23 +322,26 @@ namespace HM
    void
    SMTPClientConnection::_ProtocolHELOEHLOSent(const AnsiString &request)
    {
-      if (!IsSSLConnection() && 
-          (GetConnectionSecurity() == CSSTARTTLSRequired ||  GetConnectionSecurity() == CSSTARTTLSOptional))
+      if (GetConnectionSecurity() == CSSTARTTLSRequired || 
+          GetConnectionSecurity() == CSSTARTTLSOptional)
       {
-         if (!request.Contains("STARTTLS"))
+         if (!IsSSLConnection())
          {
-            if (GetConnectionSecurity() == CSSTARTTLSRequired)
+            if (request.Contains("STARTTLS"))
             {
-               _UpdateAllRecipientsWithError(500, "Server does not support STARTTLS", false);
-               _SendQUIT();
-               return;
+               _SendData("STARTTLS");
+               _SetState(STARTTLSSENT);
             }
-         }
-         else
-         {
-            _SendData("STARTTLS");
-            _SetState(STARTTLSSENT);
-            return;
+            else
+            {
+               // Remote server does not support STARTTLS
+               if (GetConnectionSecurity() == CSSTARTTLSRequired)
+               {
+                  _UpdateAllRecipientsWithError(500, "Server does not support STARTTLS.", false);
+                  _SendQUIT();
+                  return;
+               }
+            }
          }
       }
 
@@ -317,6 +354,19 @@ namespace HM
       else
       {
          _ProtocolSendMailFrom();
+      }
+   }
+
+   void
+   SMTPClientConnection::_ProtocolSTARTTLSSent(int code)
+   {
+      if (IsPositiveCompletion(code))
+      {
+         Handshake(expected_remote_hostname_);
+      }
+      else
+      {
+         HandleHandshakeFailure_();
       }
    }
 
@@ -635,5 +685,5 @@ namespace HM
 
       LOG_SMTP_CLIENT(0,"TCP","SMTPDeliverer - Message " + StringParser::IntToString(m_pDeliveryMessage->GetID()) + " - Connection failed: " + String(sErrorDescription) );
    }
-
 }
+

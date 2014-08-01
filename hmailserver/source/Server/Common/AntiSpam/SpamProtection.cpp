@@ -23,6 +23,8 @@
 
 #include "../Util/MessageUtilities.h"
 #include "../TCPIP/DNSResolver.h"
+#include "../TCPIP/HostNameAndIpAddress.h"
+
 
 #include "../../SMTP/BLCheck.h"
 #include "../../SMTP/GreyListing.h"
@@ -174,16 +176,21 @@ namespace HM
          
          if (senderDomain.GetLength() > 0)
          {
-            std::vector<String> foundAddresses;
+            std::vector<String> found_ip_addresses;
                
             DNSResolver resolver;
-            resolver.GetARecords(senderDomain, foundAddresses);
-            resolver.GetEmailServers(senderDomain, foundAddresses);
+            resolver.GetARecords(senderDomain, found_ip_addresses);
+
+            std::vector<HostNameAndIpAddress> host_name_with_addresses;
+            resolver.GetEmailServers(senderDomain, host_name_with_addresses);
+
+            boost_foreach(HostNameAndIpAddress host_and_ip, host_name_with_addresses)
+               found_ip_addresses.push_back(host_and_ip.GetIpAddress());
 
             String actualFromAddress = ipaddress.ToString();
-            boost_foreach(String foundAddress, foundAddresses)
+            boost_foreach(String found_ip_address, found_ip_addresses)
             {
-               if (foundAddress.CompareNoCase(actualFromAddress) == 0)
+               if (found_ip_address.CompareNoCase(actualFromAddress) == 0)
                {
                   // The message is coming from either an A record or a MX record. Skip greylisting.
                   LOG_DEBUG("Mail coming from A or MX record. Skipping grey listing.");

@@ -16,7 +16,8 @@ namespace HM
          ResultUndefined = 0,
          ResultOK = 1,
          ResultNonFatalError = 2,
-         ResultFatalError =3
+         ResultFatalError =3,
+         ResultOptionalHandshakeFailed = 4
       };
 
       void CopyFrom(shared_ptr<MessageRecipient> pRecip);

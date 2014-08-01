@@ -104,7 +104,7 @@ namespace HM
          if (!serverInfo)
          {
             shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
-            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", pSMTPConfig->GetSMTPConnectionSecurity()));
+            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, "", 0, "", "", pSMTPConfig->GetSMTPConnectionSecurity()));
          }
 
          serverInfos.insert(std::make_pair(serverInfo, vecRecipients));
@@ -227,7 +227,12 @@ namespace HM
          return shared_ptr<ServerInfo>();
       }
 
-      shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, sSMTPHost, lPort, sUsername, sPassword, connection_security));
+      bool is_ipaddress = StringParser::IsValidIPAddress(sSMTPHost);
+
+      String host_name = is_ipaddress ? "" : sSMTPHost;
+      String ip_address = is_ipaddress ? sSMTPHost : "";
+
+      shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, host_name, ip_address, lPort, sUsername, sPassword, connection_security));
       return serverInfo;
 
    }

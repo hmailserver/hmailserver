@@ -15,6 +15,7 @@
 #include "../TCPIP/IOService.h"
 #include "../TCPIP/TCPConnection.h"
 #include "../TCPIP/SslContextInitializer.h"
+#include "../TCPIP/DNSResolver.h"
 
 #include "../BO/MessageData.h"
 #include "../BO/Message.h"
@@ -66,8 +67,20 @@ namespace HM
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();
 
+      
+      DNSResolver resolver;
+
+      std::vector<String> ip_addresses;
+      resolver.GetARecords(sHost, ip_addresses);
+
+      String ip_address;
+      if (ip_addresses.size())
+      {
+         ip_address = *(ip_addresses.begin());
+      }
+
       // Here we handle of the ownership to the TCPIP-connection layer.
-      if (pSAClient->Connect(sHost, iPort, IPAddress()))
+      if (pSAClient->Connect(ip_address, iPort, IPAddress()))
       {
          // Make sure we keep no references to the TCP connection so that it
          // can be terminated whenever. We're longer own the connection.

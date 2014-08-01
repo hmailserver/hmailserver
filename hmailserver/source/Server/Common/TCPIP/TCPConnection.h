@@ -38,7 +38,7 @@ namespace HM
       };
 
       int GetBufferSize() {return BufferSize; }
-      bool Connect(const AnsiString &remoteServer, long remotePort, const IPAddress &localAddress);
+      bool Connect(const AnsiString &remote_ip_address, long remotePort, const IPAddress &localAddress);
       
       void Start();
       void SetReceiveBinary(bool binary);
@@ -79,6 +79,7 @@ namespace HM
       virtual void OnCouldNotConnect(const AnsiString &sErrorDescription) {};
       virtual void OnConnected() = 0;
       virtual void OnHandshakeCompleted() = 0;
+      virtual void OnHandshakeFailed() = 0;
       virtual void OnConnectionTimeout() = 0;
       virtual void OnExcessiveDataReceived() = 0;
       virtual void OnDataSent() {};
@@ -89,6 +90,7 @@ namespace HM
       virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
 
       void Handshake();
+      void Handshake(const AnsiString &expected_remote_hostname);
 
       
       
@@ -133,7 +135,7 @@ namespace HM
       ConnectionSecurity connection_security_;
       long _remotePort;
       bool _hasTimeout;
-      String _remoteServer;
+      String _remote_ip_address;
 
       shared_ptr<SecurityRange> _securityRange;
 

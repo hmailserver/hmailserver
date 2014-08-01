@@ -5,6 +5,7 @@
 
 namespace HM
 {
+   class HostNameAndIpAddress;
 
    class DNSResolver
    {
@@ -14,7 +15,7 @@ namespace HM
 	   DNSResolver();
 	   virtual ~DNSResolver();
 
-      bool GetEmailServers(const String &sDomainName, std::vector<String> &saFoundNames);
+      bool GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames);
       bool GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames);
       bool GetARecords(const String &sDomain, std::vector<String> &saFoundNames);
       bool GetTXTRecords(const String &sDomain, std::vector<String> &foundResult);
@@ -28,21 +29,5 @@ namespace HM
 
    };
 
-   #ifdef _DEBUG
-   class DNSResolverTester
-   {
-   private:
-
-   public:
-
-      DNSResolverTester() {};
-      virtual ~DNSResolverTester() {} ;
-
-      void Test();
-   private:
-
-      
-   };
-   #endif
 
 }

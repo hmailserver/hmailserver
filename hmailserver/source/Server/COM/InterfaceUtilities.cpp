@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "InterfaceUtilities.h"
 #include "../Common/TCPIP/DNSResolver.h"
+#include "../Common/TCPIP/HostNameAndIpAddress.h"
 #include "../Common/util/ServiceManager.h"
 #include "../Common/util/Crypt.h"
 #include "../Common/util/MailImporter.h"
@@ -16,7 +17,6 @@
 #include "../SMTP/DeliveryQueue.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/Persistence/Maintenance/Maintenance.h"
-
 
 #include "COMError.h"
 
@@ -52,17 +52,19 @@ STDMETHODIMP InterfaceUtilities::GetMailServer(BSTR EMailAddress, BSTR *MailServ
       sDomainName = HM::StringParser::ExtractDomain (EMailAddress);
    
       std::vector<HM::String> saDomainNames;
+
+      std::vector<HM::HostNameAndIpAddress> hostname_and_ipaddresses;
    
       HM::DNSResolver oDNSResolver;
-      oDNSResolver.GetEmailServers(sDomainName, saDomainNames);
+      oDNSResolver.GetEmailServers(sDomainName, hostname_and_ipaddresses);
    
       HM::String sMailServer = "";
-      for (unsigned int i = 0; i < saDomainNames.size(); i++)
+      for (unsigned int i = 0; i < hostname_and_ipaddresses.size(); i++)
       {
          if (!sMailServer.IsEmpty())
             sMailServer += ",";
    
-         sMailServer += saDomainNames[i];
+         sMailServer += hostname_and_ipaddresses[i].GetIpAddress();
       }
    
       *MailServer = sMailServer.AllocSysString();

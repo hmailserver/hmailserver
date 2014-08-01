@@ -765,7 +765,7 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Cl
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ClamAVPort', '', 3310);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('SmtpDeliveryConnectionSecurity', '', 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SmtpDeliveryConnectionSecurity', '', 2);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteSslCertificate', '', 1);
 
@@ -775,4 +775,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5500);
+insert into hm_dbversion values (5501);

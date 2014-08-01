@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "ClassTester.h"
-#include "../TCPIP/DNSResolver.h"
 #include "../Application/BackupManager.h"
 #include "../Application/TimeoutCalculator.h"
 #include "../BO/MessageData.h"

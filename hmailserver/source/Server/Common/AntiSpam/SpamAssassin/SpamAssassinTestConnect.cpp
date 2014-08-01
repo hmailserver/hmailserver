@@ -9,6 +9,7 @@
 #include "../../TCPIP/IOService.h"
 #include "../../TCPIP/TCPConnection.h"
 #include "../../TCPIP/SslContextInitializer.h"
+#include "../../TCPIP/DNSResolver.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -35,9 +36,20 @@ namespace HM
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
       shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, message, testCompleted));
-     
+
+      DNSResolver resolver;
+
+      std::vector<String> ip_addresses;
+      resolver.GetARecords(hostName, ip_addresses);
+
+      String ip_address;
+      if (ip_addresses.size())
+      {
+         ip_address = *(ip_addresses.begin());
+      }
+
       // Here we handle of the ownership to the TCPIP-connection layer.
-      if (pSAClient->Connect(hostName, port, IPAddress()))
+      if (pSAClient->Connect(ip_address, port, IPAddress()))
       {
          // Make sure we keep no references to the TCP connection so that it
          // can be terminated whenever. We're longer own the connection.
