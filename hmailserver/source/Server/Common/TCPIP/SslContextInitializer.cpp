@@ -14,55 +14,7 @@
 
 namespace HM
 {
-   //static int certCount;
-
-   //enum OutputType
-   //{
-   //   Unknown,
-   //   Certificate,
-   //   PKCS7,
-   //   X509CRL,
-   //};
-
-   //char const* GetTypeName(OutputType type)
-   //{
-   //   switch (type)
-   //   {
-   //   case Certificate:
-   //      return "CERTIFICATE";
-   //   case PKCS7:
-   //      return "PKCS7";
-   //   case X509CRL:
-   //      return "X509 CRL";
-   //   case Unknown:
-   //      return NULL;
-   //   default:
-   //      break;
-   //   }
-
-   //   assert(false);
-   //   return NULL;
-   //}
-
-   //bool IsPKCS7(DWORD encodeType)
-   //{
-   //   return ((encodeType & PKCS_7_ASN_ENCODING) == PKCS_7_ASN_ENCODING);
-   //}
-
-   //void DisplayPEM(OutputType outputType, BYTE const* pData, DWORD cbLength)
-   //{
-   //   char const* type = GetTypeName(outputType);
-   //   if ( type == NULL ) return;
-
-   //   certCount++;
-
-   //   std::cout << "-----BEGIN " << type << "-----" << endl;
-
-   //   String c  = Base64::Encode((const char*) pData, cbLength);
-
-   //   std::cout << "-----END " << type << "-----" << endl;
-   //}
-
+   const int CertificateAlreadyInStore = 185057381;
 
    bool
    SslContextInitializer::InitServer(boost::asio::ssl::context& context, shared_ptr<SSLCertificate> certificate, String ip_address, int port)
@@ -266,7 +218,7 @@ namespace HM
       AnsiString base64Encoded  = Base64::Encode((const char*) certificate, certificate_length);
 
       AnsiString certData;
-      certData.AppendFormat("-----BEGIN %s -----\r\n", certificate_type);
+      certData.AppendFormat("-----BEGIN %s-----\r\n", certificate_type.GetBuffer());
 
       int line_length = 63;
       int line_count = (int) ceil((double) base64Encoded.GetLength() / (double) line_length);
@@ -275,17 +227,18 @@ namespace HM
          int start = line_index * line_length;
 
          AnsiString line = base64Encoded.Mid(start, line_length);
-         certData.AppendFormat("%s\r\n", line);
+         certData.AppendFormat("%s\r\n", line.GetBuffer());
       }
 
-      certData.AppendFormat("-----END %s -----\r\n", certificate_type);
+      certData.AppendFormat("-----END %s-----\r\n", certificate_type.GetBuffer());
 
-      boost::asio::const_buffer buf(certData.GetBuffer(certificate_length), certificate_length);
+      boost::asio::const_buffer buf(certData.GetBuffer(-1), certData.GetLength());
 
       boost::system::error_code ec;
       context.add_certificate_authority(buf, ec);
 
-      if (ec.value())
+      int error = ec.value();
+      if (error > 0 && error != CertificateAlreadyInStore)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5505, "SslContextInitializer::AddCertificate_", "Failed to add CA certificate.", ec);
       }
