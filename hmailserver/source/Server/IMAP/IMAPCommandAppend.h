@@ -31,12 +31,12 @@ namespace HM
       
       int _GetMaxMessageSize(shared_ptr<const Domain> pDomain);
 
-      String m_sCurrentTag;
-      String m_sFlagsToSet;
-      String m_sCreateTimeToSet;
-      long m_lBytesLeftToReceive;
+      String current_tag_;
+      String flags_to_set_;
+      String create_time_to_set_;
+      long bytes_left_to_receive_;
 
-      String m_sMessageFileName;
+      String message_file_name_;
 
       ByteBuffer _appendBuffer;
       shared_ptr<IMAPFolder> destination_folder_;

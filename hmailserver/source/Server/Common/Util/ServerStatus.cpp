@@ -16,10 +16,10 @@ namespace HM
 {
    ServerStatus::ServerStatus()
    {
-      m_iProcessedMessages = 0;
-      m_iNumberOfSpamMessagesDetected = 0;
-      m_iNumberOfVirusesRemoved = 0;
-      m_eState = StateUnknown ;
+      processed_messages_ = 0;
+      number_of_spam_messages_detected_ = 0;
+      number_of_viruses_removed_ = 0;
+      state_ = StateUnknown ;
 
    }
 
@@ -95,7 +95,7 @@ namespace HM
    int 
    ServerStatus::GetNumberOfProcessedMessages() const
    {
-      return m_iProcessedMessages;
+      return processed_messages_;
    }
 
    void
@@ -105,13 +105,13 @@ namespace HM
       // single threaded, so no synchronization
       // is needed.
 
-      m_iProcessedMessages++;
+      processed_messages_++;
    }
 
    int 
    ServerStatus::GetNumberOfDetectedSpamMessages() const
    {
-      return m_iNumberOfSpamMessagesDetected;
+      return number_of_spam_messages_detected_;
    }
 
    void
@@ -121,13 +121,13 @@ namespace HM
       // it's called by the SMTPConnection.
 
       boost::lock_guard<boost::recursive_mutex> guard(_spamMessageDroppedMutex);
-      m_iNumberOfSpamMessagesDetected++;
+      number_of_spam_messages_detected_++;
    }
 
    int 
    ServerStatus::GetNumberOfRemovedViruses() const
    {
-      return m_iNumberOfVirusesRemoved;
+      return number_of_viruses_removed_;
    }
 
    void
@@ -137,19 +137,19 @@ namespace HM
       // it's called by the SMTPConnection.
       boost::lock_guard<boost::recursive_mutex> guard(_virusRemovedMutex);
 
-      m_iNumberOfVirusesRemoved++;
+      number_of_viruses_removed_++;
    }
    
    int
    ServerStatus::GetState() const
    {
-      return m_eState;
+      return state_;
    }
 
    void
    ServerStatus::SetState(ServerState i)
    {
-      m_eState = i; 
+      state_ = i; 
    }
 
    int 

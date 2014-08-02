@@ -23,7 +23,7 @@ namespace HM
    String
    WhiteListAddress::GetName() const
    {  
-      String sName = m_iWhiteLowerIPAddress.ToString() + m_iWhiteUpperIPAddress.ToString();
+      String sName = white_lower_ipaddress_.ToString() + white_upper_ipaddress_.ToString();
       return sName;
    }
 
@@ -33,10 +33,10 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("WhiteAddress"));
 
       pNode->AppendAttr(_T("Name"), GetName());
-      pNode->AppendAttr(_T("LowerIPAddress"), String(m_iWhiteLowerIPAddress.ToString()));
-      pNode->AppendAttr(_T("UpperIPAddress"), String(m_iWhiteUpperIPAddress.ToString()));
-      pNode->AppendAttr(_T("EMailAddress"), m_sWhiteEmailAddress);
-      pNode->AppendAttr(_T("Description"), m_sWhiteDescription);
+      pNode->AppendAttr(_T("LowerIPAddress"), String(white_lower_ipaddress_.ToString()));
+      pNode->AppendAttr(_T("UpperIPAddress"), String(white_upper_ipaddress_.ToString()));
+      pNode->AppendAttr(_T("EMailAddress"), white_email_address_);
+      pNode->AppendAttr(_T("Description"), white_description_);
 
       return true;
 
@@ -46,10 +46,10 @@ namespace HM
    bool 
    WhiteListAddress::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_iWhiteLowerIPAddress.TryParse(pNode->GetAttrValue(_T("LowerIPAddress")));
-      m_iWhiteUpperIPAddress.TryParse(pNode->GetAttrValue(_T("UpperIPAddress")));
-      m_sWhiteEmailAddress = pNode->GetAttrValue(_T("EMailAddress"));
-      m_sWhiteDescription = pNode->GetAttrValue(_T("Description"));
+      white_lower_ipaddress_.TryParse(pNode->GetAttrValue(_T("LowerIPAddress")));
+      white_upper_ipaddress_.TryParse(pNode->GetAttrValue(_T("UpperIPAddress")));
+      white_email_address_ = pNode->GetAttrValue(_T("EMailAddress"));
+      white_description_ = pNode->GetAttrValue(_T("Description"));
 
       return true;
    }
@@ -57,12 +57,12 @@ namespace HM
    bool
    WhiteListAddress::SetLowerIPAddress(const String &iIPAddress)
    {
-      return m_iWhiteLowerIPAddress.TryParse(iIPAddress);
+      return white_lower_ipaddress_.TryParse(iIPAddress);
    }
 
    bool
    WhiteListAddress::SetUpperIPAddress(const String &iIPAddress)
    {
-      return m_iWhiteUpperIPAddress.TryParse(iIPAddress);
+      return white_upper_ipaddress_.TryParse(iIPAddress);
    }
 }

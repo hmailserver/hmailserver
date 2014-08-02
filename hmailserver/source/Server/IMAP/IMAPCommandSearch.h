@@ -20,7 +20,7 @@ namespace HM
 	   IMAPCommandSEARCH(bool bIsSort);
 	   virtual ~IMAPCommandSEARCH();
 
-      void SetIsUID() { m_bIsUID = true; }
+      void SetIsUID() { is_uid_ = true; }
 
       IMAPResult ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
 
@@ -49,7 +49,7 @@ namespace HM
       shared_ptr<MessageData> message_data_;
       shared_ptr<MimeHeader> mime_header_;
 
-      bool m_bIsSort;
-      bool m_bIsUID;
+      bool is_sort_;
+      bool is_uid_;
    };
 }

@@ -31,10 +31,10 @@ namespace HM
 
       void _RestoreDataDirectory(shared_ptr<Backup> pBackup, XNode *pBackupNode);
       
-      int m_iBackupMode;
+      int backup_mode_;
       
       // Backup properties
-      String m_sDestination;
-      String m_sXMLFile;
+      String destination_;
+      String xmlfile_;
    };
 }

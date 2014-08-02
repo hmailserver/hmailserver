@@ -15,7 +15,7 @@ namespace HM
 {
    SQLScriptParser::SQLScriptParser(shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
       settings_(pSettings),
-      m_sFile(sFile)
+      file_(sFile)
    {
 
    }
@@ -28,12 +28,12 @@ namespace HM
    bool 
    SQLScriptParser::Parse(String &sErrorMessage)
    {
-      String sContents = FileUtilities::ReadCompleteTextFile(m_sFile);
+      String sContents = FileUtilities::ReadCompleteTextFile(file_);
       
 
       if (sContents.GetLength() == 0)
       {
-         sErrorMessage = "Unable to read from file " + m_sFile;
+         sErrorMessage = "Unable to read from file " + file_;
          return false;
       }
    
@@ -62,7 +62,7 @@ namespace HM
 
          if (_PreprocessLine(sCommand))
          {
-            m_vecCommands.push_back(sCommand);
+            commands_.push_back(sCommand);
          }
       }
       

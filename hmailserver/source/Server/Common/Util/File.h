@@ -52,8 +52,8 @@ namespace HM
 
    private:
       
-      HANDLE m_hFile;
-      String m_sName;
+      HANDLE file_;
+      String name_;
    };
 
 }

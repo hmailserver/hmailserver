@@ -32,15 +32,15 @@ namespace HM
       void _LoadPendingMessageList();
       shared_ptr<Message> _GetNextMessage();
 
-      long m_lCurNumberOfSent;
+      long cur_number_of_sent_;
 
       shared_ptr<DALRecordset> pending_messages_;
       
-      const String m_sQueueName;
+      const String queue_name_;
 
-      bool m_bUncachePendingMessages;
+      bool uncache_pending_messages_;
 
-      int m_iQueueID;
+      int queue_id_;
 
       Event deliver_messages_;
    };

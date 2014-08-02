@@ -4,7 +4,7 @@
 
 HIS_LoggerFile::HIS_LoggerFile(int iLogSetting)
 {
-   m_iLogSetting = iLogSetting;
+   log_setting_ = iLogSetting;
 }
 
 HIS_LoggerFile::~HIS_LoggerFile(void)
@@ -17,10 +17,10 @@ HIS_LoggerFile::AddToLog(int LogType, const HIS_String &sRemoteHost, const HIS_S
 
    try
    {
-      if (!(m_iLogSetting & 1))
+      if (!(log_setting_ & 1))
          return; // logging not enabled.
 
-      if (!(m_iLogSetting & LogType))
+      if (!(log_setting_ & LogType))
          return; // not intressted in this...
 
       HIS_String sTime = GetCurrentTime();
@@ -31,7 +31,7 @@ HIS_LoggerFile::AddToLog(int LogType, const HIS_String &sRemoteHost, const HIS_S
       HIS_String sFilename;
       HIS_String theTime = HIS_Time::GetCurrentDate();
       HIS_String sIPTemp = sRemoteHost;
-      sFilename.Format("%s\\%s_%s.log", m_sLogDir, "hmailserver", theTime );
+      sFilename.Format("%s\\%s_%s.log", log_dir_, "hmailserver", theTime );
 
       HIS_String sData;
       sData.Format("%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n", _GetThreadID(), sTime, sIPTemp, sLogTextTemp);

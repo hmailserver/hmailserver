@@ -24,7 +24,7 @@ namespace HM
    Mutex::Wait()
    {
       DWORD dwWaitResult;
-      dwWaitResult = ::WaitForSingleObject(m_hMutex, INFINITE); 
+      dwWaitResult = ::WaitForSingleObject(mutex_, INFINITE); 
 
       if (dwWaitResult == WAIT_OBJECT_0)
       {
@@ -42,6 +42,6 @@ namespace HM
    void
    Mutex::Release()
    {
-      ::ReleaseMutex(m_hMutex);
+      ::ReleaseMutex(mutex_);
    }
 }

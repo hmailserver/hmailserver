@@ -13,9 +13,9 @@
 namespace HM
 {
    TCPIPPort::TCPIPPort(void) :
-      m_iPortNumber(0),
-      m_iPortProtocol(STUnknown),
-      m_iSSLCertificateID(0),
+      port_number_(0),
+      port_protocol_(STUnknown),
+      sslcertificate_id_(0),
       connection_security_(CSNone)
    {
 
@@ -29,7 +29,7 @@ namespace HM
    TCPIPPort::GetName() const
    {
       String sName;
-      sName.Format(_T("%d-%d"), m_iPortProtocol, m_iPortNumber);
+      sName.Format(_T("%d-%d"), port_protocol_, port_number_);
 
       return sName;
    }
@@ -40,14 +40,14 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("TCPIPPort"));
 
       pNode->AppendAttr(_T("Name"), GetName());
-      pNode->AppendAttr(_T("PortProtocol"), StringParser::IntToString(m_iPortProtocol));
-      pNode->AppendAttr(_T("PortNumber"), StringParser::IntToString(m_iPortNumber));
+      pNode->AppendAttr(_T("PortProtocol"), StringParser::IntToString(port_protocol_));
+      pNode->AppendAttr(_T("PortNumber"), StringParser::IntToString(port_number_));
       pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
       pNode->AppendAttr(_T("Address"), String(address_.ToString()));
       
-      if (m_iSSLCertificateID > 0)
+      if (sslcertificate_id_ > 0)
       {
-         pNode->AppendAttr(_T("SSLCertificateName"), _GetSSLCertificateName(m_iSSLCertificateID));
+         pNode->AppendAttr(_T("SSLCertificateName"), _GetSSLCertificateName(sslcertificate_id_));
       }
 
       return true;
@@ -56,11 +56,11 @@ namespace HM
    bool 
    TCPIPPort::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_iPortProtocol = (SessionType) _ttoi(pNode->GetAttrValue(_T("PortProtocol")));
-      m_iPortNumber = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
+      port_protocol_ = (SessionType) _ttoi(pNode->GetAttrValue(_T("PortProtocol")));
+      port_number_ = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
 
       address_.TryParse(pNode->GetAttrValue(_T("Address")));
-      m_iSSLCertificateID  = _GetSSLCertificateID(pNode->GetAttrValue(_T("SSLCertificateName")));
+      sslcertificate_id_  = _GetSSLCertificateID(pNode->GetAttrValue(_T("SSLCertificateName")));
 
       // Backwards compatibiltiy
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))

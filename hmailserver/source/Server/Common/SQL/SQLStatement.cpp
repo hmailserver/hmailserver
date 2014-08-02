@@ -17,16 +17,16 @@
 namespace HM
 {
    SQLStatement::SQLStatement() :
-      m_Type(STUndefined),
+      type_(STUndefined),
       _topRows(-1)
    {
 
    }
 
    SQLStatement::SQLStatement(eStatementType iType, const String &tableName) :
-      m_Type(iType),
+      type_(iType),
       _topRows(-1),
-      m_sTable(tableName)
+      table_(tableName)
    {
 
    }
@@ -163,10 +163,10 @@ namespace HM
       SQLCommand command;
 
       int parameterValue = 1;
-      if (m_Type == SQLStatement::STInsert)
+      if (type_ == SQLStatement::STInsert)
       {
          sSQL.append(_T("INSERT INTO "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
          sSQL.append(_T(" "));
 
          // First add columns
@@ -213,16 +213,16 @@ namespace HM
 
          sSQL.append(_T(")"));
 
-         if (dbType == DatabaseSettings::TypePGServer && !m_sIdentityColumn.IsEmpty())
+         if (dbType == DatabaseSettings::TypePGServer && !identity_column_.IsEmpty())
          {
-            sSQL += " RETURNING " + m_sIdentityColumn;
+            sSQL += " RETURNING " + identity_column_;
          }
 
       }
-      else if (m_Type == SQLStatement::STUpdate)
+      else if (type_ == SQLStatement::STUpdate)
       {
          sSQL.append(_T("UPDATE "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
          sSQL.append(_T(" SET "));
 
          // First add columns
@@ -256,12 +256,12 @@ namespace HM
             }
          }
       }
-      else if (m_Type == SQLStatement::STDelete)
+      else if (type_ == SQLStatement::STDelete)
       {
          sSQL = "DELETE FROM ";
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
       }
-      else if (m_Type == SQLStatement::STSelect)
+      else if (type_ == SQLStatement::STSelect)
       {
          sSQL = "SELECT ";
 
@@ -307,17 +307,17 @@ namespace HM
          }
 
          sSQL.append(_T(" FROM "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
 
-         if (!m_sAdditionalSQL.IsEmpty())
-            sSQL.append(_T(" ") + m_sAdditionalSQL);
+         if (!additional_sql_.IsEmpty())
+            sSQL.append(_T(" ") + additional_sql_);
       }
 
-      if (m_vecWhereClauseColumns.size() != 0)
+      if (where_clause_columns_.size() != 0)
       {
          sSQL.append(_T(" WHERE "));
          bool first = true;
-         boost_foreach(Column col, m_vecWhereClauseColumns)
+         boost_foreach(Column col, where_clause_columns_)
          {
             if (!first)
                sSQL.append(_T(" AND "));
@@ -354,13 +354,13 @@ namespace HM
             }
          }
       }
-      else if (!m_sWhere.IsEmpty())
+      else if (!where_.IsEmpty())
       {
          sSQL.append(_T(" WHERE "));
-         sSQL.append(m_sWhere);
+         sSQL.append(where_);
       }
 
-      if (m_Type == SQLStatement::STSelect)
+      if (type_ == SQLStatement::STSelect)
       {
          if (_topRows > -1)
          {
@@ -392,7 +392,7 @@ namespace HM
       col.sName = sName;
       col.sString = sValue;
 
-      m_vecWhereClauseColumns.push_back(col);
+      where_clause_columns_.push_back(col);
    }
 
    void
@@ -602,12 +602,12 @@ namespace HM
    SQLStatement::ConvertLikeToWildcard(String input)
    {
       input.Replace(_T("//"), _T("/"));
-      input.Replace(_T("/%"), _T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"));
-      input.Replace(_T("/_"), _T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"));
+      input.Replace(_T("/%"), _T("ï¿½ï¿½ï¿½ESCAPEDï¿½ï¿½ï¿½PERCENTAGEï¿½ï¿½ï¿½"));
+      input.Replace(_T("/_"), _T("ï¿½ï¿½ï¿½ESCAPEDï¿½ï¿½ï¿½UNDERSCOREï¿½ï¿½ï¿½"));
       input.Replace(_T("_"), _T("?"));
       input.Replace(_T("%"), _T("*"));
-      input.Replace(_T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"), _T("%"));
-      input.Replace(_T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"), _T("_"));
+      input.Replace(_T("ï¿½ï¿½ï¿½ESCAPEDï¿½ï¿½ï¿½PERCENTAGEï¿½ï¿½ï¿½"), _T("%"));
+      input.Replace(_T("ï¿½ï¿½ï¿½ESCAPEDï¿½ï¿½ï¿½UNDERSCOREï¿½ï¿½ï¿½"), _T("_"));
 
       return input;
    }

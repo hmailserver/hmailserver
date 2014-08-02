@@ -13,8 +13,8 @@
 namespace HM
 { 
    RuleResult::RuleResult(void) :
-      m_iSendUsingRoute(0),
-      m_bDeleteEmail(false)
+      send_using_route_(0),
+      delete_email_(false)
    {
    }
 

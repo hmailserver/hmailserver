@@ -398,7 +398,7 @@ namespace HM
       DateTime dtNow = DateTime::GetCurrentTime();
       DateTime dtExpires = Time::GetDateFromSystemDate(pAccount->GetVacationExpiresDate());
 
-      if (dtNow.m_status == DateTime::invalid || dtExpires.m_status == DateTime::invalid)
+      if (dtNow.status_ == DateTime::invalid || dtExpires.status_ == DateTime::invalid)
          return true;
 
       if (dtNow > dtExpires)

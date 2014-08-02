@@ -52,9 +52,9 @@ namespace HM
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) :
       AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
-      m_bIsIdling(false),
-      m_iLiteralDataToReceive(0),
-      m_bPendingDisconnect(false),
+      is_idling_(false),
+      literal_data_to_receive_(0),
+      pending_disconnect_(false),
       _currentFolderReadOnly(false)
    {
       imap_folders_.reset();
@@ -178,20 +178,20 @@ namespace HM
       _LogClientCommand(Request);
 
       bool bHasLiterals = false;
-      if (!m_sCommandBuffer.IsEmpty())
+      if (!command_buffer_.IsEmpty())
          bHasLiterals = true;
 
-      m_sCommandBuffer += Request + "\r\n";
+      command_buffer_ += Request + "\r\n";
 
-      int iLineEnd = m_sCommandBuffer.Find(_T("\r\n"));
-      int iSpace = m_sCommandBuffer.Find(_T(" "));
-      String sTag = m_sCommandBuffer.Mid(0, iSpace);
-      String sCommand = m_sCommandBuffer.Mid(iSpace+1, iLineEnd - (iSpace+1));
+      int iLineEnd = command_buffer_.Find(_T("\r\n"));
+      int iSpace = command_buffer_.Find(_T(" "));
+      String sTag = command_buffer_.Mid(0, iSpace);
+      String sCommand = command_buffer_.Mid(iSpace+1, iLineEnd - (iSpace+1));
 
       shared_ptr<IMAPClientCommand> pCommand = shared_ptr<IMAPClientCommand>(new IMAPClientCommand);
 
       // Check if we should receive any literal data.
-      if (m_iLiteralDataToReceive == 0)
+      if (literal_data_to_receive_ == 0)
       {
          if (_AskForLiteralData(sCommand))
          {
@@ -204,9 +204,9 @@ namespace HM
       {
          // Literal data has been received. Add it to the literal buffer
          // and check whether it's enough.
-         m_sLiteralBuffer += Request;
+         literal_buffer_ += Request;
 
-         if (m_sLiteralBuffer.GetLength() < m_iLiteralDataToReceive)
+         if (literal_buffer_.GetLength() < literal_data_to_receive_)
          {
             // Tell the client that we expects more data.
             SendAsciiData("+ Ready for additional command text.\r\n");
@@ -217,10 +217,10 @@ namespace HM
             // The entire literal buffer has been received. It could be that
             // the client wants to send another literal buffer. Check if this
             // is the case.
-            String sRemaining = m_sLiteralBuffer.Mid(m_iLiteralDataToReceive);
+            String sRemaining = literal_buffer_.Mid(literal_data_to_receive_);
 
             // Since the existing literal buffer has been parsed, destroy it now.
-            m_sLiteralBuffer = "";
+            literal_buffer_ = "";
 
             if (_AskForLiteralData(sRemaining))
             {
@@ -231,7 +231,7 @@ namespace HM
 
       if (bHasLiterals)
       {
-         std::vector<String> vecCommand = StringParser::SplitString(m_sCommandBuffer, "\r\n");
+         std::vector<String> vecCommand = StringParser::SplitString(command_buffer_, "\r\n");
 
          std::vector<String>::iterator iterLine = vecCommand.begin();
          String sLine = (*iterLine);
@@ -271,7 +271,7 @@ namespace HM
       pCommand->Tag = sTag;
       pCommand->Command = sCommand;
 
-      m_sCommandBuffer.Empty();
+      command_buffer_.Empty();
 
       return AnswerCommand(pCommand);
    }
@@ -284,9 +284,9 @@ namespace HM
    // retnn true
    //---------------------------------------------------------------------------()
    {
-      m_iLiteralDataToReceive = _GetLiteralSize(sInput);
+      literal_data_to_receive_ = _GetLiteralSize(sInput);
 
-      if (m_iLiteralDataToReceive > 0)
+      if (literal_data_to_receive_ > 0)
       {
          // Tell the client that we are accepting data.
          SendAsciiData("+ Ready for additional command text.\r\n");
@@ -304,10 +304,10 @@ namespace HM
    // We need to know this to be able to mask passwords in literal data.
    //---------------------------------------------------------------------------()
    {
-      if (m_iLiteralDataToReceive > 0)
+      if (literal_data_to_receive_ > 0)
       {
-         int iCommandStartPos = m_sCommandBuffer.Find(_T(" "))+1;
-         if (m_sCommandBuffer.FindNoCase(_T("LOGIN")) == iCommandStartPos)
+         int iCommandStartPos = command_buffer_.Find(_T(" "))+1;
+         if (command_buffer_.FindNoCase(_T("LOGIN")) == iCommandStartPos)
          {
             return true;
          }
@@ -333,10 +333,10 @@ namespace HM
          // we're receiving literal data for the login command. 
          // check if we've received the passwords yet.
          int wordsFound = 1;
-         int length = m_sCommandBuffer.GetLength();
-         for (int i = 0; i < m_sCommandBuffer.GetLength(); i++)
+         int length = command_buffer_.GetLength();
+         for (int i = 0; i < command_buffer_.GetLength(); i++)
          {
-            wchar_t ch = m_sCommandBuffer.GetAt(i);
+            wchar_t ch = command_buffer_.GetAt(i);
             if ((ch == ' ' || ch == '\n') && i < length-1)
                wordsFound++;
             else if (ch == '}')
@@ -384,8 +384,8 @@ namespace HM
       // at once (which IMAPCommandAppend handles for us) but we still want the 
       // normal parsing to take place prior to message receiving.
       //
-      int iFullCommandStartPos = m_sCommandBuffer.Find(_T(" "))+1;
-      if (m_sCommandBuffer.FindNoCase(_T("APPEND")) == iFullCommandStartPos)
+      int iFullCommandStartPos = command_buffer_.Find(_T(" "))+1;
+      if (command_buffer_.FindNoCase(_T("APPEND")) == iFullCommandStartPos)
       {
          // HACK:
          // we are currently parsing an APPEND command. No doubt about it. Try to
@@ -452,7 +452,7 @@ namespace HM
    void
    IMAPConnection::_Disconnect()
    {
-      m_bPendingDisconnect = true;
+      pending_disconnect_ = true;
 
       PostDisconnect();
    }
@@ -467,9 +467,9 @@ namespace HM
          // for lines with FETCH, STATUS or short )-only lines < 5
          String sDataTmp = sData;
          int iDataLenTmp = sDataTmp.GetLength();
-         m_iLogLevel = IniFileSettings::Instance()->GetLogLevel();
+         log_level_ = IniFileSettings::Instance()->GetLogLevel();
 
-         if ((Logger::Instance()->GetLogDebug()) || (m_iLogLevel > 2) || (!(sDataTmp.Find(_T("FETCH")) > 0) && !(sDataTmp.Find(_T("STATUS")) > 0) && iDataLenTmp >= 5))
+         if ((Logger::Instance()->GetLogDebug()) || (log_level_ > 2) || (!(sDataTmp.Find(_T("FETCH")) > 0) && !(sDataTmp.Find(_T("STATUS")) > 0) && iDataLenTmp >= 5))
          {
             String sLogData = _T("SENT: ") + sData;
             sLogData.TrimRight(_T("\r\n"));
@@ -580,7 +580,7 @@ namespace HM
       else
          sCommandName = sCommandValue;
 
-      if (m_bIsIdling)
+      if (is_idling_)
       {
          _EndIdleMode();
          
@@ -684,7 +684,7 @@ namespace HM
    // Quits idle mode.
    //---------------------------------------------------------------------------()
    {
-      if (!m_bIsIdling)
+      if (!is_idling_)
       {
          assert(0);
          return;
@@ -816,7 +816,7 @@ namespace HM
    // Switch in or out idling mode. 
    //---------------------------------------------------------------------------()
    {
-      m_bIsIdling = bNewVal;
+      is_idling_ = bNewVal;
    }
 
    bool
@@ -826,7 +826,7 @@ namespace HM
    // Switch in or out idling mode. 
    //---------------------------------------------------------------------------()
    {
-      return m_bIsIdling;
+      return is_idling_;
    }
 
    void 

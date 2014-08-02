@@ -18,7 +18,7 @@ namespace HM
       static void Acquire(std::pair<int, int> lockPair);
       static void Release(std::pair<int, int> lockPair);
 
-      static set<std::pair<int, int> > m_setFolders;
+      static set<std::pair<int, int> > folders_;
       
       static boost::recursive_mutex _mutex; 
 

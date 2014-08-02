@@ -32,7 +32,7 @@ namespace HM
 {
    MessageData::MessageData()
    {
-      m_bEncodeFields = true;
+      encode_fields_ = true;
       _unfoldWithSpace = true;
 
       mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
@@ -158,7 +158,7 @@ namespace HM
    String
    MessageData::GetHeader()  const
    {
-      if (m_bEncodeFields)
+      if (encode_fields_)
          return mime_mail_->GetUnicodeHeaderContents();
       else
          return mime_mail_->GetHeaderContents();
@@ -186,7 +186,7 @@ namespace HM
    void 
    MessageData::SetFieldValue(const String &sField, const String &sValue)
    {
-      if (m_bEncodeFields)
+      if (encode_fields_)
          mime_mail_->SetUnicodeFieldValue(sField, sValue, "");
       else
          mime_mail_->SetRawFieldValue(sField, sValue, "");
@@ -257,7 +257,7 @@ namespace HM
    MessageData::GetFieldValue(const String &sName) const
    {
       String sRetVal;
-      if (m_bEncodeFields)
+      if (encode_fields_)
          sRetVal = mime_mail_->GetUnicodeFieldValue(sName);
       else
          sRetVal = mime_mail_->GetRawFieldValue(sName);
@@ -292,7 +292,7 @@ namespace HM
 
       if (pPart)
       {
-         if (m_bEncodeFields)
+         if (encode_fields_)
             return pPart->GetUnicodeText();
          else
             return pPart->GetRawText();
@@ -318,7 +318,7 @@ namespace HM
       }
 
       // Set the text to the part
-      if (m_bEncodeFields)
+      if (encode_fields_)
          pPart->SetUnicodeText(sModifiedBody);
       else
          pPart->SetRawText(sModifiedBody);
@@ -331,7 +331,7 @@ namespace HM
 
       if (pPart)
       {
-         if (m_bEncodeFields)
+         if (encode_fields_)
             return pPart->GetUnicodeText();
          else
             return pPart->GetRawText();
@@ -359,7 +359,7 @@ namespace HM
       }
 
       // Set the text to the part
-      if (m_bEncodeFields)
+      if (encode_fields_)
          pHTMLPart->SetUnicodeText(sModifiedBody);
       else
          pHTMLPart->SetRawText(sModifiedBody);

@@ -18,7 +18,7 @@
 namespace HM
 {
    AntiSpamConfiguration::AntiSpamConfiguration() :
-      m_bGreylistingTemporarilyDisabled(false)
+      greylisting_temporarily_disabled_(false)
    { 
    
    }
@@ -218,13 +218,13 @@ namespace HM
    bool 
    AntiSpamConfiguration::GetGreylistingTemporarilyDisabled()
    {
-      return m_bGreylistingTemporarilyDisabled;
+      return greylisting_temporarily_disabled_;
    }
 
    void 
    AntiSpamConfiguration::SetGreylistingTemporarilyDisabled(bool bNewVal)
    {
-      m_bGreylistingTemporarilyDisabled = bNewVal;
+      greylisting_temporarily_disabled_ = bNewVal;
    }
 
    void

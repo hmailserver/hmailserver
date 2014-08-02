@@ -151,7 +151,7 @@ public:
    // the script engine that your objects exist).
    STDMETHOD(LookupNamedItem)(LPCOLESTR pstrName,LPUNKNOWN* ppunkItem)
    {
-      m_oObjectContainer->GetObjectByName(pstrName, ppunkItem);
+      object_container_->GetObjectByName(pstrName, ppunkItem);
 
       if (ppunkItem == 0)
          return TYPE_E_ELEMENTNOTFOUND;
@@ -169,20 +169,20 @@ public:
       
       HM::Logger::Instance()->LogError(sMsg);
 
-      m_sLastErrorMessage = sMsg;
+      last_error_message_ = sMsg;
 
       return NOERROR;
    }
 
    HM::String GetLastError()
    {
-      return m_sLastErrorMessage;
+      return last_error_message_;
    }
 
    protected:
-      shared_ptr<HM::ScriptObjectContainer> m_oObjectContainer;
+      shared_ptr<HM::ScriptObjectContainer> object_container_;
 
-      HM::String m_sLastErrorMessage;
+      HM::String last_error_message_;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -215,61 +215,61 @@ class ATL_NO_VTABLE CScriptSiteImpl : public IActiveScriptSiteImpl, public IActi
 public:
    CScriptSiteImpl()
    {
-      m_hWnd = NULL;
-      m_bInit = false;
+      wnd_ = NULL;
+      init_ = false;
    }
 
    STDMETHOD(Initiate)(LPCTSTR pszLanguage,HWND hWnd)
    {
-      if(!!m_spEngine)
+      if(!!engine_)
          HR(Terminate());
-      m_hWnd = hWnd;
+      wnd_ = hWnd;
 
       // Create new script engine
       USES_CONVERSION;
-      HR(m_spEngine.CoCreateInstance(T2COLE(pszLanguage)));
+      HR(engine_.CoCreateInstance(T2COLE(pszLanguage)));
 
       // Attach to site
-      HR(m_spEngine->SetScriptSite(static_cast<IActiveScriptSite*>(this)));
+      HR(engine_->SetScriptSite(static_cast<IActiveScriptSite*>(this)));
 
-      CComQIPtr<IActiveScriptParse> spParse = m_spEngine;
+      CComQIPtr<IActiveScriptParse> spParse = engine_;
       if(!spParse) return E_NOINTERFACE;
       HR(spParse->InitNew());
 
-      m_bInit = true;
+      init_ = true;
       return NOERROR;
    }
 
    STDMETHOD(Run)()
    {
-      if(!m_bInit) return E_FAIL;
-      HR(m_spEngine->SetScriptState(SCRIPTSTATE_STARTED));
+      if(!init_) return E_FAIL;
+      HR(engine_->SetScriptState(SCRIPTSTATE_STARTED));
       // connect - this makes the script engine handle incoming events
-      HR(m_spEngine->SetScriptState(SCRIPTSTATE_CONNECTED));
+      HR(engine_->SetScriptState(SCRIPTSTATE_CONNECTED));
       return NOERROR;
    }
 
    STDMETHOD(Terminate)()
    {
-      if(m_bInit) 
+      if(init_) 
       {
          // Disconnect the host application from the engine. This will prevent
          // the further firing of events. Event sinks that are in progress will
          // be completed before the state changes.
-         m_spEngine->SetScriptState(SCRIPTSTATE_DISCONNECTED);
+         engine_->SetScriptState(SCRIPTSTATE_DISCONNECTED);
 
          // Call to InterruptScriptThread to abandon any running scripts and
          // force cleanup of all script elements.
-         m_spEngine->InterruptScriptThread(SCRIPTTHREADID_ALL,NULL,0);
+         engine_->InterruptScriptThread(SCRIPTTHREADID_ALL,NULL,0);
 
-         m_bInit = false;
+         init_ = false;
       }
 
-      if(!!m_spEngine) 
+      if(!!engine_) 
       {
          // Always call prior to release
-         m_spEngine->Close();
-         m_spEngine.Release();
+         engine_->Close();
+         engine_.Release();
       }
 
       return NOERROR;
@@ -283,7 +283,7 @@ public:
 
       IDispatch *ScriptDispatch = NULL;
 
-      m_spEngine->GetScriptDispatch(NULL, &ScriptDispatch);
+      engine_->GetScriptDispatch(NULL, &ScriptDispatch);
 
       DISPID dispid;
       BSTR names[1];
@@ -300,9 +300,9 @@ public:
 
    STDMETHOD(AddScript)(LPCTSTR pszScript,LPCTSTR pszContext=NULL)
    {
-      if(!m_bInit) return E_FAIL;
+      if(!init_) return E_FAIL;
 
-      CComQIPtr<IActiveScriptParse> spParse = m_spEngine;
+      CComQIPtr<IActiveScriptParse> spParse = engine_;
       if(!spParse) return E_NOINTERFACE;
 
       USES_CONVERSION;
@@ -315,10 +315,10 @@ public:
 
    STDMETHOD(SetObjectContainer)(shared_ptr<HM::ScriptObjectContainer> pObject)
    {
-      m_oObjectContainer = pObject;
+      object_container_ = pObject;
 
       // Add the objects to namespace
-      vector<HM::String> vecNames = m_oObjectContainer->GetObjectNames();
+      vector<HM::String> vecNames = object_container_->GetObjectNames();
       
       boost_foreach(HM::String name, vecNames)
       {
@@ -330,35 +330,35 @@ public:
       
    STDMETHOD(AddObject)(LPCTSTR pszName,BOOL bGlobalCollection=FALSE)
    {
-      if(!m_bInit) return E_FAIL;
+      if(!init_) return E_FAIL;
 
       DWORD dwFlags = SCRIPTITEM_ISVISIBLE;
       if(bGlobalCollection)
          dwFlags |= SCRIPTITEM_GLOBALMEMBERS;
 
       USES_CONVERSION;
-      return m_spEngine->AddNamedItem(T2COLE(pszName),dwFlags);
+      return engine_->AddNamedItem(T2COLE(pszName),dwFlags);
    }
 
    STDMETHOD(GetWindow)(HWND *phWnd)
    {
       if(phWnd==NULL)
          return E_POINTER;
-      *phWnd = m_hWnd;
+      *phWnd = wnd_;
       return NOERROR;
    };
 
 protected:
    ~CScriptSiteImpl()
    {
-      if(!!m_spEngine)
+      if(!!engine_)
          Terminate();
    }
 
 protected:
-   HWND                    m_hWnd;
-   bool                    m_bInit;
-   CComPtr<IActiveScript>  m_spEngine;
+   HWND                    wnd_;
+   bool                    init_;
+   CComPtr<IActiveScript>  engine_;
 };
 
 /////////////////////////////////////////////////////////////////////////////

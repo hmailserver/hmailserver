@@ -27,7 +27,7 @@ namespace HM
    void
    LocalIPAddresses::LoadIPAddresses()
    {
-      m_vecLocalPorts.clear();
+      local_ports_.clear();
 
       std::vector<IPAddress> localAddresses;
 
@@ -73,14 +73,14 @@ namespace HM
             {
                IPAddress address = (*iter);
 
-               m_vecLocalPorts.push_back(std::make_pair(address, portNumber));
+               local_ports_.push_back(std::make_pair(address, portNumber));
 
-               m_vecLocalPorts.push_back(std::make_pair(IPAddress(), portNumber));
+               local_ports_.push_back(std::make_pair(IPAddress(), portNumber));
             }
          }
          else
          {
-            m_vecLocalPorts.push_back(std::make_pair(pTCPIPPort->GetAddress(), pTCPIPPort->GetPortNumber()));
+            local_ports_.push_back(std::make_pair(pTCPIPPort->GetAddress(), pTCPIPPort->GetPortNumber()));
          }
       }
 
@@ -90,8 +90,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalIPAddress(const IPAddress &address)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = m_vecLocalPorts.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = m_vecLocalPorts.end();
+      std::vector<std::pair<IPAddress, int> >::iterator iter = local_ports_.begin();
+      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = local_ports_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -107,8 +107,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalPort(const IPAddress &address, int port)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = m_vecLocalPorts.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = m_vecLocalPorts.end();
+      std::vector<std::pair<IPAddress, int> >::iterator iter = local_ports_.begin();
+      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = local_ports_.end();
 
       bool loopbackAddress = IsWithinLoopbackRange(address);
 

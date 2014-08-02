@@ -27,7 +27,7 @@ namespace HM
    void 
    TLD::Initialize()
    {
-      m_ccTLD.clear();
+      tld_.clear();
 
       String sTLDSFile = Utilities::GetExecutableDirectory();
       if (sTLDSFile.Right(1) != _T("\\"))
@@ -60,7 +60,7 @@ namespace HM
       std::vector<String> vecTLDs = StringParser::SplitString(sContents, "\r\n");
       std::vector<String>::iterator iter;
       for (iter = vecTLDs.begin(); iter != vecTLDs.end(); iter++)
-         m_ccTLD.insert(*iter);
+         tld_.insert(*iter);
 
    }
 
@@ -71,7 +71,7 @@ namespace HM
 
       sTmp.ToLower();
 
-      if (m_ccTLD.find(sName) != m_ccTLD.end())
+      if (tld_.find(sName) != tld_.end())
          return true;
       else
          return false;

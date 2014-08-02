@@ -17,7 +17,7 @@
 
 namespace HM
 {
-   CriticalSection IMAPFolderContainer::m_hFetchListCriticalSection;
+   CriticalSection IMAPFolderContainer::fetch_list_critical_section_;
 
    IMAPFolderContainer::IMAPFolderContainer()
    {
@@ -32,17 +32,17 @@ namespace HM
    shared_ptr<IMAPFolders> 
    IMAPFolderContainer::GetFoldersForAccount(__int64 AccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      CriticalSectionScope scope(fetch_list_critical_section_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = m_mapFolders.find(AccountID);
+      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = folders_.find(AccountID);
       
       shared_ptr<IMAPFolders> pFolders;
 
-      if (iterFolders == m_mapFolders.end())
+      if (iterFolders == folders_.end())
       {
          pFolders = shared_ptr<IMAPFolders>(new IMAPFolders(AccountID, -1));
          pFolders->Refresh();
-         m_mapFolders[AccountID] = pFolders;
+         folders_[AccountID] = pFolders;
       }
       else
       {
@@ -63,7 +63,7 @@ namespace HM
    void
    IMAPFolderContainer::SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      CriticalSectionScope scope(fetch_list_critical_section_);
 
       shared_ptr<IMAPFolder> pFolder;
       if (AccountID == 0)
@@ -73,9 +73,9 @@ namespace HM
       }
       else
       {
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = m_mapFolders.find(AccountID); 
+         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(AccountID); 
 
-         if (iterFolder == m_mapFolders.end())
+         if (iterFolder == folders_.end())
             return;
 
          pFolder = (*iterFolder).second->GetItemByDBIDRecursive(lMailBox);
@@ -96,14 +96,14 @@ namespace HM
    void 
    IMAPFolderContainer::UncacheAccount(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      CriticalSectionScope scope(fetch_list_critical_section_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = m_mapFolders.find(iAccountID); 
+      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(iAccountID); 
 
-      if (iterFolder != m_mapFolders.end())
+      if (iterFolder != folders_.end())
       {
          // The account exists. uncache it.
-         m_mapFolders.erase(iterFolder);
+         folders_.erase(iterFolder);
       }
 
    }
@@ -111,11 +111,11 @@ namespace HM
    bool 
    IMAPFolderContainer::Clear()
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      CriticalSectionScope scope(fetch_list_critical_section_);
 
-      bool bCleared = !m_mapFolders.empty();
+      bool bCleared = !folders_.empty();
 
-      m_mapFolders.clear();
+      folders_.clear();
 
       return bCleared;
    }
@@ -166,11 +166,11 @@ namespace HM
       }
       else
       {
-         CriticalSectionScope scope(m_hFetchListCriticalSection);
+         CriticalSectionScope scope(fetch_list_critical_section_);
 
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = m_mapFolders.find(accountID);
+         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = folders_.find(accountID);
 
-         if (iter == m_mapFolders.end())
+         if (iter == folders_.end())
             return;
 
          shared_ptr<IMAPFolder> folder = (*iter).second->GetItemByDBIDRecursive(folderID);

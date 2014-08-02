@@ -11,11 +11,11 @@ namespace HM
       ServerMessage(void);
       ~ServerMessage(void);
 
-      String GetName() const  {return m_sName; }
-      void SetName(const String &sNewVal) {m_sName = sNewVal;}
+      String GetName() const  {return name_; }
+      void SetName(const String &sNewVal) {name_ = sNewVal;}
 
-      String GetText() const  {return m_sText; }
-      void SetText(const String &sNewVal) {m_sText = sNewVal;}
+      String GetText() const  {return text_; }
+      void SetText(const String &sNewVal) {text_ = sNewVal;}
 
 
       bool XMLStore(XNode *pNode);
@@ -23,8 +23,8 @@ namespace HM
 
    private:
 
-      String m_sName;
-      String m_sText;
+      String name_;
+      String text_;
       
    };
 }

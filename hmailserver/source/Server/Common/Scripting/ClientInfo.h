@@ -15,20 +15,20 @@ namespace HM
       void SetIPAddress(const String &IP) { IPAddress = IP; }
       String GetIPAddress() const { return IPAddress; }
 
-      void SetUsername(const String &sUsernme) { m_sUsername = sUsernme; }
-      String GetUsername() const { return m_sUsername; }
+      void SetUsername(const String &sUsernme) { username_ = sUsernme; }
+      String GetUsername() const { return username_; }
 
-      long GetPort() const {return m_lPort; }
-      void SetPort(long lNewVal) {m_lPort = lNewVal; }
+      long GetPort() const {return port_; }
+      void SetPort(long lNewVal) {port_ = lNewVal; }
 
-      void SetHELO(const String &HELO) { m_sHELO = HELO; }
-      String GetHELO() const { return m_sHELO; }
+      void SetHELO(const String &HELO) { helo_ = HELO; }
+      String GetHELO() const { return helo_; }
 
    private:
 
       String IPAddress;
-      long m_lPort;
-      String m_sUsername;
-      String m_sHELO;
+      long port_;
+      String username_;
+      String helo_;
    };
 }

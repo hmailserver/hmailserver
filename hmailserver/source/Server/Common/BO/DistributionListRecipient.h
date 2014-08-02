@@ -12,13 +12,13 @@ namespace HM
       DistributionListRecipient(void);
       ~DistributionListRecipient(void);
 
-      String GetName() const {return m_sAddress; }
+      String GetName() const {return address_; }
 
       void SetAddress(const String & sAddress);
-      String GetAddress(void) const {return m_sAddress;}
+      String GetAddress(void) const {return address_;}
 
-      __int64 GetListID() const  {return m_iListID;}
-      void SetListID(__int64 newVal) {m_iListID = newVal; }
+      __int64 GetListID() const  {return list_id_;}
+      void SetListID(__int64 newVal) {list_id_ = newVal; }
 
 
       bool XMLStore(XNode *pParentNode, int iOptions);
@@ -27,7 +27,7 @@ namespace HM
 
    protected:
 
-      String m_sAddress;
-      __int64 m_iListID;
+      String address_;
+      __int64 list_id_;
    };
 }

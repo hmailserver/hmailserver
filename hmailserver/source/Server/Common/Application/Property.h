@@ -16,19 +16,19 @@ namespace HM
       Property(const String &sName, long lValue, const String &sValue, bool SaveCrypted = false);
    
 
-      AnsiString GetName() const {return m_sName;}
-      void SetName(const AnsiString &NewVal) {m_sName = NewVal;}
+      AnsiString GetName() const {return name_;}
+      void SetName(const AnsiString &NewVal) {name_ = NewVal;}
 
-      int GetLongValue() const {return m_lValue; }
+      int GetLongValue() const {return long_value_; }
       void SetLongValue(long NewVal);
 
-      String GetStringValue() const {return m_sValue; }
+      String GetStringValue() const {return string_value_; }
       void SetStringValue(const String &NewVal);
 
-      bool GetBoolValue() const {return m_lValue ? true : false; }
+      bool GetBoolValue() const {return long_value_ ? true : false; }
       void SetBoolValue(bool NewVal);
 
-      void SetIsCrypted() {m_bSaveCrypted = true; }
+      void SetIsCrypted() {save_crypted_ = true; }
    private:
 
   
@@ -36,11 +36,11 @@ namespace HM
       bool _WriteLongSetting(long lValue);
       bool _WriteStringSetting(const String &sValue);
 
-      long m_lValue;
-      String m_sValue;
-      AnsiString m_sName;
+      long long_value_;
+      String string_value_;
+      AnsiString name_;
 
-      bool m_bSaveCrypted;
+      bool save_crypted_;
 
    };
 }

@@ -24,25 +24,25 @@ namespace HM
    void 
    SpamTestData::SetEnvelopeFrom(const String &sEnvelopeFrom)
    {
-      m_sEnvelopeFrom = sEnvelopeFrom;
+      envelope_from_ = sEnvelopeFrom;
    }
 
    String 
    SpamTestData::GetEnvelopeFrom() const
    {
-      return m_sEnvelopeFrom;
+      return envelope_from_;
    }
 
    void 
    SpamTestData::SetHeloHost(const String &sNewVal)
    {
-      m_sHeloHost = sNewVal;
+      helo_host_ = sNewVal;
    }
 
    String 
    SpamTestData::GetHeloHost() const
    {
-      return m_sHeloHost;
+      return helo_host_;
    }
 
    void 

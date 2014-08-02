@@ -132,7 +132,7 @@ namespace HM
       if (!_ResolveRecipientServers(serverInfo, vecRecipients, mail_servers))
          return;
 
-      m_iMXTriesFactor = IniFileSettings::Instance()->GetMXTriesFactor();
+      mxtries_factor_ = IniFileSettings::Instance()->GetMXTriesFactor();
 
       // Try to connect to one server at a time. If a fatal error
       // occurs, (an exception with eFatalError), we should stop trying
@@ -188,9 +188,9 @@ namespace HM
             return;
          }
 
-         // Let's limit # of servers tried per retry to m_iMXTriesFactor * current number of retries to free up queue
-         int iMXServerLimit = (_originalMessage->GetNoOfRetries()+1) * m_iMXTriesFactor;
-         if (m_iMXTriesFactor > 0 && i + 1 >= (unsigned int) iMXServerLimit )
+         // Let's limit # of servers tried per retry to mxtries_factor_ * current number of retries to free up queue
+         int iMXServerLimit = (_originalMessage->GetNoOfRetries()+1) * mxtries_factor_;
+         if (mxtries_factor_ > 0 && i + 1 >= (unsigned int) iMXServerLimit )
          {
             LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Limiting to MXTriesFactored value of " + StringParser::IntToString(iMXServerLimit) + ".");      
             break;
@@ -487,9 +487,9 @@ namespace HM
       long lMinutesBewteen = 0;
       int iCurNoOfRetries = _originalMessage->GetNoOfRetries() ;
 
-      m_iQuickRetries = IniFileSettings::Instance()->GetQuickRetries();
-      m_iQuickRetriesMinutes = IniFileSettings::Instance()->GetQuickRetriesMinutes();
-      m_iQueueRandomnessMinutes = IniFileSettings::Instance()->GetQueueRandomnessMinutes();
+      quick_retries_ = IniFileSettings::Instance()->GetQuickRetries();
+      quick_retries_Minutes = IniFileSettings::Instance()->GetQuickRetriesMinutes();
+      queue_randomness_minutes_ = IniFileSettings::Instance()->GetQueueRandomnessMinutes();
 
       // Variables used to generate randomness value for retry delay
       errno_t rnd_err;
@@ -498,7 +498,7 @@ namespace HM
 
       // See if randomness is enabled to work around Win2k compatability issue
       // plus saves work if not enabled which is default
-      if (m_iQueueRandomnessMinutes > 0)
+      if (queue_randomness_minutes_ > 0)
       {
 
          // Get our random #
@@ -507,7 +507,7 @@ namespace HM
 
          // If no error getting random # use it
          if (rnd_err == 0)
-            iRandomAdjust = (unsigned int) ((double)tmp_rnd / (double) UINT_MAX * m_iQueueRandomnessMinutes) + 1;
+            iRandomAdjust = (unsigned int) ((double)tmp_rnd / (double) UINT_MAX * queue_randomness_minutes_) + 1;
       }
 
       LOG_DEBUG("Retrieving retry options.");
@@ -528,10 +528,10 @@ namespace HM
          LOG_DEBUG("Starting rescheduling.");
 
          // First few retries should be quicker for greylisting IF enabled
-         if (iCurNoOfRetries < m_iQuickRetries) 
+         if (iCurNoOfRetries < quick_retries_) 
          {
-            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Message could not be delivered. Greylisting? Scheduling it for quick retry " + StringParser::IntToString(iCurNoOfRetries + 1) + " of " + StringParser::IntToString(m_iQuickRetries) + " in " + StringParser::IntToString(m_iQuickRetriesMinutes + iRandomAdjust) + " minutes.");
-            PersistentMessage::SetNextTryTime(_originalMessage->GetID(), true, m_iQuickRetriesMinutes + iRandomAdjust);
+            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Message could not be delivered. Greylisting? Scheduling it for quick retry " + StringParser::IntToString(iCurNoOfRetries + 1) + " of " + StringParser::IntToString(quick_retries_) + " in " + StringParser::IntToString(quick_retries_Minutes + iRandomAdjust) + " minutes.");
+            PersistentMessage::SetNextTryTime(_originalMessage->GetID(), true, quick_retries_Minutes + iRandomAdjust);
          
             // Unlock the message now so that a future delivery thread can pick it up.
             PersistentMessage::UnlockObject(_originalMessage);

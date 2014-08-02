@@ -25,6 +25,6 @@ namespace HM
 
    private:
 
-      __int64 m_iListID;
+      __int64 list_id_;
    };
 }

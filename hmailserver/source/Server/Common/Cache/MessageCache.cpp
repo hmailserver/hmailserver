@@ -38,13 +38,13 @@ namespace HM
          once in a while.
       */
 
-      if (m_mapMessage.size() > 500)
-         m_mapMessage.clear();
+      if (message_.size() > 500)
+         message_.clear();
 
-      if (m_mapMessage.find(pMessage->GetID()) != m_mapMessage.end())
+      if (message_.find(pMessage->GetID()) != message_.end())
          return;
 
-      m_mapMessage[pMessage->GetID()] = pMessage;
+      message_[pMessage->GetID()] = pMessage;
 
    }
 
@@ -53,10 +53,10 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<__int64, shared_ptr<Message> >::iterator iterMessage = m_mapMessage.find(iMessageID);
+      std::map<__int64, shared_ptr<Message> >::iterator iterMessage = message_.find(iMessageID);
 
       shared_ptr<Message> pMessage;
-      if (iterMessage == m_mapMessage.end())
+      if (iterMessage == message_.end())
       {
          // Message not found in cache.
          return pMessage;
@@ -66,7 +66,7 @@ namespace HM
       pMessage = (*iterMessage).second;
 
       // Delete the message from cache.
-      m_mapMessage.erase(iterMessage);
+      message_.erase(iterMessage);
 
       return pMessage;
    }

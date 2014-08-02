@@ -18,7 +18,7 @@ namespace HM
 
       void Refresh();
 
-      __int64 GetAccountID() const {return m_iAccountID; }
+      __int64 GetAccountID() const {return account_id_; }
  
       void MoveUp(__int64 iRuleID);
       void MoveDown(__int64 iRuleID);
@@ -31,6 +31,6 @@ namespace HM
       vector<shared_ptr<Rule> >::iterator _GetRuleIterator(__int64 iRuleID);
       void _UpdateSortOrder();
 
-      __int64 m_iAccountID;
+      __int64 account_id_;
    };
 }

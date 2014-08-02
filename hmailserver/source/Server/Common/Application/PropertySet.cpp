@@ -63,10 +63,10 @@ namespace HM
 
 
 
-      m_mapItems = tmpMap;
+      items_ = tmpMap;
 
-      std::map<String, shared_ptr<Property> >::iterator iter = m_mapItems.begin();
-      std::map<String, shared_ptr<Property> >::iterator iterEnd = m_mapItems.end();
+      std::map<String, shared_ptr<Property> >::iterator iter = items_.begin();
+      std::map<String, shared_ptr<Property> >::iterator iterEnd = items_.end();
       for (; iter != iterEnd; iter++)
       {
          // Trigger an change-event for all options.
@@ -77,9 +77,9 @@ namespace HM
    shared_ptr<Property>
    PropertySet::_GetProperty(const String & sPropertyName)
    {
-      std::map<String, shared_ptr<Property> >::iterator iterProperty = m_mapItems.find(sPropertyName);
+      std::map<String, shared_ptr<Property> >::iterator iterProperty = items_.find(sPropertyName);
    
-      if (iterProperty != m_mapItems.end())
+      if (iterProperty != items_.end())
          return (*iterProperty).second;
 
       String sErrorMessage;
@@ -163,9 +163,9 @@ namespace HM
    PropertySet::XMLStore(XNode *pBackupNode)
    {
       XNode *pPropertiesNode = pBackupNode->AppendChild(_T("Properties"));
-      std::map<String, shared_ptr<Property> >::iterator iterProperty = m_mapItems.begin();
+      std::map<String, shared_ptr<Property> >::iterator iterProperty = items_.begin();
 
-      while (iterProperty != m_mapItems.end())
+      while (iterProperty != items_.end())
       {
          shared_ptr<Property> oProperty = (*iterProperty).second;
 

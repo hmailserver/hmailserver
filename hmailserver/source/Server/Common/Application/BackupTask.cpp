@@ -15,7 +15,7 @@ namespace HM
 {
    BackupTask::BackupTask(bool bDoBackup) :
       Task("BackupTask"),
-      m_bDoBackup(bDoBackup)
+      do_backup_(bDoBackup)
    {
    }
 
@@ -27,7 +27,7 @@ namespace HM
    BackupTask::DoWork()
    {
       BackupExecuter oBE;
-      if (m_bDoBackup)
+      if (do_backup_)
       {
          oBE.StartBackup();
       }

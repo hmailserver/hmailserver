@@ -23,7 +23,7 @@ namespace HM
 
    private:
 
-      std::vector<shared_ptr<SpamTest> > m_setSpamTests;
+      std::vector<shared_ptr<SpamTest> > spam_tests_;
 
    };
 

@@ -13,7 +13,7 @@ namespace HM
 {
 
    FetchAccounts::FetchAccounts(__int64 iAccountID) :
-      m_iAccountID(iAccountID)         
+      account_id_(iAccountID)         
    {
 
    }
@@ -37,7 +37,7 @@ namespace HM
    {
       String sSQL;
       sSQL.Format(_T("select * from hm_fetchaccounts where faaccountid = %I64d")
-                        _T(" order by faid asc"), m_iAccountID);
+                        _T(" order by faid asc"), account_id_);
 
       _DBLoad(sSQL);
    }
@@ -45,7 +45,7 @@ namespace HM
    bool
    FetchAccounts::PreSaveObject(shared_ptr<FetchAccount> pFA, XNode *node)
    {
-      pFA->SetAccountID(m_iAccountID);
+      pFA->SetAccountID(account_id_);
       return true;
    }
 

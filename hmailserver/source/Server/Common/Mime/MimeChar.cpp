@@ -35,7 +35,7 @@
 
 namespace HM
 {
-   const unsigned char CMimeChar::m_aCharTbl[128] =
+   const unsigned char CMimeChar::char_tbl_[128] =
    {
 	   CONTROL,						// 00 (NUL)
 	   CONTROL,						// 01 (SOH)

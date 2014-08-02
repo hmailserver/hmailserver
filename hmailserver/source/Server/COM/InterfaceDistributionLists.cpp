@@ -66,7 +66,7 @@ STDMETHODIMP InterfaceDistributionLists::Add(IInterfaceDistributionList **pVal)
       pList->SetAuthentication(authentication_);
    
       shared_ptr<HM::DistributionList> pPersList = shared_ptr<HM::DistributionList>(new HM::DistributionList);
-      pPersList->SetDomainID(m_iDomainID);
+      pPersList->SetDomainID(domain_id_);
    
       pList->AttachItem(pPersList);
       pList->AttachParent(distribution_lists_, false);

@@ -17,14 +17,14 @@ namespace HM
 
       shared_ptr<Language> GetLanguage(const String &sLanguage);
       shared_ptr<Language> GetLanguage(int index);
-      int GetCount() {return m_mapLanguages.size(); }
+      int GetCount() {return languages_.size(); }
 
      
    private:
 
       bool _IsValidLangauge(const String &sLanguage) const;
 
-      map<String, shared_ptr<Language> > m_mapLanguages;
+      map<String, shared_ptr<Language> > languages_;
 
 
       

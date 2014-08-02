@@ -19,14 +19,14 @@ namespace HM
 
 
    IMAPFolders::IMAPFolders(__int64 iAccountID, __int64 iParentFolderID) :
-      m_iAccountID(iAccountID),
-      m_iParentFolderID(iParentFolderID)
+      account_id_(iAccountID),
+      parent_folder_id_(iParentFolderID)
    {
 
    }
 
    IMAPFolders::IMAPFolders() :
-      m_iAccountID(0)
+      account_id_(0)
    {
 
    }
@@ -47,7 +47,7 @@ namespace HM
       SQLCommand command("select folderid, folderparentid, foldername, folderissubscribed, foldercurrentuid, foldercreationtime from hm_imapfolders "
                          " where folderaccountid = @FOLDERACCOUNTID order by folderid asc");
 
-      command.AddParameter("@FOLDERACCOUNTID", m_iAccountID);
+      command.AddParameter("@FOLDERACCOUNTID", account_id_);
    
       shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
@@ -76,7 +76,7 @@ namespace HM
 
             // Initialize with dummy parent folder. We can't set it here since it may not
             // even be loaded from the recordset yet.
-            shared_ptr<IMAPFolder> pFolder = shared_ptr<IMAPFolder>(new IMAPFolder(m_iAccountID, iParentID));
+            shared_ptr<IMAPFolder> pFolder = shared_ptr<IMAPFolder>(new IMAPFolder(account_id_, iParentID));
             
             pFolder->SetID(iFolderID);
             pFolder->SetFolderName(sFolderName);
@@ -130,7 +130,7 @@ namespace HM
 			   // User in forum had too many folders & this limit caused big issues
 			   // 
 			   // Better logging details so people understand what happened until fixed/adjustable
-			   sMessage.Format(_T("Unable to retrieve folder list for account. 100K+ loops trying to sort. Account: %I64d, Parent: %I64d"), m_iAccountID, m_iParentFolderID);
+			   sMessage.Format(_T("Unable to retrieve folder list for account. 100K+ loops trying to sort. Account: %I64d, Parent: %I64d"), account_id_, parent_folder_id_);
                
                ErrorManager::Instance()->ReportError(
                   ErrorManager::Medium, 5125, "IMAPFolders::Refresh()", sMessage);       
@@ -272,7 +272,7 @@ namespace HM
          if (pParentFolder)
             iParentFolderID = pParentFolder->GetID();
 
-         shared_ptr<IMAPFolder> pFolder = shared_ptr<IMAPFolder>(new IMAPFolder(m_iAccountID, iParentFolderID));
+         shared_ptr<IMAPFolder> pFolder = shared_ptr<IMAPFolder>(new IMAPFolder(account_id_, iParentFolderID));
          pFolder->SetFolderName(sTopLevel);
          pFolder->SetIsSubscribed(bAutoSubscribe);
 
@@ -294,7 +294,7 @@ namespace HM
    IMAPFolders::PreSaveObject(shared_ptr<IMAPFolder> pObject, XNode *node)
    {
       pObject->SetAccountID(GetAccountID());
-      pObject->SetParentFolderID(m_iParentFolderID);
+      pObject->SetParentFolderID(parent_folder_id_);
       return true;
    }
 
@@ -333,7 +333,7 @@ namespace HM
    // a top level collection, -1 is returned.
    //---------------------------------------------------------------------------()
    {
-      return m_iParentFolderID; 
+      return parent_folder_id_; 
    }
 
    __int64 
@@ -343,7 +343,7 @@ namespace HM
    // Returns the ID of the account in which these folders exist
    //---------------------------------------------------------------------------()
    {
-      return m_iAccountID; 
+      return account_id_; 
    }
 
    String 
@@ -358,7 +358,7 @@ namespace HM
    bool 
    IMAPFolders::_GetIsPublicFolders() const
    {
-      if (m_iAccountID == 0)
+      if (account_id_ == 0)
          return true;
       else
          return false;

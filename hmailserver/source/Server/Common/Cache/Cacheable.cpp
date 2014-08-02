@@ -14,7 +14,7 @@ namespace HM
 {
    Cacheable::Cacheable(void)
    {
-      m_iCreationTime = GetTickCount();
+      creation_time_ = GetTickCount();
    }
 
    Cacheable::~Cacheable(void)
@@ -27,7 +27,7 @@ namespace HM
       int iCurrentTime = GetTickCount();
 
       // Convert from milliseconds to seconds.
-      int iAge = (iCurrentTime - m_iCreationTime) / 1000;
+      int iAge = (iCurrentTime - creation_time_) / 1000;
 
       if (iAge < 0)
          iAge = 60*60*24;

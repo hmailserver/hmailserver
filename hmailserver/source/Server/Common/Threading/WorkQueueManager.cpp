@@ -34,8 +34,8 @@ namespace HM
       pWorkQueue->Start();
 
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      int iQueueID = m_mapWorkQueues.size() + 1;
-      m_mapWorkQueues[iQueueID] = pWorkQueue;
+      int iQueueID = work_queues_.size() + 1;
+      work_queues_[iQueueID] = pWorkQueue;
 
       return iQueueID;
    }
@@ -50,9 +50,9 @@ namespace HM
       // Add the task to the work queue
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = m_mapWorkQueues.find(iQueueID);
+      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.find(iQueueID);
 
-      if (iterQueue == m_mapWorkQueues.end())
+      if (iterQueue == work_queues_.end())
       {
          // Someone is trying to add a task to a
          // queue that does not exist.
@@ -81,7 +81,7 @@ namespace HM
          boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
          iterQueue = _GetQueueIterator(sQueueName);
-         if (iterQueue == m_mapWorkQueues.end())
+         if (iterQueue == work_queues_.end())
          {
             LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
             return;
@@ -100,7 +100,7 @@ namespace HM
       LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Stopped {0}", sQueueName));
       
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      m_mapWorkQueues.erase(iterQueue);
+      work_queues_.erase(iterQueue);
 
       LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Erased {0}", sQueueName));
 
@@ -116,7 +116,7 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = _GetQueueIterator(sQueueName);
-      if (iterQueue != m_mapWorkQueues.end())
+      if (iterQueue != work_queues_.end())
       {
          shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
@@ -137,8 +137,8 @@ namespace HM
    // Returns a iterator to a queue with the specified name.
    //---------------------------------------------------------------------------
    {
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = m_mapWorkQueues.begin();
-      while (iterQueue != m_mapWorkQueues.end())
+      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.begin();
+      while (iterQueue != work_queues_.end())
       {
          shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
@@ -147,6 +147,6 @@ namespace HM
          iterQueue++;
       }
 
-      return m_mapWorkQueues.end();
+      return work_queues_.end();
    }
 }

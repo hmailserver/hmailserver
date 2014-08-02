@@ -23,25 +23,25 @@ namespace HM
          LMAnnouncement = 2
       };
 
-      String GetName() {return m_sAddress; }
+      String GetName() {return address_; }
 
-      __int64 GetDomainID() const {return m_iDomainID;}
-      void SetDomainID(__int64 newVal) {m_iDomainID = newVal;}
+      __int64 GetDomainID() const {return domain_id_;}
+      void SetDomainID(__int64 newVal) {domain_id_ = newVal;}
 
-      String GetAddress() const {return m_sAddress;}
-      void SetAddress(const String & sNewVal) {m_sAddress = sNewVal;}
+      String GetAddress() const {return address_;}
+      void SetAddress(const String & sNewVal) {address_ = sNewVal;}
 
-      bool GetActive() const {return m_bEnabled;}
-      void SetActive(bool bNewVal) {m_bEnabled = bNewVal;}
+      bool GetActive() const {return enabled_;}
+      void SetActive(bool bNewVal) {enabled_ = bNewVal;}
 
-      bool GetRequireAuth() const {return m_bRequireAuth;}
-      void SetRequireAuth(bool bNewVal) {m_bRequireAuth = bNewVal;}
+      bool GetRequireAuth() const {return require_auth_;}
+      void SetRequireAuth(bool bNewVal) {require_auth_ = bNewVal;}
 
-      String GetRequireAddress() const {return m_sRequireAddress;}
-      void SetRequireAddress(const String & sNewVal) {m_sRequireAddress = sNewVal;}
+      String GetRequireAddress() const {return require_address_;}
+      void SetRequireAddress(const String & sNewVal) {require_address_ = sNewVal;}
 
-      ListMode GetListMode() const {return m_eListMode; }
-      void SetListMode(ListMode m) {m_eListMode = m; }
+      ListMode GetListMode() const {return list_mode_; }
+      void SetListMode(ListMode m) {list_mode_ = m; }
 
       bool XMLStore(XNode *pParentNode, int iOptions);
       bool XMLLoad(XNode *pParentNode, int iRestoreOptions);
@@ -51,13 +51,13 @@ namespace HM
 
    protected:
 
-      String m_sAddress;
-      __int64 m_iDomainID;
-      bool m_bEnabled;
+      String address_;
+      __int64 domain_id_;
+      bool enabled_;
 
-      bool m_bRequireAuth;
-      String m_sRequireAddress;
+      bool require_auth_;
+      String require_address_;
 
-      ListMode m_eListMode;
+      ListMode list_mode_;
    };
 }

@@ -29,9 +29,9 @@ namespace HM
       We pre-create one connection per protocol, so we set the counters to -1 here.
    */
    SessionManager::SessionManager(void) :
-      m_iNoOfIMAPConnections(-1),
-      m_iNoOfSMTPConnections(-1),
-      m_iNoOfPOP3Connections(-1)
+      no_of_imapconnections_(-1),
+      no_of_smtpconnections_(-1),
+      no_of_pop3connections_(-1)
    {
 
    }
@@ -101,17 +101,17 @@ namespace HM
       {
       case STSMTP:
          {
-            InterlockedIncrement(&m_iNoOfSMTPConnections);
+            InterlockedIncrement(&no_of_smtpconnections_);
             break;
          }
       case STPOP3:
          {
-            InterlockedIncrement(&m_iNoOfPOP3Connections);
+            InterlockedIncrement(&no_of_pop3connections_);
             break;
          }
       case STIMAP:
          {
-            InterlockedIncrement(&m_iNoOfIMAPConnections);
+            InterlockedIncrement(&no_of_imapconnections_);
             break;
          }
       }
@@ -124,13 +124,13 @@ namespace HM
       switch (st)
       {
       case STSMTP:
-         InterlockedDecrement(&m_iNoOfSMTPConnections);
+         InterlockedDecrement(&no_of_smtpconnections_);
          break;
       case STPOP3:
-         InterlockedDecrement(&m_iNoOfPOP3Connections);
+         InterlockedDecrement(&no_of_pop3connections_);
          break;
       case STIMAP:
-         InterlockedDecrement(&m_iNoOfIMAPConnections);
+         InterlockedDecrement(&no_of_imapconnections_);
          break;
       }
    }
@@ -146,13 +146,13 @@ namespace HM
       switch (st)
       {
       case STSMTP:
-         return m_iNoOfSMTPConnections;
+         return no_of_smtpconnections_;
          break;
       case STPOP3:
-         return m_iNoOfPOP3Connections;
+         return no_of_pop3connections_;
          break;
       case STIMAP:
-         return m_iNoOfIMAPConnections;
+         return no_of_imapconnections_;
          break;
       }
 
@@ -170,9 +170,9 @@ namespace HM
       long pop3Connections = 0;
       long imapConnections = 0;
 
-      InterlockedExchange(&smtpConnectins, m_iNoOfSMTPConnections);
-      InterlockedExchange(&pop3Connections, m_iNoOfPOP3Connections);
-      InterlockedExchange(&imapConnections, m_iNoOfIMAPConnections);
+      InterlockedExchange(&smtpConnectins, no_of_smtpconnections_);
+      InterlockedExchange(&pop3Connections, no_of_pop3connections_);
+      InterlockedExchange(&imapConnections, no_of_imapconnections_);
 
       return smtpConnectins + pop3Connections + imapConnections;
    }

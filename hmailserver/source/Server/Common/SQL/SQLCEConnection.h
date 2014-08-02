@@ -56,7 +56,7 @@ namespace HM
       __int64 _GetIdentityFromRS(_RecordsetPtr pRS) const;
 
       _ConnectionPtr cSQLCEConnection;  
-      bool m_bConnected;
+      bool connected_;
 
 
    };

@@ -23,47 +23,47 @@ namespace HM
       FetchAccount(void);
       ~FetchAccount(void);
 
-      __int64 GetAccountID() const {return m_iAccountID; }
-      void SetAccountID(__int64 iNewVal) {m_iAccountID = iNewVal; }
+      __int64 GetAccountID() const {return account_id_; }
+      void SetAccountID(__int64 iNewVal) {account_id_ = iNewVal; }
 
-      String GetName() const {return m_sName;}
-      void SetName(const String &sNewVal) {m_sName = sNewVal; }
+      String GetName() const {return name_;}
+      void SetName(const String &sNewVal) {name_ = sNewVal; }
 
-      void SetServerAddress(const String &sNewVal) {m_sServerAddress = sNewVal; }
-      String GetServerAddress() const {return m_sServerAddress; }
+      void SetServerAddress(const String &sNewVal) {server_address_ = sNewVal; }
+      String GetServerAddress() const {return server_address_; }
 
-      ServerType GetServerType() const {return m_iServerType; }
-      void SetServerType(ServerType iValue) {m_iServerType = iValue; }
+      ServerType GetServerType() const {return server_type_; }
+      void SetServerType(ServerType iValue) {server_type_ = iValue; }
 
-      int GetPort() const {return m_iPort;}
-      void SetPort(int iNewVal) {m_iPort = iNewVal; }
+      int GetPort() const {return port_;}
+      void SetPort(int iNewVal) {port_ = iNewVal; }
 
-      String GetUsername() const {return m_sUsername; }
-      void SetUsername(const String &sValue) {m_sUsername = sValue; }
+      String GetUsername() const {return username_; }
+      void SetUsername(const String &sValue) {username_ = sValue; }
 
-      String GetPassword() const {return m_sPassword; }
-      void SetPassword(const String &Value) {m_sPassword = Value; }
+      String GetPassword() const {return password_; }
+      void SetPassword(const String &Value) {password_ = Value; }
       
-      int GetMinutesBetweenTry() const {return m_iMinutes; }
-      void SetMinutesBetweenTry(int iMinutes) {m_iMinutes = iMinutes; }
+      int GetMinutesBetweenTry() const {return minutes_; }
+      void SetMinutesBetweenTry(int iMinutes) {minutes_ = iMinutes; }
 
-      int GetDaysToKeep() const {return m_iDaysToKeep; }
-      void SetDaysToKeep(int iMinutes) {m_iDaysToKeep = iMinutes; }
+      int GetDaysToKeep() const {return days_to_keep_; }
+      void SetDaysToKeep(int iMinutes) {days_to_keep_ = iMinutes; }
 
-      bool GetActive() const {return m_bIsActive; }
-      void SetActive(bool bActive) {m_bIsActive = bActive; }
+      bool GetActive() const {return is_active_; }
+      void SetActive(bool bActive) {is_active_ = bActive; }
 
-      bool GetProcessMIMERecipients() const {return m_bProcessMIMERecipients; }
-      void SetProcessMIMERecipients(bool bNewVal) {m_bProcessMIMERecipients = bNewVal; }
+      bool GetProcessMIMERecipients() const {return process_mimerecipients_; }
+      void SetProcessMIMERecipients(bool bNewVal) {process_mimerecipients_ = bNewVal; }
 
-      bool GetProcessMIMEDate() const {return m_bProcessMIMEDate; }
-      void SetProcessMIMEDate(bool bNewVal) {m_bProcessMIMEDate = bNewVal; }
+      bool GetProcessMIMEDate() const {return process_mimedate_; }
+      void SetProcessMIMEDate(bool bNewVal) {process_mimedate_ = bNewVal; }
 
       ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
       void SetConnectionSecurity(ConnectionSecurity connection_security) {connection_security_ = connection_security; }
 
-      String GetNextTry() const {return m_sNextTry;}
-      void SetNextTry(const String &sNextTry) {m_sNextTry = sNextTry;}
+      String GetNextTry() const {return next_try_;}
+      void SetNextTry(const String &sNextTry) {next_try_ = sNextTry;}
 
       shared_ptr<FetchAccountUIDs> GetUIDs();
 
@@ -82,22 +82,22 @@ namespace HM
 
    private:
 
-      __int64 m_iAccountID;
-      String m_sName;
-      String m_sServerAddress;
-      String m_sNextTry;
-      ServerType m_iServerType;
+      __int64 account_id_;
+      String name_;
+      String server_address_;
+      String next_try_;
+      ServerType server_type_;
 
-      long m_iPort;
-      String m_sUsername;
-      String m_sPassword;
-      int m_iMinutes;
-      int m_iDaysToKeep;
-      bool m_bIsActive;
+      long port_;
+      String username_;
+      String password_;
+      int minutes_;
+      int days_to_keep_;
+      bool is_active_;
       shared_ptr<FetchAccountUIDs> uids_;
 
-      bool m_bProcessMIMERecipients;
-      bool m_bProcessMIMEDate;
+      bool process_mimerecipients_;
+      bool process_mimedate_;
 
       bool _useAntiSpam;
       bool _useAntiVirus;

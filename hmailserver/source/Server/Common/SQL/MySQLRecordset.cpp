@@ -122,7 +122,7 @@ namespace HM
    bool
    MySQLRecordset::IsEOF() const
    {
-      return m_rowCurrent == 0;
+      return current_ == 0;
    }
 
    bool
@@ -140,7 +140,7 @@ namespace HM
 
       try
       {
-         m_rowCurrent = MySQLInterface::Instance()->p_mysql_fetch_row(result_);
+         current_ = MySQLInterface::Instance()->p_mysql_fetch_row(result_);
       }
       catch (...)
       {
@@ -148,7 +148,7 @@ namespace HM
          throw;
       }
 
-      if (m_rowCurrent)
+      if (current_)
          return true;
       else
          return false;
@@ -185,7 +185,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = m_rowCurrent[iColIdx];
+         char *pValue = current_[iColIdx];
          
          if (pValue == 0 || strlen(pValue) == 0)
             return "";
@@ -223,7 +223,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = m_rowCurrent[iColIdx];
+         char *pValue = current_[iColIdx];
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
       }
@@ -250,7 +250,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = m_rowCurrent[iColIdx];
+         char *pValue = current_[iColIdx];
 
          if (pValue == 0)
             return true;
@@ -280,7 +280,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = m_rowCurrent[iColIdx];
+         char *pValue = current_[iColIdx];
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
       }
@@ -307,7 +307,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = m_rowCurrent[iColIdx];
+         char *pValue = current_[iColIdx];
          double dbVal = pValue ? atof(pValue) : 0;
 
          return dbVal;

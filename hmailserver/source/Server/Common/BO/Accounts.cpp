@@ -12,15 +12,15 @@
 namespace HM
 {
    Accounts::Accounts(__int64 iDomainID) :
-      m_iDomainID(iDomainID),
-      m_iAccountID(0)
+      domain_id_(iDomainID),
+      account_id_(0)
    {
    
    }
 
    Accounts::Accounts(__int64 iDomainID, __int64 iAccountID) :
-      m_iDomainID(iDomainID),
-      m_iAccountID(iAccountID)
+      domain_id_(iDomainID),
+      account_id_(iAccountID)
    {
 
    }
@@ -36,20 +36,20 @@ namespace HM
       SQLCommand command;
 
       String sSQL;
-      if (m_iDomainID == 0)
+      if (domain_id_ == 0)
       {
          command.SetQueryString(_T("select * from hm_accounts order by accountaddress asc"));
       }
-      else if (m_iAccountID == 0)
+      else if (account_id_ == 0)
       {
          command.SetQueryString("select * from hm_accounts where accountdomainid = @DOMAINID order by accountaddress asc");
-         command.AddParameter("@DOMAINID", m_iDomainID);
+         command.AddParameter("@DOMAINID", domain_id_);
       }
       else
       {
          command.SetQueryString("select * from hm_accounts where accountdomainid = @DOMAINID and accountid = @ACCOUNTID order by accountaddress asc");
-         command.AddParameter("@DOMAINID", m_iDomainID);
-         command.AddParameter("@ACCOUNTID", m_iAccountID);
+         command.AddParameter("@DOMAINID", domain_id_);
+         command.AddParameter("@ACCOUNTID", account_id_);
       }
 
       _DBLoad(command);
@@ -58,7 +58,7 @@ namespace HM
    bool
    Accounts::PreSaveObject(shared_ptr<Account> pAccount, XNode *node)
    {
-      pAccount->SetDomainID(m_iDomainID);
+      pAccount->SetDomainID(domain_id_);
       return true;
    }
 

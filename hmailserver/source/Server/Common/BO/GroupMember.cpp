@@ -12,8 +12,8 @@
 namespace HM
 {
    GroupMember::GroupMember(void) :
-      m_iGroupID(0),
-      m_iAccountID(0)
+      group_id_(0),
+      account_id_(0)
    {
       
    }
@@ -31,25 +31,25 @@ namespace HM
    __int64 
    GroupMember::GetGroupID()
    {
-      return m_iGroupID;
+      return group_id_;
    }
 
    void 
    GroupMember::SetGroupID(__int64 iNewVal)
    {
-      m_iGroupID = iNewVal;
+      group_id_ = iNewVal;
    }
 
    __int64 
    GroupMember::GetAccountID()
    {
-      return m_iAccountID;
+      return account_id_;
    }
 
    void 
    GroupMember::SetAccountID(__int64 iNewVal)
    {
-      m_iAccountID = iNewVal; 
+      account_id_ = iNewVal; 
    }
 
 

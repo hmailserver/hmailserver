@@ -61,14 +61,14 @@
 namespace HM
 {
    Application::Application() :
-      m_sServerWorkQueue("Server queue"),
-      m_sMaintenanceQueue("Maintenance queue"),
-      m_sAsynchronousTasksQueue("Asynchronous task queue"),
-      m_iUniqueID(0)
+      server_work_queue_("Server queue"),
+      maintenance_queue_("Maintenance queue"),
+      asynchronous_tasks_queue_("Asynchronous task queue"),
+      unique_id_(0)
    {
-      m_sProdName = _T("hMailServer");
-      m_sVersion = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
-      m_sStartTime = Time::GetCurrentDateTime();
+      prod_name_ = _T("hMailServer");
+      version_ = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
+      start_time_ = Time::GetCurrentDateTime();
    }
 
    String
@@ -79,7 +79,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sVersion;
-      sVersion.Format(_T("%s %s"), m_sProdName, m_sVersion);
+      sVersion.Format(_T("%s %s"), prod_name_, version_);
 
       return sVersion;
    }
@@ -115,7 +115,7 @@ namespace HM
 
       // Start a random thread queue that can run different 
       // types of background tasks, such as backups etc.
-      WorkQueueManager::Instance()->CreateWorkQueue(5, m_sMaintenanceQueue);
+      WorkQueueManager::Instance()->CreateWorkQueue(5, maintenance_queue_);
 
       // Language needed for COM API
       Languages::Instance()->Load();
@@ -148,7 +148,7 @@ namespace HM
 
       // Start an asynch workqueue which processes asynchronous tasks from clients.
       WorkQueueManager::Instance()->CreateWorkQueue(Configuration::Instance()->GetAsynchronousThreads(), 
-                                                    m_sAsynchronousTasksQueue);
+                                                    asynchronous_tasks_queue_);
 
       return true;
    }
@@ -169,7 +169,7 @@ namespace HM
       db_manager_ = shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
       bool bConnectedSuccessfully = db_manager_->CreateConnections(sErrorMessage);
 
-      m_sLastConnectErrorMessage = sErrorMessage;
+      last_connect_error_message_ = sErrorMessage;
 
       if (!bConnectedSuccessfully)
       {
@@ -191,7 +191,7 @@ namespace HM
       if (iDBVersion == 0)
       {
          sErrorMessage = "Database version could not be detected.";
-         m_sLastConnectErrorMessage = sErrorMessage;
+         last_connect_error_message_ = sErrorMessage;
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5010, "Application::OnDatabaseConnected", sErrorMessage);
          return false;
       }
@@ -211,7 +211,7 @@ namespace HM
 
          sErrorMessage += sVersionInfo;
          
-         m_sLastConnectErrorMessage = sErrorMessage;
+         last_connect_error_message_ = sErrorMessage;
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5011, "Application::OnDatabaseConnected", sErrorMessage);
 
@@ -230,9 +230,9 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Close work queue
-      WorkQueueManager::Instance()->RemoveQueue(m_sMaintenanceQueue);
+      WorkQueueManager::Instance()->RemoveQueue(maintenance_queue_);
 
-      WorkQueueManager::Instance()->RemoveQueue(m_sAsynchronousTasksQueue);
+      WorkQueueManager::Instance()->RemoveQueue(asynchronous_tasks_queue_);
 
       // Backup manager is created by initinstance so should be destroyed here.
       if (backup_manager_) 
@@ -313,7 +313,7 @@ namespace HM
       _RegisterSessionTypes();
 
       // Create the main work queue.
-      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, m_sServerWorkQueue);
+      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
 
       notification_server_ = shared_ptr<NotificationServer>(new NotificationServer());
       _folderManager = shared_ptr<FolderManager>(new FolderManager());
@@ -337,7 +337,7 @@ namespace HM
          MessageIndexer::Instance()->Start();
       }
 
-      m_sStartTime = Time::GetCurrentDateTime();
+      start_time_ = Time::GetCurrentDateTime();
 
       scheduler_->GetIsStartedEvent().Wait();
       smtp_delivery_manager_->GetIsStartedEvent().Wait();
@@ -402,7 +402,7 @@ namespace HM
    {
       LOG_APPLICATION("Stopping servers...")
 
-      m_sStartTime = "";
+      start_time_ = "";
 
       if (ServerStatus::Instance()->GetState() != ServerStatus::StateRunning)
       {
@@ -414,7 +414,7 @@ namespace HM
 
       LOG_DEBUG("Application::StopServers() - Removing server work queue");
       // Then remove the main server.
-      WorkQueueManager::Instance()->RemoveQueue(m_sServerWorkQueue);
+      WorkQueueManager::Instance()->RemoveQueue(server_work_queue_);
 
       // Unload the message list cache.
       LOG_DEBUG("Application::StopServers() - Clearing caches");
@@ -473,7 +473,7 @@ namespace HM
    Application::GetMaintenanceWorkQueue()
    {
       shared_ptr<WorkQueue> pWorkQueue =
-         WorkQueueManager::Instance()->GetQueue(m_sMaintenanceQueue);
+         WorkQueueManager::Instance()->GetQueue(maintenance_queue_);
       
       if (!pWorkQueue)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetMaintenanceWorkQueue()", "Maintenance work queue not available.");
@@ -486,7 +486,7 @@ namespace HM
    shared_ptr<WorkQueue>
    Application::GetAsyncWorkQueue()
    {
-      shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(m_sAsynchronousTasksQueue);
+      shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(asynchronous_tasks_queue_);
 
       if (!pAsynchQueue)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetAsyncWorkQueue()", "Async work queue not available.");
@@ -497,7 +497,7 @@ namespace HM
    int 
    Application::GetUniqueID()
    {
-      int iResult = InterlockedIncrement(&m_iUniqueID);
+      int iResult = InterlockedIncrement(&unique_id_);
 
       return iResult;
    }

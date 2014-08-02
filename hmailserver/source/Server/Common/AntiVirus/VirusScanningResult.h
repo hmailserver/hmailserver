@@ -20,17 +20,17 @@ namespace HM
       VirusScanningResult(ScanningResult result, const String &details);
       VirusScanningResult(const String &errorMessageSource, const String &errorMessage);
 
-      bool GetVirusFound() const {return m_scanningResult == VirusFound;}
-      bool GetErrorOccured() const {return m_scanningResult == ErrorOccurred;}
-      String GetErrorMessageSource() const {return m_errorMessageSource;}
-      String GetDetails() const {return m_details;}
+      bool GetVirusFound() const {return result_ == VirusFound;}
+      bool GetErrorOccured() const {return result_ == ErrorOccurred;}
+      String GetErrorMessageSource() const {return message_source_;}
+      String GetDetails() const {return details_;}
 
    private:
 
-      ScanningResult m_scanningResult;
+      ScanningResult result_;
       
-      String m_errorMessageSource;
-      String m_details;
+      String message_source_;
+      String details_;
    };
 
 }

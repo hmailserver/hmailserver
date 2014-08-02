@@ -25,8 +25,8 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("BlockedAttachment"));
 
-      pNode->AppendAttr(_T("Name"), m_sWildcard);
-      pNode->AppendAttr(_T("Description"), m_sDescription);
+      pNode->AppendAttr(_T("Name"), wildcard_);
+      pNode->AppendAttr(_T("Description"), description_);
 
       return true;
    }
@@ -34,8 +34,8 @@ namespace HM
    bool 
    BlockedAttachment::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sWildcard = pNode->GetAttrValue(_T("Name"));
-      m_sDescription = pNode->GetAttrValue(_T("Description"));
+      wildcard_ = pNode->GetAttrValue(_T("Name"));
+      description_ = pNode->GetAttrValue(_T("Description"));
 
       return true;
    }

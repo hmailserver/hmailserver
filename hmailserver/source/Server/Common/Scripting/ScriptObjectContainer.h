@@ -40,6 +40,6 @@ namespace HM
    
    private:
 
-      map<String, shared_ptr<ScriptObject> > m_mapObjects;
+      map<String, shared_ptr<ScriptObject> > objects_;
    };
 }

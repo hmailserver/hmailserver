@@ -45,29 +45,29 @@ namespace HM
          MaxNoOfDistributionLists = 4
       };
 
-      String GetName() const { return m_sName; } 
-      void SetName(const String & newVal) { m_sName = newVal; };
+      String GetName() const { return name_; } 
+      void SetName(const String & newVal) { name_ = newVal; };
 
-      String GetPostmaster() const { return m_sPostmaster; } 
-      void SetPostmaster(const String & newVal) { m_sPostmaster = newVal; };
+      String GetPostmaster() const { return postmaster_; } 
+      void SetPostmaster(const String & newVal) { postmaster_ = newVal; };
 
-      String GetADDomainName() const { return m_sADDomainName; } 
-      void SetADDomainName(const String & newVal) { m_sADDomainName = newVal; };
+      String GetADDomainName() const { return addomain_name_; } 
+      void SetADDomainName(const String & newVal) { addomain_name_ = newVal; };
 
-      bool GetIsActive() const { return m_iActive ? true : false; } 
-      void SetIsActive(bool newVal) { m_iActive = newVal ? 1 : 0; }
+      bool GetIsActive() const { return active_ ? true : false; } 
+      void SetIsActive(bool newVal) { active_ = newVal ? 1 : 0; }
       
-      int GetMaxMessageSize() const {return m_iMaxMessageSize;}
-      void SetMaxMessageSize(int iNewVal) {m_iMaxMessageSize = iNewVal; }
+      int GetMaxMessageSize() const {return max_message_size_;}
+      void SetMaxMessageSize(int iNewVal) {max_message_size_ = iNewVal; }
       
-      bool GetUsePlusAddressing() const {return m_bUsePlusAddressing; }
-      void SetUsePlusAddressing(bool bNewVal) {m_bUsePlusAddressing = bNewVal; }
+      bool GetUsePlusAddressing() const {return use_plus_addressing_; }
+      void SetUsePlusAddressing(bool bNewVal) {use_plus_addressing_ = bNewVal; }
 
-      String GetPlusAddressingChar() const {return m_sPlusAddressingChar; }
-      void SetPlusAddressingChar(const String &sNewVal) {m_sPlusAddressingChar = sNewVal; }
+      String GetPlusAddressingChar() const {return plus_addressing_char_; }
+      void SetPlusAddressingChar(const String &sNewVal) {plus_addressing_char_ = sNewVal; }
 
-      int GetAntiSpamOptions() const {return m_iAntiSpamOptions;}
-      void SetAntiSpamOptions(int iNewVal) {m_iAntiSpamOptions = iNewVal; }
+      int GetAntiSpamOptions() const {return anti_spam_options_;}
+      void SetAntiSpamOptions(int iNewVal) {anti_spam_options_ = iNewVal; }
 
       bool GetASUseGreyListing() const;
       void SetASUseGreyListing(bool bNewVal);
@@ -150,29 +150,29 @@ namespace HM
 
    protected:
 
-      int m_iAntiSpamOptions;
+      int anti_spam_options_;
       
-      String m_sName;
-      String m_sPostmaster;
-      String m_sADDomainName;
+      String name_;
+      String postmaster_;
+      String addomain_name_;
 
-      bool m_bUsePlusAddressing;
-      String m_sPlusAddressingChar;
+      bool use_plus_addressing_;
+      String plus_addressing_char_;
 
-      bool m_bEnableSignature;
-      DomainSignatureMethod m_eSignatureMethod;
-      String m_sSignaturePlainText;
-      String m_sSignatureHTML;
-      bool m_bAddSignaturesToLocalMail;
-      bool m_bAddSignaturesToReplies;
-      int m_iActive;
-      unsigned int m_iMaxMessageSize;
-      int m_iMaxSizeMB;
-      int m_iMaxNoOfAccounts;
-      int m_iMaxNoOfAliases;
-      int m_iMaxNoOfDistributionLists;
-      int m_iLimitationsEnabled;
-      int m_iMaxAccountSize;
+      bool enable_signature_;
+      DomainSignatureMethod signature_method_;
+      String signature_plain_text_;
+      String signature_html_;
+      bool add_signatures_to_local_mail_;
+      bool add_signatures_to_replies_;
+      int active_;
+      unsigned int max_message_size_;
+      int max_size_mb_;
+      int max_no_of_accounts_;
+      int max_no_of_aliases_;
+      int max_no_of_distribution_lists_;
+      int limitations_enabled_;
+      int max_account_size_;
 
       String _dkimSelector;
       String _dkimPrivateKeyFile;

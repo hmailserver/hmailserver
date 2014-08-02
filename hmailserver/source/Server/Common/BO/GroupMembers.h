@@ -20,7 +20,7 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      __int64 GetGroupID() {return m_iGroupID; }
+      __int64 GetGroupID() {return group_id_; }
       bool UserIsMember(__int64 iAccountID);
 
    protected:
@@ -32,6 +32,6 @@ namespace HM
 
    private:
  
-      __int64 m_iGroupID;
+      __int64 group_id_;
    };
 }

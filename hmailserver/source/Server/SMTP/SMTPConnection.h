@@ -178,42 +178,42 @@ namespace HM
 
       
 
-      ConnectionState m_CurrentState;
+      ConnectionState current_state_;
 
       shared_ptr<Message> current_message_;
 
-      bool m_bTraceHeadersWritten;
+      bool trace_headers_written_;
 
-      String m_sUsername;
-      String m_sPassword;
+      String username_;
+      String password_;
 
-      shared_ptr<SMTPConfiguration> m_SMTPConf;
+      shared_ptr<SMTPConfiguration> smtpconf_;
    
       AuthenticationType requestedAuthenticationType_;
       
-      DWORD m_lMessageStartTC;
+      DWORD message_start_tc_;
 
-      int m_iMaxMessageSizeKB;
+      int max_message_size_kb_;
       // Maximum message size in KB.
 
-      String m_sHeloHost;
+      String helo_host_;
 
       shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 
       // Spam detection 
-      bool m_bRejectedByDelayedGreyListing;
-      int m_iCurNoOfRCPTTO;
-      int m_iCurNoOfInvalidCommands;
+      bool rejected_by_delayed_grey_listing_;
+      int cur_no_of_rcptto_;
+      int cur_no_of_invalid_commands_;
       
       shared_ptr<const Domain> sender_domain_;
       shared_ptr<const Account> sender_account_;
 
-      set<shared_ptr<SpamTestResult> > m_setSpamTestResults;
+      set<shared_ptr<SpamTestResult> > spam_test_results_;
 
-      bool m_bReAuthenticateUser;
-      bool m_bPendingDisconnect;
+      bool re_authenticate_user_;
+      bool pending_disconnect_;
       bool isAuthenticated_;
-      SpamProtectionType m_spType;
+      SpamProtectionType type_;
 
       RecipientParser recipientParser_;
    };

@@ -57,7 +57,7 @@ STDMETHODIMP InterfaceAccounts::Add(IInterfaceAccount **pVal)
    
       shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
    
-      pAccount->SetDomainID(m_iDomainID);
+      pAccount->SetDomainID(domain_id_);
       
       pAccountInterface->AttachItem(pAccount);
       pAccountInterface->AttachParent(accounts_, false);

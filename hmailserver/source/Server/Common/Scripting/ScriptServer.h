@@ -54,20 +54,20 @@ namespace HM
       // Compiels the script in sFileName and returns the result. If
       // no compilation errors exists, the function returns an emtpy string.
  
-      bool m_bHasOnClientConnect;
-      bool m_bHasOnAcceptMessage;
-      bool m_bHasOnDeliverMessage;
-      bool m_bHasOnBackupCompleted;
-      bool m_bHasOnBackupFailed;
-      bool m_bHasOnDeliveryStart;
-      bool m_bHasOnError;
-      bool m_bHasOnDeliveryFailed;
-      bool m_bHasOnExternalAccountDownload;
-      bool m_bHasOnSMTPData;
+      bool has_on_client_connect_;
+      bool has_on_accept_message_;
+      bool has_on_deliver_message_;
+      bool has_on_backup_completed_;
+      bool has_on_backup_failed_;
+      bool has_on_delivery_start_;
+      bool has_on_error_;
+      bool has_on_delivery_failed_;
+      bool has_on_external_account_download_;
+      bool has_on_smtpdata_;
 
-      String m_sScriptContents;
-      String m_sScriptExtension;
-      String m_sScriptLanguage;
+      String script_contents_;
+      String script_extension_;
+      String script_language_;
 
    };
 }

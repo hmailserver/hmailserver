@@ -46,7 +46,7 @@ namespace HM
             boost::this_thread::disable_interruption disabled;
 
             boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-            m_vecScheduledTasks.clear();
+            scheduled_tasks_.clear();
 
             return;
          }
@@ -60,7 +60,7 @@ namespace HM
 
       vector<shared_ptr<ScheduledTask >>::iterator iterTask;
 
-      for (iterTask = m_vecScheduledTasks.begin(); iterTask != m_vecScheduledTasks.end(); iterTask++)
+      for (iterTask = scheduled_tasks_.begin(); iterTask != scheduled_tasks_.end(); iterTask++)
       {
          shared_ptr<ScheduledTask > pTask = (*iterTask);
 
@@ -91,7 +91,7 @@ namespace HM
          return;
       }
 
-      m_vecScheduledTasks.push_back(pTask);
+      scheduled_tasks_.push_back(pTask);
      
    }
 

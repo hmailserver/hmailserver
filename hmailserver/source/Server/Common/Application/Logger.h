@@ -111,7 +111,7 @@ namespace HM
 
       int GetLogMask() 
       {
-         return m_iLogMask;
+         return log_mask_;
       }
 
       String GetCurrentLogFileName(LogType lt) ;
@@ -125,20 +125,20 @@ namespace HM
    
       static Logger *pInstanceApp;   
      
-      String m_sLogDir;
+      String log_dir_;
       String GetCurrentTime();
 
       int _GetProcessID();
       int _GetThreadID();
 
 
-      bool m_bEnableLiveLog;
-      bool m_bSepSvcLogs;      
-      int  m_iLogLevel;      
-      int  m_iMaxLogLineLen;      
+      bool enable_live_log_;
+      bool sep_svc_logs_;      
+      int  log_level_;      
+      int  max_log_line_len_;      
 
-      String m_sLiveLog;
-      int m_iLogMask;
+      String live_log_;
+      int log_mask_;
 
       File _normalLogFile;
       File _errorLogFile;

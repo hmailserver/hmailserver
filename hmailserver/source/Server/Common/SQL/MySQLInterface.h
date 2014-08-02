@@ -61,6 +61,6 @@ namespace HM
 
       String _GetLibraryFileName();
 
-      HINSTANCE m_hLibraryInstance;
+      HINSTANCE library_instance_;
    };
 }

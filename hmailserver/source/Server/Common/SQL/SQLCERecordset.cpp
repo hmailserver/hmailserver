@@ -18,7 +18,7 @@ namespace HM
          assert(0);
       }
 */
-      m_iCurRow = 0;
+      cur_row_ = 0;
    }
 
    SQLCERecordset::~SQLCERecordset()
@@ -29,7 +29,7 @@ namespace HM
    DALConnection::ExecutionResult
    SQLCERecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
-      m_iCurRow = 0;
+      cur_row_ = 0;
 
       String sSQL = command.GetQueryString();
 
@@ -123,7 +123,7 @@ namespace HM
    bool
    SQLCERecordset::MoveNext()
    {
-      m_iCurRow++;
+      cur_row_++;
       cSQLCERecordset->MoveNext();
       return true;
    }

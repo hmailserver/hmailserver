@@ -20,14 +20,14 @@ namespace HM
       virtual ~SpamTestResult();
 
       Result GetResult() {return result_; }
-      int GetSpamScore() {return m_iSpamScore; }
-      String GetMessage() {return m_sMessage; }
+      int GetSpamScore() {return spam_score_; }
+      String GetMessage() {return message_; }
       String GetTestName() {return testName_; }
 
    private:
 
-      int m_iSpamScore;
-      String m_sMessage;
+      int spam_score_;
+      String message_;
       String testName_;
       Result result_;
 

@@ -27,19 +27,19 @@ namespace HM
    String 
    Group::GetName() const
    {
-      return m_sName;
+      return name_;
    }
 
    void 
    Group::SetName(const String &sName)
    {
-      m_sName = sName;
+      name_ = sName;
    }
 
    shared_ptr<GroupMembers> 
    Group::GetMembers()
    {
-      shared_ptr<GroupMembers> pGroupMembers = shared_ptr<GroupMembers>(new GroupMembers(m_iID));
+      shared_ptr<GroupMembers> pGroupMembers = shared_ptr<GroupMembers>(new GroupMembers(id_));
       pGroupMembers->Refresh();
 
       return pGroupMembers;
@@ -56,7 +56,7 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Group"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
+      pNode->AppendAttr(_T("Name"), name_);
 
       GetMembers()->XMLStore(pNode, iOptions);
 
@@ -66,7 +66,7 @@ namespace HM
    bool
    Group::XMLLoad(XNode *pNode, int iRestoreOptions)
    {
-      m_sName = pNode->GetAttrValue(_T("Name"));
+      name_ = pNode->GetAttrValue(_T("Name"));
 
       return true;
    }

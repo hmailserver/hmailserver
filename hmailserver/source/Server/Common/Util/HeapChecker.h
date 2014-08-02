@@ -20,7 +20,7 @@ namespace HM
 
    private:
 #ifdef _DEBUG
-       _CrtMemState m_stateStart;
+       _CrtMemState start_;
 #endif
    };
 }

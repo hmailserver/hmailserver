@@ -22,52 +22,52 @@ namespace HM
 
       void CopyFrom(shared_ptr<MessageRecipient> pRecip);
 
-      void SetAddress(const String & sNewVal) {m_sAddress = sNewVal; }
-      String GetAddress() const {return m_sAddress;}
+      void SetAddress(const String & sNewVal) {address_ = sNewVal; }
+      String GetAddress() const {return address_;}
 
-      void SetOriginalAddress(const String & sNewVal) {m_sOriginalAddress = sNewVal; }
-      String GetOriginalAddress() const {return m_sOriginalAddress;}
+      void SetOriginalAddress(const String & sNewVal) {original_address_ = sNewVal; }
+      String GetOriginalAddress() const {return original_address_;}
 
-      void SetLocalAccountID(__int64 lNewVal) {m_iLocalAccountID = lNewVal;}
-      __int64 GetLocalAccountID() const{return m_iLocalAccountID;}
+      void SetLocalAccountID(__int64 lNewVal) {local_account_id_ = lNewVal;}
+      __int64 GetLocalAccountID() const{return local_account_id_;}
 
-      void SetMessageID(__int64 lNewVal) {m_iMessageID = lNewVal;}
-      __int64 GetMessageID() const {return m_iMessageID;}
+      void SetMessageID(__int64 lNewVal) {message_id_ = lNewVal;}
+      __int64 GetMessageID() const {return message_id_;}
 
-      bool GetRequireAuth() const {return m_bRequiresAuthentication;}
-      void SetRequiresAuth(bool bNewVal) {m_bRequiresAuthentication = bNewVal; }
+      bool GetRequireAuth() const {return requires_authentication_;}
+      void SetRequiresAuth(bool bNewVal) {requires_authentication_ = bNewVal; }
 
-      String GetRequiredSender() const {return m_sRequiredSender; }
-      void SetRequiredSender(const String &sNewVal) {m_sRequiredSender = sNewVal; }
+      String GetRequiredSender() const {return required_sender_; }
+      void SetRequiredSender(const String &sNewVal) {required_sender_ = sNewVal; }
 
       bool GetIsLocalName() const {return _isLocalName; }
       void SetIsLocalName(bool isLocalName) {_isLocalName = isLocalName; }
 
-      bool IsEmpty() {return m_sAddress.IsEmpty(); }
+      bool IsEmpty() {return address_.IsEmpty(); }
 
       // -- BEGIN REMOTE DELIVERY
-      DeliveryResult GetDeliveryResult() const {return  m_drResult; }
-      void SetDeliveryResult(DeliveryResult newVal) {m_drResult = newVal; }
+      DeliveryResult GetDeliveryResult() const {return  result_; }
+      void SetDeliveryResult(DeliveryResult newVal) {result_ = newVal; }
 
-      String GetErrorMessage() const {return m_sErrorMessage;}
-      void SetErrorMessage(const String &sNewVal) {m_sErrorMessage = sNewVal; }
+      String GetErrorMessage() const {return error_message_;}
+      void SetErrorMessage(const String &sNewVal) {error_message_ = sNewVal; }
       // -- END REMOTE DELIVERY
 
    protected:
 
-      String m_sAddress;
-      __int64 m_iLocalAccountID;
-      __int64 m_iMessageID;
+      String address_;
+      __int64 local_account_id_;
+      __int64 message_id_;
 
       bool _isLocalName;
 
-      bool m_bRequiresAuthentication;
-      String m_sRequiredSender;
-      String m_sOriginalAddress;
+      bool requires_authentication_;
+      String required_sender_;
+      String original_address_;
       
       // -- BEGIN REMOTE DELIVERY
-      DeliveryResult m_drResult;
-      String m_sErrorMessage;
+      DeliveryResult result_;
+      String error_message_;
       // -- END REMOTE DELIVERY
    };
 }

@@ -37,7 +37,7 @@ namespace HM
    private:
 
       boost::recursive_mutex _mutex;
-      String m_sLog;
-      bool m_bIsRunning;
+      String log_;
+      bool is_running_;
    };
 }

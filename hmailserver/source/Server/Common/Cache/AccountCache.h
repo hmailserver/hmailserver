@@ -20,13 +20,13 @@ namespace HM
 
    private:
 
-      CriticalSection m_oAccountCritSec;
-      std::map<String, shared_ptr<Account> > m_mapAccounts;
+      CriticalSection account_crit_sec_;
+      std::map<String, shared_ptr<Account> > accounts_;
 
-      int m_iNoOfHits;
-      int m_iNoOfMisses;
+      int no_of_hits_;
+      int no_of_misses_;
 
-      int m_iCacheTTL;
+      int cache_ttl_;
 
    };
 }

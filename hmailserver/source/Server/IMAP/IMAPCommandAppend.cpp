@@ -45,8 +45,8 @@ namespace HM
       if (!current_message_)
          return;
 
-      if (FileUtilities::Exists(m_sMessageFileName))
-         FileUtilities::DeleteFile(m_sMessageFileName);
+      if (FileUtilities::Exists(message_file_name_))
+         FileUtilities::DeleteFile(message_file_name_);
    }
 
    IMAPResult
@@ -55,11 +55,11 @@ namespace HM
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
       
-      m_sCurrentTag = pArgument->Tag();
+      current_tag_ = pArgument->Tag();
       
       // Reset these two so we don't re-use old values.
-      m_sFlagsToSet = "";
-      m_sCreateTimeToSet = "";
+      flags_to_set_ = "";
+      create_time_to_set_ = "";
 
       shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
@@ -74,7 +74,7 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
      
       if (pParser->ParantheziedWord())
-         m_sFlagsToSet = pParser->ParantheziedWord()->Value();
+         flags_to_set_ = pParser->ParantheziedWord()->Value();
 
       // last word.
       shared_ptr<IMAPSimpleWord> pWord = pParser->Word(pParser->WordCount()-1);
@@ -84,22 +84,22 @@ namespace HM
 
       AnsiString literalSize = pWord->Value();
        
-      m_lBytesLeftToReceive = atoi(literalSize);
-      if (m_lBytesLeftToReceive == 0)
+      bytes_left_to_receive_ = atoi(literalSize);
+      if (bytes_left_to_receive_ == 0)
          return IMAPResult(IMAPResult::ResultBad, "Empty message not permitted.");
       
       // Add an extra two bytes since we expect a <newline> in the end.
-      m_lBytesLeftToReceive += 2;
+      bytes_left_to_receive_ += 2;
 
       shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
       int maxMessageSizeKB = _GetMaxMessageSize(domain);
 
       if (maxMessageSizeKB > 0 && 
-          m_lBytesLeftToReceive / 1024 > maxMessageSizeKB)
+          bytes_left_to_receive_ / 1024 > maxMessageSizeKB)
       {
          String sMessage;
          sMessage.Format(_T("Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-            m_lBytesLeftToReceive / 1024, maxMessageSizeKB);
+            bytes_left_to_receive_ / 1024, maxMessageSizeKB);
 
          return IMAPResult(IMAPResult::ResultNo, sMessage);
       }
@@ -114,13 +114,13 @@ namespace HM
 
          if (pWord->Quoted())
          {
-            m_sCreateTimeToSet = pWord->Value();
+            create_time_to_set_ = pWord->Value();
 
             // date-day-fixed  = (SP DIGIT) / 2DIGIT
             //   ; Fixed-format version of date-day
             // If the date given starts with <space>number, we need
             // to Trim. Doesn't hurt to always do this.
-            m_sCreateTimeToSet.TrimLeft();
+            create_time_to_set_.TrimLeft();
          }
       }
 
@@ -136,7 +136,7 @@ namespace HM
          if (!pAccount)
             return IMAPResult(IMAPResult::ResultNo, "Account could not be fetched.");
 
-         if (!pAccount->SpaceAvailable(m_lBytesLeftToReceive))
+         if (!pAccount->SpaceAvailable(bytes_left_to_receive_))
             return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
       }
 
@@ -157,7 +157,7 @@ namespace HM
       if (!destination_folder_->IsPublicFolder())
          pMessageOwner = pConnection->GetAccount();
 
-      m_sMessageFileName = PersistentMessage::GetFileName(pMessageOwner, current_message_);
+      message_file_name_ = PersistentMessage::GetFileName(pMessageOwner, current_message_);
 
       String sResponse = "+ Ready for literal data\r\n";
       pConnection->SetReceiveBinary(true);
@@ -171,7 +171,7 @@ namespace HM
    {
       _appendBuffer.Add(pBuf);
    
-      if (_appendBuffer.GetSize() >= m_lBytesLeftToReceive)
+      if (_appendBuffer.GetSize() >= bytes_left_to_receive_)
       {
          _WriteData(pConnection, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
 
@@ -198,12 +198,12 @@ namespace HM
       if (!current_message_)
          return false;
 
-      String destinationPath = FileUtilities::GetFilePath(m_sMessageFileName);
+      String destinationPath = FileUtilities::GetFilePath(message_file_name_);
       if (!FileUtilities::Exists(destinationPath))
          FileUtilities::CreateDirectoryRecursive(destinationPath);
 
       File oFile;
-      if (!oFile.Open(m_sMessageFileName, File::OTAppend))
+      if (!oFile.Open(message_file_name_, File::OTAppend))
          return false;
    
       DWORD dwNoOfBytesWritten = 0;
@@ -218,7 +218,7 @@ namespace HM
       if (_appendBuffer.GetSize() >= 20000)
       {
          _WriteData(pConn, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
-         m_lBytesLeftToReceive -= _appendBuffer.GetSize();
+         bytes_left_to_receive_ -= _appendBuffer.GetSize();
          _appendBuffer.Empty();
       }
 
@@ -233,15 +233,15 @@ namespace HM
          return;
 
       // Add this message to the folder.
-      current_message_->SetSize(FileUtilities::FileSize(m_sMessageFileName));
+      current_message_->SetSize(FileUtilities::FileSize(message_file_name_));
       current_message_->SetState(Message::Delivered);
 
       // Set message flags.
-      bool bSeen = (m_sFlagsToSet.FindNoCase(_T("\\Seen")) >= 0);
-      bool bDeleted = (m_sFlagsToSet.FindNoCase(_T("\\Deleted")) >= 0);
-      bool bDraft = (m_sFlagsToSet.FindNoCase(_T("\\Draft")) >= 0);
-      bool bAnswered = (m_sFlagsToSet.FindNoCase(_T("\\Answered")) >= 0);
-      bool bFlagged = (m_sFlagsToSet.FindNoCase(_T("\\Flagged")) >= 0);
+      bool bSeen = (flags_to_set_.FindNoCase(_T("\\Seen")) >= 0);
+      bool bDeleted = (flags_to_set_.FindNoCase(_T("\\Deleted")) >= 0);
+      bool bDraft = (flags_to_set_.FindNoCase(_T("\\Draft")) >= 0);
+      bool bAnswered = (flags_to_set_.FindNoCase(_T("\\Answered")) >= 0);
+      bool bFlagged = (flags_to_set_.FindNoCase(_T("\\Flagged")) >= 0);
       
       if (bSeen)
       {
@@ -262,11 +262,11 @@ namespace HM
       current_message_->SetFlagRecent(true);
          
       // Set the create time
-      if (!m_sCreateTimeToSet.IsEmpty())
+      if (!create_time_to_set_.IsEmpty())
       {
          // Convert to internal format
-         m_sCreateTimeToSet = Time::GetInternalDateFromIMAPInternalDate(m_sCreateTimeToSet);
-         current_message_->SetCreateTime(m_sCreateTimeToSet);
+         create_time_to_set_ = Time::GetInternalDateFromIMAPInternalDate(create_time_to_set_);
+         current_message_->SetCreateTime(create_time_to_set_);
       }
 
       PersistentMessage::SaveObject(current_message_);
@@ -282,7 +282,7 @@ namespace HM
       }
 
       // Send the OK response to the client.
-      sResponse += m_sCurrentTag + " OK APPEND completed\r\n";
+      sResponse += current_tag_ + " OK APPEND completed\r\n";
       pConnection->SendAsciiData(sResponse);
 
       // Notify the mailbox notifier that the mailbox contents have changed. 

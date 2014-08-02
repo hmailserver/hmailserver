@@ -47,7 +47,7 @@ namespace HM
       shared_ptr<MimeBody> _LoadMimeBody(shared_ptr<IMAPFetchParser> pParser, const String &fileName);
       bool _GetMessageBodyNeeded(shared_ptr<IMAPFetchParser> pParser);
 
-      bool m_bAppendSpace;
+      bool append_space_;
 
       shared_ptr<IMAPFetchParser> parser_;
 

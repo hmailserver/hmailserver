@@ -25,8 +25,8 @@
 namespace HM
 {
    IMAPCommandSEARCH::IMAPCommandSEARCH(bool bIsSort) :
-      m_bIsSort(bIsSort),
-      m_bIsUID(false)
+      is_sort_(bIsSort),
+      is_uid_(false)
    {
 
    }
@@ -39,7 +39,7 @@ namespace HM
    IMAPResult
    IMAPCommandSEARCH::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
    {
-      if (m_bIsSort && !Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPSort())
+      if (is_sort_ && !Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPSort())
          return IMAPResult(IMAPResult::ResultNo, "IMAP SORT is not enabled.");
 
       if (!pConnection->IsAuthenticated())
@@ -59,7 +59,7 @@ namespace HM
 
          int iCommandStartPos;
          
-         if (m_bIsUID)
+         if (is_uid_)
             iCommandStartPos = sCommand.Find(_T(" "), 4) + 1;
          else
             iCommandStartPos = sCommand.Find(_T(" ")) + 1;
@@ -70,11 +70,11 @@ namespace HM
       }
 
       shared_ptr<IMAPSearchParser> pParser = shared_ptr<IMAPSearchParser>(new IMAPSearchParser());
-      IMAPResult result = pParser->ParseCommand(pArgument, m_bIsSort);
+      IMAPResult result = pParser->ParseCommand(pArgument, is_sort_);
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
 
-      if (m_bIsSort && !pParser->GetSortParser())
+      if (is_sort_ && !pParser->GetSortParser())
          return IMAPResult(IMAPResult::ResultBad, "Incorrect search commands.");
 
       // Mails in current box
@@ -104,7 +104,7 @@ namespace HM
             }
          }
 
-         if (m_bIsSort)
+         if (is_sort_)
          {
             IMAPSort oSorter;
             oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetSortParser());
@@ -118,7 +118,7 @@ namespace HM
             shared_ptr<Message> pMessage = messagePair.second;
 
             String sID;
-            if (m_bIsUID)
+            if (is_uid_)
                sID.Format(_T("%u"), pMessage->GetUID());
             else
                sID.Format(_T("%d"), index);
@@ -138,12 +138,12 @@ namespace HM
       }
       
       String sResponse;
-      if (m_bIsSort)
+      if (is_sort_)
          sResponse = "* SORT" + sMatching + "\r\n";
       else
          sResponse = "* SEARCH" + sMatching + "\r\n";
 
-      if (!m_bIsUID) 
+      if (!is_uid_) 
          // if this is a UID command, IMAPCommandUID takes care of the below line.
          sResponse += pArgument->Tag() + " OK Search completed\r\n";
 

@@ -35,11 +35,11 @@ namespace HM
 
    private:
 
-      String m_sEnvelopeFrom;
+      String envelope_from_;
 
       IPAddress originatingAddress_;
       IPAddress connectingAddress_;
-      String m_sHeloHost;
+      String helo_host_;
 
       shared_ptr<MessageData> message_data_;
       

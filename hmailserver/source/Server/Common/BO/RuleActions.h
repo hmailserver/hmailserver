@@ -19,7 +19,7 @@ namespace HM
       
       void Refresh(); 
 
-      __int64 GetRuleID() const {return m_iRuleID; }
+      __int64 GetRuleID() const {return rule_id_; }
 
       void MoveUp(shared_ptr<RuleAction> pRuleAction);
       void MoveDown(shared_ptr<RuleAction> pRuleAction);
@@ -32,6 +32,6 @@ namespace HM
       vector<shared_ptr<RuleAction> >::iterator _GetRuleActionIterator(shared_ptr<RuleAction> pRuleAction);
       void _UpdateSortOrder();
 
-      __int64 m_iRuleID;
+      __int64 rule_id_;
    };
 }

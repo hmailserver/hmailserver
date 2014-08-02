@@ -59,9 +59,9 @@ namespace HM
       void _RunCommand(const String &sCommand) ;
       void LoadSupportsTransactions(const String &database);      
 
-      hm_MYSQL *m_pDBConn;
+      hm_MYSQL *dbconn_;
 
-      bool m_bIsConnected;
+      bool is_connected_;
       bool _supportsTransactions;
 
       ColumnPositionCache _columnPositionCache;

@@ -34,7 +34,7 @@ namespace HM
       bool _Close();
       _RecordsetPtr cADORecordset;
 
-      long m_iCurRow;
+      long cur_row_;
    };
 
 }

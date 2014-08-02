@@ -27,7 +27,7 @@ namespace HM
 {
 
    IMAPFetch::IMAPFetch() :
-      m_bAppendSpace(false)
+      append_space_(false)
    {
       
    }
@@ -45,7 +45,7 @@ namespace HM
 
       const String messageFileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
 
-      m_bAppendSpace = false;
+      append_space_ = false;
 
       // Parse the command
       if (!parser_)
@@ -212,8 +212,8 @@ namespace HM
          {
             IMAPFetchParser::BodyPart oPart = (*iter);
 
-            int iOctetStart = oPart.m_iOctetStart;
-            int iOctetCount = oPart.m_iOctetCount;
+            int iOctetStart = oPart.octet_start_;
+            int iOctetCount = oPart.octet_count_;
            
             const String messageFileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
             shared_ptr<ByteBuffer> pBuffer = _GetByteBufferByBodyPart(messageFileName, pMimeBody, oPart);
@@ -276,8 +276,8 @@ namespace HM
    void
    IMAPFetch::_GetBytesToSend(int iBufferSize, IMAPFetchParser::BodyPart &oPart, int &iOutStart, int &iOutCount)
    {
-      int iOctetStart = oPart.m_iOctetStart;
-      int iOctetCount = oPart.m_iOctetCount;
+      int iOctetStart = oPart.octet_start_;
+      int iOctetCount = oPart.octet_count_;
 
       if (iOctetStart == -1 && iOctetCount == -1)
       {
@@ -608,7 +608,7 @@ namespace HM
             // "unallowed" characters.
             //
             // Before this, the date may look like this:
-            // Thu, 20 Jan 2005 10:58:55 -0200 (Horário brasileiro de verão)
+            // Thu, 20 Jan 2005 10:58:55 -0200 (Horï¿½rio brasileiro de verï¿½o)
             // Afterwards, it should be:
             // Thu, 20 Jan 2005 10:58:55 -0200
 
@@ -1108,12 +1108,12 @@ namespace HM
    void
    IMAPFetch::_AppendOutput(String &sOutput, const String &sAppend)
    {
-      if (m_bAppendSpace)
+      if (append_space_)
          sOutput += " ";
 
       sOutput += sAppend;
 
-      m_bAppendSpace = true;
+      append_space_ = true;
    }
 
    void

@@ -12,10 +12,10 @@
 namespace HM
 {
    MessageRecipient::MessageRecipient()  :
-      m_drResult (ResultUndefined),
-      m_iLocalAccountID(0),
-      m_iMessageID(0),
-      m_bRequiresAuthentication(false),
+      result_ (ResultUndefined),
+      local_account_id_(0),
+      message_id_(0),
+      requires_authentication_(false),
       _isLocalName(false)
    {
 
@@ -24,13 +24,13 @@ namespace HM
    void
    MessageRecipient::CopyFrom(shared_ptr<MessageRecipient> pRecip)
    {
-      m_sAddress = pRecip->GetAddress();
-      m_iLocalAccountID = pRecip->GetLocalAccountID();
-      m_iMessageID = pRecip->GetMessageID();
-      m_sOriginalAddress = pRecip->GetOriginalAddress();
+      address_ = pRecip->GetAddress();
+      local_account_id_ = pRecip->GetLocalAccountID();
+      message_id_ = pRecip->GetMessageID();
+      original_address_ = pRecip->GetOriginalAddress();
 
-      m_bRequiresAuthentication = pRecip->GetRequireAuth();
-      m_sRequiredSender = pRecip->GetRequiredSender();
+      requires_authentication_ = pRecip->GetRequireAuth();
+      required_sender_ = pRecip->GetRequiredSender();
 
       _isLocalName = pRecip->GetIsLocalName();
    }

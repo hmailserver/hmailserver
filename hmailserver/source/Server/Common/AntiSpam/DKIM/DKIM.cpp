@@ -387,15 +387,15 @@ namespace HM
          return result;
       }
 
-      EVP_MD_CTX m_Hdr_ctx;
-      EVP_MD_CTX_init( &m_Hdr_ctx );
+      EVP_MD_CTX hdr__ctx;
+      EVP_MD_CTX_init( &hdr__ctx );
 
       if (tagA == "rsa-sha256")
-         EVP_VerifyInit( &m_Hdr_ctx, EVP_sha256() );
+         EVP_VerifyInit( &hdr__ctx, EVP_sha256() );
       else
-         EVP_VerifyInit( &m_Hdr_ctx, EVP_sha1() );
+         EVP_VerifyInit( &hdr__ctx, EVP_sha1() );
 
-      if (EVP_VerifyUpdate( &m_Hdr_ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
+      if (EVP_VerifyUpdate( &hdr__ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
       {
          // base64 decode the signature. we're working with binary
          // data here so we can't store it in a normal string. 
@@ -405,7 +405,7 @@ namespace HM
          AnsiString signature;
          encoder.GetOutput(signature);
 
-         if (EVP_VerifyFinal( &m_Hdr_ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
+         if (EVP_VerifyFinal( &hdr__ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
          {
             LOG_DEBUG("DKIM: Message passed validation.");
             result = Pass;
@@ -416,7 +416,7 @@ namespace HM
          }
       }
 
-      EVP_MD_CTX_cleanup( &m_Hdr_ctx );
+      EVP_MD_CTX_cleanup( &hdr__ctx );
       EVP_PKEY_free(publicKey);
 
       return result;

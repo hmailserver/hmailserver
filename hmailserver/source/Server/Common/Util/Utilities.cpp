@@ -23,8 +23,8 @@
 
 namespace HM
 {
-   String Utilities::m_sCachedWin32ComputerName = "";
-   String Utilities::m_sCachedWin32TempDir = "";
+   String Utilities::cached_win_32computer_name_ = "";
+   String Utilities::cached_win_32temp_dir_ = "";
 
    Utilities::Utilities()
    {
@@ -40,8 +40,8 @@ namespace HM
    Utilities::GetWin32TempDirectory()
    {
       // No username specified. Fetch local computer name.
-      if (!m_sCachedWin32TempDir.IsEmpty())
-         return m_sCachedWin32TempDir;
+      if (!cached_win_32temp_dir_.IsEmpty())
+         return cached_win_32temp_dir_;
 
       
       unsigned long iSize = 255;
@@ -54,11 +54,11 @@ namespace HM
          if (sShort.Right(1) == _T("\\"))
             sShort = sShort.Left(sShort.GetLength() - 1);
 
-         m_sCachedWin32TempDir = FileUtilities::GetLongPath(sShort);
+         cached_win_32temp_dir_ = FileUtilities::GetLongPath(sShort);
         
       }
 
-      return m_sCachedWin32TempDir;
+      return cached_win_32temp_dir_;
 
    }
 
@@ -83,17 +83,17 @@ namespace HM
          
 
       // No username specified. Fetch local computer name.
-      if (!m_sCachedWin32ComputerName.IsEmpty())
-         return m_sCachedWin32ComputerName;
+      if (!cached_win_32computer_name_.IsEmpty())
+         return cached_win_32computer_name_;
 
 
-      m_sCachedWin32ComputerName = "LOCALHOST";
+      cached_win_32computer_name_ = "LOCALHOST";
       TCHAR pCharBuf[255];
       unsigned long iSize = 255;
       if (::GetComputerName(pCharBuf, &iSize) == TRUE)
-         m_sCachedWin32ComputerName = pCharBuf;
+         cached_win_32computer_name_ = pCharBuf;
       
-      return m_sCachedWin32ComputerName ;
+      return cached_win_32computer_name_ ;
 
    }
 

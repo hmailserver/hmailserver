@@ -27,14 +27,14 @@ namespace HM
 
 	   virtual ~IMAPFolder();
 
-      __int64 GetID() const { return m_iDBID; }
-      void SetID(__int64 lNewVal) { m_iDBID = lNewVal;}
+      __int64 GetID() const { return dbid_; }
+      void SetID(__int64 lNewVal) { dbid_ = lNewVal;}
 
       __int64 GetParentFolderID() const;
-      void SetParentFolderID(__int64 value) {m_iParentFolderID = value;}
+      void SetParentFolderID(__int64 value) {parent_folder_id_ = value;}
 
-      __int64 GetAccountID() const { return m_iAccountID;} 
-      void SetAccountID(__int64 newVal) {m_iAccountID = newVal;}
+      __int64 GetAccountID() const { return account_id_;} 
+      void SetAccountID(__int64 newVal) {account_id_ = newVal;}
 
       unsigned int GetCurrentUID() const { return _currentUID;} 
       void SetCurrentUID(unsigned int currentUID) {_currentUID = currentUID;}
@@ -43,11 +43,11 @@ namespace HM
       void SetCreationTime(const DateTime &currentUID) {_createTime = currentUID;}
 
 
-      bool GetIsSubscribed() const { return m_bFolderIsSubscribed;} 
-      void SetIsSubscribed(bool bNewVal) { m_bFolderIsSubscribed = bNewVal;}
+      bool GetIsSubscribed() const { return folder_is_subscribed_;} 
+      void SetIsSubscribed(bool bNewVal) { folder_is_subscribed_ = bNewVal;}
 
-      String GetFolderName() const { return m_sFolderName;}
-      void SetFolderName(const String & sNewVal) { m_sFolderName =sNewVal; }
+      String GetFolderName() const { return folder_name_;}
+      void SetFolderName(const String & sNewVal) { folder_name_ =sNewVal; }
 
       String GetName() const {return GetFolderName(); }
       
@@ -79,20 +79,20 @@ namespace HM
 
    protected:
 
-      __int64 m_iDBID;
-      __int64 m_iAccountID;
-      __int64 m_iParentFolderID;
+      __int64 dbid_;
+      __int64 account_id_;
+      __int64 parent_folder_id_;
       unsigned int _currentUID;
 
-      bool m_bFolderIsSubscribed;
-      AnsiString m_sFolderName;
+      bool folder_is_subscribed_;
+      AnsiString folder_name_;
 
-      shared_ptr<Messages> m_oMessages;
-      shared_ptr<IMAPFolders> m_oSubFolders;   
+      shared_ptr<Messages> messages_;
+      shared_ptr<IMAPFolders> sub_folders_;   
  
       DateTime _createTime;
 
-      bool m_bFolderNeedsRefresh;
+      bool folder_needs_refresh_;
    };
 
 }

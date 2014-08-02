@@ -52,13 +52,13 @@ public:
    STDMETHOD(Refresh)();
 
    void Attach(shared_ptr<HM::DistributionListRecipients> pRecipients);
-   void SetListID(__int64 lListID) {m_lListID = lListID; }
+   void SetListID(__int64 lListID) {list_id_ = lListID; }
 
 private:
 
 
    shared_ptr<HM::DistributionListRecipients> recipients_;
-   __int64 m_lListID;
+   __int64 list_id_;
 
 };
 

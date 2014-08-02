@@ -37,11 +37,11 @@ namespace HM
       static shared_ptr<IMAPFolder> GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
    private:
 
-      std::map<__int64, shared_ptr<IMAPFolders> > m_mapFolders;
+      std::map<__int64, shared_ptr<IMAPFolders> > folders_;
       
-      static CriticalSection m_hFetchListCriticalSection; 
+      static CriticalSection fetch_list_critical_section_; 
       
-      bool m_bEnabled;
+      bool enabled_;
    
    };
 }

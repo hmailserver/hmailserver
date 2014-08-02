@@ -36,15 +36,15 @@ namespace HM
       virtual bool ExitInstance();
 
       String GetVersion() const;
-      String GetVersionNumber() const {return m_sVersion;}
+      String GetVersionNumber() const {return version_;}
 
-      String GetStartTime() const {return m_sStartTime; }
+      String GetStartTime() const {return start_time_; }
 
       bool OpenDatabase(String &sErrorMessage);
       void CloseDatabase();
 
       
-      String GetLastErrorMessage() {return m_sLastConnectErrorMessage; }; 
+      String GetLastErrorMessage() {return last_connect_error_message_; }; 
 
       bool StartServers();
       void StopServers();
@@ -76,11 +76,11 @@ namespace HM
       void _RegisterSessionTypes();
       void _CreateScheduledTasks();
 
-      String m_sProdName;
-      String m_sVersion;
-      String m_sStartTime;
+      String prod_name_;
+      String version_;
+      String start_time_;
       
-      String m_sLastConnectErrorMessage;
+      String last_connect_error_message_;
 
       shared_ptr<DatabaseConnectionManager> db_manager_;
    
@@ -94,14 +94,14 @@ namespace HM
       shared_ptr<IOService> io_service_;
       shared_ptr<FolderManager> _folderManager;
 
-      const String m_sMaintenanceQueue;
+      const String maintenance_queue_;
       // The random work queue can run any type of task.
 
-      const String m_sServerWorkQueue;
+      const String server_work_queue_;
       // The main server queue, that contains one task per server.
 
-      const String m_sAsynchronousTasksQueue;
+      const String asynchronous_tasks_queue_;
 
-      long m_iUniqueID;
+      long unique_id_;
    };
 }

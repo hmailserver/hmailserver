@@ -45,9 +45,9 @@ namespace HM
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
       AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
-      m_CurrentState(AUTHORIZATION),
-      m_oTransmissionBuffer(true),
-      m_bPendingDisconnect(false)
+      current_state_(AUTHORIZATION),
+      transmission_buffer_(true),
+      pending_disconnect_(false)
    {
       /*
         RFC 1939, Basic Operation
@@ -274,7 +274,7 @@ namespace HM
       else
          sCommand = Request;
 
-      POP3Command command = GetCommand(m_CurrentState, sCommand);
+      POP3Command command = GetCommand(current_state_, sCommand);
 
       switch (command)
       {
@@ -405,7 +405,7 @@ namespace HM
 
       // Apply domain aliases to the user name.
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
-      m_Username = pDA->ApplyAliasesOnAddress(Parameter);
+      username_ = pDA->ApplyAliasesOnAddress(Parameter);
       _SendData("+OK Send your password" );      
    }
 
@@ -427,11 +427,11 @@ namespace HM
    POP3Connection::_ProtocolPASS(const String &Parameter)
    {
 
-      m_Password = Parameter;
+      password_ = Parameter;
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      _account = accountLogon.Logon(GetRemoteEndpointAddress(), m_Username, m_Password, disconnect);
+      _account = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
 
       if (disconnect)
       {
@@ -441,7 +441,7 @@ namespace HM
 
       if (!_account)
       {
-         if (m_Username.Find(_T("@")) == -1)
+         if (username_.Find(_T("@")) == -1)
             _SendData("-ERR Invalid user name or password. Please use full email address as user name.");
          else
             _SendData("-ERR Invalid user name or password.");
@@ -465,7 +465,7 @@ namespace HM
       _ResetMailbox();
 
       _SendData("+OK Mailbox locked and ready" );
-      m_CurrentState = TRANSACTION;
+      current_state_ = TRANSACTION;
       
       return ResultNormalResponse;
    }
@@ -647,7 +647,7 @@ namespace HM
    {  
       String fileName = PersistentMessage::GetFileName(_account, message);
 
-      m_oTransmissionBuffer.Initialize(shared_from_this());
+      transmission_buffer_.Initialize(shared_from_this());
       
       if (!_currentFile.Open(fileName, File::OTReadOnly))
       {
@@ -661,7 +661,7 @@ namespace HM
       responseTemp.Format(_T("+OK %d octets\r\n"), message->GetSize());
       AnsiString responseString = responseTemp;
 
-      m_oTransmissionBuffer.Append((BYTE*) responseString.GetBuffer(), responseString.GetLength());
+      transmission_buffer_.Append((BYTE*) responseString.GetBuffer(), responseString.GetLength());
       
 	  _ReadAndSend();
    }
@@ -678,9 +678,9 @@ namespace HM
 
          while (pBuffer)
          {
-            m_oTransmissionBuffer.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
+            transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
 
-            if (m_oTransmissionBuffer.Flush())
+            if (transmission_buffer_.Flush())
             {
                // Data was sent. We'll wait with sending more data until
                // the current data has been sent.
@@ -695,9 +695,9 @@ namespace HM
          _currentFile.Close();
 
          // No more data to send. Make sure all buffered data is flushed.
-         m_oTransmissionBuffer.Flush(true);
+         transmission_buffer_.Flush(true);
 
-         if (!m_oTransmissionBuffer.GetLastSendEndedWithNewline())
+         if (!transmission_buffer_.GetLastSendEndedWithNewline())
             _SendData(""); // Send a newline character now.
 
          _SendData(".");

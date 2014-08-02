@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "StdAfx.h"
@@ -21,8 +21,8 @@ namespace HM
    std::map<int, String> Language::mapEnglishContent;
 
    Language::Language(const String &sName, bool isDownloded) :
-      m_bIsLoaded(false),
-      m_sName(sName),
+      is_loaded_(false),
+      name_(sName),
       _isDownloaded(isDownloded)
    {
    }
@@ -34,11 +34,11 @@ namespace HM
    String
    Language::GetString(const String &sEnglishString)
    {
-      if (!m_bIsLoaded)
+      if (!is_loaded_)
          Load();
 
-      std::map<String, String>::const_iterator iterString = m_mapStrings.find(sEnglishString);
-      if (iterString == m_mapStrings.end())
+      std::map<String, String>::const_iterator iterString = strings_.find(sEnglishString);
+      if (iterString == strings_.end())
          return sEnglishString;
       else
       {
@@ -79,7 +79,7 @@ namespace HM
    void 
    Language::Load()
    {
-      String sTranslatedLanguageFile = IniFileSettings::Instance()->GetLanguageDirectory() + "\\" + m_sName + ".ini";
+      String sTranslatedLanguageFile = IniFileSettings::Instance()->GetLanguageDirectory() + "\\" + name_ + ".ini";
       String sTranslatedContents = FileUtilities::ReadCompleteTextFile(sTranslatedLanguageFile);
       
 
@@ -95,12 +95,12 @@ namespace HM
          std::map<int, String>::iterator englishPair = mapEnglishContent.find(translatedPair.first);
          if (englishPair != mapEnglishContent.end())
          {
-            m_mapStrings[(*englishPair).second] = translatedPair.second;
+            strings_[(*englishPair).second] = translatedPair.second;
          }
         
       }
 
-      m_bIsLoaded = true;
+      is_loaded_ = true;
    }
 
    std::pair<int, String> 
@@ -139,7 +139,7 @@ namespace HM
       AnsiString output;
       HTTPClient client;
       
-      bool result = client.ExecuteScript("www.hmailserver.com", "/devnet/translation_getlanguage.php?language=" + m_sName, output);
+      bool result = client.ExecuteScript("www.hmailserver.com", "/devnet/translation_getlanguage.php?language=" + name_, output);
 
       String unicodeString = output;
       Unicode::MultiByteToWide(output, unicodeString);

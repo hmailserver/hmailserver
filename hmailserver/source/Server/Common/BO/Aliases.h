@@ -25,7 +25,7 @@ namespace HM
       virtual String GetCollectionName() const {return "Aliases"; }
    private:
 
-      __int64 m_iDomainID;
+      __int64 domain_id_;
 
    };
 }

@@ -27,8 +27,8 @@ namespace HM
 
       shared_ptr<FetchAccounts> fetch_accounts_;
 
-      int m_iQueueID;
-      const String m_sQueueName;
+      int queue_id_;
+      const String queue_name_;
 
       Event check_now_;
    };

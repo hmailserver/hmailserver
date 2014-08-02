@@ -94,34 +94,34 @@ namespace HM
 
       void _SetState(ConnectionState eCurState);
   
-      ConnectionState m_CurrentState;
+      ConnectionState current_state_;
 
       shared_ptr<Message> delivery_message_;
 
 
       // These are the recipients which will hMailServer should
       // try to deliver to.
-      std::vector<shared_ptr<MessageRecipient> > m_vecRecipients;
+      std::vector<shared_ptr<MessageRecipient> > recipients_;
 
       // The actual recipients are the recipients we've sent RCPT TO
       // for and the remote server has said OK to.
       std::set<shared_ptr<MessageRecipient> > _actualRecipients;
 
-      bool m_bUseSMTPAuth;
+      bool use_smtpauth_;
 
-      String m_sUsername;
-      String m_sPassword;
+      String username_;
+      String password_;
 
-      unsigned int m_iCurRecipient;
+      unsigned int cur_recipient_;
 
-      bool m_bSessionEnded;
+      bool session_ended_;
 
-      AnsiString m_sLastSentData;
+      AnsiString last_sent_data_;
       
       File _currentFile;   
       TransparentTransmissionBuffer _transmissionBuffer;
 
-      AnsiString m_sMultiLineResponseBuffer;
+      AnsiString multi_line_response_buffer_;
 
       AnsiString remoteServerBanner_;
       AnsiString expected_remote_hostname_;

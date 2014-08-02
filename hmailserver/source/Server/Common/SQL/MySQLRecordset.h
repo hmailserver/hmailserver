@@ -41,9 +41,9 @@ namespace HM
       void _Close();
 
       hm_MYSQL_RES *result_;
-      hm_MYSQL_ROW m_rowCurrent;
+      hm_MYSQL_ROW current_;
 
-      vector<AnsiString> m_vecColumns;
+      vector<AnsiString> columns_;
 
       shared_ptr<ColumnPositions> _columnPositions;
    };

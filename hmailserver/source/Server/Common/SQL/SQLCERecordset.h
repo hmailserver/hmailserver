@@ -32,7 +32,7 @@ namespace HM
 
       _RecordsetPtr cSQLCERecordset;
 
-      long m_iCurRow;
+      long cur_row_;
 
    };
 

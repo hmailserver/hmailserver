@@ -42,20 +42,20 @@ namespace HM
    class IMAPSortCachedDateTime {
    public:
       IMAPSortCachedDateTime(std::map<__int64, DateTime> &map) :
-         m_mapDateTimeInfo(map)
+         date_time_info_(map)
       {
       }
 
       //Return true if s1 < s2; otherwise, return false.
       bool operator()(const pair<int, shared_ptr<Message> > p1, const pair<int, shared_ptr<Message> >  p2)
       {
-         DateTime dt1 = m_mapDateTimeInfo[p1.second->GetID()];
-         DateTime dt2 = m_mapDateTimeInfo[p2.second->GetID()];
+         DateTime dt1 = date_time_info_[p1.second->GetID()];
+         DateTime dt2 = date_time_info_[p2.second->GetID()];
          return (dt1 < dt2) == TRUE;
       }
 
    private:
-      std::map<__int64, DateTime> &m_mapDateTimeInfo;
+      std::map<__int64, DateTime> &date_time_info_;
    };   
 
    class IMAPSortHeaderField 

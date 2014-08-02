@@ -11,12 +11,12 @@ public:
    
    void AddToLog(HIS_String sFilename, HIS_String sMessage);
 
-   void SetLogDir(HIS_String sDir) {m_sLogDir = sDir;}
+   void SetLogDir(HIS_String sDir) {log_dir_ = sDir;}
 private:
 
    bool _WriteData(HIS_String sFilename, HIS_String sData);
 
 
-   HIS_String m_sLogDir;
+   HIS_String log_dir_;
 
 };

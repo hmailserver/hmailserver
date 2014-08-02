@@ -13,7 +13,7 @@
 namespace HM
 {
    RuleActions::RuleActions(__int64 iRuleID) :
-      m_iRuleID(iRuleID)
+      rule_id_(iRuleID)
    {
    }
 
@@ -25,7 +25,7 @@ namespace HM
    RuleActions::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_rule_actions where actionruleid = %I64d order by actionsortorder asc"), m_iRuleID);
+      sSQL.Format(_T("select * from hm_rule_actions where actionruleid = %I64d order by actionsortorder asc"), rule_id_);
 
       _DBLoad(sSQL);
    }
@@ -35,7 +35,7 @@ namespace HM
    bool
    RuleActions::PreSaveObject(shared_ptr<RuleAction> pRuleAction, XNode *node)
    {
-      pRuleAction->SetRuleID(m_iRuleID);
+      pRuleAction->SetRuleID(rule_id_);
       return true;
    }   
 

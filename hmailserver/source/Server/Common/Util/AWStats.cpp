@@ -15,7 +15,7 @@
 
 namespace HM
 {
-   bool AWStats::m_bEnabled = false;
+   bool AWStats::enabled_ = false;
 
    AWStats::AWStats(void)
    {
@@ -28,7 +28,7 @@ namespace HM
    void 
    AWStats::LogDeliveryFailure(const String &senderIP, const String &sFromAddress, const String &sToAddress, int iErrorCode)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       LOG_DEBUG(_T("AWStats::LogDeliveryFailure"));
@@ -42,7 +42,7 @@ namespace HM
    void
    AWStats::LogDeliverySuccess(const String &senderIP, const String &recipientIP, shared_ptr<Message> pMessage, const String &sRecipient)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       LOG_DEBUG(_T("AWStats::LogDeliverySuccess"));
@@ -53,7 +53,7 @@ namespace HM
    void 
    AWStats::_Log(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       // Following format is used:
@@ -83,7 +83,7 @@ namespace HM
    void 
    AWStats::SetEnabled(bool bNewVal)
    {
-      m_bEnabled = bNewVal;
+      enabled_ = bNewVal;
    }
 
    bool 
@@ -93,6 +93,6 @@ namespace HM
    // Returns true if the awstats log is enabled. false otherwise.
    //---------------------------------------------------------------------------()
    {
-      return m_bEnabled;
+      return enabled_;
    }
 }

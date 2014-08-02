@@ -14,13 +14,13 @@
 namespace HM
 {
    ACLPermissions::ACLPermissions() :
-      m_iFolderID(0)
+      folder_id_(0)
    {
 
    }
 
       ACLPermissions::ACLPermissions(__int64 iFolderID) :
-      m_iFolderID(iFolderID)
+      folder_id_(iFolderID)
    {
 
    }
@@ -37,7 +37,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_acl where aclsharefolderid = %I64d"), m_iFolderID);
+      sSQL.Format(_T("select * from hm_acl where aclsharefolderid = %I64d"), folder_id_);
 
       _DBLoad(sSQL);
    }
@@ -84,7 +84,7 @@ namespace HM
    bool
    ACLPermissions::PreSaveObject(shared_ptr<ACLPermission> pPermission, XNode *pNode)
    {
-      pPermission->SetShareFolderID(m_iFolderID);
+      pPermission->SetShareFolderID(folder_id_);
 
       return true;
    }

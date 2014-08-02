@@ -29,10 +29,10 @@ namespace HM
       bool _GetObjectIsWithinTTL(shared_ptr<T> pObject);
       void _AddToCache(shared_ptr<T> pObject);
 
-      int m_iNoOfMisses;
-      int m_iNoOfHits;
-      int m_iTTL;
-      bool m_bEnabled;
+      int no_of_misses_;
+      int no_of_hits_;
+      int ttl_;
+      bool enabled_;
 
 
       // Properties used to determine how long objects 
@@ -42,17 +42,17 @@ namespace HM
       // All access to the container is restricted by
       // a critical section
       
-      std::map<String, shared_ptr<T> > m_mapObjects;
+      std::map<String, shared_ptr<T> > objects_;
       // All the objects in the cache
    };
 
    template <class T, class P> 
    Cache<T,P>::Cache()
    {
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
-      m_iTTL = 0;
-      m_bEnabled = false;
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
+      ttl_ = 0;
+      enabled_ = false;
    }
 
    template <class T, class P> 
@@ -61,19 +61,19 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      m_mapObjects.clear();
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
+      objects_.clear();
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
    }
 
    template <class T, class P> 
    void
    Cache<T,P>::SetTTL(int iNewVal)
    {
-      m_iTTL = iNewVal;
+      ttl_ = iNewVal;
 
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
    }
 
 
@@ -81,9 +81,9 @@ namespace HM
    void
    Cache<T,P>::SetEnabled(bool bEnabled)
    {
-      m_bEnabled = bEnabled;
+      enabled_ = bEnabled;
 
-      if (!m_bEnabled)
+      if (!enabled_)
          Clear();
    }
 
@@ -94,10 +94,10 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_iNoOfHits == 0)
+      if (no_of_hits_ == 0)
          return 0;
 
-      int iHitRate = (int) (((float) m_iNoOfHits / (float) (m_iNoOfHits + m_iNoOfMisses)) * 100);
+      int iHitRate = (int) (((float) no_of_hits_ / (float) (no_of_hits_ + no_of_misses_)) * 100);
 
       return iHitRate;
    }
@@ -108,10 +108,10 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(pObject->GetName());
+      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(pObject->GetName());
    
-      if (iterObject != m_mapObjects.end())
-         m_mapObjects.erase(iterObject);
+      if (iterObject != objects_.end())
+         objects_.erase(iterObject);
 
    }
 
@@ -121,10 +121,10 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(sName);
+      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(sName);
 
-      if (iterObject != m_mapObjects.end())
-         m_mapObjects.erase(iterObject);
+      if (iterObject != objects_.end())
+         objects_.erase(iterObject);
 
    }
 
@@ -135,8 +135,8 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Find the domain using the ID
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.begin();
-      std::map<String, shared_ptr<T> >::iterator iterEnd = m_mapObjects.end();
+      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.begin();
+      std::map<String, shared_ptr<T> >::iterator iterEnd = objects_.end();
 
       for (; iterObject != iterEnd; iterObject++)
       {
@@ -144,7 +144,7 @@ namespace HM
 
          if (pObject->GetID() == iID)
          {
-            m_mapObjects.erase(iterObject);
+            objects_.erase(iterObject);
             return;
          }
 
@@ -157,11 +157,11 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_bEnabled)
+      if (enabled_)
       {
-         std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(sName);
+         std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(sName);
 
-         if (iterObject != m_mapObjects.end())
+         if (iterObject != objects_.end())
          {
             shared_ptr<T> pObject = (*iterObject).second;
 
@@ -169,7 +169,7 @@ namespace HM
                return pObject;
          
             // Object has passed TTL
-            m_mapObjects.erase(iterObject);
+            objects_.erase(iterObject);
          }
       }
 
@@ -182,7 +182,7 @@ namespace HM
          return pEmpty;
       }
 
-      if (m_bEnabled)
+      if (enabled_)
          _AddToCache(pRetObject);
 
       return pRetObject;
@@ -194,11 +194,11 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_bEnabled)
+      if (enabled_)
       {
          // Find the domain using the ID
-         std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.begin();
-         std::map<String, shared_ptr<T> >::iterator iterEnd = m_mapObjects.end();
+         std::map<String, shared_ptr<T> >::iterator iterObject = objects_.begin();
+         std::map<String, shared_ptr<T> >::iterator iterEnd = objects_.end();
 
          for (; iterObject != iterEnd; iterObject++)
          {
@@ -209,7 +209,7 @@ namespace HM
                if (_GetObjectIsWithinTTL(pObject))
                   return pObject;
 
-               m_mapObjects.erase(iterObject);
+               objects_.erase(iterObject);
 
                break;
             }
@@ -224,7 +224,7 @@ namespace HM
          return pEmpty;
       }
 
-      if (m_bEnabled)
+      if (enabled_)
          _AddToCache(pRetObject);
    
       return pRetObject;
@@ -244,8 +244,8 @@ namespace HM
       }
 #endif
 
-      m_iNoOfMisses++;
-      m_mapObjects[pObject->GetName()] = pObject;
+      no_of_misses_++;
+      objects_[pObject->GetName()] = pObject;
    }
 
    template <class T, class P> 
@@ -254,10 +254,10 @@ namespace HM
    {
       if (pObject)
       {
-         if (pObject->Seconds() < m_iTTL)
+         if (pObject->Seconds() < ttl_)
          {
             // A fresh object was found in the cache.
-            m_iNoOfHits++;
+            no_of_hits_++;
             return true;
          }
       }

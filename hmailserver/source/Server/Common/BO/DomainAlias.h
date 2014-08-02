@@ -11,13 +11,13 @@ namespace HM
       DomainAlias(void);
       ~DomainAlias(void);
 
-      String GetName() const {return m_sAlias; }
+      String GetName() const {return alias_; }
 
-      __int64 GetDomainID() const {return m_iDomainID; }
-      void SetDomainID(__int64 newval) {m_iDomainID = newval; }
+      __int64 GetDomainID() const {return domain_id_; }
+      void SetDomainID(__int64 newval) {domain_id_ = newval; }
 
-      String GetAlias() const {return m_sAlias; }
-      void SetAlias(const String &newval) {m_sAlias = newval; }
+      String GetAlias() const {return alias_; }
+      void SetAlias(const String &newval) {alias_ = newval; }
 
       bool XMLStore(XNode *pParentNode, int iOptions);
       bool XMLLoad(XNode *pAliasNode, int iOptions);
@@ -25,7 +25,7 @@ namespace HM
 
    private:
       
-      __int64 m_iDomainID;
-      String m_sAlias;
+      __int64 domain_id_;
+      String alias_;
    };
 }

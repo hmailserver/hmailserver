@@ -12,7 +12,7 @@
 namespace HM
 {
    DistributionListRecipient::DistributionListRecipient(void) :
-      m_iListID(0)
+      list_id_(0)
    {
 
    }
@@ -24,7 +24,7 @@ namespace HM
    void
    DistributionListRecipient::SetAddress(const String & sAddress)
    {
-      m_sAddress = sAddress;
+      address_ = sAddress;
    }
 
    bool 
@@ -32,7 +32,7 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Recipient"));
 
-      pNode->AppendAttr(_T("Name"), m_sAddress);
+      pNode->AppendAttr(_T("Name"), address_);
 
       return true;
    }
@@ -40,7 +40,7 @@ namespace HM
    bool 
    DistributionListRecipient::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sAddress = pNode->GetAttrValue(_T("Name"));
+      address_ = pNode->GetAttrValue(_T("Name"));
 
       return true;
    }

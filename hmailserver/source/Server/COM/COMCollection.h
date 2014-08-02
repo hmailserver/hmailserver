@@ -16,16 +16,16 @@ public:
    void AttachParent(shared_ptr<P> pParentColl, bool bObjectIsInParent)
    {
       parent_collection_ = pParentColl;
-      m_bObjectIsInCollection = bObjectIsInParent;
+      object_is_in_collection_ = bObjectIsInParent;
    }
 
    void AddToParentCollection()
    {
-      if (m_bObjectIsInCollection || !parent_collection_)
+      if (object_is_in_collection_ || !parent_collection_)
          return; 
 
       parent_collection_->AddItem(object_);
-      m_bObjectIsInCollection = true;
+      object_is_in_collection_ = true;
    }
 
    shared_ptr<P> parent_collection_;
@@ -34,6 +34,6 @@ public:
 
 private:
 
-   bool m_bObjectIsInCollection;
+   bool object_is_in_collection_;
 };
 

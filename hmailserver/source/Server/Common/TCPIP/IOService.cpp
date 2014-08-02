@@ -51,7 +51,7 @@ namespace HM
    // Registers a new connection type.
    //---------------------------------------------------------------------------()
    {
-      m_setSessionTypes.insert(st);
+      session_types_.insert(st);
 
       return true;
    }
@@ -103,7 +103,7 @@ namespace HM
             pSSLCertificate = pSSLCertificates->GetItemByDBID(pPort->GetSSLCertificateID());
          }
 
-         if (m_setSessionTypes.find(st) == m_setSessionTypes.end())
+         if (session_types_.find(st) == session_types_.end())
             continue;
 
          shared_ptr<TCPConnectionFactory> pConnectionFactory;

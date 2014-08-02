@@ -298,7 +298,7 @@ void _SetString( LPTSTR psz, LPTSTR end, HM::String* ps, bool trim = FALSE, int 
 	}
 	else
 	{
-      //varför öka på strängens längd med ett här?!
+      //varfï¿½r ï¿½ka pï¿½ strï¿½ngens lï¿½ngd med ett hï¿½r?!
       LPTSTR pss = ps->GetBufferSetLength( (len + 1) * sizeof(TCHAR)) ;
 		memcpy( pss, psz, len * sizeof(TCHAR) );
       ps->ReleaseBuffer();
@@ -903,7 +903,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 					}
 				}
 				else	// Alone child Tag Loaded
-						// else ÇØ¾ßÇÏ´ÂÁö ¸»¾Æ¾ßÇÏ´ÂÁö ÀÇ½É°£´Ù.
+						// else ï¿½Ø¾ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½Ç½É°ï¿½ï¿½ï¿½.
 				{
 					
 					//if( xml && this->value.IsEmpty() && *xml !=chXMLTagOpen )
@@ -1163,13 +1163,13 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 }
 
 //========================================================
-// ÇÔ¼ö¸í : GetText
-// ¼³  ¸í : ³ëµå ÇÏ³ª¸¦ ÅØ½ºÆ® ¹®ÀÚ¿­·Î ¹ÝÈ¯
-// ÀÎ  ÀÚ :
-// ¸®ÅÏ°ª : º¯È¯µÈ ¹®ÀÚ¿­
+// ï¿½Ô¼ï¿½ï¿½ï¿½ : GetText
+// ï¿½ï¿½  ï¿½ï¿½ : ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+// ï¿½ï¿½  ï¿½ï¿½ :
+// ï¿½ï¿½ï¿½Ï°ï¿½ : ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½
 //--------------------------------------------------------
-// ÀÛ¼ºÀÚ   ÀÛ¼ºÀÏ                 ÀÛ¼ºÀÌÀ¯
-// Á¶°æ¹Î   2004-06-15
+// ï¿½Û¼ï¿½ï¿½ï¿½   ï¿½Û¼ï¿½ï¿½ï¿½                 ï¿½Û¼ï¿½ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½   2004-06-15
 //========================================================
 HM::String _tagXMLNode::GetText( LPDISP_OPT opt /*= &optDefault*/ )
 {

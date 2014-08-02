@@ -12,7 +12,7 @@
 
 namespace HM
 {
-   std::set<std::pair<int, int> > FolderManipulationLock::m_setFolders;
+   std::set<std::pair<int, int> > FolderManipulationLock::folders_;
    boost::recursive_mutex FolderManipulationLock::_mutex;
 
    FolderManipulationLock::FolderManipulationLock(int iAccountID, int iFolderID) :
@@ -58,9 +58,9 @@ namespace HM
          {
             boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-            if (m_setFolders.find(lockPair) == m_setFolders.end())
+            if (folders_.find(lockPair) == folders_.end())
             {
-               m_setFolders.insert(lockPair);
+               folders_.insert(lockPair);
                return;
             }
          }
@@ -75,12 +75,12 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::set<std::pair<int, int>>::iterator iterPos = m_setFolders.find(lockPair);
-      if (iterPos != m_setFolders.end())
+      std::set<std::pair<int, int>>::iterator iterPos = folders_.find(lockPair);
+      if (iterPos != folders_.end())
       {
          try
          {
-            m_setFolders.erase(iterPos);
+            folders_.erase(iterPos);
          }
          catch (...)
          {

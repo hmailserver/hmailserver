@@ -28,69 +28,69 @@ namespace HM
 
       String GetName() const {return ""; }
 
-      __int64 GetRuleID() const {return m_iRuleID; }
-      void SetRuleID(__int64 newval) {m_iRuleID = newval; }
+      __int64 GetRuleID() const {return rule_id_; }
+      void SetRuleID(__int64 newval) {rule_id_ = newval; }
 
-      int GetSortOrder() const {return m_iSortOrder; }
-      void SetSortOrder(int newval) {m_iSortOrder = newval; }
+      int GetSortOrder() const {return sort_order_; }
+      void SetSortOrder(int newval) {sort_order_ = newval; }
      
 
-      Type GetType() const {return m_iType;}
-      void SetType(Type newval) {m_iType = newval; }
+      Type GetType() const {return type_;}
+      void SetType(Type newval) {type_ = newval; }
 
-      String GetSubject() const {return m_sSubject; }
-      void SetSubject(const String &sNewVal) {m_sSubject = sNewVal; }
+      String GetSubject() const {return subject_; }
+      void SetSubject(const String &sNewVal) {subject_ = sNewVal; }
 
-      String GetBody() const {return m_sBody; }
-      void SetBody(const String &sNewVal) {m_sBody = sNewVal; }
+      String GetBody() const {return body_; }
+      void SetBody(const String &sNewVal) {body_ = sNewVal; }
 
-      String GetFromName() const {return m_sFromName; }
-      void SetFromName(const String &sNewVal) {m_sFromName = sNewVal; }
+      String GetFromName() const {return from_name_; }
+      void SetFromName(const String &sNewVal) {from_name_ = sNewVal; }
 
-      String GetFromAddress() const {return m_sFromAddress; }
-      void SetFromAddress(const String &sNewVal) {m_sFromAddress = sNewVal; }
+      String GetFromAddress() const {return from_address_; }
+      void SetFromAddress(const String &sNewVal) {from_address_ = sNewVal; }
 
-      String GetIMAPFolder() const {return m_sIMAPFolder; }
-      void SetIMAPFolder(const String &sNewVal) {m_sIMAPFolder = sNewVal; }
+      String GetIMAPFolder() const {return imapfolder_; }
+      void SetIMAPFolder(const String &sNewVal) {imapfolder_ = sNewVal; }
 
-      String GetTo() const {return m_sTo; }
-      void SetTo(const String &sNewVal) {m_sTo = sNewVal; }
+      String GetTo() const {return to_; }
+      void SetTo(const String &sNewVal) {to_ = sNewVal; }
 
-      String GetFilename() const {return m_sFilename; }
-      void SetFilename(const String &sNewVal) {m_sFilename = sNewVal; }
+      String GetFilename() const {return filename_; }
+      void SetFilename(const String &sNewVal) {filename_ = sNewVal; }
 
-      String GetScriptFunction() const {return m_sScriptFunction; }
-      void SetScriptFunction(const String &sNewVal) {m_sScriptFunction = sNewVal; }
+      String GetScriptFunction() const {return script_function_; }
+      void SetScriptFunction(const String &sNewVal) {script_function_ = sNewVal; }
 
       bool XMLStore(XNode *pRuleNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
       bool XMLLoadSubItems(XNode *pNode, int iOptions) {return true;};
 
-      String GetHeaderName() const {return m_sHeaderName; }
-      void SetHeaderName(const String &sNewVal) {m_sHeaderName = sNewVal; }
+      String GetHeaderName() const {return header_name_; }
+      void SetHeaderName(const String &sNewVal) {header_name_ = sNewVal; }
 
-      String GetValue() const {return m_sValue; }
-      void SetValue(const String &sNewVal) {m_sValue = sNewVal; }
+      String GetValue() const {return value_; }
+      void SetValue(const String &sNewVal) {value_ = sNewVal; }
 
-      __int64 GetRouteID() {return m_iRouteID; }
-      void SetRouteID(__int64 newVal) {m_iRouteID = newVal; }
+      __int64 GetRouteID() {return route_id_; }
+      void SetRouteID(__int64 newVal) {route_id_ = newVal; }
 
    private:
 
-      __int64 m_iRuleID;
-      __int64 m_iRouteID;
-      int m_iSortOrder;
-      Type m_iType;
+      __int64 rule_id_;
+      __int64 route_id_;
+      int sort_order_;
+      Type type_;
       
-      String m_sHeaderName;
-      String m_sValue;
-      String m_sSubject;
-      String m_sBody;
-      String m_sFromAddress;
-      String m_sFromName;
-      String m_sIMAPFolder;
-      String m_sFilename;
-      String m_sTo;
-      String m_sScriptFunction;
+      String header_name_;
+      String value_;
+      String subject_;
+      String body_;
+      String from_address_;
+      String from_name_;
+      String imapfolder_;
+      String filename_;
+      String to_;
+      String script_function_;
    };
 }

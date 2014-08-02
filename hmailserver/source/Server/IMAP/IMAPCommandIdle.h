@@ -18,7 +18,7 @@ namespace HM
 
    private:
 
-      String m_sTag;
+      String tag_;
 
       weak_ptr<IMAPConnection> _connection;
    };

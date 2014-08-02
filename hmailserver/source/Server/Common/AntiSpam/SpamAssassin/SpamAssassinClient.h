@@ -42,14 +42,14 @@ namespace HM
       int ParseFirstBuffer_(shared_ptr<ByteBuffer> pBuffer) const;
       bool SendFileContents_(const String &sFilename);
 
-      String m_sCommandBuffer;
+      String command_buffer_;
 
-      String m_sMessageFile;
-	   int m_iSpamDSize;
-	   int m_iMessageSize;
+      String message_file_;
+	   int spam_dsize_;
+	   int message_size_;
       shared_ptr<File> result_;
 
-      String &m_sMessage;
-      bool &m_TestCompleted;
+      String &message_;
+      bool &test_completed_;
   };
 }

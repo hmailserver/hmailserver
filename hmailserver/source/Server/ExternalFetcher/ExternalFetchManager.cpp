@@ -34,17 +34,17 @@ namespace HM
 
    ExternalFetchManager::ExternalFetchManager(void) :
       Task("ExternalFetchManager"),
-      m_sQueueName("External fetch queue")
+      queue_name_("External fetch queue")
    {
       int iMaxNumberOfSimultaneousTasks = IniFileSettings::Instance()->GetMaxNumberOfExternalFetchThreads();
       
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, m_sQueueName);
+      queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, queue_name_);
    }
 
    ExternalFetchManager::~ExternalFetchManager(void)
    {
       LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager")
-      WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
+      WorkQueueManager::Instance()->RemoveQueue(queue_name_);
       LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager - Removed queue")
    }
 
@@ -83,7 +83,7 @@ namespace HM
                // We're allowed to fetch. Lock fetchaccount and start the fetcher.
                PersistentFetchAccount::Lock(pFA->GetID());
                shared_ptr<ExternalFetchTask> pTask = shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
-               WorkQueueManager::Instance()->AddTask(m_iQueueID, pTask);
+               WorkQueueManager::Instance()->AddTask(queue_id_, pTask);
             }
             else
             {

@@ -34,6 +34,6 @@ namespace HM
       static void OnDeliveryQueueCleared();
    private:
 
-      static bool m_bIsClearing;
+      static bool is_clearing_;
    };
 }

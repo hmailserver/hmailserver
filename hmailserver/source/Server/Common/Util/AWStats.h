@@ -23,6 +23,6 @@ namespace HM
 
       static void _Log(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived);
 
-      static bool m_bEnabled;
+      static bool enabled_;
    };
 }

@@ -13,8 +13,8 @@ namespace HM
 {
    ScheduledTask::ScheduledTask(void) :
       Task("ScheduledTask"),
-      m_iMinutesBetweenRun(0),
-      m_eReoccurance(RunOnce)
+      minutes_between_run_(0),
+      reoccurance_(RunOnce)
    {
 
    }
@@ -26,13 +26,13 @@ namespace HM
    int
    ScheduledTask::GetMinutesBetweenRun() const
    {
-      return m_iMinutesBetweenRun;
+      return minutes_between_run_;
    }
 
    void 
    ScheduledTask::SetMinutesBetweenRun(int iNewVal)
    {
-      m_iMinutesBetweenRun = iNewVal;
+      minutes_between_run_ = iNewVal;
 
       SetNextRunTime();
    }
@@ -40,19 +40,19 @@ namespace HM
    ScheduledTask::Reoccurance 
    ScheduledTask::GetReoccurance() const
    {
-      return m_eReoccurance;
+      return reoccurance_;
    }
 
    void 
    ScheduledTask::SetReoccurance(Reoccurance ro)
    {
-      m_eReoccurance = ro;
+      reoccurance_ = ro;
    }
 
    DateTime 
    ScheduledTask::GetNextRunTime() const
    {
-      return m_dtNextRunTime;
+      return next_run_time_;
 
    }
 
@@ -62,9 +62,9 @@ namespace HM
       DateTime dtNow = DateTime::GetCurrentTime();
       
       DateTimeSpan dts;
-      dts.SetDateTimeSpan(0,0, m_iMinutesBetweenRun, 0);
+      dts.SetDateTimeSpan(0,0, minutes_between_run_, 0);
 
-      m_dtNextRunTime = dtNow + dts;
+      next_run_time_ = dtNow + dts;
    }
 
 }

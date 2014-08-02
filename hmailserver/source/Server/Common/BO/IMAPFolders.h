@@ -43,8 +43,8 @@ namespace HM
 
       bool _GetIsPublicFolders() const;
 
-      __int64 m_iAccountID;
-      __int64 m_iParentFolderID;
+      __int64 account_id_;
+      __int64 parent_folder_id_;
    };
 
 }

@@ -13,7 +13,7 @@ namespace HM
 {
    RouteAddress::RouteAddress()
    {
-      m_iRouteID = 0;
+      route_id_ = 0;
    }
 
    RouteAddress::~RouteAddress()
@@ -26,7 +26,7 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("RouteAddress"));
 
-      pNode->AppendAttr(_T("Name"), m_sAddress);
+      pNode->AppendAttr(_T("Name"), address_);
 
       return true;
    }
@@ -34,7 +34,7 @@ namespace HM
    bool 
    RouteAddress::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sAddress = pNode->GetAttrValue(_T("Name"));
+      address_ = pNode->GetAttrValue(_T("Name"));
 
       return true;
    }

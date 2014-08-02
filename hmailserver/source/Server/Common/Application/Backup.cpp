@@ -14,8 +14,8 @@ namespace HM
 {
    Backup::Backup(void)
    {
-      m_iContains = 0;
-      m_iRestoreOptions = 0;
+      contains_ = 0;
+      restore_options_ = 0;
    }
 
    Backup::~Backup(void)
@@ -26,22 +26,22 @@ namespace HM
    bool 
    Backup::GetContains(int iOption) const
    {
-      return (m_iContains & iOption) ? true : false;      
+      return (contains_ & iOption) ? true : false;      
    }
 
    int 
    Backup::GetRestoreOption(int iRestoreOption) const
    {
-      return (m_iRestoreOptions & iRestoreOption) ? true : false;      
+      return (restore_options_ & iRestoreOption) ? true : false;      
    }
 
    void 
    Backup::SetRestoreOption(int iOption, bool bSet)
    {
       if (bSet)
-         m_iRestoreOptions = m_iRestoreOptions | iOption;
+         restore_options_ = restore_options_ | iOption;
       else
-         m_iRestoreOptions = m_iRestoreOptions &~ iOption;
+         restore_options_ = restore_options_ &~ iOption;
 
    }
 

@@ -17,7 +17,7 @@ namespace HM
 {
    ADORecordset::ADORecordset()
    {
-      m_iCurRow = 0;
+      cur_row_ = 0;
    }
 
    ADORecordset::~ADORecordset()
@@ -28,7 +28,7 @@ namespace HM
    DALConnection::ExecutionResult
    ADORecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
-      m_iCurRow = 0;
+      cur_row_ = 0;
 
       shared_ptr<ADOConnection> pConn = static_pointer_cast<ADOConnection>(pDALConn);
       _ConnectionPtr pADOConnection = pConn->GetConnection();
@@ -132,7 +132,7 @@ namespace HM
    bool
    ADORecordset::IsEOF() const
    {
-      if (m_iCurRow >= RecordCount())
+      if (cur_row_ >= RecordCount())
          return true;
       else
          return false;
@@ -141,7 +141,7 @@ namespace HM
    bool
    ADORecordset::MoveNext()
    {
-      m_iCurRow++;
+      cur_row_++;
       cADORecordset->MoveNext();
       return true;
    }

@@ -117,7 +117,7 @@ namespace HM
       
       shared_ptr<PropertySet> GetSettings_();
 
-      bool m_bGreylistingTemporarilyDisabled;
+      bool greylisting_temporarily_disabled_;
 
       shared_ptr<DNSBlackLists> dnsBlackLists_;
       shared_ptr<SURBLServers> surblServers_;

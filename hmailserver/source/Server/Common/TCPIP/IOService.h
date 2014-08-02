@@ -33,9 +33,9 @@ namespace HM
       boost::asio::ssl::context &GetClientContext();
    private:
 
-      const String m_sAsynchronousTasksQueue;
+      const String asynchronous_tasks_queue_;
 
-      std::set<SessionType> m_setSessionTypes;
+      std::set<SessionType> session_types_;
       boost::asio::io_service io_service_;
 
       vector<shared_ptr<TCPServer> > tcp_servers_;

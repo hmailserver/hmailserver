@@ -26,6 +26,6 @@ namespace HM
 
       std::map<String, shared_ptr<FetchAccountUID> > _fetchedUIDs;
 
-      __int64 m_iFAID;
+      __int64 faid_;
    };
 }

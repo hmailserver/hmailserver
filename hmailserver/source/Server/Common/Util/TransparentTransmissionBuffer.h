@@ -45,7 +45,7 @@ namespace HM
 
       bool GetTransmissionEnded()
       {
-         return m_bTransmissionEnded;
+         return transmission_ended_;
       }
 
       bool GetRequiresFlush();
@@ -54,7 +54,7 @@ namespace HM
 
       bool GetLastSendEndedWithNewline()
       {
-         return m_bLastSendEndedWithNewline;
+         return last_send_ended_with_newline_;
       }
 
       bool _SaveToFile(shared_ptr<ByteBuffer> pBuffer);
@@ -72,20 +72,20 @@ namespace HM
       shared_ptr<ByteBuffer> buffer_;
       // The buffer containing the data to send/receive.
       
-      bool m_bTransmissionEnded;
+      bool transmission_ended_;
       // Have we found the end-of-transsmision sequence?
       
-      bool m_bIsSending;
+      bool is_sending_;
       // Are we sending data, or are we receiving data?
 
-      bool m_bLastSendEndedWithNewline;
+      bool last_send_ended_with_newline_;
       
       // Output types
-      File m_oFile;
+      File file_;
       weak_ptr<TCPConnection> tcp_connection_;
 
-      unsigned    int m_iDataSent;
-      unsigned int m_iMaxSizeKB;
+      unsigned    int data_sent_;
+      unsigned int max_size_kb_;
 
       bool _cancelTransmission;
       String _cancelMessage;

@@ -19,8 +19,8 @@ namespace HM
       String GetUserEditableIPAddress() const;
       void SetUserEditableIPAddress(const String &sIPAddress);
 
-      String GetDescription() const {return m_sWhiteIPDescription; }
-      void SetDescription(const String &sDescription) {m_sWhiteIPDescription = sDescription; }
+      String GetDescription() const {return white_ipdescription_; }
+      void SetDescription(const String &sDescription) {white_ipdescription_ = sDescription; }
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -28,8 +28,8 @@ namespace HM
 
    private:
 
-      String m_sWhiteIPAddress;
-      String m_sWhiteIPDescription;
+      String white_ipaddress_;
+      String white_ipdescription_;
       
    };
 }

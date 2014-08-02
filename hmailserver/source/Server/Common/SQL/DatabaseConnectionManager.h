@@ -44,8 +44,8 @@ namespace HM
  
       boost::recursive_mutex _mutex;
       
-      std::set<shared_ptr<DALConnection> > m_setBusyConnections;
-      std::set<shared_ptr<DALConnection> > m_setAvailableConnections;
+      std::set<shared_ptr<DALConnection> > busy_connections_;
+      std::set<shared_ptr<DALConnection> > available_connections_;
       
 
    };

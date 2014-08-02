@@ -12,8 +12,8 @@
 namespace HM
 {
    DNSBlackList::DNSBlackList(void) :
-      m_iScore(0),
-      m_bActive(false)
+      score_(0),
+      active_(false)
    {
       
    }
@@ -27,11 +27,11 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("DNSBlackList"));
 
-      pNode->AppendAttr(_T("Name"), m_sDNSHost);
-      pNode->AppendAttr(_T("Active"), m_bActive ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("RejectMessage"), m_sRejectMessage);
-      pNode->AppendAttr(_T("ExpectedResult"), m_sExpectedResult);
-      pNode->AppendAttr(_T("Score"), StringParser::IntToString(m_iScore));
+      pNode->AppendAttr(_T("Name"), dnshost_);
+      pNode->AppendAttr(_T("Active"), active_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("RejectMessage"), reject_message_);
+      pNode->AppendAttr(_T("ExpectedResult"), expected_result_);
+      pNode->AppendAttr(_T("Score"), StringParser::IntToString(score_));
 
       return true;
    }
@@ -39,11 +39,11 @@ namespace HM
    bool 
    DNSBlackList::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sDNSHost = pNode->GetAttrValue(_T("Name"));
-      m_bActive = pNode->GetAttrValue(_T("Active")) == _T("1");
-      m_sRejectMessage = pNode->GetAttrValue(_T("RejectMessage"));
-      m_sExpectedResult = pNode->GetAttrValue(_T("ExpectedResult"));
-      m_iScore = _ttoi(pNode->GetAttrValue(_T("Score")));
+      dnshost_ = pNode->GetAttrValue(_T("Name"));
+      active_ = pNode->GetAttrValue(_T("Active")) == _T("1");
+      reject_message_ = pNode->GetAttrValue(_T("RejectMessage"));
+      expected_result_ = pNode->GetAttrValue(_T("ExpectedResult"));
+      score_ = _ttoi(pNode->GetAttrValue(_T("Score")));
 
       return true;
 

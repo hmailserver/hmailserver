@@ -42,9 +42,9 @@ namespace HM
    private:
 
   
-      PGconn *m_pDBConn;
+      PGconn *dbconn_;
 
-      bool m_bIsConnected;
+      bool is_connected_;
    };
 
 }

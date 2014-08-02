@@ -162,17 +162,17 @@ namespace HM
       shared_ptr<IMAPFolder> current_folder_;
       bool _currentFolderReadOnly;
 
-      String m_sCommandBuffer;
-      bool m_bIsIdling;
+      String command_buffer_;
+      bool is_idling_;
 
-      int m_iLiteralDataToReceive;
-      String m_sLiteralBuffer;
+      int literal_data_to_receive_;
+      String literal_buffer_;
 
-      bool m_bPendingDisconnect;
+      bool pending_disconnect_;
 
       shared_ptr<IMAPNotificationClient> _notificationClient;
 
-      int  m_iLogLevel;      
+      int  log_level_;      
    };
    
 }

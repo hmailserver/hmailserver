@@ -15,9 +15,9 @@
 namespace HM
 {
    PGRecordset::PGRecordset() :
-      m_iRowCount(0),
+      row_count_(0),
       result_(0),
-      m_iCurRowNum(0)
+      cur_row_num_(0)
    {
        
    }
@@ -58,12 +58,12 @@ namespace HM
          ExecStatusType iExecResult = PQresultStatus(result_);
 
          if (iExecResult == PGRES_COMMAND_OK)
-            m_iRowCount = 0;
+            row_count_ = 0;
          else
-            m_iRowCount = PQntuples(result_);
+            row_count_ = PQntuples(result_);
 
          // We're at the first row.
-         m_iCurRowNum = 0;
+         cur_row_num_ = 0;
       }
       catch (...)
       {
@@ -104,7 +104,7 @@ namespace HM
    // Returns the number of rows in current recordset. 
    //---------------------------------------------------------------------------()
    {
-      return m_iRowCount;
+      return row_count_;
    }
 
    bool
@@ -115,7 +115,7 @@ namespace HM
 
       try
       {
-         if ((long) m_iCurRowNum >= RecordCount())
+         if ((long) cur_row_num_ >= RecordCount())
             return true;
          else 
             return false;
@@ -134,7 +134,7 @@ namespace HM
    // Moves the cursor to the next row in the recordset.
    //---------------------------------------------------------------------------()
    {
-      m_iCurRowNum++;
+      cur_row_num_++;
       return false;
    }
 
@@ -154,7 +154,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
 
          if (pValue == 0 || strlen(pValue) == 0)
             return "";
@@ -192,7 +192,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
       }
@@ -219,7 +219,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
       }
@@ -246,7 +246,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          double dbVal = pValue ? atof(pValue) : 0;
 
          return dbVal;
@@ -325,7 +325,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         bool isNull = PQgetisnull(result_, m_iCurRowNum, iColIdx) == 1;
+         bool isNull = PQgetisnull(result_, cur_row_num_, iColIdx) == 1;
 
          return isNull;
       }

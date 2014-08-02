@@ -19,7 +19,7 @@ namespace HM
 
       void _TestBackup();
 
-      String m_sMimeDataPath;
+      String mime_data_path_;
    };
 
 }

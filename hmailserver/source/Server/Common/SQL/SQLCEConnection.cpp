@@ -32,7 +32,7 @@ namespace HM
          assert(0);
       }  
 
-      m_bConnected = false;
+      connected_ = false;
    }
 
 
@@ -57,7 +57,7 @@ namespace HM
       try
       {
 
-         if (!m_bConnected)
+         if (!connected_)
             return false; // --- already disconnected.
 
          if (cSQLCEConnection->State == 1)
@@ -68,7 +68,7 @@ namespace HM
          assert(0);
       }
 
-      m_bConnected = false;
+      connected_ = false;
 
       return true;
    }
@@ -130,7 +130,7 @@ namespace HM
       String sPassword = database_settings_->GetPassword();
       String sDatabase = database_settings_->GetDatabaseName();
 
-      if (m_bConnected)
+      if (connected_)
          return Connected;
       
       String sConnectionString = _GetConnectionString(sDatabase, sPassword);
@@ -162,7 +162,7 @@ namespace HM
          SysFreeString(bsConnection);
 
 
-         m_bConnected = true;
+         connected_ = true;
          sErrorMessage = "";
          
          return DALConnection::Connected;
@@ -242,7 +242,7 @@ namespace HM
    DALConnection::ExecutionResult
    SQLCEConnection::TryExecute(const SQLCommand &command, String &sErrorMessage, __int64 *iInsertID, int iIgnoreErrors)
    {
-      if (!m_bConnected)
+      if (!connected_)
          return DALConnection::DALConnectionProblem; // --- already disconnected.
 
       String queryString = command.GetQueryString();
@@ -323,7 +323,7 @@ namespace HM
    bool
    SQLCEConnection::IsConnected() const
    { 
-      return m_bConnected; 
+      return connected_; 
    };
 
    __int64 

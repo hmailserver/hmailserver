@@ -12,9 +12,9 @@
 namespace HM
 {
    GreyListTriplet::GreyListTriplet(void) :
-      m_iID(0),
-      m_iPassedCount(0),
-      m_iBlockedCount(0)
+      id_(0),
+      passed_count_(0),
+      blocked_count_(0)
    {
 
    }
@@ -26,110 +26,110 @@ namespace HM
    void 
    GreyListTriplet::SetID(__int64 iNewID)
    {
-      m_iID = iNewID;
+      id_ = iNewID;
    }
 
    __int64 
    GreyListTriplet::GetID() const
    {
-      return m_iID;
+      return id_;
    }
 
    void 
    GreyListTriplet::SetCreateTime(const String &sNewVal)
    {
-      m_sCreateTime = sNewVal; 
+      create_time_ = sNewVal; 
    }
 
    String
    GreyListTriplet::GetCreateTime() const
    {
-      return m_sCreateTime;
+      return create_time_;
    }
 
    void 
    GreyListTriplet::SetBlockEndTime(const String &sNewVal)
    {
-      m_sBlockEndTime = sNewVal; 
+      block_end_time_ = sNewVal; 
    }
 
    String
    GreyListTriplet::GetBlockEndTime() const
    {
-      return m_sBlockEndTime;
+      return block_end_time_;
    }
 
    void 
    GreyListTriplet::SetDeleteTime(const String &sNewVal)
    {
-      m_sDeleteTime = sNewVal; 
+      delete_time_ = sNewVal; 
    }
 
    String
    GreyListTriplet::GetDeleteTime() const
    {
-      return m_sDeleteTime;
+      return delete_time_;
    }
 
    void 
    GreyListTriplet::SetIPAddress(IPAddress iNewVal)
    {
-      m_iIPAddress = iNewVal;
+      ipaddress_ = iNewVal;
    }
    
    IPAddress 
    GreyListTriplet::GetIPAddress() const
    {
-      return m_iIPAddress;
+      return ipaddress_;
    }
 
    void 
    GreyListTriplet::SetRecipientAddress(const String &sNewVal)
    {
-      m_sRecipientAddress = sNewVal; 
+      recipient_address_ = sNewVal; 
    }
 
    String
    GreyListTriplet::GetRecipientAddress() const
    {
-      return m_sRecipientAddress;
+      return recipient_address_;
    }
 
    void 
    GreyListTriplet::SetSenderAddress(const String &sNewVal)
    {
-      m_sSenderAddress = sNewVal; 
+      sender_address_ = sNewVal; 
    }
 
    String
    GreyListTriplet::GetSenderAddress() const
    {
-      return m_sSenderAddress;
+      return sender_address_;
    }
 
 
    void 
    GreyListTriplet::SetPassedCount(int iNewVal)
    {
-      m_iPassedCount = iNewVal;
+      passed_count_ = iNewVal;
    }
 
    int 
    GreyListTriplet::GetPassedCount() const
    {
-      return m_iPassedCount;
+      return passed_count_;
    }
 
    void 
    GreyListTriplet::SetBlockedCount(int iNewVal)
    {
-      m_iPassedCount = iNewVal;
+      passed_count_ = iNewVal;
    }
 
    int 
    GreyListTriplet::GetBlockedCount() const
    {
-      return m_iPassedCount;
+      return passed_count_;
    }
 
 }

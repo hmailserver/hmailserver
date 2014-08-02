@@ -37,33 +37,33 @@ namespace HM
 
       void Initialize(bool generateFileName);
 
-      String GetName() {return m_sFilename; }
+      String GetName() {return filename_; }
 
       static String GenerateFileName();
 
       String GetPartialFileName() const;
       void SetPartialFileName(const String &FileName);
 
-      String GetFromAddress() const { return m_sFromAddress; }
-      void SetFromAddress(const String &FromAddress) { m_sFromAddress = FromAddress; }
+      String GetFromAddress() const { return from_address_; }
+      void SetFromAddress(const String &FromAddress) { from_address_ = FromAddress; }
 
       unsigned int GetUID() const { return _uid; }
       void SetUID(unsigned int  uid) { _uid = uid; }
 
-      __int64 GetAccountID() const { return m_iMessageAccountID; }
-      void SetAccountID(__int64 MsgAccountID) { m_iMessageAccountID = (int) MsgAccountID; }
+      __int64 GetAccountID() const { return message_account_id_; }
+      void SetAccountID(__int64 MsgAccountID) { message_account_id_ = (int) MsgAccountID; }
    
-      State GetState() const { return (State) m_iMessageState; }
-      void SetState(State MessageState) { m_iMessageState = MessageState; }
+      State GetState() const { return (State) message_state_; }
+      void SetState(State MessageState) { message_state_ = MessageState; }
 
-      int GetSize() const { return m_iMessageSize; }
-      void SetSize(int MessageSize) { m_iMessageSize = MessageSize; }
+      int GetSize() const { return message_size_; }
+      void SetSize(int MessageSize) { message_size_ = MessageSize; }
 
-      __int64 GetFolderID() const { return m_iMessageFolderID; }
-      void SetFolderID(__int64 iFolderID) { m_iMessageFolderID = (int) iFolderID; }
+      __int64 GetFolderID() const { return message_folder_id_; }
+      void SetFolderID(__int64 iFolderID) { message_folder_id_ = (int) iFolderID; }
 
-      short GetFlags() {return m_iFlags; }
-      void SetFlags(short iNewVal) {m_iFlags = iNewVal; }
+      short GetFlags() {return flags_; }
+      void SetFlags(short iNewVal) {flags_ = iNewVal; }
 
       bool GetFlagSeen() const;
       void SetFlagSeen(bool bNewVal);
@@ -81,12 +81,12 @@ namespace HM
       void SetFlagVirusScan(bool bNewVal);
 
 
-      void SetNoOfRetries(unsigned short lNewVal) {m_iNoOfRetries = lNewVal; }
-      unsigned short GetNoOfRetries() const { return m_iNoOfRetries;}
+      void SetNoOfRetries(unsigned short lNewVal) {no_of_retries_ = lNewVal; }
+      unsigned short GetNoOfRetries() const { return no_of_retries_;}
 
 
-      void SetCreateTime(const String &sCreateTime) {m_sCreateTime = sCreateTime; }
-      String GetCreateTime() const {return m_sCreateTime; }
+      void SetCreateTime(const String &sCreateTime) {create_time_ = sCreateTime; }
+      String GetCreateTime() const {return create_time_; }
 
       shared_ptr<MessageRecipients> GetRecipients();
 
@@ -96,18 +96,18 @@ namespace HM
 
    protected:
 
-      int m_iMessageSize;
+      int message_size_;
 
-      AnsiString m_sCreateTime;
-      AnsiString m_sFilename;
-      AnsiString m_sFromAddress;
+      AnsiString create_time_;
+      AnsiString filename_;
+      AnsiString from_address_;
       
-      int m_iMessageAccountID;
-      int m_iMessageFolderID;
+      int message_account_id_;
+      int message_folder_id_;
 
-      short m_iMessageState;
-      short m_iNoOfRetries;
-      short m_iFlags;
+      short message_state_;
+      short no_of_retries_;
+      short flags_;
 
       unsigned int _uid;
       

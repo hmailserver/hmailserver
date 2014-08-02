@@ -779,7 +779,7 @@ namespace HM
 
       sDate1 = "07 Marcha 2005";
       DateTime dt23 = Time::GetDateTimeFromMimeHeader(sDate1);
-      if (dt23.m_status == DateTime::valid)
+      if (dt23.status_ == DateTime::valid)
          throw;
 
 

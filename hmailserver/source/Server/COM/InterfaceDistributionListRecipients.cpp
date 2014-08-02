@@ -65,7 +65,7 @@ STDMETHODIMP InterfaceDistributionListRecipients::Add(IInterfaceDistributionList
    
       shared_ptr<HM::DistributionListRecipient> pRecipient = shared_ptr<HM::DistributionListRecipient>(new HM::DistributionListRecipient);
       
-      pRecipient->SetListID(m_lListID);
+      pRecipient->SetListID(list_id_);
    
       pList->AttachItem(pRecipient);
       pList->AttachParent(recipients_, false);

@@ -108,7 +108,7 @@ STDMETHODIMP InterfaceAliases::Add(IInterfaceAlias **pVal)
       pIntAlias->AttachItem(pAliasADO);
       pIntAlias->AttachParent(aliases_, false);
    
-      pAliasADO->SetDomainID(m_iDomainID);
+      pAliasADO->SetDomainID(domain_id_);
    
       pIntAlias->AddRef();
       *pVal = pIntAlias;

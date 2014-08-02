@@ -43,17 +43,17 @@ namespace HM
 	   bool SetLowerIPString(const String & sLowerIP);
 	   bool SetUpperIPString(const String & sUpperIP);
 
-	   void SetLowerIP(const IPAddress &lNewVal){m_lLowerIP = lNewVal;}
-	   void SetUpperIP(const IPAddress &lNewVal){m_lUpperIP = lNewVal;}
+	   void SetLowerIP(const IPAddress &lNewVal){lower_ip_ = lNewVal;}
+	   void SetUpperIP(const IPAddress &lNewVal){upper_ip_ = lNewVal;}
 
-      IPAddress GetLowerIP() const {return m_lLowerIP;}
-      IPAddress GetUpperIP() const {return m_lUpperIP;}
+      IPAddress GetLowerIP() const {return lower_ip_;}
+      IPAddress GetUpperIP() const {return upper_ip_;}
 
-	   long GetOptions() const { return m_lOptions;}
-	   void SetOptions(long lNewVal) {m_lOptions = lNewVal; }
+	   long GetOptions() const { return options_;}
+	   void SetOptions(long lNewVal) {options_ = lNewVal; }
 
-	   long GetPriority() const {return m_lPriority;}
-	   void SetPriority(long lNewVal) {m_lPriority = lNewVal;}
+	   long GetPriority() const {return priority_;}
+	   void SetPriority(long lNewVal) {priority_ = lNewVal;}
 
 	   bool GetAllowSMTP() const ;
 	   void SetAllowSMTP(bool bAllow);
@@ -96,8 +96,8 @@ namespace HM
 
       bool GetAllowOption(__int64 lOption) const ;
       
-      String GetName() const  {return m_sName; }
-      void SetName(const String &sNewVal) {m_sName = sNewVal;}
+      String GetName() const  {return name_; }
+      void SetName(const String &sNewVal) {name_ = sNewVal;}
 
       bool GetExpires() const;
       void SetExpires(bool expires);
@@ -117,16 +117,16 @@ namespace HM
 
 	   void SetAllowOption(int option, bool allow);
 
-	   IPAddress m_lLowerIP;
-	   IPAddress m_lUpperIP;
+	   IPAddress lower_ip_;
+	   IPAddress upper_ip_;
 
        // Options for this range
-       long m_lOptions;
+       long options_;
 
 	   // the priority. 0 is highest, 10 is lowest.
-	   long m_lPriority;
+	   long priority_;
       
-      String m_sName;
+      String name_;
 
       bool _expires;
       DateTime _expiresTime;

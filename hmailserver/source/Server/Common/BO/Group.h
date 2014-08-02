@@ -27,6 +27,6 @@ namespace HM
 
    private:
 
-      String m_sName;
+      String name_;
    };
 }

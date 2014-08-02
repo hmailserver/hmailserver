@@ -16,9 +16,9 @@
 namespace HM
 {
    DistributionList::DistributionList(void) :
-      m_iDomainID(false),
-      m_bRequireAuth(false),
-      m_eListMode(LMPublic)
+      domain_id_(false),
+      require_auth_(false),
+      list_mode_(LMPublic)
 
    {
       
@@ -34,12 +34,12 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("DistributionList"));
 
       String sListMode;
-      sListMode.Format(_T("%d"), m_eListMode);
+      sListMode.Format(_T("%d"), list_mode_);
 
-      pNode->AppendAttr(_T("Name"), m_sAddress);
-      pNode->AppendAttr(_T("Active"), m_bEnabled ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("RequiresAuth"), m_bRequireAuth ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("RequiresAuthAddress"), m_sRequireAddress);
+      pNode->AppendAttr(_T("Name"), address_);
+      pNode->AppendAttr(_T("Active"), enabled_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("RequiresAuth"), require_auth_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("RequiresAuthAddress"), require_address_);
       pNode->AppendAttr(_T("ListMode"), sListMode);
 
       return GetMembers()->XMLStore(pNode, iOptions);
@@ -48,11 +48,11 @@ namespace HM
    bool
    DistributionList::XMLLoad(XNode *pNode, int iRestoreOptions)
    {
-      m_sAddress = pNode->GetAttrValue(_T("Name"));
-      m_bEnabled = pNode->GetAttrValue(_T("Active")) == _T("1");
-      m_bRequireAuth = pNode->GetAttrValue(_T("RequiresAuth")) == _T("1");
-      m_sRequireAddress = pNode->GetAttrValue(_T("RequiresAuthAddress"));
-      m_eListMode = (ListMode) _ttoi(pNode->GetAttrValue(_T("ListMode")));
+      address_ = pNode->GetAttrValue(_T("Name"));
+      enabled_ = pNode->GetAttrValue(_T("Active")) == _T("1");
+      require_auth_ = pNode->GetAttrValue(_T("RequiresAuth")) == _T("1");
+      require_address_ = pNode->GetAttrValue(_T("RequiresAuthAddress"));
+      list_mode_ = (ListMode) _ttoi(pNode->GetAttrValue(_T("ListMode")));
 
       return true;
    }
@@ -67,7 +67,7 @@ namespace HM
    shared_ptr<DistributionListRecipients>
    DistributionList::GetMembers() const
    {
-      shared_ptr<DistributionListRecipients> members = shared_ptr<DistributionListRecipients> (new DistributionListRecipients(m_iID)) ;
+      shared_ptr<DistributionListRecipients> members = shared_ptr<DistributionListRecipients> (new DistributionListRecipients(id_)) ;
       members->Refresh();
       return members;
    }

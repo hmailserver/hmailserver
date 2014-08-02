@@ -28,7 +28,7 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       bool bRet = false;
-      if (m_vecLockedAccounts.find(iAccount) != m_vecLockedAccounts.end())
+      if (locked_accounts_.find(iAccount) != locked_accounts_.end())
          bRet = true;
 
       return bRet;
@@ -39,9 +39,9 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_vecLockedAccounts.find(iAccount) == m_vecLockedAccounts.end())
+      if (locked_accounts_.find(iAccount) == locked_accounts_.end())
       {
-         m_vecLockedAccounts.insert(iAccount);
+         locked_accounts_.insert(iAccount);
          return true;
       }
       else
@@ -55,8 +55,8 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::set<__int64>::iterator iter =  m_vecLockedAccounts.find(iAccount);
-      if (iter != m_vecLockedAccounts.end())
-         m_vecLockedAccounts.erase(iter);
+      std::set<__int64>::iterator iter =  locked_accounts_.find(iAccount);
+      if (iter != locked_accounts_.end())
+         locked_accounts_.erase(iter);
    }
 }

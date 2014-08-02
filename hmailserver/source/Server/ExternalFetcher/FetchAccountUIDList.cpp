@@ -27,10 +27,10 @@ namespace HM
    void 
    FetchAccountUIDList::Refresh(__int64 iFAID)
    {
-      m_iFAID = iFAID;
+      faid_ = iFAID;
 
       SQLCommand command("select * from hm_fetchaccounts_uids where uidfaid = @UIDFAID");
-      command.AddParameter("@UIDFAID", m_iFAID);
+      command.AddParameter("@UIDFAID", faid_);
 
       shared_ptr<DALRecordset> pUIDRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pUIDRS)
@@ -42,7 +42,7 @@ namespace HM
          String sUIDValue = pUIDRS->GetStringValue("uidvalue");
          String sUIDTime = pUIDRS->GetStringValue("uidtime");
 
-         shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, m_iFAID, sUIDValue, sUIDTime));
+         shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
 
          _fetchedUIDs.insert(std::make_pair(sUIDValue, pUID));
 
@@ -62,9 +62,9 @@ namespace HM
       String sCreateTime = Time::GetCurrentDateTime();
 
       // Add to the database.
-      __int64 iUIDID = PersistentFetchAccountUID::AddUID(m_iFAID, sUIDValue);
+      __int64 iUIDID = PersistentFetchAccountUID::AddUID(faid_, sUIDValue);
 
-      shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, m_iFAID, sUIDValue, sCreateTime));
+      shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sCreateTime));
 
       _fetchedUIDs.insert(std::make_pair(sUIDValue, pUID));
    }

@@ -29,7 +29,7 @@ namespace HM
       std::map<int, shared_ptr<WorkQueue> >::iterator _GetQueueIterator(const String &sQueueName);
 
       boost::recursive_mutex _mutex;
-      std::map<int, shared_ptr<WorkQueue> > m_mapWorkQueues;
+      std::map<int, shared_ptr<WorkQueue> > work_queues_;
      
    };
 }

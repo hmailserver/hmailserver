@@ -16,9 +16,9 @@ namespace HM
 
    IMAPSimpleWord::IMAPSimpleWord() 
    {
-         m_bIsQuoted = false; 
-         m_bIsParanthezied = false; 
-         m_bIsClammerized = false;
+         is_quoted_ = false; 
+         is_paranthezied_ = false; 
+         is_clammerized_ = false;
    }
    
    IMAPSimpleWord::~IMAPSimpleWord() {; };
@@ -26,32 +26,32 @@ namespace HM
    bool
    IMAPSimpleWord::Quoted() 
    {
-      return m_bIsQuoted; 
+      return is_quoted_; 
    }
 
    bool 
    IMAPSimpleWord::Paranthezied() 
    {
-      return m_bIsParanthezied; 
+      return is_paranthezied_; 
    }
 
    bool 
    IMAPSimpleWord::Clammerized() 
    {
-      return m_bIsClammerized; 
+      return is_clammerized_; 
    }
 
    String 
    IMAPSimpleWord::Value()
    {  
-      return m_sWord;
+      return word_;
    }
 
 
    void
    IMAPSimpleWord::Value(const String &sNewVal) 
    {
-      m_sWord = sNewVal; 
+      word_ = sNewVal; 
    }
 
    
@@ -225,7 +225,7 @@ namespace HM
             iCurrentLiteralPos++;
          }
 
-         m_vecParsedWords.push_back(pWord);
+         parsed_words_.push_back(pWord);
          
          if (bCurWordIsQuoted || bCurWordIsParanthezed || bCurWordIsClammerized)
             iCurWordStartPos = iCurWordEndPos + 2;
@@ -279,8 +279,8 @@ namespace HM
    shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::QuotedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = m_vecParsedWords.begin();
-      while (iterWord != m_vecParsedWords.end())
+      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Quoted())
             return (*iterWord);
@@ -295,12 +295,12 @@ namespace HM
    IMAPSimpleCommandParser::RemoveWord(int iWordIdx)
    {
       int iCurIdx = 0;
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = m_vecParsedWords.begin();
-      while (iterWord != m_vecParsedWords.end())
+      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      while (iterWord != parsed_words_.end())
       {  
          if (iWordIdx == iCurIdx)
          {
-            m_vecParsedWords.erase(iterWord);
+            parsed_words_.erase(iterWord);
             return;
          }
 
@@ -313,8 +313,8 @@ namespace HM
    shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::ParantheziedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = m_vecParsedWords.begin();
-      while (iterWord != m_vecParsedWords.end())
+      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Paranthezied())
             return (*iterWord);
@@ -328,8 +328,8 @@ namespace HM
    shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::ClammerizedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = m_vecParsedWords.begin();
-      while (iterWord != m_vecParsedWords.end())
+      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Clammerized())
             return (*iterWord);

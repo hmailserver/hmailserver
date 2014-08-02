@@ -67,7 +67,7 @@ namespace HM
       // __super to quit.
       //---------------------------------------------------------------------------//
       {
-         if (m_bRunAsService)
+         if (run_as_service_)
          {
             // Start the server threads now.
             StartServiceInitialization(0);
@@ -130,7 +130,7 @@ namespace HM
       // as service, we should never die using this mechanism, hence the return 1.
       //---------------------------------------------------------------------------//
       {
-         if (m_bRunAsService)
+         if (run_as_service_)
             return 1;
          else
             return __super::Unlock();
@@ -165,7 +165,7 @@ namespace HM
          return S_OK;
       }
 
-      bool m_bRunAsService;
+      bool run_as_service_;
    };
 
    
@@ -303,7 +303,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    }
    else if (sLastParam.CompareNoCase(_T("RunAsService")) == 0)
    {
-      _AtlModule.m_bRunAsService = true;
+      _AtlModule.run_as_service_ = true;
 
 	  iRet = _AtlModule.WinMain(nShowCmd);
    }

@@ -25,7 +25,7 @@ namespace HM
 
    private:
 
-      __int64 m_iGroupID;
-      __int64 m_iAccountID;
+      __int64 group_id_;
+      __int64 account_id_;
    };
 }

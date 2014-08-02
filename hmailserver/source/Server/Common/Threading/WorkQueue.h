@@ -44,9 +44,9 @@ namespace HM
       set<shared_ptr<Task>> runningTasks_;
       boost::recursive_mutex runningTasksMutex_;
 
-      unsigned int m_iMaxSimultaneous;
+      unsigned int max_simultaneous_;
 
-      String m_sQueueName;
+      String queue_name_;
 
       set<shared_ptr<boost::thread>> workerThreads_;
    };

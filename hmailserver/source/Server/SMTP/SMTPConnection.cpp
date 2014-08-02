@@ -74,20 +74,20 @@ namespace HM
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
       AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
-      m_bRejectedByDelayedGreyListing(false),
-      m_CurrentState(INITIAL),
-      m_bTraceHeadersWritten(true),
+      rejected_by_delayed_grey_listing_(false),
+      current_state_(INITIAL),
+      trace_headers_written_(true),
       requestedAuthenticationType_(AUTH_NONE),
-      m_iMaxMessageSizeKB(0),
-      m_iCurNoOfRCPTTO(0),
-      m_iCurNoOfInvalidCommands(0),
-      m_bReAuthenticateUser(false),
-      m_spType(SPNone),
-      m_bPendingDisconnect(false),
+      max_message_size_kb_(0),
+      cur_no_of_rcptto_(0),
+      cur_no_of_invalid_commands_(0),
+      re_authenticate_user_(false),
+      type_(SPNone),
+      pending_disconnect_(false),
       isAuthenticated_(false)
    {
 
-      m_SMTPConf = Configuration::Instance()->GetSMTPConfiguration();
+      smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
 
       /* RFC 2821:    
          An SMTP server SHOULD have a timeout of at least 5 minutes while it
@@ -145,7 +145,7 @@ namespace HM
            which was not obtained from the TLS negotiation itself.
          */
 
-         m_sHeloHost.Empty();
+         helo_host_.Empty();
          ResetLoginCredentials_();
          ResetCurrentMessage_();
 
@@ -226,7 +226,7 @@ namespace HM
 
          String sLogData = sClientData;
 
-         if (m_CurrentState == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
          {
             // Both user name and password in line. 
             sLogData = "***";
@@ -244,7 +244,7 @@ namespace HM
                sLogData = username + " ***";
             }
          }
-         else if (m_CurrentState == SMTPUPASSWORD)
+         else if (current_state_ == SMTPUPASSWORD)
          {
             sLogData = "***";
          }         
@@ -262,9 +262,9 @@ namespace HM
    {
       InternalParseData(sRequest);
 
-      if (m_bPendingDisconnect == false)
+      if (pending_disconnect_ == false)
       {
-         switch (m_CurrentState)
+         switch (current_state_)
          {
          case DATA:
             PostBufferReceive();
@@ -305,11 +305,11 @@ namespace HM
       sFirstWord.MakeUpper();
 
       if (Configuration::Instance()->GetDisconnectInvalidClients() &&
-          m_iCurNoOfInvalidCommands > Configuration::Instance()->GetMaximumIncorrectCommands())
+          cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
       {
          // Disconnect
          SendData_("Too many invalid commands. Bye!");
-         m_bPendingDisconnect = true;
+         pending_disconnect_ = true;
          PostDisconnect();
          return;
       }
@@ -327,7 +327,7 @@ namespace HM
          case SMTP_COMMAND_RSET: ProtocolRSET_(); return;
       }
 
-      switch (m_CurrentState)
+      switch (current_state_)
       {
          case INITIAL:
             {
@@ -387,16 +387,16 @@ namespace HM
       if (!GetSecurityRange()->GetSpamProtection() ||
            SpamProtection::IsWhiteListed(sFromAddress, GetRemoteEndpointAddress()))
       {
-         m_spType = SPNone;
+         type_ = SPNone;
          return;
       }
 
       shared_ptr<IncomingRelays> incomingRelays = Configuration::Instance()->GetSMTPConfiguration()->GetIncomingRelays();
       // Check if we should do it before or after data transfer
       if (incomingRelays->IsIncomingRelay(GetRemoteEndpointAddress()))
-         m_spType = SPPostTransmission;
+         type_ = SPPostTransmission;
       else 
-         m_spType = SPPreTransmission;
+         type_ = SPPreTransmission;
    }
 
    void 
@@ -484,7 +484,7 @@ namespace HM
       const String sAccountAddress = pDA->ApplyAliasesOnAddress(sFromAddress);
 
       // Pre-transmission spam protection.
-      if (m_spType == SPPreTransmission)
+      if (type_ == SPPreTransmission)
       {
          if (IniFileSettings::Instance()->GetDNSBLChecksAfterMailFrom())
          {
@@ -492,7 +492,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!DoSpamProtection_(SPPreTransmission, sFromAddress, m_sHeloHost, GetRemoteEndpointAddress()))
+            if (!DoSpamProtection_(SPPreTransmission, sFromAddress, helo_host_, GetRemoteEndpointAddress()))
                return;
          }
       }
@@ -512,17 +512,17 @@ namespace HM
       try
       {
          // Check the max size
-         m_iMaxMessageSizeKB = GetMaxMessageSize_(sender_domain_);
+         max_message_size_kb_ = GetMaxMessageSize_(sender_domain_);
 
          // Check if estimated message size exceedes our
          // maximum message size (according to RFC1653)
-         if (m_iMaxMessageSizeKB > 0 && 
-             iEstimatedMessageSize / 1024 > m_iMaxMessageSizeKB)
+         if (max_message_size_kb_ > 0 && 
+             iEstimatedMessageSize / 1024 > max_message_size_kb_)
          {
             // Message to big. Reject it.
             String sMessage;
             sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-                  iEstimatedMessageSize / 1024, m_iMaxMessageSizeKB);
+                  iEstimatedMessageSize / 1024, max_message_size_kb_);
             SendData_(sMessage);
             return ;
          }
@@ -535,7 +535,7 @@ namespace HM
       
       try
       {
-         if (m_bReAuthenticateUser && !ReAuthenticateUser())
+         if (re_authenticate_user_ && !ReAuthenticateUser())
             return;
       }
       catch (...)
@@ -548,7 +548,7 @@ namespace HM
       try
       {
          // Next time we do a mail from, we should re-authenticate the login credentials
-         m_bReAuthenticateUser = true;
+         re_authenticate_user_ = true;
 
          current_message_ = shared_ptr<Message> (new Message);
          current_message_->SetFromAddress(sFromAddress);
@@ -580,7 +580,7 @@ namespace HM
          return true;
       }
          
-      shared_ptr<const Account> pAccount = PasswordValidator::ValidatePassword(m_sUsername, m_sPassword);
+      shared_ptr<const Account> pAccount = PasswordValidator::ValidatePassword(username_, password_);
       
       if (pAccount)
          return true;
@@ -600,7 +600,7 @@ namespace HM
       {
          // The user is trying to send an e-mail without
          // specifying an email address. Should we allow this?
-         if (!m_SMTPConf->GetAllowMailFromNull())
+         if (!smtpconf_->GetAllowMailFromNull())
          {
             // Nope, we should'nt... We send the below text even
             // though RFC 822 tells us not to...
@@ -624,7 +624,7 @@ namespace HM
    void
    SMTPConnection::ProtocolRCPT_(const String &Request)
    {
-      m_iCurNoOfRCPTTO ++;
+      cur_no_of_rcptto_ ++;
 
       if (!current_message_) 
       {
@@ -720,7 +720,7 @@ namespace HM
 
 
       // Pre-transmission spam protection.
-      if (m_spType == SPPreTransmission)
+      if (type_ == SPPreTransmission)
       {
          if (!IniFileSettings::Instance()->GetDNSBLChecksAfterMailFrom())
          {
@@ -728,7 +728,7 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!DoSpamProtection_(SPPreTransmission, current_message_->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+            if (!DoSpamProtection_(SPPreTransmission, current_message_->GetFromAddress(), helo_host_, GetRemoteEndpointAddress()))
             {
                AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
                return;
@@ -741,7 +741,7 @@ namespace HM
          shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
          const String sToAddress = pDA->ApplyAliasesOnAddress(sRecipientAddress);
 
-         if (!SpamProtection::Instance()->PerformGreyListing(current_message_, m_setSpamTestResults, sToAddress, GetRemoteEndpointAddress()))
+         if (!SpamProtection::Instance()->PerformGreyListing(current_message_, spam_test_results_, sToAddress, GetRemoteEndpointAddress()))
          {
             if (current_message_->GetFromAddress().IsEmpty())
             {
@@ -751,7 +751,7 @@ namespace HM
                // that this may be a SMTP callback from another server
                // that is veriying that the recipient exists, using the
                // RCPT TO command. And we don't want to delay that.
-               m_bRejectedByDelayedGreyListing = true;
+               rejected_by_delayed_grey_listing_ = true;
             }
             else
             {
@@ -793,18 +793,18 @@ namespace HM
          set<shared_ptr<SpamTestResult> > setResult = 
             SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName);
 
-         m_setSpamTestResults.insert(setResult.begin(), setResult.end());
+         spam_test_results_.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
          set<shared_ptr<SpamTestResult> > setResult = 
             SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), current_message_);
 
-         m_setSpamTestResults.insert(setResult.begin(), setResult.end());
+         spam_test_results_.insert(setResult.begin(), setResult.end());
 
       }
 
-      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(m_setSpamTestResults);
+      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
 
       int deleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
       int markThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
@@ -814,7 +814,7 @@ namespace HM
          ServerStatus::Instance()->OnSpamMessageDetected();
 
          // Generate a text string to send to the client.
-         String messageText = GetSpamTestResultMessage_(m_setSpamTestResults);
+         String messageText = GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
             SendData_("550 " + messageText);
@@ -858,14 +858,14 @@ namespace HM
 
       SendData_("221 goodbye");
       
-      m_bPendingDisconnect = true;
+      pending_disconnect_ = true;
       PostDisconnect();
    }
 
    void 
    SMTPConnection::AppendMessageHeaders_()
    {
-      if (m_bTraceHeadersWritten)
+      if (trace_headers_written_)
       {
          shared_ptr<ByteBuffer> pBuffer = transmission_buffer_->GetBuffer();
          shared_ptr<MimeHeader> pHeader = Utilities::GetMimeHeader(pBuffer->GetBuffer(), pBuffer->GetSize());
@@ -881,7 +881,7 @@ namespace HM
          
 
          // If sender is logged in and replace IP is enabled use it
-         if (!m_sUsername.IsEmpty() && !sAuthSenderReplacementIP.empty())
+         if (!username_.IsEmpty() && !sAuthSenderReplacementIP.empty())
          {
             sReceivedIP = sAuthSenderReplacementIP;
             sAUTHIP = GetIPAddressString();
@@ -892,7 +892,7 @@ namespace HM
             sAUTHIP = sReceivedIP;
          }
 
-         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, m_sHeloHost));
+         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_));
          sOutput += sReceivedLine;
 
          String sComputerName = Utilities::ComputerName(); 
@@ -906,15 +906,15 @@ namespace HM
          }
 
          // Add X-AuthUser header if it does not exist.
-         if (IniFileSettings::Instance()->GetAddXAuthUserHeader() && !m_sUsername.IsEmpty())
+         if (IniFileSettings::Instance()->GetAddXAuthUserHeader() && !username_.IsEmpty())
          {
             if (!pHeader->FieldExists("X-AuthUser"))
-               sOutput += "X-AuthUser: " + m_sUsername + "\r\n";
+               sOutput += "X-AuthUser: " + username_ + "\r\n";
          }
 
          // Now add x- header for AUTH user if enabled since it was replaced above if so
          // Likely would be good idea for this to be optional at some point
-         if (!m_sUsername.IsEmpty() && !sAuthSenderReplacementIP.empty() && bAddXAuthUserIP)
+         if (!username_.IsEmpty() && !sAuthSenderReplacementIP.empty() && bAddXAuthUserIP)
          {
             if (!pHeader->FieldExists("X-AuthUserIP"))
                sOutput += "X-AuthUserIP: " + sAUTHIP + "\r\n";
@@ -931,7 +931,7 @@ namespace HM
          transmission_buffer_->GetBuffer()->Empty();
          transmission_buffer_->GetBuffer()->Add(pTempBuf->GetBuffer(), pTempBuf->GetSize());
 
-         m_bTraceHeadersWritten = false;
+         trace_headers_written_ = false;
       }
    }
 
@@ -981,7 +981,7 @@ namespace HM
          LogAwstatsMessageRejected_();
          ResetCurrentMessage_();
          SetReceiveBinary(false);
-         m_bPendingDisconnect = true;
+         pending_disconnect_ = true;
          PostDisconnect();
          return;
 
@@ -1136,7 +1136,7 @@ namespace HM
    }
 }   
 
-      float dTime = ((float) GetTickCount() - (float) m_lMessageStartTC) / (float) 1000;
+      float dTime = ((float) GetTickCount() - (float) message_start_tc_) / (float) 1000;
       double dTCDiff = Math::Round(dTime ,3);
 
       if (OnPreAcceptTransfer_())
@@ -1163,7 +1163,7 @@ namespace HM
             Application::Instance()->SubmitPendingEmail();
 
             // Reset the spam protection results.
-            m_setSpamTestResults.clear();
+            spam_test_results_.clear();
 
             // Tell the client that everything went fine. This
             // will cause the client to either disconnect or to
@@ -1175,7 +1175,7 @@ namespace HM
             // The message delivery is complete, or
             // it has failed. Any way, we should start
             // a new message.
-            m_CurrentState = HEADER;
+            current_state_ = HEADER;
          }
          else
          {
@@ -1213,12 +1213,12 @@ namespace HM
       shared_ptr<MessageData> pMsgData;
 
       // Check if we should add a spam header.
-      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(m_setSpamTestResults);
+      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
       if (iTotalSpamScore >= iSpamMarkThreshold)
       {
-         pMsgData = SpamProtection::TagMessageAsSpam(current_message_, m_setSpamTestResults);
+         pMsgData = SpamProtection::TagMessageAsSpam(current_message_, spam_test_results_);
 
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
@@ -1269,11 +1269,11 @@ namespace HM
 
       // Check so that message isn't to big. Max message
       // size is specified in KB.
-      if (m_iMaxMessageSizeKB > 0 && (transmission_buffer_->GetSize() / 1024) > m_iMaxMessageSizeKB)
+      if (max_message_size_kb_ > 0 && (transmission_buffer_->GetSize() / 1024) > max_message_size_kb_)
       {
          String sMessage;
          sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-            transmission_buffer_->GetSize() / 1024, m_iMaxMessageSizeKB);
+            transmission_buffer_->GetSize() / 1024, max_message_size_kb_);
          SendData_(sMessage);
          LogAwstatsMessageRejected_();
          return false;
@@ -1300,10 +1300,10 @@ namespace HM
          shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
          shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
 
-         pClientInfo->SetUsername(m_sUsername);
+         pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
-         pClientInfo->SetHELO(m_sHeloHost);
+         pClientInfo->SetHELO(helo_host_);
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1473,20 +1473,20 @@ namespace HM
          current_message_.reset();
       }
 
-      m_bRejectedByDelayedGreyListing = false;
+      rejected_by_delayed_grey_listing_ = false;
 
       sender_domain_.reset();
       sender_account_.reset();
 
-      m_setSpamTestResults.clear();
+      spam_test_results_.clear();
 
       // Reset the number of RCPT TO's for this 
       // message.
-      m_iCurNoOfRCPTTO = 0;
+      cur_no_of_rcptto_ = 0;
 
       // Switch back to normal ASCII mode and start of session, in
       // case we are in binary transmission mode.
-      m_CurrentState = HEADER;
+      current_state_ = HEADER;
    }
 
 
@@ -1500,7 +1500,7 @@ namespace HM
       // Append size keyword
       {
          String sSizeKeyword;
-         int iMaxSize = m_SMTPConf->GetMaxMessageSize() * 1000;
+         int iMaxSize = smtpconf_->GetMaxMessageSize() * 1000;
          if (iMaxSize > 0)
             sSizeKeyword.Format(_T("250-SIZE %d\r\n"), iMaxSize);
          else
@@ -1519,7 +1519,7 @@ namespace HM
 
       String sAuth = "250 AUTH LOGIN";
 
-      if (m_SMTPConf->GetAuthAllowPlainText())
+      if (smtpconf_->GetAuthAllowPlainText())
          sAuth += " PLAIN";
 
       sData += sAuth;
@@ -1572,12 +1572,12 @@ namespace HM
       }
 
       // Cut out the string after the space.
-      m_sHeloHost = sRequest.Mid(iFirstSpace + 1);
+      helo_host_ = sRequest.Mid(iFirstSpace + 1);
 
       // Trim it incase of leading or trailing spaces.
-      m_sHeloHost = m_sHeloHost.Trim();
+      helo_host_ = helo_host_.Trim();
 
-      if (m_sHeloHost.IsEmpty())
+      if (helo_host_.IsEmpty())
          return false;
 
       return true;
@@ -1599,8 +1599,8 @@ namespace HM
 
       SendEHLOKeywords_();
 
-      if (m_CurrentState == INITIAL)
-         m_CurrentState = HEADER;
+      if (current_state_ == INITIAL)
+         current_state_ = HEADER;
    }
    
    void
@@ -1617,8 +1617,8 @@ namespace HM
 
       SendData_("250 Hello.");
 
-      if (m_CurrentState == INITIAL)
-         m_CurrentState = HEADER;
+      if (current_state_ == INITIAL)
+         current_state_ = HEADER;
 
    }
 
@@ -1653,10 +1653,10 @@ namespace HM
          shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
          shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
 
-         pClientInfo->SetUsername(m_sUsername);
+         pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
-         pClientInfo->SetHELO(m_sHeloHost);
+         pClientInfo->SetHELO(helo_host_);
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1691,15 +1691,15 @@ namespace HM
          }
       }      
 
-      m_CurrentState = DATA;
+      current_state_ = DATA;
 
       transmission_buffer_ = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
       transmission_buffer_->Initialize(PersistentMessage::GetFileName(current_message_));
-      transmission_buffer_->SetMaxSizeKB(m_iMaxMessageSizeKB);
+      transmission_buffer_->SetMaxSizeKB(max_message_size_kb_);
 
       SetReceiveBinary(true);
-      m_bTraceHeadersWritten = true;
-      m_lMessageStartTC = GetTickCount();
+      trace_headers_written_ = true;
+      message_start_tc_ = GetTickCount();
 
       SendData_("354 OK, send.");
    }
@@ -1751,14 +1751,14 @@ namespace HM
          if (vecParams.size() == 3)
          {
             // Fetch username from third parameter.
-            StringParser::Base64Decode(vecParams[2], m_sUsername);
-            m_CurrentState = SMTPUPASSWORD;
+            StringParser::Base64Decode(vecParams[2], username_);
+            current_state_ = SMTPUPASSWORD;
 
             StringParser::Base64Encode("Password:", sResponse);
          }
          else
          {
-            m_CurrentState = SMTPUSERNAME;
+            current_state_ = SMTPUSERNAME;
             StringParser::Base64Encode("Username:", sResponse);
          }
 
@@ -1767,7 +1767,7 @@ namespace HM
 
       }
       else if (sAuthenticationType == _T("PLAIN") && 
-               m_SMTPConf->GetAuthAllowPlainText())
+               smtpconf_->GetAuthAllowPlainText())
       {
          requestedAuthenticationType_ = AUTH_PLAIN;
 
@@ -1780,7 +1780,7 @@ namespace HM
          else
          {
             SendData_("334 Log on");
-            m_CurrentState = SMTPUSERNAME;
+            current_state_ = SMTPUSERNAME;
          }
 
          return;
@@ -1792,11 +1792,11 @@ namespace HM
    void 
    SMTPConnection::ProtocolUsername_(const String &sRequest)
    {
-      StringParser::Base64Decode(sRequest, m_sUsername);
+      StringParser::Base64Decode(sRequest, username_);
       String sEncoded;
       StringParser::Base64Encode("Password:", sEncoded);
       SendData_("334 " + sEncoded);
-      m_CurrentState = SMTPUPASSWORD;
+      current_state_ = SMTPUPASSWORD;
 
    }
 
@@ -1804,9 +1804,9 @@ namespace HM
    SMTPConnection::ProtocolPassword_(const String &sRequest)
    {
       if (requestedAuthenticationType_ == AUTH_LOGIN)
-         StringParser::Base64Decode(sRequest, m_sPassword);
+         StringParser::Base64Decode(sRequest, password_);
       else if (requestedAuthenticationType_ == AUTH_PLAIN)
-         m_sPassword = sRequest;
+         password_ = sRequest;
 
       Authenticate_();
    }
@@ -1825,7 +1825,7 @@ namespace HM
 
       SendData_("220 Ready to start TLS");
 
-      m_CurrentState = STARTTLS ;
+      current_state_ = STARTTLS ;
       
       Handshake();
    }
@@ -1930,8 +1930,8 @@ namespace HM
          return;
       }
 
-      m_sUsername = sAuthentication.Mid(1, iSecondTab-1);
-      m_sPassword = sAuthentication.Mid(iSecondTab+1);
+      username_ = sAuthentication.Mid(1, iSecondTab-1);
+      password_ = sAuthentication.Mid(iSecondTab+1);
 
       // Authenticate the user.
       Authenticate_();      
@@ -1943,12 +1943,12 @@ namespace HM
       AccountLogon accountLogon;
       bool disconnect;
 
-      shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), m_sUsername, m_sPassword, disconnect);
+      shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
          
       if (disconnect)
       {
          SendErrorResponse_(535, "Authentication failed. Too many invalid logon attempts.");
-         m_bPendingDisconnect = true;
+         pending_disconnect_ = true;
          PostDisconnect();
          return;
       }
@@ -1958,7 +1958,7 @@ namespace HM
          SendData_("235 authenticated.");
 
          isAuthenticated_ = true;
-         m_CurrentState = HEADER;
+         current_state_ = HEADER;
       }
       else
       {
@@ -1980,16 +1980,16 @@ namespace HM
       requestedAuthenticationType_ = AUTH_NONE;
       isAuthenticated_ = false;
 
-      m_CurrentState = HEADER;
-      m_sUsername = "";
-      m_bReAuthenticateUser = false;
+      current_state_ = HEADER;
+      username_ = "";
+      re_authenticate_user_ = false;
    }
 
 
    int 
    SMTPConnection::GetMaxMessageSize_(shared_ptr<const Domain> pDomain)
    {
-      int iMaxMessageSizeKB = m_SMTPConf->GetMaxMessageSize();
+      int iMaxMessageSizeKB = smtpconf_->GetMaxMessageSize();
       
       if (pDomain)
       {
@@ -2013,13 +2013,13 @@ namespace HM
       SendData_(sData);
 
       if (iErrorCode >= 500 && iErrorCode <= 599)
-         m_iCurNoOfInvalidCommands++;   
+         cur_no_of_invalid_commands_++;   
    }
 
    bool
    SMTPConnection::DoPreAcceptSpamProtection_()
    {
-      if (m_bRejectedByDelayedGreyListing)
+      if (rejected_by_delayed_grey_listing_)
       {
          SendErrorResponse_(450, "Please try again later.");
          // Don't log to awstats here, since we tell the client to try again later.
@@ -2028,7 +2028,7 @@ namespace HM
 
       // Check if we should do pre-transmissions tests after transmission. This
       // happens if the message is delivered from a forwarding relay server.
-      if (m_spType == SPPostTransmission)
+      if (type_ == SPPostTransmission)
       {
          // Do all spam proteciton now. It has been delayed since we trust the 
          // server which has forwarded to us.
@@ -2055,7 +2055,7 @@ namespace HM
       else
       {
          // Do normal post transmission spam protection. (typically SURBL)
-         if (!DoSpamProtection_(SPPostTransmission, current_message_->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+         if (!DoSpamProtection_(SPPostTransmission, current_message_->GetFromAddress(), helo_host_, GetRemoteEndpointAddress()))
          {
             // We should stop message delivery
             return false;

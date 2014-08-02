@@ -179,7 +179,7 @@ namespace HM
       if (!pBackupNode)
          throw;
 
-      m_sMimeDataPath = pBackupNode->GetChildValue(_T("MimeDataPath"));
+      mime_data_path_ = pBackupNode->GetChildValue(_T("MimeDataPath"));
    }
 
    void 

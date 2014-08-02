@@ -13,8 +13,8 @@
 namespace HM
 {
    Alias::Alias() :
-      m_iDomainID(0),
-      m_bActive(false)
+      domain_id_(0),
+      active_(false)
    {
 
    }
@@ -29,9 +29,9 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Alias"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
-      pNode->AppendAttr(_T("Value"), m_sValue);
-      pNode->AppendAttr(_T("Active"), m_bActive ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("Value"), value_);
+      pNode->AppendAttr(_T("Active"), active_ ? _T("1") : _T("0"));
 
       return true;
    }
@@ -39,9 +39,9 @@ namespace HM
    bool
    Alias::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sName = pNode->GetAttrValue(_T("Name"));
-      m_sValue = pNode->GetAttrValue(_T("Value"));
-      m_bActive = (pNode->GetAttrValue(_T("Active")) == _T("1"));
+      name_ = pNode->GetAttrValue(_T("Name"));
+      value_ = pNode->GetAttrValue(_T("Value"));
+      active_ = (pNode->GetAttrValue(_T("Active")) == _T("1"));
 
       return true;
    }

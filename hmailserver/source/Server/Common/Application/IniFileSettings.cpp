@@ -15,28 +15,28 @@
 
 namespace HM
 {
-   String IniFileSettings::m_sLogDirectory;
-   String IniFileSettings::m_sIniFile;
+   String IniFileSettings::log_directory_;
+   String IniFileSettings::ini_file_;
   
    IniFileSettings::IniFileSettings() :
-      m_bIsInternalDatabase(false),
-      m_lDBPort(0),
-      m_iNoOfDBConnections(0),
-      m_bAddXAuthUserHeader(false),
-      m_iNoOfDBConnectionAttempts(6),
-      m_iNoOfDBConnectionAttemptsDelay(5),
-      m_iMaxNoOfExternalFetchThreads(15),
-      m_bGreylistingEnabledDuringRecordExpiration(true),
-      m_iGreylistingExpirationInterval(240),
+      is_internal_database_(false),
+      dbport_(0),
+      no_of_dbconnections_(0),
+      add_xauth_user_header_(false),
+      no_of_dbconnection_attempts_(6),
+      no_of_dbconnection_attempts_Delay(5),
+      max_no_of_external_fetch_threads_(15),
+      greylisting_enabled_during_record_expiration_(true),
+      greylisting_expiration_interval_(240),
       _preferredHashAlgorithm(3),
-      m_bDNSBlChecksAfterMailFrom(false),
-      m_iLogLevel(0),
-      m_iMaxLogLineLen(500),
-      m_iQuickRetries(0),
-      m_iQuickRetriesMinutes(0),
-      m_iQueueRandomnessMinutes(0),
-      m_iMXTriesFactor(0),
-      m_eSQLDBType(HM::DatabaseSettings::TypeUnknown),
+      dnsbl_checks_after_mail_from_(false),
+      log_level_(0),
+      max_log_line_len_(500),
+      quick_retries_(0),
+      quick_retries_Minutes(0),
+      queue_randomness_minutes_(0),
+      mxtries_factor_(0),
+      sqldbtype_(HM::DatabaseSettings::TypeUnknown),
       _manualCAFilesExists(false)
    {
 
@@ -55,119 +55,119 @@ namespace HM
    // Load all settings from hMailServer.ini
    //---------------------------------------------------------------------------()
    {
-      m_AdministratorPassword = _ReadIniSettingString("Security", "AdministratorPassword", "");
+      administrator_password_ = _ReadIniSettingString("Security", "AdministratorPassword", "");
 
-      m_DatabaseServer = _ReadIniSettingString("Database", "Server", "");
-      m_DatabaseName = _ReadIniSettingString("Database", "Database", "");
-      m_Username = _ReadIniSettingString("Database", "Username", "");
-      m_Password = _ReadIniSettingString("Database", "Password", "");
-      m_bIsInternalDatabase = _ReadIniSettingInteger("Database", "Internal", 0) == 1;
-      m_DatabaseServerFailoverPartner = _ReadIniSettingString("Database", "ServerFailoverPartner", "");
+      database_server_ = _ReadIniSettingString("Database", "Server", "");
+      database_name_ = _ReadIniSettingString("Database", "Database", "");
+      username_ = _ReadIniSettingString("Database", "Username", "");
+      password_ = _ReadIniSettingString("Database", "Password", "");
+      is_internal_database_ = _ReadIniSettingInteger("Database", "Internal", 0) == 1;
+      database_server_FailoverPartner = _ReadIniSettingString("Database", "ServerFailoverPartner", "");
 
       String sDatabaseType = _ReadIniSettingString("Database", "Type", "");
       
       Crypt::EncryptionType iPWDEncryptionType = (Crypt::EncryptionType) _ReadIniSettingInteger("Database", "Passwordencryption", 0);
 
       // Decrypt password read from hmailserver.ini
-      m_Password = Crypt::Instance()->DeCrypt(m_Password, iPWDEncryptionType);
+      password_ = Crypt::Instance()->DeCrypt(password_, iPWDEncryptionType);
 
       if (sDatabaseType.CompareNoCase(_T("MSSQL")) == 0)
-         m_eSQLDBType = HM::DatabaseSettings::TypeMSSQLServer;
+         sqldbtype_ = HM::DatabaseSettings::TypeMSSQLServer;
       else if (sDatabaseType.CompareNoCase(_T("MYSQL")) == 0)
-         m_eSQLDBType = HM::DatabaseSettings::TypeMYSQLServer;
+         sqldbtype_ = HM::DatabaseSettings::TypeMYSQLServer;
       else if (sDatabaseType.CompareNoCase(_T("PostgreSQL")) == 0)
-         m_eSQLDBType = HM::DatabaseSettings::TypePGServer;
+         sqldbtype_ = HM::DatabaseSettings::TypePGServer;
       else if (sDatabaseType.CompareNoCase(_T("MSSQLCE")) == 0)
-         m_eSQLDBType = HM::DatabaseSettings::TypeMSSQLCompactEdition;
+         sqldbtype_ = HM::DatabaseSettings::TypeMSSQLCompactEdition;
 
-      m_lDBPort = _ReadIniSettingInteger( "Database", "Port", 0);
+      dbport_ = _ReadIniSettingInteger( "Database", "Port", 0);
 
-      m_AppDirectory = _ReadIniSettingString("Directories", "ProgramFolder", "");
-      if (m_AppDirectory.Right(1) != _T("\\"))
-         m_AppDirectory += "\\";
+      app_directory_ = _ReadIniSettingString("Directories", "ProgramFolder", "");
+      if (app_directory_.Right(1) != _T("\\"))
+         app_directory_ += "\\";
 
-      m_DataDirectory = _ReadIniSettingString("Directories", "DataFolder", "");
-      if (m_DataDirectory.Right(1) == _T("\\"))
-         m_DataDirectory = m_DataDirectory.Left(m_DataDirectory.GetLength() -1);
+      data_directory_ = _ReadIniSettingString("Directories", "DataFolder", "");
+      if (data_directory_.Right(1) == _T("\\"))
+         data_directory_ = data_directory_.Left(data_directory_.GetLength() -1);
 
-      m_sTempDirectory = _ReadIniSettingString("Directories", "TempFolder", "");
-      if (m_sTempDirectory.Right(1) == _T("\\"))
-         m_sTempDirectory = m_sTempDirectory.Left(m_sTempDirectory.GetLength() -1);
+      temp_directory_ = _ReadIniSettingString("Directories", "TempFolder", "");
+      if (temp_directory_.Right(1) == _T("\\"))
+         temp_directory_ = temp_directory_.Left(temp_directory_.GetLength() -1);
 
-      m_sEventDirectory = _ReadIniSettingString("Directories", "EventFolder", "");
+      event_directory_ = _ReadIniSettingString("Directories", "EventFolder", "");
 
-      m_sDBScriptDirectory = _ReadIniSettingString("Directories", "ProgramFolder", "");
-      if (m_sDBScriptDirectory.Right(1) != _T("\\"))
-         m_sDBScriptDirectory += "\\";
-      m_sDBScriptDirectory += "DBScripts";
+      dbscript_directory_ = _ReadIniSettingString("Directories", "ProgramFolder", "");
+      if (dbscript_directory_.Right(1) != _T("\\"))
+         dbscript_directory_ += "\\";
+      dbscript_directory_ += "DBScripts";
 
-      m_iNoOfDBConnections = _ReadIniSettingInteger("Database", "NumberOfConnections", 5);            
-      m_iNoOfDBConnectionAttempts = _ReadIniSettingInteger("Database", "ConnectionAttempts", 6);  
-      m_iNoOfDBConnectionAttemptsDelay = _ReadIniSettingInteger("Database", "ConnectionAttemptsDelay", 5);  
+      no_of_dbconnections_ = _ReadIniSettingInteger("Database", "NumberOfConnections", 5);            
+      no_of_dbconnection_attempts_ = _ReadIniSettingInteger("Database", "ConnectionAttempts", 6);  
+      no_of_dbconnection_attempts_Delay = _ReadIniSettingInteger("Database", "ConnectionAttemptsDelay", 5);  
       
-      if (m_eSQLDBType == HM::DatabaseSettings::TypeMSSQLCompactEdition)
+      if (sqldbtype_ == HM::DatabaseSettings::TypeMSSQLCompactEdition)
       {
          // Always use one database connection when working with SQL CE. SQL CE is supposed
          // to be ACID, robust and so on but isn't really.
          // http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=4141097&SiteID=1
-         m_iNoOfDBConnections = 1;
+         no_of_dbconnections_ = 1;
       }
 
-      m_iMaxNoOfExternalFetchThreads = _ReadIniSettingInteger("Settings", "MaxNumberOfExternalFetchThreads", 15);
-      m_bAddXAuthUserHeader = _ReadIniSettingInteger("Settings", "AddXAuthUserHeader", 0) == 1;
+      max_no_of_external_fetch_threads_ = _ReadIniSettingInteger("Settings", "MaxNumberOfExternalFetchThreads", 15);
+      add_xauth_user_header_ = _ReadIniSettingInteger("Settings", "AddXAuthUserHeader", 0) == 1;
       
-      m_bGreylistingEnabledDuringRecordExpiration = _ReadIniSettingInteger("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;
-      m_iGreylistingExpirationInterval = _ReadIniSettingInteger("Settings", "GreylistingRecordExpirationInterval", 240);
+      greylisting_enabled_during_record_expiration_ = _ReadIniSettingInteger("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;
+      greylisting_expiration_interval_ = _ReadIniSettingInteger("Settings", "GreylistingRecordExpirationInterval", 240);
 
-      m_sDatabaseDirectory = _ReadIniSettingString("Directories", "DatabaseFolder", "");
-      if (m_sDatabaseDirectory.Right(1) == _T("\\"))
-         m_sDatabaseDirectory = m_sDatabaseDirectory.Left(m_sDatabaseDirectory.GetLength() -1);
+      database_directory_ = _ReadIniSettingString("Directories", "DatabaseFolder", "");
+      if (database_directory_.Right(1) == _T("\\"))
+         database_directory_ = database_directory_.Left(database_directory_.GetLength() -1);
 
       String sValidLanguages = _ReadIniSettingString("GUILanguages", "ValidLanguages", "");
-      m_vecValidLanguages = StringParser::SplitString(sValidLanguages, ",");
+      valid_languages_ = StringParser::SplitString(sValidLanguages, ",");
 
       _preferredHashAlgorithm = _ReadIniSettingInteger("Settings", "PreferredHashAlgorithm", 3);
 
-      m_bDNSBlChecksAfterMailFrom = _ReadIniSettingInteger("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
+      dnsbl_checks_after_mail_from_ = _ReadIniSettingInteger("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
 
-      m_bSepSvcLogs = _ReadIniSettingInteger("Settings", "SepSvcLogs", 0) == 1;
-      m_iLogLevel = _ReadIniSettingInteger("Settings", "LogLevel", 9);
-      m_iMaxLogLineLen = _ReadIniSettingInteger("Settings", "MaxLogLineLen", 500);
-      if (m_iMaxLogLineLen < 100) m_iMaxLogLineLen = 100;
-      m_iQuickRetries = _ReadIniSettingInteger("Settings", "QuickRetries", 0);
-      m_iQuickRetriesMinutes = _ReadIniSettingInteger("Settings", "QuickRetriesMinutes", 6);
-      m_iQueueRandomnessMinutes = _ReadIniSettingInteger("Settings", "QueueRandomnessMinutes", 0);
-      // If m_iQueueRandomnessMinutes out of range use 0 
-      if (m_iQueueRandomnessMinutes <= 0) m_iQueueRandomnessMinutes = 0;
-      m_iMXTriesFactor = _ReadIniSettingInteger("Settings", "MXTriesFactor", 0);
-      if (m_iMXTriesFactor <= 0) m_iMXTriesFactor = 0;
-      m_sArchiveDir = _ReadIniSettingString("Settings", "ArchiveDir", "");
-      if (m_sArchiveDir.Right(1) == _T("\\"))
-         m_sArchiveDir = m_sArchiveDir.Left(m_sArchiveDir.GetLength() -1);
-      m_bArchiveHardlinks =  _ReadIniSettingInteger("Settings", "ArchiveHardLinks", 0) == 1;
-      m_iPOP3DMinTimeout =  _ReadIniSettingInteger("Settings", "POP3DMinTimeout", 10);
-      m_iPOP3DMaxTimeout =  _ReadIniSettingInteger("Settings", "POP3DMaxTimeout",600);
-      m_iPOP3CMinTimeout =  _ReadIniSettingInteger("Settings", "POP3CMinTimeout", 30);
-      m_iPOP3CMaxTimeout =  _ReadIniSettingInteger("Settings", "POP3CMaxTimeout",900);
-      m_iSMTPDMinTimeout =  _ReadIniSettingInteger("Settings", "SMTPDMinTimeout", 10);
-      m_iSMTPDMaxTimeout =  _ReadIniSettingInteger("Settings", "SMTPDMaxTimeout",1800);
-      m_iSMTPCMinTimeout =  _ReadIniSettingInteger("Settings", "SMTPCMinTimeout", 30);
-      m_iSMTPCMaxTimeout =  _ReadIniSettingInteger("Settings", "SMTPCMaxTimeout",600);
-      m_iSAMinTimeout =  _ReadIniSettingInteger("Settings", "SAMinTimeout", 30);
-      m_iSAMaxTimeout =  _ReadIniSettingInteger("Settings", "SAMaxTimeout",90);
-      m_iClamMinTimeout =  _ReadIniSettingInteger("Settings", "ClamMinTimeout", 15);
-      m_iClamMaxTimeout =  _ReadIniSettingInteger("Settings", "ClamMaxTimeout",90);
-      m_bSAMoveVsCopy = _ReadIniSettingInteger("Settings", "SAMoveVsCopy", 0) == 1;
-      m_sAuthUserReplacementIP = _ReadIniSettingString("Settings", "AuthUserReplacementIP", "");
-      m_iIndexerFullMinutes =  _ReadIniSettingInteger("Settings", "IndexerFullMinutes",720);
-      m_iIndexerFullLimit =  _ReadIniSettingInteger("Settings", "IndexerFullLimit",25000);
-      m_iIndexerQuickLimit =  _ReadIniSettingInteger("Settings", "IndexerQuickLimit",1000);
-      m_iLoadHeaderReadSize =  _ReadIniSettingInteger("Settings", "LoadHeaderReadSize",4000);
-      m_iLoadBodyReadSize =  _ReadIniSettingInteger("Settings", "LoadBodyReadSize",4000);
-      m_iBlockedIPHoldSeconds =  _ReadIniSettingInteger("Settings", "BlockedIPHoldSeconds",0);
-      m_iSMTPDMaxSizeDrop =  _ReadIniSettingInteger("Settings", "SMTPDMaxSizeDrop",0);
-      m_bBackupMessagesDBOnly =  _ReadIniSettingInteger("Settings", "BackupMessagesDBOnly",0) == 1;
-      m_bAddXAuthUserIP =  _ReadIniSettingInteger("Settings", "AddXAuthUserIP",1) == 1;
+      sep_svc_logs_ = _ReadIniSettingInteger("Settings", "SepSvcLogs", 0) == 1;
+      log_level_ = _ReadIniSettingInteger("Settings", "LogLevel", 9);
+      max_log_line_len_ = _ReadIniSettingInteger("Settings", "MaxLogLineLen", 500);
+      if (max_log_line_len_ < 100) max_log_line_len_ = 100;
+      quick_retries_ = _ReadIniSettingInteger("Settings", "QuickRetries", 0);
+      quick_retries_Minutes = _ReadIniSettingInteger("Settings", "QuickRetriesMinutes", 6);
+      queue_randomness_minutes_ = _ReadIniSettingInteger("Settings", "QueueRandomnessMinutes", 0);
+      // If queue_randomness_minutes_ out of range use 0 
+      if (queue_randomness_minutes_ <= 0) queue_randomness_minutes_ = 0;
+      mxtries_factor_ = _ReadIniSettingInteger("Settings", "MXTriesFactor", 0);
+      if (mxtries_factor_ <= 0) mxtries_factor_ = 0;
+      archive_dir_ = _ReadIniSettingString("Settings", "ArchiveDir", "");
+      if (archive_dir_.Right(1) == _T("\\"))
+         archive_dir_ = archive_dir_.Left(archive_dir_.GetLength() -1);
+      archive_hardlinks_ =  _ReadIniSettingInteger("Settings", "ArchiveHardLinks", 0) == 1;
+      pop3dmin_timeout_ =  _ReadIniSettingInteger("Settings", "POP3DMinTimeout", 10);
+      pop3dmax_timeout_ =  _ReadIniSettingInteger("Settings", "POP3DMaxTimeout",600);
+      pop3cmin_timeout_ =  _ReadIniSettingInteger("Settings", "POP3CMinTimeout", 30);
+      pop3cmax_timeout_ =  _ReadIniSettingInteger("Settings", "POP3CMaxTimeout",900);
+      smtpdmin_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPDMinTimeout", 10);
+      smtpdmax_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPDMaxTimeout",1800);
+      smtpcmin_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPCMinTimeout", 30);
+      smtpcmax_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPCMaxTimeout",600);
+      samin_timeout_ =  _ReadIniSettingInteger("Settings", "SAMinTimeout", 30);
+      samax_timeout_ =  _ReadIniSettingInteger("Settings", "SAMaxTimeout",90);
+      clam_min_timeout_ =  _ReadIniSettingInteger("Settings", "ClamMinTimeout", 15);
+      clam_max_timeout_ =  _ReadIniSettingInteger("Settings", "ClamMaxTimeout",90);
+      samove_vs_copy_ = _ReadIniSettingInteger("Settings", "SAMoveVsCopy", 0) == 1;
+      auth_user_replacement_ip_ = _ReadIniSettingString("Settings", "AuthUserReplacementIP", "");
+      indexer_full_minutes_ =  _ReadIniSettingInteger("Settings", "IndexerFullMinutes",720);
+      indexer_full_limit_ =  _ReadIniSettingInteger("Settings", "IndexerFullLimit",25000);
+      indexer_quick_limit_ =  _ReadIniSettingInteger("Settings", "IndexerQuickLimit",1000);
+      load_header_read_size_ =  _ReadIniSettingInteger("Settings", "LoadHeaderReadSize",4000);
+      load_body_read_size_ =  _ReadIniSettingInteger("Settings", "LoadBodyReadSize",4000);
+      blocked_iphold_seconds_ =  _ReadIniSettingInteger("Settings", "BlockedIPHoldSeconds",0);
+      smtpdmax_size_drop_ =  _ReadIniSettingInteger("Settings", "SMTPDMaxSizeDrop",0);
+      backup_messages_dbonly_ =  _ReadIniSettingInteger("Settings", "BackupMessagesDBOnly",0) == 1;
+      add_xauth_user_ip_ =  _ReadIniSettingInteger("Settings", "AddXAuthUserIP",1) == 1;
 
       //Probably need some more sanity checks on these settings but for now we assume user has some sense
 
@@ -178,7 +178,7 @@ namespace HM
    bool 
    IniFileSettings::GetDatabaseSettingsExists()
    {
-      if (m_eSQLDBType == HM::DatabaseSettings::TypeUnknown)
+      if (sqldbtype_ == HM::DatabaseSettings::TypeUnknown)
          return false;
 
       return true;
@@ -215,21 +215,21 @@ namespace HM
    String
    IniFileSettings::GetInitializationFile() 
    {
-      if (m_sIniFile.IsEmpty())
+      if (ini_file_.IsEmpty())
       {
 
          String AppPath = Utilities::GetExecutableDirectory();
 
-         m_sIniFile = AppPath;
+         ini_file_ = AppPath;
 
-         if (m_sIniFile.Right(1) != _T("\\"))
-            m_sIniFile += "\\";
+         if (ini_file_.Right(1) != _T("\\"))
+            ini_file_ += "\\";
 
-         m_sIniFile += "hMailServer.ini";
+         ini_file_ += "hMailServer.ini";
 
 #ifdef _DEBUG
 
-         if (!FileUtilities::Exists(m_sIniFile))
+         if (!FileUtilities::Exists(ini_file_))
          {
             // We're running in debug. Since the hMailServer.ini is not copied to 
             // the Source\hMailServer\Debug directory, we need to locate it.
@@ -242,7 +242,7 @@ namespace HM
             Registry registry;
             if (registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\hMailServer", "InstallLocation", installPath))
             {
-               m_sIniFile = 
+               ini_file_ = 
                   FileUtilities::Combine(installPath, "Bin\\hMailServer.ini");
             }
 
@@ -252,32 +252,32 @@ namespace HM
 #endif
       }
 
-      return m_sIniFile;
+      return ini_file_;
    }
    
    String
    IniFileSettings::GetLogDirectory() 
    { 
-      if (m_sLogDirectory.IsEmpty())
+      if (log_directory_.IsEmpty())
       {
          TCHAR Value[255];
          GetPrivateProfileString( _T("Directories"), _T("LogFolder"), _T(""), Value, 255, GetInitializationFile() );
-         m_sLogDirectory = Value;
+         log_directory_ = Value;
       }
 
-      return m_sLogDirectory; 
+      return log_directory_; 
    }
 
    String 
    IniFileSettings::GetLanguageDirectory() const
    {
-      return m_AppDirectory + "Languages";
+      return app_directory_ + "Languages";
    }
 
    String 
    IniFileSettings::GetCertificateAuthorityDirectory() const
    {
-      return m_AppDirectory + "Externals\\CA";
+      return app_directory_ + "Externals\\CA";
    }
 
 
@@ -294,7 +294,7 @@ namespace HM
       {
       case HM::DatabaseSettings::TypeMSSQLCompactEdition:
          {
-            if (m_DatabaseName.IsEmpty())
+            if (database_name_.IsEmpty())
             {
                sErrorMessage.Format(_T("The setting Database in the section Database could not be read from %s"), sIniFile);
                return false;
@@ -303,7 +303,7 @@ namespace HM
          }
       default:
          {
-            if (m_DatabaseServer.IsEmpty())
+            if (database_server_.IsEmpty())
             {
                sErrorMessage.Format(_T("The setting Server in the section Database could not be read from %s"), sIniFile);
                return false;
@@ -335,26 +335,26 @@ namespace HM
    int 
    IniFileSettings::GetNumberOfDatabaseConnections() const
    {
-      return m_iNoOfDBConnections;
+      return no_of_dbconnections_;
    }
 
    int 
    IniFileSettings::GetNumberOfDatabaseConnectionAttempts() const
    {
-      return m_iNoOfDBConnectionAttempts;
+      return no_of_dbconnection_attempts_;
    }
 
    int 
    IniFileSettings::GetDBConnectionAttemptsDelay() const
    {
-      return m_iNoOfDBConnectionAttemptsDelay;
+      return no_of_dbconnection_attempts_Delay;
    }
 
 
    String 
    IniFileSettings::GetAdministratorPassword()
    {
-      return m_AdministratorPassword;
+      return administrator_password_;
    }
 
    void 
@@ -364,9 +364,9 @@ namespace HM
    // Updates the main hMailServer administration password found in hMailServer.ini
    //---------------------------------------------------------------------------()
    {
-      m_AdministratorPassword = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
+      administrator_password_ = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
 
-      _WriteIniSetting("Security", "AdministratorPassword", m_AdministratorPassword);
+      _WriteIniSetting("Security", "AdministratorPassword", administrator_password_);
    }
 
    void 
@@ -376,8 +376,8 @@ namespace HM
    // Updates the main hMailServer administration password found in hMailServer.ini
    //---------------------------------------------------------------------------()
    {
-      m_AppDirectory = sNewVal;
-      _WriteIniSetting("Directories", "ProgramFolder", m_AppDirectory);
+      app_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "ProgramFolder", app_directory_);
    }
 
    void 
@@ -387,8 +387,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_DataDirectory = sNewVal;
-      _WriteIniSetting("Directories", "DataFolder", m_DataDirectory);
+      data_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "DataFolder", data_directory_);
    }
 
    void 
@@ -398,8 +398,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_sTempDirectory = sNewVal;
-      _WriteIniSetting("Directories", "TempFolder", m_sTempDirectory);
+      temp_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "TempFolder", temp_directory_);
    }
 
    void 
@@ -409,8 +409,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_sEventDirectory = sNewVal;
-      _WriteIniSetting("Directories", "EventFolder", m_sEventDirectory);
+      event_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "EventFolder", event_directory_);
    }
 
    void 
@@ -420,8 +420,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_sDatabaseDirectory = sNewVal;
-      _WriteIniSetting("Directories", "DatabaseFolder", m_sDatabaseDirectory);
+      database_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "DatabaseFolder", database_directory_);
    }
 
    void 
@@ -431,8 +431,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_sLogDirectory = sNewVal;
-      _WriteIniSetting("Directories", "LogFolder", m_sLogDirectory);
+      log_directory_ = sNewVal;
+      _WriteIniSetting("Directories", "LogFolder", log_directory_);
    }
 
    void 
@@ -442,8 +442,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_DatabaseServer = sNewVal;
-      _WriteIniSetting("Database", "Server", m_DatabaseServer);
+      database_server_ = sNewVal;
+      _WriteIniSetting("Database", "Server", database_server_);
    }
 
    void 
@@ -453,8 +453,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_DatabaseName = sNewVal;
-      _WriteIniSetting("Database", "Database", m_DatabaseName);
+      database_name_ = sNewVal;
+      _WriteIniSetting("Database", "Database", database_name_);
    }
 
    void 
@@ -464,8 +464,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_Username = sNewVal;
-      _WriteIniSetting("Database", "Username", m_Username);
+      username_ = sNewVal;
+      _WriteIniSetting("Database", "Username", username_);
    }
 
    void 
@@ -475,9 +475,9 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_Password = sNewVal;
+      password_ = sNewVal;
 
-      _WriteIniSetting("Database", "Password", Crypt::Instance()->EnCrypt(m_Password, Crypt::ETBlowFish));
+      _WriteIniSetting("Database", "Password", Crypt::Instance()->EnCrypt(password_, Crypt::ETBlowFish));
       _WriteIniSetting("Database", "PasswordEncryption", Crypt::ETBlowFish);
    }
 
@@ -508,7 +508,7 @@ namespace HM
       }
 
       LOG_DEBUG("Setting database type to " + sDatabaseType);
-      m_eSQLDBType = type;
+      sqldbtype_ = type;
 
       _WriteIniSetting("Database", "Type", sDatabaseType);
    }
@@ -520,8 +520,8 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_lDBPort = lNewValue;
-      _WriteIniSetting("Database", "Port", m_lDBPort);
+      dbport_ = lNewValue;
+      _WriteIniSetting("Database", "Port", dbport_);
    }
 
    void 
@@ -531,15 +531,15 @@ namespace HM
    // Updates a directory in hMailServer.ini.
    //---------------------------------------------------------------------------()
    {
-      m_bIsInternalDatabase = newValue;
+      is_internal_database_ = newValue;
 
-      _WriteIniSetting("Database", "Internal", m_bIsInternalDatabase ? 1 : 0);
+      _WriteIniSetting("Database", "Internal", is_internal_database_ ? 1 : 0);
    }
 
    String 
    IniFileSettings::GetBinDirectory()
    {
-      return FileUtilities::Combine(m_AppDirectory, "Bin");
+      return FileUtilities::Combine(app_directory_, "Bin");
    }
 }
 

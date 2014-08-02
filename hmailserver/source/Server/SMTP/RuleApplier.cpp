@@ -62,7 +62,7 @@ namespace HM
       shared_ptr<MessageData> pMessageData = shared_ptr<MessageData>(new MessageData());
       pMessageData->LoadFromMessage(account, pMessage);
       
-      m_iRuleAccountID = pRules->GetAccountID();
+      rule_account_id_ = pRules->GetAccountID();
 
       for (int i = 0; i < pRules->GetCount(); i++)
       {
@@ -246,7 +246,7 @@ namespace HM
       
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
-      shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(m_iRuleAccountID);
+      shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
       if (pAccount)
          pMsg->SetFromAddress(pAccount->GetAddress());
       

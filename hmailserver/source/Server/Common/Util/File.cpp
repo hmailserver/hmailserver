@@ -13,28 +13,28 @@
 namespace HM
 {
    File::File() :
-      m_hFile(INVALID_HANDLE_VALUE)
+      file_(INVALID_HANDLE_VALUE)
    {
       
    }
 
    File::~File()
    {
-      if (m_hFile != INVALID_HANDLE_VALUE)
-         CloseHandle(m_hFile);
+      if (file_ != INVALID_HANDLE_VALUE)
+         CloseHandle(file_);
    }
    
    void 
    File::Close()
    {
-      CloseHandle(m_hFile);
-      m_hFile = INVALID_HANDLE_VALUE;
+      CloseHandle(file_);
+      file_ = INVALID_HANDLE_VALUE;
    }
 
    bool 
    File::IsOpen() const
    {
-      if (m_hFile == INVALID_HANDLE_VALUE)
+      if (file_ == INVALID_HANDLE_VALUE)
          return false;
       
       return true;
@@ -43,7 +43,7 @@ namespace HM
    bool
    File::Open(const String &sFilename, OpenType ot)
    {
-      if (m_hFile != INVALID_HANDLE_VALUE)
+      if (file_ != INVALID_HANDLE_VALUE)
       {
          // The file should be closed, before we
          // try to open it again...
@@ -75,7 +75,7 @@ namespace HM
          break;
       }
 
-      m_hFile = CreateFile(sFilename, 
+      file_ = CreateFile(sFilename, 
                               dwDesiredAccess, 
                               dwShareMode, 
                               NULL, // LPSECURITY_ATTRIBUTES
@@ -84,15 +84,15 @@ namespace HM
                               NULL // file template
                            );
 
-      if (m_hFile == INVALID_HANDLE_VALUE) 
+      if (file_ == INVALID_HANDLE_VALUE) 
          return false;
 
-      m_sName = sFilename;
+      name_ = sFilename;
 
       if (ot == OTAppend)
       {  
          // Go to end of file
-         SetFilePointer(m_hFile,0,0,FILE_END);
+         SetFilePointer(file_,0,0,FILE_END);
       }
 
       return true;
@@ -101,10 +101,10 @@ namespace HM
    int 
    File::GetSize()
    {
-      if (m_hFile == INVALID_HANDLE_VALUE)
+      if (file_ == INVALID_HANDLE_VALUE)
          return 0;
 
-      return GetFileSize (m_hFile, NULL);
+      return GetFileSize (file_, NULL);
    }
 
    bool 
@@ -126,7 +126,7 @@ namespace HM
    bool 
    File::Write(const unsigned char *pBuf, int iBufLen, DWORD &dwNoOfBytesWritten)
    {
-      bool bResult = ::WriteFile(m_hFile,pBuf, iBufLen, &dwNoOfBytesWritten, NULL) == TRUE;
+      bool bResult = ::WriteFile(file_,pBuf, iBufLen, &dwNoOfBytesWritten, NULL) == TRUE;
       return bResult;
    }
 
@@ -161,7 +161,7 @@ namespace HM
       {
          shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
 
-         if (m_hFile == INVALID_HANDLE_VALUE)
+         if (file_ == INVALID_HANDLE_VALUE)
             return pFileContents;
 
          int iFileSize = GetSize();
@@ -170,10 +170,10 @@ namespace HM
          pFileContents->Allocate(iFileSize);
 
          // Read the file to the buffer
-         SetFilePointer(m_hFile, 0, 0, FILE_BEGIN);
+         SetFilePointer(file_, 0, 0, FILE_BEGIN);
 
          unsigned long nBytesRead = 0;
-         ::ReadFile(m_hFile, (LPVOID) pFileContents->GetBuffer(), iFileSize, &nBytesRead, NULL);
+         ::ReadFile(file_, (LPVOID) pFileContents->GetBuffer(), iFileSize, &nBytesRead, NULL);
 
          return pFileContents;
       }
@@ -218,7 +218,7 @@ namespace HM
 
          // Read
          unsigned long nBytesRead = 0;
-         ::ReadFile(m_hFile, (LPVOID) pReadBuffer->GetBuffer(), iMaxSize, &nBytesRead, NULL);
+         ::ReadFile(file_, (LPVOID) pReadBuffer->GetBuffer(), iMaxSize, &nBytesRead, NULL);
 
          if (nBytesRead > 0)
          {
@@ -241,7 +241,7 @@ namespace HM
    File::MoveToEnd()
    {
       // --- Go to the end of the file.
-      SetFilePointer(m_hFile,0,0,FILE_END);
+      SetFilePointer(file_,0,0,FILE_END);
 
       return true;
    }
@@ -249,7 +249,7 @@ namespace HM
    String 
    File::GetName() const
    {
-      return m_sName;
+      return name_;
    }
 
    bool 

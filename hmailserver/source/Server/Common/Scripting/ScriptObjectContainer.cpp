@@ -41,7 +41,7 @@ namespace HM
       pObject->eType = type;
       pObject->sName = sName;
 
-      m_mapObjects[sName] = pObject;
+      objects_[sName] = pObject;
    }
 
    void 
@@ -51,14 +51,14 @@ namespace HM
       pObject->eType = type;
       pObject->sName = sName;
       pObject->pObject = pObj;
-      m_mapObjects[sName] = pObject;
+      objects_[sName] = pObject;
    }
 
    bool
    ScriptObjectContainer::GetObjectByName(const String &sName, LPUNKNOWN* ppunkItem) const
    {
-      map<String, shared_ptr<ScriptObject> >::const_iterator iterPos = m_mapObjects.find(sName);
-      if (iterPos == m_mapObjects.end())
+      map<String, shared_ptr<ScriptObject> >::const_iterator iterPos = objects_.find(sName);
+      if (iterPos == objects_.end())
          return false;
 
       shared_ptr<ScriptObject> pObj = (*iterPos).second;
@@ -116,9 +116,9 @@ namespace HM
    ScriptObjectContainer::GetObjectNames()
    {
       vector<String> vecNames;
-      map<String, shared_ptr<ScriptObject> >::iterator iterPos = m_mapObjects.begin();     
+      map<String, shared_ptr<ScriptObject> >::iterator iterPos = objects_.begin();     
       
-      while (iterPos != m_mapObjects.end())
+      while (iterPos != objects_.end())
       {
          vecNames.push_back((*iterPos).second->sName);
          iterPos++;

@@ -54,8 +54,8 @@ public:
 
 private:
 
-   HM::ServerStatus *m_pStatus;
-   HM::Application *m_pApplication;
+   HM::ServerStatus *status_;
+   HM::Application *application_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Status), InterfaceStatus)

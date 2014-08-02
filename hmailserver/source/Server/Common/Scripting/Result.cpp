@@ -14,7 +14,7 @@ namespace HM
 {
    Result::Result(void) :
       _parameter(0),
-      m_lValue(0)
+      value_(0)
    {
       
    }
@@ -26,7 +26,7 @@ namespace HM
    long
    Result::GetValue() const 
    {
-      return m_lValue;
+      return value_;
    }
 
    int
@@ -38,6 +38,6 @@ namespace HM
    String
    Result::GetMessage() const
    {
-      return m_sMessage;
+      return message_;
    }
 }

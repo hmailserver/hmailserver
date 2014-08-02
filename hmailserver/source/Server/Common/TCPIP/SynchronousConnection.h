@@ -23,9 +23,9 @@ namespace HM
       
       bool _Write(const unsigned char *buf, int bufSize);
 
-      boost::asio::io_service m_ioservice;
-      tcp::socket m_socket;
-      int m_timeoutSeconds;
+      boost::asio::io_service ioservice_;
+      tcp::socket socket_;
+      int seconds_;
    };
 
 

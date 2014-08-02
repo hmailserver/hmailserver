@@ -23,7 +23,7 @@ namespace HM
    private:
 
       boost::recursive_mutex _mutex;
-      std::map<__int64, shared_ptr<Message> > m_mapMessage;
+      std::map<__int64, shared_ptr<Message> > message_;
 
    };
 }

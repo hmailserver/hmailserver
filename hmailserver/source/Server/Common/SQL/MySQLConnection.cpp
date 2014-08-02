@@ -19,17 +19,17 @@ namespace HM
    MySQLConnection::MySQLConnection(shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
-      m_bIsConnected = false;
-      m_pDBConn = 0;
+      is_connected_ = false;
+      dbconn_ = 0;
       _supportsTransactions = false;
    }
 
    MySQLConnection::~MySQLConnection()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         MySQLInterface::Instance()->p_mysql_close(m_pDBConn);
-         m_pDBConn = 0;
+         MySQLInterface::Instance()->p_mysql_close(dbconn_);
+         dbconn_ = 0;
       }
          
    }
@@ -60,11 +60,11 @@ namespace HM
          
          
 
-         m_pDBConn = MySQLInterface::Instance()->p_mysql_init(NULL);
+         dbconn_ = MySQLInterface::Instance()->p_mysql_init(NULL);
 
          //MYSQL *pResult = mysql_real_connect(
          hm_MYSQL *pResult = MySQLInterface::Instance()->p_mysql_real_connect(
-                     m_pDBConn, 
+                     dbconn_, 
                      Unicode::ToANSI(sServer), 
                      Unicode::ToANSI(sUsername), 
                      Unicode::ToANSI(sPassword), 
@@ -80,7 +80,7 @@ namespace HM
             // unsuccessful. For a successful connection, the return value is the same as the value 
             // of the first parameter.
 
-            const char *pError = MySQLInterface::Instance()->p_mysql_error(m_pDBConn);
+            const char *pError = MySQLInterface::Instance()->p_mysql_error(dbconn_);
             sErrorMessage = pError;
 
             return TemporaryFailure;
@@ -89,7 +89,7 @@ namespace HM
          if (CheckError(pResult, "mysql_real_connect()", sErrorMessage) != DALConnection::DALSuccess)
             return TemporaryFailure;
 
-         MySQLInterface::Instance()->p_mysql_query(m_pDBConn, "SET NAMES utf8");
+         MySQLInterface::Instance()->p_mysql_query(dbconn_, "SET NAMES utf8");
  
 
 
@@ -97,18 +97,18 @@ namespace HM
          {
             String sSwitchDB = "use " + sDatabase;
 
-            if (MySQLInterface::Instance()->p_mysql_query(m_pDBConn, Unicode::ToANSI(sSwitchDB)))
+            if (MySQLInterface::Instance()->p_mysql_query(dbconn_, Unicode::ToANSI(sSwitchDB)))
             {
-               CheckError(m_pDBConn, sSwitchDB, sErrorMessage);
+               CheckError(dbconn_, sSwitchDB, sErrorMessage);
                return TemporaryFailure;
             }
 
-            MySQLInterface::Instance()->p_mysql_store_result(m_pDBConn); // should always be called after mysql_query
+            MySQLInterface::Instance()->p_mysql_store_result(dbconn_); // should always be called after mysql_query
          }
 
          LoadSupportsTransactions(sDatabase);
 
-         m_bIsConnected = true;
+         is_connected_ = true;
       }
       catch (...)
       {
@@ -123,7 +123,7 @@ namespace HM
    MySQLConnection::CheckServerVersion(String &errorMessage)
    {
       // check server version.
-      int serverVersion = MySQLInterface::Instance()->p_mysql_get_server_version(m_pDBConn);
+      int serverVersion = MySQLInterface::Instance()->p_mysql_get_server_version(dbconn_);
       if (serverVersion < RequiredVersion)
       {
          errorMessage = "hMailServer requires MySQL 4.1.18 or newer. If you are using the internal MySQL database, please upgrade to the latest 4.x version prior to upgrading to version 5 or later.";
@@ -136,10 +136,10 @@ namespace HM
    bool
    MySQLConnection::Disconnect()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         MySQLInterface::Instance()->p_mysql_close(m_pDBConn);
-         m_pDBConn = 0;
+         MySQLInterface::Instance()->p_mysql_close(dbconn_);
+         dbconn_ = 0;
       }
 
       return true;
@@ -161,20 +161,20 @@ namespace HM
             return DALConnection::DALUnknown;
          }
    
-         if (MySQLInterface::Instance()->p_mysql_query(m_pDBConn, Unicode::ToANSI(sQuery)))
+         if (MySQLInterface::Instance()->p_mysql_query(dbconn_, Unicode::ToANSI(sQuery)))
          {
             bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
             if (!bIgnoreErrors)
             {
-               if (iIgnoreErrors == 0 || !(_GetErrorType(m_pDBConn) & iIgnoreErrors))
+               if (iIgnoreErrors == 0 || !(_GetErrorType(dbconn_) & iIgnoreErrors))
                {
-                  DALConnection::ExecutionResult result = CheckError(m_pDBConn, SQL, sErrorMessage);
+                  DALConnection::ExecutionResult result = CheckError(dbconn_, SQL, sErrorMessage);
                   return result;
                }
             }
          }
 
-         hm_MYSQL_RES *pRes = MySQLInterface::Instance()->p_mysql_store_result(m_pDBConn); // should always be called after mysql_query
+         hm_MYSQL_RES *pRes = MySQLInterface::Instance()->p_mysql_store_result(dbconn_); // should always be called after mysql_query
 
          if (pRes)
             MySQLInterface::Instance()->p_mysql_free_result(pRes);
@@ -182,7 +182,7 @@ namespace HM
          // Fetch insert id.
          if (iInsertID > 0)
          {
-            *iInsertID = MySQLInterface::Instance()->p_mysql_insert_id(m_pDBConn);
+            *iInsertID = MySQLInterface::Instance()->p_mysql_insert_id(dbconn_);
          }
       }
       catch (...)
@@ -197,13 +197,13 @@ namespace HM
    bool
    MySQLConnection::IsConnected() const
    {
-      return m_bIsConnected;
+      return is_connected_;
    }
 
    hm_MYSQL*
    MySQLConnection::GetConnection() const
    {
-      return m_pDBConn;
+      return dbconn_;
    }
 
    DALConnection::ExecutionResult

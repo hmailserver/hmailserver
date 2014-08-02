@@ -17,8 +17,8 @@ namespace HM
 
    ObjectCache::ObjectCache(void)
    {
-      m_bDomainAliasesNeedsReload = true;
-      m_bGlobalRulesNeedsReload = true;
+      domain_aliases_needs_reload_ = true;
+      global_rules_needs_reload_ = true;
    }
 
    ObjectCache::~ObjectCache(void)
@@ -31,7 +31,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
 
-      m_bDomainAliasesNeedsReload = true;
+      domain_aliases_needs_reload_ = true;
    }
 
    shared_ptr<DomainAliases> 
@@ -39,12 +39,12 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
 
-      if (!domain_aliases_ || m_bDomainAliasesNeedsReload)
+      if (!domain_aliases_ || domain_aliases_needs_reload_)
       {
          domain_aliases_ = shared_ptr<DomainAliases>(new DomainAliases(0));
          domain_aliases_->Refresh();
 
-         m_bDomainAliasesNeedsReload = false;
+         domain_aliases_needs_reload_ = false;
       }
 
       return domain_aliases_;
@@ -55,7 +55,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
 
-      m_bGlobalRulesNeedsReload = true;
+      global_rules_needs_reload_ = true;
    }
 
 
@@ -64,12 +64,12 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
 
-      if (!global_rules_ || m_bGlobalRulesNeedsReload)
+      if (!global_rules_ || global_rules_needs_reload_)
       {
          global_rules_ = shared_ptr<Rules>(new Rules(0));
          global_rules_->Refresh();
 
-         m_bGlobalRulesNeedsReload = false;
+         global_rules_needs_reload_ = false;
       }
 
       return global_rules_;
@@ -80,9 +80,9 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
 
-      set<__int64>::iterator iterRefresh = m_setAccountRulesToRefresh.find(iAccountID);      
-      if (iterRefresh == m_setAccountRulesToRefresh.end())
-         m_setAccountRulesToRefresh.insert(iAccountID);
+      set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);      
+      if (iterRefresh == account_rules_to_refresh_.end())
+         account_rules_to_refresh_.insert(iAccountID);
    }
 
    shared_ptr<Rules> 
@@ -91,28 +91,28 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
 
       // First find the rules.
-      map<__int64, shared_ptr<Rules> >::iterator iterRules = m_mapAccountRules.find(iAccountID);
+      map<__int64, shared_ptr<Rules> >::iterator iterRules = account_rules_.find(iAccountID);
       shared_ptr<Rules> pRules;
 
-      if (iterRules == m_mapAccountRules.end())
+      if (iterRules == account_rules_.end())
       {
          pRules = shared_ptr<Rules>(new Rules(iAccountID));
-         m_mapAccountRules[iAccountID] = pRules;
+         account_rules_[iAccountID] = pRules;
       
          // We need to refresh this one.
-         m_setAccountRulesToRefresh.insert(iAccountID);
+         account_rules_to_refresh_.insert(iAccountID);
       }
       else
       {
          pRules = (*iterRules).second;
       }
 
-      set<__int64>::iterator iterRefresh = m_setAccountRulesToRefresh.find(iAccountID);
-      if (iterRefresh != m_setAccountRulesToRefresh.end())
+      set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);
+      if (iterRefresh != account_rules_to_refresh_.end())
       {
          pRules->Refresh();
 
-         m_setAccountRulesToRefresh.erase(iterRefresh);
+         account_rules_to_refresh_.erase(iterRefresh);
       }
 
       return pRules;
@@ -125,6 +125,6 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> accontRulesGuard(_accountRulesMutex);
 
       global_rules_.reset();
-      m_mapAccountRules.clear();
+      account_rules_.clear();
    }
 }

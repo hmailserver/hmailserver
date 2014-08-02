@@ -21,7 +21,7 @@
 namespace HM
 {
 
-   bool DeliveryQueue::m_bIsClearing = false;
+   bool DeliveryQueue::is_clearing_ = false;
 
    DeliveryQueueClearer::DeliveryQueueClearer(void) :
        Task("DeliveryQueueClearer")
@@ -101,10 +101,10 @@ namespace HM
    void
    DeliveryQueue::Clear()
    {
-      if (m_bIsClearing)
+      if (is_clearing_)
          return;
 
-      m_bIsClearing = true;
+      is_clearing_ = true;
 
       // Use the random work queue to run the task.
       shared_ptr<WorkQueue> pQueue = Application::Instance()->GetMaintenanceWorkQueue();
@@ -113,7 +113,7 @@ namespace HM
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5117, "DeliveryQueue::Clear()", "WorkQueue was not started. Queue could not be cleared.");
 
-         m_bIsClearing = false;
+         is_clearing_ = false;
          return;
       }
 
@@ -149,7 +149,7 @@ namespace HM
    void 
    DeliveryQueue::OnDeliveryQueueCleared()
    {
-      m_bIsClearing = false;
+      is_clearing_ = false;
    }
 
    void 

@@ -36,20 +36,20 @@ namespace HM
    void 
    SpamTestRunner::LoadSpamTests()
    {
-      m_setSpamTests.push_back(shared_ptr<SpamTestDNSBlackLists> (new SpamTestDNSBlackLists));
-      m_setSpamTests.push_back(shared_ptr<SpamTestHeloHost> (new SpamTestHeloHost));
-      m_setSpamTests.push_back(shared_ptr<SpamTestMXRecords> (new SpamTestMXRecords));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSPF> (new SpamTestSPF));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
-      m_setSpamTests.push_back(shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
+      spam_tests_.push_back(shared_ptr<SpamTestDNSBlackLists> (new SpamTestDNSBlackLists));
+      spam_tests_.push_back(shared_ptr<SpamTestHeloHost> (new SpamTestHeloHost));
+      spam_tests_.push_back(shared_ptr<SpamTestMXRecords> (new SpamTestMXRecords));
+      spam_tests_.push_back(shared_ptr<SpamTestSPF> (new SpamTestSPF));
+      spam_tests_.push_back(shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
+      spam_tests_.push_back(shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
+      spam_tests_.push_back(shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
    }
 
    set<shared_ptr<SpamTestResult> >
    SpamTestRunner::RunSpamTest(shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore)
    {
-      std::vector<shared_ptr<SpamTest> >::iterator iter = m_setSpamTests.begin(); 
-      std::vector<shared_ptr<SpamTest> >::iterator iterEnd = m_setSpamTests.end();
+      std::vector<shared_ptr<SpamTest> >::iterator iter = spam_tests_.begin(); 
+      std::vector<shared_ptr<SpamTest> >::iterator iterEnd = spam_tests_.end();
 
       set<shared_ptr<SpamTestResult> > setTotalResult;
 

@@ -18,15 +18,15 @@ namespace HM
    PGConnection::PGConnection(shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
-      m_bIsConnected = false;
+      is_connected_ = false;
    }
 
    PGConnection::~PGConnection()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         PQfinish(m_pDBConn);
-         m_pDBConn = 0;
+         PQfinish(dbconn_);
+         dbconn_ = 0;
       }
         
    }
@@ -51,16 +51,16 @@ namespace HM
          else
             sConnectionString += " dbname=" + sDatabase;
 
-         m_pDBConn = PQconnectdb(Unicode::ToANSI(sConnectionString));
+         dbconn_ = PQconnectdb(Unicode::ToANSI(sConnectionString));
 
         
-         if (PQstatus(m_pDBConn) != CONNECTION_OK)
+         if (PQstatus(dbconn_) != CONNECTION_OK)
          {
-            sErrorMessage = PQerrorMessage(m_pDBConn);
+            sErrorMessage = PQerrorMessage(dbconn_);
             return TemporaryFailure;
          }
 
-         m_bIsConnected = true;
+         is_connected_ = true;
       }
       catch (...)
       {
@@ -75,10 +75,10 @@ namespace HM
    bool
    PGConnection::Disconnect()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         PQfinish(m_pDBConn);
-         m_pDBConn = 0;
+         PQfinish(dbconn_);
+         dbconn_ = 0;
       }
 
       return true;
@@ -101,7 +101,7 @@ namespace HM
             return DALConnection::DALUnknown;
          }
 
-         PGresult *pResult = PQexec(m_pDBConn, sQuery);
+         PGresult *pResult = PQexec(dbconn_, sQuery);
 
          bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
 
@@ -144,13 +144,13 @@ namespace HM
    bool
    PGConnection::IsConnected() const
    {
-      return m_bIsConnected;
+      return is_connected_;
    }
 
    PGconn*
    PGConnection::GetConnection() const
    {
-      return m_pDBConn;
+      return dbconn_;
    }
 
    DALConnection::ExecutionResult
@@ -181,7 +181,7 @@ namespace HM
          }
          else
          {
-            sErrorMsg  = PQerrorMessage(m_pDBConn);
+            sErrorMsg  = PQerrorMessage(dbconn_);
 
             if (sErrorMsg.IsEmpty())
                sErrorMsg = "Unknown error. Error structure not initialized.";

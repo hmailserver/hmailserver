@@ -54,7 +54,7 @@ namespace HM
 
    private:
 
-      __int64 m_iRuleAccountID;
+      __int64 rule_account_id_;
       
    };
 }

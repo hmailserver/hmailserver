@@ -23,14 +23,14 @@ namespace HM
                        const String &sDatabaseDirectory, const String &sDatabaseServerFailoverPartner, HM::DatabaseSettings::SQLDBType dbType, long lDBPort);
 	   virtual ~DatabaseSettings();
 
-      String GetServer() {return m_sDatabaseServer; }
-      String GetDatabaseName() {return m_sDatabaseName;}
-      String GetUsername() {return m_sUsername;}
-      String GetPassword() {return m_sPassword;}
-      String GetDatabaseDirectory() {return m_sDatabaseDirectory;}
-      HM::DatabaseSettings::SQLDBType GetType() {return m_eSQLDBType; }
-      int GetPort() {return m_lDBPort; }
-      String GetDatabaseServerFailoverPartner() const { return m_DatabaseServerFailoverPartner; }
+      String GetServer() {return database_server_; }
+      String GetDatabaseName() {return database_name_;}
+      String GetUsername() {return username_;}
+      String GetPassword() {return password_;}
+      String GetDatabaseDirectory() {return database_directory_;}
+      HM::DatabaseSettings::SQLDBType GetType() {return sqldbtype_; }
+      int GetPort() {return dbport_; }
+      String GetDatabaseServerFailoverPartner() const { return database_server_failover_partner_; }
    
       String GetDefaultScript();
 
@@ -38,14 +38,14 @@ namespace HM
 
    private:
 
-      String m_sDatabaseServer;
-      String m_sDatabaseName;
-      String m_sUsername;
-      String m_sPassword;
-      String m_sDatabaseDirectory;
-      String m_DatabaseServerFailoverPartner;
-      HM::DatabaseSettings::SQLDBType m_eSQLDBType;
-      long m_lDBPort;
+      String database_server_;
+      String database_name_;
+      String username_;
+      String password_;
+      String database_directory_;
+      String database_server_failover_partner_;
+      HM::DatabaseSettings::SQLDBType sqldbtype_;
+      long dbport_;
 
 
    };

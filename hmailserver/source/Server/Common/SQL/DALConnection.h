@@ -45,7 +45,7 @@ namespace HM
       virtual bool RollbackTransaction(String &sErrorMessage) = 0;
       virtual void SetTimeout(int seconds) = 0;
 
-      void SetTryCount(int iTryCount) {m_iTryCount = iTryCount; }
+      void SetTryCount(int iTryCount) {try_count_ = iTryCount; }
       
 
       virtual bool GetSupportsCommandParameters() const = 0;
@@ -65,7 +65,7 @@ namespace HM
 
    private:
 
-      int m_iTryCount;
+      int try_count_;
    };
 
 }

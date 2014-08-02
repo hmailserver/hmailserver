@@ -14,15 +14,15 @@
 namespace HM
 {
    FetchAccountUID::FetchAccountUID (__int64 iID, __int64 iAccountID, const String &sUID, const String &sDate) :
-      m_iAccountID(iAccountID),
-      m_sUID(sUID),
-      m_sDate(sDate)
+      account_id_(iAccountID),
+      uid_(sUID),
+      date_(sDate)
    {
       SetID(iID);
    }
 
    FetchAccountUID::FetchAccountUID() :
-      m_iAccountID(0)
+      account_id_(0)
    {
       SetID(0);
    }
@@ -35,7 +35,7 @@ namespace HM
    DateTime
    FetchAccountUID::GetCreationDate() const
    {
-      return Time::GetDateFromSystemDate(m_sDate);
+      return Time::GetDateFromSystemDate(date_);
    }
 
    bool 
@@ -43,8 +43,8 @@ namespace HM
    {  
       XNode *pUIDNode = pUIDsNode->AppendChild(_T("UID"));
       
-      pUIDNode->AppendAttr(_T("UID"), m_sUID);
-      pUIDNode->AppendAttr(_T("Date"), m_sDate);
+      pUIDNode->AppendAttr(_T("UID"), uid_);
+      pUIDNode->AppendAttr(_T("Date"), date_);
 
       return true;
    }
@@ -52,8 +52,8 @@ namespace HM
    bool
    FetchAccountUID::XMLLoad(XNode *pUIDNode, int iRestoreOptions)
    {
-      m_sUID = pUIDNode->GetAttrValue(_T("UID"));
-      m_sDate = pUIDNode->GetAttrValue(_T("Date"));
+      uid_ = pUIDNode->GetAttrValue(_T("UID"));
+      date_ = pUIDNode->GetAttrValue(_T("Date"));
 
       return true;
    }
@@ -61,6 +61,6 @@ namespace HM
    void 
    FetchAccountUID::SetAccountID(__int64 accountID)
    {
-      m_iAccountID = accountID;
+      account_id_ = accountID;
    }
 }

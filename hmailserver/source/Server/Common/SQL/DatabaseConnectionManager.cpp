@@ -104,11 +104,11 @@ namespace HM
          if (result != DALConnection::Connected)
             return result;
 
-         m_setAvailableConnections.insert(pConnection);
+         available_connections_.insert(pConnection);
       }
 
       // Fetch first connection
-      std::set<shared_ptr<DALConnection> >::iterator iter = m_setAvailableConnections.begin();
+      std::set<shared_ptr<DALConnection> >::iterator iter = available_connections_.begin();
       if (!(*iter)->CheckServerVersion(sErrorMessage))
          return DALConnection::FatalError;
 
@@ -122,19 +122,19 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      //std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setAvailableConnections.begin();
-      boost_foreach(shared_ptr<DALConnection> pConnection, m_setAvailableConnections)
+      //std::set<shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
+      boost_foreach(shared_ptr<DALConnection> pConnection, available_connections_)
       {
          pConnection->Disconnect();
       }
-      m_setAvailableConnections.clear();
+      available_connections_.clear();
 
-      boost_foreach(shared_ptr<DALConnection> pConnection, m_setBusyConnections)
+      boost_foreach(shared_ptr<DALConnection> pConnection, busy_connections_)
       {
          pConnection->Disconnect();
       }
 
-      m_setBusyConnections.clear();
+      busy_connections_.clear();
    }
    
    bool 
@@ -198,17 +198,17 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setBusyConnections.find(pConnection);
-      if (iterConnection == m_setBusyConnections.end())
+      std::set<shared_ptr<DALConnection> >::iterator iterConnection = busy_connections_.find(pConnection);
+      if (iterConnection == busy_connections_.end())
       {
          assert(0);
          return;
       }
 
-      m_setBusyConnections.erase(iterConnection);
+      busy_connections_.erase(iterConnection);
 
       // Locate an available connection
-      m_setAvailableConnections.insert(pConnection);
+      available_connections_.insert(pConnection);
    }
 
    int 
@@ -235,23 +235,23 @@ namespace HM
             boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
             // Locate an available connection
-            std::set<shared_ptr<DALConnection> >::iterator iterConnection = m_setAvailableConnections.begin();
+            std::set<shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
 
-            if (iterConnection != m_setAvailableConnections.end())
+            if (iterConnection != available_connections_.end())
             {
                // Remove the connection from free and add to busy
                shared_ptr<DALConnection> pConn = (*iterConnection);
 
                // Remove it from the list of available connections
-               m_setAvailableConnections.erase(iterConnection);
+               available_connections_.erase(iterConnection);
 
-               m_setBusyConnections.insert(pConn);
+               busy_connections_.insert(pConn);
                return pConn;
             }
             else
             {
-               if (m_setBusyConnections.size() == 0 &&
-                  m_setAvailableConnections.size() == 0)
+               if (busy_connections_.size() == 0 &&
+                  available_connections_.size() == 0)
                {
                   // There's no available connections at all. Nothing to wait for.
                   shared_ptr<DALConnection> pEmpty;
@@ -300,7 +300,7 @@ namespace HM
    DatabaseConnectionManager::GetIsConnected()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      size_t iNoOfConnections = m_setBusyConnections.size() + m_setAvailableConnections.size();
+      size_t iNoOfConnections = busy_connections_.size() + available_connections_.size();
 
       if (iNoOfConnections == 0)
          return false;

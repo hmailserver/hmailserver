@@ -26,7 +26,7 @@ namespace HM
 {
    BackupManager::BackupManager(void)
    {
-      m_bIsRunning = false;
+      is_running_ = false;
    }
 
    BackupManager::~BackupManager(void)
@@ -42,21 +42,21 @@ namespace HM
 
       // Start the backup thread, if we aren't
       // already running a backup or restore.
-      if (m_bIsRunning)
+      if (is_running_)
       {
          LOG_DEBUG("BackupManager::~StartBackup() - E1");
          OnBackupFailed("Backup or restore operation is already started");
          return false;
       }
 
-      m_bIsRunning = true;
+      is_running_ = true;
 
       shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(true));
 
       shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetMaintenanceWorkQueue();
       if (!pWorkQueue)
       {
-         m_bIsRunning = false;
+         is_running_ = false;
 
          LOG_DEBUG("BackupManager::~StartBackup() - E2");
          OnBackupFailed("Backup operation failed because random work queue did not exist.");
@@ -79,14 +79,14 @@ namespace HM
 
       // Start the backup thread, if we aren't
       // already running a backup or restore.
-      if (m_bIsRunning)
+      if (is_running_)
       {
          OnBackupFailed("Backup or restore operation is already started");
          LOG_DEBUG("BackupManager::~StartRestore() - E1");
          return false;
       }
 
-      m_bIsRunning = true;
+      is_running_ = true;
 
       shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(false));
       pBackupTask->SetBackupToRestore(pBackup);
@@ -138,21 +138,21 @@ namespace HM
    void 
    BackupManager::OnThreadStopped()
    {
-      m_bIsRunning = false;
+      is_running_ = false;
    }
 
    void 
    BackupManager::SetStatus(const String &sStatus)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      m_sLog += sStatus + "\r\n";
+      log_ += sStatus + "\r\n";
    }
 
    String 
    BackupManager::GetStatus()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      String sVal = m_sLog;
+      String sVal = log_;
       return sVal;
    }
 

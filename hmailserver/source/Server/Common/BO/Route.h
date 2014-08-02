@@ -12,43 +12,43 @@ namespace HM
 	   Route();
 	   virtual ~Route();
 
-      String GetName() const {return m_sDomainName; }
+      String GetName() const {return domain_name_; }
 
-      void DomainName(const String &sVal) {m_sDomainName = sVal; }
-      String DomainName() const {return m_sDomainName; } 
+      void DomainName(const String &sVal) {domain_name_ = sVal; }
+      String DomainName() const {return domain_name_; } 
 
-      void SetDescription(const String &sVal) {m_sDescription = sVal; }
-      String GetDescription() const {return m_sDescription; } 
+      void SetDescription(const String &sVal) {description_ = sVal; }
+      String GetDescription() const {return description_; } 
 
 
-      void TargetSMTPHost(const String &sVal) {m_sTargetSMTPHost = sVal; }
-      String TargetSMTPHost() const {return m_sTargetSMTPHost; } 
+      void TargetSMTPHost(const String &sVal) {target_smtphost_ = sVal; }
+      String TargetSMTPHost() const {return target_smtphost_; } 
 
-      void TargetSMTPPort(long lVal) {m_lTargetSMTPPort = lVal; }
-      long TargetSMTPPort() const {return m_lTargetSMTPPort; } 
+      void TargetSMTPPort(long lVal) {target_smtpport_ = lVal; }
+      long TargetSMTPPort() const {return target_smtpport_; } 
 
-      void NumberOfTries(long lVal) {m_lNumberOfTries = lVal; }
-      long NumberOfTries() const {return m_lNumberOfTries; } 
+      void NumberOfTries(long lVal) {number_of_tries_ = lVal; }
+      long NumberOfTries() const {return number_of_tries_; } 
    
-      void MinutesBetweenTry(long lVal) {m_lMinutesBetweenTry = lVal; }
-      long MinutesBetweenTry() const {return m_lMinutesBetweenTry; } 
+      void MinutesBetweenTry(long lVal) {minutes_between_try_ = lVal; }
+      long MinutesBetweenTry() const {return minutes_between_try_; } 
 
-      bool ToAllAddresses() const {return m_bToAllAddresses; }
-      void ToAllAddresses(bool bNewVal) {m_bToAllAddresses = bNewVal; }
+      bool ToAllAddresses() const {return to_all_addresses_; }
+      void ToAllAddresses(bool bNewVal) {to_all_addresses_ = bNewVal; }
 
-      bool GetRelayerRequiresAuth() const {return m_bRelayerRequiresAuthentication; }
-      void SetRelayerRequiresAuth(bool bNewVal) {m_bRelayerRequiresAuthentication = bNewVal; }
+      bool GetRelayerRequiresAuth() const {return relayer_requires_authentication_; }
+      void SetRelayerRequiresAuth(bool bNewVal) {relayer_requires_authentication_ = bNewVal; }
 
-      String GetRelayerAuthUsername() const {return m_sRelayerAuthUsername; }
-      String GetRelayerAuthPassword()const {return m_sRelayerAuthPassword; }
-      void SetRelayerAuthUsername(const String &sNewVal) {m_sRelayerAuthUsername = sNewVal; }
-      void SetRelayerAuthPassword(const String &sNewVal) {m_sRelayerAuthPassword = sNewVal; }
+      String GetRelayerAuthUsername() const {return relayer_auth_username_; }
+      String GetRelayerAuthPassword()const {return relayer_auth_password_; }
+      void SetRelayerAuthUsername(const String &sNewVal) {relayer_auth_username_ = sNewVal; }
+      void SetRelayerAuthPassword(const String &sNewVal) {relayer_auth_password_ = sNewVal; }
 
-      bool GetTreatRecipientAsLocalDomain() const  {return m_bTreatRecipientAsLocalDomain; }
-      void SetTreatRecipientAsLocalDomain(bool bNewVal) {m_bTreatRecipientAsLocalDomain = bNewVal; }
+      bool GetTreatRecipientAsLocalDomain() const  {return treat_recipient_as_local_domain_; }
+      void SetTreatRecipientAsLocalDomain(bool bNewVal) {treat_recipient_as_local_domain_ = bNewVal; }
 
-      bool GetTreatSenderAsLocalDomain() const  {return m_bTreatSenderAsLocalDomain; }
-      void SetTreatSenderAsLocalDomain(bool bNewVal) {m_bTreatSenderAsLocalDomain = bNewVal; }
+      bool GetTreatSenderAsLocalDomain() const  {return treat_sender_as_local_domain_; }
+      void SetTreatSenderAsLocalDomain(bool bNewVal) {treat_sender_as_local_domain_ = bNewVal; }
 
 
       ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
@@ -62,20 +62,20 @@ namespace HM
 
    protected:
 
-      String m_sDomainName;
-      String m_sDescription;
-      String m_sTargetSMTPHost;
-      long m_lTargetSMTPPort;
-      long m_lNumberOfTries;
-      long m_lMinutesBetweenTry;
-      bool m_bToAllAddresses;
+      String domain_name_;
+      String description_;
+      String target_smtphost_;
+      long target_smtpport_;
+      long number_of_tries_;
+      long minutes_between_try_;
+      bool to_all_addresses_;
       
-      bool m_bRelayerRequiresAuthentication;
-      String m_sRelayerAuthUsername;
-      String m_sRelayerAuthPassword;
+      bool relayer_requires_authentication_;
+      String relayer_auth_username_;
+      String relayer_auth_password_;
       ConnectionSecurity connection_security_;
-      bool m_bTreatRecipientAsLocalDomain;
-      bool m_bTreatSenderAsLocalDomain;
+      bool treat_recipient_as_local_domain_;
+      bool treat_sender_as_local_domain_;
 
       shared_ptr<RouteAddresses> addresses_;
    };

@@ -31,6 +31,6 @@ namespace HM
 
    private:
  
-      __int64 m_iFolderID;
+      __int64 folder_id_;
    };
 }

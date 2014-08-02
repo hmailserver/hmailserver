@@ -41,12 +41,12 @@
 namespace HM
 {
 
-   const char* MimeHeader::m_TypeTable[] =
+   const char* MimeHeader::type_table_[] =
    {
 	   "text", "image", "audio", "video", "application", "multipart", "message", NULL
    };
 
-   const MimeHeader::MediaTypeCvt MimeHeader::m_TypeCvtTable[] =
+   const MimeHeader::MediaTypeCvt MimeHeader::type_cvt_table_[] =
    {
 	   // media-type, sub-type, file extension
 	   { MEDIA_APPLICATION, "xml", "xml" },

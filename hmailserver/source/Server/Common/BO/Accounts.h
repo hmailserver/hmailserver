@@ -31,8 +31,8 @@ namespace HM
 
    private:
 
-      __int64 m_iDomainID;
-      __int64 m_iAccountID;
+      __int64 domain_id_;
+      __int64 account_id_;
   
    };
 

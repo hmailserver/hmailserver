@@ -16,16 +16,16 @@ namespace HM
 
       bool Parse(String &sErrorMessage);
 
-      int GetNoOfCommands() {return (int)m_vecCommands.size(); }
-      String GetCommand(int index) {return m_vecCommands[index]; }
+      int GetNoOfCommands() {return (int)commands_.size(); }
+      String GetCommand(int index) {return commands_[index]; }
 
    private:
 
       bool _PreprocessLine(String &sLine);
 
       shared_ptr<DatabaseSettings> settings_;
-      String m_sFile;
-      vector<String> m_vecCommands;
+      String file_;
+      vector<String> commands_;
 
    };
 

@@ -38,13 +38,13 @@ namespace HM
 
    private:
 
-      int m_iProcessedMessages;
-      int m_iNumberOfSpamMessagesDetected;
-      int m_iNumberOfVirusesRemoved;
+      int processed_messages_;
+      int number_of_spam_messages_detected_;
+      int number_of_viruses_removed_;
 
       boost::recursive_mutex _spamMessageDroppedMutex;
       boost::recursive_mutex _virusRemovedMutex;
 
-      ServerState m_eState;
+      ServerState state_;
    };
 }

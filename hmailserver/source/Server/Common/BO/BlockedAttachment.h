@@ -11,13 +11,13 @@ namespace HM
       BlockedAttachment(void);
       ~BlockedAttachment(void);
 
-      String GetName() const {return m_sWildcard; }
+      String GetName() const {return wildcard_; }
 
-      String GetWildcard() const  {return m_sWildcard; }
-      void SetWildcard(const String &sNewVal) {m_sWildcard = sNewVal;}
+      String GetWildcard() const  {return wildcard_; }
+      void SetWildcard(const String &sNewVal) {wildcard_ = sNewVal;}
 
-      String GetDescription() const  {return m_sDescription; }
-      void SetDescription(const String &sNewVal) {m_sDescription = sNewVal;}
+      String GetDescription() const  {return description_; }
+      void SetDescription(const String &sNewVal) {description_ = sNewVal;}
 
 
       bool XMLStore(XNode *pNode, int iOptions);
@@ -26,8 +26,8 @@ namespace HM
 
    private:
 
-      String m_sWildcard;
-      String m_sDescription;
+      String wildcard_;
+      String description_;
       
    };
 }

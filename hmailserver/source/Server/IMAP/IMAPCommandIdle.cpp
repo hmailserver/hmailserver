@@ -64,7 +64,7 @@ namespace HM
          pConnection->SetIsIdling(true);
          pConnection->SendAsciiData("+ idling\r\n");
 
-         m_sTag = pArgument->Tag();
+         tag_ = pArgument->Tag();
       }
       catch (...)
       {
@@ -93,7 +93,7 @@ namespace HM
 
          if (sendNotificationToClient)
          {
-            String sResponse = m_sTag + " OK IDLE terminated\r\n";
+            String sResponse = tag_ + " OK IDLE terminated\r\n";
             safeConnection->SendAsciiData(sResponse);
          }
       }

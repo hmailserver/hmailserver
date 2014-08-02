@@ -13,7 +13,7 @@
 namespace HM
 {
    DistributionLists::DistributionLists(__int64 iDomainID) :
-      m_iDomainID(iDomainID)
+      domain_id_(iDomainID)
    {
 
    }
@@ -41,7 +41,7 @@ namespace HM
    DistributionLists::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_distributionlists where distributionlistdomainid = %I64d order by distributionlistaddress asc"), m_iDomainID);
+      sSQL.Format(_T("select * from hm_distributionlists where distributionlistdomainid = %I64d order by distributionlistaddress asc"), domain_id_);
 
       _DBLoad(sSQL);
    }
@@ -50,7 +50,7 @@ namespace HM
    bool
    DistributionLists::PreSaveObject(shared_ptr<DistributionList> pList, XNode *node)
    {
-      pList->SetDomainID(m_iDomainID);
+      pList->SetDomainID(domain_id_);
 
       return true;
    }

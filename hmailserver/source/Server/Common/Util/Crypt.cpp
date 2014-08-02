@@ -15,12 +15,12 @@ namespace HM
 {
    Crypt::Crypt()
    {
-      m_pBlowFish = new BlowFishEncryptor();
+      blow_fish_ = new BlowFishEncryptor();
    }  
 
    Crypt::~Crypt()
    {
-      delete m_pBlowFish;
+      delete blow_fish_;
    }
 
    String
@@ -35,7 +35,7 @@ namespace HM
             if (sInput.IsEmpty())
                return "";
 
-            return m_pBlowFish->EncryptToString(sInput);
+            return blow_fish_->EncryptToString(sInput);
          }
       case ETMD5:
          {
@@ -112,7 +112,7 @@ namespace HM
                if (sInput.IsEmpty())
                   return "";
 
-               return m_pBlowFish->DecryptFromString(sInput);
+               return blow_fish_->DecryptFromString(sInput);
             }
             break;
          default:

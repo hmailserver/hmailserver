@@ -27,10 +27,10 @@ namespace HM
       shared_ptr<Event> disconnected,
       AnsiString expected_remote_hostname) :
       AnsiStringConnection(connection_security, io_service, context, disconnected),
-      m_CurrentState(HELO),
-      m_bUseSMTPAuth(false),
-      m_iCurRecipient(-1),
-      m_bSessionEnded(false),
+      current_state_(HELO),
+      use_smtpauth_(false),
+      cur_recipient_(-1),
+      session_ended_(false),
       _transmissionBuffer(true),
       expected_remote_hostname_(expected_remote_hostname)
    {
@@ -87,7 +87,7 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSTARTTLSOptional)
       {
-         boost_foreach(shared_ptr<MessageRecipient> recipient, m_vecRecipients)
+         boost_foreach(shared_ptr<MessageRecipient> recipient, recipients_)
             recipient->SetDeliveryResult(MessageRecipient::ResultOptionalHandshakeFailed);
       }
    }
@@ -102,8 +102,8 @@ namespace HM
    SMTPClientConnection::SetDelivery(shared_ptr<Message> pDelMsg, std::vector<shared_ptr<MessageRecipient> > &vecRecipients)
    {
       delivery_message_ = pDelMsg;
-      m_vecRecipients = vecRecipients;
-      m_bSessionEnded = false;
+      recipients_ = vecRecipients;
+      session_ended_ = false;
       
       return 0;
    }
@@ -115,9 +115,9 @@ namespace HM
    // Parses a server SMTP cmmand.
    //---------------------------------------------------------------------------()
    {
-      m_sMultiLineResponseBuffer += Request;
+      multi_line_response_buffer_ += Request;
 
-      if (m_sMultiLineResponseBuffer.GetLength() > 10000)
+      if (multi_line_response_buffer_.GetLength() > 10000)
       {
          _UpdateAllRecipientsWithError(500, "Unexpected response from server (too long).", false);
          return;
@@ -126,14 +126,14 @@ namespace HM
       if (Request.GetLength() > 3 && (Request.GetAt(3) == '-'))
       {
          // Multi-line response. Wait for full buffer.
-         m_sMultiLineResponseBuffer += "\r\n";
+         multi_line_response_buffer_ += "\r\n";
          PostReceive();
          return;
       }
 
-      bool postReceive = InternalParseData(m_sMultiLineResponseBuffer);
+      bool postReceive = InternalParseData(multi_line_response_buffer_);
 
-      m_sMultiLineResponseBuffer.Empty();
+      multi_line_response_buffer_.Empty();
 
       if (postReceive)
          PostReceive();
@@ -157,15 +157,15 @@ namespace HM
       int iCode = atoi(sFirstWordTemp);
    
       bool ifFailureFailAllRecipientsAndQuit = 
-         m_CurrentState == HELO ||
-         m_CurrentState == HELOSENT ||
-         m_CurrentState == AUTHLOGINSENT ||
-         m_CurrentState == USERNAMESENT || 
-         m_CurrentState == PASSWORDSENT ||
-         m_CurrentState == MAILFROMSENT ||
-         m_CurrentState == DATACOMMANDSENT ||
-         m_CurrentState == DATASENT ||
-         m_CurrentState == PASSWORDSENT;
+         current_state_ == HELO ||
+         current_state_ == HELOSENT ||
+         current_state_ == AUTHLOGINSENT ||
+         current_state_ == USERNAMESENT || 
+         current_state_ == PASSWORDSENT ||
+         current_state_ == MAILFROMSENT ||
+         current_state_ == DATACOMMANDSENT ||
+         current_state_ == DATASENT ||
+         current_state_ == PASSWORDSENT;
 
       if (ifFailureFailAllRecipientsAndQuit)
       {
@@ -177,7 +177,7 @@ namespace HM
          }
       }
 
-      switch (m_CurrentState)
+      switch (current_state_)
       {
       case HELO:
          _ProtocolStateHELOEHLO(Request);  
@@ -226,7 +226,7 @@ namespace HM
          remoteServerBanner_ = request;
 
       bool server_supports_esmtp = GetServerSupportsESMTP_();
-      if (GetConnectionSecurity() == CSSTARTTLSRequired || m_bUseSMTPAuth)
+      if (GetConnectionSecurity() == CSSTARTTLSRequired || use_smtpauth_)
       {
          if (!server_supports_esmtp)
          {
@@ -268,21 +268,21 @@ namespace HM
       String sRecipient = pRecipient->GetAddress();
       String sData = "RCPT TO:<" + sRecipient + ">";
       _SendData(sData);
-      m_CurrentState = RCPTTOSENT;
+      current_state_ = RCPTTOSENT;
    }
    
    void
    SMTPClientConnection::_ProtocolRcptToSent(int code, const AnsiString &request)
    {
-      if (m_iCurRecipient < m_vecRecipients.size())
+      if (cur_recipient_ < recipients_.size())
       {
          if (IsPositiveCompletion(code))
          {
-            _actualRecipients.insert(m_vecRecipients[m_iCurRecipient]);
+            _actualRecipients.insert(recipients_[cur_recipient_]);
          }
          else
          {
-            _UpdateRecipientWithError(code, request, m_vecRecipients[m_iCurRecipient], false);
+            _UpdateRecipientWithError(code, request, recipients_[cur_recipient_], false);
          }
       }
 
@@ -291,7 +291,7 @@ namespace HM
       {
          // Send next recipient.
          _SendData("RCPT TO:<" + pRecipient->GetAddress() + ">");
-         m_CurrentState = RCPTTOSENT;
+         current_state_ = RCPTTOSENT;
       }
       else
       {
@@ -302,7 +302,7 @@ namespace HM
          else
          {
             _SendData("DATA");
-            m_CurrentState = DATACOMMANDSENT;
+            current_state_ = DATACOMMANDSENT;
          }
          
       }
@@ -344,7 +344,7 @@ namespace HM
          }
       }
 
-      if (m_bUseSMTPAuth)
+      if (use_smtpauth_)
       {
          // Ask the server to initiate login process.
          _SendData("AUTH LOGIN");
@@ -375,7 +375,7 @@ namespace HM
       String sFrom = delivery_message_->GetFromAddress();
       String sData = "MAIL FROM:<" + sFrom + ">";
       _SendData(sData);
-      m_CurrentState = MAILFROMSENT;
+      current_state_ = MAILFROMSENT;
    }
 
    //---------------------------------------------------------------------------()
@@ -399,7 +399,7 @@ namespace HM
 
       String sLogData = sData;
 
-      if (m_CurrentState == PASSWORDSENT)
+      if (current_state_ == PASSWORDSENT)
       {
          // Password has been sent. Remove from log.
          sLogData = "***";
@@ -419,11 +419,11 @@ namespace HM
    {
       _LogSentCommand(sData);
 
-      if (m_CurrentState == PASSWORDSENT)
-         m_sLastSentData = _T("<Password removed>");
+      if (current_state_ == PASSWORDSENT)
+         last_sent_data_ = _T("<Password removed>");
       else
       {
-         m_sLastSentData = sData;         
+         last_sent_data_ = sData;         
       }
 
       SendData(sData + "\r\n");
@@ -432,7 +432,7 @@ namespace HM
    void
    SMTPClientConnection::OnConnectionTimeout()
    {
-      if (m_bSessionEnded)
+      if (session_ended_)
       {       
          LOG_DEBUG("Session has ended, but there was a timeout while waiting for a response from the remote server.");
          return; // The session has already ended, so any error which takes place now is not interesting.
@@ -445,7 +445,7 @@ namespace HM
    void
    SMTPClientConnection::OnExcessiveDataReceived()
    {
-      if (m_bSessionEnded)
+      if (session_ended_)
          return; // The session has ended, so any error which takes place now is not interesting.
 
       _UpdateAllRecipientsWithError(0, "Excessive amount of data sent to server.", false);
@@ -454,7 +454,7 @@ namespace HM
    void
    SMTPClientConnection::OnReadError(int errorCode)
    {
-      if (m_bSessionEnded)
+      if (session_ended_)
          return; // The session has ended, so any error which takes place now is not interesting.
 
       _UpdateAllRecipientsWithError(0, "Remote server closed connection.", false);
@@ -482,8 +482,8 @@ namespace HM
    void 
    SMTPClientConnection::_UpdateAllRecipientsWithError(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError)
    {
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = m_vecRecipients.begin();
-      while (iterRecipient != m_vecRecipients.end())
+      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      while (iterRecipient != recipients_.end())
       {
          _UpdateRecipientWithError(iErrorCode, sResponse, (*iterRecipient), bPreConnectError);
          iterRecipient++;
@@ -521,8 +521,8 @@ namespace HM
       // Update the delivery status
 	   pRecipient->SetDeliveryResult(bIsFatalError ? MessageRecipient::ResultFatalError : MessageRecipient::ResultNonFatalError);
 
-      m_sLastSentData.TrimLeft("\r\n");
-      m_sLastSentData.TrimRight("\r\n");
+      last_sent_data_.TrimLeft("\r\n");
+      last_sent_data_.TrimRight("\r\n");
 
       String sData;
 
@@ -539,7 +539,7 @@ namespace HM
             _T("   Remote server (%s) issued an error.\r\n")
             _T("   hMailServer sent: %s\r\n")
             _T("   Remote server replied: %s\r\n"),
-            String(GetIPAddressString()), String(m_sLastSentData), String(sResponse));
+            String(GetIPAddressString()), String(last_sent_data_), String(sResponse));
 
       }
       pRecipient->SetErrorMessage(sData);
@@ -548,22 +548,22 @@ namespace HM
    void 
    SMTPClientConnection::SetAuthInfo(const String &sUsername, const String &sPassword)
    {
-      m_sUsername = sUsername;
-      m_sPassword = sPassword;
-      m_bUseSMTPAuth = true;
+      username_ = sUsername;
+      password_ = sPassword;
+      use_smtpauth_ = true;
    }
    
    void 
    SMTPClientConnection::_SetState(ConnectionState eState)
    {
-      m_CurrentState = eState;
+      current_state_ = eState;
    }
 
    void
    SMTPClientConnection::_ProtocolSendUsername()
    {
       String sOut;
-      StringParser::Base64Encode(m_sUsername, sOut);      
+      StringParser::Base64Encode(username_, sOut);      
       _SendData(sOut);
       
       _SetState(USERNAMESENT);
@@ -573,7 +573,7 @@ namespace HM
    SMTPClientConnection::_ProtocolSendPassword()
    {
       String sOut;
-      StringParser::Base64Encode(m_sPassword, sOut);      
+      StringParser::Base64Encode(password_, sOut);      
       
       _SetState(PASSWORDSENT);
       _SendData(sOut);
@@ -583,7 +583,7 @@ namespace HM
    SMTPClientConnection::_SendQUIT()
    {
       // Disconnect from the remote SMTP server.
-      m_bSessionEnded = true;
+      session_ended_ = true;
 
       _SendData("QUIT");
       _SetState(QUITSENT);
@@ -594,11 +594,11 @@ namespace HM
    {
       while (1)
       {
-         m_iCurRecipient ++;
+         cur_recipient_ ++;
 
-         if (m_iCurRecipient < m_vecRecipients.size())
+         if (cur_recipient_ < recipients_.size())
          {
-            return m_vecRecipients[m_iCurRecipient];
+            return recipients_[cur_recipient_];
          }
          else
          {
@@ -670,7 +670,7 @@ namespace HM
       _SendData("\r\n.");
 
       // State change moved to AFTER crlf.crlf to help with race condition
-      m_CurrentState = DATASENT;
+      current_state_ = DATASENT;
       return;
    }
 

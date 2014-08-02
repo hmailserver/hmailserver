@@ -19,7 +19,7 @@
 namespace HM
 {
    DomainAliases::DomainAliases(__int64 iDomainID) :
-      m_iDomainID(iDomainID)
+      domain_id_(iDomainID)
    {
    }
 
@@ -32,10 +32,10 @@ namespace HM
    {
       String sSQL;
 
-      if (m_iDomainID)
-         sSQL.Format(_T("select * from hm_domain_aliases where dadomainid = %I64d order by daid asc"), m_iDomainID);
+      if (domain_id_)
+         sSQL.Format(_T("select * from hm_domain_aliases where dadomainid = %I64d order by daid asc"), domain_id_);
       else
-         sSQL.Format(_T("select * from hm_domain_aliases order by daid asc"), m_iDomainID);
+         sSQL.Format(_T("select * from hm_domain_aliases order by daid asc"), domain_id_);
 
       _DBLoad(sSQL);
    }
@@ -73,7 +73,7 @@ namespace HM
    bool
    DomainAliases::PreSaveObject(shared_ptr<DomainAlias> pDA, XNode *node)
    {
-      pDA->SetDomainID(m_iDomainID);
+      pDA->SetDomainID(domain_id_);
       return true;
    }
 }

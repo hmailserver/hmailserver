@@ -24,7 +24,7 @@ namespace HM
       virtual String GetCollectionName() const {return "DistributionLists"; }
    private:
 
-      __int64 m_iDomainID;
+      __int64 domain_id_;
    
    };
 }

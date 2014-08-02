@@ -49,7 +49,7 @@ namespace HM
                                               shared_ptr<Event> disconnected) :
       AnsiStringConnection(connectionSecurity, io_service, context, disconnected),
       account_(pAccount),
-      m_eCurrentState(StateConnected)
+      current_state_(StateConnected)
    {
 
       /*
@@ -100,13 +100,13 @@ namespace HM
    void
    POP3ClientConnection::ParseData(const AnsiString &sRequest)
    {
-      bool commandBufferIsEmpty = m_sCommandBuffer.empty();
+      bool commandBufferIsEmpty = command_buffer_.empty();
 
-      m_sCommandBuffer.append(sRequest);
-      m_sCommandBuffer.append("\r\n");
+      command_buffer_.append(sRequest);
+      command_buffer_.append("\r\n");
 
-      bool is_awaiting_multiline_response  = m_eCurrentState == StateCAPASent ||
-                                             m_eCurrentState == StateUIDLRequestSent;
+      bool is_awaiting_multiline_response  = current_state_ == StateCAPASent ||
+                                             current_state_ == StateUIDLRequestSent;
 
       if (is_awaiting_multiline_response)
       {
@@ -129,7 +129,7 @@ namespace HM
 
       // The ASCII buffer has been parsed, so we
       // may clear it now.
-      m_sCommandBuffer.Empty();
+      command_buffer_.Empty();
 
       if (postReceive)
          PostReceive();
@@ -153,32 +153,32 @@ namespace HM
           // and it'd just have to be moved back.
           // **** Don't miss } below when removing the above code! ****
 
-         _LogPOP3String(m_sCommandBuffer, false);
+         _LogPOP3String(command_buffer_, false);
 
          bool bRetVal = true;
-         switch (m_eCurrentState)
+         switch (current_state_)
          {
          case StateConnected:
-            _ParseStateConnected(m_sCommandBuffer);
+            _ParseStateConnected(command_buffer_);
             return true;
          case StateCAPASent:
-            _ParseStateCAPASent(m_sCommandBuffer);
+            _ParseStateCAPASent(command_buffer_);
             return true;
          case StateSTLSSent:
-            return _ParseStateSTLSSent(m_sCommandBuffer);
+            return _ParseStateSTLSSent(command_buffer_);
          case StateUsernameSent:
-            _ParseUsernameSent(m_sCommandBuffer);
+            _ParseUsernameSent(command_buffer_);
             return true;
          case StatePasswordSent:
-            _ParsePasswordSent(m_sCommandBuffer);
+            _ParsePasswordSent(command_buffer_);
             return true;
          case StateUIDLRequestSent:
-            _ParseUIDLResponse(m_sCommandBuffer);
+            _ParseUIDLResponse(command_buffer_);
             return true;
          case StateQUITSent:
-            return _ParseQuitResponse(m_sCommandBuffer);
+            return _ParseQuitResponse(command_buffer_);
          case StateDELESent:
-            _ParseDELEResponse(m_sCommandBuffer);
+            _ParseDELEResponse(command_buffer_);
             return true;
          }
    
@@ -191,28 +191,28 @@ namespace HM
    bool
    POP3ClientConnection::_HandleEtrn(const String &account_name)
    {
-      _LogSMTPString(m_sCommandBuffer, false);
+      _LogSMTPString(command_buffer_, false);
 
       std::vector<String> vecParams = StringParser::SplitString(account_name, " ");
       if (vecParams.size() == 2)
       {
          bool bRetVal = true;
-         switch (m_eCurrentState)
+         switch (current_state_)
          {
             // Re-using POP states names for now
          case StateConnected:
             // Realize we shouldn't blindly send but this works for now
             _SendDataLogAsSMTP("HELO " + vecParams[1]);
-            m_eCurrentState = StateUsernameSent;
+            current_state_ = StateUsernameSent;
             return true;
          case StateUsernameSent:
             _SendDataLogAsSMTP("ETRN " + vecParams[1]);
             Sleep(20);
-            m_eCurrentState = StateUIDLRequestSent;
+            current_state_ = StateUIDLRequestSent;
             return true;
          case StateUIDLRequestSent:
             _SendDataLogAsSMTP("QUIT");
-            m_eCurrentState = StateQUITSent;
+            current_state_ = StateQUITSent;
             Sleep(20);
             return true;
 
@@ -226,7 +226,7 @@ namespace HM
          _SendData("NOOP ETRN-Domain not set");
          Sleep(20);
          _SendData("QUIT");
-         _ParseQuitResponse(m_sCommandBuffer);
+         _ParseQuitResponse(command_buffer_);
          return false;
       }
    }
@@ -266,7 +266,7 @@ namespace HM
 
       _SendData(sResponse);
 
-      m_eCurrentState = StateUsernameSent;
+      current_state_ = StateUsernameSent;
    }
 
    void
@@ -276,7 +276,7 @@ namespace HM
       // Time to send the username.
       _SendData(_T("CAPA"));
 
-      m_eCurrentState = StateCAPASent;
+      current_state_ = StateCAPASent;
    }
 
    void
@@ -302,7 +302,7 @@ namespace HM
       }
 
       _SendData("STLS");
-      m_eCurrentState = StateSTLSSent;
+      current_state_ = StateSTLSSent;
    }
 
    bool
@@ -330,7 +330,7 @@ namespace HM
          String sResponse;
          sResponse.Format(_T("PASS %s"), account_->GetPassword());
 
-         m_eCurrentState = StatePasswordSent;
+         current_state_ = StatePasswordSent;
 
          _SendData(sResponse);
 
@@ -347,7 +347,7 @@ namespace HM
    {
       if (_CommandIsSuccessfull(sData))
       {
-         m_eCurrentState = StateUIDLRequestSent;
+         current_state_ = StateUIDLRequestSent;
 
          // We have connected successfully.
          // Time to send the username.
@@ -395,12 +395,12 @@ namespace HM
             String sMessageUID = sLine.Mid(iSpacePos + 1);
 
             int iMessageIdx = _ttoi(sMessageIndex);
-            m_mapUIDLResponse[iMessageIdx] = sMessageUID;
+            uidlresponse_[iMessageIdx] = sMessageUID;
 
             iter++;
          }
 
-         m_iterCurMessage = m_mapUIDLResponse.begin();
+         cur_message_ = uidlresponse_.begin();
 
          _RequestNextMessage();
 
@@ -416,9 +416,9 @@ namespace HM
    bool
    POP3ClientConnection::_RequestNextMessage()
    {
-      while (m_iterCurMessage != m_mapUIDLResponse.end())
+      while (cur_message_ != uidlresponse_.end())
       {
-         String sCurrentUID = (*m_iterCurMessage).second;
+         String sCurrentUID = (*cur_message_).second;
 
          // Check if the current message is already in the list
          // of fetch UID's
@@ -431,8 +431,8 @@ namespace HM
             // drop it later on when purging the mailbox. (We only purge
             // items we have downloaded). And since it was downloaded during
             // a previous session, we can safely drop it..
-            int iID = (*m_iterCurMessage).first;
-            m_mapDownloadedMessages[iID] = sCurrentUID;
+            int iID = (*cur_message_).first;
+            downloaded_messages_[iID] = sCurrentUID;
 
             // The message has already been downloaded. Give scripts a chance
             // to override the default delete behavior.
@@ -445,14 +445,14 @@ namespace HM
 
             current_message_ = shared_ptr<Message> (new Message);
 
-            int iMessageIdx = (*m_iterCurMessage).first;
+            int iMessageIdx = (*cur_message_).first;
 
             String sResponse;
             sResponse.Format(_T("RETR %d"), iMessageIdx);
 
             _SendData(sResponse);
 
-            m_eCurrentState = StateRETRSent;
+            current_state_ = StateRETRSent;
 
             // Reset the transmission buffer. It will be
             // recreated when we receive binary the next time.
@@ -464,12 +464,12 @@ namespace HM
             return true;
          }
       
-         m_iterCurMessage++;
+         cur_message_++;
 
       }
 
       // We reached the end of the message list.
-      if (m_iterCurMessage == m_mapUIDLResponse.end())
+      if (cur_message_ == uidlresponse_.end())
       {
          _StartMailboxCleanup();
       }
@@ -481,7 +481,7 @@ namespace HM
    void
    POP3ClientConnection::_StartMailboxCleanup()
    {
-      m_iterCurMessage = m_mapDownloadedMessages.begin();
+      cur_message_ = downloaded_messages_.begin();
 
       _MailboxCleanup();
    }
@@ -489,11 +489,11 @@ namespace HM
    void
    POP3ClientConnection::_MailboxCleanup()
    {
-      while (m_iterCurMessage != m_mapDownloadedMessages.end())
+      while (cur_message_ != downloaded_messages_.end())
       {
          bool bRet = _MessageCleanup();
 
-         m_iterCurMessage++;
+         cur_message_++;
 
          if (bRet)
          {
@@ -528,8 +528,8 @@ namespace HM
 
       set<String> setUIDs;
 
-      map<int ,String>::iterator iter = m_mapUIDLResponse.begin();
-      map<int ,String>::iterator iterEnd = m_mapUIDLResponse.end();
+      map<int ,String>::iterator iter = uidlresponse_.begin();
+      map<int ,String>::iterator iterEnd = uidlresponse_.end();
 
       for (; iter != iterEnd; iter++)
          setUIDs.insert((*iter).second);
@@ -546,7 +546,7 @@ namespace HM
       _SendData(sResponse);
 
       SetReceiveBinary(false);
-      m_eCurrentState = StateQUITSent;
+      current_state_ = StateQUITSent;
    }
 
    bool 
@@ -568,9 +568,9 @@ namespace HM
       if (_CommandIsSuccessfull(sData))
       {
          // Log that this message has been downloaded.
-         int iID = (*m_iterCurMessage).first;
-         String sCurrentUID = (*m_iterCurMessage).second;
-         m_mapDownloadedMessages[iID] = sCurrentUID;
+         int iID = (*cur_message_).first;
+         String sCurrentUID = (*cur_message_).second;
+         downloaded_messages_[iID] = sCurrentUID;
 
          return;
       }
@@ -753,7 +753,7 @@ namespace HM
          // should we scan this message for virus later on?
          current_message_->SetFlagVirusScan(account_->GetUseAntiVirus());
 
-         _FireOnExternalAccountDownload(current_message_, (*m_iterCurMessage).second);
+         _FireOnExternalAccountDownload(current_message_, (*cur_message_).second);
 
          // the message was not classified as spam which we should delete.
          _SaveMessage();
@@ -768,7 +768,7 @@ namespace HM
       SetReceiveBinary(false);
 
       // Move on to the next message to download
-      m_iterCurMessage++;
+      cur_message_++;
 
       _RequestNextMessage();
    
@@ -898,9 +898,9 @@ namespace HM
    void 
    POP3ClientConnection::_MarkCurrentMessageAsRead()
    {
-      if (m_iterCurMessage != m_mapUIDLResponse.end())
+      if (cur_message_ != uidlresponse_.end())
       {
-         String sUID = (*m_iterCurMessage).second;
+         String sUID = (*cur_message_).second;
 
          // If we're deleting this message immediately, there's
          // no point in adding it to the table.
@@ -917,8 +917,8 @@ namespace HM
    bool
    POP3ClientConnection::_MessageCleanup()
    {
-      int iIndex = (*m_iterCurMessage).first;
-      String sUID = (*m_iterCurMessage).second;
+      int iIndex = (*cur_message_).first;
+      String sUID = (*cur_message_).second;
 
       int iDaysToKeep = _GetDaysToKeep(sUID);
 
@@ -952,7 +952,7 @@ namespace HM
       sResponse.Format(_T("DELE %d"), iIndex);
       _SendData(sResponse);
 
-      m_eCurrentState = StateDELESent;
+      current_state_ = StateDELESent;
 
       // Delete this UID from the database.
       _GetUIDList()->DeleteUID(sUID);
@@ -973,19 +973,19 @@ namespace HM
          return;
       
       // Just fetch the account
-      if (m_sReceivingAccountAddress.IsEmpty())
+      if (receiving_account_address_.IsEmpty())
       {
          shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(account_->GetAccountID());
          if (pAccount)
          {
-            m_sReceivingAccountAddress = pAccount->GetAddress();
+            receiving_account_address_ = pAccount->GetAddress();
          }
       }
 
       // Add the recipient to the message
       bool recipientOK = false;
       RecipientParser recipientParser;
-      recipientParser.CreateMessageRecipientList(m_sReceivingAccountAddress, current_message_->GetRecipients(), recipientOK);
+      recipientParser.CreateMessageRecipientList(receiving_account_address_, current_message_->GetRecipients(), recipientOK);
    }
 
    void
@@ -1102,7 +1102,7 @@ namespace HM
       if (bSent)
       {
          // Check if we should remove the password.
-         if (m_eCurrentState == StatePasswordSent)
+         if (current_state_ == StatePasswordSent)
          {
             // Remove password.
             sTemp = "SENT: ***";
@@ -1196,7 +1196,7 @@ namespace HM
       if (bSent)
       {
          // Check if we should remove the password.
-         if (m_eCurrentState == StatePasswordSent)
+         if (current_state_ == StatePasswordSent)
          {
             // Remove password.
             sTemp = "SENT: ***";

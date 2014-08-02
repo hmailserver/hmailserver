@@ -131,21 +131,21 @@ namespace HM
          StateQUITSent
       };
 
-      State m_eCurrentState;
+      State current_state_;
      
-      AnsiString m_sCommandBuffer;
+      AnsiString command_buffer_;
 
-      map<int ,String> m_mapUIDLResponse;
+      map<int ,String> uidlresponse_;
       // The messages on the server (id,UID)
 
-      map<int ,String> m_mapDownloadedMessages;
+      map<int ,String> downloaded_messages_;
       // Messages which have been downloaded from the remote server.
 
-      map<int ,String>::iterator m_iterCurMessage;
+      map<int ,String>::iterator cur_message_;
 
       shared_ptr<Message> current_message_;
 
-      String m_sReceivingAccountAddress;
+      String receiving_account_address_;
 
       shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 

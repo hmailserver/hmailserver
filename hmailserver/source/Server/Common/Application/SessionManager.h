@@ -31,9 +31,9 @@ namespace HM
 
       
 
-      long m_iNoOfSMTPConnections;
-      long m_iNoOfPOP3Connections;
-      long m_iNoOfIMAPConnections;
+      long no_of_smtpconnections_;
+      long no_of_pop3connections_;
+      long no_of_imapconnections_;
 
    private:
 

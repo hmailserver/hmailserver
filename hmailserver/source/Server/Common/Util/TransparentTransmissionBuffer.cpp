@@ -15,11 +15,11 @@
 namespace HM
 {
    TransparentTransmissionBuffer::TransparentTransmissionBuffer(bool bSending) : 
-      m_bIsSending(bSending),
-      m_bTransmissionEnded(false),
-      m_bLastSendEndedWithNewline(false),
-      m_iDataSent(0),
-      m_iMaxSizeKB(0),
+      is_sending_(bSending),
+      transmission_ended_(false),
+      last_send_ended_with_newline_(false),
+      data_sent_(0),
+      max_size_kb_(0),
       _cancelTransmission(false)
    {
       buffer_ = shared_ptr<ByteBuffer>(new ByteBuffer);
@@ -35,7 +35,7 @@ namespace HM
    {
       tcp_connection_ = pTCPConnection;
 
-      m_iDataSent = 0;
+      data_sent_ = 0;
 
       return true;
    }
@@ -43,7 +43,7 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::Initialize(const String &sFilename)
    {
-      if (!m_oFile.Open(sFilename, File::OTAppend))
+      if (!file_.Open(sFilename, File::OTAppend))
       {
          // This is not good. We failed to get a handle to the file.
          // Log to event log and notify the sender of this error.
@@ -56,7 +56,7 @@ namespace HM
          return false;
       } 
 
-      m_iDataSent = 0;
+      data_sent_ = 0;
 
       return true;
    }
@@ -64,7 +64,7 @@ namespace HM
    void 
    TransparentTransmissionBuffer::SetMaxSizeKB(int maxSize)
    {
-      m_iMaxSizeKB = maxSize;
+      max_size_kb_ = maxSize;
    }
 
    void 
@@ -88,7 +88,7 @@ namespace HM
          throw;
       }
 
-      m_iDataSent+= iBufferSize;
+      data_sent_+= iBufferSize;
 
       // Add the new data to the buffer.
       try
@@ -106,7 +106,7 @@ namespace HM
       }
 
       // Check if we have received the entire buffer.
-      if (buffer_->GetSize() >= 3 && !m_bIsSending)
+      if (buffer_->GetSize() >= 3 && !is_sending_)
       {
          try
          {
@@ -130,7 +130,7 @@ namespace HM
                // Remove the transmission-end characters. (the 3 last)
                buffer_->DecreaseSize(3);
 
-               m_bTransmissionEnded = true;
+               transmission_ended_ = true;
             }
          }
          catch (...)
@@ -144,7 +144,7 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::GetRequiresFlush()
    {
-      if (buffer_->GetSize() > 40000 || m_bTransmissionEnded)
+      if (buffer_->GetSize() > 40000 || transmission_ended_)
          return true;
       else
          return false;
@@ -153,7 +153,7 @@ namespace HM
    int 
    TransparentTransmissionBuffer::GetSize()
    {  
-      return m_iDataSent;
+      return data_sent_;
    }
 
    bool
@@ -203,7 +203,7 @@ namespace HM
 
          if (s == '\n' || bForce)
          {
-            m_bLastSendEndedWithNewline = s == '\n';
+            last_send_ended_with_newline_ = s == '\n';
 
             // Copy the data up including this position
             int iCopySize = i+1;
@@ -216,13 +216,13 @@ namespace HM
             buffer_->Empty(iRemaining);
 
             // Parse this buffer and add it to file/socket
-            if (m_bIsSending)
+            if (is_sending_)
                _InsertTransmissionPeriod(pOutBuffer);
             else
                _RemoveTransmissionPeriod(pOutBuffer);
 
             // The parsed buffer can now be sent.
-            if (m_bIsSending)
+            if (is_sending_)
             {
                if (shared_ptr<TCPConnection> connection = tcp_connection_.lock())
                {
@@ -241,9 +241,9 @@ namespace HM
          }
       }
 
-      if (m_bTransmissionEnded && m_oFile.IsOpen())
+      if (transmission_ended_ && file_.IsOpen())
       {
-         m_oFile.Close();
+         file_.Close();
       }
 
       return dataProcessed;
@@ -252,7 +252,7 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::_SaveToFile(shared_ptr<ByteBuffer> pBuffer)
    {
-      if (m_iMaxSizeKB > 0 && (m_iDataSent / 1024) > m_iMaxSizeKB)
+      if (max_size_kb_ > 0 && (data_sent_ / 1024) > max_size_kb_)
       {
          // we've reached the max size. don't save more data.
          return false;
@@ -261,7 +261,7 @@ namespace HM
       if (!_cancelTransmission)
       {
          DWORD dwNoOfBytesWritten = 0;
-         bool bResult = m_oFile.Write(pBuffer, dwNoOfBytesWritten);
+         bool bResult = file_.Write(pBuffer, dwNoOfBytesWritten);
       }
  
       return true;

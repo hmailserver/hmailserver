@@ -12,20 +12,20 @@ namespace HM
       Result(void);
       ~Result(void);
 
-      void SetValue(long lNewVal){m_lValue = lNewVal; }
+      void SetValue(long lNewVal){value_ = lNewVal; }
       long GetValue() const; 
 
       void SetParameter(int lNewVal){_parameter = lNewVal; }
       int GetParameter() const; 
 
 
-      void SetMessage(const String& sValue){m_sMessage = sValue; }
+      void SetMessage(const String& sValue){message_ = sValue; }
       String GetMessage() const;
 
    private:
-      long m_lValue;
+      long value_;
       int _parameter;
 
-      String m_sMessage;
+      String message_;
    };
 }

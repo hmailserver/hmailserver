@@ -48,7 +48,7 @@ namespace HM
             continue;
 
          shared_ptr<Language> pLanguage = shared_ptr<Language>(new Language(sFormattedLanguage, true));
-         m_mapLanguages[sFormattedLanguage] = pLanguage;
+         languages_[sFormattedLanguage] = pLanguage;
       }
       
       /*
@@ -57,10 +57,10 @@ namespace HM
       {
          language.ToLower();
 
-         if (m_mapLanguages.find(language) == m_mapLanguages.end())
+         if (languages_.find(language) == languages_.end())
          {
             shared_ptr<Language> pLanguage = shared_ptr<Language>(new Language(language, false));
-            m_mapLanguages[language] = pLanguage;
+            languages_[language] = pLanguage;
          }
       }
       */
@@ -92,8 +92,8 @@ namespace HM
       String sFormattedLanguage = sLanguage;
       sFormattedLanguage.ToLower();
 
-      map<String, shared_ptr<Language> >::iterator iterLanguage = m_mapLanguages.find(sFormattedLanguage);
-      if (iterLanguage != m_mapLanguages.end())
+      map<String, shared_ptr<Language> >::iterator iterLanguage = languages_.find(sFormattedLanguage);
+      if (iterLanguage != languages_.end())
          return (*iterLanguage).second;
      
       shared_ptr<Language> pEmpty;
@@ -103,8 +103,8 @@ namespace HM
    shared_ptr<Language> 
    Languages::GetLanguage(int index)
    {
-      map<String, shared_ptr<Language> >::iterator iter = m_mapLanguages.begin();
-      map<String, shared_ptr<Language> >::iterator iterEnd = m_mapLanguages.end();
+      map<String, shared_ptr<Language> >::iterator iter = languages_.begin();
+      map<String, shared_ptr<Language> >::iterator iterEnd = languages_.end();
       
       int current = 0;
       for (; iter != iterEnd; iter++)

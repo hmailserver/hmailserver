@@ -28,10 +28,10 @@ namespace HM
    String
    IMAPCommandArgument::Literal(unsigned int Index)
    {
-      if (Index >= m_vecLiterals.size())
+      if (Index >= literals_.size())
          return "";
       else 
-         return m_vecLiterals[Index];
+         return literals_[Index];
    }
 
 }

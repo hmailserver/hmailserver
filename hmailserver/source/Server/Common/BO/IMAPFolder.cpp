@@ -20,22 +20,22 @@ namespace HM
 
 
    IMAPFolder::IMAPFolder(__int64 iAccountID, __int64 iParentFolderID) :
-      m_iAccountID(iAccountID), 
-      m_iDBID(0),
+      account_id_(iAccountID), 
+      dbid_(0),
       _currentUID(0),
-      m_bFolderIsSubscribed(false),
-      m_bFolderNeedsRefresh(true),
-      m_iParentFolderID(iParentFolderID)
+      folder_is_subscribed_(false),
+      folder_needs_refresh_(true),
+      parent_folder_id_(iParentFolderID)
    {
       
    }
 
    IMAPFolder::IMAPFolder() :
-      m_iAccountID(0), 
-      m_iDBID(0),
-      m_bFolderIsSubscribed(false),
-      m_bFolderNeedsRefresh(true),
-      m_iParentFolderID(-1)
+      account_id_(0), 
+      dbid_(0),
+      folder_is_subscribed_(false),
+      folder_needs_refresh_(true),
+      parent_folder_id_(-1)
    {
 
    }
@@ -48,25 +48,25 @@ namespace HM
    __int64
    IMAPFolder::GetParentFolderID() const
    {
-      return m_iParentFolderID;
+      return parent_folder_id_;
    }
 
    shared_ptr<Messages>
    IMAPFolder::GetMessages(bool bReloadIfNeeded)
    {
-      if (m_oMessages.get() == NULL)
+      if (messages_.get() == NULL)
       {
-         m_oMessages = shared_ptr<Messages>(new Messages(m_iAccountID, m_iDBID));
-         m_bFolderNeedsRefresh = true;      
+         messages_ = shared_ptr<Messages>(new Messages(account_id_, dbid_));
+         folder_needs_refresh_ = true;      
       }
 
-      if (m_bFolderNeedsRefresh && bReloadIfNeeded)
+      if (folder_needs_refresh_ && bReloadIfNeeded)
       {
-         m_bFolderNeedsRefresh = false;
-         m_oMessages->Refresh();
+         folder_needs_refresh_ = false;
+         messages_->Refresh();
       }
 
-      return m_oMessages;
+      return messages_;
    }
 
    std::vector<shared_ptr<Message>>
@@ -80,16 +80,16 @@ namespace HM
    void
    IMAPFolder::SetFolderNeedsRefresh()
    {
-      m_bFolderNeedsRefresh = true; 
+      folder_needs_refresh_ = true; 
    }
 
    shared_ptr<IMAPFolders>
    IMAPFolder::GetSubFolders()
    {
-      if (m_oSubFolders.get() == NULL)
-         m_oSubFolders = shared_ptr<IMAPFolders>(new IMAPFolders(m_iAccountID, m_iDBID));
+      if (sub_folders_.get() == NULL)
+         sub_folders_ = shared_ptr<IMAPFolders>(new IMAPFolders(account_id_, dbid_));
 
-      return m_oSubFolders;
+      return sub_folders_;
    }
 
 
@@ -98,7 +98,7 @@ namespace HM
    {
       // Always return a new one. Hopefully we don't have so many public folders
 	  // that this will become a performance issue.
-      shared_ptr<ACLPermissions> pPermissions = shared_ptr<ACLPermissions>(new ACLPermissions(m_iDBID));
+      shared_ptr<ACLPermissions> pPermissions = shared_ptr<ACLPermissions>(new ACLPermissions(dbid_));
       
 	  // No point in loading list of permissions for account level folder. 
 	  // (since account level folders never have permissions set)
@@ -163,8 +163,8 @@ namespace HM
    IMAPFolder::XMLStore(XNode *pParentNode, int iBackupOptions)
    {
       XNode *pNode = pParentNode->AppendChild(_T("Folder"));
-      pNode->AppendAttr(_T("Name"), String(m_sFolderName));
-      pNode->AppendAttr(_T("Subscribed"), m_bFolderIsSubscribed ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("Name"), String(folder_name_));
+      pNode->AppendAttr(_T("Subscribed"), folder_is_subscribed_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(_createTime)));
       pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(_currentUID));
 
@@ -188,8 +188,8 @@ namespace HM
    bool 
    IMAPFolder::XMLLoad(XNode *pFolderNode, int iRestoreOptions)
    {
-      m_sFolderName = pFolderNode->GetAttrValue(_T("Name"));
-      m_bFolderIsSubscribed = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
+      folder_name_ = pFolderNode->GetAttrValue(_T("Name"));
+      folder_is_subscribed_ = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
       _createTime = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
       _currentUID = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
 
@@ -254,7 +254,7 @@ namespace HM
 
       if (iRecursion > 100)
       {
-         String sMessage = Formatter::Format("Excessive folder recursion. Giving up. Account: {0}, Folder: {1}", m_iAccountID, m_sFolderName);
+         String sMessage = Formatter::Format("Excessive folder recursion. Giving up. Account: {0}, Folder: {1}", account_id_, folder_name_);
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5019, "IMAPFolder::GetFolderDepth", sMessage);
 
          return 0;
@@ -290,7 +290,7 @@ namespace HM
    bool 
    IMAPFolder::IsPublicFolder()
    {
-      return m_iAccountID == 0;
+      return account_id_ == 0;
    }
 
 }

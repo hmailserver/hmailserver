@@ -15,6 +15,6 @@ namespace HM
 
    private:
 
-      int m_iCreationTime;
+      int creation_time_;
    };
 }

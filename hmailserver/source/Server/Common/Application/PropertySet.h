@@ -37,6 +37,6 @@ namespace HM
       shared_ptr<Property> _GetProperty(const String &sPropertyName);
 
       bool _IsCryptedProperty(const String &sPropertyName);
-      std::map<String, shared_ptr<Property> > m_mapItems;
+      std::map<String, shared_ptr<Property> > items_;
    };
 }

@@ -108,17 +108,17 @@ namespace HM
       void _ResetMailbox();
       shared_ptr<Message> _GetMessage(unsigned int index);
 
-      String m_Username;
-      String m_Password;
+      String username_;
+      String password_;
 
       shared_ptr<const Account> _account;
 
-      ConnectionState m_CurrentState;
+      ConnectionState current_state_;
 
       std::vector<shared_ptr<Message>> _messages;
-      TransparentTransmissionBuffer m_oTransmissionBuffer;
+      TransparentTransmissionBuffer transmission_buffer_;
 
-      bool m_bPendingDisconnect;
+      bool pending_disconnect_;
       File _currentFile;
    };
 }

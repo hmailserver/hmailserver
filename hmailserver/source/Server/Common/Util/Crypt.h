@@ -30,7 +30,7 @@ namespace HM
 
    private:
 
-      BlowFishEncryptor *m_pBlowFish;
+      BlowFishEncryptor *blow_fish_;
 
    };
 }

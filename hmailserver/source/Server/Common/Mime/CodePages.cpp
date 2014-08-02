@@ -58,7 +58,7 @@ namespace HM
       AnsiString sTmp = sName;
       sTmp.ToLower();
 
-      m_mapCodePages[sTmp] = iCodePage;
+      code_pages_[sTmp] = iCodePage;
    }
 
    int 
@@ -67,9 +67,9 @@ namespace HM
       AnsiString lowerCaseCharSet = sName;
       lowerCaseCharSet.ToLower();
 
-      std::map<AnsiString, int>::const_iterator iter = m_mapCodePages.find(lowerCaseCharSet);
+      std::map<AnsiString, int>::const_iterator iter = code_pages_.find(lowerCaseCharSet);
 
-      if (iter == m_mapCodePages.end())
+      if (iter == code_pages_.end())
          return 0;
 
       return (*iter).second;

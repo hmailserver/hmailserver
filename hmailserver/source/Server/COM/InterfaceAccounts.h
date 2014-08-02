@@ -27,7 +27,7 @@ public:
       InterlockedIncrement(&counter);
 
 #endif
-      m_iDomainID = 0;
+      domain_id_ = 0;
    }
 
    ~InterfaceAccounts()
@@ -69,14 +69,14 @@ END_COM_MAP()
    STDMETHOD(get_Count)(/*[out, retval]*/ long *pVal);
 
    void Attach(shared_ptr<HM::Accounts> pAccounts);
-   void SetDomain(__int64 Domain) { m_iDomainID = Domain; }
+   void SetDomain(__int64 Domain) { domain_id_ = Domain; }
 
 private:
 
    shared_ptr<HM::Accounts> accounts_;
    //shared_ptr<HM::COMAuthentication> authentication_;
 
-   __int64 m_iDomainID;
+   __int64 domain_id_;
 
 #ifdef _DEBUG
    static long counter;

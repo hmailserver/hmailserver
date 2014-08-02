@@ -20,16 +20,16 @@
 namespace HM
 {
    ScriptServer::ScriptServer(void) :
-      m_bHasOnClientConnect(false),
-      m_bHasOnAcceptMessage(false),
-      m_bHasOnDeliverMessage(false),
-      m_bHasOnBackupCompleted(false),
-      m_bHasOnBackupFailed(false),
-      m_bHasOnDeliveryStart(false),
-      m_bHasOnError(false),
-      m_bHasOnDeliveryFailed(false),
-      m_bHasOnExternalAccountDownload(false),
-      m_bHasOnSMTPData(false)
+      has_on_client_connect_(false),
+      has_on_accept_message_(false),
+      has_on_deliver_message_(false),
+      has_on_backup_completed_(false),
+      has_on_backup_failed_(false),
+      has_on_delivery_start_(false),
+      has_on_error_(false),
+      has_on_delivery_failed_(false),
+      has_on_external_account_download_(false),
+      has_on_smtpdata_(false)
    {
       
    }
@@ -64,19 +64,19 @@ namespace HM
    {
       try
       {
-         m_sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
+         script_language_ = Configuration::Instance()->GetScriptLanguage();
 
-         if (m_sScriptLanguage == _T("VBScript"))
-            m_sScriptExtension = "vbs";
-         else if (m_sScriptLanguage == _T("JScript"))
-            m_sScriptExtension = "js";
+         if (script_language_ == _T("VBScript"))
+            script_extension_ = "vbs";
+         else if (script_language_ == _T("JScript"))
+            script_extension_ = "js";
          else
-            m_sScriptExtension = "";
+            script_extension_ = "";
 
          String sCurrentScriptFile = GetCurrentScriptFile();
 
          // Load the script file from disk
-         m_sScriptContents = FileUtilities::ReadCompleteTextFile(sCurrentScriptFile);
+         script_contents_ = FileUtilities::ReadCompleteTextFile(sCurrentScriptFile);
 
          // Do a syntax check before loading it.
          String sMessage = ScriptServer::CheckSyntax();
@@ -87,16 +87,16 @@ namespace HM
          }
          
          // Determine which functions are available.
-         m_bHasOnClientConnect = _DoesFunctionExist("OnClientConnect");
-         m_bHasOnAcceptMessage = _DoesFunctionExist("OnAcceptMessage");
-         m_bHasOnDeliverMessage = _DoesFunctionExist("OnDeliverMessage");
-         m_bHasOnBackupCompleted = _DoesFunctionExist("OnBackupCompleted");
-         m_bHasOnBackupFailed = _DoesFunctionExist("OnBackupFailed");
-         m_bHasOnDeliveryStart = _DoesFunctionExist("OnDeliveryStart");
-         m_bHasOnError = _DoesFunctionExist("OnError");
-         m_bHasOnDeliveryFailed = _DoesFunctionExist("OnDeliveryFailed");
-         m_bHasOnExternalAccountDownload = _DoesFunctionExist("OnExternalAccountDownload");
-         m_bHasOnSMTPData = _DoesFunctionExist("OnSMTPData");
+         has_on_client_connect_ = _DoesFunctionExist("OnClientConnect");
+         has_on_accept_message_ = _DoesFunctionExist("OnAcceptMessage");
+         has_on_deliver_message_ = _DoesFunctionExist("OnDeliverMessage");
+         has_on_backup_completed_ = _DoesFunctionExist("OnBackupCompleted");
+         has_on_backup_failed_ = _DoesFunctionExist("OnBackupFailed");
+         has_on_delivery_start_ = _DoesFunctionExist("OnDeliveryStart");
+         has_on_error_ = _DoesFunctionExist("OnError");
+         has_on_delivery_failed_ = _DoesFunctionExist("OnDeliveryFailed");
+         has_on_external_account_download_ = _DoesFunctionExist("OnExternalAccountDownload");
+         has_on_smtpdata_ = _DoesFunctionExist("OnSMTPData");
 
       }
       catch (...)
@@ -146,8 +146,8 @@ namespace HM
       }
 
       spUnk = pBasic; 
-      pBasic->Initiate(m_sScriptLanguage, NULL);
-      pBasic->AddScript(m_sScriptContents);
+      pBasic->Initiate(script_language_, NULL);
+      pBasic->AddScript(script_contents_);
       pBasic->Run();
       bool bExists = pBasic->ProcedureExists(sProcedure);
       pBasic->Terminate();
@@ -196,58 +196,58 @@ namespace HM
          return;
 
 	  // JDR: stores the name of the method that is fired in the script. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
-	  String m_sEventName = _T("Unknown");
+	  String event_name_ = _T("Unknown");
 
       switch (e)
       {
       case EventOnClientConnect:
-		 m_sEventName = _T("OnClientConnect");
-         if (!m_bHasOnClientConnect)
+		 event_name_ = _T("OnClientConnect");
+         if (!has_on_client_connect_)
             return;
          break;
       case EventOnAcceptMessage:
-		 m_sEventName = _T("OnAcceptMessage");
-         if (!m_bHasOnAcceptMessage)
+		 event_name_ = _T("OnAcceptMessage");
+         if (!has_on_accept_message_)
             return;
          break;
       case EventOnMessageDeliver:
-	     m_sEventName = _T("OnMessageDeliver");
-         if (!m_bHasOnDeliverMessage)
+	     event_name_ = _T("OnMessageDeliver");
+         if (!has_on_deliver_message_)
             return;
          break;
       case EventOnBackupCompleted:
-		  m_sEventName = _T("OnBackupCompleted");
-         if (!m_bHasOnBackupCompleted)
+		  event_name_ = _T("OnBackupCompleted");
+         if (!has_on_backup_completed_)
             return;
          break;
       case EventOnBackupFailed:
-		  m_sEventName = _T("OnBackupFailed");
-         if (!m_bHasOnBackupFailed)
+		  event_name_ = _T("OnBackupFailed");
+         if (!has_on_backup_failed_)
             return;
          break;
       case EventOnError:
-		  m_sEventName = _T("OnError");
-         if (!m_bHasOnError)
+		  event_name_ = _T("OnError");
+         if (!has_on_error_)
             return;
          break;
       case EventOnDeliveryStart:
-		  m_sEventName = _T("OnDeliveryStart");
-         if (!m_bHasOnDeliveryStart)
+		  event_name_ = _T("OnDeliveryStart");
+         if (!has_on_delivery_start_)
             return;
          break;
       case EventOnDeliveryFailed:
-		  m_sEventName = _T("OnDeliveryFailed");
-         if (!m_bHasOnDeliveryFailed)
+		  event_name_ = _T("OnDeliveryFailed");
+         if (!has_on_delivery_failed_)
             return;
          break;
       case EventOnExternalAccountDownload:
-		  m_sEventName = _T("OnExternalAccountDownload");
-         if (!m_bHasOnExternalAccountDownload)
+		  event_name_ = _T("OnExternalAccountDownload");
+         if (!has_on_external_account_download_)
             return;
          break;
       case EventOnSMTPData:
-		  m_sEventName = _T("OnSMTPData");
-         if (!m_bHasOnSMTPData)
+		  event_name_ = _T("OnSMTPData");
+         if (!has_on_smtpdata_)
             return;
          break;
 
@@ -261,15 +261,15 @@ namespace HM
       }
 
 	  // JDR: Added event name to the debug log. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
-	  LOG_DEBUG("ScriptServer::FireEvent-" + m_sEventName);
+	  LOG_DEBUG("ScriptServer::FireEvent-" + event_name_);
 
       String sScript;
 
       // Build the script.
-      if (m_sScriptLanguage == _T("VBScript"))
-         sScript = m_sScriptContents + "\r\n\r\n" + "Call " + sEventCaller + "\r\n";
-      else if (m_sScriptLanguage == _T("JScript"))
-         sScript = m_sScriptContents + "\r\n\r\n" + sEventCaller + ";\r\n";
+      if (script_language_ == _T("VBScript"))
+         sScript = script_contents_ + "\r\n\r\n" + "Call " + sEventCaller + "\r\n";
+      else if (script_language_ == _T("JScript"))
+         sScript = script_contents_ + "\r\n\r\n" + sEventCaller + ";\r\n";
 
       CComObject<CScriptSiteBasic>* pBasic;
       CComObject<CScriptSiteBasic>::CreateInstance(&pBasic);
@@ -282,7 +282,7 @@ namespace HM
       }
       
       spUnk = pBasic; // let CComQIPtr tidy up for us
-      pBasic->Initiate(m_sScriptLanguage, NULL);
+      pBasic->Initiate(script_language_, NULL);
       pBasic->SetObjectContainer(pObjects);
       pBasic->AddScript(sScript);
       pBasic->Run();

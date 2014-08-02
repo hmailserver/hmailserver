@@ -24,7 +24,7 @@ namespace HM
    String
    GreyListingWhiteAddress::GetName() const
    {  
-      return m_sWhiteIPAddress;
+      return white_ipaddress_;
    }
 
    bool 
@@ -33,7 +33,7 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("WhiteAddress"));
 
       pNode->AppendAttr(_T("Name"), GetName());
-      pNode->AppendAttr(_T("WhiteIPDescription"), m_sWhiteIPDescription);
+      pNode->AppendAttr(_T("WhiteIPDescription"), white_ipdescription_);
 
       return true;
    }
@@ -41,8 +41,8 @@ namespace HM
    bool 
    GreyListingWhiteAddress::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sWhiteIPAddress = pNode->GetAttrValue(_T("Name"));
-      m_sWhiteIPDescription = pNode->GetAttrValue(_T("WhiteIPDescription"));
+      white_ipaddress_ = pNode->GetAttrValue(_T("Name"));
+      white_ipdescription_ = pNode->GetAttrValue(_T("WhiteIPDescription"));
 
       return true;
    }
@@ -50,26 +50,26 @@ namespace HM
    String 
    GreyListingWhiteAddress::GetIPAddress() const
    {
-      return m_sWhiteIPAddress;
+      return white_ipaddress_;
    }
 
 
    void
    GreyListingWhiteAddress::SetIPAddress(const String &sIPAddress)
    {
-      m_sWhiteIPAddress = sIPAddress;
+      white_ipaddress_ = sIPAddress;
    }
 
    String 
    GreyListingWhiteAddress::GetUserEditableIPAddress() const
    {
-      return SQLStatement::ConvertLikeToWildcard(m_sWhiteIPAddress);
+      return SQLStatement::ConvertLikeToWildcard(white_ipaddress_);
    }
 
 
    void
    GreyListingWhiteAddress::SetUserEditableIPAddress(const String &sIPAddress)
    {
-      m_sWhiteIPAddress = SQLStatement::ConvertWildcardToLike(sIPAddress);
+      white_ipaddress_ = SQLStatement::ConvertWildcardToLike(sIPAddress);
    }
 }

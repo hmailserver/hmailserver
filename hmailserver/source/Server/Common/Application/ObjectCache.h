@@ -28,13 +28,13 @@ namespace HM
    private:
 
       shared_ptr<DomainAliases> domain_aliases_;
-      bool m_bDomainAliasesNeedsReload;
+      bool domain_aliases_needs_reload_;
 
       shared_ptr<Rules> global_rules_;
-      bool m_bGlobalRulesNeedsReload;
+      bool global_rules_needs_reload_;
 
-      map<__int64, shared_ptr<Rules> > m_mapAccountRules;
-      set<__int64> m_setAccountRulesToRefresh;
+      map<__int64, shared_ptr<Rules> > account_rules_;
+      set<__int64> account_rules_to_refresh_;
 
       boost::recursive_mutex _domainAliasesMutex;
       boost::recursive_mutex _globalRulesMutex;

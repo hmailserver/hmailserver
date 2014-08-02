@@ -23,8 +23,8 @@ namespace HM
    } 
 
    SynchronousConnection::SynchronousConnection(int timeoutSeconds) :
-      m_socket(m_ioservice),
-      m_timeoutSeconds(timeoutSeconds)
+      socket_(ioservice_),
+      seconds_(timeoutSeconds)
    {
       
    }
@@ -32,14 +32,14 @@ namespace HM
    SynchronousConnection::~SynchronousConnection()
    {
       boost::system::error_code err;
-      m_socket.shutdown(tcp::socket::shutdown_both, err);
-      m_socket.close(err);
+      socket_.shutdown(tcp::socket::shutdown_both, err);
+      socket_.close(err);
    }
    
    bool 
    SynchronousConnection::Connect(const AnsiString &hostName, int port)
    {
-      tcp::resolver resolver(m_ioservice);
+      tcp::resolver resolver(ioservice_);
       tcp::resolver::query query(hostName, 
             AnsiString(StringParser::IntToString(port)), 
             tcp::resolver::query::numeric_service);
@@ -49,8 +49,8 @@ namespace HM
       boost::system::error_code error = boost::asio::error::host_not_found;
       while (error && endpoint_iterator != end)
       {
-         m_socket.close();
-         m_socket.connect(*endpoint_iterator++, error);
+         socket_.close();
+         socket_.connect(*endpoint_iterator++, error);
       }
       
       if (error)
@@ -80,18 +80,18 @@ namespace HM
          optional<error_code> timer_result; 
 
          // Create the timeout timer.
-         boost::asio::deadline_timer timer(m_ioservice); 
-         timer.expires_from_now(boost::posix_time::seconds(m_timeoutSeconds)); 
+         boost::asio::deadline_timer timer(ioservice_); 
+         timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
          timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
 
          // Start an asynchronous write.
          boost::asio::streambuf readBuffer;
          optional<error_code> write_result; 
-         async_write(m_socket, boost::asio::buffer(buf, bufSize), boost::bind(set_result, &write_result, _1)); 
-         m_ioservice.reset(); 
+         async_write(socket_, boost::asio::buffer(buf, bufSize), boost::bind(set_result, &write_result, _1)); 
+         ioservice_.reset(); 
 
          // Wait for data to be written. 
-         while (m_ioservice.run_one()) 
+         while (ioservice_.run_one()) 
          { 
             if (write_result) 
                timer.cancel(); 
@@ -119,18 +119,18 @@ namespace HM
          optional<error_code> timer_result; 
          
          // Create the timeout timer.
-         boost::asio::deadline_timer timer(m_ioservice); 
-         timer.expires_from_now(boost::posix_time::seconds(m_timeoutSeconds)); 
+         boost::asio::deadline_timer timer(ioservice_); 
+         timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
          timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
 
          // Start an asynchronous read.
          boost::asio::streambuf readBuffer;
          optional<error_code> read_result; 
-         async_read_until(m_socket, readBuffer, delimiter, boost::bind(set_result, &read_result, _1)); 
-         m_ioservice.reset(); 
+         async_read_until(socket_, readBuffer, delimiter, boost::bind(set_result, &read_result, _1)); 
+         ioservice_.reset(); 
 
          // Wait for input. 
-         while (m_ioservice.run_one()) 
+         while (ioservice_.run_one()) 
          { 
             if (read_result) 
                timer.cancel(); 
@@ -156,7 +156,7 @@ namespace HM
    SynchronousConnection::Close()
    {
       boost::system::error_code err;
-      m_socket.close(err);
+      socket_.close(err);
    }
 
 

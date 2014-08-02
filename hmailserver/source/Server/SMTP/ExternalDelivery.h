@@ -43,9 +43,9 @@ namespace HM
       const shared_ptr<Message> _originalMessage;
       const RuleResult &_globalRuleResult;   
 
-      int m_iQuickRetries;      
-      int m_iQuickRetriesMinutes;      
-      int m_iQueueRandomnessMinutes;
-      int m_iMXTriesFactor; 
+      int quick_retries_;      
+      int quick_retries_Minutes;      
+      int queue_randomness_minutes_;
+      int mxtries_factor_; 
    };
 }

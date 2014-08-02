@@ -47,8 +47,8 @@ namespace HM
       void SetFlagRecentOnMessages(bool bRecent);
       void AddItem(shared_ptr<Message> pObject);
 
-      __int64 GetAccountID() {return m_iAccountID; }
-      __int64 GetFolderID() {return m_iFolderID; }
+      __int64 GetAccountID() {return account_id_; }
+      __int64 GetFolderID() {return folder_id_; }
 
    protected:
       virtual String GetCollectionName() const {return "Messages"; }
@@ -57,7 +57,7 @@ namespace HM
 
       unsigned int _lastRefreshedUID;
 
-      __int64 m_iAccountID;
-      __int64 m_iFolderID;
+      __int64 account_id_;
+      __int64 folder_id_;
    };
 }

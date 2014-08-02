@@ -18,7 +18,7 @@
 namespace HM
 {
    GroupMembers::GroupMembers(__int64 iGroupID) :
-      m_iGroupID(iGroupID)
+      group_id_(iGroupID)
    {
 
    }
@@ -35,7 +35,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_group_members where membergroupid = %I64d order by memberid asc"), m_iGroupID);
+      sSQL.Format(_T("select * from hm_group_members where membergroupid = %I64d order by memberid asc"), group_id_);
 
       _DBLoad(sSQL);      
    }
@@ -81,7 +81,7 @@ namespace HM
          return false;
       }
 
-      pGroupMember->SetGroupID(m_iGroupID);
+      pGroupMember->SetGroupID(group_id_);
       pGroupMember->SetAccountID(pAccount->GetID());
 
       return true;

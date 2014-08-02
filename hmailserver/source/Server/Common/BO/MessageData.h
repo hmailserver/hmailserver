@@ -74,8 +74,8 @@ namespace HM
 
       shared_ptr<Message> GetMessage() {return message_; }
    
-      bool GetEncodeFields() {return m_bEncodeFields; }
-      void SetEncodeFields(bool bNewVal) {m_bEncodeFields = bNewVal; }
+      bool GetEncodeFields() {return encode_fields_; }
+      void SetEncodeFields(bool bNewVal) {encode_fields_ = bNewVal; }
 
       void GenerateMessageID();
 
@@ -100,7 +100,7 @@ namespace HM
 
       String _messageFileName;
 
-      bool m_bEncodeFields;
+      bool encode_fields_;
       bool _unfoldWithSpace;
    };
 

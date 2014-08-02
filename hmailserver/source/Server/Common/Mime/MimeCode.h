@@ -57,9 +57,9 @@ namespace HM
    public:
 	   // global options
 	   static void SetAutoFolding(bool bAutoFolding=true);
-	   static bool AutoFolding() { return m_bAutoFolding; }
-	   static void SetGlobalCharset(const char* pszCharset) { m_strCharset = pszCharset; }
-	   static const char* GetGlobalCharset() { return m_strCharset.c_str(); }
+	   static bool AutoFolding() { return auto_folding_; }
+	   static void SetGlobalCharset(const char* pszCharset) { charset_ = pszCharset; }
+	   static const char* GetGlobalCharset() { return charset_.c_str(); }
 
 	   // Content-Transfer-Encoding coder management
 	   typedef MimeCodeBase* (*CODER_FACTORY)();
@@ -77,19 +77,19 @@ namespace HM
 	   static shared_ptr<MimeBody> CreateBodyPart(const char* pszMediaType);
 
    private:
-	   static bool m_bAutoFolding;
-	   static string m_strCharset;
+	   static bool auto_folding_;
+	   static string charset_;
 
 	   typedef pair<const char*, CODER_FACTORY> CODER_PAIR;
-	   static list<CODER_PAIR> m_listCoders;
+	   static list<CODER_PAIR> coders_;
 
 	   typedef pair<const char*, FIELD_CODER_FACTORY> FIELD_CODER_PAIR;
-	   static list<FIELD_CODER_PAIR> m_listFieldCoders;
+	   static list<FIELD_CODER_PAIR> field_coders_;
 
 	   typedef pair<const char*, BODY_PART_FACTORY> MEDIA_TYPE_PAIR;
-	   static list<MEDIA_TYPE_PAIR> m_listMediaTypes;
+	   static list<MEDIA_TYPE_PAIR> media_types_;
 
-	   static MimeEnvironment m_globalMgr;
+	   static MimeEnvironment mgr_;
    };
 
    #define DECLARE_MIMECODER(class_name) \
@@ -128,27 +128,27 @@ namespace HM
    public:
 	   MimeCodeBase() :
 		   input_(NULL),
-		   m_nInputSize(0),
-		   m_bIsEncoding(false) {}
+		   input_size_(0),
+		   is_encoding_(false) {}
 
    public:
 	   void SetInput(const char* pbInput, int nInputSize, bool bEncoding)
 	   {
 		   input_ = (const unsigned char*) pbInput;
-		   m_nInputSize = nInputSize;
-		   m_bIsEncoding = bEncoding;
+		   input_size_ = nInputSize;
+		   is_encoding_ = bEncoding;
 	   }
 
       void GetOutput(AnsiString &output)
 	   {
-		   return m_bIsEncoding ? Encode(output) : Decode(output);
+		   return is_encoding_ ? Encode(output) : Decode(output);
 	   }
 
    protected:
 	   // overrides
 	   virtual void Encode(AnsiString &output) const
 	   {
-         output.append((char*) input_, m_nInputSize+1);
+         output.append((char*) input_, input_size_+1);
 	   }
 	   virtual void Decode(AnsiString & output)
 	   {
@@ -157,8 +157,8 @@ namespace HM
 
    protected:
 	   const unsigned char* input_;
-	   int m_nInputSize;
-	   bool m_bIsEncoding;
+	   int input_size_;
+	   bool is_encoding_;
    };
 
    //////////////////////////////////////////////////////////////////////
@@ -179,21 +179,21 @@ namespace HM
    {
    public:
 	   MimeCodeQP() :
-		   m_bQuoteLineBreak(false),
-         m_bAddLineBreak(false) {}
+		   quote_line_break_(false),
+         add_line_break_(false) {}
 
    public:
 	   DECLARE_MIMECODER(MimeCodeQP)
-	   void QuoteLineBreak(bool bQuote=true) { m_bQuoteLineBreak = bQuote; }
+	   void QuoteLineBreak(bool bQuote=true) { quote_line_break_ = bQuote; }
 
-      void AddLineBreak(bool bNewVal) {m_bAddLineBreak = bNewVal; }
+      void AddLineBreak(bool bNewVal) {add_line_break_ = bNewVal; }
    protected:
 	   virtual void Encode(AnsiString &output) const;
 	   virtual void Decode(AnsiString &output);
 
    private:
-	   bool m_bQuoteLineBreak;
-	   bool m_bAddLineBreak;
+	   bool quote_line_break_;
+	   bool add_line_break_;
    };
 
    //////////////////////////////////////////////////////////////////////
@@ -213,18 +213,18 @@ namespace HM
    {
    public:
 	   MimeCodeBase64() :
-		   m_bAddLineBreak(true) {}
+		   add_line_break_(true) {}
 
    public:
 	   DECLARE_MIMECODER(MimeCodeBase64)
-	   void AddLineBreak(bool bAdd=true) { m_bAddLineBreak = bAdd; }
+	   void AddLineBreak(bool bAdd=true) { add_line_break_ = bAdd; }
 
    protected:
 	   virtual void Encode(AnsiString &result) const;
 	   virtual void Decode(AnsiString &result);
 
    private:
-	   bool m_bAddLineBreak;
+	   bool add_line_break_;
 
    private:
 	   static inline int DecodeBase64Char(unsigned int nCode)
@@ -250,23 +250,23 @@ namespace HM
    {
    public:
 	   MimeEncodedWord() :
-		   m_nEncoding(0) {}
+		   encoding_(0) {}
 
 	   void SetEncoding(int nEncoding, const char* pszCharset)
 	   {
-		   m_nEncoding = nEncoding;
-		   m_strCharset = pszCharset;
+		   encoding_ = nEncoding;
+		   charset_ = pszCharset;
 	   }
-	   int GetEncoding() const { return m_nEncoding; }
-	   const char* GetCharset() const { return m_strCharset.c_str(); }
+	   int GetEncoding() const { return encoding_; }
+	   const char* GetCharset() const { return charset_.c_str(); }
 
    protected:
 	   virtual void Encode(AnsiString &output) const;
 	   virtual void Decode(AnsiString &output);
 
    private:
-	   int m_nEncoding;
-	   AnsiString m_strCharset;
+	   int encoding_;
+	   AnsiString charset_;
 
 	   void BEncode(AnsiString &output) const;
 	   void QEncode(AnsiString &utput) const;
@@ -279,11 +279,11 @@ namespace HM
    class FieldCodeBase : public MimeCodeBase
    {
    public:
-	   void SetCharset(const char* pszCharset) { m_strCharset = pszCharset; }
-	   const char* GetCharset() const { return m_strCharset.c_str(); }
+	   void SetCharset(const char* pszCharset) { charset_ = pszCharset; }
+	   const char* GetCharset() const { return charset_.c_str(); }
 
    protected:
-	   string m_strCharset;
+	   string charset_;
 
 	   virtual bool IsFoldingChar(char ch) const { return false; }
 	   virtual int GetDelimeter() const { return 0; }

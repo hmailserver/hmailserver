@@ -21,10 +21,10 @@
 namespace HM
 {
    Rule::Rule(void) :
-      m_bActive(true),
-      m_iAccountID(0),
-      m_bUseAND(true),
-      m_iSortOrder(0)
+      active_(true),
+      account_id_(0),
+      use_and_(true),
+      sort_order_(0)
    {
 
    }
@@ -39,7 +39,7 @@ namespace HM
    {
       if (!criterias_)
       {
-         criterias_ = shared_ptr<RuleCriterias>(new RuleCriterias(m_iID));
+         criterias_ = shared_ptr<RuleCriterias>(new RuleCriterias(id_));
          criterias_->Refresh();
       }
 
@@ -51,7 +51,7 @@ namespace HM
    {
       if (!actions_)
       {
-         actions_ = shared_ptr<RuleActions>(new RuleActions(m_iID));
+         actions_ = shared_ptr<RuleActions>(new RuleActions(id_));
          actions_->Refresh();
       }
 
@@ -63,10 +63,10 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Rule"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
-      pNode->AppendAttr(_T("Active"), m_bActive ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseAND"), m_bUseAND ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("SortOrder"), StringParser::IntToString(m_iSortOrder));
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("Active"), active_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("UseAND"), use_and_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("SortOrder"), StringParser::IntToString(sort_order_));
    
       GetCriterias()->XMLStore(pNode, iOptions);
       GetActions()->XMLStore(pNode, iOptions);
@@ -77,10 +77,10 @@ namespace HM
    bool
    Rule::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sName = pNode->GetAttrValue(_T("Name"));
-      m_bActive = (pNode->GetAttrValue(_T("Active")) == _T("1"));
-      m_bUseAND = (pNode->GetAttrValue(_T("UseAND")) == _T("1"));
-      m_iSortOrder = _ttoi(pNode->GetAttrValue(_T("SortOrder")));
+      name_ = pNode->GetAttrValue(_T("Name"));
+      active_ = (pNode->GetAttrValue(_T("Active")) == _T("1"));
+      use_and_ = (pNode->GetAttrValue(_T("UseAND")) == _T("1"));
+      sort_order_ = _ttoi(pNode->GetAttrValue(_T("SortOrder")));
 
       return true;
    }

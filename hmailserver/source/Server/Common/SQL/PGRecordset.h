@@ -39,9 +39,9 @@ namespace HM
       bool _Close();
 
       PGresult *result_;
-      // PG_ROW m_rowCurrent;
+      // PG_ROW current_;
 
-      unsigned int m_iCurRowNum;
-      unsigned int m_iRowCount;
+      unsigned int cur_row_num_;
+      unsigned int row_count_;
    };
 }

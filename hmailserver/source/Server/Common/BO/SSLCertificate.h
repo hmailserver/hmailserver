@@ -11,14 +11,14 @@ namespace HM
       SSLCertificate(void);
       ~SSLCertificate(void);
 
-      String GetName() const {return m_sName; }
-      void SetName(const String &sName) {m_sName = sName; }
+      String GetName() const {return name_; }
+      void SetName(const String &sName) {name_ = sName; }
 
-      String GetCertificateFile() const {return m_sCertificateFile; }
-      void SetCertificateFile(const String &sName) {m_sCertificateFile = sName; }
+      String GetCertificateFile() const {return certificate_file_; }
+      void SetCertificateFile(const String &sName) {certificate_file_ = sName; }
 
-      String GetPrivateKeyFile() const {return m_sPrivateKeyFile; }
-      void SetPrivateKeyFile(const String &sName) {m_sPrivateKeyFile = sName; }
+      String GetPrivateKeyFile() const {return private_key_file_; }
+      void SetPrivateKeyFile(const String &sName) {private_key_file_ = sName; }
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -26,9 +26,9 @@ namespace HM
 
    private:
 
-      String m_sName;
-      String m_sCertificateFile;
-      String m_sPrivateKeyFile;
+      String name_;
+      String certificate_file_;
+      String private_key_file_;
 
       
    };

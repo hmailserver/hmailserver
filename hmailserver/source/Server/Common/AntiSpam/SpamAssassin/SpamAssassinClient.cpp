@@ -24,16 +24,16 @@ namespace HM
                                           String &message,
                                           bool &testCompleted) :
                AnsiStringConnection(CSNone, io_service, context, disconnected),
-               m_sMessage(message),
-               m_TestCompleted(testCompleted)
+               message_(message),
+               test_completed_(testCompleted)
 
    {
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSAMinTimeout(), IniFileSettings::Instance()->GetSAMaxTimeout()));
       
-      m_sMessageFile = sFile;
-	   m_iSpamDSize = -1;
-	   m_iMessageSize = -1;
+      message_file_ = sFile;
+	   spam_dsize_ = -1;
+	   message_size_ = -1;
    }
 
 
@@ -47,17 +47,17 @@ namespace HM
    {
       // We'll handle all incoming data as binary.
       SetReceiveBinary(true);
-      m_iMessageSize = FileUtilities::FileSize(m_sMessageFile);
+      message_size_ = FileUtilities::FileSize(message_file_);
       SendData("PROCESS SPAMC/1.2\r\n");
 	  //LOG_DEBUG("SENT: PROCESS SPAMC/1.2");
 	  String sConLen;
-	  sConLen.Format(_T("Content-length: %d\r\n"), m_iMessageSize);
+	  sConLen.Format(_T("Content-length: %d\r\n"), message_size_);
 	  SendData(sConLen);
-	  /*sConLen.Format(_T("Sent: Content-length: %d"), m_iMessageSize);
+	  /*sConLen.Format(_T("Sent: Content-length: %d"), message_size_);
 	  LOG_DEBUG(sConLen);*/
 	  //Future feature, per user scanning. SendData("User: " ); // send the current recipient.
 	  SendData("\r\n");
-     SendFileContents_(m_sMessageFile);
+     SendFileContents_(message_file_);
    }
 
    AnsiString 
@@ -132,13 +132,13 @@ namespace HM
       // Copy back the file...
       if (FinishTesting())
       {
-         m_sMessage = FileUtilities::ReadCompleteTextFile(m_sMessageFile);
-         FileUtilities::DeleteFile(m_sMessageFile);
+         message_ = FileUtilities::ReadCompleteTextFile(message_file_);
+         FileUtilities::DeleteFile(message_file_);
       }
       else
       {
-         m_sMessage = "Unable to connect to the specified SpamAssassin server.";
-         FileUtilities::DeleteFile(m_sMessageFile);
+         message_ = "Unable to connect to the specified SpamAssassin server.";
+         FileUtilities::DeleteFile(message_file_);
       }
    }
 
@@ -154,7 +154,7 @@ namespace HM
          result_ = shared_ptr<File>(new File);
          result_->Open(FileUtilities::GetTempFileName(), File::OTAppend);
 
-         m_iSpamDSize = ParseFirstBuffer_(pBuf);
+         spam_dsize_ = ParseFirstBuffer_(pBuf);
       }
 
       // Append output to the file
@@ -178,24 +178,24 @@ namespace HM
       String sTempFile = result_->GetName();
 	  
       // new way: check the result from spamd.
-      if (bTestsRun && (FileUtilities::FileSize(sTempFile) == m_iSpamDSize))
+      if (bTestsRun && (FileUtilities::FileSize(sTempFile) == spam_dsize_))
       {
          if (IniFileSettings::Instance()->GetSAMoveVsCopy())
          {
             // Move temp file overwriting message file
-            FileUtilities::Move(sTempFile, m_sMessageFile, true);
+            FileUtilities::Move(sTempFile, message_file_, true);
             LOG_DEBUG("SA - Move used");
          }
          else
          {
             // Copy temp file to message file
-            FileUtilities::Copy(sTempFile, m_sMessageFile, false);
+            FileUtilities::Copy(sTempFile, message_file_, false);
             FileUtilities::DeleteFile(sTempFile);
             LOG_DEBUG("SA - Copy+Delete used");
          }
 	  } else {
 		 String logMessage;
-		 logMessage.Format(_T("SA: Temp file size did not match what Spamd reported! (temp: %d, spamd: %d). Reverting to original message file."),FileUtilities::FileSize(sTempFile),m_iSpamDSize);
+		 logMessage.Format(_T("SA: Temp file size did not match what Spamd reported! (temp: %d, spamd: %d). Reverting to original message file."),FileUtilities::FileSize(sTempFile),spam_dsize_);
          LOG_DEBUG(logMessage);
 	  }
 

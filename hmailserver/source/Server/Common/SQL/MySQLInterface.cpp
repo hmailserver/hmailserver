@@ -14,7 +14,7 @@ namespace HM
 {
 
    MySQLInterface::MySQLInterface() :
-      m_hLibraryInstance(0),
+      library_instance_(0),
       p_mysql_real_connect(0),
       p_mysql_close(0),
       p_mysql_init(0),
@@ -35,9 +35,9 @@ namespace HM
 
    MySQLInterface::~MySQLInterface()
    {
-      if (m_hLibraryInstance)
+      if (library_instance_)
       {
-         FreeLibrary(m_hLibraryInstance);
+         FreeLibrary(library_instance_);
       }
    }
 
@@ -63,9 +63,9 @@ namespace HM
    MySQLInterface::Load(String &sErrorMessage)
    {
       String sLibrary = _GetLibraryFileName();
-      m_hLibraryInstance = LoadLibrary(sLibrary);
+      library_instance_ = LoadLibrary(sLibrary);
 
-      if (!m_hLibraryInstance)
+      if (!library_instance_)
       {
          sErrorMessage = "Error:\r\n" 
                          "The MySQL client (libmysql.dll, 32 bit) could not be loaded.\r\n" 
@@ -78,20 +78,20 @@ namespace HM
          return false;
       }
 
-      p_mysql_real_connect = (hm_mysql_real_connect*)GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_real_connect" );
-      p_mysql_close = (hm_mysql_close*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_close" );
-      p_mysql_init = (hm_mysql_init*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_init" );
-      p_mysql_error = (hm_mysql_error*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_error" );
-      p_mysql_query = (hm_mysql_query*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_query" );
-      p_mysql_store_result = (hm_mysql_store_result*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_store_result" );
-      p_mysql_free_result = (hm_mysql_free_result*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_free_result" );
-      p_mysql_insert_id = (hm_mysql_insert_id*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_insert_id" );
-      p_mysql_errno = (hm_mysql_errno*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_errno" );
-      p_mysql_num_rows = (hm_mysql_num_rows*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_num_rows" );
-      p_mysql_fetch_row = (hm_mysql_fetch_row*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_fetch_row" );
-      p_mysql_num_fields = (hm_mysql_num_fields*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_num_fields" );
-      p_mysql_fetch_field_direct = (hm_mysql_fetch_field_direct*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_fetch_field_direct" );
-      p_mysql_get_server_version = (hm_mysql_get_server_version*) GetProcAddress( (HMODULE)m_hLibraryInstance, "mysql_get_server_version" );
+      p_mysql_real_connect = (hm_mysql_real_connect*)GetProcAddress( (HMODULE)library_instance_, "mysql_real_connect" );
+      p_mysql_close = (hm_mysql_close*) GetProcAddress( (HMODULE)library_instance_, "mysql_close" );
+      p_mysql_init = (hm_mysql_init*) GetProcAddress( (HMODULE)library_instance_, "mysql_init" );
+      p_mysql_error = (hm_mysql_error*) GetProcAddress( (HMODULE)library_instance_, "mysql_error" );
+      p_mysql_query = (hm_mysql_query*) GetProcAddress( (HMODULE)library_instance_, "mysql_query" );
+      p_mysql_store_result = (hm_mysql_store_result*) GetProcAddress( (HMODULE)library_instance_, "mysql_store_result" );
+      p_mysql_free_result = (hm_mysql_free_result*) GetProcAddress( (HMODULE)library_instance_, "mysql_free_result" );
+      p_mysql_insert_id = (hm_mysql_insert_id*) GetProcAddress( (HMODULE)library_instance_, "mysql_insert_id" );
+      p_mysql_errno = (hm_mysql_errno*) GetProcAddress( (HMODULE)library_instance_, "mysql_errno" );
+      p_mysql_num_rows = (hm_mysql_num_rows*) GetProcAddress( (HMODULE)library_instance_, "mysql_num_rows" );
+      p_mysql_fetch_row = (hm_mysql_fetch_row*) GetProcAddress( (HMODULE)library_instance_, "mysql_fetch_row" );
+      p_mysql_num_fields = (hm_mysql_num_fields*) GetProcAddress( (HMODULE)library_instance_, "mysql_num_fields" );
+      p_mysql_fetch_field_direct = (hm_mysql_fetch_field_direct*) GetProcAddress( (HMODULE)library_instance_, "mysql_fetch_field_direct" );
+      p_mysql_get_server_version = (hm_mysql_get_server_version*) GetProcAddress( (HMODULE)library_instance_, "mysql_get_server_version" );
 
       return true;
    }
@@ -99,7 +99,7 @@ namespace HM
    bool
    MySQLInterface::IsLoaded()
    {
-      if (m_hLibraryInstance > 0)
+      if (library_instance_ > 0)
          return true;
       else
          return false;

@@ -58,36 +58,36 @@ namespace HM
       };
 
       IMAPSearchCriteria() : 
-         m_lUIDLower(-1),
-         m_lUIDUpper(-1),
-         m_bPositive(true),
-         m_bIsOr(false),
-         m_Type(CTUnknown) {};
+         uidlower_(-1),
+         uidupper_(-1),
+         positive_(true),
+         is_or_(false),
+         type_(CTUnknown) {};
 
-      long GetUIDLower() {return m_lUIDLower; }
-      void SetUIDLower(long lNewVal) {m_lUIDLower = lNewVal; }
+      long GetUIDLower() {return uidlower_; }
+      void SetUIDLower(long lNewVal) {uidlower_ = lNewVal; }
 
-      long GetUIDUpper() {return m_lUIDUpper; }
-      void SetUIDUpper(long lNewVal) {m_lUIDUpper = lNewVal; }
+      long GetUIDUpper() {return uidupper_; }
+      void SetUIDUpper(long lNewVal) {uidupper_ = lNewVal; }
 
-      String GetText() {return m_sText; }
-      void SetText(const String &sText) {m_sText = sText; }
+      String GetText() {return text_; }
+      void SetText(const String &sText) {text_ = sText; }
 
-      bool GetPositive() {return m_bPositive; }
-      void SetPositive(bool bNewVal) {m_bPositive = bNewVal; }
+      bool GetPositive() {return positive_; }
+      void SetPositive(bool bNewVal) {positive_ = bNewVal; }
 
-      bool GetIsOR() {return m_bIsOr; }
-      void SetIsOR(bool bNewVal) {m_bIsOr = bNewVal; }
+      bool GetIsOR() {return is_or_; }
+      void SetIsOR(bool bNewVal) {is_or_ = bNewVal; }
 
-      void SetHeaderField(const String &sField) {m_sHeaderField = sField;}
-      String GetHeaderField() {return m_sHeaderField;}
+      void SetHeaderField(const String &sField) {header_field_ = sField;}
+      String GetHeaderField() {return header_field_;}
 
-      CriteriaType GetType() {return m_Type;}
-      void SetType(CriteriaType newVal) {m_Type = newVal; }
+      CriteriaType GetType() {return type_;}
+      void SetType(CriteriaType newVal) {type_ = newVal; }
 
       static CriteriaType GetCriteriaTypeByName(const String &sName);
 
-      vector<shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return m_vecSubCriterias;}
+      vector<shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return sub_criterias_;}
 
       void SetSequenceSet(vector<String> newVal) {_sequenceSet = newVal;}
       vector<String> &GetSequenceSet() {return _sequenceSet;}
@@ -96,17 +96,17 @@ namespace HM
 
       static bool _IsSequenceSet(const String &item);
 
-      long m_lUIDLower;
-      long m_lUIDUpper;
-      String m_sText;
-      bool m_bPositive;
-      CriteriaType m_Type;
+      long uidlower_;
+      long uidupper_;
+      String text_;
+      bool positive_;
+      CriteriaType type_;
 
-      String m_sHeaderField;
-      vector<shared_ptr<IMAPSearchCriteria> > m_vecSubCriterias;
+      String header_field_;
+      vector<shared_ptr<IMAPSearchCriteria> > sub_criterias_;
       vector<String> _sequenceSet;
 
-      bool m_bIsOr;
+      bool is_or_;
    };
 
 

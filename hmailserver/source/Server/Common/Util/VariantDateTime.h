@@ -48,11 +48,11 @@ namespace HM
              null = 2,       // Literally has no value
        };
     
-       DATE m_dt;
-       DateTimeStatus m_status;
+       DATE dt_;
+       DateTimeStatus status_;
     
-       void SetStatus(DateTimeStatus status) { m_status=status;}
-       DateTimeStatus GetStatus() const { return m_status;}
+       void SetStatus(DateTimeStatus status) { status_=status;}
+       DateTimeStatus GetStatus() const { return status_;}
     
        int GetYear() const;
        int GetMonth() const;       // month of year (1 = Jan)
@@ -127,11 +127,11 @@ namespace HM
          null = 2,       // Literally has no value
       };
 
-      double m_span;
-      DateTimeSpanStatus m_status;
+      double span_;
+      DateTimeSpanStatus status_;
 
-      void SetStatus(DateTimeSpanStatus status) { m_status=status;}
-      DateTimeSpanStatus GetStatus() const { return m_status;}
+      void SetStatus(DateTimeSpanStatus status) { status_=status;}
+      DateTimeSpanStatus GetStatus() const { return status_;}
 
 
       double GetNumberOfDays() const;

@@ -19,7 +19,7 @@ namespace HM
 
    private:
 
-      bool m_bDoBackup;
+      bool do_backup_;
       
       shared_ptr<Backup> backup_;
    };

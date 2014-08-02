@@ -38,9 +38,9 @@ namespace HM
 
    private:
 
-      static String m_sCachedWin32ComputerName;
+      static String cached_win_32computer_name_;
 
-      static String m_sCachedWin32TempDir;
+      static String cached_win_32temp_dir_;
    };
 
    class UtilitiesTester

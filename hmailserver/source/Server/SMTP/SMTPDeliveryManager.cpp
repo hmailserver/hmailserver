@@ -30,18 +30,18 @@ namespace HM
 {
    SMTPDeliveryManager::SMTPDeliveryManager() :
       Task("SMTPDeliveryManager"),
-      m_sQueueName("SMTP delivery queue"),
-      m_bUncachePendingMessages(false)
+      queue_name_("SMTP delivery queue"),
+      uncache_pending_messages_(false)
    {
-      m_lCurNumberOfSent = 0;
+      cur_number_of_sent_ = 0;
 
       int iMaxNumberOfThreads = Configuration::Instance()->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, m_sQueueName);
+      queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, queue_name_);
    }  
 
    SMTPDeliveryManager::~SMTPDeliveryManager()
    {
-      WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
+      WorkQueueManager::Instance()->RemoveQueue(queue_name_);
    }
 
    void 
@@ -57,7 +57,7 @@ namespace HM
    // Return the name of the delivery queue.
    //---------------------------------------------------------------------------
    {
-      return m_sQueueName;
+      return queue_name_;
    }
 
    void
@@ -93,9 +93,9 @@ namespace HM
             }
 
             shared_ptr<DeliveryTask> pDeliveryTask = shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
-            WorkQueueManager::Instance()->AddTask(m_iQueueID, pDeliveryTask);
+            WorkQueueManager::Instance()->AddTask(queue_id_, pDeliveryTask);
             
-            m_lCurNumberOfSent++;
+            cur_number_of_sent_++;
 
             _SendStatistics();
 
@@ -116,22 +116,22 @@ namespace HM
    // Sends statistics to hMailServer.com
    //---------------------------------------------------------------------------
    {
-      if (m_lCurNumberOfSent > 1000 || (bIgnoreMessageCount && m_lCurNumberOfSent > 5))
+      if (cur_number_of_sent_ > 1000 || (bIgnoreMessageCount && cur_number_of_sent_ > 5))
       {
          if (Configuration::Instance()->GetSendStatistics())
          {
             // Send statistics to server.
             StatisticsSender Sender;
             
-            Sender.SendStatistics(m_lCurNumberOfSent);
+            Sender.SendStatistics(cur_number_of_sent_);
 
             // Always reset the number. If the statistics sender can't connect
             // to hMailServer for some reason, we should not try immediately again
             // and instead just give up.
-            m_lCurNumberOfSent = 0;
+            cur_number_of_sent_ = 0;
          }
          else
-            m_lCurNumberOfSent = 0;
+            cur_number_of_sent_ = 0;
       }
 
    }
@@ -165,9 +165,9 @@ namespace HM
    // 0 is returned if no messages exists.
    //---------------------------------------------------------------------------()
    {
-      if (!pending_messages_ || pending_messages_->IsEOF() || m_bUncachePendingMessages)
+      if (!pending_messages_ || pending_messages_->IsEOF() || uncache_pending_messages_)
       {
-         m_bUncachePendingMessages = false;
+         uncache_pending_messages_ = false;
 
          _LoadPendingMessageList();
       }
@@ -205,7 +205,7 @@ namespace HM
    // normally only required if the delivery queue should be clear
    //---------------------------------------------------------------------------
    {
-      m_bUncachePendingMessages = true;
+      uncache_pending_messages_ = true;
    }
 
    void

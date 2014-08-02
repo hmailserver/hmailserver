@@ -16,8 +16,8 @@ namespace HM
 
 
    Messages::Messages(__int64 iAccountID, __int64 iFolderID) :
-      m_iAccountID(iAccountID),
-      m_iFolderID(iFolderID),
+      account_id_(iAccountID),
+      folder_id_(iFolderID),
       _lastRefreshedUID(0)
    {
 
@@ -218,7 +218,7 @@ namespace HM
 
 	  // int startTime = GetTickCount();
 
-      bool retrieveQueue = m_iAccountID == -1;
+      bool retrieveQueue = account_id_ == -1;
 
       if (retrieveQueue && _lastRefreshedUID > 0)
       {
@@ -245,14 +245,14 @@ namespace HM
       {
          // Messages connected to a specific account
          sSQL += _T(" messageaccountid = @MESSAGEACCOUNTID ");
-         command.AddParameter("@MESSAGEACCOUNTID", m_iAccountID); 
+         command.AddParameter("@MESSAGEACCOUNTID", account_id_); 
       }
   
       // Should we fetch a specific folder?
-      if (m_iFolderID != -1)
+      if (folder_id_ != -1)
       {
          sSQL.AppendFormat(_T(" and messagefolderid = @MESSAGEFOLDERID "));
-         command.AddParameter("@MESSAGEFOLDERID", m_iFolderID); 
+         command.AddParameter("@MESSAGEFOLDERID", folder_id_); 
       }
 
       // Should we do an incremental refresh?
@@ -279,19 +279,19 @@ namespace HM
       // Do this before we actually read the messages, so that we does not
       // mark any unread message as recent. If we haven't actually read
       // any messages, there's nothing to mark as read...
-      if (m_iAccountID != -1 && !pRS->IsEOF())
+      if (account_id_ != -1 && !pRS->IsEOF())
       {
          // Mark all messages as recent
          String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID ";
          
          SQLCommand updateCommand;
          updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
-         updateCommand.AddParameter("@ACCOUNTID", m_iAccountID);
+         updateCommand.AddParameter("@ACCOUNTID", account_id_);
 
-         if (m_iFolderID > 0)
+         if (folder_id_ > 0)
          {
-            sql.AppendFormat(_T(" and messagefolderid = @FOLDERID "), m_iFolderID);
-            updateCommand.AddParameter("@FOLDERID", m_iFolderID);
+            sql.AppendFormat(_T(" and messagefolderid = @FOLDERID "), folder_id_);
+            updateCommand.AddParameter("@FOLDERID", folder_id_);
          }
 
          updateCommand.SetQueryString(sql);
@@ -386,8 +386,8 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      pMessage->SetAccountID(m_iAccountID);
-      pMessage->SetFolderID(m_iFolderID);
+      pMessage->SetAccountID(account_id_);
+      pMessage->SetFolderID(folder_id_);
       return true;
    }
 

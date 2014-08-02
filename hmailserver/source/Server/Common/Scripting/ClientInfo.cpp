@@ -12,7 +12,7 @@
 namespace HM
 {
    ClientInfo::ClientInfo() :
-      m_lPort(0)
+      port_(0)
    {
 
    }

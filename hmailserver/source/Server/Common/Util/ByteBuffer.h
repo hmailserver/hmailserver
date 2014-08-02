@@ -11,10 +11,10 @@ namespace HM
 	   ByteBuffer();
 	   virtual ~ByteBuffer();
 
-      bool IsEmpty() const {return m_lBufferSize == 0; }
+      bool IsEmpty() const {return buffer_size_ == 0; }
       // Returns true if the buffer is empty.
 
-      long GetSize() const {return m_lBufferSize; }
+      long GetSize() const {return buffer_size_; }
       // Returns the size of the buffer.
       
       void Empty();
@@ -41,7 +41,7 @@ namespace HM
    private:
 
       BYTE *buffer_;
-      long m_lBufferSize;
+      long buffer_size_;
    };
 
 }

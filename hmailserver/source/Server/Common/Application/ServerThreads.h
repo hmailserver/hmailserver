@@ -26,11 +26,11 @@ namespace HM
 
    private:
 	   
-      std::set<shared_ptr<ThreadIdentifier> > m_vecCurrentConnections;
+      std::set<shared_ptr<ThreadIdentifier> > current_connections_;
 
-      CriticalSection m_oCritSec;
+      CriticalSection crit_sec_;
 
-      bool m_bIsExitingAll;
+      bool is_exiting_all_;
       
    };
 
