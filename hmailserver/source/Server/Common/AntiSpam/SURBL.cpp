@@ -45,22 +45,22 @@ namespace HM
 
       while (true)
       {
-         iCurPos = _GetURLStart(sBody, iCurPos);
+         iCurPos = GetURLStart_(sBody, iCurPos);
 
          if (iCurPos < 0 )
             break;
 
          // Start of URL
-         int iURLEnd = _GetURLEndPos(sBody, iCurPos);
+         int iURLEnd = GetURLEndPos_(sBody, iCurPos);
          int iURLLength = iURLEnd - iCurPos ;
 
          String sURL = sBody.Mid(iCurPos, iURLLength);
 
          // Clean the URL from linefeeds
-         _CleanURL(sURL);
+         CleanURL_(sURL);
 
          // Trim away top domain
-         if (!_CleanHost(sURL))
+         if (!CleanHost_(sURL))
             continue;
 
 			if (addresses.find(sURL) == addresses.end())
@@ -133,7 +133,7 @@ namespace HM
    }
 
    int 
-   SURBL::_GetURLEndPos(const String &sBody, int iURLStart)
+   SURBL::GetURLEndPos_(const String &sBody, int iURLStart)
    {
       for (int i = iURLStart; i < sBody.GetLength(); i++)
       {
@@ -163,7 +163,7 @@ namespace HM
    }
 
    int 
-   SURBL::_GetURLStart(const String &sBody, int iCurrentPos)
+   SURBL::GetURLStart_(const String &sBody, int iCurrentPos)
    {
       int iHttpStart = sBody.Find(_T("http://"), iCurrentPos+1);
       int iHttpsStart = sBody.Find(_T("https://"), iCurrentPos+1);
@@ -191,7 +191,7 @@ namespace HM
    }
 
    void
-   SURBL::_CleanURL(String &url) const
+   SURBL::CleanURL_(String &url) const
    {
       url.Replace(_T("=\r\n"), _T(""));
       // We need to replace them individually as well just in case..
@@ -201,7 +201,7 @@ namespace HM
    }
 
    bool
-   SURBL::_CleanHost(String &sDomain) const
+   SURBL::CleanHost_(String &sDomain) const
    {
       bool bIsIPAddress = false;
       return TLD::Instance()->GetDomainNameFromHost(sDomain, bIsIPAddress);

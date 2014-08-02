@@ -36,28 +36,28 @@ namespace HM
          if (paramName == "h")
             paramValue.Replace(" ", "");
          else if (paramName == "i")
-            paramValue = _DKIMQPDecode(paramValue);
+            paramValue = DKIMQPDecode_(paramValue);
          else if (paramName == "b")
             paramValue.Replace(" ", "");
 
-         _parameters[paramName] = paramValue;
+         parameters_[paramName] = paramValue;
       }
    }
 
    bool 
    DKIMParameters::GetIsSet(const AnsiString &paramName) const
    {
-      map<AnsiString, AnsiString>::const_iterator iter = _parameters.find(paramName);
+      map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
 
-      return iter != _parameters.end();
+      return iter != parameters_.end();
    }
 
    AnsiString 
    DKIMParameters::GetValue(const AnsiString &paramName) const
    {
-      map<AnsiString, AnsiString>::const_iterator iter = _parameters.find(paramName);
+      map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
 
-      if (iter == _parameters.end())
+      if (iter == parameters_.end())
          return "";
 
       return (*iter).second;
@@ -66,11 +66,11 @@ namespace HM
    unsigned int
    DKIMParameters::GetParamCount() const
    {
-      return _parameters.size();
+      return parameters_.size();
    }
 
    AnsiString 
-   DKIMParameters::_DKIMQPDecode(AnsiString input) const
+   DKIMParameters::DKIMQPDecode_(AnsiString input) const
    {
       // Whitespace in the encoded text is ignored.
       input.Replace(" ", "");

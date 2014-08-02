@@ -110,17 +110,17 @@ namespace HM
 
       shared_ptr<GreyListingWhiteAddresses> GetGreyListingWhiteAddresses();
       shared_ptr<WhiteListAddresses> GetWhiteListAddresses();
-      shared_ptr<DNSBlackLists> GetDNSBlackLists() {return _dnsBlackLists;}
-      shared_ptr<SURBLServers> GetSURBLServers() {return _surblServers;}
+      shared_ptr<DNSBlackLists> GetDNSBlackLists() {return dnsBlackLists_;}
+      shared_ptr<SURBLServers> GetSURBLServers() {return surblServers_;}
 
    private:
       
-      shared_ptr<PropertySet> _GetSettings();
+      shared_ptr<PropertySet> GetSettings_();
 
       bool m_bGreylistingTemporarilyDisabled;
 
-      shared_ptr<DNSBlackLists> _dnsBlackLists;
-      shared_ptr<SURBLServers> _surblServers;
+      shared_ptr<DNSBlackLists> dnsBlackLists_;
+      shared_ptr<SURBLServers> surblServers_;
 
    };
 }

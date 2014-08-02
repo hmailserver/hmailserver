@@ -21,9 +21,9 @@ namespace HM
 
    private:
 
-      map<AnsiString, AnsiString> _parameters;
+      map<AnsiString, AnsiString> parameters_;
 
-      AnsiString  _DKIMQPDecode(AnsiString input) const;
+      AnsiString  DKIMQPDecode_(AnsiString input) const;
    };
 
 }

@@ -20,7 +20,7 @@
 namespace HM
 {
    AnsiString 
-   Canonicalization::_GetDKIMWithoutSignature(AnsiString value)
+   Canonicalization::GetDKIMWithoutSignature_(AnsiString value)
    {
       // locate the b= tag
       int pos = value.Find("b=");
@@ -161,7 +161,7 @@ namespace HM
          AnsiString relaxedFieldValue = CanonicalizeHeaderValue(signatureField.second);
 
          //and without a trailing CRLF.
-         result += relaxedHeaderName + ":" + _GetDKIMWithoutSignature(relaxedFieldValue);
+         result += relaxedHeaderName + ":" + GetDKIMWithoutSignature_(relaxedFieldValue);
       }
 
       return result;
@@ -316,7 +316,7 @@ namespace HM
          // If there are more than one DKIM-signature fields in the header, this will be important.
          AnsiString headerName = signatureField.first;
 
-         AnsiString headerLine = headerName + ": " + _GetDKIMWithoutSignature(signatureField.second);
+         AnsiString headerLine = headerName + ": " + GetDKIMWithoutSignature_(signatureField.second);
 
          if (headerLine.EndsWith("\r\n"))
             headerLine = headerLine.Mid(0, headerLine.GetLength()-2);

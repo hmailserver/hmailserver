@@ -18,10 +18,10 @@ namespace HM
 
    private:
 
-      void _CleanURL(String &sURL) const;
-      bool _CleanHost(String &sDomain) const;
-      int _GetURLStart(const String &sBody, int iCurrentPos);
-      int _GetURLEndPos(const String &sBody, int iURLStart);
+      void CleanURL_(String &sURL) const;
+      bool CleanHost_(String &sDomain) const;
+      int GetURLStart_(const String &sBody, int iCurrentPos);
+      int GetURLEndPos_(const String &sBody, int iURLStart);
 
       
    };

@@ -25,7 +25,7 @@ namespace HM
 
    private:
 
-      bool _CheckHostInHelo(const String &sHeloHost, const IPAddress &iIPAddress);
+      bool CheckHostInHelo_(const String &sHeloHost, const IPAddress &iIPAddress);
 
    };
 

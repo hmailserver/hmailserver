@@ -22,7 +22,7 @@ namespace HM
 
    private:
 
-      int _ParseSpamAssassinScore(const AnsiString &sHeader);
+      int ParseSpamAssassinScore_(const AnsiString &sHeader);
 
       
 

@@ -37,8 +37,8 @@ namespace HM
 
       String m_sEnvelopeFrom;
 
-      IPAddress _originatingAddress;
-      IPAddress _connectingAddress;
+      IPAddress originatingAddress_;
+      IPAddress connectingAddress_;
       String m_sHeloHost;
 
       shared_ptr<MessageData> m_pMessageData;

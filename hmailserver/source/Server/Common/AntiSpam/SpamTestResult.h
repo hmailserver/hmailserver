@@ -19,17 +19,17 @@ namespace HM
       SpamTestResult(const String &testName, Result result, int iSpamScore, const String &sMessage);
       virtual ~SpamTestResult();
 
-      Result GetResult() {return _result; }
+      Result GetResult() {return result_; }
       int GetSpamScore() {return m_iSpamScore; }
       String GetMessage() {return m_sMessage; }
-      String GetTestName() {return _testName; }
+      String GetTestName() {return testName_; }
 
    private:
 
       int m_iSpamScore;
       String m_sMessage;
-      String _testName;
-      Result _result;
+      String testName_;
+      Result result_;
 
    };
 

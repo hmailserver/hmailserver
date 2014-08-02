@@ -44,7 +44,7 @@ namespace HM
       const IPAddress &iIPAdress = pTestData->GetConnectingIP();
       String sHeloHost = pTestData->GetHeloHost();
 
-      if (!_CheckHostInHelo(sHeloHost, iIPAdress))
+      if (!CheckHostInHelo_(sHeloHost, iIPAdress))
       {
          // Incorrect host in helo
          String sMessage = "The host name specified in HELO does not match IP address.";
@@ -60,7 +60,7 @@ namespace HM
 
 
    bool 
-   SpamTestHeloHost::_CheckHostInHelo(const String &sHeloHost, const IPAddress &address)
+   SpamTestHeloHost::CheckHostInHelo_(const String &sHeloHost, const IPAddress &address)
    {
       String sIPAddress = address.ToString();
 

@@ -14,8 +14,8 @@ namespace HM
    SpamTestResult::SpamTestResult(const String &testName, Result result, int iSpamScore, const String &sMessage) :
       m_iSpamScore(iSpamScore),
       m_sMessage(sMessage),
-      _testName(testName),
-      _result(result)
+      testName_(testName),
+      result_(result)
    {
 
    }

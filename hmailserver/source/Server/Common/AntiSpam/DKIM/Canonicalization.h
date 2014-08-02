@@ -28,7 +28,7 @@ namespace HM
       
    protected:
  
-      AnsiString _GetDKIMWithoutSignature(AnsiString value);
+      AnsiString GetDKIMWithoutSignature_(AnsiString value);
    };
 
    class RelaxedCanonicalization : public Canonicalization

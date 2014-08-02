@@ -57,7 +57,7 @@ namespace HM
 	  LOG_DEBUG(sConLen);*/
 	  //Future feature, per user scanning. SendData("User: " ); // send the current recipient.
 	  SendData("\r\n");
-      _SendFileContents(m_sMessageFile);
+     SendFileContents_(m_sMessageFile);
    }
 
    AnsiString 
@@ -75,7 +75,7 @@ namespace HM
    }
 
    bool
-   SpamAssassinClient::_SendFileContents(const String &sFilename)
+   SpamAssassinClient::SendFileContents_(const String &sFilename)
    {
       String logMessage;
       logMessage.Format(_T("Sending message to SpamAssassin. Session %d, File: %s"), GetSessionID(), sFilename);
@@ -87,7 +87,7 @@ namespace HM
          String sErrorMsg;
          sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5019, "SMTPClientConnection::_SendFileContents", sErrorMsg);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5019, "SMTPClientConnection::SendFileContents_", sErrorMsg);
 
          return false;
       }
@@ -154,7 +154,7 @@ namespace HM
          m_pResult = shared_ptr<File>(new File);
          m_pResult->Open(FileUtilities::GetTempFileName(), File::OTAppend);
 
-         m_iSpamDSize = _ParseFirstBuffer(pBuf);
+         m_iSpamDSize = ParseFirstBuffer_(pBuf);
       }
 
       // Append output to the file
@@ -203,7 +203,7 @@ namespace HM
    }
 
    int
-   SpamAssassinClient::_ParseFirstBuffer(shared_ptr<ByteBuffer> pBuffer) const
+   SpamAssassinClient::ParseFirstBuffer_(shared_ptr<ByteBuffer> pBuffer) const
    {
       // Don't send first line, since it's the Result header.
       char *pHeaderEndPosition = StringParser::Search(pBuffer->GetCharBuffer(), pBuffer->GetSize(), "\r\n\r\n");

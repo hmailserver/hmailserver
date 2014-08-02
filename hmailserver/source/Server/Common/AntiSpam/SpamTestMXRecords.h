@@ -22,7 +22,7 @@ namespace HM
 
    private:
 
-      bool _HasAnyMXRecords(const String &sSenderEMail);
+      bool HasAnyMXRecords_(const String &sSenderEMail);
 
    };
 

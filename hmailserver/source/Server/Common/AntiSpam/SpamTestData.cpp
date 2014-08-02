@@ -48,25 +48,25 @@ namespace HM
    void 
    SpamTestData::SetOriginatingIP(const IPAddress &address)
    {
-      _originatingAddress = address;
+      originatingAddress_ = address;
    }
 
    const IPAddress&
    SpamTestData::GetOriginatingIP() const
    {
-      return _originatingAddress;
+      return originatingAddress_;
    }
 
    void 
    SpamTestData::SetConnectingIP(const IPAddress &iIPAddress)
    {
-      _connectingAddress = iIPAddress;
+      connectingAddress_ = iIPAddress;
    }
 
    const IPAddress&
    SpamTestData::GetConnectingIP() const
    {
-      return _connectingAddress;
+      return connectingAddress_;
    }
 
    void 

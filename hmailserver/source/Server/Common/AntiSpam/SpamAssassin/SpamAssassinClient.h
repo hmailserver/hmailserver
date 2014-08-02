@@ -39,8 +39,8 @@ namespace HM
 
    private:
 
-      int _ParseFirstBuffer(shared_ptr<ByteBuffer> pBuffer) const;
-      bool _SendFileContents(const String &sFilename);
+      int ParseFirstBuffer_(shared_ptr<ByteBuffer> pBuffer) const;
+      bool SendFileContents_(const String &sFilename);
 
       String m_sCommandBuffer;
 

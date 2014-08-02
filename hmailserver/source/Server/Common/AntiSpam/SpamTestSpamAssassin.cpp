@@ -102,7 +102,7 @@ namespace HM
       {
          int iScore = 0;
          if (config.GetSpamAssassinMergeScore())
-            iScore = _ParseSpamAssassinScore(sSpamStatus);
+            iScore = ParseSpamAssassinScore_(sSpamStatus);
          else
             iScore = config.GetSpamAssassinScore();
 
@@ -115,7 +115,7 @@ namespace HM
    }
 
    int 
-   SpamTestSpamAssassin::_ParseSpamAssassinScore(const AnsiString &sHeader)
+   SpamTestSpamAssassin::ParseSpamAssassinScore_(const AnsiString &sHeader)
    {
       int iStartPos = sHeader.FindNoCase("score=");
       if (iStartPos < 0)

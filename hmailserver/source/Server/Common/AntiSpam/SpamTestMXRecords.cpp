@@ -47,7 +47,7 @@ namespace HM
 
       String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
 
-      if (!sEnvelopeFrom.IsEmpty() && !_HasAnyMXRecords(sEnvelopeFrom))
+      if (!sEnvelopeFrom.IsEmpty() && !HasAnyMXRecords_(sEnvelopeFrom))
       {
          // Blocked by SPF.
          String sMessage = _T("Sender domain does not have any MX records.");
@@ -62,7 +62,7 @@ namespace HM
    }
 
    bool 
-   SpamTestMXRecords::_HasAnyMXRecords(const String &sSenderEMail)
+   SpamTestMXRecords::HasAnyMXRecords_(const String &sSenderEMail)
    {
       const String sHostName = StringParser::ExtractDomain(sSenderEMail);
 
