@@ -73,8 +73,8 @@ END_COM_MAP()
 
 private:
 
-   shared_ptr<HM::Accounts> m_pAccounts;
-   //shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   shared_ptr<HM::Accounts> accounts_;
+   //shared_ptr<HM::COMAuthentication> authentication_;
 
    __int64 m_iDomainID;
 

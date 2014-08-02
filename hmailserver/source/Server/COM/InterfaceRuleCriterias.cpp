@@ -13,25 +13,25 @@
 void 
 InterfaceRuleCriterias::Attach(shared_ptr<HM::RuleCriterias> pCriterias)
 {
-   m_pRuleCriterias = pCriterias;
+   rule_criterias = pCriterias;
 }
 
 STDMETHODIMP InterfaceRuleCriterias::get_ItemByDBID(long lDBID, IInterfaceRuleCriteria** pVal)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleCriteria>* pInterfaceRuleCriteria = new CComObject<InterfaceRuleCriteria>();
-      pInterfaceRuleCriteria->SetAuthentication(m_pAuthentication);
+      pInterfaceRuleCriteria->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleCriteria> pRule = m_pRuleCriterias->GetItemByDBID(lDBID);
+      shared_ptr<HM::RuleCriteria> pRule = rule_criterias->GetItemByDBID(lDBID);
       if (!pRule)
          return DISP_E_BADINDEX;
    
       pInterfaceRuleCriteria->AttachItem(pRule);
-      pInterfaceRuleCriteria->AttachParent(m_pRuleCriterias, true);
+      pInterfaceRuleCriteria->AttachParent(rule_criterias, true);
       pInterfaceRuleCriteria->AddRef();
       *pVal = pInterfaceRuleCriteria;   
    
@@ -47,18 +47,18 @@ STDMETHODIMP InterfaceRuleCriterias::get_Item(long lIndex, IInterfaceRuleCriteri
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleCriteria>* pInterfaceRuleCriteria = new CComObject<InterfaceRuleCriteria>();
-      pInterfaceRuleCriteria->SetAuthentication(m_pAuthentication);
+      pInterfaceRuleCriteria->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleCriteria> pRule = m_pRuleCriterias->GetItem(lIndex);
+      shared_ptr<HM::RuleCriteria> pRule = rule_criterias->GetItem(lIndex);
       if (!pRule)
          return DISP_E_BADINDEX;
    
       pInterfaceRuleCriteria->AttachItem(pRule);
-      pInterfaceRuleCriteria->AttachParent(m_pRuleCriterias, true);
+      pInterfaceRuleCriteria->AttachParent(rule_criterias, true);
    
       pInterfaceRuleCriteria->AddRef();
       *pVal = pInterfaceRuleCriteria;   
@@ -75,10 +75,10 @@ STDMETHODIMP InterfaceRuleCriterias::get_Count(LONG* pVal)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
-      *pVal = m_pRuleCriterias->GetCount();
+      *pVal = rule_criterias->GetCount();
    
       return S_OK;
    }
@@ -92,21 +92,21 @@ STDMETHODIMP InterfaceRuleCriterias::Add(IInterfaceRuleCriteria** pVal)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
-      if (!m_pRuleCriterias)
-         return m_pAuthentication->GetAccessDenied();
+      if (!rule_criterias)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRuleCriteria>* pIntDA = new CComObject<InterfaceRuleCriteria>();
-      pIntDA->SetAuthentication(m_pAuthentication);
+      pIntDA->SetAuthentication(authentication_);
    
       shared_ptr<HM::RuleCriteria> pDA = shared_ptr<HM::RuleCriteria>(new HM::RuleCriteria);
    
-      pDA->SetRuleID(m_pRuleCriterias->GetRuleID());
+      pDA->SetRuleID(rule_criterias->GetRuleID());
    
       pIntDA->AttachItem(pDA);
-      pIntDA->AttachParent(m_pRuleCriterias, false);
+      pIntDA->AttachParent(rule_criterias, false);
       pIntDA->AddRef();
    
       *pVal = pIntDA;
@@ -125,10 +125,10 @@ STDMETHODIMP InterfaceRuleCriterias::DeleteByDBID(LONG DBID)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
-      m_pRuleCriterias->DeleteItemByDBID(DBID);
+      rule_criterias->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -142,10 +142,10 @@ STDMETHODIMP InterfaceRuleCriterias::Delete(LONG DBID)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
-      m_pRuleCriterias->DeleteItem(DBID);
+      rule_criterias->DeleteItem(DBID);
    
       return S_OK;
    }
@@ -159,10 +159,10 @@ STDMETHODIMP InterfaceRuleCriterias::Refresh(void)
 {
    try
    {
-      if (!m_pRuleCriterias)
+      if (!rule_criterias)
          return GetAccessDenied();
 
-      m_pRuleCriterias->Refresh();
+      rule_criterias->Refresh();
    
       return S_OK;
    }

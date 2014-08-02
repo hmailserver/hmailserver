@@ -41,7 +41,7 @@ namespace HM
       IPAddress connectingAddress_;
       String m_sHeloHost;
 
-      shared_ptr<MessageData> m_pMessageData;
+      shared_ptr<MessageData> message_data_;
       
    };
 

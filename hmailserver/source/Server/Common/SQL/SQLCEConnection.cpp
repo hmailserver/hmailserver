@@ -90,7 +90,7 @@ namespace HM
    String 
    SQLCEConnection::_GetDatabaseFileName(const String &sShortName) const
    {
-      String sDatabaseDirectory = m_pDatabaseSettings->GetDatabaseDirectory();
+      String sDatabaseDirectory = database_settings_->GetDatabaseDirectory();
       String sDatabaseFile = sDatabaseDirectory + "\\" + sShortName + ".sdf";
 
       return sDatabaseFile;
@@ -127,8 +127,8 @@ namespace HM
    DALConnection::ConnectionResult
    SQLCEConnection::Connect(String &sErrorMessage)
    {
-      String sPassword = m_pDatabaseSettings->GetPassword();
-      String sDatabase = m_pDatabaseSettings->GetDatabaseName();
+      String sPassword = database_settings_->GetPassword();
+      String sDatabase = database_settings_->GetDatabaseName();
 
       if (m_bConnected)
          return Connected;
@@ -200,8 +200,8 @@ namespace HM
          return false;
       }
 
-      String sOldConnectionString = _GetConnectionString(m_pDatabaseSettings->GetDatabaseName(), m_pDatabaseSettings->GetPassword());
-      String sNewConnectionString = _GetConnectionString(m_pDatabaseSettings->GetDatabaseName() + "_upgraded", m_pDatabaseSettings->GetPassword());
+      String sOldConnectionString = _GetConnectionString(database_settings_->GetDatabaseName(), database_settings_->GetPassword());
+      String sNewConnectionString = _GetConnectionString(database_settings_->GetDatabaseName() + "_upgraded", database_settings_->GetPassword());
 
       HRESULT result = pISSCEEngine->UpgradeDatabase(sOldConnectionString.AllocSysString(), sNewConnectionString.AllocSysString());
       if (FAILED(hr))
@@ -215,8 +215,8 @@ namespace HM
 
       pISSCEEngine->Release();
       
-      String sCurrentDatabaseFile = _GetDatabaseFileName(m_pDatabaseSettings->GetDatabaseName());
-      String sUpgradedDatabaseFile = _GetDatabaseFileName(m_pDatabaseSettings->GetDatabaseName() + "_upgraded");
+      String sCurrentDatabaseFile = _GetDatabaseFileName(database_settings_->GetDatabaseName());
+      String sUpgradedDatabaseFile = _GetDatabaseFileName(database_settings_->GetDatabaseName() + "_upgraded");
 
       if (!FileUtilities::Move(sCurrentDatabaseFile, sCurrentDatabaseFile + ".backup_v52"))
       {

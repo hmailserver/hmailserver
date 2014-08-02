@@ -57,7 +57,7 @@ public:
 private:
 
 
-   shared_ptr<HM::DistributionListRecipients> m_pRecipients;
+   shared_ptr<HM::DistributionListRecipients> recipients_;
    __int64 m_lListID;
 
 };

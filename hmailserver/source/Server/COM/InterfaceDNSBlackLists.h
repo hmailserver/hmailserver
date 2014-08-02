@@ -55,7 +55,7 @@ END_COM_MAP()
 
 public:
 
-   shared_ptr<HM::DNSBlackLists> m_pBlackLists;
+   shared_ptr<HM::DNSBlackLists> black_lists_;
 
 };
 

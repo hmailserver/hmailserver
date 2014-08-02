@@ -61,7 +61,7 @@ public:
    STDMETHOD(Index)();
 private:
 
-   HM::Configuration* m_pConfig;
+   HM::Configuration* config_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(MessageIndexing), InterfaceMessageIndexing)

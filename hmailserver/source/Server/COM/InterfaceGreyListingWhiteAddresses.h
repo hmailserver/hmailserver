@@ -62,7 +62,7 @@ public:
 
 public:
 
-   shared_ptr<HM::GreyListingWhiteAddresses> m_pGLWhiteAddresses;
+   shared_ptr<HM::GreyListingWhiteAddresses> gl_white_addresses_;
 
 };
 

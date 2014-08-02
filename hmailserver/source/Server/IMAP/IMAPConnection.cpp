@@ -57,7 +57,7 @@ namespace HM
       m_bPendingDisconnect(false),
       _currentFolderReadOnly(false)
    {
-      m_pIMAPFolders.reset();
+      imap_folders_.reset();
 
       // The IMAP RFC states that the minimum connection
       // timeout is 30 minutes. If the load increases, the timeout
@@ -643,10 +643,10 @@ namespace HM
       if (result.GetResult() == IMAPResult::ResultOK)
       {
          // If a delayed notification has been specified by the command, submit it now.
-         if (m_pDelayedChangeNotification)
+         if (delayed_change_notification_)
          {
-            Application::Instance()->GetNotificationServer()->SendNotification(_notificationClient, m_pDelayedChangeNotification);
-            m_pDelayedChangeNotification.reset();
+            Application::Instance()->GetNotificationServer()->SendNotification(_notificationClient, delayed_change_notification_);
+            delayed_change_notification_.reset();
          }
 
          postReceive = true;
@@ -671,7 +671,7 @@ namespace HM
       }
 
       // Report updates on the current folder.
-      if (m_pCurrentFolder)
+      if (current_folder_)
          NotifyFolderChange();
 
       return postReceive;
@@ -713,8 +713,8 @@ namespace HM
    // Fetches the cached folders
    //---------------------------------------------------------------------------()
    {
-      m_pIMAPFolders = IMAPFolderContainer::Instance()->GetFoldersForAccount(_account->GetID());
-      m_pPublicIMAPFolders = IMAPFolderContainer::Instance()->GetPublicFolders();
+      imap_folders_ = IMAPFolderContainer::Instance()->GetFoldersForAccount(_account->GetID());
+      public_imap_folders_ = IMAPFolderContainer::Instance()->GetPublicFolders();
    }
 
    shared_ptr<IMAPFolder> 
@@ -741,16 +741,16 @@ namespace HM
          }
 
          // Retrieve folder
-         if (m_pIMAPFolders && !bIsPublicFolder)
+         if (imap_folders_ && !bIsPublicFolder)
          {
-            pFolder = m_pIMAPFolders->GetFolderByFullPath(vecFolderPath);
+            pFolder = imap_folders_->GetFolderByFullPath(vecFolderPath);
             if (pFolder)
                return pFolder;
          }
 
-         if (m_pPublicIMAPFolders && bIsPublicFolder)
+         if (public_imap_folders_ && bIsPublicFolder)
          {
-            pFolder = m_pPublicIMAPFolders->GetFolderByFullPath(vecFolderPath);
+            pFolder = public_imap_folders_->GetFolderByFullPath(vecFolderPath);
 
             if (pFolder)
                return pFolder;
@@ -774,7 +774,7 @@ namespace HM
    void
    IMAPConnection::CloseCurrentFolder()
    {
-      if (!m_pCurrentFolder)
+      if (!current_folder_)
          return;
 
       _notificationClient->UnsubscribeMessageChanges();
@@ -784,11 +784,11 @@ namespace HM
       // is in read-only mode - if it has been selected using the EXAMINE command.
       if (!_currentFolderReadOnly)
       {
-         m_pCurrentFolder->GetMessages()->SetFlagRecentOnMessages(false);
+         current_folder_->GetMessages()->SetFlagRecentOnMessages(false);
       }
 
       // Unload the folder.
-      m_pCurrentFolder.reset();
+      current_folder_.reset();
    }
 
    void
@@ -799,13 +799,13 @@ namespace HM
       CloseCurrentFolder();
 
       // Select the new folder
-      m_pCurrentFolder = pFolder;
+      current_folder_ = pFolder;
       _currentFolderReadOnly = readOnly;
 
       // Subscribe to changes in the new folder.
-      if (m_pCurrentFolder)
+      if (current_folder_)
       {
-         _notificationClient->SubscribeMessageChanges(m_pCurrentFolder->GetAccountID(), pFolder->GetID());
+         _notificationClient->SubscribeMessageChanges(current_folder_->GetAccountID(), pFolder->GetID());
       }
    }
 
@@ -837,7 +837,7 @@ namespace HM
    // current command is being replied to.
    //---------------------------------------------------------------------------()
    {
-      m_pDelayedChangeNotification = pNotification;
+      delayed_change_notification_ = pNotification;
    }
 
    bool 

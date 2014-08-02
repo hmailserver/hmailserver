@@ -15,7 +15,7 @@ InterfaceSURBLServers::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pSURBLServers = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetSURBLServers();
+   surbl_servers_ = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetSURBLServers();
 
    return true;
 }
@@ -25,10 +25,10 @@ InterfaceSURBLServers::Refresh()
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
-      m_pSURBLServers->Refresh();
+      surbl_servers_->Refresh();
    
       return S_OK;
    }
@@ -42,10 +42,10 @@ STDMETHODIMP InterfaceSURBLServers::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
-      *pVal = m_pSURBLServers->GetCount();
+      *pVal = surbl_servers_->GetCount();
    
       return S_OK;
    }
@@ -60,19 +60,19 @@ InterfaceSURBLServers::get_Item(long Index, IInterfaceSURBLServer **pVal)
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
-      pInterfaceSURBLServer->SetAuthentication(m_pAuthentication);
+      pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBlackList = m_pSURBLServers->GetItem(Index);
+      shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItem(Index);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
    
       pInterfaceSURBLServer->AttachItem(pDNSBlackList);
-      pInterfaceSURBLServer->AttachParent(m_pSURBLServers, true);
+      pInterfaceSURBLServer->AttachParent(surbl_servers_, true);
       pInterfaceSURBLServer->AddRef();
       *pVal = pInterfaceSURBLServer;
    
@@ -89,10 +89,10 @@ InterfaceSURBLServers::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
-      m_pSURBLServers->DeleteItemByDBID(DBID);
+      surbl_servers_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -106,19 +106,19 @@ InterfaceSURBLServers::get_ItemByDBID(long lDBID, IInterfaceSURBLServer **pVal)
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
-      pInterfaceSURBLServer->SetAuthentication(m_pAuthentication);
+      pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBlackList = m_pSURBLServers->GetItemByDBID(lDBID);
+      shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItemByDBID(lDBID);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
    
       pInterfaceSURBLServer->AttachItem(pDNSBlackList);
-      pInterfaceSURBLServer->AttachParent(m_pSURBLServers, true);
+      pInterfaceSURBLServer->AttachParent(surbl_servers_, true);
       pInterfaceSURBLServer->AddRef();
    
       *pVal = pInterfaceSURBLServer;
@@ -136,19 +136,19 @@ InterfaceSURBLServers::Add(IInterfaceSURBLServer **pVal)
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
-      if (!m_pSURBLServers)
-         return m_pAuthentication->GetAccessDenied();
+      if (!surbl_servers_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
-      pInterfaceSURBLServer->SetAuthentication(m_pAuthentication);
+      pInterfaceSURBLServer->SetAuthentication(authentication_);
    
       shared_ptr<HM::SURBLServer> pDNSBL = shared_ptr<HM::SURBLServer>(new HM::SURBLServer);
    
       pInterfaceSURBLServer->AttachItem(pDNSBL);
-      pInterfaceSURBLServer->AttachParent(m_pSURBLServers, false);
+      pInterfaceSURBLServer->AttachParent(surbl_servers_, false);
    
       pInterfaceSURBLServer->AddRef();
    
@@ -167,18 +167,18 @@ InterfaceSURBLServers::get_ItemByDNSHost(BSTR ItemName, IInterfaceSURBLServer **
 {
    try
    {
-      if (!m_pSURBLServers)
+      if (!surbl_servers_)
          return GetAccessDenied();
 
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
-      pInterfaceSURBLServer->SetAuthentication(m_pAuthentication);
+      pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBL = m_pSURBLServers->GetItemByName(ItemName);
+      shared_ptr<HM::SURBLServer> pDNSBL = surbl_servers_->GetItemByName(ItemName);
       if (!pDNSBL)
          return S_FALSE;
    
       pInterfaceSURBLServer->AttachItem(pDNSBL);
-      pInterfaceSURBLServer->AttachParent(m_pSURBLServers, true);
+      pInterfaceSURBLServer->AttachParent(surbl_servers_, true);
       pInterfaceSURBLServer->AddRef();
    
       *pVal = pInterfaceSURBLServer;

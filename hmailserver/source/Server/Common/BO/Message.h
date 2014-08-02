@@ -116,7 +116,7 @@ namespace HM
       bool _GetFlag(int iFlag) const;
       void _SetFlag(int iFlag, bool bSet);
 
-      shared_ptr<MessageRecipients> m_pRecipients;
+      shared_ptr<MessageRecipients> recipients_;
 
    };
 }

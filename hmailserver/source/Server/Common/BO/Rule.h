@@ -42,8 +42,8 @@ namespace HM
       int m_iSortOrder;
       String m_sName;
 
-      shared_ptr<RuleCriterias> m_pCriterias;
-      shared_ptr<RuleActions> m_pActions;
+      shared_ptr<RuleCriterias> criterias_;
+      shared_ptr<RuleActions> actions_;
 
       bool m_bActive;
       bool m_bUseAND;

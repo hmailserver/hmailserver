@@ -46,8 +46,8 @@ namespace HM
       
       bool _DoesMessageMatch(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index);
 
-      shared_ptr<MessageData> m_pMessageData;
-      shared_ptr<MimeHeader> m_pMimeHeader;
+      shared_ptr<MessageData> message_data_;
+      shared_ptr<MimeHeader> mime_header_;
 
       bool m_bIsSort;
       bool m_bIsUID;

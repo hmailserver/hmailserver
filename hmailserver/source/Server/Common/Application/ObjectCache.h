@@ -27,10 +27,10 @@ namespace HM
 
    private:
 
-      shared_ptr<DomainAliases> m_pDomainAliases;
+      shared_ptr<DomainAliases> domain_aliases_;
       bool m_bDomainAliasesNeedsReload;
 
-      shared_ptr<Rules> m_pGlobalRules;
+      shared_ptr<Rules> global_rules_;
       bool m_bGlobalRulesNeedsReload;
 
       map<__int64, shared_ptr<Rules> > m_mapAccountRules;

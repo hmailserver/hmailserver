@@ -34,14 +34,14 @@ InterfaceTCPIPPort::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
 
       HM::String error_message;
-      if (HM::PersistentTCPIPPort::SaveObject(m_pObject, error_message, HM::PersistenceModeNormal))
+      if (HM::PersistentTCPIPPort::SaveObject(object_, error_message, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -61,10 +61,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -78,10 +78,10 @@ STDMETHODIMP InterfaceTCPIPPort::put_Protocol(eSessionType newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetProtocol((HM::SessionType) newVal);
+      object_->SetProtocol((HM::SessionType) newVal);
       return S_OK;
    }
    catch (...)
@@ -94,10 +94,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_Protocol(eSessionType *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (eSessionType) m_pObject->GetProtocol();
+      *pVal = (eSessionType) object_->GetProtocol();
    
       return S_OK;
    }
@@ -111,10 +111,10 @@ STDMETHODIMP InterfaceTCPIPPort::put_PortNumber(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPortNumber(newVal);
+      object_->SetPortNumber(newVal);
       return S_OK;
    }
    catch (...)
@@ -127,10 +127,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_PortNumber(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetPortNumber();
+      *pVal = object_->GetPortNumber();
    
       return S_OK;
    }
@@ -144,13 +144,13 @@ STDMETHODIMP InterfaceTCPIPPort::put_UseSSL(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       if (newVal)
-         m_pObject->SetConnectionSecurity(HM::CSSSL);
+         object_->SetConnectionSecurity(HM::CSSSL);
       else
-         m_pObject->SetConnectionSecurity(HM::CSNone);
+         object_->SetConnectionSecurity(HM::CSNone);
 
       return S_OK;
    }
@@ -164,10 +164,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_UseSSL(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE ;
+      *pVal = object_->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE ;
    
       return S_OK;
    }
@@ -181,10 +181,10 @@ STDMETHODIMP InterfaceTCPIPPort::put_ConnectionSecurity(eConnectionSecurity newV
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
+      object_->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
       return S_OK;
    }
    catch (...)
@@ -197,10 +197,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_ConnectionSecurity(eConnectionSecurity *pVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (eConnectionSecurity) m_pObject->GetConnectionSecurity();
+      *pVal = (eConnectionSecurity) object_->GetConnectionSecurity();
 
       return S_OK;
    }
@@ -214,10 +214,10 @@ STDMETHODIMP InterfaceTCPIPPort::put_Address(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pObject->SetAddress(newVal))
+      if (!object_->SetAddress(newVal))
          return COMError::GenerateError("Invalid IP address string.");
    
       return S_OK;
@@ -232,10 +232,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_Address(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      HM::String sIPAddress = m_pObject->GetAddressString();
+      HM::String sIPAddress = object_->GetAddressString();
       *pVal = sIPAddress.AllocSysString();
    
       return S_OK;
@@ -250,10 +250,10 @@ STDMETHODIMP InterfaceTCPIPPort::put_SSLCertificateID(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetSSLCertificateID(newVal);
+      object_->SetSSLCertificateID(newVal);
       return S_OK;
    }
    catch (...)
@@ -266,10 +266,10 @@ STDMETHODIMP InterfaceTCPIPPort::get_SSLCertificateID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetSSLCertificateID();
+      *pVal = (long) object_->GetSSLCertificateID();
    
       return S_OK;
    }
@@ -283,16 +283,16 @@ STDMETHODIMP InterfaceTCPIPPort::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentTCPIPPort::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentTCPIPPort::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

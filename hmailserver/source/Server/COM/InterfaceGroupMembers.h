@@ -63,7 +63,7 @@ public:
 
 public:
 
-   shared_ptr<HM::GroupMembers> m_pGroupMembers;
+   shared_ptr<HM::GroupMembers> group_members_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(GroupMembers), InterfaceGroupMembers)

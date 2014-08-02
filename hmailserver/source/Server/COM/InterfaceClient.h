@@ -55,7 +55,7 @@ public:
 
 private:
 
-   shared_ptr<HM::ClientInfo> m_pClientInfo;
+   shared_ptr<HM::ClientInfo> client_info_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Client), InterfaceClient)

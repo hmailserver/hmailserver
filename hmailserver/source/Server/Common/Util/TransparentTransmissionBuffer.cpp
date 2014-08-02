@@ -22,7 +22,7 @@ namespace HM
       m_iMaxSizeKB(0),
       _cancelTransmission(false)
    {
-      m_pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
+      buffer_ = shared_ptr<ByteBuffer>(new ByteBuffer);
    }
 
    TransparentTransmissionBuffer::~TransparentTransmissionBuffer(void)
@@ -33,7 +33,7 @@ namespace HM
    bool
    TransparentTransmissionBuffer::Initialize(weak_ptr<TCPConnection> pTCPConnection)
    {
-      m_pTCPConnection = pTCPConnection;
+      tcp_connection_ = pTCPConnection;
 
       m_iDataSent = 0;
 
@@ -82,9 +82,9 @@ namespace HM
          throw;
       }
 
-      if (m_pBuffer == 0)
+      if (buffer_ == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "m_pBuffer is NULL");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "buffer_ is NULL");
          throw;
       }
 
@@ -94,31 +94,31 @@ namespace HM
       try
       {
          // Add the new data to the buffer.
-         m_pBuffer->Add(pBuffer, iBufferSize);
+         buffer_->Add(pBuffer, iBufferSize);
       }
       catch (...)
       {
          String message;
-         message.Format(_T("Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d"), &m_pBuffer, &pBuffer, iBufferSize);
+         message.Format(_T("Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d"), &buffer_, &pBuffer, iBufferSize);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5413, "TransparentTransmissionBuffer::Append", message);
          throw;
       }
 
       // Check if we have received the entire buffer.
-      if (m_pBuffer->GetSize() >= 3 && !m_bIsSending)
+      if (buffer_->GetSize() >= 3 && !m_bIsSending)
       {
          try
          {
             // If receiving, we should check for end-of-data
-            int iSize = m_pBuffer->GetSize();
-            const char *pCharBuffer = m_pBuffer->GetCharBuffer();
+            int iSize = buffer_->GetSize();
+            const char *pCharBuffer = buffer_->GetCharBuffer();
 
             // Check if the buffer only contains a dot on an empty line.
             bool bDotCRLFOnEmptyLine = (pCharBuffer[0] == '.' && pCharBuffer[1] == '\r' && pCharBuffer[2] == '\n');
 
             // Look for \r\n.\r\n. 
-            bool bLineBeginnningWithDotCRLF = m_pBuffer->GetSize() >= 5 &&
+            bool bLineBeginnningWithDotCRLF = buffer_->GetSize() >= 5 &&
                (pCharBuffer[iSize -5] == '\r' && 
                pCharBuffer[iSize -4] == '\n' && 
                pCharBuffer[iSize -3] == '.' && 
@@ -128,7 +128,7 @@ namespace HM
             if (bDotCRLFOnEmptyLine || bLineBeginnningWithDotCRLF)
             {
                // Remove the transmission-end characters. (the 3 last)
-               m_pBuffer->DecreaseSize(3);
+               buffer_->DecreaseSize(3);
 
                m_bTransmissionEnded = true;
             }
@@ -144,7 +144,7 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::GetRequiresFlush()
    {
-      if (m_pBuffer->GetSize() > 40000 || m_bTransmissionEnded)
+      if (buffer_->GetSize() > 40000 || m_bTransmissionEnded)
          return true;
       else
          return false;
@@ -164,7 +164,7 @@ namespace HM
       if (!GetRequiresFlush() && !bForce)
          return dataProcessed;
 
-      if (m_pBuffer->GetSize() > MAX_LINE_LENGTH)
+      if (buffer_->GetSize() > MAX_LINE_LENGTH)
       {
          // Something fishy is going on. We've received over MAX_LINE_LENGTH
          // characters on a single line with no new line character. This should
@@ -176,8 +176,8 @@ namespace HM
       }
 
       // Locate last \n
-      const char *pBuffer = m_pBuffer->GetCharBuffer();
-      int bufferSize = m_pBuffer->GetSize();
+      const char *pBuffer = buffer_->GetCharBuffer();
+      int bufferSize = buffer_->GetSize();
       
       /*
          RFC rfc2821
@@ -209,11 +209,11 @@ namespace HM
             int iCopySize = i+1;
 
             shared_ptr<ByteBuffer> pOutBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
-            pOutBuffer->Add(m_pBuffer->GetBuffer(), iCopySize);
+            pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
 
             // Remove it from the old buffer
-            int iRemaining = m_pBuffer->GetSize() - iCopySize;
-            m_pBuffer->Empty(iRemaining);
+            int iRemaining = buffer_->GetSize() - iCopySize;
+            buffer_->Empty(iRemaining);
 
             // Parse this buffer and add it to file/socket
             if (m_bIsSending)
@@ -224,7 +224,7 @@ namespace HM
             // The parsed buffer can now be sent.
             if (m_bIsSending)
             {
-               if (shared_ptr<TCPConnection> connection = m_pTCPConnection.lock())
+               if (shared_ptr<TCPConnection> connection = tcp_connection_.lock())
                {
                   connection->PostWrite(pOutBuffer);
                }

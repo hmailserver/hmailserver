@@ -15,7 +15,7 @@ InterfaceServerMessages::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pServerMessages = HM::Configuration::Instance()->GetServerMessages();
+   server_messages_ = HM::Configuration::Instance()->GetServerMessages();
 
    return true;
 }
@@ -26,13 +26,13 @@ InterfaceServerMessages::Refresh()
 {
    try
    {
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return GetAccessDenied();
 
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return S_FALSE;
    
-      m_pServerMessages->Refresh();
+      server_messages_->Refresh();
    
       return S_OK;
    }
@@ -46,10 +46,10 @@ STDMETHODIMP InterfaceServerMessages::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return GetAccessDenied();
 
-      *pVal = m_pServerMessages->GetCount();
+      *pVal = server_messages_->GetCount();
    
       return S_OK;
    }
@@ -64,13 +64,13 @@ InterfaceServerMessages::get_Item(long Index, IInterfaceServerMessage **pVal)
 {
    try
    {
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return GetAccessDenied();
 
       CComObject<InterfaceServerMessage>* pInterfaceServerMessage = new CComObject<InterfaceServerMessage>();
-      pInterfaceServerMessage->SetAuthentication(m_pAuthentication);
+      pInterfaceServerMessage->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ServerMessage> pSM = m_pServerMessages->GetItem(Index);
+      shared_ptr<HM::ServerMessage> pSM = server_messages_->GetItem(Index);
    
       if (!pSM)
          return DISP_E_BADINDEX;
@@ -92,13 +92,13 @@ InterfaceServerMessages::get_ItemByDBID(long lDBID, IInterfaceServerMessage **pV
 {
    try
    {
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return GetAccessDenied();
 
       CComObject<InterfaceServerMessage>* pInterfaceServerMessage = new CComObject<InterfaceServerMessage>();
-      pInterfaceServerMessage->SetAuthentication(m_pAuthentication);
+      pInterfaceServerMessage->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ServerMessage> pSM = m_pServerMessages->GetItemByDBID(lDBID);
+      shared_ptr<HM::ServerMessage> pSM = server_messages_->GetItemByDBID(lDBID);
    
       if (!pSM)
          return DISP_E_BADINDEX;
@@ -121,13 +121,13 @@ InterfaceServerMessages::get_ItemByName(BSTR sName, IInterfaceServerMessage **pV
 {
    try
    {
-      if (!m_pServerMessages)
+      if (!server_messages_)
          return GetAccessDenied();
 
       CComObject<InterfaceServerMessage>* pInterfaceServerMessage = new CComObject<InterfaceServerMessage>();
-      pInterfaceServerMessage->SetAuthentication(m_pAuthentication);
+      pInterfaceServerMessage->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ServerMessage> pSM = m_pServerMessages->GetItemByName(sName);
+      shared_ptr<HM::ServerMessage> pSM = server_messages_->GetItemByName(sName);
    
       if (!pSM)
          return DISP_E_BADINDEX;

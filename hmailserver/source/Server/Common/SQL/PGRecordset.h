@@ -38,7 +38,7 @@ namespace HM
 
       bool _Close();
 
-      PGresult *m_pResult;
+      PGresult *result_;
       // PG_ROW m_rowCurrent;
 
       unsigned int m_iCurRowNum;

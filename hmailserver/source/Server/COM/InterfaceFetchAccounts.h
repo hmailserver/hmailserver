@@ -58,7 +58,7 @@ public:
 
 private:
 
-   shared_ptr<HM::FetchAccounts> m_pFetchAccounts;
+   shared_ptr<HM::FetchAccounts> fetch_accounts_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(FetchAccounts), InterfaceFetchAccounts)

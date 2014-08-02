@@ -48,7 +48,7 @@ public:
 
 private:
 
-   shared_ptr<HM::MessageRecipient> m_pObject;
+   shared_ptr<HM::MessageRecipient> object_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Recipient), InterfaceRecipient)

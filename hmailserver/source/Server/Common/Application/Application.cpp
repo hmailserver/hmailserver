@@ -121,7 +121,7 @@ namespace HM
       Languages::Instance()->Load();
 
       // Create the backup manager that manages backup tasks...
-      m_pBackupManager = shared_ptr<BackupManager>(new BackupManager);
+      backup_manager_ = shared_ptr<BackupManager>(new BackupManager);
 
       LOG_DEBUG("Application::InitInstance - Connecting to database...");
       if (!OpenDatabase(sErrorMessage))
@@ -166,8 +166,8 @@ namespace HM
          return false;
       }
 
-      m_pDBManager = shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
-      bool bConnectedSuccessfully = m_pDBManager->CreateConnections(sErrorMessage);
+      db_manager_ = shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
+      bool bConnectedSuccessfully = db_manager_->CreateConnections(sErrorMessage);
 
       m_sLastConnectErrorMessage = sErrorMessage;
 
@@ -235,8 +235,8 @@ namespace HM
       WorkQueueManager::Instance()->RemoveQueue(m_sAsynchronousTasksQueue);
 
       // Backup manager is created by initinstance so should be destroyed here.
-      if (m_pBackupManager) 
-         m_pBackupManager.reset();
+      if (backup_manager_) 
+         backup_manager_.reset();
 
       LOG_DEBUG("Application::ExitInstance - Closing database connection...");
       CloseDatabase();
@@ -259,18 +259,18 @@ namespace HM
    // Close the database connection.
    //---------------------------------------------------------------------------()
    {
-      if (m_pDBManager)
+      if (db_manager_)
       {
          try
          {
-            m_pDBManager->Disconnect();
+            db_manager_->Disconnect();
          }
          catch (...)
          {
 
          }
 
-         m_pDBManager.reset();
+         db_manager_.reset();
       }
    }
 
@@ -308,27 +308,27 @@ namespace HM
 
       SpamProtection::Instance()->Load();
 
-      m_pIOService = shared_ptr<IOService>(new IOService);
-      m_pIOService->Initialize();
+      io_service_ = shared_ptr<IOService>(new IOService);
+      io_service_->Initialize();
       _RegisterSessionTypes();
 
       // Create the main work queue.
       int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, m_sServerWorkQueue);
 
-      m_pNotificationServer = shared_ptr<NotificationServer>(new NotificationServer());
+      notification_server_ = shared_ptr<NotificationServer>(new NotificationServer());
       _folderManager = shared_ptr<FolderManager>(new FolderManager());
       
       // Create the scheduler. This is always in use.
-      m_pScheduler = shared_ptr<Scheduler>(new Scheduler());
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pScheduler);
+      scheduler_ = shared_ptr<Scheduler>(new Scheduler());
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, scheduler_);
 
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pIOService);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, io_service_);
 
-      m_pSMTPDeliveryManager = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pSMTPDeliveryManager);
+      smtp_delivery_manager_ = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, smtp_delivery_manager_);
 
-      m_pExternalFetchManager = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pExternalFetchManager);
+      external_fetch_manager_ = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, external_fetch_manager_);
 
       _CreateScheduledTasks();
 
@@ -339,10 +339,10 @@ namespace HM
 
       m_sStartTime = Time::GetCurrentDateTime();
 
-      m_pScheduler->GetIsStartedEvent().Wait();
-      m_pSMTPDeliveryManager->GetIsStartedEvent().Wait();
-      m_pExternalFetchManager->GetIsStartedEvent().Wait();
-      m_pIOService->GetIsStartedEvent().Wait();
+      scheduler_->GetIsStartedEvent().Wait();
+      smtp_delivery_manager_->GetIsStartedEvent().Wait();
+      external_fetch_manager_->GetIsStartedEvent().Wait();
+      io_service_->GetIsStartedEvent().Wait();
 
       ServerStatus::Instance()->SetState(ServerStatus::StateRunning);
       LOG_APPLICATION("Servers started.")
@@ -360,17 +360,17 @@ namespace HM
       // Start SMTP server and delivery threads.
       if (Configuration::Instance()->GetUseSMTP())
       {
-         m_pIOService->RegisterSessionType(STSMTP);
+         io_service_->RegisterSessionType(STSMTP);
       }
 
       if (Configuration::Instance()->GetUsePOP3())
       {
-         m_pIOService->RegisterSessionType(STPOP3);
+         io_service_->RegisterSessionType(STPOP3);
       }
 
       if (Configuration::Instance()->GetUseIMAP())
       {
-         m_pIOService->RegisterSessionType(STIMAP);
+         io_service_->RegisterSessionType(STIMAP);
       }
    }
 
@@ -386,14 +386,14 @@ namespace HM
          shared_ptr<GreyListCleanerTask> pCleanerTask = shared_ptr<GreyListCleanerTask>(new GreyListCleanerTask);
          pCleanerTask->SetReoccurance(ScheduledTask::RunInfinitely);
          pCleanerTask->SetMinutesBetweenRun(IniFileSettings::Instance()->GetGreylistingExpirationInterval());
-         m_pScheduler->ScheduleTask(pCleanerTask);
+         scheduler_->ScheduleTask(pCleanerTask);
       }
 
       // cleaning of expired IP ranges.
       shared_ptr<RemoveExpiredRecords> removeExpiredRecordsTask = shared_ptr<RemoveExpiredRecords>(new RemoveExpiredRecords);
       removeExpiredRecordsTask->SetReoccurance(ScheduledTask::RunInfinitely);
       removeExpiredRecordsTask->SetMinutesBetweenRun(1);
-      m_pScheduler->ScheduleTask(removeExpiredRecordsTask);
+      scheduler_->ScheduleTask(removeExpiredRecordsTask);
 
    }
 
@@ -423,16 +423,16 @@ namespace HM
 
       // Deinitialize servers
       LOG_DEBUG("Application::StopServers() - Destructing IOCP");
-      if (m_pIOService) m_pIOService.reset();
+      if (io_service_) io_service_.reset();
       LOG_DEBUG("Application::StopServers() - Destructing DeliveryManager");
-      if (m_pSMTPDeliveryManager) m_pSMTPDeliveryManager.reset();
+      if (smtp_delivery_manager_) smtp_delivery_manager_.reset();
       LOG_DEBUG("Application::StopServers() - Destructing FetchManager");
-      if (m_pExternalFetchManager) m_pExternalFetchManager.reset();
+      if (external_fetch_manager_) external_fetch_manager_.reset();
       LOG_DEBUG("Application::StopServers() - Destructing Scheduler");
-      if (m_pScheduler) m_pScheduler.reset();
+      if (scheduler_) scheduler_.reset();
       
       LOG_DEBUG("Application::StopServers() - Destructing Rest");
-      if (m_pNotificationServer) m_pNotificationServer.reset();
+      if (notification_server_) notification_server_.reset();
       if (_folderManager) _folderManager.reset();
 
       ServerStatus::Instance()->SetState(ServerStatus::StateStopped);
@@ -462,8 +462,8 @@ namespace HM
    {
       LOG_DEBUG("Requesting SMTPDeliveryManager to start message delivery");
 
-      if (m_pSMTPDeliveryManager)
-         m_pSMTPDeliveryManager->SetDeliverMessage();
+      if (smtp_delivery_manager_)
+         smtp_delivery_manager_->SetDeliverMessage();
       else
          // We could not notify the SMTP delivery manager, since it does not exit.
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4219, "Application::SubmitPendingEmail", "Could not notify SMTP deliverer about new message, since SMTP deliverer does not exist. The operation requires the SMTP server to be on.");
@@ -524,7 +524,7 @@ namespace HM
    shared_ptr<NotificationServer> 
    Application::GetNotificationServer()
    {
-      return m_pNotificationServer;
+      return notification_server_;
    }
 
    shared_ptr<FolderManager> 

@@ -50,7 +50,7 @@ public:
 
 private:
 
-   shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   shared_ptr<HM::COMAuthentication> authentication_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DeliveryQueue), InterfaceDeliveryQueue)

@@ -12,24 +12,24 @@ namespace HM
       COMAuthenticator()
       {
          // Create a dummy object so that it always exists.
-         m_pAuthentication = shared_ptr<HM::COMAuthentication>(new COMAuthentication);
+         authentication_ = shared_ptr<HM::COMAuthentication>(new COMAuthentication);
 
-         m_pAuthentication->AttempAnonymousAuthentication();
+         authentication_->AttempAnonymousAuthentication();
       }
       
       void SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
       {
-         m_pAuthentication = pAuthentication; 
+         authentication_ = pAuthentication; 
       }
 
    protected:
 
       bool GetIsServerAdmin()
       {
-         if (!m_pAuthentication)
+         if (!authentication_)
             return false;
 
-         if (!m_pAuthentication->GetIsServerAdmin())
+         if (!authentication_->GetIsServerAdmin())
             return false;
 
          return true;
@@ -37,13 +37,13 @@ namespace HM
 
       int GetAccessDenied()
       {
-         if (!m_pAuthentication)
+         if (!authentication_)
             return -1;
 
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
       }
 
-      shared_ptr<COMAuthentication> m_pAuthentication;
+      shared_ptr<COMAuthentication> authentication_;
 
    private:
 

@@ -54,7 +54,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Attachments> m_pAttachments;
+   shared_ptr<HM::Attachments> attachments_;
 
 };
 

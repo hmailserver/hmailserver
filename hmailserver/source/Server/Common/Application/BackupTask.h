@@ -21,6 +21,6 @@ namespace HM
 
       bool m_bDoBackup;
       
-      shared_ptr<Backup> m_pBackup;
+      shared_ptr<Backup> backup_;
    };
 }

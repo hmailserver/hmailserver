@@ -10,17 +10,17 @@
 void
 InterfaceAliases::Attach(shared_ptr<HM::Aliases> pAliases)
 {
-   m_pAliases = pAliases;
+   aliases_ = pAliases;
 } 
 
 STDMETHODIMP InterfaceAliases::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
-      *pVal = (int) m_pAliases->GetCount();
+      *pVal = (int) aliases_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -33,10 +33,10 @@ STDMETHODIMP InterfaceAliases::Delete(long Index)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
-      m_pAliases->DeleteItem(Index);
+      aliases_->DeleteItem(Index);
       return S_OK;
    }
    catch (...)
@@ -49,10 +49,10 @@ STDMETHODIMP InterfaceAliases::Refresh()
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
-      m_pAliases->Refresh();
+      aliases_->Refresh();
       return S_OK;
    }
    catch (...)
@@ -65,13 +65,13 @@ STDMETHODIMP InterfaceAliases::get_Item(long Index, IInterfaceAlias **pVal)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
-      pAlias->SetAuthentication(m_pAuthentication);
+      pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = m_pAliases->GetItem(Index);
+      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItem(Index);
    
       if (!pPersAlias)
          return DISP_E_BADINDEX;  
@@ -91,22 +91,22 @@ STDMETHODIMP InterfaceAliases::Add(IInterfaceAlias **pVal)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pAliases)
-         return m_pAuthentication->GetAccessDenied();
+      if (!aliases_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAlias>* pIntAlias = new CComObject<InterfaceAlias>();
-      pIntAlias->SetAuthentication(m_pAuthentication);
+      pIntAlias->SetAuthentication(authentication_);
    
       shared_ptr<HM::Alias> pAliasADO = shared_ptr<HM::Alias>(new HM::Alias);
       
       pIntAlias->AttachItem(pAliasADO);
-      pIntAlias->AttachParent(m_pAliases, false);
+      pIntAlias->AttachParent(aliases_, false);
    
       pAliasADO->SetDomainID(m_iDomainID);
    
@@ -125,13 +125,13 @@ STDMETHODIMP InterfaceAliases::get_ItemByDBID(long DBID, IInterfaceAlias **pVal)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
-      pAlias->SetAuthentication(m_pAuthentication);
+      pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = m_pAliases->GetItemByDBID(DBID);
+      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByDBID(DBID);
    
       if (pPersAlias)
       {
@@ -157,12 +157,12 @@ STDMETHODIMP InterfaceAliases::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
    
-      if (m_pAliases)
-         m_pAliases->DeleteItemByDBID(DBID);
+      if (aliases_)
+         aliases_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -176,13 +176,13 @@ STDMETHODIMP InterfaceAliases::get_ItemByName(BSTR Name, IInterfaceAlias **pVal)
 {
    try
    {
-      if (!m_pAliases)
+      if (!aliases_)
          return GetAccessDenied();
 
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
-      pAlias->SetAuthentication(m_pAuthentication);
+      pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = m_pAliases->GetItemByName(Name);
+      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByName(Name);
    
       if (pPersAlias)
       {

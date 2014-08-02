@@ -14,7 +14,7 @@
 namespace HM
 {
    SQLScriptParser::SQLScriptParser(shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
-      m_pSettings(pSettings),
+      settings_(pSettings),
       m_sFile(sFile)
    {
 
@@ -38,7 +38,7 @@ namespace HM
       }
    
       String sCommandSeparator;
-      switch (m_pSettings->GetType())
+      switch (settings_->GetType())
       {
       case HM::DatabaseSettings::TypeMSSQLCompactEdition:
       case HM::DatabaseSettings::TypeMSSQLServer:
@@ -86,7 +86,7 @@ namespace HM
 
       String sTempLine = sLine;
 
-      if (m_pSettings->GetType() == HM::DatabaseSettings::TypeMSSQLCompactEdition)
+      if (settings_->GetType() == HM::DatabaseSettings::TypeMSSQLCompactEdition)
       {
          if (sTempLine.ToLower().Left(3).Compare(_T("if ")) == 0)
          {

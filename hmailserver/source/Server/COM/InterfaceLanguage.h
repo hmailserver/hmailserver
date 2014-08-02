@@ -55,7 +55,7 @@ public:
    
 private:
 
-   shared_ptr<HM::Language> m_pLanguage;
+   shared_ptr<HM::Language> language_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Language), InterfaceLanguage)

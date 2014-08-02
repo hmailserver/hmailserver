@@ -40,7 +40,7 @@ namespace HM
 
       void _Close();
 
-      hm_MYSQL_RES *m_pResult;
+      hm_MYSQL_RES *result_;
       hm_MYSQL_ROW m_rowCurrent;
 
       vector<AnsiString> m_vecColumns;

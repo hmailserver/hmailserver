@@ -72,7 +72,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Domains> m_pObjects;
+   shared_ptr<HM::Domains> objects_;
 
 #ifdef _DEBUG
    static long counter;

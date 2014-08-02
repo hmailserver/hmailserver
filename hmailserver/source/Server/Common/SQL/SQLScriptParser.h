@@ -23,7 +23,7 @@ namespace HM
 
       bool _PreprocessLine(String &sLine);
 
-      shared_ptr<DatabaseSettings> m_pSettings;
+      shared_ptr<DatabaseSettings> settings_;
       String m_sFile;
       vector<String> m_vecCommands;
 

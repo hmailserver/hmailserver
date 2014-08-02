@@ -9,8 +9,8 @@ STDMETHODIMP InterfaceDiagnosticResult::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *pVal = _result.GetName().AllocSysString();
    
@@ -26,8 +26,8 @@ STDMETHODIMP InterfaceDiagnosticResult::get_Description(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *pVal = _result.GetDescription().AllocSysString();
    
@@ -43,8 +43,8 @@ STDMETHODIMP InterfaceDiagnosticResult::get_ExecutionDetails(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *pVal = _result.GetDetails().AllocSysString();
    
@@ -60,8 +60,8 @@ STDMETHODIMP InterfaceDiagnosticResult::get_Result(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *pVal = _result.GetSuccess() ? VARIANT_TRUE : VARIANT_FALSE;
    

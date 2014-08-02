@@ -61,8 +61,8 @@ public:
 
 private:
 
-   shared_ptr<HM::MimeHeader> m_pHeader;
-   HM::MimeField *m_pObject;
+   shared_ptr<HM::MimeHeader> header_;
+   HM::MimeField *object_;
 
 };
 

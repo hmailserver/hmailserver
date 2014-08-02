@@ -62,14 +62,14 @@ namespace HM
 
       PersistentFetchAccount::UnlockAll();
 
-      m_pFetchAccounts = shared_ptr<FetchAccounts> (new FetchAccounts(0));
+      fetch_accounts_ = shared_ptr<FetchAccounts> (new FetchAccounts(0));
 
 
       while (1)
       {
-         m_pFetchAccounts->RefreshPendingList();
+         fetch_accounts_->RefreshPendingList();
 
-         vector<shared_ptr<FetchAccount> > &vecAccounts = m_pFetchAccounts->GetVector();
+         vector<shared_ptr<FetchAccount> > &vecAccounts = fetch_accounts_->GetVector();
          vector<shared_ptr<FetchAccount> >::iterator iterFA = vecAccounts.begin();
 
          while (iterFA != vecAccounts.end())

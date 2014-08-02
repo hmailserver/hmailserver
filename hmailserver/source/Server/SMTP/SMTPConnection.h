@@ -180,7 +180,7 @@ namespace HM
 
       ConnectionState m_CurrentState;
 
-      shared_ptr<Message> m_pCurrentMessage;
+      shared_ptr<Message> current_message_;
 
       bool m_bTraceHeadersWritten;
 
@@ -198,15 +198,15 @@ namespace HM
 
       String m_sHeloHost;
 
-      shared_ptr<TransparentTransmissionBuffer> m_pTransmissionBuffer;
+      shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 
       // Spam detection 
       bool m_bRejectedByDelayedGreyListing;
       int m_iCurNoOfRCPTTO;
       int m_iCurNoOfInvalidCommands;
       
-      shared_ptr<const Domain> m_pSenderDomain;
-      shared_ptr<const Account> m_pSenderAccount;
+      shared_ptr<const Domain> sender_domain_;
+      shared_ptr<const Account> sender_account_;
 
       set<shared_ptr<SpamTestResult> > m_setSpamTestResults;
 

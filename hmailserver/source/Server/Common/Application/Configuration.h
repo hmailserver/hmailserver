@@ -33,12 +33,12 @@ namespace HM
 	   Configuration();
 	   virtual ~Configuration();
 
-      shared_ptr<POP3Configuration> GetPOP3Configuration() const { return m_pPOP3Configuration; }
-      shared_ptr<SMTPConfiguration> GetSMTPConfiguration() const { return m_pSMTPConfiguration; }
-      shared_ptr<IMAPConfiguration> GetIMAPConfiguration() const { return m_pIMAPConfiguration; }
+      shared_ptr<POP3Configuration> GetPOP3Configuration() const { return pop3_configuration_; }
+      shared_ptr<SMTPConfiguration> GetSMTPConfiguration() const { return smtp_configuration_; }
+      shared_ptr<IMAPConfiguration> GetIMAPConfiguration() const { return imap_configuration_; }
       AntiSpamConfiguration &GetAntiSpamConfiguration() { return _antiSpamConfiguration; }
       AntiVirusConfiguration &GetAntiVirusConfiguration() { return _antiVirusConfiguration; }
-      shared_ptr<CacheConfiguration> GetCacheConfiguration() const { return m_pCacheConfiguration; }
+      shared_ptr<CacheConfiguration> GetCacheConfiguration() const { return cache_configuration_; }
 
       bool Load();
 
@@ -163,11 +163,11 @@ namespace HM
 
    private:
 
-      shared_ptr<POP3Configuration> m_pPOP3Configuration;
-      shared_ptr<SMTPConfiguration> m_pSMTPConfiguration;
-      shared_ptr<IMAPConfiguration> m_pIMAPConfiguration;
+      shared_ptr<POP3Configuration> pop3_configuration_;
+      shared_ptr<SMTPConfiguration> smtp_configuration_;
+      shared_ptr<IMAPConfiguration> imap_configuration_;
       
-      shared_ptr<CacheConfiguration> m_pCacheConfiguration;
+      shared_ptr<CacheConfiguration> cache_configuration_;
 
       AntiSpamConfiguration _antiSpamConfiguration;
       AntiVirusConfiguration _antiVirusConfiguration;

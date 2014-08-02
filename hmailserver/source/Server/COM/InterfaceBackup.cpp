@@ -10,7 +10,7 @@
 void 
 InterfaceBackup::Attach(shared_ptr<HM::Backup> pBackup)
 {
-   m_pBackup = pBackup;
+   backup_ = pBackup;
 }
 
 STDMETHODIMP 
@@ -18,11 +18,11 @@ InterfaceBackup::StartRestore()
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
       // Start a restore of this backup.
-      HM::Application::Instance()->GetBackupManager()->StartRestore(m_pBackup);
+      HM::Application::Instance()->GetBackupManager()->StartRestore(backup_);
       
       return S_OK;
    }
@@ -36,10 +36,10 @@ STDMETHODIMP InterfaceBackup::get_ContainsSettings(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetContains(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetContains(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -52,10 +52,10 @@ STDMETHODIMP InterfaceBackup::get_ContainsDomains(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetContains(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetContains(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -68,10 +68,10 @@ STDMETHODIMP InterfaceBackup::get_ContainsMessages(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetContains(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetContains(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -84,10 +84,10 @@ STDMETHODIMP InterfaceBackup::get_RestoreSettings(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetRestoreOption(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetRestoreOption(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -100,10 +100,10 @@ STDMETHODIMP InterfaceBackup::put_RestoreSettings(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      m_pBackup->SetRestoreOption(HM::Backup::BOSettings, newVal == VARIANT_TRUE);
+      backup_->SetRestoreOption(HM::Backup::BOSettings, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -116,10 +116,10 @@ STDMETHODIMP InterfaceBackup::get_RestoreDomains(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetRestoreOption(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetRestoreOption(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -132,10 +132,10 @@ STDMETHODIMP InterfaceBackup::put_RestoreDomains(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      m_pBackup->SetRestoreOption(HM::Backup::BODomains, newVal == VARIANT_TRUE);
+      backup_->SetRestoreOption(HM::Backup::BODomains, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -148,10 +148,10 @@ STDMETHODIMP InterfaceBackup::get_RestoreMessages(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      *pVal = m_pBackup->GetRestoreOption(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = backup_->GetRestoreOption(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -164,10 +164,10 @@ STDMETHODIMP InterfaceBackup::put_RestoreMessages(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pBackup)
+      if (!backup_)
          return GetAccessDenied();
 
-      m_pBackup->SetRestoreOption(HM::Backup::BOMessages, newVal == VARIANT_TRUE);
+      backup_->SetRestoreOption(HM::Backup::BOMessages, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)

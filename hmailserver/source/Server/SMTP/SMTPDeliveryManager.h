@@ -34,7 +34,7 @@ namespace HM
 
       long m_lCurNumberOfSent;
 
-      shared_ptr<DALRecordset> m_pPendingMessages;
+      shared_ptr<DALRecordset> pending_messages_;
       
       const String m_sQueueName;
 

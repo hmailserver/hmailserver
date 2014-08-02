@@ -15,13 +15,13 @@ InterfaceDNSBlackList::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentDNSBlackList::SaveObject(m_pObject))
+      if (HM::PersistentDNSBlackList::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -40,10 +40,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_Active(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -56,10 +56,10 @@ STDMETHODIMP InterfaceDNSBlackList::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetIsActive(newVal == VARIANT_TRUE);
+      object_->SetIsActive(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -73,10 +73,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -90,10 +90,10 @@ STDMETHODIMP InterfaceDNSBlackList::put_DNSHost(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDNSHost(newVal);
+      object_->SetDNSHost(newVal);
       return S_OK;
    }
    catch (...)
@@ -106,10 +106,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_DNSHost(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDNSHost().AllocSysString();
+      *pVal = object_->GetDNSHost().AllocSysString();
    
       return S_OK;
    }
@@ -123,10 +123,10 @@ STDMETHODIMP InterfaceDNSBlackList::put_RejectMessage(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRejectMessage(newVal);
+      object_->SetRejectMessage(newVal);
       return S_OK;
    }
    catch (...)
@@ -139,10 +139,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_RejectMessage(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRejectMessage().AllocSysString();
+      *pVal = object_->GetRejectMessage().AllocSysString();
    
       return S_OK;
    }
@@ -156,10 +156,10 @@ STDMETHODIMP InterfaceDNSBlackList::put_ExpectedResult(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetExpectedResult(newVal);
+      object_->SetExpectedResult(newVal);
       return S_OK;
    }
    catch (...)
@@ -172,10 +172,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_ExpectedResult(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetExpectedResult().AllocSysString();
+      *pVal = object_->GetExpectedResult().AllocSysString();
    
       return S_OK;
    }
@@ -189,10 +189,10 @@ STDMETHODIMP InterfaceDNSBlackList::put_Score(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetScore(newVal);
+      object_->SetScore(newVal);
       return S_OK;
    }
    catch (...)
@@ -205,10 +205,10 @@ STDMETHODIMP InterfaceDNSBlackList::get_Score(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetScore();
+      *pVal = object_->GetScore();
    
       return S_OK;
    }
@@ -222,16 +222,16 @@ STDMETHODIMP InterfaceDNSBlackList::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentDNSBlackList::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentDNSBlackList::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

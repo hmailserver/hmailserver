@@ -33,7 +33,7 @@ namespace HM
       }
       else
       {
-         oBE.StartRestore(m_pBackup);
+         oBE.StartRestore(backup_);
       }
 
       Application::Instance()->GetBackupManager()->OnThreadStopped();
@@ -43,6 +43,6 @@ namespace HM
    void 
    BackupTask::SetBackupToRestore(shared_ptr<Backup> pBackup)
    {
-      m_pBackup = pBackup;
+      backup_ = pBackup;
    }
 }

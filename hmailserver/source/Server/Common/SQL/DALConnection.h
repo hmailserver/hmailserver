@@ -57,11 +57,11 @@ namespace HM
       virtual shared_ptr<DALRecordset> CreateRecordset() = 0;
       virtual shared_ptr<IMacroExpander> CreateMacroExpander() = 0;
 
-      shared_ptr<DatabaseSettings> GetSettings() {return m_pDatabaseSettings; }
+      shared_ptr<DatabaseSettings> GetSettings() {return database_settings_; }
 
    protected:
 
-      shared_ptr<DatabaseSettings> m_pDatabaseSettings;
+      shared_ptr<DatabaseSettings> database_settings_;
 
    private:
 

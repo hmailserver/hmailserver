@@ -14,7 +14,7 @@
 void
 InterfaceRecipients::Attach(shared_ptr<HM::Message> pMessage)
 {
-   m_pMessage = pMessage;
+   message_ = pMessage;
 
    
 }
@@ -24,10 +24,10 @@ InterfaceRecipients::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pMessage)
+      if (!message_)
          return GetAccessDenied();
 
-      std::vector<shared_ptr<HM::MessageRecipient> > vecRecipients = m_pMessage->GetRecipients()->GetVector();
+      std::vector<shared_ptr<HM::MessageRecipient> > vecRecipients = message_->GetRecipients()->GetVector();
    
       *pVal = (int) vecRecipients.size();
       return S_OK;
@@ -43,13 +43,13 @@ InterfaceRecipients::get_Item(long Index, IInterfaceRecipient **pVal)
 {
    try
    {
-      if (!m_pMessage)
+      if (!message_)
          return GetAccessDenied();
 
       CComObject<InterfaceRecipient>* pInterfaceRecipient = new CComObject<InterfaceRecipient>();
-      pInterfaceRecipient->SetAuthentication(m_pAuthentication);
+      pInterfaceRecipient->SetAuthentication(authentication_);
    
-      std::vector<shared_ptr<HM::MessageRecipient> > vecRecipients = m_pMessage->GetRecipients()->GetVector();
+      std::vector<shared_ptr<HM::MessageRecipient> > vecRecipients = message_->GetRecipients()->GetVector();
    
       if (Index >= (long) vecRecipients.size())
          return DISP_E_BADINDEX;

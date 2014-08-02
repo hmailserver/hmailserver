@@ -62,7 +62,7 @@ private:
 
    // void InternalAdd(shared_ptr<HM::Alias> pObject);
 
-   shared_ptr<HM::Aliases> m_pAliases;
+   shared_ptr<HM::Aliases> aliases_;
    __int64 m_iDomainID;
 
 };

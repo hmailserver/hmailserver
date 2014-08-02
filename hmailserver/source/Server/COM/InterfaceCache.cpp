@@ -30,8 +30,8 @@ InterfaceCache::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
-   m_pCacheConfig = m_pConfig->GetCacheConfiguration();
+   config_ = HM::Configuration::Instance();
+   cache_config_ = config_->GetCacheConfiguration();
 
    return true;
 }
@@ -42,10 +42,10 @@ InterfaceCache::get_Enabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = m_pCacheConfig->GetUseCache() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = cache_config_->GetUseCache() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -59,10 +59,10 @@ InterfaceCache::put_Enabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      m_pCacheConfig->SetUseCache(newVal == VARIANT_TRUE);
+      cache_config_->SetUseCache(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -76,10 +76,10 @@ InterfaceCache::get_DomainCacheTTL(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = m_pCacheConfig->GetDomainCacheTTL();
+      *pVal = cache_config_->GetDomainCacheTTL();
       return S_OK;
    }
    catch (...)
@@ -93,10 +93,10 @@ InterfaceCache::put_DomainCacheTTL(long newVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      m_pCacheConfig->SetDomainCacheTTL(newVal);
+      cache_config_->SetDomainCacheTTL(newVal);
       return S_OK;
    }
    catch (...)
@@ -110,7 +110,7 @@ InterfaceCache::get_DomainHitRate(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -131,10 +131,10 @@ InterfaceCache::get_AccountCacheTTL(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = m_pCacheConfig->GetAccountCacheTTL();
+      *pVal = cache_config_->GetAccountCacheTTL();
       return S_OK;
    }
    catch (...)
@@ -148,10 +148,10 @@ InterfaceCache::put_AccountCacheTTL(long newVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      m_pCacheConfig->SetAccountCacheTTL(newVal);
+      cache_config_->SetAccountCacheTTL(newVal);
       return S_OK;
    }
    catch (...)
@@ -165,7 +165,7 @@ InterfaceCache::get_AccountHitRate(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -185,10 +185,10 @@ InterfaceCache::get_AliasCacheTTL(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = m_pCacheConfig->GetAliasCacheTTL();
+      *pVal = cache_config_->GetAliasCacheTTL();
       return S_OK;
    }
    catch (...)
@@ -202,10 +202,10 @@ InterfaceCache::put_AliasCacheTTL(long newVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      m_pCacheConfig->SetAliasCacheTTL(newVal);
+      cache_config_->SetAliasCacheTTL(newVal);
       return S_OK;
    }
    catch (...)
@@ -219,7 +219,7 @@ InterfaceCache::get_AliasHitRate(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -239,10 +239,10 @@ InterfaceCache::get_DistributionListCacheTTL(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = m_pCacheConfig->GetDistributionListCacheTTL();
+      *pVal = cache_config_->GetDistributionListCacheTTL();
       return S_OK;
    }
    catch (...)
@@ -256,10 +256,10 @@ InterfaceCache::put_DistributionListCacheTTL(long newVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
-      m_pCacheConfig->SetDistributionListCacheTTL(newVal);
+      cache_config_->SetDistributionListCacheTTL(newVal);
       return S_OK;
    }
    catch (...)
@@ -273,7 +273,7 @@ InterfaceCache::get_DistributionListHitRate(long *pVal)
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -293,7 +293,7 @@ InterfaceCache::Clear()
 {
    try
    {
-      if (!m_pCacheConfig)
+      if (!cache_config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())

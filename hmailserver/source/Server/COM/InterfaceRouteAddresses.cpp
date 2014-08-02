@@ -9,7 +9,7 @@
 void
 InterfaceRouteAddresses::Attach(shared_ptr<HM::RouteAddresses> pRouteAddresses)
 {
-   m_pRouteAddresses = pRouteAddresses;
+   route_addresses_ = pRouteAddresses;
 } 
 
 STDMETHODIMP 
@@ -17,10 +17,10 @@ InterfaceRouteAddresses::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
-      *pVal = m_pRouteAddresses->GetCount();
+      *pVal = route_addresses_->GetCount();
    
       return S_OK;
    }
@@ -35,19 +35,19 @@ InterfaceRouteAddresses::get_Item(long Index, IInterfaceRouteAddress **pVal)
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
       CComObject<InterfaceRouteAddress>* pInterfaceRouteAddress = new CComObject<InterfaceRouteAddress>();
-      pInterfaceRouteAddress->SetAuthentication(m_pAuthentication);
+      pInterfaceRouteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RouteAddress> pRouteAddress = m_pRouteAddresses->GetItem(Index);
+      shared_ptr<HM::RouteAddress> pRouteAddress = route_addresses_->GetItem(Index);
    
       if (!pRouteAddress)
          return DISP_E_BADINDEX;  
    
       pInterfaceRouteAddress->AttachItem(pRouteAddress);
-      pInterfaceRouteAddress->AttachParent(m_pRouteAddresses, true);
+      pInterfaceRouteAddress->AttachParent(route_addresses_, true);
       pInterfaceRouteAddress->AddRef();
       *pVal = pInterfaceRouteAddress;
    
@@ -64,10 +64,10 @@ InterfaceRouteAddresses::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
-      m_pRouteAddresses->DeleteItemByDBID(DBID);
+      route_addresses_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -82,11 +82,11 @@ InterfaceRouteAddresses::DeleteByAddress(BSTR bstrAddress)
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
       HM::String sAddress = bstrAddress;
-      m_pRouteAddresses->DeleteByAddress(sAddress);
+      route_addresses_->DeleteByAddress(sAddress);
    
       return S_OK;
    }
@@ -101,21 +101,21 @@ InterfaceRouteAddresses::Add(IInterfaceRouteAddress **pVal)
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
-      if (!m_pRouteAddresses)
-         return m_pAuthentication->GetAccessDenied();
+      if (!route_addresses_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRouteAddress>* pRouteAddressInterface = new CComObject<InterfaceRouteAddress>();
-      pRouteAddressInterface->SetAuthentication(m_pAuthentication);
+      pRouteAddressInterface->SetAuthentication(authentication_);
    
       shared_ptr<HM::RouteAddress> pRouteAddress = shared_ptr<HM::RouteAddress>(new HM::RouteAddress);
    
       // Set the ID of the new route.
-      pRouteAddress->SetRouteID(m_pRouteAddresses->GetRouteID());
+      pRouteAddress->SetRouteID(route_addresses_->GetRouteID());
    
-      pRouteAddressInterface->AttachParent(m_pRouteAddresses, false);
+      pRouteAddressInterface->AttachParent(route_addresses_, false);
       pRouteAddressInterface->AttachItem(pRouteAddress);
    
       pRouteAddressInterface->AddRef();
@@ -134,18 +134,18 @@ InterfaceRouteAddresses::get_ItemByDBID(long lDBID, IInterfaceRouteAddress **pVa
 {
    try
    {
-      if (!m_pRouteAddresses)
+      if (!route_addresses_)
          return GetAccessDenied();
 
       CComObject<InterfaceRouteAddress>* pInterfaceRouteAddress = new CComObject<InterfaceRouteAddress>();
-      pInterfaceRouteAddress->SetAuthentication(m_pAuthentication);
+      pInterfaceRouteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RouteAddress> pRouteAddress = m_pRouteAddresses->GetItemByDBID(lDBID);
+      shared_ptr<HM::RouteAddress> pRouteAddress = route_addresses_->GetItemByDBID(lDBID);
    
       if (pRouteAddress)
       {
          pInterfaceRouteAddress->AttachItem(pRouteAddress);
-         pInterfaceRouteAddress->AttachParent(m_pRouteAddresses, true);
+         pInterfaceRouteAddress->AttachParent(route_addresses_, true);
          pInterfaceRouteAddress->AddRef();
          *pVal = pInterfaceRouteAddress;
       }

@@ -11,13 +11,13 @@ InterfaceGreyListingWhiteAddress::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentGreyListingWhiteAddress::SaveObject(m_pObject))
+      if (HM::PersistentGreyListingWhiteAddress::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -35,10 +35,10 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -52,10 +52,10 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::put_IPAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUserEditableIPAddress(newVal);
+      object_->SetUserEditableIPAddress(newVal);
       return S_OK;
    }
    catch (...)
@@ -68,10 +68,10 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::get_IPAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUserEditableIPAddress().AllocSysString();
+      *pVal = object_->GetUserEditableIPAddress().AllocSysString();
    
       return S_OK;
    }
@@ -85,10 +85,10 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::put_Description(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDescription(newVal);
+      object_->SetDescription(newVal);
       return S_OK;
    }
    catch (...)
@@ -101,10 +101,10 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::get_Description(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDescription().AllocSysString();
+      *pVal = object_->GetDescription().AllocSysString();
    
       return S_OK;
    }
@@ -118,16 +118,16 @@ STDMETHODIMP InterfaceGreyListingWhiteAddress::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentGreyListingWhiteAddress::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentGreyListingWhiteAddress::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

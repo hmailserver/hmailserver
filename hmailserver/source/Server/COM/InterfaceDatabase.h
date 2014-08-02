@@ -79,11 +79,11 @@ public:
 private:
    HRESULT _EnsureDatabaseConnectivity();
 
-   HM::Configuration *m_pConfig;
-   HM::IniFileSettings *m_pIniFileSettings;
-   shared_ptr<HM::DatabaseConnectionManager> m_pDBManager;
+   HM::Configuration *config_;
+   HM::IniFileSettings *ini_file_settings_;
+   shared_ptr<HM::DatabaseConnectionManager> db_manager_;
 
-   shared_ptr<HM::DALConnection> m_pConn;
+   shared_ptr<HM::DALConnection> conn_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Database), InterfaceDatabase)

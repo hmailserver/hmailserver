@@ -11,7 +11,7 @@
 void 
 InterfaceIncomingRelays::Attach(shared_ptr<HM::IncomingRelays> incomingRelays)
 {
-   m_pIncomingRelays = incomingRelays;
+   incoming_relays_ = incomingRelays;
 }
 
 STDMETHODIMP 
@@ -19,10 +19,10 @@ InterfaceIncomingRelays::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
-      *pVal = m_pIncomingRelays->GetCount();
+      *pVal = incoming_relays_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -36,10 +36,10 @@ InterfaceIncomingRelays::Delete(long Index)
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
-      m_pIncomingRelays->DeleteItem(Index);
+      incoming_relays_->DeleteItem(Index);
       return S_OK;
    }
    catch (...)
@@ -53,10 +53,10 @@ InterfaceIncomingRelays::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
-      m_pIncomingRelays->DeleteItemByDBID(DBID);
+      incoming_relays_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -69,10 +69,10 @@ STDMETHODIMP InterfaceIncomingRelays::Refresh()
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
-      m_pIncomingRelays->Refresh();
+      incoming_relays_->Refresh();
       return S_OK;
    }
    catch (...)
@@ -85,18 +85,18 @@ STDMETHODIMP InterfaceIncomingRelays::get_Item(long Index, IInterfaceIncomingRel
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = m_pIncomingRelays->GetItem(Index);
+      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItem(Index);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pIncomingRelays, true);
+         pRangeInt->AttachParent(incoming_relays_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }
@@ -119,18 +119,18 @@ STDMETHODIMP InterfaceIncomingRelays::get_ItemByDBID(long DBID, IInterfaceIncomi
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = m_pIncomingRelays->GetItemByDBID(DBID);
+      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByDBID(DBID);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pIncomingRelays, true);
+         pRangeInt->AttachParent(incoming_relays_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }
@@ -151,19 +151,19 @@ STDMETHODIMP InterfaceIncomingRelays::Add(IInterfaceIncomingRelay **pVal)
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
-      if (!m_pIncomingRelays)
-         return m_pAuthentication->GetAccessDenied();
+      if (!incoming_relays_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceIncomingRelay>* pInterfaceRange = new CComObject<InterfaceIncomingRelay>();
-      pInterfaceRange->SetAuthentication(m_pAuthentication);
+      pInterfaceRange->SetAuthentication(authentication_);
    
       shared_ptr<HM::IncomingRelay> pRange = shared_ptr<HM::IncomingRelay>(new HM::IncomingRelay); 
    
       pInterfaceRange->AttachItem(pRange);
-      pInterfaceRange->AttachParent(m_pIncomingRelays, false);
+      pInterfaceRange->AttachParent(incoming_relays_, false);
    
       pInterfaceRange->AddRef();
       *pVal = pInterfaceRange;
@@ -180,18 +180,18 @@ STDMETHODIMP InterfaceIncomingRelays::get_ItemByName(BSTR sName, IInterfaceIncom
 {
    try
    {
-      if (!m_pIncomingRelays)
+      if (!incoming_relays_)
          return GetAccessDenied();
 
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = m_pIncomingRelays->GetItemByName(sName);
+      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByName(sName);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pIncomingRelays, true);
+         pRangeInt->AttachParent(incoming_relays_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }

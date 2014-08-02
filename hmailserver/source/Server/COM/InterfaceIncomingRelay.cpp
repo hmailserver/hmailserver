@@ -13,13 +13,13 @@ STDMETHODIMP InterfaceIncomingRelay::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentIncomingRelay::SaveObject(m_pObject))
+      if (HM::PersistentIncomingRelay::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -39,10 +39,10 @@ STDMETHODIMP InterfaceIncomingRelay::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -56,10 +56,10 @@ STDMETHODIMP InterfaceIncomingRelay::get_LowerIP(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetLowerIPString().AllocSysString();
+      *pVal = object_->GetLowerIPString().AllocSysString();
    
       return S_OK;
    }
@@ -73,10 +73,10 @@ STDMETHODIMP InterfaceIncomingRelay::put_LowerIP(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetLowerIPString(newVal);
+      object_->SetLowerIPString(newVal);
    
       return S_OK;
    }
@@ -90,10 +90,10 @@ STDMETHODIMP InterfaceIncomingRelay::get_UpperIP(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUpperIPString().AllocSysString();
+      *pVal = object_->GetUpperIPString().AllocSysString();
    
       return S_OK;
    }
@@ -107,10 +107,10 @@ STDMETHODIMP InterfaceIncomingRelay::put_UpperIP(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUpperIPString(newVal);
+      object_->SetUpperIPString(newVal);
    
       return S_OK;
    }
@@ -124,10 +124,10 @@ STDMETHODIMP InterfaceIncomingRelay::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -140,10 +140,10 @@ STDMETHODIMP InterfaceIncomingRelay::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
       return S_OK;
    }
    catch (...)
@@ -156,16 +156,16 @@ STDMETHODIMP InterfaceIncomingRelay::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentIncomingRelay::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentIncomingRelay::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

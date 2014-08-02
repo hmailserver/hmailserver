@@ -112,26 +112,26 @@ namespace HM
    shared_ptr<Rules>
    Account::GetRules()
    {
-      if (m_pRules.get() == NULL)
+      if (rules_.get() == NULL)
       {
-         m_pRules = shared_ptr<Rules>(new Rules(m_iID));
-         m_pRules->Refresh();
+         rules_ = shared_ptr<Rules>(new Rules(m_iID));
+         rules_->Refresh();
       }
    
-      return m_pRules;
+      return rules_;
    }
 
    shared_ptr<IMAPFolders>
    Account::GetFolders()
    {
-      if (m_pFolders.get() == NULL)
+      if (folders_.get() == NULL)
       {
-         m_pFolders = shared_ptr<IMAPFolders>(new HM::IMAPFolders(m_iID, -1));
-         m_pFolders->Refresh();
+         folders_ = shared_ptr<IMAPFolders>(new HM::IMAPFolders(m_iID, -1));
+         folders_->Refresh();
 
       }
 
-      return m_pFolders;
+      return folders_;
    }
 
 

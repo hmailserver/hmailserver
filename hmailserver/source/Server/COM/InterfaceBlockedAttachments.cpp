@@ -11,7 +11,7 @@
 void 
 InterfaceBlockedAttachments::Attach(shared_ptr<HM::BlockedAttachments> pBA) 
 { 
-   m_pBlockedAttachments = pBA; 
+   blocked_attachments_ = pBA; 
 }
 
 STDMETHODIMP 
@@ -19,10 +19,10 @@ InterfaceBlockedAttachments::Refresh()
 {
    try
    {
-      if (!m_pBlockedAttachments)
+      if (!blocked_attachments_)
          return S_FALSE;
    
-      m_pBlockedAttachments->Refresh();
+      blocked_attachments_->Refresh();
    
       return S_OK;
    }
@@ -36,7 +36,7 @@ STDMETHODIMP InterfaceBlockedAttachments::get_Count(long *pVal)
 {
    try
    {
-      *pVal = m_pBlockedAttachments->GetCount();
+      *pVal = blocked_attachments_->GetCount();
    
       return S_OK;
    }
@@ -52,15 +52,15 @@ InterfaceBlockedAttachments::get_Item(long Index, IInterfaceBlockedAttachment **
    try
    {
       CComObject<InterfaceBlockedAttachment>* pInterfaceBlockedAttachment = new CComObject<InterfaceBlockedAttachment>();
-      pInterfaceBlockedAttachment->SetAuthentication(m_pAuthentication);
+      pInterfaceBlockedAttachment->SetAuthentication(authentication_);
    
-      shared_ptr<HM::BlockedAttachment> pBA = m_pBlockedAttachments->GetItem(Index);
+      shared_ptr<HM::BlockedAttachment> pBA = blocked_attachments_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceBlockedAttachment->AttachItem(pBA);
-      pInterfaceBlockedAttachment->AttachParent(m_pBlockedAttachments, true);
+      pInterfaceBlockedAttachment->AttachParent(blocked_attachments_, true);
       pInterfaceBlockedAttachment->AddRef();
       *pVal = pInterfaceBlockedAttachment;
    
@@ -77,10 +77,10 @@ InterfaceBlockedAttachments::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pBlockedAttachments)
+      if (!blocked_attachments_)
          return GetAccessDenied();
 
-      m_pBlockedAttachments->DeleteItemByDBID(DBID);
+      blocked_attachments_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -94,19 +94,19 @@ InterfaceBlockedAttachments::get_ItemByDBID(long lDBID, IInterfaceBlockedAttachm
 {
    try
    {
-      if (!m_pBlockedAttachments)
+      if (!blocked_attachments_)
          return GetAccessDenied();
 
       CComObject<InterfaceBlockedAttachment>* pInterfaceBlockedAttachment = new CComObject<InterfaceBlockedAttachment>();
-      pInterfaceBlockedAttachment->SetAuthentication(m_pAuthentication);
+      pInterfaceBlockedAttachment->SetAuthentication(authentication_);
    
-      shared_ptr<HM::BlockedAttachment> pBA = m_pBlockedAttachments->GetItemByDBID(lDBID);
+      shared_ptr<HM::BlockedAttachment> pBA = blocked_attachments_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceBlockedAttachment->AttachItem(pBA);
-      pInterfaceBlockedAttachment->AttachParent(m_pBlockedAttachments, true);
+      pInterfaceBlockedAttachment->AttachParent(blocked_attachments_, true);
       pInterfaceBlockedAttachment->AddRef();
    
       *pVal = pInterfaceBlockedAttachment;
@@ -124,19 +124,19 @@ InterfaceBlockedAttachments::Add(IInterfaceBlockedAttachment **pVal)
 {
    try
    {
-      if (!m_pBlockedAttachments)
+      if (!blocked_attachments_)
          return GetAccessDenied();
 
-      if (!m_pBlockedAttachments)
-         return m_pAuthentication->GetAccessDenied();
+      if (!blocked_attachments_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceBlockedAttachment>* pInterfaceBlockedAttachment = new CComObject<InterfaceBlockedAttachment>();
-      pInterfaceBlockedAttachment->SetAuthentication(m_pAuthentication);
+      pInterfaceBlockedAttachment->SetAuthentication(authentication_);
    
       shared_ptr<HM::BlockedAttachment> pBA = shared_ptr<HM::BlockedAttachment>(new HM::BlockedAttachment);
    
       pInterfaceBlockedAttachment->AttachItem(pBA);
-      pInterfaceBlockedAttachment->AttachParent(m_pBlockedAttachments, false);
+      pInterfaceBlockedAttachment->AttachParent(blocked_attachments_, false);
    
       pInterfaceBlockedAttachment->AddRef();
    

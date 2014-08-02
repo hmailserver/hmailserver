@@ -52,7 +52,7 @@ public:
    STDMETHOD(put_Parameter)(/*[in]*/ long newVal);
 
 private:
-   shared_ptr<HM::Result> m_pResult;
+   shared_ptr<HM::Result> result_;
 
 };
 

@@ -31,7 +31,7 @@ STDMETHODIMP InterfaceSSLCertificates::InterfaceSupportsErrorInfo(REFIID riid)
 void 
 InterfaceSSLCertificates::Attach(shared_ptr<HM::SSLCertificates> pBA) 
 { 
-   m_pSSLCertificates = pBA; 
+   ssl_certificates_ = pBA; 
 }
 
 STDMETHODIMP 
@@ -39,10 +39,10 @@ InterfaceSSLCertificates::Refresh()
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
    
-      m_pSSLCertificates->Refresh();
+      ssl_certificates_->Refresh();
    
       return S_OK;
    }
@@ -57,10 +57,10 @@ InterfaceSSLCertificates::Clear()
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
    
-      if (!m_pSSLCertificates->DeleteAll())
+      if (!ssl_certificates_->DeleteAll())
          return COMError::GenerateError("Clearing of SSL certificates failed");
    
    
@@ -76,10 +76,10 @@ STDMETHODIMP InterfaceSSLCertificates::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
 
-      *pVal = m_pSSLCertificates->GetCount();
+      *pVal = ssl_certificates_->GetCount();
    
       return S_OK;
    }
@@ -94,19 +94,19 @@ InterfaceSSLCertificates::get_Item(long Index, IInterfaceSSLCertificate **pVal)
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
 
       CComObject<InterfaceSSLCertificate>* pInterfaceSSLCertificate = new CComObject<InterfaceSSLCertificate>();
-      pInterfaceSSLCertificate->SetAuthentication(m_pAuthentication);
+      pInterfaceSSLCertificate->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SSLCertificate> pBA = m_pSSLCertificates->GetItem(Index);
+      shared_ptr<HM::SSLCertificate> pBA = ssl_certificates_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceSSLCertificate->AttachItem(pBA);
-      pInterfaceSSLCertificate->AttachParent(m_pSSLCertificates, true);
+      pInterfaceSSLCertificate->AttachParent(ssl_certificates_, true);
       pInterfaceSSLCertificate->AddRef();
       *pVal = pInterfaceSSLCertificate;
    
@@ -123,10 +123,10 @@ InterfaceSSLCertificates::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
 
-      m_pSSLCertificates->DeleteItemByDBID(DBID);
+      ssl_certificates_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -140,19 +140,19 @@ InterfaceSSLCertificates::get_ItemByDBID(long lDBID, IInterfaceSSLCertificate **
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
 
       CComObject<InterfaceSSLCertificate>* pInterfaceSSLCertificate = new CComObject<InterfaceSSLCertificate>();
-      pInterfaceSSLCertificate->SetAuthentication(m_pAuthentication);
+      pInterfaceSSLCertificate->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SSLCertificate> pBA = m_pSSLCertificates->GetItemByDBID(lDBID);
+      shared_ptr<HM::SSLCertificate> pBA = ssl_certificates_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceSSLCertificate->AttachItem(pBA);
-      pInterfaceSSLCertificate->AttachParent(m_pSSLCertificates, true);
+      pInterfaceSSLCertificate->AttachParent(ssl_certificates_, true);
       pInterfaceSSLCertificate->AddRef();
    
       *pVal = pInterfaceSSLCertificate;
@@ -170,19 +170,19 @@ InterfaceSSLCertificates::Add(IInterfaceSSLCertificate **pVal)
 {
    try
    {
-      if (!m_pSSLCertificates)
+      if (!ssl_certificates_)
          return GetAccessDenied();
 
-      if (!m_pSSLCertificates)
-         return m_pAuthentication->GetAccessDenied();
+      if (!ssl_certificates_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceSSLCertificate>* pInterfaceSSLCertificate = new CComObject<InterfaceSSLCertificate>();
-      pInterfaceSSLCertificate->SetAuthentication(m_pAuthentication);
+      pInterfaceSSLCertificate->SetAuthentication(authentication_);
    
       shared_ptr<HM::SSLCertificate> pBA = shared_ptr<HM::SSLCertificate>(new HM::SSLCertificate);
    
       pInterfaceSSLCertificate->AttachItem(pBA);
-      pInterfaceSSLCertificate->AttachParent(m_pSSLCertificates, false);
+      pInterfaceSSLCertificate->AttachParent(ssl_certificates_, false);
       pInterfaceSSLCertificate->AddRef();
    
       *pVal = pInterfaceSSLCertificate;

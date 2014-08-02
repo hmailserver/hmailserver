@@ -33,7 +33,7 @@ namespace HM
    private:
       
       
-      shared_ptr<SpamTestRunner> m_pSpamTestRunner;
+      shared_ptr<SpamTestRunner> spam_test_runner_;
       
    };
 

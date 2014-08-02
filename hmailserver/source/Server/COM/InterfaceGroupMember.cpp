@@ -19,10 +19,10 @@ InterfaceGroupMember::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (HM::PersistentGroupMember::SaveObject(m_pObject))
+      if (HM::PersistentGroupMember::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -40,10 +40,10 @@ STDMETHODIMP InterfaceGroupMember::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -57,10 +57,10 @@ STDMETHODIMP InterfaceGroupMember::get_GroupID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetGroupID();
+      *pVal = (long) object_->GetGroupID();
    
       return S_OK;
    }
@@ -74,10 +74,10 @@ STDMETHODIMP InterfaceGroupMember::put_GroupID(long iVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetGroupID(iVal);
+      object_->SetGroupID(iVal);
    
       return S_OK;
    }
@@ -91,10 +91,10 @@ STDMETHODIMP InterfaceGroupMember::get_AccountID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetAccountID();
+      *pVal = (long) object_->GetAccountID();
    
       return S_OK;
    }
@@ -108,10 +108,10 @@ STDMETHODIMP InterfaceGroupMember::put_AccountID(long iVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAccountID(iVal);
+      object_->SetAccountID(iVal);
    
       return S_OK;
    }
@@ -126,15 +126,15 @@ InterfaceGroupMember::get_Account(IInterfaceAccount **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceAccount>* pInterfaceAccount = new CComObject<InterfaceAccount>();
-      pInterfaceAccount->SetAuthentication(m_pAuthentication);
+      pInterfaceAccount->SetAuthentication(authentication_);
    
       shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
          
-      if (!HM::PersistentAccount::ReadObject(pAccount, (__int64) m_pObject->GetAccountID()))
+      if (!HM::PersistentAccount::ReadObject(pAccount, (__int64) object_->GetAccountID()))
          return DISP_E_BADINDEX;
    
       pInterfaceAccount->AttachItem(pAccount);
@@ -153,16 +153,16 @@ STDMETHODIMP InterfaceGroupMember::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentGroupMember::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentGroupMember::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

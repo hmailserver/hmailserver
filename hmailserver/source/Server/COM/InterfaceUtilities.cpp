@@ -269,8 +269,8 @@ STDMETHODIMP InterfaceUtilities::MakeDependent(BSTR sOtherService)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::ServiceManager oManager; 
       oManager.MakeDependentOn(sOtherService);
@@ -286,8 +286,8 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFile(BSTR sFilename, long iAcc
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *bIsSuccessful = HM::MailImporter::Import(sFilename, iAccountID, "") ? VARIANT_TRUE : VARIANT_FALSE;
    
@@ -303,8 +303,8 @@ STDMETHODIMP InterfaceUtilities::RetrieveMessageID(BSTR sFilename, hyper *messag
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       __int64 id = 0;
       bool partialFileName;
@@ -327,8 +327,8 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToIMAPFolder(BSTR sFilenam
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *bIsSuccessful = HM::MailImporter::Import(sFilename, iAccountID, sIMAPFolder) ? VARIANT_TRUE : VARIANT_FALSE;
    
@@ -345,8 +345,8 @@ InterfaceUtilities::EmailAllAccounts(BSTR sRecipientWildcard, BSTR sFromAddress,
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::EmailAllUsers oEmailAllUsers;
       *bIsSuccessful = oEmailAllUsers.Start(sRecipientWildcard, sFromAddress, sFromName, sSubject, sBody) ? VARIANT_TRUE : VARIANT_FALSE;
@@ -363,8 +363,8 @@ STDMETHODIMP InterfaceUtilities::RunTestSuite(BSTR sTestPassword)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String sCorrectPassword = _T("I know what I am doing.");
       HM::String sPassword = sTestPassword;
@@ -387,8 +387,8 @@ STDMETHODIMP InterfaceUtilities::PerformMaintenance(eMaintenanceOperation operat
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::Maintenance maintenance;
    

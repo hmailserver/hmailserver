@@ -34,12 +34,12 @@ namespace HM
    IMAPConfiguration::Load()
    {
       // Shared public have their AccountID set to zero.
-      m_pPublicFolders = shared_ptr<IMAPFolders>(new IMAPFolders(0, -1));
-      m_pPublicFolders->Refresh();
+      public_folders_ = shared_ptr<IMAPFolders>(new IMAPFolders(0, -1));
+      public_folders_->Refresh();
 
       // Shared public have their AccountID set to zero.
-      m_pGroups = shared_ptr<Groups>(new Groups());
-      m_pGroups->Refresh();
+      groups_ = shared_ptr<Groups>(new Groups());
+      groups_->Refresh();
 
       return true;
    }
@@ -174,14 +174,14 @@ namespace HM
    shared_ptr<IMAPFolders> 
    IMAPConfiguration::GetPublicFolders()
    {
-      return m_pPublicFolders;
+      return public_folders_;
    }
 
 
    shared_ptr<Groups> 
    IMAPConfiguration::GetGroups()
    {
-      return m_pGroups;
+      return groups_;
    }
 
    bool 

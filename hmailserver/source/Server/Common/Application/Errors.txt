@@ -92,7 +92,7 @@
 5409, TransparentTransmissionBuffer::Append. Error when checking for linebreaks.
 5410, ByteBuffer::~ByteBuffer. Error when emptying buffer. This: %d
 5411, TransparentTransmissionBuffer::Append. pBuffer is NULL
-5412, TransparentTransmissionBuffer::Append. m_pBuffer is NULL
+5412, TransparentTransmissionBuffer::Append. buffer_ is NULL
 5413, TransparentTransmissionBuffer::Append. Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d
 5414, POP3Connection::_ReadAndSend. An unknown error occurred while reading and sending file data.
 5415, IniFileSettings::LoadSettings, Error determening database type. Type: {0}

@@ -153,7 +153,7 @@ namespace HM
       // String sql = Formatter::Format("select * from hm_messages where messagetype = 1 and messagelocked = 0 and messagenexttrytime <= {0} order by messageid asc", SQLStatement::GetCurrentTimestamp());
       SQLCommand command(sql);
 
-      m_pPendingMessages = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      pending_messages_ = Application::Instance()->GetDBManager()->OpenRecordset(command);
    }
 
    shared_ptr<Message>
@@ -165,7 +165,7 @@ namespace HM
    // 0 is returned if no messages exists.
    //---------------------------------------------------------------------------()
    {
-      if (!m_pPendingMessages || m_pPendingMessages->IsEOF() || m_bUncachePendingMessages)
+      if (!pending_messages_ || pending_messages_->IsEOF() || m_bUncachePendingMessages)
       {
          m_bUncachePendingMessages = false;
 
@@ -173,11 +173,11 @@ namespace HM
       }
 
       shared_ptr<Message> pRetMessage;
-      if (!m_pPendingMessages || m_pPendingMessages->IsEOF())
+      if (!pending_messages_ || pending_messages_->IsEOF())
          return pRetMessage;
       
       // Fetch the ID of the first message
-      __int64 iMessageID = m_pPendingMessages->GetInt64Value("messageid");
+      __int64 iMessageID = pending_messages_->GetInt64Value("messageid");
 
       // Try to read this message from the message cache. Might fail.
       pRetMessage = MessageCache::Instance()->GetMessage(iMessageID);
@@ -188,11 +188,11 @@ namespace HM
          // require 1 extra statement towards the database, since we
          // need to read recipients 
          pRetMessage = shared_ptr<Message> (new Message(false));
-         PersistentMessage::ReadObject(m_pPendingMessages, pRetMessage);
+         PersistentMessage::ReadObject(pending_messages_, pRetMessage);
       }
 
       // Move to the next message in the cache.
-      m_pPendingMessages->MoveNext();
+      pending_messages_->MoveNext();
 
       return pRetMessage;
    }

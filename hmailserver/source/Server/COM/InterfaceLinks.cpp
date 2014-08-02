@@ -23,20 +23,20 @@ STDMETHODIMP InterfaceLinks::get_Domain(long DBID, IInterfaceDomain **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
-      bool domainAdminOK = m_pAuthentication->GetIsDomainAdmin() && m_pAuthentication->GetDomainID() == DBID;
+      bool domainAdminOK = authentication_->GetIsDomainAdmin() && authentication_->GetDomainID() == DBID;
       
-      if (!m_pAuthentication->GetIsServerAdmin() && !domainAdminOK)
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin() && !domainAdminOK)
+         return authentication_->GetAccessDenied();
    
       shared_ptr<HM::Domain> pDomain = shared_ptr<HM::Domain>(new HM::Domain);
       if (!HM::PersistentDomain::ReadObject(pDomain, DBID))
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceDomain>* pInterface = new CComObject<InterfaceDomain>();
-      pInterface->SetAuthentication(m_pAuthentication);
+      pInterface->SetAuthentication(authentication_);
       pInterface->AttachItem(pDomain);
       pInterface->AddRef();
       *pVal = pInterface;
@@ -52,21 +52,21 @@ STDMETHODIMP InterfaceLinks::get_Account(long DBID, IInterfaceAccount **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
       if (!HM::PersistentAccount::ReadObject(pAccount, DBID))
          return DISP_E_BADINDEX;
    
-      bool accountAdminOK =! m_pAuthentication->GetIsDomainAdmin() && m_pAuthentication->GetAccountID() == pAccount->GetID();
-      bool domainAdminOK = m_pAuthentication->GetIsDomainAdmin() && m_pAuthentication->GetDomainID() == pAccount->GetDomainID();
+      bool accountAdminOK =! authentication_->GetIsDomainAdmin() && authentication_->GetAccountID() == pAccount->GetID();
+      bool domainAdminOK = authentication_->GetIsDomainAdmin() && authentication_->GetDomainID() == pAccount->GetDomainID();
    
-      if (!m_pAuthentication->GetIsServerAdmin() && !domainAdminOK && !accountAdminOK)
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin() && !domainAdminOK && !accountAdminOK)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAccount>* pInterface = new CComObject<InterfaceAccount>();
-      pInterface->SetAuthentication(m_pAuthentication);
+      pInterface->SetAuthentication(authentication_);
       pInterface->AttachItem(pAccount);
       pInterface->AddRef();
       *pVal = pInterface;
@@ -82,20 +82,20 @@ STDMETHODIMP InterfaceLinks::get_Alias(long DBID, IInterfaceAlias **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       shared_ptr<HM::Alias> pAlias = shared_ptr<HM::Alias>(new HM::Alias);
       if (!HM::PersistentAlias::ReadObject(pAlias, DBID))
          return DISP_E_BADINDEX;
    
-      bool domainAdminOK = m_pAuthentication->GetIsDomainAdmin() && m_pAuthentication->GetDomainID() == pAlias->GetDomainID();
+      bool domainAdminOK = authentication_->GetIsDomainAdmin() && authentication_->GetDomainID() == pAlias->GetDomainID();
    
-      if (!m_pAuthentication->GetIsServerAdmin() && !domainAdminOK)
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin() && !domainAdminOK)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAlias>* pInterface = new CComObject<InterfaceAlias>();
-      pInterface->SetAuthentication(m_pAuthentication);
+      pInterface->SetAuthentication(authentication_);
       pInterface->AttachItem(pAlias);
       pInterface->AddRef();
       *pVal = pInterface;
@@ -111,20 +111,20 @@ STDMETHODIMP InterfaceLinks::get_DistributionList(long DBID, IInterfaceDistribut
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       shared_ptr<HM::DistributionList> pList = shared_ptr<HM::DistributionList>(new HM::DistributionList);
       if (!HM::PersistentDistributionList::ReadObject(pList, DBID))
          return DISP_E_BADINDEX;
    
-      bool domainAdminOK = m_pAuthentication->GetIsDomainAdmin() && m_pAuthentication->GetDomainID() == pList->GetDomainID();
+      bool domainAdminOK = authentication_->GetIsDomainAdmin() && authentication_->GetDomainID() == pList->GetDomainID();
    
-      if (!m_pAuthentication->GetIsServerAdmin() && !domainAdminOK)
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin() && !domainAdminOK)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDistributionList>* pInterface = new CComObject<InterfaceDistributionList>();
-      pInterface->SetAuthentication(m_pAuthentication);
+      pInterface->SetAuthentication(authentication_);
       pInterface->AttachItem(pList);
       pInterface->AddRef();
     

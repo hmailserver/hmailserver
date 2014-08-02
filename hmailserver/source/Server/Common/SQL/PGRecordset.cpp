@@ -16,7 +16,7 @@ namespace HM
 {
    PGRecordset::PGRecordset() :
       m_iRowCount(0),
-      m_pResult(0),
+      result_(0),
       m_iCurRowNum(0)
    {
        
@@ -49,18 +49,18 @@ namespace HM
 
          PGconn *pPG = pConn->GetConnection();
         
-         m_pResult = PQexec(pPG, sQuery);
+         result_ = PQexec(pPG, sQuery);
 
-         DALConnection::ExecutionResult result = pConn->CheckError(m_pResult, sSQL, sErrorMessage);
+         DALConnection::ExecutionResult result = pConn->CheckError(result_, sSQL, sErrorMessage);
          if (result != DALConnection::DALSuccess)
             return result;
 
-         ExecStatusType iExecResult = PQresultStatus(m_pResult);
+         ExecStatusType iExecResult = PQresultStatus(result_);
 
          if (iExecResult == PGRES_COMMAND_OK)
             m_iRowCount = 0;
          else
-            m_iRowCount = PQntuples(m_pResult);
+            m_iRowCount = PQntuples(result_);
 
          // We're at the first row.
          m_iCurRowNum = 0;
@@ -83,9 +83,9 @@ namespace HM
    {
       try
       {
-         if (m_pResult)
+         if (result_)
          {
-            PQclear(m_pResult);
+            PQclear(result_);
          }
       }
       catch (...)
@@ -110,7 +110,7 @@ namespace HM
    bool
    PGRecordset::IsEOF() const
    {
-      if (!m_pResult)
+      if (!result_)
          return true;
 
       try
@@ -154,7 +154,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
 
          if (pValue == 0 || strlen(pValue) == 0)
             return "";
@@ -192,7 +192,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
       }
@@ -219,7 +219,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
       }
@@ -246,7 +246,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         char *pValue = PQgetvalue(result_, m_iCurRowNum, iColIdx);
          double dbVal = pValue ? atof(pValue) : 0;
 
          return dbVal;
@@ -265,18 +265,18 @@ namespace HM
    // Returns the index of a column in the recordset, based on the columns name.
    //---------------------------------------------------------------------------()
    {
-      if (!m_pResult)
+      if (!result_)
       {
          // Result set wasn't initialized. Shouldn't happen.
          ErrorManager::Instance()->ReportError(HM::ErrorManager::High, 5093, "PGConnection::Close", "An unknown error occurred while closing recordset.");
          return 0;
       }
 
-      unsigned int iFieldCount = PQnfields(m_pResult);
+      unsigned int iFieldCount = PQnfields(result_);
 
       for (unsigned int i = 0; i <= iFieldCount; i++)
       {
-         AnsiString sColName = PQfname(m_pResult, i);
+         AnsiString sColName = PQfname(result_, i);
 
          if (sColName == sColumnName)
             return i;
@@ -294,11 +294,11 @@ namespace HM
    {
       vector<AnsiString> result;
 
-      unsigned int iFieldCount = PQnfields(m_pResult);
+      unsigned int iFieldCount = PQnfields(result_);
 
       for (unsigned int i = 0; i <= iFieldCount; i++)
       {
-         AnsiString sColName = PQfname(m_pResult, i);
+         AnsiString sColName = PQfname(result_, i);
 
          result.push_back(sColName);
 
@@ -325,7 +325,7 @@ namespace HM
       try
       {
          int iColIdx = _GetColumnIndex(FieldName);
-         bool isNull = PQgetisnull(m_pResult, m_iCurRowNum, iColIdx) == 1;
+         bool isNull = PQgetisnull(result_, m_iCurRowNum, iColIdx) == 1;
 
          return isNull;
       }

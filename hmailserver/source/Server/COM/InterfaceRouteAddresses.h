@@ -51,7 +51,7 @@ END_COM_MAP()
 
 public:
 
-   shared_ptr<HM::RouteAddresses> m_pRouteAddresses;
+   shared_ptr<HM::RouteAddresses> route_addresses_;
 
 };
 

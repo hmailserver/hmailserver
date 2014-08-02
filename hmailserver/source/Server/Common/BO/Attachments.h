@@ -28,7 +28,7 @@ namespace HM
    private:
       std::vector<shared_ptr<Attachment> > vecObjects;
 
-      shared_ptr<MimeBody> m_pMimeBody;
-      MessageData *m_pMsgData;
+      shared_ptr<MimeBody> mime_body_;
+      MessageData *msg_data_;
    };
 }

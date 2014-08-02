@@ -40,7 +40,7 @@ namespace HM
       
       shared_ptr<ByteBuffer> GetBuffer() 
       {
-         return m_pBuffer; 
+         return buffer_; 
       }
 
       bool GetTransmissionEnded()
@@ -69,7 +69,7 @@ namespace HM
       void _InsertTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
       void _RemoveTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
 
-      shared_ptr<ByteBuffer> m_pBuffer;
+      shared_ptr<ByteBuffer> buffer_;
       // The buffer containing the data to send/receive.
       
       bool m_bTransmissionEnded;
@@ -82,7 +82,7 @@ namespace HM
       
       // Output types
       File m_oFile;
-      weak_ptr<TCPConnection> m_pTCPConnection;
+      weak_ptr<TCPConnection> tcp_connection_;
 
       unsigned    int m_iDataSent;
       unsigned int m_iMaxSizeKB;

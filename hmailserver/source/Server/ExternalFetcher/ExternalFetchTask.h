@@ -19,6 +19,6 @@ namespace HM
 
    private:
 
-      shared_ptr<FetchAccount> m_pFA;
+      shared_ptr<FetchAccount> fetch_account_;
    };
 }

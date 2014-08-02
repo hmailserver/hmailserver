@@ -58,7 +58,7 @@ public:
 
 private:
 
-   shared_ptr<HM::RuleCriterias> m_pRuleCriterias;
+   shared_ptr<HM::RuleCriterias> rule_criterias;
 
 
 

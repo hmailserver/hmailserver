@@ -42,7 +42,7 @@ namespace HM
    void 
    IMAPCommandAppend::_KillCurrentMessage()
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return;
 
       if (FileUtilities::Exists(m_sMessageFileName))
@@ -124,11 +124,11 @@ namespace HM
          }
       }
 
-      m_pDestinationFolder = pConnection->GetFolderByFullPath(sFolderName);
-      if (!m_pDestinationFolder)
+      destination_folder_ = pConnection->GetFolderByFullPath(sFolderName);
+      if (!destination_folder_)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
-      if (!m_pDestinationFolder->IsPublicFolder())
+      if (!destination_folder_->IsPublicFolder())
       {
          // Make sure that this message fits in the mailbox.
          shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
@@ -140,24 +140,24 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
       }
 
-      if (!pConnection->CheckPermission(m_pDestinationFolder, ACLPermission::PermissionInsert))
+      if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for APPEND command).");
 
 
 
-      __int64 lFolderID = m_pDestinationFolder->GetID();
+      __int64 lFolderID = destination_folder_->GetID();
 
-      m_pCurrentMessage = shared_ptr<Message>(new Message);
-      m_pCurrentMessage->SetAccountID(m_pDestinationFolder->GetAccountID());
-      m_pCurrentMessage->SetFolderID(lFolderID);
+      current_message_ = shared_ptr<Message>(new Message);
+      current_message_->SetAccountID(destination_folder_->GetAccountID());
+      current_message_->SetFolderID(lFolderID);
 
       // Construct a file name which we'll write the message to.
       // Should we connect this message to an account? Yes, if this is not a public folder.
       shared_ptr<const Account> pMessageOwner;
-      if (!m_pDestinationFolder->IsPublicFolder())
+      if (!destination_folder_->IsPublicFolder())
          pMessageOwner = pConnection->GetAccount();
 
-      m_sMessageFileName = PersistentMessage::GetFileName(pMessageOwner, m_pCurrentMessage);
+      m_sMessageFileName = PersistentMessage::GetFileName(pMessageOwner, current_message_);
 
       String sResponse = "+ Ready for literal data\r\n";
       pConnection->SetReceiveBinary(true);
@@ -195,7 +195,7 @@ namespace HM
    bool
    IMAPCommandAppend::_WriteData(const shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return false;
 
       String destinationPath = FileUtilities::GetFilePath(m_sMessageFileName);
@@ -229,12 +229,12 @@ namespace HM
    void
    IMAPCommandAppend::_Finish(shared_ptr<IMAPConnection> pConnection)
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return;
 
       // Add this message to the folder.
-      m_pCurrentMessage->SetSize(FileUtilities::FileSize(m_sMessageFileName));
-      m_pCurrentMessage->SetState(Message::Delivered);
+      current_message_->SetSize(FileUtilities::FileSize(m_sMessageFileName));
+      current_message_->SetState(Message::Delivered);
 
       // Set message flags.
       bool bSeen = (m_sFlagsToSet.FindNoCase(_T("\\Seen")) >= 0);
@@ -246,37 +246,37 @@ namespace HM
       if (bSeen)
       {
          // ACL: If user tries to set the Seen flag, check that he has permission to do so.
-         if (!pConnection->CheckPermission(m_pDestinationFolder, ACLPermission::PermissionWriteSeen))
+         if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteSeen))
          {
             // User does not have permission to set the Seen flag. 
             bSeen = false;
          }
       }
 
-      m_pCurrentMessage->SetFlagDeleted(bDeleted);
-      m_pCurrentMessage->SetFlagSeen(bSeen);
-      m_pCurrentMessage->SetFlagDraft(bDraft);
-      m_pCurrentMessage->SetFlagAnswered(bAnswered);
-      m_pCurrentMessage->SetFlagFlagged(bFlagged);
+      current_message_->SetFlagDeleted(bDeleted);
+      current_message_->SetFlagSeen(bSeen);
+      current_message_->SetFlagDraft(bDraft);
+      current_message_->SetFlagAnswered(bAnswered);
+      current_message_->SetFlagFlagged(bFlagged);
 
-      m_pCurrentMessage->SetFlagRecent(true);
+      current_message_->SetFlagRecent(true);
          
       // Set the create time
       if (!m_sCreateTimeToSet.IsEmpty())
       {
          // Convert to internal format
          m_sCreateTimeToSet = Time::GetInternalDateFromIMAPInternalDate(m_sCreateTimeToSet);
-         m_pCurrentMessage->SetCreateTime(m_sCreateTimeToSet);
+         current_message_->SetCreateTime(m_sCreateTimeToSet);
       }
 
-      PersistentMessage::SaveObject(m_pCurrentMessage);
-      m_pDestinationFolder->SetFolderNeedsRefresh();
+      PersistentMessage::SaveObject(current_message_);
+      destination_folder_->SetFolderNeedsRefresh();
 
       String sResponse;
       if (pConnection->GetCurrentFolder() &&
-          pConnection->GetCurrentFolder()->GetID() == m_pDestinationFolder->GetID())
+          pConnection->GetCurrentFolder()->GetID() == destination_folder_->GetID())
       {
-         shared_ptr<Messages> messages = m_pDestinationFolder->GetMessages();
+         shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
          sResponse += IMAPNotificationClient::GenerateRecentString(messages->GetNoOfRecent());
       }
@@ -287,11 +287,11 @@ namespace HM
 
       // Notify the mailbox notifier that the mailbox contents have changed. 
       shared_ptr<ChangeNotification> pNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(m_pDestinationFolder->GetAccountID(), m_pDestinationFolder->GetID(), ChangeNotification::NotificationMessageAdded));
+         shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageAdded));
       Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
 
-      m_pDestinationFolder.reset();
-      m_pCurrentMessage.reset();
+      destination_folder_.reset();
+      current_message_.reset();
    }
 
    int 

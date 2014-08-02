@@ -8,7 +8,7 @@
 void
 InterfaceDeliveryQueue::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
 {
-   m_pAuthentication = pAuthentication;
+   authentication_ = pAuthentication;
 }
 
 STDMETHODIMP 
@@ -16,10 +16,10 @@ InterfaceDeliveryQueue::Clear()
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
+      if (!authentication_->GetIsServerAdmin())
       {
          return COMError::GenerateError("Server admin privileges are required to clear queue.");
       }
@@ -38,10 +38,10 @@ InterfaceDeliveryQueue::ResetDeliveryTime(hyper iMessageID)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
+      if (!authentication_->GetIsServerAdmin())
          return S_FALSE;
    
       HM::DeliveryQueue::ResetDeliveryTime(iMessageID);
@@ -58,10 +58,10 @@ InterfaceDeliveryQueue::Remove(hyper iMessageID)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
+      if (!authentication_->GetIsServerAdmin())
          return S_FALSE;
    
       HM::DeliveryQueue::Remove(iMessageID);
@@ -78,10 +78,10 @@ InterfaceDeliveryQueue::StartDelivery()
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
+      if (!authentication_->GetIsServerAdmin())
          return S_FALSE;
    
       HM::DeliveryQueue::StartDelivery();

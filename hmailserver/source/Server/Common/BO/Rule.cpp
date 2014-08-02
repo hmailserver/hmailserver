@@ -37,25 +37,25 @@ namespace HM
    shared_ptr<RuleCriterias>
    Rule::GetCriterias()
    {
-      if (!m_pCriterias)
+      if (!criterias_)
       {
-         m_pCriterias = shared_ptr<RuleCriterias>(new RuleCriterias(m_iID));
-         m_pCriterias->Refresh();
+         criterias_ = shared_ptr<RuleCriterias>(new RuleCriterias(m_iID));
+         criterias_->Refresh();
       }
 
-      return m_pCriterias;
+      return criterias_;
    }
 
    shared_ptr<RuleActions>
    Rule::GetActions()
    {
-      if (!m_pActions)
+      if (!actions_)
       {
-         m_pActions = shared_ptr<RuleActions>(new RuleActions(m_iID));
-         m_pActions->Refresh();
+         actions_ = shared_ptr<RuleActions>(new RuleActions(m_iID));
+         actions_->Refresh();
       }
 
-      return m_pActions;
+      return actions_;
    }
 
    bool

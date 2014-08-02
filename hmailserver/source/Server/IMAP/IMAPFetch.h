@@ -49,7 +49,7 @@ namespace HM
 
       bool m_bAppendSpace;
 
-      shared_ptr<IMAPFetchParser> m_pParser;
+      shared_ptr<IMAPFetchParser> parser_;
 
    };
 

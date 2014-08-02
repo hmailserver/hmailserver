@@ -40,11 +40,11 @@ InterfaceGroup::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentGroup::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
+      if (HM::PersistentGroup::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -63,10 +63,10 @@ STDMETHODIMP InterfaceGroup::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -80,10 +80,10 @@ STDMETHODIMP InterfaceGroup::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -96,10 +96,10 @@ STDMETHODIMP InterfaceGroup::put_Name(BSTR sVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(sVal);
+      object_->SetName(sVal);
       return S_OK;
    }
    catch (...)
@@ -112,14 +112,14 @@ STDMETHODIMP InterfaceGroup::get_Members(IInterfaceGroupMembers **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
       CComObject<InterfaceGroupMembers>* pItem = new CComObject<InterfaceGroupMembers>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMembers> pGM = m_pObject->GetMembers();
+      shared_ptr<HM::GroupMembers> pGM = object_->GetMembers();
    
       if (pGM)
       {
@@ -141,16 +141,16 @@ STDMETHODIMP InterfaceGroup::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentGroup::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentGroup::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

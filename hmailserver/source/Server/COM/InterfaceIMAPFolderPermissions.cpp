@@ -14,21 +14,21 @@
 void 
 InterfaceIMAPFolderPermissions::AttachItem(shared_ptr<HM::IMAPFolder> pFolder)
 {
-   m_pFolder = pFolder;
+   folder_ = pFolder;
    
    // Fetch the permissions in this ACL. It's really these we are
    // interested in in this interface.
-   m_pACLPermissions = m_pFolder->GetPermissions();
+   acl_permission_ = folder_->GetPermissions();
 }
 
 STDMETHODIMP InterfaceIMAPFolderPermissions::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
-      *pVal = m_pACLPermissions->GetCount();
+      *pVal = acl_permission_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -41,10 +41,10 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::Delete(long Index)
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
-      m_pACLPermissions->DeleteItem(Index);
+      acl_permission_->DeleteItem(Index);
       return S_OK;
    }
    catch (...)
@@ -57,10 +57,10 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::Refresh()
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
-      m_pACLPermissions->Refresh();
+      acl_permission_->Refresh();
       return S_OK;
    }
    catch (...)
@@ -73,19 +73,19 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::get_Item(long Index, IInterfaceIMAP
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolderPermission>* pACLPermission = new CComObject<InterfaceIMAPFolderPermission>();
-      pACLPermission->SetAuthentication(m_pAuthentication);
+      pACLPermission->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ACLPermission> pPersACLPermission = m_pACLPermissions->GetItem(Index);
+      shared_ptr<HM::ACLPermission> pPersACLPermission = acl_permission_->GetItem(Index);
    
       if (!pPersACLPermission)
          return DISP_E_BADINDEX;  
    
       pACLPermission->AttachItem(pPersACLPermission);
-      pACLPermission->AttachParent(m_pACLPermissions, true);
+      pACLPermission->AttachParent(acl_permission_, true);
       pACLPermission->AddRef();
       *pVal = pACLPermission;
       return S_OK;
@@ -100,24 +100,24 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::Add(IInterfaceIMAPFolderPermission 
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pACLPermissions)
-         return m_pAuthentication->GetAccessDenied();
+      if (!acl_permission_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceIMAPFolderPermission>* pIntACLPermission = new CComObject<InterfaceIMAPFolderPermission>();
-      pIntACLPermission->SetAuthentication(m_pAuthentication);
+      pIntACLPermission->SetAuthentication(authentication_);
    
       shared_ptr<HM::ACLPermission> pACLPermission = shared_ptr<HM::ACLPermission>(new HM::ACLPermission);
    
-      pACLPermission->SetShareFolderID(m_pFolder->GetID());
+      pACLPermission->SetShareFolderID(folder_->GetID());
    
       pIntACLPermission->AttachItem(pACLPermission);
-      pIntACLPermission->AttachParent(m_pACLPermissions, false);
+      pIntACLPermission->AttachParent(acl_permission_, false);
    
       pIntACLPermission->AddRef();
       *pVal = pIntACLPermission;
@@ -134,18 +134,18 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::get_ItemByDBID(long DBID, IInterfac
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolderPermission>* pACLPermission = new CComObject<InterfaceIMAPFolderPermission>();
-      pACLPermission->SetAuthentication(m_pAuthentication);
+      pACLPermission->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ACLPermission> pPersACLPermission = m_pACLPermissions->GetItemByDBID(DBID);
+      shared_ptr<HM::ACLPermission> pPersACLPermission = acl_permission_->GetItemByDBID(DBID);
    
       if (pPersACLPermission)
       {
          pACLPermission->AttachItem(pPersACLPermission);
-         pACLPermission->AttachParent(m_pACLPermissions, true);
+         pACLPermission->AttachParent(acl_permission_, true);
          pACLPermission->AddRef();
          *pVal = pACLPermission;
       }
@@ -167,12 +167,12 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
    
-      if (m_pACLPermissions)
-         m_pACLPermissions->DeleteItemByDBID(DBID);
+      if (acl_permission_)
+         acl_permission_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -186,18 +186,18 @@ STDMETHODIMP InterfaceIMAPFolderPermissions::get_ItemByName(BSTR Name, IInterfac
 {
    try
    {
-      if (!m_pACLPermissions)
+      if (!acl_permission_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolderPermission>* pACLPermission = new CComObject<InterfaceIMAPFolderPermission>();
-      pACLPermission->SetAuthentication(m_pAuthentication);
+      pACLPermission->SetAuthentication(authentication_);
    
-      shared_ptr<HM::ACLPermission> pPersACLPermission = m_pACLPermissions->GetItemByName(Name);
+      shared_ptr<HM::ACLPermission> pPersACLPermission = acl_permission_->GetItemByName(Name);
    
       if (pPersACLPermission)
       {
          pACLPermission->AttachItem(pPersACLPermission);
-         pACLPermission->AttachParent(m_pACLPermissions, true);
+         pACLPermission->AttachParent(acl_permission_, true);
          pACLPermission->AddRef();
          *pVal = pACLPermission;
       }

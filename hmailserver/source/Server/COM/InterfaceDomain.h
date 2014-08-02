@@ -155,7 +155,7 @@ END_COM_MAP()
    // dkim end.
 private:
    
-   shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   shared_ptr<HM::COMAuthentication> authentication_;
 
 #ifdef _DEBUG
    static long counter;

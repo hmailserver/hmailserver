@@ -24,8 +24,8 @@ namespace HM
       // Empties the entire buffer, except for the
       // remaining bytes
 
-      const BYTE* GetBuffer() const {return m_pBuffer; }
-      const char* GetCharBuffer() const  {return (const char*) m_pBuffer; }
+      const BYTE* GetBuffer() const {return buffer_; }
+      const char* GetCharBuffer() const  {return (const char*) buffer_; }
       // Returns pointer to the buffer
 
       void Add(const BYTE *pBuf, long lSize);
@@ -40,7 +40,7 @@ namespace HM
 
    private:
 
-      BYTE *m_pBuffer;
+      BYTE *buffer_;
       long m_lBufferSize;
    };
 

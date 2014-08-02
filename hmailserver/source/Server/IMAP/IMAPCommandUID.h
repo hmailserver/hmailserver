@@ -22,7 +22,7 @@ namespace HM
       
       void _ShowForMails(const String &sMailNo, const String &sShowPart);
       
-      shared_ptr<HM::IMAPCommandRangeAction> m_pCommand;
+      shared_ptr<HM::IMAPCommandRangeAction> command_;
    };
 
 }

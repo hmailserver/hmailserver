@@ -57,7 +57,7 @@ public:
 
 private:
 
-   shared_ptr<HM::RuleActions> m_pRuleActions;
+   shared_ptr<HM::RuleActions> rule_actions_;
 
 };
 

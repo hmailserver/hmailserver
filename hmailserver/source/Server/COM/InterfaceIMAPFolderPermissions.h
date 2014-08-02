@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-   void AttachItem(shared_ptr<HM::IMAPFolder> m_pFolder);
+   void AttachItem(shared_ptr<HM::IMAPFolder> folder_);
    
 
 
@@ -67,8 +67,8 @@ public:
 
 private:
 
-   shared_ptr<HM::IMAPFolder> m_pFolder;
-   shared_ptr<HM::ACLPermissions> m_pACLPermissions;
+   shared_ptr<HM::IMAPFolder> folder_;
+   shared_ptr<HM::ACLPermissions> acl_permission_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(IMAPFolderPermissions), InterfaceIMAPFolderPermissions)

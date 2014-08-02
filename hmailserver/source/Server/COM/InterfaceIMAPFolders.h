@@ -57,7 +57,7 @@ END_COM_MAP()
    void Attach(shared_ptr<HM::IMAPFolders> pFolders);
 public:
    
-   shared_ptr<HM::IMAPFolders> m_pObject;
+   shared_ptr<HM::IMAPFolders> object_;
 
 };
 

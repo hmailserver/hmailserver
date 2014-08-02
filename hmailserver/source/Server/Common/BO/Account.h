@@ -151,8 +151,8 @@ namespace HM
       bool m_bEnableSignature;
 
       shared_ptr<Messages> m_oMessages;
-      shared_ptr<Rules> m_pRules;
-      shared_ptr<IMAPFolders> m_pFolders;
+      shared_ptr<Rules> rules_;
+      shared_ptr<IMAPFolders> folders_;
       
       AdminLevel m_iAdminLevel;
 

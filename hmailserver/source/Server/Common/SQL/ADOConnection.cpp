@@ -78,11 +78,11 @@ namespace HM
    DALConnection::ConnectionResult
    ADOConnection::Connect(String &sErrorMessage)
    {
-      String sUsername = m_pDatabaseSettings->GetUsername();
-      String sPassword = m_pDatabaseSettings->GetPassword();
-      String sServer = m_pDatabaseSettings->GetServer();
-      String sDatabase = m_pDatabaseSettings->GetDatabaseName();
-      String sServerFailoverPartner = m_pDatabaseSettings->GetDatabaseServerFailoverPartner();
+      String sUsername = database_settings_->GetUsername();
+      String sPassword = database_settings_->GetPassword();
+      String sServer = database_settings_->GetServer();
+      String sDatabase = database_settings_->GetDatabaseName();
+      String sServerFailoverPartner = database_settings_->GetDatabaseServerFailoverPartner();
 
       String sProvider = "sqloledb";
       if (!sServerFailoverPartner.IsEmpty())

@@ -113,7 +113,7 @@ namespace HM
       // Deletes the UID's in the local database if 
       // the UID does not exist on the POP3 server.
 
-      shared_ptr<FetchAccount> m_pAccount;
+      shared_ptr<FetchAccount> account_;
       // The current fetch account.
 
       void _RemoveInvalidRecipients();
@@ -143,11 +143,11 @@ namespace HM
 
       map<int ,String>::iterator m_iterCurMessage;
 
-      shared_ptr<Message> m_pCurrentMessage;
+      shared_ptr<Message> current_message_;
 
       String m_sReceivingAccountAddress;
 
-      shared_ptr<TransparentTransmissionBuffer> m_pTransmissionBuffer;
+      shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 
       map<String, shared_ptr<Result> > _eventResults;
 

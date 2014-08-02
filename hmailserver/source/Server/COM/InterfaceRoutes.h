@@ -63,7 +63,7 @@ END_COM_MAP()
 
 public:
 
-   shared_ptr<HM::Routes> m_pRoutes;
+   shared_ptr<HM::Routes> routes_;
 
 };
 

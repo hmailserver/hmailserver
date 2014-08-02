@@ -54,8 +54,8 @@ namespace HM
    private:
       shared_ptr<PropertySet> _GetSettings() const;
 
-      shared_ptr<IMAPFolders> m_pPublicFolders;
-      shared_ptr<Groups> m_pGroups;
+      shared_ptr<IMAPFolders> public_folders_;
+      shared_ptr<Groups> groups_;
    };
 
 }

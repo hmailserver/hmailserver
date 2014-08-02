@@ -25,7 +25,7 @@ namespace HM
 
       bool _FetchIsAllowed(shared_ptr<FetchAccount> pFA);
 
-      shared_ptr<FetchAccounts> m_pFetchAccounts;
+      shared_ptr<FetchAccounts> fetch_accounts_;
 
       int m_iQueueID;
       const String m_sQueueName;

@@ -10,8 +10,8 @@
 void 
 InterfaceMessageHeader::AttachItem (shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField)
 {
-   m_pHeader = pHeader;
-   m_pObject = pField;
+   header_ = pHeader;
+   object_ = pField;
 }
 
 
@@ -20,7 +20,7 @@ InterfaceMessageHeader::Delete()
 {
    try
    {
-      m_pHeader->DeleteField(m_pObject);
+      header_->DeleteField(object_);
       return S_OK;
    }
    catch (...)
@@ -34,7 +34,7 @@ STDMETHODIMP InterfaceMessageHeader::put_Name(BSTR newVal)
    try
    {
       HM::AnsiString sName = newVal;
-      m_pObject->SetName(sName);
+      object_->SetName(sName);
    
       return S_OK;
    }
@@ -48,7 +48,7 @@ STDMETHODIMP InterfaceMessageHeader::get_Name(BSTR *pVal)
 {
    try
    {
-      HM::String sName = m_pObject->GetName();
+      HM::String sName = object_->GetName();
       *pVal = sName.AllocSysString();
       return S_OK;
    }
@@ -63,7 +63,7 @@ STDMETHODIMP InterfaceMessageHeader::put_Value(BSTR newVal)
    try
    {
       HM::AnsiString sValue = newVal;
-      m_pObject->SetValue(sValue);
+      object_->SetValue(sValue);
       return S_OK;
    }
    catch (...)
@@ -76,7 +76,7 @@ STDMETHODIMP InterfaceMessageHeader::get_Value(BSTR *pVal)
 {
    try
    {
-      HM::String sValue = m_pObject->GetValue();
+      HM::String sValue = object_->GetValue();
       *pVal = sValue.AllocSysString();
    
       return S_OK;

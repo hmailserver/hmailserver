@@ -36,15 +36,15 @@ namespace HM
    shared_ptr<RouteAddresses>
    Route::GetAddresses()
    {
-       if (!m_pAddresses)
+       if (!addresses_)
        {
           assert(m_iID);
-          m_pAddresses = shared_ptr<RouteAddresses>(new RouteAddresses(m_iID));
+          addresses_ = shared_ptr<RouteAddresses>(new RouteAddresses(m_iID));
 
-          m_pAddresses->Refresh();
+          addresses_->Refresh();
        }
 
-       return m_pAddresses;
+       return addresses_;
    }
 
    bool 

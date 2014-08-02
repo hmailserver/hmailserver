@@ -849,7 +849,7 @@ namespace HM
    // initialize the content with text
    int MimeBody::SetRawText(const AnsiString &sText)
    {
-      m_pbText = sText;
+      text_ = sText;
       return 0;
    }
 
@@ -878,7 +878,7 @@ namespace HM
 
    string MimeBody::GetRawText()
    {
-      return m_pbText;
+      return text_;
    }
 
    String
@@ -985,7 +985,7 @@ namespace HM
       if (!AllocateBuffer(nSize+4))
          return false;
 
-      pMM->Store(m_pbText);
+      pMM->Store(text_);
 
       const char* pszType = GetContentType();
       if (!pszType || ::_memicmp(pszType, "message", 7) != 0)
@@ -997,10 +997,10 @@ namespace HM
    void MimeBody::GetMessage(MimeBody* pMM) const
    {
       ASSERT(pMM != NULL);
-      ASSERT(m_pbText != NULL);
+      ASSERT(text_ != NULL);
       int index = 0;
 
-      pMM->Load((const char*)m_pbText, (int) m_pbText.size(), index);
+      pMM->Load((const char*)text_, (int) text_.size(), index);
    }
 
    bool 
@@ -1133,7 +1133,7 @@ namespace HM
       pCoder->SetInput((const char*) pUnencodedBuffer->GetCharBuffer(), pUnencodedBuffer->GetSize(), true);
 
       // Copy the buffer
-      pCoder->GetOutput(m_pbText);
+      pCoder->GetOutput(text_);
 
       AnsiString sCharset = "utf-8";
 
@@ -1156,7 +1156,7 @@ namespace HM
       // First de-code the content.
       MimeCodeBase* pCoder = MimeEnvironment::CreateCoder(GetTransferEncoding());
       ASSERT(pCoder != NULL);
-      pCoder->SetInput(m_pbText, m_pbText.GetLength(), false);
+      pCoder->SetInput(text_, text_.GetLength(), false);
 
       AnsiString decoded;
       pCoder->GetOutput(decoded);
@@ -1326,7 +1326,7 @@ namespace HM
          MimeHeader::Store(output);
 
       // Copy the data to the output buffer. 
-      output.append(m_pbText);
+      output.append(text_);
 
       if (m_listBodies.empty())
          return;
@@ -1452,7 +1452,7 @@ namespace HM
       {
          if (AllocateBuffer(nSize+4))
          {
-            m_pbText.append(pszData, nSize);
+            text_.append(pszData, nSize);
 
             pszData += nSize;
             nDataSize -= nSize;

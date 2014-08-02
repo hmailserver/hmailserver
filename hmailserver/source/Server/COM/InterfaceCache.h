@@ -66,8 +66,8 @@ public:
 
 private:
 
-   HM::Configuration *m_pConfig;
-   shared_ptr<HM::CacheConfiguration> m_pCacheConfig;
+   HM::Configuration *config_;
+   shared_ptr<HM::CacheConfiguration> cache_config_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Cache), InterfaceCache)

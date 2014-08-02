@@ -56,7 +56,7 @@ END_COM_MAP()
 private:
 
 
-   shared_ptr<HM::SecurityRanges> m_pSecurityRanges;
+   shared_ptr<HM::SecurityRanges> security_ranges_;
 
 };
 

@@ -29,7 +29,7 @@ namespace HM
       static String GetExecutableName();
 
       // --- global 
-      shared_ptr<DatabaseConnectionManager> GetDBManager() { return m_pDBManager; }
+      shared_ptr<DatabaseConnectionManager> GetDBManager() { return db_manager_; }
 
       // --- overridables
       virtual bool InitInstance(String &sErrorMessage);
@@ -50,14 +50,14 @@ namespace HM
       void StopServers();
       void SubmitPendingEmail();
 
-      shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return m_pSMTPDeliveryManager;} 
-      shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return m_pExternalFetchManager;} 
+      shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return smtp_delivery_manager_;} 
+      shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return external_fetch_manager_;} 
 
-      shared_ptr<BackupManager> GetBackupManager() {return m_pBackupManager; }
+      shared_ptr<BackupManager> GetBackupManager() {return backup_manager_; }
 
       shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
       shared_ptr<WorkQueue> GetAsyncWorkQueue();
-      shared_ptr<IOService> GetIOService() {return m_pIOService; }
+      shared_ptr<IOService> GetIOService() {return io_service_; }
       // The random work queue can run any task.
 
       shared_ptr<NotificationServer> GetNotificationServer();
@@ -82,16 +82,16 @@ namespace HM
       
       String m_sLastConnectErrorMessage;
 
-      shared_ptr<DatabaseConnectionManager> m_pDBManager;
+      shared_ptr<DatabaseConnectionManager> db_manager_;
    
       // the servers
-      shared_ptr<SMTPDeliveryManager> m_pSMTPDeliveryManager;
+      shared_ptr<SMTPDeliveryManager> smtp_delivery_manager_;
 
-      shared_ptr<ExternalFetchManager> m_pExternalFetchManager;
-      shared_ptr<BackupManager> m_pBackupManager;
-      shared_ptr<Scheduler> m_pScheduler;
-      shared_ptr<NotificationServer> m_pNotificationServer;
-      shared_ptr<IOService> m_pIOService;
+      shared_ptr<ExternalFetchManager> external_fetch_manager_;
+      shared_ptr<BackupManager> backup_manager_;
+      shared_ptr<Scheduler> scheduler_;
+      shared_ptr<NotificationServer> notification_server_;
+      shared_ptr<IOService> io_service_;
       shared_ptr<FolderManager> _folderManager;
 
       const String m_sMaintenanceQueue;

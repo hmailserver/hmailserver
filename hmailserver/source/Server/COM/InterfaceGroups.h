@@ -63,7 +63,7 @@ public:
 
 public:
 
-   shared_ptr<HM::Groups> m_pGroups;
+   shared_ptr<HM::Groups> groups_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Groups), InterfaceGroups)

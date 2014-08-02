@@ -10,26 +10,26 @@ public:
 
    void AttachItem(shared_ptr<T> pObject)
    {
-      m_pObject = pObject;
+      object_ = pObject;
    }
 
    void AttachParent(shared_ptr<P> pParentColl, bool bObjectIsInParent)
    {
-      m_pParentCollection = pParentColl;
+      parent_collection_ = pParentColl;
       m_bObjectIsInCollection = bObjectIsInParent;
    }
 
    void AddToParentCollection()
    {
-      if (m_bObjectIsInCollection || !m_pParentCollection)
+      if (m_bObjectIsInCollection || !parent_collection_)
          return; 
 
-      m_pParentCollection->AddItem(m_pObject);
+      parent_collection_->AddItem(object_);
       m_bObjectIsInCollection = true;
    }
 
-   shared_ptr<P> m_pParentCollection;
-   shared_ptr<T> m_pObject;
+   shared_ptr<P> parent_collection_;
+   shared_ptr<T> object_;
 
 
 private:

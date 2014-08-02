@@ -232,8 +232,8 @@ private:
    
 
    
-   HM::Configuration *m_pConfig;
-   HM::IniFileSettings *m_pIniFileSettings;
+   HM::Configuration *config_;
+   HM::IniFileSettings *ini_file_settings_;
 
 #ifdef _DEBUG
    static long counter;

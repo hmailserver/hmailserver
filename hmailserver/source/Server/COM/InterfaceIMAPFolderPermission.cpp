@@ -42,10 +42,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::get_ShareFolderID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetShareFolderID();
+      *pVal = (long) object_->GetShareFolderID();
    
       return S_OK;
    }
@@ -59,10 +59,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::get_PermissionType(eACLPermissionTyp
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (eACLPermissionType) m_pObject->GetPermissionType();
+      *pVal = (eACLPermissionType) object_->GetPermissionType();
    
       return S_OK;
    }
@@ -76,10 +76,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::put_PermissionType(eACLPermissionTyp
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPermissionType((HM::ACLPermission::ePermissionType) newVal);
+      object_->SetPermissionType((HM::ACLPermission::ePermissionType) newVal);
       return S_OK;
    }
    catch (...)
@@ -92,10 +92,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::get_PermissionGroupID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetPermissionGroupID();
+      *pVal = (long) object_->GetPermissionGroupID();
       return S_OK;
    }
    catch (...)
@@ -108,10 +108,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::put_PermissionGroupID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPermissionGroupID(newVal);
+      object_->SetPermissionGroupID(newVal);
       return S_OK;
    }
    catch (...)
@@ -124,10 +124,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::get_PermissionAccountID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetPermissionAccountID();
+      *pVal = (long) object_->GetPermissionAccountID();
       return S_OK;
    }
    catch (...)
@@ -140,10 +140,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::put_PermissionAccountID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPermissionAccountID(newVal);
+      object_->SetPermissionAccountID(newVal);
       return S_OK;
    }
    catch (...)
@@ -156,10 +156,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::get_Value(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetValue();
+      *pVal = (long) object_->GetValue();
    
       return S_OK;
    }
@@ -173,10 +173,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::put_Value(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetValue(newVal);
+      object_->SetValue(newVal);
       return S_OK;
    }
    catch (...)
@@ -189,10 +189,10 @@ STDMETHODIMP InterfaceIMAPFolderPermission::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (HM::PersistentACLPermission::SaveObject(m_pObject))
+      if (HM::PersistentACLPermission::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -212,10 +212,10 @@ InterfaceIMAPFolderPermission::get_Permission(eACLPermission iPermission, VARIAN
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllow((HM::ACLPermission::ePermission) iPermission) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllow((HM::ACLPermission::ePermission) iPermission) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -229,10 +229,10 @@ InterfaceIMAPFolderPermission::put_Permission(eACLPermission iPermission, VARIAN
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllow((HM::ACLPermission::ePermission) iPermission, newVal == VARIANT_TRUE);
+      object_->SetAllow((HM::ACLPermission::ePermission) iPermission, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -245,13 +245,13 @@ STDMETHODIMP InterfaceIMAPFolderPermission::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pParentCollection)
-         return HM::PersistentACLPermission::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentACLPermission::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -266,15 +266,15 @@ InterfaceIMAPFolderPermission::get_Account(IInterfaceAccount **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceAccount>* pInterfaceAccount = new CComObject<InterfaceAccount>();
-      pInterfaceAccount->SetAuthentication(m_pAuthentication);
+      pInterfaceAccount->SetAuthentication(authentication_);
    
       shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
    
-      if (!HM::PersistentAccount::ReadObject(pAccount, (__int64) m_pObject->GetPermissionAccountID()))
+      if (!HM::PersistentAccount::ReadObject(pAccount, (__int64) object_->GetPermissionAccountID()))
          return DISP_E_BADINDEX;
    
       pInterfaceAccount->AttachItem(pAccount);
@@ -294,13 +294,13 @@ InterfaceIMAPFolderPermission::get_Group(IInterfaceGroup **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
-      pInterfaceGroup->SetAuthentication(m_pAuthentication);
+      pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pGroup = HM::Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(m_pObject->GetPermissionGroupID());
+      shared_ptr<HM::Group> pGroup = HM::Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(object_->GetPermissionGroupID());
    
       if (!pGroup)
          return DISP_E_BADINDEX;

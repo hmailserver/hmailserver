@@ -56,7 +56,7 @@ public:
 
 private:
 
-   shared_ptr<HM::MimeHeader> m_pHeader;
+   shared_ptr<HM::MimeHeader> header_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(MessageHeaders), InterfaceMessageHeaders)

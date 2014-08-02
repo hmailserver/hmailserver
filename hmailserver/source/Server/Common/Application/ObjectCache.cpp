@@ -39,15 +39,15 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
 
-      if (!m_pDomainAliases || m_bDomainAliasesNeedsReload)
+      if (!domain_aliases_ || m_bDomainAliasesNeedsReload)
       {
-         m_pDomainAliases = shared_ptr<DomainAliases>(new DomainAliases(0));
-         m_pDomainAliases->Refresh();
+         domain_aliases_ = shared_ptr<DomainAliases>(new DomainAliases(0));
+         domain_aliases_->Refresh();
 
          m_bDomainAliasesNeedsReload = false;
       }
 
-      return m_pDomainAliases;
+      return domain_aliases_;
    }
 
    void 
@@ -64,15 +64,15 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
 
-      if (!m_pGlobalRules || m_bGlobalRulesNeedsReload)
+      if (!global_rules_ || m_bGlobalRulesNeedsReload)
       {
-         m_pGlobalRules = shared_ptr<Rules>(new Rules(0));
-         m_pGlobalRules->Refresh();
+         global_rules_ = shared_ptr<Rules>(new Rules(0));
+         global_rules_->Refresh();
 
          m_bGlobalRulesNeedsReload = false;
       }
 
-      return m_pGlobalRules;
+      return global_rules_;
    }
 
    void 
@@ -124,7 +124,7 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> globalRulesGuard(_globalRulesMutex);
       boost::lock_guard<boost::recursive_mutex> accontRulesGuard(_accountRulesMutex);
 
-      m_pGlobalRules.reset();
+      global_rules_.reset();
       m_mapAccountRules.clear();
    }
 }

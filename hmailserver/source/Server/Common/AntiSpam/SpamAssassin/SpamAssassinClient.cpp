@@ -145,21 +145,21 @@ namespace HM
    void
    SpamAssassinClient::ParseData(shared_ptr<ByteBuffer> pBuf)
    {
-      if (!m_pResult)
+      if (!result_)
       {
          String logMessage;
          logMessage.Format(_T("Parsing response from SpamAssassin. Session %d"), GetSessionID());
          LOG_DEBUG(logMessage);
 
-         m_pResult = shared_ptr<File>(new File);
-         m_pResult->Open(FileUtilities::GetTempFileName(), File::OTAppend);
+         result_ = shared_ptr<File>(new File);
+         result_->Open(FileUtilities::GetTempFileName(), File::OTAppend);
 
          m_iSpamDSize = ParseFirstBuffer_(pBuf);
       }
 
       // Append output to the file
       DWORD dwWritten = 0;
-      m_pResult->Write(pBuf, dwWritten);
+      result_->Write(pBuf, dwWritten);
 
       PostReceive();
    }
@@ -167,15 +167,15 @@ namespace HM
    bool
    SpamAssassinClient::FinishTesting()
    {
-      if (!m_pResult)
+      if (!result_)
          return false;
 
-      m_pResult->Close();
+      result_->Close();
 
       // Copy message if test has been run
       bool bTestsRun = true;
 
-      String sTempFile = m_pResult->GetName();
+      String sTempFile = result_->GetName();
 	  
       // new way: check the result from spamd.
       if (bTestsRun && (FileUtilities::FileSize(sTempFile) == m_iSpamDSize))
@@ -279,11 +279,11 @@ namespace HM
 
       ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5157, "SpamAssassinClient::OnReadError", errorMessage);
 
-      if (m_pResult)
+      if (result_)
       {
-         m_pResult->Close();
-         FileUtilities::DeleteFile(m_pResult->GetName());
-         m_pResult.reset();
+         result_->Close();
+         FileUtilities::DeleteFile(result_->GetName());
+         result_.reset();
       }
    }
 }

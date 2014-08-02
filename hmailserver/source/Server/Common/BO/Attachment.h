@@ -20,8 +20,8 @@ namespace HM
       
    private:
       
-      shared_ptr<MimeBody> m_pAttachment;
-      shared_ptr<MimeBody> m_pMessage;
+      shared_ptr<MimeBody> attachment_;
+      shared_ptr<MimeBody> message_;
    };
 
 }

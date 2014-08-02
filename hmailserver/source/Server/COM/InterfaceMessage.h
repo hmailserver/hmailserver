@@ -106,7 +106,7 @@ public:
    
    shared_ptr<HM::MessageData> _GetMessageData();
 
-   shared_ptr<HM::MessageData> m_pMsgData;
+   shared_ptr<HM::MessageData> msg_data_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Message), InterfaceMessage)

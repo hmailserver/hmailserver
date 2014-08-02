@@ -58,8 +58,8 @@ namespace HM
    void
    SpamProtection::Load()
    {
-      m_pSpamTestRunner = shared_ptr<SpamTestRunner>(new SpamTestRunner);
-      m_pSpamTestRunner->LoadSpamTests();
+      spam_test_runner_ = shared_ptr<SpamTestRunner>(new SpamTestRunner);
+      spam_test_runner_->LoadSpamTests();
 
       DKIM::Initialize();
    }
@@ -81,7 +81,7 @@ namespace HM
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
       int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
-      set<shared_ptr<SpamTestResult> > setResult = m_pSpamTestRunner->RunSpamTest(pTestData, SpamTest::PreTransmission, maxScore);
+      set<shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PreTransmission, maxScore);
 
       return setResult;
    }
@@ -126,7 +126,7 @@ namespace HM
 
       int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
-      set<shared_ptr<SpamTestResult> > setResult = m_pSpamTestRunner->RunSpamTest(pTestData, SpamTest::PostTransmission, maxScore);
+      set<shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PostTransmission, maxScore);
 
       return setResult;
    }

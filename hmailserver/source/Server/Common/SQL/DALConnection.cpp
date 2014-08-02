@@ -16,7 +16,7 @@ namespace HM
 {
    DALConnection::DALConnection(shared_ptr<DatabaseSettings> pDatabaseSettings) :
       m_iTryCount(6),
-      m_pDatabaseSettings(pDatabaseSettings)
+      database_settings_(pDatabaseSettings)
    {
 
    }

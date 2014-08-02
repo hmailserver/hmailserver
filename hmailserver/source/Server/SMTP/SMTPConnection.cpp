@@ -421,7 +421,7 @@ namespace HM
       if (!CheckStartTlsRequired_())
          return;
 
-      if (m_pCurrentMessage) 
+      if (current_message_) 
       {
          SendData_("503 Issue a reset if you want to start over"); 
          return;
@@ -499,8 +499,8 @@ namespace HM
 
       try
       {
-         m_pSenderDomain = CacheContainer::Instance()->GetDomain(StringParser::ExtractDomain(sAccountAddress));
-         m_pSenderAccount = CacheContainer::Instance()->GetAccount(sAccountAddress);
+         sender_domain_ = CacheContainer::Instance()->GetDomain(StringParser::ExtractDomain(sAccountAddress));
+         sender_account_ = CacheContainer::Instance()->GetAccount(sAccountAddress);
       }
       catch (...)
       {
@@ -512,7 +512,7 @@ namespace HM
       try
       {
          // Check the max size
-         m_iMaxMessageSizeKB = GetMaxMessageSize_(m_pSenderDomain);
+         m_iMaxMessageSizeKB = GetMaxMessageSize_(sender_domain_);
 
          // Check if estimated message size exceedes our
          // maximum message size (according to RFC1653)
@@ -550,9 +550,9 @@ namespace HM
          // Next time we do a mail from, we should re-authenticate the login credentials
          m_bReAuthenticateUser = true;
 
-         m_pCurrentMessage = shared_ptr<Message> (new Message);
-         m_pCurrentMessage->SetFromAddress(sFromAddress);
-         m_pCurrentMessage->SetState(Message::Delivering);
+         current_message_ = shared_ptr<Message> (new Message);
+         current_message_->SetFromAddress(sFromAddress);
+         current_message_->SetState(Message::Delivering);
       }
       catch (...)
       {
@@ -626,7 +626,7 @@ namespace HM
    {
       m_iCurNoOfRCPTTO ++;
 
-      if (!m_pCurrentMessage) 
+      if (!current_message_) 
       {
          SendData_("503 must have sender first."); 
          return;
@@ -655,7 +655,7 @@ namespace HM
          return;
       }
 
-      if (m_pCurrentMessage->GetRecipients()->GetCount() >= MaxNumberOfRecipients)
+      if (current_message_->GetRecipients()->GetCount() >= MaxNumberOfRecipients)
       {
          // The user has added too many recipients for this message. Let's not try
          // to deliver it.
@@ -667,11 +667,11 @@ namespace HM
       String sErrMsg = "";
       bool localDelivery = false;
       
-      RecipientParser::DeliveryPossibility dp = recipientParser_.CheckDeliveryPossibility(isAuthenticated_, m_pCurrentMessage->GetFromAddress(), sRecipientAddress, sErrMsg, localDelivery, 0);
+      RecipientParser::DeliveryPossibility dp = recipientParser_.CheckDeliveryPossibility(isAuthenticated_, current_message_->GetFromAddress(), sRecipientAddress, sErrMsg, localDelivery, 0);
 
       if (dp != RecipientParser::DP_Possible)
       {
-         AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
          SendData_(sErrMsg);
 
          return;
@@ -694,7 +694,7 @@ namespace HM
       {
          // Authentication is required, but the user hasn't authenticated.
          SendErrorResponse_(530, "SMTP authentication is required.");
-         AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 530);
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 530);
          return;
       }
 
@@ -714,7 +714,7 @@ namespace HM
       {
          // User is not allowed to send this email.
          SendErrorResponse_(550, "Delivery is not allowed to this address.");
-         AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
          return;
       }
 
@@ -728,9 +728,9 @@ namespace HM
             // which is configured to be a forwarding relay. This means that
             // we can start spam protection now.
 
-            if (!DoSpamProtection_(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+            if (!DoSpamProtection_(SPPreTransmission, current_message_->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
             {
-               AWStats::LogDeliveryFailure(GetIPAddressString(), m_pCurrentMessage->GetFromAddress(), sRecipientAddress, 550);
+               AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
                return;
             }
          }
@@ -741,9 +741,9 @@ namespace HM
          shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
          const String sToAddress = pDA->ApplyAliasesOnAddress(sRecipientAddress);
 
-         if (!SpamProtection::Instance()->PerformGreyListing(m_pCurrentMessage, m_setSpamTestResults, sToAddress, GetRemoteEndpointAddress()))
+         if (!SpamProtection::Instance()->PerformGreyListing(current_message_, m_setSpamTestResults, sToAddress, GetRemoteEndpointAddress()))
          {
-            if (m_pCurrentMessage->GetFromAddress().IsEmpty())
+            if (current_message_->GetFromAddress().IsEmpty())
             {
                // We got a message with an empty sender address.
                // When this happens, we should delay the greylist-reject 
@@ -764,7 +764,7 @@ namespace HM
       }
 
       // OK, the recipient is acceptable.
-      shared_ptr<MessageRecipients> pRecipients = m_pCurrentMessage->GetRecipients();
+      shared_ptr<MessageRecipients> pRecipients = current_message_->GetRecipients();
       bool recipientOK = false;
       recipientParser_.CreateMessageRecipientList(sRecipientAddress, pRecipients, recipientOK);
 
@@ -798,7 +798,7 @@ namespace HM
       else if (spType == SPPostTransmission)
       {
          set<shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), m_pCurrentMessage);
+            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), current_message_);
 
          m_setSpamTestResults.insert(setResult.begin(), setResult.end());
 
@@ -867,7 +867,7 @@ namespace HM
    {
       if (m_bTraceHeadersWritten)
       {
-         shared_ptr<ByteBuffer> pBuffer = m_pTransmissionBuffer->GetBuffer();
+         shared_ptr<ByteBuffer> pBuffer = transmission_buffer_->GetBuffer();
          shared_ptr<MimeHeader> pHeader = Utilities::GetMimeHeader(pBuffer->GetBuffer(), pBuffer->GetSize());
 
          String sOutput;
@@ -925,11 +925,11 @@ namespace HM
 
          AnsiString sOutputStr = sOutput;
          pTempBuf->Add((BYTE*) sOutputStr.GetBuffer(), sOutputStr.GetLength());
-         pTempBuf->Add(m_pTransmissionBuffer->GetBuffer()->GetBuffer(), m_pTransmissionBuffer->GetBuffer()->GetSize());
+         pTempBuf->Add(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
 
          // Add to the original buffer
-         m_pTransmissionBuffer->GetBuffer()->Empty();
-         m_pTransmissionBuffer->GetBuffer()->Add(pTempBuf->GetBuffer(), pTempBuf->GetSize());
+         transmission_buffer_->GetBuffer()->Empty();
+         transmission_buffer_->GetBuffer()->Add(pTempBuf->GetBuffer(), pTempBuf->GetSize());
 
          m_bTraceHeadersWritten = false;
       }
@@ -945,16 +945,16 @@ namespace HM
       // Move the data from the incoming buffer to the transparent transmission buffer.
       // If we've received more data than the max message size, don't save it.
 
-      m_pTransmissionBuffer->Append(pBuf->GetBuffer(), pBuf->GetSize());
+      transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
 
       // We need current message size in KB
-      int iBufSizeKB = m_pTransmissionBuffer->GetSize() / 1024;
+      int iBufSizeKB = transmission_buffer_->GetSize() / 1024;
 
       // Clear the old buffer
       pBuf->Empty();
 
       // Check if it's time to flush.
-      if (m_pTransmissionBuffer->GetRequiresFlush())
+      if (transmission_buffer_->GetRequiresFlush())
       {
          // We need to prepend the transmission buffer
          // with the headers...
@@ -962,9 +962,9 @@ namespace HM
       }
 
       // Flush the transmission buffer
-      m_pTransmissionBuffer->Flush();
+      transmission_buffer_->Flush();
 
-      if (!m_pTransmissionBuffer->GetTransmissionEnded())
+      if (!transmission_buffer_->GetTransmissionEnded())
       {
 
          String sLogData;
@@ -1018,7 +1018,7 @@ namespace HM
       DoPreAcceptMessageModifications_();
 
       // Transmission has ended.
-      m_pCurrentMessage->SetSize(FileUtilities::FileSize(PersistentMessage::GetFileName(m_pCurrentMessage)));
+      current_message_->SetSize(FileUtilities::FileSize(PersistentMessage::GetFileName(current_message_)));
 
 
    // Let's archive message we just received
@@ -1032,7 +1032,7 @@ namespace HM
       String _messageFileName;
       String sFileNameExclPath;
       String sMessageArchivePath;
-      String sFromAddress1 = m_pCurrentMessage->GetFromAddress();
+      String sFromAddress1 = current_message_->GetFromAddress();
       std::vector<String> vecParams1 = StringParser::SplitString(sFromAddress1,  "@");
 
       // We need exactly 2 or not an email address
@@ -1048,7 +1048,7 @@ namespace HM
          if (blocalSender1)
          {
             // First copy goes to local sender
-            _messageFileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+            _messageFileName = PersistentMessage::GetFileName(current_message_);
             sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
             sMessageArchivePath = sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName + "\\Sent-" + sFileNameExclPath;
 
@@ -1061,7 +1061,7 @@ namespace HM
             LOG_SMTP(GetSessionID(), GetIPAddressString(), "Non local sender, putting in common Inbound folder..");      
 
             // First copy goes to common archive folder instead
-            _messageFileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+            _messageFileName = PersistentMessage::GetFileName(current_message_);
             sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
             sMessageArchivePath = sArchiveDir + "\\Inbound\\" + sFileNameExclPath;
 
@@ -1073,7 +1073,7 @@ namespace HM
             shared_ptr<const Domain> pDomaintmp;
             bool bDomainIsLocal = false;
 
-            const std::vector<shared_ptr<MessageRecipient> > vecRecipients = m_pCurrentMessage->GetRecipients()->GetVector();
+            const std::vector<shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
             std::vector<shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
             while (iterRecipient != vecRecipients.end())
             {
@@ -1129,7 +1129,7 @@ namespace HM
       // either way as failsafe.
       LOG_SMTP(GetSessionID(), GetIPAddressString(), "Sender is NULL or invalid. Saving to Error folder.");      
 
-      _messageFileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+      _messageFileName = PersistentMessage::GetFileName(current_message_);
       sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
       sMessageArchivePath = sArchiveDir + "\\Error\\" + sFileNameExclPath;
       FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
@@ -1142,20 +1142,20 @@ namespace HM
       if (OnPreAcceptTransfer_())
       {
          // Add the message to the database.
-         if (PersistentMessage::SaveObject(m_pCurrentMessage))
+         if (PersistentMessage::SaveObject(current_message_))
          {
             // Make sure the transmission buffer has released the handle
             // to the file.
-            if (m_pTransmissionBuffer)
-               m_pTransmissionBuffer.reset();
+            if (transmission_buffer_)
+               transmission_buffer_.reset();
 
             // Add this message to the delivery queue cache. This way,
             // we won't have to read it from the database.
-            MessageCache::Instance()->AddMessage(m_pCurrentMessage);
+            MessageCache::Instance()->AddMessage(current_message_);
 
             // Free the message, so we don't access it the same time
             // as the SMTP delivery manager.
-            m_pCurrentMessage.reset();
+            current_message_.reset();
 
             // Tell the deliverer that a new message is pending. This
             // will cause the SMTP delivery manager to start a new delivery
@@ -1218,7 +1218,7 @@ namespace HM
 
       if (iTotalSpamScore >= iSpamMarkThreshold)
       {
-         pMsgData = SpamProtection::TagMessageAsSpam(m_pCurrentMessage, m_setSpamTestResults);
+         pMsgData = SpamProtection::TagMessageAsSpam(current_message_, m_setSpamTestResults);
 
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
@@ -1227,7 +1227,7 @@ namespace HM
       SetMessageSignature_(pMsgData);
 
       if (pMsgData)
-         pMsgData->Write(PersistentMessage::GetFileName(m_pCurrentMessage));
+         pMsgData->Write(PersistentMessage::GetFileName(current_message_));
    }
 
    void
@@ -1239,20 +1239,20 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       shared_ptr<SignatureAdder> pSignatureAdder = shared_ptr<SignatureAdder>(new SignatureAdder);
-      pSignatureAdder->SetSignature(m_pCurrentMessage, m_pSenderDomain, m_pSenderAccount, pMessageData);
+      pSignatureAdder->SetSignature(current_message_, sender_domain_, sender_account_, pMessageData);
    }
 
    bool
    SMTPConnection::OnPreAcceptTransfer_()
    {
-      if (m_pTransmissionBuffer->GetCancelTransmission())
+      if (transmission_buffer_->GetCancelTransmission())
       {
-         SendData_("554 "  + m_pTransmissionBuffer->GetCancelMessage());
+         SendData_("554 "  + transmission_buffer_->GetCancelMessage());
          LogAwstatsMessageRejected_();
          return false;
       }
 
-      const String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+      const String fileName = PersistentMessage::GetFileName(current_message_);
 
       if (!FileUtilities::Exists(fileName))
       {
@@ -1269,11 +1269,11 @@ namespace HM
 
       // Check so that message isn't to big. Max message
       // size is specified in KB.
-      if (m_iMaxMessageSizeKB > 0 && (m_pTransmissionBuffer->GetSize() / 1024) > m_iMaxMessageSizeKB)
+      if (m_iMaxMessageSizeKB > 0 && (transmission_buffer_->GetSize() / 1024) > m_iMaxMessageSizeKB)
       {
          String sMessage;
          sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-            m_pTransmissionBuffer->GetSize() / 1024, m_iMaxMessageSizeKB);
+            transmission_buffer_->GetSize() / 1024, m_iMaxMessageSizeKB);
          SendData_(sMessage);
          LogAwstatsMessageRejected_();
          return false;
@@ -1305,7 +1305,7 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(m_sHeloHost);
 
-         pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
+         pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
 
@@ -1340,7 +1340,7 @@ namespace HM
 
       if (GetSecurityRange()->GetVirusProtection())
       {
-         m_pCurrentMessage->SetFlagVirusScan(true);
+         current_message_->SetFlagVirusScan(true);
       }
 
       return true;
@@ -1356,10 +1356,10 @@ namespace HM
    {
       try
       {
-         if (!m_pCurrentMessage)
+         if (!current_message_)
             return false;
 
-         const String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+         const String fileName = PersistentMessage::GetFileName(current_message_);
 
          File oFile;
          if (!oFile.Open(fileName, File::OTReadOnly))
@@ -1427,13 +1427,13 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Check that message exists, and that the awstats log is enabled.
-      if (!m_pCurrentMessage || !AWStats::GetEnabled())
+      if (!current_message_ || !AWStats::GetEnabled())
          return;
 
       // Go through the recipients and log one row for each of them.
-      String sFromAddress = m_pCurrentMessage->GetFromAddress();
+      String sFromAddress = current_message_->GetFromAddress();
 
-      const std::vector<shared_ptr<MessageRecipient> > vecRecipients = m_pCurrentMessage->GetRecipients()->GetVector();
+      const std::vector<shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
       std::vector<shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
       while (iterRecipient != vecRecipients.end())
       {
@@ -1456,27 +1456,27 @@ namespace HM
    // file
    //---------------------------------------------------------------------------()
    {
-      if (m_pTransmissionBuffer)
+      if (transmission_buffer_)
       {
-         m_pTransmissionBuffer.reset();
+         transmission_buffer_.reset();
       }
 
       // Reset the current message.
-      if (m_pCurrentMessage)
+      if (current_message_)
       {
          // This message isn't complete, so we should delete it from disk now.
          shared_ptr<Account> emptyAccount;
 
-         PersistentMessage::DeleteFile(emptyAccount, m_pCurrentMessage);
+         PersistentMessage::DeleteFile(emptyAccount, current_message_);
 
          // Reset message object
-         m_pCurrentMessage.reset();
+         current_message_.reset();
       }
 
       m_bRejectedByDelayedGreyListing = false;
 
-      m_pSenderDomain.reset();
-      m_pSenderAccount.reset();
+      sender_domain_.reset();
+      sender_account_.reset();
 
       m_setSpamTestResults.clear();
 
@@ -1631,14 +1631,14 @@ namespace HM
    void
    SMTPConnection::ProtocolDATA_()
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
          SendData_("503 Must have sender and recipient first.");
 
          return;
       }  
-      else if ( m_pCurrentMessage->GetRecipients()->GetCount() == 0)
+      else if ( current_message_->GetRecipients()->GetCount() == 0)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
          SendData_("503 Must have sender and recipient first.");
@@ -1658,7 +1658,7 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(m_sHeloHost);
 
-         pContainer->AddObject("HMAILSERVER_MESSAGE", m_pCurrentMessage, ScriptObject::OTMessage);
+         pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
 
@@ -1693,9 +1693,9 @@ namespace HM
 
       m_CurrentState = DATA;
 
-      m_pTransmissionBuffer = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
-      m_pTransmissionBuffer->Initialize(PersistentMessage::GetFileName(m_pCurrentMessage));
-      m_pTransmissionBuffer->SetMaxSizeKB(m_iMaxMessageSizeKB);
+      transmission_buffer_ = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
+      transmission_buffer_->Initialize(PersistentMessage::GetFileName(current_message_));
+      transmission_buffer_->SetMaxSizeKB(m_iMaxMessageSizeKB);
 
       SetReceiveBinary(true);
       m_bTraceHeadersWritten = true;
@@ -2036,16 +2036,16 @@ namespace HM
          IPAddress iIPAddress;
          String hostName;
          
-         MessageUtilities::RetrieveOriginatingAddress(m_pCurrentMessage, hostName, iIPAddress);
+         MessageUtilities::RetrieveOriginatingAddress(current_message_, hostName, iIPAddress);
       
          // Do spam protection now using the IP address in the header.
-         if (!DoSpamProtection_(SPPreTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
+         if (!DoSpamProtection_(SPPreTransmission, current_message_->GetFromAddress(), hostName, iIPAddress))
          {
             // We should stop the message delivery.
             return false;
          }
 
-         if (!DoSpamProtection_(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), hostName, iIPAddress))
+         if (!DoSpamProtection_(SPPostTransmission, current_message_->GetFromAddress(), hostName, iIPAddress))
          {
             // We should stop the message delivery.
             return false;
@@ -2055,7 +2055,7 @@ namespace HM
       else
       {
          // Do normal post transmission spam protection. (typically SURBL)
-         if (!DoSpamProtection_(SPPostTransmission, m_pCurrentMessage->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
+         if (!DoSpamProtection_(SPPostTransmission, current_message_->GetFromAddress(), m_sHeloHost, GetRemoteEndpointAddress()))
          {
             // We should stop message delivery
             return false;
@@ -2076,9 +2076,9 @@ namespace HM
       if (!GetSecurityRange()->GetSpamProtection())
          return false;
 
-      if (m_pCurrentMessage)
+      if (current_message_)
       {
-         if (SpamProtection::IsWhiteListed(m_pCurrentMessage->GetFromAddress(), GetRemoteEndpointAddress()))
+         if (SpamProtection::IsWhiteListed(current_message_->GetFromAddress(), GetRemoteEndpointAddress()))
             return false;
       }
 
@@ -2093,10 +2093,10 @@ namespace HM
    bool
    SMTPConnection::GetIsLocalSender_()
    {
-       if (m_pSenderDomain && m_pSenderDomain->GetIsActive())
+       if (sender_domain_ && sender_domain_->GetIsActive())
           return true;
 
-       const String senderAddress = m_pCurrentMessage->GetFromAddress();
+       const String senderAddress = current_message_->GetFromAddress();
 
        String senderDomainName = StringParser::ExtractDomain(senderAddress);
        shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(senderDomainName);

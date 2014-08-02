@@ -16,8 +16,8 @@
 namespace HM
 {
    Attachments::Attachments(shared_ptr<MimeBody> pMimeBody, MessageData *pMsgData) :
-      m_pMimeBody(pMimeBody),
-      m_pMsgData(pMsgData)
+      mime_body_(pMimeBody),
+      msg_data_(pMsgData)
    {
 
    }
@@ -48,11 +48,11 @@ namespace HM
    Attachments::Load()
    {
       list<shared_ptr<MimeBody> > vecBodyList;
-      m_pMimeBody->GetAttachmentList(m_pMimeBody, vecBodyList);
+      mime_body_->GetAttachmentList(mime_body_, vecBodyList);
 
       boost_foreach(shared_ptr<MimeBody> pBody, vecBodyList)
       {
-         shared_ptr<Attachment> item = shared_ptr<Attachment>(new Attachment(m_pMimeBody, pBody));
+         shared_ptr<Attachment> item = shared_ptr<Attachment>(new Attachment(mime_body_, pBody));
          vecObjects.push_back(item);
       }
    }
@@ -62,7 +62,7 @@ namespace HM
    {
       vecObjects.clear();
 
-      m_pMimeBody->ClearAttachments();
+      mime_body_->ClearAttachments();
    }
 
    bool
@@ -72,14 +72,14 @@ namespace HM
          return false;
 
       // Load the attachment
-      shared_ptr<MimeBody> pAttachment = m_pMsgData->CreatePart("application/octet-stream");
+      shared_ptr<MimeBody> pAttachment = msg_data_->CreatePart("application/octet-stream");
       pAttachment->SetTransferEncoding("base64");
 
       if (!pAttachment->ReadFromFile(sFilename))
          return false;
 
       // Add the attachment to the collection.
-      shared_ptr<Attachment> pItem = shared_ptr<Attachment>(new Attachment(m_pMimeBody, pAttachment));
+      shared_ptr<Attachment> pItem = shared_ptr<Attachment>(new Attachment(mime_body_, pAttachment));
       vecObjects.push_back(pItem);
 
       return true;

@@ -15,13 +15,13 @@ InterfaceSSLCertificate::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentSSLCertificate::SaveObject(m_pObject))
+      if (HM::PersistentSSLCertificate::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -39,16 +39,16 @@ STDMETHODIMP InterfaceSSLCertificate::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentSSLCertificate::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentSSLCertificate::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -62,10 +62,10 @@ STDMETHODIMP InterfaceSSLCertificate::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
    catch (...)
@@ -78,10 +78,10 @@ STDMETHODIMP InterfaceSSLCertificate::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
       return S_OK;
    }
    catch (...)
@@ -94,10 +94,10 @@ STDMETHODIMP InterfaceSSLCertificate::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -110,10 +110,10 @@ STDMETHODIMP InterfaceSSLCertificate::put_CertificateFile(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetCertificateFile(newVal);
+      object_->SetCertificateFile(newVal);
       return S_OK;
    }
    catch (...)
@@ -126,10 +126,10 @@ STDMETHODIMP InterfaceSSLCertificate::get_CertificateFile(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetCertificateFile().AllocSysString();
+      *pVal = object_->GetCertificateFile().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -142,10 +142,10 @@ STDMETHODIMP InterfaceSSLCertificate::put_PrivateKeyFile(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPrivateKeyFile(newVal);
+      object_->SetPrivateKeyFile(newVal);
       return S_OK;
    }
    catch (...)
@@ -158,10 +158,10 @@ STDMETHODIMP InterfaceSSLCertificate::get_PrivateKeyFile(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetPrivateKeyFile().AllocSysString();
+      *pVal = object_->GetPrivateKeyFile().AllocSysString();
       return S_OK;
    }
    catch (...)

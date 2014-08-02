@@ -55,7 +55,7 @@ END_COM_MAP()
 private:
 
 
-   shared_ptr<HM::IncomingRelays> m_pIncomingRelays;
+   shared_ptr<HM::IncomingRelays> incoming_relays_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(IncomingRelays), InterfaceIncomingRelays)

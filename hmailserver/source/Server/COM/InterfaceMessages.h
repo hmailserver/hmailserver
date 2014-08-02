@@ -53,7 +53,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Messages> m_pMessages;
+   shared_ptr<HM::Messages> messages_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Messages), InterfaceMessages)

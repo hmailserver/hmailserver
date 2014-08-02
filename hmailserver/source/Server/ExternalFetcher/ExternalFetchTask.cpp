@@ -17,7 +17,7 @@ namespace HM
 {
    ExternalFetchTask::ExternalFetchTask(shared_ptr<FetchAccount> pFA) : 
       Task("ExternalFetchTask"),
-      m_pFA(pFA)
+      fetch_account_(pFA)
    {
    }
 
@@ -30,13 +30,13 @@ namespace HM
    {
       // Do the actual delivery of the message.
       ExternalFetch oFetcher;
-      oFetcher.Start(m_pFA);
+      oFetcher.Start(fetch_account_);
 
       // Set next fetch time 
-      PersistentFetchAccount::SetNextTryTime(m_pFA);
+      PersistentFetchAccount::SetNextTryTime(fetch_account_);
 
       // Unlock the account
-      PersistentFetchAccount::Unlock(m_pFA->GetID());
+      PersistentFetchAccount::Unlock(fetch_account_->GetID());
    }
 
 }

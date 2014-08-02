@@ -13,17 +13,17 @@
 
 InterfaceFetchAccount::InterfaceFetchAccount()
 {
-   m_pObject = shared_ptr<HM::FetchAccount>(new HM::FetchAccount());
+   object_ = shared_ptr<HM::FetchAccount>(new HM::FetchAccount());
 }
 
 STDMETHODIMP InterfaceFetchAccount::get_ID(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -37,10 +37,10 @@ STDMETHODIMP InterfaceFetchAccount::get_Name(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
    
       return S_OK;
    }
@@ -54,10 +54,10 @@ STDMETHODIMP InterfaceFetchAccount::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
    
       return S_OK;
    }
@@ -71,10 +71,10 @@ STDMETHODIMP InterfaceFetchAccount::get_ServerAddress(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetServerAddress().AllocSysString();
+      *pVal = object_->GetServerAddress().AllocSysString();
    
       return S_OK;
    }
@@ -88,10 +88,10 @@ STDMETHODIMP InterfaceFetchAccount::put_ServerAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetServerAddress(newVal);
+      object_->SetServerAddress(newVal);
    
       return S_OK;
    }
@@ -105,10 +105,10 @@ STDMETHODIMP InterfaceFetchAccount::get_Port(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetPort();
+      *pVal = object_->GetPort();
    
       return S_OK;
    }
@@ -122,10 +122,10 @@ STDMETHODIMP InterfaceFetchAccount::put_Port(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPort(newVal);
+      object_->SetPort(newVal);
    
       return S_OK;
    }
@@ -139,10 +139,10 @@ STDMETHODIMP InterfaceFetchAccount::get_AccountID(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetAccountID();
+      *pVal = (long) object_->GetAccountID();
    
       return S_OK;
    }
@@ -156,10 +156,10 @@ STDMETHODIMP InterfaceFetchAccount::put_AccountID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAccountID(newVal);
+      object_->SetAccountID(newVal);
    
       return S_OK;
    }
@@ -173,10 +173,10 @@ STDMETHODIMP InterfaceFetchAccount::get_ServerType(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetServerType();
+      *pVal = object_->GetServerType();
    
       return S_OK;
    }
@@ -190,10 +190,10 @@ STDMETHODIMP InterfaceFetchAccount::put_ServerType(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetServerType((HM::FetchAccount::ServerType) newVal);
+      object_->SetServerType((HM::FetchAccount::ServerType) newVal);
    
       return S_OK;
    }
@@ -207,10 +207,10 @@ STDMETHODIMP InterfaceFetchAccount::get_Username(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUsername().AllocSysString();
+      *pVal = object_->GetUsername().AllocSysString();
    
       return S_OK;
    }
@@ -224,10 +224,10 @@ STDMETHODIMP InterfaceFetchAccount::put_Username(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUsername(newVal);
+      object_->SetUsername(newVal);
    
       return S_OK;
    }
@@ -241,10 +241,10 @@ STDMETHODIMP InterfaceFetchAccount::get_Password(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetPassword().AllocSysString();
+      *pVal = object_->GetPassword().AllocSysString();
    
       return S_OK;
    }
@@ -258,10 +258,10 @@ STDMETHODIMP InterfaceFetchAccount::put_Password(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPassword(newVal);
+      object_->SetPassword(newVal);
    
       return S_OK;
    }
@@ -275,10 +275,10 @@ STDMETHODIMP InterfaceFetchAccount::get_MinutesBetweenFetch(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetMinutesBetweenTry();
+      *pVal = object_->GetMinutesBetweenTry();
    
       return S_OK;
    }
@@ -292,10 +292,10 @@ STDMETHODIMP InterfaceFetchAccount::put_MinutesBetweenFetch(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetMinutesBetweenTry(newVal);
+      object_->SetMinutesBetweenTry(newVal);
    
       return S_OK;
    }
@@ -309,10 +309,10 @@ STDMETHODIMP InterfaceFetchAccount::get_DaysToKeepMessages(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDaysToKeep();
+      *pVal = object_->GetDaysToKeep();
    
       return S_OK;
    }
@@ -326,10 +326,10 @@ STDMETHODIMP InterfaceFetchAccount::put_DaysToKeepMessages(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDaysToKeep(newVal);
+      object_->SetDaysToKeep(newVal);
    
       return S_OK;
    }
@@ -343,12 +343,12 @@ STDMETHODIMP InterfaceFetchAccount::Save(void)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::PersistentFetchAccount oPersAccount;
       
-      if (oPersAccount.SaveObject(m_pObject))
+      if (oPersAccount.SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -368,10 +368,10 @@ STDMETHODIMP InterfaceFetchAccount::get_Enabled(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetActive() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetActive() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -385,10 +385,10 @@ STDMETHODIMP InterfaceFetchAccount::put_Enabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetActive(newVal == VARIANT_TRUE);
+      object_->SetActive(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -402,10 +402,10 @@ STDMETHODIMP InterfaceFetchAccount::get_ProcessMIMERecipients(VARIANT_BOOL* pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetProcessMIMERecipients() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetProcessMIMERecipients() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -419,10 +419,10 @@ STDMETHODIMP InterfaceFetchAccount::put_ProcessMIMERecipients(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetProcessMIMERecipients(newVal == VARIANT_TRUE);
+      object_->SetProcessMIMERecipients(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -436,10 +436,10 @@ STDMETHODIMP InterfaceFetchAccount::get_ProcessMIMEDate(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetProcessMIMEDate() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetProcessMIMEDate() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -452,10 +452,10 @@ STDMETHODIMP InterfaceFetchAccount::put_ProcessMIMEDate(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetProcessMIMEDate(newVal == VARIANT_TRUE);
+      object_->SetProcessMIMEDate(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -468,10 +468,10 @@ STDMETHODIMP InterfaceFetchAccount::DownloadNow(void)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      HM::PersistentFetchAccount::SetRetryNow(m_pObject->GetID());
+      HM::PersistentFetchAccount::SetRetryNow(object_->GetID());
    
       // Notify the fetch manager to look for accounts to fetch from now.
       HM::Application::Instance()->GetExternalFetchManager()->SetCheckNow();
@@ -488,10 +488,10 @@ STDMETHODIMP InterfaceFetchAccount::get_UseSSL(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -505,13 +505,13 @@ STDMETHODIMP InterfaceFetchAccount::put_UseSSL(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       if (newVal == VARIANT_TRUE)
-         m_pObject->SetConnectionSecurity(HM::CSSSL);
+         object_->SetConnectionSecurity(HM::CSSSL);
       else
-         m_pObject->SetConnectionSecurity(HM::CSNone);
+         object_->SetConnectionSecurity(HM::CSNone);
 
       return S_OK;
    }
@@ -525,10 +525,10 @@ STDMETHODIMP InterfaceFetchAccount::put_ConnectionSecurity(eConnectionSecurity n
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
+      object_->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
       return S_OK;
    }
    catch (...)
@@ -541,10 +541,10 @@ STDMETHODIMP InterfaceFetchAccount::get_ConnectionSecurity(eConnectionSecurity *
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (eConnectionSecurity) m_pObject->GetConnectionSecurity();
+      *pVal = (eConnectionSecurity) object_->GetConnectionSecurity();
 
       return S_OK;
    }
@@ -558,16 +558,16 @@ STDMETHODIMP InterfaceFetchAccount::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentFetchAccount::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentFetchAccount::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -581,10 +581,10 @@ STDMETHODIMP InterfaceFetchAccount::get_NextDownloadTime(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetNextTry().AllocSysString();
+      *pVal = object_->GetNextTry().AllocSysString();
    
       return S_OK;
    }
@@ -598,10 +598,10 @@ STDMETHODIMP InterfaceFetchAccount::get_IsLocked(VARIANT_BOOL* pVal)
 {
 	try
 	{
-		if (!m_pObject)
+		if (!object_)
 			return GetAccessDenied();
 
-		bool locked = HM::PersistentFetchAccount::IsLocked(m_pObject->GetID());
+		bool locked = HM::PersistentFetchAccount::IsLocked(object_->GetID());
 		*pVal = locked ? VARIANT_TRUE : VARIANT_FALSE;
 		return S_OK;
 	}
@@ -615,10 +615,10 @@ STDMETHODIMP InterfaceFetchAccount::get_UseAntiSpam(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUseAntiSpam() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetUseAntiSpam() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -632,10 +632,10 @@ STDMETHODIMP InterfaceFetchAccount::put_UseAntiSpam(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUseAntiSpam(newVal == VARIANT_TRUE ? true : false);
+      object_->SetUseAntiSpam(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)
@@ -648,10 +648,10 @@ STDMETHODIMP InterfaceFetchAccount::get_UseAntiVirus(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUseAntiVirus() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetUseAntiVirus() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -665,10 +665,10 @@ STDMETHODIMP InterfaceFetchAccount::put_UseAntiVirus(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUseAntiVirus(newVal == VARIANT_TRUE ? true : false);
+      object_->SetUseAntiVirus(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)
@@ -681,10 +681,10 @@ STDMETHODIMP InterfaceFetchAccount::get_EnableRouteRecipients(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetEnableRouteRecipients() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetEnableRouteRecipients() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -698,10 +698,10 @@ STDMETHODIMP InterfaceFetchAccount::put_EnableRouteRecipients(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetEnableRouteRecipients(newVal == VARIANT_TRUE ? true : false);
+      object_->SetEnableRouteRecipients(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)

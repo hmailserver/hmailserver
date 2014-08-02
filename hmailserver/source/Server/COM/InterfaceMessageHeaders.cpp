@@ -11,17 +11,17 @@
 void 
 InterfaceMessageHeaders::AttachItem(shared_ptr<HM::MimeHeader> pHeader)
 {
-   m_pHeader = pHeader;
+   header_ = pHeader;
 }
 
 STDMETHODIMP InterfaceMessageHeaders::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pHeader)
+      if (!header_)
          return DISP_E_BADINDEX;
    
-      *pVal = m_pHeader->GetFieldCount();
+      *pVal = header_->GetFieldCount();
    
       return S_OK;
    }
@@ -36,16 +36,16 @@ InterfaceMessageHeaders::get_Item(long Index, IInterfaceMessageHeader **pVal)
 {
    try
    {
-      if (!m_pHeader)
+      if (!header_)
          return DISP_E_BADINDEX;
    
-      HM::MimeField *pField = m_pHeader->GetField(Index);
+      HM::MimeField *pField = header_->GetField(Index);
    
       if (!pField)
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceMessageHeader>* pInterfaceMessageHeader = new CComObject<InterfaceMessageHeader>();
-      pInterfaceMessageHeader->AttachItem(m_pHeader, pField);
+      pInterfaceMessageHeader->AttachItem(header_, pField);
       
       pInterfaceMessageHeader->AddRef();
    
@@ -64,17 +64,17 @@ InterfaceMessageHeaders::get_ItemByName(BSTR sName, IInterfaceMessageHeader **pV
 {
    try
    {
-      if (!m_pHeader)
+      if (!header_)
          return DISP_E_BADINDEX;
    
       HM::AnsiString sFieldName = sName;
-      HM::MimeField *pField = m_pHeader->GetField(sFieldName);
+      HM::MimeField *pField = header_->GetField(sFieldName);
    
       if (!pField)
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceMessageHeader>* pInterfaceMessageHeader = new CComObject<InterfaceMessageHeader>();
-      pInterfaceMessageHeader->AttachItem(m_pHeader, pField);
+      pInterfaceMessageHeader->AttachItem(header_, pField);
       pInterfaceMessageHeader->AddRef();
    
       *pVal = pInterfaceMessageHeader;

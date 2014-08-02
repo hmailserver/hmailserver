@@ -61,7 +61,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Backup> m_pBackup;
+   shared_ptr<HM::Backup> backup_;
 
 };
 

@@ -173,7 +173,7 @@ namespace HM
    AntiSpamConfiguration::XMLStore(XNode *pBackupNode, int iOptions)
    {
       // SURBL SERVERS
-      if (!_surblServers->XMLStore(pBackupNode, iOptions))
+      if (!surblServers_->XMLStore(pBackupNode, iOptions))
          return false;
 
       // GREYLISTING WHITEADDRESSES
@@ -185,7 +185,7 @@ namespace HM
          return false;
 
       // DNS BLACK LISTS
-      if (!_dnsBlackLists->XMLStore(pBackupNode, iOptions))
+      if (!dnsBlackLists_->XMLStore(pBackupNode, iOptions))
          return false;
 
       return true;
@@ -195,8 +195,8 @@ namespace HM
    AntiSpamConfiguration::XMLLoad(XNode *pBackupNode, int iRestoreOptions)
    {
       // SURBL SERVERS
-      _surblServers->Refresh();
-      if (!_surblServers->XMLLoad(pBackupNode, iRestoreOptions))
+      surblServers_->Refresh();
+      if (!surblServers_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       // GREYLISTING WHITEADDRESSES
@@ -208,8 +208,8 @@ namespace HM
          return false;
 
       // DNS BLACK LISTS
-      _dnsBlackLists->Refresh();
-      if (!_dnsBlackLists->XMLLoad(pBackupNode, iRestoreOptions))
+      dnsBlackLists_->Refresh();
+      if (!dnsBlackLists_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       return true;

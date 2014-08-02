@@ -66,7 +66,7 @@ public:
 
 public:
 
-   shared_ptr<HM::SSLCertificates> m_pSSLCertificates;
+   shared_ptr<HM::SSLCertificates> ssl_certificates_;
 
 
 };

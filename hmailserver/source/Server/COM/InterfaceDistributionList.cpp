@@ -44,10 +44,10 @@ STDMETHODIMP InterfaceDistributionList::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -61,12 +61,12 @@ STDMETHODIMP InterfaceDistributionList::get_Address(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      HM::String sName = m_pObject->GetAddress();
+      HM::String sName = object_->GetAddress();
    
       *pVal = sName.AllocSysString();
    
@@ -82,13 +82,13 @@ STDMETHODIMP InterfaceDistributionList::put_Address(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
       HM::String sName = newVal;
-      m_pObject->SetAddress(sName);
+      object_->SetAddress(sName);
    
       return S_OK;
    }
@@ -102,12 +102,12 @@ STDMETHODIMP InterfaceDistributionList::get_RequireSenderAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      HM::String sAddress = m_pObject->GetRequireAddress();
+      HM::String sAddress = object_->GetRequireAddress();
    
       *pVal = sAddress.AllocSysString();
    
@@ -123,13 +123,13 @@ STDMETHODIMP InterfaceDistributionList::put_RequireSenderAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
       HM::String sName = newVal;
-      m_pObject->SetRequireAddress(sName);
+      object_->SetRequireAddress(sName);
    
       return S_OK;
    }
@@ -143,12 +143,12 @@ STDMETHODIMP InterfaceDistributionList::get_RequireSMTPAuth(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      if (m_pObject->GetRequireAuth())
+      if (object_->GetRequireAuth())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -165,15 +165,15 @@ STDMETHODIMP InterfaceDistributionList::put_RequireSMTPAuth(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
       if (newVal == VARIANT_TRUE)
-         m_pObject->SetRequireAuth(true);
+         object_->SetRequireAuth(true);
       else
-         m_pObject->SetRequireAuth(false);
+         object_->SetRequireAuth(false);
    
       return S_OK;
    }
@@ -187,12 +187,12 @@ STDMETHODIMP InterfaceDistributionList::get_Active(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      if (m_pObject->GetActive())
+      if (object_->GetActive())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -209,15 +209,15 @@ STDMETHODIMP InterfaceDistributionList::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
       if (newVal == VARIANT_TRUE)
-         m_pObject->SetActive(true);
+         object_->SetActive(true);
       else
-         m_pObject->SetActive(false);
+         object_->SetActive(false);
    
       return S_OK;
    }
@@ -231,15 +231,15 @@ STDMETHODIMP InterfaceDistributionList::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      if (!m_pObject)
+      if (!object_)
          return S_FALSE;
    
-      HM::PersistentDistributionList::DeleteObject(m_pObject);
+      HM::PersistentDistributionList::DeleteObject(object_);
    
       return S_OK;
    }
@@ -253,14 +253,14 @@ STDMETHODIMP InterfaceDistributionList::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pObject)
+      if (!object_)
          return S_FALSE;
    
       HM::String sErrorMessage;
-      if (HM::PersistentDistributionList::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
+      if (HM::PersistentDistributionList::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -280,14 +280,14 @@ STDMETHODIMP InterfaceDistributionList::get_Recipients(IInterfaceDistributionLis
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceDistributionListRecipients>* pItem = new CComObject<InterfaceDistributionListRecipients>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      pItem->SetListID(m_pObject->GetID());
-      shared_ptr<HM::DistributionListRecipients> pRecipients = m_pObject->GetMembers();
+      pItem->SetListID(object_->GetID());
+      shared_ptr<HM::DistributionListRecipients> pRecipients = object_->GetMembers();
    
       if (pRecipients)
       {
@@ -309,10 +309,10 @@ STDMETHODIMP InterfaceDistributionList::get_Mode(eDistributionListMode *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      switch (m_pObject->GetListMode())
+      switch (object_->GetListMode())
       {
       case HM::DistributionList::LMPublic:
          *pVal = eLMPublic;
@@ -340,7 +340,7 @@ STDMETHODIMP InterfaceDistributionList::put_Mode(eDistributionListMode newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::DistributionList::ListMode iMode = HM::DistributionList::LMPublic;
@@ -358,7 +358,7 @@ STDMETHODIMP InterfaceDistributionList::put_Mode(eDistributionListMode newVal)
          break;
       }
    
-      m_pObject->SetListMode(iMode);
+      object_->SetListMode(iMode);
    
       return S_OK;
    }

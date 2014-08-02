@@ -58,12 +58,12 @@ namespace HM
       _propertySet->Refresh();
 
 
-      m_pPOP3Configuration = shared_ptr<POP3Configuration>(new POP3Configuration);
-      m_pSMTPConfiguration = shared_ptr<SMTPConfiguration>(new SMTPConfiguration);
-      m_pIMAPConfiguration = shared_ptr<IMAPConfiguration>(new IMAPConfiguration);
-      m_pCacheConfiguration = shared_ptr<CacheConfiguration>(new CacheConfiguration);
+      pop3_configuration_ = shared_ptr<POP3Configuration>(new POP3Configuration);
+      smtp_configuration_ = shared_ptr<SMTPConfiguration>(new SMTPConfiguration);
+      imap_configuration_ = shared_ptr<IMAPConfiguration>(new IMAPConfiguration);
+      cache_configuration_ = shared_ptr<CacheConfiguration>(new CacheConfiguration);
       
-      if (!m_pSMTPConfiguration->Load())
+      if (!smtp_configuration_->Load())
          return false;
 
       if (!_antiSpamConfiguration.Load())
@@ -82,7 +82,7 @@ namespace HM
       TLD::Instance()->Initialize();
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
-      return m_pIMAPConfiguration->Load();
+      return imap_configuration_->Load();
    }
 
    void 
@@ -104,8 +104,8 @@ namespace HM
          Application::Instance()->OnPropertyChanged(pProperty);
       } 
 
-      if (m_pSMTPConfiguration)
-         m_pSMTPConfiguration->OnPropertyChanged(pProperty);
+      if (smtp_configuration_)
+         smtp_configuration_->OnPropertyChanged(pProperty);
    }
 
 
@@ -636,10 +636,10 @@ namespace HM
       _sslCertificates->XMLStore(pBackupNode, 0);
       _blockedAttachments->XMLStore(pBackupNode, 0);
 
-      m_pSMTPConfiguration->XMLStore(pBackupNode, 0);
-      m_pIMAPConfiguration->XMLStore(pBackupNode, 0);
+      smtp_configuration_->XMLStore(pBackupNode, 0);
+      imap_configuration_->XMLStore(pBackupNode, 0);
       _antiSpamConfiguration.XMLStore(pBackupNode, 0);
-      m_pCacheConfiguration->XMLStore(pBackupNode, 0);
+      cache_configuration_->XMLStore(pBackupNode, 0);
 
       return true;
    }
@@ -678,16 +678,16 @@ namespace HM
       if (!_blockedAttachments->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pSMTPConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!smtp_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pIMAPConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!imap_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       if (!_antiSpamConfiguration.XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pCacheConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!cache_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       return true;

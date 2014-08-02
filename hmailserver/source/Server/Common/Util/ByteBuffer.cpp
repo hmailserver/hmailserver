@@ -12,7 +12,7 @@
 namespace HM
 {
    ByteBuffer::ByteBuffer() :
-      m_pBuffer (0),
+      buffer_ (0),
       m_lBufferSize (0)
    {
 
@@ -22,10 +22,10 @@ namespace HM
    {
       try
       {
-         if (m_pBuffer)
+         if (buffer_)
          {
-            delete [] m_pBuffer;
-            m_pBuffer = 0;
+            delete [] buffer_;
+            buffer_ = 0;
 
             m_lBufferSize = 0;
          }   
@@ -42,10 +42,10 @@ namespace HM
    void 
    ByteBuffer::Empty()
    {
-      if (m_pBuffer)
+      if (buffer_)
       {
-         delete [] m_pBuffer;
-         m_pBuffer = 0;
+         delete [] buffer_;
+         buffer_ = 0;
 
          m_lBufferSize = 0;
       }   
@@ -70,7 +70,7 @@ namespace HM
       BYTE * pRemaining = new BYTE[iLeaveEndingBytes];
       
       // Copy the remaining data to this buffer.
-      memcpy(pRemaining, m_pBuffer + (m_lBufferSize - iLeaveEndingBytes), iLeaveEndingBytes );
+      memcpy(pRemaining, buffer_ + (m_lBufferSize - iLeaveEndingBytes), iLeaveEndingBytes );
 
       // Empty this buffer.
       Empty();
@@ -88,8 +88,8 @@ namespace HM
       Empty();
       
       // Allocate a new buffer
-      m_pBuffer = new BYTE[lSize];
-      memset(m_pBuffer, 0, lSize);
+      buffer_ = new BYTE[lSize];
+      memset(buffer_, 0, lSize);
       m_lBufferSize = lSize;
    }
 
@@ -124,7 +124,7 @@ namespace HM
       
       // Copy the old data to the temporary buffer.
       if (m_lBufferSize > 0)
-         memcpy(tmpbuf, m_pBuffer, m_lBufferSize);
+         memcpy(tmpbuf, buffer_, m_lBufferSize);
       
       // Copy the new data to the temporary buffer.
       memcpy(tmpbuf + m_lBufferSize,pBuf, lSize);
@@ -133,7 +133,7 @@ namespace HM
       // tmpbuf. Free current buffer.
       Empty();
 
-      m_pBuffer = tmpbuf;
+      buffer_ = tmpbuf;
       m_lBufferSize = iTotBufLen;
    }
 

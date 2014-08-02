@@ -13,25 +13,25 @@
 void 
 InterfaceRules::Attach(shared_ptr<HM::Rules> pRules)
 {
-   m_pRules = pRules;
+   rules_ = pRules;
 }
 
 STDMETHODIMP InterfaceRules::get_ItemByDBID(long lDBID, IInterfaceRule** pVal)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
       CComObject<InterfaceRule>* pInterfaceRule = new CComObject<InterfaceRule>();
-      pInterfaceRule->SetAuthentication(m_pAuthentication);
+      pInterfaceRule->SetAuthentication(authentication_);
    
    
-      shared_ptr<HM::Rule> pRule = m_pRules->GetItemByDBID(lDBID);
+      shared_ptr<HM::Rule> pRule = rules_->GetItemByDBID(lDBID);
       if (!pRule)
          return DISP_E_BADINDEX;
    
-      pInterfaceRule->AttachParent(m_pRules, true);
+      pInterfaceRule->AttachParent(rules_, true);
       pInterfaceRule->AttachItem(pRule);
       pInterfaceRule->AddRef();
       *pVal = pInterfaceRule;   
@@ -48,17 +48,17 @@ STDMETHODIMP InterfaceRules::get_Item(long lIndex, IInterfaceRule** pVal)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
       CComObject<InterfaceRule>* pInterfaceRule = new CComObject<InterfaceRule>();
-      pInterfaceRule->SetAuthentication(m_pAuthentication);
+      pInterfaceRule->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rule> pRule = m_pRules->GetItem(lIndex);
+      shared_ptr<HM::Rule> pRule = rules_->GetItem(lIndex);
       if (!pRule)
          return DISP_E_BADINDEX;
    
-      pInterfaceRule->AttachParent(m_pRules, true);
+      pInterfaceRule->AttachParent(rules_, true);
       pInterfaceRule->AttachItem(pRule);
       pInterfaceRule->AddRef();
       *pVal = pInterfaceRule;   
@@ -75,10 +75,10 @@ STDMETHODIMP InterfaceRules::get_Count(LONG* pVal)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
-      *pVal = m_pRules->GetCount();
+      *pVal = rules_->GetCount();
    
       return S_OK;
    }
@@ -92,23 +92,23 @@ STDMETHODIMP InterfaceRules::Add(IInterfaceRule** pVal)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
-      if (!m_pRules)
-         return m_pAuthentication->GetAccessDenied();
+      if (!rules_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRule>* pIntDA = new CComObject<InterfaceRule>();
-      pIntDA->SetAuthentication(m_pAuthentication);
+      pIntDA->SetAuthentication(authentication_);
    
       shared_ptr<HM::Rule> pDA = shared_ptr<HM::Rule>(new HM::Rule);
    
       // Make sure that the new rule is
       // added to the right account.
-      pDA->SetAccountID(m_pRules->GetAccountID());
+      pDA->SetAccountID(rules_->GetAccountID());
    
       pIntDA->AttachItem(pDA);
-      pIntDA->AttachParent(m_pRules, false);
+      pIntDA->AttachParent(rules_, false);
       pIntDA->AddRef();
    
       *pVal = pIntDA;
@@ -127,10 +127,10 @@ STDMETHODIMP InterfaceRules::DeleteByDBID(LONG DBID)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
-      m_pRules->DeleteItemByDBID(DBID);
+      rules_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -144,10 +144,10 @@ STDMETHODIMP InterfaceRules::Refresh(void)
 {
    try
    {
-      if (!m_pRules)
+      if (!rules_)
          return GetAccessDenied();
 
-      m_pRules->Refresh();
+      rules_->Refresh();
    
       return S_OK;
    }

@@ -42,13 +42,13 @@ namespace HM
    shared_ptr<FetchAccountUIDs>
    FetchAccount::GetUIDs()
    {
-      if (!m_pUIDs)
+      if (!uids_)
       {
-         m_pUIDs = shared_ptr<FetchAccountUIDs> (new FetchAccountUIDs);
-         m_pUIDs->Refresh(m_iID);
+         uids_ = shared_ptr<FetchAccountUIDs> (new FetchAccountUIDs);
+         uids_->Refresh(m_iID);
       }
 
-      return m_pUIDs;
+      return uids_;
    }
 
    bool 

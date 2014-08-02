@@ -63,7 +63,7 @@ public:
 
    HRESULT STDMETHODCALLTYPE get_ID(LONG* pVal)
    {
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
 
       return S_OK;
    }

@@ -53,7 +53,7 @@ END_COM_MAP()
 
    HRESULT STDMETHODCALLTYPE get_ID(LONG* pVal)
    {
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
 
@@ -78,7 +78,7 @@ END_COM_MAP()
    STDMETHOD(Delete)();
 
 public:
-   shared_ptr<HM::IMAPFolder> m_pObject;
+   shared_ptr<HM::IMAPFolder> object_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(IMAPFolder), InterfaceIMAPFolder)

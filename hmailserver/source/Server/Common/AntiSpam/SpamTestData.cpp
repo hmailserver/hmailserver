@@ -72,13 +72,13 @@ namespace HM
    void 
    SpamTestData::SetMessageData(shared_ptr<MessageData> pMessageData)
    {
-      m_pMessageData = pMessageData;
+      message_data_ = pMessageData;
    }
 
    shared_ptr<MessageData>
    SpamTestData::GetMessageData()  const
    {
-      return m_pMessageData;
+      return message_data_;
    }
 
 }

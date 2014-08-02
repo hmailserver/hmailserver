@@ -155,8 +155,8 @@ namespace HM
    bool
    IMAPCommandSEARCH::_DoesMessageMatch(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index)
    {
-      m_pMessageData.reset();
-      m_pMimeHeader.reset();
+      message_data_.reset();
+      mime_header_.reset();
 
       bool bIsOrCriteria = pParentCriteria->GetIsOR();
 
@@ -439,14 +439,14 @@ namespace HM
    bool
    IMAPCommandSEARCH::_MatchesBODYCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      if (!m_pMessageData)
+      if (!message_data_)
       {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+         message_data_ = shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
       }
 
-      String sBody = m_pMessageData->GetBody();
-      String sHTMLBody = m_pMessageData->GetHTMLBody();
+      String sBody = message_data_->GetBody();
+      String sHTMLBody = message_data_->GetHTMLBody();
 
       String sTextToSearchIn = sBody + sHTMLBody;
       String sTextToFind = pCriteria->GetText();
@@ -587,14 +587,14 @@ namespace HM
    bool
    IMAPCommandSEARCH::_MatchesTEXTCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      if (!m_pMessageData)
+      if (!message_data_)
       {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+         message_data_ = shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
       }
 
-      String sHeader = m_pMessageData->GetHeader();
-      String sBody = m_pMessageData->GetBody();
+      String sHeader = message_data_->GetHeader();
+      String sBody = message_data_->GetBody();
 
       String sTextToFind = pCriteria->GetText();
 
@@ -660,25 +660,25 @@ namespace HM
    String
    IMAPCommandSEARCH::_GetHeaderValue(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField)
    {
-      if (m_pMessageData)
+      if (message_data_)
       {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+         message_data_ = shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
 
-         return m_pMessageData->GetFieldValue(sHeaderField);
+         return message_data_->GetFieldValue(sHeaderField);
       }
       
-      if (!m_pMimeHeader)
+      if (!mime_header_)
       {
          // Load header
          AnsiString sHeader = PersistentMessage::LoadHeader(fileName);
 
-         m_pMimeHeader = shared_ptr<MimeHeader>(new MimeHeader);
-         m_pMimeHeader->Load(sHeader, sHeader.GetLength(), true);
+         mime_header_ = shared_ptr<MimeHeader>(new MimeHeader);
+         mime_header_->Load(sHeader, sHeader.GetLength(), true);
       }
 
       AnsiString sHeaderFieldStr = sHeaderField;
-      return m_pMimeHeader->GetUnicodeFieldValue(sHeaderFieldStr);
+      return mime_header_->GetUnicodeFieldValue(sHeaderFieldStr);
 
    }
 

@@ -15,7 +15,7 @@
 void 
 InterfaceRuleActions::Attach(shared_ptr<HM::RuleActions> pActions)
 {
-   m_pRuleActions = pActions;
+   rule_actions_ = pActions;
 }
 
 
@@ -23,18 +23,18 @@ STDMETHODIMP InterfaceRuleActions::get_ItemByDBID(long lDBID, IInterfaceRuleActi
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleAction>* pInterfaceRuleAction = new CComObject<InterfaceRuleAction>();
-      pInterfaceRuleAction->SetAuthentication(m_pAuthentication);
+      pInterfaceRuleAction->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleAction> pRule = m_pRuleActions->GetItemByDBID(lDBID);
+      shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItemByDBID(lDBID);
       if (!pRule)
          return DISP_E_BADINDEX;
    
       pInterfaceRuleAction->AttachItem(pRule);
-      pInterfaceRuleAction->AttachParent(m_pRuleActions, true);
+      pInterfaceRuleAction->AttachParent(rule_actions_, true);
       pInterfaceRuleAction->AddRef();
       *pVal = pInterfaceRuleAction;   
    
@@ -50,18 +50,18 @@ STDMETHODIMP InterfaceRuleActions::get_Item(long lIndex, IInterfaceRuleAction** 
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleAction>* pInterfaceRuleAction = new CComObject<InterfaceRuleAction>();
-      pInterfaceRuleAction->SetAuthentication(m_pAuthentication);
+      pInterfaceRuleAction->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleAction> pRule = m_pRuleActions->GetItem(lIndex);
+      shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItem(lIndex);
       if (!pRule)
          return DISP_E_BADINDEX;
    
       pInterfaceRuleAction->AttachItem(pRule);
-      pInterfaceRuleAction->AttachParent(m_pRuleActions, true);
+      pInterfaceRuleAction->AttachParent(rule_actions_, true);
       pInterfaceRuleAction->AddRef();
       *pVal = pInterfaceRuleAction;   
    
@@ -77,10 +77,10 @@ STDMETHODIMP InterfaceRuleActions::get_Count(LONG* pVal)
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
-      *pVal = m_pRuleActions->GetCount();
+      *pVal = rule_actions_->GetCount();
    
       return S_OK;
    }
@@ -94,21 +94,21 @@ STDMETHODIMP InterfaceRuleActions::Add(IInterfaceRuleAction** pVal)
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
-      if (!m_pRuleActions)
-         return m_pAuthentication->GetAccessDenied();
+      if (!rule_actions_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRuleAction>* pIntRA = new CComObject<InterfaceRuleAction>();
-      pIntRA->SetAuthentication(m_pAuthentication);
+      pIntRA->SetAuthentication(authentication_);
    
       shared_ptr<HM::RuleAction> pRuleAction = shared_ptr<HM::RuleAction>(new HM::RuleAction);
    
-      pRuleAction->SetRuleID(m_pRuleActions->GetRuleID());
+      pRuleAction->SetRuleID(rule_actions_->GetRuleID());
    
       pIntRA->AttachItem(pRuleAction);
-      pIntRA->AttachParent(m_pRuleActions, false);
+      pIntRA->AttachParent(rule_actions_, false);
       pIntRA->AddRef();
    
       *pVal = pIntRA;
@@ -126,10 +126,10 @@ STDMETHODIMP InterfaceRuleActions::DeleteByDBID(LONG DBID)
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
-      m_pRuleActions->DeleteItemByDBID(DBID);
+      rule_actions_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -143,10 +143,10 @@ STDMETHODIMP InterfaceRuleActions::Delete(LONG DBID)
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
-      m_pRuleActions->DeleteItem(DBID);
+      rule_actions_->DeleteItem(DBID);
    
       return S_OK;
    }
@@ -160,10 +160,10 @@ STDMETHODIMP InterfaceRuleActions::Refresh(void)
 {
    try
    {
-      if (!m_pRuleActions)
+      if (!rule_actions_)
          return GetAccessDenied();
 
-      m_pRuleActions->Refresh();
+      rule_actions_->Refresh();
    
       return S_OK;
    }

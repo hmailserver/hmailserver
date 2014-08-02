@@ -17,7 +17,7 @@ namespace HM
 {
    DeliveryTask::DeliveryTask(shared_ptr<Message> pMessage) :
       Task("DeliveryTask"),
-      m_pMessage(pMessage)
+      message_(pMessage)
    {
       
    }
@@ -30,7 +30,7 @@ namespace HM
    DeliveryTask::DoWork()
    {
       // Do our delivery work.
-      SMTPDeliverer::DeliverMessage(m_pMessage);
+      SMTPDeliverer::DeliverMessage(message_);
    }
 
 }

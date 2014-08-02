@@ -61,7 +61,7 @@ public:
 
 private:
 
-   shared_ptr<HM::DomainAliases> m_pDomainAliases;
+   shared_ptr<HM::DomainAliases> domain_aliases_;
 
 };
 

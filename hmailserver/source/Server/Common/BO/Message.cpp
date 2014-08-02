@@ -78,10 +78,10 @@ namespace HM
    shared_ptr<MessageRecipients>
    Message::GetRecipients()
    {
-      if (!m_pRecipients)
-         m_pRecipients = shared_ptr<MessageRecipients>(new MessageRecipients);
+      if (!recipients_)
+         recipients_ = shared_ptr<MessageRecipients>(new MessageRecipients);
 
-      return m_pRecipients;
+      return recipients_;
    }
 
    bool

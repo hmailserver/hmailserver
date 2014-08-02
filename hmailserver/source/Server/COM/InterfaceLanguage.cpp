@@ -9,17 +9,17 @@
 void 
 InterfaceLanguage::Attach(shared_ptr<HM::Language> pLanguage)
 {
-   m_pLanguage = pLanguage;
+   language_ = pLanguage;
 }
 
 STDMETHODIMP InterfaceLanguage::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pLanguage)
+      if (!language_)
          return GetAccessDenied();
 
-      HM::String sName = m_pLanguage->GetName();
+      HM::String sName = language_->GetName();
       *pVal = sName.AllocSysString();
    
       return S_OK;
@@ -34,10 +34,10 @@ STDMETHODIMP InterfaceLanguage::get_String(BSTR EnglishString, BSTR *pVal)
 {
    try
    {
-      if (!m_pLanguage)
+      if (!language_)
          return GetAccessDenied();
 
-      HM::String sText = m_pLanguage->GetString(EnglishString);
+      HM::String sText = language_->GetString(EnglishString);
       *pVal = sText.AllocSysString();
    
       return S_OK;
@@ -52,10 +52,10 @@ STDMETHODIMP InterfaceLanguage::get_IsDownloaded(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pLanguage)
+      if (!language_)
          return GetAccessDenied();
 
-      *pVal = m_pLanguage->GetIsDownloded() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = language_->GetIsDownloded() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -68,10 +68,10 @@ STDMETHODIMP InterfaceLanguage::Download()
 {
    try
    {
-      if (!m_pLanguage)
+      if (!language_)
          return GetAccessDenied();
 
-      // m_pLanguage->Download();   
+      // language_->Download();   
    
       return COMError::GenerateError("Not implemented.");
    }

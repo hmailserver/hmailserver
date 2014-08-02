@@ -101,7 +101,7 @@ namespace HM
    int
    SMTPClientConnection::SetDelivery(shared_ptr<Message> pDelMsg, std::vector<shared_ptr<MessageRecipient> > &vecRecipients)
    {
-      m_pDeliveryMessage = pDelMsg;
+      delivery_message_ = pDelMsg;
       m_vecRecipients = vecRecipients;
       m_bSessionEnded = false;
       
@@ -313,7 +313,7 @@ namespace HM
    SMTPClientConnection::_ProtocolData()
    {
       // Send the data!
-      const String fileName = PersistentMessage::GetFileName(m_pDeliveryMessage);
+      const String fileName = PersistentMessage::GetFileName(delivery_message_);
       _StartSendFile(fileName);
    }
 
@@ -372,7 +372,7 @@ namespace HM
    void
    SMTPClientConnection::_ProtocolSendMailFrom()
    {
-      String sFrom = m_pDeliveryMessage->GetFromAddress();
+      String sFrom = delivery_message_->GetFromAddress();
       String sData = "MAIL FROM:<" + sFrom + ">";
       _SendData(sData);
       m_CurrentState = MAILFROMSENT;
@@ -690,7 +690,7 @@ namespace HM
    {
       _UpdateAllRecipientsWithError(0, sErrorDescription, true);
 
-      LOG_SMTP_CLIENT(0,"TCP","SMTPDeliverer - Message " + StringParser::IntToString(m_pDeliveryMessage->GetID()) + " - Connection failed: " + String(sErrorDescription) );
+      LOG_SMTP_CLIENT(0,"TCP","SMTPDeliverer - Message " + StringParser::IntToString(delivery_message_->GetID()) + " - Connection failed: " + String(sErrorDescription) );
    }
 }
 

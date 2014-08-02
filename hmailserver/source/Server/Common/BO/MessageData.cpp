@@ -35,7 +35,7 @@ namespace HM
       m_bEncodeFields = true;
       _unfoldWithSpace = true;
 
-      m_pMimeMail = shared_ptr<MimeBody>(new MimeBody);
+      mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
    }
 
    bool
@@ -50,10 +50,10 @@ namespace HM
    bool
    MessageData::LoadFromMessage(const String &fileName, shared_ptr<Message> pMessage)
    {
-      m_pMessage = pMessage;
+      message_ = pMessage;
       _messageFileName = fileName;
 
-      m_pMimeMail = shared_ptr<MimeBody>(new MimeBody);
+      mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
 
       const int MaxSize = 1024*1024 * 80; // we'll ignore messages larger than 80MB.
       if (FileUtilities::FileSize(_messageFileName) > MaxSize)
@@ -63,7 +63,7 @@ namespace HM
       try
       {
 
-         if (!m_pMimeMail->LoadFromFile(_messageFileName))
+         if (!mime_mail_->LoadFromFile(_messageFileName))
          {
             bNewMessage = true;
          }
@@ -106,10 +106,10 @@ namespace HM
    bool 
    MessageData::RefreshFromMessage()
    {
-      if (!m_pMessage)
+      if (!message_)
          return false;
 
-      return LoadFromMessage(_messageFileName, m_pMessage);
+      return LoadFromMessage(_messageFileName, message_);
    }
 
 
@@ -121,12 +121,12 @@ namespace HM
    void 
    MessageData::DeleteField(const AnsiString &headerName)
    {
-      MimeField *pField = m_pMimeMail->GetField(headerName);
+      MimeField *pField = mime_mail_->GetField(headerName);
       
       while (pField)
       {
-         m_pMimeMail->DeleteField(pField);
-         pField = m_pMimeMail->GetField(headerName);
+         mime_mail_->DeleteField(pField);
+         pField = mime_mail_->GetField(headerName);
       }
    }
 
@@ -145,23 +145,23 @@ namespace HM
    String
    MessageData::GetCharset()  const
    {
-      return m_pMimeMail->GetCharset();
+      return mime_mail_->GetCharset();
    }
 
    void 
    MessageData::SetCharset(const String &sCharset)
    {
       AnsiString sCharsetStr = sCharset;
-      m_pMimeMail->SetCharset(sCharsetStr);
+      mime_mail_->SetCharset(sCharsetStr);
    }
 
    String
    MessageData::GetHeader()  const
    {
       if (m_bEncodeFields)
-         return m_pMimeMail->GetUnicodeHeaderContents();
+         return mime_mail_->GetUnicodeHeaderContents();
       else
-         return m_pMimeMail->GetHeaderContents();
+         return mime_mail_->GetHeaderContents();
    }
 
    String
@@ -187,9 +187,9 @@ namespace HM
    MessageData::SetFieldValue(const String &sField, const String &sValue)
    {
       if (m_bEncodeFields)
-         m_pMimeMail->SetUnicodeFieldValue(sField, sValue, "");
+         mime_mail_->SetUnicodeFieldValue(sField, sValue, "");
       else
-         m_pMimeMail->SetRawFieldValue(sField, sValue, "");
+         mime_mail_->SetRawFieldValue(sField, sValue, "");
    }
 
    String
@@ -258,9 +258,9 @@ namespace HM
    {
       String sRetVal;
       if (m_bEncodeFields)
-         sRetVal = m_pMimeMail->GetUnicodeFieldValue(sName);
+         sRetVal = mime_mail_->GetUnicodeFieldValue(sName);
       else
-         sRetVal = m_pMimeMail->GetRawFieldValue(sName);
+         sRetVal = mime_mail_->GetRawFieldValue(sName);
 
       return sRetVal;
    }
@@ -268,21 +268,21 @@ namespace HM
    int 
    MessageData::GetSize() const
    {
-      return m_pMessage->GetSize();
+      return message_->GetSize();
    }
 
    shared_ptr<Attachments>
    MessageData::GetAttachments()
    {
-      if (!m_pAttachments)
+      if (!attachments_)
       {
-         m_pAttachments = shared_ptr<Attachments>(new Attachments(m_pMimeMail, this));
+         attachments_ = shared_ptr<Attachments>(new Attachments(mime_mail_, this));
          
          // Load attachments.
-         m_pAttachments->Load();
+         attachments_->Load();
       }
 
-      return m_pAttachments;
+      return attachments_;
    }
 
    String 
@@ -399,16 +399,16 @@ namespace HM
       // Step 4: Insert the new type and all others.
 
       // Create a new part by rebuilding the message more or less from scratch.
-      AnsiString sMainBodyType = m_pMimeMail->GetCleanContentType();
-      AnsiString sMainBodyCharset = m_pMimeMail->GetCharset();
+      AnsiString sMainBodyType = mime_mail_->GetCleanContentType();
+      AnsiString sMainBodyCharset = mime_mail_->GetCharset();
       sMainBodyType.MakeLower();
       
-      shared_ptr<MimeBody> textPart = FindPartNoRecurse(m_pMimeMail, "text/plain");
-      shared_ptr<MimeBody> htmlPart = FindPartNoRecurse(m_pMimeMail, "text/html");
+      shared_ptr<MimeBody> textPart = FindPartNoRecurse(mime_mail_, "text/plain");
+      shared_ptr<MimeBody> htmlPart = FindPartNoRecurse(mime_mail_, "text/html");
 
       shared_ptr<MimeBody> retValue;
 
-      shared_ptr<MimeBody> alternativeNode = FindPartNoRecurse(m_pMimeMail, "multipart/alternative");
+      shared_ptr<MimeBody> alternativeNode = FindPartNoRecurse(mime_mail_, "multipart/alternative");
       if (alternativeNode)
       {
          if (!textPart) 
@@ -426,7 +426,7 @@ namespace HM
                alternativeNode->ErasePart(htmlPart);
          }
 
-         m_pMimeMail->ErasePart(alternativeNode);
+         mime_mail_->ErasePart(alternativeNode);
       }
 
       if (!textPart && !htmlPart)
@@ -435,32 +435,32 @@ namespace HM
          // of the message to a new part, if the main content isn't empty.
          if (sMainBodyType == "" || sMainBodyType == "text/plain")
          {
-            if (m_pMimeMail->GetRawText().size() > 0)
+            if (mime_mail_->GetRawText().size() > 0)
             {
                textPart = shared_ptr<MimeBody>(new MimeBody);
-               textPart->SetRawText(m_pMimeMail->GetRawText());
+               textPart->SetRawText(mime_mail_->GetRawText());
                textPart->SetContentType("text/plain", "");
                
                if (!sMainBodyCharset.IsEmpty())
                   textPart->SetCharset(sMainBodyCharset);
 
-               AnsiString originalTransferEncoding = m_pMimeMail->GetTransferEncoding();
+               AnsiString originalTransferEncoding = mime_mail_->GetTransferEncoding();
                if (!originalTransferEncoding.IsEmpty())
                   textPart->SetTransferEncoding(originalTransferEncoding);
             }
          }
          else if (sMainBodyType == "text/html")
          {
-            if (m_pMimeMail->GetRawText().size() > 0)
+            if (mime_mail_->GetRawText().size() > 0)
             {
                htmlPart = shared_ptr<MimeBody>(new MimeBody);
-               htmlPart->SetRawText(m_pMimeMail->GetRawText());
+               htmlPart->SetRawText(mime_mail_->GetRawText());
                htmlPart->SetContentType("text/html", "");
                
                if (!sMainBodyCharset.IsEmpty())
                   htmlPart->SetCharset(sMainBodyCharset);
 
-               AnsiString originalTransferEncoding = m_pMimeMail->GetTransferEncoding();
+               AnsiString originalTransferEncoding = mime_mail_->GetTransferEncoding();
                if (!originalTransferEncoding.IsEmpty())
                   htmlPart->SetTransferEncoding(originalTransferEncoding);
             }
@@ -472,7 +472,7 @@ namespace HM
       // When we get here, any alternative, text or html parts
       // should have been removed from the message already.
       //
-      shared_ptr<MimeBody> part = m_pMimeMail->FindFirstPart();
+      shared_ptr<MimeBody> part = mime_mail_->FindFirstPart();
       set<shared_ptr<MimeBody> > setAttachments;
       while (part)
       {
@@ -480,11 +480,11 @@ namespace HM
          if (!IsTextType(subContentType) && !IsHTMLType(subContentType))
             setAttachments.insert(part);
 
-         part = m_pMimeMail->FindNextPart();
+         part = mime_mail_->FindNextPart();
       }
 
       // Remove all parts so that we can rebuild it again.
-      m_pMimeMail->DeleteAll();
+      mime_mail_->DeleteAll();
 
       // Create the brand new part...
       if (sContentType.CompareNoCase(_T("text/plain")) == 0)
@@ -494,7 +494,7 @@ namespace HM
          if (setAttachments.size() == 0 && !htmlPart)
          {
             // Reuse the main part. There's no need to add a new one.
-            textPart = m_pMimeMail;
+            textPart = mime_mail_;
             textPart->SetContentType("text/plain", "");
          }
          else
@@ -502,7 +502,7 @@ namespace HM
             textPart = shared_ptr<MimeBody>(new MimeBody);
             textPart->SetContentType("text/plain", "");
 
-            AnsiString transferEncoding = m_pMimeMail->GetTransferEncoding();
+            AnsiString transferEncoding = mime_mail_->GetTransferEncoding();
             if (!transferEncoding.IsEmpty())
                textPart->SetTransferEncoding(transferEncoding);
 
@@ -521,7 +521,7 @@ namespace HM
          {
             // Reuse the main part. There's no need to add a new one.
 
-            htmlPart = m_pMimeMail;
+            htmlPart = mime_mail_;
             htmlPart->SetContentType("text/html", "");
          }
          else
@@ -529,7 +529,7 @@ namespace HM
             htmlPart = shared_ptr<MimeBody>(new MimeBody);
             htmlPart->SetContentType("text/html", "");
 
-            AnsiString transferEncoding = m_pMimeMail->GetTransferEncoding();
+            AnsiString transferEncoding = mime_mail_->GetTransferEncoding();
             if (!transferEncoding.IsEmpty())
                htmlPart->SetTransferEncoding(transferEncoding);
 
@@ -569,15 +569,15 @@ namespace HM
             alternativePart->AddPart(htmlPart);
             alternativePart->SetBoundary(NULL);
 
-            m_pMimeMail->AddPart(alternativePart);
+            mime_mail_->AddPart(alternativePart);
          }
          else
          {
-            if (m_pMimeMail != textPart)
-               m_pMimeMail->AddPart(textPart);
+            if (mime_mail_ != textPart)
+               mime_mail_->AddPart(textPart);
 
-            if (m_pMimeMail != htmlPart)
-               m_pMimeMail->AddPart(htmlPart);
+            if (mime_mail_ != htmlPart)
+               mime_mail_->AddPart(htmlPart);
          }
          
       }
@@ -585,33 +585,33 @@ namespace HM
       {
          if (mainBodyType == "multipart/mixed")
          {
-            if (m_pMimeMail != textPart)
-               m_pMimeMail->AddPart(textPart);
+            if (mime_mail_ != textPart)
+               mime_mail_->AddPart(textPart);
          }
       }
       else if (htmlPart)
       {
          if (mainBodyType == "multipart/mixed")
          {
-            if (m_pMimeMail != htmlPart)
-               m_pMimeMail->AddPart(htmlPart);
+            if (mime_mail_ != htmlPart)
+               mime_mail_->AddPart(htmlPart);
          }
       }
 
       boost_foreach(shared_ptr<MimeBody> pAttachment, setAttachments)
       {
-         m_pMimeMail->AddPart(pAttachment);
+         mime_mail_->AddPart(pAttachment);
       }
 
-      m_pMimeMail->SetContentType(mainBodyType, ""); 
+      mime_mail_->SetContentType(mainBodyType, ""); 
       if (!sMainBodyCharset.IsEmpty())
-         m_pMimeMail->SetCharset(sMainBodyCharset);
+         mime_mail_->SetCharset(sMainBodyCharset);
 
-      if (m_pMimeMail->GetPartCount() > 0)
+      if (mime_mail_->GetPartCount() > 0)
       {
-         m_pMimeMail->DeleteField(CMimeConst::TransferEncoding());
-         m_pMimeMail->SetRawText("This is a multi-part message.\r\n\r\n");
-         m_pMimeMail->SetBoundary(NULL);
+         mime_mail_->DeleteField(CMimeConst::TransferEncoding());
+         mime_mail_->SetRawText("This is a multi-part message.\r\n\r\n");
+         mime_mail_->SetBoundary(NULL);
       }
 
       return retValue;
@@ -620,12 +620,12 @@ namespace HM
    shared_ptr<MimeBody>
    MessageData::FindPart(const String &sType) const
    {
-      String sPartType = m_pMimeMail->GetCleanContentType();
+      String sPartType = mime_mail_->GetCleanContentType();
 
       if (sPartType.CompareNoCase(sType) == 0)
-         return m_pMimeMail;
+         return mime_mail_;
 
-      shared_ptr<MimeBody> pPart = m_pMimeMail->FindFirstPart();
+      shared_ptr<MimeBody> pPart = mime_mail_->FindFirstPart();
 
       if (!pPart)
       {
@@ -657,7 +657,7 @@ namespace HM
 
          }
          
-         pPart = m_pMimeMail->FindNextPart();
+         pPart = mime_mail_->FindNextPart();
       }
 
       shared_ptr<MimeBody> pEmpty;
@@ -672,11 +672,11 @@ namespace HM
       if (!HM::FileUtilities::Exists(directoryName))
          HM::FileUtilities::CreateDirectoryRecursive(directoryName);
 
-      bool result = m_pMimeMail->SaveAllToFile(fileName);
+      bool result = mime_mail_->SaveAllToFile(fileName);
 
-      if (m_pMessage)
+      if (message_)
       {
-         m_pMessage->SetSize(FileUtilities::FileSize(fileName));
+         message_->SetSize(FileUtilities::FileSize(fileName));
       }
 
       return result;
@@ -693,7 +693,7 @@ namespace HM
    int
    MessageData::GetRuleLoopCount()
    {
-      String sRulesProcessed = m_pMimeMail->GetRawFieldValue(XHMAILSERVER_LOOPCOUNT);
+      String sRulesProcessed = mime_mail_->GetRawFieldValue(XHMAILSERVER_LOOPCOUNT);
       if (sRulesProcessed.IsEmpty())
          return 0;
 
@@ -711,7 +711,7 @@ namespace HM
    void 
    MessageData::SetRuleLoopCount(int iLoopCount)
    {
-      m_pMimeMail->SetRawFieldValue(XHMAILSERVER_LOOPCOUNT, StringParser::IntToString(iLoopCount), "");
+      mime_mail_->SetRawFieldValue(XHMAILSERVER_LOOPCOUNT, StringParser::IntToString(iLoopCount), "");
    }
 
 
@@ -743,7 +743,7 @@ namespace HM
    shared_ptr<MimeBody> 
    MessageData::GetMimeMessage()
    {
-      return m_pMimeMail;
+      return mime_mail_;
    }
 
    void

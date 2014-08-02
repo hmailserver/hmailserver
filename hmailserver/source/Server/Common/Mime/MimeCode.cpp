@@ -213,8 +213,8 @@ namespace HM
    //////////////////////////////////////////////////////////////////////
    void MimeCode7bit::Encode(AnsiString &output) const
    {
-	   const unsigned char* pbData = m_pbInput;
-	   const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+	   const unsigned char* pbData = input_;
+	   const unsigned char* pbEnd = input_ + m_nInputSize;
 	   unsigned char* pbSpace = NULL;
 	   int nLineLen = 0;
       int lastSpacePos = -1;
@@ -257,8 +257,8 @@ namespace HM
    {
 	   static const char* s_QPTable = "0123456789ABCDEF";
 
-	   const unsigned char* pbData = m_pbInput;
-	   const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+	   const unsigned char* pbData = input_;
+	   const unsigned char* pbEnd = input_ + m_nInputSize;
 	   int nLineLen = 0;
    
       int lastSpacePos = -1;
@@ -290,7 +290,7 @@ namespace HM
 		   }
 		   else if (!m_bQuoteLineBreak && ch == '.')
 		   {
-			   if (pbData-m_pbInput >= 2 &&
+			   if (pbData-input_ >= 2 &&
 				   *(pbData-2) == '\r' && *(pbData-1) == '\n' &&
 				   *(pbData+1) == '\r' && *(pbData+2) == '\n')
 				   bQuote = true;		// avoid confusing with SMTP's message end flag
@@ -350,8 +350,8 @@ namespace HM
 
    void MimeCodeQP::Decode(AnsiString &output)
    {
-	   const unsigned char* pbData = m_pbInput;
-	   const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+	   const unsigned char* pbData = input_;
+	   const unsigned char* pbEnd = input_ + m_nInputSize;
 
 	   while (pbData < pbEnd)
 	   {
@@ -386,8 +386,8 @@ namespace HM
 
    void MimeCodeQ::Decode(AnsiString &output)
    {
-      const unsigned char* pbData = m_pbInput;
-      const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+      const unsigned char* pbData = input_;
+      const unsigned char* pbEnd = input_ + m_nInputSize;
 
       while (pbData < pbEnd)
       {
@@ -440,7 +440,7 @@ namespace HM
 
 	   for (nFrom=0; nFrom<m_nInputSize; nFrom++)
 	   {
-		   unsigned char ch = m_pbInput[nFrom];
+		   unsigned char ch = input_[nFrom];
 		   switch (nFrom % 3)
 		   {
 		   case 0:
@@ -496,8 +496,8 @@ namespace HM
 
    void MimeCodeBase64::Decode(AnsiString &result)
    {
-	   const unsigned char* pbData = m_pbInput;
-	   const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+	   const unsigned char* pbData = input_;
+	   const unsigned char* pbEnd = input_ + m_nInputSize;
 
 	   int nFrom = 0;
 	   unsigned char chHighBits = 0;
@@ -569,7 +569,7 @@ namespace HM
    void MimeEncodedWord::Decode(AnsiString &output)
    {
 	   m_strCharset.clear();
-	   const char* pbData = (const char*) m_pbInput;
+	   const char* pbData = (const char*) input_;
 	   const char* pbEnd = pbData + m_nInputSize;
 	   
 	   while (pbData < pbEnd)
@@ -621,7 +621,7 @@ namespace HM
 			   pszCodeEnd = StringParser::Search(pbData+1, iDataLength - 1, "=?");	// find the next encoded-word
 			   if (!pszCodeEnd || pszCodeEnd >= pbEnd)
 				   pszCodeEnd = pbEnd;
-			   else if (pbData > (const char*) m_pbInput)
+			   else if (pbData > (const char*) input_)
 			   {
 				   const char* pszSpace = pbData;
 				   while (CMimeChar::IsSpace((unsigned char)*pszSpace))
@@ -653,7 +653,7 @@ namespace HM
 
 	   for (;;)
 	   {
-         const unsigned char *thisPartStartPosition = m_pbInput + processedBytes;
+         const unsigned char *thisPartStartPosition = input_ + processedBytes;
          
          // Calculate the number of input bytes to encode. It must be less than the max block size, and it must
          // cover an integral number of characters in the input stream. We can't encode 'half'
@@ -663,7 +663,7 @@ namespace HM
          // currentSafeChar points at a character we know are within limits.
          unsigned char* currentSafeChar = endChar;
 
-         for (; endChar < (unsigned char*) m_pbInput + m_nInputSize; )
+         for (; endChar < (unsigned char*) input_ + m_nInputSize; )
          {
             endChar = Unicode::CharMoveNext(endChar, inputIsUTF8);
 
@@ -707,8 +707,8 @@ namespace HM
    {
 	   static const char* s_QPTable = "0123456789ABCDEF";
 
-	   const unsigned char* pbData = m_pbInput;
-	   const unsigned char* pbEnd = m_pbInput + m_nInputSize;
+	   const unsigned char* pbData = input_;
+	   const unsigned char* pbEnd = input_ + m_nInputSize;
 
       int nCodeLen, nCharsetLen = (int)m_strCharset.size();
 	   int nLineLen = 0, nMaxLine = MAX_ENCODEDWORD_LEN - nCharsetLen - 7;
@@ -763,7 +763,7 @@ namespace HM
 	   if (strCharset.empty() && !MimeEnvironment::AutoFolding())
 		   return MimeCodeBase::Encode(output);
 
-	   const char* pszInput = (const char*) m_pbInput;
+	   const char* pszInput = (const char*) input_;
 	   int nInputSize = m_nInputSize;
 	   int nNonAsciiChars, nDelimeter = GetDelimeter();
 	   int nLineLen = 0;
@@ -865,7 +865,7 @@ namespace HM
    void FieldCodeBase::Decode(AnsiString &output)
    {
 	   MimeEncodedWord coder;
-	   coder.SetInput((const char*)m_pbInput, m_nInputSize, false);
+	   coder.SetInput((const char*)input_, m_nInputSize, false);
 
 	   AnsiString field;
 	   coder.GetOutput(field);

@@ -38,10 +38,10 @@ STDMETHODIMP InterfaceDomainAlias::get_ID(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -55,10 +55,10 @@ STDMETHODIMP InterfaceDomainAlias::get_DomainID(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetDomainID();
+      *pVal = (long) object_->GetDomainID();
    
       return S_OK;
    }
@@ -72,10 +72,10 @@ STDMETHODIMP InterfaceDomainAlias::get_AliasName(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAlias().AllocSysString();
+      *pVal = object_->GetAlias().AllocSysString();
    
       return S_OK;
    }
@@ -89,10 +89,10 @@ STDMETHODIMP InterfaceDomainAlias::put_AliasName(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAlias(newVal);
+      object_->SetAlias(newVal);
    
       return S_OK;
    }
@@ -106,11 +106,11 @@ STDMETHODIMP InterfaceDomainAlias::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentDomainAlias::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
+      if (HM::PersistentDomainAlias::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -130,7 +130,7 @@ STDMETHODIMP InterfaceDomainAlias::put_DomainID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // Only here for backwards compatibility (4.x)
@@ -146,16 +146,16 @@ STDMETHODIMP InterfaceDomainAlias::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentDomainAlias::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentDomainAlias::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

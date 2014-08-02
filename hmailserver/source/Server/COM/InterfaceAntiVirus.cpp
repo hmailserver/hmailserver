@@ -380,7 +380,7 @@ STDMETHODIMP InterfaceAntiVirus::get_BlockedAttachments(IInterfaceBlockedAttachm
          return GetAccessDenied();
 
       CComObject<InterfaceBlockedAttachments>* pInterface = new CComObject<InterfaceBlockedAttachments>;
-      pInterface->SetAuthentication(m_pAuthentication);
+      pInterface->SetAuthentication(authentication_);
    
       shared_ptr<HM::BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
    

@@ -64,8 +64,8 @@ InterfaceSettings::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
-   m_pIniFileSettings = HM::IniFileSettings::Instance();
+   config_ = HM::Configuration::Instance();
+   ini_file_settings_ = HM::IniFileSettings::Instance();
 
    return true;
 }
@@ -74,10 +74,10 @@ STDMETHODIMP InterfaceSettings::get_MaxMessageSize(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMaxMessageSize();
+      *pVal = config_->GetSMTPConfiguration()->GetMaxMessageSize();
       return S_OK;
    }
    catch (...)
@@ -90,10 +90,10 @@ STDMETHODIMP InterfaceSettings::put_MaxMessageSize(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetMaxMessageSize(newVal);
+      config_->GetSMTPConfiguration()->SetMaxMessageSize(newVal);
       return S_OK;
    }
    catch (...)
@@ -106,10 +106,10 @@ STDMETHODIMP InterfaceSettings::get_MaxSMTPConnections(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMaxSMTPConnections();
+      *pVal = config_->GetSMTPConfiguration()->GetMaxSMTPConnections();
       return S_OK;
    }
    catch (...)
@@ -122,10 +122,10 @@ STDMETHODIMP InterfaceSettings::put_MaxSMTPConnections(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetMaxSMTPConnections(newVal);
+      config_->GetSMTPConfiguration()->SetMaxSMTPConnections(newVal);
       return S_OK;
    }
    catch (...)
@@ -138,10 +138,10 @@ STDMETHODIMP InterfaceSettings::get_MaxIMAPConnections(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetMaxIMAPConnections();
+      *pVal = config_->GetIMAPConfiguration()->GetMaxIMAPConnections();
       return S_OK;
    }
    catch (...)
@@ -154,10 +154,10 @@ STDMETHODIMP InterfaceSettings::put_MaxIMAPConnections(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetMaxIMAPConnections(newVal);
+      config_->GetIMAPConfiguration()->SetMaxIMAPConnections(newVal);
       return S_OK;
    }
    catch (...)
@@ -170,11 +170,11 @@ STDMETHODIMP InterfaceSettings::get_MaxPOP3Connections(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pConfig->GetPOP3Configuration()->GetMaxPOP3Connections();
+      *pVal = config_->GetPOP3Configuration()->GetMaxPOP3Connections();
    
       return S_OK;
    }
@@ -188,10 +188,10 @@ STDMETHODIMP InterfaceSettings::put_MaxPOP3Connections(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetPOP3Configuration()->SetMaxPOP3Connections(newVal);
+      config_->GetPOP3Configuration()->SetMaxPOP3Connections(newVal);
    
       return S_OK;
    }
@@ -205,10 +205,10 @@ STDMETHODIMP InterfaceSettings::get_MirrorEMailAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetMirrorAddress().AllocSysString();
+      *pVal = config_->GetMirrorAddress().AllocSysString();
    
       return S_OK;
    }
@@ -222,11 +222,11 @@ STDMETHODIMP InterfaceSettings::put_MirrorEMailAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->SetMirrorAddress(newVal);
+      config_->SetMirrorAddress(newVal);
    
       return S_OK;
    }
@@ -240,11 +240,11 @@ STDMETHODIMP InterfaceSettings::get_AllowSMTPAuthPlain(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      if (m_pConfig->GetSMTPConfiguration()->GetAuthAllowPlainText())
+      if (config_->GetSMTPConfiguration()->GetAuthAllowPlainText())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -261,14 +261,14 @@ STDMETHODIMP InterfaceSettings::put_AllowSMTPAuthPlain(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
       if (newVal == VARIANT_TRUE)
-         m_pConfig->GetSMTPConfiguration()->SetAuthAllowPlainText(true);
+         config_->GetSMTPConfiguration()->SetAuthAllowPlainText(true);
       else
-         m_pConfig->GetSMTPConfiguration()->SetAuthAllowPlainText(false);
+         config_->GetSMTPConfiguration()->SetAuthAllowPlainText(false);
    
       return S_OK;
    }
@@ -282,10 +282,10 @@ STDMETHODIMP InterfaceSettings::get_DenyMailFromNull(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetSMTPConfiguration()->GetAllowMailFromNull())
+      if (config_->GetSMTPConfiguration()->GetAllowMailFromNull())
          *pVal = VARIANT_FALSE;
       else
          *pVal = VARIANT_TRUE;
@@ -302,15 +302,15 @@ STDMETHODIMP InterfaceSettings::put_DenyMailFromNull(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
    
       if (newVal == VARIANT_TRUE)
-         m_pConfig->GetSMTPConfiguration()->SetAllowMailFromNull (false);
+         config_->GetSMTPConfiguration()->SetAllowMailFromNull (false);
       else
-         m_pConfig->GetSMTPConfiguration()->SetAllowMailFromNull (true);
+         config_->GetSMTPConfiguration()->SetAllowMailFromNull (true);
    
       return S_OK;
    }
@@ -324,10 +324,10 @@ STDMETHODIMP InterfaceSettings::get_AllowIncorrectLineEndings(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetAllowIncorrectLineEndings() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetSMTPConfiguration()->GetAllowIncorrectLineEndings() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -341,10 +341,10 @@ STDMETHODIMP InterfaceSettings::put_AllowIncorrectLineEndings(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetAllowIncorrectLineEndings(newVal == VARIANT_TRUE);
+      config_->GetSMTPConfiguration()->SetAllowIncorrectLineEndings(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -358,15 +358,15 @@ STDMETHODIMP InterfaceSettings::get_Logging(IInterfaceLogging **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceLogging>* pInterfaceLogging = new CComObject<InterfaceLogging>;
       
-      pInterfaceLogging->SetAuthentication(m_pAuthentication);
+      pInterfaceLogging->SetAuthentication(authentication_);
       pInterfaceLogging->LoadSettings();
    
       pInterfaceLogging->AddRef();
@@ -385,15 +385,15 @@ STDMETHODIMP InterfaceSettings::get_AntiVirus(IInterfaceAntiVirus **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAntiVirus>* pInterfaceAntiVirus = new CComObject<InterfaceAntiVirus>;
    
-      pInterfaceAntiVirus->SetAuthentication(m_pAuthentication);
+      pInterfaceAntiVirus->SetAuthentication(authentication_);
    
       pInterfaceAntiVirus->AddRef();
    
@@ -411,15 +411,15 @@ STDMETHODIMP InterfaceSettings::get_Cache(IInterfaceCache **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceCache>* pInterfaceCache = new CComObject<InterfaceCache>;
       
-      pInterfaceCache->SetAuthentication(m_pAuthentication);
+      pInterfaceCache->SetAuthentication(authentication_);
       pInterfaceCache->LoadSettings();
    
       pInterfaceCache->AddRef();
@@ -438,14 +438,14 @@ STDMETHODIMP InterfaceSettings::get_SecurityRanges(IInterfaceSecurityRanges **pV
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceSecurityRanges>* pRangesInt = new CComObject<InterfaceSecurityRanges>();
-      pRangesInt->SetAuthentication(m_pAuthentication);
+      pRangesInt->SetAuthentication(authentication_);
       pRangesInt->LoadSettings();
    
       pRangesInt->AddRef();
@@ -463,10 +463,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPNoOfTries(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetNoOfRetries();
+      *pVal = config_->GetSMTPConfiguration()->GetNoOfRetries();
    
       return S_OK;
    }
@@ -480,11 +480,11 @@ STDMETHODIMP InterfaceSettings::put_SMTPNoOfTries(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->GetSMTPConfiguration()->SetNoOfRetries(newVal);
+      config_->GetSMTPConfiguration()->SetNoOfRetries(newVal);
    
       return S_OK;
    }
@@ -498,12 +498,12 @@ STDMETHODIMP InterfaceSettings::get_SMTPMinutesBetweenTry(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
    
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMinutesBetweenTry();
+      *pVal = config_->GetSMTPConfiguration()->GetMinutesBetweenTry();
    
       return S_OK;
    }
@@ -517,11 +517,11 @@ STDMETHODIMP InterfaceSettings::put_SMTPMinutesBetweenTry(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->GetSMTPConfiguration()->SetMinutesBetweenTry(newVal);
+      config_->GetSMTPConfiguration()->SetMinutesBetweenTry(newVal);
    
       return S_OK;
    }
@@ -535,12 +535,12 @@ STDMETHODIMP InterfaceSettings::get_MaxDeliveryThreads(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
    
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
+      *pVal = config_->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
    
       return S_OK;
    }
@@ -554,11 +554,11 @@ STDMETHODIMP InterfaceSettings::put_MaxDeliveryThreads(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->GetSMTPConfiguration()->SetMaxNoOfDeliveryThreads(newVal);
+      config_->GetSMTPConfiguration()->SetMaxNoOfDeliveryThreads(newVal);
    
       return S_OK;
    }
@@ -572,11 +572,11 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayer(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayer().AllocSysString();
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPRelayer().AllocSysString();
    
       return S_OK;
    }
@@ -590,11 +590,11 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayer(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayer(newVal);
+      config_->GetSMTPConfiguration()->SetSMTPRelayer(newVal);
       return S_OK;
    }
    catch (...)
@@ -607,11 +607,11 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerPort(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerPort();
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPRelayerPort();
    
       return S_OK;
    }
@@ -625,11 +625,11 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerPort(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerPort(newVal);
+      config_->GetSMTPConfiguration()->SetSMTPRelayerPort(newVal);
       return S_OK;
    }
    catch (...)
@@ -642,11 +642,11 @@ STDMETHODIMP InterfaceSettings::get_HostName(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pConfig->GetHostName().AllocSysString();
+      *pVal = config_->GetHostName().AllocSysString();
    
       return S_OK;
    }
@@ -660,11 +660,11 @@ STDMETHODIMP InterfaceSettings::put_HostName(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       HM::String sNewVal = newVal;
-      m_pConfig->SetHostName(sNewVal);
+      config_->SetHostName(sNewVal);
       return S_OK;
    }
    catch (...)
@@ -677,10 +677,10 @@ STDMETHODIMP InterfaceSettings::get_WelcomeSMTP(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetWelcomeMessage().AllocSysString();
+      *pVal = config_->GetSMTPConfiguration()->GetWelcomeMessage().AllocSysString();
    
       return S_OK;
    }
@@ -694,10 +694,10 @@ STDMETHODIMP InterfaceSettings::put_WelcomeSMTP(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetWelcomeMessage(newVal);
+      config_->GetSMTPConfiguration()->SetWelcomeMessage(newVal);
    
       return S_OK;
    }
@@ -711,10 +711,10 @@ STDMETHODIMP InterfaceSettings::get_WelcomePOP3(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetPOP3Configuration()->GetWelcomeMessage().AllocSysString();
+      *pVal = config_->GetPOP3Configuration()->GetWelcomeMessage().AllocSysString();
    
       return S_OK;
    }
@@ -728,10 +728,10 @@ STDMETHODIMP InterfaceSettings::put_WelcomePOP3(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetPOP3Configuration()->SetWelcomeMessage(newVal);
+      config_->GetPOP3Configuration()->SetWelcomeMessage(newVal);
    
       return S_OK;
    }
@@ -745,10 +745,10 @@ STDMETHODIMP InterfaceSettings::get_WelcomeIMAP(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetWelcomeMessage().AllocSysString();
+      *pVal = config_->GetIMAPConfiguration()->GetWelcomeMessage().AllocSysString();
    
       return S_OK;
    }
@@ -762,10 +762,10 @@ STDMETHODIMP InterfaceSettings::put_WelcomeIMAP(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetWelcomeMessage(newVal);
+      config_->GetIMAPConfiguration()->SetWelcomeMessage(newVal);
    
       return S_OK;
    }
@@ -779,10 +779,10 @@ STDMETHODIMP InterfaceSettings::get_ServiceSMTP(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetUseSMTP())
+      if (config_->GetUseSMTP())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -799,13 +799,13 @@ STDMETHODIMP InterfaceSettings::put_ServiceSMTP(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (newVal == VARIANT_TRUE)
-         m_pConfig->SetUseSMTP(true);
+         config_->SetUseSMTP(true);
       else
-         m_pConfig->SetUseSMTP(false);
+         config_->SetUseSMTP(false);
    
       return S_OK;
    }
@@ -819,10 +819,10 @@ STDMETHODIMP InterfaceSettings::get_ServicePOP3(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetUsePOP3())
+      if (config_->GetUsePOP3())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -840,13 +840,13 @@ STDMETHODIMP InterfaceSettings::put_ServicePOP3(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (newVal == VARIANT_TRUE)
-         m_pConfig->SetUsePOP3(true);
+         config_->SetUsePOP3(true);
       else
-         m_pConfig->SetUsePOP3(false);
+         config_->SetUsePOP3(false);
    
       return S_OK;
    }
@@ -860,10 +860,10 @@ STDMETHODIMP InterfaceSettings::get_ServiceIMAP(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetUseIMAP() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetUseIMAP() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -877,10 +877,10 @@ STDMETHODIMP InterfaceSettings::put_ServiceIMAP(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetUseIMAP(newVal == VARIANT_TRUE ? true : false);
+      config_->SetUseIMAP(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -894,10 +894,10 @@ STDMETHODIMP InterfaceSettings::get_SendStatistics(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSendStatistics() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetSendStatistics() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -911,10 +911,10 @@ STDMETHODIMP InterfaceSettings::put_SendStatistics(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetSendStatistics(newVal == VARIANT_TRUE);
+      config_->SetSendStatistics(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -928,10 +928,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerRequiresAuthentication(VARIANT_BO
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerRequiresAuthentication() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPRelayerRequiresAuthentication() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -945,10 +945,10 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerRequiresAuthentication(VARIANT_BO
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerRequiresAuthentication(newVal == VARIANT_TRUE);
+      config_->GetSMTPConfiguration()->SetSMTPRelayerRequiresAuthentication(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -962,11 +962,11 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerUsername(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerUsername().AllocSysString();
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPRelayerUsername().AllocSysString();
    
       return S_OK;
    }
@@ -980,10 +980,10 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerUsername(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerUsername(newVal);
+      config_->GetSMTPConfiguration()->SetSMTPRelayerUsername(newVal);
       return S_OK;
    }
    catch (...)
@@ -996,11 +996,11 @@ STDMETHODIMP InterfaceSettings::get_UserInterfaceLanguage(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = m_pIniFileSettings->GetUserInterfaceLanguage().AllocSysString();
+      *pVal = ini_file_settings_->GetUserInterfaceLanguage().AllocSysString();
    
       return S_OK;
    }
@@ -1014,10 +1014,10 @@ STDMETHODIMP InterfaceSettings::put_UserInterfaceLanguage(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pIniFileSettings->SetUserInterfaceLanguage(newVal);
+      ini_file_settings_->SetUserInterfaceLanguage(newVal);
       return S_OK;
    }
    catch (...)
@@ -1030,10 +1030,10 @@ STDMETHODIMP InterfaceSettings::SetSMTPRelayerPassword(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerPassword(newVal);
+      config_->GetSMTPConfiguration()->SetSMTPRelayerPassword(newVal);
       return S_OK;
    }
    catch (...)
@@ -1046,14 +1046,14 @@ STDMETHODIMP InterfaceSettings::SetAdministratorPassword(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return false;
       
    
-      m_pIniFileSettings->SetAdministratorPassword(newVal);
+      ini_file_settings_->SetAdministratorPassword(newVal);
    
       return S_OK;
    }
@@ -1067,14 +1067,14 @@ STDMETHODIMP InterfaceSettings::get_Routes(IInterfaceRoutes **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRoutes>* pRoutesInterface = new CComObject<InterfaceRoutes>();
-      pRoutesInterface->SetAuthentication(m_pAuthentication);
+      pRoutesInterface->SetAuthentication(authentication_);
       pRoutesInterface->LoadSettings();
    
       pRoutesInterface->AddRef();
@@ -1092,14 +1092,14 @@ STDMETHODIMP InterfaceSettings::get_Scripting(IInterfaceScripting **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceScripting>* pItem = new CComObject<InterfaceScripting >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->LoadSettings();
    
       pItem->AddRef();
@@ -1117,15 +1117,15 @@ STDMETHODIMP InterfaceSettings::get_Backup(IInterfaceBackupSettings **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceBackupSettings>* pItem = new CComObject<InterfaceBackupSettings>();
      
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->LoadSettings();
    
       pItem->AddRef();
@@ -1143,18 +1143,18 @@ STDMETHODIMP InterfaceSettings::get_Directories(IInterfaceDirectories **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDirectories>* pItem = new CComObject<InterfaceDirectories>();
    
-      m_pIniFileSettings->LoadSettings();
+      ini_file_settings_->LoadSettings();
    
-      pItem->SetAuthentication(m_pAuthentication);
-      pItem->LoadSettings(m_pIniFileSettings);
+      pItem->SetAuthentication(authentication_);
+      pItem->LoadSettings(ini_file_settings_);
       pItem->AddRef();
       *pVal = pItem;
    
@@ -1170,12 +1170,12 @@ STDMETHODIMP InterfaceSettings::get_AntiSpam(IInterfaceAntiSpam **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       CComObject<InterfaceAntiSpam>* pItem = new CComObject<InterfaceAntiSpam>();
       
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->LoadSettings();
    
       pItem->AddRef();
@@ -1193,15 +1193,15 @@ STDMETHODIMP InterfaceSettings::get_ServerMessages(IInterfaceServerMessages **pV
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceServerMessages>* pItem = new CComObject<InterfaceServerMessages>();
       
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->LoadSettings();
    
       pItem->AddRef();
@@ -1219,14 +1219,14 @@ STDMETHODIMP InterfaceSettings::get_TCPIPPorts(IInterfaceTCPIPPorts **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceTCPIPPorts>* pItem = new CComObject<InterfaceTCPIPPorts>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->Attach(HM::Configuration::Instance()->GetTCPIPPorts());
    
       pItem->AddRef();
@@ -1244,7 +1244,7 @@ STDMETHODIMP InterfaceSettings::get_SSLCertificates(IInterfaceSSLCertificates **
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -1253,7 +1253,7 @@ STDMETHODIMP InterfaceSettings::get_SSLCertificates(IInterfaceSSLCertificates **
       shared_ptr<HM::SSLCertificates> pSSLCertificates = HM::Configuration::Instance()->GetSSLCertificates();
    
       CComObject<InterfaceSSLCertificates>* pItem = new CComObject<InterfaceSSLCertificates>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->Attach(pSSLCertificates);
    
       pItem->AddRef();
@@ -1271,10 +1271,10 @@ STDMETHODIMP InterfaceSettings::get_RuleLoopLimit(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetRuleLoopLimit();
+      *pVal = config_->GetSMTPConfiguration()->GetRuleLoopLimit();
    
       return S_OK;
    }
@@ -1288,10 +1288,10 @@ STDMETHODIMP InterfaceSettings::put_RuleLoopLimit(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetRuleLoopLimit(newVal);
+      config_->GetSMTPConfiguration()->SetRuleLoopLimit(newVal);
       return S_OK;
    }
    catch (...)
@@ -1304,10 +1304,10 @@ STDMETHODIMP InterfaceSettings::get_DefaultDomain(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetDefaultDomain().AllocSysString();
+      *pVal = config_->GetDefaultDomain().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -1320,10 +1320,10 @@ STDMETHODIMP InterfaceSettings::put_DefaultDomain(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetDefaultDomain(newVal);
+      config_->SetDefaultDomain(newVal);
       return S_OK;
    }
    catch (...)
@@ -1336,10 +1336,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPPublicFolderName(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetIMAPPublicFolderName().AllocSysString();
+      *pVal = config_->GetIMAPConfiguration()->GetIMAPPublicFolderName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -1352,10 +1352,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPPublicFolderName(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetIMAPPublicFolderName(newVal);
+      config_->GetIMAPConfiguration()->SetIMAPPublicFolderName(newVal);
       return S_OK;
    }
    catch (...)
@@ -1368,10 +1368,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPDeliveryBindToIP(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPDeliveryBindToIP().AllocSysString();
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPDeliveryBindToIP().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -1384,10 +1384,10 @@ STDMETHODIMP InterfaceSettings::put_SMTPDeliveryBindToIP(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPDeliveryBindToIP(newVal);
+      config_->GetSMTPConfiguration()->SetSMTPDeliveryBindToIP(newVal);
       return S_OK;
    }
    catch (...)
@@ -1400,10 +1400,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPSortEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetUseIMAPSort() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetIMAPConfiguration()->GetUseIMAPSort() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1416,10 +1416,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPSortEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetUseIMAPSort(newVal == VARIANT_TRUE);
+      config_->GetIMAPConfiguration()->SetUseIMAPSort(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1432,10 +1432,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPQuotaEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetUseIMAPQuota() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetIMAPConfiguration()->GetUseIMAPQuota() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1448,10 +1448,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPQuotaEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetUseIMAPQuota(newVal == VARIANT_TRUE);
+      config_->GetIMAPConfiguration()->SetUseIMAPQuota(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1464,10 +1464,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPIdleEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetUseIMAPIdle() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetIMAPConfiguration()->GetUseIMAPIdle() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1480,10 +1480,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPIdleEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetUseIMAPIdle(newVal == VARIANT_TRUE);
+      config_->GetIMAPConfiguration()->SetUseIMAPIdle(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1496,10 +1496,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPACLEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetUseIMAPACL() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetIMAPConfiguration()->GetUseIMAPACL() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1512,10 +1512,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPACLEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetIMAPConfiguration()->SetUseIMAPACL(newVal == VARIANT_TRUE);
+      config_->GetIMAPConfiguration()->SetUseIMAPACL(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1528,10 +1528,10 @@ STDMETHODIMP InterfaceSettings::get_WorkerThreadPriority(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetWorkerThreadPriority();
+      *pVal = config_->GetWorkerThreadPriority();
    
       return S_OK;
    }
@@ -1545,10 +1545,10 @@ STDMETHODIMP InterfaceSettings::put_WorkerThreadPriority(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetWorkerThreadPriority(newVal);
+      config_->SetWorkerThreadPriority(newVal);
    
       return S_OK;
    }
@@ -1562,10 +1562,10 @@ STDMETHODIMP InterfaceSettings::get_TCPIPThreads(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetTCPIPThreads();
+      *pVal = config_->GetTCPIPThreads();
       return S_OK;
    }
    catch (...)
@@ -1578,10 +1578,10 @@ STDMETHODIMP InterfaceSettings::put_TCPIPThreads(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetTCPIPThreads(newVal);
+      config_->SetTCPIPThreads(newVal);
       return S_OK;
    }
    catch (...)
@@ -1594,10 +1594,10 @@ STDMETHODIMP InterfaceSettings::get_MaxAsynchronousThreads(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAsynchronousThreads();
+      *pVal = config_->GetAsynchronousThreads();
       return S_OK;
    }
    catch (...)
@@ -1610,10 +1610,10 @@ STDMETHODIMP InterfaceSettings::put_MaxAsynchronousThreads(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetAsynchronousThreads(newVal);
+      config_->SetAsynchronousThreads(newVal);
       return S_OK;
    }
    catch (...)
@@ -1626,10 +1626,10 @@ STDMETHODIMP InterfaceSettings::get_MaxSMTPRecipientsInBatch(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMaxSMTPRecipientsInBatch();
+      *pVal = config_->GetSMTPConfiguration()->GetMaxSMTPRecipientsInBatch();
    
       return S_OK;
    }
@@ -1643,10 +1643,10 @@ STDMETHODIMP InterfaceSettings::put_MaxSMTPRecipientsInBatch(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetMaxSMTPRecipientsInBatch(newVal);
+      config_->GetSMTPConfiguration()->SetMaxSMTPRecipientsInBatch(newVal);
    
       return S_OK;
    }
@@ -1660,10 +1660,10 @@ STDMETHODIMP InterfaceSettings::get_DisconnectInvalidClients(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetDisconnectInvalidClients() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetDisconnectInvalidClients() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -1677,10 +1677,10 @@ STDMETHODIMP InterfaceSettings::put_DisconnectInvalidClients(VARIANT_BOOL newVal
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetDisconnectInvalidClients(newVal == VARIANT_TRUE);
+      config_->SetDisconnectInvalidClients(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -1694,10 +1694,10 @@ STDMETHODIMP InterfaceSettings::get_MaxNumberOfInvalidCommands(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetMaximumIncorrectCommands();
+      *pVal = config_->GetMaximumIncorrectCommands();
    
       return S_OK;
    }
@@ -1711,10 +1711,10 @@ STDMETHODIMP InterfaceSettings::put_MaxNumberOfInvalidCommands(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetMaximumIncorrectCommands(newVal);
+      config_->SetMaximumIncorrectCommands(newVal);
    
       return S_OK;
    }
@@ -1728,10 +1728,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerUseSSL(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity() == HM::CSSSL? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity() == HM::CSSSL? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1744,13 +1744,13 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerUseSSL(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (newVal == VARIANT_TRUE)
-         m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSSSL);
+         config_->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSSSL);
       else
-         m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSNone);
+         config_->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity(HM::CSNone);
 
       return S_OK;
    }
@@ -1765,10 +1765,10 @@ STDMETHODIMP InterfaceSettings::put_SMTPRelayerConnectionSecurity(eConnectionSec
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity((HM::ConnectionSecurity) newVal);
+      config_->GetSMTPConfiguration()->SetSMTPRelayerConnectionSecurity((HM::ConnectionSecurity) newVal);
       return S_OK;
    }
    catch (...)
@@ -1781,10 +1781,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPRelayerConnectionSecurity(eConnectionSec
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = (eConnectionSecurity) m_pConfig->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity();
+      *pVal = (eConnectionSecurity) config_->GetSMTPConfiguration()->GetSMTPRelayerConnectionSecurity();
 
       return S_OK;
    }
@@ -1798,10 +1798,10 @@ STDMETHODIMP InterfaceSettings::put_SMTPConnectionSecurity(eConnectionSecurity n
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetSMTPConnectionSecurity((HM::ConnectionSecurity) newVal);
+      config_->GetSMTPConfiguration()->SetSMTPConnectionSecurity((HM::ConnectionSecurity) newVal);
       return S_OK;
    }
    catch (...)
@@ -1814,10 +1814,10 @@ STDMETHODIMP InterfaceSettings::get_SMTPConnectionSecurity(eConnectionSecurity *
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = (eConnectionSecurity) m_pConfig->GetSMTPConfiguration()->GetSMTPConnectionSecurity();
+      *pVal = (eConnectionSecurity) config_->GetSMTPConfiguration()->GetSMTPConnectionSecurity();
 
       return S_OK;
    }
@@ -1832,10 +1832,10 @@ STDMETHODIMP InterfaceSettings::get_AddDeliveredToHeader(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetAddDeliveredToHeader() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetSMTPConfiguration()->GetAddDeliveredToHeader() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1848,10 +1848,10 @@ STDMETHODIMP InterfaceSettings::put_AddDeliveredToHeader(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetAddDeliveredToHeader(newVal== VARIANT_TRUE);
+      config_->GetSMTPConfiguration()->SetAddDeliveredToHeader(newVal== VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1864,7 +1864,7 @@ STDMETHODIMP InterfaceSettings::get_PublicFolders(IInterfaceIMAPFolders **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -1873,7 +1873,7 @@ STDMETHODIMP InterfaceSettings::get_PublicFolders(IInterfaceIMAPFolders **pVal)
       shared_ptr<HM::IMAPFolders> pIMAPFolders = HM::Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
    
       CComObject<InterfaceIMAPFolders>* pItem = new CComObject<InterfaceIMAPFolders>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->Attach(pIMAPFolders);
       pItem->AddRef();
    
@@ -1891,13 +1891,13 @@ STDMETHODIMP InterfaceSettings::get_PublicFolderDiskName(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return false;
    
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetPublicFolderDiskName().AllocSysString();
+      *pVal = config_->GetIMAPConfiguration()->GetPublicFolderDiskName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -1910,16 +1910,16 @@ STDMETHODIMP InterfaceSettings::get_Groups(IInterfaceGroups **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return false;
    
       CComObject<InterfaceGroups>* pItem = new CComObject<InterfaceGroups>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Groups> pGroups = m_pConfig->GetIMAPConfiguration()->GetGroups();
+      shared_ptr<HM::Groups> pGroups = config_->GetIMAPConfiguration()->GetGroups();
       pGroups->Refresh();
    
       if (pGroups)
@@ -1942,16 +1942,16 @@ STDMETHODIMP InterfaceSettings::get_IncomingRelays(IInterfaceIncomingRelays **pV
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceIncomingRelays>* pItem = new CComObject<InterfaceIncomingRelays>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelays> incomingRelays = m_pConfig->GetSMTPConfiguration()->GetIncomingRelays();
+      shared_ptr<HM::IncomingRelays> incomingRelays = config_->GetSMTPConfiguration()->GetIncomingRelays();
       
       if (incomingRelays)
       {
@@ -1973,14 +1973,14 @@ STDMETHODIMP InterfaceSettings::get_MessageIndexing(IInterfaceMessageIndexing **
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceMessageIndexing>* pItem = new CComObject<InterfaceMessageIndexing>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->LoadSettings();
       pItem->AddRef();
    
@@ -1998,10 +1998,10 @@ STDMETHODIMP InterfaceSettings::get_AutoBanOnLogonFailure(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAutoBanLogonEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAutoBanLogonEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -2015,10 +2015,10 @@ STDMETHODIMP InterfaceSettings::put_AutoBanOnLogonFailure(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetAutoBanLogonEnabled(newVal == VARIANT_TRUE);
+      config_->SetAutoBanLogonEnabled(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -2032,10 +2032,10 @@ STDMETHODIMP InterfaceSettings::get_MaxInvalidLogonAttempts(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetMaxInvalidLogonAttempts();
+      *pVal = config_->GetMaxInvalidLogonAttempts();
    
       return S_OK;
    }
@@ -2049,10 +2049,10 @@ STDMETHODIMP InterfaceSettings::put_MaxInvalidLogonAttempts(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetMaxInvalidLogonAttempts(newVal);
+      config_->SetMaxInvalidLogonAttempts(newVal);
    
       return S_OK;
    }
@@ -2066,10 +2066,10 @@ STDMETHODIMP InterfaceSettings::get_MaxInvalidLogonAttemptsWithin(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetMaxLogonAttemptsWithin();
+      *pVal = config_->GetMaxLogonAttemptsWithin();
    
       return S_OK;
    }
@@ -2083,10 +2083,10 @@ STDMETHODIMP InterfaceSettings::put_MaxInvalidLogonAttemptsWithin(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetMaxLogonAttemptsWithin(newVal);
+      config_->SetMaxLogonAttemptsWithin(newVal);
    
       return S_OK;
    }
@@ -2100,10 +2100,10 @@ STDMETHODIMP InterfaceSettings::get_AutoBanMinutes(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAutoBanMinutes();
+      *pVal = config_->GetAutoBanMinutes();
    
       return S_OK;
    }
@@ -2117,10 +2117,10 @@ STDMETHODIMP InterfaceSettings::put_AutoBanMinutes(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetAutoBanMinutes(newVal);
+      config_->SetAutoBanMinutes(newVal);
    
       return S_OK;
    }
@@ -2134,13 +2134,13 @@ STDMETHODIMP InterfaceSettings::ClearLogonFailureList()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return false;
    
-      m_pConfig->ClearOldLogonFailures();
+      config_->ClearOldLogonFailures();
    
       return S_OK;
    }
@@ -2154,10 +2154,10 @@ STDMETHODIMP InterfaceSettings::get_IMAPHierarchyDelimiter(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetIMAPConfiguration()->GetHierarchyDelimiter().AllocSysString();
+      *pVal = config_->GetIMAPConfiguration()->GetHierarchyDelimiter().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -2170,10 +2170,10 @@ STDMETHODIMP InterfaceSettings::put_IMAPHierarchyDelimiter(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (!m_pConfig->GetIMAPConfiguration()->SetHierarchyDelimiter(newVal))
+      if (!config_->GetIMAPConfiguration()->SetHierarchyDelimiter(newVal))
          return COMError::GenerateError("It was not possible to change the IMAP hierarchy delimiter. It has probably failed because there exists one or more IMAP folders containing the new character.");
    
       return S_OK;
@@ -2188,10 +2188,10 @@ STDMETHODIMP InterfaceSettings::get_MaxNumberOfMXHosts(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetSMTPConfiguration()->GetMaxNumberOfMXHosts();
+      *pVal = config_->GetSMTPConfiguration()->GetMaxNumberOfMXHosts();
    
       return S_OK;
    }
@@ -2205,10 +2205,10 @@ STDMETHODIMP InterfaceSettings::put_MaxNumberOfMXHosts(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetSMTPConfiguration()->SetMaxNumberOfMXHosts(newVal);
+      config_->GetSMTPConfiguration()->SetMaxNumberOfMXHosts(newVal);
       return S_OK;
    }
    catch (...)
@@ -2222,11 +2222,11 @@ STDMETHODIMP InterfaceSettings::get_VerifyRemoteSslCertificate(VARIANT_BOOL *pVa
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
 
-      if (m_pConfig->GetVerifyRemoteSslCertificate())
+      if (config_->GetVerifyRemoteSslCertificate())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -2243,10 +2243,10 @@ STDMETHODIMP InterfaceSettings::put_VerifyRemoteSslCertificate(VARIANT_BOOL newV
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetVerifyRemoteSslCertificate(newVal == VARIANT_TRUE);
+      config_->SetVerifyRemoteSslCertificate(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)

@@ -48,7 +48,7 @@ namespace HM
                                               boost::asio::ssl::context& context,
                                               shared_ptr<Event> disconnected) :
       AnsiStringConnection(connectionSecurity, io_service, context, disconnected),
-      m_pAccount(pAccount),
+      account_(pAccount),
       m_eCurrentState(StateConnected)
    {
 
@@ -141,7 +141,7 @@ namespace HM
       // This code is temporary home of ETRN client settings in GUI
       // It checks External Account for ETRN domain.com for name
       // and if found uses that info to perform ETRN client connections
-      String sAccountName = m_pAccount->GetName();
+      String sAccountName = account_->GetName();
       if (sAccountName.StartsWith(_T("ETRN")))
       {
          _HandleEtrn(sAccountName);
@@ -262,7 +262,7 @@ namespace HM
       // Time to send the username.
 
       String sResponse;
-      sResponse.Format(_T("USER %s"), m_pAccount->GetUsername());
+      sResponse.Format(_T("USER %s"), account_->GetUsername());
 
       _SendData(sResponse);
 
@@ -288,7 +288,7 @@ namespace HM
          if (GetConnectionSecurity() == CSSTARTTLSRequired)
          {
             String message = 
-               Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", m_pAccount->GetName());
+               Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", account_->GetName());
             
             LOG_APPLICATION(message)
             _QuitNow();
@@ -328,7 +328,7 @@ namespace HM
          // Time to send the username.
 
          String sResponse;
-         sResponse.Format(_T("PASS %s"), m_pAccount->GetPassword());
+         sResponse.Format(_T("PASS %s"), account_->GetPassword());
 
          m_eCurrentState = StatePasswordSent;
 
@@ -408,7 +408,7 @@ namespace HM
       }
 
 	  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5343, "POP3ClientConnection::_ParseUIDLResponse",
-         Formatter::Format("The remote server returned an error to the UIDL command: External account {0}, Message: {1}", m_pAccount->GetName(), sData));
+         Formatter::Format("The remote server returned an error to the UIDL command: External account {0}, Message: {1}", account_->GetName(), sData));
  
       _QuitNow();
    }
@@ -443,7 +443,7 @@ namespace HM
          {
             // Request message download now.
 
-            m_pCurrentMessage = shared_ptr<Message> (new Message);
+            current_message_ = shared_ptr<Message> (new Message);
 
             int iMessageIdx = (*m_iterCurMessage).first;
 
@@ -457,7 +457,7 @@ namespace HM
             // Reset the transmission buffer. It will be
             // recreated when we receive binary the next time.
 
-            m_pTransmissionBuffer.reset();
+            transmission_buffer_.reset();
 
             SetReceiveBinary(true);
                           
@@ -675,18 +675,18 @@ namespace HM
       // we can check where we downloaded it from later on.
 
       String sHeader;
-      sHeader.Format(_T("X-hMailServer-ExternalAccount: %s\r\n"), m_pAccount->GetName());
+      sHeader.Format(_T("X-hMailServer-ExternalAccount: %s\r\n"), account_->GetName());
 
       AnsiString sAnsiHeader = sHeader;
 
-      m_pTransmissionBuffer->Append((BYTE*) sAnsiHeader.GetBuffer(), sAnsiHeader.GetLength());
+      transmission_buffer_->Append((BYTE*) sAnsiHeader.GetBuffer(), sAnsiHeader.GetLength());
    }
 
    void
    POP3ClientConnection::ParseData(shared_ptr<ByteBuffer> pBuf)
    {
       // Append message buffer with the binary data we've received.
-      if (!m_pTransmissionBuffer)
+      if (!transmission_buffer_)
       {
          if (!_ParseFirstBinary(pBuf))
          {
@@ -694,11 +694,11 @@ namespace HM
             return;
          }
 
-         String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+         String fileName = PersistentMessage::GetFileName(current_message_);
 
          // Create a binary buffer for this message. 
-         m_pTransmissionBuffer = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
-         if (!m_pTransmissionBuffer->Initialize(fileName))
+         transmission_buffer_ = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
+         if (!transmission_buffer_->Initialize(fileName))
          {
             // We have probably failed to create the file...
             LOG_DEBUG("POP3 External Account: Error creating binary buffer or file.");
@@ -709,13 +709,13 @@ namespace HM
          _PrependHeaders();
       }
 
-      m_pTransmissionBuffer->Append(pBuf->GetBuffer(), pBuf->GetSize());
-      m_pTransmissionBuffer->Flush();
+      transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
+      transmission_buffer_->Flush();
 
       // Clear the binary buffer.
       pBuf->Empty();
 
-      if (!m_pTransmissionBuffer->GetTransmissionEnded())
+      if (!transmission_buffer_->GetTransmissionEnded())
       {
          PostBufferReceive();
          return;
@@ -735,10 +735,10 @@ namespace HM
       // The entire message has now been downloaded from the
       // remote POP3 server. Save it in the database and deliver
       // it to the account.
-      String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
-      m_pCurrentMessage->SetSize(FileUtilities::FileSize(fileName));
+      String fileName = PersistentMessage::GetFileName(current_message_);
+      current_message_->SetSize(FileUtilities::FileSize(fileName));
 
-      if (m_pCurrentMessage->GetSize() == 0)
+      if (current_message_->GetSize() == 0)
       {
          // Error handling.
          LOG_DEBUG("POP3 External Account: Message is 0 bytes.");
@@ -751,9 +751,9 @@ namespace HM
       if (_DoSpamProtection())
       {
          // should we scan this message for virus later on?
-         m_pCurrentMessage->SetFlagVirusScan(m_pAccount->GetUseAntiVirus());
+         current_message_->SetFlagVirusScan(account_->GetUseAntiVirus());
 
-         _FireOnExternalAccountDownload(m_pCurrentMessage, (*m_iterCurMessage).second);
+         _FireOnExternalAccountDownload(current_message_, (*m_iterCurMessage).second);
 
          // the message was not classified as spam which we should delete.
          _SaveMessage();
@@ -782,19 +782,19 @@ namespace HM
    bool
    POP3ClientConnection::_DoSpamProtection()
    {
-      if (!m_pAccount->GetUseAntiSpam())
+      if (!account_->GetUseAntiSpam())
       {
          // spam protection isn't enabled.
          return true;
       }
 
-      String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+      String fileName = PersistentMessage::GetFileName(current_message_);
 
       IPAddress ipAddress;
       String hostName;
 
-      String senderAddress = m_pCurrentMessage->GetFromAddress();
-      MessageUtilities::RetrieveOriginatingAddress(m_pCurrentMessage, hostName, ipAddress);
+      String senderAddress = current_message_->GetFromAddress();
+      MessageUtilities::RetrieveOriginatingAddress(current_message_, hostName, ipAddress);
       // The received header isn't safely parseable so we will always do anti-spam,
 
 
@@ -818,14 +818,14 @@ namespace HM
       }
       else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
       {
-         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(m_pCurrentMessage, setSpamTestResults);
+         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
          if (messageData)
             messageData->Write(fileName);
       }
 
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
       setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, m_pCurrentMessage);
+            SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, current_message_);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
 
@@ -838,7 +838,7 @@ namespace HM
       }
       else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
       {
-         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(m_pCurrentMessage, setSpamTestResults);
+         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
 
          if (messageData)
             messageData->Write(fileName);
@@ -850,9 +850,9 @@ namespace HM
    void 
    POP3ClientConnection::_ParseMessageHeaders()
    {
-      assert(m_pCurrentMessage);
+      assert(current_message_);
 
-      String fileName = PersistentMessage::GetFileName(m_pCurrentMessage);
+      String fileName = PersistentMessage::GetFileName(current_message_);
 
       AnsiString sHeader = PersistentMessage::LoadHeader(fileName);
       shared_ptr<MimeHeader> pHeader = shared_ptr<MimeHeader>(new MimeHeader);
@@ -869,7 +869,7 @@ namespace HM
             String sFullName, sUser, sDomain;
             oAddressParser.ExtractParts(sFrom, sFullName, sUser, sDomain);
             sFrom = sUser + "@" + sDomain;
-            m_pCurrentMessage->SetFromAddress(sFrom);
+            current_message_->SetFromAddress(sFrom);
          }
       }      
 
@@ -885,11 +885,11 @@ namespace HM
    void
    POP3ClientConnection::_SaveMessage()
    {
-      if (m_pCurrentMessage->GetRecipients()->GetCount() > 0)
+      if (current_message_->GetRecipients()->GetCount() > 0)
       {
-         m_pCurrentMessage->SetState(Message::Delivering);
+         current_message_->SetState(Message::Delivering);
 
-         PersistentMessage::SaveObject(m_pCurrentMessage);
+         PersistentMessage::SaveObject(current_message_);
       }
 
 
@@ -964,18 +964,18 @@ namespace HM
    void 
    POP3ClientConnection::_CreateRecipentList(shared_ptr<MimeHeader> pHeader)
    {
-      if (m_pAccount->GetProcessMIMERecipients())
+      if (account_->GetProcessMIMERecipients())
       {  
          _ProcessMIMERecipients(pHeader);
       }  
 
-      if (m_pCurrentMessage->GetRecipients()->GetCount() > 0)
+      if (current_message_->GetRecipients()->GetCount() > 0)
          return;
       
       // Just fetch the account
       if (m_sReceivingAccountAddress.IsEmpty())
       {
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(m_pAccount->GetAccountID());
+         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(account_->GetAccountID());
          if (pAccount)
          {
             m_sReceivingAccountAddress = pAccount->GetAddress();
@@ -985,7 +985,7 @@ namespace HM
       // Add the recipient to the message
       bool recipientOK = false;
       RecipientParser recipientParser;
-      recipientParser.CreateMessageRecipientList(m_sReceivingAccountAddress, m_pCurrentMessage->GetRecipients(), recipientOK);
+      recipientParser.CreateMessageRecipientList(m_sReceivingAccountAddress, current_message_->GetRecipients(), recipientOK);
    }
 
    void
@@ -1023,7 +1023,7 @@ namespace HM
 
          // Add the recipient to the message
          bool recipientOK = false;
-         recipientParser.CreateMessageRecipientList(sAddress, m_pCurrentMessage->GetRecipients(), recipientOK);
+         recipientParser.CreateMessageRecipientList(sAddress, current_message_->GetRecipients(), recipientOK);
 
          iterAddress++;
       }
@@ -1038,7 +1038,7 @@ namespace HM
    void 
    POP3ClientConnection::_RetrieveReceivedDate(shared_ptr<MimeHeader> pHeader)
    {
-      if (!m_pAccount->GetProcessMIMEDate())
+      if (!account_->GetProcessMIMEDate())
          return;
 
       String sReceivedHeader = pHeader->GetRawFieldValue("Received");
@@ -1057,7 +1057,7 @@ namespace HM
 
       
 
-      m_pCurrentMessage->SetCreateTime(sDate);
+      current_message_->SetCreateTime(sDate);
    }
 
    void 
@@ -1087,7 +1087,7 @@ namespace HM
             if (!sRecipient.IsEmpty())
             {
                bool recipientOK = false;
-               recipientParser.CreateMessageRecipientList(sRecipient, m_pCurrentMessage->GetRecipients(), recipientOK);
+               recipientParser.CreateMessageRecipientList(sRecipient, current_message_->GetRecipients(), recipientOK);
             }
 
          }
@@ -1130,16 +1130,16 @@ namespace HM
    void 
    POP3ClientConnection::_RemoveInvalidRecipients()
    {
-      if (m_pAccount->GetEnableRouteRecipients())
-         m_pCurrentMessage->GetRecipients()->RemoveExternal();
+      if (account_->GetEnableRouteRecipients())
+         current_message_->GetRecipients()->RemoveExternal();
       else
-         m_pCurrentMessage->GetRecipients()->RemoveNonLocalAccounts();
+         current_message_->GetRecipients()->RemoveNonLocalAccounts();
    }
 
    int
    POP3ClientConnection::_GetDaysToKeep(const String &sUID)
    {
-      int iDaysToKeep = m_pAccount->GetDaysToKeep();
+      int iDaysToKeep = account_->GetDaysToKeep();
 
       // Has an event overriden when messages should be deleted?
       if (_eventResults.find(sUID) != _eventResults.end())
@@ -1170,7 +1170,7 @@ namespace HM
    void
    POP3ClientConnection::_FireOnExternalAccountDownload(shared_ptr<Message> message, const String &uid)
    {
-      shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(m_pAccount, message, uid);
+      shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(account_, message, uid);
 
       if (pResult)
          _eventResults[uid] = pResult;
@@ -1182,7 +1182,7 @@ namespace HM
       if (!_fetchAccountUIDList)
       {
          _fetchAccountUIDList = shared_ptr<FetchAccountUIDList>(new FetchAccountUIDList());
-         _fetchAccountUIDList->Refresh(m_pAccount->GetID());
+         _fetchAccountUIDList->Refresh(account_->GetID());
       }
 
       return _fetchAccountUIDList;

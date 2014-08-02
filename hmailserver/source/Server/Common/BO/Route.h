@@ -77,7 +77,7 @@ namespace HM
       bool m_bTreatRecipientAsLocalDomain;
       bool m_bTreatSenderAsLocalDomain;
 
-      shared_ptr<RouteAddresses> m_pAddresses;
+      shared_ptr<RouteAddresses> addresses_;
    };
 
 }

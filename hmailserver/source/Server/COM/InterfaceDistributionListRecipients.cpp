@@ -13,18 +13,18 @@
 void
 InterfaceDistributionListRecipients::Attach(shared_ptr<HM::DistributionListRecipients> pRecipients)
 {
-   m_pRecipients= pRecipients;
+   recipients_= pRecipients;
 }
 
 STDMETHODIMP InterfaceDistributionListRecipients::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
    
-      *pVal = m_pRecipients->GetCount();
+      *pVal = recipients_->GetCount();
    
       return S_OK;
    }
@@ -38,10 +38,10 @@ STDMETHODIMP InterfaceDistributionListRecipients::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
-      m_pRecipients->DeleteItemByDBID(DBID);
+      recipients_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -54,21 +54,21 @@ STDMETHODIMP InterfaceDistributionListRecipients::Add(IInterfaceDistributionList
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
-      if (!m_pRecipients)
-         return m_pAuthentication->GetAccessDenied();
+      if (!recipients_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDistributionListRecipient>* pList = new CComObject<InterfaceDistributionListRecipient>();
-      pList->SetAuthentication(m_pAuthentication);
+      pList->SetAuthentication(authentication_);
    
       shared_ptr<HM::DistributionListRecipient> pRecipient = shared_ptr<HM::DistributionListRecipient>(new HM::DistributionListRecipient);
       
       pRecipient->SetListID(m_lListID);
    
       pList->AttachItem(pRecipient);
-      pList->AttachParent(m_pRecipients, false);
+      pList->AttachParent(recipients_, false);
    
       pList->AddRef();
       *pVal = pList;
@@ -86,10 +86,10 @@ STDMETHODIMP InterfaceDistributionListRecipients::Delete(long Index)
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
-      shared_ptr<HM::DistributionListRecipient> pPersList = m_pRecipients->GetItem(Index);
+      shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
    
       HM::PersistentDistributionListRecipient::DeleteObject(pPersList);
    
@@ -105,18 +105,18 @@ STDMETHODIMP InterfaceDistributionListRecipients::get_Item(long Index, IInterfac
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
       CComObject<InterfaceDistributionListRecipient>* pList = new CComObject<InterfaceDistributionListRecipient>();
-      pList->SetAuthentication(m_pAuthentication);
+      pList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionListRecipient> pPersList = m_pRecipients->GetItem(Index);
+      shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
    
       if (pPersList)
       {
          pList->AttachItem(pPersList);
-         pList->AttachParent(m_pRecipients, true);
+         pList->AttachParent(recipients_, true);
          pList->AddRef();
          *pVal = pList;
       }
@@ -138,10 +138,10 @@ STDMETHODIMP InterfaceDistributionListRecipients::Refresh()
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
-      m_pRecipients->Refresh();
+      recipients_->Refresh();
    
       return S_OK;
    }
@@ -155,20 +155,20 @@ STDMETHODIMP InterfaceDistributionListRecipients::get_ItemByDBID(long DBID, IInt
 {
    try
    {
-      if (!m_pRecipients)
+      if (!recipients_)
          return GetAccessDenied();
 
    
    
       CComObject<InterfaceDistributionListRecipient>* pInterfaceRecipient = new CComObject<InterfaceDistributionListRecipient>();
-      pInterfaceRecipient->SetAuthentication(m_pAuthentication);
+      pInterfaceRecipient->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionListRecipient> pRecipient = m_pRecipients->GetItemByDBID(DBID);
+      shared_ptr<HM::DistributionListRecipient> pRecipient = recipients_->GetItemByDBID(DBID);
    
       if (pRecipient)
       {
          pInterfaceRecipient->AttachItem(pRecipient);
-         pInterfaceRecipient->AttachParent(m_pRecipients, true);
+         pInterfaceRecipient->AttachParent(recipients_, true);
          pInterfaceRecipient->AddRef();
          *pVal = pInterfaceRecipient;
       }

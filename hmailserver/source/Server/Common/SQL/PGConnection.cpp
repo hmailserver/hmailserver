@@ -37,11 +37,11 @@ namespace HM
       try
       {
 
-         String sUsername = m_pDatabaseSettings->GetUsername();
-         String sPassword = m_pDatabaseSettings->GetPassword();
-         String sServer = m_pDatabaseSettings->GetServer();
-         String sDatabase = m_pDatabaseSettings->GetDatabaseName();
-         long lDBPort = m_pDatabaseSettings->GetPort();
+         String sUsername = database_settings_->GetUsername();
+         String sPassword = database_settings_->GetPassword();
+         String sServer = database_settings_->GetServer();
+         String sDatabase = database_settings_->GetDatabaseName();
+         long lDBPort = database_settings_->GetPort();
         
          String sConnectionString;
          sConnectionString.Format(_T("host=%s port=%d user=%s password=%s"), sServer, lDBPort, sUsername, sPassword);

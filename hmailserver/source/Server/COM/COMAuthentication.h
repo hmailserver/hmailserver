@@ -29,6 +29,6 @@ namespace HM
 
    private:
 
-      shared_ptr<const Account> m_pAccount;
+      shared_ptr<const Account> account_;
    };
 }

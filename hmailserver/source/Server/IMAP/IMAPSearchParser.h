@@ -118,8 +118,8 @@ namespace HM
 
       IMAPResult ParseCommand(shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort);
 
-      shared_ptr<IMAPSearchCriteria>  GetCriteria() {return m_pResultCriteria;}
-      shared_ptr<IMAPSortParser> GetSortParser() {return m_pSortParser; }
+      shared_ptr<IMAPSearchCriteria>  GetCriteria() {return result_criteria_;}
+      shared_ptr<IMAPSortParser> GetSortParser() {return sort_parser_; }
 
       String GetCharsetName() 
       {
@@ -136,8 +136,8 @@ namespace HM
 
       IMAPResult _ParseWord(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
 
-      shared_ptr<IMAPSortParser> m_pSortParser;
-      shared_ptr<IMAPSearchCriteria> m_pResultCriteria;
+      shared_ptr<IMAPSortParser> sort_parser_;
+      shared_ptr<IMAPSearchCriteria> result_criteria_;
 
       String _charsetName;
    };

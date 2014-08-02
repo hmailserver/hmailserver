@@ -13,7 +13,7 @@
 void 
 InterfaceGroupMembers::Attach(shared_ptr<HM::GroupMembers> pBA) 
 { 
-   m_pGroupMembers = pBA; 
+   group_members_ = pBA; 
 }
 
 STDMETHODIMP 
@@ -21,13 +21,13 @@ InterfaceGroupMembers::Refresh()
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return S_FALSE;
    
-      m_pGroupMembers->Refresh();
+      group_members_->Refresh();
    
       return S_OK;
    }
@@ -41,10 +41,10 @@ STDMETHODIMP InterfaceGroupMembers::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
-      *pVal = m_pGroupMembers->GetCount();
+      *pVal = group_members_->GetCount();
    
       return S_OK;
    }
@@ -59,19 +59,19 @@ InterfaceGroupMembers::get_Item(long Index, IInterfaceGroupMember **pVal)
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
-      pInterfaceGroupMember->SetAuthentication(m_pAuthentication);
+      pInterfaceGroupMember->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMember> pBA = m_pGroupMembers->GetItem(Index);
+      shared_ptr<HM::GroupMember> pBA = group_members_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceGroupMember->AttachItem(pBA);
-      pInterfaceGroupMember->AttachParent(m_pGroupMembers, true);
+      pInterfaceGroupMember->AttachParent(group_members_, true);
       pInterfaceGroupMember->AddRef();
       *pVal = pInterfaceGroupMember;
    
@@ -88,10 +88,10 @@ InterfaceGroupMembers::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
-      m_pGroupMembers->DeleteItemByDBID(DBID);
+      group_members_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -105,19 +105,19 @@ InterfaceGroupMembers::get_ItemByDBID(long lDBID, IInterfaceGroupMember **pVal)
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
-      pInterfaceGroupMember->SetAuthentication(m_pAuthentication);
+      pInterfaceGroupMember->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMember> pBA = m_pGroupMembers->GetItemByDBID(lDBID);
+      shared_ptr<HM::GroupMember> pBA = group_members_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceGroupMember->AttachItem(pBA);
-      pInterfaceGroupMember->AttachParent(m_pGroupMembers, true);
+      pInterfaceGroupMember->AttachParent(group_members_, true);
       pInterfaceGroupMember->AddRef();
    
       *pVal = pInterfaceGroupMember;
@@ -135,20 +135,20 @@ InterfaceGroupMembers::Add(IInterfaceGroupMember **pVal)
 {
    try
    {
-      if (!m_pGroupMembers)
+      if (!group_members_)
          return GetAccessDenied();
 
-      if (!m_pGroupMembers)
-         return m_pAuthentication->GetAccessDenied();
+      if (!group_members_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
-      pInterfaceGroupMember->SetAuthentication(m_pAuthentication);
+      pInterfaceGroupMember->SetAuthentication(authentication_);
    
       shared_ptr<HM::GroupMember> pBA = shared_ptr<HM::GroupMember>(new HM::GroupMember);
-      pBA->SetGroupID(m_pGroupMembers->GetGroupID());
+      pBA->SetGroupID(group_members_->GetGroupID());
    
       pInterfaceGroupMember->AttachItem(pBA);
-      pInterfaceGroupMember->AttachParent(m_pGroupMembers, false);
+      pInterfaceGroupMember->AttachParent(group_members_, false);
    
       pInterfaceGroupMember->AddRef();
    

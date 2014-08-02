@@ -29,7 +29,7 @@ public:
 
    void LoadSettings(HM::IniFileSettings *pIniFileSettings)
    {
-      m_pIniFileSettings = pIniFileSettings;
+      ini_file_settings_ = pIniFileSettings;
    }
 
    DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEDIRECTORIES)
@@ -78,7 +78,7 @@ public:
    STDMETHOD(get_DBScriptDirectory)(/*[out, retval]*/ BSTR *pVal);
 private:
 
-   HM::IniFileSettings* m_pIniFileSettings;
+   HM::IniFileSettings* ini_file_settings_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Directories), InterfaceDirectories)

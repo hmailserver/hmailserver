@@ -58,7 +58,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Rules> m_pRules;
+   shared_ptr<HM::Rules> rules_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Rules), InterfaceRules)

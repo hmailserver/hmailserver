@@ -94,7 +94,7 @@ namespace HM
       int m_iMinutes;
       int m_iDaysToKeep;
       bool m_bIsActive;
-      shared_ptr<FetchAccountUIDs> m_pUIDs;
+      shared_ptr<FetchAccountUIDs> uids_;
 
       bool m_bProcessMIMERecipients;
       bool m_bProcessMIMEDate;

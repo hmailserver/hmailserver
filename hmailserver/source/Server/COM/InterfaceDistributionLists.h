@@ -61,7 +61,7 @@ public:
 private:
    void InternalAdd(shared_ptr<HM::DistributionList> pObject);
 
-   shared_ptr<HM::DistributionLists> m_pDistributionLists;
+   shared_ptr<HM::DistributionLists> distribution_lists_;
    __int64 m_iDomainID;
 
 };

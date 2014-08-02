@@ -62,7 +62,7 @@ public:
 
 public:
 
-   shared_ptr<HM::TCPIPPorts> m_pTCPIPPorts;
+   shared_ptr<HM::TCPIPPorts> tcpip_ports_;
 
 };
 

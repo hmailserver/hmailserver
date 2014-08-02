@@ -128,8 +128,8 @@ namespace HM
          shared_ptr<IMAPSimpleWord> pSort = pSimpleParser->Word(0);
          if (pSort->Paranthezied())
          {
-            m_pSortParser = shared_ptr<IMAPSortParser>(new IMAPSortParser);
-            m_pSortParser->Parse(pSort->Value());
+            sort_parser_ = shared_ptr<IMAPSortParser>(new IMAPSortParser);
+            sort_parser_->Parse(pSort->Value());
          }
 
          // Trim away the SORT part of the SEARCH expresson 
@@ -188,7 +188,7 @@ namespace HM
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
 
-      m_pResultCriteria = pCriteria;
+      result_criteria_ = pCriteria;
 
       return IMAPResult();
    }

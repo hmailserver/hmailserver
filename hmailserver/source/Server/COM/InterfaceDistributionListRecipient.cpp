@@ -36,12 +36,12 @@ STDMETHODIMP InterfaceDistributionListRecipient::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -55,12 +55,12 @@ STDMETHODIMP InterfaceDistributionListRecipient::put_ID(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      m_pObject->SetID(newVal);
+      object_->SetID(newVal);
    
       return S_OK;
    }
@@ -74,12 +74,12 @@ STDMETHODIMP InterfaceDistributionListRecipient::get_RecipientAddress(BSTR *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      HM::String sVal = m_pObject->GetAddress();
+      HM::String sVal = object_->GetAddress();
       *pVal = sVal.AllocSysString();
    
       return S_OK;
@@ -94,13 +94,13 @@ STDMETHODIMP InterfaceDistributionListRecipient::put_RecipientAddress(BSTR newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
       HM::String sNewVal = newVal;
-      m_pObject->SetAddress(sNewVal);
+      object_->SetAddress(sNewVal);
    
       return S_OK;
    }
@@ -114,13 +114,13 @@ STDMETHODIMP InterfaceDistributionListRecipient::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pObject)
+      if (!object_)
          return S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -134,14 +134,14 @@ STDMETHODIMP InterfaceDistributionListRecipient::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pObject)
+      if (!object_)
          return S_FALSE;
    
       HM::String sErrorMessage;
-      if (HM::PersistentDistributionListRecipient::SaveObject(m_pObject, sErrorMessage, HM::PersistenceModeNormal))
+      if (HM::PersistentDistributionListRecipient::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          AddToParentCollection();
    

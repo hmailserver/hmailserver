@@ -96,7 +96,7 @@ namespace HM
   
       ConnectionState m_CurrentState;
 
-      shared_ptr<Message> m_pDeliveryMessage;
+      shared_ptr<Message> delivery_message_;
 
 
       // These are the recipients which will hMailServer should

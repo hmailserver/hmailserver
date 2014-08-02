@@ -72,7 +72,7 @@ namespace HM
 
       shared_ptr<Attachments> GetAttachments();
 
-      shared_ptr<Message> GetMessage() {return m_pMessage; }
+      shared_ptr<Message> GetMessage() {return message_; }
    
       bool GetEncodeFields() {return m_bEncodeFields; }
       void SetEncodeFields(bool bNewVal) {m_bEncodeFields = bNewVal; }
@@ -94,9 +94,9 @@ namespace HM
       shared_ptr<MimeBody> FindPart(const String &sType) const;
       shared_ptr<MimeBody> FindPartNoRecurse(shared_ptr<MimeBody> parent, const AnsiString &sType) const;
 
-      shared_ptr<Message> m_pMessage;
-      shared_ptr<MimeBody> m_pMimeMail;
-      shared_ptr<Attachments> m_pAttachments;
+      shared_ptr<Message> message_;
+      shared_ptr<MimeBody> mime_mail_;
+      shared_ptr<Attachments> attachments_;
 
       String _messageFileName;
 

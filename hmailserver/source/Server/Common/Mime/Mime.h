@@ -468,7 +468,7 @@ namespace HM
 
    protected:
 
-	   AnsiString m_pbText;		// content (text) of the body part
+	   AnsiString text_;		// content (text) of the body part
       int m_iPartIndex;
 	   BodyList m_listBodies;			// list of all child body parts
 	   BodyList::iterator m_itFind;
@@ -481,10 +481,10 @@ namespace HM
    };
 
    inline int MimeBody::GetContentLength() const
-   { return (int) m_pbText.size(); }
+   { return (int) text_.size(); }
 
    inline const AnsiString& MimeBody::GetContent() const
-   { return m_pbText; }
+   { return text_; }
 
    inline bool MimeBody::IsText() const
    { return GetMediaType() == MEDIA_TEXT; }
@@ -518,14 +518,14 @@ namespace HM
    inline bool MimeBody::AllocateBuffer(int nBufSize)
    {
 
-      m_pbText.reserve(nBufSize);
+      text_.reserve(nBufSize);
 
       return true;
    }
 
    inline void MimeBody::FreeBuffer()
    {
-      m_pbText = "";
+      text_ = "";
    }
 
 }

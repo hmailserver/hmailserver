@@ -89,13 +89,13 @@ namespace HM
       void RefreshIMAPFolders();
       void NotifyFolderChange();
       
-      shared_ptr<IMAPFolders> GetAccountFolders() const { return m_pIMAPFolders;}
-      shared_ptr<IMAPFolders> GetPublicFolders() const { return m_pPublicIMAPFolders;}
+      shared_ptr<IMAPFolders> GetAccountFolders() const { return imap_folders_;}
+      shared_ptr<IMAPFolders> GetPublicFolders() const { return public_imap_folders_;}
       
       shared_ptr<IMAPFolder> GetFolderByFullPath(const String &sFolderName);
       shared_ptr<IMAPFolder> GetFolderByFullPath(std::vector<String> &vecFolderPath);
 
-      shared_ptr<IMAPFolder> GetCurrentFolder() { return m_pCurrentFolder; }
+      shared_ptr<IMAPFolder> GetCurrentFolder() { return current_folder_; }
 
       bool CheckPermission(shared_ptr<IMAPFolder> pFolder, int iPermission);
       void CheckFolderPermissions(shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess);
@@ -153,13 +153,13 @@ namespace HM
       bool AnswerCommand(shared_ptr<IMAPClientCommand> command);
       shared_ptr<const Account> _account;
 
-      shared_ptr<IMAPFolders> m_pIMAPFolders;
-      shared_ptr<IMAPFolders> m_pPublicIMAPFolders;
+      shared_ptr<IMAPFolders> imap_folders_;
+      shared_ptr<IMAPFolders> public_imap_folders_;
 
-      shared_ptr<ChangeNotification> m_pDelayedChangeNotification;
+      shared_ptr<ChangeNotification> delayed_change_notification_;
 
       // Folder info
-      shared_ptr<IMAPFolder> m_pCurrentFolder;
+      shared_ptr<IMAPFolder> current_folder_;
       bool _currentFolderReadOnly;
 
       String m_sCommandBuffer;

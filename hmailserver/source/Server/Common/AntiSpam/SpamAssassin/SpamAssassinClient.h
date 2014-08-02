@@ -47,7 +47,7 @@ namespace HM
       String m_sMessageFile;
 	   int m_iSpamDSize;
 	   int m_iMessageSize;
-      shared_ptr<File> m_pResult;
+      shared_ptr<File> result_;
 
       String &m_sMessage;
       bool &m_TestCompleted;

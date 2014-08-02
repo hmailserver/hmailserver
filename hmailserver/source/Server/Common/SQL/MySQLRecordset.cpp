@@ -17,7 +17,7 @@
 namespace HM
 {
    MySQLRecordset::MySQLRecordset() :
-      m_pResult(0)
+      result_(0)
    {
       
    }
@@ -56,7 +56,7 @@ namespace HM
          }
 
          // Store the result of the query
-         m_pResult = MySQLInterface::Instance()->p_mysql_store_result(pMYSQL);
+         result_ = MySQLInterface::Instance()->p_mysql_store_result(pMYSQL);
 
          // Move to the first row.
          MoveNext();
@@ -84,10 +84,10 @@ namespace HM
    {
       try
       {
-         if (m_pResult)
+         if (result_)
          {
-            MySQLInterface::Instance()->p_mysql_free_result(m_pResult);
-            m_pResult = 0;
+            MySQLInterface::Instance()->p_mysql_free_result(result_);
+            result_ = 0;
          }
       }
       catch (...)
@@ -103,12 +103,12 @@ namespace HM
    // Returns the number of rows in current recordset. 
    //---------------------------------------------------------------------------()
    {
-      if (!m_pResult)
+      if (!result_)
          return 0;
  
       try
       {
-         long lResult = (long) MySQLInterface::Instance()->p_mysql_num_rows(m_pResult);
+         long lResult = (long) MySQLInterface::Instance()->p_mysql_num_rows(result_);
          return lResult;
       }
       catch (...)
@@ -132,7 +132,7 @@ namespace HM
    // Moves the cursor to the next row in the recordset.
    //---------------------------------------------------------------------------()
    {
-      if (!m_pResult)
+      if (!result_)
       {
          return false;
       }
@@ -140,7 +140,7 @@ namespace HM
 
       try
       {
-         m_rowCurrent = MySQLInterface::Instance()->p_mysql_fetch_row(m_pResult);
+         m_rowCurrent = MySQLInterface::Instance()->p_mysql_fetch_row(result_);
       }
       catch (...)
       {
@@ -323,11 +323,11 @@ namespace HM
    MySQLRecordset::GetColumnNames() const
    {
       vector<AnsiString> result;
-      unsigned int iFieldCount = MySQLInterface::Instance()->p_mysql_num_fields(m_pResult);
+      unsigned int iFieldCount = MySQLInterface::Instance()->p_mysql_num_fields(result_);
 
       for (unsigned int i = 0; i < iFieldCount; i++)
       {
-         hm_st_mysql_field *pField = MySQLInterface::Instance()->p_mysql_fetch_field_direct(m_pResult, i);
+         hm_st_mysql_field *pField = MySQLInterface::Instance()->p_mysql_fetch_field_direct(result_, i);
 
          result.push_back(pField->name);
       }  

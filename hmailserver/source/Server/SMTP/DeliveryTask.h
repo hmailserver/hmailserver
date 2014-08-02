@@ -19,6 +19,6 @@ namespace HM
 
    private:
       
-      shared_ptr<Message> m_pMessage;
+      shared_ptr<Message> message_;
    };
 }

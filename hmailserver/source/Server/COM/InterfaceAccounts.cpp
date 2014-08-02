@@ -19,7 +19,7 @@
 void
 InterfaceAccounts::Attach(shared_ptr<HM::Accounts> pAccounts)
 {
-   m_pAccounts = pAccounts;
+   accounts_ = pAccounts;
 }
 
 
@@ -27,10 +27,10 @@ STDMETHODIMP InterfaceAccounts::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
-      *pVal = (int) m_pAccounts->GetCount();
+      *pVal = (int) accounts_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -43,25 +43,25 @@ STDMETHODIMP InterfaceAccounts::Add(IInterfaceAccount **pVal)
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pAccounts)
-         return m_pAuthentication->GetAccessDenied();
+      if (!accounts_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAccount>* pAccountInterface = new CComObject<InterfaceAccount>();
-      pAccountInterface->SetAuthentication(m_pAuthentication);
+      pAccountInterface->SetAuthentication(authentication_);
    
       shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
    
       pAccount->SetDomainID(m_iDomainID);
       
       pAccountInterface->AttachItem(pAccount);
-      pAccountInterface->AttachParent(m_pAccounts, false);
-      pAccountInterface->SetAuthentication(m_pAuthentication);
+      pAccountInterface->AttachParent(accounts_, false);
+      pAccountInterface->SetAuthentication(authentication_);
       pAccountInterface->AddRef();
    
       *pVal = pAccountInterface;
@@ -78,13 +78,13 @@ STDMETHODIMP InterfaceAccounts::Delete(long Index)
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::Account> pAccount = m_pAccounts->GetItem(Index);
+      shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
       HM::PersistentAccount::DeleteObject(pAccount);
    
       return S_OK;
@@ -99,20 +99,20 @@ STDMETHODIMP InterfaceAccounts::get_Item(long Index, IInterfaceAccount **pVal)
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
-      pAccountInt->SetAuthentication(m_pAuthentication);
+      pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = m_pAccounts->GetItem(Index);
+      shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
    
       if (!pAccount)
          return DISP_E_BADINDEX;
       
       pAccountInt->AttachItem(pAccount);
-      pAccountInt->AttachParent(m_pAccounts, true);
-      pAccountInt->SetAuthentication(m_pAuthentication);
+      pAccountInt->AttachParent(accounts_, true);
+      pAccountInt->SetAuthentication(authentication_);
       pAccountInt->AddRef();
       *pVal = pAccountInt;
    
@@ -128,10 +128,10 @@ STDMETHODIMP InterfaceAccounts::Refresh()
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
-      m_pAccounts->Refresh();
+      accounts_->Refresh();
       return S_OK;
    }
    catch (...)
@@ -144,20 +144,20 @@ STDMETHODIMP InterfaceAccounts::get_ItemByDBID(long DBID, IInterfaceAccount **pV
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
-      pAccountInt->SetAuthentication(m_pAuthentication);
+      pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = m_pAccounts->GetItemByDBID(DBID);
+      shared_ptr<HM::Account> pAccount = accounts_->GetItemByDBID(DBID);
    
       if (!pAccount)
          return DISP_E_BADINDEX;  
    
       pAccountInt->AttachItem(pAccount);
-      pAccountInt->SetAuthentication(m_pAuthentication);
-      pAccountInt->AttachParent(m_pAccounts, true);
+      pAccountInt->SetAuthentication(authentication_);
+      pAccountInt->AttachParent(accounts_, true);
       pAccountInt->AddRef();
       *pVal = pAccountInt;
    
@@ -173,21 +173,21 @@ STDMETHODIMP InterfaceAccounts::get_ItemByAddress(BSTR Address, IInterfaceAccoun
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
    
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
-      pAccountInt->SetAuthentication(m_pAuthentication);
+      pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = m_pAccounts->GetItemByName(Address);
+      shared_ptr<HM::Account> pAccount = accounts_->GetItemByName(Address);
    
       if (!pAccount)
          return DISP_E_BADINDEX; 
    
       pAccountInt->AttachItem(pAccount);
-      pAccountInt->SetAuthentication(m_pAuthentication);
-      pAccountInt->AttachParent(m_pAccounts, true);
+      pAccountInt->SetAuthentication(authentication_);
+      pAccountInt->AttachParent(accounts_, true);
       pAccountInt->AddRef();
       *pVal = pAccountInt;
    
@@ -203,13 +203,13 @@ STDMETHODIMP InterfaceAccounts::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pAccounts)
+      if (!accounts_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pAccounts->DeleteItemByDBID(DBID);
+      accounts_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }

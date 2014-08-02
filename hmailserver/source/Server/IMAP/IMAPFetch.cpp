@@ -48,19 +48,19 @@ namespace HM
       m_bAppendSpace = false;
 
       // Parse the command
-      if (!m_pParser)
+      if (!parser_)
       {
-         m_pParser = shared_ptr<IMAPFetchParser>(new IMAPFetchParser());
+         parser_ = shared_ptr<IMAPFetchParser>(new IMAPFetchParser());
          String sTemp = pArgument->Command();
-         m_pParser->ParseCommand(sTemp);
+         parser_->ParseCommand(sTemp);
       }
 
       // If we're going to touch the file, make sure it's there.
       bool willReadMessageFile =
-         m_pParser->GetShowEnvelope() ||
-         m_pParser->GetShowBodyStructure() ||
-         m_pParser->GetShowBodyStructureNonExtensible()||
-         m_pParser->GetPartsToLookAt().size() > 0;
+         parser_->GetShowEnvelope() ||
+         parser_->GetShowBodyStructure() ||
+         parser_->GetShowBodyStructureNonExtensible()||
+         parser_->GetPartsToLookAt().size() > 0;
 
       if (willReadMessageFile)
       {
@@ -76,7 +76,7 @@ namespace HM
       sOutput.Format(_T("* %d FETCH ("), messageIndex);
 
       // We should always show UID when client is issuing UID fetch..
-      if (m_pParser->GetShowUID() || GetIsUID()) 
+      if (parser_->GetShowUID() || GetIsUID()) 
       {
          String sUIDTag;
          sUIDTag.Format(_T("UID %u"), pMessage->GetUID());
@@ -84,7 +84,7 @@ namespace HM
          _AppendOutput(sOutput, sUIDTag);
       }
 
-      if (m_pParser->GetShowRFCSize())
+      if (parser_->GetShowRFCSize())
       {
          String sTemp;
          sTemp.Format(_T("RFC822.SIZE %d"), pMessage->GetSize());
@@ -92,7 +92,7 @@ namespace HM
          _AppendOutput(sOutput, sTemp);
       }
 
-      if (m_pParser->GetShowFlags())
+      if (parser_->GetShowFlags())
       {
          String sTemp = "FLAGS (";
 
@@ -126,7 +126,7 @@ namespace HM
       }
 
 
-      if (m_pParser->GetShowInternalDate())
+      if (parser_->GetShowInternalDate())
       {
          String sTemp = "INTERNALDATE \"";
 
@@ -145,7 +145,7 @@ namespace HM
       
       AnsiString sMessageHeader;
 
-      if (m_pParser->GetShowEnvelope())
+      if (parser_->GetShowEnvelope())
       {
          // Parse the MIME header
          if (sMessageHeader.IsEmpty())
@@ -180,15 +180,15 @@ namespace HM
       // Sometimes we need to load the entire mail into memory.
       // If the user want's to download a specific attachment or
       // if he wants to look at the structure of the mime message.
-      shared_ptr<MimeBody> pMimeBody = _LoadMimeBody(m_pParser, messageFileName);
+      shared_ptr<MimeBody> pMimeBody = _LoadMimeBody(parser_, messageFileName);
       
-      if (m_pParser->GetShowBodyStructure() ||
-          m_pParser->GetShowBodyStructureNonExtensible())
+      if (parser_->GetShowBodyStructure() ||
+          parser_->GetShowBodyStructureNonExtensible())
       {
          try
          {
             String sResult = "";
-            if (m_pParser->GetShowBodyStructure())
+            if (parser_->GetShowBodyStructure())
                sResult = "BODYSTRUCTURE " + _IteratePartRecursive(pMimeBody, true, 0);
             else
                sResult = "BODY " + _IteratePartRecursive(pMimeBody, false, 0);
@@ -201,7 +201,7 @@ namespace HM
          }
       }
 
-      std::vector<IMAPFetchParser::BodyPart> vecPartsToPeekAt = m_pParser->GetPartsToLookAt();
+      std::vector<IMAPFetchParser::BodyPart> vecPartsToPeekAt = parser_->GetPartsToLookAt();
       
       if (vecPartsToPeekAt.size() > 0)
       {
@@ -249,7 +249,7 @@ namespace HM
          }
       }
      
-      if (m_pParser->GetSetSeenFlag() && !pConnection->GetCurrentFolderReadOnly())
+      if (parser_->GetSetSeenFlag() && !pConnection->GetCurrentFolderReadOnly())
       {
          // Check if ther user has access to set the Seen flag, otherwise 
          bool bMayChangeSeen = pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteSeen);
@@ -1046,7 +1046,7 @@ namespace HM
       // only requests part from the header, we should only load
       // just that.
 
-      bool bLoadFullMail = _GetMessageBodyNeeded(m_pParser);
+      bool bLoadFullMail = _GetMessageBodyNeeded(parser_);
 
       try
       {
@@ -1079,12 +1079,12 @@ namespace HM
    // the header contains enough information.
    //---------------------------------------------------------------------------()
    {  
-      if (m_pParser->GetShowBodyStructure() ||
-          m_pParser->GetShowBodyStructureNonExtensible())
+      if (parser_->GetShowBodyStructure() ||
+          parser_->GetShowBodyStructureNonExtensible())
          return true;
 
       // Check if we only got one part.
-      std::vector<IMAPFetchParser::BodyPart> vecPartsToLookAt = m_pParser->GetPartsToLookAt();
+      std::vector<IMAPFetchParser::BodyPart> vecPartsToLookAt = parser_->GetPartsToLookAt();
       if (vecPartsToLookAt.size() == 1)
       {
          IMAPFetchParser::BodyPart oBodyPart = vecPartsToLookAt[0];

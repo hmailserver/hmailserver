@@ -12,14 +12,14 @@
 void 
 InterfaceClient::AttachItem(shared_ptr<HM::ClientInfo> pClientInfo)
 {
-   m_pClientInfo = pClientInfo;
+   client_info_ = pClientInfo;
 }
 
 STDMETHODIMP InterfaceClient::get_Port(long *pVal)
 {
    try
    {
-      *pVal = m_pClientInfo->GetPort();
+      *pVal = client_info_->GetPort();
       return S_OK;
    }
    catch (...)
@@ -32,7 +32,7 @@ STDMETHODIMP InterfaceClient::get_IPAddress(BSTR *pVal)
 {
    try
    {
-      *pVal = m_pClientInfo->GetIPAddress().AllocSysString();
+      *pVal = client_info_->GetIPAddress().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -45,7 +45,7 @@ STDMETHODIMP InterfaceClient::get_Username(BSTR *pVal)
 {
    try
    {
-      *pVal = m_pClientInfo->GetUsername().AllocSysString();
+      *pVal = client_info_->GetUsername().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -58,7 +58,7 @@ STDMETHODIMP InterfaceClient::get_HELO(BSTR *pVal)
 {
    try
    {
-      *pVal = m_pClientInfo->GetHELO().AllocSysString();
+      *pVal = client_info_->GetHELO().AllocSysString();
       return S_OK;
    }
    catch (...)

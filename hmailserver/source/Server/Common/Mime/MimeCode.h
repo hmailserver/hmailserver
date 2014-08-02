@@ -127,14 +127,14 @@ namespace HM
    {
    public:
 	   MimeCodeBase() :
-		   m_pbInput(NULL),
+		   input_(NULL),
 		   m_nInputSize(0),
 		   m_bIsEncoding(false) {}
 
    public:
 	   void SetInput(const char* pbInput, int nInputSize, bool bEncoding)
 	   {
-		   m_pbInput = (const unsigned char*) pbInput;
+		   input_ = (const unsigned char*) pbInput;
 		   m_nInputSize = nInputSize;
 		   m_bIsEncoding = bEncoding;
 	   }
@@ -148,7 +148,7 @@ namespace HM
 	   // overrides
 	   virtual void Encode(AnsiString &output) const
 	   {
-         output.append((char*) m_pbInput, m_nInputSize+1);
+         output.append((char*) input_, m_nInputSize+1);
 	   }
 	   virtual void Decode(AnsiString & output)
 	   {
@@ -156,7 +156,7 @@ namespace HM
 	   }
 
    protected:
-	   const unsigned char* m_pbInput;
+	   const unsigned char* input_;
 	   int m_nInputSize;
 	   bool m_bIsEncoding;
    };

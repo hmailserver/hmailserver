@@ -60,7 +60,7 @@ public:
 
 public:
 
-   shared_ptr<HM::BlockedAttachments> m_pBlockedAttachments;
+   shared_ptr<HM::BlockedAttachments> blocked_attachments_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(BlockedAttachments), InterfaceBlockedAttachments)

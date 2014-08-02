@@ -177,9 +177,9 @@ namespace HM
       String _dkimSelector;
       String _dkimPrivateKeyFile;
 
-      shared_ptr<Accounts> m_pAccounts;
-      shared_ptr<Aliases> m_pAliases;
-      shared_ptr<DistributionLists> m_pDistributionLists;
-      shared_ptr<DomainAliases> m_pDomainAliases;
+      shared_ptr<Accounts> accounts_;
+      shared_ptr<Aliases> aliases_;
+      shared_ptr<DistributionLists> distribution_lists_;
+      shared_ptr<DomainAliases> domain_aliases_;
    };
 }

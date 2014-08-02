@@ -49,7 +49,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Message> m_pMessage;
+   shared_ptr<HM::Message> message_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Recipients), InterfaceRecipients)

@@ -15,10 +15,10 @@ InterfaceRouteAddress::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
    catch (...)
@@ -32,10 +32,10 @@ InterfaceRouteAddress::get_RouteID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetRouteID();
+      *pVal = (long) object_->GetRouteID();
       return S_OK;
    }
    catch (...)
@@ -49,10 +49,10 @@ InterfaceRouteAddress::put_RouteID(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRouteID(newVal);
+      object_->SetRouteID(newVal);
    
       return S_OK;
    }
@@ -67,12 +67,12 @@ InterfaceRouteAddress::get_Address(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
    
-      *pVal = m_pObject->GetAddress().AllocSysString();
+      *pVal = object_->GetAddress().AllocSysString();
    
       return S_OK;
    }
@@ -87,10 +87,10 @@ InterfaceRouteAddress::put_Address(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAddress(newVal);
+      object_->SetAddress(newVal);
    
       return S_OK;
    }
@@ -105,10 +105,10 @@ InterfaceRouteAddress::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (HM::PersistentRouteAddress::SaveObject(m_pObject))
+      if (HM::PersistentRouteAddress::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -128,16 +128,16 @@ STDMETHODIMP InterfaceRouteAddress::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentRouteAddress::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentRouteAddress::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
