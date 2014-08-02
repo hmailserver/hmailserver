@@ -96,7 +96,7 @@ namespace HM
       
    private:
       
-      void _StartAsyncConnect(tcp::resolver::iterator endpoint_iterator);
+      void StartAsyncConnect_(const String &ip_adress, int port);
 
       static void OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err);
 
@@ -111,8 +111,7 @@ namespace HM
       void Write(shared_ptr<ByteBuffer> buffer);
       void Read(const AnsiString &delimitor);
 
-      void HandleResolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
-      void HandleConnect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator);
+      void HandleConnect(const boost::system::error_code& err);
       void HandleHandshake(const boost::system::error_code& error);
       void HandleRead(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
       void HandleWrite(const boost::system::error_code& /*error*/,  size_t bytes_transferred);

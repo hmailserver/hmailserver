@@ -288,6 +288,8 @@ namespace HM
          return true;
       }
 
+      vector<String> addresses_ipv4;
+      vector<String> addresses_ipv6;
 
       while (endpoint_iterator != tcp::resolver::iterator())   
       {
@@ -304,11 +306,19 @@ namespace HM
             return false;
          }
 
-         saFoundNames.push_back(result);
+         if (adr.is_v4())
+            addresses_ipv4.push_back(result);
+         if (adr.is_v6())
+            addresses_ipv6.push_back(result);
 
          endpoint_iterator++;
       }
-      
+
+      boost_foreach(String address, addresses_ipv4)
+         saFoundNames.push_back(address);
+      boost_foreach(String address, addresses_ipv6)
+         saFoundNames.push_back(address);
+
       return true;
    }
 

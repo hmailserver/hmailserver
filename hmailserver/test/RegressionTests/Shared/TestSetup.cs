@@ -129,6 +129,9 @@ namespace RegressionTests.Shared
          if (_settings.MaxNumberOfMXHosts != 15)
             _settings.MaxNumberOfMXHosts = 15;
 
+         if (_settings.VerifyRemoteSslCertificate != false)
+            _settings.VerifyRemoteSslCertificate = false;
+
          hMailServer.AntiVirus antiVirus = _settings.AntiVirus;
 
          if (antiVirus.ClamAVEnabled)
@@ -139,6 +142,7 @@ namespace RegressionTests.Shared
 
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
+
 
          EnableLogging(true);
 

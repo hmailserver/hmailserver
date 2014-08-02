@@ -40,6 +40,7 @@ namespace HM
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
       virtual void OnDataSent();
+      virtual void OnReadError(int errorCode);
 
    private:
 

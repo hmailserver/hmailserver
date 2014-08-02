@@ -26,7 +26,6 @@ namespace HM
       bool _IsDNSError(int iErrorMessage);
 
       bool _IsWSAError(int iErrorMessage);
-
    };
 
 

@@ -44,8 +44,6 @@ namespace HM
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
       shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent));
 
-      
-
       DNSResolver resolver;
 
       std::vector<String> ip_addresses;

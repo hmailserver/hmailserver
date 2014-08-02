@@ -69,10 +69,10 @@ namespace HM
          }
 #endif
 
-         LOG_TCPIP("Connecting to " + _remote_ip_address + "...");
-
          _remotePort = remotePort;
          _remote_ip_address = remote_ip_address;
+
+         LOG_TCPIP("Connecting to " + _remote_ip_address + "...");
 
          if (!localAddress.IsAny())
          {
@@ -114,31 +114,7 @@ namespace HM
 
          // Start an asynchronous resolve to translate the server and service names
          // into a list of endpoints.
-         AnsiString sPort = StringParser::IntToString(remotePort);
-         
-         boost::asio::ip::resolver_query_base::flags flags;
-
-         if (StringParser::IsValidIPAddress(_remote_ip_address))
-         {
-            flags = tcp::resolver::query::passive |
-                    tcp::resolver::query::numeric_host |
-                     tcp::resolver::query::numeric_service;
-         }
-         else
-         {
-            flags =  
-               tcp::resolver::query::passive |
-               tcp::resolver::query::numeric_service;
-         }
-
-
-         tcp::resolver::query query(remote_ip_address, sPort, flags);
-
-         _resolver.async_resolve(query,
-            boost::bind(&TCPConnection::HandleResolve, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::iterator));
-
+         StartAsyncConnect_(remote_ip_address, remotePort);
          return true;
       }
       catch (...)
@@ -149,39 +125,23 @@ namespace HM
       }
    }
 
-   void 
-   TCPConnection::HandleResolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator)
-   {
-      try
-      {
-         if (err)
-         {
-            AnsiString error = err.message();
-            
-            OnCouldNotConnect("IP address: " + _remote_ip_address + ", message: " + error);
-
-            return;
-         }
-
-         _StartAsyncConnect(endpoint_iterator);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5322, "TCPConnection::Connect", "An unknown error occurred while handling TCP/IP resolve.");
-         throw;
-      }
-   }
-
    void
-   TCPConnection::_StartAsyncConnect(tcp::resolver::iterator endpoint_iterator)
+   TCPConnection::StartAsyncConnect_(const String &ip_adress, int port)
    {
       try
       {
-         // Check that we don't try to connect to a port we're listening on. Doing
-         // that could start evil loops.
-         tcp::endpoint endpoint = *endpoint_iterator;
+         IPAddress adress;
+         adress.TryParse(ip_adress, true);
 
-         if (LocalIPAddresses::Instance()->IsLocalPort(endpoint.address(), _remotePort))
+         tcp::endpoint ep;
+         ep.address(adress.GetAddress());
+         ep.port(port);
+
+         //// Check that we don't try to connect to a port we're listening on. Doing
+         //// that could start evil loops.
+         //tcp::endpoint endpoint = *endpoint_iterator;
+
+         if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), _remotePort))
          {
             String sMessage; 
             sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), _remote_ip_address, _remotePort);
@@ -197,9 +157,8 @@ namespace HM
          // will be tried until we successfully establish a connection.
          try
          {
-            socket_.async_connect(endpoint,
-               boost::bind(&TCPConnection::HandleConnect, shared_from_this(),
-                  boost::asio::placeholders::error, ++endpoint_iterator));
+            socket_.async_connect(ep,
+               boost::bind(&TCPConnection::HandleConnect, shared_from_this(), boost::asio::placeholders::error));
          }
          catch (boost::system::system_error error)
          {
@@ -213,29 +172,19 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5323, "TCPConnection::_StartAsyncConnect", "An unknown error occurred while starting asynchronous connect.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5323, "TCPConnection::StartAsyncConnect_", "An unknown error occurred while starting asynchronous connect.");
          throw;
       }
    }
 
    void
-   TCPConnection::HandleConnect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator)
+   TCPConnection::HandleConnect(const boost::system::error_code& err)
    {
       try
       {
          if (err)
          {
             // Are there more addresses we should attempt to connect to?
-            if (endpoint_iterator != tcp::resolver::iterator())
-            {
-               socket_.close();
-
-               // Attemp with the next address.
-               _StartAsyncConnect(endpoint_iterator);
-               
-               return;
-            }
-            
             AnsiString error = err.message();
             OnCouldNotConnect("Host name: " + _remote_ip_address + ", message: " + error);
 
@@ -257,10 +206,11 @@ namespace HM
       return Handshake("");
    }
 
+
    void 
    TCPConnection::Handshake(const AnsiString &expected_remote_hostname)
    {
-      if (!expected_remote_hostname.IsEmpty())
+      if (Configuration::Instance()->GetVerifyRemoteSslCertificate() && !expected_remote_hostname.IsEmpty())
       {
          _sslSocket.set_verify_mode(boost::asio::ssl::verify_peer);
          _sslSocket.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));

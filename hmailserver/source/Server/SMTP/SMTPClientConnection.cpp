@@ -183,12 +183,10 @@ namespace HM
          _ProtocolStateHELOEHLO(Request);  
          return true;
       case HELOSENT:
-
          _ProtocolHELOEHLOSent(Request);
          return true;
       case STARTTLSSENT:
          _ProtocolSTARTTLSSent(iCode);
-         Handshake(expected_remote_hostname_);
          return false;
       case AUTHLOGINSENT:
          _ProtocolSendUsername();
@@ -331,6 +329,7 @@ namespace HM
             {
                _SendData("STARTTLS");
                _SetState(STARTTLSSENT);
+               return;
             }
             else
             {
@@ -451,7 +450,15 @@ namespace HM
 
       _UpdateAllRecipientsWithError(0, "Excessive amount of data sent to server.", false);
    }
+   
+   void
+   SMTPClientConnection::OnReadError(int errorCode)
+   {
+      if (m_bSessionEnded)
+         return; // The session has ended, so any error which takes place now is not interesting.
 
+      _UpdateAllRecipientsWithError(0, "Remote server closed connection.", false);
+   }
 
    bool 
    SMTPClientConnection::IsPermanentNegative(int lErrorCode)

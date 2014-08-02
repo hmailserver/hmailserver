@@ -140,6 +140,8 @@ namespace HM
 
       for (unsigned int i = 0; i < mail_servers.size(); i++)
       {
+         HostNameAndIpAddress hostAndIp = mail_servers[i];
+
          // Create a list of the remaining recipients. These are the recipients we have
          // not yet delivered to on a previous server (where i > 0). 
          vector<shared_ptr<MessageRecipient> > remainingRecipients;
@@ -149,8 +151,14 @@ namespace HM
                 recipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
             {
                remainingRecipients.push_back(recipient);
+
+               //recipient->SetDeliveryResult(MessageRecipient::ResultUndefined);
+               //recipient->SetErrorMessage("");
             }
          }
+
+         serverInfo->SetHostName(hostAndIp.GetHostName());
+         serverInfo->SetIpAddress(hostAndIp.GetIpAddress());
 
          _DeliverToSingleServer(remainingRecipients, serverInfo);
 
@@ -217,12 +225,12 @@ namespace HM
          boost_foreach(String host, mailServerHosts)
          {
             vector<String> ip_addresses;
-            dnsQueryOK = resolver.GetARecords(relayServer, ip_addresses);
+            dnsQueryOK = resolver.GetARecords(host, ip_addresses);
 
             boost_foreach(String ip_address, ip_addresses)
             {
                HostNameAndIpAddress hostNameAndIpAddress;
-               hostNameAndIpAddress.SetHostName(relayServer);
+               hostNameAndIpAddress.SetHostName(host);
                hostNameAndIpAddress.SetIpAddress(ip_address);
 
                saMailServers.push_back(hostNameAndIpAddress);

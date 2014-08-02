@@ -158,6 +158,10 @@ namespace HM
             }
          }
       }
+      else
+      {
+         context.set_verify_mode(boost::asio::ssl::context::verify_none);
+      }
 
       return true;
    }
