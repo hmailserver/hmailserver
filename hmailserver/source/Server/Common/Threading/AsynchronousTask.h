@@ -13,8 +13,8 @@ namespace HM
    public:
       AsynchronousTask(boost::function<void()> functionToRun, shared_ptr<T> parentHolder) :
          Task("AsynchronousTask"),
-         _asynchronousFunction(functionToRun),
-         _parentHolder(parentHolder)
+         asynchronousFunction_(functionToRun),
+         parentHolder_(parentHolder)
       {
 
       }
@@ -23,7 +23,7 @@ namespace HM
       {
          try
          {
-            _asynchronousFunction();
+            asynchronousFunction_();
          }
          catch (...)
          {
@@ -31,13 +31,13 @@ namespace HM
          }
 
          // Reset the shared_ptr to the parent object.
-         _parentHolder.reset();
+         parentHolder_.reset();
       }
 
    private:
 
-      boost::function<void()> _asynchronousFunction;
+      boost::function<void()> asynchronousFunction_;
 
-      shared_ptr<T> _parentHolder;
+      shared_ptr<T> parentHolder_;
    };
 }

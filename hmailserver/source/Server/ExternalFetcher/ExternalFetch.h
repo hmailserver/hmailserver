@@ -22,9 +22,5 @@ namespace HM
       ~ExternalFetch(void);
 
       void Start(shared_ptr<FetchAccount> pFA);
-
-   private:
-
-      void _ReportError(boost::system::error_code &errorCode);
    };
 }

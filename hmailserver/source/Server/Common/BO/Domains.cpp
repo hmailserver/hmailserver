@@ -30,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_domains order by domainname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void 
@@ -43,7 +43,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_domains where domainid = %I64d"), iDomainID);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 

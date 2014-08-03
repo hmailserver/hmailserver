@@ -39,7 +39,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_acl where aclsharefolderid = %I64d"), folder_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    shared_ptr<ACLPermission> 

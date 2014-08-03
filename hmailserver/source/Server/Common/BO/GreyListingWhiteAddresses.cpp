@@ -29,7 +29,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_greylisting_whiteaddresses order by whiteipaddress asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    bool 

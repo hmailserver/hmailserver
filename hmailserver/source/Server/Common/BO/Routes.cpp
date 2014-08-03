@@ -29,7 +29,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_routes order by routedomainname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    shared_ptr<Route> 

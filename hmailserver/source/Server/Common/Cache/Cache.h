@@ -26,8 +26,8 @@ namespace HM
 
    private:
 
-      bool _GetObjectIsWithinTTL(shared_ptr<T> pObject);
-      void _AddToCache(shared_ptr<T> pObject);
+      bool GetObjectIsWithinTTL_(shared_ptr<T> pObject);
+      void AddToCache_(shared_ptr<T> pObject);
 
       int no_of_misses_;
       int no_of_hits_;
@@ -165,7 +165,7 @@ namespace HM
          {
             shared_ptr<T> pObject = (*iterObject).second;
 
-            if (_GetObjectIsWithinTTL(pObject))
+            if (GetObjectIsWithinTTL_(pObject))
                return pObject;
          
             // Object has passed TTL
@@ -183,7 +183,7 @@ namespace HM
       }
 
       if (enabled_)
-         _AddToCache(pRetObject);
+         AddToCache_(pRetObject);
 
       return pRetObject;
    }
@@ -206,7 +206,7 @@ namespace HM
 
             if (pObject->GetID() == iID)
             {
-               if (_GetObjectIsWithinTTL(pObject))
+               if (GetObjectIsWithinTTL_(pObject))
                   return pObject;
 
                objects_.erase(iterObject);
@@ -225,14 +225,14 @@ namespace HM
       }
 
       if (enabled_)
-         _AddToCache(pRetObject);
+         AddToCache_(pRetObject);
    
       return pRetObject;
    }
 
    template <class T, class P> 
    void 
-   Cache<T,P>::_AddToCache(shared_ptr<T> pObject)
+   Cache<T,P>::AddToCache_(shared_ptr<T> pObject)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -250,7 +250,7 @@ namespace HM
 
    template <class T, class P> 
    bool 
-   Cache<T,P>::_GetObjectIsWithinTTL(shared_ptr<T> pObject)
+   Cache<T,P>::GetObjectIsWithinTTL_(shared_ptr<T> pObject)
    {
       if (pObject)
       {

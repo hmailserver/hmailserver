@@ -29,6 +29,6 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_surblservers order by surblid asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 }

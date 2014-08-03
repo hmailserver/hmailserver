@@ -43,9 +43,6 @@ namespace HM
    private:
 
       bool GetRequiresUpgrade_(const String &sConnectionString);
-
-
-      bool _InternalConnect();
       String GetConnectionString_(const String &sDatabase, const String &sPassword) const;
       String GetDatabaseFileName_(const String &sShortName) const;
 

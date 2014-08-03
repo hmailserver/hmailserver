@@ -442,7 +442,7 @@ namespace HM
       CloseCurrentFolder();
 
       shared_ptr<const Account> account;
-      _SetAccount(account),
+      SetAccount_(account),
 
       SendAsciiData(goodbyeMessage);   
 

@@ -30,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_tcpipports order by portaddress1 asc, portaddress2 asc, portnumber asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void 

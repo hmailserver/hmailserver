@@ -43,7 +43,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_distributionlists where distributionlistdomainid = %I64d order by distributionlistaddress asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 

@@ -39,7 +39,6 @@ namespace HM
       void SendRECENT_(int recent);
       void SendEXPUNGE_(const std::vector<__int64> & vecMessages);
       void SendFLAGS_(const std::set<__int64> & vecMessages);
-      void _SendMessage(int iExists);
 
       boost::recursive_mutex _mutex;
       vector<shared_ptr<ChangeNotification> > _cachedChanges;

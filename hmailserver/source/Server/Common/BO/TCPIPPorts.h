@@ -29,8 +29,5 @@ namespace HM
    protected:
       virtual String GetCollectionName() const {return "TCPIPPorts"; }
 
-   private:
-      shared_ptr<TCPIPPort> _GetPrimaryPort(SessionType st);
-     
    };
 }

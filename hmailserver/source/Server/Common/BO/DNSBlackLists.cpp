@@ -29,6 +29,6 @@ namespace HM
    {
 
       String sSQL = "select * from hm_dnsbl order by sblid asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 }

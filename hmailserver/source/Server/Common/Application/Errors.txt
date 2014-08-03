@@ -24,7 +24,6 @@
 5156, SMTPDeliverer::_DeliverToLocalAccounts, The recipient account appears to have been deleted after the message was received. Aborting delivery.
 5157, SpamAssassinClient::OnReadError, There was a communication error with SpamAssassin. Test aborted.
 5158, MessageIndexer::DoWork(), An error occured while indexing messages. The indexing was aborted.
-5159, PersistentMessage::_MoveMessageFileToFolder, The folder specifier was empty. Aborting move.>>>>>>> .merge-right.r1220
 5160, DateTime::ToInt(), Tried to convert non-date to integral representation.
 5201, RuleApplier::_ApplyActionCopy, Tried to convert non-date to integral representation.
 5202, IMAPSortHeaderField::operator(), An error occurred while sorting. Check system locale settings.

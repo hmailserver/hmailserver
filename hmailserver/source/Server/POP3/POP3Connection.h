@@ -98,7 +98,6 @@ namespace HM
       void ProtocolCAPA_();
 
       bool SendFileHeader_(const String &sFilename, int iNoOfLines = 0);
-      bool _ReadLine(HANDLE hFile, const String &sLine);
 
       void SaveMailboxChanges_();
       void UnlockMailbox_();

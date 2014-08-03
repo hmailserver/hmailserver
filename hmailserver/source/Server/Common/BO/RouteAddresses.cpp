@@ -28,7 +28,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_routeaddresses where routeaddressrouteid = %I64d"), route_id_);;
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void

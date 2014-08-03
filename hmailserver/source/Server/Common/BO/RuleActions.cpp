@@ -27,7 +27,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_rule_actions where actionruleid = %I64d order by actionsortorder asc"), rule_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 

@@ -28,7 +28,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_fetchaccounts where fanexttry <= %s and falocked = 0 and faactive = 1 order by faid asc"), SQLStatement::GetCurrentTimestamp());
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 
@@ -39,7 +39,7 @@ namespace HM
       sSQL.Format(_T("select * from hm_fetchaccounts where faaccountid = %I64d")
                         _T(" order by faid asc"), account_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    bool

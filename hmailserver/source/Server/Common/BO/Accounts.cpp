@@ -52,7 +52,7 @@ namespace HM
          command.AddParameter("@ACCOUNTID", account_id_);
       }
 
-      _DBLoad(command);
+      DBLoad_(command);
    }
 
    bool

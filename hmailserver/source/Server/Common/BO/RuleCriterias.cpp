@@ -30,7 +30,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_rule_criterias where criteriaruleid = %I64d order by criteriaid asc"), rule_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 

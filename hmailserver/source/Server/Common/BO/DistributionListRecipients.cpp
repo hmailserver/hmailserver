@@ -30,7 +30,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_distributionlistsrecipients where distributionlistrecipientlistid = %I64d order by distributionlistrecipientaddress asc "), list_id_);
      
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    bool

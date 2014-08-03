@@ -83,8 +83,6 @@ namespace HM
       
       static shared_ptr<Message> CreateCopy_(shared_ptr<Message> sourceMessage, int destinationAccountID);
 
-      static bool _MoveMessageFileToFolder(const String &sourceLocation, shared_ptr<Message> pMessage, shared_ptr<const Account> destinationAccount);
-
       // Recipient functions begin
       static bool ReadRecipients_(shared_ptr<Message> pMessage);
       static bool SaveRecipients_(shared_ptr<Message> pMessage);

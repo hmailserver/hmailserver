@@ -140,7 +140,7 @@ namespace HM
 
       bool InternalParseData(const AnsiString &Request);
       void SendBanner_();
-      void _SetAccount(shared_ptr<const Account> account) { _account = account; }
+      void SetAccount_(shared_ptr<const Account> account) { _account = account; }
 
       void Disconnect_();
       bool IsReceivingLiteralDataForLoginCommand_() const;

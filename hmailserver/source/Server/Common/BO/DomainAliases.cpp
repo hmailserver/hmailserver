@@ -37,7 +37,7 @@ namespace HM
       else
          sSQL.Format(_T("select * from hm_domain_aliases order by daid asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 

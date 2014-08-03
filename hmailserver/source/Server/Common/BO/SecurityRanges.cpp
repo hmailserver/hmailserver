@@ -32,7 +32,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_securityranges order by rangeexpires asc, rangepriorityid desc, rangename asc"));
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
 
       return;
    }

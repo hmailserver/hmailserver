@@ -37,7 +37,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_group_members where membergroupid = %I64d order by memberid asc"), group_id_);
 
-      _DBLoad(sSQL);      
+      DBLoad_(sSQL);      
    }
 
    bool 

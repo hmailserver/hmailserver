@@ -28,7 +28,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_aliases where aliasdomainid = %I64d order by aliasname asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    bool

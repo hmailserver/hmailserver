@@ -32,7 +32,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_servermessages order by smname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 

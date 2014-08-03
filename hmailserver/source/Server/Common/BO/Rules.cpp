@@ -31,7 +31,7 @@ namespace HM
    {
       String sSQL;
       sSQL.Format(_T("select * from hm_rules where ruleaccountid = %I64d order by rulesortorder asc"), account_id_);
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    vector<shared_ptr<Rule> >::iterator 

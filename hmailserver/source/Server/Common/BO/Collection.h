@@ -48,8 +48,8 @@ namespace HM
       // Called before save in DB
       virtual bool PreSaveObject(shared_ptr<T> pObject, XNode *node) {return true; }
       
-      bool _DBLoad(const String &sSQL);
-      bool _DBLoad(const SQLCommand &command);
+      bool DBLoad_(const String &sSQL);
+      bool DBLoad_(const SQLCommand &command);
 
       mutable boost::recursive_mutex _mutex;
 
@@ -247,13 +247,13 @@ namespace HM
    }  
 
    template <class T, class P>  
-   bool Collection<T,P>::_DBLoad(const String &sSQL)
+   bool Collection<T,P>::DBLoad_(const String &sSQL)
    {
-      return _DBLoad(SQLCommand(sSQL));
+      return DBLoad_(SQLCommand(sSQL));
    }
 
    template <class T, class P>  
-   bool Collection<T,P>::_DBLoad(const SQLCommand &command)
+   bool Collection<T,P>::DBLoad_(const SQLCommand &command)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
