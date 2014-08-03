@@ -36,7 +36,7 @@ namespace HM
       virtual void OnHandshakeFailed();
       virtual AnsiString GetCommandSeparator() const;
 
-      virtual void _SendData(const String &sData);
+      virtual void SendData_(const String &sData);
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
       virtual void OnDataSent();
@@ -44,34 +44,34 @@ namespace HM
 
    private:
 
-      void _ProtocolStateHELOEHLO(const AnsiString &request);
-      void _ProtocolSendMailFrom();
-      void _ProtocolHELOEHLOSent(const AnsiString &request);
-      void _ProtocolSTARTTLSSent(int code);
-      void _ProtocolMailFromSent();
-      void _ProtocolRcptToSent(int code, const AnsiString &request);
-      void _ProtocolData();
+      void ProtocolStateHELOEHLO_(const AnsiString &request);
+      void ProtocolSendMailFrom_();
+      void ProtocolHELOEHLOSent_(const AnsiString &request);
+      void ProtocolSTARTTLSSent_(int code);
+      void ProtocolMailFromSent_();
+      void ProtocolRcptToSent_(int code, const AnsiString &request);
+      void ProtocolData_();
 
       void HandleHandshakeFailure_();
       bool InternalParseData(const AnsiString &Request);
-  	   void _ReadAndSend();
+  	   void ReadAndSend_();
 	  
       bool IsPositiveCompletion(int iErrorCode);
       bool IsPermanentNegative(int lErrorCode);
 
-      void _LogSentCommand(const String &sData);
-      void _StartSendFile(const String &sFilename);
+      void LogSentCommand_(const String &sData);
+      void StartSendFile_(const String &sFilename);
 
-      void _SendQUIT();
+      void SendQUIT_();
 
-      void _ProtocolSendUsername();
-      void _ProtocolSendPassword();
+      void ProtocolSendUsername_();
+      void ProtocolSendPassword_();
 
-      void _UpdateAllRecipientsWithError(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError);
-      void _UpdateRecipientWithError(int iErrorCode, const AnsiString &sResponse,shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError);
+      void UpdateAllRecipientsWithError_(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError);
+      void UpdateRecipientWithError_(int iErrorCode, const AnsiString &sResponse,shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError);
 
-      shared_ptr<MessageRecipient> _GetNextRecipient();
-      void _UpdateSuccessfulRecipients();
+      shared_ptr<MessageRecipient> GetNextRecipient_();
+      void UpdateSuccessfulRecipients_();
 
       bool GetServerSupportsESMTP_();
 
@@ -92,7 +92,7 @@ namespace HM
          STARTTLSSENT = 15
       };
 
-      void _SetState(ConnectionState eCurState);
+      void SetState_(ConnectionState eCurState);
   
       ConnectionState current_state_;
 

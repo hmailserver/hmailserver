@@ -104,17 +104,17 @@ namespace HM
       
    private:
 
-      ePartType _GetPartType(const String &sPart);
-      bool _IsPartSpecifier(const String &sString);
+      ePartType GetPartType_(const String &sPart);
+      bool IsPartSpecifier_(const String &sString);
       
-      void _CleanFetchString(String &sString);
-      std::vector<String> _ParseString(String &sString);
-      IMAPResult _ValidateSyntax(const String &sString);
+      void CleanFetchString_(String &sString);
+      std::vector<String> ParseString_(String &sString);
+      IMAPResult ValidateSyntax_(const String &sString);
       
       // Additional parsing of commands that create more complex 
       // structure than just single words.
-      BodyPart _ParseBODY(const String &sString);
-      BodyPart _ParseBODYPEEK(const String &sString);
+      BodyPart ParseBODY_(const String &sString);
+      BodyPart ParseBODY_PEEK(const String &sString);
 
       bool show_envelope_;
       bool show_rfcsize_;

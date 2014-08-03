@@ -247,7 +247,7 @@ namespace HM
 
          if (iInsertID)
          {
-            *iInsertID = _GetIdentityFromRS(pIdentityRS);
+            *iInsertID = GetIdentityFromRS_(pIdentityRS);
             ::SysFreeString( bsIdentity );
          }
       }
@@ -297,7 +297,7 @@ namespace HM
    };
 
    __int64 
-   ADOConnection::_GetIdentityFromRS(_RecordsetPtr pRS) const
+   ADOConnection::GetIdentityFromRS_(_RecordsetPtr pRS) const
    {
       try
       {
@@ -336,7 +336,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5030, "ADOConnection::_GetIdentityFromRS", "Error while determening @@IDENTITY");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5030, "ADOConnection::GetIdentityFromRS_", "Error while determening @@IDENTITY");
       }
 
       return 0;

@@ -31,7 +31,7 @@ namespace HM
       
    private:
       
-      void _ResetValues();
+      void ResetValues_();
 
       String _columnName;
       int _int32Value;

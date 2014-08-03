@@ -159,7 +159,7 @@ namespace HM
    }
 
    void 
-   ClassTester::_LoadSettings()
+   ClassTester::LoadSettings_()
    {
       String sAppPath = Utilities::GetExecutableDirectory();
       if (sAppPath.Right(1) != _T("\\"))
@@ -183,7 +183,7 @@ namespace HM
    }
 
    void 
-   ClassTester::_TestBackup()
+   ClassTester::TestBackup_()
    {
       shared_ptr<BackupManager> pBackupManager = Application::Instance()->GetBackupManager();
       shared_ptr<Backup> pBackup = pBackupManager->LoadBackup("C:\\Temp\\Backup\\HMBackup 2006-12-10 091555.zip");

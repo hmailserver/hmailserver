@@ -21,7 +21,7 @@ namespace HM
 
    private:
 
-      bool _PreprocessLine(String &sLine);
+      bool PreprocessLine_(String &sLine);
 
       shared_ptr<DatabaseSettings> settings_;
       String file_;

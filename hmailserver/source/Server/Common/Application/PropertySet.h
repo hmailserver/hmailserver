@@ -32,11 +32,11 @@ namespace HM
 
    private:
 
-      void _OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged_(shared_ptr<Property> pProperty);
 
-      shared_ptr<Property> _GetProperty(const String &sPropertyName);
+      shared_ptr<Property> GetProperty_(const String &sPropertyName);
 
-      bool _IsCryptedProperty(const String &sPropertyName);
+      bool IsCryptedProperty_(const String &sPropertyName);
       std::map<String, shared_ptr<Property> > items_;
    };
 }

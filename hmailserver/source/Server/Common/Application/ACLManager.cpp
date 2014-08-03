@@ -94,7 +94,7 @@ namespace HM
          if (pPermissions && pPermissions->GetCount() > 0)
          {
             // We found permissions for this folder. Locate the permission for the given user.
-            shared_ptr<ACLPermission> pPermission = _GetPermissionForAccount(pPermissions, iAccountID);
+            shared_ptr<ACLPermission> pPermission = GetPermissionForAccount_(pPermissions, iAccountID);
 
             return pPermission;
          }
@@ -111,7 +111,7 @@ namespace HM
    }
    
    shared_ptr<ACLPermission> 
-   ACLManager::_GetPermissionForAccount(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID)
+   ACLManager::GetPermissionForAccount_(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes through the list of permissions (typically a list of permissions connected
@@ -173,7 +173,7 @@ namespace HM
             sMessage.Format(_T("The group referenced by ACL ID %I64d (Group ID %I64d, Folder ID %I64d) does not exist. "), 
                pPermission->GetID(), iGroupID, pPermission->GetShareFolderID());
 
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5002, "ACLManager::_GetPermissionForAccount", sMessage);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5002, "ACLManager::GetPermissionForAccount_", sMessage);
 
             continue;
          }

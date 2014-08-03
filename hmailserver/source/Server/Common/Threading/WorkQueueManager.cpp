@@ -80,7 +80,7 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-         iterQueue = _GetQueueIterator(sQueueName);
+         iterQueue = GetQueueIterator_(sQueueName);
          if (iterQueue == work_queues_.end())
          {
             LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
@@ -115,7 +115,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = _GetQueueIterator(sQueueName);
+      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = GetQueueIterator_(sQueueName);
       if (iterQueue != work_queues_.end())
       {
          shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
@@ -131,7 +131,7 @@ namespace HM
    }
 
    std::map<int, shared_ptr<WorkQueue> >::iterator 
-   WorkQueueManager::_GetQueueIterator(const String &sQueueName)
+   WorkQueueManager::GetQueueIterator_(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Returns a iterator to a queue with the specified name.

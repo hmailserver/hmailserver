@@ -114,7 +114,7 @@ STDMETHODIMP InterfaceApplication::get_Settings(IInterfaceSettings **pVal)
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
@@ -140,7 +140,7 @@ STDMETHODIMP InterfaceApplication::get_BackupManager(IInterfaceBackupManager **p
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
@@ -185,7 +185,7 @@ STDMETHODIMP InterfaceApplication::get_Domains(IInterfaceDomains **pVal)
       if (!authentication_->GetIsAuthenticated())
          return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
@@ -404,7 +404,7 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
@@ -430,7 +430,7 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
 }
 
 HRESULT
-InterfaceApplication::_EnsureDatabaseConnectivity()
+InterfaceApplication::EnsureDatabaseConnectivity_()
 {
    shared_ptr<HM::DatabaseConnectionManager> pConnectionManager = HM::Application::Instance()->GetDBManager();
    if (!pConnectionManager || !pConnectionManager->GetIsConnected())
@@ -448,7 +448,7 @@ STDMETHODIMP InterfaceApplication::get_Links(IInterfaceLinks **pVal)
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    

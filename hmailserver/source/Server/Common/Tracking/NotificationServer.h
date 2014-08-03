@@ -25,7 +25,7 @@ namespace HM
 
    private:
 
-      set<shared_ptr<NotificationClient> > _GetClientsToNotify(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification);
+      set<shared_ptr<NotificationClient> > GetClientsToNotify_(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification);
 
       std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> > _messageChangeSubscribers;
       std::multimap<__int64, shared_ptr<NotificationClientSubscription> > _folderListChangeSubscribers;

@@ -41,82 +41,82 @@ namespace HM
      virtual void OnConnectionTimeout();
      virtual void OnExcessiveDataReceived();
 
-      void _SendData(const String &sData) ;
+      void SendData_(const String &sData) ;
    
    // This is temp function to log ETRN client commands to SMTP
-      void _SendDataLogAsSMTP(const String &sData) ;
+      void SendData_LogAsSMTP(const String &sData) ;
 
    private:
 
-      void _SendCAPA();
-      bool _HandleEtrn(const String &account_name);
-      int _GetDaysToKeep(const String &sUID);
-      void _FireOnExternalAccountDownload(shared_ptr<Message> message, const String &uid);
+      void SendCAPA_();
+      bool HandleEtrn_(const String &account_name);
+      int GetDaysToKeep_(const String &sUID);
+      void FireOnExternalAccountDownload_(shared_ptr<Message> message, const String &uid);
 
-      void _HandlePOP3FinalizationTaskCompleted();
+      void HandlePOP3FinalizationTaskCompleted_();
 
       bool InternalParseData(const String &sRequest);
 
-      void _CreateRecipentList(shared_ptr<MimeHeader> pHeader);
+      void CreateRecipentList_(shared_ptr<MimeHeader> pHeader);
 
       // Checks whether the POP3 command hMailServer sent
       // to the remote server was successful.
-      bool _CommandIsSuccessfull(const String &sData);
+      bool CommandIsSuccessfull_(const String &sData);
 
       // Logs a line in the POP3 log.
-      void _LogPOP3String(const String &sLogString, bool bSent);
+      void LogPOP3String_(const String &sLogString, bool bSent);
 
       // This is temp function to log ETRN client commands to SMTP
-      void _LogSMTPString(const String &sLogString, bool bSent);
+      void LogSMTPString_(const String &sLogString, bool bSent);
 
-      void _ParseStateConnected(const String &sData);
-      void _ParseStateCAPASent(const String &sData);
-      bool _ParseStateSTLSSent(const String &sData);
-      void _ParseUsernameSent(const String &sData);
-      void _ParsePasswordSent(const String &sData);
-      void _ParseUIDLResponse(const String &sData);
-      void _ParseRETRResponse(const String &sData);
-      bool _ParseQuitResponse(const String &sData);
-      void _ParseDELEResponse(const String &sData);
-      bool _RequestNextMessage();
+      void ParseStateConnected_(const String &sData);
+      void ParseStateCAPASent_(const String &sData);
+      bool ParseStateSTLSSent_(const String &sData);
+      void ParseUsernameSent_(const String &sData);
+      void ParsePasswordSent_(const String &sData);
+      void ParseUIDLResponse_(const String &sData);
+      void ParseRETRResponse_(const String &sData);
+      bool ParseQuitResponse_(const String &sData);
+      void ParseDELEResponse_(const String &sData);
+      bool RequestNextMessage_();
 
-      bool _ParseFirstBinary(shared_ptr<ByteBuffer> pBuf);
-      void _ProcessMIMERecipients(shared_ptr<MimeHeader> pHeader);
-      void _ProcessReceivedHeaders(shared_ptr<MimeHeader> pHeader);
+      bool ParseFirstBinary_(shared_ptr<ByteBuffer> pBuf);
+      void ProcessMIMERecipients_(shared_ptr<MimeHeader> pHeader);
+      void ProcessReceivedHeaders_(shared_ptr<MimeHeader> pHeader);
 
-      void _RetrieveReceivedDate(shared_ptr<MimeHeader> pHeader);
+      void RetrieveReceivedDate_(shared_ptr<MimeHeader> pHeader);
 
-      void _PrependHeaders();
+      void PrependHeaders_();
       // Adds headers to the beginning of the message.
 
-      void _QuitNow();
+      void QuitNow_();
       // Sends a QUIT message and switch over to
       // quit-state
 
-      shared_ptr<FetchAccountUIDList> _GetUIDList();
+      shared_ptr<FetchAccountUIDList> GetUIDList_();
 
-      void _MarkCurrentMessageAsRead();
-      void _ParseMessageHeaders();
-      void _SaveMessage();
-      bool _DoSpamProtection();
-      void _SendUserName();
-      void _StartMailboxCleanup();
+      void MarkCurrentMessageAsRead_();
+      void ParseMessageHeaders_();
+      void SaveMessage_();
+      bool DoSpamProtection_();
+      void SendUserName_();
+      void StartMailboxCleanup_();
       // Triggers a clean up start.
 
-      void _MailboxCleanup();
+      void MailboxCleanup_();
       // Cleans up the entire mailbox
 
-      bool _MessageCleanup();
+      bool MessageCleanup_();
       // Cleans up the current message.
 
-      void _DeleteUIDsNoLongerOnServer();
+      void DeleteUIDsNoLongerOnServer_();
       // Deletes the UID's in the local database if 
       // the UID does not exist on the POP3 server.
 
       shared_ptr<FetchAccount> account_;
       // The current fetch account.
 
-      void _RemoveInvalidRecipients();
+      void RemoveInvalidRecipients_();
 
       enum State
       {

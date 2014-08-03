@@ -32,13 +32,13 @@ namespace HM
 
    private:
 
-      void _CacheChangeNotification(shared_ptr<ChangeNotification> pChangeNotification);
-      void _SendChangeNotification(shared_ptr<ChangeNotification> pChangeNotification);
+      void CacheChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification);
+      void SendChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification);
 
-      void _SendEXISTS(int iExists);
-      void _SendRECENT(int recent);
-      void _SendEXPUNGE(const std::vector<__int64> & vecMessages);
-      void _SendFLAGS(const std::set<__int64> & vecMessages);
+      void SendEXISTS_(int iExists);
+      void SendRECENT_(int recent);
+      void SendEXPUNGE_(const std::vector<__int64> & vecMessages);
+      void SendFLAGS_(const std::set<__int64> & vecMessages);
       void _SendMessage(int iExists);
 
       boost::recursive_mutex _mutex;

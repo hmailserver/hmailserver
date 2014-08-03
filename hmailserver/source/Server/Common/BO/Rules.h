@@ -28,8 +28,8 @@ namespace HM
       virtual bool PreSaveObject(shared_ptr<Rule> pRule, XNode *node);
    private:
       
-      vector<shared_ptr<Rule> >::iterator _GetRuleIterator(__int64 iRuleID);
-      void _UpdateSortOrder();
+      vector<shared_ptr<Rule> >::iterator GetRuleIterator_(__int64 iRuleID);
+      void UpdateSortOrder_();
 
       __int64 account_id_;
    };

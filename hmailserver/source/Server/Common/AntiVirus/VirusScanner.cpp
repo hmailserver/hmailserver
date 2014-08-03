@@ -67,7 +67,7 @@ namespace HM
 
    */
    void
-   VirusScanner::_WaitForFreeScanner()
+   VirusScanner::WaitForFreeScanner_()
    {
       int waitTime = 0;
 
@@ -130,13 +130,13 @@ namespace HM
       }
 
       // Prevent too many scanners from running at once.
-      _WaitForFreeScanner();
+      WaitForFreeScanner_();
       VirusScannerAutoCount autoCounter;
 
       // First scan the entire file.
       String sLongFilename = PersistentMessage::GetFileName(pMessage);
 
-      VirusScanningResult result = _ScanFile(sLongFilename);
+      VirusScanningResult result = ScanFile_(sLongFilename);
       if (result.GetVirusFound())
       {
          virusName = result.GetDetails();
@@ -161,7 +161,7 @@ namespace HM
          sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID() );
          pBody->WriteToFile(sLongFilename);
 
-         VirusScanningResult result = _ScanFile(sLongFilename);
+         VirusScanningResult result = ScanFile_(sLongFilename);
          if (result.GetVirusFound())
          {
             virusName = result.GetDetails();
@@ -252,7 +252,7 @@ namespace HM
    }
 
    VirusScanningResult
-   VirusScanner::_ScanFile(const String &fileName)
+   VirusScanner::ScanFile_(const String &fileName)
    {
       AntiVirusConfiguration &antiVirusConfig = Configuration::Instance()->GetAntiVirusConfiguration();
 
@@ -263,7 +263,7 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       if (antiVirusConfig.GetCustomScannerEnabled())
@@ -273,7 +273,7 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       if (antiVirusConfig.GetClamAVEnabled())
@@ -283,14 +283,14 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       return VirusScanningResult(VirusScanningResult::NoVirusFound, "");
    }
 
    void 
-   VirusScanner::_ReportScanningError(const VirusScanningResult &scanningResult)
+   VirusScanner::ReportScanningError_(const VirusScanningResult &scanningResult)
    {
       ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5406, scanningResult.GetErrorMessageSource(), scanningResult.GetDetails());
    }

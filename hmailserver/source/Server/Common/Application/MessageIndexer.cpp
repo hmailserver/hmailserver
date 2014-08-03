@@ -61,7 +61,7 @@ namespace HM
 
          while (true)
          {
-            _IndexMessages();
+            IndexMessages_();
 
             index_now_.WaitFor(chrono::minutes(1));
          }
@@ -90,7 +90,7 @@ namespace HM
 
 
    void 
-   MessageIndexer::_IndexMessages()
+   MessageIndexer::IndexMessages_()
    {
       // Default is 720
       int iIndexerFullMin = IniFileSettings::Instance()->GetIndexerFullMinutes();

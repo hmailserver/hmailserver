@@ -32,9 +32,9 @@ namespace HM
    private:
 
   
-      bool _WriteBoolSetting(bool bValue);
-      bool _WriteLongSetting(long lValue);
-      bool _WriteStringSetting(const String &sValue);
+      bool WriteBoolSetting_(bool bValue);
+      bool WriteLongSetting_(long lValue);
+      bool WriteStringSetting_(const String &sValue);
 
       long long_value_;
       String string_value_;

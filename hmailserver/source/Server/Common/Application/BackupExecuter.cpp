@@ -44,7 +44,7 @@ namespace HM
    }
 
    void 
-   BackupExecuter::_LoadSettings()
+   BackupExecuter::LoadSettings_()
    {
       destination_ = Configuration::Instance()->GetBackupDestination();
       if (destination_.Right(1) == _T("\\"))
@@ -58,7 +58,7 @@ namespace HM
    {
       Logger::Instance()->LogBackup("Loading backup settings....");         
 
-      _LoadSettings();
+      LoadSettings_();
 
       // Special temp setting to skip files during backup/restore while still storing/restoring db file/message info.
       bool bMessagesDBOnly = IniFileSettings::Instance()->GetBackupMessagesDBOnly();
@@ -123,7 +123,7 @@ namespace HM
       {
          Logger::Instance()->LogBackup("Backing up domains...");
 
-         if (!_BackupDomains(pBackupNode))
+         if (!BackupDomains_(pBackupNode))
          {
             Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup domains.");
             return false;
@@ -133,7 +133,7 @@ namespace HM
          if (backup_mode_ & Backup::BOMessages && !bMessagesDBOnly)
          {
             Logger::Instance()->LogBackup("Backing up data directory...");
-            if (!_BackupDataDirectory(sDataBackupDir))
+            if (!BackupDataDirectory_(sDataBackupDir))
             {
                Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup data directory.");
                return false;
@@ -206,7 +206,7 @@ namespace HM
    }
 
    bool 
-   BackupExecuter::_BackupDataDirectory(const String &sDataBackupDir)
+   BackupExecuter::BackupDataDirectory_(const String &sDataBackupDir)
    {
       String sDataDir = IniFileSettings::Instance()->GetDataDirectory();
 
@@ -230,7 +230,7 @@ namespace HM
    }
 
    bool 
-   BackupExecuter::_BackupDomains(XNode *pBackupNode)
+   BackupExecuter::BackupDomains_(XNode *pBackupNode)
    {
       shared_ptr<Domains> pDomains = shared_ptr<Domains>(new Domains);
       pDomains->Refresh();
@@ -305,7 +305,7 @@ namespace HM
          if (iRestoreOptions & Backup::BOMessages && !bMessagesDBOnly)
          {
             Logger::Instance()->LogBackup("Restoring data directory...");
-            _RestoreDataDirectory(pBackup, pBackupNode);
+            RestoreDataDirectory_(pBackup, pBackupNode);
          }
 
          Logger::Instance()->LogBackup("Restoring domains...");
@@ -349,7 +349,7 @@ namespace HM
    }
 
    void
-   BackupExecuter::_RestoreDataDirectory(shared_ptr<Backup> pBackup, XNode *pBackupNode)
+   BackupExecuter::RestoreDataDirectory_(shared_ptr<Backup> pBackup, XNode *pBackupNode)
    {
       XNode *pBackupInfoNode = pBackupNode->GetChild(_T("BackupInformation"));
       

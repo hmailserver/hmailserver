@@ -59,7 +59,7 @@ namespace HM
       hm_mysql_get_server_version *p_mysql_get_server_version;
    private:
 
-      String _GetLibraryFileName();
+      String GetLibraryFileName_();
 
       HINSTANCE library_instance_;
    };

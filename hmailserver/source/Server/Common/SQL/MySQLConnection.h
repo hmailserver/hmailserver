@@ -52,11 +52,11 @@ namespace HM
 
    private:
 
-      DALConnection::ExecutionResult _GetErrorType(hm_MYSQL *pSQL);
+      DALConnection::ExecutionResult GetErrorType_(hm_MYSQL *pSQL);
 
-      void _UpdatePassword();
-      void _RunScriptFile(const String &sFile) ;
-      void _RunCommand(const String &sCommand) ;
+      void UpdatePassword_();
+      void RunScriptFile_(const String &sFile) ;
+      void RunCommand_(const String &sCommand) ;
       void LoadSupportsTransactions(const String &database);      
 
       hm_MYSQL *dbconn_;

@@ -37,25 +37,25 @@ namespace HM
    Property::SetLongValue(long NewVal)
    {
       long_value_ = NewVal;
-      _WriteLongSetting(NewVal);
+      WriteLongSetting_(NewVal);
    }
 
    void
    Property::SetStringValue(const String &NewVal)
    {
       string_value_ = NewVal;
-      _WriteStringSetting(NewVal);
+      WriteStringSetting_(NewVal);
    }
 
    void
    Property::SetBoolValue(bool NewVal)
    {
       long_value_ = NewVal ? 1 : 0;
-      _WriteLongSetting(long_value_);
+      WriteLongSetting_(long_value_);
    }
 
    bool
-   Property::_WriteBoolSetting(bool bValue)
+   Property::WriteBoolSetting_(bool bValue)
    {
       int iValue = bValue ? 1 : 0;
 
@@ -68,7 +68,7 @@ namespace HM
 
 
    bool
-   Property::_WriteLongSetting(long lValue)
+   Property::WriteLongSetting_(long lValue)
    {
       SQLCommand command("update hm_settings set settinginteger = @SETTINGINTEGER where settingname = @SETTINGNAME");
       command.AddParameter("@SETTINGINTEGER", lValue);
@@ -78,7 +78,7 @@ namespace HM
    }
 
    bool
-   Property::_WriteStringSetting(const String & sValue)
+   Property::WriteStringSetting_(const String & sValue)
    {
       String sSQL;
 

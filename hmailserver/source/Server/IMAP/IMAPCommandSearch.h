@@ -26,25 +26,25 @@ namespace HM
 
    private:
 
-      bool _MatchesHeaderCriteria(const String &fileName,shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesUIDCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSequenceSetCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria, int index);
-      bool _MatchesTEXTCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesBODYCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesONCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSENTONCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSENTBEFORECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSENTSINCECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSINCECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesHeaderCriteria_(const String &fileName,shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesUIDCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSequenceSetCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria, int index);
+      bool MatchesTEXTCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesBODYCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesONCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSENTONCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSENTBEFORECriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSENTSINCECriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSINCECriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
       
-      bool _MatchesBEFORECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesLARGERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool _MatchesSMALLERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesBEFORECriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesLARGERCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
+      bool MatchesSMALLERCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria);
 
-      String _GetHeaderValue(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField);
+      String GetHeaderValue_(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField);
       
       
-      bool _DoesMessageMatch(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index);
+      bool DoesMessageMatch_(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index);
 
       shared_ptr<MessageData> message_data_;
       shared_ptr<MimeHeader> mime_header_;

@@ -59,8 +59,8 @@ namespace HM
 
    private:
 
-      void _SetIPV4Address(__int64 address1);
-      void _SetIPV6Address(__int64 address1, __int64 address2);
+      void SetIPV4Address_(__int64 address1);
+      void SetIPV6Address_(__int64 address1, __int64 address2);
 
       boost::asio::ip::address _address;     
 

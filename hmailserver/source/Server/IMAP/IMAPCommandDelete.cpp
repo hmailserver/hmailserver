@@ -52,7 +52,7 @@ namespace HM
       
       PersistentIMAPFolder::DeleteObject(pFolder);
 
-      _RemoveFolder(pFolder, pConnection);
+      RemoveFolder_(pFolder, pConnection);
 
       pConnection->SendAsciiData(sResponse);   
 
@@ -62,7 +62,7 @@ namespace HM
    /*
       Removes the folder from the in-memory list.
    */
-   void IMAPCommandDELETE::_RemoveFolder( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection )
+   void IMAPCommandDELETE::RemoveFolder_( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection )
    {
       __int64 parentFolderID = pFolder->GetParentFolderID();
 

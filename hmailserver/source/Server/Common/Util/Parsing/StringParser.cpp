@@ -76,7 +76,7 @@ namespace HM
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      if (_AnyOfCharsExists("<>,\"\\!#Â¤%&[]$Â£/*?", sDomainName))
+      if (AnyOfCharsExists_("<>,\"\\!#Â¤%&[]$Â£/*?", sDomainName))
          return false;
    
       String sWildCard = "?*.?*";
@@ -239,7 +239,7 @@ namespace HM
    }
 
    bool
-   StringParser::_AnyOfCharsExists(const String &sChars, const String &sLookIn)
+   StringParser::AnyOfCharsExists_(const String &sChars, const String &sLookIn)
    {
 
       for (int i = 0; i < sChars.GetLength(); i++)

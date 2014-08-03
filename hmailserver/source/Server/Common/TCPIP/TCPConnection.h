@@ -104,7 +104,7 @@ namespace HM
 
       bool IsClient();
 
-      void _ProcessOperationQueue();
+      void ProcessOperationQueue_();
 
       void Disconnect();
       void Shutdown(boost::asio::socket_base::shutdown_type, bool removeFromQueue);

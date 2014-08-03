@@ -54,9 +54,9 @@ namespace HM
            
             while (pSubBody)
             {
-               if (_IsGoodTextPart(pSubBody))
+               if (IsGoodTextPart_(pSubBody))
                {
-                  _WriteToDisk(pMessage, oMimeMessage, pSubBody);
+                  WriteToDisk_(pMessage, oMimeMessage, pSubBody);
                   return;
                }
 
@@ -66,9 +66,9 @@ namespace HM
 
          }
          
-         if (_IsGoodTextPart(pBody))
+         if (IsGoodTextPart_(pBody))
          {
-            _WriteToDisk(pMessage, oMimeMessage, pBody);
+            WriteToDisk_(pMessage, oMimeMessage, pBody);
             return;
          }
 
@@ -80,7 +80,7 @@ namespace HM
    }
 
    void
-   MessageAttachmentStripper::_WriteToDisk(shared_ptr<Message> pMessage, MimeBody &oMainMessage, shared_ptr<MimeBody> pBody)
+   MessageAttachmentStripper::WriteToDisk_(shared_ptr<Message> pMessage, MimeBody &oMainMessage, shared_ptr<MimeBody> pBody)
    {
       if (!pBody)
          return;
@@ -136,7 +136,7 @@ namespace HM
 
 
    bool
-   MessageAttachmentStripper::_IsGoodTextPart(shared_ptr<MimeBody> pBody)
+   MessageAttachmentStripper::IsGoodTextPart_(shared_ptr<MimeBody> pBody)
    {
       if (!pBody)
          return false;

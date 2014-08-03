@@ -31,8 +31,8 @@ namespace HM
       virtual void OnConnected();
       virtual AnsiString GetCommandSeparator() const;
 
-      virtual void _SendData(const String &sData) ;
-      virtual void _SendDataDebugOnly(const String &sData) ;
+      virtual void SendData_(const String &sData) ;
+      virtual void SendData_DebugOnly(const String &sData) ;
 
       virtual void OnDisconnect();
       virtual void OnConnectionTimeout();
@@ -80,33 +80,33 @@ namespace HM
 
       POP3Command GetCommand(ConnectionState currentState, String command);
 
-      void _LogClientCommand(const String &sClientData);
-      void _GetMailboxContents(int &iNoOfMessages, __int64 &iTotalBytes);
+      void LogClientCommand_(const String &sClientData);
+      void GetMailboxContents_(int &iNoOfMessages, __int64 &iTotalBytes);
 
       void SendBanner_();
-      ParseResult _ProtocolRETR(const String &Parameter);
-      bool _ProtocolLIST(const String &sParameter);
-      bool _ProtocolDELE(const String &Parameter);
-      void _ProtocolUSER(const String &Parameter);
-      ParseResult _ProtocolPASS(const String &Parameter);
-      bool _ProtocolTOP(const String &Parameter);
-      bool _ProtocolUIDL(const String &Parameter);
-      bool _ProtocolSTAT(const String &sParameter);
-      void _ProtocolRSET();
-      void _ProtocolQUIT();
-      bool _ProtocolSTLS();
-      void _ProtocolCAPA();
+      ParseResult ProtocolRETR_(const String &Parameter);
+      bool ProtocolLIST_(const String &sParameter);
+      bool ProtocolDELE_(const String &Parameter);
+      void ProtocolUSER_(const String &Parameter);
+      ParseResult ProtocolPASS_(const String &Parameter);
+      bool ProtocolTOP_(const String &Parameter);
+      bool ProtocolUIDL_(const String &Parameter);
+      bool ProtocolSTAT_(const String &sParameter);
+      void ProtocolRSET_();
+      void ProtocolQUIT_();
+      bool ProtocolSTLS_();
+      void ProtocolCAPA_();
 
-      bool _SendFileHeader(const String &sFilename, int iNoOfLines = 0);
+      bool SendFileHeader_(const String &sFilename, int iNoOfLines = 0);
       bool _ReadLine(HANDLE hFile, const String &sLine);
 
-      void _SaveMailboxChanges();
-      void _UnlockMailbox();
+      void SaveMailboxChanges_();
+      void UnlockMailbox_();
 
-      void _StartSendFile(shared_ptr<Message> message);
-	  void _ReadAndSend();
-      void _ResetMailbox();
-      shared_ptr<Message> _GetMessage(unsigned int index);
+      void StartSendFile_(shared_ptr<Message> message);
+	  void ReadAndSend_();
+      void ResetMailbox_();
+      shared_ptr<Message> GetMessage_(unsigned int index);
 
       String username_;
       String password_;

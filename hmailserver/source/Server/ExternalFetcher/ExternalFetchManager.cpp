@@ -78,7 +78,7 @@ namespace HM
             // add this task to the queue.
             shared_ptr<FetchAccount> pFA = (*iterFA);
 
-            if (_FetchIsAllowed(pFA))
+            if (FetchIsAllowed_(pFA))
             {
                // We're allowed to fetch. Lock fetchaccount and start the fetcher.
                PersistentFetchAccount::Lock(pFA->GetID());
@@ -104,7 +104,7 @@ namespace HM
    }
 
    bool 
-   ExternalFetchManager::_FetchIsAllowed(shared_ptr<FetchAccount> pFA)
+   ExternalFetchManager::FetchIsAllowed_(shared_ptr<FetchAccount> pFA)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks whether hMailServer should fetch messages for this fetch account.

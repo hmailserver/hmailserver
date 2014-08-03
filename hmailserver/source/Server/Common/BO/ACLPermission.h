@@ -98,7 +98,7 @@ namespace HM
 
    private:
 
-      String _GetPermissionHolderName(ACLPermission *pPermission) const;
+      String GetPermissionHolderName_(ACLPermission *pPermission) const;
 
       __int64 share_folder_id_;
 

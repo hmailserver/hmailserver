@@ -62,12 +62,12 @@ namespace HM
 
    IPAddress::IPAddress(__int64 address1)
    {
-      _SetIPV4Address(address1);
+      SetIPV4Address_(address1);
    }
 
    IPAddress::IPAddress(__int64 address1, __int64 address2)
    {
-      _SetIPV6Address(address1, address2);
+      SetIPV6Address_(address1, address2);
    }
 
    bool
@@ -95,7 +95,7 @@ namespace HM
          // So we just do a hack to get around it.
          // 
          if (addressString == "255.255.255.255")
-            _SetIPV4Address(0xFFFFFFFF);
+            SetIPV4Address_(0xFFFFFFFF);
          else
             _address = boost::asio::ip::address_v4::from_string(addressString, error);         
 
@@ -118,7 +118,7 @@ namespace HM
    }
 
    void 
-   IPAddress::_SetIPV4Address(__int64 address1)
+   IPAddress::SetIPV4Address_(__int64 address1)
    {
       int i1 = (address1 >> 24) & 0xFF;
       int i2 = (address1 >> 16) & 0xFF;
@@ -131,7 +131,7 @@ namespace HM
    }
 
    void 
-   IPAddress::_SetIPV6Address(__int64 address1, __int64 address2)
+   IPAddress::SetIPV6Address_(__int64 address1, __int64 address2)
    {
       int i1 = (address1 >> 56) & 0xFF;
       int i2 = (address1 >> 48) & 0xFF;

@@ -27,7 +27,7 @@ namespace HM
       switch (operation)
       {
       case RecalculateFolderUID:
-         return _RecalculateFolderUID();
+         return RecalculateFolderUID_();
       }
 
       return false;
@@ -35,7 +35,7 @@ namespace HM
 
    // Goes through all mailboxes and sets the foldercurrentuid to the latest message uid.
    bool
-   Maintenance::_RecalculateFolderUID()
+   Maintenance::RecalculateFolderUID_()
    {
       AnsiString recordSQL = "SELECT messagefolderid, MAX(messageuid) as messageuid FROM hm_messages GROUP BY messagefolderid";
 

@@ -26,8 +26,8 @@ namespace HM
       
    private:
 
-      bool _GetMessageIsReply(shared_ptr<MessageData> &pMessageData);
-      bool _GetMessageIsLocal(shared_ptr<Message> pMessage);
+      bool GetMessageIsReply_(shared_ptr<MessageData> &pMessageData);
+      bool GetMessageIsLocal_(shared_ptr<Message> pMessage);
    
 
    };

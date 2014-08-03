@@ -73,8 +73,8 @@ namespace HM
 
    private:
 
-      void _RegisterSessionTypes();
-      void _CreateScheduledTasks();
+      void RegisterSessionTypes_();
+      void CreateScheduledTasks_();
 
       String prod_name_;
       String version_;

@@ -101,10 +101,10 @@ public:
 
  private:
 
-   STDMETHODIMP _SaveNewMessageToIMAPFolder();
+   STDMETHODIMP SaveNewMessageToIMAPFolder_();
    
    
-   shared_ptr<HM::MessageData> _GetMessageData();
+   shared_ptr<HM::MessageData> GetMessageData_();
 
    shared_ptr<HM::MessageData> msg_data_;
 };

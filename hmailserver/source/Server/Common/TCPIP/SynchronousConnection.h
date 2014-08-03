@@ -21,7 +21,7 @@ namespace HM
 
    private:
       
-      bool _Write(const unsigned char *buf, int bufSize);
+      bool Write_(const unsigned char *buf, int bufSize);
 
       boost::asio::io_service ioservice_;
       tcp::socket socket_;

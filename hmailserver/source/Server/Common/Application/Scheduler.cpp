@@ -34,7 +34,7 @@ namespace HM
       while (true)
       {
          // Check if there are any tasks to run.
-         _RunTasks();
+         RunTasks_();
          
          // Wait one minute.
          try
@@ -54,7 +54,7 @@ namespace HM
    }
 
    void
-   Scheduler::_RunTasks()
+   Scheduler::RunTasks_()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 

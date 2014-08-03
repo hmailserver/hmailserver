@@ -55,7 +55,7 @@ namespace HM
          return false;
       }
 
-      if (!pSenderDomain->GetAddSignaturesToLocalMail() && _GetMessageIsLocal(pMessage))
+      if (!pSenderDomain->GetAddSignaturesToLocalMail() && GetMessageIsLocal_(pMessage))
       {
          // The message is local, but we have configured
          // the server not to add signatures to local email.
@@ -128,7 +128,7 @@ namespace HM
             return false;
       }
 
-      if (!pSenderDomain->GetAddSignaturesToReplies() && _GetMessageIsReply(pMessageData))
+      if (!pSenderDomain->GetAddSignaturesToReplies() && GetMessageIsReply_(pMessageData))
       {
          // The message is a reply, but we have configured the
          // server not to add signatures to replies
@@ -165,7 +165,7 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::_GetMessageIsReply(shared_ptr<MessageData> &pMessageData)
+   SignatureAdder::GetMessageIsReply_(shared_ptr<MessageData> &pMessageData)
    {
       String sHeader = pMessageData->GetFieldValue("References");
       if (!sHeader.IsEmpty())
@@ -179,7 +179,7 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::_GetMessageIsLocal(shared_ptr<Message> pMessage)
+   SignatureAdder::GetMessageIsLocal_(shared_ptr<Message> pMessage)
    {
       String sFromAddressDomain = StringParser::ExtractDomain(pMessage->GetFromAddress());
       

@@ -24,12 +24,12 @@ namespace HM
 
    private:
 
-      void _LoadSettings();
+      void LoadSettings_();
 
-      bool _BackupDomains(XNode *pNode);
-      bool _BackupDataDirectory(const String &sDataBackupDir);
+      bool BackupDomains_(XNode *pNode);
+      bool BackupDataDirectory_(const String &sDataBackupDir);
 
-      void _RestoreDataDirectory(shared_ptr<Backup> pBackup, XNode *pBackupNode);
+      void RestoreDataDirectory_(shared_ptr<Backup> pBackup, XNode *pBackupNode);
       
       int backup_mode_;
       

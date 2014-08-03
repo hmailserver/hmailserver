@@ -69,7 +69,7 @@ namespace HM
          if (sString.Left(7) != _T("String_"))
             continue;
 
-         std::pair<int, String> pair = _GetString(sString);
+         std::pair<int, String> pair = GetString_(sString);
 
          mapEnglishContent[pair.first] = pair.second;
       }
@@ -90,7 +90,7 @@ namespace HM
       for (; iterTranslatedString != iterTranslatedStringEnd; iterTranslatedString++)
       {
          String sString = (*iterTranslatedString);
-         std::pair<int, String> translatedPair = _GetString(sString);
+         std::pair<int, String> translatedPair = GetString_(sString);
 
          std::map<int, String>::iterator englishPair = mapEnglishContent.find(translatedPair.first);
          if (englishPair != mapEnglishContent.end())
@@ -104,7 +104,7 @@ namespace HM
    }
 
    std::pair<int, String> 
-   Language::_GetString(const String &sLine)
+   Language::GetString_(const String &sLine)
    {
       int iValueStart = 7;
       int iEqualsPos = sLine.Find(_T("="));
@@ -119,7 +119,7 @@ namespace HM
    }
 
    void 
-   Language::_CleanString(String &sText) 
+   Language::CleanString_(String &sText) 
    {
       // Remove lading "&"
       if (sText.Left(1) == _T("&"))

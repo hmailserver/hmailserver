@@ -21,7 +21,7 @@ namespace HM
 
    private:
 
-      static void _Log(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived);
+      static void Log_(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived);
 
       static bool enabled_;
    };

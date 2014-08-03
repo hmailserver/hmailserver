@@ -29,8 +29,8 @@ namespace HM
       bool IsSeperator(char c) const;
       void UnescapeString(String &TheString) const;
       
-      void _ExtractQuotedString(const String &sData, String &sQuotedString) const;
-      void _ExtractWithinGTLT(const String &sData, String &sOutputString) const;
+      void ExtractQuotedString_(const String &sData, String &sQuotedString) const;
+      void ExtractWithinGTLT_(const String &sData, String &sOutputString) const;
    };
 
    class AddresslistParserTester
@@ -42,7 +42,7 @@ namespace HM
 
    private:
 
-      void _TestAddress(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain);
+      void TestAddress_(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain);
    };
 
 }

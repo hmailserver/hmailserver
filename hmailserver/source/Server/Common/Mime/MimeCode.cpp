@@ -105,7 +105,7 @@ namespace HM
 	   {
 		   list<CODER_PAIR>::iterator it2 = it;
 		   it++;
-		   if (!::_stricmp(pszCodingName, (*it2).first))
+         if (!::_stricmp(pszCodingName, (*it2).first))
 			   coders_.erase(it2);
 	   }
 	   if (pfnCreateObject != NULL)
@@ -158,7 +158,7 @@ namespace HM
 	   for (list<FIELD_CODER_PAIR>::iterator it=field_coders_.begin(); it!=field_coders_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
-		   if (!::_stricmp(pszFieldName, (*it).first))
+		   if (::_stricmp(pszFieldName, (*it).first))
 		   {
 			   FIELD_CODER_FACTORY pfnCreateObject = (*it).second;
 			   ASSERT(pfnCreateObject != NULL);

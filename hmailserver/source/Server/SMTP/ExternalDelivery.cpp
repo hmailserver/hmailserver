@@ -90,10 +90,10 @@ namespace HM
                iterRecipient + 1 == vecRecipientsOnDomain.end())
             {
                // Deliver the message to the remote server.
-               _DeliverToSingleDomain(batch, serverInfo);
+               DeliverToSingleDomain_(batch, serverInfo);
 
                // Check what status we got on the external deliveries.
-               _CollectDeliveryResult(serverInfo->GetHostName(), batch, saErrorMessages, mapFailedDueToNonFatalError);    
+               CollectDeliveryResult_(serverInfo->GetHostName(), batch, saErrorMessages, mapFailedDueToNonFatalError);    
 
                batch.clear();
             }
@@ -105,7 +105,7 @@ namespace HM
 
       if (mapFailedDueToNonFatalError.size() > 0)
       {   
-         bool messageRescheduled = _RescheduleDelivery(mapFailedDueToNonFatalError, saErrorMessages);
+         bool messageRescheduled = RescheduleDelivery_(mapFailedDueToNonFatalError, saErrorMessages);
          return messageRescheduled;
       }
       else
@@ -113,7 +113,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::_DeliverToSingleDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo)
+   ExternalDelivery::DeliverToSingleDomain_(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Deliveres the message to external accounts (recipients not on this server).
@@ -129,7 +129,7 @@ namespace HM
       vector<HostNameAndIpAddress> mail_servers;
 
       // Run DNS query to find the recipient servers IP addresses.
-      if (!_ResolveRecipientServers(serverInfo, vecRecipients, mail_servers))
+      if (!ResolveRecipientServers_(serverInfo, vecRecipients, mail_servers))
          return;
 
       mxtries_factor_ = IniFileSettings::Instance()->GetMXTriesFactor();
@@ -160,7 +160,7 @@ namespace HM
          serverInfo->SetHostName(hostAndIp.GetHostName());
          serverInfo->SetIpAddress(hostAndIp.GetIpAddress());
 
-         _DeliverToSingleServer(remainingRecipients, serverInfo);
+         DeliverToSingleServer_(remainingRecipients, serverInfo);
 
          bool retryWithoutStartTls = false;
 
@@ -177,10 +177,10 @@ namespace HM
          {
             serverInfo->DisableConnectionSecurity();
 
-            _DeliverToSingleServer(remainingRecipients, serverInfo);
+            DeliverToSingleServer_(remainingRecipients, serverInfo);
          }
 
-         bool try_next_server = _RecipientWithNonFatalDeliveryErrorExists(vecRecipients);
+         bool try_next_server = RecipientWithNonFatalDeliveryErrorExists_(vecRecipients);
 
          if (!try_next_server)
          {
@@ -201,7 +201,7 @@ namespace HM
    /// Resolves IP addresses for the recipient servers. This will either be a MX 
    /// lookup, or a A lookup, if SMTP relaying is used.
    bool 
-   ExternalDelivery::_ResolveRecipientServers(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<HostNameAndIpAddress> &saMailServers)
+   ExternalDelivery::ResolveRecipientServers_(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<HostNameAndIpAddress> &saMailServers)
    {
       DNSResolver resolver;
 
@@ -257,7 +257,7 @@ namespace HM
       // Check if any servers exists.
       if (saMailServers.size() == 0)
       {
-         _HandleNoRecipientServers(vecRecipients, dnsQueryOK, is_fixed);
+         HandleNoRecipientServers_(vecRecipients, dnsQueryOK, is_fixed);
          return false;
       }
 
@@ -265,7 +265,7 @@ namespace HM
    }
 
    bool
-   ExternalDelivery::_RecipientWithNonFatalDeliveryErrorExists(vector<shared_ptr<MessageRecipient> > &vecRecipients)
+   ExternalDelivery::RecipientWithNonFatalDeliveryErrorExists_(vector<shared_ptr<MessageRecipient> > &vecRecipients)
    {
       // If there exists an recipient with nonfatal error,
       // we should try to deliver to other servers.
@@ -289,7 +289,7 @@ namespace HM
    }
 
    void 
-   ExternalDelivery::_HandleExternalDeliveryFailure(vector<shared_ptr<MessageRecipient> > &vecRecipients,    
+   ExternalDelivery::HandleExternalDeliveryFailure_(vector<shared_ptr<MessageRecipient> > &vecRecipients,    
                                                       bool bIsFatal,    
                                                       String &sErrorString)
    {
@@ -320,7 +320,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::_HandleNoRecipientServers(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer)
+   ExternalDelivery::HandleNoRecipientServers_(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Takes care of the situation when no valid recipient server addresses exist.
@@ -356,7 +356,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::_DeliverToSingleServer(vector<shared_ptr<MessageRecipient> > &vecRecipients,
+   ExternalDelivery::DeliverToSingleServer_(vector<shared_ptr<MessageRecipient> > &vecRecipients,
                                             shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
@@ -381,7 +381,7 @@ namespace HM
          pClientConnection->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
 
       // Determine what local IP address to use.
-      IPAddress localAddress = _GetLocalAddress();
+      IPAddress localAddress = GetLocalAddress_();
 
       if (pClientConnection->Connect(serverInfo->GetIpAddress(), serverInfo->GetPort(), localAddress))
       {
@@ -397,7 +397,7 @@ namespace HM
    }
 
    IPAddress 
-   ExternalDelivery::_GetLocalAddress()
+   ExternalDelivery::GetLocalAddress_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Determines what local IP address to use when delivering to this host.
@@ -420,7 +420,7 @@ namespace HM
    }
 
    void 
-   ExternalDelivery::_CollectDeliveryResult(const String &serverHostName, 
+   ExternalDelivery::CollectDeliveryResult_(const String &serverHostName, 
                                              vector<shared_ptr<MessageRecipient> > &vecRecipients, 
                                              vector<String> &saErrorMessages,
                                              map<String,String> &mapFailedDueToNonFatalError)
@@ -477,10 +477,10 @@ namespace HM
    /// Checks if we should reschedule the message for later delivery. If so, we do.
    /// Returns true if the message is rescheduled.
    bool
-   ExternalDelivery::_RescheduleDelivery(map<String,String> &mapFailedDueToNonFatalError, vector<String> &saErrorMessages)
+   ExternalDelivery::RescheduleDelivery_(map<String,String> &mapFailedDueToNonFatalError, vector<String> &saErrorMessages)
    {
 
-      LOG_DEBUG("SD::_RescheduleDelivery");
+      LOG_DEBUG("SD::RescheduleDelivery_");
 
       // We have failed recipients. Iterate over one of them at a time
       long iMaxNoOfRetries = 0;
@@ -511,7 +511,7 @@ namespace HM
       }
 
       LOG_DEBUG("Retrieving retry options.");
-      if (_GetRetryOptions(mapFailedDueToNonFatalError, iMaxNoOfRetries, lMinutesBewteen))
+      if (GetRetryOptions_(mapFailedDueToNonFatalError, iMaxNoOfRetries, lMinutesBewteen))
       {
          // so return now since no need for retry at this time
 
@@ -597,7 +597,7 @@ namespace HM
    /// every try.
    // Type changed to bool for use in ETRN's
    bool 
-   ExternalDelivery::_GetRetryOptions(map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween)
+   ExternalDelivery::GetRetryOptions_(map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween)
    {
       shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
       shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();

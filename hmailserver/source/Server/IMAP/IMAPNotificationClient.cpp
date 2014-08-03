@@ -94,9 +94,9 @@ namespace HM
          return;
 
       if (parentConnection->GetIsIdling())
-         _SendChangeNotification(notification);
+         SendChangeNotification_(notification);
       else
-         _CacheChangeNotification(notification);
+         CacheChangeNotification_(notification);
    }
 
    //---------------------------------------------------------------------------()
@@ -104,7 +104,7 @@ namespace HM
    // Cache this change. We'll send a notification later on.
    //---------------------------------------------------------------------------()
    void 
-   IMAPNotificationClient::_CacheChangeNotification(shared_ptr<ChangeNotification> pChangeNotification)
+   IMAPNotificationClient::CacheChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       _cachedChanges.push_back(pChangeNotification);
@@ -144,7 +144,7 @@ namespace HM
          case ChangeNotification::NotificationMessageDeleted:
             {
                // Send EXPUNGE
-               _SendEXPUNGE(changeNotification->GetAffectedMessages());
+               SendEXPUNGE_(changeNotification->GetAffectedMessages());
 
                // Send EXISTS
                shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
@@ -168,19 +168,19 @@ namespace HM
       }
 
       if (flagMessages.size() > 0)
-         _SendFLAGS(flagMessages);
+         SendFLAGS_(flagMessages);
       
       if (lastExists >= 0)
-         _SendEXISTS(lastExists);
+         SendEXISTS_(lastExists);
 
       if (lastRecent >= 0)
-         _SendRECENT(lastExists);
+         SendRECENT_(lastExists);
 
       _cachedChanges.clear();
    }
 
    void 
-   IMAPNotificationClient::_SendChangeNotification(shared_ptr<ChangeNotification> pChangeNotification)
+   IMAPNotificationClient::SendChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
    {
       shared_ptr<IMAPConnection> connection = _parentConnection.lock();
       if (!connection)
@@ -193,19 +193,19 @@ namespace HM
          case ChangeNotification::NotificationMessageAdded:
             {
                shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               _SendEXISTS(pMessages->GetCount());
-               _SendRECENT(pMessages->GetNoOfRecent());
+               SendEXISTS_(pMessages->GetCount());
+               SendRECENT_(pMessages->GetNoOfRecent());
                break;
             }
          case ChangeNotification::NotificationMessageDeleted:
             {
                // Send EXPUNGE
-               _SendEXPUNGE(pChangeNotification->GetAffectedMessages());
+               SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
 
                // Send EXISTS
                shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               _SendEXISTS(pMessages->GetCount());
-               _SendRECENT(pMessages->GetNoOfRecent());
+               SendEXISTS_(pMessages->GetCount());
+               SendRECENT_(pMessages->GetNoOfRecent());
 
                break;
             }
@@ -218,7 +218,7 @@ namespace HM
                   affectedMessages.insert(messageID);
                }
               
-               _SendFLAGS(affectedMessages);
+               SendFLAGS_(affectedMessages);
 
                break;
             }
@@ -232,7 +232,7 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::_SendEXPUNGE(const std::vector<__int64> & vecMessages)
+   IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & vecMessages)
    {
       shared_ptr<IMAPConnection> connection = _parentConnection.lock();
       if (!connection)
@@ -247,7 +247,7 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::_SendFLAGS(const std::set<__int64> & vecMessages)
+   IMAPNotificationClient::SendFLAGS_(const std::set<__int64> & vecMessages)
    {
       shared_ptr<IMAPConnection> connection = _parentConnection.lock();
       if (!connection)
@@ -271,7 +271,7 @@ namespace HM
 
 
    void 
-   IMAPNotificationClient::_SendEXISTS(int iExists)
+   IMAPNotificationClient::SendEXISTS_(int iExists)
    {
       shared_ptr<IMAPConnection> connection = _parentConnection.lock();
       if (!connection)
@@ -282,7 +282,7 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::_SendRECENT(int recent)
+   IMAPNotificationClient::SendRECENT_(int recent)
    {
       shared_ptr<IMAPConnection> connection = _parentConnection.lock();
       if (!connection)

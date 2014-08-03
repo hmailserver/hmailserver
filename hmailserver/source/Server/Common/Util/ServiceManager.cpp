@@ -45,7 +45,7 @@ namespace HM
       // Check wether we already exists.
       if (DoesServiceExist(ServiceName))
       {
-         if (!_ReconfigureService(hSCManager, ServiceName))
+         if (!ReconfigureService_(hSCManager, ServiceName))
             return false;
       }
       else
@@ -89,7 +89,7 @@ namespace HM
    }
 
    bool
-   ServiceManager::_ReconfigureService(SC_HANDLE hSCManager, const String &ServiceName)
+   ServiceManager::ReconfigureService_(SC_HANDLE hSCManager, const String &ServiceName)
    //---------------------------------------------------------------------------//
    // DESCRIPTION:
    // Updates an existing hMailServer service.
@@ -103,7 +103,7 @@ namespace HM
 
       if (sclLock == NULL)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5056, "ServiceManager::_ReconfigureService", "Failed to obtain lock on service database.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5056, "ServiceManager::ReconfigureService_", "Failed to obtain lock on service database.");
 
          CloseServiceHandle(hService);
          return false;
@@ -130,7 +130,7 @@ namespace HM
          String sErrorMessage;
          sErrorMessage.Format(_T("ChangeServiceConfig failed. (%d)"), GetLastError());
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5057, "ServiceManager::_ReconfigureService", sErrorMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5057, "ServiceManager::ReconfigureService_", sErrorMessage);
          return false;
       }
 

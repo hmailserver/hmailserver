@@ -45,7 +45,7 @@ namespace HM
    }
 
    shared_ptr<PropertySet>
-   IMAPConfiguration::_GetSettings() const
+   IMAPConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -53,85 +53,85 @@ namespace HM
    String 
    IMAPConfiguration::GetWelcomeMessage() const
    {
-      return _GetSettings()->GetString(PROPERTY_WELCOMEIMAP);
+      return GetSettings_()->GetString(PROPERTY_WELCOMEIMAP);
    }
    
    void 
    IMAPConfiguration::SetWelcomeMessage(const String &sMessage)
    {
-      _GetSettings()->SetString(PROPERTY_WELCOMEIMAP, sMessage);
+      GetSettings_()->SetString(PROPERTY_WELCOMEIMAP, sMessage);
    }
 
    bool
    IMAPConfiguration::GetUseIMAPQuota() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPQUOTA);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPQUOTA);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPQuota(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPQUOTA, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPQUOTA, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPIdle() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPIDLE);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPIDLE);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPIdle(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPIDLE, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPIDLE, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPACL() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPACL);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPACL);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPACL(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPACL, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPACL, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPSort() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPSORT);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSORT);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPSort(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPSORT, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSORT, bValue);
    }
 
    void
    IMAPConfiguration::SetMaxIMAPConnections(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXIMAPCONNECTIONS, newVal);
+      GetSettings_()->SetLong(PROPERTY_MAXIMAPCONNECTIONS, newVal);
    }
 
    long
    IMAPConfiguration::GetMaxIMAPConnections() const
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXIMAPCONNECTIONS);
+      return GetSettings_()->GetLong(PROPERTY_MAXIMAPCONNECTIONS);
    }
 
    void
    IMAPConfiguration::SetIMAPPublicFolderName(const String& newVal)
    {
-      _GetSettings()->SetString(PROPERTY_IMAPPUBLICFOLDERNAME, newVal);
+      GetSettings_()->SetString(PROPERTY_IMAPPUBLICFOLDERNAME, newVal);
    }
 
    String
    IMAPConfiguration::GetIMAPPublicFolderName() const
    {
-      return _GetSettings()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
+      return GetSettings_()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
    }
 
    bool
@@ -152,7 +152,7 @@ namespace HM
       if (!PersistentRuleAction::UpdateHierarchyDelimiter(GetHierarchyDelimiter(), newVal))
          return false;
 
-      _GetSettings()->SetString(PROPERTY_IMAP_HIERARCHY_DELIMITER, newVal);
+      GetSettings_()->SetString(PROPERTY_IMAP_HIERARCHY_DELIMITER, newVal);
 
       ObjectCache::Instance()->ClearRuleCaches();
 
@@ -162,7 +162,7 @@ namespace HM
    String
    IMAPConfiguration::GetHierarchyDelimiter()
    {
-      return _GetSettings()->GetString(PROPERTY_IMAP_HIERARCHY_DELIMITER);
+      return GetSettings_()->GetString(PROPERTY_IMAP_HIERARCHY_DELIMITER);
    }
 
    String 

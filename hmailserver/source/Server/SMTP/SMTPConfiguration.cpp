@@ -47,7 +47,7 @@ namespace HM
    }
 
    shared_ptr<PropertySet>
-   SMTPConfiguration::_GetSettings() const
+   SMTPConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -55,235 +55,235 @@ namespace HM
    void
    SMTPConfiguration::SetMaxSMTPConnections(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXSMTPCONNECTIONS, newVal);
+      GetSettings_()->SetLong(PROPERTY_MAXSMTPCONNECTIONS, newVal);
    }
 
    int
    SMTPConfiguration::GetMaxSMTPConnections()
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXSMTPCONNECTIONS);
+      return GetSettings_()->GetLong(PROPERTY_MAXSMTPCONNECTIONS);
    }
 
    void
    SMTPConfiguration::SetAuthAllowPlainText(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_AUTHALLOWPLAINTEXT, newVal);
+      GetSettings_()->SetBool(PROPERTY_AUTHALLOWPLAINTEXT, newVal);
    }
 
    bool 
    SMTPConfiguration::GetAuthAllowPlainText()
    {
-      return _GetSettings()->GetBool(PROPERTY_AUTHALLOWPLAINTEXT);
+      return GetSettings_()->GetBool(PROPERTY_AUTHALLOWPLAINTEXT);
    }
 
    void
    SMTPConfiguration::SetAllowMailFromNull(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_ALLOWMAILFROMNULL, newVal);
+      GetSettings_()->SetBool(PROPERTY_ALLOWMAILFROMNULL, newVal);
    }
 
    
    bool 
    SMTPConfiguration::GetAllowMailFromNull()
    {
-      return _GetSettings()->GetBool(PROPERTY_ALLOWMAILFROMNULL);
+      return GetSettings_()->GetBool(PROPERTY_ALLOWMAILFROMNULL);
    }
 
    void
    SMTPConfiguration::SetNoOfRetries(long lNoOfRetries)
    {
-      _GetSettings()->SetLong(PROPERTY_SMTPNOOFTRIES, lNoOfRetries);
+      GetSettings_()->SetLong(PROPERTY_SMTPNOOFTRIES, lNoOfRetries);
    }
 
    long
    SMTPConfiguration::GetNoOfRetries()
    {
-      return _GetSettings()->GetLong(PROPERTY_SMTPNOOFTRIES);
+      return GetSettings_()->GetLong(PROPERTY_SMTPNOOFTRIES);
    }
 
 
    void 
    SMTPConfiguration::SetMinutesBetweenTry(long lMinutesBetween)
    {
-      _GetSettings()->SetLong(PROPERTY_SMTPMINUTESBETWEEN, lMinutesBetween);
+      GetSettings_()->SetLong(PROPERTY_SMTPMINUTESBETWEEN, lMinutesBetween);
    }
 
    long
    SMTPConfiguration::GetMinutesBetweenTry()
    {
-      return _GetSettings()->GetLong(PROPERTY_SMTPMINUTESBETWEEN);
+      return GetSettings_()->GetLong(PROPERTY_SMTPMINUTESBETWEEN);
    }
 
 
    String 
    SMTPConfiguration::GetWelcomeMessage() const
    {
-      return _GetSettings()->GetString(PROPERTY_WELCOMESMTP);
+      return GetSettings_()->GetString(PROPERTY_WELCOMESMTP);
    }
 
    void 
    SMTPConfiguration::SetWelcomeMessage(const String &sMessage)
    {
-      _GetSettings()->SetString(PROPERTY_WELCOMESMTP, sMessage);
+      GetSettings_()->SetString(PROPERTY_WELCOMESMTP, sMessage);
    }
 
    String 
    SMTPConfiguration::GetSMTPDeliveryBindToIP() const
    {
-      return _GetSettings()->GetString(PROPERTY_SMTPDELIVERYBINDTOIP);
+      return GetSettings_()->GetString(PROPERTY_SMTPDELIVERYBINDTOIP);
    }
 
    void 
    SMTPConfiguration::SetSMTPDeliveryBindToIP(const String &sMessage)
    {
-      _GetSettings()->SetString(PROPERTY_SMTPDELIVERYBINDTOIP, sMessage);
+      GetSettings_()->SetString(PROPERTY_SMTPDELIVERYBINDTOIP, sMessage);
    }
 
 
    String 
    SMTPConfiguration::GetSMTPRelayer() const
    {
-      return _GetSettings()->GetString(PROPERTY_SMTPRELAYER);
+      return GetSettings_()->GetString(PROPERTY_SMTPRELAYER);
    }
 
    void 
    SMTPConfiguration::SetSMTPRelayer(const String &sRelayer)
    {
-      _GetSettings()->SetString(PROPERTY_SMTPRELAYER, sRelayer);
+      GetSettings_()->SetString(PROPERTY_SMTPRELAYER, sRelayer);
    }
 
    void 
    SMTPConfiguration::SetSMTPRelayerPort(long lPortID)
    {
-      _GetSettings()->SetLong(PROPERTY_SMTPRELAYER_PORT, lPortID);
+      GetSettings_()->SetLong(PROPERTY_SMTPRELAYER_PORT, lPortID);
    }
 
    long
    SMTPConfiguration::GetSMTPRelayerPort()
    {
-      return _GetSettings()->GetLong(PROPERTY_SMTPRELAYER_PORT);
+      return GetSettings_()->GetLong(PROPERTY_SMTPRELAYER_PORT);
    }
 
    void 
    SMTPConfiguration::SetSMTPRelayerConnectionSecurity(ConnectionSecurity connection_security)
    {
-      _GetSettings()->SetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY, connection_security);
+      GetSettings_()->SetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY, connection_security);
    }
 
    ConnectionSecurity
    SMTPConfiguration::GetSMTPRelayerConnectionSecurity()
    {
-      return (ConnectionSecurity) _GetSettings()->GetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY);
+      return (ConnectionSecurity) GetSettings_()->GetLong(PROPERTY_SMTPRELAYERCONNECTIONSECURITY);
    }
 
    void 
    SMTPConfiguration::SetSMTPConnectionSecurity(ConnectionSecurity connection_security)
    {
-      _GetSettings()->SetLong(PROPERTY_SMTPCONNECTIONSECURITY, connection_security);
+      GetSettings_()->SetLong(PROPERTY_SMTPCONNECTIONSECURITY, connection_security);
    }
 
    ConnectionSecurity
    SMTPConfiguration::GetSMTPConnectionSecurity()
    {
-      return (ConnectionSecurity) _GetSettings()->GetLong(PROPERTY_SMTPCONNECTIONSECURITY);
+      return (ConnectionSecurity) GetSettings_()->GetLong(PROPERTY_SMTPCONNECTIONSECURITY);
    }
 
    int
    SMTPConfiguration::GetMaxNoOfDeliveryThreads()
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXDELIVERYTHREADS);
+      return GetSettings_()->GetLong(PROPERTY_MAXDELIVERYTHREADS);
    }
 
    void 
    SMTPConfiguration::SetMaxNoOfDeliveryThreads(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXDELIVERYTHREADS, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_MAXDELIVERYTHREADS, lNewValue);
    }
    
    int
    SMTPConfiguration::GetMaxMessageSize()
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXMESSAGESIZE);
+      return GetSettings_()->GetLong(PROPERTY_MAXMESSAGESIZE);
    }
 
    void 
    SMTPConfiguration::SetMaxMessageSize(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXMESSAGESIZE, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_MAXMESSAGESIZE, lNewValue);
    }
 
    int
    SMTPConfiguration::GetMaxSMTPRecipientsInBatch()
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXSMTPRECIPIENTSINBATCH);
+      return GetSettings_()->GetLong(PROPERTY_MAXSMTPRECIPIENTSINBATCH);
    }
 
    void 
    SMTPConfiguration::SetMaxSMTPRecipientsInBatch(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXSMTPRECIPIENTSINBATCH, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_MAXSMTPRECIPIENTSINBATCH, lNewValue);
    }
 
 
    int
    SMTPConfiguration::GetRuleLoopLimit()
    {
-      return _GetSettings()->GetLong(PROPERTY_RULELOOPLIMIT);
+      return GetSettings_()->GetLong(PROPERTY_RULELOOPLIMIT);
    }
 
    void 
    SMTPConfiguration::SetRuleLoopLimit(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_RULELOOPLIMIT, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_RULELOOPLIMIT, lNewValue);
    }
 
 
    int
    SMTPConfiguration::GetMaxNumberOfMXHosts()
    {
-      return _GetSettings()->GetLong(PROPERTY_MAX_NUMBER_OF_MXHOSTS);
+      return GetSettings_()->GetLong(PROPERTY_MAX_NUMBER_OF_MXHOSTS);
    }
 
    void 
    SMTPConfiguration::SetMaxNumberOfMXHosts(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_MAX_NUMBER_OF_MXHOSTS, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_MAX_NUMBER_OF_MXHOSTS, lNewValue);
    }
 
    bool
    SMTPConfiguration::GetSMTPRelayerRequiresAuthentication()
    {
-      return _GetSettings()->GetBool(PROPERTY_SMTPRELAYER_USEAUTH);
+      return GetSettings_()->GetBool(PROPERTY_SMTPRELAYER_USEAUTH);
    }
 
    void
    SMTPConfiguration::SetSMTPRelayerRequiresAuthentication(bool bNewVal)
    {
-      _GetSettings()->SetBool(PROPERTY_SMTPRELAYER_USEAUTH, bNewVal);
+      GetSettings_()->SetBool(PROPERTY_SMTPRELAYER_USEAUTH, bNewVal);
    }
 
    void 
    SMTPConfiguration::SetSMTPRelayerUsername(const String & sValue)
    {
-      _GetSettings()->SetString(PROPERTY_SMTPRELAYER_USERNAME, sValue);
+      GetSettings_()->SetString(PROPERTY_SMTPRELAYER_USERNAME, sValue);
    }
 
    String
    SMTPConfiguration::GetSMTPRelayerUsername() const
    {
-      return _GetSettings()->GetString(PROPERTY_SMTPRELAYER_USERNAME);
+      return GetSettings_()->GetString(PROPERTY_SMTPRELAYER_USERNAME);
    }
 
    void 
    SMTPConfiguration::SetSMTPRelayerPassword(const String & sValue)
    {
-      _GetSettings()->SetString(PROPERTY_SMTPRELAYER_PASSWORD, sValue);
+      GetSettings_()->SetString(PROPERTY_SMTPRELAYER_PASSWORD, sValue);
    }
 
    String
    SMTPConfiguration::GetSMTPRelayerPassword() const
    {
-      return _GetSettings()->GetString(PROPERTY_SMTPRELAYER_PASSWORD);
+      return GetSettings_()->GetString(PROPERTY_SMTPRELAYER_PASSWORD);
    }
 
 
@@ -292,25 +292,25 @@ namespace HM
    void
    SMTPConfiguration::SetAllowIncorrectLineEndings(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_ALLOWINCORRECTLINEENDINGS, newVal);
+      GetSettings_()->SetBool(PROPERTY_ALLOWINCORRECTLINEENDINGS, newVal);
    }
 
    bool 
    SMTPConfiguration::GetAllowIncorrectLineEndings() 
    {
-      return _GetSettings()->GetBool(PROPERTY_ALLOWINCORRECTLINEENDINGS);
+      return GetSettings_()->GetBool(PROPERTY_ALLOWINCORRECTLINEENDINGS);
    }
 
    void
    SMTPConfiguration::SetAddDeliveredToHeader(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_ADDDELIVEREDTOHEADER, newVal);
+      GetSettings_()->SetBool(PROPERTY_ADDDELIVEREDTOHEADER, newVal);
    }
 
    bool 
    SMTPConfiguration::GetAddDeliveredToHeader() 
    {
-      return _GetSettings()->GetBool(PROPERTY_ADDDELIVEREDTOHEADER);
+      return GetSettings_()->GetBool(PROPERTY_ADDDELIVEREDTOHEADER);
    }
 
    void 

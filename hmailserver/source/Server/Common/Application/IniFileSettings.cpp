@@ -55,18 +55,18 @@ namespace HM
    // Load all settings from hMailServer.ini
    //---------------------------------------------------------------------------()
    {
-      administrator_password_ = _ReadIniSettingString("Security", "AdministratorPassword", "");
+      administrator_password_ = ReadIniSettingString_("Security", "AdministratorPassword", "");
 
-      database_server_ = _ReadIniSettingString("Database", "Server", "");
-      database_name_ = _ReadIniSettingString("Database", "Database", "");
-      username_ = _ReadIniSettingString("Database", "Username", "");
-      password_ = _ReadIniSettingString("Database", "Password", "");
-      is_internal_database_ = _ReadIniSettingInteger("Database", "Internal", 0) == 1;
-      database_server_FailoverPartner = _ReadIniSettingString("Database", "ServerFailoverPartner", "");
+      database_server_ = ReadIniSettingString_("Database", "Server", "");
+      database_name_ = ReadIniSettingString_("Database", "Database", "");
+      username_ = ReadIniSettingString_("Database", "Username", "");
+      password_ = ReadIniSettingString_("Database", "Password", "");
+      is_internal_database_ = ReadIniSettingInteger_("Database", "Internal", 0) == 1;
+      database_server_FailoverPartner = ReadIniSettingString_("Database", "ServerFailoverPartner", "");
 
-      String sDatabaseType = _ReadIniSettingString("Database", "Type", "");
+      String sDatabaseType = ReadIniSettingString_("Database", "Type", "");
       
-      Crypt::EncryptionType iPWDEncryptionType = (Crypt::EncryptionType) _ReadIniSettingInteger("Database", "Passwordencryption", 0);
+      Crypt::EncryptionType iPWDEncryptionType = (Crypt::EncryptionType) ReadIniSettingInteger_("Database", "Passwordencryption", 0);
 
       // Decrypt password read from hmailserver.ini
       password_ = Crypt::Instance()->DeCrypt(password_, iPWDEncryptionType);
@@ -80,30 +80,30 @@ namespace HM
       else if (sDatabaseType.CompareNoCase(_T("MSSQLCE")) == 0)
          sqldbtype_ = HM::DatabaseSettings::TypeMSSQLCompactEdition;
 
-      dbport_ = _ReadIniSettingInteger( "Database", "Port", 0);
+      dbport_ = ReadIniSettingInteger_( "Database", "Port", 0);
 
-      app_directory_ = _ReadIniSettingString("Directories", "ProgramFolder", "");
+      app_directory_ = ReadIniSettingString_("Directories", "ProgramFolder", "");
       if (app_directory_.Right(1) != _T("\\"))
          app_directory_ += "\\";
 
-      data_directory_ = _ReadIniSettingString("Directories", "DataFolder", "");
+      data_directory_ = ReadIniSettingString_("Directories", "DataFolder", "");
       if (data_directory_.Right(1) == _T("\\"))
          data_directory_ = data_directory_.Left(data_directory_.GetLength() -1);
 
-      temp_directory_ = _ReadIniSettingString("Directories", "TempFolder", "");
+      temp_directory_ = ReadIniSettingString_("Directories", "TempFolder", "");
       if (temp_directory_.Right(1) == _T("\\"))
          temp_directory_ = temp_directory_.Left(temp_directory_.GetLength() -1);
 
-      event_directory_ = _ReadIniSettingString("Directories", "EventFolder", "");
+      event_directory_ = ReadIniSettingString_("Directories", "EventFolder", "");
 
-      dbscript_directory_ = _ReadIniSettingString("Directories", "ProgramFolder", "");
+      dbscript_directory_ = ReadIniSettingString_("Directories", "ProgramFolder", "");
       if (dbscript_directory_.Right(1) != _T("\\"))
          dbscript_directory_ += "\\";
       dbscript_directory_ += "DBScripts";
 
-      no_of_dbconnections_ = _ReadIniSettingInteger("Database", "NumberOfConnections", 5);            
-      no_of_dbconnection_attempts_ = _ReadIniSettingInteger("Database", "ConnectionAttempts", 6);  
-      no_of_dbconnection_attempts_Delay = _ReadIniSettingInteger("Database", "ConnectionAttemptsDelay", 5);  
+      no_of_dbconnections_ = ReadIniSettingInteger_("Database", "NumberOfConnections", 5);            
+      no_of_dbconnection_attempts_ = ReadIniSettingInteger_("Database", "ConnectionAttempts", 6);  
+      no_of_dbconnection_attempts_Delay = ReadIniSettingInteger_("Database", "ConnectionAttemptsDelay", 5);  
       
       if (sqldbtype_ == HM::DatabaseSettings::TypeMSSQLCompactEdition)
       {
@@ -113,61 +113,61 @@ namespace HM
          no_of_dbconnections_ = 1;
       }
 
-      max_no_of_external_fetch_threads_ = _ReadIniSettingInteger("Settings", "MaxNumberOfExternalFetchThreads", 15);
-      add_xauth_user_header_ = _ReadIniSettingInteger("Settings", "AddXAuthUserHeader", 0) == 1;
+      max_no_of_external_fetch_threads_ = ReadIniSettingInteger_("Settings", "MaxNumberOfExternalFetchThreads", 15);
+      add_xauth_user_header_ = ReadIniSettingInteger_("Settings", "AddXAuthUserHeader", 0) == 1;
       
-      greylisting_enabled_during_record_expiration_ = _ReadIniSettingInteger("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;
-      greylisting_expiration_interval_ = _ReadIniSettingInteger("Settings", "GreylistingRecordExpirationInterval", 240);
+      greylisting_enabled_during_record_expiration_ = ReadIniSettingInteger_("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;
+      greylisting_expiration_interval_ = ReadIniSettingInteger_("Settings", "GreylistingRecordExpirationInterval", 240);
 
-      database_directory_ = _ReadIniSettingString("Directories", "DatabaseFolder", "");
+      database_directory_ = ReadIniSettingString_("Directories", "DatabaseFolder", "");
       if (database_directory_.Right(1) == _T("\\"))
          database_directory_ = database_directory_.Left(database_directory_.GetLength() -1);
 
-      String sValidLanguages = _ReadIniSettingString("GUILanguages", "ValidLanguages", "");
+      String sValidLanguages = ReadIniSettingString_("GUILanguages", "ValidLanguages", "");
       valid_languages_ = StringParser::SplitString(sValidLanguages, ",");
 
-      _preferredHashAlgorithm = _ReadIniSettingInteger("Settings", "PreferredHashAlgorithm", 3);
+      _preferredHashAlgorithm = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", 3);
 
-      dnsbl_checks_after_mail_from_ = _ReadIniSettingInteger("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
+      dnsbl_checks_after_mail_from_ = ReadIniSettingInteger_("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
 
-      sep_svc_logs_ = _ReadIniSettingInteger("Settings", "SepSvcLogs", 0) == 1;
-      log_level_ = _ReadIniSettingInteger("Settings", "LogLevel", 9);
-      max_log_line_len_ = _ReadIniSettingInteger("Settings", "MaxLogLineLen", 500);
+      sep_svc_logs_ = ReadIniSettingInteger_("Settings", "SepSvcLogs", 0) == 1;
+      log_level_ = ReadIniSettingInteger_("Settings", "LogLevel", 9);
+      max_log_line_len_ = ReadIniSettingInteger_("Settings", "MaxLogLineLen", 500);
       if (max_log_line_len_ < 100) max_log_line_len_ = 100;
-      quick_retries_ = _ReadIniSettingInteger("Settings", "QuickRetries", 0);
-      quick_retries_Minutes = _ReadIniSettingInteger("Settings", "QuickRetriesMinutes", 6);
-      queue_randomness_minutes_ = _ReadIniSettingInteger("Settings", "QueueRandomnessMinutes", 0);
+      quick_retries_ = ReadIniSettingInteger_("Settings", "QuickRetries", 0);
+      quick_retries_Minutes = ReadIniSettingInteger_("Settings", "QuickRetriesMinutes", 6);
+      queue_randomness_minutes_ = ReadIniSettingInteger_("Settings", "QueueRandomnessMinutes", 0);
       // If queue_randomness_minutes_ out of range use 0 
       if (queue_randomness_minutes_ <= 0) queue_randomness_minutes_ = 0;
-      mxtries_factor_ = _ReadIniSettingInteger("Settings", "MXTriesFactor", 0);
+      mxtries_factor_ = ReadIniSettingInteger_("Settings", "MXTriesFactor", 0);
       if (mxtries_factor_ <= 0) mxtries_factor_ = 0;
-      archive_dir_ = _ReadIniSettingString("Settings", "ArchiveDir", "");
+      archive_dir_ = ReadIniSettingString_("Settings", "ArchiveDir", "");
       if (archive_dir_.Right(1) == _T("\\"))
          archive_dir_ = archive_dir_.Left(archive_dir_.GetLength() -1);
-      archive_hardlinks_ =  _ReadIniSettingInteger("Settings", "ArchiveHardLinks", 0) == 1;
-      pop3dmin_timeout_ =  _ReadIniSettingInteger("Settings", "POP3DMinTimeout", 10);
-      pop3dmax_timeout_ =  _ReadIniSettingInteger("Settings", "POP3DMaxTimeout",600);
-      pop3cmin_timeout_ =  _ReadIniSettingInteger("Settings", "POP3CMinTimeout", 30);
-      pop3cmax_timeout_ =  _ReadIniSettingInteger("Settings", "POP3CMaxTimeout",900);
-      smtpdmin_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPDMinTimeout", 10);
-      smtpdmax_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPDMaxTimeout",1800);
-      smtpcmin_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPCMinTimeout", 30);
-      smtpcmax_timeout_ =  _ReadIniSettingInteger("Settings", "SMTPCMaxTimeout",600);
-      samin_timeout_ =  _ReadIniSettingInteger("Settings", "SAMinTimeout", 30);
-      samax_timeout_ =  _ReadIniSettingInteger("Settings", "SAMaxTimeout",90);
-      clam_min_timeout_ =  _ReadIniSettingInteger("Settings", "ClamMinTimeout", 15);
-      clam_max_timeout_ =  _ReadIniSettingInteger("Settings", "ClamMaxTimeout",90);
-      samove_vs_copy_ = _ReadIniSettingInteger("Settings", "SAMoveVsCopy", 0) == 1;
-      auth_user_replacement_ip_ = _ReadIniSettingString("Settings", "AuthUserReplacementIP", "");
-      indexer_full_minutes_ =  _ReadIniSettingInteger("Settings", "IndexerFullMinutes",720);
-      indexer_full_limit_ =  _ReadIniSettingInteger("Settings", "IndexerFullLimit",25000);
-      indexer_quick_limit_ =  _ReadIniSettingInteger("Settings", "IndexerQuickLimit",1000);
-      load_header_read_size_ =  _ReadIniSettingInteger("Settings", "LoadHeaderReadSize",4000);
-      load_body_read_size_ =  _ReadIniSettingInteger("Settings", "LoadBodyReadSize",4000);
-      blocked_iphold_seconds_ =  _ReadIniSettingInteger("Settings", "BlockedIPHoldSeconds",0);
-      smtpdmax_size_drop_ =  _ReadIniSettingInteger("Settings", "SMTPDMaxSizeDrop",0);
-      backup_messages_dbonly_ =  _ReadIniSettingInteger("Settings", "BackupMessagesDBOnly",0) == 1;
-      add_xauth_user_ip_ =  _ReadIniSettingInteger("Settings", "AddXAuthUserIP",1) == 1;
+      archive_hardlinks_ =  ReadIniSettingInteger_("Settings", "ArchiveHardLinks", 0) == 1;
+      pop3dmin_timeout_ =  ReadIniSettingInteger_("Settings", "POP3DMinTimeout", 10);
+      pop3dmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3DMaxTimeout",600);
+      pop3cmin_timeout_ =  ReadIniSettingInteger_("Settings", "POP3CMinTimeout", 30);
+      pop3cmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3CMaxTimeout",900);
+      smtpdmin_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPDMinTimeout", 10);
+      smtpdmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxTimeout",1800);
+      smtpcmin_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPCMinTimeout", 30);
+      smtpcmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPCMaxTimeout",600);
+      samin_timeout_ =  ReadIniSettingInteger_("Settings", "SAMinTimeout", 30);
+      samax_timeout_ =  ReadIniSettingInteger_("Settings", "SAMaxTimeout",90);
+      clam_min_timeout_ =  ReadIniSettingInteger_("Settings", "ClamMinTimeout", 15);
+      clam_max_timeout_ =  ReadIniSettingInteger_("Settings", "ClamMaxTimeout",90);
+      samove_vs_copy_ = ReadIniSettingInteger_("Settings", "SAMoveVsCopy", 0) == 1;
+      auth_user_replacement_ip_ = ReadIniSettingString_("Settings", "AuthUserReplacementIP", "");
+      indexer_full_minutes_ =  ReadIniSettingInteger_("Settings", "IndexerFullMinutes",720);
+      indexer_full_limit_ =  ReadIniSettingInteger_("Settings", "IndexerFullLimit",25000);
+      indexer_quick_limit_ =  ReadIniSettingInteger_("Settings", "IndexerQuickLimit",1000);
+      load_header_read_size_ =  ReadIniSettingInteger_("Settings", "LoadHeaderReadSize",4000);
+      load_body_read_size_ =  ReadIniSettingInteger_("Settings", "LoadBodyReadSize",4000);
+      blocked_iphold_seconds_ =  ReadIniSettingInteger_("Settings", "BlockedIPHoldSeconds",0);
+      smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
+      backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
+      add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
 
       //Probably need some more sanity checks on these settings but for now we assume user has some sense
 
@@ -185,20 +185,20 @@ namespace HM
    }
 
    void
-   IniFileSettings::_WriteIniSetting(const String &sSection, const String &sKey, const String &sValue)
+   IniFileSettings::WriteIniSetting_(const String &sSection, const String &sKey, const String &sValue)
    {
       WritePrivateProfileString(sSection, sKey, sValue, GetInitializationFile() );
    }
 
    void
-   IniFileSettings::_WriteIniSetting(const String &sSection, const String &sKey, int Value)
+   IniFileSettings::WriteIniSetting_(const String &sSection, const String &sKey, int Value)
    {
       String sValue = StringParser::IntToString(Value);
       WritePrivateProfileString(sSection, sKey, sValue, GetInitializationFile() );
    }
 
    String 
-   IniFileSettings::_ReadIniSettingString(const String &sSection, const String &sKey, const String &sDefault)
+   IniFileSettings::ReadIniSettingString_(const String &sSection, const String &sKey, const String &sDefault)
    {
       TCHAR Value[255];
       GetPrivateProfileString( sSection, sKey, sDefault, Value, 255, GetInitializationFile() );
@@ -206,7 +206,7 @@ namespace HM
    }
 
    int 
-   IniFileSettings::_ReadIniSettingInteger(const String &sSection, const String &sKey, int iDefault)
+   IniFileSettings::ReadIniSettingInteger_(const String &sSection, const String &sKey, int iDefault)
    {
       int iValue = GetPrivateProfileInt( sSection, sKey, iDefault, GetInitializationFile() );
       return iValue;
@@ -366,7 +366,7 @@ namespace HM
    {
       administrator_password_ = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
 
-      _WriteIniSetting("Security", "AdministratorPassword", administrator_password_);
+      WriteIniSetting_("Security", "AdministratorPassword", administrator_password_);
    }
 
    void 
@@ -377,7 +377,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       app_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "ProgramFolder", app_directory_);
+      WriteIniSetting_("Directories", "ProgramFolder", app_directory_);
    }
 
    void 
@@ -388,7 +388,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       data_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "DataFolder", data_directory_);
+      WriteIniSetting_("Directories", "DataFolder", data_directory_);
    }
 
    void 
@@ -399,7 +399,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       temp_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "TempFolder", temp_directory_);
+      WriteIniSetting_("Directories", "TempFolder", temp_directory_);
    }
 
    void 
@@ -410,7 +410,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       event_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "EventFolder", event_directory_);
+      WriteIniSetting_("Directories", "EventFolder", event_directory_);
    }
 
    void 
@@ -421,7 +421,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       database_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "DatabaseFolder", database_directory_);
+      WriteIniSetting_("Directories", "DatabaseFolder", database_directory_);
    }
 
    void 
@@ -432,7 +432,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       log_directory_ = sNewVal;
-      _WriteIniSetting("Directories", "LogFolder", log_directory_);
+      WriteIniSetting_("Directories", "LogFolder", log_directory_);
    }
 
    void 
@@ -443,7 +443,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       database_server_ = sNewVal;
-      _WriteIniSetting("Database", "Server", database_server_);
+      WriteIniSetting_("Database", "Server", database_server_);
    }
 
    void 
@@ -454,7 +454,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       database_name_ = sNewVal;
-      _WriteIniSetting("Database", "Database", database_name_);
+      WriteIniSetting_("Database", "Database", database_name_);
    }
 
    void 
@@ -465,7 +465,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       username_ = sNewVal;
-      _WriteIniSetting("Database", "Username", username_);
+      WriteIniSetting_("Database", "Username", username_);
    }
 
    void 
@@ -477,8 +477,8 @@ namespace HM
    {
       password_ = sNewVal;
 
-      _WriteIniSetting("Database", "Password", Crypt::Instance()->EnCrypt(password_, Crypt::ETBlowFish));
-      _WriteIniSetting("Database", "PasswordEncryption", Crypt::ETBlowFish);
+      WriteIniSetting_("Database", "Password", Crypt::Instance()->EnCrypt(password_, Crypt::ETBlowFish));
+      WriteIniSetting_("Database", "PasswordEncryption", Crypt::ETBlowFish);
    }
 
    void 
@@ -510,7 +510,7 @@ namespace HM
       LOG_DEBUG("Setting database type to " + sDatabaseType);
       sqldbtype_ = type;
 
-      _WriteIniSetting("Database", "Type", sDatabaseType);
+      WriteIniSetting_("Database", "Type", sDatabaseType);
    }
 
    void 
@@ -521,7 +521,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       dbport_ = lNewValue;
-      _WriteIniSetting("Database", "Port", dbport_);
+      WriteIniSetting_("Database", "Port", dbport_);
    }
 
    void 
@@ -533,7 +533,7 @@ namespace HM
    {
       is_internal_database_ = newValue;
 
-      _WriteIniSetting("Database", "Internal", is_internal_database_ ? 1 : 0);
+      WriteIniSetting_("Database", "Internal", is_internal_database_ ? 1 : 0);
    }
 
    String 

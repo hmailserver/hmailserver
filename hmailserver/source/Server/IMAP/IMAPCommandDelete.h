@@ -15,6 +15,6 @@ namespace HM
 
    private:
 
-      void _RemoveFolder( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection );
+      void RemoveFolder_( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection );
    };
 }

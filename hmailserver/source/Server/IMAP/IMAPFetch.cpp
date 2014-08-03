@@ -81,7 +81,7 @@ namespace HM
          String sUIDTag;
          sUIDTag.Format(_T("UID %u"), pMessage->GetUID());
          
-         _AppendOutput(sOutput, sUIDTag);
+         AppendOutput_(sOutput, sUIDTag);
       }
 
       if (parser_->GetShowRFCSize())
@@ -89,7 +89,7 @@ namespace HM
          String sTemp;
          sTemp.Format(_T("RFC822.SIZE %d"), pMessage->GetSize());
 
-         _AppendOutput(sOutput, sTemp);
+         AppendOutput_(sOutput, sTemp);
       }
 
       if (parser_->GetShowFlags())
@@ -122,7 +122,7 @@ namespace HM
 
          sTemp += ")";
 
-         _AppendOutput(sOutput, sTemp);
+         AppendOutput_(sOutput, sTemp);
       }
 
 
@@ -139,7 +139,7 @@ namespace HM
 
          sTemp += sMIMECreateTime + "\"";
 
-         _AppendOutput(sOutput, sTemp);
+         AppendOutput_(sOutput, sTemp);
       }
 
       
@@ -158,19 +158,19 @@ namespace HM
             }
             catch (...)
             {
-               _ReportCriticalError(messageFileName, "ERROR HM10003 - IMAP FETCH: Error when loading MIME header for message.");
+               ReportCriticalError_(messageFileName, "ERROR HM10003 - IMAP FETCH: Error when loading MIME header for message.");
             }
          }
 
          try
          {
             String sTemp;
-            sTemp = "ENVELOPE " + _CreateEnvelopeStructure(oMimeHeader);
-            _AppendOutput(sOutput, sTemp);
+            sTemp = "ENVELOPE " + CreateEnvelopeStructure_(oMimeHeader);
+            AppendOutput_(sOutput, sTemp);
          }
          catch (...)
          {
-            _ReportCriticalError(messageFileName, "ERROR HM10004 - IMAP FETCH: Error when creating ENVELOPE structure for message.");
+            ReportCriticalError_(messageFileName, "ERROR HM10004 - IMAP FETCH: Error when creating ENVELOPE structure for message.");
          }
          
       }
@@ -180,7 +180,7 @@ namespace HM
       // Sometimes we need to load the entire mail into memory.
       // If the user want's to download a specific attachment or
       // if he wants to look at the structure of the mime message.
-      shared_ptr<MimeBody> pMimeBody = _LoadMimeBody(parser_, messageFileName);
+      shared_ptr<MimeBody> pMimeBody = LoadMimeBody_(parser_, messageFileName);
       
       if (parser_->GetShowBodyStructure() ||
           parser_->GetShowBodyStructureNonExtensible())
@@ -189,15 +189,15 @@ namespace HM
          {
             String sResult = "";
             if (parser_->GetShowBodyStructure())
-               sResult = "BODYSTRUCTURE " + _IteratePartRecursive(pMimeBody, true, 0);
+               sResult = "BODYSTRUCTURE " + IteratePartRecursive_(pMimeBody, true, 0);
             else
-               sResult = "BODY " + _IteratePartRecursive(pMimeBody, false, 0);
+               sResult = "BODY " + IteratePartRecursive_(pMimeBody, false, 0);
 
-            _AppendOutput(sOutput, sResult);
+            AppendOutput_(sOutput, sResult);
          }
          catch (...)
          {
-            _ReportCriticalError(messageFileName, "ERROR HM10002 - IMAP FETCH: Error when creating body structure for message.");
+            ReportCriticalError_(messageFileName, "ERROR HM10002 - IMAP FETCH: Error when creating body structure for message.");
          }
       }
 
@@ -216,7 +216,7 @@ namespace HM
             int iOctetCount = oPart.octet_count_;
            
             const String messageFileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
-            shared_ptr<ByteBuffer> pBuffer = _GetByteBufferByBodyPart(messageFileName, pMimeBody, oPart);
+            shared_ptr<ByteBuffer> pBuffer = GetByteBufferByBodyPart_(messageFileName, pMimeBody, oPart);
             
             String sPartIdentifier;
             if (iOctetStart == -1 && iOctetCount == -1)
@@ -230,8 +230,8 @@ namespace HM
                String sTemp;
                sTemp.Format(_T("%s {%d}\r\n"), sPartIdentifier, pBuffer->GetSize()); // Add 2 for trailing newline.
                
-               _AppendOutput(sOutput, sTemp);
-               _SendAndReset(pConnection, sOutput);
+               AppendOutput_(sOutput, sTemp);
+               SendAndReset_(pConnection, sOutput);
 
                // Send the actual part
                pConnection->SendData(pBuffer);
@@ -242,7 +242,7 @@ namespace HM
                // Just give the client an empty string for that part.
                String sTemp;
                sTemp.Format(_T("%s \"\""), sPartIdentifier);
-               _AppendOutput(sOutput, sTemp);
+               AppendOutput_(sOutput, sTemp);
             }
 
             iter++;
@@ -268,13 +268,13 @@ namespace HM
       }
 
       sOutput += ")\r\n";
-      _SendAndReset(pConnection, sOutput);
+      SendAndReset_(pConnection, sOutput);
 
       return IMAPResult();
    }
 
    void
-   IMAPFetch::_GetBytesToSend(int iBufferSize, IMAPFetchParser::BodyPart &oPart, int &iOutStart, int &iOutCount)
+   IMAPFetch::GetBytesToSend_(int iBufferSize, IMAPFetchParser::BodyPart &oPart, int &iOutStart, int &iOutCount)
    {
       int iOctetStart = oPart.octet_start_;
       int iOctetCount = oPart.octet_count_;
@@ -305,7 +305,7 @@ namespace HM
    }
 
    shared_ptr<MimeBody> 
-   IMAPFetch::_GetBodyPartByRecursiveIdentifier(shared_ptr<MimeBody> pBody, const String &sName)
+   IMAPFetch::GetBodyPartByRecursiveIdentifier_(shared_ptr<MimeBody> pBody, const String &sName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a body part by a given identifier. An identifier can be 1, 2, 1.2 etc.
@@ -334,7 +334,7 @@ namespace HM
          {
             int iRequestPartNo = _ttoi(sSubPart);
 
-            pBody = _GetMessagePartByPartNo(pBody, iRequestPartNo);
+            pBody = GetMessagePartByPartNo_(pBody, iRequestPartNo);
 
             if (!pBody)
             {
@@ -352,7 +352,7 @@ namespace HM
                {
                   String sErrorMessage = "Error when creating ENVELOPE structure for encapsulated message.";
 
-                  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5060, "IMAPFetch::_GetBodyPartByRecursiveIdentifier", sErrorMessage);
+                  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5060, "IMAPFetch::GetBodyPartByRecursiveIdentifier_", sErrorMessage);
 
                   shared_ptr<MimeBody> empty;
                   return empty;
@@ -369,7 +369,7 @@ namespace HM
 
 
    shared_ptr<ByteBuffer> 
-   IMAPFetch::_GetByteBufferByBodyPart(const String &messageFileName, shared_ptr<MimeBody> pBodyPart, IMAPFetchParser::BodyPart &oPart)
+   IMAPFetch::GetByteBufferByBodyPart_(const String &messageFileName, shared_ptr<MimeBody> pBodyPart, IMAPFetchParser::BodyPart &oPart)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a buffer containing the data for the given body/part
@@ -388,7 +388,7 @@ namespace HM
       if (!oPart.GetName().IsEmpty())
       {
          String sMimePart;
-         pBodyPart  = _GetBodyPartByRecursiveIdentifier(pBodyPart, oPart.GetName());
+         pBodyPart  = GetBodyPartByRecursiveIdentifier_(pBodyPart, oPart.GetName());
 
          if (!pBodyPart)
             return pOutBuf;
@@ -401,7 +401,7 @@ namespace HM
       {
          // Add HEADER
          AnsiString sHeaderContents = pBodyPart->GetHeaderContents();
-         _GetBytesToSend(sHeaderContents.GetLength(), oPart, iByteStart, iByteCount);
+         GetBytesToSend_(sHeaderContents.GetLength(), oPart, iByteStart, iByteCount);
          sHeaderContents.Mid(iByteStart, iByteCount);
          pOutBuf->Add((BYTE*) sHeaderContents.GetBuffer(0), sHeaderContents.GetLength());
       }      
@@ -418,11 +418,11 @@ namespace HM
          //  Assume this should be removed..
          //  body = body.Mid(iByteStart);
 
-         _GetBytesToSend(body.GetLength(), oPart, iByteStart, iByteCount);
+         GetBytesToSend_(body.GetLength(), oPart, iByteStart, iByteCount);
 
 	 // Fix for Apple Mail BODY PEEK with start + size issue
 	 // Start was being ignored before as it was never used
-	 // Changed to mimic 4.4.4 method since iByteStart is set in _GetBytesToSend
+	 // Changed to mimic 4.4.4 method since iByteStart is set in GetBytesToSend_
          pOutBuf->Add((BYTE*) body.GetBuffer() + iByteStart, iByteCount);
       }
       else if (oPart.GetShowBodyFull())
@@ -438,7 +438,7 @@ namespace HM
          */
 
          int iSize = FileUtilities::FileSize(messageFileName);
-         _GetBytesToSend(iSize, oPart, iByteStart, iByteCount);
+         GetBytesToSend_(iSize, oPart, iByteStart, iByteCount);
 
          BYTE *pBuf = new BYTE[iByteCount];
          FileUtilities::ReadFileToBuf(messageFileName, pBuf, iByteStart, iByteCount);
@@ -475,7 +475,7 @@ namespace HM
 
          sResponse += "\r\n";
 
-         _GetBytesToSend(sResponse.GetLength(), oPart, iByteStart, iByteCount);
+         GetBytesToSend_(sResponse.GetLength(), oPart, iByteStart, iByteCount);
          sResponse.Mid(iByteStart, iByteCount);
 
          AnsiString sAS = sResponse;
@@ -535,7 +535,7 @@ namespace HM
 
          sResponse += "\r\n";
 
-         _GetBytesToSend(sResponse.GetLength(), oPart, iByteStart, iByteCount);
+         GetBytesToSend_(sResponse.GetLength(), oPart, iByteStart, iByteCount);
          sResponse.Mid(iByteStart,iByteCount);
 
          AnsiString sAS = sResponse;
@@ -547,7 +547,7 @@ namespace HM
    }
 
    shared_ptr<MimeBody>
-   IMAPFetch::_GetMessagePartByPartNo(shared_ptr<MimeBody> pBody, long iPartNo)
+   IMAPFetch::GetMessagePartByPartNo_(shared_ptr<MimeBody> pBody, long iPartNo)
    {
       
       if (!pBody)
@@ -583,7 +583,7 @@ namespace HM
    }
 
    String
-   IMAPFetch::_CreateEnvelopeStructure(MimeHeader& oHeader)
+   IMAPFetch::CreateEnvelopeStructure_(MimeHeader& oHeader)
    {
       // BEGIN ENVELOPE
       String sResult;
@@ -647,7 +647,7 @@ namespace HM
          if (sFrom.IsEmpty())
             sResult += " NIL";
          else
-            sResult += " " + _CreateEmailStructure(sFrom);
+            sResult += " " + CreateEmailStructure_(sFrom);
       }  //END FROM
 
       {  // BEGIN SENDER
@@ -662,7 +662,7 @@ namespace HM
          if (sSender.IsEmpty())
             sResult += " NIL";
          else
-            sResult += " " + _CreateEmailStructure(sSender);
+            sResult += " " + CreateEmailStructure_(sSender);
       }  //END SENDER
 
       {  // BEGIN REPLY-TO
@@ -679,7 +679,7 @@ namespace HM
          if (sReplyTo.IsEmpty())
             sResult += " NIL";
          else
-            sResult += " " + _CreateEmailStructure(sReplyTo);
+            sResult += " " + CreateEmailStructure_(sReplyTo);
 
       }  //END REPLY-TO
 
@@ -693,7 +693,7 @@ namespace HM
          if (sTo.IsEmpty())
             sResult += " NIL";
          else 
-            sResult += " " +  _CreateEmailStructure(sTo);
+            sResult += " " +  CreateEmailStructure_(sTo);
 
       }  //END TO
 
@@ -708,7 +708,7 @@ namespace HM
          if (sCC.IsEmpty())
             sResult += " NIL";
          else         
-            sResult += " " + _CreateEmailStructure(sCC);
+            sResult += " " + CreateEmailStructure_(sCC);
 
       }  //END CC
 
@@ -722,7 +722,7 @@ namespace HM
          if (sBCC.IsEmpty())
             sResult += " NIL";
          else
-            sResult += " " + _CreateEmailStructure(sBCC);
+            sResult += " " + CreateEmailStructure_(sBCC);
 
       }  //END BCC
 
@@ -763,7 +763,7 @@ namespace HM
    }
 
    String
-   IMAPFetch::_IteratePartRecursive(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion)
+   IMAPFetch::IteratePartRecursive_(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion)
    {
       iRecursion++;
 
@@ -781,7 +781,7 @@ namespace HM
 
          while (pSubPart)
          {
-            sResult += _IteratePartRecursive(pSubPart, includeExtensionData, iRecursion);
+            sResult += IteratePartRecursive_(pSubPart, includeExtensionData, iRecursion);
 
             pSubPart = oPart->FindNextPart();
          }
@@ -808,12 +808,12 @@ namespace HM
       }
       else
       {
-         return _GetPartStructure(oPart, includeExtensionData, iRecursion);
+         return GetPartStructure_(oPart, includeExtensionData, iRecursion);
       }
    }
 
    String 
-   IMAPFetch::_GetPartStructure(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion)   
+   IMAPFetch::GetPartStructure_(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion)   
    {
       String sMainType = oPart->GetMainType();
       sMainType.ToUpper();
@@ -895,8 +895,8 @@ namespace HM
             MimeHeader oHeader;
             oHeader.Load(sMessageHeader, sMessageHeader.GetLength());
             
-            String sEnvelope = _CreateEnvelopeStructure(oHeader);
-            String sBodyStructure = _IteratePartRecursive(pBody, includeExtensionData, iRecursion);
+            String sEnvelope = CreateEnvelopeStructure_(oHeader);
+            String sBodyStructure = IteratePartRecursive_(pBody, includeExtensionData, iRecursion);
 
             AnsiString contentString = (const char*) pBody->GetContent();
 
@@ -913,7 +913,7 @@ namespace HM
          {
             String sErrorMessage = "Error when creating ENVELOPE structure for encapsulated message.";
 
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5061, "IMAPFetch::_GetPartStructure", sErrorMessage);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5061, "IMAPFetch::GetPartStructure_", sErrorMessage);
             
             return "";
          }
@@ -962,7 +962,7 @@ namespace HM
    }
    
    String 
-   IMAPFetch::_CreateEmailStructure(const String &sField)
+   IMAPFetch::CreateEmailStructure_(const String &sField)
    {
       // The input will (hopefully) look like this:
       // "Martin Knafve" <martin@halvar.com>
@@ -1025,7 +1025,7 @@ namespace HM
    }
 
    shared_ptr<MimeBody> 
-   IMAPFetch::_LoadMimeBody(shared_ptr<IMAPFetchParser> pParser, const String &fileName)
+   IMAPFetch::LoadMimeBody_(shared_ptr<IMAPFetchParser> pParser, const String &fileName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Loads the part of a message needed. 
@@ -1046,7 +1046,7 @@ namespace HM
       // only requests part from the header, we should only load
       // just that.
 
-      bool bLoadFullMail = _GetMessageBodyNeeded(parser_);
+      bool bLoadFullMail = GetMessageBodyNeeded_(parser_);
 
       try
       {
@@ -1064,7 +1064,7 @@ namespace HM
       }
       catch (...)
       {
-         _ReportCriticalError(fileName, "ERROR HM10001 - IMAP FETCH: Error when loading MIME message.");
+         ReportCriticalError_(fileName, "ERROR HM10001 - IMAP FETCH: Error when loading MIME message.");
       }
 
       return pMimeBody;
@@ -1072,7 +1072,7 @@ namespace HM
    }
 
    bool 
-   IMAPFetch::_GetMessageBodyNeeded(shared_ptr<IMAPFetchParser> pParser)
+   IMAPFetch::GetMessageBodyNeeded_(shared_ptr<IMAPFetchParser> pParser)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // This method determines whether we need to load the entire body, or if
@@ -1106,7 +1106,7 @@ namespace HM
    }
 
    void
-   IMAPFetch::_AppendOutput(String &sOutput, const String &sAppend)
+   IMAPFetch::AppendOutput_(String &sOutput, const String &sAppend)
    {
       if (append_space_)
          sOutput += " ";
@@ -1117,20 +1117,20 @@ namespace HM
    }
 
    void
-   IMAPFetch::_SendAndReset(shared_ptr<IMAPConnection> pConnection, String &sOutput)
+   IMAPFetch::SendAndReset_(shared_ptr<IMAPConnection> pConnection, String &sOutput)
    {
       pConnection->SendAsciiData(sOutput);
       sOutput = "";
    }
 
    void
-   IMAPFetch::_ReportCriticalError(const String &messageFileName, const String &sMessage)
+   IMAPFetch::ReportCriticalError_(const String &messageFileName, const String &sMessage)
    // ----
    // Reports an error to the ERROR log and then throws an exception.
    // ---
    {
       String sErrorMessage = sMessage + " - " + messageFileName;
-      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5062, "IMAPFetch::_ReportCriticalError", sErrorMessage);
+      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5062, "IMAPFetch::ReportCriticalError_", sErrorMessage);
    }
 
 }

@@ -48,9 +48,9 @@ namespace HM
    
    private:
 
-      bool _DoesFunctionExist(const String &sProcedure);
+      bool DoesFunctionExist_(const String &sProcedure);
  
-      String _Compile(const String &sLanguage, const String &sFilename);
+      String Compile_(const String &sLanguage, const String &sFilename);
       // Compiels the script in sFileName and returns the result. If
       // no compilation errors exists, the function returns an emtpy string.
  

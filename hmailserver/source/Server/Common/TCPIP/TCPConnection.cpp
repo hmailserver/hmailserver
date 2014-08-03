@@ -306,7 +306,7 @@ namespace HM
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTSend, pBuffer));
          _operationQueue.Push(operation);
 
-         _ProcessOperationQueue();
+         ProcessOperationQueue_();
       }
       catch (...)
       {
@@ -316,7 +316,7 @@ namespace HM
    }
 
    void
-   TCPConnection::_ProcessOperationQueue()
+   TCPConnection::ProcessOperationQueue_()
    {
       int stage = 0;
 
@@ -358,7 +358,7 @@ namespace HM
                stage = 8;
                Shutdown(boost::asio::ip::tcp::socket::shutdown_send, true);
                stage = 9;
-               _ProcessOperationQueue();
+               ProcessOperationQueue_();
                stage = 10;
 
                break;
@@ -374,12 +374,12 @@ namespace HM
       }
       catch (boost::system::system_error error)
       {
-         ReportError(ErrorManager::Medium, 5138, "TCPConnection::_ProcessOperationQueue", 
+         ReportError(ErrorManager::Medium, 5138, "TCPConnection::ProcessOperationQueue_", 
             Formatter::Format("An error occured while processing the queue. Stage: {0}", stage), error);
       }
       catch (...)
       {
-         ReportError(ErrorManager::Medium, 5138, "TCPConnection::_ProcessOperationQueue", 
+         ReportError(ErrorManager::Medium, 5138, "TCPConnection::ProcessOperationQueue_", 
             Formatter::Format("An error occured while processing the queue. Stage: {0}", stage));
       }
    }
@@ -476,7 +476,7 @@ namespace HM
          }
 
 
-         _ProcessOperationQueue();
+         ProcessOperationQueue_();
       }
       catch (...)
       {
@@ -494,7 +494,7 @@ namespace HM
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTReceive, delimitor));
          _operationQueue.Push(operation);
 
-         _ProcessOperationQueue();
+         ProcessOperationQueue_();
       }
       catch (...)
       {
@@ -604,7 +604,7 @@ namespace HM
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
          _operationQueue.Push(operation);
 
-         _ProcessOperationQueue();
+         ProcessOperationQueue_();
       }
       catch (...)
       {
@@ -721,7 +721,7 @@ namespace HM
                shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
                _operationQueue.Push(operation);
 
-               _ProcessOperationQueue();
+               ProcessOperationQueue_();
             }
             
            break;
@@ -869,7 +869,7 @@ namespace HM
          throw;
       }
       
-      _ProcessOperationQueue();
+      ProcessOperationQueue_();
    }
 
    void 
@@ -925,7 +925,7 @@ namespace HM
 
          try
          {
-            _ProcessOperationQueue();
+            ProcessOperationQueue_();
          }
          catch (...)
          {

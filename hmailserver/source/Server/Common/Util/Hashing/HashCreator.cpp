@@ -31,24 +31,24 @@ namespace HM
       if (saltString.GetLength() == 0 && _hashType == SHA256)
       {     
          AnsiString randomString = PasswordGenerator::Generate();
-         saltString = _GetHash(randomString, hex);
+         saltString = GetHash_(randomString, hex);
          saltString = saltString.Mid(0, SALT_LENGTH);
       }
 
-      AnsiString value = saltString + _GetHash(saltString + inputString, hex);
+      AnsiString value = saltString + GetHash_(saltString + inputString, hex);
       return value;
    }
 
    AnsiString 
    HashCreator::GenerateHashNoSalt(const AnsiString &inputString, RequestedEncoding encoding)
    {
-      return _GetHash(inputString, encoding);
+      return GetHash_(inputString, encoding);
    }
 
    AnsiString 
    HashCreator::GenerateHashNoSalt(unsigned char *input, int inputLength, RequestedEncoding encoding)
    {
-      return _GetHashRaw(input, inputLength, encoding);
+      return GetHash_Raw(input, inputLength, encoding);
    }
 
 
@@ -57,7 +57,7 @@ namespace HM
    {
       if (useSalt)
       {
-         AnsiString salt = _GetSalt(originalHash);
+         AnsiString salt = GetSalt_(originalHash);
          AnsiString result = GenerateHash(password, salt);
 
          if (result == originalHash)
@@ -67,7 +67,7 @@ namespace HM
       }
       else
       {
-         AnsiString result = _GetHash(password, hex);
+         AnsiString result = GetHash_(password, hex);
 
          if (result == originalHash)
             return true;
@@ -78,19 +78,19 @@ namespace HM
 
    }
 
-   AnsiString HashCreator::_GetSalt(const AnsiString &inputString)
+   AnsiString HashCreator::GetSalt_(const AnsiString &inputString)
    {
       AnsiString result = inputString.Mid(0,SALT_LENGTH);
       return result;
    }
 
-   AnsiString HashCreator::_GetHash(const AnsiString &sInputString, HashCreator::RequestedEncoding encoding)
+   AnsiString HashCreator::GetHash_(const AnsiString &sInputString, HashCreator::RequestedEncoding encoding)
    {
       AnsiString temp = sInputString;
-      return _GetHashRaw((unsigned char*) temp.GetBuffer(), temp.GetLength(), encoding);
+      return GetHash_Raw((unsigned char*) temp.GetBuffer(), temp.GetLength(), encoding);
    }
 
-   AnsiString HashCreator::_GetHashRaw(const unsigned char *input, int inputLength, HashCreator::RequestedEncoding encoding)
+   AnsiString HashCreator::GetHash_Raw(const unsigned char *input, int inputLength, HashCreator::RequestedEncoding encoding)
    {
       int digestLength = 0;
 

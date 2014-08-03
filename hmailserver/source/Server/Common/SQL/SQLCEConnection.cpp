@@ -76,9 +76,9 @@ namespace HM
    
 
    String 
-   SQLCEConnection::_GetConnectionString(const String &sDatabase, const String &sPassword) const
+   SQLCEConnection::GetConnectionString_(const String &sDatabase, const String &sPassword) const
    {
-      String sDatabaseFile = _GetDatabaseFileName(sDatabase);
+      String sDatabaseFile = GetDatabaseFileName_(sDatabase);
 
       String sConnectionString;
       sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.3.5;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile, sPassword);
@@ -88,7 +88,7 @@ namespace HM
 
 
    String 
-   SQLCEConnection::_GetDatabaseFileName(const String &sShortName) const
+   SQLCEConnection::GetDatabaseFileName_(const String &sShortName) const
    {
       String sDatabaseDirectory = database_settings_->GetDatabaseDirectory();
       String sDatabaseFile = sDatabaseDirectory + "\\" + sShortName + ".sdf";
@@ -97,7 +97,7 @@ namespace HM
    }
 
    bool 
-   SQLCEConnection::_GetRequiresUpgrade(const String &sConnectionString)
+   SQLCEConnection::GetRequiresUpgrade_(const String &sConnectionString)
    {
       BSTR sUsername = 0;
       BSTR sPassword = 0;
@@ -133,14 +133,14 @@ namespace HM
       if (connected_)
          return Connected;
       
-      String sConnectionString = _GetConnectionString(sDatabase, sPassword);
+      String sConnectionString = GetConnectionString_(sDatabase, sPassword);
       
       /*
          Check if the database engine needs to be upgraded.
       */
-      if (_GetRequiresUpgrade(sConnectionString))
+      if (GetRequiresUpgrade_(sConnectionString))
       {
-         if (!_UpgradeDatabase())
+         if (!UpgradeDatabase_())
             return FatalError;
       }
 
@@ -190,43 +190,43 @@ namespace HM
    }
 
    bool 
-   SQLCEConnection::_UpgradeDatabase()
+   SQLCEConnection::UpgradeDatabase_()
    {
       ISSCEEngine *pISSCEEngine = NULL;
       HRESULT hr = CoCreateInstance(CLSID_Engine, NULL, CLSCTX_INPROC_SERVER, IID_ISSCEEngine, (void**)&pISSCEEngine);
       if (FAILED(hr))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5122, "SQLCEConnection::_UpgradeDatabase()", "Failed to create instance of SQL CE Engine.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5122, "SQLCEConnection::UpgradeDatabase_()", "Failed to create instance of SQL CE Engine.");
          return false;
       }
 
-      String sOldConnectionString = _GetConnectionString(database_settings_->GetDatabaseName(), database_settings_->GetPassword());
-      String sNewConnectionString = _GetConnectionString(database_settings_->GetDatabaseName() + "_upgraded", database_settings_->GetPassword());
+      String sOldConnectionString = GetConnectionString_(database_settings_->GetDatabaseName(), database_settings_->GetPassword());
+      String sNewConnectionString = GetConnectionString_(database_settings_->GetDatabaseName() + "_upgraded", database_settings_->GetPassword());
 
       HRESULT result = pISSCEEngine->UpgradeDatabase(sOldConnectionString.AllocSysString(), sNewConnectionString.AllocSysString());
       if (FAILED(hr))
       {
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to upgrade SQL CE database. HRESULT: %d"), hr);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5123, "SQLCEConnection::_UpgradeDatabase()", sErrorMessage);       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5123, "SQLCEConnection::UpgradeDatabase_()", sErrorMessage);       
 
          return false;
       }
 
       pISSCEEngine->Release();
       
-      String sCurrentDatabaseFile = _GetDatabaseFileName(database_settings_->GetDatabaseName());
-      String sUpgradedDatabaseFile = _GetDatabaseFileName(database_settings_->GetDatabaseName() + "_upgraded");
+      String sCurrentDatabaseFile = GetDatabaseFileName_(database_settings_->GetDatabaseName());
+      String sUpgradedDatabaseFile = GetDatabaseFileName_(database_settings_->GetDatabaseName() + "_upgraded");
 
       if (!FileUtilities::Move(sCurrentDatabaseFile, sCurrentDatabaseFile + ".backup_v52"))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5124, "SQLCEConnection::_UpgradeDatabase()", "Moving of current database file to backup location failed.");       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5124, "SQLCEConnection::UpgradeDatabase_()", "Moving of current database file to backup location failed.");       
          return false;
       }
 
       if (!FileUtilities::Move(sUpgradedDatabaseFile, sCurrentDatabaseFile))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5125, "SQLCEConnection::_UpgradeDatabase()", "Moving of upgraded database file to current database file failed.");       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5125, "SQLCEConnection::UpgradeDatabase_()", "Moving of upgraded database file to current database file failed.");       
          return false;
       }
 
@@ -274,7 +274,7 @@ namespace HM
 
             HRESULT hr = pIdentityRS->Open( bsIdentity, vtMissing, adOpenForwardOnly, adLockUnspecified, -1);
                         
-            *iInsertID = _GetIdentityFromRS(pIdentityRS);
+            *iInsertID = GetIdentityFromRS_(pIdentityRS);
             pIdentityRS->Close();
             pIdentityRS->PutRefActiveConnection(NULL); 
 
@@ -283,7 +283,7 @@ namespace HM
       }
       catch ( _com_error &err )
       {
-         ExecutionResult dbErr = _GetErrorType(_com_error::WCodeToHRESULT(err.WCode()));
+         ExecutionResult dbErr = GetErrorType_(_com_error::WCodeToHRESULT(err.WCode()));
          if (iIgnoreErrors > 0 && iIgnoreErrors & dbErr)
             return DALConnection::DALSuccess;
 
@@ -327,7 +327,7 @@ namespace HM
    };
 
    __int64 
-   SQLCEConnection::_GetIdentityFromRS(_RecordsetPtr pRS) const
+   SQLCEConnection::GetIdentityFromRS_(_RecordsetPtr pRS) const
    {
       try
       {
@@ -366,7 +366,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5100, "SQLCEConnection::_GetIdentityFromRS", "Error while determening @@IDENTITY");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5100, "SQLCEConnection::GetIdentityFromRS_", "Error while determening @@IDENTITY");
          throw;
       }
 
@@ -380,7 +380,7 @@ namespace HM
    }
 
    DALConnection::ExecutionResult 
-   SQLCEConnection::_GetErrorType(int iErrorCode)
+   SQLCEConnection::GetErrorType_(int iErrorCode)
    {
       switch (iErrorCode)
       {

@@ -37,10 +37,10 @@ namespace HM
       bool EnsuresPrerequisites(long DBVersion, String &sErrorMessage);
    private:
 
-      DALConnection::ConnectionResult _Connect(String &sErrorMessage);
+      DALConnection::ConnectionResult Connect_(String &sErrorMessage);
 
-      shared_ptr<DALConnection> _GetConnection();
-      void _ReleaseConnection(shared_ptr<DALConnection> pConn);
+      shared_ptr<DALConnection> GetConnection_();
+      void ReleaseConnection_(shared_ptr<DALConnection> pConn);
  
       boost::recursive_mutex _mutex;
       

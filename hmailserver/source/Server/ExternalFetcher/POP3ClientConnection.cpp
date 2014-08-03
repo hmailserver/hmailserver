@@ -86,7 +86,7 @@ namespace HM
       else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
                GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         _SendUserName();
+         SendUserName_();
          PostReceive();
       }
    }
@@ -112,7 +112,7 @@ namespace HM
       {
          if (sRequest != ".")
          {
-            if (commandBufferIsEmpty && !_CommandIsSuccessfull(sRequest))
+            if (commandBufferIsEmpty && !CommandIsSuccessfull_(sRequest))
             {
                // An error has occured. Don't continue multiline
                // buffering, so that we can handle the error below.
@@ -144,7 +144,7 @@ namespace HM
       String sAccountName = account_->GetName();
       if (sAccountName.StartsWith(_T("ETRN")))
       {
-         _HandleEtrn(sAccountName);
+         HandleEtrn_(sAccountName);
          return true;
       }
       else
@@ -153,32 +153,32 @@ namespace HM
           // and it'd just have to be moved back.
           // **** Don't miss } below when removing the above code! ****
 
-         _LogPOP3String(command_buffer_, false);
+         LogPOP3String_(command_buffer_, false);
 
          bool bRetVal = true;
          switch (current_state_)
          {
          case StateConnected:
-            _ParseStateConnected(command_buffer_);
+            ParseStateConnected_(command_buffer_);
             return true;
          case StateCAPASent:
-            _ParseStateCAPASent(command_buffer_);
+            ParseStateCAPASent_(command_buffer_);
             return true;
          case StateSTLSSent:
-            return _ParseStateSTLSSent(command_buffer_);
+            return ParseStateSTLSSent_(command_buffer_);
          case StateUsernameSent:
-            _ParseUsernameSent(command_buffer_);
+            ParseUsernameSent_(command_buffer_);
             return true;
          case StatePasswordSent:
-            _ParsePasswordSent(command_buffer_);
+            ParsePasswordSent_(command_buffer_);
             return true;
          case StateUIDLRequestSent:
-            _ParseUIDLResponse(command_buffer_);
+            ParseUIDLResponse_(command_buffer_);
             return true;
          case StateQUITSent:
-            return _ParseQuitResponse(command_buffer_);
+            return ParseQuitResponse_(command_buffer_);
          case StateDELESent:
-            _ParseDELEResponse(command_buffer_);
+            ParseDELEResponse_(command_buffer_);
             return true;
          }
    
@@ -189,9 +189,9 @@ namespace HM
    }
 
    bool
-   POP3ClientConnection::_HandleEtrn(const String &account_name)
+   POP3ClientConnection::HandleEtrn_(const String &account_name)
    {
-      _LogSMTPString(command_buffer_, false);
+      LogSMTPString_(command_buffer_, false);
 
       std::vector<String> vecParams = StringParser::SplitString(account_name, " ");
       if (vecParams.size() == 2)
@@ -202,16 +202,16 @@ namespace HM
             // Re-using POP states names for now
          case StateConnected:
             // Realize we shouldn't blindly send but this works for now
-            _SendDataLogAsSMTP("HELO " + vecParams[1]);
+            SendData_LogAsSMTP("HELO " + vecParams[1]);
             current_state_ = StateUsernameSent;
             return true;
          case StateUsernameSent:
-            _SendDataLogAsSMTP("ETRN " + vecParams[1]);
+            SendData_LogAsSMTP("ETRN " + vecParams[1]);
             Sleep(20);
             current_state_ = StateUIDLRequestSent;
             return true;
          case StateUIDLRequestSent:
-            _SendDataLogAsSMTP("QUIT");
+            SendData_LogAsSMTP("QUIT");
             current_state_ = StateQUITSent;
             Sleep(20);
             return true;
@@ -223,40 +223,40 @@ namespace HM
       else
       {
          //We just log error & QUIT because we have no domain to send..
-         _SendData("NOOP ETRN-Domain not set");
+         SendData_("NOOP ETRN-Domain not set");
          Sleep(20);
-         _SendData("QUIT");
-         _ParseQuitResponse(command_buffer_);
+         SendData_("QUIT");
+         ParseQuitResponse_(command_buffer_);
          return false;
       }
    }
 
    void
-   POP3ClientConnection::_ParseStateConnected(const String &sData)
+   POP3ClientConnection::ParseStateConnected_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          if (GetConnectionSecurity() == CSSTARTTLSOptional ||
              GetConnectionSecurity() == CSSTARTTLSRequired)
          {
-            _SendCAPA();
+            SendCAPA_();
             return;
          }
          else
          {
-            _SendUserName();
+            SendUserName_();
             return;
          }
       }
 
       // Disconnect immediately.
       LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon USER command.");
-      _QuitNow();
+      QuitNow_();
       return;
    }
 
    void
-   POP3ClientConnection::_SendUserName()
+   POP3ClientConnection::SendUserName_()
    {
       // We have connected successfully.
       // Time to send the username.
@@ -264,25 +264,25 @@ namespace HM
       String sResponse;
       sResponse.Format(_T("USER %s"), account_->GetUsername());
 
-      _SendData(sResponse);
+      SendData_(sResponse);
 
       current_state_ = StateUsernameSent;
    }
 
    void
-   POP3ClientConnection::_SendCAPA()
+   POP3ClientConnection::SendCAPA_()
    {
       // We have connected successfully.
       // Time to send the username.
-      _SendData(_T("CAPA"));
+      SendData_(_T("CAPA"));
 
       current_state_ = StateCAPASent;
    }
 
    void
-   POP3ClientConnection::_ParseStateCAPASent(const String &sData)
+   POP3ClientConnection::ParseStateCAPASent_(const String &sData)
    {
-      if (!_CommandIsSuccessfull(sData) || !sData.Contains(_T("STLS")))
+      if (!CommandIsSuccessfull_(sData) || !sData.Contains(_T("STLS")))
       {
          // STLS is not supported.
          if (GetConnectionSecurity() == CSSTARTTLSRequired)
@@ -291,38 +291,38 @@ namespace HM
                Formatter::Format("The download of messages from external account {0} failed. The external aAccount is configured to use STARTTLS connection security, but the POP3 server does not support it.", account_->GetName());
             
             LOG_APPLICATION(message)
-            _QuitNow();
+            QuitNow_();
             return;
          }
          else
          {
-            _SendUserName();
+            SendUserName_();
             return;
          }
       }
 
-      _SendData("STLS");
+      SendData_("STLS");
       current_state_ = StateSTLSSent;
    }
 
    bool
-   POP3ClientConnection::_ParseStateSTLSSent(const String &sData)
+   POP3ClientConnection::ParseStateSTLSSent_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          Handshake();
          return false;
       }
 
       // Disconnect immediately.
-      _QuitNow();
+      QuitNow_();
       return true;
    }
 
    void 
-   POP3ClientConnection::_ParseUsernameSent(const String &sData)
+   POP3ClientConnection::ParseUsernameSent_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          // We have connected successfully.
          // Time to send the username.
@@ -332,20 +332,20 @@ namespace HM
 
          current_state_ = StatePasswordSent;
 
-         _SendData(sResponse);
+         SendData_(sResponse);
 
          return;
       }
 
       LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon PASS command.");
-      _QuitNow();
+      QuitNow_();
       return;
    }
 
    void 
-   POP3ClientConnection::_ParsePasswordSent(const String &sData)
+   POP3ClientConnection::ParsePasswordSent_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          current_state_ = StateUIDLRequestSent;
 
@@ -354,19 +354,19 @@ namespace HM
          String sResponse;
          sResponse.Format(_T("UIDL"));
          
-         _SendData(sResponse);
+         SendData_(sResponse);
          return;
       }
 
       LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon UIDL command.");
-      _QuitNow();
+      QuitNow_();
       return;
    }
 
    void 
-   POP3ClientConnection::_ParseUIDLResponse(const String &sData)
+   POP3ClientConnection::ParseUIDLResponse_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          // We have connected successfully.
          // Time to send the username.
@@ -376,7 +376,7 @@ namespace HM
 
          if (vecLines.size() < 3)
          {
-            _StartMailboxCleanup();
+            StartMailboxCleanup_();
             return;
          }
 
@@ -402,19 +402,19 @@ namespace HM
 
          cur_message_ = uidlresponse_.begin();
 
-         _RequestNextMessage();
+         RequestNextMessage_();
 
          return;
       }
 
-	  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5343, "POP3ClientConnection::_ParseUIDLResponse",
+	  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5343, "POP3ClientConnection::ParseUIDLResponse_",
          Formatter::Format("The remote server returned an error to the UIDL command: External account {0}, Message: {1}", account_->GetName(), sData));
  
-      _QuitNow();
+      QuitNow_();
    }
 
    bool
-   POP3ClientConnection::_RequestNextMessage()
+   POP3ClientConnection::RequestNextMessage_()
    {
       while (cur_message_ != uidlresponse_.end())
       {
@@ -423,7 +423,7 @@ namespace HM
          // Check if the current message is already in the list
          // of fetch UID's
 
-         bool bMessageDownloaded = _GetUIDList()->IsUIDInList(sCurrentUID);
+         bool bMessageDownloaded = GetUIDList_()->IsUIDInList(sCurrentUID);
 
          if (bMessageDownloaded)
          {  
@@ -437,7 +437,7 @@ namespace HM
             // The message has already been downloaded. Give scripts a chance
             // to override the default delete behavior.
             shared_ptr<Message> messageEmpty;
-            _FireOnExternalAccountDownload(messageEmpty, sCurrentUID);
+            FireOnExternalAccountDownload_(messageEmpty, sCurrentUID);
          }
          else
          {
@@ -450,7 +450,7 @@ namespace HM
             String sResponse;
             sResponse.Format(_T("RETR %d"), iMessageIdx);
 
-            _SendData(sResponse);
+            SendData_(sResponse);
 
             current_state_ = StateRETRSent;
 
@@ -471,7 +471,7 @@ namespace HM
       // We reached the end of the message list.
       if (cur_message_ == uidlresponse_.end())
       {
-         _StartMailboxCleanup();
+         StartMailboxCleanup_();
       }
 
 
@@ -479,25 +479,25 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::_StartMailboxCleanup()
+   POP3ClientConnection::StartMailboxCleanup_()
    {
       cur_message_ = downloaded_messages_.begin();
 
-      _MailboxCleanup();
+      MailboxCleanup_();
    }
 
    void
-   POP3ClientConnection::_MailboxCleanup()
+   POP3ClientConnection::MailboxCleanup_()
    {
       while (cur_message_ != downloaded_messages_.end())
       {
-         bool bRet = _MessageCleanup();
+         bool bRet = MessageCleanup_();
 
          cur_message_++;
 
          if (bRet)
          {
-            // _MessageCleanup said something to the
+            // MessageCleanup_ said something to the
             // remote server. We have to return here
             // to receive the response.
 
@@ -505,23 +505,23 @@ namespace HM
          }
       }
 
-      _DeleteUIDsNoLongerOnServer();
+      DeleteUIDsNoLongerOnServer_();
 
       // Cleanup is complete. Time to quit.
       LOG_DEBUG("POP3 External Account: Normal QUIT.");
-      _QuitNow();
+      QuitNow_();
      
    }
 
    void
-   POP3ClientConnection::_DeleteUIDsNoLongerOnServer()
+   POP3ClientConnection::DeleteUIDsNoLongerOnServer_()
    {
       // Delete UID's from the database of those
       // messages that no longer exists on the
       // remote POP3 server. This happens if hMailServer
       // has downloaded a message and than the user has
       // deleted it from the POP3 server.
-      shared_ptr<FetchAccountUIDList> uidList = _GetUIDList();
+      shared_ptr<FetchAccountUIDList> uidList = GetUIDList_();
 
       // Build a vector with the UID's to keep. All UID's
       // not in this list should be deleted from the database.
@@ -538,21 +538,21 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::_QuitNow()
+   POP3ClientConnection::QuitNow_()
    {
       String sResponse;
       sResponse.Format(_T("QUIT"));
    
-      _SendData(sResponse);
+      SendData_(sResponse);
 
       SetReceiveBinary(false);
       current_state_ = StateQUITSent;
    }
 
    bool 
-   POP3ClientConnection::_ParseQuitResponse(const String &sData)
+   POP3ClientConnection::ParseQuitResponse_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          // We have quitted successfully.
          PostDisconnect();
@@ -563,9 +563,9 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_ParseRETRResponse(const String &sData)
+   POP3ClientConnection::ParseRETRResponse_(const String &sData)
    {
-      if (_CommandIsSuccessfull(sData))
+      if (CommandIsSuccessfull_(sData))
       {
          // Log that this message has been downloaded.
          int iID = (*cur_message_).first;
@@ -578,22 +578,22 @@ namespace HM
       SetReceiveBinary(false);
       
       // Do a mailbox cleanup and disconnect after that.
-      _StartMailboxCleanup();
+      StartMailboxCleanup_();
    }
 
 
    void 
-   POP3ClientConnection::_ParseDELEResponse(const String &sData)
+   POP3ClientConnection::ParseDELEResponse_(const String &sData)
    {
       // Clean up the next message.
-      _MailboxCleanup();
+      MailboxCleanup_();
 
       return;
    }
 
 
    bool
-   POP3ClientConnection::_CommandIsSuccessfull(const String &sData)
+   POP3ClientConnection::CommandIsSuccessfull_(const String &sData)
    {
       if (sData.Mid(0,3).CompareNoCase(_T("+OK")) == 0)
          return true;
@@ -605,7 +605,7 @@ namespace HM
    POP3ClientConnection::OnConnectionTimeout()
    {  
       String sMessage = "QUIT\r\n";
-      _SendData(sMessage);
+      SendData_(sMessage);
       
       Logger::Instance()->LogDebug("POP3ClientConnection::OnConnectionTimeout() - Connection timeout.");
    }
@@ -619,15 +619,15 @@ namespace HM
 
 
    void
-   POP3ClientConnection::_SendData(const String &sData) 
+   POP3ClientConnection::SendData_(const String &sData) 
    {
-      _LogPOP3String(sData, true);
+      LogPOP3String_(sData, true);
 
       SendData(sData + "\r\n");
    }
 
    bool 
-   POP3ClientConnection::_ParseFirstBinary(shared_ptr<ByteBuffer> pBuf)
+   POP3ClientConnection::ParseFirstBinary_(shared_ptr<ByteBuffer> pBuf)
    {
       // Locate the first line
       const char *pText = pBuf->GetCharBuffer();
@@ -654,9 +654,9 @@ namespace HM
       AnsiString sLine;
       sLine.append(pText, iLineLength);
       
-      _LogPOP3String(sLine, false);
+      LogPOP3String_(sLine, false);
       
-      _ParseRETRResponse(sLine);
+      ParseRETRResponse_(sLine);
 
       int iRemaining = pBuf->GetSize() - iLineLength;
       pBuf->Empty(iRemaining);
@@ -665,7 +665,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_PrependHeaders()
+   POP3ClientConnection::PrependHeaders_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Adds headers to the beginning of the message.
@@ -688,7 +688,7 @@ namespace HM
       // Append message buffer with the binary data we've received.
       if (!transmission_buffer_)
       {
-         if (!_ParseFirstBinary(pBuf))
+         if (!ParseFirstBinary_(pBuf))
          {
             PostBufferReceive();
             return;
@@ -702,11 +702,11 @@ namespace HM
          {
             // We have probably failed to create the file...
             LOG_DEBUG("POP3 External Account: Error creating binary buffer or file.");
-            _QuitNow();
+            QuitNow_();
             return;
          }
 
-         _PrependHeaders();
+         PrependHeaders_();
       }
 
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
@@ -724,13 +724,13 @@ namespace HM
       // Since this may be a time-consuming task, do it asynchronously
       shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
          shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-         (boost::bind(&POP3ClientConnection::_HandlePOP3FinalizationTaskCompleted, this), shared_from_this()));
+         (boost::bind(&POP3ClientConnection::HandlePOP3FinalizationTaskCompleted_, this), shared_from_this()));
 
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
 
    void
-   POP3ClientConnection::_HandlePOP3FinalizationTaskCompleted()
+   POP3ClientConnection::HandlePOP3FinalizationTaskCompleted_()
    {
       // The entire message has now been downloaded from the
       // remote POP3 server. Save it in the database and deliver
@@ -742,27 +742,27 @@ namespace HM
       {
          // Error handling.
          LOG_DEBUG("POP3 External Account: Message is 0 bytes.");
-         _QuitNow();
+         QuitNow_();
          return;
       }
 
-      _ParseMessageHeaders();
+      ParseMessageHeaders_();
 
-      if (_DoSpamProtection())
+      if (DoSpamProtection_())
       {
          // should we scan this message for virus later on?
          current_message_->SetFlagVirusScan(account_->GetUseAntiVirus());
 
-         _FireOnExternalAccountDownload(current_message_, (*cur_message_).second);
+         FireOnExternalAccountDownload_(current_message_, (*cur_message_).second);
 
          // the message was not classified as spam which we should delete.
-         _SaveMessage();
+         SaveMessage_();
 
          // Notify the SMTP deliverer that there is a new message.
          Application::Instance()->SubmitPendingEmail();
       }
 
-      _MarkCurrentMessageAsRead();
+      MarkCurrentMessageAsRead_();
 
       // Switch to ASCII since we're going to request a new message.
       SetReceiveBinary(false);
@@ -770,7 +770,7 @@ namespace HM
       // Move on to the next message to download
       cur_message_++;
 
-      _RequestNextMessage();
+      RequestNextMessage_();
    
       PostBufferReceive();
    }
@@ -780,7 +780,7 @@ namespace HM
       delete it, or we'll tag it as spam.
    */
    bool
-   POP3ClientConnection::_DoSpamProtection()
+   POP3ClientConnection::DoSpamProtection_()
    {
       if (!account_->GetUseAntiSpam())
       {
@@ -848,7 +848,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_ParseMessageHeaders()
+   POP3ClientConnection::ParseMessageHeaders_()
    {
       assert(current_message_);
 
@@ -874,16 +874,16 @@ namespace HM
       }      
 
       // bool bPreprocessRecipientList = true;
-      _CreateRecipentList(pHeader);
+      CreateRecipentList_(pHeader);
 
       // Remove non-existent accounts.
-      _RemoveInvalidRecipients();
+      RemoveInvalidRecipients_();
 
-      _RetrieveReceivedDate(pHeader);
+      RetrieveReceivedDate_(pHeader);
    }
 
    void
-   POP3ClientConnection::_SaveMessage()
+   POP3ClientConnection::SaveMessage_()
    {
       if (current_message_->GetRecipients()->GetCount() > 0)
       {
@@ -896,7 +896,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_MarkCurrentMessageAsRead()
+   POP3ClientConnection::MarkCurrentMessageAsRead_()
    {
       if (cur_message_ != uidlresponse_.end())
       {
@@ -904,23 +904,23 @@ namespace HM
 
          // If we're deleting this message immediately, there's
          // no point in adding it to the table.
-         if (_GetDaysToKeep(sUID) != -1)
+         if (GetDaysToKeep_(sUID) != -1)
          {
             // Make sure that the UID exists in the database.
             // If it already exists, AddUID() will do nothing.
-            _GetUIDList()->AddUID(sUID); 
+            GetUIDList_()->AddUID(sUID); 
          }
 
       }
    }
 
    bool
-   POP3ClientConnection::_MessageCleanup()
+   POP3ClientConnection::MessageCleanup_()
    {
       int iIndex = (*cur_message_).first;
       String sUID = (*cur_message_).second;
 
-      int iDaysToKeep = _GetDaysToKeep(sUID);
+      int iDaysToKeep = GetDaysToKeep_(sUID);
 
       String sResponse;
       bool bDeleteMessageNow = false;
@@ -933,7 +933,7 @@ namespace HM
       else if (iDaysToKeep > 0)
       {
          // Check wether we should delete this UID.
-         shared_ptr<FetchAccountUID> pUID = _GetUIDList()->GetUID(sUID);
+         shared_ptr<FetchAccountUID> pUID = GetUIDList_()->GetUID(sUID);
 
          // Get the creation date of the UID.
          DateTime dtCreation = pUID->GetCreationDate();
@@ -950,23 +950,23 @@ namespace HM
 
       // Delete the message.
       sResponse.Format(_T("DELE %d"), iIndex);
-      _SendData(sResponse);
+      SendData_(sResponse);
 
       current_state_ = StateDELESent;
 
       // Delete this UID from the database.
-      _GetUIDList()->DeleteUID(sUID);
+      GetUIDList_()->DeleteUID(sUID);
      
 
       return true;
    }
 
    void 
-   POP3ClientConnection::_CreateRecipentList(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::CreateRecipentList_(shared_ptr<MimeHeader> pHeader)
    {
       if (account_->GetProcessMIMERecipients())
       {  
-         _ProcessMIMERecipients(pHeader);
+         ProcessMIMERecipients_(pHeader);
       }  
 
       if (current_message_->GetRecipients()->GetCount() > 0)
@@ -989,7 +989,7 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::_ProcessMIMERecipients(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::ProcessMIMERecipients_(shared_ptr<MimeHeader> pHeader)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes through headers in the email and locates recipient. Adds these recipients
@@ -1029,14 +1029,14 @@ namespace HM
       }
 
       // Go through the Received headers
-      _ProcessReceivedHeaders(pHeader);
+      ProcessReceivedHeaders_(pHeader);
 
       // Remove non-existent accounts.
-      _RemoveInvalidRecipients();
+      RemoveInvalidRecipients_();
 }
 
    void 
-   POP3ClientConnection::_RetrieveReceivedDate(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::RetrieveReceivedDate_(shared_ptr<MimeHeader> pHeader)
    {
       if (!account_->GetProcessMIMEDate())
          return;
@@ -1061,7 +1061,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_ProcessReceivedHeaders(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::ProcessReceivedHeaders_(shared_ptr<MimeHeader> pHeader)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes throguh all the "Received" headers of the email. Tries to parse the
@@ -1095,7 +1095,7 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::_LogPOP3String(const String &sLogString, bool bSent)
+   POP3ClientConnection::LogPOP3String_(const String &sLogString, bool bSent)
    {
       String sTemp;
 
@@ -1128,7 +1128,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::_RemoveInvalidRecipients()
+   POP3ClientConnection::RemoveInvalidRecipients_()
    {
       if (account_->GetEnableRouteRecipients())
          current_message_->GetRecipients()->RemoveExternal();
@@ -1137,7 +1137,7 @@ namespace HM
    }
 
    int
-   POP3ClientConnection::_GetDaysToKeep(const String &sUID)
+   POP3ClientConnection::GetDaysToKeep_(const String &sUID)
    {
       int iDaysToKeep = account_->GetDaysToKeep();
 
@@ -1168,7 +1168,7 @@ namespace HM
 
    /// Fires an event which lets the user override the default delete-behavior on the remote server.
    void
-   POP3ClientConnection::_FireOnExternalAccountDownload(shared_ptr<Message> message, const String &uid)
+   POP3ClientConnection::FireOnExternalAccountDownload_(shared_ptr<Message> message, const String &uid)
    {
       shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(account_, message, uid);
 
@@ -1177,7 +1177,7 @@ namespace HM
    }
 
    shared_ptr<FetchAccountUIDList>
-   POP3ClientConnection::_GetUIDList()
+   POP3ClientConnection::GetUIDList_()
    {
       if (!_fetchAccountUIDList)
       {
@@ -1189,7 +1189,7 @@ namespace HM
    }
    // This is temp function to log ETRN client commands to SMTP
    void
-   POP3ClientConnection::_LogSMTPString(const String &sLogString, bool bSent)
+   POP3ClientConnection::LogSMTPString_(const String &sLogString, bool bSent)
    {
       String sTemp;
 
@@ -1217,9 +1217,9 @@ namespace HM
 
    // This is temp function to log ETRN client commands to SMTP
    void
-   POP3ClientConnection::_SendDataLogAsSMTP(const String &sData) 
+   POP3ClientConnection::SendData_LogAsSMTP(const String &sData) 
    {
-      _LogSMTPString(sData, true);
+      LogSMTPString_(sData, true);
 
       SendData(sData + "\r\n");
    }

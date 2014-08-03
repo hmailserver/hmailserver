@@ -1685,7 +1685,7 @@ void _tagXMLNode::CopyNode( LPXNode node )
 }
 
 //========================================================
-// Name   : _CopyBranch
+// Name   : CopyBranch_
 // Desc   : recursive internal copy branch 
 // Param  :
 // Return : 
@@ -1693,7 +1693,7 @@ void _tagXMLNode::CopyNode( LPXNode node )
 // Coder    Date                      Desc
 // bro      2002-10-29
 //========================================================
-void _tagXMLNode::_CopyBranch( LPXNode node )
+void _tagXMLNode::CopyBranch_( LPXNode node )
 {
 	CopyNode( node );
 
@@ -1706,7 +1706,7 @@ void _tagXMLNode::_CopyBranch( LPXNode node )
 			mychild->CopyNode( child );
 			AppendChild( mychild );
 
-			mychild->_CopyBranch( child );
+			mychild->CopyBranch_( child );
 		}
 	}
 }
@@ -1741,17 +1741,17 @@ void _tagXMLNode::CopyBranch( LPXNode branch )
 {
 	Close();
 	
-	_CopyBranch( branch );
+	CopyBranch_( branch );
 }
 
 
-_tagXMLEntitys::_tagXMLEntitys( LPXENTITY entities, int count )
+tagXMLEntitys_::tagXMLEntitys_( LPXENTITY entities, int count )
 {
 	for( int i = 0; i < count; i++)
 		push_back( entities[i] );
 }
 
-LPXENTITY _tagXMLEntitys::GetEntity( int entity )
+LPXENTITY tagXMLEntitys_::GetEntity( int entity )
 {
 	for( unsigned int i = 0 ; i < size(); i ++ )
 	{
@@ -1761,7 +1761,7 @@ LPXENTITY _tagXMLEntitys::GetEntity( int entity )
 	return NULL;
 }
 
-LPXENTITY _tagXMLEntitys::GetEntity( LPTSTR entity )
+LPXENTITY tagXMLEntitys_::GetEntity( LPTSTR entity )
 {
 	for( unsigned int i = 0 ; i < size(); i ++ )
 	{
@@ -1776,7 +1776,7 @@ LPXENTITY _tagXMLEntitys::GetEntity( LPTSTR entity )
 	return NULL;
 }
 
-int _tagXMLEntitys::GetEntityCount( LPCTSTR str )
+int tagXMLEntitys_::GetEntityCount( LPCTSTR str )
 {
 	int nCount = 0;
 	LPTSTR ps = (LPTSTR)str;
@@ -1785,7 +1785,7 @@ int _tagXMLEntitys::GetEntityCount( LPCTSTR str )
 	return nCount;
 }
 
-int _tagXMLEntitys::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
+int tagXMLEntitys_::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
 {
 	LPTSTR pes = (LPTSTR)estr;
 	LPTSTR ps = str;
@@ -1809,7 +1809,7 @@ int _tagXMLEntitys::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
 	return ps-str;	
 }
 
-int _tagXMLEntitys::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
+int tagXMLEntitys_::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
 {
 	LPTSTR ps = (LPTSTR)str;
 	LPTSTR pes = (LPTSTR)estr;
@@ -1834,7 +1834,7 @@ int _tagXMLEntitys::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
 	return pes-estr;
 }
 
-HM::String _tagXMLEntitys::Ref2Entity( LPCTSTR estr )
+HM::String tagXMLEntitys_::Ref2Entity( LPCTSTR estr )
 {
 	HM::String es;
 	if( estr )
@@ -1849,7 +1849,7 @@ HM::String _tagXMLEntitys::Ref2Entity( LPCTSTR estr )
 	return es;
 }
 
-HM::String _tagXMLEntitys::Entity2Ref( LPCTSTR str )
+HM::String tagXMLEntitys_::Entity2Ref( LPCTSTR str )
 {
 	HM::String s;
 	if( str )

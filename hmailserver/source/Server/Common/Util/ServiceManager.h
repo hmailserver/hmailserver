@@ -27,6 +27,6 @@ namespace HM
 
    private:
 
-      bool _ReconfigureService(SC_HANDLE hSCMManager, const String &ServiceName);
+      bool ReconfigureService_(SC_HANDLE hSCMManager, const String &ServiceName);
    };
 }

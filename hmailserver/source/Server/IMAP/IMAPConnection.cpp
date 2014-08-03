@@ -175,7 +175,7 @@ namespace HM
    bool 
    IMAPConnection::InternalParseData(const AnsiString &Request)
    {
-      _LogClientCommand(Request);
+      LogClientCommand_(Request);
 
       bool bHasLiterals = false;
       if (!command_buffer_.IsEmpty())
@@ -193,7 +193,7 @@ namespace HM
       // Check if we should receive any literal data.
       if (literal_data_to_receive_ == 0)
       {
-         if (_AskForLiteralData(sCommand))
+         if (AskForLiteralData_(sCommand))
          {
             // The client is not permitted to send the octets of the literal unless
             // the server indicates that it expects it. 
@@ -222,7 +222,7 @@ namespace HM
             // Since the existing literal buffer has been parsed, destroy it now.
             literal_buffer_ = "";
 
-            if (_AskForLiteralData(sRemaining))
+            if (AskForLiteralData_(sRemaining))
             {
                return true;
             }
@@ -237,7 +237,7 @@ namespace HM
          String sLine = (*iterLine);
 
          // Any literals?
-         int iLiteralBytesToReceive = _GetLiteralSize(sLine);
+         int iLiteralBytesToReceive = GetLiteralSize_(sLine);
          String sCurrentLiteral;
 
          // Start the loop by jumping to the next line.
@@ -254,7 +254,7 @@ namespace HM
                sCurrentLiteral = "";
 
                String sRemainingOnLine = sLine.Mid(iLiteralBytesToReceive);
-               iLiteralBytesToReceive = _GetLiteralSize(sRemainingOnLine);
+               iLiteralBytesToReceive = GetLiteralSize_(sRemainingOnLine);
 
                sCommand += sRemainingOnLine; 
             }
@@ -277,14 +277,14 @@ namespace HM
    }
 
    bool 
-   IMAPConnection::_AskForLiteralData(const String &sInput)
+   IMAPConnection::AskForLiteralData_(const String &sInput)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks if we should request literal data. If we should, we do it now and
    // retnn true
    //---------------------------------------------------------------------------()
    {
-      literal_data_to_receive_ = _GetLiteralSize(sInput);
+      literal_data_to_receive_ = GetLiteralSize_(sInput);
 
       if (literal_data_to_receive_ > 0)
       {
@@ -298,7 +298,7 @@ namespace HM
    }
 
    bool
-   IMAPConnection::_IsReceivingLiteralDataForLoginCommand() const
+   IMAPConnection::IsReceivingLiteralDataForLoginCommand_() const
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // We need to know this to be able to mask passwords in literal data.
@@ -317,7 +317,7 @@ namespace HM
    }
 
    void 
-   IMAPConnection::_LogClientCommand(const String &sClientData)
+   IMAPConnection::LogClientCommand_(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -328,7 +328,7 @@ namespace HM
 
       String sLogData = sClientData;
 
-      if (_IsReceivingLiteralDataForLoginCommand())
+      if (IsReceivingLiteralDataForLoginCommand_())
       {
          // we're receiving literal data for the login command. 
          // check if we've received the passwords yet.
@@ -366,7 +366,7 @@ namespace HM
    }
 
    int
-   IMAPConnection::_GetLiteralSize(const String &sCommand)
+   IMAPConnection::GetLiteralSize_(const String &sCommand)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the size of the literal specified in the client command.
@@ -446,11 +446,11 @@ namespace HM
 
       SendAsciiData(goodbyeMessage);   
 
-      _Disconnect();
+      Disconnect_();
    }
 
    void
-   IMAPConnection::_Disconnect()
+   IMAPConnection::Disconnect_()
    {
       pending_disconnect_ = true;
 
@@ -582,7 +582,7 @@ namespace HM
 
       if (is_idling_)
       {
-         _EndIdleMode();
+         EndIdleMode_();
          
          // Remove command
          return true;
@@ -678,7 +678,7 @@ namespace HM
    }
 
    void 
-   IMAPConnection::_EndIdleMode()
+   IMAPConnection::EndIdleMode_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Quits idle mode.

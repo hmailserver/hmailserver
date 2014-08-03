@@ -23,7 +23,7 @@ namespace HM
 
    private:
 
-      void _RunTasks();
+      void RunTasks_();
 
       boost::recursive_mutex _mutex;
       vector<shared_ptr<ScheduledTask >> scheduled_tasks_;

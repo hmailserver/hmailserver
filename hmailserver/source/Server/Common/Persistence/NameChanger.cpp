@@ -35,7 +35,7 @@ namespace HM
    {
       const String& newDomainName = pDomain->GetName();
 
-      if (!_RenameDomainDataDirectory(oldDomainName, pDomain->GetName(), errorMessage))
+      if (!RenameDomainDataDirectory_(oldDomainName, pDomain->GetName(), errorMessage))
          return false;
 
       // Update accounts...
@@ -48,11 +48,11 @@ namespace HM
          shared_ptr<Account> pAccount = (*iterAccount);
 
          String sAddress = pAccount->GetAddress();
-         _UpdateDomainName(sAddress, oldDomainName, newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName, newDomainName);
          pAccount->SetAddress(sAddress);
 
          String currentVal = pAccount->GetForwardAddress();
-         if (_UpdateDomainName(currentVal, oldDomainName, newDomainName))
+         if (UpdateDomainName_(currentVal, oldDomainName, newDomainName))
             pAccount->SetForwardAddress(currentVal);
 
          PersistentAccount::SaveObject(pAccount);
@@ -68,12 +68,12 @@ namespace HM
          shared_ptr<Alias> pAlias = (*iterAlias);
 
          String sAddress = pAlias->GetName();
-         _UpdateDomainName(sAddress, oldDomainName, newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName, newDomainName);
          pAlias->SetName(sAddress);
 
          String aliasValue = pAlias->GetValue();
 
-         if (_UpdateDomainName(aliasValue, oldDomainName, newDomainName))
+         if (UpdateDomainName_(aliasValue, oldDomainName, newDomainName))
             pAlias->SetValue(aliasValue);
 
          PersistentAlias::SaveObject(pAlias);
@@ -89,14 +89,14 @@ namespace HM
          shared_ptr<DistributionList> pList = (*iterList);
 
          String sAddress = pList->GetAddress();
-         _UpdateDomainName(sAddress, oldDomainName,newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName,newDomainName);
          pList->SetAddress(sAddress);
 
          vector<shared_ptr<HM::DistributionListRecipient>> recipients = pList->GetMembers()->GetVector();
          boost_foreach(shared_ptr<DistributionListRecipient> recipient, recipients)
          {
             String address = recipient->GetAddress();
-            if (_UpdateDomainName(address,oldDomainName, newDomainName))
+            if (UpdateDomainName_(address,oldDomainName, newDomainName))
             {
                recipient->SetAddress(address);
                PersistentDistributionListRecipient::SaveObject(recipient);
@@ -111,7 +111,7 @@ namespace HM
    }
 
    bool 
-   NameChanger::_UpdateDomainName(String &sAddress, const String &oldDomainName, const String& newDomainName)
+   NameChanger::UpdateDomainName_(String &sAddress, const String &oldDomainName, const String& newDomainName)
    {
 
       if (!sAddress.EndsWith("@" + oldDomainName))
@@ -145,21 +145,21 @@ namespace HM
       String oldDirectoryName = FileUtilities::Combine(domainDirectory, oldMailboxName);
       String newDirectoryName = FileUtilities::Combine(domainDirectory, newMailboxName);
 
-      return _RenameDirectory(oldDirectoryName, newDirectoryName, errorMessage);
+      return RenameDirectory_(oldDirectoryName, newDirectoryName, errorMessage);
    }
 
    bool 
-   NameChanger::_RenameDomainDataDirectory(const String &oldDomainName, const String &newDomainName, String &errorMessage)
+   NameChanger::RenameDomainDataDirectory_(const String &oldDomainName, const String &newDomainName, String &errorMessage)
    {
       // Old director name
       String oldDirectory = FileUtilities::Combine(IniFileSettings::Instance()->GetDataDirectory(), oldDomainName);
       String newDirectory = FileUtilities::Combine(IniFileSettings::Instance()->GetDataDirectory(), newDomainName);
 
-      return _RenameDirectory(oldDirectory, newDirectory, errorMessage);
+      return RenameDirectory_(oldDirectory, newDirectory, errorMessage);
    }
 
    bool 
-   NameChanger::_RenameDirectory(const String &oldDirectory, const String &newDirectory, String &errorMessage)
+   NameChanger::RenameDirectory_(const String &oldDirectory, const String &newDirectory, String &errorMessage)
    {
       if (FileUtilities::Exists(newDirectory))
       {

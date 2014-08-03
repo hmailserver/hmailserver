@@ -23,7 +23,7 @@ namespace HM
 
    SQLCERecordset::~SQLCERecordset()
    {
-      _Close();
+      Close_();
    }
 
    DALConnection::ExecutionResult
@@ -91,7 +91,7 @@ namespace HM
    }
 
    bool
-   SQLCERecordset::_Close()
+   SQLCERecordset::Close_()
    {
       try
       {
@@ -134,7 +134,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
@@ -183,7 +183,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -213,7 +213,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -249,7 +249,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -309,7 +309,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 

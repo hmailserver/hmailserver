@@ -24,7 +24,7 @@ namespace HM
 
       map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > > CreateDistinctMap(map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > > serverInfos);
 
-      static shared_ptr<ServerInfo> _GetFixedSMTPHostForDomain(const String &sDomain);
+      static shared_ptr<ServerInfo> GetFixedSMTPHostForDomain_(const String &sDomain);
 
       shared_ptr<Message> _message;
       const RuleResult &_globalRuleResult;

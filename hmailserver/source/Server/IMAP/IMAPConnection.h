@@ -126,7 +126,7 @@ namespace HM
       virtual void OnHandshakeFailed() {};
       virtual AnsiString GetCommandSeparator() const;
 
-      void _LogClientCommand(const String &sClientData);
+      void LogClientCommand_(const String &sClientData);
       
       virtual void OnExcessiveDataReceived();
       virtual void OnConnectionTimeout();
@@ -142,13 +142,13 @@ namespace HM
       void SendBanner_();
       void _SetAccount(shared_ptr<const Account> account) { _account = account; }
 
-      void _Disconnect();
-      bool _IsReceivingLiteralDataForLoginCommand() const;
+      void Disconnect_();
+      bool IsReceivingLiteralDataForLoginCommand_() const;
 
-      bool _AskForLiteralData(const String &sInput);
+      bool AskForLiteralData_(const String &sInput);
 
-      void _EndIdleMode();
-      int _GetLiteralSize(const String &sCommand);
+      void EndIdleMode_();
+      int GetLiteralSize_(const String &sCommand);
 
       bool AnswerCommand(shared_ptr<IMAPClientCommand> command);
       shared_ptr<const Account> _account;

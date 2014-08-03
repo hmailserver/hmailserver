@@ -36,9 +36,9 @@ namespace HM
 
       static void CleanIMAPFolderRuleString(String &sIMAPFolder);
       
-      static void _RetrieveReceivedIPList(const std::list<String> &headers, std::list<std::pair<String, IPAddress> > &vecAddresses);
+      static void RetrieveReceivedIPList_(const std::list<String> &headers, std::list<std::pair<String, IPAddress> > &vecAddresses);
 
-      static shared_ptr<MimeHeader> _GetMessageHeader(shared_ptr<Message> pMessage);
+      static shared_ptr<MimeHeader> GetMessageHeader_(shared_ptr<Message> pMessage);
       // Reads the header for the message and returns it.
    };
 

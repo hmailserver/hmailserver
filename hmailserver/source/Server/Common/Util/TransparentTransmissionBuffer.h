@@ -57,7 +57,7 @@ namespace HM
          return last_send_ended_with_newline_;
       }
 
-      bool _SaveToFile(shared_ptr<ByteBuffer> pBuffer);
+      bool SaveToFile_(shared_ptr<ByteBuffer> pBuffer);
       // Flushes the supplied buffer to file.
 
       int GetSize();
@@ -66,8 +66,8 @@ namespace HM
       String GetCancelMessage() {return _cancelMessage;}
    private:
 
-      void _InsertTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
-      void _RemoveTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
+      void InsertTransmissionPeriod_(shared_ptr<ByteBuffer> pIn);
+      void RemoveTransmissionPeriod_(shared_ptr<ByteBuffer> pIn);
 
       shared_ptr<ByteBuffer> buffer_;
       // The buffer containing the data to send/receive.

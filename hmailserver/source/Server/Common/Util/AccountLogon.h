@@ -19,7 +19,7 @@ namespace HM
 
       void CreateIPRange(const IPAddress &ipaddress, const String &username, int minutes);
 
-      String _GetIPRangeName(const String &username);
+      String GetIPRangeName_(const String &username);
 
       static boost::recursive_mutex _ipRangeCreationMutex;
    };

@@ -14,7 +14,7 @@ public:
    void SetLogDir(HIS_String sDir) {log_dir_ = sDir;}
 private:
 
-   bool _WriteData(HIS_String sFilename, HIS_String sData);
+   bool WriteData_(HIS_String sFilename, HIS_String sData);
 
 
    HIS_String log_dir_;

@@ -144,7 +144,7 @@ namespace HM
 
                // Need to check if this sender is authorized to send
                // to this distribution list.
-               if (_UserCanSendToList(sSender, bSenderIsAuthed, pList, sErrMsg, iRecursionLevel) == DP_PermissionDenied)
+               if (UserCanSendToList_(sSender, bSenderIsAuthed, pList, sErrMsg, iRecursionLevel) == DP_PermissionDenied)
                   return DP_PermissionDenied;
 
 
@@ -212,7 +212,7 @@ namespace HM
       try
       {
          long lRecurse = 0;
-         _CreateMessageRecipientList(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
+         CreateMessageRecipientList_(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
       }
       catch (...)
       {
@@ -222,7 +222,7 @@ namespace HM
    }
 
    void
-   RecipientParser::_CreateMessageRecipientList(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
+   RecipientParser::CreateMessageRecipientList_(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
    {
       lRecurse++;
 
@@ -269,7 +269,7 @@ namespace HM
 
             recipientOK = true;
 
-            _AddRecipient(pRecipients, NewRecipient);
+            AddRecipient_(pRecipients, NewRecipient);
 
             return;
          }
@@ -282,7 +282,7 @@ namespace HM
             if (!pAlias->GetIsActive())
                return;
 
-            _CreateMessageRecipientList(pAlias->GetValue(), sOriginalAddress, lRecurse, pRecipients, recipientOK);
+            CreateMessageRecipientList_(pAlias->GetValue(), sOriginalAddress, lRecurse, pRecipients, recipientOK);
 
             return;
          }  
@@ -301,7 +301,7 @@ namespace HM
 
             while (iterRecipient != vecRecipients.end())
             {
-               _CreateMessageRecipientList((*iterRecipient)->GetAddress(), sOriginalAddress,lRecurse, pRecipients, recipientOK);
+               CreateMessageRecipientList_((*iterRecipient)->GetAddress(), sOriginalAddress,lRecurse, pRecipients, recipientOK);
 
                iterRecipient++;
             }
@@ -332,7 +332,7 @@ namespace HM
 
             recipientOK = true;
 
-            _AddRecipient(pRecipients, NewRecipient);
+            AddRecipient_(pRecipients, NewRecipient);
          }
 
          return;
@@ -346,7 +346,7 @@ namespace HM
             // The domain is local but we could not find the recipient address
             // in our domain. We've looked in routes as well but not found a
             // match there either.
-            _CreateMessageRecipientList(sPostMaster, sOriginalAddress, lRecurse, pRecipients, recipientOK);
+            CreateMessageRecipientList_(sPostMaster, sOriginalAddress, lRecurse, pRecipients, recipientOK);
 
             return;
          }
@@ -365,12 +365,12 @@ namespace HM
 
          recipientOK = true;
 
-         _AddRecipient(pRecipients, NewRecipient);
+         AddRecipient_(pRecipients, NewRecipient);
       }
    }
 
    RecipientParser::DeliveryPossibility 
-   RecipientParser::_UserCanSendToList(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel)
+   RecipientParser::UserCanSendToList_(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel)
    {
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
 
@@ -454,7 +454,7 @@ namespace HM
          if (dp == DP_PermissionDenied)
          {
             // Log the reason the message to the list is rejected which helps a ton with lists on lists
-            Logger::Instance()->LogDebug("RecipientParser::_UserCanSendToList::PermissionDENIED");
+            Logger::Instance()->LogDebug("RecipientParser::UserCanSendToList_::PermissionDENIED");
 
             return DP_PermissionDenied;
          }
@@ -465,7 +465,7 @@ namespace HM
    }
 
    void
-   RecipientParser::_AddRecipient(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient)
+   RecipientParser::AddRecipient_(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient)
    {
       String address = pRecipient->GetAddress().ToLower();
 

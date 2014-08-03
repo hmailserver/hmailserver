@@ -22,7 +22,7 @@ namespace HM
 
    ADORecordset::~ADORecordset()
    {
-      _Close();
+      Close_();
    }
 
    DALConnection::ExecutionResult
@@ -85,7 +85,7 @@ namespace HM
    
 
    bool
-   ADORecordset::_Close()
+   ADORecordset::Close_()
    {
       if (cADORecordset == NULL)
          return false;
@@ -152,7 +152,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
@@ -201,7 +201,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -231,7 +231,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -269,7 +269,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -328,7 +328,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 

@@ -47,7 +47,7 @@ namespace HM
       
       if (sslcertificate_id_ > 0)
       {
-         pNode->AppendAttr(_T("SSLCertificateName"), _GetSSLCertificateName(sslcertificate_id_));
+         pNode->AppendAttr(_T("SSLCertificateName"), GetSSLCertificateName_(sslcertificate_id_));
       }
 
       return true;
@@ -60,7 +60,7 @@ namespace HM
       port_number_ = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
 
       address_.TryParse(pNode->GetAttrValue(_T("Address")));
-      sslcertificate_id_  = _GetSSLCertificateID(pNode->GetAttrValue(_T("SSLCertificateName")));
+      sslcertificate_id_  = GetSSLCertificateID_(pNode->GetAttrValue(_T("SSLCertificateName")));
 
       // Backwards compatibiltiy
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
@@ -76,7 +76,7 @@ namespace HM
    }
 
    int
-   TCPIPPort::_GetSSLCertificateID(const String &sSSLCertificateName)
+   TCPIPPort::GetSSLCertificateID_(const String &sSSLCertificateName)
    {
       if (sSSLCertificateName.IsEmpty())
          return 0;
@@ -93,7 +93,7 @@ namespace HM
    }
 
    String 
-   TCPIPPort::_GetSSLCertificateName(__int64 iCertificateID)
+   TCPIPPort::GetSSLCertificateName_(__int64 iCertificateID)
    {
       shared_ptr<SSLCertificates> pSSLCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
       pSSLCertificates->Refresh();

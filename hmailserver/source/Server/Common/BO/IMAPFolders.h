@@ -41,7 +41,7 @@ namespace HM
 
    private:
 
-      bool _GetIsPublicFolders() const;
+      bool GetIsPublicFolders_() const;
 
       __int64 account_id_;
       __int64 parent_folder_id_;

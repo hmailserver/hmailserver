@@ -49,7 +49,7 @@ namespace HM
    // Determines whether the result of a DnsQuery call is an error or not.
    //---------------------------------------------------------------------------()
    bool
-   DNSResolver::_IsDNSError(int iErrorMessage)
+   DNSResolver::IsDNSError_(int iErrorMessage)
    {
       // Assume non-fatal if we aren't sure it's not.
       switch (iErrorMessage)
@@ -73,7 +73,7 @@ namespace HM
    // Determines whether the result of a WSA-function is an error or not.
    //---------------------------------------------------------------------------()
    bool
-   DNSResolver::_IsWSAError(int iErrorMessage)
+   DNSResolver::IsWSAError_(int iErrorMessage)
    {
       // Assume non-fatal if we aren't sure it's not.
       switch (iErrorMessage)
@@ -86,7 +86,7 @@ namespace HM
    }
 
    bool
-   DNSResolver::_Resolve(const String &sSearchFor, vector<String> &vecFoundNames, WORD wType, int iRecursion)
+   DNSResolver::Resolve_(const String &sSearchFor, vector<String> &vecFoundNames, WORD wType, int iRecursion)
    {
       USES_CONVERSION;
 
@@ -94,7 +94,7 @@ namespace HM
       {
          String sMessage;
          sMessage.Format(_T("Too many recursions during query. Query: %s, Type: %d."), sSearchFor, wType);
-         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::_Resolve", sMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::Resolve_", sMessage);
 
          return false;
       }
@@ -117,7 +117,7 @@ namespace HM
          if (pDnsRecordsToDelete)
             _FreeDNSRecord(pDnsRecordsToDelete);
 
-         bool bDNSError = _IsDNSError(nDnsStatus);
+         bool bDNSError = IsDNSError_(nDnsStatus);
 
          if (bDNSError)
          {
@@ -135,7 +135,7 @@ namespace HM
          case DNS_TYPE_CNAME:
          {
             String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
-            if (!_Resolve(sDomainName, vecFoundNames, wType, iRecursion+1))
+            if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion+1))
                return false;
 
             break;
@@ -146,7 +146,7 @@ namespace HM
                {
                   // we received a CNAME response so we need to recurse over that.
                   String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
-                  if (!_Resolve(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
+                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
                      return false;
                }            
                else if (pDnsRecords->wType == DNS_TYPE_MX)
@@ -205,7 +205,7 @@ namespace HM
             {
                // we received a CNAME response so we need to recurse over that.
                String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
-               if (!_Resolve(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
+               if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
                   return false;
             }   
             else if (pDnsRecords->wType == DNS_TYPE_TEXT)
@@ -228,7 +228,7 @@ namespace HM
             {
                // we received a CNAME response so we need to recurse over that.
                String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
-               if (!_Resolve(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
+               if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
                   return false;
             }   
             else if (pDnsRecords->wType == DNS_TYPE_PTR)
@@ -241,7 +241,7 @@ namespace HM
          }
          default:
             {
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::_Resolve", "Querying unknown wType.");
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", "Querying unknown wType.");
             }
             
             break;
@@ -275,7 +275,7 @@ namespace HM
       
       if (errorCode)
       {
-         bool bDNSError = _IsWSAError(errorCode.value());
+         bool bDNSError = IsWSAError_(errorCode.value());
 
          if (bDNSError)
          {
@@ -325,7 +325,7 @@ namespace HM
    bool 
    DNSResolver::GetTXTRecords(const String &sDomain, std::vector<String> &foundResult)
    {
-      return _Resolve(sDomain, foundResult, DNS_TYPE_TEXT, 0);
+      return Resolve_(sDomain, foundResult, DNS_TYPE_TEXT, 0);
    }
 
    bool
@@ -337,7 +337,7 @@ namespace HM
 
       try
       {
-         if (!_Resolve(sDomainName, vecFoundMXRecords, DNS_TYPE_MX, 0))
+         if (!Resolve_(sDomainName, vecFoundMXRecords, DNS_TYPE_MX, 0))
          {
             String logMessage;
             logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName);
@@ -472,7 +472,7 @@ namespace HM
    {
       try
       {
-         return _Resolve(sDomain, vecFoundNames, DNS_TYPE_MX, 0);
+         return Resolve_(sDomain, vecFoundNames, DNS_TYPE_MX, 0);
       }
       catch (...)
       {
@@ -493,7 +493,7 @@ namespace HM
          std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
          reverse(vecItems.begin(), vecItems.end());
          String result = StringParser::JoinVector(vecItems, ".");
-         return _Resolve(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
+         return Resolve_(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
       }
       catch (std::exception& e)
       {

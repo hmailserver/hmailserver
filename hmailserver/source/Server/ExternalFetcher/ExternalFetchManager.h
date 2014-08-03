@@ -23,7 +23,7 @@ namespace HM
       void SetCheckNow();
    private:
 
-      bool _FetchIsAllowed(shared_ptr<FetchAccount> pFA);
+      bool FetchIsAllowed_(shared_ptr<FetchAccount> pFA);
 
       shared_ptr<FetchAccounts> fetch_accounts_;
 

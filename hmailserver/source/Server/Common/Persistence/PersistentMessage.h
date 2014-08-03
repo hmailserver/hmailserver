@@ -81,13 +81,13 @@ namespace HM
 
    private:
       
-      static shared_ptr<Message> _CreateCopy(shared_ptr<Message> sourceMessage, int destinationAccountID);
+      static shared_ptr<Message> CreateCopy_(shared_ptr<Message> sourceMessage, int destinationAccountID);
 
       static bool _MoveMessageFileToFolder(const String &sourceLocation, shared_ptr<Message> pMessage, shared_ptr<const Account> destinationAccount);
 
       // Recipient functions begin
-      static bool _ReadRecipients(shared_ptr<Message> pMessage);
-      static bool _SaveRecipients(shared_ptr<Message> pMessage);
+      static bool ReadRecipients_(shared_ptr<Message> pMessage);
+      static bool SaveRecipients_(shared_ptr<Message> pMessage);
       // Recipient functions end
    };
 

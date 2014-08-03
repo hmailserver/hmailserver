@@ -22,7 +22,7 @@ namespace HM
      
    private:
 
-      bool _IsValidLangauge(const String &sLanguage) const;
+      bool IsValidLangauge_(const String &sLanguage) const;
 
       map<String, shared_ptr<Language> > languages_;
 

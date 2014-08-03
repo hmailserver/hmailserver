@@ -62,7 +62,7 @@ STDMETHODIMP InterfaceDatabase::get_RequiresUpgrade(VARIANT_BOOL *pVal)
       if (!config_)
          return GetAccessDenied();
 
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
       
@@ -154,7 +154,7 @@ STDMETHODIMP InterfaceDatabase::get_CurrentVersion(long *pVal)
          unless there's changes in the database.
       */
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
@@ -242,7 +242,7 @@ STDMETHODIMP InterfaceDatabase::BeginTransaction()
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
@@ -350,7 +350,7 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLWithReturn(BSTR sSQLStatement, long *u
       if (uniqueID)
          *uniqueID = 0;
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
@@ -401,7 +401,7 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLScript(BSTR sFilename)
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
@@ -437,7 +437,7 @@ STDMETHODIMP InterfaceDatabase::UtilGetFileNameByMessageID(hyper lMessageID, BST
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
@@ -640,7 +640,7 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
 }   
    
 HRESULT
-InterfaceDatabase::_EnsureDatabaseConnectivity()
+InterfaceDatabase::EnsureDatabaseConnectivity_()
 {
    db_manager_ = HM::Application::Instance()->GetDBManager();
    if (!db_manager_)

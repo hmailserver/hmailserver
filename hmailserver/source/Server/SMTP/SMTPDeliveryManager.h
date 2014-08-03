@@ -27,10 +27,10 @@ namespace HM
 
    private:
       
-      void _SendStatistics(bool bIgnoreMessageCount = false);
+      void SendStatistics_(bool bIgnoreMessageCount = false);
 
-      void _LoadPendingMessageList();
-      shared_ptr<Message> _GetNextMessage();
+      void LoadPendingMessageList_();
+      shared_ptr<Message> GetNextMessage_();
 
       long cur_number_of_sent_;
 

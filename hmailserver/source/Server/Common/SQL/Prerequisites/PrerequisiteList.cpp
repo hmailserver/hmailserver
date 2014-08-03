@@ -17,7 +17,7 @@ namespace HM
 {
    PrerequisiteList::PrerequisiteList(void)
    {
-      _Initialize();
+      Initialize_();
    }
 
    PrerequisiteList::~PrerequisiteList(void)
@@ -25,7 +25,7 @@ namespace HM
    }
 
    void 
-   PrerequisiteList::_Initialize()
+   PrerequisiteList::Initialize_()
    {
       shared_ptr<PreReqNoDuplicateFolders> duplicateFolderCheck = shared_ptr<PreReqNoDuplicateFolders>(new PreReqNoDuplicateFolders);
       _prerequisites.push_back(std::make_pair(duplicateFolderCheck->GetDatabaseVersion(), duplicateFolderCheck));

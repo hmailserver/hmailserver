@@ -39,11 +39,11 @@ namespace HM
 
       static long _runningScanners;
 
-      static void _WaitForFreeScanner();
+      static void WaitForFreeScanner_();
       static void ReportVirusFound(shared_ptr<Message> pMessage);
-      static VirusScanningResult _ScanFile(const String &fileName);
+      static VirusScanningResult ScanFile_(const String &fileName);
 
-      static void _ReportScanningError(const VirusScanningResult &scanningResult);
+      static void ReportScanningError_(const VirusScanningResult &scanningResult);
    };
 
 }

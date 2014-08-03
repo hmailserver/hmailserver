@@ -20,11 +20,11 @@ namespace HM
 
    private:
 
-      static bool _ReplaceMessagePath(__int64 messageID, const String &messagePath);
-      static String _GetInternalDate(shared_ptr<MessageData> pMessageData);
-      static String _GetInternalDateDatePlusTimeZone(DateTime dtTime);
-      static bool _MoveToNamedSubdirectory(const String &sourceFile, String &resultFile, String &newFullPath);
-      static bool _GetRootLevelDirectory(const String &fullPath, String &rootLevel);
+      static bool ReplaceMessagePath_(__int64 messageID, const String &messagePath);
+      static String GetInternalDate_(shared_ptr<MessageData> pMessageData);
+      static String GetInternalDate_DatePlusTimeZone(DateTime dtTime);
+      static bool MoveToNamedSubdirectory_(const String &sourceFile, String &resultFile, String &newFullPath);
+      static bool GetRootLevelDirectory_(const String &fullPath, String &rootLevel);
    };
 
 #ifdef _DEBUG

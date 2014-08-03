@@ -109,7 +109,7 @@ namespace HM
       dt = dt + span;
 
       shared_ptr<SecurityRange> pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
-      pSecurityRange->SetName(_GetIPRangeName(username));
+      pSecurityRange->SetName(GetIPRangeName_(username));
       pSecurityRange->SetPriority(20);
       pSecurityRange->SetLowerIP(ipaddress);
       pSecurityRange->SetUpperIP(ipaddress);
@@ -121,7 +121,7 @@ namespace HM
    }      
 
    String 
-   AccountLogon::_GetIPRangeName(const String &username)
+   AccountLogon::GetIPRangeName_(const String &username)
    {
       String suggestion = "Auto-ban: " + username;
       if (!PersistentSecurityRange::Exists(suggestion))

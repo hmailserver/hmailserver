@@ -85,13 +85,13 @@ namespace HM
    }
 
    bool
-   Message::_GetFlag(int iFlag) const
+   Message::GetFlag_(int iFlag) const
    {
       return (flags_ & iFlag) > 0;
    }
 
    void
-   Message::_SetFlag(int iFlag, bool bSet)
+   Message::SetFlag_(int iFlag, bool bSet)
    {
       if (bSet)
          flags_ = flags_ | iFlag;
@@ -102,86 +102,86 @@ namespace HM
    bool 
    Message::GetFlagSeen() const
    {
-      return _GetFlag(FlagSeen);
+      return GetFlag_(FlagSeen);
    }
 
    void 
    Message::SetFlagSeen(bool bNewVal)
    {
-      _SetFlag(FlagSeen, bNewVal);
+      SetFlag_(FlagSeen, bNewVal);
    }
 
    bool 
    Message::GetFlagDeleted() const
    {
-      return _GetFlag(FlagDeleted);
+      return GetFlag_(FlagDeleted);
    }
 
    void 
    Message::SetFlagDeleted(bool bNewVal)
    {
-      _SetFlag(FlagDeleted, bNewVal);
+      SetFlag_(FlagDeleted, bNewVal);
    }
 
    bool 
    Message::GetFlagDraft() const
    {
-      return _GetFlag(FlagDraft);
+      return GetFlag_(FlagDraft);
    }
 
    void 
    Message::SetFlagDraft(bool bNewVal)
    {
-      _SetFlag(FlagDraft, bNewVal);
+      SetFlag_(FlagDraft, bNewVal);
    }
 
 
    bool 
    Message::GetFlagAnswered() const
    {
-      return _GetFlag(FlagAnswered);
+      return GetFlag_(FlagAnswered);
    }
 
    void 
    Message::SetFlagAnswered(bool bNewVal)
    {
-      _SetFlag(FlagAnswered, bNewVal);
+      SetFlag_(FlagAnswered, bNewVal);
    }
 
    bool 
    Message::GetFlagFlagged() const
    {
-      return _GetFlag(FlagFlagged);
+      return GetFlag_(FlagFlagged);
    }
 
    void 
    Message::SetFlagFlagged(bool bNewVal)
    {
-      _SetFlag(FlagFlagged, bNewVal);
+      SetFlag_(FlagFlagged, bNewVal);
    }
 
    bool 
    Message::GetFlagRecent() const
    {
-      return _GetFlag(FlagRecent);
+      return GetFlag_(FlagRecent);
    }
 
    void 
    Message::SetFlagRecent(bool bNewVal)
    {
-      _SetFlag(FlagRecent, bNewVal);
+      SetFlag_(FlagRecent, bNewVal);
    }
 
    bool 
    Message::GetFlagVirusScan() const
    {
-      return _GetFlag(FlagVirusScan);
+      return GetFlag_(FlagVirusScan);
    }
 
    void 
    Message::SetFlagVirusScan(bool bNewVal)
    {
-      _SetFlag(FlagVirusScan, bNewVal);
+      SetFlag_(FlagVirusScan, bNewVal);
    }
 
 

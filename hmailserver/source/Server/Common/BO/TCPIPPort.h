@@ -38,8 +38,8 @@ namespace HM
 
    private:
 
-      int _GetSSLCertificateID(const String &sSSLCertificateName);
-      String _GetSSLCertificateName(__int64 iCertificateID);
+      int GetSSLCertificateID_(const String &sSSLCertificateName);
+      String GetSSLCertificateName_(__int64 iCertificateID);
 
       SessionType port_protocol_;
       int port_number_;

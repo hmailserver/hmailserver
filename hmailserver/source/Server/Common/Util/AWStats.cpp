@@ -35,7 +35,7 @@ namespace HM
 
       // Since we were unable to deliver the message, we log that the recipient IP address was 127.0.0.1
       // Not really clear what the 'correct' thing to log here is.
-      _Log(senderIP, "127.0.0.1", sFromAddress, sToAddress, iErrorCode, 0);
+      Log_(senderIP, "127.0.0.1", sFromAddress, sToAddress, iErrorCode, 0);
    }
 
 
@@ -47,11 +47,11 @@ namespace HM
 
       LOG_DEBUG(_T("AWStats::LogDeliverySuccess"));
 
-      _Log(senderIP, recipientIP, pMessage->GetFromAddress(), sRecipient, 250, pMessage->GetSize());
+      Log_(senderIP, recipientIP, pMessage->GetFromAddress(), sRecipient, 250, pMessage->GetSize());
    }
 
    void 
-   AWStats::_Log(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived)
+   AWStats::Log_(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived)
    {
       if (!enabled_)
          return;

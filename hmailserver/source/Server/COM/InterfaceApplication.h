@@ -70,7 +70,7 @@ public:
    STDMETHOD(get_Rules)(/*[out, retval]*/ IInterfaceRules **pVal);
 
 private:
-   HRESULT _EnsureDatabaseConnectivity();
+   HRESULT EnsureDatabaseConnectivity_();
    shared_ptr<HM::COMAuthentication> authentication_;
 };
 

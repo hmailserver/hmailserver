@@ -34,11 +34,11 @@ namespace HM
 
    private:
 
-      int _GetColumnIndex(const AnsiString &sColumnName) const;
+      int GetColumnIndex_(const AnsiString &sColumnName) const;
 
       
 
-      void _Close();
+      void Close_();
 
       hm_MYSQL_RES *result_;
       hm_MYSQL_ROW current_;

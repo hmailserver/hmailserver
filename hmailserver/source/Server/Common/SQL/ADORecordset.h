@@ -31,7 +31,7 @@ namespace HM
 
    private:
 
-      bool _Close();
+      bool Close_();
       _RecordsetPtr cADORecordset;
 
       long cur_row_;

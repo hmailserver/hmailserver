@@ -25,6 +25,6 @@ namespace HM
 
    private:
 
-      static void _NotifyReload(shared_ptr<Rule> pRule);
+      static void NotifyReload_(shared_ptr<Rule> pRule);
    };
 }

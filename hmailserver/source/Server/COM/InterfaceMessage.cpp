@@ -134,7 +134,7 @@ STDMETHODIMP InterfaceMessage::get_Subject(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetSubject().AllocSysString();
+      *pVal = GetMessageData_()->GetSubject().AllocSysString();
    
       return S_OK;
    }
@@ -151,7 +151,7 @@ STDMETHODIMP InterfaceMessage::put_Subject(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetSubject(newVal);
+      GetMessageData_()->SetSubject(newVal);
    
       return S_OK;
    }
@@ -168,7 +168,7 @@ STDMETHODIMP InterfaceMessage::get_Charset(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetCharset().AllocSysString();
+      *pVal = GetMessageData_()->GetCharset().AllocSysString();
    
       return S_OK;
    }
@@ -185,7 +185,7 @@ STDMETHODIMP InterfaceMessage::put_Charset(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetCharset(newVal);
+      GetMessageData_()->SetCharset(newVal);
    
       return S_OK;
    }
@@ -202,7 +202,7 @@ STDMETHODIMP InterfaceMessage::get_From(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetFrom().AllocSysString();
+      *pVal = GetMessageData_()->GetFrom().AllocSysString();
    
       return S_OK;
    }
@@ -219,7 +219,7 @@ STDMETHODIMP InterfaceMessage::put_From(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetFrom(newVal);  
+      GetMessageData_()->SetFrom(newVal);  
    
       return S_OK;
    }
@@ -236,7 +236,7 @@ STDMETHODIMP InterfaceMessage::get_Date(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetSentTime().AllocSysString();
+      *pVal = GetMessageData_()->GetSentTime().AllocSysString();
    
       return S_OK;
    }
@@ -253,7 +253,7 @@ STDMETHODIMP InterfaceMessage::put_Date(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetSentTime(newVal);
+      GetMessageData_()->SetSentTime(newVal);
    
       return S_OK;
    }
@@ -270,7 +270,7 @@ STDMETHODIMP InterfaceMessage::get_Body(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetBody().AllocSysString();
+      *pVal = GetMessageData_()->GetBody().AllocSysString();
    
       return S_OK;
    }
@@ -287,7 +287,7 @@ STDMETHODIMP InterfaceMessage::put_Body(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetBody(newVal);
+      GetMessageData_()->SetBody(newVal);
    
       return S_OK;
    }
@@ -304,7 +304,7 @@ STDMETHODIMP InterfaceMessage::get_HTMLBody(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetHTMLBody().AllocSysString();
+      *pVal = GetMessageData_()->GetHTMLBody().AllocSysString();
       
       return S_OK;
    }
@@ -321,7 +321,7 @@ STDMETHODIMP InterfaceMessage::put_HTMLBody(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetHTMLBody(newVal);
+      GetMessageData_()->SetHTMLBody(newVal);
    
       return S_OK;
    }
@@ -341,7 +341,7 @@ STDMETHODIMP InterfaceMessage::get_Attachments(IInterfaceAttachments **pVal)
       CComObject<InterfaceAttachments>* pItem = new CComObject<InterfaceAttachments>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Attachments> pAttachments = _GetMessageData()->GetAttachments();
+      shared_ptr<HM::Attachments> pAttachments = GetMessageData_()->GetAttachments();
    
       if (pAttachments)
       {
@@ -365,7 +365,7 @@ STDMETHODIMP InterfaceMessage::get_Headers(IInterfaceMessageHeaders **pVal)
       if (!object_)
          return GetAccessDenied();
 
-      shared_ptr<HM::MimeBody> pMimeBody = _GetMessageData()->GetMimeMessage();
+      shared_ptr<HM::MimeBody> pMimeBody = GetMessageData_()->GetMimeMessage();
    
       if (!pMimeBody)
          return DISP_E_BADINDEX;
@@ -385,7 +385,7 @@ STDMETHODIMP InterfaceMessage::get_Headers(IInterfaceMessageHeaders **pVal)
 }
 
 STDMETHODIMP 
-InterfaceMessage::_SaveNewMessageToIMAPFolder()
+InterfaceMessage::SaveNewMessageToIMAPFolder_()
 {
    try
    {
@@ -424,12 +424,12 @@ STDMETHODIMP InterfaceMessage::Save()
          return GetAccessDenied();
 
       // Check that the message has a valid date header.
-      HM::String sDate = _GetMessageData()->GetSentTime();
+      HM::String sDate = GetMessageData_()->GetSentTime();
       if (sDate.IsEmpty())
       {
          // Date was not specified. Specify it now.
          sDate = HM::Time::GetCurrentMimeDate();
-         _GetMessageData()->SetSentTime(sDate);
+         GetMessageData_()->SetSentTime(sDate);
       }
    
       shared_ptr<const HM::Account> account;
@@ -442,7 +442,7 @@ STDMETHODIMP InterfaceMessage::Save()
       // Save the message to disk.
       const HM::String fileName = HM::PersistentMessage::GetFileName(account, object_);
    
-      if (!_GetMessageData()->Write(fileName))
+      if (!GetMessageData_()->Write(fileName))
       {
          return COMError::GenerateError("Unable to write to message file.");
       }
@@ -477,7 +477,7 @@ STDMETHODIMP InterfaceMessage::Save()
             {
                // Case 2. It's a new message but it should be added to an existing IMAP folder.
                object_->SetState(HM::Message::Delivered);
-               return _SaveNewMessageToIMAPFolder();
+               return SaveNewMessageToIMAPFolder_();
             }
    
             break;
@@ -521,7 +521,7 @@ STDMETHODIMP InterfaceMessage::RefreshContent()
          return GetAccessDenied();
 
       // No need to actually refresh anything now, this
-      // will be taken care of by the _GetMessageData()
+      // will be taken care of by the GetMessageData_()
       // when the client tries to access anything after
       // calling this function.
    
@@ -567,7 +567,7 @@ STDMETHODIMP InterfaceMessage::get_To(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetTo().AllocSysString();
+      *pVal = GetMessageData_()->GetTo().AllocSysString();
    
       return S_OK;
    }
@@ -584,7 +584,7 @@ STDMETHODIMP InterfaceMessage::get_CC(BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetCC().AllocSysString();
+      *pVal = GetMessageData_()->GetCC().AllocSysString();
    
       return S_OK;
    }
@@ -603,9 +603,9 @@ STDMETHODIMP InterfaceMessage::ClearRecipients()
 
       object_->GetRecipients()->Clear();
    
-      _GetMessageData()->SetTo("");
-      _GetMessageData()->SetCC("");
-      _GetMessageData()->SetBCC("");
+      GetMessageData_()->SetTo("");
+      GetMessageData_()->SetCC("");
+      GetMessageData_()->SetBCC("");
    
       return S_OK;
    }
@@ -632,14 +632,14 @@ STDMETHODIMP InterfaceMessage::AddRecipient(BSTR bstrName, BSTR bstrAddress)
    
       // Add this recipient to the mime message.
       HM::String sThisAddress = "\"" + sName + "\"" + " <" + sAddress + ">";
-      HM::String sTo = _GetMessageData()->GetTo();
+      HM::String sTo = GetMessageData_()->GetTo();
    
       if (!sTo.IsEmpty())
          sTo += ",";
    
       sTo += sThisAddress;
    
-      _GetMessageData()->SetTo(sTo);
+      GetMessageData_()->SetTo(sTo);
       
    
       return S_OK;
@@ -741,7 +741,7 @@ STDMETHODIMP InterfaceMessage::get_Recipients(IInterfaceRecipients**pVal)
       CComObject<InterfaceRecipients>* pItem = new CComObject<InterfaceRecipients>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Message> pMessage = _GetMessageData()->GetMessage();
+      shared_ptr<HM::Message> pMessage = GetMessageData_()->GetMessage();
    
       if (pMessage)
       {
@@ -759,7 +759,7 @@ STDMETHODIMP InterfaceMessage::get_Recipients(IInterfaceRecipients**pVal)
 }
 
 shared_ptr<HM::MessageData> 
-InterfaceMessage::_GetMessageData()
+InterfaceMessage::GetMessageData_()
 {
    if (!msg_data_)
    {
@@ -784,7 +784,7 @@ STDMETHODIMP InterfaceMessage::get_HeaderValue(BSTR FieldName, BSTR *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetFieldValue(FieldName).AllocSysString();
+      *pVal = GetMessageData_()->GetFieldValue(FieldName).AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -800,7 +800,7 @@ STDMETHODIMP InterfaceMessage::put_HeaderValue(BSTR FieldName, BSTR FieldValue)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetFieldValue(FieldName, FieldValue);
+      GetMessageData_()->SetFieldValue(FieldName, FieldValue);
    
       return S_OK;
    }
@@ -817,7 +817,7 @@ STDMETHODIMP InterfaceMessage::HasBodyType(BSTR BodyType, VARIANT_BOOL *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetHasBodyType(BodyType) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = GetMessageData_()->GetHasBodyType(BodyType) ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -834,7 +834,7 @@ STDMETHODIMP InterfaceMessage::get_EncodeFields(VARIANT_BOOL *pVal)
       if (!object_)
          return GetAccessDenied();
 
-      *pVal = _GetMessageData()->GetEncodeFields() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = GetMessageData_()->GetEncodeFields() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -850,7 +850,7 @@ STDMETHODIMP InterfaceMessage::put_EncodeFields(VARIANT_BOOL newVal)
       if (!object_)
          return GetAccessDenied();
 
-      _GetMessageData()->SetEncodeFields(newVal == VARIANT_TRUE);
+      GetMessageData_()->SetEncodeFields(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)

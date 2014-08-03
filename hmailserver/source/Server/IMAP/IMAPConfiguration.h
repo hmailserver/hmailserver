@@ -52,7 +52,7 @@ namespace HM
       
 
    private:
-      shared_ptr<PropertySet> _GetSettings() const;
+      shared_ptr<PropertySet> GetSettings_() const;
 
       shared_ptr<IMAPFolders> public_folders_;
       shared_ptr<Groups> groups_;

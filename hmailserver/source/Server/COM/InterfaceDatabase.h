@@ -77,7 +77,7 @@ public:
    STDMETHOD(EnsurePrerequisites)(long DBVersion);
    
 private:
-   HRESULT _EnsureDatabaseConnectivity();
+   HRESULT EnsureDatabaseConnectivity_();
 
    HM::Configuration *config_;
    HM::IniFileSettings *ini_file_settings_;

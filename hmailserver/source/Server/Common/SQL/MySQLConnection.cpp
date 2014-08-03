@@ -166,7 +166,7 @@ namespace HM
             bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
             if (!bIgnoreErrors)
             {
-               if (iIgnoreErrors == 0 || !(_GetErrorType(dbconn_) & iIgnoreErrors))
+               if (iIgnoreErrors == 0 || !(GetErrorType_(dbconn_) & iIgnoreErrors))
                {
                   DALConnection::ExecutionResult result = CheckError(dbconn_, SQL, sErrorMessage);
                   return result;
@@ -207,7 +207,7 @@ namespace HM
    }
 
    DALConnection::ExecutionResult
-   MySQLConnection::_GetErrorType(hm_MYSQL *pSQL)
+   MySQLConnection::GetErrorType_(hm_MYSQL *pSQL)
    {
       try
       {
@@ -305,17 +305,17 @@ namespace HM
       }
 
       // Remove dummy user created after installation.
-      _UpdatePassword();
+      UpdatePassword_();
          
       // Run the scripts file
       String sScriptsFile = IniFileSettings::Instance()->GetDBScriptDirectory() + "\\Internal MySQL\\HMS4.3-MySQL4.1.18.sql";
-      _RunScriptFile(sScriptsFile);
+      RunScriptFile_(sScriptsFile);
 
-      _RunCommand("FLUSH PRIVILEGES");
+      RunCommand_("FLUSH PRIVILEGES");
    }
 
    void 
-   MySQLConnection::_UpdatePassword()
+   MySQLConnection::UpdatePassword_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Remoevs any user that lacks user name. Used to tighten security on the internal
@@ -323,11 +323,11 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove the dummy user.
-      _RunCommand("DELETE FROM mysql.user WHERE User = ''");
+      RunCommand_("DELETE FROM mysql.user WHERE User = ''");
    }
 
    void 
-   MySQLConnection::_RunScriptFile(const String &sFile) 
+   MySQLConnection::RunScriptFile_(const String &sFile) 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs a SQL script which contains commands separated with semicolons. This
@@ -350,13 +350,13 @@ namespace HM
          sSQL.TrimRight(_T("\r\n "));
 
          if (!sSQL.IsEmpty())
-            _RunCommand(sSQL);
+            RunCommand_(sSQL);
       }
 #endif
    }
 
    void 
-   MySQLConnection::_RunCommand(const String &sCommand) 
+   MySQLConnection::RunCommand_(const String &sCommand) 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs a single SQL command without any error handling.

@@ -113,8 +113,8 @@ namespace HM
       
    private:
 
-      bool _GetFlag(int iFlag) const;
-      void _SetFlag(int iFlag, bool bSet);
+      bool GetFlag_(int iFlag) const;
+      void SetFlag_(int iFlag, bool bSet);
 
       shared_ptr<MessageRecipients> recipients_;
 

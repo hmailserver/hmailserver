@@ -30,30 +30,30 @@ namespace HM
    CodePages::Initialize()
    {
       // Complete this list.
-      _AddCodePage("US-ASCII", 20127);
+      AddCodePage_("US-ASCII", 20127);
       
-      _AddCodePage("BIG5", 950);
-      _AddCodePage("csBig5", 950);
+      AddCodePage_("BIG5", 950);
+      AddCodePage_("csBig5", 950);
 
-      _AddCodePage("iso-2022-jp", 50221);
-      _AddCodePage("csISO2022JP", 50221);
+      AddCodePage_("iso-2022-jp", 50221);
+      AddCodePage_("csISO2022JP", 50221);
 
-      _AddCodePage("windows-1250", 1250);
-      _AddCodePage("windows-1251", 1251);
-      _AddCodePage("windows-1252", 1252);
-      _AddCodePage("windows-1253", 1253);
-      _AddCodePage("windows-1254", 1254);
-      _AddCodePage("windows-1255", 1255);
-      _AddCodePage("windows-1256", 1256);
-      _AddCodePage("windows-1257", 1257);
-      _AddCodePage("windows-1258", 1258);
+      AddCodePage_("windows-1250", 1250);
+      AddCodePage_("windows-1251", 1251);
+      AddCodePage_("windows-1252", 1252);
+      AddCodePage_("windows-1253", 1253);
+      AddCodePage_("windows-1254", 1254);
+      AddCodePage_("windows-1255", 1255);
+      AddCodePage_("windows-1256", 1256);
+      AddCodePage_("windows-1257", 1257);
+      AddCodePage_("windows-1258", 1258);
 
-      _AddCodePage("utf-8", CP_UTF8);
-      _AddCodePage("utf-7", CP_UTF7);
+      AddCodePage_("utf-8", CP_UTF8);
+      AddCodePage_("utf-7", CP_UTF7);
    }
 
    void 
-   CodePages::_AddCodePage(const AnsiString &sName, int iCodePage)
+   CodePages::AddCodePage_(const AnsiString &sName, int iCodePage)
    {
       AnsiString sTmp = sName;
       sTmp.ToLower();

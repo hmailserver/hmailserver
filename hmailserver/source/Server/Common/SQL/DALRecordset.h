@@ -34,7 +34,7 @@ namespace HM
 
 
    protected:
-      void _ReportEOFError(const AnsiString &FieldName) const;
+      void ReportEOFError_(const AnsiString &FieldName) const;
 
    private:
 

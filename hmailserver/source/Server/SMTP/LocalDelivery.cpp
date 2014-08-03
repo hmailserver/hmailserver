@@ -86,13 +86,13 @@ namespace HM
          if (pCheckAccount)
          {
             // Local recipient has been found. Deliver to it.
-            _DeliverToLocalAccount(pCheckAccount, vecRecipients.size(), saErrorMessages, pRecipient->GetOriginalAddress(), messageReused);
+            DeliverToLocalAccount_(pCheckAccount, vecRecipients.size(), saErrorMessages, pRecipient->GetOriginalAddress(), messageReused);
          }
          else
          {
             // Local recipient but we could not find it. It has probably been deleted 
             // after we accepted the message.
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5165, "LocalDelivery::_DeliverToLocalAccounts", "The recipient account appears to have been deleted after the message was received. Aborting delivery.");
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5165, "LocalDelivery::DeliverToLocalAccount_s", "The recipient account appears to have been deleted after the message was received. Aborting delivery.");
          }
 
          // Delete this recipient from the database and memory.
@@ -110,12 +110,12 @@ namespace HM
    /// Delivers a single message to a specific account.
    /// Returns true if the delivery was made, false otherwise.
    void
-   LocalDelivery::_DeliverToLocalAccount(shared_ptr<const Account> account, int iNoOfRecipients, vector<String> &saErrorMessages, const String &sOriginalAddress, bool &messageReused)
+   LocalDelivery::DeliverToLocalAccount_(shared_ptr<const Account> account, int iNoOfRecipients, vector<String> &saErrorMessages, const String &sOriginalAddress, bool &messageReused)
    {
       // First check that we're actually able to deliver a message to this account. If the account
       // has reached it's quota, we should cancel delivery immediately. If we create the account-level
       // message below, there's no turning back.
-      if (!_CheckAccountQuotas(account, saErrorMessages))
+      if (!CheckAccountQuotas_(account, saErrorMessages))
       {
          return;
       }
@@ -125,17 +125,17 @@ namespace HM
       // we don't have to create a new file on disk.
       messageReused = iNoOfRecipients == 1;
 
-      shared_ptr<Message> accountLevelMessage = _CreateAccountLevelMessage(_originalMessage, account, messageReused, sOriginalAddress);
+      shared_ptr<Message> accountLevelMessage = CreateAccountLevelMessage_(_originalMessage, account, messageReused, sOriginalAddress);
       if (!accountLevelMessage)
       {
          String errorMessage;
          errorMessage.Format(_T("Unable to create account-level message of %I64d for account %s."), _originalMessage->GetID(), String(account->GetAddress()));
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5209, "SMTPDeliverer::_DeliverToLocalAccount", errorMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5209, "SMTPDeliverer::DeliverToLocalAccount_", errorMessage);
          return;
       }
 
-      if (!_LocalDeliveryPreProcess(account, accountLevelMessage, sOriginalAddress, saErrorMessages))
+      if (!LocalDeliveryPreProcess_(account, accountLevelMessage, sOriginalAddress, saErrorMessages))
       {
          FileUtilities::DeleteFile(PersistentMessage::GetFileName(account, accountLevelMessage));
 
@@ -177,15 +177,15 @@ namespace HM
    Returns true if message should be delivered, false if it should be aborted.
    */
    bool 
-   LocalDelivery::_LocalDeliveryPreProcess(shared_ptr<const Account> account, shared_ptr<Message> accountLevelMessage, const String &sOriginalAddress, vector<String> &saErrorMessages)
+   LocalDelivery::LocalDeliveryPreProcess_(shared_ptr<const Account> account, shared_ptr<Message> accountLevelMessage, const String &sOriginalAddress, vector<String> &saErrorMessages)
    {
-      _SendAutoReplyMessage(account, _originalMessage);
+      SendAutoReplyMessage_(account, _originalMessage);
 
       // We must run account level rules after the message file has been
       // moved to the destination folder, so that any changes it has only
       // affects this instance.
       RuleResult accountRuleResult;
-      if (!_RunAccountRules(account, accountLevelMessage, accountRuleResult))
+      if (!RunAccountRules_(account, accountLevelMessage, accountRuleResult))
          return false;
 
       SMTPForwarding forwarder;
@@ -199,7 +199,7 @@ namespace HM
       }
 
       // Do the final delivery of the message.
-      _AddTraceHeaders(account, accountLevelMessage, sOriginalAddress);
+      AddTraceHeaders_(account, accountLevelMessage, sOriginalAddress);
 
       //
       // Move to IMAP folder. This must be done after we've executed account level rules
@@ -234,7 +234,7 @@ namespace HM
    }
 
    bool 
-   LocalDelivery::_CheckAccountQuotas(shared_ptr<const Account> pCheckAccount, vector<String> &saErrorMessages)
+   LocalDelivery::CheckAccountQuotas_(shared_ptr<const Account> pCheckAccount, vector<String> &saErrorMessages)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks that the recipient account has enough space available. If not, 
@@ -265,7 +265,7 @@ namespace HM
    }
 
    shared_ptr<Message> 
-   LocalDelivery::_CreateAccountLevelMessage(shared_ptr<Message> pOriginalMessage, shared_ptr<const Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress)
+   LocalDelivery::CreateAccountLevelMessage_(shared_ptr<Message> pOriginalMessage, shared_ptr<const Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress)
    {
       // Copy the original message to the new message. Also copy the message
       // file unless we should reuse the old one.
@@ -314,7 +314,7 @@ namespace HM
    }
 
    bool 
-   LocalDelivery::_AddTraceHeaders(shared_ptr<const Account> account, shared_ptr<Message> pMessage, const String &sOriginalAddress)
+   LocalDelivery::AddTraceHeaders_(shared_ptr<const Account> account, shared_ptr<Message> pMessage, const String &sOriginalAddress)
    {
       std::vector<pair<AnsiString, AnsiString> > fieldsToWrite;
 
@@ -330,7 +330,7 @@ namespace HM
    }    
 
    void 
-   LocalDelivery::_SendAutoReplyMessage(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage)
+   LocalDelivery::SendAutoReplyMessage_(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage)
    {
       // Do this before we move the message to the users
       // directory. If we do it afterwards, the user may have (at least theoretically)
@@ -355,7 +355,7 @@ namespace HM
    }      
 
    bool 
-   LocalDelivery::_RunAccountRules(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage, RuleResult &accountRuleResult)
+   LocalDelivery::RunAccountRules_(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage, RuleResult &accountRuleResult)
    {
       // Apply rules on this message.  
       shared_ptr<RuleApplier> pRuleApplier = shared_ptr<RuleApplier>(new RuleApplier);

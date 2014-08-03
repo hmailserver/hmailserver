@@ -51,7 +51,7 @@ namespace HM
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::_SaveToFile", sErrorMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::SaveToFile_", sErrorMessage);
 
          return false;
       } 
@@ -217,9 +217,9 @@ namespace HM
 
             // Parse this buffer and add it to file/socket
             if (is_sending_)
-               _InsertTransmissionPeriod(pOutBuffer);
+               InsertTransmissionPeriod_(pOutBuffer);
             else
-               _RemoveTransmissionPeriod(pOutBuffer);
+               RemoveTransmissionPeriod_(pOutBuffer);
 
             // The parsed buffer can now be sent.
             if (is_sending_)
@@ -232,7 +232,7 @@ namespace HM
             }
             else 
             {
-               _SaveToFile(pOutBuffer);
+               SaveToFile_(pOutBuffer);
             }
 
             dataProcessed = true;
@@ -250,7 +250,7 @@ namespace HM
    }
 
    bool 
-   TransparentTransmissionBuffer::_SaveToFile(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::SaveToFile_(shared_ptr<ByteBuffer> pBuffer)
    {
       if (max_size_kb_ > 0 && (data_sent_ / 1024) > max_size_kb_)
       {
@@ -268,7 +268,7 @@ namespace HM
    }
 
    void 
-   TransparentTransmissionBuffer::_InsertTransmissionPeriod(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::InsertTransmissionPeriod_(shared_ptr<ByteBuffer> pBuffer)
    {
       // All . which are placed as the first character on a new
       // line should be replaced with ..
@@ -313,7 +313,7 @@ namespace HM
    }
 
    void
-   TransparentTransmissionBuffer::_RemoveTransmissionPeriod(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::RemoveTransmissionPeriod_(shared_ptr<ByteBuffer> pBuffer)
    {
       // Allocate maximum required length for the out buffer.
       char *pInBuffer = (char*) pBuffer->GetCharBuffer();

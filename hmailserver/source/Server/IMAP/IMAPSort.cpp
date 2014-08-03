@@ -108,7 +108,7 @@ namespace HM
          pair<bool,String> st = (*iterSortType);
 
          String sHeaderField = st.second;
-         SortField sortField = _GetSortField(sHeaderField);
+         SortField sortField = GetSortField_(sHeaderField);
 
          PersistentMessageMetaData messageMetaData;
 
@@ -138,7 +138,7 @@ namespace HM
              sortField == To ||
              sortField == Date)
          {
-            _CacheHeaderFields(pConnection, vecMessages, databaseMetaData, sortField, mapHeaderFields);
+            CacheHeaderFields_(pConnection, vecMessages, databaseMetaData, sortField, mapHeaderFields);
          }
          
          if (sortField == Arrival) 
@@ -224,7 +224,7 @@ namespace HM
    }
 
    IMAPSort::SortField 
-   IMAPSort::_GetSortField(AnsiString sHeaderField)
+   IMAPSort::GetSortField_(AnsiString sHeaderField)
    {
       SortField sortField;
 
@@ -252,7 +252,7 @@ namespace HM
 
 
    void 
-   IMAPSort::_CacheHeaderFields(shared_ptr<IMAPConnection> pConnection,
+   IMAPSort::CacheHeaderFields_(shared_ptr<IMAPConnection> pConnection,
                                 const vector<pair<int, shared_ptr<Message> > > &vecMessages, 
                                 const map<__int64, String > &databaseMetaData, 
                                 SortField &sortField,

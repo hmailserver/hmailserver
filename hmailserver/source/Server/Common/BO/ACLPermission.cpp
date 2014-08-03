@@ -221,7 +221,7 @@ namespace HM
 
       pNode->AppendAttr(_T("Type"), StringParser::IntToString(permission_type_));
       pNode->AppendAttr(_T("Rights"), StringParser::IntToString(value_));
-      pNode->AppendAttr(_T("Holder"), _GetPermissionHolderName(this));
+      pNode->AppendAttr(_T("Holder"), GetPermissionHolderName_(this));
 
       return true;
    }
@@ -266,7 +266,7 @@ namespace HM
    }
 
    String
-   ACLPermission::_GetPermissionHolderName(ACLPermission *pPermission)  const
+   ACLPermission::GetPermissionHolderName_(ACLPermission *pPermission)  const
    {
       switch (pPermission->GetPermissionType())
       {

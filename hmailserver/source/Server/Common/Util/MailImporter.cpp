@@ -65,7 +65,7 @@ namespace HM
             return true;
          else
          {
-            bool result = _ReplaceMessagePath(messageID, originalFullPath);
+            bool result = ReplaceMessagePath_(messageID, originalFullPath);
             
             if (iAccountID > 0 && result)
                IMAPFolderContainer::Instance()->UncacheAccount(iAccountID);
@@ -83,7 +83,7 @@ namespace HM
       {
          // It was not possible to construct a partial file name from the full path.
          String movedFile;
-         if (!_MoveToNamedSubdirectory(originalFullPath, partialFileName, newFullPath))
+         if (!MoveToNamedSubdirectory_(originalFullPath, partialFileName, newFullPath))
             return false;
       }
 
@@ -123,7 +123,7 @@ namespace HM
          return false;
 
       // Check what we should set the internal date to.
-      String sReceivedHeader = _GetInternalDate(pMsgData);
+      String sReceivedHeader = GetInternalDate_(pMsgData);
       pMessage->SetCreateTime(sReceivedHeader);
    
       // Parse out the From-address
@@ -206,7 +206,7 @@ namespace HM
    }
 
    bool 
-   MailImporter::_ReplaceMessagePath(__int64 messageID, const String &messagePath)
+   MailImporter::ReplaceMessagePath_(__int64 messageID, const String &messagePath)
    {
       String newFullPath = messagePath;
 
@@ -216,7 +216,7 @@ namespace HM
       {
          // It was not possible to construct a partial file name from the full path.
          String movedFile;
-         if (!_MoveToNamedSubdirectory(messagePath, partialFileName, newFullPath))
+         if (!MoveToNamedSubdirectory_(messagePath, partialFileName, newFullPath))
             return false;
       }
       
@@ -233,7 +233,7 @@ namespace HM
    }
 
    bool 
-   MailImporter::_MoveToNamedSubdirectory(const String &sourceFile, String &resultFile, String &newFullPath)
+   MailImporter::MoveToNamedSubdirectory_(const String &sourceFile, String &resultFile, String &newFullPath)
    {
       // The file must be located in the data directory. Make sure this is the case.
       const String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
@@ -251,7 +251,7 @@ namespace HM
       // move the message into the correct location.
       
       String currentCorrectDirectory; 
-      if (!_GetRootLevelDirectory(sourceFile, currentCorrectDirectory))
+      if (!GetRootLevelDirectory_(sourceFile, currentCorrectDirectory))
          return false;
 
       String destinationDirectory = FileUtilities::Combine(currentCorrectDirectory, guidFolder);
@@ -271,7 +271,7 @@ namespace HM
 
 
    bool
-   MailImporter::_GetRootLevelDirectory(const String &fullPath, String &rootLevel)
+   MailImporter::GetRootLevelDirectory_(const String &fullPath, String &rootLevel)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Takes an input parameter such as C:\DataDir\Account\Sub1\Sub2\Test.eml and
@@ -315,7 +315,7 @@ namespace HM
    }
 
    String 
-   MailImporter::_GetInternalDate(shared_ptr<MessageData> pMsgData)
+   MailImporter::GetInternalDate_(shared_ptr<MessageData> pMsgData)
    {
 
       String sReceivedHeader = pMsgData->GetFieldValue("Received");
@@ -325,7 +325,7 @@ namespace HM
          
          if (dtTime.GetYear() > 1980 && dtTime.GetYear() < 2040)
          {
-            return _GetInternalDateDatePlusTimeZone(dtTime);
+            return GetInternalDate_DatePlusTimeZone(dtTime);
          }
       }        
 
@@ -338,7 +338,7 @@ namespace HM
          
          if (dtTime.GetYear() > 1980 && dtTime.GetYear() < 2040)
          {
-            return _GetInternalDateDatePlusTimeZone(dtTime);
+            return GetInternalDate_DatePlusTimeZone(dtTime);
          }
       }
 
@@ -349,7 +349,7 @@ namespace HM
    }
 
    String 
-   MailImporter::_GetInternalDateDatePlusTimeZone(DateTime dtTime)
+   MailImporter::GetInternalDate_DatePlusTimeZone(DateTime dtTime)
    {
       long minutes = Time::GetUTCRelationMinutes();
 

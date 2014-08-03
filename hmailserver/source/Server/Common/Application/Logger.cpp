@@ -70,7 +70,7 @@ namespace HM
       if (!(log_mask_ & LSSMTP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
@@ -80,9 +80,9 @@ namespace HM
          sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
-      _WriteData(sData, SMTP);
+      WriteData_(sData, SMTP);
    
    }
 
@@ -92,7 +92,7 @@ namespace HM
       if (!(log_mask_ & LSPOP3))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
@@ -103,9 +103,9 @@ namespace HM
          sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
-      _WriteData(sData, POP3);
+      WriteData_(sData, POP3);
    
    }
 
@@ -115,16 +115,16 @@ namespace HM
       if (!(log_mask_ & LSIMAP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
       sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
-      _WriteData(sData, IMAP);
+      WriteData_(sData, IMAP);
    
    }
 
@@ -142,7 +142,7 @@ namespace HM
          return; // not intressted in this...   
 #endif
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
@@ -153,10 +153,10 @@ namespace HM
 #endif
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
       if (log_mask_ & LSApplication)
-         _WriteData(sData);
+         WriteData_(sData);
    }
 
    void 
@@ -165,17 +165,17 @@ namespace HM
       if (!(log_mask_ & LSDebug))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
       sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
 
-      _WriteData(sData);
+      WriteData_(sData);
    
    }
 
@@ -183,20 +183,20 @@ namespace HM
    void 
    Logger::LogError(const String &sMessage)
    {
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
       sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
-      _WriteData(sData, Error);
+      WriteData_(sData, Error);
 
       // Also log this in the application log if some other logging is enabled.
       if (GetLoggingEnabled())
-         _WriteData(sData, Normal);
+         WriteData_(sData, Normal);
    }
 
 
@@ -206,7 +206,7 @@ namespace HM
       if (!(log_mask_ & LSTCPIP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
 
@@ -214,21 +214,21 @@ namespace HM
       sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
 
       if (enable_live_log_)
-         _LogLive(sData);
+         LogLive_(sData);
 
-      _WriteData(sData);
+      WriteData_(sData);
    }
 
    void 
    Logger::LogEvent(const String &sMessage)
    {
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
       sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
 
-      _WriteData(sData, Events);
+      WriteData_(sData, Events);
    }
 
    String 
@@ -286,7 +286,7 @@ namespace HM
    }
 
    File*
-   Logger::_GetCurrentLogFile(LogType lt)
+   Logger::GetCurrentLogFile_(LogType lt)
    {
       String fileName = GetCurrentLogFileName(lt);
       sep_svc_logs_ = IniFileSettings::Instance()->GetSepSvcLogs();
@@ -363,11 +363,11 @@ namespace HM
    }
 
    bool
-   Logger::_WriteData(const String &sData, LogType lt)
+   Logger::WriteData_(const String &sData, LogType lt)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mtx);
 
-      File *file = _GetCurrentLogFile(lt);
+      File *file = GetCurrentLogFile_(lt);
 
       bool writeUnicode = false;
       bool keepFileOpen = (log_mask_ & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
@@ -427,14 +427,14 @@ namespace HM
    }
 
    int 
-   Logger::_GetProcessID()
+   Logger::GetProcessID_()
    {
       DWORD dwProcessID = GetCurrentProcessId();
       return dwProcessID;
    }
 
    int 
-   Logger::_GetThreadID()
+   Logger::GetThreadID_()
    {
       DWORD dwThreadID = GetCurrentThreadId();
       return dwThreadID;
@@ -442,7 +442,7 @@ namespace HM
    }
 
    void
-   Logger::_LogLive(String &sMessage)
+   Logger::LogLive_(String &sMessage)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
 
@@ -510,7 +510,7 @@ namespace HM
    void
    Logger::LogAWStats(const String &sData)
    {
-      _WriteData(sData, AWStats);
+      WriteData_(sData, AWStats);
    }
 
    void
@@ -520,6 +520,6 @@ namespace HM
       String sLogMessage;
 
       sLogMessage.Format(_T("%s\t%s\r\n"), sTime, sData);
-      _WriteData(sLogMessage, Backup);
+      WriteData_(sLogMessage, Backup);
    }
 }

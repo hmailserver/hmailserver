@@ -26,8 +26,8 @@ namespace HM
       bool is_loaded_;
       bool _isDownloaded;
 
-      static std::pair<int, String> _GetString(const String &sLine);
-      static void _CleanString(String &sText);
+      static std::pair<int, String> GetString_(const String &sLine);
+      static void CleanString_(String &sText);
       std::map<String, String> strings_;
       
       static std::map<int, String> mapEnglishContent;

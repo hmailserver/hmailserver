@@ -349,14 +349,14 @@ namespace HM
    String 
    IMAPFolders::GetCollectionName() const 
    {
-      if (_GetIsPublicFolders())
+      if (GetIsPublicFolders_())
          return "PublicFolders"; 
       else
          return "Folders"; 
    }
 
    bool 
-   IMAPFolders::_GetIsPublicFolders() const
+   IMAPFolders::GetIsPublicFolders_() const
    {
       if (account_id_ == 0)
          return true;

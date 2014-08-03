@@ -118,18 +118,18 @@ namespace HM
 
    private:
 
-      File* _GetCurrentLogFile(LogType lt);
+      File* GetCurrentLogFile_(LogType lt);
 
-      void _LogLive(String &sMessage);
-      bool _WriteData(const String &sData, LogType = Normal);
+      void LogLive_(String &sMessage);
+      bool WriteData_(const String &sData, LogType = Normal);
    
       static Logger *pInstanceApp;   
      
       String log_dir_;
       String GetCurrentTime();
 
-      int _GetProcessID();
-      int _GetThreadID();
+      int GetProcessID_();
+      int GetThreadID_();
 
 
       bool enable_live_log_;

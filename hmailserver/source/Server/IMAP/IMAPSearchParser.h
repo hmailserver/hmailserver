@@ -94,7 +94,7 @@ namespace HM
 
    private:
 
-      static bool _IsSequenceSet(const String &item);
+      static bool IsSequenceSet_(const String &item);
 
       long uidlower_;
       long uidupper_;
@@ -128,13 +128,13 @@ namespace HM
 
    private:
 
-      bool _IsValidCharset(const String &charsetName);
-      bool _NeedsDecoding(IMAPSearchCriteria::CriteriaType criteriaType);
-      String _DecodeWordAccordingToCharset(const String &inputValue);
+      bool IsValidCharset_(const String &charsetName);
+      bool NeedsDecoding_(IMAPSearchCriteria::CriteriaType criteriaType);
+      String DecodeWordAccordingToCharset_(const String &inputValue);
       
-      IMAPResult _ParseSegment(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
+      IMAPResult ParseSegment_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
 
-      IMAPResult _ParseWord(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
+      IMAPResult ParseWord_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
 
       shared_ptr<IMAPSortParser> sort_parser_;
       shared_ptr<IMAPSearchCriteria> result_criteria_;

@@ -50,8 +50,8 @@ namespace HM
       void Test();
 
    private:
-      void _TestComputerName();
-      void _TestReceivedHeaderParse();
+      void TestComputerName_();
+      void TestReceivedHeaderParse_();
    };
 
 }

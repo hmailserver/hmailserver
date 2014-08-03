@@ -310,7 +310,7 @@ namespace HM
 
       io_service_ = shared_ptr<IOService>(new IOService);
       io_service_->Initialize();
-      _RegisterSessionTypes();
+      RegisterSessionTypes_();
 
       // Create the main work queue.
       int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
@@ -330,7 +330,7 @@ namespace HM
       external_fetch_manager_ = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, external_fetch_manager_);
 
-      _CreateScheduledTasks();
+      CreateScheduledTasks_();
 
       if (Configuration::Instance()->GetMessageIndexing())
       {
@@ -351,7 +351,7 @@ namespace HM
    }
 
    void 
-   Application::_RegisterSessionTypes()
+   Application::RegisterSessionTypes_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Registers the different session types...
@@ -375,7 +375,7 @@ namespace HM
    }
 
    void 
-   Application::_CreateScheduledTasks()
+   Application::CreateScheduledTasks_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Create scheduled tasks.

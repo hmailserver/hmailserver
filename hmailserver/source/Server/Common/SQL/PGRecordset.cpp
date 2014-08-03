@@ -24,7 +24,7 @@ namespace HM
 
    PGRecordset::~PGRecordset()
    {
-      _Close();
+      Close_();
    }
 
    DALConnection::ExecutionResult
@@ -75,7 +75,7 @@ namespace HM
    }
 
    bool
-   PGRecordset::_Close()
+   PGRecordset::Close_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Closes a recordset.
@@ -147,13 +147,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
 
          if (pValue == 0 || strlen(pValue) == 0)
@@ -185,13 +185,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
@@ -212,13 +212,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
@@ -239,13 +239,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          double dbVal = pValue ? atof(pValue) : 0;
 
@@ -259,7 +259,7 @@ namespace HM
    }
 
    int 
-   PGRecordset::_GetColumnIndex(const AnsiString &sColumnName) const
+   PGRecordset::GetColumnIndex_(const AnsiString &sColumnName) const
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the index of a column in the recordset, based on the columns name.
@@ -284,7 +284,7 @@ namespace HM
       }      
 
       // Result set wasn't initialized. Shouldn't happen.
-      ErrorManager::Instance()->ReportError(ErrorManager::High, 5092, "MySQLRecordset::_GetColumnIndex", "The requested column was not found. Column name: " + sColumnName);
+      ErrorManager::Instance()->ReportError(ErrorManager::High, 5092, "MySQLRecordset::GetColumnIndex_", "The requested column was not found. Column name: " + sColumnName);
 
       return -1;
    }
@@ -318,13 +318,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          bool isNull = PQgetisnull(result_, cur_row_num_, iColIdx) == 1;
 
          return isNull;

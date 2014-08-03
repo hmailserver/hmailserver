@@ -210,7 +210,7 @@ namespace HM
       if (bReadRecipients)
       {
          // The message recipients has been parsed.
-         _ReadRecipients(pMessage);
+         ReadRecipients_(pMessage);
       }
 
 
@@ -228,7 +228,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::_ReadRecipients(shared_ptr<Message> pMessage)
+   PersistentMessage::ReadRecipients_(shared_ptr<Message> pMessage)
    {
    
       shared_ptr<MessageRecipients> pRecipients = pMessage->GetRecipients();
@@ -255,7 +255,7 @@ namespace HM
          if (!MailerDaemonAddressDeterminer::IsMailerDaemonAddress(sAddress))
          {
             if (sAddress.IsEmpty())
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4201, "PersistentAccount::_ReadRecipients", "Read recipient from database without an address.");
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4201, "PersistentAccount::ReadRecipients_", "Read recipient from database without an address.");
             else
                pRecipients->Add(pRecipient);
          }
@@ -296,7 +296,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::_SaveRecipients(shared_ptr<Message> pMessage)
+   PersistentMessage::SaveRecipients_(shared_ptr<Message> pMessage)
    {
       std::vector<shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
       std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
@@ -308,7 +308,7 @@ namespace HM
          // Check that the recipient address is really specified
          if (pRecipient->GetAddress().IsEmpty() && pRecipient->GetLocalAccountID() == 0)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4224, "PersistentMessage::_SaveRecipients", "Tried to save recipient without an address.");
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4224, "PersistentMessage::SaveRecipients_", "Tried to save recipient without an address.");
 
             iterRecipient++;
             continue;
@@ -384,7 +384,7 @@ namespace HM
    shared_ptr<Message>
    PersistentMessage::CopyToQueue(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage)
    {
-      shared_ptr<Message> newMessage = _CreateCopy(sourceMessage, 0);
+      shared_ptr<Message> newMessage = CreateCopy_(sourceMessage, 0);
       newMessage->SetState(Message::Delivering);
 
       // Copy the message file.
@@ -403,7 +403,7 @@ namespace HM
    shared_ptr<Message>
    PersistentMessage::CopyToIMAPFolder(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage, shared_ptr<IMAPFolder> destinationFolder)
    {
-      shared_ptr<Message> messageCopy = _CreateCopy(sourceMessage, (int) destinationFolder->GetAccountID());
+      shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationFolder->GetAccountID());
       messageCopy->SetState(Message::Delivered);
       messageCopy->SetFolderID(destinationFolder->GetID());
 
@@ -432,7 +432,7 @@ namespace HM
    shared_ptr<Message>
    PersistentMessage::CopyFromQueueToInbox(shared_ptr<Message> sourceMessage, shared_ptr<const Account> destinationAccount)
    {
-      shared_ptr<Message> messageCopy = _CreateCopy(sourceMessage, (int) destinationAccount->GetID());
+      shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationAccount->GetID());
       messageCopy->SetState(Message::Delivered);
 
       // Locate the inbox ID
@@ -459,7 +459,7 @@ namespace HM
    }
 
    shared_ptr<Message>
-   PersistentMessage::_CreateCopy(shared_ptr<Message> sourceMessage, int destinationAccountID)
+   PersistentMessage::CreateCopy_(shared_ptr<Message> sourceMessage, int destinationAccountID)
    {
       LOG_DEBUG("Copying mail contents");
       shared_ptr<Message> pTo = shared_ptr<Message>(new Message(true));
@@ -520,7 +520,7 @@ namespace HM
       if (bNewMessage && pMessage->GetRecipients()->GetCount())
       {
          // If there are any recipients, save them in the database.
-         if (!_SaveRecipients(pMessage))
+         if (!SaveRecipients_(pMessage))
             return false;
 
          // Message is now completely saved so we may unlock it so that

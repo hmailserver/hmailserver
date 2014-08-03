@@ -49,7 +49,7 @@ namespace HM
       static void RemoveDuplicateItems(std::vector<String> &items);
    private:
 
-      static bool _AnyOfCharsExists(const String &sChars, const String &sLookIn);
+      static bool AnyOfCharsExists_(const String &sChars, const String &sLookIn);
    
    };
 

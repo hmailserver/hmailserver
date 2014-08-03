@@ -33,8 +33,8 @@ namespace HM
 
    private:
 
-      void _CacheHeaderFields(shared_ptr<IMAPConnection> pConnection, const vector<pair<int, shared_ptr<Message> > > &vecMessages, const map<__int64, String > &databaseMetaData, SortField &sortField, std::map<__int64, String> &mapHeaderFields);
+      void CacheHeaderFields_(shared_ptr<IMAPConnection> pConnection, const vector<pair<int, shared_ptr<Message> > > &vecMessages, const map<__int64, String > &databaseMetaData, SortField &sortField, std::map<__int64, String> &mapHeaderFields);
 
-      SortField _GetSortField(AnsiString sHeaderField);
+      SortField GetSortField_(AnsiString sHeaderField);
    };
 }

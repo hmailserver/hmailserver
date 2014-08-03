@@ -44,7 +44,7 @@ namespace HM
          String sFormattedLanguage = sLanguage;
          sFormattedLanguage.ToLower();
 
-         if (!_IsValidLangauge(sFormattedLanguage))
+         if (!IsValidLangauge_(sFormattedLanguage))
             continue;
 
          shared_ptr<Language> pLanguage = shared_ptr<Language>(new Language(sFormattedLanguage, true));
@@ -68,7 +68,7 @@ namespace HM
    }
 
    bool 
-   Languages::_IsValidLangauge(const String &sLanguage) const
+   Languages::IsValidLangauge_(const String &sLanguage) const
    {
       vector<String> validLanguages = IniFileSettings::Instance()->GetValidLanguages();
       vector<String>::iterator iter = validLanguages.begin();

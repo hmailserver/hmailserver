@@ -18,7 +18,7 @@ namespace HM
 
    private:
 
-      void _Initialize();
+      void Initialize_();
 
       vector<pair<int, shared_ptr<IPrerequisite > > > _prerequisites;
       

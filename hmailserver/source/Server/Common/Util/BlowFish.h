@@ -21,8 +21,8 @@ namespace HM
 	   void 		Blowfish_encipher (DWORD *xl, DWORD *xr) ;
 	   void 		Blowfish_decipher (DWORD *xl, DWORD *xr) ;
 
-      String _ToHex(BYTE *Buf, int iBufLen);
-      int _ToByteArray(const String &sHex, BYTE *OutArray);
+      String ToHex_(BYTE *Buf, int iBufLen);
+      int ToByteArray_(const String &sHex, BYTE *OutArray);
 
    public:
 		BlowFishEncryptor () ;

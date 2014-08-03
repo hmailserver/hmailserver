@@ -15,7 +15,7 @@ namespace HM
       _columnName(name),
       _type(ParamTypeInt32)
    {
-      _ResetValues();
+      ResetValues_();
       _int32Value = value;
    }
 
@@ -23,7 +23,7 @@ namespace HM
       _columnName(name),
       _type(ParamTypeInt64)
    {
-      _ResetValues();
+      ResetValues_();
       _int64Value = value;
    }
 
@@ -31,7 +31,7 @@ namespace HM
       _columnName(name),
       _type(ParamTypeString)
    {
-      _ResetValues();
+      ResetValues_();
       _stringValue = value;
    }
 
@@ -40,12 +40,12 @@ namespace HM
       _columnName(name),
       _type(ParamTypeUnsignedInt32)
    {
-      _ResetValues();
+      ResetValues_();
       _unsignedInt32Value = value;
    }
 
    void 
-   SQLParameter::_ResetValues()
+   SQLParameter::ResetValues_()
    {
       _int32Value = 0;
       _int64Value = 0;

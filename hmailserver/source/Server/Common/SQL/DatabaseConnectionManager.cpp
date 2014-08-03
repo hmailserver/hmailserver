@@ -50,7 +50,7 @@ namespace HM
       bool bConnectionOK = false;
       for (int iTry = 1; iTry <= iNoOfConnectionAttempts ; iTry++)
       {     
-         DALConnection::ConnectionResult iResult = _Connect(sErrorMessage);
+         DALConnection::ConnectionResult iResult = Connect_(sErrorMessage);
 
          switch (iResult)
          {
@@ -78,7 +78,7 @@ namespace HM
    }
 
    DALConnection::ConnectionResult
-   DatabaseConnectionManager::_Connect(String &sErrorMessage)
+   DatabaseConnectionManager::Connect_(String &sErrorMessage)
    {
       int iNoOfConnections = IniFileSettings::Instance()->GetNumberOfDatabaseConnections();
 
@@ -146,7 +146,7 @@ namespace HM
    bool 
    DatabaseConnectionManager::Execute(const SQLCommand &command, __int64 *iInsertID, int iIgnoreErrors, String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pDALConn = _GetConnection();
+      shared_ptr<DALConnection> pDALConn = GetConnection_();
 
       if (!pDALConn)
       {
@@ -157,7 +157,7 @@ namespace HM
 
       bool bResult = pDALConn->Execute(command, sErrorMessage, iInsertID, iIgnoreErrors);
 
-      _ReleaseConnection(pDALConn);
+      ReleaseConnection_(pDALConn);
 
       return bResult;
    }
@@ -173,7 +173,7 @@ namespace HM
    {
       shared_ptr<DALRecordset> pRecordset;
 
-      shared_ptr<DALConnection> pDALConn = _GetConnection();
+      shared_ptr<DALConnection> pDALConn = GetConnection_();
 
       if (!pDALConn)
       {
@@ -186,7 +186,7 @@ namespace HM
       if (!pRecordset->Open(pDALConn, command))
          pRecordset.reset();
 
-      _ReleaseConnection(pDALConn);
+      ReleaseConnection_(pDALConn);
 
       return pRecordset;
 
@@ -194,7 +194,7 @@ namespace HM
    }
 
    void
-   DatabaseConnectionManager::_ReleaseConnection(shared_ptr<DALConnection> pConnection)
+   DatabaseConnectionManager::ReleaseConnection_(shared_ptr<DALConnection> pConnection)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -225,7 +225,7 @@ namespace HM
    }
 
    shared_ptr<DALConnection>
-   DatabaseConnectionManager::_GetConnection()
+   DatabaseConnectionManager::GetConnection_()
    {
       // Loop until we find a free connection
       while (1)
@@ -267,7 +267,7 @@ namespace HM
    shared_ptr<DALConnection> 
    DatabaseConnectionManager::BeginTransaction(String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pDALConnection = _GetConnection();
+      shared_ptr<DALConnection> pDALConnection = GetConnection_();
       if (!pDALConnection->BeginTransaction(sErrorMessage))
       {
          // Could not start database transaction.
@@ -282,7 +282,7 @@ namespace HM
    DatabaseConnectionManager::CommitTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage)
    {
       bool bResult = pConnection->CommitTransaction(sErrorMessage);
-      _ReleaseConnection(pConnection);
+      ReleaseConnection_(pConnection);
 
       return bResult;
    }
@@ -291,7 +291,7 @@ namespace HM
    DatabaseConnectionManager::RollbackTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage)
    {
       bool bResult = pConnection->RollbackTransaction(sErrorMessage);
-      _ReleaseConnection(pConnection);
+      ReleaseConnection_(pConnection);
 
       return bResult;
    }
@@ -311,12 +311,12 @@ namespace HM
    bool
    DatabaseConnectionManager::ExecuteScript(const String &sFile, String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pConnection = _GetConnection();
+      shared_ptr<DALConnection> pConnection = GetConnection_();
 
       SQLScriptRunner scriptRunner;
       bool result = scriptRunner.ExecuteScript(pConnection, sFile, sErrorMessage);
 
-      _ReleaseConnection(pConnection);
+      ReleaseConnection_(pConnection);
 
       return result;
    }
@@ -326,11 +326,11 @@ namespace HM
    {
       PrerequisiteList prerequisites;
 
-      shared_ptr<DALConnection> pConnection = _GetConnection();
+      shared_ptr<DALConnection> pConnection = GetConnection_();
 
       bool result = prerequisites.Ensure(pConnection, DBVersion, sErrorMessage);
 
-      _ReleaseConnection(pConnection);
+      ReleaseConnection_(pConnection);
 
       return result;
    }

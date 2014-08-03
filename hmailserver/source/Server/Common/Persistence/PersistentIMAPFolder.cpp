@@ -183,7 +183,7 @@ namespace HM
    }
 
    unsigned int 
-   PersistentIMAPFolder::_GetCurrentUID(__int64 folderID)
+   PersistentIMAPFolder::GetCurrentUID_(__int64 folderID)
    {
       if (folderID == 0)
          return 0;
@@ -196,7 +196,7 @@ namespace HM
       {
          String message;
          message.Format(_T("Current UID for folder %I64d could not be looked up"), folderID);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::_GetCurrentUID", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::GetCurrentUID_", message);
 
          return 0;
       }
@@ -205,7 +205,7 @@ namespace HM
       {
          String message;
          message.Format(_T("Current UID for folder %I64d could not be looked up. Folder does not eixst."), folderID);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::_GetCurrentUID", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::GetCurrentUID_", message);
 
          return 0;
       }
@@ -216,7 +216,7 @@ namespace HM
    }
 
    bool 
-   PersistentIMAPFolder::_IncreaseCurrentUID(__int64 folderID)
+   PersistentIMAPFolder::IncreaseCurrentUID_(__int64 folderID)
    {
       SQLCommand command("UPDATE hm_imapfolders SET foldercurrentuid = foldercurrentuid + 1 WHERE folderid = @FOLDERID");
       command.AddParameter("@FOLDERID", folderID);
@@ -230,8 +230,8 @@ namespace HM
       if (folderID == 0)
          return 0;
 
-      _IncreaseCurrentUID(folderID);
-      unsigned int newUID = _GetCurrentUID(folderID);
+      IncreaseCurrentUID_(folderID);
+      unsigned int newUID = GetCurrentUID_(folderID);
 
       IMAPFolderContainer::Instance()->UpdateCurrentUID(accountID, folderID, newUID);
 

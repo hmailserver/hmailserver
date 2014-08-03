@@ -42,7 +42,7 @@
 5301, PGRecordset::GetIsNull, An error occured while checking for null.
 5302, MySQLRecordset::GetIsNull, An error occured while checking for null.
 5303, PersistentIMAPFolder::_GetCurrentUID, Current UID for folder %I64d could not be looked up. Folder does not eixst.
-5304, DALRecordset::_ReportEOFError, Trying to access data in recordset which was EOF. Field name: %s.
+5304, DALRecordset::ReportEOFError_, Trying to access data in recordset which was EOF. Field name: %s.
 5305, DKIMSigner::Sign, Either the selector or private key file was not specified.
 5306, DKIMSigner::Sign, Message signing using DKIM failed.
 5307, DKIM::Sign, Creation of canonicalization method failed.

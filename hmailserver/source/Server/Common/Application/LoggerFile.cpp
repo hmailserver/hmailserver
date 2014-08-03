@@ -37,7 +37,7 @@ HIS_LoggerFile::AddToLog(int LogType, const HIS_String &sRemoteHost, const HIS_S
       sData.Format("%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n", _GetThreadID(), sTime, sIPTemp, sLogTextTemp);
       
       
-      _WriteData(sFilename, sData);
+      WriteData_(sFilename, sData);
 
    }
    catch (...)
@@ -53,11 +53,11 @@ HIS_LoggerFile::AddToLog(HIS_String sFilename, HIS_String sMessage)
    if (sFilename.IsEmpty()) 
       return;
 
-   _WriteData(sFilename, sMessage);
+   WriteData_(sFilename, sMessage);
 }
 
 bool
-HIS_LoggerFile::_WriteData(HIS_String sFilename, HIS_String sData)
+HIS_LoggerFile::WriteData_(HIS_String sFilename, HIS_String sData)
 {
    HANDLE handleFile;
    // --- Open the file for writing.

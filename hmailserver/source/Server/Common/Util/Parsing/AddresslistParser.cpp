@@ -126,8 +126,8 @@ namespace HM
       
       String sEmailAddress;
 
-      _ExtractQuotedString(sCompound, sFullName);
-      _ExtractWithinGTLT(sCompound, sEmailAddress);
+      ExtractQuotedString_(sCompound, sFullName);
+      ExtractWithinGTLT_(sCompound, sEmailAddress);
       
       UnescapeString(sFullName);
       UnescapeString(sEmailAddress);
@@ -184,7 +184,7 @@ namespace HM
    }
 
    void 
-   AddresslistParser::_ExtractQuotedString(const String &sData, String &sQuotedString) const
+   AddresslistParser::ExtractQuotedString_(const String &sData, String &sQuotedString) const
    {
       sQuotedString = "";
       bool bInsideQuote = false;
@@ -230,7 +230,7 @@ namespace HM
    }
 
    void 
-   AddresslistParser::_ExtractWithinGTLT(const String &sData, String &sOutputString) const
+   AddresslistParser::ExtractWithinGTLT_(const String &sData, String &sOutputString) const
    {
       sOutputString = "";
 
@@ -301,17 +301,17 @@ namespace HM
    bool
    AddresslistParserTester::Test()
    {
-      _TestAddress("test@example.com", "test@example.com", "test","example.com");
-      _TestAddress("<martin@example.com>", "martin@example.com", "martin","example.com");
-      _TestAddress("\"servizio@example.it\"<servizio@example.it>", "servizio@example.it", "servizio", "example.it");
-      _TestAddress("\"Martin Knafve\" <martin@test.com>", "Martin Knafve", "martin", "test.com");
-      _TestAddress("Martin Knafve <test@domain.com>", "Martin Knafve", "test", "domain.com");      
-      _TestAddress("\"fdsa\\\"\" <test@test.com>", Charset::Encode("fdsa\""), "test", "test.com");      
-      _TestAddress("Emanuele Example <emanuele@example.com>", "Emanuele Example", "emanuele", "example.com");      
-      _TestAddress("Secunia Research <remove-vuln@example.com>", "Secunia Research", "remove-vuln", "example.com");      
-      _TestAddress("bugtraq@securityfocus.com", "bugtraq@securityfocus.com", "bugtraq", "securityfocus.com");
-      _TestAddress("Daniel <Daniel_SE@example.com>", "Daniel", "Daniel_SE", "example.com");
-      _TestAddress("\"Fredlund Example\" <Ingrid.Example@example.com>", "Fredlund Example", "Ingrid.Example", "example.com");
+      TestAddress_("test@example.com", "test@example.com", "test","example.com");
+      TestAddress_("<martin@example.com>", "martin@example.com", "martin","example.com");
+      TestAddress_("\"servizio@example.it\"<servizio@example.it>", "servizio@example.it", "servizio", "example.it");
+      TestAddress_("\"Martin Knafve\" <martin@test.com>", "Martin Knafve", "martin", "test.com");
+      TestAddress_("Martin Knafve <test@domain.com>", "Martin Knafve", "test", "domain.com");      
+      TestAddress_("\"fdsa\\\"\" <test@test.com>", Charset::Encode("fdsa\""), "test", "test.com");      
+      TestAddress_("Emanuele Example <emanuele@example.com>", "Emanuele Example", "emanuele", "example.com");      
+      TestAddress_("Secunia Research <remove-vuln@example.com>", "Secunia Research", "remove-vuln", "example.com");      
+      TestAddress_("bugtraq@securityfocus.com", "bugtraq@securityfocus.com", "bugtraq", "securityfocus.com");
+      TestAddress_("Daniel <Daniel_SE@example.com>", "Daniel", "Daniel_SE", "example.com");
+      TestAddress_("\"Fredlund Example\" <Ingrid.Example@example.com>", "Fredlund Example", "Ingrid.Example", "example.com");
 
 
       {  // MORE ADVANCED
@@ -582,7 +582,7 @@ namespace HM
    }
 
    void 
-   AddresslistParserTester::_TestAddress(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain)
+   AddresslistParserTester::TestAddress_(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain)
    {
       AddresslistParser* pParser= new AddresslistParser();
 

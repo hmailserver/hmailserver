@@ -87,16 +87,16 @@ namespace HM
          }
          
          // Determine which functions are available.
-         has_on_client_connect_ = _DoesFunctionExist("OnClientConnect");
-         has_on_accept_message_ = _DoesFunctionExist("OnAcceptMessage");
-         has_on_deliver_message_ = _DoesFunctionExist("OnDeliverMessage");
-         has_on_backup_completed_ = _DoesFunctionExist("OnBackupCompleted");
-         has_on_backup_failed_ = _DoesFunctionExist("OnBackupFailed");
-         has_on_delivery_start_ = _DoesFunctionExist("OnDeliveryStart");
-         has_on_error_ = _DoesFunctionExist("OnError");
-         has_on_delivery_failed_ = _DoesFunctionExist("OnDeliveryFailed");
-         has_on_external_account_download_ = _DoesFunctionExist("OnExternalAccountDownload");
-         has_on_smtpdata_ = _DoesFunctionExist("OnSMTPData");
+         has_on_client_connect_ = DoesFunctionExist_("OnClientConnect");
+         has_on_accept_message_ = DoesFunctionExist_("OnAcceptMessage");
+         has_on_deliver_message_ = DoesFunctionExist_("OnDeliverMessage");
+         has_on_backup_completed_ = DoesFunctionExist_("OnBackupCompleted");
+         has_on_backup_failed_ = DoesFunctionExist_("OnBackupFailed");
+         has_on_delivery_start_ = DoesFunctionExist_("OnDeliveryStart");
+         has_on_error_ = DoesFunctionExist_("OnError");
+         has_on_delivery_failed_ = DoesFunctionExist_("OnDeliveryFailed");
+         has_on_external_account_download_ = DoesFunctionExist_("OnExternalAccountDownload");
+         has_on_smtpdata_ = DoesFunctionExist_("OnSMTPData");
 
       }
       catch (...)
@@ -123,7 +123,7 @@ namespace HM
       String sErrorMessage;
 
       // Compile the scripts.
-      sErrorMessage = _Compile(sScriptLanguage, sEventsDir + "\\EventHandlers." + sScriptExtension);
+      sErrorMessage = Compile_(sScriptLanguage, sEventsDir + "\\EventHandlers." + sScriptExtension);
       if (!sErrorMessage.IsEmpty())
          return sErrorMessage;
 
@@ -131,7 +131,7 @@ namespace HM
    }
 
    bool 
-   ScriptServer::_DoesFunctionExist(const String &sProcedure)
+   ScriptServer::DoesFunctionExist_(const String &sProcedure)
    {
       // Create an instance of the script engine and execute the script.
       CComObject<CScriptSiteBasic>* pBasic;
@@ -157,7 +157,7 @@ namespace HM
 
 
    String
-   ScriptServer::_Compile(const String &sLanguage, const String &sFilename)
+   ScriptServer::Compile_(const String &sLanguage, const String &sFilename)
    {
       String sContents = FileUtilities::ReadCompleteTextFile(sFilename);
 

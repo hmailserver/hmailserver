@@ -31,8 +31,8 @@ namespace HM
 
    private:
 
-      static bool _IncreaseCurrentUID(__int64 folderID);
-      static unsigned int _GetCurrentUID(__int64 folderID);
+      static bool IncreaseCurrentUID_(__int64 folderID);
+      static unsigned int GetCurrentUID_(__int64 folderID);
 
 
    };

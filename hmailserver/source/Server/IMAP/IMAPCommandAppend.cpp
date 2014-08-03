@@ -36,11 +36,11 @@ namespace HM
 
    IMAPCommandAppend::~IMAPCommandAppend()
    {
-      _KillCurrentMessage();
+      KillCurrentMessage_();
    }
 
    void 
-   IMAPCommandAppend::_KillCurrentMessage()
+   IMAPCommandAppend::KillCurrentMessage_()
    {
       if (!current_message_)
          return;
@@ -92,7 +92,7 @@ namespace HM
       bytes_left_to_receive_ += 2;
 
       shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
-      int maxMessageSizeKB = _GetMaxMessageSize(domain);
+      int maxMessageSizeKB = GetMaxMessageSize_(domain);
 
       if (maxMessageSizeKB > 0 && 
           bytes_left_to_receive_ / 1024 > maxMessageSizeKB)
@@ -173,19 +173,19 @@ namespace HM
    
       if (_appendBuffer.GetSize() >= bytes_left_to_receive_)
       {
-         _WriteData(pConnection, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
+         WriteData_(pConnection, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
 
          pConnection->SetReceiveBinary(false);
    
          _appendBuffer.Empty();
 
-         _Finish(pConnection);
+         Finish_(pConnection);
 
          pConnection->PostReceive();
       }
       else
       {
-         _TruncateBuffer(pConnection);
+         TruncateBuffer_(pConnection);
 
          pConnection->PostBufferReceive();
       }
@@ -193,7 +193,7 @@ namespace HM
    }
    
    bool
-   IMAPCommandAppend::_WriteData(const shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
+   IMAPCommandAppend::WriteData_(const shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
    {
       if (!current_message_)
          return false;
@@ -213,11 +213,11 @@ namespace HM
    }
 
    bool
-   IMAPCommandAppend::_TruncateBuffer(const shared_ptr<IMAPConnection> pConn)
+   IMAPCommandAppend::TruncateBuffer_(const shared_ptr<IMAPConnection> pConn)
    {
       if (_appendBuffer.GetSize() >= 20000)
       {
-         _WriteData(pConn, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
+         WriteData_(pConn, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
          bytes_left_to_receive_ -= _appendBuffer.GetSize();
          _appendBuffer.Empty();
       }
@@ -227,7 +227,7 @@ namespace HM
    }
 
    void
-   IMAPCommandAppend::_Finish(shared_ptr<IMAPConnection> pConnection)
+   IMAPCommandAppend::Finish_(shared_ptr<IMAPConnection> pConnection)
    {
       if (!current_message_)
          return;
@@ -295,7 +295,7 @@ namespace HM
    }
 
    int 
-   IMAPCommandAppend::_GetMaxMessageSize(shared_ptr<const Domain> pDomain)
+   IMAPCommandAppend::GetMaxMessageSize_(shared_ptr<const Domain> pDomain)
    {
       int iMaxMessageSizeKB = Configuration::Instance()->GetSMTPConfiguration()->GetMaxMessageSize();
 

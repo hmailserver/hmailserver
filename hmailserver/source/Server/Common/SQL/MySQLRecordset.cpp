@@ -24,7 +24,7 @@ namespace HM
 
    MySQLRecordset::~MySQLRecordset()
    {
-      _Close();
+      Close_();
    }
 
    DALConnection::ExecutionResult
@@ -76,7 +76,7 @@ namespace HM
 
 
    void
-   MySQLRecordset::_Close()
+   MySQLRecordset::Close_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Closes a recordset.
@@ -155,7 +155,7 @@ namespace HM
    }
 
    int 
-   MySQLRecordset::_GetColumnIndex(const AnsiString &sColumnName) const
+   MySQLRecordset::GetColumnIndex_(const AnsiString &sColumnName) const
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the index of a column in the recordset, based on the columns name.
@@ -165,7 +165,7 @@ namespace HM
       if (index >= 0)
          return index;
 
-      ErrorManager::Instance()->ReportError(ErrorManager::High, 4231, "MySQLRecordset::_GetColumnIndex", "The requested column was not found. Column name: " + sColumnName);
+      ErrorManager::Instance()->ReportError(ErrorManager::High, 4231, "MySQLRecordset::GetColumnIndex_", "The requested column was not found. Column name: " + sColumnName);
       return -1;
    }
 
@@ -178,13 +178,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = current_[iColIdx];
          
          if (pValue == 0 || strlen(pValue) == 0)
@@ -216,13 +216,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = current_[iColIdx];
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
@@ -243,13 +243,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = current_[iColIdx];
 
          if (pValue == 0)
@@ -273,13 +273,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = current_[iColIdx];
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
@@ -300,13 +300,13 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
+         int iColIdx = GetColumnIndex_(FieldName);
          char *pValue = current_[iColIdx];
          double dbVal = pValue ? atof(pValue) : 0;
 

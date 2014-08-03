@@ -22,23 +22,23 @@ namespace HM
 
    private:
 
-      static bool _PreprocessMessage(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &ruleResult);
+      static bool PreprocessMessage_(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &ruleResult);
 
-      static bool _RunVirusProtection(shared_ptr<Message> pMessage);
-      static bool _RunGlobalRules(shared_ptr<Message> pMessage, RuleResult &ruleResult);
+      static bool RunVirusProtection_(shared_ptr<Message> pMessage);
+      static bool RunGlobalRules_(shared_ptr<Message> pMessage, RuleResult &ruleResult);
 
       static void _DeliverToLocalAccounts(const String &sSendersIP, shared_ptr<Message> pMessage, vector<String> &saErrorMessages, const RuleResult &globalRuleResult, bool &messageReused);
       
       
       
       
-      static void _SubmitErrorLog(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages);
+      static void SubmitErrorLog_(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages);
 
-      static bool _HandleInfectedMessage(shared_ptr<Message> pMessage, const String &virusName);
+      static bool HandleInfectedMessage_(shared_ptr<Message> pMessage, const String &virusName);
       
       
 
-      static void _LogAwstatsMessageRejected(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason);
+      static void LogAwstatsMessageRejected_(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason);
 
       // Account-level tasks
       static void _DeliverToLocalAccount(shared_ptr<Account> pAccount, shared_ptr<Message> pMessage, int iNoOfRecipients, const RuleResult &globalRuleResult, vector<String> &saErrorMessages, const String &sSendersIP, const String &sOriginalAddress, bool &messageReused);

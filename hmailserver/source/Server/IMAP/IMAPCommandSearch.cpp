@@ -97,7 +97,7 @@ namespace HM
             const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
 
             index++;
-            if (pMessage && _DoesMessageMatch(pParser->GetCriteria(), fileName, pMessage, index))
+            if (pMessage && DoesMessageMatch_(pParser->GetCriteria(), fileName, pMessage, index))
             {
                // Yup we got a match.
                vecMatchingMessages.push_back(make_pair(index, pMessage));
@@ -153,7 +153,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_DoesMessageMatch(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index)
+   IMAPCommandSEARCH::DoesMessageMatch_(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index)
    {
       message_data_.reset();
       mime_header_.reset();
@@ -173,7 +173,7 @@ namespace HM
 
          if (pCriteria->GetType() == IMAPSearchCriteria::CTSubCriteria)
          {
-            if (!_DoesMessageMatch(pCriteria, fileName, pMessage, index))
+            if (!DoesMessageMatch_(pCriteria, fileName, pMessage, index))
                bMessageIsMatchingCriteria = false;
          }
 
@@ -235,90 +235,90 @@ namespace HM
             }
          case IMAPSearchCriteria::CTHeader:
             {
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
 
                break;
             }
          case IMAPSearchCriteria::CTUID:
             {
-               if (!_MatchesUIDCriteria(pMessage, pCriteria))
+               if (!MatchesUIDCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSequenceSet:
             {
-               if (!_MatchesSequenceSetCriteria(pMessage, pCriteria, index))
+               if (!MatchesSequenceSetCriteria_(pMessage, pCriteria, index))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTText:
             {
-               if (!_MatchesTEXTCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesTEXTCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTBody:
             {
-               if (!_MatchesBODYCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesBODYCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSubject:
             {
                pCriteria->SetHeaderField("Subject");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTFrom:
             {
                pCriteria->SetHeaderField("From");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTTo:
             {
                pCriteria->SetHeaderField("To");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTCC:
             {
                pCriteria->SetHeaderField("CC");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTOn:
             {
-               if (!_MatchesONCriteria(pMessage, pCriteria))
+               if (!MatchesONCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentOn:
             {
-               if (!_MatchesSENTONCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTONCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentBefore:
             {
-               if (!_MatchesSENTBEFORECriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTBEFORECriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentSince:
             {
-               if (!_MatchesSENTSINCECriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTSINCECriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSince:
             {
-               if (!_MatchesSINCECriteria(pMessage, pCriteria))
+               if (!MatchesSINCECriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
@@ -398,19 +398,19 @@ namespace HM
             }
          case IMAPSearchCriteria::CTBefore:
             {
-               if (!_MatchesBEFORECriteria(pMessage, pCriteria))
+               if (!MatchesBEFORECriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTLarger:
             {
-               if (!_MatchesLARGERCriteria(pMessage, pCriteria))
+               if (!MatchesLARGERCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSmaller:
             {
-               if (!_MatchesSMALLERCriteria(pMessage, pCriteria))
+               if (!MatchesSMALLERCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
@@ -437,7 +437,7 @@ namespace HM
     }
 
    bool
-   IMAPCommandSEARCH::_MatchesBODYCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesBODYCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       if (!message_data_)
       {
@@ -458,7 +458,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesONCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesONCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       String sCreationDate = pMessage->GetCreateTime();
 
@@ -480,9 +480,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTONCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTONCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
       sDateHeader = Time::GetIMAPDateFromMimeHeader(sDateHeader);
 
       if (sDateHeader == pCriteria->GetText())
@@ -492,9 +492,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTBEFORECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTBEFORECriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
 
       DateTime dtSentDate = Time::GetDateFromMimeHeader(sDateHeader);
       DateTime dtCriteria = Time::GetDateFromIMAP(pCriteria->GetText());
@@ -506,9 +506,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTSINCECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTSINCECriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
 
       DateTime dtSentDate = Time::GetDateFromMimeHeader(sDateHeader);
       DateTime dtCriteria = Time::GetDateFromIMAP(pCriteria->GetText());
@@ -520,7 +520,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSINCECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSINCECriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose internal date is within or later
@@ -537,7 +537,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesBEFORECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesBEFORECriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose internal date is before the specified date
@@ -553,7 +553,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesLARGERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesLARGERCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose size is larger than the size specified in critera.
@@ -569,7 +569,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSMALLERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSMALLERCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose size is smaller than the size specified in critera.
@@ -585,7 +585,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesTEXTCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesTEXTCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       if (!message_data_)
       {
@@ -617,7 +617,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesUIDCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesUIDCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       vector<String> split = pCriteria->GetSequenceSet();
 
@@ -630,7 +630,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSequenceSetCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria, int index)
+   IMAPCommandSEARCH::MatchesSequenceSetCriteria_(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria, int index)
    {
       vector<String> split = pCriteria->GetSequenceSet();
 
@@ -644,12 +644,12 @@ namespace HM
 
 
    bool
-   IMAPCommandSEARCH::_MatchesHeaderCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesHeaderCriteria_(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       String sHeaderField = pCriteria->GetHeaderField();
       String sTextToFind = pCriteria->GetText();
       
-      String sHeaderFieldValue = _GetHeaderValue(fileName, pMessage, sHeaderField);
+      String sHeaderFieldValue = GetHeaderValue_(fileName, pMessage, sHeaderField);
 
       if (sHeaderFieldValue.ContainsNoCase(sTextToFind))
          return pCriteria->GetPositive();
@@ -658,7 +658,7 @@ namespace HM
    }
 
    String
-   IMAPCommandSEARCH::_GetHeaderValue(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField)
+   IMAPCommandSEARCH::GetHeaderValue_(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField)
    {
       if (message_data_)
       {

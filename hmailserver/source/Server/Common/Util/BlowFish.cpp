@@ -149,7 +149,7 @@ namespace HM
    }
 
    String
-   BlowFishEncryptor::_ToHex(BYTE *Buf, int iBufLen)
+   BlowFishEncryptor::ToHex_(BYTE *Buf, int iBufLen)
    {
       String sRetVal;
       for (int i = 0; i < iBufLen; i++)
@@ -166,7 +166,7 @@ namespace HM
    }
 
    int
-   BlowFishEncryptor::_ToByteArray(const String &sHex, BYTE *OutArray)
+   BlowFishEncryptor::ToByteArray_(const String &sHex, BYTE *OutArray)
    {
       int iLen = 0;
       for (int i = 0; i < sHex.GetLength(); i=i+2)
@@ -200,7 +200,7 @@ namespace HM
 
       DWORD Length = Encode(pBuffer, pBuffer, InLength);
       
-      String sRetVal = _ToHex(pBuffer, Length);
+      String sRetVal = ToHex_(pBuffer, Length);
 
       delete [] pBuffer;
 
@@ -216,7 +216,7 @@ namespace HM
       BYTE *pBuffer = new BYTE[255];
       memset(pBuffer, 0, 255);
       
-      int InLength = _ToByteArray(sEncrypted, pBuffer);
+      int InLength = ToByteArray_(sEncrypted, pBuffer);
 
       DWORD OutLen = GetOutputLength(InLength);
       

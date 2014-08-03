@@ -66,10 +66,10 @@ namespace HM
    private:
 
 
-      int _FindEndOfQuotedString(const String &sInputString, int iWordStartPos);
+      int FindEndOfQuotedString_(const String &sInputString, int iWordStartPos);
       std::vector<shared_ptr<IMAPSimpleWord> > parsed_words_;
 
-      bool _Validate(const String &command);
+      bool Validate_(const String &command);
 
    };
 

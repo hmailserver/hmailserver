@@ -62,18 +62,18 @@ namespace HM
    bool
    SynchronousConnection::Write(const AnsiString &data)
    {
-      return _Write((const unsigned char*) data.data(), data.GetLength());
+      return Write_((const unsigned char*) data.data(), data.GetLength());
 
    }
 
    bool
    SynchronousConnection::Write(const ByteBuffer &data)
    {
-      return _Write(data.GetBuffer(), data.GetSize());
+      return Write_(data.GetBuffer(), data.GetSize());
    }
 
    bool 
-   SynchronousConnection::_Write(const unsigned char *buf, int bufSize)
+   SynchronousConnection::Write_(const unsigned char *buf, int bufSize)
    {
       try
       {

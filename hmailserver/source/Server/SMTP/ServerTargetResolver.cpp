@@ -49,7 +49,7 @@ namespace HM
          if (pRoute)
          {
             String domainName = pRoute->DomainName();
-            shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
+            shared_ptr<ServerInfo> serverInfo = GetFixedSMTPHostForDomain_(domainName);
 
             if (serverInfo)
             {
@@ -99,7 +99,7 @@ namespace HM
 
          vector<shared_ptr<MessageRecipient> > vecRecipients = (*iter).second;
 
-         shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
+         shared_ptr<ServerInfo> serverInfo = GetFixedSMTPHostForDomain_(domainName);
 
          if (!serverInfo)
          {
@@ -169,7 +169,7 @@ namespace HM
    }
 
    shared_ptr<ServerInfo>
-   ServerTargetResolver::_GetFixedSMTPHostForDomain(const String &sDomain)
+   ServerTargetResolver::GetFixedSMTPHostForDomain_(const String &sDomain)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Check if there exists a fixed SMTP host for the domain given, and in that

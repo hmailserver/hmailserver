@@ -29,8 +29,8 @@ namespace HM
       virtual bool PreSaveObject(shared_ptr<RuleAction> pRuleAction, XNode *node);
    private:
 
-      vector<shared_ptr<RuleAction> >::iterator _GetRuleActionIterator(shared_ptr<RuleAction> pRuleAction);
-      void _UpdateSortOrder();
+      vector<shared_ptr<RuleAction> >::iterator GetRuleActionIterator_(shared_ptr<RuleAction> pRuleAction);
+      void UpdateSortOrder_();
 
       __int64 rule_id_;
    };

@@ -42,7 +42,7 @@ namespace HM
    }
 
    String 
-   MySQLInterface::_GetLibraryFileName()
+   MySQLInterface::GetLibraryFileName_()
    {
       LPTSTR szPath = (LPTSTR)alloca( 2048 );
       DWORD  dwPathLength;
@@ -62,7 +62,7 @@ namespace HM
    bool
    MySQLInterface::Load(String &sErrorMessage)
    {
-      String sLibrary = _GetLibraryFileName();
+      String sLibrary = GetLibraryFileName_();
       library_instance_ = LoadLibrary(sLibrary);
 
       if (!library_instance_)

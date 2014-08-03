@@ -84,7 +84,7 @@ namespace HM
 
       String sSendersIP;
       RuleResult globalRuleResult;
-      if (!_PreprocessMessage(pMessage, sSendersIP, globalRuleResult))
+      if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
       {
          // Message delivery was aborted during preprocessing.
          return;
@@ -107,7 +107,7 @@ namespace HM
       // If an error has occurred, now is the time to send an error
       // message back to the author of the email message.
       if (saErrorMessages.size() > 0)
-         _SubmitErrorLog(pMessage, saErrorMessages);
+         SubmitErrorLog_(pMessage, saErrorMessages);
 
       // Unless the message has been re-used, or has been rescheduled for
       // later delivery, we should delete it now.
@@ -141,7 +141,7 @@ namespace HM
    // Returns true if delivery should continue. False if it should be aborted.
    //---------------------------------------------------------------------------()
    bool
-   SMTPDeliverer::_PreprocessMessage(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
+   SMTPDeliverer::PreprocessMessage_(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
    {
       // Before we do anything else, check that the message file exists. If the file
       // does not exist, there is nothing to deliver. So if the file does not exist,
@@ -180,36 +180,36 @@ namespace HM
       // Run the first event in the delivery chain
       if (!Events::FireOnDeliveryStart(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
          return false;
       }
 
       if (pMessage->GetRecipients()->GetCount() == 0)
       {
          vector<String> saErrorMessages;
-         _SubmitErrorLog(pMessage, saErrorMessages);
+         SubmitErrorLog_(pMessage, saErrorMessages);
          PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Run virus protection.
-      if (!_RunVirusProtection(pMessage))
+      if (!RunVirusProtection_(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
          return false;
       }
 
       // Apply rules on this message.
-      if (!_RunGlobalRules(pMessage, globalRuleResult))
+      if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
          return false;
       }
 
@@ -226,17 +226,17 @@ namespace HM
 
 
    void
-   SMTPDeliverer::_SubmitErrorLog(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages)
+   SMTPDeliverer::SubmitErrorLog_(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Some of the messages was not sent to the recipient. We have to
    // send a mail back to the sender to tell him this.
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG("SD::_SubmitErrorLog");      
+      LOG_DEBUG("SD::SubmitErrorLog_");      
       if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(pOrigMessage->GetFromAddress()))
       {
-         LOG_DEBUG("SD::~_SubmitErrorLog");      
+         LOG_DEBUG("SD::~SubmitErrorLog_");      
          return; // Avoid bounce-bounce
       }
 
@@ -317,13 +317,13 @@ namespace HM
          // Save message
          PersistentMessage::SaveObject(pMsg);
 
-      LOG_DEBUG("SD::~_SubmitErrorLog"); 
+      LOG_DEBUG("SD::~SubmitErrorLog_"); 
 
    }
 
    
    bool
-   SMTPDeliverer::_HandleInfectedMessage(shared_ptr<Message> pMessage, const String &virusName)
+   SMTPDeliverer::HandleInfectedMessage_(shared_ptr<Message> pMessage, const String &virusName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called if a virus is found in an email message. Checks in the configuration
@@ -385,7 +385,7 @@ namespace HM
    }
 
    bool 
-   SMTPDeliverer::_RunVirusProtection(shared_ptr<Message> pMessage)
+   SMTPDeliverer::RunVirusProtection_(shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs virus scanning. If a virus is found, it's handled according to the
@@ -413,7 +413,7 @@ namespace HM
          // Virus found.
          ServerStatus::Instance()->OnVirusRemoved();
 
-         if (!_HandleInfectedMessage(pMessage, virusName))
+         if (!HandleInfectedMessage_(pMessage, virusName))
             return false;
       }      
 
@@ -422,7 +422,7 @@ namespace HM
    }
 
    bool 
-   SMTPDeliverer::_RunGlobalRules(shared_ptr<Message> pMessage, RuleResult &ruleResult)
+   SMTPDeliverer::RunGlobalRules_(shared_ptr<Message> pMessage, RuleResult &ruleResult)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Performs global rules. We will do this on every retry of the message.
@@ -452,7 +452,7 @@ namespace HM
    }
 
    void 
-   SMTPDeliverer::_LogAwstatsMessageRejected(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason)
+   SMTPDeliverer::LogAwstatsMessageRejected_(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // If awstats logging is enabled, this function goes through all the recipients

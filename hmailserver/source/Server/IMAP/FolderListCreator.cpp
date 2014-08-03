@@ -35,7 +35,7 @@ namespace HM
       vector<String> vecCurrentFolder;
       vector<String> vecMatchingFolders;
 
-      _CreateIMAPFolderList(iAccountID, pStartFolders, sWildcard, false, sPrefix, vecCurrentFolder, vecMatchingFolders);
+      CreateIMAPFolderList_(iAccountID, pStartFolders, sWildcard, false, sPrefix, vecCurrentFolder, vecMatchingFolders);
 
       String sRet = StringParser::JoinVector(vecMatchingFolders, "\r\n");
 
@@ -51,7 +51,7 @@ namespace HM
       vector<String> vecCurrentFolder;
       vector<String> vecMatchingFolders;
 
-      _CreateIMAPFolderList(iAccountID, pStartFolders, sWildcard, true, sPrefix, vecCurrentFolder, vecMatchingFolders);
+      CreateIMAPFolderList_(iAccountID, pStartFolders, sWildcard, true, sPrefix, vecCurrentFolder, vecMatchingFolders);
 
       String sRet = StringParser::JoinVector(vecMatchingFolders, "\r\n");
 
@@ -62,7 +62,7 @@ namespace HM
    }
 
    void
-   FolderListCreator::_CreateIMAPFolderList(__int64 iAccountID, shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, bool bOnlySubscribed, const String &sPrefix, vector<String> &vecCurrentFolder, vector<String> &vecMatchingFolders) 
+   FolderListCreator::CreateIMAPFolderList_(__int64 iAccountID, shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, bool bOnlySubscribed, const String &sPrefix, vector<String> &vecCurrentFolder, vector<String> &vecMatchingFolders) 
    {
       if (vecCurrentFolder.size() > IMAPFolder::MaxFolderDepth)    
          return;
@@ -95,16 +95,16 @@ namespace HM
          bool hasSubFolders = subFolders->GetCount() > 0;
 
          // Do we match?
-         if (_FolderWildcardMatch(sFullPath, sWildcard, hierarchyDelimiter))
+         if (FolderWildcardMatch_(sFullPath, sWildcard, hierarchyDelimiter))
          {
-            String sFolderLine = _CreateFolderLine(currentFolder, bOnlySubscribed, hasSubFolders, sFullPath, sWildcard, true, hierarchyDelimiter );
+            String sFolderLine = CreateFolderLine_(currentFolder, bOnlySubscribed, hasSubFolders, sFullPath, sWildcard, true, hierarchyDelimiter );
 
             if (!sFolderLine.IsEmpty())
                vecMatchingFolders.push_back(sFolderLine);
          }
 
          if (hasSubFolders)
-            _CreateIMAPFolderList(iAccountID, subFolders, sWildcard, bOnlySubscribed, sPrefix, vecCurrentFolder, vecMatchingFolders);
+            CreateIMAPFolderList_(iAccountID, subFolders, sWildcard, bOnlySubscribed, sPrefix, vecCurrentFolder, vecMatchingFolders);
 
          vecCurrentFolder.erase(vecCurrentFolder.end() - 1);
       }
@@ -115,10 +115,10 @@ namespace HM
          String publicFolderName = Configuration::Instance()->GetIMAPConfiguration()->GetIMAPPublicFolderName();
 
          // we're listing public folders and are on the top level.
-         if (_FolderWildcardMatch(publicFolderName, sWildcard, hierarchyDelimiter))
+         if (FolderWildcardMatch_(publicFolderName, sWildcard, hierarchyDelimiter))
          {
             shared_ptr<IMAPFolder> pFolderDummy;
-            String sFolderLine = _CreateFolderLine(pFolderDummy, bOnlySubscribed, true, publicFolderName, sWildcard, false, hierarchyDelimiter);
+            String sFolderLine = CreateFolderLine_(pFolderDummy, bOnlySubscribed, true, publicFolderName, sWildcard, false, hierarchyDelimiter);
 
             if (!sFolderLine.IsEmpty())
                vecMatchingFolders.push_back(sFolderLine);
@@ -129,7 +129,7 @@ namespace HM
    }
 
    String 
-   FolderListCreator::_CreateFolderLine(shared_ptr<IMAPFolder> currentFolder, bool bOnlySubscribed, bool hasSubFolders, String &sFullPath, const String &sWildcard, bool isSelectable, String hierarchyDelimiter)
+   FolderListCreator::CreateFolderLine_(shared_ptr<IMAPFolder> currentFolder, bool bOnlySubscribed, bool hasSubFolders, String &sFullPath, const String &sWildcard, bool isSelectable, String hierarchyDelimiter)
    {
       String nameAttributes = hasSubFolders ? "\\HasChildren" : "\\HasNoChildren";
 
@@ -137,7 +137,7 @@ namespace HM
          nameAttributes += " \\Noselect";
 
       // Workaround for Outlook "feature".
-      _AdjustCaseToClientCase(sFullPath, sWildcard, hierarchyDelimiter);
+      AdjustCaseToClientCase_(sFullPath, sWildcard, hierarchyDelimiter);
 
       
       // We cannot send " or \ directly in the response.
@@ -162,7 +162,7 @@ namespace HM
    }
 
    bool
-   FolderListCreator::_FolderWildcardMatch(const String &sFolderName, const String &sWildcard, const String &hierarchyDelimiter)
+   FolderListCreator::FolderWildcardMatch_(const String &sFolderName, const String &sWildcard, const String &hierarchyDelimiter)
    {
       // Convert the wildcard path to internal format.
       std::vector<String> vecWildcardPath = StringParser::SplitString(sWildcard, hierarchyDelimiter);
@@ -236,7 +236,7 @@ namespace HM
    }
 
    void
-   FolderListCreator::_AdjustCaseToClientCase(String &sPath, const String &sWildcard, const String &hierarchyDelimiter)
+   FolderListCreator::AdjustCaseToClientCase_(String &sPath, const String &sWildcard, const String &hierarchyDelimiter)
    {
       // Outlook 2003 requires the correct case after creating a new folder.
       // If OE2003 executes CREATE Inbox.SubFolder it requires the response

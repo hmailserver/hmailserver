@@ -214,7 +214,7 @@ namespace HM
       address = IPAddress();
 
       // Extract Received headers from the message.
-      shared_ptr<MimeHeader> pHeader = _GetMessageHeader(pMessage);
+      shared_ptr<MimeHeader> pHeader = GetMessageHeader_(pMessage);
 
       std::list<String> receivedHeaders;
 
@@ -247,7 +247,7 @@ namespace HM
       address = IPAddress();
 
       std::list<std::pair<String, IPAddress> > addresses;
-      _RetrieveReceivedIPList(receivedHeaders, addresses);
+      RetrieveReceivedIPList_(receivedHeaders, addresses);
 
       if (addresses.empty())
          return false;
@@ -307,7 +307,7 @@ namespace HM
    }
 
    shared_ptr<MimeHeader> 
-   MessageUtilities::_GetMessageHeader(shared_ptr<Message> pMessage)
+   MessageUtilities::GetMessageHeader_(shared_ptr<Message> pMessage)
    {
       String fileName = PersistentMessage::GetFileName(pMessage);
 
@@ -321,7 +321,7 @@ namespace HM
    }
 
    void 
-   MessageUtilities::_RetrieveReceivedIPList(const std::list<String> &headers, std::list<std::pair<String, IPAddress> > &vecAddresses)
+   MessageUtilities::RetrieveReceivedIPList_(const std::list<String> &headers, std::list<std::pair<String, IPAddress> > &vecAddresses)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes throguh all the "Received" headers of the email and returns the list

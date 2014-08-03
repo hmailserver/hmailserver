@@ -41,7 +41,7 @@ namespace HM
    }
 
    void
-   IMAPFetchParser::_CleanFetchString(String &sString)
+   IMAPFetchParser::CleanFetchString_(String &sString)
    {
       if (sString.Left(1) == _T(" "))
          sString = sString.Mid(1);
@@ -56,7 +56,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPFetchParser::_ValidateSyntax(const String &sString)
+   IMAPFetchParser::ValidateSyntax_(const String &sString)
    {
       long lNoOfLeftPar = sString.NumberOf(_T("("));
       long lNoOfRightPar = sString.NumberOf(_T(")"));
@@ -75,12 +75,12 @@ namespace HM
    }
 
    std::vector<String>
-   IMAPFetchParser::_ParseString(String &sString)
+   IMAPFetchParser::ParseString_(String &sString)
    {
 
       std::vector<String> vecResult;
 
-      _CleanFetchString(sString);
+      CleanFetchString_(sString);
 
       while (!sString.IsEmpty())
       {
@@ -127,7 +127,7 @@ namespace HM
          }
          
 
-         _CleanFetchString(sString);
+         CleanFetchString_(sString);
 
 
       }
@@ -141,24 +141,24 @@ namespace HM
    {
       String sStringToParse = sCommand;
       
-      IMAPResult result = _ValidateSyntax(sStringToParse);
+      IMAPResult result = ValidateSyntax_(sStringToParse);
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
       
-      std::vector<String> vecResult = _ParseString(sStringToParse);
+      std::vector<String> vecResult = ParseString_(sStringToParse);
       std::vector<String>::iterator iter = vecResult.begin();
       while (iter != vecResult.end())
       {
          String sPart = (*iter);
 
          
-         ePartType iType = _GetPartType(sPart);
+         ePartType iType = GetPartType_(sPart);
 
          switch (iType)
          {
             case BODYPEEK:
             {
-               IMAPFetchParser::BodyPart oPart = _ParseBODYPEEK(sPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_PEEK(sPart);
                parts_to_look_at_.push_back(oPart);
                break;
             }
@@ -207,14 +207,14 @@ namespace HM
 
             case BODY:
             {
-               IMAPFetchParser::BodyPart oPart = _ParseBODY(sPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_(sPart);
                parts_to_look_at_.push_back(oPart);
                break;
             }
             case RFC822:
             {
                // Same as:
-               IMAPFetchParser::BodyPart oPart = _ParseBODY(sPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_(sPart);
                oPart.SetDescription("RFC822");
                parts_to_look_at_.push_back(oPart);
                break;
@@ -263,7 +263,7 @@ namespace HM
                   returned).
                   */
             
-               IMAPFetchParser::BodyPart oPart = _ParseBODYPEEK("BODY[HEADER]");
+               IMAPFetchParser::BodyPart oPart = ParseBODY_PEEK("BODY[HEADER]");
                oPart.SetDescription("RFC822.HEADER");
                parts_to_look_at_.push_back(oPart);
                break;
@@ -275,7 +275,7 @@ namespace HM
                   of the resulting untagged FETCH data (RFC822.TEXT is returned).
                   */
 
-                  IMAPFetchParser::BodyPart oPart = _ParseBODY("BODY[TEXT]");
+                  IMAPFetchParser::BodyPart oPart = ParseBODY_("BODY[TEXT]");
                   oPart.SetDescription("RFC822.TEXT");
                   parts_to_look_at_.push_back(oPart);
 
@@ -290,7 +290,7 @@ namespace HM
    }
 
    IMAPFetchParser::BodyPart
-   IMAPFetchParser::_ParseBODY(const String &sString)
+   IMAPFetchParser::ParseBODY_(const String &sString)
    {
       BodyPart oPart;
       
@@ -435,7 +435,7 @@ namespace HM
 
    
    IMAPFetchParser::ePartType
-   IMAPFetchParser::_GetPartType(const String &sPart)
+   IMAPFetchParser::GetPartType_(const String &sPart)
    {
       if (sPart.FindNoCase(_T("BODY.PEEK")) >= 0)
          return BODYPEEK;
@@ -487,16 +487,16 @@ namespace HM
 
 
    IMAPFetchParser::BodyPart
-   IMAPFetchParser::_ParseBODYPEEK(const String &sString)
+   IMAPFetchParser::ParseBODY_PEEK(const String &sString)
    {
-      BodyPart oPart = _ParseBODY(sString);
+      BodyPart oPart = ParseBODY_(sString);
       set_seen_ = false;
 
       return oPart;
    }
 
    bool 
-   IMAPFetchParser::_IsPartSpecifier(const String &sString)
+   IMAPFetchParser::IsPartSpecifier_(const String &sString)
    {
       String sTemp = sString;
       sTemp.ToUpper();

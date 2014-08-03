@@ -82,7 +82,7 @@ namespace HM
       {
          // Deliver all pending messages
          shared_ptr<Message> pMessage;
-         while (pMessage = _GetNextMessage())
+         while (pMessage = GetNextMessage_())
          {
             // Lock this message
             if (!PersistentMessage::LockObject(pMessage))
@@ -97,7 +97,7 @@ namespace HM
             
             cur_number_of_sent_++;
 
-            _SendStatistics();
+            SendStatistics_();
 
             ServerStatus::Instance()->OnMessageProcessed();
          }
@@ -110,7 +110,7 @@ namespace HM
    }
 
    void
-   SMTPDeliveryManager::_SendStatistics(bool bIgnoreMessageCount)
+   SMTPDeliveryManager::SendStatistics_(bool bIgnoreMessageCount)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Sends statistics to hMailServer.com
@@ -137,7 +137,7 @@ namespace HM
    }
 
    void
-   SMTPDeliveryManager::_LoadPendingMessageList()
+   SMTPDeliveryManager::LoadPendingMessageList_()
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Loads a list of messages that should be delivered from the database
@@ -157,7 +157,7 @@ namespace HM
    }
 
    shared_ptr<Message>
-   SMTPDeliveryManager::_GetNextMessage()
+   SMTPDeliveryManager::GetNextMessage_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Retrives the first unlcoked message from the database and tries to lock it.
@@ -169,7 +169,7 @@ namespace HM
       {
          uncache_pending_messages_ = false;
 
-         _LoadPendingMessageList();
+         LoadPendingMessageList_();
       }
 
       shared_ptr<Message> pRetMessage;

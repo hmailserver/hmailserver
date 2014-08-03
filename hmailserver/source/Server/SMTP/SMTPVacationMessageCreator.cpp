@@ -44,7 +44,7 @@ namespace HM
       
       
       
-      if (!_CanSendVacationMessage(recipientAccount->GetAddress(), sToAddress))
+      if (!CanSendVacationMessage_(recipientAccount->GetAddress(), sToAddress))
          return; // We have already notified this user.
       
       LOG_DEBUG("Creating out-of-office message.");      
@@ -128,7 +128,7 @@ namespace HM
    }
 
    bool 
-   SMTPVacationMessageCreator::_CanSendVacationMessage(const String &sFrom, const String &sTo)
+   SMTPVacationMessageCreator::CanSendVacationMessage_(const String &sFrom, const String &sTo)
    {
       if (sTo.IsEmpty())
       {

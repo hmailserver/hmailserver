@@ -22,6 +22,6 @@ namespace HM
 
 	private:
 
-      shared_ptr<ACLPermission> _GetPermissionForAccount(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID);
+      shared_ptr<ACLPermission> GetPermissionForAccount_(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID);
    };
 }

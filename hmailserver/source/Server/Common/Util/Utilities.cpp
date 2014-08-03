@@ -472,8 +472,8 @@ namespace HM
    void
    UtilitiesTester::Test()
    {
-      _TestReceivedHeaderParse();
-      _TestComputerName();
+      TestReceivedHeaderParse_();
+      TestComputerName_();
 
       Utilities utilities;
       if (utilities.IsValidIPAddress("127.0.0.A"))
@@ -497,7 +497,7 @@ namespace HM
    }
 
    void 
-   UtilitiesTester::_TestReceivedHeaderParse()
+   UtilitiesTester::TestReceivedHeaderParse_()
    {
       String sHeader = "from host.edu (host.edu [1.2.3.4]) by mail.host.edu (8.8.5) id 004A21; Tue, Mar 18 1997 14:36:17 -0800 (PST)";
       String sRecipient = Utilities::GetRecipientFromReceivedHeader(sHeader);
@@ -609,7 +609,7 @@ namespace HM
 
 
    void 
-   UtilitiesTester::_TestComputerName()
+   UtilitiesTester::TestComputerName_()
    {
       String sComputerName = Utilities::ComputerName();
       Utilities::IsLocalHost(sComputerName); // We can't check the result of this since 

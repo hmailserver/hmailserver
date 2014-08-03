@@ -42,18 +42,18 @@ namespace HM
 
    private:
 
-      bool _GetRequiresUpgrade(const String &sConnectionString);
+      bool GetRequiresUpgrade_(const String &sConnectionString);
 
 
       bool _InternalConnect();
-      String _GetConnectionString(const String &sDatabase, const String &sPassword) const;
-      String _GetDatabaseFileName(const String &sShortName) const;
+      String GetConnectionString_(const String &sDatabase, const String &sPassword) const;
+      String GetDatabaseFileName_(const String &sShortName) const;
 
-      virtual bool _UpgradeDatabase();
+      virtual bool UpgradeDatabase_();
 
-      DALConnection::ExecutionResult _GetErrorType(int iErrorCode);
+      DALConnection::ExecutionResult GetErrorType_(int iErrorCode);
 
-      __int64 _GetIdentityFromRS(_RecordsetPtr pRS) const;
+      __int64 GetIdentityFromRS_(_RecordsetPtr pRS) const;
 
       _ConnectionPtr cSQLCEConnection;  
       bool connected_;

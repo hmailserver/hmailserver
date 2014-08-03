@@ -314,7 +314,7 @@ STDMETHODIMP InterfaceLogging::get_Device(eLogDevice *pVal)
          return GetAccessDenied();
 
    
-      *pVal = _INTLogDevice2COMLogDevice(config_->GetLogDevice());
+      *pVal = INTLogDevice2COMLogDevice_(config_->GetLogDevice());
       return S_OK;
    }
    catch (...)
@@ -330,7 +330,7 @@ STDMETHODIMP InterfaceLogging::put_Device(eLogDevice newVal)
       if (!config_)
          return GetAccessDenied();
    
-      config_->SetLogDevice (_COMLogDevice2INTLogDevice((newVal)));
+      config_->SetLogDevice (COMLogDevice2INTLogDevice_((newVal)));
       return S_OK;
    }
    catch (...)
@@ -340,7 +340,7 @@ STDMETHODIMP InterfaceLogging::put_Device(eLogDevice newVal)
 }
 
 int
-InterfaceLogging::_COMLogDevice2INTLogDevice(eLogDevice newVal)
+InterfaceLogging::COMLogDevice2INTLogDevice_(eLogDevice newVal)
 {
    switch (newVal)
    {
@@ -360,7 +360,7 @@ InterfaceLogging::_COMLogDevice2INTLogDevice(eLogDevice newVal)
 }
    
 eLogDevice
-InterfaceLogging::_INTLogDevice2COMLogDevice(int RelayMode)
+InterfaceLogging::INTLogDevice2COMLogDevice_(int RelayMode)
 {
    switch (RelayMode)
    {
@@ -387,7 +387,7 @@ STDMETHODIMP InterfaceLogging::get_LogFormat(eLogOutputFormat *pVal)
          return GetAccessDenied();
 
    
-      *pVal = _IntLogFormat2ComLogFormat(config_->GetLogFormat());
+      *pVal = IntLogFormat2ComLogFormat_(config_->GetLogFormat());
    
       return S_OK;
    }
@@ -404,7 +404,7 @@ STDMETHODIMP InterfaceLogging::put_LogFormat(eLogOutputFormat newVal)
       if (!config_)
          return GetAccessDenied();
 
-      config_->SetLogFormat(_COMLogFormat2IntLogFormat(newVal));
+      config_->SetLogFormat(COMLogFormat2IntLogFormat_(newVal));
    
       return S_OK;
    }
@@ -415,7 +415,7 @@ STDMETHODIMP InterfaceLogging::put_LogFormat(eLogOutputFormat newVal)
 }
 
 int
-InterfaceLogging::_COMLogFormat2IntLogFormat(eLogOutputFormat newVal)
+InterfaceLogging::COMLogFormat2IntLogFormat_(eLogOutputFormat newVal)
 {
    switch (newVal)
    {
@@ -432,7 +432,7 @@ InterfaceLogging::_COMLogFormat2IntLogFormat(eLogOutputFormat newVal)
 }
    
 eLogOutputFormat
-InterfaceLogging::_IntLogFormat2ComLogFormat(int RelayMode)
+InterfaceLogging::IntLogFormat2ComLogFormat_(int RelayMode)
 {
    switch (RelayMode)
    {

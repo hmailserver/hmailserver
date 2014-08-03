@@ -30,7 +30,7 @@ namespace HM
    void 
    NotificationServer::SendNotification(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification)
    {
-      set<shared_ptr<NotificationClient> > clientsToNotify = _GetClientsToNotify(source, pChangeNotification);
+      set<shared_ptr<NotificationClient> > clientsToNotify = GetClientsToNotify_(source, pChangeNotification);
 
       boost_foreach(shared_ptr<NotificationClient> client, clientsToNotify)
       {
@@ -39,7 +39,7 @@ namespace HM
    }
 
    set<shared_ptr<NotificationClient> >
-   NotificationServer::_GetClientsToNotify(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> changeNotification)
+   NotificationServer::GetClientsToNotify_(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> changeNotification)
    {
       set<shared_ptr<NotificationClient> > clientsToNotify;
 

@@ -24,7 +24,7 @@ namespace HM
 
       void WorkerFunc();
 
-      void _IndexMessages();
+      void IndexMessages_();
 
       boost::thread workerThread_;
 	   int iIndexRunCount;

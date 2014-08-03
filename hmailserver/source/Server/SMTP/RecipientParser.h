@@ -27,9 +27,9 @@ namespace HM
       
    private:
 
-      void _CreateMessageRecipientList(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
-      void _AddRecipient(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient);
-      DeliveryPossibility _UserCanSendToList(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel);
+      void CreateMessageRecipientList_(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
+      void AddRecipient_(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient);
+      DeliveryPossibility UserCanSendToList_(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel);
 
   };
 }

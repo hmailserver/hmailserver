@@ -67,7 +67,7 @@ namespace HM
    }
 
    bool 
-   IMAPSimpleCommandParser::_Validate(const String &command)
+   IMAPSimpleCommandParser::Validate_(const String &command)
    {
       int length = command.GetLength();
       bool insideString = false;
@@ -101,7 +101,7 @@ namespace HM
    void
    IMAPSimpleCommandParser::Parse(shared_ptr<IMAPCommandArgument> pArgument)
    {
-      if (!_Validate(pArgument->Command()))
+      if (!Validate_(pArgument->Command()))
          return;
 
       int iCurWordStartPos = 0;
@@ -142,7 +142,7 @@ namespace HM
          if (bCurWordIsQuoted)
          {
 
-            iCurWordEndPos = _FindEndOfQuotedString(sCommand, iCurWordStartPos);
+            iCurWordEndPos = FindEndOfQuotedString_(sCommand, iCurWordStartPos);
 
             if (iCurWordEndPos < 0)
                return;
@@ -238,7 +238,7 @@ namespace HM
    }
 
    int
-   IMAPSimpleCommandParser::_FindEndOfQuotedString(const String &sInputString, int iWordStartPos)
+   IMAPSimpleCommandParser::FindEndOfQuotedString_(const String &sInputString, int iWordStartPos)
    {
       int i = iWordStartPos;      
       while ( i < sInputString.GetLength())

@@ -24,12 +24,12 @@ namespace HM
 
    private:
 
-      void _Finish(shared_ptr<IMAPConnection> pConnection);
-      bool _TruncateBuffer(const shared_ptr<IMAPConnection> pConnection );
-      bool _WriteData(const shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, int WriteLen);
-      void _KillCurrentMessage();
+      void Finish_(shared_ptr<IMAPConnection> pConnection);
+      bool TruncateBuffer_(const shared_ptr<IMAPConnection> pConnection );
+      bool WriteData_(const shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, int WriteLen);
+      void KillCurrentMessage_();
       
-      int _GetMaxMessageSize(shared_ptr<const Domain> pDomain);
+      int GetMaxMessageSize_(shared_ptr<const Domain> pDomain);
 
       String current_tag_;
       String flags_to_set_;

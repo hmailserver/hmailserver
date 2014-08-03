@@ -34,9 +34,9 @@ namespace HM
 
    private:
 
-      int _GetColumnIndex(const AnsiString &sColumnName) const;
+      int GetColumnIndex_(const AnsiString &sColumnName) const;
 
-      bool _Close();
+      bool Close_();
 
       PGresult *result_;
       // PG_ROW current_;

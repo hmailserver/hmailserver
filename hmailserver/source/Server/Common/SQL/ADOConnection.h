@@ -43,7 +43,7 @@ namespace HM
 
    private:
 
-      __int64 _GetIdentityFromRS(_RecordsetPtr pRS) const;
+      __int64 GetIdentityFromRS_(_RecordsetPtr pRS) const;
 
       _ConnectionPtr cADOConnection;  
       bool bConnected;

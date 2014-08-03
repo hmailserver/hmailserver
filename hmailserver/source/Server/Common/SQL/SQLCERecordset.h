@@ -27,7 +27,7 @@ namespace HM
       virtual bool GetIsNull(const AnsiString &FieldName) const;
    private:
 
-      bool _Close();
+      bool Close_();
       
 
       _RecordsetPtr cSQLCERecordset;

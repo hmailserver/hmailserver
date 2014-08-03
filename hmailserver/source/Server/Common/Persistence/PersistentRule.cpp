@@ -136,7 +136,7 @@ namespace HM
 
       bRetVal = Application::Instance()->GetDBManager()->Execute(command);
 
-      _NotifyReload(pRule);
+      NotifyReload_(pRule);
 
       return bRetVal;
 
@@ -183,13 +183,13 @@ namespace HM
       PersistentRuleAction::DeleteObjects(pRule->GetID());
       PersistentRuleCriteria::DeleteObjects(pRule->GetID());
 
-      _NotifyReload(pRule);
+      NotifyReload_(pRule);
 
       return true;
    }
 
    void
-   PersistentRule::_NotifyReload(shared_ptr<Rule> pRule)
+   PersistentRule::NotifyReload_(shared_ptr<Rule> pRule)
    {
       if (pRule->GetAccountID() == 0)
          ObjectCache::Instance()->SetGlobalRulesNeedsReload();

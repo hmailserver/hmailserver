@@ -35,7 +35,7 @@ namespace HM
    }
 
    vector<shared_ptr<Rule> >::iterator 
-   Rules::_GetRuleIterator(__int64 iRuleID)
+   Rules::GetRuleIterator_(__int64 iRuleID)
    {
       vector<shared_ptr<Rule> >::iterator iter = vecObjects.begin();
       vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
@@ -58,7 +58,7 @@ namespace HM
    void
    Rules::MoveUp(__int64 iRuleID)
    {
-      vector<shared_ptr<Rule> >::iterator iter = _GetRuleIterator(iRuleID);
+      vector<shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
       vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
 
       if (iter == iterEnd || iter == vecObjects.begin())
@@ -76,7 +76,7 @@ namespace HM
       vecObjects.insert(iterPrevious, pRule);
 
       // Check that sort order is correct.
-      _UpdateSortOrder();
+      UpdateSortOrder_();
 
       Refresh();
    }
@@ -84,7 +84,7 @@ namespace HM
    void
    Rules::MoveDown(__int64 iRuleID)
    {
-      vector<shared_ptr<Rule> >::iterator iter = _GetRuleIterator(iRuleID);
+      vector<shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
       vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
      
       vector<shared_ptr<Rule> >::iterator iterNext = iter +1;
@@ -102,13 +102,13 @@ namespace HM
       vecObjects.insert(iter, pNextRule);
 
       // Check that sort order is correct.
-      _UpdateSortOrder();
+      UpdateSortOrder_();
 
       Refresh();
    }
 
    void 
-   Rules::_UpdateSortOrder()
+   Rules::UpdateSortOrder_()
    {
       vector<shared_ptr<Rule> >::iterator iter = vecObjects.begin();
       vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();

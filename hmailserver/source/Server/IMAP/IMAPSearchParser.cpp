@@ -87,14 +87,14 @@ namespace HM
          return CTUnflagged;
       else if (sTmp == _T("all"))
          return CTAll;
-      else if (_IsSequenceSet(sTmp))
+      else if (IsSequenceSet_(sTmp))
          return CTSequenceSet;
 
       return CTUnknown;
    }
 
    bool 
-   IMAPSearchCriteria::_IsSequenceSet(const String &item)
+   IMAPSearchCriteria::IsSequenceSet_(const String &item)
    {
       const String sequenceSetRegex = "[0-9:,*]*";
 
@@ -184,7 +184,7 @@ namespace HM
       shared_ptr<IMAPSearchCriteria> pCriteria = shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
 
       int currentWord = 0;
-      IMAPResult result = _ParseSegment(pSimpleParser, currentWord, pCriteria, 0);
+      IMAPResult result = ParseSegment_(pSimpleParser, currentWord, pCriteria, 0);
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
 
@@ -194,7 +194,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPSearchParser::_ParseSegment(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion)
+   IMAPSearchParser::ParseSegment_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion)
    {
       iRecursion++;
       if (iRecursion > 50)
@@ -219,7 +219,7 @@ namespace HM
             pSubCriteria->SetIsOR(true);
 
             currentWord++;
-            IMAPResult result = _ParseSegment(pSimpleParser, currentWord, pSubCriteria, iRecursion);
+            IMAPResult result = ParseSegment_(pSimpleParser, currentWord, pSubCriteria, iRecursion);
             if (result.GetResult() != IMAPResult::ResultOK)
                return result;
             
@@ -229,7 +229,7 @@ namespace HM
          }
  
          shared_ptr<IMAPSearchCriteria> pNewCriteria = shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
-         IMAPResult result = _ParseWord(pSimpleParser, pNewCriteria, currentWord );
+         IMAPResult result = ParseWord_(pSimpleParser, pNewCriteria, currentWord );
          if (result.GetResult() != IMAPResult::ResultOK)
             return result;
          
@@ -250,7 +250,7 @@ namespace HM
    }
 
    IMAPResult 
-   IMAPSearchParser::_ParseWord(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord)
+   IMAPSearchParser::ParseWord_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord)
    {
       String sCurCommand = pSimpleParser->Word(iCurrentWord)->Value();
 
@@ -289,7 +289,7 @@ namespace HM
 
          String sHeaderValue = pSimpleParser->Word(iCurrentWord)->Value();
 
-         sHeaderValue = _DecodeWordAccordingToCharset(sHeaderValue);
+         sHeaderValue = DecodeWordAccordingToCharset_(sHeaderValue);
 
          pNewCriteria->SetHeaderField(sHeaderField);
          pNewCriteria->SetText(sHeaderValue);
@@ -322,8 +322,8 @@ namespace HM
          {
             String searchValue = pWord->Value();
 
-            if (_NeedsDecoding(ct))
-               searchValue = _DecodeWordAccordingToCharset(searchValue);
+            if (NeedsDecoding_(ct))
+               searchValue = DecodeWordAccordingToCharset_(searchValue);
 
             pNewCriteria->SetText(searchValue);
             pNewCriteria->SetType(ct);
@@ -385,7 +385,7 @@ namespace HM
          {
             String charsetName = pWord->Value();
 
-            if (!_IsValidCharset(charsetName))
+            if (!IsValidCharset_(charsetName))
                return IMAPResult(IMAPResult::ResultNo, "[BADCHARSET]");
 
             _charsetName = charsetName;
@@ -396,7 +396,7 @@ namespace HM
    }
 
    bool 
-   IMAPSearchParser::_IsValidCharset(const String &charsetName)
+   IMAPSearchParser::IsValidCharset_(const String &charsetName)
    {
       if (charsetName.CompareNoCase(_T("UTF-8")) == 0 ||
           charsetName.CompareNoCase(_T("US-ASCII")) == 0 ||
@@ -407,7 +407,7 @@ namespace HM
    }
 
    bool 
-   IMAPSearchParser::_NeedsDecoding(IMAPSearchCriteria::CriteriaType criteriaType)
+   IMAPSearchParser::NeedsDecoding_(IMAPSearchCriteria::CriteriaType criteriaType)
    {
       switch (criteriaType)
       {
@@ -425,7 +425,7 @@ namespace HM
    }
 
    String
-   IMAPSearchParser::_DecodeWordAccordingToCharset(const String &inputValue)
+   IMAPSearchParser::DecodeWordAccordingToCharset_(const String &inputValue)
    {
       if (_charsetName.CompareNoCase(_T("UTF-8")) == 0)
       {

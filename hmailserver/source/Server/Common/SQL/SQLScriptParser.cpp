@@ -60,7 +60,7 @@ namespace HM
       {
          String sCommand = (*iter);
 
-         if (_PreprocessLine(sCommand))
+         if (PreprocessLine_(sCommand))
          {
             commands_.push_back(sCommand);
          }
@@ -71,7 +71,7 @@ namespace HM
    }
 
    bool 
-   SQLScriptParser::_PreprocessLine(String &sLine)
+   SQLScriptParser::PreprocessLine_(String &sLine)
    {
       // Do some basic preprocessing...
       while (sLine.Left(2).Compare(_T("\r\n")) == 0)

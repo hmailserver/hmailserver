@@ -113,10 +113,10 @@ namespace HM
 
    private:   
 
-      void _WriteIniSetting(const String &sSection, const String &sKey, const String &sValue);
-      void _WriteIniSetting(const String &sSection, const String &sKey, int Value);
-      String _ReadIniSettingString(const String &sSection, const String &sKey, const String &sDefault);
-      int _ReadIniSettingInteger(const String &sSection, const String &sKey, int iDefault);
+      void WriteIniSetting_(const String &sSection, const String &sKey, const String &sValue);
+      void WriteIniSetting_(const String &sSection, const String &sKey, int Value);
+      String ReadIniSettingString_(const String &sSection, const String &sKey, const String &sDefault);
+      int ReadIniSettingInteger_(const String &sSection, const String &sKey, int iDefault);
 
       String database_server_;
       String database_name_;
