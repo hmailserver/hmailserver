@@ -640,7 +640,6 @@ namespace HM
    void 
    SMTPClientConnection::ReadAndSend_()
    {
-      LOG_DEBUG("SMTPClientConnection::~_Continue sendfile");
       // Continue sending the file..
       int bufferSize = GetBufferSize();
       shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
