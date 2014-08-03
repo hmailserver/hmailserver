@@ -49,7 +49,7 @@ namespace HM
    private:
 
       void SendCAPA_();
-      bool HandleEtrn_(const String &account_name);
+      bool HandleEtrn_(const String &sRequest, const String &account_name);
       int GetDaysToKeep_(const String &sUID);
       void FireOnExternalAccountDownload_(shared_ptr<Message> message, const String &uid);
 

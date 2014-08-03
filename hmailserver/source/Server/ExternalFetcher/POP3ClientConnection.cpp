@@ -100,8 +100,6 @@ namespace HM
    void
    POP3ClientConnection::ParseData(const AnsiString &sRequest)
    {
-      bool commandBufferIsEmpty = command_buffer_.empty();
-
       command_buffer_.append(sRequest);
       command_buffer_.append("\r\n");
 
@@ -110,22 +108,17 @@ namespace HM
 
       if (is_awaiting_multiline_response)
       {
-         if (sRequest != ".")
+         bool multiline_response_completed = sRequest == "." ||
+                                             !CommandIsSuccessfull_(command_buffer_);
+
+         if (!multiline_response_completed)
          {
-            if (commandBufferIsEmpty && !CommandIsSuccessfull_(sRequest))
-            {
-               // An error has occured. Don't continue multiline
-               // buffering, so that we can handle the error below.
-            }
-            else
-            {
-               PostReceive();
-               return;
-            }
+            PostReceive();
+            return;
          }
       }
 
-      bool postReceive = InternalParseData(sRequest);
+      bool postReceive = InternalParseData(command_buffer_);
 
       // The ASCII buffer has been parsed, so we
       // may clear it now.
@@ -144,7 +137,7 @@ namespace HM
       String sAccountName = account_->GetName();
       if (sAccountName.StartsWith(_T("ETRN")))
       {
-         HandleEtrn_(sAccountName);
+         HandleEtrn_(sRequest, sAccountName);
          return true;
       }
       else
@@ -153,32 +146,32 @@ namespace HM
           // and it'd just have to be moved back.
           // **** Don't miss } below when removing the above code! ****
 
-         LogPOP3String_(command_buffer_, false);
+         LogPOP3String_(sRequest, false);
 
          bool bRetVal = true;
          switch (current_state_)
          {
          case StateConnected:
-            ParseStateConnected_(command_buffer_);
+            ParseStateConnected_(sRequest);
             return true;
          case StateCAPASent:
-            ParseStateCAPASent_(command_buffer_);
+            ParseStateCAPASent_(sRequest);
             return true;
          case StateSTLSSent:
-            return ParseStateSTLSSent_(command_buffer_);
+            return ParseStateSTLSSent_(sRequest);
          case StateUsernameSent:
-            ParseUsernameSent_(command_buffer_);
+            ParseUsernameSent_(sRequest);
             return true;
          case StatePasswordSent:
-            ParsePasswordSent_(command_buffer_);
+            ParsePasswordSent_(sRequest);
             return true;
          case StateUIDLRequestSent:
-            ParseUIDLResponse_(command_buffer_);
+            ParseUIDLResponse_(sRequest);
             return true;
          case StateQUITSent:
-            return ParseQuitResponse_(command_buffer_);
+            return ParseQuitResponse_(sRequest);
          case StateDELESent:
-            ParseDELEResponse_(command_buffer_);
+            ParseDELEResponse_(sRequest);
             return true;
          }
    
@@ -189,9 +182,9 @@ namespace HM
    }
 
    bool
-   POP3ClientConnection::HandleEtrn_(const String &account_name)
+   POP3ClientConnection::HandleEtrn_(const String &sRequest, const String &account_name)
    {
-      LogSMTPString_(command_buffer_, false);
+      LogSMTPString_(sRequest, false);
 
       std::vector<String> vecParams = StringParser::SplitString(account_name, " ");
       if (vecParams.size() == 2)
@@ -226,7 +219,7 @@ namespace HM
          SendData_("NOOP ETRN-Domain not set");
          Sleep(20);
          SendData_("QUIT");
-         ParseQuitResponse_(command_buffer_);
+         ParseQuitResponse_(sRequest);
          return false;
       }
    }
