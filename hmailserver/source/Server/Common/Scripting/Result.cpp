@@ -13,7 +13,7 @@
 namespace HM
 {
    Result::Result(void) :
-      _parameter(0),
+      parameter_(0),
       value_(0)
    {
       
@@ -32,7 +32,7 @@ namespace HM
    int
    Result::GetParameter() const 
    {
-      return _parameter;
+      return parameter_;
    }
 
    String

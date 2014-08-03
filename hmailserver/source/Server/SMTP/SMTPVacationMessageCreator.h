@@ -28,6 +28,6 @@ namespace HM
       bool CanSendVacationMessage_(const String &sFrom, const String &sTo);
 
       multimap<String, String> mapVacationMessageRecipients;
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
    };
 }

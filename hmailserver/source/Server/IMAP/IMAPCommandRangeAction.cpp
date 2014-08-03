@@ -18,7 +18,7 @@
 namespace HM
 {
    IMAPCommandRangeAction::IMAPCommandRangeAction() :
-      _isUID(false)
+      is_uid_(false)
    {
     
    }
@@ -31,13 +31,13 @@ namespace HM
    void
    IMAPCommandRangeAction::SetIsUID(bool bIsUID)
    {
-      _isUID = bIsUID;
+      is_uid_ = bIsUID;
    }
 
    bool 
    IMAPCommandRangeAction::GetIsUID()
    {
-      return _isUID;
+      return is_uid_;
    }
 
    IMAPResult
@@ -47,7 +47,7 @@ namespace HM
 
       std::vector<String> sSplitted = StringParser::SplitString(sMailNos, ",");
 
-      if (_isUID)
+      if (is_uid_)
       {
          boost_foreach(String sCur, sSplitted)
          {

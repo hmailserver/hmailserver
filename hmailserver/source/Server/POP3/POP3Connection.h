@@ -110,14 +110,14 @@ namespace HM
       String username_;
       String password_;
 
-      shared_ptr<const Account> _account;
+      shared_ptr<const Account> account_;
 
       ConnectionState current_state_;
 
-      std::vector<shared_ptr<Message>> _messages;
+      std::vector<shared_ptr<Message>> messages_;
       TransparentTransmissionBuffer transmission_buffer_;
 
       bool pending_disconnect_;
-      File _currentFile;
+      File current_file_;
    };
 }

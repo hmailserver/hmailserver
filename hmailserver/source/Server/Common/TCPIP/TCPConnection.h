@@ -121,25 +121,25 @@ namespace HM
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
       
       boost::asio::ip::tcp::socket socket_;
-      ssl_socket _sslSocket;
+      ssl_socket ssl_socket_;
 
-      boost::asio::ip::tcp::resolver _resolver;
-      boost::asio::deadline_timer _timer;
-      boost::asio::streambuf _receiveBuffer;
+      boost::asio::ip::tcp::resolver resolver_;
+      boost::asio::deadline_timer timer_;
+      boost::asio::streambuf receive_buffer_;
       boost::asio::ssl::context& context_;
 
-      IOOperationQueue _operationQueue;
+      IOOperationQueue operation_queue_;
 
-      bool _receiveBinary;
+      bool receive_binary_;
       ConnectionSecurity connection_security_;
-      long _remotePort;
-      bool _hasTimeout;
-      String _remote_ip_address;
+      long remote_port_;
+      bool hastimeout__;
+      String remote__ip__address_;
 
-      shared_ptr<SecurityRange> _securityRange;
+      shared_ptr<SecurityRange> security_range_;
 
-      int _sessionID;
-      int _timeout;
+      int session_id_;
+      int timeout_;
 
       shared_ptr<Event> disconnected_;
       bool is_ssl_;

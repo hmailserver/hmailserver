@@ -36,11 +36,11 @@ namespace HM
       __int64 GetAccountID() const { return account_id_;} 
       void SetAccountID(__int64 newVal) {account_id_ = newVal;}
 
-      unsigned int GetCurrentUID() const { return _currentUID;} 
-      void SetCurrentUID(unsigned int currentUID) {_currentUID = currentUID;}
+      unsigned int GetCurrentUID() const { return current_uid_;} 
+      void SetCurrentUID(unsigned int currentUID) {current_uid_ = currentUID;}
 
-      const DateTime &GetCreationTime() const { return _createTime;} 
-      void SetCreationTime(const DateTime &currentUID) {_createTime = currentUID;}
+      const DateTime &GetCreationTime() const { return create_time_;} 
+      void SetCreationTime(const DateTime &currentUID) {create_time_ = currentUID;}
 
 
       bool GetIsSubscribed() const { return folder_is_subscribed_;} 
@@ -82,7 +82,7 @@ namespace HM
       __int64 dbid_;
       __int64 account_id_;
       __int64 parent_folder_id_;
-      unsigned int _currentUID;
+      unsigned int current_uid_;
 
       bool folder_is_subscribed_;
       AnsiString folder_name_;
@@ -90,7 +90,7 @@ namespace HM
       shared_ptr<Messages> messages_;
       shared_ptr<IMAPFolders> sub_folders_;   
  
-      DateTime _createTime;
+      DateTime create_time_;
 
       bool folder_needs_refresh_;
    };

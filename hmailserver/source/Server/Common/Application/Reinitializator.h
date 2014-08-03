@@ -19,8 +19,8 @@ namespace HM
 
       void WorkerFunc();
 
-      boost::thread _workerThread;
+      boost::thread worker_thread_;
 
-      bool _isRunning;
+      bool is_running_;
    };
 }

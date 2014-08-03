@@ -18,7 +18,7 @@ namespace HM
    Messages::Messages(__int64 iAccountID, __int64 iFolderID) :
       account_id_(iAccountID),
       folder_id_(iFolderID),
-      _lastRefreshedUID(0)
+      last_refreshed_uid_(0)
    {
 
    }
@@ -220,7 +220,7 @@ namespace HM
 
       bool retrieveQueue = account_id_ == -1;
 
-      if (retrieveQueue && _lastRefreshedUID > 0)
+      if (retrieveQueue && last_refreshed_uid_ > 0)
       {
          /*
             We can't do partial refreshes of messages in the queue. Why? 
@@ -256,10 +256,10 @@ namespace HM
       }
 
       // Should we do an incremental refresh?
-      if (_lastRefreshedUID > 0)
+      if (last_refreshed_uid_ > 0)
       {
          sSQL.AppendFormat(_T(" and messageuid > @MESSAGEUID "));
-         command.AddParameter("@MESSAGEUID", _lastRefreshedUID); 
+         command.AddParameter("@MESSAGEUID", last_refreshed_uid_); 
       }
 
       if (retrieveQueue)
@@ -337,7 +337,7 @@ namespace HM
          }
 
          shared_ptr<Message> pLastMessage = vecObjects[vecObjects.size() -1];
-         _lastRefreshedUID = pLastMessage->GetUID();
+         last_refreshed_uid_ = pLastMessage->GetUID();
       }
    }
 

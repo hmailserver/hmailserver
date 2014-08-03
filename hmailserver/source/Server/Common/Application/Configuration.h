@@ -36,8 +36,8 @@ namespace HM
       shared_ptr<POP3Configuration> GetPOP3Configuration() const { return pop3_configuration_; }
       shared_ptr<SMTPConfiguration> GetSMTPConfiguration() const { return smtp_configuration_; }
       shared_ptr<IMAPConfiguration> GetIMAPConfiguration() const { return imap_configuration_; }
-      AntiSpamConfiguration &GetAntiSpamConfiguration() { return _antiSpamConfiguration; }
-      AntiVirusConfiguration &GetAntiVirusConfiguration() { return _antiVirusConfiguration; }
+      AntiSpamConfiguration &GetAntiSpamConfiguration() { return anti_spam_configuration_; }
+      AntiVirusConfiguration &GetAntiVirusConfiguration() { return anti_virus_configuration_; }
       shared_ptr<CacheConfiguration> GetCacheConfiguration() const { return cache_configuration_; }
 
       bool Load();
@@ -155,11 +155,11 @@ namespace HM
 
       shared_ptr<PropertySet> GetSettings() const;
 
-      shared_ptr<ServerMessages> GetServerMessages() {return _serverMessages;}
+      shared_ptr<ServerMessages> GetServerMessages() {return server_messages_;}
       shared_ptr<TCPIPPorts> GetTCPIPPorts() const;
-      shared_ptr<BlockedAttachments> GetBlockedAttachments() {return _blockedAttachments;}
-      shared_ptr<SSLCertificates> GetSSLCertificates() {return _sslCertificates;}
-      shared_ptr<PropertySet> GetPropertySet() {return _propertySet;}
+      shared_ptr<BlockedAttachments> GetBlockedAttachments() {return blocked_attachments_;}
+      shared_ptr<SSLCertificates> GetSSLCertificates() {return ssl_certificates_;}
+      shared_ptr<PropertySet> GetPropertySet() {return property_set_;}
 
    private:
 
@@ -169,14 +169,14 @@ namespace HM
       
       shared_ptr<CacheConfiguration> cache_configuration_;
 
-      AntiSpamConfiguration _antiSpamConfiguration;
-      AntiVirusConfiguration _antiVirusConfiguration;
+      AntiSpamConfiguration anti_spam_configuration_;
+      AntiVirusConfiguration anti_virus_configuration_;
 
-      shared_ptr<ServerMessages> _serverMessages;
-      shared_ptr<TCPIPPorts> _tcpipPorts;
-      shared_ptr<BlockedAttachments> _blockedAttachments;
-      shared_ptr<SSLCertificates> _sslCertificates;
+      shared_ptr<ServerMessages> server_messages_;
+      shared_ptr<TCPIPPorts> tcpip_ports_;
+      shared_ptr<BlockedAttachments> blocked_attachments_;
+      shared_ptr<SSLCertificates> ssl_certificates_;
 
-      shared_ptr<PropertySet> _propertySet;
+      shared_ptr<PropertySet> property_set_;
    };
 }

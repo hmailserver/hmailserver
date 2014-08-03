@@ -21,7 +21,7 @@ namespace HM
    {
       is_connected_ = false;
       dbconn_ = 0;
-      _supportsTransactions = false;
+      supports_transactions_ = false;
    }
 
    MySQLConnection::~MySQLConnection()
@@ -370,7 +370,7 @@ namespace HM
    bool 
    MySQLConnection::BeginTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("BEGIN"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -381,7 +381,7 @@ namespace HM
    bool 
    MySQLConnection::CommitTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("COMMIT"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -393,7 +393,7 @@ namespace HM
    bool 
    MySQLConnection::RollbackTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("ROLLBACK"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -409,7 +409,7 @@ namespace HM
    void 
    MySQLConnection::LoadSupportsTransactions(const String &database)
    {
-      _supportsTransactions = false;
+      supports_transactions_ = false;
 
       if (database.GetLength() == 0)
          return;
@@ -436,7 +436,7 @@ namespace HM
       if (tableCount > 0)
       {
          // Only InnoDB tables in this database. Enable transactions.
-         _supportsTransactions = true;
+         supports_transactions_ = true;
       }
    }
 

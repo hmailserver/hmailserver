@@ -13,19 +13,19 @@
 namespace HM
 {
    std::set<std::pair<int, int> > FolderManipulationLock::folders_;
-   boost::recursive_mutex FolderManipulationLock::_mutex;
+   boost::recursive_mutex FolderManipulationLock::mutex_;
 
    FolderManipulationLock::FolderManipulationLock(int iAccountID, int iFolderID) :
-      _hasLock(false)
+      has_lock_(false)
    {
-      _lockPair = std::make_pair(iAccountID, iFolderID);
+      lock_pair_ = std::make_pair(iAccountID, iFolderID);
    }
 
    FolderManipulationLock::~FolderManipulationLock(void)
    {
-      if (_hasLock)
+      if (has_lock_)
       {
-         Release(_lockPair);
+         Release(lock_pair_);
       }
    }
 
@@ -34,9 +34,9 @@ namespace HM
    {
       try
       {
-         _hasLock = true;
+         has_lock_ = true;
 
-         Acquire(_lockPair);
+         Acquire(lock_pair_);
       }
       catch (...)
       {
@@ -56,7 +56,7 @@ namespace HM
          // between each attempt, but we don't want to lock the critical
          // section meanwhile. Hence the inner scope here:
          {
-            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+            boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
             if (folders_.find(lockPair) == folders_.end())
             {
@@ -73,7 +73,7 @@ namespace HM
    void
    FolderManipulationLock::Release(std::pair<int, int> lockPair)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       std::set<std::pair<int, int>>::iterator iterPos = folders_.find(lockPair);
       if (iterPos != folders_.end())

@@ -22,7 +22,7 @@
 
 namespace HM
 {
-   boost::recursive_mutex IMAPFolderContainer::_fetchListMutex;
+   boost::recursive_mutex IMAPFolderContainer::fetch_list_mutex_;
 
    IMAPFolderContainer::IMAPFolderContainer()
    {
@@ -37,7 +37,7 @@ namespace HM
    shared_ptr<IMAPFolders> 
    IMAPFolderContainer::GetFoldersForAccount(__int64 AccountID)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
       std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = folders_.find(AccountID);
       
@@ -68,7 +68,7 @@ namespace HM
    void
    IMAPFolderContainer::SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
       shared_ptr<IMAPFolder> pFolder;
       if (AccountID == 0)
@@ -101,7 +101,7 @@ namespace HM
    void 
    IMAPFolderContainer::UncacheAccount(__int64 iAccountID)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
       std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(iAccountID); 
 
@@ -116,7 +116,7 @@ namespace HM
    bool 
    IMAPFolderContainer::Clear()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
       bool bCleared = !folders_.empty();
 
@@ -171,7 +171,7 @@ namespace HM
       }
       else
       {
-         boost::lock_guard<boost::recursive_mutex> guard(_fetchListMutex);
+         boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
          std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = folders_.find(accountID);
 

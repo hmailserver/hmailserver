@@ -29,7 +29,7 @@ namespace HM
    void 
    ObjectCache::SetDomainAliasesNeedsReload()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(domain_aliases_mutex_);
 
       domain_aliases_needs_reload_ = true;
    }
@@ -37,7 +37,7 @@ namespace HM
    shared_ptr<DomainAliases> 
    ObjectCache::GetDomainAliases()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_domainAliasesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(domain_aliases_mutex_);
 
       if (!domain_aliases_ || domain_aliases_needs_reload_)
       {
@@ -53,7 +53,7 @@ namespace HM
    void 
    ObjectCache::SetGlobalRulesNeedsReload()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(global_rules_mutex_);
 
       global_rules_needs_reload_ = true;
    }
@@ -62,7 +62,7 @@ namespace HM
    shared_ptr<Rules> 
    ObjectCache::GetGlobalRules()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_globalRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(global_rules_mutex_);
 
       if (!global_rules_ || global_rules_needs_reload_)
       {
@@ -78,7 +78,7 @@ namespace HM
    void 
    ObjectCache::SetAccountRulesNeedsReload(__int64 iAccountID)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
       set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);      
       if (iterRefresh == account_rules_to_refresh_.end())
@@ -88,7 +88,7 @@ namespace HM
    shared_ptr<Rules> 
    ObjectCache::GetAccountRules(__int64 iAccountID)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_accountRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
       // First find the rules.
       map<__int64, shared_ptr<Rules> >::iterator iterRules = account_rules_.find(iAccountID);
@@ -121,8 +121,8 @@ namespace HM
    void 
    ObjectCache::ClearRuleCaches()
    {
-      boost::lock_guard<boost::recursive_mutex> globalRulesGuard(_globalRulesMutex);
-      boost::lock_guard<boost::recursive_mutex> accontRulesGuard(_accountRulesMutex);
+      boost::lock_guard<boost::recursive_mutex> globalRulesGuard(global_rules_mutex_);
+      boost::lock_guard<boost::recursive_mutex> accontRulesGuard(account_rules_mutex_);
 
       global_rules_.reset();
       account_rules_.clear();

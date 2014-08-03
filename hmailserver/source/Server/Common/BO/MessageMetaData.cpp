@@ -12,9 +12,9 @@
 namespace HM
 {
    MessageMetaData::MessageMetaData() :
-      _accountID(0),
-      _folderID(0),
-      _messageID(0)
+      account_id_(0),
+      folder_id_(0),
+      message_id_(0)
    {
 
    }

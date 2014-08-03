@@ -42,7 +42,7 @@ namespace HM
       shared_ptr<DALConnection> GetConnection_();
       void ReleaseConnection_(shared_ptr<DALConnection> pConn);
  
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
       
       std::set<shared_ptr<DALConnection> > busy_connections_;
       std::set<shared_ptr<DALConnection> > available_connections_;

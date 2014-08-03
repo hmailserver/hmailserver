@@ -47,8 +47,8 @@ namespace HM
       String GetFromAddress() const { return from_address_; }
       void SetFromAddress(const String &FromAddress) { from_address_ = FromAddress; }
 
-      unsigned int GetUID() const { return _uid; }
-      void SetUID(unsigned int  uid) { _uid = uid; }
+      unsigned int GetUID() const { return uid_; }
+      void SetUID(unsigned int  uid) { uid_ = uid; }
 
       __int64 GetAccountID() const { return message_account_id_; }
       void SetAccountID(__int64 MsgAccountID) { message_account_id_ = (int) MsgAccountID; }
@@ -109,7 +109,7 @@ namespace HM
       short no_of_retries_;
       short flags_;
 
-      unsigned int _uid;
+      unsigned int uid_;
       
    private:
 

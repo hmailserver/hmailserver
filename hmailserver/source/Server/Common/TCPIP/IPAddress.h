@@ -50,7 +50,7 @@ namespace HM
       unsigned __int64 GetAddress1() const;
       unsigned __int64 GetAddress2() const;
 
-      boost::asio::ip::address GetAddress() const {return _address; }     
+      boost::asio::ip::address GetAddress() const {return address_; }     
 
 
       bool WithinRange(const IPAddress &lower, const IPAddress &upper) const;
@@ -62,7 +62,7 @@ namespace HM
       void SetIPV4Address_(__int64 address1);
       void SetIPV6Address_(__int64 address1, __int64 address2);
 
-      boost::asio::ip::address _address;     
+      boost::asio::ip::address address_;     
 
    };
 }

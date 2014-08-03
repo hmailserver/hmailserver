@@ -23,7 +23,7 @@ namespace HM
    Language::Language(const String &sName, bool isDownloded) :
       is_loaded_(false),
       name_(sName),
-      _isDownloaded(isDownloded)
+      is_downloaded_(isDownloded)
    {
    }
 

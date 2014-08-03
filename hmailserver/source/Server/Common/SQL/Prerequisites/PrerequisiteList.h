@@ -20,7 +20,7 @@ namespace HM
 
       void Initialize_();
 
-      vector<pair<int, shared_ptr<IPrerequisite > > > _prerequisites;
+      vector<pair<int, shared_ptr<IPrerequisite > > > prerequisites_;
       
    };
 }

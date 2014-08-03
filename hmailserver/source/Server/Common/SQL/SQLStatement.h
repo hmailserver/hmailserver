@@ -92,7 +92,7 @@ namespace HM
       String table_;
       String additional_sql_;
 
-      int _topRows;
+      int top_rows_;
 
       std::vector<Column> vecColumns;
       std::vector<Column> where_clause_columns_;

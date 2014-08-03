@@ -129,8 +129,8 @@ namespace HM
       pNode->AppendAttr(_T("MaxNoOfLists"), StringParser::IntToString(max_no_of_distribution_lists_));
       pNode->AppendAttr(_T("LimitationsEnabled"), StringParser::IntToString(limitations_enabled_));
 
-      pNode->AppendAttr(_T("DKIMSelector"), _dkimSelector);
-      pNode->AppendAttr(_T("DKIMPrivateKeyFile"), _dkimPrivateKeyFile);
+      pNode->AppendAttr(_T("DKIMSelector"), dkim_selector_);
+      pNode->AppendAttr(_T("DKIMPrivateKeyFile"), dkim_private_key_file_);
 
       if (!GetDomainAliases()->XMLStore(pNode, iBackupOptions))
          return false;
@@ -177,8 +177,8 @@ namespace HM
       
       limitations_enabled_ = _ttoi(pNode->GetAttrValue(_T("LimitationsEnabled")));
 
-      _dkimSelector = pNode->GetAttrValue(_T("DKIMSelector"));
-      _dkimPrivateKeyFile = pNode->GetAttrValue(_T("DKIMPrivateKeyFile"));
+      dkim_selector_ = pNode->GetAttrValue(_T("DKIMSelector"));
+      dkim_private_key_file_ = pNode->GetAttrValue(_T("DKIMPrivateKeyFile"));
 
       return true;
    }
@@ -423,25 +423,25 @@ namespace HM
    AnsiString 
    Domain::GetDKIMSelector() const
    {
-      return _dkimSelector;
+      return dkim_selector_;
    }
 
    void 
    Domain::SetDKIMSelector(const String &newValue)
    {
-      _dkimSelector = newValue;
+      dkim_selector_ = newValue;
    }
 
    String 
    Domain::GetDKIMPrivateKeyFile() const
    {
-      return _dkimPrivateKeyFile;
+      return dkim_private_key_file_;
    }
 
    void 
    Domain::SetDKIMPrivateKeyFile(const String &newValue)
    {
-      _dkimPrivateKeyFile = newValue;
+      dkim_private_key_file_ = newValue;
    }
 
    int 

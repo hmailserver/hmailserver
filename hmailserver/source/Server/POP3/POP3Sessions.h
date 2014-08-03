@@ -22,7 +22,7 @@ namespace HM
 
       std::set<__int64> locked_accounts_;
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
    };
 
 }

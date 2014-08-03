@@ -67,14 +67,14 @@ namespace HM
 
       shared_ptr<FetchAccountUIDs> GetUIDs();
 
-      bool GetUseAntiSpam() const {return _useAntiSpam; }
-      void SetUseAntiSpam(bool bNewVal) {_useAntiSpam = bNewVal; }
+      bool GetUseAntiSpam() const {return use_anti_spam_; }
+      void SetUseAntiSpam(bool bNewVal) {use_anti_spam_ = bNewVal; }
 
-      bool GetUseAntiVirus() const {return _useAntiVirus; }
-      void SetUseAntiVirus(bool bNewVal) {_useAntiVirus = bNewVal; }
+      bool GetUseAntiVirus() const {return use_anti_virus_; }
+      void SetUseAntiVirus(bool bNewVal) {use_anti_virus_ = bNewVal; }
 
-      bool GetEnableRouteRecipients() const {return _enableRouteRecipients;}
-      void SetEnableRouteRecipients(bool enable) {_enableRouteRecipients = enable;}
+      bool GetEnableRouteRecipients() const {return enable_route_recipients_;}
+      void SetEnableRouteRecipients(bool enable) {enable_route_recipients_ = enable;}
 
       bool XMLStore(XNode *pFetchAccountsNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -99,10 +99,10 @@ namespace HM
       bool process_mimerecipients_;
       bool process_mimedate_;
 
-      bool _useAntiSpam;
-      bool _useAntiVirus;
+      bool use_anti_spam_;
+      bool use_anti_virus_;
 
-      bool _enableRouteRecipients;
+      bool enable_route_recipients_;
 
       ConnectionSecurity connection_security_;
    };

@@ -40,7 +40,7 @@ namespace HM
       virtual void SetTimeout(int seconds) {}
 
       virtual bool GetSupportsCommandParameters() const {return false; }
-      ColumnPositionCache& GetColumnPositionCache() {return _columnPositionCache;}
+      ColumnPositionCache& GetColumnPositionCache() {return column_position_cache_;}
 
       virtual bool CheckServerVersion(String &errorMessage);
 
@@ -62,9 +62,9 @@ namespace HM
       hm_MYSQL *dbconn_;
 
       bool is_connected_;
-      bool _supportsTransactions;
+      bool supports_transactions_;
 
-      ColumnPositionCache _columnPositionCache;
+      ColumnPositionCache column_position_cache_;
 
    };
 

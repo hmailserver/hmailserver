@@ -44,6 +44,6 @@ namespace HM
       void Clear();
    private:
 
-      InboxIDCache _inboxIDCache;
+      InboxIDCache inbox_idcache_;
    };
 }

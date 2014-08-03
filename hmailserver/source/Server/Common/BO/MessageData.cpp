@@ -33,7 +33,7 @@ namespace HM
    MessageData::MessageData()
    {
       encode_fields_ = true;
-      _unfoldWithSpace = true;
+      unfold_with_space_ = true;
 
       mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
    }
@@ -51,19 +51,19 @@ namespace HM
    MessageData::LoadFromMessage(const String &fileName, shared_ptr<Message> pMessage)
    {
       message_ = pMessage;
-      _messageFileName = fileName;
+      message_file_name_ = fileName;
 
       mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
 
       const int MaxSize = 1024*1024 * 80; // we'll ignore messages larger than 80MB.
-      if (FileUtilities::FileSize(_messageFileName) > MaxSize)
+      if (FileUtilities::FileSize(message_file_name_) > MaxSize)
          return false;
 
       bool bNewMessage = false;
       try
       {
 
-         if (!mime_mail_->LoadFromFile(_messageFileName))
+         if (!mime_mail_->LoadFromFile(message_file_name_))
          {
             bNewMessage = true;
          }
@@ -72,13 +72,13 @@ namespace HM
       {
          try
          {
-            String sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
+            String sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(message_file_name_);
 
             String sMessageBackupPath = IniFileSettings::Instance()->GetLogDirectory() + "\\Problematic messages\\" + sFileNameExclPath;
-            FileUtilities::Copy(_messageFileName, sMessageBackupPath, true);
+            FileUtilities::Copy(message_file_name_, sMessageBackupPath, true);
 
             String sErrorMessage;
-            sErrorMessage.Format(_T("An unknown error occurred while loading message. File: %s. Backuped to: %s"), _messageFileName, sMessageBackupPath); 
+            sErrorMessage.Format(_T("An unknown error occurred while loading message. File: %s. Backuped to: %s"), message_file_name_, sMessageBackupPath); 
 
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4218, "MessageData::LoadFromMessage", sErrorMessage);
          }
@@ -109,7 +109,7 @@ namespace HM
       if (!message_)
          return false;
 
-      return LoadFromMessage(_messageFileName, message_);
+      return LoadFromMessage(message_file_name_, message_);
    }
 
 

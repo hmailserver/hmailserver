@@ -62,7 +62,7 @@ namespace HM
          MoveNext();
 
          // Cache positions so we don't have to pick them up later...
-         _columnPositions = pConn->GetColumnPositionCache().GetPositions(sQuery, this);
+         column_positions_ = pConn->GetColumnPositionCache().GetPositions(sQuery, this);
       }
       catch (...)
       {
@@ -161,7 +161,7 @@ namespace HM
    // Returns the index of a column in the recordset, based on the columns name.
    //---------------------------------------------------------------------------()
    {
-      int index = _columnPositions->GetColumnIndex(sColumnName);
+      int index = column_positions_->GetColumnIndex(sColumnName);
       if (index >= 0)
          return index;
 

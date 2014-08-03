@@ -20,7 +20,7 @@
 namespace HM
 {
    HashCreator::HashCreator(HashCreator::HashType hashType) :
-      _hashType(hashType)
+      hash_type_(hashType)
    {
 
    }
@@ -28,7 +28,7 @@ namespace HM
    AnsiString HashCreator::GenerateHash(const AnsiString &inputString, const AnsiString &salt)
    {
       AnsiString saltString = salt;
-      if (saltString.GetLength() == 0 && _hashType == SHA256)
+      if (saltString.GetLength() == 0 && hash_type_ == SHA256)
       {     
          AnsiString randomString = PasswordGenerator::Generate();
          saltString = GetHash_(randomString, hex);
@@ -94,7 +94,7 @@ namespace HM
    {
       int digestLength = 0;
 
-      switch (_hashType)
+      switch (hash_type_)
       {
       case SHA1:
          digestLength = SHA_DIGEST_LENGTH;
@@ -109,7 +109,7 @@ namespace HM
 
       unsigned char *results = new unsigned char[digestLength];
 
-      switch (_hashType)
+      switch (hash_type_)
       {
       case SHA1:
          {

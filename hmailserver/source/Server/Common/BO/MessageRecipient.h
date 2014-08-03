@@ -40,8 +40,8 @@ namespace HM
       String GetRequiredSender() const {return required_sender_; }
       void SetRequiredSender(const String &sNewVal) {required_sender_ = sNewVal; }
 
-      bool GetIsLocalName() const {return _isLocalName; }
-      void SetIsLocalName(bool isLocalName) {_isLocalName = isLocalName; }
+      bool GetIsLocalName() const {return is_local_name_; }
+      void SetIsLocalName(bool isLocalName) {is_local_name_ = isLocalName; }
 
       bool IsEmpty() {return address_.IsEmpty(); }
 
@@ -59,7 +59,7 @@ namespace HM
       __int64 local_account_id_;
       __int64 message_id_;
 
-      bool _isLocalName;
+      bool is_local_name_;
 
       bool requires_authentication_;
       String required_sender_;

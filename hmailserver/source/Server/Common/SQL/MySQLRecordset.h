@@ -45,6 +45,6 @@ namespace HM
 
       vector<AnsiString> columns_;
 
-      shared_ptr<ColumnPositions> _columnPositions;
+      shared_ptr<ColumnPositions> column_positions_;
    };
 }

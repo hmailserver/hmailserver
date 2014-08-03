@@ -15,7 +15,7 @@
 namespace HM
 {
    NotificationServer::NotificationServer() :
-      _subscriptionCounter(0)
+      subscription_counter_(0)
    {
 
    }
@@ -43,7 +43,7 @@ namespace HM
    {
       set<shared_ptr<NotificationClient> > clientsToNotify;
 
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       switch (changeNotification->GetType())
       {
@@ -55,11 +55,11 @@ namespace HM
             std::pair<__int64, __int64> folderSpecifier = std::make_pair(changeNotification->GetAccountID(), changeNotification->GetFolderID());
 
             // Locate subscribed client.
-            std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iter = _messageChangeSubscribers.find(folderSpecifier);
-            if (iter == _messageChangeSubscribers.end())
+            std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iter = message_change_subscribers_.find(folderSpecifier);
+            if (iter == message_change_subscribers_.end())
                return clientsToNotify;
 
-            std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iterLast = _messageChangeSubscribers.upper_bound(folderSpecifier);
+            std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iterLast = message_change_subscribers_.upper_bound(folderSpecifier);
 
             while (iter != iterLast)
             {
@@ -71,7 +71,7 @@ namespace HM
 
                if (!safeClient)
                {
-                  iter = _messageChangeSubscribers.erase(iter);
+                  iter = message_change_subscribers_.erase(iter);
                   ErrorManager::Instance()->ReportError(ErrorManager::Low, 5341, "MailboxChangeNotifier::ReportChange", "A previous folder subscription unsubscription failed. Cleaning up.");
                   continue;
                }
@@ -102,16 +102,16 @@ namespace HM
       {
          std::pair<__int64, __int64> folderSpecifier = std::make_pair(accountID, folderID);
 
-         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         _subscriptionCounter++;
+         subscription_counter_++;
          shared_ptr<NotificationClientSubscription> subscription = 
-            shared_ptr<NotificationClientSubscription>(new NotificationClientSubscription(_subscriptionCounter, pChangeClient));
+            shared_ptr<NotificationClientSubscription>(new NotificationClientSubscription(subscription_counter_, pChangeClient));
 
          // Add subscription
-         _messageChangeSubscribers.insert(std::make_pair(folderSpecifier, subscription));
+         message_change_subscribers_.insert(std::make_pair(folderSpecifier, subscription));
 
-         return _subscriptionCounter;
+         return subscription_counter_;
       }
       catch (...)
       {
@@ -129,13 +129,13 @@ namespace HM
       {
          std::pair<__int64, __int64> folderSpecifier = std::make_pair(iAccountID, iFolderID);
 
-         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iter = _messageChangeSubscribers.find(folderSpecifier);
-         if (iter == _messageChangeSubscribers.end())
+         std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iter = message_change_subscribers_.find(folderSpecifier);
+         if (iter == message_change_subscribers_.end())
             return;
 
-         std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iterLast = _messageChangeSubscribers.upper_bound(folderSpecifier);
+         std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> >::iterator iterLast = message_change_subscribers_.upper_bound(folderSpecifier);
 
          for(; iter != iterLast; iter++)
          {
@@ -144,7 +144,7 @@ namespace HM
             if (subscription->GetSubscriptionKey() == subscriptionKey)
             {
                // Unsubscribe
-               iter =  _messageChangeSubscribers.erase(iter);
+               iter =  message_change_subscribers_.erase(iter);
                return;
             }
          }
@@ -162,16 +162,16 @@ namespace HM
    {
       try
       {
-         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         _subscriptionCounter++;
+         subscription_counter_++;
          shared_ptr<NotificationClientSubscription> subscription = 
-            shared_ptr<NotificationClientSubscription>(new NotificationClientSubscription(_subscriptionCounter, pChangeClient));
+            shared_ptr<NotificationClientSubscription>(new NotificationClientSubscription(subscription_counter_, pChangeClient));
 
          // Add subscription
-         _folderListChangeSubscribers.insert(std::make_pair(accountID, subscription));
+         folder_list_change_subscribers_.insert(std::make_pair(accountID, subscription));
 
-         return _subscriptionCounter;
+         return subscription_counter_;
       }
       catch (...)
       {
@@ -187,13 +187,13 @@ namespace HM
    {
       try
       {
-         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         std::multimap<__int64, shared_ptr<NotificationClientSubscription> >::iterator iter = _folderListChangeSubscribers.find(accountID);
-         if (iter == _folderListChangeSubscribers.end())
+         std::multimap<__int64, shared_ptr<NotificationClientSubscription> >::iterator iter = folder_list_change_subscribers_.find(accountID);
+         if (iter == folder_list_change_subscribers_.end())
             return;
 
-         std::multimap<__int64, shared_ptr<NotificationClientSubscription> >::iterator iterLast = _folderListChangeSubscribers.upper_bound(accountID);
+         std::multimap<__int64, shared_ptr<NotificationClientSubscription> >::iterator iterLast = folder_list_change_subscribers_.upper_bound(accountID);
 
          for(; iter != iterLast; iter++)
          {
@@ -202,7 +202,7 @@ namespace HM
             if (subscription->GetSubscriptionKey() == subscriptionKey)
             {
                // Unsubscribe
-               iter =  _folderListChangeSubscribers.erase(iter);
+               iter =  folder_list_change_subscribers_.erase(iter);
                return;
             }
          }

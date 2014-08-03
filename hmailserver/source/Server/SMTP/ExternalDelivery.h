@@ -40,7 +40,7 @@ namespace HM
       IPAddress GetLocalAddress_();
 
       const String &_sendersIP;
-      const shared_ptr<Message> _originalMessage;
+      const shared_ptr<Message> original_message_;
       const RuleResult &_globalRuleResult;   
 
       int quick_retries_;      

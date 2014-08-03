@@ -149,9 +149,9 @@ namespace HM
 
       shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 
-      map<String, shared_ptr<Result> > _eventResults;
+      map<String, shared_ptr<Result> > event_results_;
 
-      shared_ptr<FetchAccountUIDList> _fetchAccountUIDList;
+      shared_ptr<FetchAccountUIDList> fetch_account_uidlist_;
 
   };
 }

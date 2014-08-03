@@ -297,44 +297,44 @@ namespace HM
       switch (lt)
       {
       case Normal:
-         file = &_normalLogFile;
+         file = &normal_log_file_;
          writeUnicode = false;
          break;
       case Error:
-         file = &_errorLogFile;
+         file = &error_log_file_;
          writeUnicode = false;
          break;
       case AWStats:
-         file = &_awstatsLogFile;
+         file = &awstats_log_file_;
          writeUnicode = false;
          break;
       case Backup:
-         file = &_backupLogFile;
+         file = &backup_log_file_;
          writeUnicode = true;
          break;
       case Events:
-         file = &_eventsLogFile;
+         file = &events_log_file_;
          writeUnicode = true;
          break;
       case IMAP:
          if (sep_svc_logs_) 
-            file = &_IMAPLogFile;
+            file = &imaplog_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       case POP3:
          if (sep_svc_logs_) 
-            file = &_POP3LogFile;
+            file = &pop3log_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       case SMTP:
          if (sep_svc_logs_) 
-            file = &_SMTPLogFile;
+            file = &smtplog_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       }
@@ -365,7 +365,7 @@ namespace HM
    bool
    Logger::WriteData_(const String &sData, LogType lt)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mtx);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_);
 
       File *file = GetCurrentLogFile_(lt);
 
@@ -444,7 +444,7 @@ namespace HM
    void
    Logger::LogLive_(String &sMessage)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
 
       // Check if we are still enabled. It could be that 
       // we have just disabled ourselves.
@@ -464,7 +464,7 @@ namespace HM
    void 
    Logger::EnableLiveLogging(bool bEnable)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
       live_log_.Empty();
 
       enable_live_log_ = bEnable;
@@ -497,7 +497,7 @@ namespace HM
    String 
    Logger::GetLiveLog()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mtxLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
 
       String sResult;
       sResult = live_log_;

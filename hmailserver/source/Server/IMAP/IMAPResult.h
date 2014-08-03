@@ -24,13 +24,13 @@ namespace HM
 
 	   virtual ~IMAPResult();
 
-      const Result& GetResult() const {return _result;}
-      const AnsiString& GetMessage() const {return _message;}
+      const Result& GetResult() const {return result_;}
+      const AnsiString& GetMessage() const {return message_;}
       
    private:
 
-      Result _result;
-      AnsiString _message;
+      Result result_;
+      AnsiString message_;
 
    };
 

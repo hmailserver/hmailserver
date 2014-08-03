@@ -120,7 +120,7 @@ namespace HM
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
 
-      boost::lock_guard<boost::recursive_mutex> guard(_spamMessageDroppedMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(spam_message_dropped_mutex_);
       number_of_spam_messages_detected_++;
    }
 
@@ -135,7 +135,7 @@ namespace HM
    {
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
-      boost::lock_guard<boost::recursive_mutex> guard(_virusRemovedMutex);
+      boost::lock_guard<boost::recursive_mutex> guard(virus_removed_mutex_);
 
       number_of_viruses_removed_++;
    }

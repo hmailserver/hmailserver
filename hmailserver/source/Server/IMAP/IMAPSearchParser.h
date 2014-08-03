@@ -89,8 +89,8 @@ namespace HM
 
       vector<shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return sub_criterias_;}
 
-      void SetSequenceSet(vector<String> newVal) {_sequenceSet = newVal;}
-      vector<String> &GetSequenceSet() {return _sequenceSet;}
+      void SetSequenceSet(vector<String> newVal) {sequence_set_ = newVal;}
+      vector<String> &GetSequenceSet() {return sequence_set_;}
 
    private:
 
@@ -104,7 +104,7 @@ namespace HM
 
       String header_field_;
       vector<shared_ptr<IMAPSearchCriteria> > sub_criterias_;
-      vector<String> _sequenceSet;
+      vector<String> sequence_set_;
 
       bool is_or_;
    };
@@ -123,7 +123,7 @@ namespace HM
 
       String GetCharsetName() 
       {
-         return _charsetName; 
+         return charset_name_; 
       }
 
    private:
@@ -139,7 +139,7 @@ namespace HM
       shared_ptr<IMAPSortParser> sort_parser_;
       shared_ptr<IMAPSearchCriteria> result_criteria_;
 
-      String _charsetName;
+      String charset_name_;
    };
 
 }

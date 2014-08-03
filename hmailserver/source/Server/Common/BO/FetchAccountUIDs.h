@@ -26,7 +26,7 @@ namespace HM
 
    private:
 
-      std::map<String, shared_ptr<FetchAccountUID> > _fetchedUIDs;
+      std::map<String, shared_ptr<FetchAccountUID> > fetched_uids_;
 
       __int64 faid_;
    };

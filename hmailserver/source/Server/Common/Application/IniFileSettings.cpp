@@ -28,7 +28,7 @@ namespace HM
       max_no_of_external_fetch_threads_(15),
       greylisting_enabled_during_record_expiration_(true),
       greylisting_expiration_interval_(240),
-      _preferredHashAlgorithm(3),
+      preferred_hash_algorithm_(3),
       dnsbl_checks_after_mail_from_(false),
       log_level_(0),
       max_log_line_len_(500),
@@ -37,7 +37,7 @@ namespace HM
       queue_randomness_minutes_(0),
       mxtries_factor_(0),
       sqldbtype_(HM::DatabaseSettings::TypeUnknown),
-      _manualCAFilesExists(false)
+      manual_cafiles_exists_(false)
    {
 
    }
@@ -126,7 +126,7 @@ namespace HM
       String sValidLanguages = ReadIniSettingString_("GUILanguages", "ValidLanguages", "");
       valid_languages_ = StringParser::SplitString(sValidLanguages, ",");
 
-      _preferredHashAlgorithm = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", 3);
+      preferred_hash_algorithm_ = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", 3);
 
       dnsbl_checks_after_mail_from_ = ReadIniSettingInteger_("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
 
@@ -172,7 +172,7 @@ namespace HM
       //Probably need some more sanity checks on these settings but for now we assume user has some sense
 
       // check if we should validate peer's.
-      _manualCAFilesExists = FileUtilities::GetFilesInDirectory(GetCertificateAuthorityDirectory()).size() > 0;
+      manual_cafiles_exists_ = FileUtilities::GetFilesInDirectory(GetCertificateAuthorityDirectory()).size() > 0;
    }
 
    bool 

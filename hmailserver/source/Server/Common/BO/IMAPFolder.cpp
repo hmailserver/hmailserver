@@ -22,7 +22,7 @@ namespace HM
    IMAPFolder::IMAPFolder(__int64 iAccountID, __int64 iParentFolderID) :
       account_id_(iAccountID), 
       dbid_(0),
-      _currentUID(0),
+      current_uid_(0),
       folder_is_subscribed_(false),
       folder_needs_refresh_(true),
       parent_folder_id_(iParentFolderID)
@@ -165,8 +165,8 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("Folder"));
       pNode->AppendAttr(_T("Name"), String(folder_name_));
       pNode->AppendAttr(_T("Subscribed"), folder_is_subscribed_ ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(_createTime)));
-      pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(_currentUID));
+      pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(create_time_)));
+      pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(current_uid_));
 
       if (!GetMessages()->XMLStore(pNode, iBackupOptions))
          return false;
@@ -190,8 +190,8 @@ namespace HM
    {
       folder_name_ = pFolderNode->GetAttrValue(_T("Name"));
       folder_is_subscribed_ = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
-      _createTime = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
-      _currentUID = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
+      create_time_ = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
+      current_uid_ = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
 
       return true;
    }

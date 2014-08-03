@@ -14,17 +14,17 @@
 namespace HM
 {
    ProcessLauncher::ProcessLauncher(const String &commandLine, const String &workingDirectory) :
-      _commandLine(commandLine),
-      _workingDirectory(workingDirectory),
-      _errorLogTimeout(0)
+      command_line_(commandLine),
+      working_directory_(workingDirectory),
+      error_log_timeout_(0)
    {
    }
 
    ProcessLauncher::ProcessLauncher(const String &commandLine) :
-      _commandLine(commandLine),
-      _errorLogTimeout(0)
+      command_line_(commandLine),
+      error_log_timeout_(0)
    {
-      _workingDirectory = Utilities::GetWin32TempDirectory();
+      working_directory_ = Utilities::GetWin32TempDirectory();
    }
 
    ProcessLauncher::~ProcessLauncher(void)
@@ -34,7 +34,7 @@ namespace HM
    void
    ProcessLauncher::SetErrorLogTimeout(unsigned int milliseconds)
    {
-      _errorLogTimeout = milliseconds;
+      error_log_timeout_ = milliseconds;
    }
 
    bool
@@ -55,33 +55,33 @@ namespace HM
 
       // Start the child process. 
       if ( !CreateProcess( NULL,    // No module name (use command line). 
-         _commandLine.GetBuffer(0), // Command line. 
+         command_line_.GetBuffer(0), // Command line. 
          NULL,                      // Process handle not inheritable. 
          NULL,                      // Thread handle not inheritable. 
          FALSE,                     // Set handle inheritance to FALSE. 
          0,                         // No creation flags. 
          NULL,                      // Use parent's environment block. 
-         _workingDirectory.GetBuffer(0),        // Use parent's starting directory. 
+         working_directory_.GetBuffer(0),        // Use parent's starting directory. 
          &si,                       // Pointer to STARTUPINFO structure.
          &pi )                      // Pointer to PROCESS_INFORMATION structure.
          ) 
       {
-         String errorMessage = Formatter::Format("There was an error launching external process {0}. Process start failed. Windows error code: {1}", _commandLine, (int) GetLastError());
+         String errorMessage = Formatter::Format("There was an error launching external process {0}. Process start failed. Windows error code: {1}", command_line_, (int) GetLastError());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5401, "ProcessLauncher::Launch", errorMessage); 
          
          return false;
       }
 
-      _commandLine.ReleaseBuffer();
-      _workingDirectory.ReleaseBuffer();
+      command_line_.ReleaseBuffer();
+      working_directory_.ReleaseBuffer();
 
       DWORD waitResult = 0;
 
-      if (_errorLogTimeout > 0)
+      if (error_log_timeout_ > 0)
       {
          // If it takes too long time, we should report an error. After that, we
          // should continue to wait.
-         waitResult = WaitForSingleObject( pi.hProcess, _errorLogTimeout );
+         waitResult = WaitForSingleObject( pi.hProcess, error_log_timeout_ );
          switch (waitResult)
          {
          case WAIT_ABANDONED:
@@ -89,7 +89,7 @@ namespace HM
             break;
          case WAIT_TIMEOUT:
             {
-               String errorMessage = Formatter::Format("A launched process did not exit within an expected time. The command line is {0}. The timeout occurred after {1} milliseconds. hMailServer will continue to wait for process to finish.", _commandLine, _errorLogTimeout);
+               String errorMessage = Formatter::Format("A launched process did not exit within an expected time. The command line is {0}. The timeout occurred after {1} milliseconds. hMailServer will continue to wait for process to finish.", command_line_, error_log_timeout_);
                ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5400, "ProcessLauncher::Launch", errorMessage); 
                break;
             }
@@ -125,7 +125,7 @@ namespace HM
       ULONG rc;
       if (!GetExitCodeProcess(pi.hProcess, &rc))
       {
-         String errorMessage = Formatter::Format("There was an error determining the exit code of {0}. Windows error: {1}", _commandLine, (int) GetLastError());
+         String errorMessage = Formatter::Format("There was an error determining the exit code of {0}. Windows error: {1}", command_line_, (int) GetLastError());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5400, "ProcessLauncher::Launch", errorMessage); 
 
          rc = 0;

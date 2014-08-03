@@ -140,17 +140,17 @@ namespace HM
       String live_log_;
       int log_mask_;
 
-      File _normalLogFile;
-      File _errorLogFile;
-      File _awstatsLogFile;
-      File _backupLogFile;
-      File _eventsLogFile;
-      File _IMAPLogFile;
-      File _POP3LogFile;
-      File _SMTPLogFile;
+      File normal_log_file_;
+      File error_log_file_;
+      File awstats_log_file_;
+      File backup_log_file_;
+      File events_log_file_;
+      File imaplog_file_;
+      File pop3log_file_;
+      File smtplog_file_;
 
-      boost::recursive_mutex _mtx;
-      boost::recursive_mutex _mtxLiveLog;
+      boost::recursive_mutex mtx_;
+      boost::recursive_mutex mtx_LiveLog;
    };
 
 }

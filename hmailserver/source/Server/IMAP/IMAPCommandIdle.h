@@ -20,7 +20,7 @@ namespace HM
 
       String tag_;
 
-      weak_ptr<IMAPConnection> _connection;
+      weak_ptr<IMAPConnection> connection_;
    };
 
 }

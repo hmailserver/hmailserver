@@ -25,7 +25,7 @@ namespace HM
 
       void RunTasks_();
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
       vector<shared_ptr<ScheduledTask >> scheduled_tasks_;
 
    };

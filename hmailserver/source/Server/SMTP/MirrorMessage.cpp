@@ -29,7 +29,7 @@
 namespace HM
 { 
    MirrorMessage::MirrorMessage(shared_ptr<Message> message) :
-      _message(message)
+      message_(message)
    {
    }
 
@@ -47,11 +47,11 @@ namespace HM
          return;
 
       // Do not mirror messages sent from the mirror address
-      if (sMirrorAddress.CompareNoCase(_message->GetFromAddress()) == 0)
+      if (sMirrorAddress.CompareNoCase(message_->GetFromAddress()) == 0)
          return;
 
       // If message is sent from a mailer daemon address, don't mirror it.
-      if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(_message->GetFromAddress()))
+      if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(message_->GetFromAddress()))
          return;  
 
       // Is the mirror address a local domain?
@@ -88,10 +88,10 @@ namespace HM
       String deliveredToAddresses;
 
       // If the mirror address is on the recipient list, don't mirror it.
-      vector<shared_ptr<MessageRecipient> > &vecRecipients = _message->GetRecipients()->GetVector();
+      vector<shared_ptr<MessageRecipient> > &vecRecipients = message_->GetRecipients()->GetVector();
       vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
       
-      boost_foreach(shared_ptr<MessageRecipient> recipipent, _message->GetRecipients()->GetVector())
+      boost_foreach(shared_ptr<MessageRecipient> recipipent, message_->GetRecipients()->GetVector())
       {
          if (recipipent->GetAddress().CompareNoCase(sMirrorAddress) == 0)
          {
@@ -106,7 +106,7 @@ namespace HM
       }
 
       shared_ptr<Account> emptyAccount;
-      shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(emptyAccount, _message);
+      shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(emptyAccount, message_);
 
       pMsg->SetState(Message::Delivering);
 

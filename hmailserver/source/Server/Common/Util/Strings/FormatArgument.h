@@ -32,13 +32,13 @@ namespace HM
 
       };
 
-      String _unicodeStringValue;
-      AnsiString _ansiStringValue;
-      __int64 _numericValue;
-      unsigned __int64 _unsignedNumericValue;
-      bool _boolValue;
+      String unicode_string_value_;
+      AnsiString ansi_string_value_;
+      __int64 numeric_value_;
+      unsigned __int64 unsigned_numeric_value_;
+      bool bool_value_;
 
-      Type _type;
+      Type type_;
 
    };
 }

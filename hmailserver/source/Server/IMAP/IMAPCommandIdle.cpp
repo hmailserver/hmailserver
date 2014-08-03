@@ -19,14 +19,14 @@ namespace HM
 {
 
    IMAPCommandIdle::IMAPCommandIdle(shared_ptr<IMAPConnection> pConnection) :
-      _connection(pConnection)
+      connection_(pConnection)
    {
 
    }
 
    IMAPCommandIdle::~IMAPCommandIdle()
    {
-      shared_ptr<IMAPConnection> safeConnection = _connection.lock ();
+      shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
       if (!safeConnection)
          return;
 
@@ -83,7 +83,7 @@ namespace HM
    // Switches out of IDLE mode.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<IMAPConnection> safeConnection = _connection.lock ();
+      shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
       if (!safeConnection)
          return;
 

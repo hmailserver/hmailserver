@@ -28,7 +28,7 @@ namespace HM
       shared_ptr<Message>  CreateAccountLevelMessage_(shared_ptr<Message> pOriginalMessage, shared_ptr<const Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress);
 
       const String &_sendersIP;
-      const shared_ptr<Message> _originalMessage;
+      const shared_ptr<Message> original_message_;
       const RuleResult &_globalRuleResult;
 
    };

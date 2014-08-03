@@ -36,12 +36,12 @@ namespace HM
    bool 
    SMTPConfiguration::Load()
    {
-      _incomingRelays = shared_ptr<IncomingRelays>(new IncomingRelays());
-      if (!_incomingRelays->Refresh())
+      incoming_relays_ = shared_ptr<IncomingRelays>(new IncomingRelays());
+      if (!incoming_relays_->Refresh())
          return false;
 
-      _routes = shared_ptr<Routes> (new Routes());
-      _routes->Refresh();
+      routes_ = shared_ptr<Routes> (new Routes());
+      routes_->Refresh();
 
       return true;
    }
@@ -331,10 +331,10 @@ namespace HM
    bool 
    SMTPConfiguration::XMLStore(XNode *pBackupNode, int iOptions)
    {
-      if (!_routes->XMLStore(pBackupNode, iOptions))
+      if (!routes_->XMLStore(pBackupNode, iOptions))
          return false;
 
-      if (!_incomingRelays->XMLStore(pBackupNode, iOptions))
+      if (!incoming_relays_->XMLStore(pBackupNode, iOptions))
          return false;
 
       return true;
@@ -343,11 +343,11 @@ namespace HM
    bool
    SMTPConfiguration::XMLLoad(XNode *pBackupNode, int iRestoreOptions)
    {
-      _routes->Refresh();
-      _routes->XMLLoad(pBackupNode, iRestoreOptions);
+      routes_->Refresh();
+      routes_->XMLLoad(pBackupNode, iRestoreOptions);
  
-      _incomingRelays->Refresh();
-      _incomingRelays->XMLLoad(pBackupNode, iRestoreOptions);
+      incoming_relays_->Refresh();
+      incoming_relays_->XMLLoad(pBackupNode, iRestoreOptions);
 
       return true;
    }

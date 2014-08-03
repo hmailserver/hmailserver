@@ -14,7 +14,7 @@
 namespace HM
 {
    TestMXRecords::TestMXRecords(const String &localDomainName) :
-      _localDomainName (localDomainName)
+      local_domain_name_ (localDomainName)
    {
 
    }
@@ -35,15 +35,15 @@ namespace HM
       String result;
 
       String formattedString;
-      formattedString.Format(_T("Trying to resolve MX records for %s...\r\n"), _localDomainName);
+      formattedString.Format(_T("Trying to resolve MX records for %s...\r\n"), local_domain_name_);
       result.append(formattedString);
 
       std::vector<String> foundNames;
 
       DNSResolver resolver;
-      if (!resolver.GetMXRecords(_localDomainName, foundNames) || foundNames.size() == 0)
+      if (!resolver.GetMXRecords(local_domain_name_, foundNames) || foundNames.size() == 0)
       {
-         formattedString.Format(_T("ERROR: MX records for domain %s could not be resolved\r\n"), _localDomainName);
+         formattedString.Format(_T("ERROR: MX records for domain %s could not be resolved\r\n"), local_domain_name_);
          result.append(formattedString);
          
          diagResult.SetDetails(result);

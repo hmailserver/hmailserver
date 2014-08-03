@@ -21,6 +21,6 @@ namespace HM
 
       String GetIPRangeName_(const String &username);
 
-      static boost::recursive_mutex _ipRangeCreationMutex;
+      static boost::recursive_mutex ip_range_creation_mutex_;
    };
 }

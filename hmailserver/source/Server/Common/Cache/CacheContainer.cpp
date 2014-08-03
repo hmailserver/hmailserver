@@ -147,13 +147,13 @@ namespace HM
    InboxIDCache &
    CacheContainer::GetInboxIDCache()
    {
-      return _inboxIDCache;
+      return inbox_idcache_;
    }
 
    void 
    CacheContainer::Clear()
    {
-      _inboxIDCache.Clear();
+      inbox_idcache_.Clear();
    }
 
 }

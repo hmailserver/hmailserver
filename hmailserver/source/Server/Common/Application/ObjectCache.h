@@ -36,9 +36,9 @@ namespace HM
       map<__int64, shared_ptr<Rules> > account_rules_;
       set<__int64> account_rules_to_refresh_;
 
-      boost::recursive_mutex _domainAliasesMutex;
-      boost::recursive_mutex _globalRulesMutex;
-      boost::recursive_mutex _accountRulesMutex;
+      boost::recursive_mutex domain_aliases_mutex_;
+      boost::recursive_mutex global_rules_mutex_;
+      boost::recursive_mutex account_rules_mutex_;
 
    };
 }

@@ -38,7 +38,7 @@ namespace HM
 
       String message_file_name_;
 
-      ByteBuffer _appendBuffer;
+      ByteBuffer append_buffer_;
       shared_ptr<IMAPFolder> destination_folder_;
       shared_ptr<Message> current_message_;
 

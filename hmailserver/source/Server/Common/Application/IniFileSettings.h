@@ -74,7 +74,7 @@ namespace HM
       int GetMaxNumberOfExternalFetchThreads() {return max_no_of_external_fetch_threads_ ;}
       bool GetGreylistingEnabledDuringRecordExpiration() {return greylisting_enabled_during_record_expiration_;}
       int GetGreylistingExpirationInterval() {return greylisting_expiration_interval_; }
-      int GetPreferredHashAlgorithm() {return _preferredHashAlgorithm;}
+      int GetPreferredHashAlgorithm() {return preferred_hash_algorithm_;}
       bool GetDNSBLChecksAfterMailFrom() {return dnsbl_checks_after_mail_from_; }
       bool GetSepSvcLogs() {return sep_svc_logs_; }
       int GetLogLevel() {return log_level_; }
@@ -109,7 +109,7 @@ namespace HM
       bool GetBackupMessagesDBOnly () const { return backup_messages_dbonly_; }
       bool GetAddXAuthUserIP () const { return add_xauth_user_ip_; }
 
-      bool GetManulCAFilesExists() {return _manualCAFilesExists;}
+      bool GetManulCAFilesExists() {return manual_cafiles_exists_;}
 
    private:   
 
@@ -147,13 +147,13 @@ namespace HM
       bool is_internal_database_;
       int greylisting_expiration_interval_;
       
-      int _preferredHashAlgorithm;
+      int preferred_hash_algorithm_;
 
       static String log_directory_;
       static String ini_file_;
 
       bool dnsbl_checks_after_mail_from_;
-      bool _manualCAFilesExists;
+      bool manual_cafiles_exists_;
       bool sep_svc_logs_;
       int log_level_;
       int max_log_line_len_;

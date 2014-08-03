@@ -13,30 +13,30 @@ namespace HM
 {
 
    IMAPResult::IMAPResult(Result result, const String &message) :
-      _result(result),
-      _message(message)
+      result_(result),
+      message_(message)
    {
       
    }
 
    IMAPResult::IMAPResult() :
-      _result(ResultOK),
-      _message("")
+      result_(ResultOK),
+      message_("")
    {
 
    }
 
    IMAPResult::IMAPResult(const IMAPResult &otherCopy)
    {
-      _result = otherCopy.GetResult();
-      _message = otherCopy.GetMessage();
+      result_ = otherCopy.GetResult();
+      message_ = otherCopy.GetMessage();
    }
 
    IMAPResult& 
    IMAPResult::operator= (const IMAPResult&otherCopy)
    {
-      _result = otherCopy.GetResult();
-      _message = otherCopy.GetMessage();
+      result_ = otherCopy.GetResult();
+      message_ = otherCopy.GetMessage();
 
       return *this;
    }

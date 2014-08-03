@@ -39,7 +39,7 @@ namespace HM
 
       std::map<__int64, shared_ptr<IMAPFolders> > folders_;
       
-      static boost::recursive_mutex _fetchListMutex;
+      static boost::recursive_mutex fetch_list_mutex_;
       
       bool enabled_;
    

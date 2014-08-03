@@ -27,8 +27,8 @@ namespace HM
 
    private:
 
-      list<SQLParameter> _parameters;
+      list<SQLParameter> parameters_;
 
-      String _queryString;
+      String query_string_;
    };
 }

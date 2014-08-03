@@ -25,7 +25,7 @@ namespace HM
 
    private:
 
-      bool _isUID;
+      bool is_uid_;
      
    };
 

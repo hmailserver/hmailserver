@@ -14,18 +14,18 @@ namespace HM
 
       virtual void DoWork() = 0;
 
-      String GetName() const {return _name;  }
+      String GetName() const {return name_;  }
 
-      Event& GetIsStartedEvent() {return _isStarted;}
+      Event& GetIsStartedEvent() {return is_started_;}
 
    protected:
 
-      void SetIsStarted() {_isStarted.Set();}
+      void SetIsStarted() {is_started_.Set();}
 
    private:
       
-      Event _isStarted;
+      Event is_started_;
 
-      String _name;
+      String name_;
    };
 }

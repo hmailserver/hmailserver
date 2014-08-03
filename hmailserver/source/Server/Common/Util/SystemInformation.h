@@ -27,6 +27,6 @@ namespace HM
 
    private:
 
-      static OperatingSystem _operatingSystem;
+      static OperatingSystem operating_system_;
    };
 }

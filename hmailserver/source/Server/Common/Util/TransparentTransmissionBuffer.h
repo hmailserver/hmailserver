@@ -62,8 +62,8 @@ namespace HM
 
       int GetSize();
 
-      bool GetCancelTransmission() {return _cancelTransmission;}
-      String GetCancelMessage() {return _cancelMessage;}
+      bool GetCancelTransmission() {return cancel_transmission_;}
+      String GetCancelMessage() {return cancel_message_;}
    private:
 
       void InsertTransmissionPeriod_(shared_ptr<ByteBuffer> pIn);
@@ -87,8 +87,8 @@ namespace HM
       unsigned    int data_sent_;
       unsigned int max_size_kb_;
 
-      bool _cancelTransmission;
-      String _cancelMessage;
+      bool cancel_transmission_;
+      String cancel_message_;
 
 
       enum Limits

@@ -26,24 +26,24 @@ namespace HM
    void
    IOOperationQueue::Push(shared_ptr<IOOperation> operation)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      _queueOperations.push_back(operation);
+      queue_operations_.push_back(operation);
    }
 
    void
    IOOperationQueue::Pop(IOOperation::OperationType type)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      if (_ongoingOperations.size() == 0)
+      if (ongoing_operations_.size() == 0)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5131, "IOOperationQueue::Pop()", "Trying to pop operation list.");
          return;
       }
 
-      std::vector<shared_ptr<IOOperation >>::iterator iter = _ongoingOperations.begin();
-      std::vector<shared_ptr<IOOperation >>::iterator iterEnd = _ongoingOperations.end();
+      std::vector<shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
+      std::vector<shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -51,7 +51,7 @@ namespace HM
 
          if (oper->GetType() == type)
          {
-            _ongoingOperations.erase(iter);
+            ongoing_operations_.erase(iter);
             return;
          }
 
@@ -63,12 +63,12 @@ namespace HM
    bool 
    IOOperationQueue::ContainsQueuedSendOperation()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      if (_queueOperations.empty())
+      if (queue_operations_.empty())
          return false;
 
-      boost_foreach(shared_ptr<IOOperation> operation, _queueOperations)
+      boost_foreach(shared_ptr<IOOperation> operation, queue_operations_)
       {
          if (operation->GetType() == IOOperation::BCTSend)
             return true;
@@ -80,23 +80,23 @@ namespace HM
    shared_ptr<IOOperation>
    IOOperationQueue::Front()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       // Do we have any items to process? If not, not much to do.
-      if (_queueOperations.empty())
+      if (queue_operations_.empty())
       {
          shared_ptr<IOOperation> empty;
          return empty;
       }
 
-      shared_ptr<IOOperation> nextOperation = _queueOperations.front();
+      shared_ptr<IOOperation> nextOperation = queue_operations_.front();
 
-      if (_ongoingOperations.size() > 0)
+      if (ongoing_operations_.size() > 0)
       {
          IOOperation::OperationType pendingType = nextOperation->GetType();
 
-         std::vector<shared_ptr<IOOperation >>::iterator iter = _ongoingOperations.begin();
-         std::vector<shared_ptr<IOOperation >>::iterator iterEnd = _ongoingOperations.end();
+         std::vector<shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
+         std::vector<shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
 
          for (; iter != iterEnd; iter++)
          {
@@ -165,9 +165,9 @@ namespace HM
       }
 
 
-      _ongoingOperations.push_back(nextOperation);
+      ongoing_operations_.push_back(nextOperation);
 
-      _queueOperations.pop_front();
+      queue_operations_.pop_front();
 
       return nextOperation;
    }

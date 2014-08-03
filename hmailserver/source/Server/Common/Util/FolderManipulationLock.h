@@ -20,10 +20,10 @@ namespace HM
 
       static set<std::pair<int, int> > folders_;
       
-      static boost::recursive_mutex _mutex; 
+      static boost::recursive_mutex mutex_; 
 
-      bool _hasLock;
+      bool has_lock_;
 
-      std::pair<int, int> _lockPair;
+      std::pair<int, int> lock_pair_;
    };
 }

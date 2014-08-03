@@ -22,7 +22,7 @@ namespace HM
 
    private:
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
       std::map<__int64, shared_ptr<Message> > message_;
 
    };

@@ -15,7 +15,7 @@ namespace HM
       String GetString(const String &sEnglishString);
       String GetName() const {return name_; }
 
-      bool GetIsDownloded() {return _isDownloaded; }
+      bool GetIsDownloded() {return is_downloaded_; }
       static void LoadEnglish();
 
       bool Download();
@@ -24,7 +24,7 @@ namespace HM
       
       String name_;
       bool is_loaded_;
-      bool _isDownloaded;
+      bool is_downloaded_;
 
       static std::pair<int, String> GetString_(const String &sLine);
       static void CleanString_(String &sText);

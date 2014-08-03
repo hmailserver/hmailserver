@@ -26,7 +26,7 @@ namespace HM
 {
    ServerTargetResolver::ServerTargetResolver(shared_ptr<Message> message, const RuleResult& globalRuleResult) :
       _globalRuleResult(globalRuleResult),
-      _message(message)
+      message_(message)
    {
 
    }
@@ -55,7 +55,7 @@ namespace HM
             {
                // All recipients should go into the same SMTP server
                std::vector<shared_ptr<MessageRecipient> > recipients;
-               boost_foreach(shared_ptr<MessageRecipient> recipient, _message->GetRecipients()->GetVector())
+               boost_foreach(shared_ptr<MessageRecipient> recipient, message_->GetRecipients()->GetVector())
                {
                   recipients.push_back(recipient); 
                }
@@ -69,7 +69,7 @@ namespace HM
       // sort all recipients per domain, domain in lower case. this is done
       // so that we only need to look for routes for every domain once.
       map<String, vector<shared_ptr<MessageRecipient> > > sortedRecipients;
-      boost_foreach(shared_ptr<MessageRecipient> recipient, _message->GetRecipients()->GetVector())
+      boost_foreach(shared_ptr<MessageRecipient> recipient, message_->GetRecipients()->GetVector())
       {
          String domainName = StringParser::ExtractDomain(recipient->GetAddress()).ToLower();
 

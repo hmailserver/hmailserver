@@ -52,7 +52,7 @@ namespace HM
       no_of_retries_ = other.no_of_retries_;
       flags_ = other.flags_;
 
-      _uid = other._uid;
+      uid_ = other.uid_;
    }
 
 
@@ -64,7 +64,7 @@ namespace HM
       message_folder_id_ = 0;
       message_size_ = 0;
       no_of_retries_ = 0;
-      _uid = 0;
+      uid_ = 0;
 
       if (generateFileName)
       {
@@ -201,7 +201,7 @@ namespace HM
       pNode->AppendAttr(_T("NoOfRetries"), StringParser::IntToString(no_of_retries_));
       pNode->AppendAttr(_T("Flags"), StringParser::IntToString(flags_));
       pNode->AppendAttr(_T("ID"), StringParser::IntToString(id_));
-      pNode->AppendAttr(_T("UID"), StringParser::IntToString(_uid));
+      pNode->AppendAttr(_T("UID"), StringParser::IntToString(uid_));
 
       return true;
    }
@@ -216,7 +216,7 @@ namespace HM
       message_size_ = _ttoi(pNode->GetAttrValue(_T("Size")));
       no_of_retries_ = _ttoi(pNode->GetAttrValue(_T("NoOfRetries")));
       flags_ = _ttoi(pNode->GetAttrValue(_T("Flags")));
-      _uid = _ttoi(pNode->GetAttrValue(_T("UID")));
+      uid_ = _ttoi(pNode->GetAttrValue(_T("UID")));
 
       return true;
    }

@@ -92,7 +92,7 @@ namespace HM
       shared_ptr<Scheduler> scheduler_;
       shared_ptr<NotificationServer> notification_server_;
       shared_ptr<IOService> io_service_;
-      shared_ptr<FolderManager> _folderManager;
+      shared_ptr<FolderManager> folder_manager_;
 
       const String maintenance_queue_;
       // The random work queue can run any type of task.

@@ -18,7 +18,7 @@ STDMETHODIMP InterfaceDiagnosticResults::get_Count(long* count)
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      *count =  (int) _results.size();
+      *count =  (int) results_.size();
    
       return S_OK;
    }
@@ -38,12 +38,12 @@ STDMETHODIMP InterfaceDiagnosticResults::get_Item(long Index, IInterfaceDiagnost
       if (!authentication_->GetIsServerAdmin())
          return authentication_->GetAccessDenied();
    
-      if (Index >= (long) _results.size())
+      if (Index >= (long) results_.size())
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceDiagnosticResult>* pResult = new CComObject<InterfaceDiagnosticResult>();
       pResult->SetAuthentication(authentication_);
-      pResult->AttachResult(_results[Index]);
+      pResult->AttachResult(results_[Index]);
       pResult->AddRef();
       *pVal = pResult;
    

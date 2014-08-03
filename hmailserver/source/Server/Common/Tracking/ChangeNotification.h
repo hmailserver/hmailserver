@@ -32,11 +32,11 @@ namespace HM
 
    private:
 
-      __int64 _accountID;
-      __int64 _folderID;
-      __int64 _data;
-      vector<__int64> _affectedMessages;
-      NotificationType _type;
+      __int64 account_id_;
+      __int64 folder_id_;
+      __int64 data_;
+      vector<__int64> affected_messages_;
+      NotificationType type_;
 
    };
 }

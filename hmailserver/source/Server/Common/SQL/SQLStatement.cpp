@@ -18,14 +18,14 @@ namespace HM
 {
    SQLStatement::SQLStatement() :
       type_(STUndefined),
-      _topRows(-1)
+      top_rows_(-1)
    {
 
    }
 
    SQLStatement::SQLStatement(eStatementType iType, const String &tableName) :
       type_(iType),
-      _topRows(-1),
+      top_rows_(-1),
       table_(tableName)
    {
 
@@ -265,7 +265,7 @@ namespace HM
       {
          sSQL = "SELECT ";
 
-         if (_topRows > -1)
+         if (top_rows_ > -1)
          {
             String value;
 
@@ -273,12 +273,12 @@ namespace HM
             {
             case DatabaseSettings::TypeMSSQLServer:
                // SQL Server 2000 does not support ( and ) around the value.
-               value.Format(_T(" TOP %d "), _topRows);
+               value.Format(_T(" TOP %d "), top_rows_);
                sSQL.append(value);
                break;
             case DatabaseSettings::TypeMSSQLCompactEdition:
                // SQL Server Compact Edition 3.5 requires () around the value.
-               value.Format(_T(" TOP (%d) "), _topRows);
+               value.Format(_T(" TOP (%d) "), top_rows_);
                sSQL.append(value);
                break;
             }
@@ -362,18 +362,18 @@ namespace HM
 
       if (type_ == SQLStatement::STSelect)
       {
-         if (_topRows > -1)
+         if (top_rows_ > -1)
          {
             HM::DatabaseSettings::SQLDBType DBType = IniFileSettings::Instance()->GetDatabaseType();
             String value;
             switch (DBType)
             {
             case DatabaseSettings::TypePGServer:
-               value.Format(_T(" LIMIT %d "), _topRows);
+               value.Format(_T(" LIMIT %d "), top_rows_);
                sSQL.append(value);
                break;
             case DatabaseSettings::TypeMYSQLServer:
-               value.Format(_T(" LIMIT 0, %d "), _topRows);
+               value.Format(_T(" LIMIT 0, %d "), top_rows_);
                sSQL.append(value);
                break;
             }
@@ -398,7 +398,7 @@ namespace HM
    void
    SQLStatement::SetTopRows(int rowCount)
    {
-      _topRows = rowCount;
+      top_rows_ = rowCount;
    }
 
    String 

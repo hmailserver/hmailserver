@@ -128,8 +128,8 @@ namespace HM
       
       String name_;
 
-      bool _expires;
-      DateTime _expiresTime;
+      bool expires_;
+      DateTime expires_Time;
    };
 
 }

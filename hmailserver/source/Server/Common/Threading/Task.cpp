@@ -12,7 +12,7 @@
 namespace HM
 {
    Task::Task(const String &name) :
-      _name (name)
+      name_ (name)
    {
 
    }

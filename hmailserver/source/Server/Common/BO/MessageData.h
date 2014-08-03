@@ -98,10 +98,10 @@ namespace HM
       shared_ptr<MimeBody> mime_mail_;
       shared_ptr<Attachments> attachments_;
 
-      String _messageFileName;
+      String message_file_name_;
 
       bool encode_fields_;
-      bool _unfoldWithSpace;
+      bool unfold_with_space_;
    };
 
    class MessageDataTester

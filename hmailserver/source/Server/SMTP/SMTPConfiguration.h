@@ -90,13 +90,13 @@ namespace HM
 
       void OnPropertyChanged(shared_ptr<Property> pProperty);
 
-      shared_ptr<IncomingRelays> GetIncomingRelays() {return _incomingRelays;}
-      shared_ptr<Routes> GetRoutes() {return _routes;}
+      shared_ptr<IncomingRelays> GetIncomingRelays() {return incoming_relays_;}
+      shared_ptr<Routes> GetRoutes() {return routes_;}
 
    private:
 
       shared_ptr<PropertySet> GetSettings_() const;
-      shared_ptr<IncomingRelays> _incomingRelays;
-      shared_ptr<Routes> _routes;
+      shared_ptr<IncomingRelays> incoming_relays_;
+      shared_ptr<Routes> routes_;
    };
 }

@@ -31,7 +31,7 @@ namespace HM
       use_smtpauth_(false),
       cur_recipient_(-1),
       session_ended_(false),
-      _transmissionBuffer(true),
+      transmission_buffer_(true),
       expected_remote_hostname_(expected_remote_hostname)
    {
       
@@ -278,7 +278,7 @@ namespace HM
       {
          if (IsPositiveCompletion(code))
          {
-            _actualRecipients.insert(recipients_[cur_recipient_]);
+            actual_recipients_.insert(recipients_[cur_recipient_]);
          }
          else
          {
@@ -295,7 +295,7 @@ namespace HM
       }
       else
       {
-         if (_actualRecipients.size() == 0)
+         if (actual_recipients_.size() == 0)
          {
             SendQUIT_();
          }
@@ -386,7 +386,7 @@ namespace HM
    void
    SMTPClientConnection::UpdateSuccessfulRecipients_()
    {
-      boost_foreach(shared_ptr<MessageRecipient> actualRecipient, _actualRecipients)
+      boost_foreach(shared_ptr<MessageRecipient> actualRecipient, actual_recipients_)
          actualRecipient->SetDeliveryResult(MessageRecipient::ResultOK);
 
    }
@@ -611,7 +611,7 @@ namespace HM
    void
    SMTPClientConnection::StartSendFile_(const String &sFilename)
    {
-      if (!_currentFile.Open(sFilename, File::OTReadOnly))
+      if (!current_file_.Open(sFilename, File::OTReadOnly))
       {
          String sErrorMsg;
          sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename);
@@ -621,9 +621,9 @@ namespace HM
          return;
       }
 
-      _transmissionBuffer.Initialize(shared_from_this());
+      transmission_buffer_.Initialize(shared_from_this());
 
-      shared_ptr<ByteBuffer> pBuf = _currentFile.ReadChunk(GetBufferSize());
+      shared_ptr<ByteBuffer> pBuf = current_file_.ReadChunk(GetBufferSize());
 
       if (!pBuf)
          return;
@@ -632,7 +632,7 @@ namespace HM
       int iSendBufferSize = pBuf->GetSize();
 
       // Append the transmission buffer
-      _transmissionBuffer.Append(pSendBuffer, iSendBufferSize);
+      transmission_buffer_.Append(pSendBuffer, iSendBufferSize);
       
 	  ReadAndSend_();
    }
@@ -643,27 +643,27 @@ namespace HM
       LOG_DEBUG("SMTPClientConnection::~_Continue sendfile");
       // Continue sending the file..
       int bufferSize = GetBufferSize();
-      shared_ptr<ByteBuffer> pBuffer = _currentFile.ReadChunk(bufferSize);
+      shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
       while (pBuffer)
       {
-         _transmissionBuffer.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
+         transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
 
-         if (_transmissionBuffer.Flush())
+         if (transmission_buffer_.Flush())
          {
             // Data was sent. We'll wait with sending more data until
             // the current data has been sent.
             return; 
          }
 
-         pBuffer = _currentFile.ReadChunk(bufferSize);
+         pBuffer = current_file_.ReadChunk(bufferSize);
       }
 
       // We're done sending!
-      _currentFile.Close();
+      current_file_.Close();
 
       // No more data to send. Make sure all buffered data is flushed.
-      _transmissionBuffer.Flush(true);
+      transmission_buffer_.Flush(true);
 
       // We're ready to receive the Message accepted-response.
       // No \r\n on end because SendData adds
@@ -678,7 +678,7 @@ namespace HM
    SMTPClientConnection::OnDataSent()
    {
       // Are we currently sending a file to the client?
-      if (!_currentFile.IsOpen())
+      if (!current_file_.IsOpen())
          return;
 
       ReadAndSend_();

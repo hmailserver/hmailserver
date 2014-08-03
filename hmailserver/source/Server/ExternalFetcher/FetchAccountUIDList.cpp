@@ -44,7 +44,7 @@ namespace HM
 
          shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
 
-         _fetchedUIDs.insert(std::make_pair(sUIDValue, pUID));
+         fetched_uids_.insert(std::make_pair(sUIDValue, pUID));
 
          pUIDRS->MoveNext();     
       }
@@ -66,14 +66,14 @@ namespace HM
 
       shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sCreateTime));
 
-      _fetchedUIDs.insert(std::make_pair(sUIDValue, pUID));
+      fetched_uids_.insert(std::make_pair(sUIDValue, pUID));
    }
 
    bool 
    FetchAccountUIDList::IsUIDInList(const String&sUID) const
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = _fetchedUIDs.find(sUID);
-      if (iter == _fetchedUIDs.end())
+      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
+      if (iter == fetched_uids_.end())
          return false;
       
       return true;
@@ -82,8 +82,8 @@ namespace HM
    void 
    FetchAccountUIDList::DeleteUID(const String &sUID)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iter = _fetchedUIDs.find(sUID);
-      if (iter == _fetchedUIDs.end())
+      std::map<String, shared_ptr<FetchAccountUID> >::iterator iter = fetched_uids_.find(sUID);
+      if (iter == fetched_uids_.end())
          return;
 
       shared_ptr<FetchAccountUID> pUID = (*iter).second;
@@ -92,14 +92,14 @@ namespace HM
       PersistentFetchAccountUID::DeleteUID(pUID->GetID());
 
       // Delete from vector in memory.
-      _fetchedUIDs.erase(iter);
+      fetched_uids_.erase(iter);
    }
 
    void 
    FetchAccountUIDList::DeleteUIDsNotInSet(set<String> &setUIDs)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterFA = _fetchedUIDs.begin();
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterEnd = _fetchedUIDs.end();
+      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterFA = fetched_uids_.begin();
+      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterEnd = fetched_uids_.end();
       while (iterFA != iterEnd)
       {
          shared_ptr<FetchAccountUID> pUID = (*iterFA).second;
@@ -113,7 +113,7 @@ namespace HM
             PersistentFetchAccountUID::DeleteUID(pUID->GetID());
 
             // Delete from vector in memory.
-            iterFA = _fetchedUIDs.erase(iterFA);
+            iterFA = fetched_uids_.erase(iterFA);
          }
          else
             iterFA++;
@@ -124,8 +124,8 @@ namespace HM
    shared_ptr<FetchAccountUID> 
    FetchAccountUIDList::GetUID(const String &sUID)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = _fetchedUIDs.find(sUID);
-      if (iter == _fetchedUIDs.end())
+      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
+      if (iter == fetched_uids_.end())
       {
 
          shared_ptr<FetchAccountUID> pEmpty;

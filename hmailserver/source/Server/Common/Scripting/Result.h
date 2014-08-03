@@ -15,7 +15,7 @@ namespace HM
       void SetValue(long lNewVal){value_ = lNewVal; }
       long GetValue() const; 
 
-      void SetParameter(int lNewVal){_parameter = lNewVal; }
+      void SetParameter(int lNewVal){parameter_ = lNewVal; }
       int GetParameter() const; 
 
 
@@ -24,7 +24,7 @@ namespace HM
 
    private:
       long value_;
-      int _parameter;
+      int parameter_;
 
       String message_;
    };

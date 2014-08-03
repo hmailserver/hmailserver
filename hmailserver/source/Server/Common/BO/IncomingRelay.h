@@ -17,15 +17,15 @@ namespace HM
 	   bool SetLowerIPString(const String & sLowerIP);
 	   bool SetUpperIPString(const String & sUpperIP);
 
-	   void SetLowerIP(const IPAddress &lNewVal){_lowerIP = lNewVal;}
-	   void SetUpperIP(const IPAddress &lNewVal){_upperIP = lNewVal;}
-      IPAddress GetLowerIP() const {return _lowerIP;}
-      IPAddress GetUpperIP() const {return _upperIP;}
+	   void SetLowerIP(const IPAddress &lNewVal){lower_ip_ = lNewVal;}
+	   void SetUpperIP(const IPAddress &lNewVal){upper_ip_ = lNewVal;}
+      IPAddress GetLowerIP() const {return lower_ip_;}
+      IPAddress GetUpperIP() const {return upper_ip_;}
 
       bool IPIsWithinRange(const IPAddress &address) const ;
    
-      String GetName() const  {return _name; }
-      void SetName(const String &sNewVal) {_name = sNewVal;}
+      String GetName() const  {return name_; }
+      void SetName(const String &sNewVal) {name_ = sNewVal;}
 
       bool XMLStore (XNode *pParentNode, int iOptions);
       bool XMLLoad (XNode *pSecurityRangeNode, int iOptions);
@@ -33,10 +33,10 @@ namespace HM
 
    protected:
 	   
-	   IPAddress _lowerIP;
-	   IPAddress _upperIP;
+	   IPAddress lower_ip_;
+	   IPAddress upper_ip_;
      
-      String _name;
+      String name_;
 
    };
 

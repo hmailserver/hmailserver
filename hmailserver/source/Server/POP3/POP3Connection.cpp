@@ -350,7 +350,7 @@ namespace HM
    void
    POP3Connection::ProtocolRSET_()
    {
-      if (Application::Instance()->GetFolderManager()->GetInboxMessages((int) _account->GetID(), _messages))
+      if (Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
          ResetMailbox_();
          SendData_("+OK 0");
@@ -431,7 +431,7 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      _account = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
+      account_ = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
 
       if (disconnect)
       {
@@ -439,7 +439,7 @@ namespace HM
          return ResultDisconnect;
       }
 
-      if (!_account)
+      if (!account_)
       {
          if (username_.Find(_T("@")) == -1)
             SendData_("-ERR Invalid user name or password. Please use full email address as user name.");
@@ -450,13 +450,13 @@ namespace HM
       }
 
       // Try to lock mailbox.
-      if (!POP3Sessions::Instance()->Lock(_account->GetID()))
+      if (!POP3Sessions::Instance()->Lock(account_->GetID()))
       {
          SendData_("-ERR Your mailbox is already locked");
          return ResultNormalResponse; 
       }
   
-      if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) _account->GetID(), _messages))
+      if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
          SendData_("+ERR Server error: Failed to fetch messages in Inbox.");
          return ResultNormalResponse;
@@ -479,7 +479,7 @@ namespace HM
       sInputParam.TrimRight();
       long lMessageID = _ttol(sInputParam);
 
-      if (!_account)
+      if (!account_)
       {
          SendData_("-ERR No such message (messages not loaded)");
          return true;
@@ -500,7 +500,7 @@ namespace HM
    bool
    POP3Connection::ProtocolLIST_(const String &sParameter)
    {
-      if (!_account)
+      if (!account_)
       {
          SendData_("-ERR Message list not loaded");
          return true;
@@ -525,7 +525,7 @@ namespace HM
          String sRow;
 
          int index = 0;
-         boost_foreach(shared_ptr<Message> pMessage, _messages)
+         boost_foreach(shared_ptr<Message> pMessage, messages_)
          {
             index++;
             if (!pMessage->GetFlagDeleted())
@@ -563,7 +563,7 @@ namespace HM
    POP3Connection::ProtocolUIDL_(const String &Parameter)
    {
       // Display a list of all the messages (index and size)
-      if (!_account)
+      if (!account_)
       {
          SendData_("-ERR Message list not loaded");
          return true;
@@ -578,7 +578,7 @@ namespace HM
          GetMailboxContents_(iMessageCount, iTotalBytes);
 
          // Allocate a reasonable size...
-         sResponse.SetBuf(_messages.size() * 10);
+         sResponse.SetBuf(messages_.size() * 10);
 
          // Send number of messages.
          sResponse.Format(_T("+OK %d messages (%I64d octets)\r\n"), iMessageCount, iTotalBytes);
@@ -586,7 +586,7 @@ namespace HM
 
          // List the actual messages.
          int index = 0;
-         boost_foreach(shared_ptr<Message> pMessage, _messages)
+         boost_foreach(shared_ptr<Message> pMessage, messages_)
          {
             index++;
             if (!pMessage->GetFlagDeleted())
@@ -619,7 +619,7 @@ namespace HM
    POP3Connection::ParseResult
    POP3Connection::ProtocolRETR_(const String &Parameter)
    {
-      if (!_account)
+      if (!account_)
       {
          SendData_("-ERR Message list not loaded");
          return ResultNormalResponse;
@@ -635,7 +635,7 @@ namespace HM
          return ResultNormalResponse;
       }
 
-      PersistentMessage::EnsureFileExistance(_account, pMessage);
+      PersistentMessage::EnsureFileExistance(account_, pMessage);
 
       StartSendFile_(pMessage);
 
@@ -645,11 +645,11 @@ namespace HM
    void 
    POP3Connection::StartSendFile_(shared_ptr<Message> message)
    {  
-      String fileName = PersistentMessage::GetFileName(_account, message);
+      String fileName = PersistentMessage::GetFileName(account_, message);
 
       transmission_buffer_.Initialize(shared_from_this());
       
-      if (!_currentFile.Open(fileName, File::OTReadOnly))
+      if (!current_file_.Open(fileName, File::OTReadOnly))
       {
          String sErrorMessage;
          sErrorMessage.Format(_T("Could not send file %s via socket since it does not exist."), fileName);
@@ -674,7 +674,7 @@ namespace HM
          // Continue sending the file..
          int bufferSize = GetBufferSize();
 
-         shared_ptr<ByteBuffer> pBuffer = _currentFile.ReadChunk(bufferSize);
+         shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
          while (pBuffer)
          {
@@ -688,11 +688,11 @@ namespace HM
             }
 
             // No data was sent. Send some more...
-            pBuffer = _currentFile.ReadChunk(bufferSize);
+            pBuffer = current_file_.ReadChunk(bufferSize);
          }
 
          // We're done. Cleanup...
-         _currentFile.Close();
+         current_file_.Close();
 
          // No more data to send. Make sure all buffered data is flushed.
          transmission_buffer_.Flush(true);
@@ -718,7 +718,7 @@ namespace HM
    POP3Connection::OnDataSent()
    {
       // Are we currently sending a file to the client?
-      if (!_currentFile.IsOpen())
+      if (!current_file_.IsOpen())
       {
          // No. Nothing to do now.
          return;
@@ -731,7 +731,7 @@ namespace HM
    bool
    POP3Connection::ProtocolTOP_(const String &Parameter)
    {
-      if (!_account)
+      if (!account_)
       {
          SendData_("-ERR Message list not loaded");
          return true;
@@ -768,7 +768,7 @@ namespace HM
       }
       else
       {
-         String fileName = PersistentMessage::GetFileName(_account, pMessage);
+         String fileName = PersistentMessage::GetFileName(account_, pMessage);
 
          String sResponse;
          sResponse.Format(_T("+OK %d octets"), pMessage->GetSize());
@@ -793,11 +793,11 @@ namespace HM
    void
    POP3Connection::UnlockMailbox_()
    {
-      if (!_account)
+      if (!account_)
          return;
 
-      POP3Sessions::Instance()->Unlock(_account->GetID());
-      _account.reset();
+      POP3Sessions::Instance()->Unlock(account_->GetID());
+      account_.reset();
    }
 
    bool
@@ -910,16 +910,16 @@ namespace HM
    POP3Connection::SaveMailboxChanges_()
    {
       // Delete messages that has the delete flag on.
-      if (_account)
+      if (account_)
       {
          std::set<int> messagesToDelete;
-         boost_foreach(shared_ptr<Message> message, _messages)
+         boost_foreach(shared_ptr<Message> message, messages_)
          {
             if (message->GetFlagDeleted())
                messagesToDelete.insert(message->GetUID());
          }
 
-         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) _account->GetID(), messagesToDelete, boost::bind(&POP3Connection::UpdateLogoutTimer, this));
+         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) account_->GetID(), messagesToDelete, boost::bind(&POP3Connection::UpdateLogoutTimer, this));
       }
    }
 
@@ -930,8 +930,8 @@ namespace HM
       // Fix for negative STAT results when box over 2GB
       __int64 iTotalSize = 0;
 
-      std::vector<shared_ptr<Message> >::iterator iter = _messages.begin();
-      std::vector<shared_ptr<Message> >::iterator iterEnd = _messages.end();
+      std::vector<shared_ptr<Message> >::iterator iter = messages_.begin();
+      std::vector<shared_ptr<Message> >::iterator iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -960,8 +960,8 @@ namespace HM
       iNoOfMessages = 0;
       iTotalBytes = 0;
 
-      std::vector<shared_ptr<Message> >::iterator iter = _messages.begin();
-      std::vector<shared_ptr<Message> >::iterator iterEnd = _messages.end();
+      std::vector<shared_ptr<Message> >::iterator iter = messages_.begin();
+      std::vector<shared_ptr<Message> >::iterator iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -979,8 +979,8 @@ namespace HM
    POP3Connection::GetMessage_(unsigned int index)
    {
       shared_ptr<Message> result;
-      if (index >= 1 && index <= _messages.size())
-         result = _messages[index-1];
+      if (index >= 1 && index <= messages_.size())
+         result = messages_[index-1];
 
       return result;
    }
@@ -1000,7 +1000,7 @@ namespace HM
          If there are messages marked for deletion in the mailbox, this woulnd't work.
 
       */
-      boost_foreach(shared_ptr<Message> message, _messages)
+      boost_foreach(shared_ptr<Message> message, messages_)
          message->SetFlagDeleted(false);
    }
 }

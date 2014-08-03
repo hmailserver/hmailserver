@@ -20,7 +20,7 @@ namespace HM
       last_send_ended_with_newline_(false),
       data_sent_(0),
       max_size_kb_(0),
-      _cancelTransmission(false)
+      cancel_transmission_(false)
    {
       buffer_ = shared_ptr<ByteBuffer>(new ByteBuffer);
    }
@@ -170,8 +170,8 @@ namespace HM
          // characters on a single line with no new line character. This should
          // never happen in normal email communication so let's assume someone
          // is trying to attack us.
-         _cancelTransmission = true;
-         _cancelMessage = "Too long line was received. Transmission aborted.";
+         cancel_transmission_ = true;
+         cancel_message_ = "Too long line was received. Transmission aborted.";
          bForce = true;
       }
 
@@ -258,7 +258,7 @@ namespace HM
          return false;
       }
 
-      if (!_cancelTransmission)
+      if (!cancel_transmission_)
       {
          DWORD dwNoOfBytesWritten = 0;
          bool bResult = file_.Write(pBuffer, dwNoOfBytesWritten);

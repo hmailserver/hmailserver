@@ -25,7 +25,7 @@ namespace HM
    bool 
    POP3Sessions::IsLocked(__int64 iAccount)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       bool bRet = false;
       if (locked_accounts_.find(iAccount) != locked_accounts_.end())
@@ -37,7 +37,7 @@ namespace HM
    bool 
    POP3Sessions::Lock(__int64 iAccount)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       if (locked_accounts_.find(iAccount) == locked_accounts_.end())
       {
@@ -53,7 +53,7 @@ namespace HM
    void 
    POP3Sessions::Unlock(__int64 iAccount)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       std::set<__int64>::iterator iter =  locked_accounts_.find(iAccount);
       if (iter != locked_accounts_.end())

@@ -15,7 +15,7 @@ namespace HM
 {
 
    SecurityRange::SecurityRange() :
-      _expires(false),
+      expires_(false),
       options_(0),
       priority_(0)
    {
@@ -272,25 +272,25 @@ namespace HM
    bool
    SecurityRange::GetExpires() const
    {
-      return _expires;
+      return expires_;
    }
 
    void 
    SecurityRange::SetExpires(bool expires)
    {
-      _expires = expires;
+      expires_ = expires;
    }
 
    DateTime
    SecurityRange::GetExpiresTime() const
    {
-      return _expiresTime;
+      return expires_Time;
    }
 
    void
    SecurityRange::SetExpiresTime(const DateTime &expiresTime)
    {
-      _expiresTime = expiresTime;
+      expires_Time = expiresTime;
    }
 
    bool 
@@ -304,8 +304,8 @@ namespace HM
       pNode->AppendAttr(_T("Priority"), StringParser::IntToString(priority_));
       pNode->AppendAttr(_T("Options"), StringParser::IntToString(options_));
 
-      pNode->AppendAttr(_T("ExpiresTime"), Time::GetTimeStampFromDateTime(_expiresTime));
-      pNode->AppendAttr(_T("Expires"), _expires ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ExpiresTime"), Time::GetTimeStampFromDateTime(expires_Time));
+      pNode->AppendAttr(_T("Expires"), expires_ ? _T("1") : _T("0"));
 
       return true;
    }
@@ -319,8 +319,8 @@ namespace HM
       priority_ = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Priority")));
       options_ = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Options")));
    
-      _expiresTime = Time::GetDateFromSystemDate(pSecurityRangeNode->GetAttrValue(_T("ExpiresTime")));
-      _expires = pSecurityRangeNode->GetAttrValue(_T("Expires")) == _T("1");
+      expires_Time = Time::GetDateFromSystemDate(pSecurityRangeNode->GetAttrValue(_T("ExpiresTime")));
+      expires_ = pSecurityRangeNode->GetAttrValue(_T("Expires")) == _T("1");
 
       return true;
    }

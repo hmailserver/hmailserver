@@ -23,7 +23,7 @@ namespace HM
 {
 
    Reinitializator::Reinitializator(void) :
-      _isRunning(false)
+      is_running_(false)
    {
    }
 
@@ -35,24 +35,24 @@ namespace HM
    void 
    Reinitializator::ReInitialize()
    {
-      if (_isRunning)
+      if (is_running_)
       {
          return;
       }
 
       boost::function<void ()> func = boost::bind( &Reinitializator::WorkerFunc, this );
 
-      _workerThread = boost::thread(func);
+      worker_thread_ = boost::thread(func);
    }
 
    void
    Reinitializator::WorkerFunc()
    {
-      _isRunning = true;
+      is_running_ = true;
 
       Application::Instance()->Reinitialize();
 
-      _isRunning = false;
+      is_running_ = false;
 
    }
 }

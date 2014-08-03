@@ -17,6 +17,6 @@ namespace HM
 
    private:
 
-      String _macroString;
+      String macro_string_;
    };
 }

@@ -18,9 +18,9 @@ namespace HM
 
    private:
 
-      unsigned int _errorLogTimeout;
+      unsigned int error_log_timeout_;
 
-      String _commandLine;
-      String _workingDirectory;
+      String command_line_;
+      String working_directory_;
    };
 }

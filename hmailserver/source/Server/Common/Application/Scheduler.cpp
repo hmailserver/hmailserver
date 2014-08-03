@@ -45,7 +45,7 @@ namespace HM
          {
             boost::this_thread::disable_interruption disabled;
 
-            boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+            boost::lock_guard<boost::recursive_mutex> guard(mutex_);
             scheduled_tasks_.clear();
 
             return;
@@ -56,7 +56,7 @@ namespace HM
    void
    Scheduler::RunTasks_()
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       vector<shared_ptr<ScheduledTask >>::iterator iterTask;
 
@@ -82,7 +82,7 @@ namespace HM
    void
    Scheduler::ScheduleTask(shared_ptr<ScheduledTask> pTask)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       // If task should only be run once, run it now.
       if (pTask->GetReoccurance() == ScheduledTask::RunOnce)

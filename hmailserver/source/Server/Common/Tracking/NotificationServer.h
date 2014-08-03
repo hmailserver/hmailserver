@@ -27,11 +27,11 @@ namespace HM
 
       set<shared_ptr<NotificationClient> > GetClientsToNotify_(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification);
 
-      std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> > _messageChangeSubscribers;
-      std::multimap<__int64, shared_ptr<NotificationClientSubscription> > _folderListChangeSubscribers;
+      std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> > message_change_subscribers_;
+      std::multimap<__int64, shared_ptr<NotificationClientSubscription> > folder_list_change_subscribers_;
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
 
-      __int64 _subscriptionCounter;
+      __int64 subscription_counter_;
    };
 }

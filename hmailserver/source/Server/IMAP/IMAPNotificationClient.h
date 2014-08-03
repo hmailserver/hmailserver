@@ -40,15 +40,15 @@ namespace HM
       void SendEXPUNGE_(const std::vector<__int64> & vecMessages);
       void SendFLAGS_(const std::set<__int64> & vecMessages);
 
-      boost::recursive_mutex _mutex;
-      vector<shared_ptr<ChangeNotification> > _cachedChanges;
+      boost::recursive_mutex mutex_;
+      vector<shared_ptr<ChangeNotification> > cached_changes_;
       
-      weak_ptr<IMAPConnection> _parentConnection;
+      weak_ptr<IMAPConnection> parent_connection_;
 
-      __int64 _accountID;
-      __int64 _folderID;
-      __int64 _messageChangeSubscriptionID;
-      __int64 _folderListChangeSubscriptionID;
+      __int64 account_id_;
+      __int64 folder_id_;
+      __int64 message_change_subscription_id_;
+      __int64 folder_list_change_subscription_id_;
 
    };
 

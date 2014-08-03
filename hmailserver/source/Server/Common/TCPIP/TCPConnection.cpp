@@ -29,26 +29,26 @@ namespace HM
                                 shared_ptr<Event> disconnected) :
       connection_security_(connection_security),
       socket_(io_service),
-      _sslSocket(socket_, context),
-      _resolver(io_service),
-      _timer(io_service),
-      _receiveBinary(false),
-      _remotePort(0),
-      _hasTimeout(false),
-      _receiveBuffer(250000),
+      ssl_socket_(socket_, context),
+      resolver_(io_service),
+      timer_(io_service),
+      receive_binary_(false),
+      remote_port_(0),
+      hastimeout__(false),
+      receive_buffer_(250000),
       disconnected_(disconnected),
       context_(context),
       is_ssl_(false)
    {
-      _sessionID = Application::Instance()->GetUniqueID();
+      session_id_ = Application::Instance()->GetUniqueID();
 
-      LOG_DEBUG("Creating session " + StringParser::IntToString(_sessionID));
+      LOG_DEBUG("Creating session " + StringParser::IntToString(session_id_));
 
    }
 
    TCPConnection::~TCPConnection(void)
    {
-      LOG_DEBUG("Ending session " + StringParser::IntToString(_sessionID));
+      LOG_DEBUG("Ending session " + StringParser::IntToString(session_id_));
 
       if (disconnected_)
          disconnected_->Set();
@@ -69,10 +69,10 @@ namespace HM
          }
 #endif
 
-         _remotePort = remotePort;
-         _remote_ip_address = remote_ip_address;
+         remote_port_ = remotePort;
+         remote__ip__address_ = remote_ip_address;
 
-         LOG_TCPIP("Connecting to " + _remote_ip_address + "...");
+         LOG_TCPIP("Connecting to " + remote__ip__address_ + "...");
 
          if (!localAddress.IsAny())
          {
@@ -109,7 +109,7 @@ namespace HM
 
    #ifdef _DEBUG
          String sMessage;
-         sMessage.Format(_T("RESOLVE: %s\r\n"), String(_remote_ip_address));
+         sMessage.Format(_T("RESOLVE: %s\r\n"), String(remote__ip__address_));
    #endif 
 
          // Start an asynchronous resolve to translate the server and service names
@@ -141,10 +141,10 @@ namespace HM
          //// that could start evil loops.
          //tcp::endpoint endpoint = *endpoint_iterator;
 
-         if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), _remotePort))
+         if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
          {
             String sMessage; 
-            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), _remote_ip_address, _remotePort);
+            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), remote__ip__address_, remote_port_);
 
             OnCouldNotConnect(sMessage);
 
@@ -186,7 +186,7 @@ namespace HM
          {
             // Are there more addresses we should attempt to connect to?
             AnsiString error = err.message();
-            OnCouldNotConnect("Host name: " + _remote_ip_address + ", message: " + error);
+            OnCouldNotConnect("Host name: " + remote__ip__address_ + ", message: " + error);
 
             return;
          }
@@ -212,17 +212,17 @@ namespace HM
    {
       if (Configuration::Instance()->GetVerifyRemoteSslCertificate() && !expected_remote_hostname.IsEmpty())
       {
-         _sslSocket.set_verify_mode(boost::asio::ssl::verify_peer);
-         _sslSocket.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));
+         ssl_socket_.set_verify_mode(boost::asio::ssl::verify_peer);
+         ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));
       }
 
-      LOG_DEBUG(Formatter::Format("Initiating SSL/TLS handshake for session {0}", _sessionID));
+      LOG_DEBUG(Formatter::Format("Initiating SSL/TLS handshake for session {0}", session_id_));
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :
       boost::asio::ssl::stream_base::server;
 
-      _sslSocket.async_handshake(handshakeType,
+      ssl_socket_.async_handshake(handshakeType,
          boost::bind(&TCPConnection::HandleHandshake, shared_from_this(),
          boost::asio::placeholders::error));
    }
@@ -230,7 +230,7 @@ namespace HM
    void 
    TCPConnection::Start()
    {
-      LOG_DEBUG(Formatter::Format("TCP connection started for session {0}", _sessionID));
+      LOG_DEBUG(Formatter::Format("TCP connection started for session {0}", session_id_));
 
       OnConnected();
 
@@ -304,7 +304,7 @@ namespace HM
       try
       {
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTSend, pBuffer));
-         _operationQueue.Push(operation);
+         operation_queue_.Push(operation);
 
          ProcessOperationQueue_();
       }
@@ -325,7 +325,7 @@ namespace HM
 
          stage = 1;
          // Pick out the next item to process...
-         shared_ptr<IOOperation> operation = _operationQueue.Front();
+         shared_ptr<IOOperation> operation = operation_queue_.Front();
 
          stage = 2;
          if (!operation)
@@ -422,7 +422,7 @@ namespace HM
          {
             if (is_ssl_)
                boost::asio::async_write
-                  (_sslSocket, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
+                  (ssl_socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
             else
                boost::asio::async_write
                   (socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
@@ -464,7 +464,7 @@ namespace HM
       {
          // Remove the item we have just handled.
          if (removeFromQueue)
-            _operationQueue.Pop(IOOperation::BCTShutdownSend);
+            operation_queue_.Pop(IOOperation::BCTShutdownSend);
 
          try
          {
@@ -492,7 +492,7 @@ namespace HM
       try
       {
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTReceive, delimitor));
-         _operationQueue.Push(operation);
+         operation_queue_.Push(operation);
 
          ProcessOperationQueue_();
       }
@@ -518,16 +518,16 @@ namespace HM
             if (is_ssl_)
             {
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(_sslSocket, _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
+                  boost::asio::async_read(ssl_socket_, receive_buffer_, boost::asio::transfer_at_least(1), handleReadFunction);
                else
-                  boost::asio::async_read_until(_sslSocket, _receiveBuffer,  delimitor, handleReadFunction);
+                  boost::asio::async_read_until(ssl_socket_, receive_buffer_,  delimitor, handleReadFunction);
             }
             else
             {
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(socket_, _receiveBuffer, boost::asio::transfer_at_least(1), handleReadFunction);
+                  boost::asio::async_read(socket_, receive_buffer_, boost::asio::transfer_at_least(1), handleReadFunction);
                else
-                  boost::asio::async_read_until(socket_, _receiveBuffer, delimitor, handleReadFunction);
+                  boost::asio::async_read_until(socket_, receive_buffer_, delimitor, handleReadFunction);
             }
 
             UpdateLogoutTimer();
@@ -565,8 +565,8 @@ namespace HM
       try
       {
          // Put a timeout...
-         _timer.expires_from_now(boost::posix_time::seconds(_timeout));
-         _timer.async_wait(bind(&TCPConnection::OnTimeout, 
+         timer_.expires_from_now(boost::posix_time::seconds(timeout_));
+         timer_.async_wait(bind(&TCPConnection::OnTimeout, 
             boost::weak_ptr<TCPConnection>(shared_from_this()), _1));
       }
       catch (...)
@@ -581,7 +581,7 @@ namespace HM
    {
       try
       {
-         _timer.cancel();
+         timer_.cancel();
       }
       catch (boost::system::system_error error)
       {
@@ -602,7 +602,7 @@ namespace HM
       {
          shared_ptr<ByteBuffer> pBuf;
          shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
-         _operationQueue.Push(operation);
+         operation_queue_.Push(operation);
 
          ProcessOperationQueue_();
       }
@@ -685,14 +685,14 @@ namespace HM
    {
       try
       {
-         if (_hasTimeout)
+         if (hastimeout__)
          {
             // We've already posted a timeout once. Disconnect now.
             Disconnect();
             return;
          }
 
-         _hasTimeout = true;
+         hastimeout__ = true;
 
          OnConnectionTimeout();
 
@@ -719,7 +719,7 @@ namespace HM
             {
                shared_ptr<ByteBuffer> pBuf;
                shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
-               _operationQueue.Push(operation);
+               operation_queue_.Push(operation);
 
                ProcessOperationQueue_();
             }
@@ -742,7 +742,7 @@ namespace HM
          // Remove the item we have just handled.
          try
          {
-            _operationQueue.Pop(IOOperation::BCTReceive);
+            operation_queue_.Pop(IOOperation::BCTReceive);
          }
          catch (...)
          {
@@ -790,15 +790,15 @@ namespace HM
             throw;
          }
 
-         if (_receiveBinary)
+         if (receive_binary_)
          {
             try
             {
                shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
-               pBuffer->Allocate(_receiveBuffer.size());
+               pBuffer->Allocate(receive_buffer_.size());
 
-               std::istream is(&_receiveBuffer);
-               is.read((char*) pBuffer->GetBuffer(), _receiveBuffer.size());
+               std::istream is(&receive_buffer_);
+               is.read((char*) pBuffer->GetBuffer(), receive_buffer_.size());
 
                try
                {
@@ -827,11 +827,11 @@ namespace HM
          else
          {
             std::string s;
-            std::istream is(&_receiveBuffer);
+            std::istream is(&receive_buffer_);
             std::getline(is, s, '\r');
 
             // consume trailing \n on line.
-            _receiveBuffer.consume(1);
+            receive_buffer_.consume(1);
 
       #ifdef _DEBUG
             String sDebugOutput;
@@ -880,7 +880,7 @@ namespace HM
          // Remove the item we have just handled.
          try
          {
-            _operationQueue.Pop(IOOperation::BCTSend);
+            operation_queue_.Pop(IOOperation::BCTSend);
          }
          catch (...)
          {
@@ -901,7 +901,7 @@ namespace HM
 
          try
          {
-            containsQueuedSendOperations = _operationQueue.ContainsQueuedSendOperation();
+            containsQueuedSendOperations = operation_queue_.ContainsQueuedSendOperation();
          }
          catch (...)
          {
@@ -971,7 +971,7 @@ namespace HM
    void
    TCPConnection::SetReceiveBinary(bool binary)
    {
-      _receiveBinary = binary;
+      receive_binary_ = binary;
    }
 
    String 
@@ -992,26 +992,26 @@ namespace HM
    bool
    TCPConnection::IsClient()
    {
-      return _remote_ip_address.GetLength() > 0;
+      return remote__ip__address_.GetLength() > 0;
    }
 
    void  
    TCPConnection::SetSecurityRange(shared_ptr<SecurityRange> securityRange)
    {
-      _securityRange = securityRange;
+      security_range_ = securityRange;
    }
 
    shared_ptr<SecurityRange>
    TCPConnection::GetSecurityRange()
    {
-      if (!_securityRange)
+      if (!security_range_)
       {
          IPAddress address(socket_.remote_endpoint().address());
 
-         _securityRange = PersistentSecurityRange::ReadMatchingIP(address);
+         security_range_ = PersistentSecurityRange::ReadMatchingIP(address);
       }
 
-      return _securityRange;
+      return security_range_;
    }
 
    int
@@ -1019,7 +1019,7 @@ namespace HM
    {
       try
       {
-         int sessionID = _sessionID;
+         int sessionID = session_id_;
          return sessionID;
       }
       catch (...)
@@ -1031,7 +1031,7 @@ namespace HM
    void 
    TCPConnection::SetTimeout(int seconds)
    {
-      _timeout = seconds;
+      timeout_ = seconds;
    }
 
    AnsiString 

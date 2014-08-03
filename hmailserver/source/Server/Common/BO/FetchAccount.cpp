@@ -26,9 +26,9 @@ namespace HM
       process_mimerecipients_(false),
       process_mimedate_(false),
       server_type_(POP3),
-      _useAntiSpam(false),
-      _useAntiVirus(false),
-      _enableRouteRecipients(false),
+      use_anti_spam_(false),
+      use_anti_virus_(false),
+      enable_route_recipients_(false),
       connection_security_(CSNone)      
    {
  
@@ -67,9 +67,9 @@ namespace HM
       pNode->AppendAttr(_T("Active"), is_active_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ProcessMIMERecipients"), process_mimerecipients_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ProcessMIMEDate"), process_mimedate_ ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseAntiSpam"), _useAntiSpam ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseAntiVirus"), _useAntiVirus ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("EnableRouteRecipients"), _enableRouteRecipients ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("UseAntiSpam"), use_anti_spam_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("UseAntiVirus"), use_anti_virus_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("EnableRouteRecipients"), enable_route_recipients_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
 
       if (!GetUIDs()->XMLStore(pNode, iOptions))
@@ -92,9 +92,9 @@ namespace HM
       is_active_ = (pNode->GetAttrValue(_T("Active")) == _T("1"));
       process_mimerecipients_ = (pNode->GetAttrValue(_T("ProcessMIMERecipients")) == _T("1"));
       process_mimedate_ = (pNode->GetAttrValue(_T("ProcessMIMEDate")) == _T("1"));
-      _useAntiSpam = (pNode->GetAttrValue(_T("UseAntiSpam")) == _T("1"));
-      _useAntiVirus = (pNode->GetAttrValue(_T("UseAntiVirus")) == _T("1"));
-      _enableRouteRecipients = (pNode->GetAttrValue(_T("EnableRouteRecipients")) == _T("1"));
+      use_anti_spam_ = (pNode->GetAttrValue(_T("UseAntiSpam")) == _T("1"));
+      use_anti_virus_ = (pNode->GetAttrValue(_T("UseAntiVirus")) == _T("1"));
+      enable_route_recipients_ = (pNode->GetAttrValue(_T("EnableRouteRecipients")) == _T("1"));
 
       // Backwards compatibiltiy
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))

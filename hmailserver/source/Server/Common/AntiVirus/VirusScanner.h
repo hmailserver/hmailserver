@@ -37,7 +37,7 @@ namespace HM
       
    private:
 
-      static long _runningScanners;
+      static long running_scanners_;
 
       static void WaitForFreeScanner_();
       static void ReportVirusFound(shared_ptr<Message> pMessage);

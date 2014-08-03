@@ -55,7 +55,7 @@ namespace HM
       is_idling_(false),
       literal_data_to_receive_(0),
       pending_disconnect_(false),
-      _currentFolderReadOnly(false)
+      current_folder_read_only_(false)
    {
       imap_folders_.reset();
 
@@ -147,8 +147,8 @@ namespace HM
 
       mapStaticHandlers = StaticIMAPCommandHandlers::Instance()->GetStaticHandlers();
 
-      _notificationClient = shared_ptr<IMAPNotificationClient>(new IMAPNotificationClient());
-      _notificationClient->SetConnection(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()));
+      notification_client_ = shared_ptr<IMAPNotificationClient>(new IMAPNotificationClient());
+      notification_client_->SetConnection(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()));
    }
 
    void 
@@ -431,7 +431,7 @@ namespace HM
    void 
    IMAPConnection::Login(shared_ptr<const Account> account)
    {
-      _account = account;
+      account_ = account;
 
       RefreshIMAPFolders();
    }
@@ -645,7 +645,7 @@ namespace HM
          // If a delayed notification has been specified by the command, submit it now.
          if (delayed_change_notification_)
          {
-            Application::Instance()->GetNotificationServer()->SendNotification(_notificationClient, delayed_change_notification_);
+            Application::Instance()->GetNotificationServer()->SendNotification(notification_client_, delayed_change_notification_);
             delayed_change_notification_.reset();
          }
 
@@ -703,7 +703,7 @@ namespace HM
    // Notify the client about other changes which have been made.
    //---------------------------------------------------------------------------()
    {
-      _notificationClient->SendCachedNotifications();
+      notification_client_->SendCachedNotifications();
    }
 
    void
@@ -713,7 +713,7 @@ namespace HM
    // Fetches the cached folders
    //---------------------------------------------------------------------------()
    {
-      imap_folders_ = IMAPFolderContainer::Instance()->GetFoldersForAccount(_account->GetID());
+      imap_folders_ = IMAPFolderContainer::Instance()->GetFoldersForAccount(account_->GetID());
       public_imap_folders_ = IMAPFolderContainer::Instance()->GetPublicFolders();
    }
 
@@ -777,12 +777,12 @@ namespace HM
       if (!current_folder_)
          return;
 
-      _notificationClient->UnsubscribeMessageChanges();
+      notification_client_->UnsubscribeMessageChanges();
 
       // Set the recent flag on all messages in the folder. Since the user has been notified
       // about these messages, they are no longer recent. This doesn't happen if the folder
       // is in read-only mode - if it has been selected using the EXAMINE command.
-      if (!_currentFolderReadOnly)
+      if (!current_folder_read_only_)
       {
          current_folder_->GetMessages()->SetFlagRecentOnMessages(false);
       }
@@ -800,12 +800,12 @@ namespace HM
 
       // Select the new folder
       current_folder_ = pFolder;
-      _currentFolderReadOnly = readOnly;
+      current_folder_read_only_ = readOnly;
 
       // Subscribe to changes in the new folder.
       if (current_folder_)
       {
-         _notificationClient->SubscribeMessageChanges(current_folder_->GetAccountID(), pFolder->GetID());
+         notification_client_->SubscribeMessageChanges(current_folder_->GetAccountID(), pFolder->GetID());
       }
    }
 
@@ -850,7 +850,7 @@ namespace HM
       }
 
 	   ACLManager aclManager;
-      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(_account->GetID(), pFolder);
+      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
       if (!pPermission)
          return false;
 
@@ -877,7 +877,7 @@ namespace HM
       }
 
       ACLManager aclManager;
-      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(_account->GetID(), pFolder);
+      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
       if (!pPermission)
          return;
 
@@ -892,7 +892,7 @@ namespace HM
    bool 
    IMAPConnection::IsAuthenticated()
    {
-      return _account;
+      return account_;
    }
 
    void

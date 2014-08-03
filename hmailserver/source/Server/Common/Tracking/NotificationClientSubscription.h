@@ -18,8 +18,8 @@ namespace HM
 
    private:
 
-      __int64 _subscriptionKey;
-      weak_ptr<NotificationClient> _client;
+      __int64 subscription_key_;
+      weak_ptr<NotificationClient> client_;
 
    };
 }

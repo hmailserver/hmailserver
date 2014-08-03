@@ -316,7 +316,7 @@ namespace HM
       int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
 
       notification_server_ = shared_ptr<NotificationServer>(new NotificationServer());
-      _folderManager = shared_ptr<FolderManager>(new FolderManager());
+      folder_manager_ = shared_ptr<FolderManager>(new FolderManager());
       
       // Create the scheduler. This is always in use.
       scheduler_ = shared_ptr<Scheduler>(new Scheduler());
@@ -433,7 +433,7 @@ namespace HM
       
       LOG_DEBUG("Application::StopServers() - Destructing Rest");
       if (notification_server_) notification_server_.reset();
-      if (_folderManager) _folderManager.reset();
+      if (folder_manager_) folder_manager_.reset();
 
       ServerStatus::Instance()->SetState(ServerStatus::StateStopped);
 
@@ -530,6 +530,6 @@ namespace HM
    shared_ptr<FolderManager> 
    Application::GetFolderManager()
    {
-      return _folderManager;
+      return folder_manager_;
    }
 }

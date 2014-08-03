@@ -169,15 +169,15 @@ namespace HM
    void
    IMAPCommandAppend::ParseBinary(shared_ptr<IMAPConnection> pConnection, shared_ptr<ByteBuffer> pBuf)
    {
-      _appendBuffer.Add(pBuf);
+      append_buffer_.Add(pBuf);
    
-      if (_appendBuffer.GetSize() >= bytes_left_to_receive_)
+      if (append_buffer_.GetSize() >= bytes_left_to_receive_)
       {
-         WriteData_(pConnection, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
+         WriteData_(pConnection, append_buffer_.GetBuffer(), append_buffer_.GetSize());
 
          pConnection->SetReceiveBinary(false);
    
-         _appendBuffer.Empty();
+         append_buffer_.Empty();
 
          Finish_(pConnection);
 
@@ -215,11 +215,11 @@ namespace HM
    bool
    IMAPCommandAppend::TruncateBuffer_(const shared_ptr<IMAPConnection> pConn)
    {
-      if (_appendBuffer.GetSize() >= 20000)
+      if (append_buffer_.GetSize() >= 20000)
       {
-         WriteData_(pConn, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
-         bytes_left_to_receive_ -= _appendBuffer.GetSize();
-         _appendBuffer.Empty();
+         WriteData_(pConn, append_buffer_.GetBuffer(), append_buffer_.GetSize());
+         bytes_left_to_receive_ -= append_buffer_.GetSize();
+         append_buffer_.Empty();
       }
 
       return true;

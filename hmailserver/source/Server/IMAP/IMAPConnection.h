@@ -84,7 +84,7 @@ namespace HM
       void ParseData(shared_ptr<ByteBuffer> pByteBuffer);
       bool SendAsciiData(const AnsiString & sData);
       
-      shared_ptr<const Account> GetAccount() { return _account; }
+      shared_ptr<const Account> GetAccount() { return account_; }
       
       void RefreshIMAPFolders();
       void NotifyFolderChange();
@@ -114,9 +114,9 @@ namespace HM
       void Logout(const String &goodbyeMessage);
   
       bool IsAuthenticated();
-      bool GetCurrentFolderReadOnly() {return _currentFolderReadOnly; }
+      bool GetCurrentFolderReadOnly() {return current_folder_read_only_; }
 
-      shared_ptr<IMAPNotificationClient> GetNotificationClient() {return _notificationClient;}
+      shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
       void StartHandshake();
    protected:
@@ -140,7 +140,7 @@ namespace HM
 
       bool InternalParseData(const AnsiString &Request);
       void SendBanner_();
-      void SetAccount_(shared_ptr<const Account> account) { _account = account; }
+      void SetAccount_(shared_ptr<const Account> account) { account_ = account; }
 
       void Disconnect_();
       bool IsReceivingLiteralDataForLoginCommand_() const;
@@ -151,7 +151,7 @@ namespace HM
       int GetLiteralSize_(const String &sCommand);
 
       bool AnswerCommand(shared_ptr<IMAPClientCommand> command);
-      shared_ptr<const Account> _account;
+      shared_ptr<const Account> account_;
 
       shared_ptr<IMAPFolders> imap_folders_;
       shared_ptr<IMAPFolders> public_imap_folders_;
@@ -160,7 +160,7 @@ namespace HM
 
       // Folder info
       shared_ptr<IMAPFolder> current_folder_;
-      bool _currentFolderReadOnly;
+      bool current_folder_read_only_;
 
       String command_buffer_;
       bool is_idling_;
@@ -170,7 +170,7 @@ namespace HM
 
       bool pending_disconnect_;
 
-      shared_ptr<IMAPNotificationClient> _notificationClient;
+      shared_ptr<IMAPNotificationClient> notification_client_;
 
       int  log_level_;      
    };

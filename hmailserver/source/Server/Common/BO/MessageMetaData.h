@@ -25,42 +25,42 @@ namespace HM
 
       MessageMetaData();
 
-      int GetAccountID() const {return _accountID;}
-      void SetAccountID(int value) {_accountID = value;}
+      int GetAccountID() const {return account_id_;}
+      void SetAccountID(int value) {account_id_ = value;}
 
-      int GetFolderID() const {return _folderID;}
-      void SetFolderID(int value) {_folderID = value;}
+      int GetFolderID() const {return folder_id_;}
+      void SetFolderID(int value) {folder_id_ = value;}
 
-      __int64 GetMessageID() const {return _messageID;}
-      void SetMessageID(__int64 value) {_messageID = value;}
+      __int64 GetMessageID() const {return message_id_;}
+      void SetMessageID(__int64 value) {message_id_ = value;}
 
-      String GetFrom() const  {return _from;}
-      void SetFrom(String value) {_from = value;}
+      String GetFrom() const  {return from_;}
+      void SetFrom(String value) {from_ = value;}
 
-      String GetTo() const {return _to;}
-      void SetTo(String value) {_to = value;}
+      String GetTo() const {return to_;}
+      void SetTo(String value) {to_ = value;}
 
-      String GetCC() const {return _cc;}
-      void SetCC(String value) {_cc = value;}
+      String GetCC() const {return cc_;}
+      void SetCC(String value) {cc_ = value;}
 
-      String GetSubject() const {return _subject;}
-      void SetSubject(String value) {_subject = value;}
+      String GetSubject() const {return subject_;}
+      void SetSubject(String value) {subject_ = value;}
 
-      DateTime GetDate() const {return _date;}
-      void SetDate(DateTime value) {_date = value;}
+      DateTime GetDate() const {return date_;}
+      void SetDate(DateTime value) {date_ = value;}
 
       static MetaDataField GetMetaDataField(const String &fieldName);
 
    private:
-      int _accountID;
-      int _folderID;
-      __int64 _messageID;
+      int account_id_;
+      int folder_id_;
+      __int64 message_id_;
       
       // contents
-      String _from;
-      String _to;
-      String _cc;
-      String _subject;
-      DateTime _date;
+      String from_;
+      String to_;
+      String cc_;
+      String subject_;
+      DateTime date_;
    };
 }

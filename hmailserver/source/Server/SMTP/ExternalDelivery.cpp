@@ -41,7 +41,7 @@ namespace HM
 { 
    ExternalDelivery::ExternalDelivery(const String &sSendersIP, shared_ptr<Message> message, const RuleResult &globalRuleResult) :
       _sendersIP(sSendersIP),
-      _originalMessage(message),
+      original_message_(message),
       _globalRuleResult(globalRuleResult)
 {
    }
@@ -57,15 +57,15 @@ namespace HM
    ExternalDelivery::Perform(vector<String> &saErrorMessages)
    {
       // DKIM-tag the message.
-      if (_originalMessage->GetNoOfRetries() == 0)
+      if (original_message_->GetNoOfRetries() == 0)
       {
          DKIMSigner signer;
-         signer.Sign(_originalMessage);
+         signer.Sign(original_message_);
       }
 
       map<String,String> mapFailedDueToNonFatalError;
 
-      ServerTargetResolver serverTargetResolver(_originalMessage, _globalRuleResult);
+      ServerTargetResolver serverTargetResolver(original_message_, _globalRuleResult);
       map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > > mapRecipients = serverTargetResolver.Resolve();
       map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterDomain = mapRecipients.begin();
       map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterEnd = mapRecipients.end();
@@ -189,10 +189,10 @@ namespace HM
          }
 
          // Let's limit # of servers tried per retry to mxtries_factor_ * current number of retries to free up queue
-         int iMXServerLimit = (_originalMessage->GetNoOfRetries()+1) * mxtries_factor_;
+         int iMXServerLimit = (original_message_->GetNoOfRetries()+1) * mxtries_factor_;
          if (mxtries_factor_ > 0 && i + 1 >= (unsigned int) iMXServerLimit )
          {
-            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Limiting to MXTriesFactored value of " + StringParser::IntToString(iMXServerLimit) + ".");      
+            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Limiting to MXTriesFactored value of " + StringParser::IntToString(iMXServerLimit) + ".");      
             break;
          }
       }
@@ -215,7 +215,7 @@ namespace HM
          String relayServer = serverInfo->GetHostName();
          vector<String> mailServerHosts;
 
-         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Relaying to host " + relayServer + ".");      
+         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Relaying to host " + relayServer + ".");      
          
          if (relayServer.Find(_T("|")) > 0)
             mailServerHosts = StringParser::SplitString(relayServer, "|");
@@ -326,7 +326,7 @@ namespace HM
    // Takes care of the situation when no valid recipient server addresses exist.
    //---------------------------------------------------------------------------()
    {
-      LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": No mail servers could be found for the address " + (*vecRecipients.begin())->GetAddress() + ".");
+      LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": No mail servers could be found for the address " + (*vecRecipients.begin())->GetAddress() + ".");
 
       String bounceMessageText;
 
@@ -375,7 +375,7 @@ namespace HM
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
       shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
 
-      pClientConnection->SetDelivery(_originalMessage, vecRecipients);
+      pClientConnection->SetDelivery(original_message_, vecRecipients);
 
       if (!serverInfo->GetUsername().IsEmpty())
          pClientConnection->SetAuthInfo(serverInfo->GetUsername(), serverInfo->GetPassword());
@@ -438,7 +438,7 @@ namespace HM
       {
          if (recipient->GetDeliveryResult() == MessageRecipient::ResultOK)
          {
-            AWStats::LogDeliverySuccess(_sendersIP, serverHostName, _originalMessage, recipient->GetAddress());
+            AWStats::LogDeliverySuccess(_sendersIP, serverHostName, original_message_, recipient->GetAddress());
 
             // Delete this recipient from the database.
             PersistentMessageRecipient::DeleteObject(recipient);
@@ -461,8 +461,8 @@ namespace HM
             // Delete this recipient from the database.
             PersistentMessageRecipient::DeleteObject(recipient);
 
-            AWStats::LogDeliveryFailure(_sendersIP, _originalMessage->GetFromAddress(), recipient->GetAddress(),  550);
-            Events::FireOnDeliveryFailed(_originalMessage, _sendersIP, recipient->GetAddress(), recipient->GetErrorMessage());
+            AWStats::LogDeliveryFailure(_sendersIP, original_message_->GetFromAddress(), recipient->GetAddress(),  550);
+            Events::FireOnDeliveryFailed(original_message_, _sendersIP, recipient->GetAddress(), recipient->GetErrorMessage());
          }
          else
          {
@@ -485,7 +485,7 @@ namespace HM
       // We have failed recipients. Iterate over one of them at a time
       long iMaxNoOfRetries = 0;
       long lMinutesBewteen = 0;
-      int iCurNoOfRetries = _originalMessage->GetNoOfRetries() ;
+      int iCurNoOfRetries = original_message_->GetNoOfRetries() ;
 
       quick_retries_ = IniFileSettings::Instance()->GetQuickRetries();
       quick_retries_Minutes = IniFileSettings::Instance()->GetQuickRetriesMinutes();
@@ -516,7 +516,7 @@ namespace HM
          // so return now since no need for retry at this time
 
          // For now we unlock message here but might be best to do @ ETRN time..
-         PersistentMessage::UnlockObject(_originalMessage);
+         PersistentMessage::UnlockObject(original_message_);
 
          LOG_APPLICATION("SMTPDeliverer - Route Message: HOLD for later delivery..");
          return true; // Do not delete e-mail now
@@ -530,22 +530,22 @@ namespace HM
          // First few retries should be quicker for greylisting IF enabled
          if (iCurNoOfRetries < quick_retries_) 
          {
-            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Message could not be delivered. Greylisting? Scheduling it for quick retry " + StringParser::IntToString(iCurNoOfRetries + 1) + " of " + StringParser::IntToString(quick_retries_) + " in " + StringParser::IntToString(quick_retries_Minutes + iRandomAdjust) + " minutes.");
-            PersistentMessage::SetNextTryTime(_originalMessage->GetID(), true, quick_retries_Minutes + iRandomAdjust);
+            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Message could not be delivered. Greylisting? Scheduling it for quick retry " + StringParser::IntToString(iCurNoOfRetries + 1) + " of " + StringParser::IntToString(quick_retries_) + " in " + StringParser::IntToString(quick_retries_Minutes + iRandomAdjust) + " minutes.");
+            PersistentMessage::SetNextTryTime(original_message_->GetID(), true, quick_retries_Minutes + iRandomAdjust);
          
             // Unlock the message now so that a future delivery thread can pick it up.
-            PersistentMessage::UnlockObject(_originalMessage);
+            PersistentMessage::UnlockObject(original_message_);
          
             LOG_DEBUG("Message rescheduled for later quick delivery. (Greylisting?)");
             return true; // Do not delete e-mail now
          }
          else
          {
-            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Message could not be delivered. Scheduling it for later delivery in " + StringParser::IntToString(lMinutesBewteen + iRandomAdjust) + " minutes.");
-            PersistentMessage::SetNextTryTime(_originalMessage->GetID(), true, lMinutesBewteen + iRandomAdjust);
+            LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Message could not be delivered. Scheduling it for later delivery in " + StringParser::IntToString(lMinutesBewteen + iRandomAdjust) + " minutes.");
+            PersistentMessage::SetNextTryTime(original_message_->GetID(), true, lMinutesBewteen + iRandomAdjust);
          
             // Unlock the message now so that a future delivery thread can pick it up.
-            PersistentMessage::UnlockObject(_originalMessage);
+            PersistentMessage::UnlockObject(original_message_);
          
             LOG_DEBUG("Message rescheduled for later delivery.");
             return true; // Do not delete e-mail now
@@ -556,7 +556,7 @@ namespace HM
          LOG_DEBUG("Aborting delivery.");
 
          // We are finished trying. Let's give up!
-         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(_originalMessage->GetID()) + ": Message could not be delivered. Returning error log to sender.");
+         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Message could not be delivered. Returning error log to sender.");
 
          // Delivery failed the last time.
          String sErrorMessage;
@@ -572,8 +572,8 @@ namespace HM
             sErrorMessage += sEmailAddress + "\r\n" + sFailed;
 
             // Delivery has failed for the last time.
-            AWStats::LogDeliveryFailure(_sendersIP, _originalMessage->GetFromAddress(), sEmailAddress,  550);
-            Events::FireOnDeliveryFailed(_originalMessage, _sendersIP, sEmailAddress, sFailed);
+            AWStats::LogDeliveryFailure(_sendersIP, original_message_->GetFromAddress(), sEmailAddress,  550);
+            Events::FireOnDeliveryFailed(original_message_, _sendersIP, sEmailAddress, sFailed);
 
             iterFailed++;
          }
@@ -664,7 +664,7 @@ namespace HM
             SQLCommand command("update hm_messages set messageaccountid = @ROUTEID, messagetype = 3, messagecurnooftries =  1,  messagenexttrytime = '1901-01-01 00:00:01' where messageid = @MESSAGEID");
             
             command.AddParameter("@ROUTEID", iRouteID);
-            command.AddParameter("@MESSAGEID", _originalMessage->GetID());
+            command.AddParameter("@MESSAGEID", original_message_->GetID());
 
             if (Application::Instance()->GetDBManager()->Execute(command))
             {

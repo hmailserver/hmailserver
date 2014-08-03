@@ -26,7 +26,7 @@ namespace HM
 
       static shared_ptr<ServerInfo> GetFixedSMTPHostForDomain_(const String &sDomain);
 
-      shared_ptr<Message> _message;
+      shared_ptr<Message> message_;
       const RuleResult &_globalRuleResult;
    };
 }

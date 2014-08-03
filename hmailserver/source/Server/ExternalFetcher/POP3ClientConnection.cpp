@@ -1142,9 +1142,9 @@ namespace HM
       int iDaysToKeep = account_->GetDaysToKeep();
 
       // Has an event overriden when messages should be deleted?
-      if (_eventResults.find(sUID) != _eventResults.end())
+      if (event_results_.find(sUID) != event_results_.end())
       {
-         shared_ptr<Result> result = _eventResults[sUID];
+         shared_ptr<Result> result = event_results_[sUID];
 
          switch (result->GetValue())
          {
@@ -1173,19 +1173,19 @@ namespace HM
       shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(account_, message, uid);
 
       if (pResult)
-         _eventResults[uid] = pResult;
+         event_results_[uid] = pResult;
    }
 
    shared_ptr<FetchAccountUIDList>
    POP3ClientConnection::GetUIDList_()
    {
-      if (!_fetchAccountUIDList)
+      if (!fetch_account_uidlist_)
       {
-         _fetchAccountUIDList = shared_ptr<FetchAccountUIDList>(new FetchAccountUIDList());
-         _fetchAccountUIDList->Refresh(account_->GetID());
+         fetch_account_uidlist_ = shared_ptr<FetchAccountUIDList>(new FetchAccountUIDList());
+         fetch_account_uidlist_->Refresh(account_->GetID());
       }
 
-      return _fetchAccountUIDList;
+      return fetch_account_uidlist_;
    }
    // This is temp function to log ETRN client commands to SMTP
    void

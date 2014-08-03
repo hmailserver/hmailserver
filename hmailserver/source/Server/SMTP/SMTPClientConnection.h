@@ -105,7 +105,7 @@ namespace HM
 
       // The actual recipients are the recipients we've sent RCPT TO
       // for and the remote server has said OK to.
-      std::set<shared_ptr<MessageRecipient> > _actualRecipients;
+      std::set<shared_ptr<MessageRecipient> > actual_recipients_;
 
       bool use_smtpauth_;
 
@@ -118,8 +118,8 @@ namespace HM
 
       AnsiString last_sent_data_;
       
-      File _currentFile;   
-      TransparentTransmissionBuffer _transmissionBuffer;
+      File current_file_;   
+      TransparentTransmissionBuffer transmission_buffer_;
 
       AnsiString multi_line_response_buffer_;
 

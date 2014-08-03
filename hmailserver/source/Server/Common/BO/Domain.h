@@ -174,8 +174,8 @@ namespace HM
       int limitations_enabled_;
       int max_account_size_;
 
-      String _dkimSelector;
-      String _dkimPrivateKeyFile;
+      String dkim_selector_;
+      String dkim_private_key_file_;
 
       shared_ptr<Accounts> accounts_;
       shared_ptr<Aliases> aliases_;

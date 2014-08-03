@@ -33,7 +33,7 @@ namespace HM
       shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, sQueueName));
       pWorkQueue->Start();
 
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
       int iQueueID = work_queues_.size() + 1;
       work_queues_[iQueueID] = pWorkQueue;
 
@@ -48,7 +48,7 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       // Add the task to the work queue
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.find(iQueueID);
 
@@ -78,7 +78,7 @@ namespace HM
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue;
 
       {
-         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
          iterQueue = GetQueueIterator_(sQueueName);
          if (iterQueue == work_queues_.end())
@@ -99,7 +99,7 @@ namespace HM
 
       LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Stopped {0}", sQueueName));
       
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
       work_queues_.erase(iterQueue);
 
       LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Erased {0}", sQueueName));
@@ -113,7 +113,7 @@ namespace HM
    // Returns the queue with a specific name. 
    //---------------------------------------------------------------------------
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = GetQueueIterator_(sQueueName);
       if (iterQueue != work_queues_.end())

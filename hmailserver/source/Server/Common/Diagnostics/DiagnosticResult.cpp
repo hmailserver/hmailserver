@@ -12,7 +12,7 @@
 namespace HM
 {
    DiagnosticResult::DiagnosticResult(String name, String description, bool success, String details) :
-      _name(name), _description(description), _success(success), _details(details)
+      name_(name), description_(description), success_(success), details_(details)
    {
       
    }

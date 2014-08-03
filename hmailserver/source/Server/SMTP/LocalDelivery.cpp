@@ -44,7 +44,7 @@ namespace HM
 { 
    LocalDelivery::LocalDelivery(const String &sSendersIP, shared_ptr<Message> message, const RuleResult &globalRuleResult) :
       _sendersIP(sSendersIP),
-      _originalMessage(message),
+      original_message_(message),
       _globalRuleResult(globalRuleResult)
    {
    }
@@ -66,7 +66,7 @@ namespace HM
 
       // NOTE: Since were manipulating the messages recipient vector below, we want to do a copy.
       //       We should iterate over the copy of recipients here. Not over the original list.
-      vector<shared_ptr<MessageRecipient> > &vecRecipients = _originalMessage->GetRecipients()->GetVector();
+      vector<shared_ptr<MessageRecipient> > &vecRecipients = original_message_->GetRecipients()->GetVector();
       vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
 
       while (iterRecipient != vecRecipients.end())
@@ -125,11 +125,11 @@ namespace HM
       // we don't have to create a new file on disk.
       messageReused = iNoOfRecipients == 1;
 
-      shared_ptr<Message> accountLevelMessage = CreateAccountLevelMessage_(_originalMessage, account, messageReused, sOriginalAddress);
+      shared_ptr<Message> accountLevelMessage = CreateAccountLevelMessage_(original_message_, account, messageReused, sOriginalAddress);
       if (!accountLevelMessage)
       {
          String errorMessage;
-         errorMessage.Format(_T("Unable to create account-level message of %I64d for account %s."), _originalMessage->GetID(), String(account->GetAddress()));
+         errorMessage.Format(_T("Unable to create account-level message of %I64d for account %s."), original_message_->GetID(), String(account->GetAddress()));
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5209, "SMTPDeliverer::DeliverToLocalAccount_", errorMessage);
          return;
@@ -179,7 +179,7 @@ namespace HM
    bool 
    LocalDelivery::LocalDeliveryPreProcess_(shared_ptr<const Account> account, shared_ptr<Message> accountLevelMessage, const String &sOriginalAddress, vector<String> &saErrorMessages)
    {
-      SendAutoReplyMessage_(account, _originalMessage);
+      SendAutoReplyMessage_(account, original_message_);
 
       // We must run account level rules after the message file has been
       // moved to the destination folder, so that any changes it has only
@@ -193,7 +193,7 @@ namespace HM
       if (!forwarder.PerformForwarding(account, accountLevelMessage))
       {
          String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: The message was not delivered to {1} because a forward was set up for the account.",
-                                                _originalMessage->GetID(), account->GetAddress());
+                                                original_message_->GetID(), account->GetAddress());
 
          return false;
       }
@@ -243,18 +243,18 @@ namespace HM
    {
       // Check if message is small enough to fit inside receivers mailbox.
       // All values are converted to bytes.
-      if (!pCheckAccount->SpaceAvailable(_originalMessage->GetSize()))
+      if (!pCheckAccount->SpaceAvailable(original_message_->GetSize()))
       {
          String sMsg = Formatter::Format("{0}\r\n   Error Type: SMTP\r\n   Error Description: Inbox is full\r\n   Additional information: The recipients inbox is full.\r\n\r\n",
             pCheckAccount->GetAddress());
          saErrorMessages.push_back(sMsg);  
 
-         __int64 currentSize = AccountSizeCache::Instance()->GetSize(pCheckAccount->GetID()) + _originalMessage->GetSize();
+         __int64 currentSize = AccountSizeCache::Instance()->GetSize(pCheckAccount->GetID()) + original_message_->GetSize();
 
          String sMessage;
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: The message was not delivered to %s. ")
             _T("Delivery to this account was cancelled since the account inbox is full. Max size: %d MB, Current size (including cancelled message): %d MB"), 
-            _originalMessage->GetID(), String(pCheckAccount->GetAddress()), pCheckAccount->GetAccountMaxSize(), (currentSize / 1024 / 1024));
+            original_message_->GetID(), String(pCheckAccount->GetAddress()), pCheckAccount->GetAccountMaxSize(), (currentSize / 1024 / 1024));
 
          LOG_APPLICATION(sMessage);
 

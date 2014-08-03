@@ -388,7 +388,7 @@ namespace HM
             if (!IsValidCharset_(charsetName))
                return IMAPResult(IMAPResult::ResultNo, "[BADCHARSET]");
 
-            _charsetName = charsetName;
+            charset_name_ = charsetName;
          }
       }
 
@@ -427,7 +427,7 @@ namespace HM
    String
    IMAPSearchParser::DecodeWordAccordingToCharset_(const String &inputValue)
    {
-      if (_charsetName.CompareNoCase(_T("UTF-8")) == 0)
+      if (charset_name_.CompareNoCase(_T("UTF-8")) == 0)
       {
          String resultValue;
          if (Unicode::MultiByteToWide(inputValue, resultValue))

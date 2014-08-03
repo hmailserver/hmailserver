@@ -22,20 +22,20 @@
 namespace HM
 {
    IMAPNotificationClient::IMAPNotificationClient() :
-      _messageChangeSubscriptionID(0),
-      _folderListChangeSubscriptionID(0),
-      _accountID(0),
-      _folderID(0)
+      message_change_subscription_id_(0),
+      folder_list_change_subscription_id_(0),
+      account_id_(0),
+      folder_id_(0)
    {
 
    }
 
    IMAPNotificationClient::~IMAPNotificationClient()
    {
-      if (_folderListChangeSubscriptionID > 0)
+      if (folder_list_change_subscription_id_ > 0)
       {
          shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
-         notificationServer->UnsubscribeFolderListChanges(_accountID, _folderListChangeSubscriptionID);
+         notificationServer->UnsubscribeFolderListChanges(account_id_, folder_list_change_subscription_id_);
       }
    }
 
@@ -45,30 +45,30 @@ namespace HM
       assert(accountID >= 0);
       assert(folderID > 0);
 
-      _accountID = accountID;
-      _folderID = folderID;
+      account_id_ = accountID;
+      folder_id_ = folderID;
 
       shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
-      _messageChangeSubscriptionID = notificationServer->SubscribeMessageChanges(_accountID, _folderID, shared_from_this());
+      message_change_subscription_id_ = notificationServer->SubscribeMessageChanges(account_id_, folder_id_, shared_from_this());
    }
 
    void
    IMAPNotificationClient::UnsubscribeMessageChanges()
    {
-      assert(_accountID >= 0);
-      assert(_folderID > 0);
-      assert(_messageChangeSubscriptionID > 0);
+      assert(account_id_ >= 0);
+      assert(folder_id_ > 0);
+      assert(message_change_subscription_id_ > 0);
 
       // Since we don't want to look at he folder any more,
       // we're not interested in any updates.
       shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
-      notificationServer->UnsubscribeMessageChanges(_accountID, _folderID, _messageChangeSubscriptionID);
+      notificationServer->UnsubscribeMessageChanges(account_id_, folder_id_, message_change_subscription_id_);
 
       // If there are cached updates for this folder but the client
       // don't want to look at the folder any more, the cached updates
       // will be gone.
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      _cachedChanges.clear();
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+      cached_changes_.clear();
    }
 
    void 
@@ -78,7 +78,7 @@ namespace HM
    // Called by the mailbox change notifier when something has happened to the mailbox.
    //---------------------------------------------------------------------------()
    {
-      _parentConnection = connection;
+      parent_connection_ = connection;
    }
 
    void 
@@ -88,7 +88,7 @@ namespace HM
    // Called by the mailbox change notifier when something has happened to the mailbox.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<IMAPConnection> parentConnection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> parentConnection = parent_connection_.lock();
 
       if (!parentConnection)
          return;
@@ -106,8 +106,8 @@ namespace HM
    void 
    IMAPNotificationClient::CacheChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-      _cachedChanges.push_back(pChangeNotification);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+      cached_changes_.push_back(pChangeNotification);
    }
 
    //---------------------------------------------------------------------------()
@@ -117,19 +117,19 @@ namespace HM
    void 
    IMAPNotificationClient::SendCachedNotifications()
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
 
       if (!connection)
          return;
 
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       int lastExists = -1;
       int lastRecent = -1;
 
       std::set<__int64> flagMessages;
 
-      boost_foreach(shared_ptr<ChangeNotification> changeNotification, _cachedChanges)
+      boost_foreach(shared_ptr<ChangeNotification> changeNotification, cached_changes_)
       {
          switch (changeNotification->GetType())
          {
@@ -176,13 +176,13 @@ namespace HM
       if (lastRecent >= 0)
          SendRECENT_(lastExists);
 
-      _cachedChanges.clear();
+      cached_changes_.clear();
    }
 
    void 
    IMAPNotificationClient::SendChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -234,7 +234,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & vecMessages)
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -249,7 +249,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendFLAGS_(const std::set<__int64> & vecMessages)
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -273,7 +273,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendEXISTS_(int iExists)
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -284,7 +284,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendRECENT_(int recent)
    {
-      shared_ptr<IMAPConnection> connection = _parentConnection.lock();
+      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 

@@ -23,14 +23,14 @@ namespace HM
    void
    MessageRecipients::Clear()
    {
-      _recipients.clear();
+      recipients_.clear();
    }
 
 
    void
    MessageRecipients::Add(shared_ptr<MessageRecipient> pRecipient)
    {
-      _recipients.push_back(pRecipient);
+      recipients_.push_back(pRecipient);
    }
 
    String 
@@ -38,7 +38,7 @@ namespace HM
    {
       String sRecipientList;
 
-      boost_foreach(shared_ptr<MessageRecipient> recipient, _recipients)
+      boost_foreach(shared_ptr<MessageRecipient> recipient, recipients_)
       {
          if (!sRecipientList.IsEmpty())
             sRecipientList += ", ";
@@ -58,14 +58,14 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove recipients that are local, but does not exist.
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = _recipients.begin();
-      while (iterRecipient != _recipients.end())
+      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      while (iterRecipient != recipients_.end())
       {
          shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
 
          if (pRecipient->GetLocalAccountID() == 0)
          {     
-            iterRecipient = _recipients.erase(iterRecipient);
+            iterRecipient = recipients_.erase(iterRecipient);
             continue;
          }
 
@@ -82,14 +82,14 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove recipients that are local, but does not exist.
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = _recipients.begin();
-      while (iterRecipient != _recipients.end())
+      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      while (iterRecipient != recipients_.end())
       {
          shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
 
          if (!pRecipient->GetIsLocalName())
          {     
-            iterRecipient = _recipients.erase(iterRecipient);
+            iterRecipient = recipients_.erase(iterRecipient);
             continue;
          }
 

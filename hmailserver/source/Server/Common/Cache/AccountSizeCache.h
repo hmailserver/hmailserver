@@ -17,8 +17,8 @@ namespace HM
 
    private:
 
-      std::map<__int64, __int64> _accountSizes;
+      std::map<__int64, __int64> account_sizes_;
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
    };
 }

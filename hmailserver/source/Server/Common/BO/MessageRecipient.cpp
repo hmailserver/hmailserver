@@ -16,7 +16,7 @@ namespace HM
       local_account_id_(0),
       message_id_(0),
       requires_authentication_(false),
-      _isLocalName(false)
+      is_local_name_(false)
    {
 
    }
@@ -32,7 +32,7 @@ namespace HM
       requires_authentication_ = pRecip->GetRequireAuth();
       required_sender_ = pRecip->GetRequiredSender();
 
-      _isLocalName = pRecip->GetIsLocalName();
+      is_local_name_ = pRecip->GetIsLocalName();
    }
 
    MessageRecipient::~MessageRecipient(void)

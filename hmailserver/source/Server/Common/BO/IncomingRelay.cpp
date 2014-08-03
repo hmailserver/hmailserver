@@ -25,37 +25,37 @@ namespace HM
    String 
    IncomingRelay::GetLowerIPString() const 
    {
-	   return _lowerIP.ToString();
+	   return lower_ip_.ToString();
    }
 
    bool
    IncomingRelay::SetLowerIPString(const String & sValue)
    {
-      return _lowerIP.TryParse(sValue);
+      return lower_ip_.TryParse(sValue);
    }
 
    String 
    IncomingRelay::GetUpperIPString() const 
    {
-	   return _upperIP.ToString();
+	   return upper_ip_.ToString();
    }
 
 
    bool
    IncomingRelay::SetUpperIPString(const String & sValue)
    {
-      return _upperIP.TryParse(sValue);
+      return upper_ip_.TryParse(sValue);
    }
 
    bool
    IncomingRelay::IPIsWithinRange(const IPAddress &address) const
    {  
-      if (address.GetAddress1() >= _lowerIP.GetAddress1() && address.GetAddress1() <= _upperIP.GetAddress1())
+      if (address.GetAddress1() >= lower_ip_.GetAddress1() && address.GetAddress1() <= upper_ip_.GetAddress1())
       {
          if (address.GetType() == IPAddress::IPV4)
             return true;
 
-         if (address.GetAddress2() >= _lowerIP.GetAddress2() && address.GetAddress2() <= _upperIP.GetAddress2())
+         if (address.GetAddress2() >= lower_ip_.GetAddress2() && address.GetAddress2() <= upper_ip_.GetAddress2())
             return true;
       }
 
@@ -67,9 +67,9 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("IncomingRelay"));
 
-      pNode->AppendAttr(_T("Name"), _name);
-      pNode->AppendAttr(_T("LowerIP"), String(_lowerIP.ToString()));
-      pNode->AppendAttr(_T("UpperIP"), String(_upperIP.ToString()));
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("LowerIP"), String(lower_ip_.ToString()));
+      pNode->AppendAttr(_T("UpperIP"), String(upper_ip_.ToString()));
 
       return true;
    }
@@ -77,10 +77,10 @@ namespace HM
    bool 
    IncomingRelay::XMLLoad(XNode *pIncomingRelayNode, int iOptions)
    {
-      _name = pIncomingRelayNode->GetAttrValue(_T("Name"));
+      name_ = pIncomingRelayNode->GetAttrValue(_T("Name"));
       
-      _lowerIP.TryParse(pIncomingRelayNode->GetAttrValue(_T("LowerIP")));
-      _upperIP.TryParse(pIncomingRelayNode->GetAttrValue(_T("UpperIP")));
+      lower_ip_.TryParse(pIncomingRelayNode->GetAttrValue(_T("LowerIP")));
+      upper_ip_.TryParse(pIncomingRelayNode->GetAttrValue(_T("UpperIP")));
 
       return true;
    }

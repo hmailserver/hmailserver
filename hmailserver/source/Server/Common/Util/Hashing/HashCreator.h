@@ -41,7 +41,7 @@ namespace HM
          SALT_LENGTH = 6
       };
 
-      HashType _hashType;
+      HashType hash_type_;
    };
 
    class HashCreatorTester

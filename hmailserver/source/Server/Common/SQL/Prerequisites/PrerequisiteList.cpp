@@ -28,14 +28,14 @@ namespace HM
    PrerequisiteList::Initialize_()
    {
       shared_ptr<PreReqNoDuplicateFolders> duplicateFolderCheck = shared_ptr<PreReqNoDuplicateFolders>(new PreReqNoDuplicateFolders);
-      _prerequisites.push_back(std::make_pair(duplicateFolderCheck->GetDatabaseVersion(), duplicateFolderCheck));
+      prerequisites_.push_back(std::make_pair(duplicateFolderCheck->GetDatabaseVersion(), duplicateFolderCheck));
    }
 
    bool
    PrerequisiteList::Ensure(shared_ptr<DALConnection> connection, int scriptDatabaseVersion, String &sErrorMessage)
    {
-      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iter = _prerequisites.begin();
-      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iterEnd = _prerequisites.end();
+      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iter = prerequisites_.begin();
+      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iterEnd = prerequisites_.end();
 
       for (; iter != iterEnd; iter++)
       {

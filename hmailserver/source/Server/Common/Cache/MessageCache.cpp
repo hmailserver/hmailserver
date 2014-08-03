@@ -25,7 +25,7 @@ namespace HM
    void 
    MessageCache::AddMessage(shared_ptr<Message> pMessage)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       /*
          The message cache may grow if there's many deliveries
@@ -51,7 +51,7 @@ namespace HM
    shared_ptr<Message> 
    MessageCache::GetMessage(__int64 iMessageID)
    {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       std::map<__int64, shared_ptr<Message> >::iterator iterMessage = message_.find(iMessageID);
 

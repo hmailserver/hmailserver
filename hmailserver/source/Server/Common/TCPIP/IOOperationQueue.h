@@ -23,10 +23,10 @@ namespace HM
 
    private:
 
-      boost::recursive_mutex _mutex;
+      boost::recursive_mutex mutex_;
 
-      std::deque<shared_ptr<IOOperation> > _queueOperations;
+      std::deque<shared_ptr<IOOperation> > queue_operations_;
       
-      std::vector<shared_ptr<IOOperation > > _ongoingOperations;
+      std::vector<shared_ptr<IOOperation > > ongoing_operations_;
    };
 }

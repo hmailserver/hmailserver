@@ -55,7 +55,7 @@ namespace HM
       virtual bool PreSaveObject(shared_ptr<Message> pMessage, XNode *node);
    private:
 
-      unsigned int _lastRefreshedUID;
+      unsigned int last_refreshed_uid_;
 
       __int64 account_id_;
       __int64 folder_id_;

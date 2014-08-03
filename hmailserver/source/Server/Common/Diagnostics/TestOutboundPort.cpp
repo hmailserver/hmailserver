@@ -16,7 +16,7 @@
 namespace HM
 {
    TestOutboundPort::TestOutboundPort(const String &TestDomainName) :
-      _localTestDomainName(TestDomainName)
+      local_test_domain_name_(TestDomainName)
    {
 
    }
@@ -42,13 +42,13 @@ namespace HM
 
       if (smtpHost.GetLength() == 0)
       {
-         smtpHost = _localTestDomainName;
+         smtpHost = local_test_domain_name_;
          smtpPort = 25;
 
          String formattedString;
          formattedString.Format(_T("SMTP relayer not in use. Attempting %s:%i...\r\n"), smtpHost, smtpPort);
 
-         // Test to connect to mail.hmailserver.com or _localTestDomainName
+         // Test to connect to mail.hmailserver.com or local_test_domain_name_
          runDetails = formattedString;
 
       }

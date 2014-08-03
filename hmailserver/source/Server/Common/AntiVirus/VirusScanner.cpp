@@ -38,12 +38,12 @@
 
 namespace HM
 {
-   long VirusScanner::_runningScanners = 0;
+   long VirusScanner::running_scanners_ = 0;
 
    void 
    VirusScanner::ResetCounter()
    {
-      InterlockedExchange(&_runningScanners, 0);
+      InterlockedExchange(&running_scanners_, 0);
    }
 
    bool
@@ -73,7 +73,7 @@ namespace HM
 
       for (int failedCount = 0; failedCount < 10; failedCount++)
       {
-         int currentCount = _runningScanners;
+         int currentCount = running_scanners_;
 
          while (currentCount >= MaxRunningScanners)
          {
@@ -91,14 +91,14 @@ namespace HM
                return;
             }
 
-            currentCount = _runningScanners;
+            currentCount = running_scanners_;
          }
 
          // make sure that no other thread is changing the value at the same time.
          // if that happens, we need to continue waiting for a new thread. unless
          // a compare was used here, this function could first wait and then call
          // InterlockedIncrement twice even though only one was allowed.
-         int result = InterlockedCompareExchange(&_runningScanners, _runningScanners+1, currentCount);
+         int result = InterlockedCompareExchange(&running_scanners_, running_scanners_+1, currentCount);
          if (result == currentCount)
          {
             // woho.
@@ -112,7 +112,7 @@ namespace HM
    void
    VirusScanner::DecreaseCounter()
    {
-      InterlockedDecrement(&_runningScanners);
+      InterlockedDecrement(&running_scanners_);
    }
 
    bool
