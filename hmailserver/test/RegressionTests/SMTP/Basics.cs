@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -671,15 +670,36 @@ namespace RegressionTests.SMTP
          )]
       public void TestSendExternalToExternalPermitted()
       {
+
+
          SecurityRange range =
             SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
          range.RequireSMTPAuthExternalToExternal = false;
-
          range.Save();
 
-         var oSMTP = new SMTPClientSimulator();
-         CustomAssert.IsTrue(oSMTP.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
-                                  "test2@dsatwvbsdagdasfds423sdavsagasddas.com", "Mail 1", "Mail 1"));
+
+         // Set up a server listening on port 250 which accepts email for test@otherdomain.com
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["test2@dummy-example.com"] = 250;
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+
+            var oSMTP = new SMTPClientSimulator();
+            CustomAssert.IsTrue(oSMTP.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
+                                           "test2@dummy-example.com", "Mail 1", "Test message"));
+
+
+            // This should now be processed via the rule -> route -> external server we've set up.
+            server.WaitForCompletion();
+
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+         }
       }
 
       [Test]

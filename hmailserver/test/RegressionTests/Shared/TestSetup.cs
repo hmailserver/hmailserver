@@ -271,7 +271,7 @@ namespace RegressionTests.Shared
       }
 
 
-      private static void DeleteMessagesInQueue()
+      public static void DeleteMessagesInQueue()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          DeliveryQueue queue = application.GlobalObjects.DeliveryQueue;

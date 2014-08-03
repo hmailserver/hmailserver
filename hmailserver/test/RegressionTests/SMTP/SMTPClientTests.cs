@@ -40,8 +40,8 @@ namespace RegressionTests.SMTP
          route.TargetSMTPPort = port;
          route.NumberOfTries = numberOfTries;
          route.MinutesBetweenTry = 5;
-         route.TreatRecipientAsLocalDomain = true;
-         route.TreatSenderAsLocalDomain = true;
+         route.TreatRecipientAsLocalDomain = treatSecurityAsLocal;
+         route.TreatSenderAsLocalDomain = treatSecurityAsLocal;
          route.ConnectionSecurity = connectionSecurity;
          route.Save();
 
