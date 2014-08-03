@@ -216,7 +216,7 @@ namespace HM
          ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));
       }
 
-      LOG_DEBUG(Formatter::Format("Initiating SSL/TLS handshake for session {0}", session_id_));
+      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}", session_id_));
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :
