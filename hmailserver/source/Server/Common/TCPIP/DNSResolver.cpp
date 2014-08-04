@@ -412,7 +412,7 @@ namespace HM
                boost_foreach(String record, a_records)
                {
                   HostNameAndIpAddress hostAndAddress;
-                  hostAndAddress.SetHostName(sDomainName);
+                  hostAndAddress.SetHostName(domain);
                   hostAndAddress.SetIpAddress(record);
 
                   saFoundNames.push_back(hostAndAddress);
