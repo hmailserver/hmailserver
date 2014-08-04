@@ -130,6 +130,7 @@ namespace HM
       if (Configuration::Instance()->GetVerifyRemoteSslCertificate())
       {
          context.set_verify_mode(boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert, errorCode);
+         
          if (errorCode.value() != 0)
          {
             String errorMessage;

@@ -16,7 +16,8 @@ namespace HM
       AnsiStringConnection(ConnectionSecurity connection_security,
                     boost::asio::io_service& io_service,    
                     boost::asio::ssl::context& context,
-                    shared_ptr<Event> disconnected);
+                    shared_ptr<Event> disconnected,
+                    AnsiString expected_remote_hostname);
       ~AnsiStringConnection(void);
 
    public:

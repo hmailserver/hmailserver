@@ -26,7 +26,8 @@ namespace HM
    TCPConnection::TCPConnection(ConnectionSecurity connection_security,
                                 boost::asio::io_service& io_service, 
                                 boost::asio::ssl::context& context,
-                                shared_ptr<Event> disconnected) :
+                                shared_ptr<Event> disconnected,
+                                AnsiString expected_remote_hostname) :
       connection_security_(connection_security),
       socket_(io_service),
       ssl_socket_(socket_, context),
@@ -38,7 +39,9 @@ namespace HM
       receive_buffer_(250000),
       disconnected_(disconnected),
       context_(context),
-      is_ssl_(false)
+      is_ssl_(false),
+      expected_remote_hostname_(expected_remote_hostname),
+      is_client_(false)
    {
       session_id_ = Application::Instance()->GetUniqueID();
 
@@ -71,6 +74,7 @@ namespace HM
 
          remote_port_ = remotePort;
          remote__ip__address_ = remote_ip_address;
+         is_client_ = true;
 
          LOG_TCPIP("Connecting to " + remote__ip__address_ + "...");
 
@@ -203,20 +207,51 @@ namespace HM
    void 
    TCPConnection::Handshake()
    {
-      return Handshake("");
-   }
+      int verify_mode = 0;
 
-
-   void 
-   TCPConnection::Handshake(const AnsiString &expected_remote_hostname)
-   {
-      if (Configuration::Instance()->GetVerifyRemoteSslCertificate() && !expected_remote_hostname.IsEmpty())
+      // We allow the deriving class to disable peer verification.
+      if (GetValidateRemoteCertificate() && Configuration::Instance()->GetVerifyRemoteSslCertificate())
       {
-         ssl_socket_.set_verify_mode(boost::asio::ssl::verify_peer);
-         ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname));
+         verify_mode = boost::asio::ssl::context::verify_peer | 
+                       boost::asio::ssl::context::verify_fail_if_no_peer_cert;
+
+         boost::system::error_code errorCode;
+         ssl_socket_.set_verify_mode(verify_mode, errorCode);
+
+         if (errorCode.value() != 0)
+         {
+            String errorMessage;
+            errorMessage.Format(_T("Failed to enable peer verification."));
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPConnection::Handshake", errorMessage, errorCode);
+
+            HandleHandshakeFailed_(errorCode);
+            return;
+         }
+
+         if (!expected_remote_hostname_.IsEmpty())
+         {
+            ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname_), errorCode);
+
+            if (errorCode.value() != 0)
+            {
+               String errorMessage;
+               errorMessage.Format(_T("Failed to set verification callback"));
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5510, "TCPConnection::Handshake", errorMessage, errorCode);
+
+               HandleHandshakeFailed_(errorCode);
+               return;
+            }
+         }
+      }
+      else
+      {
+         verify_mode = boost::asio::ssl::context::verify_none;
+
+         ssl_socket_.set_verify_mode(verify_mode);
       }
 
-      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}", session_id_));
+
+      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Certificate verify mode: {1}, Expected remote: {2}", session_id_, verify_mode, expected_remote_hostname_));
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :
@@ -253,14 +288,7 @@ namespace HM
          }
          else
          {
-            // The SSL handshake failed. This may happen for example if the user who has connected
-            // to the TCP/IP port disconnects immediately without sending any data.
-            String sMessage;
-            sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()), SafeGetIPAddress());
-            LOG_TCPIP(sMessage);
-
-            OnHandshakeFailed();
-
+            HandleHandshakeFailed_(error);
          }
       }
       catch (...)
@@ -269,6 +297,18 @@ namespace HM
          throw;
       }
 
+   }
+
+   void
+   TCPConnection::HandleHandshakeFailed_(const boost::system::error_code& error)
+   {
+      // The SSL handshake failed. This may happen for example if the user who has connected
+      // to the TCP/IP port disconnects immediately without sending any data.
+      String sMessage;
+      sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()), SafeGetIPAddress());
+      LOG_TCPIP(sMessage);
+
+      OnHandshakeFailed();
    }
 
    void 
@@ -992,7 +1032,7 @@ namespace HM
    bool
    TCPConnection::IsClient()
    {
-      return remote__ip__address_.GetLength() > 0;
+      return is_client_;
    }
 
    void  

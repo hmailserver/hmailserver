@@ -22,10 +22,9 @@ namespace HM
                                           boost::asio::ssl::context& context,
                                           shared_ptr<Event> disconnected,
                                           bool &testCompleted) :
-               AnsiStringConnection(CSNone, io_service, context, disconnected),
+               AnsiStringConnection(CSNone, io_service, context, disconnected, ""),
                test_completed_(testCompleted),
                total_result_bytes_written_(0)
-
    {
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSAMinTimeout(), IniFileSettings::Instance()->GetSAMaxTimeout()));

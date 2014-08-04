@@ -60,6 +60,8 @@ namespace HM
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
 
+      virtual bool GetValidateRemoteCertificate() {return false;}
+
    private:
 
       bool CheckStartTlsRequired_();

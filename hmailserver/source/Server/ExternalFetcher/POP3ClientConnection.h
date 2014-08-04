@@ -22,7 +22,8 @@ namespace HM
          ConnectionSecurity connectionSecurity,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
-         shared_ptr<Event> disconnected);
+         shared_ptr<Event> disconnected,
+         AnsiString remote_hostname);
       ~POP3ClientConnection(void);
 
       virtual void ParseData(const AnsiString &Request);
@@ -46,6 +47,7 @@ namespace HM
    // This is temp function to log ETRN client commands to SMTP
       void SendData_LogAsSMTP(const String &sData) ;
 
+      bool GetValidateRemoteCertificate() {return true;}
    private:
 
       void SendCAPA_();

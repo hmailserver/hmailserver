@@ -46,8 +46,9 @@ namespace HM
                                               ConnectionSecurity connectionSecurity,
                                               boost::asio::io_service& io_service, 
                                               boost::asio::ssl::context& context,
-                                              shared_ptr<Event> disconnected) :
-      AnsiStringConnection(connectionSecurity, io_service, context, disconnected),
+                                              shared_ptr<Event> disconnected,
+                                              AnsiString remote_hostname) :
+      AnsiStringConnection(connectionSecurity, io_service, context, disconnected, remote_hostname),
       account_(pAccount),
       current_state_(StateConnected)
    {
@@ -1216,4 +1217,5 @@ namespace HM
 
       SendData(sData + "\r\n");
    }
+
 }

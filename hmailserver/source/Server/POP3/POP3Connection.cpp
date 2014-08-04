@@ -44,7 +44,7 @@ namespace HM
    POP3Connection::POP3Connection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
-      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
+      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
       current_state_(AUTHORIZATION),
       transmission_buffer_(true),
       pending_disconnect_(false)
@@ -426,7 +426,6 @@ namespace HM
    POP3Connection::ParseResult
    POP3Connection::ProtocolPASS_(const String &Parameter)
    {
-
       password_ = Parameter;
 
       AccountLogon accountLogon;

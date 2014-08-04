@@ -373,7 +373,8 @@ namespace HM
       shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
+      shared_ptr<SMTPClientConnection> pClientConnection 
+         = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName(), serverInfo->GetFixed()));
 
       pClientConnection->SetDelivery(original_message_, vecRecipients);
 

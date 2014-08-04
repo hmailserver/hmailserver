@@ -42,7 +42,13 @@ namespace HM
       shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> (new POP3ClientConnection(pFA, pFA->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent));
+      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> 
+         (new POP3ClientConnection(pFA, 
+                                   pFA->GetConnectionSecurity(), 
+                                   pIOService->GetIOService(), 
+                                   pIOService->GetClientContext(), 
+                                   disconnectEvent,
+                                   pFA->GetServerAddress()));
 
       DNSResolver resolver;
 

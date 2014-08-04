@@ -103,6 +103,8 @@ namespace RegressionTests.AntiSpam
       [Test]
       public void TestSpamMultipleHits()
       {
+         TestSetup.AssertSpamAssassinIsRunning();  
+
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mult'ihit@test.com", "test");
 
          _settings.AntiSpam.SpamMarkThreshold = 1;
@@ -148,8 +150,8 @@ namespace RegressionTests.AntiSpam
 
          _settings.Logging.EnableLiveLogging(false);
 
-         int iFirst = liveLog.IndexOf("Running spam test");
-         int iLast = liveLog.LastIndexOf("Running spam test");
+         int iFirst = liveLog.IndexOf("Spam test:");
+         int iLast = liveLog.LastIndexOf("Spam test:");
          CustomAssert.AreNotEqual(-1, iFirst);
 
          // there should only be one spam test, since any spam match

@@ -19,7 +19,8 @@ namespace HM
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
          shared_ptr<Event> disconnected,
-         AnsiString remote_hostname);
+         AnsiString remote_hostname,
+         bool validate_remote_certificate);
 	   virtual ~SMTPClientConnection();
 
       void OnCouldNotConnect(const AnsiString &sErrorDescription);
@@ -42,6 +43,7 @@ namespace HM
       virtual void OnDataSent();
       virtual void OnReadError(int errorCode);
 
+      virtual bool GetValidateRemoteCertificate();
    private:
 
       void LogReceivedResponse_(const String &response);
@@ -126,6 +128,7 @@ namespace HM
       AnsiString multi_line_response_buffer_;
 
       AnsiString remoteServerBanner_;
-      AnsiString expected_remote_hostname_;
+
+      bool validate_remote_certificate_;
    };
 }

@@ -25,14 +25,14 @@ namespace HM
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context,
       shared_ptr<Event> disconnected,
-      AnsiString expected_remote_hostname) :
-      AnsiStringConnection(connection_security, io_service, context, disconnected),
+      AnsiString expected_remote_hostname,
+      bool validate_remote_certificate) :
+      AnsiStringConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
       current_state_(HELO),
       use_smtpauth_(false),
       cur_recipient_(-1),
       session_ended_(false),
-      transmission_buffer_(true),
-      expected_remote_hostname_(expected_remote_hostname)
+      transmission_buffer_(true)
    {
       
       /* RFC 2821:    
@@ -371,7 +371,7 @@ namespace HM
    {
       if (IsPositiveCompletion(code))
       {
-         Handshake(expected_remote_hostname_);
+         Handshake();
       }
       else
       {
@@ -700,6 +700,12 @@ namespace HM
       UpdateAllRecipientsWithError_(0, sErrorDescription, true);
 
       LOG_SMTP_CLIENT(0,"TCP","SMTPDeliverer - Message " + StringParser::IntToString(delivery_message_->GetID()) + " - Connection failed: " + String(sErrorDescription) );
+   }
+
+   bool 
+   SMTPClientConnection::GetValidateRemoteCertificate()
+   {
+      return validate_remote_certificate_;
    }
 }
 

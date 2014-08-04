@@ -36,6 +36,7 @@ namespace HM
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
 
+      virtual bool GetValidateRemoteCertificate() {return false;}
    private:
 
       void FinishTesting_();

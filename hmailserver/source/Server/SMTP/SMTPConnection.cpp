@@ -73,7 +73,7 @@ namespace HM
    SMTPConnection::SMTPConnection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
-      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>()),
+      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
       rejected_by_delayed_grey_listing_(false),
       current_state_(INITIAL),
       trace_headers_written_(true),
@@ -1825,7 +1825,7 @@ namespace HM
 
       SendData_("220 Ready to start TLS");
 
-      current_state_ = STARTTLS ;
+      current_state_ = STARTTLS;
       
       Handshake();
    }

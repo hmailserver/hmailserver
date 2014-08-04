@@ -39,6 +39,8 @@ namespace HM
       virtual void OnExcessiveDataReceived();
       virtual void OnHandshakeCompleted();
       virtual void OnHandshakeFailed() {};
+
+      virtual bool GetValidateRemoteCertificate() {return false;}
    private:
 
 
