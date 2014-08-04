@@ -44,6 +44,8 @@ namespace HM
 
    private:
 
+      void LogReceivedResponse_(const String &response);
+
       void ProtocolStateHELOEHLO_(const AnsiString &request);
       void ProtocolSendMailFrom_();
       void ProtocolHELOEHLOSent_(const AnsiString &request);

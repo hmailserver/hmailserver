@@ -139,11 +139,21 @@ namespace HM
          PostReceive();
    }
 
-   bool
-   SMTPClientConnection::InternalParseData(const AnsiString  &Request)
+   void 
+   SMTPClientConnection::LogReceivedResponse_(const String &response)
    {
-      String sData = "RECEIVED: " + Request;
-      LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), sData);
+      String log_data = "RECEIVED: " + response;
+
+      log_data.TrimRight(_T("\r\n"));
+      log_data.Replace(_T("\r\n"), _T("[nl]"));
+
+      LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), log_data);
+   }
+
+   bool
+   SMTPClientConnection::InternalParseData(const AnsiString &Request)
+   {
+      LogReceivedResponse_(Request);
 
       int lFirstSpace = Request.Find(" ");
    
