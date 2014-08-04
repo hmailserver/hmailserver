@@ -32,7 +32,8 @@ namespace HM
       use_smtpauth_(false),
       cur_recipient_(-1),
       session_ended_(false),
-      transmission_buffer_(true)
+      transmission_buffer_(true),
+      validate_remote_certificate_(validate_remote_certificate)
    {
       
       /* RFC 2821:    
