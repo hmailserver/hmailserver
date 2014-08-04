@@ -103,7 +103,6 @@
 5504, Failed to open Windows certificate store. GetLastError() == {0}
 5505, Failed to open add CA certificate.
 5506, Attempting to connect to {0} - Not a valid IP address.
-
-
-
-
+5507, The IP address for SpamAssassin could not be resolved. Aborting SpamAssasin tests.
+5508, The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.
+5509, The IP address for external account {0} could not be resolved. Aborting fetch.

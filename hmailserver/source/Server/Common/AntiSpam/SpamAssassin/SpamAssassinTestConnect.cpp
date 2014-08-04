@@ -35,7 +35,7 @@ namespace HM
       bool testCompleted;
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, message, testCompleted));
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
 
       DNSResolver resolver;
 
@@ -47,6 +47,12 @@ namespace HM
       {
          ip_address = *(ip_addresses.begin());
       }
+      else
+      {
+         message = "The IP address for SpamAssassin could not be resolved. Aborting tests.";
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamAssassinTestConnect::TestConnect", message);
+         return false;
+      }
 
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(ip_address, port, IPAddress()))
@@ -57,6 +63,15 @@ namespace HM
 
          disconnectEvent->Wait();
       }
+
+      if (testCompleted)
+         message = FileUtilities::ReadCompleteTextFile(tempFile);
+      else
+      {
+         message = "Unable to connect to the specified SpamAssassin server.";
+      }
+
+      FileUtilities::DeleteFile(tempFile);
 
       return testCompleted;
 

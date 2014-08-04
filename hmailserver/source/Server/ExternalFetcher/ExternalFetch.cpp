@@ -37,7 +37,7 @@ namespace HM
    void 
    ExternalFetch::Start(shared_ptr<FetchAccount> pFA)
    {  
-      LOG_DEBUG("ExternalFetch::Start");
+      LOG_DEBUG(Formatter::Format("Retrieving messages from external account {0}", pFA->GetName()));
       
       shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
@@ -54,6 +54,12 @@ namespace HM
       {
          ip_address = *(ip_addresses.begin());
       }
+      else
+      {
+         String error_message = Formatter::Format("The IP address for external account {0} could not be resolved. Aborting fetch.", pFA->GetName());
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "ExternalFetch::Start", error_message);
+         return;
+      }
 
       if (pClientConnection->Connect(ip_address, pFA->GetPort(), IPAddress()))
       {
@@ -64,7 +70,7 @@ namespace HM
          disconnectEvent->Wait();
       }
 
-      LOG_DEBUG("ExternalFetch::~Start");
+      LOG_DEBUG("Completed retrieval of messages from external account.");
    }
 
 

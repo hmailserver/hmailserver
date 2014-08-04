@@ -148,6 +148,30 @@ namespace RegressionTests.POP3.Fetching
          }
       }
 
+      [Test]
+      public void TestFetchFromInvalidHostName()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+         FetchAccount fa = account.FetchAccounts.Add();
+
+         fa.Enabled = true;
+         fa.MinutesBetweenFetch = 10;
+         fa.Name = "Test";
+         fa.Username = "test@example.com";
+         fa.Password = "test";
+         fa.UseSSL = false;
+         fa.ServerAddress = "nonexistant.example.com";
+         fa.Port = 110;
+         fa.ProcessMIMERecipients = false;
+         fa.Save();
+
+         fa.DownloadNow();
+
+         fa.Delete();
+
+         TestSetup.AssertReportedError("The IP address for external account Test could not be resolved. Aborting fetch.");
+      }
+
 
       [Test]
       public void TestDelete()

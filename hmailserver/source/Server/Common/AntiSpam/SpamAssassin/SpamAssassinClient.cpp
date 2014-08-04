@@ -21,11 +21,10 @@ namespace HM
                                           boost::asio::io_service& io_service, 
                                           boost::asio::ssl::context& context,
                                           shared_ptr<Event> disconnected,
-                                          String &message,
                                           bool &testCompleted) :
                AnsiStringConnection(CSNone, io_service, context, disconnected),
-               message_(message),
-               test_completed_(testCompleted)
+               test_completed_(testCompleted),
+               total_result_bytes_written_(0)
 
    {
       TimeoutCalculator calculator;
@@ -34,6 +33,8 @@ namespace HM
       message_file_ = sFile;
 	   spam_dsize_ = -1;
 	   message_size_ = -1;
+
+      test_completed_ = false;
    }
 
 
@@ -129,17 +130,7 @@ namespace HM
    void
    SpamAssassinClient::ParseData(const AnsiString &sData)
    {
-      // Copy back the file...
-      if (FinishTesting())
-      {
-         message_ = FileUtilities::ReadCompleteTextFile(message_file_);
-         FileUtilities::DeleteFile(message_file_);
-      }
-      else
-      {
-         message_ = "Unable to connect to the specified SpamAssassin server.";
-         FileUtilities::DeleteFile(message_file_);
-      }
+
    }
 
    void
@@ -158,17 +149,22 @@ namespace HM
       }
 
       // Append output to the file
-      DWORD dwWritten = 0;
-      result_->Write(pBuf, dwWritten);
+      DWORD written_bytes = 0;
+      result_->Write(pBuf, written_bytes);
 
-      PostReceive();
+      total_result_bytes_written_ += written_bytes;
+
+      if (total_result_bytes_written_ < spam_dsize_)
+         PostReceive();
+      else
+         FinishTesting_();
    }
 
-   bool
-   SpamAssassinClient::FinishTesting()
+   void
+   SpamAssassinClient::FinishTesting_()
    {
       if (!result_)
-         return false;
+         return;
 
       result_->Close();
 
@@ -193,13 +189,15 @@ namespace HM
             FileUtilities::DeleteFile(sTempFile);
             LOG_DEBUG("SA - Copy+Delete used");
          }
-	  } else {
+	  } 
+     else 
+     {
 		 String logMessage;
 		 logMessage.Format(_T("SA: Temp file size did not match what Spamd reported! (temp: %d, spamd: %d). Reverting to original message file."),FileUtilities::FileSize(sTempFile),spam_dsize_);
          LOG_DEBUG(logMessage);
 	  }
-
-      return true;
+     
+     test_completed_ = true;
    }
 
    int

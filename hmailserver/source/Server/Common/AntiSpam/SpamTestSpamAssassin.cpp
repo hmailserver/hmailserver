@@ -58,11 +58,10 @@ namespace HM
       
       shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
-      String message;
       bool testCompleted;
 
       shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, message, testCompleted));
+      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();
@@ -78,6 +77,12 @@ namespace HM
       {
          ip_address = *(ip_addresses.begin());
       }
+      else
+      {
+         String message = "The IP address for SpamAssassin could not be resolved. Aborting tests.";
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamAssassinTestConnect::TestConnect", message);
+         return setSpamTestResults;  
+      }
 
       // Here we handle of the ownership to the TCPIP-connection layer.
       if (pSAClient->Connect(ip_address, iPort, IPAddress()))
@@ -88,7 +93,15 @@ namespace HM
 
          disconnectEvent->Wait();
       }
-     
+      
+      if (!testCompleted)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5508, "SpamAssassinTestConnect::TestConnect", 
+            "The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.");
+
+         return setSpamTestResults;  
+      }
+
       // Check if the message is tagged as spam.
       shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
       pMessageData->RefreshFromMessage();

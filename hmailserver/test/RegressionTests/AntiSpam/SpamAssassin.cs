@@ -47,13 +47,21 @@ namespace RegressionTests.AntiSpam
       private Application application;
 
       [Test]
-      public void ItShouldBePossibleToTestSAConnectionUsingAPI()
+      public void ItShouldBePossibleToTestSAConnectionUsingAPISuccess()
       {
          hMailServer.AntiSpam antiSpam = _settings.AntiSpam;
 
          string resultText;
          CustomAssert.IsTrue(antiSpam.TestSpamAssassinConnection("localhost", 783, out resultText));
          CustomAssert.IsTrue(resultText.Contains("Content analysis details:"));
+      }
+
+      [Test]
+      public void ItShouldBePossibleToTestSAConnectionUsingAPIFailure()
+      {
+         hMailServer.AntiSpam antiSpam = _settings.AntiSpam;
+
+         string resultText;
 
          CustomAssert.IsFalse(antiSpam.TestSpamAssassinConnection("localhost", 0, out resultText));
       }
@@ -104,6 +112,46 @@ namespace RegressionTests.AntiSpam
             _settings.AntiSpam.SpamAssassinEnabled = false;
             throw new Exception("Spam assassin not run");
          }
+         
+         TestSetup.AssertReportedError("The IP address for SpamAssassin could not be resolved.");
+      }
+
+      [Test]
+      public void TestIncorrectPort()
+      {
+         var oSMTP = new SMTPClientSimulator();
+
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost"; // <- mispelled
+         _settings.AntiSpam.SpamAssassinPort = 12345;
+
+         oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message.");
+         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         if (sMessageContents.Contains("X-Spam-Status"))
+         {
+            _settings.AntiSpam.SpamAssassinEnabled = false;
+            throw new Exception("Spam assassin not run");
+         }
+
+         TestSetup.AssertReportedError("The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.");
+      }
+
+      [Test]
+      public void TestIpAddressAsHostName()
+      {
+         var smtpClientSimulator = new SMTPClientSimulator();
+
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "127.0.0.1"; 
+         smtpClientSimulator.Send(account.Address, account.Address, "SA test", "This is a test message.");
+         string messageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+
+         if (!messageContents.Contains("X-Spam-Status"))
+         {
+            CustomAssert.Fail("SpamAssassin did not run");
+         }
+
+         
       }
 
       [Test]
@@ -154,18 +202,8 @@ namespace RegressionTests.AntiSpam
       [Test]
       public void TestSANotRunning()
       {
-         Process[] processlist = Process.GetProcesses();
-
-         foreach (Process theprocess in processlist)
-         {
-            if (theprocess.ProcessName == "spamd")
-            {
-               theprocess.Kill();
-               break;
-            }
-         }
-
-
+         TestSetup.StopSpamAssassin();
+         
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
@@ -173,6 +211,8 @@ namespace RegressionTests.AntiSpam
          string sMessageContents = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsFalse(sMessageContents.Contains("X-Spam-Status"));
+
+         TestSetup.AssertReportedError();
       }
 
       [Test]

@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -690,16 +691,31 @@ namespace RegressionTests.Shared
          }
 
          // Check if we can launch it...
-         string spamdExecutable = @"C:\Program Files (x86)\SpamAssassin\spamd.exe";
-
          try
          {
-            Process.Start(spamdExecutable);
+            var serviceController = new ServiceController("SpamAssassinJAM");
+            serviceController.Start();
          }
          catch (Exception)
          {
             CustomAssert.Inconclusive("Unable to start SpamAssassin process. Is SpamAssassin installed?");
          }
+      }
+
+      public static void StopSpamAssassin()
+      {
+         // Check if we can launch it...
+         try
+         {
+            var serviceController = new ServiceController("SpamAssassinJAM");
+            serviceController.Stop(); 
+         }
+         catch (Exception)
+         {
+            CustomAssert.Inconclusive("Unable to stop SpamAssassin process. Is SpamAssassin installed?");
+         }
+
+
       }
 
       public static void AssertClamDRunning()
