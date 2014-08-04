@@ -151,9 +151,6 @@ namespace HM
                 recipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
             {
                remainingRecipients.push_back(recipient);
-
-               //recipient->SetDeliveryResult(MessageRecipient::ResultUndefined);
-               //recipient->SetErrorMessage("");
             }
          }
 
