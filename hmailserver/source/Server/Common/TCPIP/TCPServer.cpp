@@ -32,7 +32,7 @@ namespace HM
 {
    TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
       acceptor_(io_service),
-      context_(io_service, boost::asio::ssl::context::tlsv1),
+      context_(io_service, boost::asio::ssl::context::sslv23),
       ipaddress_(ipaddress),
       port_(port),
       connection_security_(connection_security)
