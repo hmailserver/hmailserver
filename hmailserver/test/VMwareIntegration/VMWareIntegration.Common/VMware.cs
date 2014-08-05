@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.IO;
 using VixCOM;
@@ -179,8 +180,10 @@ namespace VMwareIntegration.Common
       {
          if (!Directory.Exists(source))
             throw new Exception("CopyFolderToGuest: The source directory " + source + " does not exist.");
-
+         
          string[] files = Directory.GetFiles(source);
+         if (!files.Any())
+            throw new Exception("There are o files in the directory " + source);
 
          try
          {
