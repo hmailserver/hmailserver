@@ -167,9 +167,9 @@ namespace RegressionTests.POP3.Fetching
 
          fa.DownloadNow();
 
-         fa.Delete();
-
          TestSetup.AssertReportedError("The IP address for external account Test could not be resolved. Aborting fetch.");
+
+         fa.Delete();
       }
 
 
