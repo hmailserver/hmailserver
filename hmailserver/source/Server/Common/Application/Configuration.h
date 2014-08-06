@@ -152,6 +152,8 @@ namespace HM
       bool GetVerifyRemoteSslCertificate() const;
       void SetVerifyRemoteSslCertificate(bool newValue);
 
+      String GetSslCipherList() const;
+      void SetSslCipherList(String newValue);
 
       shared_ptr<PropertySet> GetSettings() const;
 

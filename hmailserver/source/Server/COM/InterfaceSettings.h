@@ -226,6 +226,9 @@ END_COM_MAP()
    STDMETHOD(get_VerifyRemoteSslCertificate)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_VerifyRemoteSslCertificate)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_SslCipherList)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(put_SslCipherList)(/*[in]*/ BSTR newVal);
+
    bool LoadSettings();
 
 private:

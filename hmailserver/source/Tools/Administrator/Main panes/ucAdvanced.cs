@@ -53,7 +53,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             textDefaultDomain.Text = settings.DefaultDomain;
-            checkVerifyRemoteServerSslCertificate.Checked = settings.VerifyRemoteSslCertificate;
+                                                
 
             Marshal.ReleaseComObject(settings);
 
@@ -64,7 +64,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             settings.DefaultDomain = textDefaultDomain.Text;
-            settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
+            
             if (textAdministratorPassword.Dirty)
             {
                 string newPassword = textAdministratorPassword.Text;

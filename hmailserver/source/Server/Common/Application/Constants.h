@@ -120,9 +120,11 @@
 #define PROPERTY_SMTPCONNECTIONSECURITY         _T("SmtpDeliveryConnectionSecurity")
 #define PROPERTY_VERIFYREMOTESSLCERTIFICATE     _T("VerifyRemoteSslCertificate")
 
+#define PROPERTY_SSLCIPHERLIST _T("SslCipherList")
+
 #define PROPERTY_CLAMAV_ENABLED              _T("ClamAVEnabled")
 #define PROPERTY_CLAMAV_HOST                 _T("ClamAVHost")
 #define PROPERTY_CLAMAV_PORT                 _T("ClamAVPort")
 
 
-#define REQUIRED_DB_VERSION            5501
+#define REQUIRED_DB_VERSION            5502

@@ -107,3 +107,4 @@
 5508, The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.
 5509, The IP address for external account {0} could not be resolved. Aborting fetch.
 5510, Failed to set verification callback
+5511, Failed to set SSL ciphers

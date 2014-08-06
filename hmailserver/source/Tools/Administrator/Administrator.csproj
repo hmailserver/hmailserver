@@ -230,6 +230,12 @@
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\INode.cs" />
     <Compile Include="Interfaces\ISettingsControl.cs" />
+    <Compile Include="Main panes\ucSecurity.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSecurity.Designer.cs">
+      <DependentUpon>ucSecurity.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main panes\ucAccount.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -530,6 +536,7 @@
     <Compile Include="Main panes\ucWhiteListing.Designer.cs">
       <DependentUpon>ucWhiteListing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Nodes\NodeSecurity.cs" />
     <Compile Include="Nodes\NodeAccount.cs" />
     <Compile Include="Nodes\NodeAccounts.cs" />
     <Compile Include="Nodes\NodeAdvanced.cs" />
@@ -680,6 +687,10 @@
     <EmbeddedResource Include="Dialogs\formWhiteListAddress.resx">
       <SubType>Designer</SubType>
       <DependentUpon>formWhiteListAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSecurity.resx">
+      <DependentUpon>ucSecurity.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Main panes\ucAccount.resx">
       <SubType>Designer</SubType>

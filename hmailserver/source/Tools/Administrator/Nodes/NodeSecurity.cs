@@ -6,16 +6,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 
-
 namespace hMailServer.Administrator.Nodes
 {
-    class NodeAdvanced : INode
+    class NodeSecurity : INode
     {
         public string Title
         {
             get
             {
-                return "Advanced";
+                return "Security";
             }
             set { }
         }
@@ -31,13 +30,13 @@ namespace hMailServer.Administrator.Nodes
         {
             get
             {
-               return "understanding.ico";
+               return "construction.ico";
             }
         }
 
         public UserControl CreateControl()
         {
-            return new ucAdvanced();
+            return new ucSecurity();
         }
 
         public List<INode> SubNodes
@@ -45,16 +44,6 @@ namespace hMailServer.Administrator.Nodes
             get
             {
                 List<INode> subNodes = new List<INode>();
-                subNodes.Add(new NodeAutoBan());
-                subNodes.Add(new NodeSSLCertificates());
-                subNodes.Add(new NodeIPRanges());
-                subNodes.Add(new NodeIncomingRelays());
-                subNodes.Add(new NodeMirror());
-                subNodes.Add(new NodePerformance());
-                subNodes.Add(new NodeServerMessages());
-                subNodes.Add(new NodeSecurity());
-                subNodes.Add(new NodeScripts());
-                subNodes.Add(new NodeTCPIPPorts());
                 return subNodes;
 
             }

@@ -655,6 +655,8 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteSslCertificate([out, retval] VARIANT_BOOL *pVal);
    [propput, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteSslCertificate([in] VARIANT_BOOL newVal);
 
+   [propget, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([out, retval] BSTR *pVal);
+   [propput, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([in] BSTR newVal);
 
 };
 

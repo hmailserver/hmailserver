@@ -107,6 +107,8 @@ namespace HM
          return false;
       }
 
+      SetCipherList_(context);
+
       return true;
    }
 
@@ -163,6 +165,8 @@ namespace HM
       {
          context.set_verify_mode(boost::asio::ssl::context::verify_none);
       }
+
+      SetCipherList_(context);
 
       return true;
    }
@@ -257,5 +261,27 @@ namespace HM
    }
 
 
+   void 
+   SslContextInitializer::SetCipherList_(boost::asio::ssl::context& context)
+   {
+      AnsiString cipher_list = Configuration::Instance()->GetSslCipherList();
+
+      cipher_list.Replace("\r", "");
+      cipher_list.Replace("\n", "");
+      cipher_list.Replace(" ", "");
+
+      if (cipher_list.Trim().IsEmpty())
+         return;
+
+      // Asio does not expose cipher list. Access underlaying layer (OpenSSL) directly.
+      SSL_CTX* ssl = context.native_handle();
+      int result = SSL_CTX_set_cipher_list(ssl, cipher_list.c_str());
+
+      if (result == 0)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511,"SslContextInitializer::SetCipherList_", "Failed to set SSL ciphers");
+     
+      }
+   }
 
 }

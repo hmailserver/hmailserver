@@ -297,7 +297,7 @@ CREATE NONCLUSTERED INDEX idx_message_metadata_id ON hm_message_metadata (metada
 create table hm_settings (
 	settingid int identity (1, 1) not null,
 	settingname nvarchar(30) not null,
-	settingstring nvarchar(255) not null ,
+	settingstring nvarchar(4000) not null ,
 	settinginteger int not null
 ) 
 
@@ -929,13 +929,15 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Sm
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteSslCertificate', '', 1)
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SslCipherList', '', 0)
+
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0) 
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (3, 110, 0, NULL, 0, 0) 
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0) 
 
-insert into hm_dbversion values (5501) 
+insert into hm_dbversion values (5502) 
 
 
 

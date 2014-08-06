@@ -186,7 +186,7 @@ create table hm_settings
 (
 	settingid int auto_increment not null, primary key(`settingid`), unique(`settingid`),
 	settingname varchar (30) not null, unique(`settingname`),
-	settingstring varchar (255) not null ,
+	settingstring varchar (4000) not null ,
 	settinginteger int not null
 ) DEFAULT CHARSET=utf8;
 
@@ -754,11 +754,13 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Sm
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteSslCertificate', '', 1);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SslCipherList', '', 0);
+
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (3, 110, 0, NULL, 0, 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5501);
+insert into hm_dbversion values (5502);
 

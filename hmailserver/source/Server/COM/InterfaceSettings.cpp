@@ -2254,3 +2254,35 @@ STDMETHODIMP InterfaceSettings::put_VerifyRemoteSslCertificate(VARIANT_BOOL newV
       return COMError::GenerateGenericMessage();
    }
 }
+
+STDMETHODIMP InterfaceSettings::get_SslCipherList(BSTR *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSslCipherList().AllocSysString();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_SslCipherList(BSTR newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetSslCipherList(newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}

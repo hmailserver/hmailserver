@@ -121,19 +121,8 @@ namespace hMailServer.Administrator
 
             Utility.RefreshNode(InternalNames.GetPortName(_representedObject));
 
-            if (MessageBox.Show(Strings.Localize("hMailServer needs to be restarted for the changes to take effect.") + Environment.NewLine +
-                                Strings.Localize("Do you want to restart hMailServer now?"), EnumStrings.hMailServerAdministrator, MessageBoxButtons.YesNo,MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-               using (new WaitCursor())
-               {
-                  hMailServer.Application application = APICreator.Application;
-                  application.Stop();
-                  application.Start();
-
-                  MessageBox.Show(Strings.Localize("The hMailServer server has been restarted."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
-               }
-            }
-
+            Utility.AskRestartServer();
+            
             return true;
 
         }

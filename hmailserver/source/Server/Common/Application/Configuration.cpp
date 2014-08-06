@@ -615,6 +615,18 @@ namespace HM
       GetSettings()->SetBool(PROPERTY_VERIFYREMOTESSLCERTIFICATE, UseSMTP);
    }
 
+   String
+   Configuration::GetSslCipherList() const
+   {
+      return GetSettings()->GetString(PROPERTY_SSLCIPHERLIST);
+   }
+
+   void
+   Configuration::SetSslCipherList(String newValue)
+   {
+      GetSettings()->SetString(PROPERTY_SSLCIPHERLIST, newValue);
+   }
+
    bool 
    Configuration::XMLStore(XNode *pBackupNode)
    {
