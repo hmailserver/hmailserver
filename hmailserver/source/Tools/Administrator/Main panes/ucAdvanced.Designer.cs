@@ -39,7 +39,7 @@ namespace hMailServer.Administrator
            // labelDefaultDomain
            // 
            this.labelDefaultDomain.AutoSize = true;
-           this.labelDefaultDomain.Location = new System.Drawing.Point(28, 39);
+           this.labelDefaultDomain.Location = new System.Drawing.Point(29, 39);
            this.labelDefaultDomain.Name = "labelDefaultDomain";
            this.labelDefaultDomain.Size = new System.Drawing.Size(78, 13);
            this.labelDefaultDomain.TabIndex = 6;
@@ -49,7 +49,7 @@ namespace hMailServer.Administrator
            // 
            this.labelGeneral.AutoSize = true;
            this.labelGeneral.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-           this.labelGeneral.Location = new System.Drawing.Point(12, 14);
+           this.labelGeneral.Location = new System.Drawing.Point(8, 8);
            this.labelGeneral.Name = "labelGeneral";
            this.labelGeneral.Size = new System.Drawing.Size(51, 13);
            this.labelGeneral.TabIndex = 5;
@@ -58,7 +58,7 @@ namespace hMailServer.Administrator
            // labelAdministrationPassword
            // 
            this.labelAdministrationPassword.AutoSize = true;
-           this.labelAdministrationPassword.Location = new System.Drawing.Point(28, 87);
+           this.labelAdministrationPassword.Location = new System.Drawing.Point(29, 87);
            this.labelAdministrationPassword.Name = "labelAdministrationPassword";
            this.labelAdministrationPassword.Size = new System.Drawing.Size(120, 13);
            this.labelAdministrationPassword.TabIndex = 8;
@@ -66,7 +66,7 @@ namespace hMailServer.Administrator
            // 
            // labelPleaseRemember
            // 
-           this.labelPleaseRemember.Location = new System.Drawing.Point(28, 109);
+           this.labelPleaseRemember.Location = new System.Drawing.Point(29, 109);
            this.labelPleaseRemember.Name = "labelPleaseRemember";
            this.labelPleaseRemember.Size = new System.Drawing.Size(361, 32);
            this.labelPleaseRemember.TabIndex = 10;
@@ -86,7 +86,7 @@ namespace hMailServer.Administrator
            // 
            // textDefaultDomain
            // 
-           this.textDefaultDomain.Location = new System.Drawing.Point(30, 58);
+           this.textDefaultDomain.Location = new System.Drawing.Point(32, 55);
            this.textDefaultDomain.Name = "textDefaultDomain";
            this.textDefaultDomain.Number = 0;
            this.textDefaultDomain.Number64 = ((long)(0));

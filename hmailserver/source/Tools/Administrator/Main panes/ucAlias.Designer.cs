@@ -38,7 +38,7 @@ namespace hMailServer.Administrator
            // labelRedirectFrom
            // 
            this.labelRedirectFrom.AutoSize = true;
-           this.labelRedirectFrom.Location = new System.Drawing.Point(5, 8);
+           this.labelRedirectFrom.Location = new System.Drawing.Point(8, 8);
            this.labelRedirectFrom.Name = "labelRedirectFrom";
            this.labelRedirectFrom.Size = new System.Drawing.Size(70, 13);
            this.labelRedirectFrom.TabIndex = 3;
@@ -58,7 +58,7 @@ namespace hMailServer.Administrator
            this.checkEnabled.AutoSize = true;
            this.checkEnabled.Checked = true;
            this.checkEnabled.CheckState = System.Windows.Forms.CheckState.Checked;
-           this.checkEnabled.Location = new System.Drawing.Point(9, 103);
+           this.checkEnabled.Location = new System.Drawing.Point(11, 103);
            this.checkEnabled.Name = "checkEnabled";
            this.checkEnabled.Size = new System.Drawing.Size(65, 17);
            this.checkEnabled.TabIndex = 7;
@@ -67,7 +67,7 @@ namespace hMailServer.Administrator
            // 
            // textValue
            // 
-           this.textValue.Location = new System.Drawing.Point(8, 72);
+           this.textValue.Location = new System.Drawing.Point(11, 72);
            this.textValue.Name = "textValue";
            this.textValue.ReadOnlyHost = false;
            this.textValue.Size = new System.Drawing.Size(282, 25);
@@ -75,7 +75,7 @@ namespace hMailServer.Administrator
            // 
            // textName
            // 
-           this.textName.Location = new System.Drawing.Point(8, 24);
+           this.textName.Location = new System.Drawing.Point(11, 24);
            this.textName.Name = "textName";
            this.textName.ReadOnlyHost = true;
            this.textName.Size = new System.Drawing.Size(282, 25);
