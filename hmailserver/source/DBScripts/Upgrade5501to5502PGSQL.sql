@@ -1,4 +1,4 @@
-ALTER TABLE hm_settings ALTER COLUMN settingstring varchar (4000) not null;
+ALTER TABLE hm_settings ALTER COLUMN settingstring TYPE varchar (4000);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SslCipherList', '', 0);
 
