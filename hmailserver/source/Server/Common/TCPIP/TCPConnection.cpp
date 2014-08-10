@@ -11,6 +11,7 @@
 #include "LocalIPAddresses.h"
 #include "IPAddress.h"
 #include "IOOperation.h"
+#include "CertificateVerifier.h"
 
 #include <boost/scope_exit.hpp>
 
@@ -379,37 +380,26 @@ namespace HM
    void 
    TCPConnection::AsyncHandshake()
    {
+      // To do peer verification, it must both be enabled globally and supported by the deriving class.
+      bool enable_peer_verification = Configuration::Instance()->GetVerifyRemoteSslCertificate() && GetValidateRemoteCertificate();
+
       int verify_mode = 0;
 
-      // We allow the deriving class to disable peer verification.
-      if (GetValidateRemoteCertificate() && Configuration::Instance()->GetVerifyRemoteSslCertificate())
+      boost::system::error_code error_code;
+
+      if (enable_peer_verification)
       {
-         verify_mode = boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert;
-
-         boost::system::error_code errorCode;
-         ssl_socket_.set_verify_mode(verify_mode, errorCode);
-
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to enable peer verification."));
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPConnection::AsyncHandshake", errorMessage, errorCode);
-
-            HandshakeFailed_(errorCode);
-            return;
-         }
-
+         verify_mode = boost::asio::ssl::context::verify_peer;
+                
          if (!expected_remote_hostname_.IsEmpty())
          {
-            ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname_), errorCode);
+            ssl_socket_.set_verify_callback(CertificateVerifier(expected_remote_hostname_), error_code);
 
-            if (errorCode.value() != 0)
+            if (error_code.value() != 0)
             {
-               String errorMessage;
-               errorMessage.Format(_T("Failed to set verification callback"));
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5510, "TCPConnection::AsyncHandshake", errorMessage, errorCode);
-
-               HandshakeFailed_(errorCode);
+               String errorMessage = Formatter::Format(_T("Failed to set verification callback for host {0}"), expected_remote_hostname_);
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5510, "TCPConnection::AsyncHandshake", errorMessage, error_code);
+               HandshakeFailed_(error_code);
                return;
             }
          }
@@ -417,12 +407,19 @@ namespace HM
       else
       {
          verify_mode = boost::asio::ssl::context::verify_none;
+      }
 
-         ssl_socket_.set_verify_mode(verify_mode);
+      ssl_socket_.set_verify_mode(verify_mode, error_code);
+      if (error_code.value() != 0)
+      {
+         String error_message = Formatter::Format(_T("Failed to configure OpenSSL certificate verification: Mode: {0}"), verify_mode);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPConnection::AsyncHandshake", error_message, error_code);
+         HandshakeFailed_(error_code);
+         return;
       }
 
 
-      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Certificate verify mode: {1}, Expected remote: {2}", session_id_, verify_mode, expected_remote_hostname_));
+      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}, Verify mode: {2}, Expected remote: {3}", session_id_, enable_peer_verification, verify_mode, expected_remote_hostname_));
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :

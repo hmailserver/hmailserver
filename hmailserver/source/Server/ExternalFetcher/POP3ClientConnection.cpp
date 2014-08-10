@@ -1110,7 +1110,6 @@ namespace HM
          sTemp = "RECEIVED: " + sLogString;
 
       sTemp.TrimRight(_T("\r\n"));
-      sTemp.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_POP3_CLIENT(GetSessionID(), GetIPAddressString(), sTemp);
    }
@@ -1204,7 +1203,6 @@ namespace HM
          sTemp = "RECEIVED: " + sLogString;
 
       sTemp.TrimRight(_T("\r\n"));
-      sTemp.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_SMTP_CLIENT(GetSessionID(), GetIPAddressString(), sTemp);
    }

@@ -16,16 +16,6 @@ namespace HM
 
    private:
  
-      enum WindowsCertificateType
-      {
-         None,
-         Certificate,
-         PKCS7,
-         X509CRL,
-      };
-
-      static void AddCertificate_(boost::asio::ssl::context& context, bool is_revocation, DWORD encodingType, BYTE *encoding_type, int certificate_length);
-      static bool LoadWindowsCA_(boost::asio::ssl::context& context);
       static std::string  GetPassword_();
 
       static void SetCipherList_(boost::asio::ssl::context& context);

@@ -118,6 +118,7 @@ namespace HM
 
    private:
 
+      String CleanLogMessage_(const String &message);
       File* GetCurrentLogFile_(LogType lt);
 
       void LogLive_(String &sMessage);

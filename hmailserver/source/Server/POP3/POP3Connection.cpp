@@ -135,7 +135,6 @@ namespace HM
 
       // Append
       sLogData = "RECEIVED: " + sLogData;
-      sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_POP3(GetSessionID(), GetIPAddressString(), sLogData);      
    }
@@ -880,7 +879,6 @@ namespace HM
       {
          String sLogData = "SENT: " + sData;
          sLogData.TrimRight(_T("\r\n"));
-         sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
          LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
       }
@@ -897,7 +895,6 @@ namespace HM
       {
          String sLogData = "SENT: " + sData;
          sLogData.TrimRight(_T("\r\n"));
-         sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
          LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
       }

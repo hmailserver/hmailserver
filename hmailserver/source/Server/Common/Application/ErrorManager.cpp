@@ -118,6 +118,37 @@ namespace HM
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
 
+
+
+
+
+   String 
+   ErrorManager::GetWindowsErrorText(int windows_error_code)
+   {
+      LPTSTR message_buf = 0;
+
+      FormatMessage(
+         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+         FORMAT_MESSAGE_FROM_SYSTEM |
+         FORMAT_MESSAGE_IGNORE_INSERTS,
+         NULL,
+         windows_error_code,
+         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+         (LPTSTR) &message_buf,
+         0, NULL );
+
+      String windows_error_message = message_buf;
+
+      /*
+          http://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx
+          The caller should use the LocalFree function to free the buffer when it is no longer needed.
+      */
+
+      LocalFree(message_buf);
+
+      return windows_error_message;
+   }
+
    void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription)
    {

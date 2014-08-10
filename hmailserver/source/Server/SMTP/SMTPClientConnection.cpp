@@ -146,7 +146,6 @@ namespace HM
       String log_data = "RECEIVED: " + response;
 
       log_data.TrimRight(_T("\r\n"));
-      log_data.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_SMTP_CLIENT(GetSessionID(), GetRemoteEndpointAddress().ToString(), log_data);
    }
@@ -420,7 +419,6 @@ namespace HM
       sLogData = "SENT: " + sLogData;
       
       sLogData.TrimRight(_T("\r\n"));
-      sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_SMTP_CLIENT(GetSessionID(), GetIPAddressString(), sLogData);
    }

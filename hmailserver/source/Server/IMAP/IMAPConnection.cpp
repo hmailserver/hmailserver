@@ -360,7 +360,6 @@ namespace HM
 
       // Append
       sLogData = "RECEIVED: " + sLogData;
-      sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_IMAP(GetSessionID(), GetIPAddressString(), sLogData);      
    }
@@ -473,7 +472,6 @@ namespace HM
          {
             String sLogData = _T("SENT: ") + sData;
             sLogData.TrimRight(_T("\r\n"));
-            sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
             LOG_IMAP(GetSessionID(),GetIPAddressString(), sLogData);
          }

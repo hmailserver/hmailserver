@@ -109,8 +109,6 @@ namespace HM
       bool GetBackupMessagesDBOnly () const { return backup_messages_dbonly_; }
       bool GetAddXAuthUserIP () const { return add_xauth_user_ip_; }
 
-      bool GetManulCAFilesExists() {return manual_cafiles_exists_;}
-
    private:   
 
       void WriteIniSetting_(const String &sSection, const String &sKey, const String &sValue);
@@ -153,7 +151,6 @@ namespace HM
       static String ini_file_;
 
       bool dnsbl_checks_after_mail_from_;
-      bool manual_cafiles_exists_;
       bool sep_svc_logs_;
       int log_level_;
       int max_log_line_len_;

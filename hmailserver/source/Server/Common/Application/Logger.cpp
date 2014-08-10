@@ -74,10 +74,11 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
+
       if (bClient)
-         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
       else
-         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -98,9 +99,9 @@ namespace HM
       String sData;
       // Seems this was never done so now external account activity logs as client
       if (bClient)
-         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
       else
-         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -119,7 +120,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
+      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -146,7 +147,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
 
 #ifdef _DEBUG
       OutputDebugString(sData);
@@ -169,7 +170,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -187,7 +188,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -209,9 +210,8 @@ namespace HM
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
-
       String sData;
-      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -226,9 +226,17 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
 
       WriteData_(sData, Events);
+   }
+
+   String 
+   Logger::CleanLogMessage_(const String &message)
+   {
+      String result = message;
+      result.Replace(_T("\r\n"), _T("[nl]"));
+      return result;
    }
 
    String 
