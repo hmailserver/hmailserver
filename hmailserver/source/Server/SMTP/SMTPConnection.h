@@ -1,10 +1,12 @@
+
 // Copyright (c) 2005 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #pragma once
 
 
-#include "../Common/TCPIP/AnsiStringConnection.h"
+#include "../common/TCPIP/TCPConnection.h"
+
 #include "RecipientParser.h"
 #include "../Common/BO/Collection.h"
 #include "../common/persistence/PersistentDomain.h"
@@ -39,7 +41,7 @@ namespace HM
       SMTP_COMMAND_STARTTLS = 1014
    };
 
-   class SMTPConnection : public AnsiStringConnection
+   class SMTPConnection : public TCPConnection
    {
    public:
       SMTPConnection(ConnectionSecurity connection_security,
@@ -65,7 +67,7 @@ namespace HM
    private:
 
       bool CheckStartTlsRequired_();
-      void SendData_(const String &sData);
+      void EnqueueWrite_(const String &sData);
       void SendBanner_();
 
       bool TryExtractAddress_(const String &mailFromParameter, String& address);

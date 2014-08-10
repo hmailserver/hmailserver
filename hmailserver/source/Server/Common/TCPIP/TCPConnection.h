@@ -27,33 +27,25 @@ namespace HM
                     AnsiString expected_remote_hostname);
       ~TCPConnection(void);
 
-      enum ShutdownOption
-      {
-         ShutdownSend,
-         ShutdownReceive,
-      };
-
       enum Consts
       {
          BufferSize = 60000
       };
 
-      int GetBufferSize() {return BufferSize; }
       bool Connect(const AnsiString &remote_ip_address, long remotePort, const IPAddress &localAddress);
       
       void Start();
       void SetReceiveBinary(bool binary);
 
-      void PostWrite(const AnsiString &sData);
-      void PostWrite(shared_ptr<ByteBuffer> pByteBuffer);
-      void PostRead(const AnsiString &delimitor);
-
-      void PostShutdown(ShutdownOption what);
-      void PostDisconnect();
-      void PostTimeout();
+      void EnqueueWrite(const AnsiString &sData);
+      void EnqueueWrite(shared_ptr<ByteBuffer> pByteBuffer);
+      void EnqueueRead();
+      void EnqueueRead(const AnsiString &delimitor);
+      void EnqueueShutdownSend();
+      void EnqueueDisconnect();
+      void EnqueueHandshake();
       
       IPAddress GetRemoteEndpointAddress();
-      unsigned long GetRemoteEndpointPort();
       unsigned long GetLocalEndpointPort();
 
       void UpdateLogoutTimer();
@@ -62,17 +54,19 @@ namespace HM
       void SetSecurityRange(shared_ptr<SecurityRange> securityRange);
       shared_ptr<SecurityRange> GetSecurityRange();
 
-      int GetSessionID();
-
-      bool ReportReadErrors(bool newValue);
-      
       boost::asio::ip::tcp::socket& GetSocket() {return socket_;}
 
       ConnectionSecurity GetConnectionSecurity() {return connection_security_; }
 
       bool IsSSLConnection(){return is_ssl_;}
 
+      void Timeout();
+
    protected:
+
+      int GetSessionID();
+
+      int GetBufferSize() {return BufferSize; }
 
       void SetTimeout(int seconds);
       AnsiString GetIPAddressString();
@@ -85,17 +79,17 @@ namespace HM
       virtual void OnExcessiveDataReceived() = 0;
       virtual void OnDataSent() {};
       virtual void OnReadError(int errorCode) {};
+      virtual AnsiString GetCommandSeparator() const = 0;
 
       /* PARSING METHODS */
       virtual void ParseData(const AnsiString &sAnsiString) = 0;
       virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
-
-      void Handshake();
       
       virtual bool GetValidateRemoteCertificate() = 0;
+   
    private:
-      
-      void HandleHandshakeFailed_(const boost::system::error_code& error);
+
+      void HandshakeFailed_(const boost::system::error_code& error);
       void StartAsyncConnect_(const String &ip_adress, int port);
 
       static void OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err);
@@ -107,19 +101,21 @@ namespace HM
       void ProcessOperationQueue_();
 
       void Disconnect();
-      void Shutdown(boost::asio::socket_base::shutdown_type, bool removeFromQueue);
-      void Write(shared_ptr<ByteBuffer> buffer);
-      void Read(const AnsiString &delimitor);
+      void Shutdown(boost::asio::socket_base::shutdown_type);
+      
+      void AsyncWrite(shared_ptr<ByteBuffer> buffer);
+      void AsyncRead(const AnsiString &delimitor);
+      void AsyncHandshake();
 
-      void HandleConnect(const boost::system::error_code& err);
-      void HandleHandshake(const boost::system::error_code& error);
-      void HandleRead(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
-      void HandleWrite(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
+      void AsyncConnectCompleted(const boost::system::error_code& err);
+      void AsyncHandshakeCompleted(const boost::system::error_code& error);
+      void AsyncReadCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
+      void AsyncWriteCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
-      
+
       boost::asio::ip::tcp::socket socket_;
       ssl_socket ssl_socket_;
 
@@ -133,8 +129,8 @@ namespace HM
       bool receive_binary_;
       ConnectionSecurity connection_security_;
       long remote_port_;
-      bool hastimeout__;
-      String remote__ip__address_;
+      bool has_timeout_;
+      String remote_ip_address_;
 
       shared_ptr<SecurityRange> security_range_;
 

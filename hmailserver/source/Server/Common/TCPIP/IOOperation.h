@@ -14,10 +14,11 @@ namespace HM
 
       enum OperationType
       {
-         BCTSend,
-         BCTReceive,
+         BCTWrite,
+         BCTRead,
          BCTShutdownSend,
          BCTDisconnect,
+         BCTHandshake
       };
 
       IOOperation(OperationType type, shared_ptr<ByteBuffer> buffer);

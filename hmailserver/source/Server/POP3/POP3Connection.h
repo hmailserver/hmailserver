@@ -5,14 +5,14 @@
 
 #include "../common/Util/File.h"
 #include "../common/Util/TransparentTransmissionBuffer.h"
-#include "../Common/TCPIP/AnsiStringConnection.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
 namespace HM
 {
    class Messages;
    class ByteBuffer;
 
-   class POP3Connection : public AnsiStringConnection
+   class POP3Connection : public TCPConnection
    {
    public:
 
@@ -31,8 +31,8 @@ namespace HM
       virtual void OnConnected();
       virtual AnsiString GetCommandSeparator() const;
 
-      virtual void SendData_(const String &sData) ;
-      virtual void SendData_DebugOnly(const String &sData) ;
+      virtual void EnqueueWrite_(const String &sData) ;
+      virtual void EnqueueWrite_DebugOnly(const String &sData) ;
 
       virtual void OnDisconnect();
       virtual void OnConnectionTimeout();

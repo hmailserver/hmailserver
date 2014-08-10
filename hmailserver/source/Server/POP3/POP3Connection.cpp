@@ -44,7 +44,7 @@ namespace HM
    POP3Connection::POP3Connection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :
-      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
       current_state_(AUTHORIZATION),
       transmission_buffer_(true),
       pending_disconnect_(false)
@@ -89,7 +89,7 @@ namespace HM
       else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
                GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         PostReceive();
+         EnqueueRead();
       }
    }
 
@@ -106,9 +106,9 @@ namespace HM
       else
          sData += sWelcome;
 
-      SendData_(sData);
+      EnqueueWrite_(sData);
 
-      PostReceive();
+      EnqueueRead();
    }
 
    AnsiString 
@@ -235,13 +235,13 @@ namespace HM
       switch (result)
       {
       case ResultNormalResponse:
-         PostReceive();
+         EnqueueRead();
          break;
       case ResultStartSendMessage:
       case ResultStartTls:
          break;
       case ResultDisconnect:
-         PostDisconnect();
+         EnqueueDisconnect();
          break;
       }
 
@@ -259,7 +259,7 @@ namespace HM
       if (Request.GetLength() > 500)
       {
          // This line is to long... is this an evil user?
-         SendData_("-ERR Line to long.");
+         EnqueueWrite_("-ERR Line to long.");
          return ResultNormalResponse;
       }
       
@@ -279,7 +279,7 @@ namespace HM
       switch (command)
       {
          case NOOP:
-            SendData_("+OK");
+            EnqueueWrite_("+OK");
             return ResultNormalResponse;
          case STLS:
             if (ProtocolSTLS_())
@@ -287,7 +287,7 @@ namespace HM
             else
                return ResultNormalResponse;
          case HELP:
-            SendData_("+OK Normal POP3 commands allowed");
+            EnqueueWrite_("+OK Normal POP3 commands allowed");
             return ResultNormalResponse;
          case USER:
             ProtocolUSER_(sParameter);
@@ -321,11 +321,11 @@ namespace HM
             ProtocolCAPA_();
             return ResultNormalResponse; 
          case INVALID:
-            SendData_("-ERR Invalid command in current state." );
+            EnqueueWrite_("-ERR Invalid command in current state." );
             return ResultNormalResponse;  
          default:
             assert(0); // What command is this?
-            SendData_("-ERR Invalid command in current state." );
+            EnqueueWrite_("-ERR Invalid command in current state." );
             return ResultNormalResponse;  
       }
    }
@@ -337,14 +337,14 @@ namespace HM
       // http://www.hmailserver.com/forum/viewtopic.php?f=7&t=22361
       UnlockMailbox_();
       String sMessage = "-ERR Autologout; idle too long\r\n";
-      SendData(sMessage);
+      EnqueueWrite(sMessage);
    }
 
    void
    POP3Connection::OnExcessiveDataReceived()
    {
       String sMessage = "-ERR Excessive amount of data sent to server.\r\n";
-      SendData(sMessage);
+      EnqueueWrite(sMessage);
    }
    
    void
@@ -353,10 +353,10 @@ namespace HM
       if (Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
          ResetMailbox_();
-         SendData_("+OK 0");
+         EnqueueWrite_("+OK 0");
       }
       else
-         SendData_("-ERR Unable to access mailbox.");
+         EnqueueWrite_("-ERR Unable to access mailbox.");
 
 
    }
@@ -371,7 +371,7 @@ namespace HM
          capabilities+="STLS\r\n";
 
       String response = "+OK CAPA list follows\r\n" + capabilities + ".";
-      SendData_(response);
+      EnqueueWrite_(response);
    }
 
    void
@@ -384,7 +384,7 @@ namespace HM
       SaveMailboxChanges_();
       UnlockMailbox_();
 
-      SendData_("+OK POP3 server saying goodbye...");
+      EnqueueWrite_("+OK POP3 server saying goodbye...");
    }
 
    void
@@ -393,20 +393,20 @@ namespace HM
       if (GetConnectionSecurity() == CSSTARTTLSRequired &&
           !IsSSLConnection())
       {
-         SendData_("-ERR STLS is required.");
+         EnqueueWrite_("-ERR STLS is required.");
          return;
       }
 
       if (GetSecurityRange()->GetRequireTLSForAuth() && !IsSSLConnection())
       {
-         SendData_("-ERR A SSL/TLS-connection is required for authentication.");
+         EnqueueWrite_("-ERR A SSL/TLS-connection is required for authentication.");
          return;
       }
 
       // Apply domain aliases to the user name.
       shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       username_ = pDA->ApplyAliasesOnAddress(Parameter);
-      SendData_("+OK Send your password" );      
+      EnqueueWrite_("+OK Send your password" );      
    }
 
    bool
@@ -414,12 +414,12 @@ namespace HM
    {
       if (IsSSLConnection())
       {
-         SendData_("-ERR Command not permitted when TLS active");
+         EnqueueWrite_("-ERR Command not permitted when TLS active");
          return false;
       }
 
-      SendData_("+OK Begin TLS negotiation" );        
-      Handshake();
+      EnqueueWrite_("+OK Begin TLS negotiation" );        
+      EnqueueHandshake();
       return true;
    }
 
@@ -434,16 +434,16 @@ namespace HM
 
       if (disconnect)
       {
-         SendData_("-ERR Invalid user name or password. Too many invalid logon attempts.");
+         EnqueueWrite_("-ERR Invalid user name or password. Too many invalid logon attempts.");
          return ResultDisconnect;
       }
 
       if (!account_)
       {
          if (username_.Find(_T("@")) == -1)
-            SendData_("-ERR Invalid user name or password. Please use full email address as user name.");
+            EnqueueWrite_("-ERR Invalid user name or password. Please use full email address as user name.");
          else
-            SendData_("-ERR Invalid user name or password.");
+            EnqueueWrite_("-ERR Invalid user name or password.");
 
          return ResultNormalResponse;
       }
@@ -451,19 +451,19 @@ namespace HM
       // Try to lock mailbox.
       if (!POP3Sessions::Instance()->Lock(account_->GetID()))
       {
-         SendData_("-ERR Your mailbox is already locked");
+         EnqueueWrite_("-ERR Your mailbox is already locked");
          return ResultNormalResponse; 
       }
   
       if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
-         SendData_("+ERR Server error: Failed to fetch messages in Inbox.");
+         EnqueueWrite_("+ERR Server error: Failed to fetch messages in Inbox.");
          return ResultNormalResponse;
       }
 
       ResetMailbox_();
 
-      SendData_("+OK Mailbox locked and ready" );
+      EnqueueWrite_("+OK Mailbox locked and ready" );
       current_state_ = TRANSACTION;
       
       return ResultNormalResponse;
@@ -480,7 +480,7 @@ namespace HM
 
       if (!account_)
       {
-         SendData_("-ERR No such message (messages not loaded)");
+         EnqueueWrite_("-ERR No such message (messages not loaded)");
          return true;
       }
 
@@ -488,10 +488,10 @@ namespace HM
       if (message)
       {
          message->SetFlagDeleted(true);
-         SendData_("+OK msg deleted"); 
+         EnqueueWrite_("+OK msg deleted"); 
       }
       else
-         SendData_("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
 
       return true;
    }
@@ -501,7 +501,7 @@ namespace HM
    {
       if (!account_)
       {
-         SendData_("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -517,7 +517,7 @@ namespace HM
          sResponse.reserve(iMessageCount * 10);
 
          sResponse.Format(_T("+OK %d messages (%I64d octets)"), iMessageCount, iTotalBytes);
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
       
       
          sResponse = "";
@@ -537,7 +537,7 @@ namespace HM
          sResponse += ".";
          
          // --- Send data to client.
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
 
       }
       else
@@ -552,7 +552,7 @@ namespace HM
          else
             sResponse = "-ERR No such message";
 
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
       }
 
       return true;
@@ -564,7 +564,7 @@ namespace HM
       // Display a list of all the messages (index and size)
       if (!account_)
       {
-         SendData_("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -610,7 +610,7 @@ namespace HM
       }
 
       // --- Send data to client.
-      SendData_(sResponse);
+      EnqueueWrite_(sResponse);
 
       return true;   
    }
@@ -620,7 +620,7 @@ namespace HM
    {
       if (!account_)
       {
-         SendData_("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return ResultNormalResponse;
       }
 
@@ -630,7 +630,7 @@ namespace HM
 
       if (!pMessage || pMessage->GetFlagDeleted())
       {
-         SendData_("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
          return ResultNormalResponse;
       }
 
@@ -697,12 +697,12 @@ namespace HM
          transmission_buffer_.Flush(true);
 
          if (!transmission_buffer_.GetLastSendEndedWithNewline())
-            SendData_(""); // Send a newline character now.
+            EnqueueWrite_(""); // Send a newline character now.
 
-         SendData_(".");
+         EnqueueWrite_(".");
 
          // Request new data from the client now.
-         PostReceive();
+         EnqueueRead();
       }
       catch (...)
       {
@@ -732,7 +732,7 @@ namespace HM
    {
       if (!account_)
       {
-         SendData_("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -763,7 +763,7 @@ namespace HM
 
       if (!pMessage || pMessage->GetFlagDeleted())
       {
-         SendData_("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
       }
       else
       {
@@ -771,11 +771,11 @@ namespace HM
 
          String sResponse;
          sResponse.Format(_T("+OK %d octets"), pMessage->GetSize());
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
 
          // --- Send the file to the recipient.
          SendFileHeader_(fileName, iNoOfLines);
-         SendData_("\r\n.");  
+         EnqueueWrite_("\r\n.");  
       }
         
 
@@ -844,7 +844,7 @@ namespace HM
                if (iNoOfLines <= 0)
                   break;
               
-               SendData_DebugOnly(sLine);
+               EnqueueWrite_DebugOnly(sLine);
 
                iCurNoOfLines++;
 
@@ -856,7 +856,7 @@ namespace HM
                if (sLine.IsEmpty())
                   bHeaderSent = true;
 
-               SendData_DebugOnly(sLine);
+               EnqueueWrite_DebugOnly(sLine);
             
             }
         
@@ -874,7 +874,7 @@ namespace HM
    }
 
    void
-   POP3Connection::SendData_(const String &sData)
+   POP3Connection::EnqueueWrite_(const String &sData)
    {
       if (Logger::Instance()->GetLogPOP3())
       {
@@ -885,11 +885,11 @@ namespace HM
          LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
       }
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
    void
-   POP3Connection::SendData_DebugOnly(const String &sData)
+   POP3Connection::EnqueueWrite_DebugOnly(const String &sData)
    {
       // Logs are crazy huge for clients that do a lot of TOP's so
       // let's not log every email line unless loglevel is high enough
@@ -902,7 +902,7 @@ namespace HM
          LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
       }
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
    void
@@ -947,7 +947,7 @@ namespace HM
       String sResponse; 
       sResponse.Format(_T("+OK %d %I64d"), iMessageCount, iTotalSize);
 
-      SendData_(sResponse);
+      EnqueueWrite_(sResponse);
 
       return true;
 

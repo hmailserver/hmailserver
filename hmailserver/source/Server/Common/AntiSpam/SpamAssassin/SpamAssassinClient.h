@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "../../TCPIP/AnsiStringConnection.h"
+#include "../../TCPIP/TCPConnection.h"
 
 namespace HM
 {
    class File;
 
-   class SpamAssassinClient : public AnsiStringConnection
+   class SpamAssassinClient : public TCPConnection
    {
    public:
       SpamAssassinClient(const String &sFile, 

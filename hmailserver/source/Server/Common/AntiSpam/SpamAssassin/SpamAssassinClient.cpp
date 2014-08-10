@@ -6,7 +6,6 @@
 
 #include "../../Util/ByteBuffer.h"
 #include "../../Util/File.h"
-#include "../../TCPIP/TCPConnection.h"
 
 #include "../../Application/TimeoutCalculator.h"
 
@@ -22,7 +21,7 @@ namespace HM
                                           boost::asio::ssl::context& context,
                                           shared_ptr<Event> disconnected,
                                           bool &testCompleted) :
-               AnsiStringConnection(CSNone, io_service, context, disconnected, ""),
+               TCPConnection(CSNone, io_service, context, disconnected, ""),
                test_completed_(testCompleted),
                total_result_bytes_written_(0)
    {
@@ -48,15 +47,15 @@ namespace HM
       // We'll handle all incoming data as binary.
       SetReceiveBinary(true);
       message_size_ = FileUtilities::FileSize(message_file_);
-      SendData("PROCESS SPAMC/1.2\r\n");
+      EnqueueWrite("PROCESS SPAMC/1.2\r\n");
 	  //LOG_DEBUG("SENT: PROCESS SPAMC/1.2");
 	  String sConLen;
 	  sConLen.Format(_T("Content-length: %d\r\n"), message_size_);
-	  SendData(sConLen);
+	  EnqueueWrite(sConLen);
 	  /*sConLen.Format(_T("Sent: Content-length: %d"), message_size_);
 	  LOG_DEBUG(sConLen);*/
-	  //Future feature, per user scanning. SendData("User: " ); // send the current recipient.
-	  SendData("\r\n");
+	  //Future feature, per user scanning. EnqueueWrite("User: " ); // send the current recipient.
+	  EnqueueWrite("\r\n");
      SendFileContents_(message_file_);
    }
 
@@ -103,13 +102,13 @@ namespace HM
          BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();
          int iSendBufferSize = pBuf->GetSize();
 
-         SendData(pBuf);
+         EnqueueWrite(pBuf);
       }
 
-      PostShutdown(TCPConnection::ShutdownSend);
+      EnqueueShutdownSend();
 
       // Request the response...
-      PostBufferReceive();
+      EnqueueRead("");
       
       return true;
    }
@@ -154,7 +153,7 @@ namespace HM
       total_result_bytes_written_ += written_bytes;
 
       if (total_result_bytes_written_ < spam_dsize_)
-         PostReceive();
+         EnqueueRead();
       else
          FinishTesting_();
    }

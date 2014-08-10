@@ -51,7 +51,7 @@ namespace HM
    IMAPConnection::IMAPConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) :
-      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
       is_idling_(false),
       literal_data_to_receive_(0),
       pending_disconnect_(false),
@@ -103,7 +103,7 @@ namespace HM
       else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
                GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         PostReceive();
+         EnqueueRead();
       }
    }
 
@@ -123,7 +123,7 @@ namespace HM
 
       SendAsciiData(sData);
 
-      PostReceive();
+      EnqueueRead();
    }
 
    AnsiString 
@@ -169,7 +169,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       if (InternalParseData(Request))
-         PostReceive();
+         EnqueueRead();
    }
 
    bool 
@@ -454,10 +454,10 @@ namespace HM
    {
       pending_disconnect_ = true;
 
-      PostDisconnect();
+      EnqueueDisconnect();
    }
 
-   bool
+   void
    IMAPConnection::SendAsciiData(const AnsiString & sData)
    {
       if (Logger::Instance()->GetLogIMAP())
@@ -480,7 +480,7 @@ namespace HM
          // Logging gets skipped otherwise
       }
 
-      return SendData(sData);
+      EnqueueWrite(sData);
    }
 
    IMAPConnection::eIMAPCommandType 
@@ -898,7 +898,7 @@ namespace HM
    void
    IMAPConnection::StartHandshake()
    {
-      Handshake();
+      EnqueueHandshake();
    }
 }
 

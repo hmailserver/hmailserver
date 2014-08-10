@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../common/TCPIP/AnsiStringConnection.h"
+#include "../common/TCPIP/TCPConnection.h"
 
 namespace HM
 {
@@ -15,7 +15,7 @@ namespace HM
    class FetchAccountUIDList;
 
    class POP3ClientConnection : 
-      public AnsiStringConnection
+      public TCPConnection
    {
    public:
       POP3ClientConnection(shared_ptr<FetchAccount> pAccount, 
@@ -42,10 +42,10 @@ namespace HM
      virtual void OnConnectionTimeout();
      virtual void OnExcessiveDataReceived();
 
-      void SendData_(const String &sData) ;
+      void EnqueueWrite_(const String &sData) ;
    
    // This is temp function to log ETRN client commands to SMTP
-      void SendData_LogAsSMTP(const String &sData) ;
+      void EnqueueWrite_LogAsSMTP(const String &sData) ;
 
       bool GetValidateRemoteCertificate() {return true;}
    private:

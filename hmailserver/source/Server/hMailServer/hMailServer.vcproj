@@ -3476,14 +3476,6 @@
 						Name="TCPIP"
 						>
 						<File
-							RelativePath="..\Common\TCPIP\AnsiStringConnection.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\TCPIP\AnsiStringConnection.h"
-							>
-						</File>
-						<File
 							RelativePath="..\Common\Tcpip\DNSResolver.cpp"
 							>
 						</File>

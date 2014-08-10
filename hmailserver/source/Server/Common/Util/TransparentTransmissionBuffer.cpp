@@ -226,7 +226,7 @@ namespace HM
             {
                if (shared_ptr<TCPConnection> connection = tcp_connection_.lock())
                {
-                  connection->PostWrite(pOutBuffer);
+                  connection->EnqueueWrite(pOutBuffer);
                }
                
             }

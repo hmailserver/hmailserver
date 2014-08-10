@@ -181,13 +181,13 @@ namespace HM
 
          Finish_(pConnection);
 
-         pConnection->PostReceive();
+         pConnection->EnqueueRead();
       }
       else
       {
          TruncateBuffer_(pConnection);
 
-         pConnection->PostBufferReceive();
+         pConnection->EnqueueRead("");
       }
 
    }

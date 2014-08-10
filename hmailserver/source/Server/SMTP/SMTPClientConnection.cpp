@@ -27,7 +27,7 @@ namespace HM
       shared_ptr<Event> disconnected,
       AnsiString expected_remote_hostname,
       bool validate_remote_certificate) :
-      AnsiStringConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
+      TCPConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
       current_state_(HELO),
       use_smtpauth_(false),
       cur_recipient_(-1),
@@ -60,7 +60,7 @@ namespace HM
           GetConnectionSecurity() == CSSTARTTLSRequired ||
           GetConnectionSecurity() == CSSTARTTLSOptional)
       {
-         PostReceive();
+         EnqueueRead();
       }
    }
 
@@ -68,23 +68,23 @@ namespace HM
    SMTPClientConnection::OnHandshakeCompleted()
    {
       if (GetConnectionSecurity() == CSSSL)
-         PostReceive();
+         EnqueueRead();
       else if (GetConnectionSecurity() == CSSTARTTLSRequired ||
                GetConnectionSecurity() == CSSTARTTLSOptional)
       {
          ProtocolStateHELOEHLO_("");
-         PostReceive();
+         EnqueueRead();
       }
    }
 
    void
    SMTPClientConnection::OnHandshakeFailed()
    {
-      HandleHandshakeFailure_();
+      HandleHandshakeFailed_();
    }
 
    void
-   SMTPClientConnection::HandleHandshakeFailure_() 
+   SMTPClientConnection::HandleHandshakeFailed_() 
    {
       if (GetConnectionSecurity() == CSSTARTTLSOptional)
       {
@@ -128,7 +128,7 @@ namespace HM
       {
          // Multi-line response. Wait for full buffer.
          multi_line_response_buffer_ += "\r\n";
-         PostReceive();
+         EnqueueRead();
          return;
       }
 
@@ -137,7 +137,7 @@ namespace HM
       multi_line_response_buffer_.Empty();
 
       if (postReceive)
-         PostReceive();
+         EnqueueRead();
    }
 
    void 
@@ -223,7 +223,7 @@ namespace HM
          return true;
       case QUITSENT:
          // We just received a reply on our QUIT. Time to disconnect.
-         PostDisconnect();
+         EnqueueDisconnect();
          return false;
       }
 
@@ -250,9 +250,9 @@ namespace HM
       String computer_name = Utilities::ComputerName(); 
 
       if (GetServerSupportsESMTP_())
-         SendData_("EHLO " + computer_name);
+         EnqueueWrite_("EHLO " + computer_name);
       else
-         SendData_("HELO " + computer_name);
+         EnqueueWrite_("HELO " + computer_name);
          
       SetState_(HELOSENT);
    }
@@ -278,7 +278,7 @@ namespace HM
 
       String sRecipient = pRecipient->GetAddress();
       String sData = "RCPT TO:<" + sRecipient + ">";
-      SendData_(sData);
+      EnqueueWrite_(sData);
       current_state_ = RCPTTOSENT;
    }
    
@@ -301,7 +301,7 @@ namespace HM
       if (pRecipient)
       {
          // Send next recipient.
-         SendData_("RCPT TO:<" + pRecipient->GetAddress() + ">");
+         EnqueueWrite_("RCPT TO:<" + pRecipient->GetAddress() + ">");
          current_state_ = RCPTTOSENT;
       }
       else
@@ -312,7 +312,7 @@ namespace HM
          }
          else
          {
-            SendData_("DATA");
+            EnqueueWrite_("DATA");
             current_state_ = DATACOMMANDSENT;
          }
          
@@ -338,7 +338,7 @@ namespace HM
          {
             if (request.Contains("STARTTLS"))
             {
-               SendData_("STARTTLS");
+               EnqueueWrite_("STARTTLS");
                SetState_(STARTTLSSENT);
                return;
             }
@@ -358,7 +358,7 @@ namespace HM
       if (use_smtpauth_)
       {
          // Ask the server to initiate login process.
-         SendData_("AUTH LOGIN");
+         EnqueueWrite_("AUTH LOGIN");
          SetState_(AUTHLOGINSENT);
       }
       else
@@ -372,11 +372,11 @@ namespace HM
    {
       if (IsPositiveCompletion(code))
       {
-         Handshake();
+         EnqueueHandshake();
       }
       else
       {
-         HandleHandshakeFailure_();
+         HandleHandshakeFailed_();
       }
    }
 
@@ -385,7 +385,7 @@ namespace HM
    {
       String sFrom = delivery_message_->GetFromAddress();
       String sData = "MAIL FROM:<" + sFrom + ">";
-      SendData_(sData);
+      EnqueueWrite_(sData);
       current_state_ = MAILFROMSENT;
    }
 
@@ -426,7 +426,7 @@ namespace HM
    }
 
    void
-   SMTPClientConnection::SendData_(const String &sData)
+   SMTPClientConnection::EnqueueWrite_(const String &sData)
    {
       LogSentCommand_(sData);
 
@@ -437,7 +437,7 @@ namespace HM
          last_sent_data_ = sData;         
       }
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
    void
@@ -575,7 +575,7 @@ namespace HM
    {
       String sOut;
       StringParser::Base64Encode(username_, sOut);      
-      SendData_(sOut);
+      EnqueueWrite_(sOut);
       
       SetState_(USERNAMESENT);
    }
@@ -587,7 +587,7 @@ namespace HM
       StringParser::Base64Encode(password_, sOut);      
       
       SetState_(PASSWORDSENT);
-      SendData_(sOut);
+      EnqueueWrite_(sOut);
    }
 
    void
@@ -596,7 +596,7 @@ namespace HM
       // Disconnect from the remote SMTP server.
       session_ended_ = true;
 
-      SendData_("QUIT");
+      EnqueueWrite_("QUIT");
       SetState_(QUITSENT);
    }
 
@@ -676,8 +676,8 @@ namespace HM
       transmission_buffer_.Flush(true);
 
       // We're ready to receive the Message accepted-response.
-      // No \r\n on end because SendData adds
-      SendData_("\r\n.");
+      // No \r\n on end because EnqueueWrite adds
+      EnqueueWrite_("\r\n.");
 
       // State change moved to AFTER crlf.crlf to help with race condition
       current_state_ = DATASENT;

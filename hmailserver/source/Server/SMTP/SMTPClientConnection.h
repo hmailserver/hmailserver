@@ -5,14 +5,15 @@
 
 #include "../common/Util/TransparentTransmissionBuffer.h"
 #include "../common/BO/Message.h"
-#include "../common/TCPIP/AnsiStringConnection.h"
+#include "../common/TCPIP/TCPConnection.h"
+
 
 namespace HM
 {
    class ByteBuffer;
    class MessageRecipient;
   
-   class SMTPClientConnection : public AnsiStringConnection
+   class SMTPClientConnection : public TCPConnection
    {
    public:
       SMTPClientConnection(ConnectionSecurity connection_security,
@@ -37,7 +38,7 @@ namespace HM
       virtual void OnHandshakeFailed();
       virtual AnsiString GetCommandSeparator() const;
 
-      virtual void SendData_(const String &sData);
+      virtual void EnqueueWrite_(const String &sData);
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
       virtual void OnDataSent();
@@ -56,7 +57,7 @@ namespace HM
       void ProtocolRcptToSent_(int code, const AnsiString &request);
       void ProtocolData_();
 
-      void HandleHandshakeFailure_();
+      void HandleHandshakeFailed_();
       bool InternalParseData(const AnsiString &Request);
   	   void ReadAndSend_();
 	  

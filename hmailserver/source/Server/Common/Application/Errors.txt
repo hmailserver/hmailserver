@@ -7,17 +7,17 @@
 5127, IOOperationList::_LogError, An error occured while logging error. Error: %s
 5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
 5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
-5129, TCPConnection::HandleHandshake, SSL handshake with client failed
+5129, TCPConnection::AsyncHandshakeCompleted, SSL handshake with client failed
 5131, IOOperationQueue::Pop, Trying to pop empty queue
 5134, TCPConnection::HandleResolve, Call to async_connect failed. Error: %s
 5135, IOCPQueueWorkerTask::DoWork, An error occured while handling asynchronous requests.
-5136, TCPConnection::HandleRead, An error occured while parsing buffer.
+5136, TCPConnection::AsyncReadCompleted, An error occured while parsing buffer.
 5137, TCPConnection::PostTimeout, An error occured while sending a timeout message to the client.
 5138, TCPConnection::_ProcessOperationQueue, An error occured while processing the queue.
 5139, TCPConnection::Disconnect, An error occured while setting connection termination flag.
-5140, TCPConnection::HandleRead, HandleRead called even though there are no outstanding operations.
-5141, TCPConnection::HandleRead, An error occured while handling read operation.
-5142, TCPConnection::HandleWrite, HandleWrite called even though there are no outstanding operations.
+5140, TCPConnection::AsyncReadCompleted, AsyncReadCompleted called even though there are no outstanding operations.
+5141, TCPConnection::AsyncReadCompleted, An error occured while handling read operation.
+5142, TCPConnection::AsyncWriteCompleted, AsyncWriteCompleted called even though there are no outstanding operations.
 5143, TCPServer::GetPassword, The private key file has a password. hMailServer does not support this.
 5144, TCPConnection::PrepareContext, An eror occured while preparing SSL context.
 5155, Encoding::DecodeBase64, Decoding buffer is not correct.
@@ -61,22 +61,22 @@
 5321, TCPConnection::Connect, An unknown error occurred while connecting.
 5322, TCPConnection::HandleResolve, An unknown error occurred while handling TCP/IP resolve.
 5323, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting asynchronous connect.
-5324, TCPConnection::HandleConnect, An unknown error occurred while handling asynchronous connect.
+5324, TCPConnection::AsyncConnectCompleted, An unknown error occurred while handling asynchronous connect.
 5325, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting connection.
 5326, TCPConnection::_StartAsyncConnect, An unknown error occurred while handling handshake.
-5327, TCPConnection::PostWrite, An unknown error occurred while posting write buffer.
-5328, TCPConnection::PostWrite, An unknown error occurred while posting write buffer.
+5327, TCPConnection::EnqueueWrite, An unknown error occurred while posting write buffer.
+5328, TCPConnection::EnqueueWrite, An unknown error occurred while posting write buffer.
 5329, TCPConnection::Write, An unknown error occurred while writing buffer.
 5330, TCPConnection::Shutdown, An unknown error occurred while shutting down socket.
-5331, TCPConnection::PostRead, An unknown error occurred while posting read buffer.
-5332, TCPConnection::PostRead, An unknown error occurred while starting async reading
+5331, TCPConnection::EnqueueRead, An unknown error occurred while posting read buffer.
+5332, TCPConnection::EnqueueRead, An unknown error occurred while starting async reading
 5333, TCPConnection::UpdateLogoutTimer, An unknown error occurred while updating logout timer.
 5334, TCPConnection::CancelLogoutTimer, An unknown error occurred while canceling logout timer.
-5335, TCPConnection::PostDisconnect, An unknown error occurred while posting disconnect.
+5335, TCPConnection::EnqueueDisconnect, An unknown error occurred while posting disconnect.
 5336, TCPConnection::Disconnect, An unknown error occurred while disconnecting.
 5337, TCPConnection::OnTimeout, An unknown error occurred while disconnecting.
-5338, TCPConnection::PostShutdown, An unknown error occurred while posting shutdown.
-5339, TCPConnection::HandleWrite, An unknown error occurred while handling buffer write.
+5338, TCPConnection::EnqueueShutdown, An unknown error occurred while posting shutdown.
+5339, TCPConnection::AsyncWriteCompleted, An unknown error occurred while handling buffer write.
 5341, MailboxChangeNotifier::ReportChange, Client wasn't unsubscribed. Unsubscribing now.
 5343, POP3ClientConnection::_ParseUIDLResponse, The remote server returned an error to the UIDL command: {0}
 5400, ProcessLauncher::Launch, There was an error launching external process {0}. Timeout after {1}. Will continue to wait.

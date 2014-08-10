@@ -48,7 +48,7 @@ namespace HM
                                               boost::asio::ssl::context& context,
                                               shared_ptr<Event> disconnected,
                                               AnsiString remote_hostname) :
-      AnsiStringConnection(connectionSecurity, io_service, context, disconnected, remote_hostname),
+      TCPConnection(connectionSecurity, io_service, context, disconnected, remote_hostname),
       account_(pAccount),
       current_state_(StateConnected)
    {
@@ -76,19 +76,19 @@ namespace HM
       if (GetConnectionSecurity() == CSNone || 
           GetConnectionSecurity() == CSSTARTTLSOptional ||
           GetConnectionSecurity() == CSSTARTTLSRequired)
-         PostReceive();
+         EnqueueRead();
    }
 
    void
    POP3ClientConnection::OnHandshakeCompleted()
    {
       if (GetConnectionSecurity() == CSSSL)
-         PostReceive();
+         EnqueueRead();
       else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
                GetConnectionSecurity() == CSSTARTTLSRequired)
       {
          SendUserName_();
-         PostReceive();
+         EnqueueRead();
       }
    }
 
@@ -114,7 +114,7 @@ namespace HM
 
          if (!multiline_response_completed)
          {
-            PostReceive();
+            EnqueueRead();
             return;
          }
       }
@@ -126,7 +126,7 @@ namespace HM
       command_buffer_.Empty();
 
       if (postReceive)
-         PostReceive();
+         EnqueueRead();
    }
 
    bool
@@ -196,16 +196,16 @@ namespace HM
             // Re-using POP states names for now
          case StateConnected:
             // Realize we shouldn't blindly send but this works for now
-            SendData_LogAsSMTP("HELO " + vecParams[1]);
+            EnqueueWrite_LogAsSMTP("HELO " + vecParams[1]);
             current_state_ = StateUsernameSent;
             return true;
          case StateUsernameSent:
-            SendData_LogAsSMTP("ETRN " + vecParams[1]);
+            EnqueueWrite_LogAsSMTP("ETRN " + vecParams[1]);
             Sleep(20);
             current_state_ = StateUIDLRequestSent;
             return true;
          case StateUIDLRequestSent:
-            SendData_LogAsSMTP("QUIT");
+            EnqueueWrite_LogAsSMTP("QUIT");
             current_state_ = StateQUITSent;
             Sleep(20);
             return true;
@@ -217,9 +217,9 @@ namespace HM
       else
       {
          //We just log error & QUIT because we have no domain to send..
-         SendData_("NOOP ETRN-Domain not set");
+         EnqueueWrite_("NOOP ETRN-Domain not set");
          Sleep(20);
-         SendData_("QUIT");
+         EnqueueWrite_("QUIT");
          ParseQuitResponse_(sRequest);
          return false;
       }
@@ -258,7 +258,7 @@ namespace HM
       String sResponse;
       sResponse.Format(_T("USER %s"), account_->GetUsername());
 
-      SendData_(sResponse);
+      EnqueueWrite_(sResponse);
 
       current_state_ = StateUsernameSent;
    }
@@ -268,7 +268,7 @@ namespace HM
    {
       // We have connected successfully.
       // Time to send the username.
-      SendData_(_T("CAPA"));
+      EnqueueWrite_(_T("CAPA"));
 
       current_state_ = StateCAPASent;
    }
@@ -295,7 +295,7 @@ namespace HM
          }
       }
 
-      SendData_("STLS");
+      EnqueueWrite_("STLS");
       current_state_ = StateSTLSSent;
    }
 
@@ -304,7 +304,7 @@ namespace HM
    {
       if (CommandIsSuccessfull_(sData))
       {
-         Handshake();
+         EnqueueHandshake();
          return false;
       }
 
@@ -326,7 +326,7 @@ namespace HM
 
          current_state_ = StatePasswordSent;
 
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
 
          return;
       }
@@ -348,7 +348,7 @@ namespace HM
          String sResponse;
          sResponse.Format(_T("UIDL"));
          
-         SendData_(sResponse);
+         EnqueueWrite_(sResponse);
          return;
       }
 
@@ -444,7 +444,7 @@ namespace HM
             String sResponse;
             sResponse.Format(_T("RETR %d"), iMessageIdx);
 
-            SendData_(sResponse);
+            EnqueueWrite_(sResponse);
 
             current_state_ = StateRETRSent;
 
@@ -537,7 +537,7 @@ namespace HM
       String sResponse;
       sResponse.Format(_T("QUIT"));
    
-      SendData_(sResponse);
+      EnqueueWrite_(sResponse);
 
       SetReceiveBinary(false);
       current_state_ = StateQUITSent;
@@ -549,7 +549,7 @@ namespace HM
       if (CommandIsSuccessfull_(sData))
       {
          // We have quitted successfully.
-         PostDisconnect();
+         EnqueueDisconnect();
       }
 
       // Quit anyway
@@ -599,7 +599,7 @@ namespace HM
    POP3ClientConnection::OnConnectionTimeout()
    {  
       String sMessage = "QUIT\r\n";
-      SendData_(sMessage);
+      EnqueueWrite_(sMessage);
       
       Logger::Instance()->LogDebug("POP3ClientConnection::OnConnectionTimeout() - Connection timeout.");
    }
@@ -613,11 +613,11 @@ namespace HM
 
 
    void
-   POP3ClientConnection::SendData_(const String &sData) 
+   POP3ClientConnection::EnqueueWrite_(const String &sData) 
    {
       LogPOP3String_(sData, true);
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
    bool 
@@ -684,7 +684,7 @@ namespace HM
       {
          if (!ParseFirstBinary_(pBuf))
          {
-            PostBufferReceive();
+            EnqueueRead("");
             return;
          }
 
@@ -711,7 +711,7 @@ namespace HM
 
       if (!transmission_buffer_->GetTransmissionEnded())
       {
-         PostBufferReceive();
+         EnqueueRead("");
          return;
       }
 
@@ -766,7 +766,7 @@ namespace HM
 
       RequestNextMessage_();
    
-      PostBufferReceive();
+      EnqueueRead("");
    }
 
    /*
@@ -944,7 +944,7 @@ namespace HM
 
       // Delete the message.
       sResponse.Format(_T("DELE %d"), iIndex);
-      SendData_(sResponse);
+      EnqueueWrite_(sResponse);
 
       current_state_ = StateDELESent;
 
@@ -1211,11 +1211,11 @@ namespace HM
 
    // This is temp function to log ETRN client commands to SMTP
    void
-   POP3ClientConnection::SendData_LogAsSMTP(const String &sData) 
+   POP3ClientConnection::EnqueueWrite_LogAsSMTP(const String &sData) 
    {
       LogSMTPString_(sData, true);
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
 }

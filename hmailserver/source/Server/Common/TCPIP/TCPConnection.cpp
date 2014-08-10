@@ -5,14 +5,14 @@
 #include "TCPConnection.h"
 
 #include "../Util/ByteBuffer.h"
-
 #include "../BO/TCPIPPorts.h"
-#include "../TCPIP/LocalIPAddresses.h"
-#include "../TCPIP/IPAddress.h"
-
 #include "../Persistence/PersistentSecurityRange.h"
 
+#include "LocalIPAddresses.h"
+#include "IPAddress.h"
 #include "IOOperation.h"
+
+#include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -35,7 +35,7 @@ namespace HM
       timer_(io_service),
       receive_binary_(false),
       remote_port_(0),
-      hastimeout__(false),
+      has_timeout_(false),
       receive_buffer_(250000),
       disconnected_(disconnected),
       context_(context),
@@ -73,15 +73,13 @@ namespace HM
 #endif
 
          remote_port_ = remotePort;
-         remote__ip__address_ = remote_ip_address;
+         remote_ip_address_ = remote_ip_address;
          is_client_ = true;
 
-         LOG_TCPIP("Connecting to " + remote__ip__address_ + "...");
+         LOG_TCPIP("Connecting to " + remote_ip_address_ + "...");
 
          if (!localAddress.IsAny())
          {
-
-
             try
             {
                if (localAddress.GetType() == IPAddress::IPV4)
@@ -113,7 +111,7 @@ namespace HM
 
    #ifdef _DEBUG
          String sMessage;
-         sMessage.Format(_T("RESOLVE: %s\r\n"), String(remote__ip__address_));
+         sMessage.Format(_T("RESOLVE: %s\r\n"), String(remote_ip_address_));
    #endif 
 
          // Start an asynchronous resolve to translate the server and service names
@@ -148,7 +146,7 @@ namespace HM
          if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
          {
             String sMessage; 
-            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), remote__ip__address_, remote_port_);
+            sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), remote_ip_address_, remote_port_);
 
             OnCouldNotConnect(sMessage);
 
@@ -162,7 +160,7 @@ namespace HM
          try
          {
             socket_.async_connect(ep,
-               boost::bind(&TCPConnection::HandleConnect, shared_from_this(), boost::asio::placeholders::error));
+               boost::bind(&TCPConnection::AsyncConnectCompleted, shared_from_this(), boost::asio::placeholders::error));
          }
          catch (boost::system::system_error error)
          {
@@ -182,7 +180,7 @@ namespace HM
    }
 
    void
-   TCPConnection::HandleConnect(const boost::system::error_code& err)
+   TCPConnection::AsyncConnectCompleted(const boost::system::error_code& err)
    {
       try
       {
@@ -190,7 +188,7 @@ namespace HM
          {
             // Are there more addresses we should attempt to connect to?
             AnsiString error = err.message();
-            OnCouldNotConnect("Host name: " + remote__ip__address_ + ", message: " + error);
+            OnCouldNotConnect("Host name: " + remote_ip_address_ + ", message: " + error);
 
             return;
          }
@@ -199,67 +197,9 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5324, "TCPConnection::HandleConnect", "An unknown error occurred while handling asynchronous connect.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5324, "TCPConnection::AsyncConnectCompleted", "An unknown error occurred while handling asynchronous connect.");
          throw;
       }
-   }
-
-   void 
-   TCPConnection::Handshake()
-   {
-      int verify_mode = 0;
-
-      // We allow the deriving class to disable peer verification.
-      if (GetValidateRemoteCertificate() && Configuration::Instance()->GetVerifyRemoteSslCertificate())
-      {
-         verify_mode = boost::asio::ssl::context::verify_peer | 
-                       boost::asio::ssl::context::verify_fail_if_no_peer_cert;
-
-         boost::system::error_code errorCode;
-         ssl_socket_.set_verify_mode(verify_mode, errorCode);
-
-         if (errorCode.value() != 0)
-         {
-            String errorMessage;
-            errorMessage.Format(_T("Failed to enable peer verification."));
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPConnection::Handshake", errorMessage, errorCode);
-
-            HandleHandshakeFailed_(errorCode);
-            return;
-         }
-
-         if (!expected_remote_hostname_.IsEmpty())
-         {
-            ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname_), errorCode);
-
-            if (errorCode.value() != 0)
-            {
-               String errorMessage;
-               errorMessage.Format(_T("Failed to set verification callback"));
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5510, "TCPConnection::Handshake", errorMessage, errorCode);
-
-               HandleHandshakeFailed_(errorCode);
-               return;
-            }
-         }
-      }
-      else
-      {
-         verify_mode = boost::asio::ssl::context::verify_none;
-
-         ssl_socket_.set_verify_mode(verify_mode);
-      }
-
-
-      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Certificate verify mode: {1}, Expected remote: {2}", session_id_, verify_mode, expected_remote_hostname_));
-
-      boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
-         boost::asio::ssl::stream_base::client :
-      boost::asio::ssl::stream_base::server;
-
-      ssl_socket_.async_handshake(handshakeType,
-         boost::bind(&TCPConnection::HandleHandshake, shared_from_this(),
-         boost::asio::placeholders::error));
    }
 
    void 
@@ -271,87 +211,7 @@ namespace HM
 
       if (connection_security_ == CSSSL)
       {
-         Handshake();
-      }
-   }
-
-   void 
-   TCPConnection::HandleHandshake(const boost::system::error_code& error)
-   {
-      try
-      {
-         if (!error)
-         {
-            // Send welcome message to client.
-            is_ssl_ = true;
-            OnHandshakeCompleted();
-         }
-         else
-         {
-            HandleHandshakeFailed_(error);
-         }
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5326, "TCPConnection::HandleHandshake", "An unknown error occurred while handling handshake.");
-         throw;
-      }
-
-   }
-
-   void
-   TCPConnection::HandleHandshakeFailed_(const boost::system::error_code& error)
-   {
-      // The SSL handshake failed. This may happen for example if the user who has connected
-      // to the TCP/IP port disconnects immediately without sending any data.
-      String sMessage;
-      sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()), SafeGetIPAddress());
-      LOG_TCPIP(sMessage);
-
-      OnHandshakeFailed();
-   }
-
-   void 
-   TCPConnection::PostWrite(const AnsiString &sData)
-   {
-      try
-      {
-         AnsiString sTemp = sData;
-         char *pBuf = sTemp.GetBuffer();
-         
-         shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
-         pBuffer->Add((BYTE*) pBuf, sData.GetLength());
-         
-   #ifdef _DEBUG
-         String sDebugOutput;
-         sDebugOutput.Format(_T("SENT: %s"), String(sTemp));
-         OutputDebugString(sDebugOutput);
-   #endif
-
-         PostWrite(pBuffer);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5327, "TCPConnection::PostWrite", "An unknown error occurred while posting write buffer.");
-         throw;
-      }
-
-   }
-
-   void 
-   TCPConnection::PostWrite(shared_ptr<ByteBuffer> pBuffer)
-   {
-      try
-      {
-         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTSend, pBuffer));
-         operation_queue_.Push(operation);
-
-         ProcessOperationQueue_();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5328, "TCPConnection::PostWrite", "An unknown error occurred while posting write buffer.");
-         throw;
+         EnqueueHandshake();
       }
    }
 
@@ -378,38 +238,48 @@ namespace HM
 
         switch (operation->GetType())
          {
-         case IOOperation::BCTSend:
-            {
-               stage = 4;
-               shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
-               Write(pBuf);
-               stage = 5;
-               break;
-            }
-         case IOOperation::BCTReceive:
+        case IOOperation::BCTHandshake:
+           {
+              stage = 4;
+              AsyncHandshake();
+              stage = 5;
+              break;
+           }
+
+        case IOOperation::BCTWrite:
             {
                stage = 6;
-               Read(operation->GetString());               
+               shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
+               AsyncWrite(pBuf);
                stage = 7;
+               break;
+            }
+         case IOOperation::BCTRead:
+            {
+               stage = 8;
+               AsyncRead(operation->GetString());               
+               stage = 9;
                break;
             }
          case IOOperation::BCTShutdownSend:
             {
-               stage = 8;
-               Shutdown(boost::asio::ip::tcp::socket::shutdown_send, true);
-               stage = 9;
-               ProcessOperationQueue_();
                stage = 10;
-
+               Shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+               operation_queue_.Pop(IOOperation::BCTShutdownSend);
+               ProcessOperationQueue_();
+               stage = 11;
                break;
             }
          case IOOperation::BCTDisconnect:
             {
-               stage = 11;
-               Disconnect();
                stage = 12;
+               Disconnect();
+               operation_queue_.Pop(IOOperation::BCTDisconnect);
+               ProcessOperationQueue_();
+               stage = 13;
                break;
             }
+
          }
       }
       catch (boost::system::system_error error)
@@ -422,90 +292,16 @@ namespace HM
          ReportError(ErrorManager::Medium, 5138, "TCPConnection::ProcessOperationQueue_", 
             Formatter::Format("An error occured while processing the queue. Stage: {0}", stage));
       }
+
+      
    }
+   
 
    void 
-   TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
-   {
-      String formattedMessage;
-      formattedMessage.Format(_T("%s Remote IP: %s, Error code: %d, Message: %s"), message, SafeGetIPAddress(), error.code().value(), String(error.what()));
-      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
-   }
-
-   void 
-   TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message)
-   {
-      String formattedMessage;
-      formattedMessage.Format(_T("%s Remote IP: %s"), message, SafeGetIPAddress());
-      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
-   }
-   void 
-   TCPConnection::ReportDebugMessage(const String &message, const boost::system::error_code &error)
-   {
-      String formattedMessage;
-      formattedMessage.Format(_T("%s Remote IP: %s, Session: %d, Code: %d, Message: %s"), message, SafeGetIPAddress(), GetSessionID(), error.value(), String(error.message()));
-
-      LOG_DEBUG(formattedMessage);
-   }
-
-   void 
-   TCPConnection::Write(shared_ptr<ByteBuffer> buffer)
+   TCPConnection::Shutdown(boost::asio::socket_base::shutdown_type what)
    {
       try
       {
-         function<void (const boost::system::error_code&, size_t)> handleWriteFunction =
-            boost::bind(&TCPConnection::HandleWrite, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred);
-
-         try
-         {
-            if (is_ssl_)
-               boost::asio::async_write
-                  (ssl_socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
-            else
-               boost::asio::async_write
-                  (socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), handleWriteFunction);
-
-            UpdateLogoutTimer();
-         }
-         catch (boost::system::system_error error)
-         {
-            // We failed to send the data to the client. Log an message in the log, 
-            // and switch of operation-in-progress flag. We don't log this as an 
-            // error since it most likely isn't.
-            String sMessage;
-            sMessage.Format(_T("TCPConnection - Sending of data to client failed. Error code: %d, Message: %s, Remote IP: %s"), error.code().value(), String(error.what()), SafeGetIPAddress());
-            LOG_TCPIP(sMessage);
-         }
-         catch (std::exception const& e)
-         {
-            String sErrorMessage = Formatter::Format("Write operation failed. Error: {0}", e.what());
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "Temp::Temp", sErrorMessage);
-         }
-         catch (...)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5000, "Temp::Temp", "Write operation failed.");
-            throw;
-         }
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5329, "TCPConnection::Write", "An unknown error occurred while writing buffer.");
-         throw;
-      }
-
-   }
-
-   void 
-   TCPConnection::Shutdown(boost::asio::socket_base::shutdown_type what, bool removeFromQueue)
-   {
-      try
-      {
-         // Remove the item we have just handled.
-         if (removeFromQueue)
-            operation_queue_.Pop(IOOperation::BCTShutdownSend);
-
          try
          {
             socket_.shutdown(what);
@@ -513,10 +309,7 @@ namespace HM
          catch (boost::system::system_error)
          {
             // hopefully should not matter.
-         }
-
-
-         ProcessOperationQueue_();
+         }      
       }
       catch (...)
       {
@@ -526,50 +319,238 @@ namespace HM
 
    }
 
+
    void 
-   TCPConnection::PostRead(const AnsiString &delimitor)
+   TCPConnection::EnqueueDisconnect()
    {
       try
       {
-         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTReceive, delimitor));
+         shared_ptr<ByteBuffer> pBuf;
+         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
          operation_queue_.Push(operation);
 
          ProcessOperationQueue_();
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5331, "TCPConnection::PostRead", "An unknown error occurred while posting read buffer.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5335, "TCPConnection::EnqueueDisconnect", "An unknown error occurred while posting disconnect.");
+         throw;
+      }
+   }
+
+
+   void 
+   TCPConnection::Disconnect()
+   {
+      try
+      {
+         LOG_DEBUG("Closing TCP/IP socket");
+
+         // Perform graceful shutdown. No more operations will be performed. 
+         Shutdown(boost::asio::socket_base::shutdown_both);
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5336, "TCPConnection::Disconnect", "An unknown error occurred while disconnecting.");
+         throw;
+      }
+
+   }
+
+   void 
+   TCPConnection::EnqueueHandshake()
+   {
+      try
+      {
+         shared_ptr<ByteBuffer> pBuf;
+         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
+         operation_queue_.Push(operation);
+
+         ProcessOperationQueue_();
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5335, "TCPConnection::EnqueueDisconnect", "An unknown error occurred while posting disconnect.");
+         throw;
+      }
+   }
+
+
+   void 
+   TCPConnection::AsyncHandshake()
+   {
+      int verify_mode = 0;
+
+      // We allow the deriving class to disable peer verification.
+      if (GetValidateRemoteCertificate() && Configuration::Instance()->GetVerifyRemoteSslCertificate())
+      {
+         verify_mode = boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert;
+
+         boost::system::error_code errorCode;
+         ssl_socket_.set_verify_mode(verify_mode, errorCode);
+
+         if (errorCode.value() != 0)
+         {
+            String errorMessage;
+            errorMessage.Format(_T("Failed to enable peer verification."));
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "TCPConnection::AsyncHandshake", errorMessage, errorCode);
+
+            HandshakeFailed_(errorCode);
+            return;
+         }
+
+         if (!expected_remote_hostname_.IsEmpty())
+         {
+            ssl_socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(expected_remote_hostname_), errorCode);
+
+            if (errorCode.value() != 0)
+            {
+               String errorMessage;
+               errorMessage.Format(_T("Failed to set verification callback"));
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5510, "TCPConnection::AsyncHandshake", errorMessage, errorCode);
+
+               HandshakeFailed_(errorCode);
+               return;
+            }
+         }
+      }
+      else
+      {
+         verify_mode = boost::asio::ssl::context::verify_none;
+
+         ssl_socket_.set_verify_mode(verify_mode);
+      }
+
+
+      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Certificate verify mode: {1}, Expected remote: {2}", session_id_, verify_mode, expected_remote_hostname_));
+
+      boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
+         boost::asio::ssl::stream_base::client :
+      boost::asio::ssl::stream_base::server;
+
+      ssl_socket_.async_handshake(handshakeType,
+         boost::bind(&TCPConnection::AsyncHandshakeCompleted, shared_from_this(),
+         boost::asio::placeholders::error));
+   }
+
+
+   void 
+   TCPConnection::AsyncHandshakeCompleted(const boost::system::error_code& error)
+   {
+      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+         operation_queue_.Pop(IOOperation::BCTHandshake);
+          this_->ProcessOperationQueue_();
+      } BOOST_SCOPE_EXIT_END
+
+      try
+      {
+         if (!error)
+         {
+            // Send welcome message to client.
+            is_ssl_ = true;
+            OnHandshakeCompleted();
+         }
+         else
+         {
+            HandshakeFailed_(error);
+         }
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5326, "TCPConnection::AsyncHandshakeCompleted", "An unknown error occurred while handling handshake.");
+         throw;
+      }
+
+   }
+
+   void
+   TCPConnection::HandshakeFailed_(const boost::system::error_code& error)
+   {
+      // The SSL handshake failed. This may happen for example if the user who has connected
+      // to the TCP/IP port disconnects immediately without sending any data.
+      String sMessage;
+      sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()), SafeGetIPAddress());
+      LOG_TCPIP(sMessage);
+
+      OnHandshakeFailed();
+   }
+
+
+
+   void 
+   TCPConnection::EnqueueShutdownSend()
+   {
+      shared_ptr<ByteBuffer> pBuf;
+      shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
+      operation_queue_.Push(operation);
+
+      ProcessOperationQueue_();
+   }
+
+   void 
+   TCPConnection::EnqueueRead()
+   {
+      EnqueueRead(GetCommandSeparator());
+   }
+
+   void 
+   TCPConnection::EnqueueRead(const AnsiString &delimitor)
+   {
+      try
+      {
+         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
+         operation_queue_.Push(operation);
+
+         ProcessOperationQueue_();
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5331, "TCPConnection::EnqueueRead", "An unknown error occurred while posting read buffer.");
          throw;
       }
    }
 
    void 
-   TCPConnection::Read(const AnsiString &delimitor)
+   TCPConnection::AsyncRead(const AnsiString &delimitor)
    {
+      int stage = 1;
+
       try
       {
-         function<void (const boost::system::error_code&, size_t)> handleReadFunction =
-            boost::bind(&TCPConnection::HandleRead, shared_from_this(),
+         function<void (const boost::system::error_code&, size_t)> AsyncReadCompletedFunction =
+            boost::bind(&TCPConnection::AsyncReadCompleted, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred);
 
+         stage = 2;
          try
          {
             if (is_ssl_)
             {
+               stage = 3;
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(ssl_socket_, receive_buffer_, boost::asio::transfer_at_least(1), handleReadFunction);
+                  boost::asio::async_read(ssl_socket_, receive_buffer_, boost::asio::transfer_at_least(1), AsyncReadCompletedFunction);
                else
-                  boost::asio::async_read_until(ssl_socket_, receive_buffer_,  delimitor, handleReadFunction);
+                  boost::asio::async_read_until(ssl_socket_, receive_buffer_,  delimitor, AsyncReadCompletedFunction);
             }
             else
             {
+               stage = 4;
                if (delimitor.GetLength() == 0)
-                  boost::asio::async_read(socket_, receive_buffer_, boost::asio::transfer_at_least(1), handleReadFunction);
+               {
+                  stage = 41;
+                  boost::asio::async_read(socket_, receive_buffer_, boost::asio::transfer_at_least(1), AsyncReadCompletedFunction);
+                  stage = 42;
+               }
                else
-                  boost::asio::async_read_until(socket_, receive_buffer_, delimitor, handleReadFunction);
+               {
+                  stage = 43;
+                  boost::asio::async_read_until(socket_, receive_buffer_, delimitor, AsyncReadCompletedFunction);
+                  stage = 44;
+               }
             }
 
+            stage = 5;
             UpdateLogoutTimer();
          }
          catch (boost::system::system_error error)
@@ -583,212 +564,34 @@ namespace HM
          }
          catch (std::exception const& e)
          {
-            String sErrorMessage = Formatter::Format("Read operation failed. Error: {0}", e.what());
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "Temp::Temp", sErrorMessage);
+            String sErrorMessage = Formatter::Format("Start Async Read operation failed. Error: {0}", e.what());
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "TCPConnection::AsyncRead", sErrorMessage);
          }
          catch (...)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5000, "Temp::Temp", "Read operation failed.");
+            String message = Formatter::Format("Read operation failed. Stage: {0}", stage);
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 5000, "TCPConnection::AsyncRead", message);
             throw;
          }
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5332, "TCPConnection::Read", "An unknown error occurred while starting async reading.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5332, "TCPConnection::AsyncRead", "An unknown error occurred while starting async reading.");
          throw;
       }
    }
 
    void 
-   TCPConnection::UpdateLogoutTimer()
+   TCPConnection::AsyncReadCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
-      try
-      {
-         // Put a timeout...
-         timer_.expires_from_now(boost::posix_time::seconds(timeout_));
-         timer_.async_wait(bind(&TCPConnection::OnTimeout, 
-            boost::weak_ptr<TCPConnection>(shared_from_this()), _1));
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5333, "TCPConnection::UpdateLogoutTimer", "An unknown error occurred while updating logout timer.");
-         throw;
-      }
-   }
+      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+         operation_queue_.Pop(IOOperation::BCTRead);
+         this_->ProcessOperationQueue_();
+      } BOOST_SCOPE_EXIT_END
 
-   void 
-   TCPConnection::CancelLogoutTimer()
-   {
-      try
-      {
-         timer_.cancel();
-      }
-      catch (boost::system::system_error error)
-      {
-         ReportError(ErrorManager::Low, 5211, "TCPConnection::CancelLogoutTimer", "Failed to logout timer", error);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5334, "TCPConnection::CancelLogoutTimer", "An unknown error occurred while canceling logout timer.");
-         throw;
-      }
-      
-   }
-
-   void 
-   TCPConnection::PostDisconnect()
-   {
-      try
-      {
-         shared_ptr<ByteBuffer> pBuf;
-         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
-         operation_queue_.Push(operation);
-
-         ProcessOperationQueue_();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5335, "TCPConnection::PostDisconnect", "An unknown error occurred while posting disconnect.");
-         throw;
-      }
-   }
-
-   void 
-   TCPConnection::Disconnect()
-   {
-      try
-      {
-         LOG_DEBUG("Closing TCP/IP socket");
-
-         // Perform graceful shutdown. No more operations will be performed. 
-         Shutdown(boost::asio::socket_base::shutdown_both, false);
-
-         //try
-         //{
-         //   GetSocket().close();
-         //}
-         //catch (boost::system::system_error error)
-         //{
-         //   // We failed to send the data to the client. Log an message in the log, 
-         //   // and switch of operation-in-progress flag. We don't log this as an 
-         //   // error since it most likely isn't.
-         //   String sMessage;
-         //   sMessage.Format(_T("TCPConnection - Closing of socket failed. Error code: %d, Message: %s"), error.code().value(), String(error.what()));
-         //   LOG_TCPIP(sMessage);
-         //}
-         //catch (...)
-         //{
-         //   LOG_DEBUG("GetSocket().close() threw");
-         //   // Eat the exception. Not immediately critical.
-         //}
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5336, "TCPConnection::Disconnect", "An unknown error occurred while disconnecting.");
-         throw;
-      }
-
-   }
-
-   void
-   TCPConnection::OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err)
-   {
-      try
-      {
-         boost::shared_ptr<TCPConnection> conn = connection.lock();
-         if (!conn)
-         {
-            return;
-         }
-
-         if (err == asio::error::operation_aborted) 
-         {
-            // the timeout operation was cancelled.
-            return;
-         }
-
-         String message;
-         message.Format(_T("The client has timed out. Session: %d"), conn->GetSessionID());
-         LOG_DEBUG(message);
-
-         conn->PostTimeout();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5337, "TCPConnection::OnTimeout", "An unknown error occurred while handling timeout.");
-         throw;
-      }
-   }
-
-   void 
-   TCPConnection::PostTimeout()
-   {
-      try
-      {
-         if (hastimeout__)
-         {
-            // We've already posted a timeout once. Disconnect now.
-            Disconnect();
-            return;
-         }
-
-         hastimeout__ = true;
-
-         OnConnectionTimeout();
-
-         PostDisconnect();
-      }
-      catch (boost::system::system_error error)
-      {
-         ReportError(ErrorManager::Low, 5137, "TCPConnection::PostTimeout", "An error occured while sending a timeout message to the client.", error);
-      }
-      catch (...)
-      {
-         ReportError(ErrorManager::Low, 5137, "TCPConnection::PostTimeout", "An error occured while sending a timeout message to the client.");
-      }
-   }
-
-   void 
-   TCPConnection::PostShutdown(ShutdownOption what)
-   {
-      try
-      {
-         switch (what)
-         {
-         case TCPConnection::ShutdownSend:
-            {
-               shared_ptr<ByteBuffer> pBuf;
-               shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
-               operation_queue_.Push(operation);
-
-               ProcessOperationQueue_();
-            }
-            
-           break;
-         }
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5338, "TCPConnection::PostShutdown", "An unknown error occurred while posting shutdown.");
-         throw;
-      }
-   }
-
-   void 
-   TCPConnection::HandleRead(const boost::system::error_code& error,  size_t bytes_transferred)
-   {
       try
       {
          // Remove the item we have just handled.
-         try
-         {
-            operation_queue_.Pop(IOOperation::BCTReceive);
-         }
-         catch (...)
-         {
-            ReportError(ErrorManager::Medium, 5141, "TCPConnection::HandleRead", "An error occurred while popping queue");
-            throw;
-         }
 
          try
          {
@@ -806,19 +609,22 @@ namespace HM
                   OnExcessiveDataReceived();
                }
 
-               PostDisconnect();
+               EnqueueDisconnect();
+
+               
+
                return;
             }
          }
          catch (...)
          {
-            ReportError(ErrorManager::Medium, 5141, "TCPConnection::HandleRead", "An error occurred while checking error state");
+            ReportError(ErrorManager::Medium, 5141, "TCPConnection::AsyncReadCompleted", "An error occurred while checking error state");
             throw;
          }
 
          // Disable the logout timer while we're parsing data. We don't want to terminate
          // a client just because he has issued a long-running command. If we do this, we
-         // would have to take care of the fact that we're dropping a connectio despite it
+         // would have to take care of the fact that we're dropping a connection despite it
          // still being active.
          try
          {
@@ -826,7 +632,7 @@ namespace HM
          }
          catch (...)
          {
-            ReportError(ErrorManager::Medium, 5141, "TCPConnection::HandleRead", "An error occurred while cancelling logout timer.");
+            ReportError(ErrorManager::Medium, 5141, "TCPConnection::AsyncReadCompleted", "An error occurred while cancelling logout timer.");
             throw;
          }
 
@@ -846,7 +652,7 @@ namespace HM
                }
                catch (boost::system::system_error error)
                {
-                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::HandleRead", "An error occured while parsing buffer.", error);
+                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", "An error occured while parsing buffer.", error);
                   throw;
                }
                catch (...)
@@ -854,13 +660,13 @@ namespace HM
                   String message;
                   message.Format(_T("An error occured while parsing buffer. Received bytes: %d, Buffer: %d, Buffer size: %d"), bytes_transferred, &pBuffer, pBuffer->GetSize());
 
-                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::HandleRead", "An error occured while parsing buffer.");
+                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", "An error occured while parsing buffer.");
                   throw;
                }
             }
             catch (...)
             {
-               ReportError(ErrorManager::Medium, 5136, "TCPConnection::HandleRead", "An error occured while parsing binary data.");
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", "An error occured while parsing binary data.");
                throw;
             }
          }
@@ -892,49 +698,134 @@ namespace HM
                                s.size(), 
                                String(s));
 
-               ReportError(ErrorManager::Medium, 5136, "TCPConnection::HandleRead", message, error);
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message, error);
             }
             catch (...)
             {
                String message;
                message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s));
 
-               ReportError(ErrorManager::Medium, 5136, "TCPConnection::HandleRead", message);
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
             }
          }
       }
       catch (...)
       {
-         ReportError(ErrorManager::Medium, 5141, "TCPConnection::HandleRead", "An error occurred while handling read operation.");
+         ReportError(ErrorManager::Medium, 5141, "TCPConnection::AsyncReadCompleted", "An error occurred while handling read operation.");
          throw;
       }
-      
-      ProcessOperationQueue_();
    }
 
    void 
-   TCPConnection::HandleWrite(const boost::system::error_code& error,  size_t bytes_transferred)
+   TCPConnection::EnqueueWrite(const AnsiString &sData)
    {
       try
       {
-         // Remove the item we have just handled.
+         AnsiString sTemp = sData;
+         char *pBuf = sTemp.GetBuffer();
+
+         shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
+         pBuffer->Add((BYTE*) pBuf, sData.GetLength());
+
+#ifdef _DEBUG
+         String sDebugOutput;
+         sDebugOutput.Format(_T("SENT: %s"), String(sTemp));
+         OutputDebugString(sDebugOutput);
+#endif
+
+         EnqueueWrite(pBuffer);
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5327, "TCPConnection::EnqueueWrite", "An unknown error occurred while posting write buffer.");
+         throw;
+      }
+
+   }
+
+   void 
+   TCPConnection::EnqueueWrite(shared_ptr<ByteBuffer> pBuffer)
+   {
+      try
+      {
+         shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
+
+         operation_queue_.Push(operation);
+         ProcessOperationQueue_();
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5328, "TCPConnection::EnqueueWrite", "An unknown error occurred while posting write buffer.");
+         throw;
+      }
+   }
+
+   void 
+   TCPConnection::AsyncWrite(shared_ptr<ByteBuffer> buffer)
+   {
+      try
+      {
+         function<void (const boost::system::error_code&, size_t)> AsyncWriteCompletedFunction =
+            boost::bind(&TCPConnection::AsyncWriteCompleted, shared_from_this(),
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred);
+
          try
          {
-            operation_queue_.Pop(IOOperation::BCTSend);
+            if (is_ssl_)
+               boost::asio::async_write
+               (ssl_socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), AsyncWriteCompletedFunction);
+            else
+               boost::asio::async_write
+               (socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), AsyncWriteCompletedFunction);
+
+            UpdateLogoutTimer();
+         }
+         catch (boost::system::system_error error)
+         {
+            // We failed to send the data to the client. Log an message in the log, 
+            // and switch of operation-in-progress flag. We don't log this as an 
+            // error since it most likely isn't.
+            String sMessage;
+            sMessage.Format(_T("TCPConnection - Sending of data to client failed. Error code: %d, Message: %s, Remote IP: %s"), error.code().value(), String(error.what()), SafeGetIPAddress());
+            LOG_TCPIP(sMessage);
+         }
+         catch (std::exception const& e)
+         {
+            String sErrorMessage = Formatter::Format("Write operation failed. Error: {0}", e.what());
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "TCPConnection::AsyncWrite", sErrorMessage);
          }
          catch (...)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::HandleWrite", "An unknown error occurred while handling buffer write and popping queue.");
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 5000, "TCPConnection::AsyncWrite", "Write operation failed.");
             throw;
          }
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5329, "TCPConnection::AsyncWrite", "An unknown error occurred while writing buffer.");
+         throw;
+      }
 
+   }
+
+   void 
+   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
+   {
+      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+         operation_queue_.Pop(IOOperation::BCTWrite);
+         this_->ProcessOperationQueue_();
+      } BOOST_SCOPE_EXIT_END
+
+      try
+      {
          if (error.value() != 0)
          {
             String message;
             message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
             ReportDebugMessage(message, error);
 
-            PostDisconnect();
+            EnqueueDisconnect();
          }
 
          bool containsQueuedSendOperations = false;
@@ -945,7 +836,7 @@ namespace HM
          }
          catch (...)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::HandleWrite", "An unknown error occurred while handling buffer write and checking if queue contained buffered operations.");
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::AsyncWriteCompleted", "An unknown error occurred while handling buffer write and checking if queue contained buffered operations.");
             throw;
          }
 
@@ -957,20 +848,10 @@ namespace HM
             }
             catch (...)
             {
-               ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::HandleWrite", "An unknown error occurred while handling buffer write and notifying protocol parser that data was sent.");
+               ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::AsyncWriteCompleted", "An unknown error occurred while handling buffer write and notifying protocol parser that data was sent.");
                throw;
             }
 
-         }
-
-         try
-         {
-            ProcessOperationQueue_();
-         }
-         catch (...)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::HandleWrite", "An unknown error occurred while handling buffer write and processing the queue.");
-            throw;
          }
       }
       catch (...)
@@ -978,7 +859,7 @@ namespace HM
          String message;
          message.Format(_T("An unknown error occurred while handling buffer write. Session ID: %d, Transferred bytes: %d"),  GetSessionID(), bytes_transferred);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::HandleWrite", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::AsyncWriteCompleted", message);
          throw;
       }
    }
@@ -989,15 +870,6 @@ namespace HM
       boost::asio::ip::tcp::endpoint remoteEndpoint = socket_.remote_endpoint();
       return IPAddress(remoteEndpoint.address());
    }
-
-   unsigned long 
-   TCPConnection::GetRemoteEndpointPort() 
-   {
-      boost::asio::ip::tcp::endpoint remoteEndpoint = socket_.remote_endpoint();
-      unsigned long port = remoteEndpoint.port();
-      return port;
-   }
-
 
    unsigned long 
    TCPConnection::GetLocalEndpointPort() 
@@ -1068,16 +940,137 @@ namespace HM
       }
    }
 
+
+   AnsiString 
+   TCPConnection::GetIPAddressString()
+   {
+      return GetRemoteEndpointAddress().ToString();
+   }
+
+
    void 
    TCPConnection::SetTimeout(int seconds)
    {
       timeout_ = seconds;
    }
 
-   AnsiString 
-   TCPConnection::GetIPAddressString()
+
+   void 
+   TCPConnection::UpdateLogoutTimer()
    {
-      return GetRemoteEndpointAddress().ToString();
+      try
+      {
+         // Put a timeout...
+         timer_.expires_from_now(boost::posix_time::seconds(timeout_));
+         timer_.async_wait(bind(&TCPConnection::OnTimeout, 
+            boost::weak_ptr<TCPConnection>(shared_from_this()), _1));
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5333, "TCPConnection::UpdateLogoutTimer", "An unknown error occurred while updating logout timer.");
+         throw;
+      }
+   }
+
+   void 
+   TCPConnection::CancelLogoutTimer()
+   {
+      try
+      {
+         timer_.cancel();
+      }
+      catch (boost::system::system_error error)
+      {
+         ReportError(ErrorManager::Low, 5211, "TCPConnection::CancelLogoutTimer", "Failed to logout timer", error);
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5334, "TCPConnection::CancelLogoutTimer", "An unknown error occurred while canceling logout timer.");
+         throw;
+      }
+
+   }
+
+
+   void
+   TCPConnection::OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err)
+   {
+      try
+      {
+         boost::shared_ptr<TCPConnection> conn = connection.lock();
+         if (!conn)
+         {
+            return;
+         }
+
+         if (err == asio::error::operation_aborted) 
+         {
+            // the timeout operation was cancelled.
+            return;
+         }
+
+         String message;
+         message.Format(_T("The client has timed out. Session: %d"), conn->GetSessionID());
+         LOG_DEBUG(message);
+
+         conn->Timeout();
+      }
+      catch (...)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5337, "TCPConnection::OnTimeout", "An unknown error occurred while handling timeout.");
+         throw;
+      }
+   }
+
+   void 
+   TCPConnection::Timeout()
+   {
+      try
+      {
+         if (has_timeout_)
+         {
+            // We've already posted a timeout once. Disconnect now.
+            Disconnect();
+            return;
+         }
+
+         has_timeout_ = true;
+
+         OnConnectionTimeout();
+
+         EnqueueDisconnect();
+      }
+      catch (boost::system::system_error error)
+      {
+         ReportError(ErrorManager::Low, 5137, "TCPConnection::PostTimeout", "An error occured while sending a timeout message to the client.", error);
+      }
+      catch (...)
+      {
+         ReportError(ErrorManager::Low, 5137, "TCPConnection::PostTimeout", "An error occured while sending a timeout message to the client.");
+      }
+   }
+
+   void 
+   TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
+   {
+      String formattedMessage;
+      formattedMessage.Format(_T("%s Remote IP: %s, Error code: %d, Message: %s"), message, SafeGetIPAddress(), error.code().value(), String(error.what()));
+      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
+   }
+
+   void 
+   TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message)
+   {
+      String formattedMessage;
+      formattedMessage.Format(_T("%s Remote IP: %s"), message, SafeGetIPAddress());
+      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
+   }
+   void 
+   TCPConnection::ReportDebugMessage(const String &message, const boost::system::error_code &error)
+   {
+      String formattedMessage;
+      formattedMessage.Format(_T("%s Remote IP: %s, Session: %d, Code: %d, Message: %s"), message, SafeGetIPAddress(), GetSessionID(), error.value(), String(error.message()));
+      LOG_DEBUG(formattedMessage);
    }
 
 }

@@ -234,7 +234,7 @@ namespace HM
                SendAndReset_(pConnection, sOutput);
 
                // Send the actual part
-               pConnection->SendData(pBuffer);
+               pConnection->EnqueueWrite(pBuffer);
             }
             else
             {

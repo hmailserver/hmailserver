@@ -5,7 +5,8 @@
 
 
 #include "IMAPNotificationClient.h"
-#include "../Common/TCPIP/AnsiStringConnection.h"
+#include "../common/TCPIP/TCPConnection.h"
+
 
 using namespace std;
 
@@ -31,7 +32,7 @@ namespace HM
       std::vector<String> vecLiteralData;
    };
 
-   class IMAPConnection : public AnsiStringConnection
+   class IMAPConnection : public TCPConnection
    {
    public:
       IMAPConnection(ConnectionSecurity connection_security,
@@ -82,7 +83,7 @@ namespace HM
 
       void ParseData(const AnsiString &Request);
       void ParseData(shared_ptr<ByteBuffer> pByteBuffer);
-      bool SendAsciiData(const AnsiString & sData);
+      void SendAsciiData(const AnsiString & sData);
       
       shared_ptr<const Account> GetAccount() { return account_; }
       

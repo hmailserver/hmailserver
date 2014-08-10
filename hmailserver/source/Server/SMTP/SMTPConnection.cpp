@@ -73,7 +73,7 @@ namespace HM
    SMTPConnection::SMTPConnection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
-      AnsiStringConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
       rejected_by_delayed_grey_listing_(false),
       current_state_(INITIAL),
       trace_headers_written_(true),
@@ -149,7 +149,7 @@ namespace HM
          ResetLoginCredentials_();
          ResetCurrentMessage_();
 
-         PostReceive();
+         EnqueueRead();
       }
    }
 
@@ -166,9 +166,9 @@ namespace HM
       else
          sData += sWelcome;
 
-      SendData_(sData);
+      EnqueueWrite_(sData);
 
-      PostReceive();
+      EnqueueRead();
 
    }
 
@@ -267,12 +267,12 @@ namespace HM
          switch (current_state_)
          {
          case DATA:
-            PostBufferReceive();
+            EnqueueRead("");
             break;
          case STARTTLS:
             break;
          default:
-            PostReceive();
+            EnqueueRead();
             break;
          }
       }
@@ -290,7 +290,7 @@ namespace HM
       if (sRequest.GetLength() > 510)
       {
          // This line is to long... is this an evil user?
-         SendData_("500 Line to long.");
+         EnqueueWrite_("500 Line to long.");
          return;
       }
 
@@ -308,9 +308,9 @@ namespace HM
           cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
       {
          // Disconnect
-         SendData_("Too many invalid commands. Bye!");
+         EnqueueWrite_("Too many invalid commands. Bye!");
          pending_disconnect_ = true;
-         PostDisconnect();
+         EnqueueDisconnect();
          return;
       }
 
@@ -343,9 +343,9 @@ namespace HM
                   case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
                   case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
                   case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
-                  case SMTP_COMMAND_TURN: SendData_("502 TURN disallowed."); break;
+                  case SMTP_COMMAND_TURN: EnqueueWrite_("502 TURN disallowed."); break;
                   case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
-                  case SMTP_COMMAND_VRFY: SendData_("502 VRFY disallowed."); break;
+                  case SMTP_COMMAND_VRFY: EnqueueWrite_("502 VRFY disallowed."); break;
                   case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
                   default:
                      SendErrorResponse_(503, "Bad sequence of commands"); 
@@ -402,7 +402,7 @@ namespace HM
    void 
    SMTPConnection::ProtocolNOOP_()
    {
-      SendData_("250 OK");
+      EnqueueWrite_("250 OK");
    }
 
    void
@@ -410,7 +410,7 @@ namespace HM
    {
       ResetCurrentMessage_();
 
-      SendData_("250 OK");
+      EnqueueWrite_("250 OK");
 
       return;
    }
@@ -423,7 +423,7 @@ namespace HM
 
       if (current_message_) 
       {
-         SendData_("503 Issue a reset if you want to start over"); 
+         EnqueueWrite_("503 Issue a reset if you want to start over"); 
          return;
       }
      
@@ -523,7 +523,7 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                   iEstimatedMessageSize / 1024, max_message_size_kb_);
-            SendData_(sMessage);
+            EnqueueWrite_(sMessage);
             return ;
          }
       }
@@ -562,7 +562,7 @@ namespace HM
       
       try
       {
-         SendData_("250 OK"); 
+         EnqueueWrite_("250 OK"); 
       }
       catch (...)
       {
@@ -628,7 +628,7 @@ namespace HM
 
       if (!current_message_) 
       {
-         SendData_("503 must have sender first."); 
+         EnqueueWrite_("503 must have sender first."); 
          return;
       }
 
@@ -672,7 +672,7 @@ namespace HM
       if (dp != RecipientParser::DP_Possible)
       {
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-         SendData_(sErrMsg);
+         EnqueueWrite_(sErrMsg);
 
          return;
       }
@@ -770,11 +770,11 @@ namespace HM
 
       if (!recipientOK)
       {
-         SendData_("550 Unknown user");
+         EnqueueWrite_("550 Unknown user");
          return;
       }
    
-      SendData_("250 OK");
+      EnqueueWrite_("250 OK");
    }
 
    bool
@@ -817,9 +817,9 @@ namespace HM
          String messageText = GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
-            SendData_("550 " + messageText);
+            EnqueueWrite_("550 " + messageText);
          else
-            SendData_("554 " + messageText);
+            EnqueueWrite_("554 " + messageText);
 
          String sLogMessage;
          sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress, String(GetIPAddressString()), messageText);
@@ -856,10 +856,10 @@ namespace HM
       // the actual email message in the same buffer (which would be a RFC-violation).
       ResetCurrentMessage_();
 
-      SendData_("221 goodbye");
+      EnqueueWrite_("221 goodbye");
       
       pending_disconnect_ = true;
-      PostDisconnect();
+      EnqueueDisconnect();
    }
 
    void 
@@ -977,17 +977,18 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("552 Message size exceeds the drop maximum message size. Size: %d KB, Max size: %d KB - DROP!"), 
                 iBufSizeKB, iMaxSizeDrop);
-            SendData_(sMessage);
+            EnqueueWrite_(sMessage);
          LogAwstatsMessageRejected_();
          ResetCurrentMessage_();
          SetReceiveBinary(false);
          pending_disconnect_ = true;
-         PostDisconnect();
+         EnqueueDisconnect();
          return;
 
-      } else {
+      } else 
+      {
          // We need more data.
-         PostBufferReceive();
+         EnqueueRead("");
          return;
       }
    }
@@ -1011,7 +1012,7 @@ namespace HM
 
          ResetCurrentMessage_();
          SetReceiveBinary(false);
-         PostReceive();
+         EnqueueRead();
          return;
       }
 
@@ -1170,7 +1171,7 @@ namespace HM
             // start a new message.
             String sResponse;
             sResponse.Format(_T("250 Queued (%.3f seconds)"), dTCDiff);
-            SendData_(sResponse);
+            EnqueueWrite_(sResponse);
 
             // The message delivery is complete, or
             // it has failed. Any way, we should start
@@ -1182,7 +1183,7 @@ namespace HM
             // The delivery of the message failed. This may happen if tables are
             // corrupt in the database. We now return an error message to the sender. 
             // Hopefully, the sending server will retry later. 
-            SendData_("554 Your message was received but it could not be saved. Please retry later.");
+            EnqueueWrite_("554 Your message was received but it could not be saved. Please retry later.");
 
             // Delete the file now since we could not save it in the database.
             ResetCurrentMessage_();
@@ -1198,7 +1199,7 @@ namespace HM
       }
 
       SetReceiveBinary(false);
-      PostReceive();
+      EnqueueRead();
   
    }
 
@@ -1247,7 +1248,7 @@ namespace HM
    {
       if (transmission_buffer_->GetCancelTransmission())
       {
-         SendData_("554 "  + transmission_buffer_->GetCancelMessage());
+         EnqueueWrite_("554 "  + transmission_buffer_->GetCancelMessage());
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1261,7 +1262,7 @@ namespace HM
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5019, "SMTPConnection::_OnPreAcceptTransfer", sErrorMsg);
       
-         SendData_("451 Rejected - No data saved.");
+         EnqueueWrite_("451 Rejected - No data saved.");
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1274,7 +1275,7 @@ namespace HM
          String sMessage;
          sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
             transmission_buffer_->GetSize() / 1024, max_message_size_kb_);
-         SendData_(sMessage);
+         EnqueueWrite_(sMessage);
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1287,7 +1288,7 @@ namespace HM
             String sMessage;
             sMessage.Format(_T("554 Rejected - Message containing bare LF's."));
             
-            SendData_(sMessage);
+            EnqueueWrite_(sMessage);
             LogAwstatsMessageRejected_();
             return false;
          }
@@ -1317,21 +1318,21 @@ namespace HM
          case 1:
             {
                String sErrorMessage = "554 Rejected";
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return false;
             }
          case 2:
             {
                String sErrorMessage = "554 " + pResult->GetMessage();
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return false;
             }
          case 3:
             {
                String sErrorMessage = "453 " + pResult->GetMessage();
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return false;
             }
@@ -1524,7 +1525,7 @@ namespace HM
 
       sData += sAuth;
 	   
-      SendData_(sData);
+      EnqueueWrite_(sData);
    
       return true;
    }
@@ -1534,18 +1535,18 @@ namespace HM
    {
       ResetCurrentMessage_();
 
-      SendData_("421 Connection timeout.\r\n");
+      EnqueueWrite_("421 Connection timeout.\r\n");
    }
   
    void
    SMTPConnection::OnExcessiveDataReceived()
    {
       ResetCurrentMessage_();
-      SendData_("421 Excessive amounts of data sent to server.\r\n");
+      EnqueueWrite_("421 Excessive amounts of data sent to server.\r\n");
    }
 
    void 
-   SMTPConnection::SendData_(const String &sData)
+   SMTPConnection::EnqueueWrite_(const String &sData)
    {
       if (Logger::Instance()->GetLogSMTP())
       {
@@ -1557,7 +1558,8 @@ namespace HM
          LOG_SMTP(GetSessionID(), GetIPAddressString(), sLogData);
       }
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
+      LOG_DEBUG("Enqueued!");
    }
 
    bool
@@ -1615,7 +1617,7 @@ namespace HM
          return;
       }
 
-      SendData_("250 Hello.");
+      EnqueueWrite_("250 Hello.");
 
       if (current_state_ == INITIAL)
          current_state_ = HEADER;
@@ -1625,7 +1627,7 @@ namespace HM
    void
    SMTPConnection::ProtocolHELP_()
    {
-      SendData_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
+      EnqueueWrite_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
    }
 
    void
@@ -1634,14 +1636,14 @@ namespace HM
       if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         SendData_("503 Must have sender and recipient first.");
+         EnqueueWrite_("503 Must have sender and recipient first.");
 
          return;
       }  
       else if ( current_message_->GetRecipients()->GetCount() == 0)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         SendData_("503 Must have sender and recipient first.");
+         EnqueueWrite_("503 Must have sender and recipient first.");
 
          return;
       }  
@@ -1670,21 +1672,21 @@ namespace HM
          case 1:
             {
                String sErrorMessage = "554 Rejected";
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return;
             }
          case 2:
             {
                String sErrorMessage = "554 " + pResult->GetMessage();
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return;
             }
          case 3:
             {
                String sErrorMessage = "453 " + pResult->GetMessage();
-               SendData_(sErrorMessage);
+               EnqueueWrite_(sErrorMessage);
                LogAwstatsMessageRejected_();
                return;
             }
@@ -1701,7 +1703,7 @@ namespace HM
       trace_headers_written_ = true;
       message_start_tc_ = GetTickCount();
 
-      SendData_("354 OK, send.");
+      EnqueueWrite_("354 OK, send.");
    }
 
    bool 
@@ -1762,7 +1764,7 @@ namespace HM
             StringParser::Base64Encode("Username:", sResponse);
          }
 
-         SendData_("334 " + sResponse);
+         EnqueueWrite_("334 " + sResponse);
          return;
 
       }
@@ -1779,7 +1781,7 @@ namespace HM
          }
          else
          {
-            SendData_("334 Log on");
+            EnqueueWrite_("334 Log on");
             current_state_ = SMTPUSERNAME;
          }
 
@@ -1795,7 +1797,7 @@ namespace HM
       StringParser::Base64Decode(sRequest, username_);
       String sEncoded;
       StringParser::Base64Encode("Password:", sEncoded);
-      SendData_("334 " + sEncoded);
+      EnqueueWrite_("334 " + sEncoded);
       current_state_ = SMTPUPASSWORD;
 
    }
@@ -1823,11 +1825,11 @@ namespace HM
          return;
       }
 
-      SendData_("220 Ready to start TLS");
+      EnqueueWrite_("220 Ready to start TLS");
 
       current_state_ = STARTTLS;
       
-      Handshake();
+      EnqueueHandshake();
    }
 
    void 
@@ -1889,12 +1891,12 @@ namespace HM
             {
                // Need to tell hmail to reload the settings
                //Configuration::Instance()->Load();
-               SendData_("250 OK, message queuing started for " + sETRNDomain.ToLower());
+               EnqueueWrite_("250 OK, message queuing started for " + sETRNDomain.ToLower());
                LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - 250 OK, message queuing started.");      
             }
             else
             {
-               SendData_("458 Unable to queue messages for " + sETRNDomain.ToLower());
+               EnqueueWrite_("458 Unable to queue messages for " + sETRNDomain.ToLower());
                LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - 458 Unable to queue messages");      
             }
          return;
@@ -1903,7 +1905,7 @@ namespace HM
        else
        {
           // Send that we don't accept ETRN for that domain or invalid param
-          SendData_("458 Error getting info for " + sETRNDomain.ToLower());
+          EnqueueWrite_("458 Error getting info for " + sETRNDomain.ToLower());
           LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Could not get Route values");      
           return;
        }
@@ -1911,7 +1913,7 @@ namespace HM
      else
      {
          // Send that we don't accept ETRN for that domain or invalid param
-         SendData_("501 ETRN not supported for " + sETRNDomain.ToLower());
+         EnqueueWrite_("501 ETRN not supported for " + sETRNDomain.ToLower());
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Domain is not Route");      
          return;
      }
@@ -1949,13 +1951,13 @@ namespace HM
       {
          SendErrorResponse_(535, "Authentication failed. Too many invalid logon attempts.");
          pending_disconnect_ = true;
-         PostDisconnect();
+         EnqueueDisconnect();
          return;
       }
      
       if (pAccount)
       {
-         SendData_("235 authenticated.");
+         EnqueueWrite_("235 authenticated.");
 
          isAuthenticated_ = true;
          current_state_ = HEADER;
@@ -2010,7 +2012,7 @@ namespace HM
       String sData;
       sData.Format(_T("%d %s"), iErrorCode, sResponse);
       
-      SendData_(sData);
+      EnqueueWrite_(sData);
 
       if (iErrorCode >= 500 && iErrorCode <= 599)
          cur_no_of_invalid_commands_++;   

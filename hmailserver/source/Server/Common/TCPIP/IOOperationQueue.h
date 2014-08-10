@@ -29,4 +29,5 @@ namespace HM
       
       std::vector<shared_ptr<IOOperation > > ongoing_operations_;
    };
+
 }

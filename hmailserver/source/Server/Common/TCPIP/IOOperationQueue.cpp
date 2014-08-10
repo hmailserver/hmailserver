@@ -38,7 +38,8 @@ namespace HM
 
       if (ongoing_operations_.size() == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5131, "IOOperationQueue::Pop()", "Trying to pop operation list.");
+         String message = Formatter::Format("Trying to pop empty operation list. Type: {0}", type);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5131, "IOOperationQueue::Pop()", message);
          return;
       }
 
@@ -70,7 +71,7 @@ namespace HM
 
       boost_foreach(shared_ptr<IOOperation> operation, queue_operations_)
       {
-         if (operation->GetType() == IOOperation::BCTSend)
+         if (operation->GetType() == IOOperation::BCTWrite)
             return true;
       }
 
@@ -104,61 +105,45 @@ namespace HM
 
             IOOperation::OperationType ongoingType = ongoingOperation->GetType();
 
-            if (ongoingType == pendingType)
-            {
-               /*
-                  We already have a pending operation of this type. We don't allow another one.
-                  Case in point:
-                  1) It does not make sense to have two Receive/Disconnect/Shutdown at the same time.
-                  2) Having multiple sends at the same time might cause corruption problems, since the
-                     delivery order is not guaranteed.
-               */
-
-               shared_ptr<IOOperation> empty;
-               return empty;         
-            }
-
             switch (ongoingType)
             {
-            case IOOperation::BCTSend:
+            case IOOperation::BCTWrite:
                {
                   switch (pendingType)
                   {
-                     case IOOperation::BCTSend:         // We can only send one item at a time.
-                     case IOOperation::BCTReceive:      // We can not start to process new incoming commands before old data has been sent.
+                     case IOOperation::BCTWrite:         // We can only send one item at a time.
+                     case IOOperation::BCTRead:      // We can not start to process new incoming commands before old data has been sent.
                      case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout commands to be sent to client.
                      case IOOperation::BCTShutdownSend: // We can't disable send-mode while we're sending data. Makes no sense.
+                     case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're sending data.
                         shared_ptr<IOOperation> empty;
                         return empty;  
 
                   }
                   break;
                }
-            case IOOperation::BCTReceive:
+            case IOOperation::BCTRead:
                {
                   switch (pendingType)
                   {
-                  case IOOperation::BCTSend:         // We may send data while waiting for data - timeout messages to clients.
-                  case IOOperation::BCTDisconnect:   // We may disconnect even though we're waiting for data. If a client times out, this would be nice.
-                  case IOOperation::BCTShutdownSend: // It's OK to close the sending even thoug we're receiving data.
+                  case IOOperation::BCTWrite:         // We may send data while we're processing data (normal responses)
+                  case IOOperation::BCTDisconnect:   // We may disconnect while we're processing data
+                  case IOOperation::BCTShutdownSend: // It's OK to close the sending even though we're receiving data.
                      break;
-                  case IOOperation::BCTReceive:      // We can not start new receives while we're already waiting for data. Does not make any sense.
+                  case IOOperation::BCTRead:      // We can not start new receives while we're processing data. Concurrent receives are not supported.
+                  case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're processing data at the same time7.
                      shared_ptr<IOOperation> empty;
                      return empty;  
                   }
                   break;
                }
-            case IOOperation::BCTDisconnect:
+            case IOOperation::BCTDisconnect:   // If we're disconnecting we can't start any new operations.
+            case IOOperation::BCTShutdownSend: // Shutting down Send and performing other operations at the same time is not supported.
+            case IOOperation::BCTHandshake:    // Doing a handshake and sending/receiving other data at the same time is not supported
                {
-                  // If we're disconnecting we can't start any new operations.
                   shared_ptr<IOOperation> empty;
                   return empty;  
-               }
-            case IOOperation::BCTShutdownSend:
-               {
-                  // Shutting down Send isn't an async operation. We can wait for it to complete.
-                  shared_ptr<IOOperation> empty;
-                  return empty;  
+                  break;
                }
             }         
          }
