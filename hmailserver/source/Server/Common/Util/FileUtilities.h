@@ -55,6 +55,13 @@ namespace HM
 
    private:
 
+      enum FileEncoding
+      {
+         ANSI = 1,
+         UTF8 = 2,
+         UTF16 = 3
+      };
+
       
    };
 

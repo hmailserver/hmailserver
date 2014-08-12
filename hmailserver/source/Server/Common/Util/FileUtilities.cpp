@@ -9,6 +9,7 @@
 #include "GUIDCreator.h"
 #include "../Application/Dictionary.h"
 #include "../Util/Assert.h"
+#include "../Util/Unicode.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -273,29 +274,48 @@ namespace HM
          return "";
       }
 
-      bool bIsUnicode = false;
+      FileEncoding file_encoding = ANSI;
 
-      if (pBuffer->GetSize() >= 2)
+      bool is_utf8 = false;
+      
+      // check if utf8 bom exists
+      const unsigned char *unsigned_char_buffer = (const unsigned char*) pBuffer->GetCharBuffer();
+
+      if (pBuffer->GetSize() >= 3 &&
+          *unsigned_char_buffer == 0xef && 
+          *(unsigned_char_buffer + 1) == 0xbb &&
+          *(unsigned_char_buffer + 2) == 0xbf)
+          file_encoding = UTF8;
+      else if (pBuffer->GetSize() >= 2 &&
+         *unsigned_char_buffer == 0xff && 
+         *(unsigned_char_buffer + 1) == 0xfe)
+         file_encoding = UTF16;
+      
+      switch (file_encoding)
       {
-         const char *pBuf = pBuffer->GetCharBuffer();
+      case ANSI:
+         {
+            AnsiString sRetVal((const char*) unsigned_char_buffer, pBuffer->GetSize());
+            return sRetVal;
+         }
+      case UTF8:
+         {
+            AnsiString raw_data((const char*) unsigned_char_buffer, pBuffer->GetSize());
 
-         if (*pBuf == -1 && *(pBuf + 1) && -2)
-            bIsUnicode = true;
-      }
+            String utf8_data;
+            Unicode::MultiByteToWide(raw_data, utf8_data);
 
-      // Copy to char buf
-      if (bIsUnicode)
-      {
-         int iChars = pBuffer->GetSize() / sizeof(TCHAR);
-         String sRetVal((const wchar_t*) pBuffer->GetCharBuffer() +1, iChars -1);
-         return sRetVal;
+            return utf8_data;
+         }
+      case UTF16:
+         {
+            int iChars = pBuffer->GetSize() / sizeof(TCHAR);
+            String sRetVal((const wchar_t*) pBuffer->GetCharBuffer() +1, iChars -1);
+            return sRetVal;
+         }
+      default:
+         throw new std::logic_error(Formatter::FormatAsAnsi("Unsupported encoding type: {0}", file_encoding));
       }
-      else
-      {
-         AnsiString sRetVal(pBuffer->GetCharBuffer(), pBuffer->GetSize());
-         return sRetVal;
-      }
-
    }
  
    void
