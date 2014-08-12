@@ -14,7 +14,8 @@ namespace RegressionTests.AntiVirus
       [Test]
       public void TestAttachmentRemoval()
       {
-         SingletonProvider<TestSetup>.Instance.GetApp().Settings.AntiVirus.EnableAttachmentBlocking = true;
+         var antiVirusSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings.AntiVirus;
+         antiVirusSettings.EnableAttachmentBlocking = true;
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 

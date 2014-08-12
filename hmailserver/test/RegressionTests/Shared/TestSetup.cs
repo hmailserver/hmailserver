@@ -70,6 +70,7 @@ namespace RegressionTests.Shared
 
          _settings.SecurityRanges.SetDefault();
 
+         SetupBlockedAttachments();
          DisableSpamProtection();
          DisableVirusProtection();
          RemoveAllRoutes();
@@ -159,6 +160,31 @@ namespace RegressionTests.Shared
          AssertRecipientsInDeliveryQueue(0);
 
          return domain;
+      }
+
+      private void SetupBlockedAttachments()
+      {
+         var antiVirusSettings = _settings.AntiVirus;
+
+         bool blockExists = false;
+         for (int i = 0; i < antiVirusSettings.BlockedAttachments.Count; i++)
+         {
+            var item = antiVirusSettings.BlockedAttachments[i];
+
+            if (item.Wildcard == "*.bat")
+            {
+               blockExists = true;
+               break;
+            }
+         }
+
+         if (blockExists == false)
+         {
+            var item = antiVirusSettings.BlockedAttachments.Add();
+            item.Description = "Batch scripts";
+            item.Wildcard = "*.bat";
+            item.Save();
+         }
       }
 
       public void DeleteEventLog()
