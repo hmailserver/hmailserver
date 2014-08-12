@@ -138,6 +138,7 @@ namespace HM
          0, NULL );
 
       String windows_error_message = message_buf;
+      windows_error_message.TrimRight(_T("\r\n "));
 
       /*
           http://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx
