@@ -4,6 +4,7 @@
 #include "StdAfx.h"
 
 #include "CertificateVerifier.h"
+#include "SocketConstants.h"
 
 #include <boost/scope_exit.hpp>
 
@@ -14,7 +15,8 @@
 
 namespace HM
 {
-   CertificateVerifier::CertificateVerifier(const String &host_name) :
+   CertificateVerifier::CertificateVerifier(ConnectionSecurity connection_security, const String &host_name) :
+      connection_security_(connection_security),
       host_name_(host_name)
    {
 
@@ -73,7 +75,7 @@ namespace HM
       // We're only interested in checking the certificate at the end of the chain.
       int depth = X509_STORE_CTX_get_error_depth(ctx.native_handle());
       if (depth > 0)
-         return true;
+         return OverrideResult_(true);
 
       // Read the cert and convert it to a raw DER-format which we can hand off to Windows.
       X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
@@ -87,7 +89,7 @@ namespace HM
       if (i2d_X509_bio(bio,cert) != 1) 
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5512, "CertificateVerifier::operator()", "Failed to convert OpenSSL internal X509 to DER-format.");
-         return false;
+         return OverrideResult_(false);
       }
 
       // Read the cert from the BIO structure in memory to a char array.
@@ -104,7 +106,7 @@ namespace HM
       {
          String errorMessage = Formatter::Format(_T("BIO_read returned an unexpected number of characters. Expected: {0}, Returned: {1}"), raw_size, actual_read);
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5513, "CertificateVerifier::operator()", errorMessage);
-         return false;
+         return OverrideResult_(false);
       }
       
       // Create a Windows certificate context, using the raw DER data.
@@ -114,7 +116,7 @@ namespace HM
       {
          String errorMessage = Formatter::Format(_T("Call to CertCreateCertificateContext failed. Error: {0}"), (int) GetLastError());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5513, "CertificateVerifier::operator()", errorMessage);
-         return false;
+         return OverrideResult_(false);
       }
 
       BOOST_SCOPE_EXIT(&context) {
@@ -126,18 +128,32 @@ namespace HM
       int windows_error_code = 0;
       if (VerifyCertificate_(context, expected_host_name.GetBuffer(-1), windows_error_code))
       {
-         String formattedDebugMessage = Formatter::Format("Certificate verification succeeded. Expected host: {0}", host_name_);
-         LOG_DEBUG(formattedDebugMessage);
-         return true;
+         LOG_DEBUG("Certificate verification succeeded.");
+         
+         return OverrideResult_(true);
       }
       else
       {
          String windows_error_text = ErrorManager::Instance()->GetWindowsErrorText(windows_error_code);
          String formattedDebugMessage = Formatter::Format("Certificate verification failed. Expected host: {0}, Windows error code: {1}, Windows error message: {2}", host_name_, windows_error_code, windows_error_text);
          LOG_DEBUG(formattedDebugMessage);
-         return false;
+         return OverrideResult_(false);
       }
 
+   }
+
+   bool 
+   CertificateVerifier::OverrideResult_(bool result) const
+   {
+      if (result == false)
+      {
+         if (connection_security_ == CSSTARTTLSOptional)
+            return true;
+         else
+            return false;
+      }
+      
+      return true;
    }
 
 }

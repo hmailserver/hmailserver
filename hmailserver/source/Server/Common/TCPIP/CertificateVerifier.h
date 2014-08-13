@@ -6,6 +6,8 @@
 
 namespace HM
 {
+   enum ConnectionSecurity;
+
    class CertificateVerifier
    {
    public:
@@ -14,7 +16,7 @@ namespace HM
       typedef bool result_type;
 
       /// Constructor.
-      CertificateVerifier(const String &host_name);
+      CertificateVerifier(ConnectionSecurity connection_security,  const String &host_name);
 
       /// Perform certificate verification.
       bool operator()(bool preverified, boost::asio::ssl::verify_context& ctx) const;
@@ -23,7 +25,10 @@ namespace HM
 
       bool VerifyCertificate_( PCCERT_CONTEXT certificate, LPWSTR serverName, int &windows_error_code) const;
 
+      bool OverrideResult_(bool result) const;
+
       // The host name to be checked.
+      ConnectionSecurity connection_security_;
       String host_name_;
    };
 }

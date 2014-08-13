@@ -381,19 +381,19 @@ namespace HM
    TCPConnection::AsyncHandshake()
    {
       // To do peer verification, it must both be enabled globally and supported by the deriving class.
-      bool enable_peer_verification = Configuration::Instance()->GetVerifyRemoteSslCertificate() && GetValidateRemoteCertificate();
-
+      bool enable_peer_verification = Configuration::Instance()->GetVerifyRemoteSslCertificate() && IsClient();
+      
       int verify_mode = 0;
 
       boost::system::error_code error_code;
 
       if (enable_peer_verification)
       {
-         verify_mode = boost::asio::ssl::context::verify_peer;
+         verify_mode = boost::asio::ssl::context::verify_peer || boost::asio::ssl::context::verify_fail_if_no_peer_cert;
                 
          if (!expected_remote_hostname_.IsEmpty())
          {
-            ssl_socket_.set_verify_callback(CertificateVerifier(expected_remote_hostname_), error_code);
+            ssl_socket_.set_verify_callback(CertificateVerifier(connection_security_, expected_remote_hostname_), error_code);
 
             if (error_code.value() != 0)
             {

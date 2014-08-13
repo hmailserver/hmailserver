@@ -84,8 +84,6 @@ namespace HM
       /* PARSING METHODS */
       virtual void ParseData(const AnsiString &sAnsiString) = 0;
       virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
-      
-      virtual bool GetValidateRemoteCertificate() = 0;
    
    private:
 

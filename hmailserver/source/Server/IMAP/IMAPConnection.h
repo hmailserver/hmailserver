@@ -132,8 +132,6 @@ namespace HM
       virtual void OnExcessiveDataReceived();
       virtual void OnConnectionTimeout();
             
-      virtual bool GetValidateRemoteCertificate() {return false;}
-
       eIMAPCommandType GetCommandType(String & sCommand);
 
       std::map<eIMAPCommandType, shared_ptr<IMAPCommand> > mapCommandHandlers;
