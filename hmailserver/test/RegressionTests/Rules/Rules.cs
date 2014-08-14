@@ -208,8 +208,8 @@ namespace RegressionTests.Rules
          var oSMTP = new SMTPClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "bindtoaddress@example.com", "SomeString",
-                    "This mail should not be delivered.");
+         oSMTP.Send("ruletest@test.com", "knafve@gmail.com", "SomeString",
+                    "This mail should not be delivered - Test ActionBindToAddress.");
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
