@@ -393,7 +393,7 @@ namespace HM
                 
          if (!expected_remote_hostname_.IsEmpty())
          {
-            ssl_socket_.set_verify_callback(CertificateVerifier(connection_security_, expected_remote_hostname_), error_code);
+            ssl_socket_.set_verify_callback(CertificateVerifier(session_id_, connection_security_, expected_remote_hostname_), error_code);
 
             if (error_code.value() != 0)
             {

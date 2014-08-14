@@ -15,7 +15,8 @@
 
 namespace HM
 {
-   CertificateVerifier::CertificateVerifier(ConnectionSecurity connection_security, const String &host_name) :
+   CertificateVerifier::CertificateVerifier(int session_id, ConnectionSecurity connection_security, const String &host_name) :
+      session_id_(session_id),
       connection_security_(connection_security),
       host_name_(host_name)
    {
@@ -128,14 +129,16 @@ namespace HM
       int windows_error_code = 0;
       if (VerifyCertificate_(context, expected_host_name.GetBuffer(-1), windows_error_code))
       {
-         LOG_DEBUG("Certificate verification succeeded.");
+         LOG_DEBUG(Formatter::Format("Certificate verification succeeded for session {0}.", session_id_));
          
          return OverrideResult_(true);
       }
       else
       {
          String windows_error_text = ErrorManager::Instance()->GetWindowsErrorText(windows_error_code);
-         String formattedDebugMessage = Formatter::Format("Certificate verification failed. Expected host: {0}, Windows error code: {1}, Windows error message: {2}", host_name_, windows_error_code, windows_error_text);
+         String formattedDebugMessage = Formatter::Format("Certificate verification failed for session {0}. Expected host: {1}, Windows error code: {2}, Windows error message: {3}", 
+            session_id_, host_name_, windows_error_code, windows_error_text);
+
          LOG_DEBUG(formattedDebugMessage);
          return OverrideResult_(false);
       }
