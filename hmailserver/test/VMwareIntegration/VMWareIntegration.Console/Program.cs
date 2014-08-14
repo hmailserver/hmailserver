@@ -35,7 +35,7 @@ namespace VMwareIntegration.Console
 
          var options = new ParallelOptions()
             {
-               MaxDegreeOfParallelism = 6
+               MaxDegreeOfParallelism = 4
             };
 
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
