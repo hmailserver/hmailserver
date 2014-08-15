@@ -6,6 +6,12 @@ define("ADMIN_USER", 0);
 define("ADMIN_DOMAIN", 1);
 define("ADMIN_SERVER", 2);
    
+
+define("CONNECTION_SECURITY_NONE", 0);
+define("CONNECTION_SECURITY_TLS", 1);
+define("CONNECTION_SECURITY_STARTTLSOPTIONAL", 2);
+define("CONNECTION_SECURITY_STARTTLSREQUIRED", 3);
+
 function hmailGetVar($p_varname, $p_defaultvalue = null)
 {
 	$retval = $p_defaultvalue;

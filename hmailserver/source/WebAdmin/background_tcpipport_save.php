@@ -9,7 +9,7 @@
    $protocol	   = hmailGetVar("protocol",0);
    $portnumber	   = hmailGetVar("portnumber",0);
    $action	      = hmailGetVar("action","");
-   $UseSSL	      = hmailGetVar("UseSSL","0");
+   $ConnectionSecurity	      = hmailGetVar("ConnectionSecurity","0");
    $SSLCertificateID	      = hmailGetVar("SSLCertificateID","0");
    
    $obSettings   = $obBaseApp->Settings();
@@ -28,7 +28,7 @@
 
    $obTCPIPPort->Protocol = $protocol;
    $obTCPIPPort->PortNumber = $portnumber;
-   $obTCPIPPort->UseSSL = $UseSSL;
+   $obTCPIPPort->ConnectionSecurity = $ConnectionSecurity;
    $obTCPIPPort->SSLCertificateID = $SSLCertificateID;
    $obTCPIPPort->Address = hmailGetVar("Address","0");
    

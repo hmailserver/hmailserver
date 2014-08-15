@@ -21,14 +21,15 @@ if($action == "save")
 	$obSettings->SMTPMinutesBetweenTry= hmailGetVar("smtpminutesbetweentry",0);
 	$obSettings->HostName= hmailGetVar("HostName", "");
    
-   $obSettings->SMTPRelayer= hmailGetVar("smtprelayer",0);
-	$obSettings->SMTPRelayerPort= hmailGetVar("smtprelayerport",0);
-   $obSettings->SMTPRelayerRequiresAuthentication = hmailGetVar("SMTPRelayerRequiresAuthentication",0);
-   $obSettings->SMTPRelayerUsername = hmailGetVar("SMTPRelayerUsername","");
-   $obSettings->SMTPRelayerUseSSL = hmailGetVar("SMTPRelayerUseSSL",0);
    
-   if (hmailGetVar("SMTPRelayerUseSSL","") != "")
-      $obSettings->SetSMTPRelayerPassword(hmailGetVar("SMTPRelayerUseSSL",""));
+    $obSettings->SMTPRelayer= hmailGetVar("smtprelayer",0);
+	$obSettings->SMTPRelayerPort= hmailGetVar("smtprelayerport",0);
+    $obSettings->SMTPRelayerRequiresAuthentication = hmailGetVar("SMTPRelayerRequiresAuthentication",0);
+    $obSettings->SMTPRelayerUsername = hmailGetVar("SMTPRelayerUsername","");
+    $obSettings->SMTPRelayerConnectionSecurity = hmailGetVar("SMTPRelayerConnectionSecurity","0");
+	  
+    if (hmailGetVar("SMTPRelayerPassword","") != "")
+      $obSettings->SetSMTPRelayerPassword(hmailGetVar("SMTPRelayerPassword",""));
    
 	
 	$obSettings->RuleLoopLimit = hmailGetVar("smtprulelooplimit",0);
@@ -50,6 +51,9 @@ if($action == "save")
     $obSettings->AddDeliveredToHeader = hmailGetVar("AddDeliveredToHeader",0);
 	
 	$obSettings->MaxNumberOfMXHosts = hmailGetVar("MaxNumberOfMXHosts", 15);
+	
+	// Advanced
+	$obSettings->SMTPConnectionSecurity = hmailGetVar("SMTPConnectionSecurity", 0) ? CONNECTION_SECURITY_STARTTLSOPTIONAL : CONNECTION_SECURITY_NONE;
 }
 
 // General
@@ -65,7 +69,7 @@ $HostName = $obSettings->HostName;
 $smtprelayer = $obSettings->SMTPRelayer;
 $smtprelayerport = $obSettings->SMTPRelayerPort;
 $SMTPRelayerRequiresAuthentication = $obSettings->SMTPRelayerRequiresAuthentication;
-$SMTPRelayerUseSSL = $obSettings->SMTPRelayerUseSSL;
+$SMTPRelayerConnectionSecurity = $obSettings->SMTPRelayerConnectionSecurity;
 $SMTPRelayerUsername = $obSettings->SMTPRelayerUsername;
 
 $smtprulelooplimit = $obSettings->RuleLoopLimit;
@@ -91,6 +95,7 @@ $SendStatisticsChecked = hmailCheckedIf1($SendStatistics );
 
 $MaxNumberOfMXHosts = $obSettings->MaxNumberOfMXHosts;
 
+$SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECURITY_STARTTLSOPTIONAL;
 ?>
 
 <h1><?php EchoTranslation("SMTP")?></h1>
@@ -156,9 +161,20 @@ $MaxNumberOfMXHosts = $obSettings->MaxNumberOfMXHosts;
             PrintCheckboxRow("SMTPRelayerRequiresAuthentication", "Server requires authentication", $SMTPRelayerRequiresAuthentication);
             PrintPropertyEditRow("SMTPRelayerUsername", "User name", $SMTPRelayerUsername);
             PrintPasswordEntry("SMTPRelayerPassword", "Password");
-            PrintCheckboxRow("SMTPRelayerUseSSL", "Use SSL", $SMTPRelayerUseSSL);
          ?>
          
+		 				
+		<tr>
+			<td><?php EchoTranslation("Connection security")?></td>
+			<td><select name="SMTPRelayerConnectionSecurity">
+				<option value="<?php echo CONNECTION_SECURITY_NONE?>" <?php if ($SMTPRelayerConnectionSecurity == CONNECTION_SECURITY_NONE) echo "selected";?> ><?php EchoTranslation("None")?></a>
+				<option value="<?php echo CONNECTION_SECURITY_STARTTLSOPTIONAL?>" <?php if ($SMTPRelayerConnectionSecurity == CONNECTION_SECURITY_STARTTLSOPTIONAL) echo "selected";?> ><?php EchoTranslation("STARTTLS (Optional)")?></a>
+				<option value="<?php echo CONNECTION_SECURITY_STARTTLSREQUIRED?>" <?php if ($SMTPRelayerConnectionSecurity == CONNECTION_SECURITY_STARTTLSREQUIRED) echo "selected";?> ><?php EchoTranslation("STARTTLS (Required)")?></a>
+				<option value="<?php echo CONNECTION_SECURITY_TLS?>" <?php if ($SMTPRelayerConnectionSecurity == CONNECTION_SECURITY_TLS) echo "selected";?> ><?php EchoTranslation("SSL/TLS")?></a>
+			</select></td>
+		</tr>
+		
+		 
       	</table>
       </div>
       
@@ -213,8 +229,11 @@ $MaxNumberOfMXHosts = $obSettings->MaxNumberOfMXHosts;
       	<tr>
       		<td><?php EchoTranslation("Maximum number of recipients in batch")?></td>
       		<td><input type="text" name="maxsmtprecipientsinbatch" value="<?php echo PreprocessOutput($maxsmtprecipientsinbatch)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Maximum number of recipients in batch")?>"></td>
-      	</tr>	
-      	<tr>
+      	</tr>
+		<?php
+			PrintCheckboxRow("SMTPConnectionSecurity", "Use STARTTLS if available", $SMTPConnectionSecurity);
+		?>		
+		<tr>
       		<td><?php EchoTranslation("Rule Loop Limit")?></td>
       		<td><input type="text" name="smtprulelooplimit" value="<?php echo $smtprulelooplimit?>" size="3" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Rule Loop Limit")?>"></td>
       	</tr>		

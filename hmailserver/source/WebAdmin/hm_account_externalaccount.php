@@ -34,7 +34,7 @@ if ($action == "edit")
    $UseAntiSpam           = $obFetchAccount->UseAntiSpam;
    $UseAntiVirus          = $obFetchAccount->UseAntiVirus;
    $EnableRouteRecipients = $obFetchAccount->EnableRouteRecipients;
-   $UseSSL				  = $obFetchAccount->UseSSL;
+   $ConnectionSecurity    = $obFetchAccount->ConnectionSecurity;
 }
 else 
 {
@@ -51,7 +51,7 @@ else
    $UseAntiSpam = 0;
    $UseAntiVirus = 0;
    $EnableRouteRecipients = 0;
-   $UseSSL = 0;
+   $ConnectionSecurity = 0;
 }
 
 $EnabledChecked = hmailCheckedIf1($Enabled);
@@ -119,9 +119,15 @@ if ($DaysToKeepMessages > 0)
          				</table>
          			</td>
          		</tr>	
-				<?php
-					PrintCheckboxRow("UseSSL", "Use SSL", $UseSSL);
-				?>
+				<tr>
+					<td><?php EchoTranslation("Connection security")?></td>
+					<td><select name="ConnectionSecurity">
+						<option value="<?php echo CONNECTION_SECURITY_NONE?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_NONE) echo "selected";?> ><?php EchoTranslation("None")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSREQUIRED?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSREQUIRED) echo "selected";?> ><?php EchoTranslation("STARTTLS (Required)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_TLS?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_TLS) echo "selected";?> ><?php EchoTranslation("SSL/TLS")?></a>
+					</select></td>
+				</tr>
+				
          		<tr>
          			<td colspan="2">
          				<table width="350">

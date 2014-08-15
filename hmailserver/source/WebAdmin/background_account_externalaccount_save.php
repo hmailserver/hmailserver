@@ -50,7 +50,7 @@
    $obFA->UseAntiVirus          = hmailGetVar("UseAntiVirus",0);
    $obFA->UseAntiSpam           = hmailGetVar("UseAntiSpam",0);
    $obFA->EnableRouteRecipients = hmailGetVar("EnableRouteRecipients",0);
-   $obFA->UseSSL 				= hmailGetVar("UseSSL",0);
+   $obFA->ConnectionSecurity 	= hmailGetVar("ConnectionSecurity",0);
    
    if (strlen($DaysToKeepMessages) > 0 && $DaysToKeepMessages <= 0)
       $obFA->DaysToKeepMessages = $DaysToKeepMessages; 
