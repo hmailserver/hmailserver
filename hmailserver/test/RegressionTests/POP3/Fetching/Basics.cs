@@ -1102,5 +1102,103 @@ namespace RegressionTests.POP3.Fetching
          }
       }
 
+      [Test]
+      [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
+      public void TestFetchMessageWithValidFromAddress()
+      {
+
+         string message = string.Format("From: A@example.com\r\n" +
+                                        "To: someone@example.com\r\n" +
+                                        "Subject: Test\r\n" +
+                                        "\r\n" +
+                                        "Hello!");
+
+         var messages = new List<string>() { message };
+
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new POP3Server(1, port, messages))
+         {
+            pop3Server.SendBufferMode = POP3Server.BufferMode.SingleBuffer;
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            LockHelper.WaitForUnlock(fa);
+
+            fa.Delete();
+
+            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+
+            var log = TestSetup.ReadCurrentDefaultLog();
+            CustomAssert.IsTrue(log.Contains("Delivering message from A@example.com to user@test.com."));
+         }
+      }
+
+      [Test]
+      [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
+      public void TestFetchMessageWithInvalidFromAddress()
+      {
+
+         string message = string.Format("From: A\r\n" + 
+                                        "To: someone@example.com\r\n" +
+                                        "Subject: Test\r\n" +
+                                        "\r\n" +
+                                        "Hello!");
+
+         var messages = new List<string>() {message};
+
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new POP3Server(1, port, messages))
+         {
+            pop3Server.SendBufferMode = POP3Server.BufferMode.SingleBuffer;
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            LockHelper.WaitForUnlock(fa);
+
+            fa.Delete();
+
+            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+
+            var log = TestSetup.ReadCurrentDefaultLog();
+            CustomAssert.IsTrue(log.Contains("Delivering message from <Empty> to user@test.com."));
+         }
+      }
+
    }
 }

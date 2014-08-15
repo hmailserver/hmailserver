@@ -301,6 +301,7 @@ namespace HM
    bool
    AddresslistParserTester::Test()
    {
+      TestAddress_("@", "@", "","");
       TestAddress_("test@example.com", "test@example.com", "test","example.com");
       TestAddress_("<martin@example.com>", "martin@example.com", "martin","example.com");
       TestAddress_("\"servizio@example.it\"<servizio@example.it>", "servizio@example.it", "servizio", "example.it");

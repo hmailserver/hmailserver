@@ -862,8 +862,13 @@ namespace HM
 
             String sFullName, sUser, sDomain;
             oAddressParser.ExtractParts(sFrom, sFullName, sUser, sDomain);
-            sFrom = sUser + "@" + sDomain;
-            current_message_->SetFromAddress(sFrom);
+
+            if (!sUser.IsEmpty() && !sDomain.IsEmpty())
+            {
+               sFrom = sUser + "@" + sDomain;
+               if (StringParser::IsValidEmailAddress(sFrom))
+                  current_message_->SetFromAddress(sFrom);
+            }
          }
       }      
 

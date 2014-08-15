@@ -172,8 +172,10 @@ namespace HM
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
 
+      String log_from_address = pMessage->GetFromAddress().IsEmpty() ? "<Empty>" : pMessage->GetFromAddress();
+
       String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: Delivering message from {1} to {2}. File: {3}",
-                                                pMessage->GetID(), pMessage->GetFromAddress(), sRecipientList, messageFileName);
+                                                pMessage->GetID(), log_from_address, sRecipientList, messageFileName);
 
       LOG_APPLICATION(sMessage);
 
