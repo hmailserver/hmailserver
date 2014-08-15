@@ -343,6 +343,43 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void TestLargeMessageSuccess()
+      {
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
+
+         // No valid recipients...
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["test@dummy-example.com"] = 250;
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            // Add a route so we can connect to localhost.
+            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+
+            // Send message to this route.
+            var messageBody = TestSetup.CreateLargeDummyMailBody();
+
+            var smtp = new SMTPClientSimulator();
+            var recipients = new List<string>();
+            recipients.Add("test@dummy-example.com");
+            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", messageBody));
+
+            // Wait for the client to disconnect.
+            server.WaitForCompletion();
+
+            CustomAssert.IsTrue(server.Conversation.Contains("\r\nDATA\r\n"));
+
+            TestSetup.AssertRecipientsInDeliveryQueue(0, false);
+
+            CustomAssert.IsTrue(server.MessageData.Contains(messageBody));
+         }
+      }
+
+      [Test]
       [Description("Test delivery to a server which accepts the message but does not respond to QUIT.")]
       public void TestDeliverySuccessSingleRecipientMissingQuitResponse()
       {

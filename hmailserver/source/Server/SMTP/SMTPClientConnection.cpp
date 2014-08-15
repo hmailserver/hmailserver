@@ -210,7 +210,7 @@ namespace HM
          return true;
       case DATACOMMANDSENT:
          ProtocolData_();
-         return true;
+         return false;
       case DATASENT:
          SendQUIT_();
          UpdateSuccessfulRecipients_();
@@ -675,9 +675,10 @@ namespace HM
       // No \r\n on end because EnqueueWrite adds
       EnqueueWrite_("\r\n.");
 
+      EnqueueRead();
+
       // State change moved to AFTER crlf.crlf to help with race condition
       current_state_ = DATASENT;
-      return;
    }
 
    void
