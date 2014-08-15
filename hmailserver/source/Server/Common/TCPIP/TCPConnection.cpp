@@ -419,7 +419,14 @@ namespace HM
       }
 
 
-      LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}, Verify mode: {2}, Expected remote: {3}", session_id_, enable_peer_verification, verify_mode, expected_remote_hostname_));
+      if (expected_remote_hostname_.IsEmpty())
+      {
+         LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}", session_id_, enable_peer_verification));
+      }
+      else
+      {
+         LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}, Expected remote host name: {2}", session_id_, enable_peer_verification, expected_remote_hostname_));
+      }
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
          boost::asio::ssl::stream_base::client :
