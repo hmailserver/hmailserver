@@ -11,11 +11,9 @@ $action	   = hmailGetVar("action","");
 
 if($action == "save")
 {
-	$obSettings->VerifyRemoteSslCertificate= hmailGetVar("VerifyRemoteSslCertificate",0);
 	$obSettings->SslCipherList = hmailGetVar("SslCipherList", "");
 }
 
-$VerifyRemoteSslCertificate = $obSettings->VerifyRemoteSslCertificate;      
 $SslCipherList 				= $obSettings->SslCipherList;
 ?>
 
@@ -36,11 +34,7 @@ $SslCipherList 				= $obSettings->SslCipherList;
                <th width="30%"></th>
                <th width="70%"></th>
             </tr>            
-         <?php
-            PrintCheckboxRow("VerifyRemoteSslCertificate", "Verify remote server SSL/TLS certificates", $VerifyRemoteSslCertificate);
-			
-           
-         ?>
+
 		 <tr>
       		<td><?php EchoTranslation("SSL/TLS ciphers ")?></td>
       		<td>

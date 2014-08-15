@@ -31,13 +31,12 @@ namespace hMailServer.Administrator
            this.labelsslTlsCiphers = new System.Windows.Forms.Label();
            this.labelSSLTLS = new System.Windows.Forms.Label();
            this.textSslCipherList = new hMailServer.Shared.ucText();
-           this.checkVerifyRemoteServerSslCertificate = new hMailServer.Administrator.Controls.ucCheckbox();
            this.SuspendLayout();
            // 
            // labelsslTlsCiphers
            // 
            this.labelsslTlsCiphers.AutoSize = true;
-           this.labelsslTlsCiphers.Location = new System.Drawing.Point(8, 56);
+           this.labelsslTlsCiphers.Location = new System.Drawing.Point(8, 31);
            this.labelsslTlsCiphers.Name = "labelsslTlsCiphers";
            this.labelsslTlsCiphers.Size = new System.Drawing.Size(92, 13);
            this.labelsslTlsCiphers.TabIndex = 16;
@@ -54,7 +53,7 @@ namespace hMailServer.Administrator
            // 
            // textSslCipherList
            // 
-           this.textSslCipherList.Location = new System.Drawing.Point(11, 72);
+           this.textSslCipherList.Location = new System.Drawing.Point(11, 47);
            this.textSslCipherList.Multiline = true;
            this.textSslCipherList.Name = "textSslCipherList";
            this.textSslCipherList.Number = 0;
@@ -63,18 +62,6 @@ namespace hMailServer.Administrator
            this.textSslCipherList.Size = new System.Drawing.Size(341, 123);
            this.textSslCipherList.TabIndex = 2;
            // 
-           // checkVerifyRemoteServerSslCertificate
-           // 
-           this.checkVerifyRemoteServerSslCertificate.AutoSize = true;
-           this.checkVerifyRemoteServerSslCertificate.Checked = true;
-           this.checkVerifyRemoteServerSslCertificate.CheckState = System.Windows.Forms.CheckState.Checked;
-           this.checkVerifyRemoteServerSslCertificate.Location = new System.Drawing.Point(11, 31);
-           this.checkVerifyRemoteServerSslCertificate.Name = "checkVerifyRemoteServerSslCertificate";
-           this.checkVerifyRemoteServerSslCertificate.Size = new System.Drawing.Size(221, 17);
-           this.checkVerifyRemoteServerSslCertificate.TabIndex = 1;
-           this.checkVerifyRemoteServerSslCertificate.Text = "Verify remote server SSL/TLS certificates";
-           this.checkVerifyRemoteServerSslCertificate.UseVisualStyleBackColor = true;
-           // 
            // ucSecurity
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -82,7 +69,6 @@ namespace hMailServer.Administrator
            this.Controls.Add(this.labelSSLTLS);
            this.Controls.Add(this.textSslCipherList);
            this.Controls.Add(this.labelsslTlsCiphers);
-           this.Controls.Add(this.checkVerifyRemoteServerSslCertificate);
            this.Name = "ucSecurity";
            this.Size = new System.Drawing.Size(783, 262);
            this.ResumeLayout(false);
@@ -92,7 +78,6 @@ namespace hMailServer.Administrator
 
         #endregion
 
-        private hMailServer.Administrator.Controls.ucCheckbox checkVerifyRemoteServerSslCertificate;
         private System.Windows.Forms.Label labelsslTlsCiphers;
         private hMailServer.Shared.ucText textSslCipherList;
         private System.Windows.Forms.Label labelSSLTLS;

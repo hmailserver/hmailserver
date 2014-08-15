@@ -44,7 +44,6 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           checkVerifyRemoteServerSslCertificate.Checked = settings.VerifyRemoteSslCertificate;
            textSslCipherList.Text = settings.SslCipherList;
 
            Marshal.ReleaseComObject(settings);
@@ -56,7 +55,6 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
 
            Marshal.ReleaseComObject(settings);
