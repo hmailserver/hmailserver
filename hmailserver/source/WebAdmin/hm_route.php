@@ -18,7 +18,7 @@ $routedomainname = "";
 $routetargetsmtphost= "";
 $TreatRecipientAsLocalDomain = 0;
 $TreatSenderAsLocalDomain = 0;
-$usessl = 0;
+$ConnectionSecurity = 0;
 $routerequiresauth=0;
 $routeauthusername="";
 $AllAddresses = true;
@@ -37,7 +37,7 @@ if ($action == "edit")
    $routemminutesbetweentry = $obRoute->MinutesBetweenTry;
    $routerequiresauth = $obRoute->RelayerRequiresAuth;
    $routeauthusername = $obRoute->RelayerAuthUsername;
-   $usessl = $obRoute->UseSSL;
+   $ConnectionSecurity = $obRoute->ConnectionSecurity;
    $AllAddresses = $obRoute->AllAddresses;
 }
 
@@ -98,9 +98,17 @@ if ($action == "edit")
             	<tr>
             		<td><?php EchoTranslation("Password")?></td>
             		<td><input type="password" name="routeauthpassword" value="" size="20"></td>
-            	</tr>    
+            	</tr>
+				<tr>
+					<td><?php EchoTranslation("Connection security")?></td>
+					<td><select name="ConnectionSecurity">
+						<option value="<?php echo CONNECTION_SECURITY_NONE?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_NONE) echo "selected";?> ><?php EchoTranslation("None")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSOPTIONAL?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSOPTIONAL) echo "selected";?> ><?php EchoTranslation("STARTTLS (Optional)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSREQUIRED?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSREQUIRED) echo "selected";?> ><?php EchoTranslation("STARTTLS (Required)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_TLS?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_TLS) echo "selected";?> ><?php EchoTranslation("SSL/TLS")?></a>
+					</select></td>
+				</tr>
                <?php 
-                  PrintCheckboxRow("usessl", "Use SSL", $usessl);
                   PrintCheckboxRow("AllAddresses", "Deliver to all addresses", $AllAddresses);
                   
                      

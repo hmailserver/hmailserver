@@ -12,7 +12,7 @@ $action	   = hmailGetVar("action","");
 if($action == "save")
 {
 	$obSettings->VerifyRemoteSslCertificate= hmailGetVar("VerifyRemoteSslCertificate",0);
-	$obSettings->SslCipherList = hmailGetVar("SslCipherList", 0);
+	$obSettings->SslCipherList = hmailGetVar("SslCipherList", "");
 }
 
 $VerifyRemoteSslCertificate = $obSettings->VerifyRemoteSslCertificate;      
