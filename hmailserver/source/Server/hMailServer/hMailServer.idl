@@ -888,13 +888,13 @@ interface IInterfaceDatabase : IDispatch
 interface IInterfaceMessage : IDispatch
 {
 	[propget, id(1), helpstring("The unique database identifier for the e-mail.")] HRESULT ID([out, retval] hyper *pVal);
-	[propget, id(2), helpstring("The filename in witch the message is stored.")] HRESULT Filename([out, retval] BSTR *pVal);
+	[propget, id(2), helpstring("The name of the file in witch the message is stored.")] HRESULT Filename([out, retval] BSTR *pVal);
 	[propget, id(3), helpstring("The subject of the e-mail.")] HRESULT Subject([out, retval] BSTR *pVal);
 	[propput, id(3), helpstring("The subject of the e-mail.")] HRESULT Subject([in] BSTR newVal);
-	[propget, id(4), helpstring("The sender of the e-mail.")] HRESULT From([out, retval] BSTR *pVal);
-	[propput, id(4), helpstring("The sender of the e-mail.")] HRESULT From([in] BSTR newVal);
-	[propget, id(5), helpstring("The date header of the e-mail message.")] HRESULT Date([out, retval] BSTR *pVal);
-   [propput, id(5), helpstring("The date header of the e-mail message")] HRESULT Date([in] BSTR newVal);
+	[propget, id(4), helpstring("The contents of the From message header.")] HRESULT From([out, retval] BSTR *pVal);
+	[propput, id(4), helpstring("The contents of the From message header.")] HRESULT From([in] BSTR newVal);
+	[propget, id(5), helpstring("The contents of the Date message header.")] HRESULT Date([out, retval] BSTR *pVal);
+   [propput, id(5), helpstring("The contents of the Date message header.")] HRESULT Date([in] BSTR newVal);
 	[propget, id(6), helpstring("The plain text contents of the e-mail.")] HRESULT Body([out, retval] BSTR *pVal);
 	[propput, id(6), helpstring("The plain text contents of the e-mail.")] HRESULT Body([in] BSTR newVal);
 	[propget, id(7), helpstring("The HTML contents of the e-mail.")] HRESULT HTMLBody([out, retval] BSTR *pVal);
@@ -903,8 +903,8 @@ interface IInterfaceMessage : IDispatch
 	[id(9), helpstring("Saves the email. If this is a new email, it will be delivered after save.")] HRESULT Save();
 	[propget, id(10), helpstring("The To-header of the email.")] HRESULT To([out, retval] BSTR *pVal);
 	[id(11), helpstring("Adds a recipient to the e-mail.")] HRESULT AddRecipient([in]BSTR sName, [in]BSTR sAddress);
-	[propget, id(12), helpstring("The sender address of the message.")] HRESULT FromAddress([out, retval] BSTR *pVal);
-	[propput, id(12), helpstring("The sender address of the message.")] HRESULT FromAddress([in] BSTR newVal);
+	[propget, id(12), helpstring("The From address specified in the message envelope.")] HRESULT FromAddress([out, retval] BSTR *pVal);
+	[propput, id(12), helpstring("The From address specified in the message envelope.")] HRESULT FromAddress([in] BSTR newVal);
 	[propget, id(13), helpstring("The state of the message.")] HRESULT State([out, retval] long *pVal);
    [propget, id(14), helpstring("The size of the message, counted in kilobytes.")] HRESULT Size([out, retval] long *pVal);
    [id(15), helpstring("Clears the recipient of the email (including the MIME-headers).")] HRESULT ClearRecipients();
