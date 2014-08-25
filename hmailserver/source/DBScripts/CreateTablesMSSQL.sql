@@ -710,6 +710,8 @@ insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msi', 
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msp', 'Windows Installer patch') 
 
+insert into hm_blocked_attachments (bawildcard, badescription) values ('*.pif', 'Program Information file') 
+
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.reg', 'Registration key') 
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.scf', 'Windows Explorer command') 

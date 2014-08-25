@@ -533,6 +533,7 @@ insert into hm_dnsbl (sblactive, sbldnshost, sblresult, sblrejectmessage, sblsco
 
 insert into hm_surblservers (surblactive, surblhost, surblrejectmessage, surblscore) values (0, 'multi.surbl.org', 'Rejected by SURBL.', 3);
 
+
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.bat', 'Batch processing file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.cmd', 'Command file for Windows NT');
@@ -552,6 +553,8 @@ insert into hm_blocked_attachments (bawildcard, badescription) values ('*.lnk', 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msi', 'Windows Installer file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msp', 'Windows Installer patch');
+
+insert into hm_blocked_attachments (bawildcard, badescription) values ('*.pif', 'Program Information file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.reg', 'Registration key');
 
