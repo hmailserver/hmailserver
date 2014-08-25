@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -602,12 +602,12 @@ namespace HM
    SQLStatement::ConvertLikeToWildcard(String input)
    {
       input.Replace(_T("//"), _T("/"));
-      input.Replace(_T("/%"), _T("���ESCAPED���PERCENTAGE���"));
-      input.Replace(_T("/_"), _T("���ESCAPED���UNDERSCORE���"));
+      input.Replace(_T("/%"), _T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"));
+      input.Replace(_T("/_"), _T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"));
       input.Replace(_T("_"), _T("?"));
       input.Replace(_T("%"), _T("*"));
-      input.Replace(_T("���ESCAPED���PERCENTAGE���"), _T("%"));
-      input.Replace(_T("���ESCAPED���UNDERSCORE���"), _T("_"));
+      input.Replace(_T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"), _T("%"));
+      input.Replace(_T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"), _T("_"));
 
       return input;
    }

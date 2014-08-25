@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -237,9 +237,9 @@ namespace HM
 
       std::vector<String> setNeedsEncoding;
       setNeedsEncoding.push_back("=?iso-8859-1?q?this is some text?=");
-      setNeedsEncoding.push_back("���");
-      setNeedsEncoding.push_back("���");
-      setDoesNotNeedEncoding.push_back("Re: =?ISO-8859-1?Q?Reuni=E3o?= =?ISO-8859-1?Q?Reuni=E3o?=�ABCD =?ISO-8859-1?Q?Reuni=E3o?= ABCD");
+      setNeedsEncoding.push_back("åäö");
+      setNeedsEncoding.push_back("ÅÄÖ");
+      setDoesNotNeedEncoding.push_back("Re: =?ISO-8859-1?Q?Reuni=E3o?= =?ISO-8859-1?Q?Reuni=E3o?=ÖABCD =?ISO-8859-1?Q?Reuni=E3o?= ABCD");
 
       iter = setNeedsEncoding.begin();
       iterEnd = setNeedsEncoding.end();
