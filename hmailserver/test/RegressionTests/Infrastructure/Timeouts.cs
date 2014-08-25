@@ -40,7 +40,7 @@ namespace RegressionTests.Infrastructure
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "TimeoutTest@test.com", "test");
          int iCount = application.Status.get_SessionCount(eSessionType.eSTPOP3);
 
-         var oPOP3 = new POP3Simulator();
+         var oPOP3 = new POP3ClientSimulator();
          oPOP3.ConnectAndLogon(account.Address, "test");
          AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
          oPOP3.Disconnect(); // Disconnect without sending quit

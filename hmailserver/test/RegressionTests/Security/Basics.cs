@@ -17,11 +17,11 @@ namespace RegressionTests.Security
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "");
 
          string message;
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          CustomAssert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
 
 
-         var simIMAP = new IMAPSimulator();
+         var simIMAP = new IMAPClientSimulator();
          CustomAssert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
          CustomAssert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 

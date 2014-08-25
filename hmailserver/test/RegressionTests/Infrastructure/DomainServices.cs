@@ -27,7 +27,7 @@ namespace RegressionTests.Infrastructure
          for (int i = 0; i < 5; i++)
             oSMTP.Send("domain-alias-test@alias.com", "domain-alias-test@alias.com", "INBOX", "Alias test message");
 
-         POP3Simulator.AssertMessageCount("domain-alias-test@alias.com", "test", 5);
+         POP3ClientSimulator.AssertMessageCount("domain-alias-test@alias.com", "test", 5);
 
          {
             oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
@@ -42,7 +42,7 @@ namespace RegressionTests.Infrastructure
                oSMTP.Send(oAccount.Address, "datestalias@test.com", "INBOX", "Plus addressing message");
             // Wait for completion
 
-            POP3Simulator.AssertMessageCount(oAccount.Address, "test", 5);
+            POP3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 5);
          }
       }
 
@@ -66,10 +66,10 @@ namespace RegressionTests.Infrastructure
          smtpSimulator.Send("test@alias.com", account3.Address, "Test", "test1@test1.com");
          smtpSimulator.Send("test@alias.com", account4.Address, "Test", "test2@test1.com");
 
-         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account1.Address, "test").Contains(account1.Address));
-         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account2.Address, "test").Contains(account2.Address));
-         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account3.Address, "test").Contains(account3.Address));
-         CustomAssert.IsTrue(POP3Simulator.AssertGetFirstMessageText(account4.Address, "test").Contains(account4.Address));
+         CustomAssert.IsTrue(POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test").Contains(account1.Address));
+         CustomAssert.IsTrue(POP3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test").Contains(account2.Address));
+         CustomAssert.IsTrue(POP3ClientSimulator.AssertGetFirstMessageText(account3.Address, "test").Contains(account3.Address));
+         CustomAssert.IsTrue(POP3ClientSimulator.AssertGetFirstMessageText(account4.Address, "test").Contains(account4.Address));
       }
 
       [Test]
@@ -94,14 +94,14 @@ namespace RegressionTests.Infrastructure
          // Wait for completion
 
          // Check using POP3 that 5 messages exists.
-         POP3Simulator.AssertMessageCount("plustest2@test.com", "test", 5);
+         POP3ClientSimulator.AssertMessageCount("plustest2@test.com", "test", 5);
 
          // Send using plus addressing
          for (int i = 0; i < 5; i++)
             oSMTP.Send("plustest@test.com", "plustest2+hejsan@test.com", "INBOX", "Plus addressing message");
          // Wait for completion
 
-         POP3Simulator.AssertMessageCount("plustest2@test.com", "test", 10);
+         POP3ClientSimulator.AssertMessageCount("plustest2@test.com", "test", 10);
 
          {
             Account oAccount3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "plustest3@test.com",
@@ -115,7 +115,7 @@ namespace RegressionTests.Infrastructure
                oSMTP.Send("plustest@test.com", "plusalias@test.com", "INBOX", "Plus addressing message");
             // Wait for completion
 
-            POP3Simulator.AssertMessageCount("plustest3@test.com", "test", 5);
+            POP3ClientSimulator.AssertMessageCount("plustest3@test.com", "test", 5);
          }
 
          _domain.PlusAddressingEnabled = false;

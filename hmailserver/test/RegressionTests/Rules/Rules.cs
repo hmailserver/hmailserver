@@ -90,7 +90,7 @@ namespace RegressionTests.Rules
          CustomAssert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                                   "Detta ska hamna i public folder."));
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
       }
 
       [Test]
@@ -139,7 +139,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "account1@test.com", "SomeString",
                     "This should end up in the #public.share1.sub since user lacks right.");
 
-         IMAPSimulator.AssertMessageCount("account1@test.com", "test", "#public.Share1.Sub", 1);
+         IMAPClientSimulator.AssertMessageCount("account1@test.com", "test", "#public.Share1.Sub", 1);
       }
 
       [Test]
@@ -177,7 +177,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "This should end up in the inbox since user lacks right.");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
       }
 
       [Test]
@@ -252,7 +252,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 3");
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "b", "Test 2");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
 
          int fileCount = 0;
          string domainDir = Path.Combine(_application.Settings.Directories.DataDirectory, "test.com");
@@ -314,8 +314,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
-         IMAPSimulator.AssertMessageCount("ActionGlobalMoveToIMAPFolder@test.com", "test", "Inbox.GlobalBox", 1);
-         IMAPSimulator.AssertMessageCount("ActionGlobalMoveToIMAPFolder@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ActionGlobalMoveToIMAPFolder@test.com", "test", "Inbox.GlobalBox", 1);
+         IMAPClientSimulator.AssertMessageCount("ActionGlobalMoveToIMAPFolder@test.com", "test", "Inbox", 2);
       }
 
       [Test]
@@ -362,7 +362,7 @@ namespace RegressionTests.Rules
          // Spam folder
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
       }
 
       [Test]
@@ -407,7 +407,7 @@ namespace RegressionTests.Rules
          bool ok = false;
          try
          {
-            IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 0);
+            IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 0);
          }
          catch (Exception)
          {
@@ -427,7 +427,7 @@ namespace RegressionTests.Rules
 
 
          // Make sure we can access it now.
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 1);
       }
 
       [Test]
@@ -466,8 +466,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
       }
 
       [Test]
@@ -523,8 +523,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox.Overriden.Test");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Overriden.Test", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Overriden.Test", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
       }
 
       [Test]
@@ -564,7 +564,7 @@ namespace RegressionTests.Rules
          recipients.Add("test@test.com");
          if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
             CustomAssert.Fail("Delivery failed");
-         string message = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(message.Contains("Test message"));
 
          // Send a message and confirm that the rule affects it.
@@ -590,7 +590,7 @@ namespace RegressionTests.Rules
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
          // Download it.
-         message = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         message = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("550"));
          CustomAssert.IsTrue(message.Contains("test@nonexistantdomain.com"));
@@ -628,7 +628,7 @@ namespace RegressionTests.Rules
          // Spam folder
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
 
-         string sContents = POP3Simulator.AssertGetFirstMessageText("ruletest@test.com", "test");
+         string sContents = POP3ClientSimulator.AssertGetFirstMessageText("ruletest@test.com", "test");
 
          if (sContents.IndexOf("SomeHeader: SomeValue") <= 0)
             throw new Exception("Message header not set");
@@ -672,8 +672,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "VaffeTestStringBaffe",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
 
 
          Trace.WriteLine(watch.ElapsedMilliseconds);
@@ -717,8 +717,8 @@ namespace RegressionTests.Rules
          oSMTP.SendRaw("someone@example.org", account.Address, message);
 
          // The message should be placed in the Wildcard folder, since the HTML body of the message contains MyHTMLBody.
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox.Wildcard", 1);
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 0);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox.Wildcard", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 0);
       }
 
       [Test]
@@ -758,8 +758,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "teststring vaffe",
                     "Detta ska inte hamna i mappen Inbox\\Wildcard");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
       }
 
 
@@ -798,8 +798,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox\\GreaterThan");
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox\\GreaterThan");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.GreaterThan", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.GreaterThan", 2);
       }
 
       [Test]
@@ -836,8 +836,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox");
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.LessThan", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.LessThan", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
       }
 
       [Test]
@@ -876,8 +876,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
       }
 
       [Test]
@@ -916,8 +916,8 @@ namespace RegressionTests.Rules
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.RegEx", 2);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.RegEx", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
       }
 
       [Test]
@@ -954,7 +954,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "Exact wildcard",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
       }
 
       [Test]
@@ -991,7 +991,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("CriteriaWildcardNoCase@test.com", "CriteriaWildcardNoCase@test.com", "exact Test match",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
-         IMAPSimulator.AssertMessageCount("CriteriaWildcardNoCase@test.com", "test", "Inbox.Wildcard", 1);
+         IMAPClientSimulator.AssertMessageCount("CriteriaWildcardNoCase@test.com", "test", "Inbox.Wildcard", 1);
       }
 
       [Test]
@@ -1028,8 +1028,8 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "ExactMatchArInte",
                     "Detta ska inte hamna Inbox\\Wildcard");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
       }
 
       [Test]
@@ -1078,7 +1078,7 @@ namespace RegressionTests.Rules
          // Spam folder
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Public.Share1", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Public.Share1", 1);
       }
 
       [Test]
@@ -1114,9 +1114,9 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Spam", 1);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Corporate", 2);
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 4);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Spam", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Corporate", 2);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 4);
 
          // Test move to imap with mail with multiple recipients.
 
@@ -1131,10 +1131,10 @@ namespace RegressionTests.Rules
 
          oSMTP.Send(oAccount1.Address, lstRecipients, "**SPAM** INBOX->SPAM", sBody);
 
-         IMAPSimulator.AssertMessageCount(oAccount1.Address, "test", "Inbox.Spam", 1);
-         IMAPSimulator.AssertMessageCount(oAccount2.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(oAccount1.Address, "test", "Inbox.Spam", 1);
+         IMAPClientSimulator.AssertMessageCount(oAccount2.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(oAccount2.Address, "test");
          CustomAssert.IsFalse(sim.SelectFolder("Inbox.Spam"));
       }
@@ -1183,10 +1183,10 @@ namespace RegressionTests.Rules
          // Test to send the message to account 1. Make sure a copy is created by this rule.
          oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
          TestSetup.AssertRecipientsInDeliveryQueue(0, true);
-         IMAPSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
 
-         string firstTemp = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
-         string secondTemp = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string firstTemp = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         string secondTemp = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          // This is where it gets really ugly. The order of the two deliveries
          // are not defined. The message created by the rule could be delivered
@@ -1253,16 +1253,16 @@ namespace RegressionTests.Rules
          // Test to send the message to account 1. Make sure a copy is created by this rule.
          oSMTP.Send(account1.Address, new List<string> {account1.Address, account2.Address}, "Test", "Test message.");
          TestSetup.AssertRecipientsInDeliveryQueue(0, true);
-         IMAPSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
-         IMAPSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 2);
 
          /*
           * The delivery order is not guaranteed. The copied message may be delivered
           * before the original message. Check both situations.
           * 
           */
-         string first = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
-         string second = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string first = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         string second = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          if (first.Contains("X-hMailServer-LoopCount: 1"))
          {
@@ -1275,8 +1275,8 @@ namespace RegressionTests.Rules
             CustomAssert.IsTrue(second.Contains("X-CopyRule: CriteriaTest"), first);
          }
 
-         first = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
-         second = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
+         first = POP3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
+         second = POP3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
 
          if (first.Contains("X-hMailServer-LoopCount: 1"))
          {
@@ -1348,11 +1348,11 @@ namespace RegressionTests.Rules
 
          TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-         string first = POP3Simulator.AssertGetFirstMessageText(adminAccount.Address, "test");
+         string first = POP3ClientSimulator.AssertGetFirstMessageText(adminAccount.Address, "test");
 
          CustomAssert.IsTrue(first.Contains("X-hMailServer-LoopCount: 1"), first);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
       }
 
       [Test]
@@ -1395,10 +1395,10 @@ namespace RegressionTests.Rules
          // Test to send the messge to account 1.
          oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
 
-         IMAPSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         IMAPSimulator.AssertMessageCount(account3.Address, "test", "Inbox", 1);
-         IMAPSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account3.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
       }
 
       [Test]
@@ -1447,7 +1447,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "This should end up in the inbox since user lacks right.");
 
-         IMAPSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
+         IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
       }
 
       [Test]
@@ -1548,7 +1548,7 @@ namespace RegressionTests.Rules
 
          // Test to send the message to account 2.
          oSMTP.Send(account1.Address, account2.Address, "Test", "Test message.");
-         IMAPSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
 
          // Make sure a reply is sent back to account 1.
          TestSetup.AssertRecipientsInDeliveryQueue(0);

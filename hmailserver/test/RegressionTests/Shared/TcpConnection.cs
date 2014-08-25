@@ -37,7 +37,7 @@ namespace RegressionTests.Shared
 
       public bool IsConnected
       {
-         get { return _tcpClient.Connected; }
+         get { return _tcpClient != null && _tcpClient.Connected; }
       }
 
       public bool Connect(int iPort)
@@ -166,6 +166,12 @@ namespace RegressionTests.Shared
          get { return _useSslSocket; }
       }
 
+      public string SendAndReceive(string sData)
+      {
+         Send(sData);
+         return Receive();
+      }
+
       public void Send(string s)
       {
          if (!_tcpClient.Connected)
@@ -290,6 +296,15 @@ namespace RegressionTests.Shared
       {
          Disconnect();
       }
+
+
+      public bool TestConnect(int iPort)
+      {
+         bool bRetVal = Connect(iPort);
+         Disconnect();
+         return bRetVal;
+      }
+
 
    }
 }

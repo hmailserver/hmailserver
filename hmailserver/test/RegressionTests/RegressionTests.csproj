@@ -71,12 +71,12 @@
     <Compile Include="Infrastructure\Delivery.cs" />
     <Compile Include="Infrastructure\DomainServices.cs" />
     <Compile Include="IMAP\Basics.cs" />
-    <Compile Include="Shared\IMAPSimulator.cs" />
+    <Compile Include="Shared\IMAPClientSimulator.cs" />
     <Compile Include="Infrastructure\IPRanges.cs" />
     <Compile Include="Infrastructure\MainOperations.cs" />
     <Compile Include="Infrastructure\Persistence\Basics.cs" />
     <Compile Include="POP3\Basics.cs" />
-    <Compile Include="Shared\POP3Simulator.cs" />
+    <Compile Include="Shared\POP3ClientSimulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rules\Rules.cs" />
     <Compile Include="Shared\SingletonProvider.cs" />
@@ -182,6 +182,7 @@
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
     <Compile Include="Shared\SMTPClientSimulator.cs" />
     <Compile Include="Shared\TestTracer.cs" />
+    <Compile Include="SMTP\ReceivedHeaders.cs" />
     <Compile Include="SMTP\DistributionLists.cs" />
     <Compile Include="SMTP\Routes.cs" />
     <Compile Include="SMTP\SMTPClientStartTLSTests.cs" />

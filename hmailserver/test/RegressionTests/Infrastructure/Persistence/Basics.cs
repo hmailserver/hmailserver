@@ -59,7 +59,7 @@ namespace RegressionTests.Infrastructure.Persistence
          string upperCase = testAccount.Address.ToUpper();
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
 
-         POP3Simulator.AssertMessageCount("lowercase@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
 
       [Test]
@@ -73,7 +73,7 @@ namespace RegressionTests.Infrastructure.Persistence
          string upperCase = testAlias.Name.ToUpper();
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
 
-         POP3Simulator.AssertMessageCount("lowercase@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
 
       [Test]
@@ -91,7 +91,7 @@ namespace RegressionTests.Infrastructure.Persistence
          string upperCase = list.Address.ToUpper();
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
 
-         POP3Simulator.AssertMessageCount("lowercase@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
 
       [Test]
@@ -362,12 +362,12 @@ namespace RegressionTests.Infrastructure.Persistence
 
          string messageBody = Guid.NewGuid().ToString();
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Subj", messageBody);
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          account.Address = "account2@test.com";
          account.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText("account2@test.com", "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText("account2@test.com", "test");
          CustomAssert.IsTrue(messageText.Contains(messageBody), messageText);
       }
 
@@ -462,12 +462,12 @@ namespace RegressionTests.Infrastructure.Persistence
 
          string messageBody = Guid.NewGuid().ToString();
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Subj", messageBody);
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          _domain.Name = "example.com";
          _domain.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText("account1@example.com", "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText("account1@example.com", "test");
          CustomAssert.IsTrue(messageText.Contains(messageBody), messageText);
       }
 

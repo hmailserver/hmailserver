@@ -39,7 +39,7 @@ namespace RegressionTests.SMTP
          SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test of signature, 2",
                                         "Test of signature - Body");
 
-         string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsTrue(sMessageData.Contains("Regards Martin Knafve"));
       }
@@ -50,7 +50,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestDomainSignature()
       {
-         var oPOP3 = new POP3Simulator();
+         var oPOP3 = new POP3ClientSimulator();
 
          domain.SignatureEnabled = true;
          domain.AddSignaturesToLocalMail = true;
@@ -65,7 +65,7 @@ namespace RegressionTests.SMTP
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("PlainTextSignature") <= 0)
             throw new Exception("Did not find signature");
 
@@ -76,7 +76,7 @@ namespace RegressionTests.SMTP
          domain.Save();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("PlainTextSignature") <= 0 ||
              sMessageContents.IndexOf("DomainSignature") <= 0)
             throw new Exception("Did not find signature");
@@ -88,7 +88,7 @@ namespace RegressionTests.SMTP
          domain.Save();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("PlainTextSignature") >= 0 ||
              sMessageContents.IndexOf("DomainSignature") <= 0)
             throw new Exception("Did not find signature");
@@ -100,7 +100,7 @@ namespace RegressionTests.SMTP
          domain.Save();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("DomainSignature") >= 0)
             throw new Exception("Found incorrect signature.");
 
@@ -114,7 +114,7 @@ namespace RegressionTests.SMTP
 
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("DomainSignature") <= 0)
             throw new Exception("Found incorrect signature.");
 
@@ -125,7 +125,7 @@ namespace RegressionTests.SMTP
          oAccount1.Save();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("PlainTextSignature") > 0)
             throw new Exception("Found incorrect signature.");
 
@@ -134,7 +134,7 @@ namespace RegressionTests.SMTP
 
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.IndexOf("PlainTextSignature") <= 0)
             throw new Exception("Found incorrect signature.");
       }
@@ -156,7 +156,7 @@ namespace RegressionTests.SMTP
          SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test of signature, 2",
                                         "Test of signature - Body");
 
-         string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsTrue(sMessageData.Contains("Regards Knafve, Martin"));
       }
@@ -173,7 +173,7 @@ namespace RegressionTests.SMTP
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 1", "Test of signature - Body");
 
-         string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          if (sMessageData.IndexOf("PlainTextSignature") > 0)
             throw new Exception("Found exception which should not be there");
@@ -183,7 +183,7 @@ namespace RegressionTests.SMTP
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 2", "Test of signature - Body");
 
 
-         sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          if (sMessageData.IndexOf("PlainTextSignature") < 0)
             throw new Exception("Did not find expected signature");
@@ -193,7 +193,7 @@ namespace RegressionTests.SMTP
          oAccount1.Save();
 
          oSMTP.Send(oAccount1.Address, oAccount1.Address, "Test of signature, 2", "Test of signature - Body");
-         sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          if (sMessageData.IndexOf("PlainTextSignature") > 0)
             throw new Exception("Found signature even though there shouldn't be any");
@@ -215,7 +215,7 @@ namespace RegressionTests.SMTP
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("nonexistant@dummy-example.com", account.Address, "SignatureTest", "SignaturerTestBody");
 
-         string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsFalse(messageData.Contains(domain.SignaturePlainText));
       }
@@ -237,7 +237,7 @@ namespace RegressionTests.SMTP
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("nonexistant@" + domain.Name, account.Address, "SignatureTest", "SignaturerTestBody");
 
-         string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(messageData.Contains(domain.SignaturePlainText));
       }
@@ -260,7 +260,7 @@ namespace RegressionTests.SMTP
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("nonexistant@" + domain.Name, account.Address, "SignatureTest", "SignaturerTestBody");
 
-         string messageData = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(messageData.Contains("%User.FirstName%"));
       }

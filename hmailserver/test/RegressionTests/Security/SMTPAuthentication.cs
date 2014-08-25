@@ -226,7 +226,7 @@ namespace RegressionTests.Security
          string result;
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 
@@ -298,7 +298,7 @@ namespace RegressionTests.Security
          string result;
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 
@@ -348,7 +348,7 @@ namespace RegressionTests.Security
          string result;
          CustomAssert.IsTrue(oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
 
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          CustomAssert.IsTrue(text.Contains("Mail 1"));
       }
 

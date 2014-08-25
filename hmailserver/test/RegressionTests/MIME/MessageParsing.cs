@@ -15,9 +15,9 @@ namespace RegressionTests.MIME
          string body = TestSetup.GetResource("Messages.MultipartMessageWithNoMainBodyText.txt");
          SMTPClientSimulator.StaticSendRaw(account.Address, account.Address, body);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var imapSim = new IMAPSimulator("search@test.com", "test", "INBOX");
+         var imapSim = new IMAPClientSimulator("search@test.com", "test", "INBOX");
          string result = imapSim.Fetch("1 (BODY.PEEK[HEADER] BODY.PEEK[TEXT])");
 
          imapSim.Logout();

@@ -29,7 +29,7 @@ namespace RegressionTests.AntiVirus
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "Mail 1", "DummyBody"));
-         POP3Simulator.AssertMessageCount(account1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
          TestSetup.AssertReportedError("Protocol error. Unexpected response: +OK");
       }
 
@@ -40,7 +40,7 @@ namespace RegressionTests.AntiVirus
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "Mail 1", "Mail 1"));
-         POP3Simulator.AssertMessageCount(account1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
       }
 
       [Test]
@@ -49,7 +49,7 @@ namespace RegressionTests.AntiVirus
          TestSetup.DeleteCurrentDefaultLog();
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "Mail 1", "Mail 1"));
-         POP3Simulator.AssertMessageCount(account1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
          string defaultLog = TestSetup.ReadCurrentDefaultLog();
          CustomAssert.IsFalse(defaultLog.Contains("Connecting to ClamAV"));
       }
@@ -62,7 +62,7 @@ namespace RegressionTests.AntiVirus
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "Mail 1", "DummyBody"));
-         POP3Simulator.AssertMessageCount(account1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
          TestSetup.AssertReportedError("Unable to connect to ClamAV server at localhost:54391.");
       }
 
@@ -79,7 +79,7 @@ namespace RegressionTests.AntiVirus
                                                       firstPart + secondPart));
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
 
          string defaultLog = TestSetup.ReadCurrentDefaultLog();
          CustomAssert.IsTrue(defaultLog.Contains("Connecting to ClamAV"));

@@ -101,7 +101,7 @@ namespace RegressionTests.SMTP
 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            string messageText = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string messageText = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsFalse(messageText.Contains("MySecretPassword"));
             CustomAssert.IsTrue(messageText.Contains("<Password removed>"));
@@ -134,7 +134,7 @@ namespace RegressionTests.SMTP
          // Wait for the bounce message to be delivered.
          TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-         string message = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
          CustomAssert.IsTrue(message.Contains("this would mean connecting to myself."));
       }
 
@@ -445,7 +445,7 @@ namespace RegressionTests.SMTP
 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounceMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsTrue(bounceMessage.Contains("MAIL FROM:<test@test.com>"));
             CustomAssert.IsTrue(bounceMessage.Contains("Remote server replied: 561"));
@@ -486,7 +486,7 @@ namespace RegressionTests.SMTP
             // Force the message to be bounced.
             TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-            string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounce = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
             CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
@@ -566,7 +566,7 @@ namespace RegressionTests.SMTP
             // Force the message to be bounced.
             TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-            string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounce = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
             CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
@@ -608,7 +608,7 @@ namespace RegressionTests.SMTP
             // Force the message to be bounced.
             TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-            string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounce = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsTrue(bounce.Contains("test@dummy-example.com"));
             CustomAssert.IsTrue(bounce.Contains("Remote server closed connection."));
@@ -663,7 +663,7 @@ namespace RegressionTests.SMTP
 
             TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-            string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounceMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsTrue(bounceMessage.Contains("Remote server (127.0.0.1) issued an error."));
             CustomAssert.IsTrue(bounceMessage.Contains("550 test@dummy-example.com"));
@@ -717,7 +717,7 @@ namespace RegressionTests.SMTP
             // Trigger a sending of the bounce message.
             TestSetup.AssertRecipientsInDeliveryQueue(0, true);
 
-            string bounceMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string bounceMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             CustomAssert.IsFalse(bounceMessage.Contains("RCPT TO:<user1@dummy-example.com>"));
             CustomAssert.IsFalse(bounceMessage.Contains("RCPT TO:<user2@dummy-example.com>"));
@@ -780,7 +780,7 @@ namespace RegressionTests.SMTP
 
             server.WaitForCompletion();
 
-            string bounceMessage = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+            string bounceMessage = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
 
             CustomAssert.IsFalse(bounceMessage.Contains("user1@dummy-example.com"));
             CustomAssert.IsFalse(bounceMessage.Contains("user2@dummy-example.com"));
@@ -892,7 +892,7 @@ namespace RegressionTests.SMTP
 
             // 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
-            string bounceMessage = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+            string bounceMessage = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
 
             CustomAssert.IsTrue(bounceMessage.Contains("400 user3@dummy-example.com"));
             CustomAssert.IsTrue(bounceMessage.Contains("Tried 2 time(s)"));
@@ -933,7 +933,7 @@ namespace RegressionTests.SMTP
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-         string bounce = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+         string bounce = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
          CustomAssert.IsTrue(bounce.Contains("Remote server replied: 542 test@dummy-example.com"));
       }
@@ -1020,7 +1020,7 @@ namespace RegressionTests.SMTP
          }
 
          // Now the message has bounced.
-         string message = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("452 test@dummy-example.com"));
          CustomAssert.IsTrue(message.Contains("Tried 2 time(s)"));

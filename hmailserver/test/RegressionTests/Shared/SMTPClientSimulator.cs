@@ -1,8 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
 
 namespace RegressionTests.Shared
 {
@@ -32,62 +34,45 @@ namespace RegressionTests.Shared
          _ipaddress = ipaddress;
       }
 
-      public bool IsConnected
-      {
-         get { return _tcpConnection.IsConnected; }
-      }
-
-      public bool TestConnect(int iPort)
-      {
-         bool bRetVal = _tcpConnection.Connect(_ipaddress, iPort);
-         _tcpConnection.Disconnect();
-         return bRetVal;
-      }
-
-      public void Connect()
-      {
-         _tcpConnection.Connect(_port);
-      }
 
       public bool ConnectAndLogon(string base64Username, string base64Password, out string errorMessage)
       {
-         Connect();
+         _tcpConnection.Connect(_port);
 
          errorMessage = Receive();
          if (!errorMessage.StartsWith("220"))
             return false;
 
-         Send("EHLO test\r\n");
-         errorMessage = Receive();
+         if (!Logon(base64Username, base64Password, out errorMessage)) 
+            return false;
+
+         return true;
+      }
+
+      private bool Logon(string base64Username, string base64Password, out string errorMessage)
+      {
+         errorMessage = SendAndReceive("EHLO test\r\n");
          if (!errorMessage.StartsWith("250"))
             return false;
 
-         Send("AUTH LOGIN\r\n");
-         errorMessage = Receive();
+         errorMessage = SendAndReceive("AUTH LOGIN\r\n");
          if (!errorMessage.StartsWith("334"))
             return false;
 
-         Send(base64Username + "\r\n");
-         errorMessage = Receive();
+         ;
+         errorMessage = SendAndReceive(base64Username + "\r\n");
          if (!errorMessage.StartsWith("334"))
             return false;
 
-         Send(base64Password + "\r\n");
-         errorMessage = Receive();
+         errorMessage = SendAndReceive(base64Password + "\r\n");
          if (!errorMessage.StartsWith("235"))
             return false;
-
          return true;
       }
 
       public void Disconnect()
       {
          _tcpConnection.Disconnect();
-      }
-
-      public void Send(string sData)
-      {
-         _tcpConnection.Send(sData);
       }
 
       public string Receive()
@@ -97,13 +82,8 @@ namespace RegressionTests.Shared
 
       public string SendAndReceive(string sData)
       {
-         Send(sData);
+         _tcpConnection.Send(sData);
          return Receive();
-      }
-
-      public void Handshake()
-      {
-         _tcpConnection.HandshakeAsClient();
       }
 
       public string GetWelcomeMessage()
@@ -185,15 +165,37 @@ namespace RegressionTests.Shared
       {
          string result = "";
 
-         return Send(sFrom, sTo, sSubject, sBody, out result);
+         return Send(false, "", "", sFrom, sTo, sSubject, sBody, out result);
       }
 
       public bool Send(string sFrom, string sTo, string sSubject, string sBody, out string result)
       {
+         return Send(false, "", "", sFrom, sTo, sSubject, sBody, out result);
+      }
+
+      public bool Send(bool useStartTls, string username, string password, string sFrom, string sTo, string sSubject, string sBody, out string result)
+      {
+         string sData;
+
          _tcpConnection.Connect(_ipaddress, _port);
 
          // Receive welcome message.
-         string sData = _tcpConnection.Receive();
+         _tcpConnection.Receive();
+
+         if (useStartTls)
+         {
+            var capabilities1 = SendAndReceive("EHLO example.com\r\n");
+            CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+            SendAndReceive("STARTTLS\r\n");
+            _tcpConnection.HandshakeAsClient();
+         }
+
+         if (!string.IsNullOrEmpty(username))
+         {
+            if (!Logon(EncodeBase64(username), EncodeBase64(password), out result))
+               return false;
+         }
 
          _tcpConnection.Send("HELO example.com\r\n");
          sData = _tcpConnection.Receive();
@@ -310,5 +312,12 @@ namespace RegressionTests.Shared
          var oSimulator = new SMTPClientSimulator();
          return oSimulator.Send(sFrom, messageRecipients, sSubject, sBody);
       }
+
+      private string EncodeBase64(string s)
+      {
+         byte[] bytes = Encoding.UTF8.GetBytes(s);
+         return Convert.ToBase64String(bytes);
+      }
+
    }
 }

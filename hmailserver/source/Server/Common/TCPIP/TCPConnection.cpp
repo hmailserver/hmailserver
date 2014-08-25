@@ -77,7 +77,7 @@ namespace HM
          remote_ip_address_ = remote_ip_address;
          is_client_ = true;
 
-         LOG_TCPIP("Connecting to " + remote_ip_address_ + "...");
+         LOG_TCPIP(Formatter::Format("Connecting to {0}:{1}...", remote_ip_address_, remotePort));
 
          if (!localAddress.IsAny())
          {

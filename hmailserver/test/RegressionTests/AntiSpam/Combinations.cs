@@ -56,7 +56,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsTrue(oSMTP.Send("test@example.com", oAccount1.Address, "INBOX",
                                   "Test http://surbl-org-permanent-test-point.com/ Test 2"));
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          CustomAssert.IsTrue(message.Contains("X-hMailServer-Reason-2:"));
@@ -94,7 +94,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsTrue(oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
                                   "This is a test message."));
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          CustomAssert.IsFalse(message.Contains("X-hMailServer-Reason-2:"));

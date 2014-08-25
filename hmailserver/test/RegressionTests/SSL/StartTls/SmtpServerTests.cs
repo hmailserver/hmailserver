@@ -23,8 +23,8 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsNotEnabledStartTlsShouldNotBeShownInEhloResponse()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
          var data1 = smtpClientSimulator.Receive();
          var data = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
 
@@ -34,8 +34,8 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
          var data1 = smtpClientSimulator.Receive();
          var data = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
 
@@ -45,14 +45,14 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void StartTlsCommandShouldSwithToTls()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
          var banner = smtpClientSimulator.Receive();
          var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
 
          smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
-         smtpClientSimulator.Handshake();
+         smtpClientSimulator.HandshakeAsClient();
 
          // Send a command over TLS.
          var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
@@ -64,14 +64,14 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldSucceedIfStls()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25003);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25003);
          var banner = smtpClientSimulator.Receive();
          var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
 
          smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
-         smtpClientSimulator.Handshake();
+         smtpClientSimulator.HandshakeAsClient();
 
          var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
          CustomAssert.IsTrue(loginResult.StartsWith("334"));
@@ -80,8 +80,8 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldFailIfNoStls()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25003);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25003);
          var banner = smtpClientSimulator.Receive();
          var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
@@ -97,8 +97,8 @@ namespace RegressionTests.SSL.StartTls
          range.RequireSSLTLSForAuth = true;
          range.Save();
 
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
-         smtpClientSimulator.Connect();
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
          var banner = smtpClientSimulator.Receive();
          var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));

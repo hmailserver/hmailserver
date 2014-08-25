@@ -218,5 +218,6 @@ namespace HM
       SpamProtectionType type_;
 
       RecipientParser recipientParser_;
+      bool start_tls_used_;
    };
 }

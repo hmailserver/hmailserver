@@ -95,7 +95,7 @@ namespace RegressionTests.POP3
          fetchAccount.DownloadNow();
          pop3Server.WaitForCompletion();
 
-         POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
       }
 
       [Test]
@@ -126,9 +126,9 @@ namespace RegressionTests.POP3
             pop3Server.WaitForCompletion();
             LockHelper.WaitForUnlock(fetchAccount);
 
-            POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
+            POP3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             CustomAssert.IsTrue(downloadedMessage.Contains(_message));
          }
       }
@@ -163,8 +163,8 @@ namespace RegressionTests.POP3
             pop3Server.WaitForCompletion();
             LockHelper.WaitForUnlock(fetchAccount);
 
-            POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            POP3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
+            string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             CustomAssert.IsTrue(downloadedMessage.Contains(_message));
          }
       }
@@ -214,8 +214,8 @@ namespace RegressionTests.POP3
             pop3Server.WaitForCompletion();
             LockHelper.WaitForUnlock(fetchAccount);
 
-            POP3Simulator.AssertMessageCount(_account.Address, "test", 2);
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(_account.Address, "test");
+            POP3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
+            string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             CustomAssert.IsTrue(downloadedMessage.Contains(messageContent));
          }
       }

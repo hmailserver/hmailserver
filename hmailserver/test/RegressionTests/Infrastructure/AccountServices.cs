@@ -34,7 +34,7 @@ namespace RegressionTests.Infrastructure
          _application.SubmitEMail();
 
          // Wait for the auto-reply.
-         string text = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          CustomAssert.IsFalse(text.Contains("Return-Path: account2@test.com"));
          CustomAssert.IsFalse(text.Contains("Return-Path: account1@test.com"));
@@ -74,11 +74,11 @@ namespace RegressionTests.Infrastructure
 
          // Make sure that that a forward is made if no rule is set up.
          SMTPClientSimulator.StaticSend("external@test.com", oAccount1.Address, "Test message", "This is the body");
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
          _application.SubmitEMail();
 
          // Wait for the auto-reply.
-         string text = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          CustomAssert.IsTrue(text.Contains("Return-Path: account-a@test.com"));
          CustomAssert.IsFalse(text.Contains("Return-Path: account2@test.com"));
@@ -101,7 +101,7 @@ namespace RegressionTests.Infrastructure
          for (int i = 0; i < 5; i++)
             oSMTP.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
 
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 5);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
 
       [Test]
@@ -127,9 +127,9 @@ namespace RegressionTests.Infrastructure
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
-         var oPOP3 = new POP3Simulator();
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 1);
+         var oPOP3 = new POP3ClientSimulator();
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
          string s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Out of office!") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
@@ -144,8 +144,8 @@ namespace RegressionTests.Infrastructure
          // Send another
          oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 2);
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
 
          s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
          if (s.ToLower().IndexOf("re: test message") < 0)
@@ -191,9 +191,9 @@ namespace RegressionTests.Infrastructure
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
          // Wait for the auto-reply.
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 1);
-         POP3Simulator.AssertMessageCount(oAccount3.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount3.Address, "test", 1);
       }
 
       [Test]
@@ -223,9 +223,9 @@ namespace RegressionTests.Infrastructure
          // are delivered.
 
          // Check using POP3 that 2 messages exists.
-         var oPOP3 = new POP3Simulator();
+         var oPOP3 = new POP3ClientSimulator();
 
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
          string s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Subject: Auto-Reply: Test message") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
@@ -254,7 +254,7 @@ namespace RegressionTests.Infrastructure
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
-         string s = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string s = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Your message regarding -Test message- was not received.") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
       }
@@ -281,12 +281,12 @@ namespace RegressionTests.Infrastructure
          for (int i = 0; i < 2; i++)
             oSMTP.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
 
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 2);
 
          // Tell hMailServer to deliver now, so that the forward takes effect.
          SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
 
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
       }
 
       [Test]
@@ -309,7 +309,7 @@ namespace RegressionTests.Infrastructure
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
 
          string domainDir = Path.Combine(_settings.Directories.DataDirectory, "test.com");
          string userDir = Path.Combine(domainDir, "Forward1");
@@ -349,9 +349,9 @@ namespace RegressionTests.Infrastructure
          CustomAssert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
 
          // Make sure that that a forward is made if no rule is set up.
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
          _application.SubmitEMail();
-         POP3Simulator.AssertMessageCount(oAccount3.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount3.Address, "test", 1);
 
          // Start over again.
          oAccount2.DeleteMessages();
@@ -379,9 +379,9 @@ namespace RegressionTests.Infrastructure
 
          // Make sure that that a forward is made if no rule is set up.
          CustomAssert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 0);
          _application.SubmitEMail();
-         POP3Simulator.AssertMessageCount(oAccount3.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(oAccount3.Address, "test", 0);
       }
 
       [Test]
@@ -403,7 +403,7 @@ namespace RegressionTests.Infrastructure
          for (int i = 0; i < 5; i++)
             oSMTP.Send(oAccount1.Address, oAccount2.Address, "INBOX", "POP3 test message");
 
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 5);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
 
 
@@ -423,7 +423,7 @@ namespace RegressionTests.Infrastructure
          for (int i = 0; i < 5; i++)
             oSMTP.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
 
-         POP3Simulator.AssertMessageCount(oAccount2.Address, "test", 5);
+         POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
    }
 }

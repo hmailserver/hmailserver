@@ -50,11 +50,11 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
+         using (var smtpServer = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
          {
-            server.SetCertificate(SslSetup.GetCertificate());
-            server.AddRecipientResult(deliveryResults);
-            server.StartListen();
+            smtpServer.SetCertificate(SslSetup.GetCertificate());
+            smtpServer.AddRecipientResult(deliveryResults);
+            smtpServer.StartListen();
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
@@ -63,9 +63,9 @@ namespace RegressionTests.SSL
 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            server.WaitForCompletion();
+            smtpServer.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            CustomAssert.IsTrue(smtpServer.MessageData.Contains("Test message"), smtpServer.MessageData);
          }
       }
 
@@ -124,7 +124,7 @@ namespace RegressionTests.SSL
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
 
-            var msg = POP3Simulator.AssertGetFirstMessageText("sender@test.com", "test");
+            var msg = POP3ClientSimulator.AssertGetFirstMessageText("sender@test.com", "test");
 
             CustomAssert.IsTrue(msg.Contains("Server does not support STARTTLS"));
          }

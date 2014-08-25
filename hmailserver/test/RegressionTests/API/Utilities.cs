@@ -35,7 +35,7 @@ namespace RegressionTests.API
          CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
          CustomAssert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
-         POP3Simulator.AssertMessageCount("test@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
       }
 
       [Test]
@@ -142,7 +142,7 @@ namespace RegressionTests.API
 
          CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
-         string text = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
          CustomAssert.IsTrue(text.Contains(messageText));
       }
 
@@ -168,7 +168,7 @@ namespace RegressionTests.API
 
          CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Inbox"));
 
-         string text = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
          CustomAssert.IsTrue(text.Contains(messageText));
       }
 
@@ -195,8 +195,8 @@ namespace RegressionTests.API
 
          CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Woho"));
 
-         POP3Simulator.AssertMessageCount("test@test.com", "test", 0);
-         var sim = new IMAPSimulator();
+         POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon("test@test.com", "test");
          CustomAssert.AreEqual(1, sim.GetMessageCount("Woho"));
          sim.Disconnect();
@@ -272,7 +272,7 @@ namespace RegressionTests.API
          // Now nothing should happen because the file is no longer there.
          CustomAssert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
-         string content = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(content.Contains("Test message"));
       }
@@ -306,7 +306,7 @@ namespace RegressionTests.API
          CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
          CustomAssert.IsTrue(File.Exists(message.Filename));
 
-         string content = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(content.Contains("Test message"));
       }

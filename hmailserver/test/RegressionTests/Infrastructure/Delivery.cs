@@ -39,7 +39,7 @@ namespace RegressionTests.Infrastructure
          oSMTP.Send("test@test.com", "alias1@test.com", "Mail 2", "Mail 2");
          oSMTP.Send("test@test.com", "alias2@test.com", "Mail 3", "Mail 3");
 
-         IMAPSimulator.AssertMessageCount("test2@test.com", "test", "Inbox", 3);
+         IMAPClientSimulator.AssertMessageCount("test2@test.com", "test", "Inbox", 3);
       }
 
       [Test]
@@ -59,9 +59,9 @@ namespace RegressionTests.Infrastructure
             oSMTP.Send("test@test.com", "mirror@test.com", "INBOX", "Mirror test message");
 
          // Check using POP3 that 5 messages exists.
-         POP3Simulator.AssertMessageCount("mirror-test@test.com", "test", 5);
+         POP3ClientSimulator.AssertMessageCount("mirror-test@test.com", "test", 5);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("Delivered-To: mirror@test.com"));
       }
@@ -87,9 +87,9 @@ namespace RegressionTests.Infrastructure
          oSMTP.Send("test@test.com", new List<string> {oAccount1.Address, oAccount2.Address, oAccount3.Address},
                     "INBOX", "Mirror test message");
 
-         POP3Simulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
          CustomAssert.IsTrue(message.Contains("Delivered-To: mirror1@test.com,mirror2@test.com,mirror3@test.com"));
 
@@ -120,9 +120,9 @@ namespace RegressionTests.Infrastructure
          var oSMTP = new SMTPClientSimulator();
          oSMTP.Send("test@test.com", recipients, "INBOX", "Mirror test message");
 
-         POP3Simulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
          CustomAssert.IsTrue(
             message.Contains(

@@ -103,7 +103,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerLiteral()
       {
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.Connect();
          CustomAssert.IsTrue(sim.Send("a01 login " + GetUsername() + " {4}").StartsWith("+"));
          sim.Send(GetPassword());
@@ -113,7 +113,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerLiteral2()
       {
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.Connect();
          CustomAssert.IsTrue(sim.Send("a01 login {" + GetUsername().Length.ToString() + "} {4}").StartsWith("+"));
          CustomAssert.IsTrue(sim.Send(GetUsername() + " {" + GetPassword().Length.ToString() + "}").StartsWith("+"));
@@ -124,7 +124,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerNormal()
       {
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(GetUsername(), GetPassword());
          EnsureNoPassword();
       }
@@ -167,7 +167,7 @@ namespace RegressionTests.Security
 
             fa.Delete();
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
             CustomAssert.IsTrue(downloadedMessage.Contains(message));
 
             EnsureNoPassword();
@@ -177,7 +177,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestPOP3Server()
       {
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(GetUsername(), GetPassword());
          EnsureNoPassword();
       }

@@ -84,7 +84,8 @@ namespace HM
       re_authenticate_user_(false),
       type_(SPNone),
       pending_disconnect_(false),
-      isAuthenticated_(false)
+      isAuthenticated_(false),
+      start_tls_used_(false)
    {
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
@@ -146,6 +147,7 @@ namespace HM
          */
 
          helo_host_.Empty();
+         start_tls_used_ = true;
          ResetLoginCredentials_();
          ResetCurrentMessage_();
 
@@ -891,7 +893,7 @@ namespace HM
             sAUTHIP = sReceivedIP;
          }
 
-         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_));
+         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_, isAuthenticated_, start_tls_used_));
          sOutput += sReceivedLine;
 
          String sComputerName = Utilities::ComputerName(); 

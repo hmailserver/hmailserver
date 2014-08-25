@@ -22,9 +22,9 @@ namespace RegressionTests.MIME
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator(account.Address, "test", "Inbox");
+         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -43,9 +43,9 @@ namespace RegressionTests.MIME
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator(account.Address, "test", "Inbox");
+         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -64,9 +64,9 @@ namespace RegressionTests.MIME
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator(account.Address, "test", "Inbox");
+         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -85,9 +85,9 @@ namespace RegressionTests.MIME
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator(account.Address, "test", "Inbox");
+         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -106,9 +106,9 @@ namespace RegressionTests.MIME
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPSimulator(account.Address, "test", "Inbox");
+         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 

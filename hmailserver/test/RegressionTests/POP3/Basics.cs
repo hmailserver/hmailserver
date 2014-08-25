@@ -60,9 +60,9 @@ namespace RegressionTests.POP3
 
             TestSetup.SendMessage(mail);
 
-            POP3Simulator.AssertMessageCount("test@test.com", "test", 1);
+            POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
 
-            var sim = new POP3Simulator();
+            var sim = new POP3ClientSimulator();
             sim.ConnectAndLogon("test@test.com", "test");
             string fileContent = sim.RETR(1);
             sim.DELE(1);
@@ -101,7 +101,7 @@ namespace RegressionTests.POP3
             oSMTP.Send("test@test.com", "pop3user@test.com", "INBOX", "POP3 test message");
 
 
-         POP3Simulator.AssertMessageCount("pop3user@test.com", "test", 5);
+         POP3ClientSimulator.AssertMessageCount("pop3user@test.com", "test", 5);
       }
 
       [Test]
@@ -112,9 +112,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          CustomAssert.IsFalse(sim.DELE(0));
          CustomAssert.IsFalse(sim.DELE(-1));
@@ -132,9 +132,9 @@ namespace RegressionTests.POP3
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody2");
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody3");
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.LIST();
 
@@ -153,9 +153,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.LIST(0);
          CustomAssert.IsTrue(result.Contains("No such message"));
@@ -174,9 +174,9 @@ namespace RegressionTests.POP3
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody2");
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody3");
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.LIST(2);
 
@@ -194,9 +194,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.DELE(2);
          sim.DELE(4);
@@ -220,9 +220,9 @@ namespace RegressionTests.POP3
                                            "Line1\r\nLine2\r\nLine3\r\nLine4\r\nLine\r\n");
 
          // Mark the second message as deleted using IMAP.
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          sim.SetDeletedFlag(2);
@@ -230,7 +230,7 @@ namespace RegressionTests.POP3
 
          // Now list messages and confirm that all are listed.
 
-         var pop3Client = new POP3Simulator();
+         var pop3Client = new POP3ClientSimulator();
          pop3Client.ConnectAndLogon(account.Address, "test");
          string listResponse = pop3Client.LIST();
          string uidlResponse = pop3Client.UIDL();
@@ -254,13 +254,13 @@ namespace RegressionTests.POP3
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
 
          // Now delete the message using an IMAP client.
-         var imapSimulator = new IMAPSimulator();
+         var imapSimulator = new IMAPClientSimulator();
          CustomAssert.IsTrue(imapSimulator.ConnectAndLogon(account.Address, "test"));
          CustomAssert.IsTrue(imapSimulator.SelectFolder("INBOX"));
          CustomAssert.IsTrue(imapSimulator.SetDeletedFlag(1));
@@ -268,7 +268,7 @@ namespace RegressionTests.POP3
          CustomAssert.AreEqual(0, imapSimulator.GetMessageCount("Inbox"));
 
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody"));
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          // This deletion should not have any effect, since the POP3 connection is referencing an old message.
          sim.DELE(1);
@@ -283,15 +283,15 @@ namespace RegressionTests.POP3
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody1");
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody2");
-         POP3Simulator.AssertMessageCount(account.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody3");
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.RETR(1);
          CustomAssert.IsTrue(result.Contains("TestBody1"), result);
@@ -312,9 +312,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          CustomAssert.IsTrue(sim.TOP(-1, 0).Contains("No such message"));
          CustomAssert.IsTrue(sim.TOP(0, 0).Contains("No such message"));
@@ -329,9 +329,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.TOP(1, 0);
 
@@ -348,9 +348,9 @@ namespace RegressionTests.POP3
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test",
                                            "Line1\r\nLine2\r\nLine3\r\nLine4\r\nLine\r\n");
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.TOP(4, 2);
 
@@ -369,9 +369,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.UIDL(0);
          CustomAssert.IsTrue(result.Contains("No such message"));
@@ -390,9 +390,9 @@ namespace RegressionTests.POP3
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody2");
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody3");
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          string result = sim.UIDL(2);
 
@@ -410,9 +410,9 @@ namespace RegressionTests.POP3
          for (int i = 1; i <= 10; i++)
             SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody" + i.ToString());
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 10);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 10);
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.DELE(2);
          sim.DELE(4);
@@ -430,7 +430,7 @@ namespace RegressionTests.POP3
       {
          SingletonProvider<TestSetup>.Instance.GetApp().Settings.WelcomePOP3 = "HOWDYHO POP3";
 
-         var oSimulator = new POP3Simulator();
+         var oSimulator = new POP3ClientSimulator();
 
          string sWelcomeMessage = oSimulator.GetWelcomeMessage();
 

@@ -38,9 +38,9 @@ namespace hMailServer.Administrator
            this.labelsslTlsCiphers.AutoSize = true;
            this.labelsslTlsCiphers.Location = new System.Drawing.Point(8, 31);
            this.labelsslTlsCiphers.Name = "labelsslTlsCiphers";
-           this.labelsslTlsCiphers.Size = new System.Drawing.Size(92, 13);
+           this.labelsslTlsCiphers.Size = new System.Drawing.Size(89, 13);
            this.labelsslTlsCiphers.TabIndex = 16;
-           this.labelsslTlsCiphers.Text = "SSL/TLS ciphers ";
+           this.labelsslTlsCiphers.Text = "SSL/TLS ciphers";
            // 
            // labelSSLTLS
            // 

@@ -34,7 +34,7 @@ namespace RegressionTests.IMAP
 
          TestSetup.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new IMAPClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
          string result = oSimulator.Fetch("1 BODYSTRUCTURE");
@@ -50,16 +50,16 @@ namespace RegressionTests.IMAP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody1");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");
@@ -92,7 +92,7 @@ namespace RegressionTests.IMAP
 
          TestSetup.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new IMAPClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
          string bodyStructureResponse = oSimulator.Fetch("1 BODYSTRUCTURE");
@@ -119,9 +119,9 @@ namespace RegressionTests.IMAP
          var smtpSimulator = new SMTPClientSimulator();
          smtpSimulator.SendRaw(account.Address, account.Address, message);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -147,9 +147,9 @@ namespace RegressionTests.IMAP
          var smtpSimulator = new SMTPClientSimulator();
          CustomAssert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -180,9 +180,9 @@ namespace RegressionTests.IMAP
          var smtpSimulator = new SMTPClientSimulator();
          CustomAssert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -205,9 +205,9 @@ namespace RegressionTests.IMAP
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("0 BODY[1]");

@@ -439,17 +439,17 @@ namespace RegressionTests.Infrastructure
          // Make sure the inbox contains two messages which should be backed up.
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
                                                       "Message 1 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
                                                       "Message 2 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
                                                       "Message 3 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          CustomAssert.IsTrue(sim.SelectFolder("Inbox"));
          CustomAssert.IsTrue(sim.SetDeletedFlag(2));
@@ -543,7 +543,7 @@ namespace RegressionTests.Infrastructure
          }
 
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(account.Address, "test", 5);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
       }
 
       private bool BackupEnvironment()

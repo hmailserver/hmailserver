@@ -234,7 +234,7 @@ namespace RegressionTests.Shared
             _messageData += command;
          }
 
-         if (command.IndexOf(".\r\n") > 0)
+         if (_messageData.IndexOf("\r\n.\r\n") > 0)
          {
             // remove the ending...
             _messageData = _messageData.Replace("\r\n.\r\n", "\r\n");

@@ -62,7 +62,7 @@ namespace RegressionTests.SSL
          {
             try
             {
-               var imapSim = new IMAPSimulator(true, 14301);
+               var imapSim = new IMAPClientSimulator(true, 14301);
                imapSim.ConnectAndLogon(account.Address, "test");
                CustomAssert.IsTrue(imapSim.SelectFolder("Inbox"), "SelectInbox");
                imapSim.CreateFolder("Test");
@@ -92,8 +92,8 @@ namespace RegressionTests.SSL
          {
             try
             {
-               POP3Simulator.AssertMessageCount(account.Address, "test", 1);
-               var pop3Sim = new POP3Simulator(true, 11001);
+               POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+               var pop3Sim = new POP3ClientSimulator(true, 11001);
                string text = pop3Sim.GetFirstMessageText(account.Address, "test");
 
                CustomAssert.IsTrue(text.Contains("MyBody"));
@@ -134,8 +134,8 @@ namespace RegressionTests.SSL
             }
          }
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", i + 1);
-         var pop3Sim = new POP3Simulator(false, 110);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", i + 1);
+         var pop3Sim = new POP3ClientSimulator(false, 110);
          string text = pop3Sim.GetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains("MyBody"));
       }

@@ -67,7 +67,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -123,7 +123,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                    "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -150,7 +150,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -182,7 +182,7 @@ namespace RegressionTests.AntiSpam
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -214,7 +214,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("whitelist@icrosoft.com", "whitelist@test.com", "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 2);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 2);
       }
 
 
@@ -244,7 +244,7 @@ namespace RegressionTests.AntiSpam
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -277,7 +277,7 @@ namespace RegressionTests.AntiSpam
                                                        "SURBL-Match",
                                                        "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 2);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 2);
       }
 
       [Test]
@@ -343,7 +343,7 @@ namespace RegressionTests.AntiSpam
          // Make sure we can now send again.
          CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -437,7 +437,7 @@ namespace RegressionTests.AntiSpam
          // Make sure we can now send again.
          CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
       [Test]
@@ -525,7 +525,7 @@ namespace RegressionTests.AntiSpam
          // Make sure we can now send again.
          CustomAssert.IsTrue(smtpClient.Send("user@example.com", "whitelist@test.com", "Hello", SurblTestPointBody));
 
-         POP3Simulator.AssertMessageCount("whitelist@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
 

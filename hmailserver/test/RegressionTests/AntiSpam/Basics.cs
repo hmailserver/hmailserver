@@ -60,7 +60,7 @@ namespace RegressionTests.AntiSpam
          TestSetup.DeleteCurrentDefaultLog();
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody");
-         POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          string result = TestSetup.ReadCurrentDefaultLog();
 
@@ -123,7 +123,7 @@ namespace RegressionTests.AntiSpam
                         "This is a test message\n\r consisting of incorrect lines"))
             throw new Exception("ERROR - Was able to send incorrect email.");
 
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
       }
 
       [Test]
@@ -164,7 +164,7 @@ namespace RegressionTests.AntiSpam
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb));
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam") ||
              sMessageContents.Contains("X-hMailServer-Reason") ||
              sMessageContents.Contains("ThisIsSpam"))
@@ -213,7 +213,7 @@ namespace RegressionTests.AntiSpam
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb));
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
              !sMessageContents.Contains("X-hMailServer-Reason") ||
              !sMessageContents.Contains("ThisIsSpam"))
@@ -252,7 +252,7 @@ namespace RegressionTests.AntiSpam
 
          _antiSpam.UseMXChecks = false;
 
-         POP3Simulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
       }
 
       [Test]
@@ -283,7 +283,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-perm\r\nanent-test-point.com\">Test</a>");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Non-spam message detected as spam");
 
          oSURBLServer.Active = false;
@@ -316,7 +316,7 @@ namespace RegressionTests.AntiSpam
 
          oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam"))
             throw new Exception("Spam message not detected as spam");
 
@@ -324,7 +324,7 @@ namespace RegressionTests.AntiSpam
 
          oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam"))
             throw new Exception("Non-spam message detected as spam");
       }
@@ -360,7 +360,7 @@ namespace RegressionTests.AntiSpam
 
          oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam"))
             throw new Exception("Spam message not detected as spam");
 
@@ -402,7 +402,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message without a SURBL url.");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Length == 0 ||
              sMessageContents.Contains("X-hMailServer-Spam") ||
              sMessageContents.Contains("X-hMailServer-Reason") ||
@@ -413,7 +413,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
              !sMessageContents.Contains("X-hMailServer-Reason") ||
              !sMessageContents.Contains("ThisIsSpam"))
@@ -457,7 +457,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message without a SURBL url.");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Length == 0 ||
              sMessageContents.Contains("X-hMailServer-Spam") ||
              sMessageContents.Contains("X-hMailServer-Reason") ||
@@ -469,7 +469,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
 
-         sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
              !sMessageContents.Contains("X-hMailServer-Reason") ||
              !sMessageContents.Contains("ThisIsSpam"))
@@ -501,7 +501,7 @@ namespace RegressionTests.AntiSpam
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                                                       "This is a test message without a SURBL url: -> http://www.youtube.com/ <-"));
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam"))
             throw new Exception("Non-spam message detected as spam");
 
@@ -536,7 +536,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-perma=\r\nnent-test-point.com\">Test</a>");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
@@ -570,7 +570,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\r\nHello\">Test</a>");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
@@ -604,7 +604,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\n");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsTrue(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
@@ -677,7 +677,7 @@ namespace RegressionTests.AntiSpam
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://test.example1fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example2fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example3fdafdsfds.com\">Test</a>\r\n");
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;
@@ -716,7 +716,7 @@ namespace RegressionTests.AntiSpam
 
          oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match", TestResources.SecuniaBody1);
 
-         string sMessageContents = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          CustomAssert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");
 
          oSURBLServer.Active = false;

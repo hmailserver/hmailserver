@@ -8,27 +8,27 @@ using NUnit.Framework;
 namespace RegressionTests.Shared
 {
    /// <summary>
-   /// Summary description for POP3Simulator.
+   /// Summary description for POP3ClientSimulator.
    /// </summary>
-   public class POP3Simulator
+   public class POP3ClientSimulator
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 110;
       private readonly TcpConnection _tcpConnection;
 
-      public POP3Simulator()
+      public POP3ClientSimulator()
       {
          _tcpConnection = new TcpConnection();
       }
 
-      public POP3Simulator(IPAddress ipaddress, bool useSSL, int port)
+      public POP3ClientSimulator(IPAddress ipaddress, bool useSSL, int port)
       {
          _tcpConnection = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
       }
 
-      public POP3Simulator(bool useSSL, int port) :
+      public POP3ClientSimulator(bool useSSL, int port) :
          this(null, useSSL, port)
       {
       }
@@ -330,7 +330,7 @@ namespace RegressionTests.Shared
          int actualCount = 0;
          while (timeout > 0)
          {
-            var oPOP3 = new POP3Simulator();
+            var oPOP3 = new POP3ClientSimulator();
 
             actualCount = oPOP3.GetMessageCount(accountName, accountPassword);
             if (actualCount == expectedCount)
@@ -353,7 +353,7 @@ namespace RegressionTests.Shared
       public static string AssertGetFirstMessageText(string accountName, string accountPassword)
       {
          // Wait for the message to appear.
-         var pop3 = new POP3Simulator();
+         var pop3 = new POP3ClientSimulator();
          for (int i = 0; i < 5000; i++)
          {
             if (pop3.GetMessageCount(accountName, accountPassword) > 0)

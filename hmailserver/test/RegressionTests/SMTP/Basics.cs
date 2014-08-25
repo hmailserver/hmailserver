@@ -74,7 +74,7 @@ namespace RegressionTests.SMTP
 
          // Make sure that no bounce is sent.
          SMTPClientSimulator.StaticSend(senderAccount.Address, recipientAccount.Address, "MySubject", "Test");
-         POP3Simulator.AssertGetFirstMessageText(recipientAccount.Address, "test");
+         POP3ClientSimulator.AssertGetFirstMessageText(recipientAccount.Address, "test");
 
          // Build a 2MB string.
          var builder = new StringBuilder();
@@ -89,11 +89,11 @@ namespace RegressionTests.SMTP
 
          // Make sure the recipient did not receive it.
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(recipientAccount.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(recipientAccount.Address, "test", 0);
          SingletonProvider<TestSetup>.Instance.AssertFilesInUserDirectory(recipientAccount, 0);
 
          // Make sure it bounced.
-         string content = POP3Simulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          CustomAssert.IsTrue(content.Contains("Inbox is full"));
          CustomAssert.IsTrue(content.Contains("Subject: Test subject"));
 
@@ -140,7 +140,7 @@ namespace RegressionTests.SMTP
 
             TestSetup.AssertRecipientsInDeliveryQueue(0);
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 0);
+            POP3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
 
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
@@ -176,7 +176,7 @@ namespace RegressionTests.SMTP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
 
          SMTPClientSimulator.StaticSend("user@test.com", "user@test.com", "Test", "Test");
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
          CustomAssert.IsTrue(message.get_Flag(eMessageFlag.eMFVirusScan));
@@ -203,7 +203,7 @@ namespace RegressionTests.SMTP
 
          // Delivery from external to local.
          CustomAssert.IsTrue(oSMTP.Send("test@external.com", "test@test.com", "Mail 1", "Mail 1"));
-         POP3Simulator.AssertMessageCount("test@test.com", "test", 1);
+         POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
          string contents = TestSetup.ReadExistingTextFile(logging.CurrentAwstatsLog);
          TestSetup.AssertDeleteFile(logging.CurrentAwstatsLog);
          string expectedString = string.Format("\ttest@external.com\ttest@test.com\t{0}\t127.0.0.1\tSMTP\t?\t250\t",
@@ -244,7 +244,7 @@ namespace RegressionTests.SMTP
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
          // Check the syntax in the bounce message.
-         string content = POP3Simulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
 
          // The bounce message should contain the MIME-version.
          CustomAssert.IsTrue(content.Contains("MIME-Version: 1.0"));
@@ -269,7 +269,7 @@ namespace RegressionTests.SMTP
 
          SMTPClientSimulator.StaticSendRaw("test@test.com", "test@test.com", content);
 
-         string test = POP3Simulator.AssertGetFirstMessageText("test@test.com", "test");
+         string test = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
 
          CustomAssert.IsTrue(test.Contains("Message-Id"));
          CustomAssert.IsFalse(test.Contains("Message-ID"));
@@ -294,9 +294,9 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestHelo()
       {
-         var oSimulator = new SMTPClientSimulator();
+         var oSimulator = new TcpConnection();
 
-         oSimulator.Connect();
+         oSimulator.Connect(25);
 
          string sWelcome = oSimulator.Receive();
 
@@ -347,8 +347,8 @@ namespace RegressionTests.SMTP
       {
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect();
+         var oSMTP = new TcpConnection();
+         oSMTP.Connect(25);
 
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
@@ -397,7 +397,7 @@ namespace RegressionTests.SMTP
 
          // Make sure that no bounce is sent.
          SMTPClientSimulator.StaticSend(senderAccount.Address, recipientAccount.Address, "MySubject", "Test");
-         POP3Simulator.AssertGetFirstMessageText(recipientAccount.Address, "test");
+         POP3ClientSimulator.AssertGetFirstMessageText(recipientAccount.Address, "test");
 
          // Build a 2MB string.
          var builder = new StringBuilder();
@@ -412,11 +412,11 @@ namespace RegressionTests.SMTP
 
          // Make sure the recipient did not receive it.
          TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(recipientAccount.Address, "test", 0);
+         POP3ClientSimulator.AssertMessageCount(recipientAccount.Address, "test", 0);
          SingletonProvider<TestSetup>.Instance.AssertFilesInUserDirectory(recipientAccount, 0);
 
          // Make sure it bounced.
-         string content = POP3Simulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          CustomAssert.IsTrue(content.Contains("Inbox is full"));
       }
 
@@ -436,7 +436,7 @@ namespace RegressionTests.SMTP
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(senderAccount.Address, recipientAccount.Address, "Test", "Test"));
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(senderAccount.Address, recipientAccount.Address, "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(recipientAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(recipientAccount.Address, "test", 2);
       }
 
       [Test]
@@ -465,7 +465,7 @@ namespace RegressionTests.SMTP
             oThread.Join();
          }
 
-         IMAPSimulator.AssertMessageCount("bigaccount@test.com", "test", "Inbox", 250);
+         IMAPClientSimulator.AssertMessageCount("bigaccount@test.com", "test", "Inbox", 250);
       }
 
       [Test]
@@ -512,7 +512,7 @@ namespace RegressionTests.SMTP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("someone@example.com", "someone@test.com", "Test", "Test"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -536,7 +536,7 @@ namespace RegressionTests.SMTP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("sender@test.com", "someone@test.com", "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -553,7 +553,7 @@ namespace RegressionTests.SMTP
                                                                             "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("sender@test.com", "someone@test.com", "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -573,7 +573,7 @@ namespace RegressionTests.SMTP
                                                                             "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("sender@test.com", "someone@test.com", "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -605,7 +605,7 @@ namespace RegressionTests.SMTP
                                                                             "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("sender@test.com", "someone@test.com", "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -615,8 +615,8 @@ namespace RegressionTests.SMTP
       {
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect();
+         var oSMTP = new TcpConnection();
+         oSMTP.Connect(25);
 
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
@@ -649,8 +649,8 @@ namespace RegressionTests.SMTP
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
-         oSMTP.Connect();
+         var oSMTP = new TcpConnection();
+         oSMTP.Connect(25);
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("220"));
          oSMTP.Send("HELO test\r\n");
          CustomAssert.IsTrue(oSMTP.Receive().StartsWith("250"));
@@ -707,7 +707,7 @@ namespace RegressionTests.SMTP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "us'er@test.com", "test");
          SMTPClientSimulator.StaticSend("someone@test.com", "us'er@test.com", "Test", "Test");
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -729,17 +729,17 @@ namespace RegressionTests.SMTP
 
          oSMTP.Send(oAccount1.Address, lstRecipients, "Multi test", sBody);
 
-         var oPOP3 = new POP3Simulator();
+         var oPOP3 = new POP3ClientSimulator();
 
-         string sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageData.IndexOf(sBody) < 0)
             throw new Exception("E-mail not found");
 
-         sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
          if (sMessageData.IndexOf(sBody) < 0)
             throw new Exception("E-mail not found");
 
-         sMessageData = POP3Simulator.AssertGetFirstMessageText(oAccount3.Address, "test");
+         sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(oAccount3.Address, "test");
          if (sMessageData.IndexOf(sBody) < 0)
             throw new Exception("E-mail not found");
       }
@@ -752,7 +752,7 @@ namespace RegressionTests.SMTP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("someone@example.com", "someone@test.com", "Test", "Test"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
 
@@ -769,7 +769,7 @@ namespace RegressionTests.SMTP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("someone@example.com", "someone@test.com", "Test", "Test"));
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
       [Test]
@@ -813,8 +813,8 @@ namespace RegressionTests.SMTP
          settings.DisconnectInvalidClients = true;
          settings.MaxNumberOfInvalidCommands = 3;
 
-         var sim = new SMTPClientSimulator();
-         sim.Connect();
+         var sim = new TcpConnection();
+         sim.Connect(25);
          sim.Send("EHLO test.com\r\n");
 
          for (int i = 1; i <= 6; i++)
@@ -857,8 +857,8 @@ namespace RegressionTests.SMTP
          settings.DisconnectInvalidClients = true;
          settings.MaxNumberOfInvalidCommands = 3;
 
-         var sim = new SMTPClientSimulator();
-         sim.Connect();
+         var sim = new TcpConnection();
+         sim.Connect(25);
          sim.Receive(); // banner
 
          sim.SendAndReceive("HELO\r\n");
@@ -890,8 +890,8 @@ namespace RegressionTests.SMTP
 
          settings.AntiSpam.GreyListingEnabled = true;
 
-         var sim = new SMTPClientSimulator();
-         sim.Connect();
+         var sim = new TcpConnection();
+         sim.Connect(25);
          string res = sim.Receive();
          sim.Send("EHLO test.com\r\n");
          res = sim.Receive();
@@ -936,7 +936,7 @@ namespace RegressionTests.SMTP
          TestSetup.AssertRecipientsInDeliveryQueue(0);
 
          // Check the syntax in the bounce message.
-         string content = POP3Simulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         string content = POP3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
 
          // The bounce message should contain the MIME-version.
          CustomAssert.IsTrue(content.Contains("MIME-Version: 1.0"));

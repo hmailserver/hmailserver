@@ -25,7 +25,7 @@ namespace RegressionTests.Infrastructure
             SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "Test message",
                                            "123456789012345678901234567890123456789012345678901234567890");
 
-         IMAPSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 30);
+         IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 30);
 
          float size = account.Size;
          if (size == 0)
@@ -57,12 +57,12 @@ namespace RegressionTests.Infrastructure
 
          // Send a message
          SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "Test message", body);
-         IMAPSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
+         IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
 
          float sizeBefore = account.Size;
 
          SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "Test message", body);
-         IMAPSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 2);
+         IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 2);
 
          float sizeAfter = account.Size;
 

@@ -8,19 +8,19 @@ using NUnit.Framework;
 namespace RegressionTests.Shared
 {
    /// <summary>
-   /// Summary description for IMAPSimulator.
+   /// Summary description for IMAPClientSimulator.
    /// </summary>
-   public class IMAPSimulator
+   public class IMAPClientSimulator
    {
       private readonly int _port = 143;
       private readonly TcpConnection _tcpConnection;
 
-      public IMAPSimulator()
+      public IMAPClientSimulator()
       {
          _tcpConnection = new TcpConnection();
       }
 
-      public IMAPSimulator(string username, string password, string mailbox)
+      public IMAPClientSimulator(string username, string password, string mailbox)
       {
          _tcpConnection = new TcpConnection();
 
@@ -28,7 +28,7 @@ namespace RegressionTests.Shared
          CustomAssert.IsTrue(SelectFolder(mailbox));
       }
 
-      public IMAPSimulator(bool useSSL, int port)
+      public IMAPClientSimulator(bool useSSL, int port)
       {
          _tcpConnection = new TcpConnection(useSSL);
          _port = port;
@@ -245,7 +245,7 @@ namespace RegressionTests.Shared
          else if (result.StartsWith("A14 OK"))
             return true;
 
-         CustomAssert.Fail(string.Format("IMAPSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
+         CustomAssert.Fail(string.Format("IMAPClientSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
          return false;
       }
 
@@ -644,7 +644,7 @@ namespace RegressionTests.Shared
             TestSetup.AssertRecipientsInDeliveryQueue(0);
          }
 
-         var oIMAP = new IMAPSimulator();
+         var oIMAP = new IMAPClientSimulator();
          CustomAssert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
 
          if (expectedCount != 0)

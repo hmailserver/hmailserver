@@ -70,7 +70,7 @@ namespace RegressionTests.IMAP
                                                                                 "test");
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
 
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
 
@@ -78,13 +78,13 @@ namespace RegressionTests.IMAP
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 2);
 
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 3);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 3);
 
          CustomAssert.AreEqual(3, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(3, inboxFolder.Messages[2].UID);
@@ -98,24 +98,24 @@ namespace RegressionTests.IMAP
                                                                                 "test");
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
 
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
 
          CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
-         POP3Simulator.AssertGetFirstMessageText(testAccount.Address, "test");
+         POP3ClientSimulator.AssertGetFirstMessageText(testAccount.Address, "test");
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
 
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[0].UID);
-         POP3Simulator.AssertGetFirstMessageText(testAccount.Address, "test");
+         POP3ClientSimulator.AssertGetFirstMessageText(testAccount.Address, "test");
 
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
 
          CustomAssert.AreEqual(3, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(3, inboxFolder.Messages[0].UID);
@@ -130,13 +130,13 @@ namespace RegressionTests.IMAP
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
          CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 2);
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
@@ -165,13 +165,13 @@ namespace RegressionTests.IMAP
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
          CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 2);
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
 
@@ -204,19 +204,19 @@ namespace RegressionTests.IMAP
          Account testAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "Test'Account@test.com",
                                                                                 "test");
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
          CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
          CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 2);
          CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
@@ -254,19 +254,19 @@ namespace RegressionTests.IMAP
          Account testAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "Test'Account@test.com",
                                                                                 "test");
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(testAccount.Address, "test"));
 
          // First deliver two messages to the inbox.
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 1);
          IMAPFolder inboxFolder = testAccount.IMAPFolders[0];
          CustomAssert.AreEqual(1, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(1, inboxFolder.Messages[0].UID);
          CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 2"));
 
          SMTPClientSimulator.StaticSend(testAccount.Address, testAccount.Address, "Test", "Test");
-         POP3Simulator.AssertMessageCount(testAccount.Address, "test", 2);
+         POP3ClientSimulator.AssertMessageCount(testAccount.Address, "test", 2);
          CustomAssert.AreEqual(2, inboxFolder.CurrentUID);
          CustomAssert.AreEqual(2, inboxFolder.Messages[1].UID);
          CustomAssert.IsTrue(sim.Status("INBOX", "UIDNEXT").Contains("UIDNEXT 3"));

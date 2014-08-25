@@ -32,7 +32,7 @@ namespace RegressionTests.API
          message.Body = "Hello";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
          string header = messageText.Substring(0, headerEnd);
@@ -76,7 +76,7 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSend("test@test.com", recipients, "Hej", "Välkommen till verkligheten");
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsNotEmpty(message);
          CustomAssert.IsTrue(message.Contains(signature));
@@ -119,7 +119,7 @@ namespace RegressionTests.API
          oClient.Send(mail);
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsNotEmpty(message, message);
          CustomAssert.IsTrue(message.Contains(signature), message);
@@ -162,7 +162,7 @@ namespace RegressionTests.API
          oClient.Send(mail);
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          CustomAssert.IsNotEmpty(message, message);
          CustomAssert.IsTrue(message.Contains(signature), message);
@@ -179,7 +179,7 @@ namespace RegressionTests.API
          message.HTMLBody = "Hello";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
          string header = messageText.Substring(0, headerEnd);
@@ -201,7 +201,7 @@ namespace RegressionTests.API
          message.Body = "PlainTextBody";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
          string header = messageText.Substring(0, headerEnd);
@@ -224,7 +224,7 @@ namespace RegressionTests.API
          message.HTMLBody = "HTMLBody";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
          string header = messageText.Substring(0, headerEnd);
@@ -246,7 +246,7 @@ namespace RegressionTests.API
          message.Body = "Hello";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
          string header = messageText.Substring(0, headerEnd);
@@ -274,7 +274,7 @@ namespace RegressionTests.API
          message.Body = "Test of message... 日本語";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
 
          int headerEnd = messageText.IndexOf("\r\n\r\n");
@@ -298,7 +298,7 @@ namespace RegressionTests.API
          message.HTMLBody = "Test of message... 日本語";
          message.Save();
 
-         string messageText = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string messageText = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          CustomAssert.IsTrue(messageText.Contains("Content-Type: text/html; charset=\"utf-8\""));
          CustomAssert.IsTrue(messageText.Contains("Content-Type: text/plain; charset=\"utf-8\""));
@@ -332,7 +332,7 @@ namespace RegressionTests.API
 
          SMTPClientSimulator.StaticSendRaw("encode@test.com", "encode@test.com", body);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          TestSetup.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 

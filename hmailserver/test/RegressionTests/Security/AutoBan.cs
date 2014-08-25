@@ -31,7 +31,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -62,7 +62,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -101,7 +101,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3Simulator();
+         var sim = new POP3ClientSimulator();
          CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -137,7 +137,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "te'st@test.com", "test");
 
-         var sim = new POP3Simulator(TestSetup.GetLocalIpAddress(), false, 110);
+         var sim = new POP3ClientSimulator(TestSetup.GetLocalIpAddress(), false, 110);
          CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 

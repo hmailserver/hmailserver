@@ -44,9 +44,9 @@ namespace RegressionTests.Infrastructure
 
          oApp.Settings.TCPIPPorts.SetDefault();
 
-         var pSMTPSimulator = new SMTPClientSimulator();
-         var pPOP3Simulator = new POP3Simulator();
-         var pIMAPSimulator = new IMAPSimulator();
+         var pSMTPSimulator = new TcpConnection();
+         var pPOP3Simulator = new POP3ClientSimulator();
+         var pIMAPSimulator = new IMAPClientSimulator();
 
          oApp.Stop();
 

@@ -29,7 +29,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsNotEnabledStartTlsShouldNotBeShownInEhloResponse()
       {
-         var imapSimulator = new IMAPSimulator(false, 143);
+         var imapSimulator = new IMAPClientSimulator(false, 143);
          imapSimulator.Connect();
          var data = imapSimulator.GetCapabilities();
 
@@ -39,7 +39,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
       {
-         var imapSimulator = new IMAPSimulator(false, 14302);
+         var imapSimulator = new IMAPClientSimulator(false, 14302);
          imapSimulator.Connect();
          var data = imapSimulator.GetCapabilities();
 
@@ -49,7 +49,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void StlsCommandShouldSwithToTls()
       {
-         var imapSimulator = new IMAPSimulator(false, 14302);
+         var imapSimulator = new IMAPClientSimulator(false, 14302);
          imapSimulator.Connect();
          var data = imapSimulator.GetCapabilities();
          imapSimulator.SendSingleCommand("A01 STARTTLS");
@@ -64,7 +64,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldSucceedIfStls()
       {
-         var imapSimulator = new IMAPSimulator(false, 14303);
+         var imapSimulator = new IMAPClientSimulator(false, 14303);
          imapSimulator.Connect();
          imapSimulator.SendSingleCommand("A01 STARTTLS");
          imapSimulator.Handshake();
@@ -78,7 +78,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldFailIfNoStls()
       {
-         var imapSimulator = new IMAPSimulator(false, 14303);
+         var imapSimulator = new IMAPClientSimulator(false, 14303);
          imapSimulator.Connect();
 
          string errorMessage;
@@ -94,7 +94,7 @@ namespace RegressionTests.SSL.StartTls
          range.RequireSSLTLSForAuth = true;
          range.Save();
 
-         var imapSimulator = new IMAPSimulator(false, 14302);
+         var imapSimulator = new IMAPClientSimulator(false, 14302);
          imapSimulator.Connect();
 
          string errorMessage;

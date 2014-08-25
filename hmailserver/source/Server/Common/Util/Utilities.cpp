@@ -154,7 +154,7 @@ namespace HM
    }
 
    String 
-   Utilities::GenerateReceivedHeader(const String &sRemoteIP, String sHostName)
+   Utilities::GenerateReceivedHeader(const String &remote_ip, String remote_hostname, bool authenticated, bool start_tls_used)
    {
       String sComputerName = Utilities::ComputerName(); 
       vector<String> results;
@@ -162,58 +162,42 @@ namespace HM
       // not having a PTR in the Received header.
       String ptrRecord;
       DNSResolver resolver;
-      if (!resolver.GetPTRRecords(sRemoteIP, results))
+      if (!resolver.GetPTRRecords(remote_ip, results))
       {
-         LOG_DEBUG("Could not get PTR record for IP (false)! " + sRemoteIP);
+         LOG_DEBUG("Could not get PTR record for IP (false)! " + remote_ip);
          ptrRecord = "Unknown";
       }
       else
       {
+
          if (results.size() == 0)
          {
-            LOG_DEBUG("Could not get PTR record for IP (empty)! " + sRemoteIP);
+            LOG_DEBUG("Could not get PTR record for IP (empty)! " + remote_ip);
             ptrRecord = "Unknown";
          }
          else ptrRecord = results[0];
       }
 
-      if (sHostName.IsEmpty())
-         sHostName = sRemoteIP;
+      if (remote_hostname.IsEmpty())
+         remote_hostname = remote_ip;
 
-      // Time-stamp-line = "Received:" FWS Stamp <CRLF>
-      // Stamp = From-domain By-domain Opt-info ";"  FWS date-time
-      // From-domain = "FROM" FWS Extended-Domain CFWS
-      // By-domain = "BY" FWS Extended-Domain CFWS
-      // Extended-Domain = Domain /
-      //                   ( Domain FWS "(" TCP-info ")" ) /           
-      //                   ( Address-literal FWS "(" TCP-info ")" )
-      // TCP-info        = Address-literal / 
-      //                   ( Domain FWS Address-literal )          
-      //                   ; Information derived by server from TCP connection
-      //                   ; not client EHLO.
-      //Opt-info = [Via] [With] [ID] [For]
-      //
-      // The header produced by hMailServer used to look like this:
-      //
-      // Received: from <hostinhelo> ([ip-address])
-      //              by <thiscomputername> 
-      //              with hMailServer; timestamp
-      //
-      // The header produced by hMailServer now looks like this:
-      //
-      // Received: from <hostinhelo> ([ip-address])
-      //              by <thiscomputername> 
-      //              ; timestamp
+      String esmtp_additions;
 
-      // JDR: insert the PTR result here. If none was found Unknown is used.
+      if (start_tls_used) 
+         esmtp_additions += "S";
+
+      if (authenticated) 
+         esmtp_additions += "A";
+
       String sResult;
       sResult.Format(_T("from %s (%s [%s])\r\n")
-                     _T("\tby %s\r\n")
+                     _T("\tby %s with ESMTP%s\r\n")
                      _T("\t; %s"), 
-                        sHostName,
+                        remote_hostname,
                         ptrRecord,
-                        sRemoteIP,
+                        remote_ip,
                         sComputerName, 
+                        esmtp_additions,
                         Time::GetCurrentMimeDate());
 
       return sResult;

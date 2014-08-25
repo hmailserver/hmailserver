@@ -100,7 +100,7 @@ namespace RegressionTests.AntiSpam.DKIM
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          CustomAssert.IsTrue(text.Contains("Rejected by DKIM. - (Score: 6)"));
       }
@@ -179,7 +179,7 @@ namespace RegressionTests.AntiSpam.DKIM
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
 
       [Test]
@@ -218,7 +218,7 @@ namespace RegressionTests.AntiSpam.DKIM
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
-         string text = POP3Simulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
    }
 }

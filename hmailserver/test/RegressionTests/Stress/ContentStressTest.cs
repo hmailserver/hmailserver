@@ -269,7 +269,7 @@ namespace RegressionTests.Stress
          // Spam folder
          oSMTP.SendRaw("mimetest@test.com", "mimetest@test.com", content);
 
-         string sContents = POP3Simulator.AssertGetFirstMessageText("mimetest@test.com", "test");
+         string sContents = POP3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 
          CustomAssert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
          CustomAssert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);

@@ -123,7 +123,7 @@ namespace RegressionTests.Stress
 
          File.Delete(message.Filename);
 
-         string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
 
          TestSetup.AssertReportedError();
@@ -150,7 +150,7 @@ namespace RegressionTests.Stress
          DirectoryInfo parent = dir.Parent.Parent.Parent;
          parent.Delete(true);
 
-         string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          TestSetup.AssertReportedError();
       }
@@ -177,7 +177,7 @@ namespace RegressionTests.Stress
          DirectoryInfo parent = dir.Parent.Parent.Parent;
          parent.Delete(true);
 
-         var sim = new IMAPSimulator();
+         var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");

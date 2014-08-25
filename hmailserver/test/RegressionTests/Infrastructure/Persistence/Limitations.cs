@@ -215,7 +215,7 @@ namespace RegressionTests.Infrastructure.Persistence
 
          CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
                                                       message.ToString()));
-         POP3Simulator.AssertMessageCount("test@test.com", "secret1", 1);
+         POP3ClientSimulator.AssertMessageCount("test@test.com", "secret1", 1);
          _domain.MaxMessageSize = 50;
          _domain.Save();
 

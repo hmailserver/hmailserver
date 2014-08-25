@@ -127,7 +127,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -232,7 +232,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -276,7 +276,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -320,7 +320,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3Simulator.AssertMessageCount("user@test.com", "test", 1);
+            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
