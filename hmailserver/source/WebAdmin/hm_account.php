@@ -82,7 +82,7 @@ if ($action == "edit")
    $adusername      = $obAccount->ADUsername;
   
    $SignatureEnabled   = $obAccount->SignatureEnabled;
-   $SignatureHTML 	    = $obAccount->SignatureHTML;
+   $SignatureHTML 	   = $obAccount->SignatureHTML;
    $SignaturePlainText = $obAccount->SignaturePlainText;
 }
 
