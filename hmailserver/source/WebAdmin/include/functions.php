@@ -282,7 +282,7 @@ function GetConfirmDelete()
 
 function PreprocessOutput($outputString)
 {
-   return htmlspecialchars($outputString);
+   return htmlspecialchars($outputString, ENT_COMPAT | ENT_HTML401, 'utf-8', true);
 }
 
 function GetHasRuleAccess($domainid, $accountid)

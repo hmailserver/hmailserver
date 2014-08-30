@@ -10,7 +10,7 @@ session_start();
 // Connect to hMailServer
 try
 {
-   $obBaseApp = new COM("hMailServer.Application");
+   $obBaseApp = new COM("hMailServer.Application", NULL, CP_UTF8);
 }
 catch(Exception $e)
 {

@@ -1,13 +1,14 @@
 <?php
 
    error_reporting(E_ALL);
-
+   header('Content-Type: text/html; charset=utf-8');
+	
    if (!file_exists("config.php"))
    {
    	echo "Please rename config-dist.php to config.php. The file is found in the PHPWebAdmin root folder.";
    	die;
    }
-
+      
    define('IN_WEBADMIN', true);
    
    require_once("config.php");
@@ -28,8 +29,6 @@
       $page = "$page.php";
    else
       $page = "hm_$page.php";
-      
-
       
    // Check that the page really exists.
    $page = stripslashes($page);
@@ -52,7 +51,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
-		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-8859-1">
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
 		<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 		<META HTTP-EQUIV="Expires" CONTENT="0">
 		
