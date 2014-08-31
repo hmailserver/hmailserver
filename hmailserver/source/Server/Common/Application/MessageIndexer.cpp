@@ -68,6 +68,8 @@ namespace HM
       }
       catch (thread_interrupted const&)
       {
+         LOG_DEBUG("Indexing stopped.");
+
          // shutting down.
       }
       catch (...)
@@ -105,6 +107,7 @@ namespace HM
 
       while (true)
       {
+         
          // added the boolean quickIndex to tell the funciton to use the quick index or the full index
          set<shared_ptr<PersistentMessageMetaData::MessageInfo> > messagesToIndex = persistentMetaData.GetMessagesToIndex(bDoQuickIndex);
          if (messagesToIndex.size() == 0)
