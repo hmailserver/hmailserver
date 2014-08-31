@@ -57,7 +57,8 @@ namespace HM
       void UpdatePassword_();
       void RunScriptFile_(const String &sFile) ;
       void RunCommand_(const String &sCommand) ;
-      void LoadSupportsTransactions(const String &database);      
+      void LoadSupportsTransactions_(const String &database);      
+      void SetConnectionCharacterSet_();      
 
       hm_MYSQL *dbconn_;
 

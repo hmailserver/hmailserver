@@ -89,24 +89,19 @@ namespace HM
          if (CheckError(pResult, "mysql_real_connect()", sErrorMessage) != DALConnection::DALSuccess)
             return TemporaryFailure;
 
-         MySQLInterface::Instance()->p_mysql_query(dbconn_, "SET NAMES utf8");
- 
-
+         SetConnectionCharacterSet_();
 
          if (!sDatabase.IsEmpty())
          {
-            String sSwitchDB = "use " + sDatabase;
+            String switch_db_command = "use " + sDatabase;
 
-            if (MySQLInterface::Instance()->p_mysql_query(dbconn_, Unicode::ToANSI(sSwitchDB)))
+            if (TryExecute(SQLCommand(switch_db_command), sErrorMessage, 0, 0) != DALConnection::DALSuccess)
             {
-               CheckError(dbconn_, sSwitchDB, sErrorMessage);
                return TemporaryFailure;
             }
-
-            MySQLInterface::Instance()->p_mysql_store_result(dbconn_); // should always be called after mysql_query
          }
 
-         LoadSupportsTransactions(sDatabase);
+         LoadSupportsTransactions_(sDatabase);
 
          is_connected_ = true;
       }
@@ -161,7 +156,7 @@ namespace HM
             return DALConnection::DALUnknown;
          }
    
-         if (MySQLInterface::Instance()->p_mysql_query(dbconn_, Unicode::ToANSI(sQuery)))
+         if (MySQLInterface::Instance()->p_mysql_query(dbconn_, sQuery))
          {
             bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
             if (!bIgnoreErrors)
@@ -407,7 +402,7 @@ namespace HM
    }
 
    void 
-   MySQLConnection::LoadSupportsTransactions(const String &database)
+   MySQLConnection::LoadSupportsTransactions_(const String &database)
    {
       supports_transactions_ = false;
 
@@ -437,6 +432,47 @@ namespace HM
       {
          // Only InnoDB tables in this database. Enable transactions.
          supports_transactions_ = true;
+      }
+   }
+
+   void 
+   MySQLConnection::SetConnectionCharacterSet_()
+   {
+      std::set<String> utf_character_sets;
+
+      MySQLRecordset rec;
+      if (!rec.Open(shared_from_this(), SQLCommand("SHOW CHARACTER SET LIKE 'UTF%'")))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", "Unable to find appropriate MySQL character set. Command SHOW CHARACTER SET LIKE 'UTF%' failed.");
+         return;
+      }
+
+
+      while (!rec.IsEOF())
+      {
+         String character_set  = rec.GetStringValue("Charset");
+         utf_character_sets.insert(character_set);
+         rec.MoveNext();
+      }
+
+      String character_set_to_use;
+
+      if (utf_character_sets.find("utf8mb4") != utf_character_sets.end())
+         character_set_to_use = "utf8mb4";
+      else if (utf_character_sets.find("utf8") != utf_character_sets.end())
+         character_set_to_use = "utf8";
+      else
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", "Unable to find appropriate MySQL character set.");
+         return;
+      }
+
+      String error_message;
+      AnsiString set_names_command = Formatter::Format("SET NAMES {0}", character_set_to_use);
+
+      if (TryExecute(SQLCommand(set_names_command), error_message, 0, 0) != DALConnection::DALSuccess)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", set_names_command);
       }
    }
 

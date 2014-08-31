@@ -110,3 +110,5 @@
 5511, Failed to set SSL ciphers
 5512, Failed to convert OpenSSL internal X509 to DER-format.
 5513, BIO_read returned an unexpected number of characters. Expected: {0}, Returned: {1}
+5514, Unable to find appropriate MySQL character set.
+5515, Failed to enable lingering for session {0}
