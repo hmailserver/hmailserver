@@ -190,6 +190,27 @@ namespace RegressionTests.SMTP
          }
       }
 
+      [Test]
+      [Description("If a client attempts to deliver to a route, but the recipient is not in the route list an error should be returned.")]
+      public void RecipientNotInListShouldReturnError()
+      {
+         // Add a route pointing at localhost
+         Route route = _settings.Routes.Add();
+         route.DomainName = "test.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = 255;
+         route.NumberOfTries = 1;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = true;
+         route.TreatSenderAsLocalDomain = true;
+         route.AllAddresses = false; // only to recipients in list.
+         route.Save();
 
+         var smtpClient = new SMTPClientSimulator();
+
+         string resultMessage;
+         CustomAssert.IsFalse(smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
+         CustomAssert.AreEqual("550 Recipient not in route list.", resultMessage);
+      }
    }
 }
