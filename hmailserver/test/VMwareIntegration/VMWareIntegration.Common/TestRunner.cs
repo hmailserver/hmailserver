@@ -17,18 +17,14 @@ namespace VMwareIntegration.Common
       private bool _embedded;
       public delegate void TestCompletedDelegate(int testIndex, bool result, string message, string failureText);
 
-      public event TestCompletedDelegate TestCompleted;
-
       private string _softwareUnderTest;
-      private int _testIndex;
 
-      public TestRunner(bool embedded, int testIndex, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
+      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
       {
          _environment = environment;
          _stopOnError = stopOnError;
          _embedded = embedded;
          _softwareUnderTest = softwareUnderTest;
-         _testIndex = testIndex;
       }
 
       public void RunThread()
@@ -36,36 +32,9 @@ namespace VMwareIntegration.Common
          Run();
       }
 
-      public bool Run()
+      public void Run()
       {
-         DateTime startTime = DateTime.Now;
-         try
-         {
-            RunInternal();
-            ReportStatus(true, DateTime.Now - startTime, "");
-            return true;
-         }
-         catch (Exception ex)
-         {
-            ReportStatus(false, DateTime.Now - startTime, ex.Message);
-            return false;
-         }
-      }
-
-      private void ReportStatus(bool success, TimeSpan ts, string failureText)
-      {
-         try
-         {
-            string text = success ? "Success" : "Failure";
-
-            text = text + " " + ts.ToString().Substring(0, 8);
-            TestCompleted(_testIndex, success, text, failureText);
-         }
-         catch (Exception)
-         {
-
-         }
-
+         RunInternal();
       }
 
       private void RunInternal()
@@ -95,6 +64,7 @@ namespace VMwareIntegration.Common
 
             vm.Connect();
             vm.OpenVM(_environment.VMwarePath);
+
             vm.RevertToSnapshot(_environment.SnapshotName);
             vm.LoginInGuest("VMware", "vmware");
 
@@ -125,7 +95,7 @@ namespace VMwareIntegration.Common
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
-            bool useLocalVersion = false;
+            bool useLocalVersion = true;
 
             if (useLocalVersion)
             {

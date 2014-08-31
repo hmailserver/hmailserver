@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,8 +23,15 @@ namespace VMwareIntegration.Console
       static int Main(string[] args)
       {
          var softwareUnderTest = args[0];
+
          _logFile = args[1];
          _logFile = _logFile.Replace("%TIMESTAMP%", DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
+
+         if (!File.Exists(softwareUnderTest))
+         {
+            LogText(string.Format("The file {0} does not exist.", softwareUnderTest));
+            return -1;
+         }
 
          LogText("Loading test suite...");
 
@@ -33,6 +41,8 @@ namespace VMwareIntegration.Console
 
          int testIndex = 0;
 
+         var f = TaskScheduler.Default;
+
          var options = new ParallelOptions()
             {
                MaxDegreeOfParallelism = 4
@@ -41,7 +51,9 @@ namespace VMwareIntegration.Console
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
          var environmentsGroupedByVmwareImage = listEnvironments.GroupBy(item => item.VMwarePath).ToList();
 
-         Parallel.ForEach(environmentsGroupedByVmwareImage, options, environmentGroup =>
+         var partitioner = Partitioner.Create(environmentsGroupedByVmwareImage, EnumerablePartitionerOptions.NoBuffering); 
+         
+         Parallel.ForEach(partitioner, options, environmentGroup =>
          {
             foreach (var environment in environmentGroup)
             {
@@ -65,11 +77,18 @@ namespace VMwareIntegration.Console
                   LogText(message);
                }
 
-               TestRunner runner = new TestRunner(true, localIndex, environment, false, softwareUnderTest);
-               runner.TestCompleted += runner_TestCompleted;
-               if (!runner.Run())
+               var runner = new TestRunner(true, environment, false, softwareUnderTest);
+
+               try
                {
-                  throw new Exception("Unable to run test.");
+                  runner.Run();
+                  LogText(string.Format("{0}: Test {1} completed successfully.",DateTime.Now, localIndex));
+               }
+               catch (Exception ex) 
+               {
+                  LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
+                  LogText(ex.ToString());
+                  throw;
                }
             }
 
@@ -83,13 +102,7 @@ namespace VMwareIntegration.Console
 
       static void runner_TestCompleted(int testIndex, bool result, string message, string failureText)
       {
-         if (result)
-            LogText(string.Format("The test {0} completed successfully.", testIndex));
-         else
-         {
-            LogText(string.Format("The test {0} failed.", testIndex));
-            LogText(failureText);
-         }
+
       }
 
       private static void LogText(string text)

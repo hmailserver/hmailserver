@@ -14,6 +14,7 @@ namespace VMwareIntegration.Common
       private static string WindowsXPPath = @"C:\Build\VMware\Windows XP Professional\Windows XP Professional.vmx";
       private static string WindowsXPPostgreSQL831Path = @"C:\Build\VMWare\Windows XP - PostgreSQL 8.3.1 (Link)\Windows XP - PostgreSQL 8.3.1 (Link).vmx";
       private static string WindowsXPMySQL5_0_51Path = @"C:\Build\VMWare\Windows XP - MySQL 5.0.51 (Link)\Windows XP - MySQL 5.0.51 (Link).vmx";
+      private static string WindowsXPMySQL5_6_20Path = @"C:\Build\VMWare\Windows XP - MySQL 5.6.20 (Link)\Windows XP - MySQL 5.6.20 (Link).vmx";
       private static string WindowsXPSQLServer2005Path = @"C:\Build\VMWare\Windows XP - SQL Server 2005\Windows XP - SQL Server 2005.vmx";
       private static string WindowsXPSQLServer2000Path = @"C:\Build\VMWare\Windows XP - SQL Server 2000 (Link)\Windows XP - SQL Server 2000 (Link).vmx";
       private static string WindowsXPHmail441SQLServerPath = @"C:\Build\VMWare\Windows XP - hMailServer 4.4.1 (SQL Server) (Link)\Windows XP - hMailServer 4.4.1 (SQL Server) (Link).vmx";
@@ -72,29 +73,35 @@ namespace VMwareIntegration.Common
 
       private static void TestXPSP2(List<TestEnvironment> listEnvironments)
       {
+         // Internal database
+         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "New installation", "Internal", WindowsXPPath, "Windows XP SP2, .NET Framework 2.0"));
+
          // Test using PostgreSQL...
          TestEnvironment tempEnv2 = new TestEnvironment("Windows XP SP2", "New installation", "PostgreSQL 8.3.1", WindowsXPPostgreSQL831Path, "Initial");
          tempEnv2.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:build"));
          listEnvironments.Add(tempEnv2);
 
-         // One more complex using MySQL.
+         // Test using MySQL 5.0.51.
          TestEnvironment tempEnv1 = new TestEnvironment("Windows XP SP2", "New installation", "MySQL 5.0.51", WindowsXPMySQL5_0_51Path, "Initial");
          tempEnv1.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
          tempEnv1.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
          listEnvironments.Add(tempEnv1);
 
-         // One basic using internal database
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "New installation", "Internal", WindowsXPPath, "Windows XP SP2, .NET Framework 2.0"));
+         // Test using MySQL 5.6.20 (with proper UTF8-support).
+         TestEnvironment tempEnv3 = new TestEnvironment("Windows XP SP2", "New installation", "MySQL 5.6.20", WindowsXPMySQL5_6_20Path, "Initial");
+         tempEnv3.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
+         tempEnv3.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
+         listEnvironments.Add(tempEnv3);
 
-         // One more complex using SQL Server 2005.
-         TestEnvironment tempEnv = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2005", WindowsXPSQLServer2005Path, "Initial");
-         tempEnv.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:HI DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
-         listEnvironments.Add(tempEnv);
+         // Test using SQL Server 2000.
+         var tempEnv4 = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2000", WindowsXPSQLServer2000Path, "Initial");
+         tempEnv4.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:. DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
+         listEnvironments.Add(tempEnv4);
 
-         // Test one using SQL Server 2000.
-         tempEnv = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2000", WindowsXPSQLServer2000Path, "Initial");
-         tempEnv.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:. DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
-         listEnvironments.Add(tempEnv);
+         // Test using SQL Server 2005.
+         TestEnvironment tempEnv5 = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2005", WindowsXPSQLServer2005Path, "Initial");
+         tempEnv5.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:HI DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
+         listEnvironments.Add(tempEnv5);
       }
 
       private static void TestWindows2008(List<TestEnvironment> listEnvironments)
