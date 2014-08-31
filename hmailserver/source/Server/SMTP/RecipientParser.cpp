@@ -171,8 +171,7 @@ namespace HM
       
             // We found routes matching the recipients domain, but the recipient 
             // doesn't exist in any of them.
-            // Temp fail in case route list is not up-to-date
-            sErrMsg = "421 Recipient not in route list.";
+            sErrMsg = "550 Recipient not in route list.";
             return DP_RecipientUnknown;
          }
 
