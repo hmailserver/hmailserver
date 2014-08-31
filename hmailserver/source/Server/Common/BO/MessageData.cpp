@@ -476,8 +476,7 @@ namespace HM
       set<shared_ptr<MimeBody> > setAttachments;
       while (part)
       {
-         AnsiString subContentType = part->GetCleanContentType();
-         if (!IsTextType(subContentType) && !IsHTMLType(subContentType))
+         if (part->IsAttachment())
             setAttachments.insert(part);
 
          part = mime_mail_->FindNextPart();

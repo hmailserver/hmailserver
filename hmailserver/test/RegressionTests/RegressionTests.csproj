@@ -182,6 +182,7 @@
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
     <Compile Include="Shared\SMTPClientSimulator.cs" />
     <Compile Include="Shared\TestTracer.cs" />
+    <Compile Include="SMTP\BlockedAttachmentTests.cs" />
     <Compile Include="SMTP\ReceivedHeaders.cs" />
     <Compile Include="SMTP\DistributionLists.cs" />
     <Compile Include="SMTP\Routes.cs" />

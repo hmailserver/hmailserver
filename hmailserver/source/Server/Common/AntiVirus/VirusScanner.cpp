@@ -207,6 +207,8 @@ namespace HM
 
       bool bChangesMade = false;
 
+      std::list<shared_ptr<Attachment>> attachments_to_delete;
+
       for (unsigned int i = 0; i < pAttachments->GetCount(); i++)
       {
          shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
@@ -218,30 +220,36 @@ namespace HM
 
             if (StringParser::WildcardMatchNoCase(sWildcard, pAttachment->GetFileName()))
             {
-               // Match. Remove the attachment and add a new dummy.
-               bChangesMade = true;
-               pAttachment->Delete();
-
-               String sBody = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
-
-               // Replace macros.
-               sBody.Replace(_T("%MACRO_FILE%"), pAttachment->GetFileName());
-
-               // Add the new
-               shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
-               pBody->SetRawText(sBody);
-
-               // Create an content-disposition header.
-               pBody->SetRawFieldValue(CMimeConst::ContentDisposition(), CMimeConst::Inline(), "");
-               pBody->SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), pAttachment->GetFileName() + ".txt");
-
+               attachments_to_delete.push_back(pAttachment);
+               
                break;
             }
 
          }
       }
 
-      if (bChangesMade)
+      boost_foreach(shared_ptr<Attachment> pAttachment, attachments_to_delete)
+      {
+         pAttachment->Delete();
+      }
+
+      boost_foreach(shared_ptr<Attachment> pAttachment, attachments_to_delete)
+      {
+         String sBody = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
+
+         // Replace macros.
+         sBody.Replace(_T("%MACRO_FILE%"), pAttachment->GetFileName());
+
+         // Add the new
+         shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
+         pBody->SetRawText(sBody);
+
+         // Create an content-disposition header.
+         pBody->SetRawFieldValue(CMimeConst::ContentDisposition(), CMimeConst::Inline(), "");
+         pBody->SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), pAttachment->GetFileName() + ".txt");
+      }
+
+      if (attachments_to_delete.size())
       {
          pMsgData->Write(fileName);
          
