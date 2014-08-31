@@ -99,6 +99,8 @@ namespace HM
          std::vector<shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
          std::vector<shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
 
+         bool operation_can_be_processed = true;
+
          for (; iter != iterEnd; iter++)
          {
             shared_ptr<IOOperation> ongoingOperation = (*iter);
@@ -113,7 +115,7 @@ namespace HM
                   {
                      case IOOperation::BCTWrite:         // We can only send one item at a time.
                      case IOOperation::BCTRead:      // We can not start to process new incoming commands before old data has been sent.
-                     case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout commands to be sent to client.
+                     case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout messages to be sent to client.
                      case IOOperation::BCTShutdownSend: // We can't disable send-mode while we're sending data. Makes no sense.
                      case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're sending data.
                         shared_ptr<IOOperation> empty;
