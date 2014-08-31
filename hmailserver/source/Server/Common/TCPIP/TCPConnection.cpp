@@ -47,7 +47,7 @@ namespace HM
       session_id_ = Application::Instance()->GetUniqueID();
 
       LOG_DEBUG("Creating session " + StringParser::IntToString(session_id_));
-
+   
    }
 
    TCPConnection::~TCPConnection(void)
@@ -208,6 +208,8 @@ namespace HM
    {
       LOG_DEBUG(Formatter::Format("TCP connection started for session {0}", session_id_));
 
+      EnableLingering_();
+
       OnConnected();
 
       if (connection_security_ == CSSSL)
@@ -246,7 +248,6 @@ namespace HM
               stage = 5;
               break;
            }
-
         case IOOperation::BCTWrite:
             {
                stage = 6;
@@ -866,6 +867,24 @@ namespace HM
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::AsyncWriteCompleted", message);
          throw;
       }
+   }
+
+   void
+   TCPConnection::EnableLingering_()
+   {
+      //boost::asio::socket_base::linger option(true, 15);
+
+      //boost::system::error_code error_code;
+      //
+      //socket_.set_option(option, error_code);
+
+      //if (error_code.value() != 0)
+      //{
+      //   // This is not a critical error. We do not have to close the session.
+      //   String errorMessage = Formatter::Format(_T("Failed to enable lingering for session {0}"), GetSessionID());
+      //   ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5515, "TCPConnection::EnableLingering_", errorMessage, error_code);
+      //}
+
    }
 
    IPAddress 
