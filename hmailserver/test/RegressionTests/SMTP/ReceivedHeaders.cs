@@ -1,6 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -21,7 +22,7 @@ namespace RegressionTests.SMTP
       }
 
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
       }
@@ -38,7 +39,7 @@ namespace RegressionTests.SMTP
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         Assert.IsTrue(message.Contains("ESMTPA\r\n"));
+         CustomAssert.IsTrue(message.Contains("ESMTPA\r\n"));
       }
 
       [Test]
@@ -51,21 +52,28 @@ namespace RegressionTests.SMTP
          smtpClientSimulator.Send(true, string.Empty, string.Empty, _account.Address, _account.Address, "Test", "test", out errorMessage);
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains("ESMTPS\r\n"));
+         CustomAssert.IsTrue(message.Contains("ESMTPS\r\n"));
       }
 
       [Test]
       [Description("Header should contain ESMTPSA if STARTTLS is used and user is authenticated.")]
       public void TestESMTPSAInHeader()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+         try
+         {
+            var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
 
-         
-         string errorMessage;
-         smtpClientSimulator.Send(true, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
+            string errorMessage;
+            smtpClientSimulator.Send(true, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+               out errorMessage);
 
-         var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains("ESMTPSA\r\n"));
+            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            CustomAssert.IsTrue(message.Contains("ESMTPSA\r\n"));
+         }
+         catch (Exception e)
+         {
+            CustomAssert.Fail(e.ToString());
+         }
       }
 
    }

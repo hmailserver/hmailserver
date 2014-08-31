@@ -21,7 +21,7 @@ namespace RegressionTests.SSL.StartTls
       }
 
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
       }
