@@ -2,7 +2,9 @@
 // http://www.hmailserver.com
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
+using Microsoft.SqlServer.Server;
 using NUnit.Framework;
 
 namespace RegressionTests.Shared
@@ -238,11 +240,11 @@ namespace RegressionTests.Shared
       public bool Close()
       {
          _tcpConnection.Send("A14 CLOSE\r\n");
-         string result = _tcpConnection.Receive();
+         string result = _tcpConnection.ReadUntil(new List<string>() {"A14 BAD", "A14 OK"});
 
-         if (result.StartsWith("A14 BAD"))
+         if (result.Contains("A14 BAD"))
             return false;
-         else if (result.StartsWith("A14 OK"))
+         if (result.Contains("A14 OK"))
             return true;
 
          CustomAssert.Fail(string.Format("IMAPClientSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));

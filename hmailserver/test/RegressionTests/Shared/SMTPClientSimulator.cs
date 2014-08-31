@@ -188,7 +188,7 @@ namespace RegressionTests.Shared
             CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
 
             SendAndReceive("STARTTLS\r\n");
-            _tcpConnection.HandshakeAsClient();
+            CustomAssert.IsTrue(_tcpConnection.HandshakeAsClient());
          }
 
          if (!string.IsNullOrEmpty(username))
@@ -208,13 +208,13 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
          if (sData.StartsWith("2") == false)
          {
-            result = sData;
+            result = TrimNewlline(sData);
             return false;
          }
 
          // Select inbox
          _tcpConnection.Send("DATA\r\n");
-         sData = _tcpConnection.Receive();
+         _tcpConnection.Receive();
 
          _tcpConnection.Send("From: " + sFrom + "\r\n");
          _tcpConnection.Send("To: " + sTo + "\r\n");
@@ -233,18 +233,23 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
          if (sData.Substring(0, 3) != "250")
          {
-            result = sData;
+            result = TrimNewlline(sData);
             return false;
          }
 
          // Quit again
          _tcpConnection.Send("QUIT\r\n");
-         sData = _tcpConnection.Receive();
+         _tcpConnection.Receive();
 
          _tcpConnection.Disconnect();
 
          result = "";
          return true;
+      }
+
+      private string TrimNewlline(string input)
+      {
+         return input.TrimEnd('\r', '\n');
       }
 
       public bool SendRaw(string sFrom, string sTo, string text)
