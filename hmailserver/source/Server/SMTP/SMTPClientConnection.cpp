@@ -230,37 +230,18 @@ namespace HM
    void
    SMTPClientConnection::ProtocolStateHELOEHLO_(const AnsiString &request)
    {
-      if (request.GetLength() > 0)
-         remoteServerBanner_ = request;
-
-      bool server_supports_esmtp = GetServerSupportsESMTP_();
-      if (GetConnectionSecurity() == CSSTARTTLSRequired || use_smtpauth_)
-      {
-         if (!server_supports_esmtp)
-         {
-            UpdateAllRecipientsWithError_(500, "Remote server does not support ESMTP which is required for STARTTLS and authentication.", false);
-            SendQUIT_();
-            return;
-         }
-      }
+      bool use_esmtp  = GetConnectionSecurity() == CSSTARTTLSRequired ||
+                        GetConnectionSecurity() == CSSTARTTLSOptional ||
+                        use_smtpauth_;
 
       String computer_name = Utilities::ComputerName(); 
 
-      if (GetServerSupportsESMTP_())
+      if (use_esmtp)
          EnqueueWrite_("EHLO " + computer_name);
       else
          EnqueueWrite_("HELO " + computer_name);
          
       SetState_(HELOSENT);
-   }
-
-   bool
-   SMTPClientConnection::GetServerSupportsESMTP_()
-   {
-      if (remoteServerBanner_.Contains("ESMTP"))
-         return true;
-
-      return false;
    }
 
    void

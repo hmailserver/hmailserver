@@ -76,8 +76,6 @@ namespace HM
       shared_ptr<MessageRecipient> GetNextRecipient_();
       void UpdateSuccessfulRecipients_();
 
-      bool GetServerSupportsESMTP_();
-
       enum ConnectionState
       {
 	      HELO = 1,
@@ -125,7 +123,5 @@ namespace HM
       TransparentTransmissionBuffer transmission_buffer_;
 
       AnsiString multi_line_response_buffer_;
-
-      AnsiString remoteServerBanner_;
    };
 }
