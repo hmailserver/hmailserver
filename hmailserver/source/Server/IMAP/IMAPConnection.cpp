@@ -59,6 +59,8 @@ namespace HM
    {
       imap_folders_.reset();
 
+      SessionManager::Instance()->OnCreate(STIMAP);
+
       // The IMAP RFC states that the minimum connection
       // timeout is 30 minutes. If the load increases, the timeout
       // may go down to 15 minutes.
@@ -66,7 +68,6 @@ namespace HM
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(5 * 60, 30 * 60));
 
-      SessionManager::Instance()->OnCreate(STIMAP);
    }
 
    IMAPConnection::~IMAPConnection()

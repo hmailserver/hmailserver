@@ -48,7 +48,7 @@ namespace HM
    int
    TimeoutCalculator::Calculate(int minSecs, int maxSecs)
    {
-      unsigned long connectionCount = SessionManager::Instance()->GetNumberOfConnections() - 1; // -1 for the current.
+      int connectionCount = SessionManager::Instance()->GetNumberOfConnections();
 
       return Calculate(connectionCount, minSecs, maxSecs);
    }

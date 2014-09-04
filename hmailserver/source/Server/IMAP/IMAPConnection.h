@@ -173,7 +173,7 @@ namespace HM
 
       shared_ptr<IMAPNotificationClient> notification_client_;
 
-      int  log_level_;      
+      int log_level_;      
    };
    
 }

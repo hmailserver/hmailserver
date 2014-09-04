@@ -11,29 +11,12 @@ namespace RegressionTests.Infrastructure
    [TestFixture]
    public class Timeouts : TestFixtureBase
    {
-      private void AssertSessionCount(eSessionType sessionType, int expectedCount)
-      {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
-         int timeout = 150;
-         while (timeout > 0)
-         {
-            int count = application.Status.get_SessionCount(sessionType);
-
-            if (count == expectedCount)
-               return;
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         CustomAssert.AreEqual(expectedCount, application.Status.get_SessionCount(sessionType));
-      }
+      
 
       [Test]
       public void TestImproperDisconnect()
       {
-         AssertSessionCount(eSessionType.eSTPOP3, 0);
+         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, 0);
 
          var application = SingletonProvider<TestSetup>.Instance.GetApp();
 
@@ -42,10 +25,10 @@ namespace RegressionTests.Infrastructure
 
          var oPOP3 = new POP3ClientSimulator();
          oPOP3.ConnectAndLogon(account.Address, "test");
-         AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
+         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
          oPOP3.Disconnect(); // Disconnect without sending quit
 
-         AssertSessionCount(eSessionType.eSTPOP3, iCount);
+         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, iCount);
       }
    }
 }

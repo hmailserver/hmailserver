@@ -6,6 +6,8 @@
 #include "../TCPIP/SocketConstants.h"
 #include "../TCPIP/IPAddress.h"
 
+#include <boost/atomic.hpp>
+
 namespace HM
 {
    class SecurityRange;
@@ -22,20 +24,16 @@ namespace HM
        void OnCreate(SessionType t);
        void OnDestroy(SessionType st);
 
-       long GetNumberOfConnections(SessionType st);
+       int GetNumberOfConnections(SessionType st);
        // Returns the number of connections for a specific connection timeout
 
-       unsigned long GetNumberOfConnections();
+       int GetNumberOfConnections();
 
    private:
 
-      
-
-      long no_of_smtpconnections_;
-      long no_of_pop3connections_;
-      long no_of_imapconnections_;
-
-   private:
+      boost::atomic<int> no_of_smtpconnections_;
+      boost::atomic<int> no_of_pop3connections_;
+      boost::atomic<int> no_of_imapconnections_;
 
    };
 }

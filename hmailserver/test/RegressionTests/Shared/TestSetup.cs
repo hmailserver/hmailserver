@@ -82,7 +82,6 @@ namespace RegressionTests.Shared
 
          _settings.SSLCertificates.Clear();
          
-
          if (_settings.AutoBanOnLogonFailure)
             _settings.AutoBanOnLogonFailure = false;
 
@@ -133,6 +132,13 @@ namespace RegressionTests.Shared
 
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
+
+         if (_settings.MaxSMTPConnections > 0)
+            _settings.MaxSMTPConnections = 0;
+         if (_settings.MaxIMAPConnections > 0)
+            _settings.MaxIMAPConnections = 0;
+         if (_settings.MaxPOP3Connections > 0)
+            _settings.MaxPOP3Connections = 0;
 
          hMailServer.AntiVirus antiVirus = _settings.AntiVirus;
 
@@ -675,6 +681,25 @@ namespace RegressionTests.Shared
          streamWriter = File.CreateText(file);
          streamWriter.Write(contents);
          streamWriter.Close();
+      }
+
+      public static void AssertSessionCount(eSessionType sessionType, int expectedCount)
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         int timeout = 150;
+         while (timeout > 0)
+         {
+            int count = application.Status.get_SessionCount(sessionType);
+
+            if (count == expectedCount)
+               return;
+
+            timeout--;
+            Thread.Sleep(100);
+         }
+
+         CustomAssert.AreEqual(expectedCount, application.Status.get_SessionCount(sessionType));
       }
 
       public void AssertBounceMessageExistsInQueue(string bounceTo)

@@ -69,7 +69,7 @@ namespace HM
       case STSMTP:
          {
             max_connections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
-            if (max_connections > 0 && current_connections >= max_connections)
+            if (max_connections > 0 && current_connections > max_connections)
                return false;
 
             break;
@@ -77,7 +77,7 @@ namespace HM
       case STPOP3:
          {
             max_connections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
-            if (max_connections > 0 && current_connections >= max_connections)
+            if (max_connections > 0 && current_connections > max_connections)
                return false;
 
             break;
@@ -85,7 +85,7 @@ namespace HM
       case STIMAP:
          {
             max_connections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
-            if (max_connections > 0 && current_connections >= max_connections)
+            if (max_connections > 0 && current_connections > max_connections)
                return false;
             break;
          }
@@ -101,17 +101,17 @@ namespace HM
       {
       case STSMTP:
          {
-            InterlockedIncrement(&no_of_smtpconnections_);
+            no_of_smtpconnections_++;
             break;
          }
       case STPOP3:
          {
-            InterlockedIncrement(&no_of_pop3connections_);
+            no_of_pop3connections_++;
             break;
          }
       case STIMAP:
          {
-            InterlockedIncrement(&no_of_imapconnections_);
+            no_of_imapconnections_++;
             break;
          }
       }
@@ -124,57 +124,59 @@ namespace HM
       switch (st)
       {
       case STSMTP:
-         InterlockedDecrement(&no_of_smtpconnections_);
+         no_of_smtpconnections_--;
          break;
       case STPOP3:
-         InterlockedDecrement(&no_of_pop3connections_);
+         no_of_pop3connections_--;
          break;
       case STIMAP:
-         InterlockedDecrement(&no_of_imapconnections_);
+         no_of_imapconnections_--;
          break;
       }
    }
 
 
-   long
+   int
    SessionManager::GetNumberOfConnections(SessionType st)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the number of connections for a specific connection timeout
    //---------------------------------------------------------------------------()
    {
+      int result = 0;
+
       switch (st)
       {
       case STSMTP:
-         return no_of_smtpconnections_;
+         result = no_of_smtpconnections_;
          break;
       case STPOP3:
-         return no_of_pop3connections_;
+         result = no_of_pop3connections_;
          break;
       case STIMAP:
-         return no_of_imapconnections_;
+         result = no_of_imapconnections_;
          break;
       }
 
-      return -1;
+      if (result < 0)
+      {
+         // During start-up, the counter may not be initialized yet. (Defualt = -1)
+         result = 0;
+      }
+
+      return result;
    }
 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the total number of connections.
    //---------------------------------------------------------------------------()
-   unsigned long
+   int
    SessionManager::GetNumberOfConnections()
    {
-      long smtpConnectins = 0;
-      long pop3Connections = 0;
-      long imapConnections = 0;
-
-      InterlockedExchange(&smtpConnectins, no_of_smtpconnections_);
-      InterlockedExchange(&pop3Connections, no_of_pop3connections_);
-      InterlockedExchange(&imapConnections, no_of_imapconnections_);
-
-      return smtpConnectins + pop3Connections + imapConnections;
+      return GetNumberOfConnections(STSMTP) + 
+             GetNumberOfConnections(STPOP3) +
+             GetNumberOfConnections(STIMAP);
    }
 
 }

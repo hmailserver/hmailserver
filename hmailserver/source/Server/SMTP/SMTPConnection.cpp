@@ -87,6 +87,7 @@ namespace HM
       isAuthenticated_(false),
       start_tls_used_(false)
    {
+      SessionManager::Instance()->OnCreate(STSMTP);
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
 
@@ -104,8 +105,6 @@ namespace HM
 
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSMTPDMinTimeout(), IniFileSettings::Instance()->GetSMTPDMaxTimeout()));
-
-      SessionManager::Instance()->OnCreate(STSMTP);
    }
 
    SMTPConnection::~SMTPConnection()

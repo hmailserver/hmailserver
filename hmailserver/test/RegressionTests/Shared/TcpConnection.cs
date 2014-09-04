@@ -116,7 +116,8 @@ namespace RegressionTests.Shared
          if (_useSslSocket)
             _sslStream.Close();
 
-         _tcpClient.Close();
+         if (_tcpClient != null)
+            _tcpClient.Close();
       }
 
       public bool HandshakeAsClient()

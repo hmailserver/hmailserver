@@ -49,6 +49,8 @@ namespace HM
       transmission_buffer_(true),
       pending_disconnect_(false)
    {
+      SessionManager::Instance()->OnCreate(STPOP3);
+
       /*
         RFC 1939, Basic Operation
         A POP3 server MAY have an inactivity autologout timer.  Such a timer
@@ -61,8 +63,6 @@ namespace HM
 
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetPOP3DMinTimeout(), IniFileSettings::Instance()->GetPOP3DMaxTimeout()));
-
-      SessionManager::Instance()->OnCreate(STPOP3);
    }
 
    POP3Connection::~POP3Connection()
