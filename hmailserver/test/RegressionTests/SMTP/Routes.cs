@@ -212,5 +212,35 @@ namespace RegressionTests.SMTP
          CustomAssert.IsFalse(smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
          CustomAssert.AreEqual("550 Recipient not in route list.", resultMessage);
       }
+
+      [Test]
+      public void ShouldBePossibleToSendToRouteWithTargetIPAddress()
+      {
+         // Set up a server listening on port 250 which accepts email for test@otherdomain.com
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["test@dummy-example.com"] = 250;
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
+            route.TargetSMTPHost = "127.0.0.1";
+            route.Save();
+          
+            var smtpSimulator = new SMTPClientSimulator();
+            CustomAssert.IsTrue(smtpSimulator.Send("test@test.com",
+                                           "test@dummy-example.com", "Mail 1", "Test message"));
+
+
+            // This should now be processed via the rule -> route -> external server we've set up.
+            server.WaitForCompletion();
+            var log = TestSetup.ReadCurrentDefaultLog();
+
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+         }
+      }
    }
 }

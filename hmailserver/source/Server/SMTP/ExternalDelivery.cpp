@@ -209,30 +209,54 @@ namespace HM
 
       if (serverInfo->GetFixed())
       {
-         String relayServer = serverInfo->GetHostName();
+         String target_host_name = serverInfo->GetHostName();
+         String target_ip_address = serverInfo->GetIpAddress();
+
          vector<String> mailServerHosts;
 
-         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Relaying to host " + relayServer + ".");      
-         
-         if (relayServer.Find(_T("|")) > 0)
-            mailServerHosts = StringParser::SplitString(relayServer, "|");
-         else
-            mailServerHosts.push_back(relayServer);
+         bool useHostName = !target_host_name.IsEmpty();
 
-         boost_foreach(String host, mailServerHosts)
+         String relay_host_log_name;
+
+         if (useHostName)
          {
-            vector<String> ip_addresses;
-            dnsQueryOK = resolver.GetARecords(host, ip_addresses);
+            relay_host_log_name = target_host_name;
 
-            boost_foreach(String ip_address, ip_addresses)
+            if (target_host_name.Find(_T("|")) > 0)
+               mailServerHosts = StringParser::SplitString(target_host_name, "|");
+            else
+               mailServerHosts.push_back(target_host_name);
+
+            boost_foreach(String host, mailServerHosts)
             {
-               HostNameAndIpAddress hostNameAndIpAddress;
-               hostNameAndIpAddress.SetHostName(host);
-               hostNameAndIpAddress.SetIpAddress(ip_address);
+               vector<String> ip_addresses;
+               dnsQueryOK = resolver.GetARecords(host, ip_addresses);
 
-               saMailServers.push_back(hostNameAndIpAddress);
+               boost_foreach(String ip_address, ip_addresses)
+               {
+                  HostNameAndIpAddress hostNameAndIpAddress;
+                  hostNameAndIpAddress.SetHostName(host);
+                  hostNameAndIpAddress.SetIpAddress(ip_address);
+
+                  saMailServers.push_back(hostNameAndIpAddress);
+               }
             }
          }
+         else
+         {
+            String target_ip_address = serverInfo->GetIpAddress();
+            relay_host_log_name = target_ip_address;
+
+            HostNameAndIpAddress hostNameAndIpAddress;
+            hostNameAndIpAddress.SetHostName("");
+            hostNameAndIpAddress.SetIpAddress(target_ip_address);
+
+            saMailServers.push_back(hostNameAndIpAddress);
+         }
+
+         LOG_APPLICATION("SMTPDeliverer - Message " + StringParser::IntToString(original_message_->GetID()) + ": Relaying to host " + relay_host_log_name + ".");      
+
+
       }
       else
       {

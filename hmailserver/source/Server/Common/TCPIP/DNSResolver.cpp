@@ -263,6 +263,13 @@ namespace HM
    bool 
    DNSResolver::GetARecords(const String &sDomain, std::vector<String> &saFoundNames)
    {
+      if (sDomain.IsEmpty())
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetARecords", "Attempted DNS lookup for empty host name.");
+         return false;
+      }
+
+
       // Do a DNS/A lookup. This may result in a AAAA result, if IPV6 is installed in the system.
       boost::asio::io_service io_service;
 
