@@ -44,6 +44,12 @@ namespace HM
       const IPAddress &iIPAdress = pTestData->GetConnectingIP();
       String sHeloHost = pTestData->GetHeloHost();
 
+      if (sHeloHost.IsEmpty())
+      {
+         // Not possible to run this test without a host.
+         return setSpamTestResults;
+      }
+
       if (!CheckHostInHelo_(sHeloHost, iIPAdress))
       {
          // Incorrect host in helo
