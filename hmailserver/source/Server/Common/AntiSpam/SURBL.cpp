@@ -114,7 +114,7 @@ namespace HM
          DNSResolver resolver;
          if (!resolver.GetARecords(sHostToLookup, saFoundNames))
          {
-				LOG_DEBUG("SURBL: Match found");
+				LOG_DEBUG("SURBL: DNS query failed.");
             return true;
          }
 

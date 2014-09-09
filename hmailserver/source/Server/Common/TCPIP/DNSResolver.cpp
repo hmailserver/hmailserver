@@ -287,7 +287,7 @@ namespace HM
          if (bDNSError)
          {
             String sMessage;
-            sMessage.Format(_T("DNS query failure. Treating as temporary failure. Query: %s, Type: A/AAAA, DnsQuery return value: %d. Message: %s"), sDomain, errorCode.value(), String(errorCode.message()));
+            sMessage.Format(_T("DNS query failure. Query: %s, Type: A/AAAA, DnsQuery return value: %d. Message: %s"), sDomain, errorCode.value(), String(errorCode.message()));
             LOG_SMTP(0,"TCP",sMessage);
             return false;
          }
