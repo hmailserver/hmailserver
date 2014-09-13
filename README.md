@@ -43,7 +43,6 @@ Building Boost
 
 Building hMailServer
 --------------------
-
 1. Download the source code from this Git repository.
 2. Compile the solution hmailserver\source\Server\hMailServer\hMailServer.sln.
    This will build the hMailServer server-part (hMailServer.exe)
@@ -51,3 +50,14 @@ Building hMailServer
    This will build hMailServer related tools, such as hMailServer Administrator and hMailServer DB Setup.
 4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
    This will build the hMailServer installation program.
+
+Releasing hMailServer
+--------------------
+
+Without finding any serious issues:
+
+1. Run all integration tests on supported versions of Windows and the different supported databases. 
+2. Run all server stress tests
+3. Enable Gflags (gflags /p /enable hmailserver.exe) and run all integration tests to check for memory issues
+4. Run for at least 2 weeks
+5. Wait for at least 500 downloads of the beta version
