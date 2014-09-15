@@ -44,6 +44,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -54,30 +55,36 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\RegressionTests\Shared\IMAPSimulator.cs">
-      <Link>IMAPSimulator.cs</Link>
+    <Compile Include="..\RegressionTests\Infrastructure\CustomAssert.cs">
+      <Link>External\CustomAssert.cs</Link>
     </Compile>
-    <Compile Include="..\RegressionTests\Shared\POP3Simulator.cs">
-      <Link>POP3Simulator.cs</Link>
+    <Compile Include="..\RegressionTests\Shared\IMAPClientSimulator.cs">
+      <Link>External\IMAPClientSimulator.cs</Link>
+    </Compile>
+    <Compile Include="..\RegressionTests\Shared\POP3ClientSimulator.cs">
+      <Link>External\POP3ClientSimulator.cs</Link>
     </Compile>
     <Compile Include="..\RegressionTests\Shared\SingletonProvider.cs">
-      <Link>SingletonProvider.cs</Link>
+      <Link>External\SingletonProvider.cs</Link>
     </Compile>
     <Compile Include="..\RegressionTests\Shared\SMTPClientSimulator.cs">
-      <Link>SMTPClientSimulator.cs</Link>
+      <Link>External\SMTPClientSimulator.cs</Link>
     </Compile>
-    <Compile Include="..\RegressionTests\Shared\TcpSocket.cs">
-      <Link>TcpSocket.cs</Link>
+    <Compile Include="..\RegressionTests\Shared\TcpConnection.cs">
+      <Link>External\TcpConnection.cs</Link>
     </Compile>
     <Compile Include="..\RegressionTests\Shared\TestFixtureBase.cs">
-      <Link>TestFixtureBase.cs</Link>
+      <Link>External\TestFixtureBase.cs</Link>
     </Compile>
     <Compile Include="..\RegressionTests\Shared\TestSetup.cs">
-      <Link>TestSetup.cs</Link>
+      <Link>External\TestSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\RegressionTests\Shared\TestTracer.cs">
+      <Link>External\TestTracer.cs</Link>
     </Compile>
     <Compile Include="DKIM.cs" />
-    <Compile Include="IMAPSortPerformance.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="IMAP.cs" />
+    <Compile Include="POP3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shared.cs" />
     <Compile Include="SMTP.cs" />
@@ -93,6 +100,12 @@
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>False</Isolated>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\hMailServer.Test.Infrastructure\hMailServer.Test.Infrastructure.csproj">
+      <Project>{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}</Project>
+      <Name>hMailServer.Test.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

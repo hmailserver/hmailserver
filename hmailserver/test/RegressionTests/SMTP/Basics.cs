@@ -975,7 +975,7 @@ namespace RegressionTests.SMTP
          {
             _application.Settings.SMTPRelayer = "localhost";
             _application.Settings.SMTPRelayerPort = smtpServerPort;
-
+            
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-using System.ServiceProcess;
 using NUnit.Framework;
 using hMailServer;
 
@@ -10,7 +9,7 @@ namespace RegressionTests.Shared
    public class TestFixtureBase
    {
       protected Application _application;
-      protected Domain _domain;
+      protected Domain _domain;  
       protected Settings _settings;
 
       [TestFixtureSetUp]

@@ -11,11 +11,11 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using hMailServer;
+using System.ServiceProcess;
 
 namespace RegressionTests.Shared
 {
@@ -99,6 +99,9 @@ namespace RegressionTests.Shared
 
          if (_settings.SMTPRelayer != "")
             _settings.SMTPRelayer = "";
+
+         if (_settings.SMTPRelayerConnectionSecurity != eConnectionSecurity.eCSNone)
+            _settings.SMTPRelayerConnectionSecurity = eConnectionSecurity.eCSNone;
 
          if (_settings.MaxDeliveryThreads != 50)
             _settings.MaxDeliveryThreads = 50;

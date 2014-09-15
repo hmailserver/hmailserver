@@ -2,11 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using RegressionTests;
 using System.IO;
 using RegressionTests.Shared;
 
@@ -113,12 +109,11 @@ namespace StressTest
         [Test]
         public void TestDKIMMassTest()
         {
-            int verificationCount = 1000;
+            int verificationCount = 5000;
 
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
             string folderGood = Path.GetFullPath("../../../TestData/DKIM/Good");
-            string path = Path.Combine(Environment.CurrentDirectory, folderGood);
             string goodFile = Directory.GetFiles(folderGood)[0];
 
             for (int i = 0; i < verificationCount; i++)
