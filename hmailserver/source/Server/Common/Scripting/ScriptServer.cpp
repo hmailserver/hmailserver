@@ -190,7 +190,7 @@ namespace HM
    }
 
    void 
-   ScriptServer::FireEvent(Event e,  const String &sEventCaller, shared_ptr<ScriptObjectContainer> pObjects)
+   ScriptServer::FireEvent(Event e,  const String &sEventCaller, std::shared_ptr<ScriptObjectContainer> pObjects)
    {
       if (!Configuration::Instance()->GetUseScriptServer())
          return;

@@ -67,7 +67,7 @@ STDMETHODIMP InterfaceIMAPFolder::Save()
 }   
    
 void 
-InterfaceIMAPFolder::Attach(shared_ptr<HM::IMAPFolder> pFolder)
+InterfaceIMAPFolder::Attach(std::shared_ptr<HM::IMAPFolder> pFolder)
 {
    object_ = pFolder;
 }
@@ -169,7 +169,7 @@ InterfaceIMAPFolder::get_Messages(IInterfaceMessages **pVal)
       CComObject<InterfaceMessages>* pItem = new CComObject<InterfaceMessages>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Messages> pMessages = object_->GetMessages();
+      std::shared_ptr<HM::Messages> pMessages = object_->GetMessages();
    
       if (pMessages)
       {
@@ -197,7 +197,7 @@ InterfaceIMAPFolder::get_SubFolders(IInterfaceIMAPFolders **pVal)
       CComObject<InterfaceIMAPFolders>* pItem = new CComObject<InterfaceIMAPFolders >();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolders> pFolders = object_->GetSubFolders();
+      std::shared_ptr<HM::IMAPFolders> pFolders = object_->GetSubFolders();
    
       if (pFolders)
       {

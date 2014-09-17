@@ -43,12 +43,12 @@ namespace HM
    bool 
    GroupMembers::UserIsMember(__int64 iAccountID)
    {
-      vector<shared_ptr<GroupMember> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<GroupMember> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<GroupMember> >::iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<GroupMember> >::iterator iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<GroupMember> pMember = (*iter);
+         std::shared_ptr<GroupMember> pMember = (*iter);
 
          if (pMember->GetAccountID() == iAccountID)
             return true;
@@ -58,9 +58,9 @@ namespace HM
    }
 
    void 
-   GroupMembers::PostStoreObject(shared_ptr<GroupMember> pGroupMember, XNode *pChildNode)
+   GroupMembers::PostStoreObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pChildNode)
    {
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(pGroupMember->GetAccountID());
+      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(pGroupMember->GetAccountID());
       if (!pAccount)
          return;
 
@@ -70,10 +70,10 @@ namespace HM
    }
 
    bool
-   GroupMembers::PreSaveObject(shared_ptr<GroupMember> pGroupMember, XNode *pNode)
+   GroupMembers::PreSaveObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pNode)
    {
       String sAddress = pNode->GetAttrValue(_T("Name"));
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(sAddress);
+      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(sAddress);
 
       if (!pAccount)
       {

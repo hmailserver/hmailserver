@@ -34,7 +34,7 @@ namespace HM
    }
 
    bool 
-   Event::WaitFor(chrono::milliseconds milliseconds)
+   Event::WaitFor(boost::chrono::milliseconds milliseconds)
    {
       boost::mutex::scoped_lock lock(mutex_);
 

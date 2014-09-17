@@ -74,7 +74,7 @@ namespace HM
 
       static String GetCurrentTimestamp();
       static String GetCurrentTimestampPlusMinutes(int iMinutes);
-      static String GetCreateDatabase(shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName);
+      static String GetCreateDatabase(std::shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName);
       static String GetLeftFunction(const String &sParamName, int iLength);
       static String GetTopRows(const String &tableName, int rows);
 

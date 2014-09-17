@@ -50,7 +50,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandAppend::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandAppend::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -61,7 +61,7 @@ namespace HM
       flags_to_set_ = "";
       create_time_to_set_ = "";
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
 
@@ -77,7 +77,7 @@ namespace HM
          flags_to_set_ = pParser->ParantheziedWord()->Value();
 
       // last word.
-      shared_ptr<IMAPSimpleWord> pWord = pParser->Word(pParser->WordCount()-1);
+      std::shared_ptr<IMAPSimpleWord> pWord = pParser->Word(pParser->WordCount()-1);
 
       if (!pWord || !pWord->Clammerized())
          return IMAPResult(IMAPResult::ResultBad, "Missing literal");
@@ -91,7 +91,7 @@ namespace HM
       // Add an extra two bytes since we expect a <newline> in the end.
       bytes_left_to_receive_ += 2;
 
-      shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
+      std::shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
       int maxMessageSizeKB = GetMaxMessageSize_(domain);
 
       if (maxMessageSizeKB > 0 && 
@@ -110,7 +110,7 @@ namespace HM
       
       for (int i = 2; i < pParser->WordCount(); i++)
       {
-         shared_ptr<IMAPSimpleWord> pWord = pParser->Word(i);
+         std::shared_ptr<IMAPSimpleWord> pWord = pParser->Word(i);
 
          if (pWord->Quoted())
          {
@@ -131,7 +131,7 @@ namespace HM
       if (!destination_folder_->IsPublicFolder())
       {
          // Make sure that this message fits in the mailbox.
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
+         std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
          
          if (!pAccount)
             return IMAPResult(IMAPResult::ResultNo, "Account could not be fetched.");
@@ -147,13 +147,13 @@ namespace HM
 
       __int64 lFolderID = destination_folder_->GetID();
 
-      current_message_ = shared_ptr<Message>(new Message);
+      current_message_ = std::shared_ptr<Message>(new Message);
       current_message_->SetAccountID(destination_folder_->GetAccountID());
       current_message_->SetFolderID(lFolderID);
 
       // Construct a file name which we'll write the message to.
       // Should we connect this message to an account? Yes, if this is not a public folder.
-      shared_ptr<const Account> pMessageOwner;
+      std::shared_ptr<const Account> pMessageOwner;
       if (!destination_folder_->IsPublicFolder())
          pMessageOwner = pConnection->GetAccount();
 
@@ -167,7 +167,7 @@ namespace HM
    }
 
    void
-   IMAPCommandAppend::ParseBinary(shared_ptr<IMAPConnection> pConnection, shared_ptr<ByteBuffer> pBuf)
+   IMAPCommandAppend::ParseBinary(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<ByteBuffer> pBuf)
    {
       append_buffer_.Add(pBuf);
    
@@ -193,7 +193,7 @@ namespace HM
    }
    
    bool
-   IMAPCommandAppend::WriteData_(const shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
+   IMAPCommandAppend::WriteData_(const std::shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
    {
       if (!current_message_)
          return false;
@@ -213,7 +213,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandAppend::TruncateBuffer_(const shared_ptr<IMAPConnection> pConn)
+   IMAPCommandAppend::TruncateBuffer_(const std::shared_ptr<IMAPConnection> pConn)
    {
       if (append_buffer_.GetSize() >= 20000)
       {
@@ -227,7 +227,7 @@ namespace HM
    }
 
    void
-   IMAPCommandAppend::Finish_(shared_ptr<IMAPConnection> pConnection)
+   IMAPCommandAppend::Finish_(std::shared_ptr<IMAPConnection> pConnection)
    {
       if (!current_message_)
          return;
@@ -276,7 +276,7 @@ namespace HM
       if (pConnection->GetCurrentFolder() &&
           pConnection->GetCurrentFolder()->GetID() == destination_folder_->GetID())
       {
-         shared_ptr<Messages> messages = destination_folder_->GetMessages();
+         std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
          sResponse += IMAPNotificationClient::GenerateRecentString(messages->GetNoOfRecent());
       }
@@ -286,8 +286,8 @@ namespace HM
       pConnection->SendAsciiData(sResponse);
 
       // Notify the mailbox notifier that the mailbox contents have changed. 
-      shared_ptr<ChangeNotification> pNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageAdded));
+      std::shared_ptr<ChangeNotification> pNotification = 
+         std::shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageAdded));
       Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
 
       destination_folder_.reset();
@@ -295,7 +295,7 @@ namespace HM
    }
 
    int 
-   IMAPCommandAppend::GetMaxMessageSize_(shared_ptr<const Domain> pDomain)
+   IMAPCommandAppend::GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain)
    {
       int iMaxMessageSizeKB = Configuration::Instance()->GetSMTPConfiguration()->GetMaxMessageSize();
 

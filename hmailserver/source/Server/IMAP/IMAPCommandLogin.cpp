@@ -18,7 +18,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandLOGIN::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandLOGIN::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
       {
@@ -33,7 +33,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "A SSL/TLS-connection is required for authentication.");
       }
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       
       pParser->Parse(pArgument);
       
@@ -48,7 +48,7 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetRemoteEndpointAddress(), sUsername, sPassword, disconnect);
+      std::shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetRemoteEndpointAddress(), sUsername, sPassword, disconnect);
 
       if (disconnect)
       {

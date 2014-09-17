@@ -29,3 +29,4 @@ hmailserver/source/Server/hMailServer/hMailServer_i.c
 hmailserver/source/Server/hMailServer/hMailServer_p.c
 hmailserver/source/Server/hMailServer/x64/*
 hmailserver/source/Server/hMailServer/Release/*
+*.vcxproj.filters

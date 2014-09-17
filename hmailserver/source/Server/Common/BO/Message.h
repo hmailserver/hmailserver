@@ -88,7 +88,7 @@ namespace HM
       void SetCreateTime(const String &sCreateTime) {create_time_ = sCreateTime; }
       String GetCreateTime() const {return create_time_; }
 
-      shared_ptr<MessageRecipients> GetRecipients();
+      std::shared_ptr<MessageRecipients> GetRecipients();
 
       bool XMLStore(XNode *pParentNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -116,7 +116,7 @@ namespace HM
       bool GetFlag_(int iFlag) const;
       void SetFlag_(int iFlag, bool bSet);
 
-      shared_ptr<MessageRecipients> recipients_;
+      std::shared_ptr<MessageRecipients> recipients_;
 
    };
 }

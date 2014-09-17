@@ -43,13 +43,14 @@ namespace RegressionTests.Infrastructure
          {
             CustomAssert.IsTrue(conn1.Connect(25));
             string s1 = conn1.Receive();
-            CustomAssert.IsNotEmpty(s1);
+            CustomAssert.IsNotEmpty(s1, s1);
+
             CustomAssert.IsTrue(conn2.Connect(25));
             string s2 = conn2.Receive();
-            CustomAssert.IsNotEmpty(s2);
+            CustomAssert.IsNotEmpty(s2, s2);
             CustomAssert.IsTrue(conn3.Connect(25));
             string s3 = conn3.Receive();
-            CustomAssert.IsEmpty(s3);
+            CustomAssert.IsEmpty(s3, s3);
          }
       }
 

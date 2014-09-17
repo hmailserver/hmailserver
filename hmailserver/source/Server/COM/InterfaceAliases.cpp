@@ -8,7 +8,7 @@
 #include "InterfaceAlias.h"
 
 void
-InterfaceAliases::Attach(shared_ptr<HM::Aliases> pAliases)
+InterfaceAliases::Attach(std::shared_ptr<HM::Aliases> pAliases)
 {
    aliases_ = pAliases;
 } 
@@ -71,7 +71,7 @@ STDMETHODIMP InterfaceAliases::get_Item(long Index, IInterfaceAlias **pVal)
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
       pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItem(Index);
+      std::shared_ptr<HM::Alias> pPersAlias = aliases_->GetItem(Index);
    
       if (!pPersAlias)
          return DISP_E_BADINDEX;  
@@ -103,7 +103,7 @@ STDMETHODIMP InterfaceAliases::Add(IInterfaceAlias **pVal)
       CComObject<InterfaceAlias>* pIntAlias = new CComObject<InterfaceAlias>();
       pIntAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pAliasADO = shared_ptr<HM::Alias>(new HM::Alias);
+      std::shared_ptr<HM::Alias> pAliasADO = std::shared_ptr<HM::Alias>(new HM::Alias);
       
       pIntAlias->AttachItem(pAliasADO);
       pIntAlias->AttachParent(aliases_, false);
@@ -131,7 +131,7 @@ STDMETHODIMP InterfaceAliases::get_ItemByDBID(long DBID, IInterfaceAlias **pVal)
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
       pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByDBID(DBID);
    
       if (pPersAlias)
       {
@@ -182,7 +182,7 @@ STDMETHODIMP InterfaceAliases::get_ItemByName(BSTR Name, IInterfaceAlias **pVal)
       CComObject<InterfaceAlias>* pAlias = new CComObject<InterfaceAlias>();
       pAlias->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByName(Name);
+      std::shared_ptr<HM::Alias> pPersAlias = aliases_->GetItemByName(Name);
    
       if (pPersAlias)
       {

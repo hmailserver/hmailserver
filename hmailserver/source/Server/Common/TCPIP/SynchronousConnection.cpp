@@ -17,7 +17,7 @@ using namespace boost::system;
 
 namespace HM
 {
-   void set_result(optional<boost::system::error_code>* a, boost::system::error_code b) 
+   void set_result(boost::optional<boost::system::error_code>* a, boost::system::error_code b) 
    { 
       a->reset(b); 
    } 
@@ -77,17 +77,17 @@ namespace HM
    {
       try
       {
-         optional<error_code> timer_result; 
+         boost::optional<error_code> timer_result; 
 
          // Create the timeout timer.
          boost::asio::deadline_timer timer(ioservice_); 
          timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
-         timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
+         timer.async_wait(std::bind(set_result, &timer_result, std::placeholders::_1)); 
 
          // Start an asynchronous write.
          boost::asio::streambuf readBuffer;
-         optional<error_code> write_result; 
-         async_write(socket_, boost::asio::buffer(buf, bufSize), boost::bind(set_result, &write_result, _1)); 
+         boost::optional<error_code> write_result; 
+         async_write(socket_, boost::asio::buffer(buf, bufSize), std::bind(set_result, &write_result, std::placeholders::_1));
          ioservice_.reset(); 
 
          // Wait for data to be written. 
@@ -116,17 +116,17 @@ namespace HM
 
       try
       {
-         optional<error_code> timer_result; 
+         boost::optional<error_code> timer_result; 
          
          // Create the timeout timer.
          boost::asio::deadline_timer timer(ioservice_); 
          timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
-         timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
+         timer.async_wait(std::bind(set_result, &timer_result, std::placeholders::_1));
 
          // Start an asynchronous read.
          boost::asio::streambuf readBuffer;
-         optional<error_code> read_result; 
-         async_read_until(socket_, readBuffer, delimiter, boost::bind(set_result, &read_result, _1)); 
+         boost::optional<error_code> read_result; 
+         async_read_until(socket_, readBuffer, delimiter, std::bind(set_result, &read_result, std::placeholders::_1));
          ioservice_.reset(); 
 
          // Wait for input. 
@@ -142,7 +142,7 @@ namespace HM
 
          std::istream is(&readBuffer);
 
-         readData.append((istreambuf_iterator<char>(is)), istreambuf_iterator<char>());
+         readData.append((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 
          return true;
       }

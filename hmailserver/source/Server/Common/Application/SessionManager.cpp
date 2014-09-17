@@ -41,7 +41,7 @@ namespace HM
    }
 
    bool 
-   SessionManager::GetAllow(SessionType session_type, shared_ptr<SecurityRange> security_range)
+   SessionManager::GetAllow(SessionType session_type, std::shared_ptr<SecurityRange> security_range)
    {
       // Check that client isn't blocked by IP range.
       switch (session_type)

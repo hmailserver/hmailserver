@@ -38,7 +38,7 @@ namespace HM
       std::set<SessionType> session_types_;
       boost::asio::io_service io_service_;
 
-      vector<shared_ptr<TCPServer> > tcp_servers_;
+      std::vector<std::shared_ptr<TCPServer> > tcp_servers_;
 
       boost::condition_variable do_work_dummy;
 

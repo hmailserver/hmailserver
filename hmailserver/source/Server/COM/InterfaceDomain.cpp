@@ -48,7 +48,7 @@ STDMETHODIMP InterfaceDomain::InterfaceSupportsErrorInfo(REFIID riid)
    
 
 void
-InterfaceDomain::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceDomain::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    authentication_ = pAuthentication;
 }
@@ -315,7 +315,7 @@ STDMETHODIMP InterfaceDomain::get_Accounts(IInterfaceAccounts **pVal)
       CComObject<InterfaceAccounts>* pItem = new CComObject<InterfaceAccounts>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Accounts> pAccounts;
+      std::shared_ptr<HM::Accounts> pAccounts;
    
       if (authentication_->GetIsDomainAdmin())
          pAccounts = object_->GetAccounts();
@@ -390,7 +390,7 @@ STDMETHODIMP InterfaceDomain::get_Aliases(IInterfaceAliases **pVal)
       CComObject<InterfaceAliases>* pItem = new CComObject<InterfaceAliases>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Aliases> pAliases = object_->GetAliases();
+      std::shared_ptr<HM::Aliases> pAliases = object_->GetAliases();
       pAliases->Refresh();
    
       if (pAliases)
@@ -423,7 +423,7 @@ STDMETHODIMP InterfaceDomain::get_DomainAliases(IInterfaceDomainAliases **pVal)
       CComObject<InterfaceDomainAliases>* pItem = new CComObject<InterfaceDomainAliases>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAliases> pDA = shared_ptr<HM::DomainAliases>(new HM::DomainAliases(object_->GetID()));
+      std::shared_ptr<HM::DomainAliases> pDA = std::shared_ptr<HM::DomainAliases>(new HM::DomainAliases(object_->GetID()));
    
       if (pDA)
       {
@@ -457,7 +457,7 @@ STDMETHODIMP InterfaceDomain::get_DistributionLists(IInterfaceDistributionLists 
       CComObject<InterfaceDistributionLists>* pItem = new CComObject<InterfaceDistributionLists>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionLists> pDistLists = object_->GetDistributionLists();
+      std::shared_ptr<HM::DistributionLists> pDistLists = object_->GetDistributionLists();
       pDistLists->Refresh();
    
       if (pDistLists)

@@ -30,7 +30,7 @@ namespace HM
 
       void Add(const BYTE *pBuf, long lSize);
       void Add(ByteBuffer *pBuf);
-      void Add(shared_ptr<ByteBuffer> pBuf);
+      void Add(std::shared_ptr<ByteBuffer> pBuf);
       // Appends the buffer
    
       void Allocate(long lSize);

@@ -15,7 +15,7 @@ InterfaceSecurityRanges::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   security_ranges_ = shared_ptr<HM::SecurityRanges> (new HM::SecurityRanges);
+   security_ranges_ = std::shared_ptr<HM::SecurityRanges> (new HM::SecurityRanges);
    security_ranges_->Refresh();
 
    return true;
@@ -99,7 +99,7 @@ STDMETHODIMP InterfaceSecurityRanges::get_Item(long Index, IInterfaceSecurityRan
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItem(Index);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItem(Index);
    
       if (pRange)
       {
@@ -133,7 +133,7 @@ STDMETHODIMP InterfaceSecurityRanges::get_ItemByDBID(long DBID, IInterfaceSecuri
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByDBID(DBID);
    
       if (pRange)
       {
@@ -168,7 +168,7 @@ STDMETHODIMP InterfaceSecurityRanges::Add(IInterfaceSecurityRange **pVal)
       CComObject<InterfaceSecurityRange>* pInterfaceRange = new CComObject<InterfaceSecurityRange>();
       pInterfaceRange->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = shared_ptr<HM::SecurityRange>(new HM::SecurityRange); 
+      std::shared_ptr<HM::SecurityRange> pRange = std::shared_ptr<HM::SecurityRange>(new HM::SecurityRange); 
    
       pInterfaceRange->AttachItem(pRange);
       pInterfaceRange->AttachParent(security_ranges_, false);
@@ -194,7 +194,7 @@ STDMETHODIMP InterfaceSecurityRanges::get_ItemByName(BSTR sName, IInterfaceSecur
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByName(sName);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByName(sName);
    
       if (pRange)
       {

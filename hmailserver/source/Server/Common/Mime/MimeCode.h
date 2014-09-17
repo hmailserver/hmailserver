@@ -72,22 +72,22 @@ namespace HM
 	   static FieldCodeBase* CreateFieldCoder(const char* pszFieldName);
 
 	   // media type management
-	   typedef shared_ptr<MimeBody> (*BODY_PART_FACTORY)();
+	   typedef std::shared_ptr<MimeBody> (*BODY_PART_FACTORY)();
 	   static void RegisterMediaType(const char* pszMediaType, BODY_PART_FACTORY pfnCreateObject=NULL);
-	   static shared_ptr<MimeBody> CreateBodyPart(const char* pszMediaType);
+	   static std::shared_ptr<MimeBody> CreateBodyPart(const char* pszMediaType);
 
    private:
 	   static bool auto_folding_;
 	   static string charset_;
 
-	   typedef pair<const char*, CODER_FACTORY> CODER_PAIR;
-	   static list<CODER_PAIR> coders_;
+	   typedef std::pair<const char*, CODER_FACTORY> CODER_PAIR;
+	   static std::list<CODER_PAIR> coders_;
 
-	   typedef pair<const char*, FIELD_CODER_FACTORY> FIELD_CODER_PAIR;
-	   static list<FIELD_CODER_PAIR> field_coders_;
+	   typedef std::pair<const char*, FIELD_CODER_FACTORY> FIELD_CODER_PAIR;
+	   static std::list<FIELD_CODER_PAIR> field_coders_;
 
-	   typedef pair<const char*, BODY_PART_FACTORY> MEDIA_TYPE_PAIR;
-	   static list<MEDIA_TYPE_PAIR> media_types_;
+	   typedef std::pair<const char*, BODY_PART_FACTORY> MEDIA_TYPE_PAIR;
+	   static std::list<MEDIA_TYPE_PAIR> media_types_;
 
 	   static MimeEnvironment mgr_;
    };
@@ -111,7 +111,7 @@ namespace HM
 	   MimeEnvironment::RegisterFieldCoder(field_name, 0)
 
    #define DECLARE_MEDIATYPE(class_name) \
-	   public: static shared_ptr<MimeBody> CreateObject() { return new class_name; }
+	   public: static std::shared_ptr<MimeBody> CreateObject() { return new class_name; }
 
    #define REGISTER_MEDIATYPE(media_type, class_name) \
 	   MimeEnvironment::RegisterMediaType(media_type, class_name::CreateObject)

@@ -13,7 +13,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandAUTHENTICATE::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandAUTHENTICATE::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       return IMAPResult(IMAPResult::ResultNo, "Unsupported authentication mechanism.");
    }

@@ -27,13 +27,13 @@ namespace HM
    }
 
    DALConnection::ExecutionResult
-   SQLCERecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   SQLCERecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
       cur_row_ = 0;
 
       String sSQL = command.GetQueryString();
 
-      shared_ptr<SQLCEConnection> pConn = static_pointer_cast<SQLCEConnection>(pDALConn);
+      std::shared_ptr<SQLCEConnection> pConn = std::static_pointer_cast<SQLCEConnection>(pDALConn);
 
       _ConnectionPtr pADOConnection = pConn->GetConnection();
 
@@ -271,10 +271,10 @@ namespace HM
       return vaField.dblVal;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    SQLCERecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
       FieldsPtr      pFields;
       FieldPtr       pField;

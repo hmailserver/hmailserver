@@ -81,9 +81,9 @@ private:
 
    HM::Configuration *config_;
    HM::IniFileSettings *ini_file_settings_;
-   shared_ptr<HM::DatabaseConnectionManager> db_manager_;
+   std::shared_ptr<HM::DatabaseConnectionManager> db_manager_;
 
-   shared_ptr<HM::DALConnection> conn_;
+   std::shared_ptr<HM::DALConnection> conn_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Database), InterfaceDatabase)

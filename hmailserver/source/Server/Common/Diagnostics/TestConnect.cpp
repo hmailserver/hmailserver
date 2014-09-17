@@ -44,7 +44,7 @@ namespace HM
       {
          // Host was not found.
          String formattedString;
-         formattedString.Format(_T("ERROR: The host name %s could not be resolved.\r\n"), server);
+         formattedString.Format(_T("ERROR: The host name %s could not be resolved.\r\n"), server.c_str());
          
          result.append(formattedString);
          return false;
@@ -59,7 +59,7 @@ namespace HM
 
          String ipAddressString = adr.to_string();
          String formattedString;
-         formattedString.Format(_T("Trying to connect to TCP/IP address %s on port %d.\r\n"), ipAddressString, port);
+         formattedString.Format(_T("Trying to connect to TCP/IP address %s on port %d.\r\n"), ipAddressString.c_str(), port);
 
          result.append(formattedString);
 

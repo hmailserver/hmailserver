@@ -43,7 +43,7 @@ namespace HM
       static bool DeleteFilesInDirectory(const String &sDirName);
       static bool DeleteDirectoriesInDirectory(const String &sDirName, const std::set<String> vecExcludes);
 
-      static vector<String> GetFilesInDirectory(const String &sDirectoryName);
+      static std::vector<String> GetFilesInDirectory(const String &sDirectoryName);
 
       static bool CreateDirectoryRecursive(const String &sDirName);
 

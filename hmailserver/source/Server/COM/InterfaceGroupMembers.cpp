@@ -11,7 +11,7 @@
 #include "InterfaceGroupMember.h"
 
 void 
-InterfaceGroupMembers::Attach(shared_ptr<HM::GroupMembers> pBA) 
+InterfaceGroupMembers::Attach(std::shared_ptr<HM::GroupMembers> pBA) 
 { 
    group_members_ = pBA; 
 }
@@ -65,7 +65,7 @@ InterfaceGroupMembers::get_Item(long Index, IInterfaceGroupMember **pVal)
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
       pInterfaceGroupMember->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMember> pBA = group_members_->GetItem(Index);
+      std::shared_ptr<HM::GroupMember> pBA = group_members_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -111,7 +111,7 @@ InterfaceGroupMembers::get_ItemByDBID(long lDBID, IInterfaceGroupMember **pVal)
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
       pInterfaceGroupMember->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMember> pBA = group_members_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::GroupMember> pBA = group_members_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -144,7 +144,7 @@ InterfaceGroupMembers::Add(IInterfaceGroupMember **pVal)
       CComObject<InterfaceGroupMember>* pInterfaceGroupMember = new CComObject<InterfaceGroupMember>();
       pInterfaceGroupMember->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMember> pBA = shared_ptr<HM::GroupMember>(new HM::GroupMember);
+      std::shared_ptr<HM::GroupMember> pBA = std::shared_ptr<HM::GroupMember>(new HM::GroupMember);
       pBA->SetGroupID(group_members_->GetGroupID());
    
       pInterfaceGroupMember->AttachItem(pBA);

@@ -35,7 +35,7 @@ namespace HM
       String result;
 
       String formattedString;
-      formattedString.Format(_T("Connecting to TCP/IP address in MX records for local domain domain %s...\r\n"), local_domain_name_);
+      formattedString.Format(_T("Connecting to TCP/IP address in MX records for local domain domain %s...\r\n"), local_domain_name_.c_str());
       result.append(formattedString);
 
       std::vector<String> foundNames;
@@ -43,7 +43,7 @@ namespace HM
       DNSResolver resolver;
       if (!resolver.GetMXRecords(local_domain_name_, foundNames) || foundNames.size() == 0)
       {
-         formattedString.Format(_T("ERROR: MX records for local domain %s could not be resolved\r\n"), local_domain_name_);
+         formattedString.Format(_T("ERROR: MX records for local domain %s could not be resolved\r\n"), local_domain_name_.c_str());
          result.append(formattedString);
          
          diagResult.SetSuccess(false);
@@ -52,7 +52,7 @@ namespace HM
       }
 
       IPAddress anyAddress;
-      boost_foreach(String foundName, foundNames)
+      for(String foundName : foundNames)
       {
          // Test to connect
          TestConnect connTest;
@@ -65,7 +65,7 @@ namespace HM
          }
       }
 
-      formattedString.Format(_T("ERROR: Was not able to open connection.\r\n"), local_domain_name_);
+      formattedString.Format(_T("ERROR: Was not able to open connection.\r\n"), local_domain_name_.c_str());
       result.append(formattedString);
 
       diagResult.SetSuccess(false);

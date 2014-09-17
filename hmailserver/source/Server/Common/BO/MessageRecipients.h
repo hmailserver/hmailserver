@@ -14,8 +14,8 @@ namespace HM
       ~MessageRecipients(void);
 
       void Clear();
-      void Add(shared_ptr<MessageRecipient> pRecipient);
-      std::vector<shared_ptr<MessageRecipient> > & GetVector() {return recipients_; }
+      void Add(std::shared_ptr<MessageRecipient> pRecipient);
+      std::vector<std::shared_ptr<MessageRecipient> > & GetVector() {return recipients_; }
       int GetCount() {return (int) recipients_.size(); }
       String GetCommaSeperatedRecipientList();
 
@@ -24,7 +24,7 @@ namespace HM
 
    private:
 
-      std::vector<shared_ptr<MessageRecipient> > recipients_;
+      std::vector<std::shared_ptr<MessageRecipient> > recipients_;
 
    };
 }

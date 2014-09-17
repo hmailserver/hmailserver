@@ -26,7 +26,7 @@ InterfaceGlobalObjects::InterfaceSupportsErrorInfo(REFIID riid)
 }
 
 void
-InterfaceGlobalObjects::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceGlobalObjects::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    authentication_ = pAuthentication;
 }

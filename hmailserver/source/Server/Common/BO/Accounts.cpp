@@ -56,7 +56,7 @@ namespace HM
    }
 
    bool
-   Accounts::PreSaveObject(shared_ptr<Account> pAccount, XNode *node)
+   Accounts::PreSaveObject(std::shared_ptr<Account> pAccount, XNode *node)
    {
       pAccount->SetDomainID(domain_id_);
       return true;

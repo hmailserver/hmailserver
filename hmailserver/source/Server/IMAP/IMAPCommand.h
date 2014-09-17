@@ -38,7 +38,7 @@ namespace HM
       IMAPCommand();
       ~IMAPCommand();
 
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument) = 0;
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument) = 0;
       
    };
 

@@ -15,7 +15,7 @@
 
 namespace HM
 {
-   PGConnection::PGConnection(shared_ptr<DatabaseSettings> pSettings) :
+   PGConnection::PGConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       is_connected_ = false;
@@ -44,7 +44,7 @@ namespace HM
          long lDBPort = database_settings_->GetPort();
         
          String sConnectionString;
-         sConnectionString.Format(_T("host=%s port=%d user=%s password=%s"), sServer, lDBPort, sUsername, sPassword);
+         sConnectionString.Format(_T("host=%s port=%d user=%s password=%s"), sServer.c_str(), lDBPort, sUsername.c_str(), sPassword.c_str());
 
          if (sDatabase.IsEmpty())
             sConnectionString += " dbname=postgres";
@@ -190,7 +190,7 @@ namespace HM
          }
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("Postgres: %s (Additional info: %s)"), sErrorMsg, sAdditionalInfo);
+         sErrorMessage.Format(_T("Postgres: %s (Additional info: %s)"), sErrorMsg.c_str(), sAdditionalInfo);
 
          sOutputErrorMessage = sErrorMessage;
 
@@ -239,10 +239,10 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    PGConnection::CreateRecordset()
    {
-      shared_ptr<PGRecordset> recordset = shared_ptr<PGRecordset>(new PGRecordset());
+      std::shared_ptr<PGRecordset> recordset = std::shared_ptr<PGRecordset>(new PGRecordset());
       return recordset;
    }
 
@@ -253,10 +253,10 @@ namespace HM
       sInput.Replace(_T("\\"), _T("\\\\"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    PGConnection::CreateMacroExpander()
    {
-      shared_ptr<PGSQLMacroExpander> expander = shared_ptr<PGSQLMacroExpander>(new PGSQLMacroExpander());
+      std::shared_ptr<PGSQLMacroExpander> expander = std::shared_ptr<PGSQLMacroExpander>(new PGSQLMacroExpander());
       return expander;
    }
 

@@ -18,7 +18,7 @@ namespace HM
       AnsiString GetAddress1Equals(const IPAddress &address) const;
       AnsiString GetAddress2Equals(const IPAddress &address) const;
 
-      IPAddress Construct(shared_ptr<DALRecordset> recordset, const AnsiString &address1Column, const AnsiString &address2Column) const;
+      IPAddress Construct(std::shared_ptr<DALRecordset> recordset, const AnsiString &address1Column, const AnsiString &address2Column) const;
       void AppendStatement(SQLStatement &statement, const IPAddress &address, const AnsiString &address1Column, const AnsiString &address2Column) const;
    };
 }

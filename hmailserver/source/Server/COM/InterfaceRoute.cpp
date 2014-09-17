@@ -308,7 +308,7 @@ STDMETHODIMP InterfaceRoute::get_Addresses(IInterfaceRouteAddresses **pVal)
       CComObject<InterfaceRouteAddresses>* pInterfaceAddresses = new CComObject<InterfaceRouteAddresses>;
       pInterfaceAddresses->SetAuthentication(authentication_);
       
-      shared_ptr<HM::RouteAddresses> pAdresses = object_->GetAddresses();
+      std::shared_ptr<HM::RouteAddresses> pAdresses = object_->GetAddresses();
    
       pInterfaceAddresses->Attach(pAdresses);
       pInterfaceAddresses->AddRef();

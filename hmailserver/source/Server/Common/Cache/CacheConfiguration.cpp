@@ -23,7 +23,7 @@ namespace HM
    
    }
 
-   shared_ptr<PropertySet> 
+   std::shared_ptr<PropertySet> 
    CacheConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();

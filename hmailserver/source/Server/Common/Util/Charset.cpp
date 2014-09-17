@@ -160,7 +160,7 @@ namespace HM
 
       // Format encording string according to RFC (above)
       String sEncodedWord;
-      sEncodedWord.Format(_T("=?%s?%s?%s?="), _T("iso-8859-1"), _T("B"), sB64Encoded);
+      sEncodedWord.Format(_T("=?%s?%s?%s?="), _T("iso-8859-1"), _T("B"), sB64Encoded.c_str());
 
       return sEncodedWord; 
    }

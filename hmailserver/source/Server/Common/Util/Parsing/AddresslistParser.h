@@ -20,7 +20,7 @@ namespace HM
 	   virtual ~AddresslistParser();
       
   
-      std::vector<shared_ptr<Address> > ParseList(const String &sList) const;
+      std::vector<std::shared_ptr<Address> > ParseList(const String &sList) const;
 
       void ExtractParts(const String &sCompound, String &sFullName, String &sMailbox, String &sDomain) const;
 

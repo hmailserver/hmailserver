@@ -23,7 +23,7 @@ namespace HM
    }
 
    bool
-   PersistentDNSBlackList::DeleteObject(shared_ptr<DNSBlackList> pObject)
+   PersistentDNSBlackList::DeleteObject(std::shared_ptr<DNSBlackList> pObject)
    {
       SQLCommand command("delete from hm_dnsbl where sblid = @SLBID");
       command.AddParameter("@SLBID", pObject->GetID());
@@ -33,7 +33,7 @@ namespace HM
 
 
    bool 
-   PersistentDNSBlackList::ReadObject(shared_ptr<DNSBlackList> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentDNSBlackList::ReadObject(std::shared_ptr<DNSBlackList> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID (pRS->GetLongValue("sblid"));
       pObject->SetIsActive(pRS->GetLongValue("sblactive") == 1);
@@ -46,13 +46,13 @@ namespace HM
    }
 
    bool 
-   PersistentDNSBlackList::SaveObject(shared_ptr<DNSBlackList> pObject, String &errorMessage, PersistenceMode mode)
+   PersistentDNSBlackList::SaveObject(std::shared_ptr<DNSBlackList> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentDNSBlackList::SaveObject(shared_ptr<DNSBlackList> pObject)
+   PersistentDNSBlackList::SaveObject(std::shared_ptr<DNSBlackList> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_dnsbl");

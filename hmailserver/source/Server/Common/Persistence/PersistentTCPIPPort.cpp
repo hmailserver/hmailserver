@@ -26,7 +26,7 @@ namespace HM
    }
 
    bool
-   PersistentTCPIPPort::DeleteObject(shared_ptr<TCPIPPort> pObject)
+   PersistentTCPIPPort::DeleteObject(std::shared_ptr<TCPIPPort> pObject)
    {
       SQLCommand command("delete from hm_tcpipports where portid = @PORTID");
       command.AddParameter("@PORTID", pObject->GetID());
@@ -35,7 +35,7 @@ namespace HM
    }
 
    bool 
-   PersistentTCPIPPort::ReadObject(shared_ptr<TCPIPPort> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentTCPIPPort::ReadObject(std::shared_ptr<TCPIPPort> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       IPAddressSQLHelper helper;
 
@@ -50,7 +50,7 @@ namespace HM
    }
 
    bool 
-   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode)
+   PersistentTCPIPPort::SaveObject(std::shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode)
    {
       if (mode == PersistenceModeNormal)
       {

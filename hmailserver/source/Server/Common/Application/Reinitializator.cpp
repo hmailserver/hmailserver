@@ -40,7 +40,7 @@ namespace HM
          return;
       }
 
-      boost::function<void ()> func = boost::bind( &Reinitializator::WorkerFunc, this );
+      std::function<void ()> func = std::bind( &Reinitializator::WorkerFunc, this );
 
       worker_thread_ = boost::thread(func);
    }

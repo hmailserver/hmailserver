@@ -51,7 +51,7 @@ namespace HM
       {
          // Failed to load file containing TLD's. Report an error.
          String sErrorMessage;
-         sErrorMessage.Format(_T("Failed to load file with TLD's %s."), sTLDSFile);
+         sErrorMessage.Format(_T("Failed to load file with TLD's %s."), sTLDSFile.c_str());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4335, "TLD::_LoadCCTLD", sErrorMessage);
 
          return;

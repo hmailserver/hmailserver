@@ -31,7 +31,7 @@ namespace HM
 
 
    IMAPResult 
-   IMAPCommandGetQuotaRoot::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandGetQuotaRoot::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -39,7 +39,7 @@ namespace HM
       if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPQuota())
          return IMAPResult(IMAPResult::ResultNo, "IMAP QUOTA is not enabled.");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       
       pParser->Parse(pArgument);
 
@@ -57,7 +57,7 @@ namespace HM
       }
       
 
-      shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
 
       // According to the RFC, these values should be counted in kilobytes.
       __int64 iCurrentSize = AccountSizeCache::Instance()->GetSize(pAccount->GetID()) / 1024; // Convert from Bytes to KB
@@ -69,7 +69,7 @@ namespace HM
          sResponse.Format(_T("* QUOTAROOT %s \"\"\r\n")
                         _T("* QUOTA \"\" (STORAGE %I64d %I64d)\r\n")
                         _T("%s OK GETQUOTAROOT completed\r\n"), 
-                           sFolderName, iCurrentSize, iMaxSize, pArgument->Tag());
+                        sFolderName.c_str(), iCurrentSize, iMaxSize, pArgument->Tag().c_str());
       }
       else
       {
@@ -78,7 +78,7 @@ namespace HM
          sResponse.Format(_T("* QUOTAROOT %s \"\"\r\n")
             _T("* QUOTA \"\" ()\r\n")
             _T("%s OK GETQUOTAROOT completed\r\n"), 
-            sFolderName, pArgument->Tag());
+            sFolderName.c_str(), pArgument->Tag().c_str());
          
       }
 

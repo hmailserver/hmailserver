@@ -27,7 +27,7 @@ namespace HM
    __int64 
    PersistentFetchAccountUID::AddUID(__int64 iFAID, const String &sValue)
    {
-      shared_ptr<FetchAccountUID> newUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(0, iFAID, sValue, Time::GetCurrentDateTime()));
+      std::shared_ptr<FetchAccountUID> newUID = std::shared_ptr<FetchAccountUID>(new FetchAccountUID(0, iFAID, sValue, Time::GetCurrentDateTime()));
 
       String message;
       if (!SaveObject(newUID, message, PersistenceModeNormal))
@@ -37,7 +37,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccountUID::SaveObject(shared_ptr<FetchAccountUID> pUID, String &result, PersistenceMode mode)
+   PersistentFetchAccountUID::SaveObject(std::shared_ptr<FetchAccountUID> pUID, String &result, PersistenceMode mode)
    {
       SQLStatement oStatement;
 
@@ -71,7 +71,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccountUID::DeleteObject(shared_ptr<FetchAccountUID> fetchAccountUID)
+   PersistentFetchAccountUID::DeleteObject(std::shared_ptr<FetchAccountUID> fetchAccountUID)
    {
       return DeleteUID(fetchAccountUID->GetID());
    }

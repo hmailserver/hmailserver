@@ -45,17 +45,17 @@ namespace HM
    }
 
    void 
-   WorkQueue::AddTask(shared_ptr<Task> pTask)
+   WorkQueue::AddTask(std::shared_ptr<Task> pTask)
    {
       LOG_DEBUG(Formatter::Format("Adding task {0} to work queue {1}", pTask->GetName(), queue_name_));
 
       // Post a wrapped task into the queue.
-      boost::function<void ()> func = boost::bind(&WorkQueue::ExecuteTask, this, pTask);
+      std::function<void ()> func = std::bind(&WorkQueue::ExecuteTask, this, pTask);
       io_service_.post( func );
    }
 
    void 
-   WorkQueue::ExecuteTask(shared_ptr<Task> pTask)
+   WorkQueue::ExecuteTask(std::shared_ptr<Task> pTask)
    {
       {
          boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
@@ -68,7 +68,7 @@ namespace HM
       {
          pTask->DoWork();
       }
-      catch (thread_interrupted const&)
+      catch (const boost::thread_interrupted &)
       {
           boost::this_thread::disable_interruption disabled;
           RemoveRunningTask_(pTask);
@@ -94,10 +94,10 @@ namespace HM
    }
 
    void
-   WorkQueue::RemoveRunningTask_(shared_ptr<Task> task)
+   WorkQueue::RemoveRunningTask_(std::shared_ptr<Task> task)
    {
       boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
-      set<shared_ptr<Task>>::iterator iter = runningTasks_.find(task);
+      std::set<std::shared_ptr<Task>>::iterator iter = runningTasks_.find(task);
       runningTasks_.erase(task);
    }
 
@@ -110,8 +110,8 @@ namespace HM
 
       for ( std::size_t i = 0; i < max_simultaneous_; ++i )
       {
-         shared_ptr<boost::thread> thread = shared_ptr<boost::thread>
-            (new boost::thread(boost::bind( &WorkQueue::IoServiceRunWorker, this )));
+         std::shared_ptr<boost::thread> thread = std::shared_ptr<boost::thread>
+            (new boost::thread(std::bind( &WorkQueue::IoServiceRunWorker, this )));
 
          workerThreads_.insert(thread);
       }
@@ -137,18 +137,18 @@ namespace HM
 
       LOG_DEBUG(Formatter::Format("Interupt and join threads in working queue {0}", queue_name_));
 
-      set<shared_ptr<boost::thread>> completedThreads;
+      std::set<std::shared_ptr<boost::thread>> completedThreads;
 
       int attemptCount = 10000 / 250; // 10 seconds, 250 ms between each
 
       for (int i = 0; i < attemptCount; i++)
       {
-         boost_foreach (shared_ptr<boost::thread> thread, workerThreads_)
+         for (std::shared_ptr<boost::thread> thread : workerThreads_)
          {
             thread->interrupt();
          }
 
-         boost_foreach (shared_ptr<boost::thread> thread, workerThreads_)
+         for(std::shared_ptr<boost::thread> thread : workerThreads_)
          {
             if (thread->timed_join(boost::posix_time::milliseconds(1)))
             {
@@ -156,9 +156,9 @@ namespace HM
             }
          }
 
-         boost_foreach (shared_ptr<boost::thread> thread, completedThreads)
+         for(std::shared_ptr<boost::thread> thread : completedThreads)
          {
-            set<shared_ptr<boost::thread>>::iterator iter = workerThreads_.find(thread);
+            std::set<std::shared_ptr<boost::thread>>::iterator iter = workerThreads_.find(thread);
 
             workerThreads_.erase(iter);
          }
@@ -174,7 +174,7 @@ namespace HM
          
 
          boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
-         set<shared_ptr<Task>>::iterator iter = runningTasks_.begin();
+         std::set<std::shared_ptr<Task>>::iterator iter = runningTasks_.begin();
          if (iter != runningTasks_.end())
          {
             LOG_DEBUG(Formatter::Format("Still {0} remaining threads in queue {1}. First task: {2}", workerThreads_.size(), queue_name_, (*iter)->GetName()));

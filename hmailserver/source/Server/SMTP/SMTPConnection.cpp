@@ -73,7 +73,7 @@ namespace HM
    SMTPConnection::SMTPConnection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context) :  
-      TCPConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
       rejected_by_delayed_grey_listing_(false),
       current_state_(INITIAL),
       trace_headers_written_(true),
@@ -391,7 +391,7 @@ namespace HM
          return;
       }
 
-      shared_ptr<IncomingRelays> incomingRelays = Configuration::Instance()->GetSMTPConfiguration()->GetIncomingRelays();
+      std::shared_ptr<IncomingRelays> incomingRelays = Configuration::Instance()->GetSMTPConfiguration()->GetIncomingRelays();
       // Check if we should do it before or after data transfer
       if (incomingRelays->IsIncomingRelay(GetRemoteEndpointAddress()))
          type_ = SPPostTransmission;
@@ -480,7 +480,7 @@ namespace HM
       InitializeSpamProtectionType_(sFromAddress);
 
       // Apply domain name aliases to this domain name.
-      shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       const String sAccountAddress = pDA->ApplyAliasesOnAddress(sFromAddress);
 
       // Pre-transmission spam protection.
@@ -550,7 +550,7 @@ namespace HM
          // Next time we do a mail from, we should re-authenticate the login credentials
          re_authenticate_user_ = true;
 
-         current_message_ = shared_ptr<Message> (new Message);
+         current_message_ = std::shared_ptr<Message> (new Message);
          current_message_->SetFromAddress(sFromAddress);
          current_message_->SetState(Message::Delivering);
       }
@@ -580,7 +580,7 @@ namespace HM
          return true;
       }
          
-      shared_ptr<const Account> pAccount = PasswordValidator::ValidatePassword(username_, password_);
+      std::shared_ptr<const Account> pAccount = PasswordValidator::ValidatePassword(username_, password_);
       
       if (pAccount)
          return true;
@@ -738,7 +738,7 @@ namespace HM
 
       if (GetDoSpamProtection_())
       {
-         shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+         std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
          const String sToAddress = pDA->ApplyAliasesOnAddress(sRecipientAddress);
 
          if (!SpamProtection::Instance()->PerformGreyListing(current_message_, spam_test_results_, sToAddress, GetRemoteEndpointAddress()))
@@ -764,7 +764,7 @@ namespace HM
       }
 
       // OK, the recipient is acceptable.
-      shared_ptr<MessageRecipients> pRecipients = current_message_->GetRecipients();
+      std::shared_ptr<MessageRecipients> pRecipients = current_message_->GetRecipients();
       bool recipientOK = false;
       recipientParser_.CreateMessageRecipientList(sRecipientAddress, pRecipients, recipientOK);
 
@@ -790,14 +790,14 @@ namespace HM
 
       if (spType == SPPreTransmission)
       {
-         set<shared_ptr<SpamTestResult> > setResult = 
+         std::set<std::shared_ptr<SpamTestResult> > setResult = 
             SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
-         set<shared_ptr<SpamTestResult> > setResult = 
+         std::set<std::shared_ptr<SpamTestResult> > setResult = 
             SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), current_message_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
@@ -822,7 +822,7 @@ namespace HM
             EnqueueWrite_("554 " + messageText);
 
          String sLogMessage;
-         sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress, String(GetIPAddressString()), messageText);
+         sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress.c_str(), String(GetIPAddressString()).c_str(), messageText.c_str());
          LOG_APPLICATION(sLogMessage);
 
          return false;
@@ -837,9 +837,9 @@ namespace HM
    }
 
    String 
-   SMTPConnection::GetSpamTestResultMessage_(set<shared_ptr<SpamTestResult> > testResults) const
+   SMTPConnection::GetSpamTestResultMessage_(std::set<std::shared_ptr<SpamTestResult> > testResults) const
    {
-      boost_foreach(shared_ptr<SpamTestResult> result, testResults)
+      for(std::shared_ptr<SpamTestResult> result : testResults)
       {
          if (result->GetResult() == SpamTestResult::Fail)
             return result->GetMessage();
@@ -867,8 +867,8 @@ namespace HM
    {
       if (trace_headers_written_)
       {
-         shared_ptr<ByteBuffer> pBuffer = transmission_buffer_->GetBuffer();
-         shared_ptr<MimeHeader> pHeader = Utilities::GetMimeHeader(pBuffer->GetBuffer(), pBuffer->GetSize());
+         std::shared_ptr<ByteBuffer> pBuffer = transmission_buffer_->GetBuffer();
+         std::shared_ptr<MimeHeader> pHeader = Utilities::GetMimeHeader(pBuffer->GetBuffer(), pBuffer->GetSize());
 
          String sOutput;
 
@@ -892,7 +892,7 @@ namespace HM
             sAUTHIP = sReceivedIP;
          }
 
-         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_, isAuthenticated_, start_tls_used_));
+         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_, isAuthenticated_, start_tls_used_).c_str());
          sOutput += sReceivedLine;
 
          String sComputerName = Utilities::ComputerName(); 
@@ -901,7 +901,7 @@ namespace HM
          if (!pHeader->FieldExists("Message-ID"))
          {
             String sTemp;
-            sTemp.Format(_T("Message-ID: %s\r\n"), Utilities::GenerateMessageID());
+            sTemp.Format(_T("Message-ID: %s\r\n"), Utilities::GenerateMessageID().c_str());
             sOutput += sTemp;
          }
 
@@ -921,7 +921,7 @@ namespace HM
          }
          
          // We need to prepend these headers to the message buffer.
-         shared_ptr<ByteBuffer> pTempBuf = shared_ptr<ByteBuffer>(new ByteBuffer);
+         std::shared_ptr<ByteBuffer> pTempBuf = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
          AnsiString sOutputStr = sOutput;
          pTempBuf->Add((BYTE*) sOutputStr.GetBuffer(), sOutputStr.GetLength());
@@ -936,7 +936,7 @@ namespace HM
    }
 
    void
-   SMTPConnection::ParseData(shared_ptr<ByteBuffer> pBuf)
+   SMTPConnection::ParseData(std::shared_ptr<ByteBuffer> pBuf)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Parses a clients SMTP command in Binary mode.
@@ -994,9 +994,9 @@ namespace HM
    }
 
       // Since this may be a time-consuming task, do it asynchronously
-      shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
-         shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-            (boost::bind(&SMTPConnection::HandleSMTPFinalizationTaskCompleted_, this), shared_from_this()));
+      std::shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
+         std::shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
+            (std::bind(&SMTPConnection::HandleSMTPFinalizationTaskCompleted_, this), shared_from_this()));
       
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
@@ -1071,11 +1071,11 @@ namespace HM
             String sMessageArchivePath2;
 
             // Now create hardlink/copy for each *local* recipient
-            shared_ptr<const Domain> pDomaintmp;
+            std::shared_ptr<const Domain> pDomaintmp;
             bool bDomainIsLocal = false;
 
-            const std::vector<shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
-            std::vector<shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
+            const std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
+            std::vector<std::shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
             while (iterRecipient != vecRecipients.end())
             {
                String sRecipientAddress = (*iterRecipient)->GetAddress();
@@ -1211,7 +1211,7 @@ namespace HM
    // for example where message signature and spam-headers are added.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<MessageData> pMsgData;
+      std::shared_ptr<MessageData> pMsgData;
 
       // Check if we should add a spam header.
       int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
@@ -1232,14 +1232,14 @@ namespace HM
    }
 
    void
-   SMTPConnection::SetMessageSignature_(shared_ptr<MessageData> &pMessageData)
+   SMTPConnection::SetMessageSignature_(std::shared_ptr<MessageData> &pMessageData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Sets the signature of the message, based on the signature in the account
    // settings and domain settings.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<SignatureAdder> pSignatureAdder = shared_ptr<SignatureAdder>(new SignatureAdder);
+      std::shared_ptr<SignatureAdder> pSignatureAdder = std::shared_ptr<SignatureAdder>(new SignatureAdder);
       pSignatureAdder->SetSignature(current_message_, sender_domain_, sender_account_, pMessageData);
    }
 
@@ -1258,7 +1258,7 @@ namespace HM
       if (!FileUtilities::Exists(fileName))
       {
          String sErrorMsg;
-         sErrorMsg.Format(_T("Rejected message because no mail data has been saved in file %s"), fileName);
+         sErrorMsg.Format(_T("Rejected message because no mail data has been saved in file %s"), fileName.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5019, "SMTPConnection::_OnPreAcceptTransfer", sErrorMsg);
       
@@ -1297,9 +1297,9 @@ namespace HM
 
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
-         shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
 
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
@@ -1367,7 +1367,7 @@ namespace HM
             return false;
 
          const int iChunkSize = 10000;
-         shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
+         std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
          while (pBuffer)
          {
             // Check that buffer contains correct line endings.
@@ -1434,8 +1434,8 @@ namespace HM
       // Go through the recipients and log one row for each of them.
       String sFromAddress = current_message_->GetFromAddress();
 
-      const std::vector<shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
-      std::vector<shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
+      const std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = current_message_->GetRecipients()->GetVector();
+      std::vector<std::shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
       while (iterRecipient != vecRecipients.end())
       {
          String sRecipientAddress = (*iterRecipient)->GetAddress();
@@ -1466,7 +1466,7 @@ namespace HM
       if (current_message_)
       {
          // This message isn't complete, so we should delete it from disk now.
-         shared_ptr<Account> emptyAccount;
+         std::shared_ptr<Account> emptyAccount;
 
          PersistentMessage::DeleteFile(emptyAccount, current_message_);
 
@@ -1649,9 +1649,9 @@ namespace HM
       // Let's add an event call on DATA so we can act on reception during SMTP conversation..
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
-         shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
 
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
@@ -1693,7 +1693,7 @@ namespace HM
 
       current_state_ = DATA;
 
-      transmission_buffer_ = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
+      transmission_buffer_ = std::shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
       transmission_buffer_->Initialize(PersistentMessage::GetFileName(current_message_));
       transmission_buffer_->SetMaxSizeKB(max_message_size_kb_);
 
@@ -1862,15 +1862,15 @@ namespace HM
       String sLogData;
 
       bool bIsRouteDomain = false;
-      shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
+      std::shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
 
       // See if sender supplied param matches one of our domains
       if (route && route->GetName() == sETRNDomain2)
       {
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Route found, continuing..");      
 
-         shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
-         shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
+         std::shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
+         std::shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sETRNDomain.ToLower());
 
          if (pRoute)
          {
@@ -1943,7 +1943,7 @@ namespace HM
       AccountLogon accountLogon;
       bool disconnect;
 
-      shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
+      std::shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
          
       if (disconnect)
       {
@@ -1987,7 +1987,7 @@ namespace HM
 
 
    int 
-   SMTPConnection::GetMaxMessageSize_(shared_ptr<const Domain> pDomain)
+   SMTPConnection::GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain)
    {
       int iMaxMessageSizeKB = smtpconf_->GetMaxMessageSize();
       
@@ -2008,7 +2008,7 @@ namespace HM
    SMTPConnection::SendErrorResponse_(int iErrorCode, const String &sResponse)
    {
       String sData;
-      sData.Format(_T("%d %s"), iErrorCode, sResponse);
+      sData.Format(_T("%d %s"), iErrorCode, sResponse.c_str());
       
       EnqueueWrite_(sData);
 
@@ -2099,7 +2099,7 @@ namespace HM
        const String senderAddress = current_message_->GetFromAddress();
 
        String senderDomainName = StringParser::ExtractDomain(senderAddress);
-       shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(senderDomainName);
+       std::shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(senderDomainName);
 
        if (route)
        {

@@ -46,22 +46,22 @@ namespace HM
          return false;
    }
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestSpamAssassin::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestSpamAssassin::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
       
       AntiSpamConfiguration& config = Configuration::Instance()->GetAntiSpamConfiguration();
 
-      shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
+      std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
       
-      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       bool testCompleted;
 
-      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
+      std::shared_ptr<SpamAssassinClient> pSAClient = std::shared_ptr<SpamAssassinClient>(new SpamAssassinClient(sFilename, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
       
       String sHost = config.GetSpamAssassinHost();
       int iPort = config.GetSpamAssassinPort();
@@ -103,7 +103,7 @@ namespace HM
       }
 
       // Check if the message is tagged as spam.
-      shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
+      std::shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
       pMessageData->RefreshFromMessage();
 
       bool bIsSpam = false;
@@ -120,7 +120,7 @@ namespace HM
             iScore = config.GetSpamAssassinScore();
 
          String sMessage = "Tagged as Spam by SpamAssassin";
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
       }
       

@@ -38,11 +38,11 @@ namespace HM
          return false;
    }
    
-   shared_ptr<IMAPFolder> 
-   IMAPFolderUtilities::GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
+   std::shared_ptr<IMAPFolder> 
+   IMAPFolderUtilities::GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
    {
-      vector<String> tempFolderPath = vecFolderPath;
-      shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
+      std::vector<String> tempFolderPath = vecFolderPath;
+      std::shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
 
       while (!pTempFolder && tempFolderPath.size() > 0)
       {

@@ -238,7 +238,7 @@ namespace HM
       {
       case ACLPermission::PTGroup:
          {
-            shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sPermissionHolder);
+            std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sPermissionHolder);
 
             if (pGroup)
             {
@@ -249,7 +249,7 @@ namespace HM
          }
       case ACLPermission::PTUser:
          {
-            shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sPermissionHolder);
+            std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sPermissionHolder);
 
             if (pAccount)
             {
@@ -272,12 +272,12 @@ namespace HM
       {
       case ACLPermission::PTGroup:
          {
-            shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(pPermission->GetPermissionGroupID());
+            std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(pPermission->GetPermissionGroupID());
             return pGroup->GetName();
          }
       case ACLPermission::PTUser:
          {
-            shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pPermission->GetPermissionAccountID());
+            std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pPermission->GetPermissionAccountID());
             return pAccount->GetAddress();
          }
       case ACLPermission::PTAnyone:

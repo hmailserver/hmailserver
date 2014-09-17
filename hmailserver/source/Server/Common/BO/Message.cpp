@@ -75,11 +75,11 @@ namespace HM
       flags_ = 0;
    }
 
-   shared_ptr<MessageRecipients>
+   std::shared_ptr<MessageRecipients>
    Message::GetRecipients()
    {
       if (!recipients_)
-         recipients_ = shared_ptr<MessageRecipients>(new MessageRecipients);
+         recipients_ = std::shared_ptr<MessageRecipients>(new MessageRecipients);
 
       return recipients_;
    }

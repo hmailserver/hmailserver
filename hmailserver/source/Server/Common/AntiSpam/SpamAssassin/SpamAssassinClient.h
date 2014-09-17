@@ -15,12 +15,12 @@ namespace HM
       SpamAssassinClient(const String &sFile, 
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
-         shared_ptr<Event> disconnected,
+         std::shared_ptr<Event> disconnected,
          bool &testCompleted);
       ~SpamAssassinClient(void);
 
       virtual void ParseData(const AnsiString &Request);
-      virtual void ParseData(shared_ptr<ByteBuffer> pBuf);
+      virtual void ParseData(std::shared_ptr<ByteBuffer> pBuf);
 
       
 
@@ -39,7 +39,7 @@ namespace HM
    private:
 
       void FinishTesting_();
-      int ParseFirstBuffer_(shared_ptr<ByteBuffer> pBuffer) const;
+      int ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer) const;
       bool SendFileContents_(const String &sFilename);
 
       String command_buffer_;
@@ -47,7 +47,7 @@ namespace HM
       String message_file_;
 	   int spam_dsize_;
 	   int message_size_;
-      shared_ptr<File> result_;
+      std::shared_ptr<File> result_;
       bool &test_completed_;
 
       int total_result_bytes_written_;

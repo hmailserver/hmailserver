@@ -40,7 +40,7 @@ namespace HM
 
 
    void
-   AWStats::LogDeliverySuccess(const String &senderIP, const String &recipientIP, shared_ptr<Message> pMessage, const String &sRecipient)
+   AWStats::LogDeliverySuccess(const String &senderIP, const String &recipientIP, std::shared_ptr<Message> pMessage, const String &sRecipient)
    {
       if (!enabled_)
          return;
@@ -75,7 +75,7 @@ namespace HM
 
       String sLogLine;
       sLogLine.Format(_T("%s\t%s\t%s\t%s\t%s\tSMTP\t?\t%d\t%d\r\n"), 
-                        sTime, sModifiedSender, sModifiedRecipient, senderIP, recipientIP, iErrorCode, iBytesReceived );
+         sTime.c_str(), sModifiedSender.c_str(), sModifiedRecipient.c_str(), senderIP.c_str(), recipientIP.c_str(), iErrorCode, iBytesReceived);
 
       Logger::Instance()->LogAWStats(sLogLine);
    }

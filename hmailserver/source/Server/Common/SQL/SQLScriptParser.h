@@ -11,7 +11,7 @@ namespace HM
    class SQLScriptParser  
    {
    public:
-      SQLScriptParser(shared_ptr<DatabaseSettings> pSettings, const String &sFile);
+      SQLScriptParser(std::shared_ptr<DatabaseSettings> pSettings, const String &sFile);
       virtual ~SQLScriptParser();
 
       bool Parse(String &sErrorMessage);
@@ -23,9 +23,9 @@ namespace HM
 
       bool PreprocessLine_(String &sLine);
 
-      shared_ptr<DatabaseSettings> settings_;
+      std::shared_ptr<DatabaseSettings> settings_;
       String file_;
-      vector<String> commands_;
+      std::vector<String> commands_;
 
    };
 

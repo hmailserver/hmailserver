@@ -35,7 +35,7 @@ namespace HM
 
 
    bool
-   RuleCriterias::PreSaveObject(shared_ptr<RuleCriteria> pRuleCriteria, XNode *node)
+   RuleCriterias::PreSaveObject(std::shared_ptr<RuleCriteria> pRuleCriteria, XNode *node)
    {
       pRuleCriteria->SetRuleID(rule_id_);
       return true;

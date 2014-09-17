@@ -79,7 +79,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sVersion;
-      sVersion.Format(_T("%s %s"), prod_name_, version_);
+      sVersion.Format(_T("%s %s"), prod_name_.c_str(), version_.c_str());
 
       return sVersion;
    }
@@ -121,7 +121,7 @@ namespace HM
       Languages::Instance()->Load();
 
       // Create the backup manager that manages backup tasks...
-      backup_manager_ = shared_ptr<BackupManager>(new BackupManager);
+      backup_manager_ = std::shared_ptr<BackupManager>(new BackupManager);
 
       LOG_DEBUG("Application::InitInstance - Connecting to database...");
       if (!OpenDatabase(sErrorMessage))
@@ -160,13 +160,13 @@ namespace HM
       if (!IniFileSettings::Instance()->CheckSettings(sIniFileCheckError))
       {
          String sError;
-         sError.Format(_T("Loading of ini file settings failed. Error: %s"), sIniFileCheckError);
+         sError.Format(_T("Loading of ini file settings failed. Error: %s"), sIniFileCheckError.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5005, "Application::OpenDatabase", sError);
          return false;
       }
 
-      db_manager_ = shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
+      db_manager_ = std::shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
       bool bConnectedSuccessfully = db_manager_->CreateConnections(sErrorMessage);
 
       last_connect_error_message_ = sErrorMessage;
@@ -308,26 +308,26 @@ namespace HM
 
       SpamProtection::Instance()->Load();
 
-      io_service_ = shared_ptr<IOService>(new IOService);
+      io_service_ = std::shared_ptr<IOService>(new IOService);
       io_service_->Initialize();
       RegisterSessionTypes_();
 
       // Create the main work queue.
       int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
 
-      notification_server_ = shared_ptr<NotificationServer>(new NotificationServer());
-      folder_manager_ = shared_ptr<FolderManager>(new FolderManager());
+      notification_server_ = std::shared_ptr<NotificationServer>(new NotificationServer());
+      folder_manager_ = std::shared_ptr<FolderManager>(new FolderManager());
       
       // Create the scheduler. This is always in use.
-      scheduler_ = shared_ptr<Scheduler>(new Scheduler());
+      scheduler_ = std::shared_ptr<Scheduler>(new Scheduler());
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, scheduler_);
 
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, io_service_);
 
-      smtp_delivery_manager_ = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
+      smtp_delivery_manager_ = std::shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, smtp_delivery_manager_);
 
-      external_fetch_manager_ = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
+      external_fetch_manager_ = std::shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
       WorkQueueManager::Instance()->AddTask(iMainServerQueue, external_fetch_manager_);
 
       CreateScheduledTasks_();
@@ -383,14 +383,14 @@ namespace HM
    {
       if (Configuration::Instance()->GetUseSMTP())
       {
-         shared_ptr<GreyListCleanerTask> pCleanerTask = shared_ptr<GreyListCleanerTask>(new GreyListCleanerTask);
+         std::shared_ptr<GreyListCleanerTask> pCleanerTask = std::shared_ptr<GreyListCleanerTask>(new GreyListCleanerTask);
          pCleanerTask->SetReoccurance(ScheduledTask::RunInfinitely);
          pCleanerTask->SetMinutesBetweenRun(IniFileSettings::Instance()->GetGreylistingExpirationInterval());
          scheduler_->ScheduleTask(pCleanerTask);
       }
 
       // cleaning of expired IP ranges.
-      shared_ptr<RemoveExpiredRecords> removeExpiredRecordsTask = shared_ptr<RemoveExpiredRecords>(new RemoveExpiredRecords);
+      std::shared_ptr<RemoveExpiredRecords> removeExpiredRecordsTask = std::shared_ptr<RemoveExpiredRecords>(new RemoveExpiredRecords);
       removeExpiredRecordsTask->SetReoccurance(ScheduledTask::RunInfinitely);
       removeExpiredRecordsTask->SetMinutesBetweenRun(1);
       scheduler_->ScheduleTask(removeExpiredRecordsTask);
@@ -469,10 +469,10 @@ namespace HM
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4219, "Application::SubmitPendingEmail", "Could not notify SMTP deliverer about new message, since SMTP deliverer does not exist. The operation requires the SMTP server to be on.");
    }
 
-   shared_ptr<WorkQueue>
+   std::shared_ptr<WorkQueue>
    Application::GetMaintenanceWorkQueue()
    {
-      shared_ptr<WorkQueue> pWorkQueue =
+      std::shared_ptr<WorkQueue> pWorkQueue =
          WorkQueueManager::Instance()->GetQueue(maintenance_queue_);
       
       if (!pWorkQueue)
@@ -483,10 +483,10 @@ namespace HM
       
    }
 
-   shared_ptr<WorkQueue>
+   std::shared_ptr<WorkQueue>
    Application::GetAsyncWorkQueue()
    {
-      shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(asynchronous_tasks_queue_);
+      std::shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(asynchronous_tasks_queue_);
 
       if (!pAsynchQueue)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetAsyncWorkQueue()", "Async work queue not available.");
@@ -503,7 +503,7 @@ namespace HM
    }
 
    void
-   Application::OnPropertyChanged(shared_ptr<Property> pProperty)
+   Application::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       if (ServerStatus::Instance()->GetState() == ServerStatus::StateStopped)
          return;
@@ -512,7 +512,7 @@ namespace HM
 
       if (sPropertyName == PROPERTY_MAX_NUMBER_OF_ASYNC_TASKS)
       {
-         shared_ptr<WorkQueue> pWorkQueue = GetAsyncWorkQueue();
+         std::shared_ptr<WorkQueue> pWorkQueue = GetAsyncWorkQueue();
 
          if (!pWorkQueue)
             return;
@@ -521,13 +521,13 @@ namespace HM
       }
    }
 
-   shared_ptr<NotificationServer> 
+   std::shared_ptr<NotificationServer> 
    Application::GetNotificationServer()
    {
       return notification_server_;
    }
 
-   shared_ptr<FolderManager> 
+   std::shared_ptr<FolderManager> 
    Application::GetFolderManager()
    {
       return folder_manager_;

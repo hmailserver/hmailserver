@@ -39,15 +39,15 @@ namespace HM
 
       // It's possible to specify that one or many intervals are blocked,
       // using syntax such as 127.0.0.1-5|127.0.0.10-3
-      const set<String> blockedAddresses = ExpandAddresses(sExpectedResult);
+      const std::set<String> blockedAddresses = ExpandAddresses(sExpectedResult);
 
       //
       // The server may return a list of addresses.
       //
-      boost_foreach(const String foundAddress, foundAddresses)
+      for(const String foundAddress : foundAddresses)
       {
          // Go through all list of blocked addresses and see if host is in it.
-         boost_foreach(const String &blockedAddress, blockedAddresses)
+         for(const String &blockedAddress : blockedAddresses)
          {
             // We not only support ranges, we support wildcards as well.
             isBlocked = StringParser::WildcardMatch(blockedAddress, foundAddress);
@@ -80,21 +80,21 @@ namespace HM
       return isBlocked;
    }
 
-   set<String> 
+   std::set<String> 
    BLCheck::ExpandAddresses(const String &input)
    {
-      set<String> addresses;
+      std::set<String> addresses;
 
-      vector<String> inputAddresses = StringParser::SplitString(input, "|");
+      std::vector<String> inputAddresses = StringParser::SplitString(input, "|");
 
-      boost_foreach (String address, inputAddresses)
+      for(String address : inputAddresses)
       {
          address.Trim();
 
          if (address.Contains(_T("-")))
          {
             // This is a range...
-            vector<String> addressParts = StringParser::SplitString(address, ".");
+            std::vector<String> addressParts = StringParser::SplitString(address, ".");
 
             if (addressParts.size() != 4)
             {
@@ -169,7 +169,7 @@ namespace HM
       if (BLCheck::GetRevertedIP(_T("111.222.333.444")) != _T("444.333.222.111"))
          throw;
 
-      set<String> expandedaddresses = BLCheck::ExpandAddresses("127.0.0.*");
+      std::set<String> expandedaddresses = BLCheck::ExpandAddresses("127.0.0.*");
 
       if (expandedaddresses.find("127.0.0.*") == expandedaddresses.end())
          throw;

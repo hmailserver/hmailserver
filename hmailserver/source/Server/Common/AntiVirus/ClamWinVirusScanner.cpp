@@ -44,7 +44,7 @@ namespace HM
       String sTempDir = Utilities::GetWin32TempDirectory();
 
       String sCommandLine;
-      sCommandLine.Format(_T("%s --database=\"%s\" \"%s\" --tempdir=\"%s\""), scannerExecutable, databasePath, sFileToScan, sTempDir);
+      sCommandLine.Format(_T("%s --database=\"%s\" \"%s\" --tempdir=\"%s\""), scannerExecutable.c_str(), databasePath.c_str(), sFileToScan.c_str(), sTempDir.c_str());
 
       unsigned int exitCode = 0;
       ProcessLauncher launcher(sCommandLine, sPath);

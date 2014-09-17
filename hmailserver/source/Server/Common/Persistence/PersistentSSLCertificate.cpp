@@ -23,7 +23,7 @@ namespace HM
    }
 
    bool
-   PersistentSSLCertificate::DeleteObject(shared_ptr<SSLCertificate> pObject)
+   PersistentSSLCertificate::DeleteObject(std::shared_ptr<SSLCertificate> pObject)
    {
       SQLCommand command(_T("delete from hm_sslcertificates where sslcertificateid = @CERTIFICATEID"));
       command.AddParameter("@CERTIFICATEID", pObject->GetID());
@@ -32,7 +32,7 @@ namespace HM
    }
 
    bool 
-   PersistentSSLCertificate::ReadObject(shared_ptr<SSLCertificate> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentSSLCertificate::ReadObject(std::shared_ptr<SSLCertificate> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID (pRS->GetLongValue("sslcertificateid"));
       pObject->SetName(pRS->GetStringValue("sslcertificatename"));
@@ -43,14 +43,14 @@ namespace HM
    }
 
    bool 
-   PersistentSSLCertificate::SaveObject(shared_ptr<SSLCertificate> pObject, String &errorMessage,  PersistenceMode mode)
+   PersistentSSLCertificate::SaveObject(std::shared_ptr<SSLCertificate> pObject, String &errorMessage,  PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentSSLCertificate::SaveObject(shared_ptr<SSLCertificate> pObject)
+   PersistentSSLCertificate::SaveObject(std::shared_ptr<SSLCertificate> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_sslcertificates");

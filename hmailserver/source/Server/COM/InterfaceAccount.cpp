@@ -50,7 +50,7 @@ STDMETHODIMP InterfaceAccount::InterfaceSupportsErrorInfo(REFIID riid)
 }
 
 void
-InterfaceAccount::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceAccount::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    authentication_ = pAuthentication;
 }
@@ -413,7 +413,7 @@ STDMETHODIMP InterfaceAccount::get_Messages(IInterfaceMessages **pVal)
       CComObject<InterfaceMessages>* pMessages = new CComObject<InterfaceMessages>();
       pMessages->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Messages> pMsgs = object_->GetMessages();
+      std::shared_ptr<HM::Messages> pMsgs = object_->GetMessages();
    
       if (!pMsgs)
          return DISP_E_BADINDEX;  
@@ -655,7 +655,7 @@ STDMETHODIMP InterfaceAccount::get_FetchAccounts(IInterfaceFetchAccounts **pVal)
       CComObject<InterfaceFetchAccounts>* pItem = new CComObject<InterfaceFetchAccounts >();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccounts> pFetchAccounts = shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(object_->GetID()));
+      std::shared_ptr<HM::FetchAccounts> pFetchAccounts = std::shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(object_->GetID()));
    
       pFetchAccounts->Refresh();
    
@@ -751,7 +751,7 @@ STDMETHODIMP InterfaceAccount::get_Rules(IInterfaceRules **pVal)
       CComObject<InterfaceRules >* pItem = new CComObject<InterfaceRules >();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rules> pRules = object_->GetRules();
+      std::shared_ptr<HM::Rules> pRules = object_->GetRules();
    
       if (pRules)
       {
@@ -781,7 +781,7 @@ STDMETHODIMP InterfaceAccount::get_IMAPFolders(IInterfaceIMAPFolders **pVal)
       CComObject<InterfaceIMAPFolders>* pItem = new CComObject<InterfaceIMAPFolders >();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolders> pFolders = HM::IMAPFolderContainer::Instance()->GetFoldersForAccount(object_->GetID());
+      std::shared_ptr<HM::IMAPFolders> pFolders = HM::IMAPFolderContainer::Instance()->GetFoldersForAccount(object_->GetID());
    
       if (pFolders)
       {

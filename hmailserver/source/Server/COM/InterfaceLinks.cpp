@@ -31,7 +31,7 @@ STDMETHODIMP InterfaceLinks::get_Domain(long DBID, IInterfaceDomain **pVal)
       if (!authentication_->GetIsServerAdmin() && !domainAdminOK)
          return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::Domain> pDomain = shared_ptr<HM::Domain>(new HM::Domain);
+      std::shared_ptr<HM::Domain> pDomain = std::shared_ptr<HM::Domain>(new HM::Domain);
       if (!HM::PersistentDomain::ReadObject(pDomain, DBID))
          return DISP_E_BADINDEX;
    
@@ -55,7 +55,7 @@ STDMETHODIMP InterfaceLinks::get_Account(long DBID, IInterfaceAccount **pVal)
       if (!authentication_->GetIsAuthenticated())
          return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
+      std::shared_ptr<HM::Account> pAccount = std::shared_ptr<HM::Account>(new HM::Account);
       if (!HM::PersistentAccount::ReadObject(pAccount, DBID))
          return DISP_E_BADINDEX;
    
@@ -85,7 +85,7 @@ STDMETHODIMP InterfaceLinks::get_Alias(long DBID, IInterfaceAlias **pVal)
       if (!authentication_->GetIsAuthenticated())
          return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::Alias> pAlias = shared_ptr<HM::Alias>(new HM::Alias);
+      std::shared_ptr<HM::Alias> pAlias = std::shared_ptr<HM::Alias>(new HM::Alias);
       if (!HM::PersistentAlias::ReadObject(pAlias, DBID))
          return DISP_E_BADINDEX;
    
@@ -114,7 +114,7 @@ STDMETHODIMP InterfaceLinks::get_DistributionList(long DBID, IInterfaceDistribut
       if (!authentication_->GetIsAuthenticated())
          return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::DistributionList> pList = shared_ptr<HM::DistributionList>(new HM::DistributionList);
+      std::shared_ptr<HM::DistributionList> pList = std::shared_ptr<HM::DistributionList>(new HM::DistributionList);
       if (!HM::PersistentDistributionList::ReadObject(pList, DBID))
          return DISP_E_BADINDEX;
    

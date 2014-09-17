@@ -33,13 +33,13 @@ namespace HM
 
    }
 
-   shared_ptr<RouteAddresses>
+   std::shared_ptr<RouteAddresses>
    Route::GetAddresses()
    {
        if (!addresses_)
        {
           assert(id_);
-          addresses_ = shared_ptr<RouteAddresses>(new RouteAddresses(id_));
+          addresses_ = std::shared_ptr<RouteAddresses>(new RouteAddresses(id_));
 
           addresses_->Refresh();
        }

@@ -34,14 +34,14 @@ namespace HM
       DBLoad_(sSQL);
    }
 
-   vector<shared_ptr<Rule> >::iterator 
+   std::vector<std::shared_ptr<Rule> >::iterator 
    Rules::GetRuleIterator_(__int64 iRuleID)
    {
-      vector<shared_ptr<Rule> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<Rule> >::iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
 
       int iCurrentSortOrder = -1;
-      shared_ptr<Rule> pRule;
+      std::shared_ptr<Rule> pRule;
       for (; iter != iterEnd; iter++)
       {
          pRule = (*iter);
@@ -58,16 +58,16 @@ namespace HM
    void
    Rules::MoveUp(__int64 iRuleID)
    {
-      vector<shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
-      vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
+      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
 
       if (iter == iterEnd || iter == vecObjects.begin())
          return;
 
-      vector<shared_ptr<Rule> >::iterator iterPrevious = iter - 1;
+      std::vector<std::shared_ptr<Rule> >::iterator iterPrevious = iter - 1;
          
       // Move the rule to the previous position in the vector.
-      shared_ptr<Rule> pRule = (*iter);
+      std::shared_ptr<Rule> pRule = (*iter);
       
       // Delete it from the current position
       vecObjects.erase(iter);
@@ -84,16 +84,16 @@ namespace HM
    void
    Rules::MoveDown(__int64 iRuleID)
    {
-      vector<shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
-      vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
+      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
      
-      vector<shared_ptr<Rule> >::iterator iterNext = iter +1;
+      std::vector<std::shared_ptr<Rule> >::iterator iterNext = iter +1;
 
       if (iter == iterEnd || iterNext == vecObjects.end())
          return;
 
       // Move the rule to the next position in the vector.
-      shared_ptr<Rule> pNextRule = (*iterNext);
+      std::shared_ptr<Rule> pNextRule = (*iterNext);
 
       // Delete the next rule from the current position.
       vecObjects.erase(iterNext);
@@ -110,14 +110,14 @@ namespace HM
    void 
    Rules::UpdateSortOrder_()
    {
-      vector<shared_ptr<Rule> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<Rule> >::iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
 
       int iSortOrder = 1;
 
       for (; iter != iterEnd; iter++, iSortOrder ++)
       {
-         shared_ptr<Rule> pRule = (*iter);
+         std::shared_ptr<Rule> pRule = (*iter);
 
          if (pRule->GetSortOrder() != iSortOrder)
          {
@@ -131,7 +131,7 @@ namespace HM
    }
 
    bool
-   Rules::PreSaveObject(shared_ptr<Rule> pRule, XNode *node)
+   Rules::PreSaveObject(std::shared_ptr<Rule> pRule, XNode *node)
    {
       pRule->SetAccountID(account_id_);
       return true;

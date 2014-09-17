@@ -52,12 +52,12 @@ namespace HM
       String GetName() const {return GetFolderName(); }
       
       std::vector<int> Expunge();
-      std::vector<int> Expunge(const std::set<int> &uids, const boost::function<void()> &func);
+      std::vector<int> Expunge(const std::set<int> &uids, const std::function<void()> &func);
 
-      shared_ptr<Messages> GetMessages(bool bReloadIfNeeded = true);
-      vector<shared_ptr<Message>> GetMessagesCopy(bool bReloadIfNeeded = true);
-      shared_ptr<IMAPFolders> GetSubFolders();
-      shared_ptr<ACLPermissions> GetPermissions();
+      std::shared_ptr<Messages> GetMessages(bool bReloadIfNeeded = true);
+      std::vector<std::shared_ptr<Message>> GetMessagesCopy(bool bReloadIfNeeded = true);
+      std::shared_ptr<IMAPFolders> GetSubFolders();
+      std::shared_ptr<ACLPermissions> GetPermissions();
 
       static void EscapeFolderString(String &sFolderString);
       static void UnescapeFolderString(String &sFolderString);
@@ -87,8 +87,8 @@ namespace HM
       bool folder_is_subscribed_;
       AnsiString folder_name_;
 
-      shared_ptr<Messages> messages_;
-      shared_ptr<IMAPFolders> sub_folders_;   
+      std::shared_ptr<Messages> messages_;
+      std::shared_ptr<IMAPFolders> sub_folders_;   
  
       DateTime create_time_;
 

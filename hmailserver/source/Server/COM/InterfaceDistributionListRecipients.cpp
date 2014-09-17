@@ -11,7 +11,7 @@
 #include "../common/Persistence/PersistentDistributionListRecipient.h"
 
 void
-InterfaceDistributionListRecipients::Attach(shared_ptr<HM::DistributionListRecipients> pRecipients)
+InterfaceDistributionListRecipients::Attach(std::shared_ptr<HM::DistributionListRecipients> pRecipients)
 {
    recipients_= pRecipients;
 }
@@ -63,7 +63,7 @@ STDMETHODIMP InterfaceDistributionListRecipients::Add(IInterfaceDistributionList
       CComObject<InterfaceDistributionListRecipient>* pList = new CComObject<InterfaceDistributionListRecipient>();
       pList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionListRecipient> pRecipient = shared_ptr<HM::DistributionListRecipient>(new HM::DistributionListRecipient);
+      std::shared_ptr<HM::DistributionListRecipient> pRecipient = std::shared_ptr<HM::DistributionListRecipient>(new HM::DistributionListRecipient);
       
       pRecipient->SetListID(list_id_);
    
@@ -89,7 +89,7 @@ STDMETHODIMP InterfaceDistributionListRecipients::Delete(long Index)
       if (!recipients_)
          return GetAccessDenied();
 
-      shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
+      std::shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
    
       HM::PersistentDistributionListRecipient::DeleteObject(pPersList);
    
@@ -111,7 +111,7 @@ STDMETHODIMP InterfaceDistributionListRecipients::get_Item(long Index, IInterfac
       CComObject<InterfaceDistributionListRecipient>* pList = new CComObject<InterfaceDistributionListRecipient>();
       pList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
+      std::shared_ptr<HM::DistributionListRecipient> pPersList = recipients_->GetItem(Index);
    
       if (pPersList)
       {
@@ -163,7 +163,7 @@ STDMETHODIMP InterfaceDistributionListRecipients::get_ItemByDBID(long DBID, IInt
       CComObject<InterfaceDistributionListRecipient>* pInterfaceRecipient = new CComObject<InterfaceDistributionListRecipient>();
       pInterfaceRecipient->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionListRecipient> pRecipient = recipients_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::DistributionListRecipient> pRecipient = recipients_->GetItemByDBID(DBID);
    
       if (pRecipient)
       {

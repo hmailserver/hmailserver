@@ -34,7 +34,7 @@ namespace HM
          MaxFileSize = 1024 * 1024 * 10
       };
 
-      bool Sign(shared_ptr<Message> message, 
+      bool Sign(std::shared_ptr<Message> message, 
                 const AnsiString &domain,
                 const AnsiString &selector, 
                 const String &privateKey, 
@@ -47,19 +47,19 @@ namespace HM
    private:
 
       bool ValidateHeaderContents_(const DKIMParameters &signatureParams);
-      bool ValidateBodyHash_(const String &fileName, const DKIMParameters &signatureParams, shared_ptr<Canonicalization> canonicalization);
+      bool ValidateBodyHash_(const String &fileName, const DKIMParameters &signatureParams, std::shared_ptr<Canonicalization> canonicalization);
       bool ValidateDNSEntry_(const DKIMParameters &entryParams, const DKIMParameters &headerParams);
       Result VerifyHeaderHash_(AnsiString canonicalizedHeader, const AnsiString &tagA, AnsiString &tagB, const AnsiString &publicKeyString);
-      Result VerifySignature_(const String &fileName, const AnsiString &messageHeader, pair<AnsiString, AnsiString> signatureField);
+      Result VerifySignature_(const String &fileName, const AnsiString &messageHeader, std::pair<AnsiString, AnsiString> signatureField);
       Result RetrievePublicKey_(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags);
       AnsiString GetDKIMWithoutSignature_(AnsiString value);
      
       String BuildSignatureHeader_(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString);
-      shared_ptr<Canonicalization> CreateCanonicalization_(Canonicalization::CanonicalizeMethod method);
+      std::shared_ptr<Canonicalization> CreateCanonicalization_(Canonicalization::CanonicalizeMethod method);
       AnsiString SignHash_(AnsiString &privateKey, AnsiString &canonicalizedHeader, HashCreator::HashType keySize);
-      static vector<AnsiString> recommendedHeaderFields_;
+      static std::vector<AnsiString> recommendedHeaderFields_;
 
-      vector<pair<AnsiString, AnsiString> > GetSignatureFields(MimeHeader &mimeHeader);
+      std::vector<std::pair<AnsiString, AnsiString> > GetSignatureFields(MimeHeader &mimeHeader);
    };
 
 }

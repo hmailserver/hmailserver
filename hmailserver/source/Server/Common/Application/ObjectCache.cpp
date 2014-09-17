@@ -34,14 +34,14 @@ namespace HM
       domain_aliases_needs_reload_ = true;
    }
 
-   shared_ptr<DomainAliases> 
+   std::shared_ptr<DomainAliases> 
    ObjectCache::GetDomainAliases()
    {
       boost::lock_guard<boost::recursive_mutex> guard(domain_aliases_mutex_);
 
       if (!domain_aliases_ || domain_aliases_needs_reload_)
       {
-         domain_aliases_ = shared_ptr<DomainAliases>(new DomainAliases(0));
+         domain_aliases_ = std::shared_ptr<DomainAliases>(new DomainAliases(0));
          domain_aliases_->Refresh();
 
          domain_aliases_needs_reload_ = false;
@@ -59,14 +59,14 @@ namespace HM
    }
 
 
-   shared_ptr<Rules> 
+   std::shared_ptr<Rules> 
    ObjectCache::GetGlobalRules()
    {
       boost::lock_guard<boost::recursive_mutex> guard(global_rules_mutex_);
 
       if (!global_rules_ || global_rules_needs_reload_)
       {
-         global_rules_ = shared_ptr<Rules>(new Rules(0));
+         global_rules_ = std::shared_ptr<Rules>(new Rules(0));
          global_rules_->Refresh();
 
          global_rules_needs_reload_ = false;
@@ -80,23 +80,23 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
-      set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);      
+      std::set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);      
       if (iterRefresh == account_rules_to_refresh_.end())
          account_rules_to_refresh_.insert(iAccountID);
    }
 
-   shared_ptr<Rules> 
+   std::shared_ptr<Rules> 
    ObjectCache::GetAccountRules(__int64 iAccountID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
       // First find the rules.
-      map<__int64, shared_ptr<Rules> >::iterator iterRules = account_rules_.find(iAccountID);
-      shared_ptr<Rules> pRules;
+      std::map<__int64, std::shared_ptr<Rules> >::iterator iterRules = account_rules_.find(iAccountID);
+      std::shared_ptr<Rules> pRules;
 
       if (iterRules == account_rules_.end())
       {
-         pRules = shared_ptr<Rules>(new Rules(iAccountID));
+         pRules = std::shared_ptr<Rules>(new Rules(iAccountID));
          account_rules_[iAccountID] = pRules;
       
          // We need to refresh this one.
@@ -107,7 +107,7 @@ namespace HM
          pRules = (*iterRules).second;
       }
 
-      set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);
+      std::set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);
       if (iterRefresh != account_rules_to_refresh_.end())
       {
          pRules->Refresh();

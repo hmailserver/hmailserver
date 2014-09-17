@@ -131,7 +131,7 @@ namespace HM
    }
 
    bool 
-   File::Write(shared_ptr<ByteBuffer> pBuffer, DWORD &dwNoOfBytesWritten)
+   File::Write(std::shared_ptr<ByteBuffer> pBuffer, DWORD &dwNoOfBytesWritten)
    {
       return Write((const unsigned char*) pBuffer->GetCharBuffer(), pBuffer->GetSize(), dwNoOfBytesWritten);
    }
@@ -154,12 +154,12 @@ namespace HM
       return true;
    }
 
-   shared_ptr<ByteBuffer> 
+   std::shared_ptr<ByteBuffer> 
    File::ReadFile()
    {
       try
       {
-         shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
+         std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
          if (file_ == INVALID_HANDLE_VALUE)
             return pFileContents;
@@ -183,16 +183,16 @@ namespace HM
          throw;
       }
 
-      shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
+      std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
       return pFileContents;
    }
 
-   shared_ptr<ByteBuffer> 
+   std::shared_ptr<ByteBuffer> 
    File::ReadTextFile()
    {
       try
       {
-         shared_ptr<ByteBuffer> pFileContents = ReadFile();
+         std::shared_ptr<ByteBuffer> pFileContents = ReadFile();
 
          const BYTE pByte = '\0';
          pFileContents->Add(&pByte, 1);
@@ -204,16 +204,16 @@ namespace HM
          throw;
       }
 
-      shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
+      std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
       return pFileContents;
    }
 
-   shared_ptr<ByteBuffer> 
+   std::shared_ptr<ByteBuffer> 
    File::ReadChunk(int iMaxSize)
    {  
       try
       {
-         shared_ptr<ByteBuffer> pReadBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
+         std::shared_ptr<ByteBuffer> pReadBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
          pReadBuffer->Allocate(iMaxSize);
 
          // Read
@@ -222,7 +222,7 @@ namespace HM
 
          if (nBytesRead > 0)
          {
-            shared_ptr<ByteBuffer> pRetBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
+            std::shared_ptr<ByteBuffer> pRetBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
             pRetBuffer->Add(pReadBuffer->GetBuffer(), nBytesRead);
             return pRetBuffer;
          }
@@ -233,7 +233,7 @@ namespace HM
          throw;   
       }
 
-      shared_ptr<ByteBuffer> pBuffer;
+      std::shared_ptr<ByteBuffer> pBuffer;
       return pBuffer;
    }
 
@@ -255,7 +255,7 @@ namespace HM
    bool 
    File::Write(File &sourceFile)
    {
-      while (shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
+      while (std::shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
       {
          DWORD dummy;
          if (!Write(sourceData, dummy))

@@ -116,7 +116,7 @@ namespace HM
    }
 
    bool
-   VirusScanner::Scan(shared_ptr<Message> pMessage, String &virusName)
+   VirusScanner::Scan(std::shared_ptr<Message> pMessage, String &virusName)
    {
       AntiVirusConfiguration &antiVirusConfig = Configuration::Instance()->GetAntiVirusConfiguration();
 
@@ -145,20 +145,20 @@ namespace HM
 
 
       // Read message, extract attachments, 
-      shared_ptr<MimeBody> pMimeBody = shared_ptr<MimeBody>(new MimeBody);
+      std::shared_ptr<MimeBody> pMimeBody = std::shared_ptr<MimeBody>(new MimeBody);
       pMimeBody->LoadFromFile(sLongFilename);
 
-      list<shared_ptr<MimeBody> > oList;
+      std::list<std::shared_ptr<MimeBody> > oList;
       pMimeBody->GetAttachmentList(pMimeBody, oList);
 
-      list<shared_ptr<MimeBody> >::iterator iter = oList.begin();
+      std::list<std::shared_ptr<MimeBody> >::iterator iter = oList.begin();
 
       while (iter != oList.end())
       {
-         shared_ptr<MimeBody> pBody = (*iter);
+         std::shared_ptr<MimeBody> pBody = (*iter);
          
          // Create a temporary filename.
-         sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID() );
+         sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory().c_str(), GUIDCreator::GetGUID().c_str());
          pBody->WriteToFile(sLongFilename);
 
          VirusScanningResult result = ScanFile_(sLongFilename);
@@ -177,41 +177,41 @@ namespace HM
    }
 
    void
-   VirusScanner::ReportVirusFound(shared_ptr<Message> pMessage)
+   VirusScanner::ReportVirusFound(std::shared_ptr<Message> pMessage)
    {
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData> (new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData> (new MessageData());
       pMsgData->LoadFromMessage(fileName, pMessage);
 
       String sMessage;
-      sMessage.Format(_T("Virus found in message from %s. Taking actions"), pMsgData->GetFrom());
+      sMessage.Format(_T("Virus found in message from %s. Taking actions"), pMsgData->GetFrom().c_str());
 
       Logger::Instance()->LogApplication(sMessage);
    }
 
    void
-   VirusScanner::BlockAttachments(shared_ptr<Message> pMessage)
+   VirusScanner::BlockAttachments(std::shared_ptr<Message> pMessage)
    {
-      shared_ptr<BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
+      std::shared_ptr<BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
 
-      vector<shared_ptr<BlockedAttachment> > vecBlockedAttachments = pBlockedAttachments->GetVector();
-      vector<shared_ptr<BlockedAttachment> >::iterator iterBA;
+      std::vector<std::shared_ptr<BlockedAttachment> > vecBlockedAttachments = pBlockedAttachments->GetVector();
+      std::vector<std::shared_ptr<BlockedAttachment> >::iterator iterBA;
 
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
       pMsgData->LoadFromMessage(fileName, pMessage);
 
-      shared_ptr<Attachments> pAttachments = pMsgData->GetAttachments();
+      std::shared_ptr<Attachments> pAttachments = pMsgData->GetAttachments();
 
       bool bChangesMade = false;
 
-      std::list<shared_ptr<Attachment>> attachments_to_delete;
+      std::list<std::shared_ptr<Attachment>> attachments_to_delete;
 
       for (unsigned int i = 0; i < pAttachments->GetCount(); i++)
       {
-         shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
+         std::shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
 
          // Check if attachment matches blocked file.
          for (iterBA = vecBlockedAttachments.begin(); iterBA < vecBlockedAttachments.end(); iterBA++)
@@ -228,12 +228,12 @@ namespace HM
          }
       }
 
-      boost_foreach(shared_ptr<Attachment> pAttachment, attachments_to_delete)
+      for(std::shared_ptr<Attachment> pAttachment : attachments_to_delete)
       {
          pAttachment->Delete();
       }
 
-      boost_foreach(shared_ptr<Attachment> pAttachment, attachments_to_delete)
+      for(std::shared_ptr<Attachment> pAttachment : attachments_to_delete)
       {
          String sBody = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
 
@@ -241,7 +241,7 @@ namespace HM
          sBody.Replace(_T("%MACRO_FILE%"), pAttachment->GetFileName());
 
          // Add the new
-         shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
+         std::shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
          pBody->SetRawText(sBody);
 
          // Create an content-disposition header.

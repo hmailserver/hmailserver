@@ -34,7 +34,7 @@ namespace HM
    {
       if (folder_list_change_subscription_id_ > 0)
       {
-         shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
+         std::shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
          notificationServer->UnsubscribeFolderListChanges(account_id_, folder_list_change_subscription_id_);
       }
    }
@@ -48,7 +48,7 @@ namespace HM
       account_id_ = accountID;
       folder_id_ = folderID;
 
-      shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
+      std::shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
       message_change_subscription_id_ = notificationServer->SubscribeMessageChanges(account_id_, folder_id_, shared_from_this());
    }
 
@@ -61,7 +61,7 @@ namespace HM
 
       // Since we don't want to look at he folder any more,
       // we're not interested in any updates.
-      shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
+      std::shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
       notificationServer->UnsubscribeMessageChanges(account_id_, folder_id_, message_change_subscription_id_);
 
       // If there are cached updates for this folder but the client
@@ -72,7 +72,7 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::SetConnection(weak_ptr<IMAPConnection> connection)
+   IMAPNotificationClient::SetConnection(std::weak_ptr<IMAPConnection> connection)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called by the mailbox change notifier when something has happened to the mailbox.
@@ -82,13 +82,13 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::OnNotification(shared_ptr<ChangeNotification> notification)
+   IMAPNotificationClient::OnNotification(std::shared_ptr<ChangeNotification> notification)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called by the mailbox change notifier when something has happened to the mailbox.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<IMAPConnection> parentConnection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> parentConnection = parent_connection_.lock();
 
       if (!parentConnection)
          return;
@@ -104,7 +104,7 @@ namespace HM
    // Cache this change. We'll send a notification later on.
    //---------------------------------------------------------------------------()
    void 
-   IMAPNotificationClient::CacheChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
+   IMAPNotificationClient::CacheChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
       cached_changes_.push_back(pChangeNotification);
@@ -117,7 +117,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendCachedNotifications()
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
 
       if (!connection)
          return;
@@ -129,13 +129,13 @@ namespace HM
 
       std::set<__int64> flagMessages;
 
-      boost_foreach(shared_ptr<ChangeNotification> changeNotification, cached_changes_)
+      for(std::shared_ptr<ChangeNotification> changeNotification : cached_changes_)
       {
          switch (changeNotification->GetType())
          {
          case ChangeNotification::NotificationMessageAdded:
             {
-               shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                pMessages->Refresh();
                lastExists = pMessages->GetCount();
                lastRecent = pMessages->GetNoOfRecent();
@@ -147,7 +147,7 @@ namespace HM
                SendEXPUNGE_(changeNotification->GetAffectedMessages());
 
                // Send EXISTS
-               shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                lastExists = pMessages->GetCount();
                lastRecent = pMessages->GetNoOfRecent();
 
@@ -156,7 +156,7 @@ namespace HM
          case ChangeNotification::NotificationMessageFlagsChanged:
             {
                // Send flag notification
-               boost_foreach(__int64 messageID, changeNotification->GetAffectedMessages())
+               for(__int64 messageID : changeNotification->GetAffectedMessages())
                {
                   if (flagMessages.find(messageID) == flagMessages.end())
                      flagMessages.insert(messageID);
@@ -180,9 +180,9 @@ namespace HM
    }
 
    void 
-   IMAPNotificationClient::SendChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification)
+   IMAPNotificationClient::SendChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification)
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -192,7 +192,7 @@ namespace HM
          {
          case ChangeNotification::NotificationMessageAdded:
             {
-               shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                SendEXISTS_(pMessages->GetCount());
                SendRECENT_(pMessages->GetNoOfRecent());
                break;
@@ -203,7 +203,7 @@ namespace HM
                SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
 
                // Send EXISTS
-               shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                SendEXISTS_(pMessages->GetCount());
                SendRECENT_(pMessages->GetNoOfRecent());
 
@@ -213,7 +213,7 @@ namespace HM
             {
                // Send flag notification
                std::set<__int64> affectedMessages;
-               boost_foreach(__int64 messageID, pChangeNotification->GetAffectedMessages())
+               for(__int64 messageID : pChangeNotification->GetAffectedMessages())
                {
                   affectedMessages.insert(messageID);
                }
@@ -234,12 +234,12 @@ namespace HM
    void 
    IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & vecMessages)
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
       String sResponse;
-      boost_foreach(__int64 messageIndex, vecMessages)
+      for(__int64 messageIndex : vecMessages)
          sResponse.AppendFormat(_T("* %I64d EXPUNGE\r\n"), messageIndex);
 
       connection->SendAsciiData(sResponse);
@@ -249,16 +249,16 @@ namespace HM
    void 
    IMAPNotificationClient::SendFLAGS_(const std::set<__int64> & vecMessages)
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
-      boost_foreach(__int64 messageID, vecMessages)
+      for(__int64 messageID : vecMessages)
       {
          String sResponse;
 
          int foundIndex = 0;
-         shared_ptr<Message> pMessage = connection->GetCurrentFolder()->GetMessages()->GetItemByDBID(messageID, foundIndex);
+         std::shared_ptr<Message> pMessage = connection->GetCurrentFolder()->GetMessages()->GetItemByDBID(messageID, foundIndex);
 
          if (!pMessage)
             return;
@@ -273,7 +273,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendEXISTS_(int iExists)
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
@@ -284,7 +284,7 @@ namespace HM
    void 
    IMAPNotificationClient::SendRECENT_(int recent)
    {
-      shared_ptr<IMAPConnection> connection = parent_connection_.lock();
+      std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 

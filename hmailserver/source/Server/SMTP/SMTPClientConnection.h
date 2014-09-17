@@ -19,15 +19,15 @@ namespace HM
       SMTPClientConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context,
-         shared_ptr<Event> disconnected,
+         std::shared_ptr<Event> disconnected,
          AnsiString remote_hostname);
 	   virtual ~SMTPClientConnection();
 
       void OnCouldNotConnect(const AnsiString &sErrorDescription);
 
       virtual void ParseData(const AnsiString &Request);
-      virtual void ParseData(shared_ptr<ByteBuffer> ) {}
-      int SetDelivery(shared_ptr<Message> pDelMsg, std::vector<shared_ptr<MessageRecipient> > &vecRecipients);
+      virtual void ParseData(std::shared_ptr<ByteBuffer> ) {}
+      int SetDelivery(std::shared_ptr<Message> pDelMsg, std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients);
            
       void SetAuthInfo(const String &sUsername, const String &sPassword);
    protected:
@@ -71,9 +71,9 @@ namespace HM
       void ProtocolSendPassword_();
 
       void UpdateAllRecipientsWithError_(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError);
-      void UpdateRecipientWithError_(int iErrorCode, const AnsiString &sResponse,shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError);
+      void UpdateRecipientWithError_(int iErrorCode, const AnsiString &sResponse,std::shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError);
 
-      shared_ptr<MessageRecipient> GetNextRecipient_();
+      std::shared_ptr<MessageRecipient> GetNextRecipient_();
       void UpdateSuccessfulRecipients_();
 
       enum ConnectionState
@@ -97,16 +97,16 @@ namespace HM
   
       ConnectionState current_state_;
 
-      shared_ptr<Message> delivery_message_;
+      std::shared_ptr<Message> delivery_message_;
 
 
       // These are the recipients which will hMailServer should
       // try to deliver to.
-      std::vector<shared_ptr<MessageRecipient> > recipients_;
+      std::vector<std::shared_ptr<MessageRecipient> > recipients_;
 
       // The actual recipients are the recipients we've sent RCPT TO
       // for and the remote server has said OK to.
-      std::set<shared_ptr<MessageRecipient> > actual_recipients_;
+      std::set<std::shared_ptr<MessageRecipient> > actual_recipients_;
 
       bool use_smtpauth_;
 

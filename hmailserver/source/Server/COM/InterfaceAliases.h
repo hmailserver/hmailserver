@@ -55,14 +55,14 @@ public:
    STDMETHOD(DeleteByDBID)(/*[in]*/ long Index);
    STDMETHOD(get_ItemByName)(BSTR Name, IInterfaceAlias **pVal);
 
-   void Attach(shared_ptr<HM::Aliases> pAliases);
+   void Attach(std::shared_ptr<HM::Aliases> pAliases);
    void SetDomain(__int64 iDomain) { domain_id_ = iDomain; }
 
 private:
 
-   // void InternalAdd(shared_ptr<HM::Alias> pObject);
+   // void InternalAdd(std::shared_ptr<HM::Alias> pObject);
 
-   shared_ptr<HM::Aliases> aliases_;
+   std::shared_ptr<HM::Aliases> aliases_;
    __int64 domain_id_;
 
 };

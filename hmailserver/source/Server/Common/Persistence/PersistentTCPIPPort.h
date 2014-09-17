@@ -14,9 +14,9 @@ namespace HM
       PersistentTCPIPPort(void);
       ~PersistentTCPIPPort(void);
       
-      static bool DeleteObject(shared_ptr<TCPIPPort> pObject);
-      static bool SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode);
-      static bool ReadObject(shared_ptr<TCPIPPort> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<TCPIPPort> pObject);
+      static bool SaveObject(std::shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode);
+      static bool ReadObject(std::shared_ptr<TCPIPPort> pObject, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

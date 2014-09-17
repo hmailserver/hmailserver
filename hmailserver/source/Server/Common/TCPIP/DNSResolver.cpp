@@ -86,14 +86,14 @@ namespace HM
    }
 
    bool
-   DNSResolver::Resolve_(const String &sSearchFor, vector<String> &vecFoundNames, WORD wType, int iRecursion)
+   DNSResolver::Resolve_(const String &sSearchFor, std::vector<String> &vecFoundNames, WORD wType, int iRecursion)
    {
       USES_CONVERSION;
 
       if (iRecursion > 10)
       {
          String sMessage;
-         sMessage.Format(_T("Too many recursions during query. Query: %s, Type: %d."), sSearchFor, wType);
+         sMessage.Format(_T("Too many recursions during query. Query: %s, Type: %d."), sSearchFor.c_str(), wType);
          ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::Resolve_", sMessage);
 
          return false;
@@ -122,7 +122,7 @@ namespace HM
          if (bDNSError)
          {
             String sMessage;
-            sMessage.Format(_T("DNS - Query failure. Treating as temporary failure. Query: %s, Type: %d, DnsQuery return value: %d."), sSearchFor, wType, nDnsStatus);
+            sMessage.Format(_T("DNS - Query failure. Treating as temporary failure. Query: %s, Type: %d, DnsQuery return value: %d."), sSearchFor.c_str(), wType, nDnsStatus);
             LOG_SMTP(0,"TCP",sMessage);
             return false;
          }
@@ -287,7 +287,7 @@ namespace HM
          if (bDNSError)
          {
             String sMessage;
-            sMessage.Format(_T("DNS query failure. Query: %s, Type: A/AAAA, DnsQuery return value: %d. Message: %s"), sDomain, errorCode.value(), String(errorCode.message()));
+            sMessage.Format(_T("DNS query failure. Query: %s, Type: A/AAAA, DnsQuery return value: %d. Message: %s"), sDomain.c_str(), errorCode.value(), String(errorCode.message()));
             LOG_SMTP(0,"TCP",sMessage);
             return false;
          }
@@ -295,8 +295,8 @@ namespace HM
          return true;
       }
 
-      vector<String> addresses_ipv4;
-      vector<String> addresses_ipv6;
+      std::vector<String> addresses_ipv4;
+      std::vector<String> addresses_ipv6;
 
       while (endpoint_iterator != tcp::resolver::iterator())   
       {
@@ -308,7 +308,7 @@ namespace HM
          if (errorCode)
          {
             String sMessage;
-            sMessage.Format(_T("DNS query failure. Treating as temporary failure. Conversion of DNS record to string failed. Domain: %s, Error code: %d, Message: %s"), sDomain, errorCode.value(), String(errorCode.message()));
+            sMessage.Format(_T("DNS query failure. Treating as temporary failure. Conversion of DNS record to string failed. Domain: %s, Error code: %d, Message: %s"), sDomain.c_str(), errorCode.value(), String(errorCode.message()).c_str());
             LOG_SMTP(0,"TCP",sMessage);
             return false;
          }
@@ -321,9 +321,9 @@ namespace HM
          endpoint_iterator++;
       }
 
-      boost_foreach(String address, addresses_ipv4)
+      for(String address : addresses_ipv4)
          saFoundNames.push_back(address);
-      boost_foreach(String address, addresses_ipv6)
+      for(String address : addresses_ipv6)
          saFoundNames.push_back(address);
 
       return true;
@@ -347,7 +347,7 @@ namespace HM
          if (!Resolve_(sDomainName, vecFoundMXRecords, DNS_TYPE_MX, 0))
          {
             String logMessage;
-            logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName);
+            logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName.c_str());
             LOG_DEBUG(logMessage);
 
             return false;
@@ -368,13 +368,13 @@ namespace HM
             if (!GetARecords(sDomainName, a_records))
             {
                String logMessage;
-               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName);
+               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
                LOG_DEBUG(logMessage);
 
                return false;
             }
 
-            boost_foreach(String record, a_records)
+            for(String record : a_records)
             {
                HostNameAndIpAddress hostAndAddress;
                hostAndAddress.SetHostName(sDomainName);
@@ -391,7 +391,7 @@ namespace HM
             std::vector<String>::iterator iterDomain = vecFoundMXRecords.begin();
 
             bool dnsSuccess = false;
-            boost_foreach(String domain, vecFoundMXRecords)
+            for(String domain : vecFoundMXRecords)
             {
                // Resolve to domain name to IP address and put it in the list.
                int iCountBefore = saFoundNames.size();
@@ -416,7 +416,7 @@ namespace HM
                   }
                }
 
-               boost_foreach(String record, a_records)
+               for(String record : a_records)
                {
                   HostNameAndIpAddress hostAndAddress;
                   hostAndAddress.SetHostName(domain);
@@ -430,7 +430,7 @@ namespace HM
             {
                // All dns queries failed.
                String logMessage;
-               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName);
+               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
                LOG_DEBUG(logMessage);
 
                return false;
@@ -504,7 +504,7 @@ namespace HM
       }
       catch (std::exception& e)
       {
-         string ErrorMessage = "An exception was thrown: ";
+         std::string ErrorMessage = "An exception was thrown: ";
          ErrorMessage.append(e.what());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5039, "DNSResolver::GetPTRRecords", ErrorMessage);
          throw;

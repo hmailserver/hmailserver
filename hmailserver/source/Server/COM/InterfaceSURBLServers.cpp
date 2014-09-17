@@ -66,7 +66,7 @@ InterfaceSURBLServers::get_Item(long Index, IInterfaceSURBLServer **pVal)
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
       pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItem(Index);
+      std::shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItem(Index);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
@@ -112,7 +112,7 @@ InterfaceSURBLServers::get_ItemByDBID(long lDBID, IInterfaceSURBLServer **pVal)
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
       pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::SURBLServer> pDNSBlackList = surbl_servers_->GetItemByDBID(lDBID);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
@@ -145,7 +145,7 @@ InterfaceSURBLServers::Add(IInterfaceSURBLServer **pVal)
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
       pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBL = shared_ptr<HM::SURBLServer>(new HM::SURBLServer);
+      std::shared_ptr<HM::SURBLServer> pDNSBL = std::shared_ptr<HM::SURBLServer>(new HM::SURBLServer);
    
       pInterfaceSURBLServer->AttachItem(pDNSBL);
       pInterfaceSURBLServer->AttachParent(surbl_servers_, false);
@@ -173,7 +173,7 @@ InterfaceSURBLServers::get_ItemByDNSHost(BSTR ItemName, IInterfaceSURBLServer **
       CComObject<InterfaceSURBLServer>* pInterfaceSURBLServer = new CComObject<InterfaceSURBLServer>();
       pInterfaceSURBLServer->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SURBLServer> pDNSBL = surbl_servers_->GetItemByName(ItemName);
+      std::shared_ptr<HM::SURBLServer> pDNSBL = surbl_servers_->GetItemByName(ItemName);
       if (!pDNSBL)
          return S_FALSE;
    

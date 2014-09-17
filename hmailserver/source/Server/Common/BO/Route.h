@@ -54,7 +54,7 @@ namespace HM
       ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
       void SetConnectionSecurity(ConnectionSecurity connectio_security) {connection_security_ = connectio_security; }
 
-      shared_ptr<RouteAddresses> GetAddresses();
+      std::shared_ptr<RouteAddresses> GetAddresses();
    
       bool XMLStore(XNode *pRoutesNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -77,7 +77,7 @@ namespace HM
       bool treat_recipient_as_local_domain_;
       bool treat_sender_as_local_domain_;
 
-      shared_ptr<RouteAddresses> addresses_;
+      std::shared_ptr<RouteAddresses> addresses_;
    };
 
 }

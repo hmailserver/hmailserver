@@ -11,7 +11,7 @@ namespace HM
    {
    public:
 
-      static bool InitServer(boost::asio::ssl::context& context, shared_ptr<SSLCertificate> certificate, String ip_address, int port);
+      static bool InitServer(boost::asio::ssl::context& context, std::shared_ptr<SSLCertificate> certificate, String ip_address, int port);
       static bool InitClient(boost::asio::ssl::context& context);
 
    private:

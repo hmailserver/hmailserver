@@ -7,7 +7,7 @@
 #include "COMError.h"
 
 void 
-InterfaceLanguage::Attach(shared_ptr<HM::Language> pLanguage)
+InterfaceLanguage::Attach(std::shared_ptr<HM::Language> pLanguage)
 {
    language_ = pLanguage;
 }

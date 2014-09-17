@@ -15,26 +15,26 @@ namespace HM
       ~ObjectCache(void);
 
       void SetDomainAliasesNeedsReload();
-      shared_ptr<DomainAliases> GetDomainAliases();
+      std::shared_ptr<DomainAliases> GetDomainAliases();
 
       void SetGlobalRulesNeedsReload();
-      shared_ptr<Rules> GetGlobalRules();
+      std::shared_ptr<Rules> GetGlobalRules();
 
       void SetAccountRulesNeedsReload(__int64 iAccountID);
-      shared_ptr<Rules> GetAccountRules(__int64 iAccountID);
+      std::shared_ptr<Rules> GetAccountRules(__int64 iAccountID);
 
       void ClearRuleCaches();
 
    private:
 
-      shared_ptr<DomainAliases> domain_aliases_;
+      std::shared_ptr<DomainAliases> domain_aliases_;
       bool domain_aliases_needs_reload_;
 
-      shared_ptr<Rules> global_rules_;
+      std::shared_ptr<Rules> global_rules_;
       bool global_rules_needs_reload_;
 
-      map<__int64, shared_ptr<Rules> > account_rules_;
-      set<__int64> account_rules_to_refresh_;
+      std::map<__int64, std::shared_ptr<Rules> > account_rules_;
+      std::set<__int64> account_rules_to_refresh_;
 
       boost::recursive_mutex domain_aliases_mutex_;
       boost::recursive_mutex global_rules_mutex_;

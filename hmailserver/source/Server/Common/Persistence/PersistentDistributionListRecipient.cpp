@@ -26,7 +26,7 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::DeleteObject(shared_ptr<DistributionListRecipient> pRecipient)
+   PersistentDistributionListRecipient::DeleteObject(std::shared_ptr<DistributionListRecipient> pRecipient)
    {
       if (pRecipient->GetID() == 0)
       {
@@ -54,7 +54,7 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, long ObjectID)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, long ObjectID)
    {
       SQLCommand selectCommand(_T("select * from hm_distributionlistsrecipients where distributionlistrecipientid = @RECIPIENTID"));
       selectCommand.AddParameter("@RECIPIENTID", ObjectID);
@@ -63,9 +63,9 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 
       bool bRetVal = false;
       if (!pRS->IsEOF())
@@ -79,7 +79,7 @@ namespace HM
 
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, shared_ptr<DALRecordset> pRS)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, std::shared_ptr<DALRecordset> pRS)
    {
       pRecipient->SetID(pRS->GetLongValue("distributionlistrecipientid"));
       pRecipient->SetListID(pRS->GetLongValue("distributionlistrecipientlistid"));
@@ -89,7 +89,7 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient)
+   PersistentDistributionListRecipient::SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient)
    {
       String sErrorMessage;
 
@@ -98,7 +98,7 @@ namespace HM
 
 
    bool
-   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode)
+   PersistentDistributionListRecipient::SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode)
    {
       if (!PreSaveLimitationsCheck::CheckLimitations(mode, pRecipient, sErrorMessage))
          return false;

@@ -20,14 +20,14 @@ namespace HM
       ~PreSaveLimitationsCheck(void);
 
 
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Domain> domain, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DomainAlias> domainAlias, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Account> account, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Alias> alias, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DistributionList> list, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Group> group, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<DistributionListRecipient> pRecipient, String &resultDescription);
-      static bool CheckLimitations(PersistenceMode mode, shared_ptr<Route> route, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Domain> domain, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<DomainAlias> domainAlias, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Account> account, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Alias> alias, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionList> list, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Group> group, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionListRecipient> pRecipient, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Route> route, String &resultDescription);
     
       
    private:
@@ -42,9 +42,9 @@ namespace HM
 
 
 
-      static shared_ptr<Domain> GetDomain(__int64 id);
+      static std::shared_ptr<Domain> GetDomain(__int64 id);
       static bool DuplicateError(String &resultDescription);
 
-      static bool GetDuplicateExist(shared_ptr<Domain> domain, ObjectType objectType, __int64 objectID, const String &objectName);
+      static bool GetDuplicateExist(std::shared_ptr<Domain> domain, ObjectType objectType, __int64 objectID, const String &objectName);
    };
 }

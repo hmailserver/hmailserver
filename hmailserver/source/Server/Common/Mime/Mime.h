@@ -216,7 +216,7 @@ namespace HM
 	   void SetDescription(const char* pszValue, const char* pszCharset=NULL);
 	   const char* GetDescription() const;			// Content-Description: ...
 
-	   typedef vector<MimeField> CFieldList;
+	   typedef std::vector<MimeField> CFieldList;
 	   CFieldList& Fields() { return fields_; }
    
       bool FieldExists(const char *pszFieldName) const;
@@ -235,8 +235,8 @@ namespace HM
       AnsiString Store() const;
 
    protected:
-	   vector<MimeField> fields_;	// list of all header fields
-	   vector<MimeField>::iterator FindField(const char* pszFieldName) const;
+	   std::vector<MimeField> fields_;	// list of all header fields
+	   std::vector<MimeField>::iterator FindField(const char* pszFieldName) const;
 
 	   struct MediaTypeCvt
 	   {
@@ -256,7 +256,7 @@ namespace HM
    // add a new field or update an existing field
    inline void MimeHeader::SetField(const MimeField& field)
    {
-	   vector<MimeField>::iterator it = FindField(field.GetName());
+	   std::vector<MimeField>::iterator it = FindField(field.GetName());
 	   if (it != fields_.end())
 		   *it = field;
 	   else
@@ -266,9 +266,9 @@ namespace HM
    // find a field by name
    inline MimeField* MimeHeader::GetField(const char* pszFieldName) const
    {
-	   vector<MimeField>::iterator it = FindField(pszFieldName);
+	   std::vector<MimeField>::iterator it = FindField(pszFieldName);
    
-      if ((vector<MimeField>::const_iterator) it != fields_.end())
+      if ((std::vector<MimeField>::const_iterator) it != fields_.end())
 		   return &(*it);
 	   return NULL;
    }
@@ -434,19 +434,19 @@ namespace HM
 	   // operations for 'multipart' media
 	   bool IsMultiPart() const;
 	   void DeleteAll();
-	   shared_ptr<MimeBody> CreatePart(const char* pszMediaType, shared_ptr<MimeBody> pWhere);
-      void AddPart(shared_ptr<MimeBody> );
+	   std::shared_ptr<MimeBody> CreatePart(const char* pszMediaType, std::shared_ptr<MimeBody> pWhere);
+      void AddPart(std::shared_ptr<MimeBody> );
       int GetPartCount();
 
-	   void ErasePart(shared_ptr<MimeBody> pBP);
-	   shared_ptr<MimeBody> FindFirstPart();
-	   shared_ptr<MimeBody> FindNextPart();
+	   void ErasePart(std::shared_ptr<MimeBody> pBP);
+	   std::shared_ptr<MimeBody> FindFirstPart();
+	   std::shared_ptr<MimeBody> FindNextPart();
       size_t GetNumberOfParts();
 
-	   typedef list<shared_ptr<MimeBody> > BodyList;
-	   int GetAttachmentList(shared_ptr<MimeBody> pThis, BodyList& rList) const;
+	   typedef std::list<std::shared_ptr<MimeBody> > BodyList;
+	   int GetAttachmentList(std::shared_ptr<MimeBody> pThis, BodyList& rList) const;
       void ClearAttachments();
-      void RemoveAttachment(shared_ptr<MimeBody> pAttachment);
+      void RemoveAttachment(std::shared_ptr<MimeBody> pAttachment);
       int LoadFromFile(const AnsiString &pszFilename);
       bool SaveAllToFile(const AnsiString &pszFilename);
 
@@ -455,7 +455,7 @@ namespace HM
       // not other things that exists in the Content-Type header.
 
       bool IsEncapsulatedRFC822Message() const;
-      shared_ptr<MimeBody> LoadEncapsulatedMessage() const;
+      std::shared_ptr<MimeBody> LoadEncapsulatedMessage() const;
 
    public:
 	   // overrides
@@ -500,18 +500,18 @@ namespace HM
       return bodies_.size();
    }
 
-   inline shared_ptr<MimeBody> MimeBody::FindFirstPart()
+   inline std::shared_ptr<MimeBody> MimeBody::FindFirstPart()
    {
 	   find_ = bodies_.begin();
 	   return FindNextPart();
    }
 
-   inline shared_ptr<MimeBody> MimeBody::FindNextPart()
+   inline std::shared_ptr<MimeBody> MimeBody::FindNextPart()
    {
 	   if (find_ != bodies_.end())
 		   return *find_++;
 	   
-      shared_ptr<MimeBody> pEmpty;
+      std::shared_ptr<MimeBody> pEmpty;
       return pEmpty;
    }
 

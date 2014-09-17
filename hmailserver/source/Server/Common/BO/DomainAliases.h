@@ -22,7 +22,7 @@ namespace HM
       __int64 GetDomainID() {return domain_id_; }
 
    protected:
-      virtual bool PreSaveObject(shared_ptr<DomainAlias> pDA, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<DomainAlias> pDA, XNode *node);
       virtual String GetCollectionName() const {return "DomainAliases"; }
    private:
 

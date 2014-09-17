@@ -30,7 +30,7 @@ namespace HM
 
 
    IMAPResult
-   IMAPCommandCOPY::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandCOPY::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -38,12 +38,12 @@ namespace HM
       if (!pConnection->GetCurrentFolder())
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
-      shared_ptr<IMAPCopy> pCopy = shared_ptr<IMAPCopy>(new IMAPCopy());
+      std::shared_ptr<IMAPCopy> pCopy = std::shared_ptr<IMAPCopy>(new IMAPCopy());
       pCopy->SetIsUID(false);
 
       String sResponse; 
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
       if (pParser->ParamCount() != 2)
          return IMAPResult(IMAPResult::ResultBad, "Command requires 2 parameters.\r\n");
@@ -54,7 +54,7 @@ namespace HM
       pArgument->Command("\"" + sFolderName + "\"");
 
       // We should check if the folder exists. If not, notify user with trycreate
-      shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
 
       if (!pFolder)
       {

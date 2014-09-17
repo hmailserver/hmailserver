@@ -15,7 +15,7 @@ namespace HM
 
       virtual ~Collection<T, P>() {};
 
-      virtual void AddItem(shared_ptr<T> pObject)
+      virtual void AddItem(std::shared_ptr<T> pObject)
       {
          vecObjects.push_back(pObject);
       }
@@ -23,17 +23,17 @@ namespace HM
       bool XMLStore(XNode *pParentNode, int iBackupOptions);
       bool XMLLoad(XNode *pBackupNode, int iRestoreOptions);
 
-      shared_ptr<T> GetItem(unsigned int Index) const;
-      shared_ptr<T> GetItemByDBID(unsigned __int64 DBID) const;
-      shared_ptr<T> GetItemByDBID(unsigned __int64 DBID, int &foundIndex) const;
-      shared_ptr<T> GetItemByName(const String &sName) const;
+      std::shared_ptr<T> GetItem(unsigned int Index) const;
+      std::shared_ptr<T> GetItemByDBID(unsigned __int64 DBID) const;
+      std::shared_ptr<T> GetItemByDBID(unsigned __int64 DBID, int &foundIndex) const;
+      std::shared_ptr<T> GetItemByName(const String &sName) const;
 
       bool DeleteItemByDBID(__int64 iDBID);
       bool DeleteItem(unsigned int Index);
       virtual bool DeleteAll();
 
-      vector<shared_ptr<T> > &GetVector() {return vecObjects; }
-      const vector<shared_ptr<T> > &GetConstVector() const {return vecObjects; }
+      std::vector<std::shared_ptr<T> > &GetVector() {return vecObjects; }
+      const std::vector<std::shared_ptr<T> > &GetConstVector() const {return vecObjects; }
 
       int GetCount() const {return (int) vecObjects.size(); }
 
@@ -43,17 +43,17 @@ namespace HM
       virtual String GetCollectionName() const = 0;
 
       // Called before saved to XML
-      virtual void PostStoreObject(shared_ptr<T> pObject, XNode *node) {};
+      virtual void PostStoreObject(std::shared_ptr<T> pObject, XNode *node) {};
 
       // Called before save in DB
-      virtual bool PreSaveObject(shared_ptr<T> pObject, XNode *node) {return true; }
+      virtual bool PreSaveObject(std::shared_ptr<T> pObject, XNode *node) {return true; }
       
       bool DBLoad_(const String &sSQL);
       bool DBLoad_(const SQLCommand &command);
 
       mutable boost::recursive_mutex _mutex;
 
-      vector<shared_ptr<T> > vecObjects;
+      std::vector<std::shared_ptr<T> > vecObjects;
    };
 
 
@@ -67,7 +67,7 @@ namespace HM
 
       XNode *pCollNode = pParentNode->AppendChild(GetCollectionName());
 
-      boost_foreach(shared_ptr<T> pItem, vecObjects)
+      for (std::shared_ptr<T> pItem : vecObjects)
       {
          if (!pItem->XMLStore(pCollNode, iBackupOptions))
             return false;
@@ -98,7 +98,7 @@ namespace HM
          {
             XNode *pChildNode = pCollNode->GetChild(i);
 
-            shared_ptr<T> pItem = shared_ptr<T>(new T);
+            std::shared_ptr<T> pItem = std::shared_ptr<T>(new T);
             if (!pItem->XMLLoad(pChildNode, iRestoreOptions))
                return false;
             
@@ -112,7 +112,7 @@ namespace HM
                {
                   // Handle failure..
                   String message;
-                  message.Format(_T("Failed to save object %s. Error: %s"), pItem->GetName(), result);
+                  message.Format(_T("Failed to save object %s. Error: %s"), pItem->GetName().c_str(), result);
 
                   ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5212, "Collection::XMLLoad", message);
                   return false;
@@ -135,11 +135,11 @@ namespace HM
    }
 
    template <class T, class P> 
-   shared_ptr<T> Collection<T,P>::GetItem(unsigned int Index) const
+   std::shared_ptr<T> Collection<T,P>::GetItem(unsigned int Index) const
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      shared_ptr<T> pRet;
+      std::shared_ptr<T> pRet;
 
       if (Index >= 0 && Index < vecObjects.size())
          pRet = vecObjects[Index];
@@ -148,7 +148,7 @@ namespace HM
    }
 
    template <class T, class P> 
-   shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID) const
+   std::shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID) const
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -157,13 +157,13 @@ namespace HM
    }  
 
    template <class T, class P> 
-   shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID, int &foundIndex) const
+   std::shared_ptr<T> Collection<T,P>::GetItemByDBID(unsigned __int64 DBID, int &foundIndex) const
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       foundIndex = 0;
 
-      boost_foreach(shared_ptr<T> item, vecObjects)
+      for(std::shared_ptr<T> item : vecObjects)
       {
          foundIndex++;
          if (item->GetID() == DBID)
@@ -173,7 +173,7 @@ namespace HM
       }
 
       foundIndex = 0;
-      shared_ptr<T> EmptyObject;
+      std::shared_ptr<T> EmptyObject;
       return EmptyObject;
    }  
 
@@ -182,12 +182,12 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      vector<shared_ptr<T> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<T> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<T> >::iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<T> >::iterator iterEnd = vecObjects.end();
       
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<T> pObject = (*iter);
+         std::shared_ptr<T> pObject = (*iter);
          if (pObject->GetID() == DBID)
          {
             P::DeleteObject(pObject);
@@ -204,7 +204,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<T> object, vecObjects)
+      for (std::shared_ptr<T> object : vecObjects)
       {
          if (!P::DeleteObject(object))
             return false;
@@ -222,7 +222,7 @@ namespace HM
       if (index >= vecObjects.size())
          return false;
 
-      vector<shared_ptr<T> >::iterator iter = vecObjects.begin() + index;
+      std::vector<std::shared_ptr<T> >::iterator iter = vecObjects.begin() + index;
       P::DeleteObject(*iter);
       vecObjects.erase(iter);
       
@@ -230,19 +230,19 @@ namespace HM
    }  
 
    template <class T, class P> 
-   shared_ptr<T> Collection<T,P>::GetItemByName(const String &sName) const
+   std::shared_ptr<T> Collection<T,P>::GetItemByName(const String &sName) const
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      vector<shared_ptr<T> >::const_iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<T> >::const_iterator iter = vecObjects.begin();
       
-      boost_foreach(shared_ptr<T> pObject, vecObjects)
+      for(std::shared_ptr<T> pObject : vecObjects)
       {
          if (pObject->GetName().CompareNoCase(sName) == 0)
             return pObject;
       }
 
-      shared_ptr<T> EmptyObject;
+      std::shared_ptr<T> EmptyObject;
       return EmptyObject;
    }  
 
@@ -259,13 +259,13 @@ namespace HM
 
       vecObjects.clear();
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
       while (!pRS->IsEOF())
       {
-         shared_ptr<T> pItem = shared_ptr<T>(new T);
+         std::shared_ptr<T> pItem = std::shared_ptr<T>(new T);
          if (!P::ReadObject(pItem, pRS))
             return false;
 

@@ -6,7 +6,7 @@
 #include "InterfaceAttachment.h"
 
 void 
-InterfaceAttachment::Attach(shared_ptr<HM::Attachment> pAttachment) 
+InterfaceAttachment::Attach(std::shared_ptr<HM::Attachment> pAttachment) 
 { 
 
    attachment_ = pAttachment; 

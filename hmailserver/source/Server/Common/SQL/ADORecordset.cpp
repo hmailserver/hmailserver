@@ -26,11 +26,11 @@ namespace HM
    }
 
    DALConnection::ExecutionResult
-   ADORecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   ADORecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
       cur_row_ = 0;
 
-      shared_ptr<ADOConnection> pConn = static_pointer_cast<ADOConnection>(pDALConn);
+      std::shared_ptr<ADOConnection> pConn = std::static_pointer_cast<ADOConnection>(pDALConn);
       _ConnectionPtr pADOConnection = pConn->GetConnection();
 
       // Do we have a connection towards the database?
@@ -291,10 +291,10 @@ namespace HM
       return vaField.dblVal;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    ADORecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
       FieldsPtr      pFields;
       FieldPtr       pField;

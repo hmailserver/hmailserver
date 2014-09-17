@@ -30,8 +30,8 @@ namespace HM
       const IPAddress &GetConnectingIP() const;
 
 
-      void SetMessageData(const shared_ptr<MessageData> pMessageData);
-      shared_ptr<MessageData> GetMessageData() const;
+      void SetMessageData(const std::shared_ptr<MessageData> pMessageData);
+      std::shared_ptr<MessageData> GetMessageData() const;
 
    private:
 
@@ -41,7 +41,7 @@ namespace HM
       IPAddress connectingAddress_;
       String helo_host_;
 
-      shared_ptr<MessageData> message_data_;
+      std::shared_ptr<MessageData> message_data_;
       
    };
 

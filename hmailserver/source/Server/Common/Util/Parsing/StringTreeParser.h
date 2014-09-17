@@ -11,12 +11,12 @@ namespace HM
    
       void SetValue(const String &sValue) {value_ = sValue; }
 
-      vector<shared_ptr<StringNode> > GetSubNodes() {return sub_nodes_;}
+      std::vector<std::shared_ptr<StringNode> > GetSubNodes() {return sub_nodes_;}
 
    private:
 
       String value_;
-      vector<shared_ptr<StringNode> > sub_nodes_;
+      std::vector<std::shared_ptr<StringNode> > sub_nodes_;
    };
 
    class StringTreeParser
@@ -26,7 +26,7 @@ namespace HM
       StringTreeParser(void);
       ~StringTreeParser(void);
 
-      void Parse(const String &sCommand, vector<shared_ptr<StringNode> > & vecNodes);
+      void Parse(const String &sCommand, std::vector<std::shared_ptr<StringNode> > & vecNodes);
 
    private:
 

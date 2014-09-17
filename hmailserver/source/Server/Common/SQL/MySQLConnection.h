@@ -11,7 +11,7 @@ namespace HM
 {
    
 
-   class MySQLConnection : public DALConnection, public enable_shared_from_this<MySQLConnection>
+   class MySQLConnection : public DALConnection, public std::enable_shared_from_this<MySQLConnection>
    {
    public:
 
@@ -20,7 +20,7 @@ namespace HM
          RequiredVersion = 40118
       };
 
-	   MySQLConnection(shared_ptr<DatabaseSettings> pSettings);
+	   MySQLConnection(std::shared_ptr<DatabaseSettings> pSettings);
 	   virtual ~MySQLConnection();
 
       virtual ConnectionResult Connect(String &sErrorMessage);
@@ -44,11 +44,11 @@ namespace HM
 
       virtual bool CheckServerVersion(String &errorMessage);
 
-      virtual shared_ptr<DALRecordset> CreateRecordset();
+      virtual std::shared_ptr<DALRecordset> CreateRecordset();
 
       virtual void EscapeString(String &sInput);
 
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander();
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander();
 
    private:
 

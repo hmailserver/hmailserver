@@ -23,9 +23,9 @@ namespace HM
       void SetCheckNow();
    private:
 
-      bool FetchIsAllowed_(shared_ptr<FetchAccount> pFA);
+      bool FetchIsAllowed_(std::shared_ptr<FetchAccount> pFA);
 
-      shared_ptr<FetchAccounts> fetch_accounts_;
+      std::shared_ptr<FetchAccounts> fetch_accounts_;
 
       int queue_id_;
       const String queue_name_;

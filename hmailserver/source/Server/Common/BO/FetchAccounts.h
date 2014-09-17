@@ -22,7 +22,7 @@ namespace HM
       __int64 GetAccountID () {return account_id_; }
 
    protected:
-      virtual bool PreSaveObject(shared_ptr<FetchAccount> pFA, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<FetchAccount> pFA, XNode *node);
       virtual String GetCollectionName() const {return "FetchAccounts"; }
    private:
 

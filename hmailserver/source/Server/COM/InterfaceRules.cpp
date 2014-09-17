@@ -11,7 +11,7 @@
 #include "../Common/BO/Rule.h"
 
 void 
-InterfaceRules::Attach(shared_ptr<HM::Rules> pRules)
+InterfaceRules::Attach(std::shared_ptr<HM::Rules> pRules)
 {
    rules_ = pRules;
 }
@@ -27,7 +27,7 @@ STDMETHODIMP InterfaceRules::get_ItemByDBID(long lDBID, IInterfaceRule** pVal)
       pInterfaceRule->SetAuthentication(authentication_);
    
    
-      shared_ptr<HM::Rule> pRule = rules_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::Rule> pRule = rules_->GetItemByDBID(lDBID);
       if (!pRule)
          return DISP_E_BADINDEX;
    
@@ -54,7 +54,7 @@ STDMETHODIMP InterfaceRules::get_Item(long lIndex, IInterfaceRule** pVal)
       CComObject<InterfaceRule>* pInterfaceRule = new CComObject<InterfaceRule>();
       pInterfaceRule->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rule> pRule = rules_->GetItem(lIndex);
+      std::shared_ptr<HM::Rule> pRule = rules_->GetItem(lIndex);
       if (!pRule)
          return DISP_E_BADINDEX;
    
@@ -101,7 +101,7 @@ STDMETHODIMP InterfaceRules::Add(IInterfaceRule** pVal)
       CComObject<InterfaceRule>* pIntDA = new CComObject<InterfaceRule>();
       pIntDA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rule> pDA = shared_ptr<HM::Rule>(new HM::Rule);
+      std::shared_ptr<HM::Rule> pDA = std::shared_ptr<HM::Rule>(new HM::Rule);
    
       // Make sure that the new rule is
       // added to the right account.

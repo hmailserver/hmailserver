@@ -28,13 +28,13 @@ namespace HM
    }
 
    DALConnection::ExecutionResult
-   PGRecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   PGRecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Opens a recordset specified by the given SQL string sSQL.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<PGConnection> pConn = static_pointer_cast<PGConnection>(pDALConn);
+      std::shared_ptr<PGConnection> pConn = std::static_pointer_cast<PGConnection>(pDALConn);
       
       String sSQL = command.GetQueryString();
 
@@ -289,10 +289,10 @@ namespace HM
       return -1;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    PGRecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
       unsigned int iFieldCount = PQnfields(result_);
 

@@ -13,7 +13,7 @@
 
 
 void 
-InterfaceRuleActions::Attach(shared_ptr<HM::RuleActions> pActions)
+InterfaceRuleActions::Attach(std::shared_ptr<HM::RuleActions> pActions)
 {
    rule_actions_ = pActions;
 }
@@ -29,7 +29,7 @@ STDMETHODIMP InterfaceRuleActions::get_ItemByDBID(long lDBID, IInterfaceRuleActi
       CComObject<InterfaceRuleAction>* pInterfaceRuleAction = new CComObject<InterfaceRuleAction>();
       pInterfaceRuleAction->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItemByDBID(lDBID);
       if (!pRule)
          return DISP_E_BADINDEX;
    
@@ -56,7 +56,7 @@ STDMETHODIMP InterfaceRuleActions::get_Item(long lIndex, IInterfaceRuleAction** 
       CComObject<InterfaceRuleAction>* pInterfaceRuleAction = new CComObject<InterfaceRuleAction>();
       pInterfaceRuleAction->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItem(lIndex);
+      std::shared_ptr<HM::RuleAction> pRule = rule_actions_->GetItem(lIndex);
       if (!pRule)
          return DISP_E_BADINDEX;
    
@@ -103,7 +103,7 @@ STDMETHODIMP InterfaceRuleActions::Add(IInterfaceRuleAction** pVal)
       CComObject<InterfaceRuleAction>* pIntRA = new CComObject<InterfaceRuleAction>();
       pIntRA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleAction> pRuleAction = shared_ptr<HM::RuleAction>(new HM::RuleAction);
+      std::shared_ptr<HM::RuleAction> pRuleAction = std::shared_ptr<HM::RuleAction>(new HM::RuleAction);
    
       pRuleAction->SetRuleID(rule_actions_->GetRuleID());
    

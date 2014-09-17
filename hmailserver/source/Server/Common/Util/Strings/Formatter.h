@@ -42,9 +42,9 @@ namespace HM
          const FormatArgument &argument5);
    private:
 
-      static set<int> GetPlaceholders(const String &fmt);
+      static std::set<int> GetPlaceholders(const String &fmt);
 
-      static String Format(const String &fmt, const list<FormatArgument> &arguments);
+      static String Format(const String &fmt, const std::list<FormatArgument> &arguments);
    };
 
    class FormatterTester

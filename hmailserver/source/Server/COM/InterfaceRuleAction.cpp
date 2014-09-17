@@ -37,14 +37,14 @@ STDMETHODIMP InterfaceRuleAction::Save()
       // Set the sort order of the rule.
       if (object_->GetID() == 0 && object_->GetSortOrder() == 0)
       {
-         std::vector<shared_ptr<HM::RuleAction> > vecExistingRuleActions = parent_collection_->GetVector();
+         std::vector<std::shared_ptr<HM::RuleAction> > vecExistingRuleActions = parent_collection_->GetVector();
    
          // Determine the highest SortOrder.
          if (vecExistingRuleActions.size() == 0)
             object_->SetSortOrder(1);
          else
          {
-            shared_ptr<HM::RuleAction> pLastRuleAction = vecExistingRuleActions[vecExistingRuleActions.size() -1];
+            std::shared_ptr<HM::RuleAction> pLastRuleAction = vecExistingRuleActions[vecExistingRuleActions.size() -1];
             object_->SetSortOrder(pLastRuleAction->GetSortOrder() +1);
          }
       }

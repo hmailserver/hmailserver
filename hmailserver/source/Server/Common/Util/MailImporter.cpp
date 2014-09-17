@@ -112,13 +112,13 @@ namespace HM
          }
       }
 
-      shared_ptr<Message> pMessage = shared_ptr<Message> (new Message);
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message> (new Message);
       pMessage->SetPartialFileName(partialFileName);
 
       // Set message size
       pMessage->SetSize(FileUtilities::FileSize(newFullPath));
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
       if (!pMsgData->LoadFromMessage(newFullPath, pMessage))
          return false;
 
@@ -127,9 +127,9 @@ namespace HM
       pMessage->SetCreateTime(sReceivedHeader);
    
       // Parse out the From-address
-      shared_ptr<AddresslistParser> pFromParser = shared_ptr<AddresslistParser>(new AddresslistParser());
-      std::vector<shared_ptr<Address> > vecAddresses = pFromParser->ParseList(pMsgData->GetFrom());
-      std::vector<shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+      std::shared_ptr<AddresslistParser> pFromParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
+      std::vector<std::shared_ptr<Address> > vecAddresses = pFromParser->ParseList(pMsgData->GetFrom());
+      std::vector<std::shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
 
       if (iterElement != vecAddresses.end())
       {
@@ -141,9 +141,9 @@ namespace HM
       {
          // Since this message is supposed to be delivered, we need
          // to parse the sender and recipients
-         shared_ptr<AddresslistParser> pToParser = shared_ptr<AddresslistParser>(new AddresslistParser());
-         std::vector<shared_ptr<Address> > vecAddresses = pToParser->ParseList(pMsgData->GetTo());
-         std::vector<shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+         std::shared_ptr<AddresslistParser> pToParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
+         std::vector<std::shared_ptr<Address> > vecAddresses = pToParser->ParseList(pMsgData->GetTo());
+         std::vector<std::shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
 
          RecipientParser recipientParser;
          while (iterElement != vecAddresses.end())
@@ -156,7 +156,7 @@ namespace HM
 
          // Since this message is supposed to be delivered, we need
          // to parse the sender and recipients
-         pToParser = shared_ptr<AddresslistParser>(new AddresslistParser());
+         pToParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
          vecAddresses = pToParser->ParseList(pMsgData->GetCC());
          iterElement = vecAddresses.begin();
 
@@ -221,7 +221,7 @@ namespace HM
       }
       
       // We have a partial file name. Update the database with it.
-      shared_ptr<Message> message = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> message = std::shared_ptr<Message>(new Message());
       if (!PersistentMessage::ReadObject(message, messageID))
          return false;
 
@@ -315,7 +315,7 @@ namespace HM
    }
 
    String 
-   MailImporter::GetInternalDate_(shared_ptr<MessageData> pMsgData)
+   MailImporter::GetInternalDate_(std::shared_ptr<MessageData> pMsgData)
    {
 
       String sReceivedHeader = pMsgData->GetFieldValue("Received");

@@ -34,11 +34,11 @@ namespace HM
 
    
    void 
-   SMTPVacationMessageCreator::CreateVacationMessage(shared_ptr<const Account> recipientAccount, 
+   SMTPVacationMessageCreator::CreateVacationMessage(std::shared_ptr<const Account> recipientAccount, 
                                         const String &sToAddress, 
                                         const String &sVacationSubject, 
                                         const String &sVacationMessage,
-                                        const shared_ptr<Message> pOriginalMessage)
+                                        const std::shared_ptr<Message> pOriginalMessage)
    {
       
       
@@ -87,14 +87,14 @@ namespace HM
 
 
       // Send a copy of this email.
-      shared_ptr<Message> pMsg = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
 
       pMsg->SetState(Message::Delivering);
       pMsg->SetFromAddress(recipientAccount->GetAddress());
 
       const String newFileName = PersistentMessage::GetFileName(pMsg);
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newFileName, pMsg);
       
       // Required headers
@@ -148,7 +148,7 @@ namespace HM
             return true;
          }
 
-         pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
+         std::pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
             mapVacationMessageRecipients.equal_range(sFrom);
 
          iter = iterRange.first;
@@ -183,7 +183,7 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
+         std::pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
             mapVacationMessageRecipients.equal_range(sUserAddress);
 
          multimap<String, String>::iterator iter = iterRange.first;

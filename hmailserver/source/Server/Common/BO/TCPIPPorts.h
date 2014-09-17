@@ -18,7 +18,7 @@ namespace HM
       TCPIPPorts();
       ~TCPIPPorts(void);
 
-      shared_ptr<TCPIPPort> GetPort(const IPAddress &iIPAddress, int iPort);
+      std::shared_ptr<TCPIPPort> GetPort(const IPAddress &iIPAddress, int iPort);
 
       void Refresh();
       // Refreshes this collection from the database.

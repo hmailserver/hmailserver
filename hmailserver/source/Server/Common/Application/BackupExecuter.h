@@ -20,7 +20,7 @@ namespace HM
       ~BackupExecuter(void);
 
       bool StartBackup();
-      bool StartRestore(shared_ptr<Backup> pBackup);
+      bool StartRestore(std::shared_ptr<Backup> pBackup);
 
    private:
 
@@ -29,7 +29,7 @@ namespace HM
       bool BackupDomains_(XNode *pNode);
       bool BackupDataDirectory_(const String &sDataBackupDir);
 
-      void RestoreDataDirectory_(shared_ptr<Backup> pBackup, XNode *pBackupNode);
+      void RestoreDataDirectory_(std::shared_ptr<Backup> pBackup, XNode *pBackupNode);
       
       int backup_mode_;
       

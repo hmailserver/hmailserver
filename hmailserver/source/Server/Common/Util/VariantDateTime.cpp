@@ -98,14 +98,15 @@ namespace HM
    DateTime::DateTime(time_t& timeSrc)
    {
        // Convert time_t to struct tm
-       tm *ptm = localtime(&timeSrc);
+       struct tm ptm;
+       int result = localtime_s(&ptm, &timeSrc);
     
-       if (ptm != NULL)
+       if (result == 0)
        {
-             status_ = OleDateFromTm((WORD)(ptm->tm_year + 1900),
-                  (WORD)(ptm->tm_mon + 1), (WORD)ptm->tm_mday,
-                  (WORD)ptm->tm_hour, (WORD)ptm->tm_min,
-                  (WORD)ptm->tm_sec, dt_) ? valid : invalid;
+             status_ = OleDateFromTm((WORD)(ptm.tm_year + 1900),
+                  (WORD)(ptm.tm_mon + 1), (WORD)ptm.tm_mday,
+                  (WORD)ptm.tm_hour, (WORD)ptm.tm_min,
+                  (WORD)ptm.tm_sec, dt_) ? valid : invalid;
        }
        else
        {
@@ -383,14 +384,15 @@ namespace HM
    const DateTime& DateTime::operator=(const time_t& timeSrc)
    {
        // Convert time_t to struct tm
-       tm *ptm = localtime(&timeSrc);
+       struct tm ptm;
+       int result = localtime_s(&ptm, &timeSrc);
     
-       if (ptm != NULL)
+       if (result == 0)
        {
-             status_ = OleDateFromTm((WORD)(ptm->tm_year + 1900),
-                  (WORD)(ptm->tm_mon + 1), (WORD)ptm->tm_mday,
-                  (WORD)ptm->tm_hour, (WORD)ptm->tm_min,
-                  (WORD)ptm->tm_sec, dt_) ? valid : invalid;
+             status_ = OleDateFromTm((WORD)(ptm.tm_year + 1900),
+                  (WORD)(ptm.tm_mon + 1), (WORD)ptm.tm_mday,
+                  (WORD)ptm.tm_hour, (WORD)ptm.tm_min,
+                  (WORD)ptm.tm_sec, dt_) ? valid : invalid;
        }
        else
        {

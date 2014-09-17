@@ -99,10 +99,10 @@ namespace HM
       // Generate name for zip file. We always create zip
       // file
       String sZipFile;
-      sZipFile.Format(_T("%s\\HMBackup %s.7z"), destination_, sTime);
+      sZipFile.Format(_T("%s\\HMBackup %s.7z"), destination_.c_str(), sTime.c_str());
 
       String sXMLFile;
-      sXMLFile.Format(_T("%s\\hMailServerBackup.xml"), destination_);
+      sXMLFile.Format(_T("%s\\hMailServerBackup.xml"), destination_.c_str());
 
       // The name of the backup directory that
       // contains all the data files.
@@ -232,7 +232,7 @@ namespace HM
    bool 
    BackupExecuter::BackupDomains_(XNode *pBackupNode)
    {
-      shared_ptr<Domains> pDomains = shared_ptr<Domains>(new Domains);
+      std::shared_ptr<Domains> pDomains = std::shared_ptr<Domains>(new Domains);
       pDomains->Refresh();
       pDomains->XMLStore(pBackupNode, backup_mode_);
 
@@ -240,7 +240,7 @@ namespace HM
    }
 
    bool
-   BackupExecuter::StartRestore(shared_ptr<Backup> pBackup)
+   BackupExecuter::StartRestore(std::shared_ptr<Backup> pBackup)
    {
       bool bMessagesDBOnly = IniFileSettings::Instance()->GetBackupMessagesDBOnly();
 
@@ -291,7 +291,7 @@ namespace HM
          // drop the domain folders from the data directory. If we do this
          // in the wrong order, we'll hence first restore the data directory
          // and then drop it.
-         shared_ptr<Domains> pDomains = shared_ptr<Domains>(new Domains);
+         std::shared_ptr<Domains> pDomains = std::shared_ptr<Domains>(new Domains);
 
          pDomains->Refresh();
          if (!bMessagesDBOnly) 
@@ -349,7 +349,7 @@ namespace HM
    }
 
    void
-   BackupExecuter::RestoreDataDirectory_(shared_ptr<Backup> pBackup, XNode *pBackupNode)
+   BackupExecuter::RestoreDataDirectory_(std::shared_ptr<Backup> pBackup, XNode *pBackupNode)
    {
       XNode *pBackupInfoNode = pBackupNode->GetChild(_T("BackupInformation"));
       

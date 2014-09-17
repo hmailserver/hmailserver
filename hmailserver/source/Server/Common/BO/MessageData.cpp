@@ -35,11 +35,11 @@ namespace HM
       encode_fields_ = true;
       unfold_with_space_ = true;
 
-      mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
+      mime_mail_ = std::shared_ptr<MimeBody>(new MimeBody);
    }
 
    bool
-   MessageData::LoadFromMessage(shared_ptr<const Account> account, shared_ptr<Message> pMessage)
+   MessageData::LoadFromMessage(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage)
    {
       String fileName = PersistentMessage::GetFileName(account, pMessage);
 
@@ -48,12 +48,12 @@ namespace HM
    
 
    bool
-   MessageData::LoadFromMessage(const String &fileName, shared_ptr<Message> pMessage)
+   MessageData::LoadFromMessage(const String &fileName, std::shared_ptr<Message> pMessage)
    {
       message_ = pMessage;
       message_file_name_ = fileName;
 
-      mime_mail_ = shared_ptr<MimeBody>(new MimeBody);
+      mime_mail_ = std::shared_ptr<MimeBody>(new MimeBody);
 
       const int MaxSize = 1024*1024 * 80; // we'll ignore messages larger than 80MB.
       if (FileUtilities::FileSize(message_file_name_) > MaxSize)
@@ -78,7 +78,7 @@ namespace HM
             FileUtilities::Copy(message_file_name_, sMessageBackupPath, true);
 
             String sErrorMessage;
-            sErrorMessage.Format(_T("An unknown error occurred while loading message. File: %s. Backuped to: %s"), message_file_name_, sMessageBackupPath); 
+            sErrorMessage.Format(_T("An unknown error occurred while loading message. File: %s. Backuped to: %s"), message_file_name_.c_str(), sMessageBackupPath.c_str());
 
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4218, "MessageData::LoadFromMessage", sErrorMessage);
          }
@@ -271,12 +271,12 @@ namespace HM
       return message_->GetSize();
    }
 
-   shared_ptr<Attachments>
+   std::shared_ptr<Attachments>
    MessageData::GetAttachments()
    {
       if (!attachments_)
       {
-         attachments_ = shared_ptr<Attachments>(new Attachments(mime_mail_, this));
+         attachments_ = std::shared_ptr<Attachments>(new Attachments(mime_mail_, this));
          
          // Load attachments.
          attachments_->Load();
@@ -288,7 +288,7 @@ namespace HM
    String 
    MessageData::GetBody() const
    {
-      shared_ptr<MimeBody> pPart = FindPart("text/plain");
+      std::shared_ptr<MimeBody> pPart = FindPart("text/plain");
 
       if (pPart)
       {
@@ -305,7 +305,7 @@ namespace HM
    void
    MessageData::SetBody(const String &sBody)
    {
-      shared_ptr<MimeBody> pPart = FindPart("text/plain");
+      std::shared_ptr<MimeBody> pPart = FindPart("text/plain");
 
       if (!pPart)
          pPart = CreatePart("text/plain");
@@ -327,7 +327,7 @@ namespace HM
    String 
    MessageData::GetHTMLBody() const
    {
-      shared_ptr<MimeBody> pPart = FindPart("text/html");
+      std::shared_ptr<MimeBody> pPart = FindPart("text/html");
 
       if (pPart)
       {
@@ -343,7 +343,7 @@ namespace HM
    void
    MessageData::SetHTMLBody(const String &sNewVal)
    {
-      shared_ptr<MimeBody> pHTMLPart = FindPart("text/html");
+      std::shared_ptr<MimeBody> pHTMLPart = FindPart("text/html");
 
       if (!pHTMLPart)
       {
@@ -365,10 +365,10 @@ namespace HM
          pHTMLPart->SetRawText(sModifiedBody);
    }
 
-   shared_ptr<MimeBody> 
-   MessageData::FindPartNoRecurse(shared_ptr<MimeBody> parent, const AnsiString &sType) const
+   std::shared_ptr<MimeBody> 
+   MessageData::FindPartNoRecurse(std::shared_ptr<MimeBody> parent, const AnsiString &sType) const
    {
-      shared_ptr<MimeBody> pPart = parent->FindFirstPart();
+      std::shared_ptr<MimeBody> pPart = parent->FindFirstPart();
 
       while (pPart)
       {
@@ -386,11 +386,11 @@ namespace HM
          pPart = parent->FindNextPart();
       }
       
-      shared_ptr<MimeBody> empty;
+      std::shared_ptr<MimeBody> empty;
       return empty;
    }
 
-   shared_ptr<MimeBody> 
+   std::shared_ptr<MimeBody> 
    MessageData::CreatePart(const String &sContentType)
    {
       // Step 1: Extract all parts.
@@ -403,12 +403,12 @@ namespace HM
       AnsiString sMainBodyCharset = mime_mail_->GetCharset();
       sMainBodyType.MakeLower();
       
-      shared_ptr<MimeBody> textPart = FindPartNoRecurse(mime_mail_, "text/plain");
-      shared_ptr<MimeBody> htmlPart = FindPartNoRecurse(mime_mail_, "text/html");
+      std::shared_ptr<MimeBody> textPart = FindPartNoRecurse(mime_mail_, "text/plain");
+      std::shared_ptr<MimeBody> htmlPart = FindPartNoRecurse(mime_mail_, "text/html");
 
-      shared_ptr<MimeBody> retValue;
+      std::shared_ptr<MimeBody> retValue;
 
-      shared_ptr<MimeBody> alternativeNode = FindPartNoRecurse(mime_mail_, "multipart/alternative");
+      std::shared_ptr<MimeBody> alternativeNode = FindPartNoRecurse(mime_mail_, "multipart/alternative");
       if (alternativeNode)
       {
          if (!textPart) 
@@ -437,7 +437,7 @@ namespace HM
          {
             if (mime_mail_->GetRawText().size() > 0)
             {
-               textPart = shared_ptr<MimeBody>(new MimeBody);
+               textPart = std::shared_ptr<MimeBody>(new MimeBody);
                textPart->SetRawText(mime_mail_->GetRawText());
                textPart->SetContentType("text/plain", "");
                
@@ -453,7 +453,7 @@ namespace HM
          {
             if (mime_mail_->GetRawText().size() > 0)
             {
-               htmlPart = shared_ptr<MimeBody>(new MimeBody);
+               htmlPart = std::shared_ptr<MimeBody>(new MimeBody);
                htmlPart->SetRawText(mime_mail_->GetRawText());
                htmlPart->SetContentType("text/html", "");
                
@@ -472,8 +472,8 @@ namespace HM
       // When we get here, any alternative, text or html parts
       // should have been removed from the message already.
       //
-      shared_ptr<MimeBody> part = mime_mail_->FindFirstPart();
-      set<shared_ptr<MimeBody> > setAttachments;
+      std::shared_ptr<MimeBody> part = mime_mail_->FindFirstPart();
+      std::set<std::shared_ptr<MimeBody> > setAttachments;
       while (part)
       {
          if (part->IsAttachment())
@@ -498,7 +498,7 @@ namespace HM
          }
          else
          {
-            textPart = shared_ptr<MimeBody>(new MimeBody);
+            textPart = std::shared_ptr<MimeBody>(new MimeBody);
             textPart->SetContentType("text/plain", "");
 
             AnsiString transferEncoding = mime_mail_->GetTransferEncoding();
@@ -525,7 +525,7 @@ namespace HM
          }
          else
          {
-            htmlPart = shared_ptr<MimeBody>(new MimeBody);
+            htmlPart = std::shared_ptr<MimeBody>(new MimeBody);
             htmlPart->SetContentType("text/html", "");
 
             AnsiString transferEncoding = mime_mail_->GetTransferEncoding();
@@ -542,7 +542,7 @@ namespace HM
       else
       {
          // create a new item. treat as an attachment.
-         retValue = shared_ptr<MimeBody>(new MimeBody);
+         retValue = std::shared_ptr<MimeBody>(new MimeBody);
          setAttachments.insert(retValue);
       }
 
@@ -560,7 +560,7 @@ namespace HM
       {
          if (mainBodyType == "multipart/mixed")
          {
-            shared_ptr<MimeBody> alternativePart = shared_ptr<MimeBody>(new MimeBody);
+            std::shared_ptr<MimeBody> alternativePart = std::shared_ptr<MimeBody>(new MimeBody);
             alternativePart->SetContentType("multipart/alternative", "");
             alternativePart->SetRawText("This is a multi-part message.\r\n\r\n");
 
@@ -597,7 +597,7 @@ namespace HM
          }
       }
 
-      boost_foreach(shared_ptr<MimeBody> pAttachment, setAttachments)
+      for(std::shared_ptr<MimeBody> pAttachment : setAttachments)
       {
          mime_mail_->AddPart(pAttachment);
       }
@@ -616,7 +616,7 @@ namespace HM
       return retValue;
    }
 
-   shared_ptr<MimeBody>
+   std::shared_ptr<MimeBody>
    MessageData::FindPart(const String &sType) const
    {
       String sPartType = mime_mail_->GetCleanContentType();
@@ -624,11 +624,11 @@ namespace HM
       if (sPartType.CompareNoCase(sType) == 0)
          return mime_mail_;
 
-      shared_ptr<MimeBody> pPart = mime_mail_->FindFirstPart();
+      std::shared_ptr<MimeBody> pPart = mime_mail_->FindFirstPart();
 
       if (!pPart)
       {
-         shared_ptr<MimeBody> pEmpty;
+         std::shared_ptr<MimeBody> pEmpty;
          return pEmpty;
       }
 
@@ -641,7 +641,7 @@ namespace HM
          
          if (pPart->IsMultiPart())
          {
-            shared_ptr<MimeBody> pSubPart = pPart->FindFirstPart();
+            std::shared_ptr<MimeBody> pSubPart = pPart->FindFirstPart();
 
             while (pSubPart)
             {
@@ -659,7 +659,7 @@ namespace HM
          pPart = mime_mail_->FindNextPart();
       }
 
-      shared_ptr<MimeBody> pEmpty;
+      std::shared_ptr<MimeBody> pEmpty;
       return pEmpty;     
 
    }
@@ -684,7 +684,7 @@ namespace HM
    bool 
    MessageData::GetHasBodyType(const String &sBodyType)
    {
-      shared_ptr<MimeBody> pPart = FindPart(sBodyType);      
+      std::shared_ptr<MimeBody> pPart = FindPart(sBodyType);      
 
       return pPart ? true : false;
    }
@@ -722,7 +722,7 @@ namespace HM
       sGUID.Replace(_T("}"), _T(""));
       
       String sMsgID;
-      sMsgID.Format(_T("<%s@%s>"), sGUID , Utilities::ComputerName());
+      sMsgID.Format(_T("<%s@%s>"), sGUID, Utilities::ComputerName().c_str());
 
       SetFieldValue("Message-ID", sMsgID);
    }
@@ -739,7 +739,7 @@ namespace HM
       return sContentType.CompareNoCase(_T("text/html")) == 0;
    }
 
-   shared_ptr<MimeBody> 
+   std::shared_ptr<MimeBody> 
    MessageData::GetMimeMessage()
    {
       return mime_mail_;
@@ -773,17 +773,17 @@ namespace HM
          return;
       #endif
 
-      shared_ptr<Message> pMessage = shared_ptr<Message>(new Message);
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message);
 
       // Add recipient
       bool recipientOK = false;
       RecipientParser recipientParser;
       recipientParser.CreateMessageRecipientList("test@test.com", pMessage->GetRecipients(), recipientOK);
 
-      shared_ptr<Account> account;
+      std::shared_ptr<Account> account;
 
       // Create message data structure
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
       pMsgData->LoadFromMessage(account, pMessage);
       pMsgData->SetTo("test@test.com");
       pMsgData->SetFrom("test@test.com");

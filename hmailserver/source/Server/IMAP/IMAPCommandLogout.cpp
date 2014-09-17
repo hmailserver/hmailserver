@@ -16,7 +16,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandLOGOUT::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandLOGOUT::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       String sResponse = "* BYE Have a nice day\r\n"; 
       sResponse += pArgument->Tag() + " OK Logout completed\r\n";

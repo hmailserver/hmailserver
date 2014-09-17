@@ -42,7 +42,7 @@
 
 namespace HM
 { 
-   LocalDelivery::LocalDelivery(const String &sSendersIP, shared_ptr<Message> message, const RuleResult &globalRuleResult) :
+   LocalDelivery::LocalDelivery(const String &sSendersIP, std::shared_ptr<Message> message, const RuleResult &globalRuleResult) :
       _sendersIP(sSendersIP),
       original_message_(message),
       _globalRuleResult(globalRuleResult)
@@ -58,7 +58,7 @@ namespace HM
    /// Returns true if the message has been re-used by us. If it has, the deliverer outside
    /// should not delete the message from the database when we're done.
    bool
-   LocalDelivery::Perform(vector<String> &saErrorMessages)
+   LocalDelivery::Perform(std::vector<String> &saErrorMessages)
    {
       LOG_DEBUG("Performing local delivery");
 
@@ -66,12 +66,12 @@ namespace HM
 
       // NOTE: Since were manipulating the messages recipient vector below, we want to do a copy.
       //       We should iterate over the copy of recipients here. Not over the original list.
-      vector<shared_ptr<MessageRecipient> > &vecRecipients = original_message_->GetRecipients()->GetVector();
-      vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = original_message_->GetRecipients()->GetVector();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
 
       while (iterRecipient != vecRecipients.end())
       {
-         shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
+         std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
 
          if (pRecipient->GetLocalAccountID() == 0)
          {
@@ -81,7 +81,7 @@ namespace HM
          }
 
          // Read the recipients account from database.
-         shared_ptr<const Account> pCheckAccount = CacheContainer::Instance()->GetAccount(pRecipient->GetLocalAccountID());
+         std::shared_ptr<const Account> pCheckAccount = CacheContainer::Instance()->GetAccount(pRecipient->GetLocalAccountID());
 
          if (pCheckAccount)
          {
@@ -110,7 +110,7 @@ namespace HM
    /// Delivers a single message to a specific account.
    /// Returns true if the delivery was made, false otherwise.
    void
-   LocalDelivery::DeliverToLocalAccount_(shared_ptr<const Account> account, int iNoOfRecipients, vector<String> &saErrorMessages, const String &sOriginalAddress, bool &messageReused)
+   LocalDelivery::DeliverToLocalAccount_(std::shared_ptr<const Account> account, int iNoOfRecipients, std::vector<String> &saErrorMessages, const String &sOriginalAddress, bool &messageReused)
    {
       // First check that we're actually able to deliver a message to this account. If the account
       // has reached it's quota, we should cancel delivery immediately. If we create the account-level
@@ -125,11 +125,11 @@ namespace HM
       // we don't have to create a new file on disk.
       messageReused = iNoOfRecipients == 1;
 
-      shared_ptr<Message> accountLevelMessage = CreateAccountLevelMessage_(original_message_, account, messageReused, sOriginalAddress);
+      std::shared_ptr<Message> accountLevelMessage = CreateAccountLevelMessage_(original_message_, account, messageReused, sOriginalAddress);
       if (!accountLevelMessage)
       {
          String errorMessage;
-         errorMessage.Format(_T("Unable to create account-level message of %I64d for account %s."), original_message_->GetID(), String(account->GetAddress()));
+         errorMessage.Format(_T("Unable to create account-level message of %I64d for account %s."), original_message_->GetID(), String(account->GetAddress()).c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5209, "SMTPDeliverer::DeliverToLocalAccount_", errorMessage);
          return;
@@ -163,8 +163,8 @@ namespace HM
       IMAPFolderContainer::Instance()->SetFolderNeedRefresh(accountLevelMessage->GetAccountID(), accountLevelMessage->GetFolderID());
 
       // Notify the mailbox notifier that the mailbox contents have changed.
-      shared_ptr<ChangeNotification> changeNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(accountLevelMessage->GetAccountID(), accountLevelMessage->GetFolderID(), ChangeNotification::NotificationMessageAdded));
+      std::shared_ptr<ChangeNotification> changeNotification = 
+         std::shared_ptr<ChangeNotification>(new ChangeNotification(accountLevelMessage->GetAccountID(), accountLevelMessage->GetFolderID(), ChangeNotification::NotificationMessageAdded));
       Application::Instance()->GetNotificationServer()->SendNotification(changeNotification);
 
       AWStats::LogDeliverySuccess(_sendersIP, "127.0.0.1", accountLevelMessage, account->GetAddress());
@@ -177,7 +177,7 @@ namespace HM
    Returns true if message should be delivered, false if it should be aborted.
    */
    bool 
-   LocalDelivery::LocalDeliveryPreProcess_(shared_ptr<const Account> account, shared_ptr<Message> accountLevelMessage, const String &sOriginalAddress, vector<String> &saErrorMessages)
+   LocalDelivery::LocalDeliveryPreProcess_(std::shared_ptr<const Account> account, std::shared_ptr<Message> accountLevelMessage, const String &sOriginalAddress, std::vector<String> &saErrorMessages)
    {
       SendAutoReplyMessage_(account, original_message_);
 
@@ -234,7 +234,7 @@ namespace HM
    }
 
    bool 
-   LocalDelivery::CheckAccountQuotas_(shared_ptr<const Account> pCheckAccount, vector<String> &saErrorMessages)
+   LocalDelivery::CheckAccountQuotas_(std::shared_ptr<const Account> pCheckAccount, std::vector<String> &saErrorMessages)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks that the recipient account has enough space available. If not, 
@@ -254,7 +254,7 @@ namespace HM
          String sMessage;
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: The message was not delivered to %s. ")
             _T("Delivery to this account was cancelled since the account inbox is full. Max size: %d MB, Current size (including cancelled message): %d MB"), 
-            original_message_->GetID(), String(pCheckAccount->GetAddress()), pCheckAccount->GetAccountMaxSize(), (currentSize / 1024 / 1024));
+            original_message_->GetID(), String(pCheckAccount->GetAddress()).c_str(), pCheckAccount->GetAccountMaxSize(), (currentSize / 1024 / 1024));
 
          LOG_APPLICATION(sMessage);
 
@@ -264,12 +264,12 @@ namespace HM
       return true;
    }
 
-   shared_ptr<Message> 
-   LocalDelivery::CreateAccountLevelMessage_(shared_ptr<Message> pOriginalMessage, shared_ptr<const Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress)
+   std::shared_ptr<Message> 
+   LocalDelivery::CreateAccountLevelMessage_(std::shared_ptr<Message> pOriginalMessage, std::shared_ptr<const Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress)
    {
       // Copy the original message to the new message. Also copy the message
       // file unless we should reuse the old one.
-      shared_ptr<Message> pNewMessage;
+      std::shared_ptr<Message> pNewMessage;
 
       if (reuseMessage)
       {
@@ -282,7 +282,7 @@ namespace HM
          __int64  inboxID = CacheContainer::Instance()->GetInboxIDCache().GetUserInboxFolder(pRecipientAccount->GetID());
          if (inboxID == 0)
          {
-            shared_ptr<Message> empty;
+            std::shared_ptr<Message> empty;
             return empty;
          }
 
@@ -290,7 +290,7 @@ namespace HM
 
          if (!PersistentMessage::MoveFileToUserFolder(sourceLocation, pNewMessage, pRecipientAccount))
          {
-            shared_ptr<Message> empty;
+            std::shared_ptr<Message> empty;
             return empty;
          }
       }
@@ -298,7 +298,7 @@ namespace HM
       {
          pNewMessage = PersistentMessage::CopyFromQueueToInbox(pOriginalMessage, pRecipientAccount);
 
-         boost_foreach (shared_ptr<MessageRecipient> recipient, pOriginalMessage->GetRecipients()->GetVector())
+         for (std::shared_ptr<MessageRecipient> recipient : pOriginalMessage->GetRecipients()->GetVector())
          {
             if (recipient->GetAddress().CompareNoCase(pRecipientAccount->GetAddress()) == 0)
             {
@@ -314,9 +314,9 @@ namespace HM
    }
 
    bool 
-   LocalDelivery::AddTraceHeaders_(shared_ptr<const Account> account, shared_ptr<Message> pMessage, const String &sOriginalAddress)
+   LocalDelivery::AddTraceHeaders_(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage, const String &sOriginalAddress)
    {
-      std::vector<pair<AnsiString, AnsiString> > fieldsToWrite;
+      std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
 
       fieldsToWrite.push_back(std::make_pair("Return-Path", pMessage->GetFromAddress()));
 
@@ -330,7 +330,7 @@ namespace HM
    }    
 
    void 
-   LocalDelivery::SendAutoReplyMessage_(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage)
+   LocalDelivery::SendAutoReplyMessage_(std::shared_ptr<const Account> pAccount, std::shared_ptr<Message> pMessage)
    {
       // Do this before we move the message to the users
       // directory. If we do it afterwards, the user may have (at least theoretically)
@@ -355,10 +355,10 @@ namespace HM
    }      
 
    bool 
-   LocalDelivery::RunAccountRules_(shared_ptr<const Account> pAccount, shared_ptr<Message> pMessage, RuleResult &accountRuleResult)
+   LocalDelivery::RunAccountRules_(std::shared_ptr<const Account> pAccount, std::shared_ptr<Message> pMessage, RuleResult &accountRuleResult)
    {
       // Apply rules on this message.  
-      shared_ptr<RuleApplier> pRuleApplier = shared_ptr<RuleApplier>(new RuleApplier);
+      std::shared_ptr<RuleApplier> pRuleApplier = std::shared_ptr<RuleApplier>(new RuleApplier);
 
       pRuleApplier->ApplyRules(ObjectCache::Instance()->GetAccountRules(pAccount->GetID()), pAccount, pMessage, accountRuleResult);
 

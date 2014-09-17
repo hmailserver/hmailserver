@@ -14,7 +14,7 @@ namespace HM
       ~PreReqNoDuplicateFolders(void);
 
       int GetDatabaseVersion() {return 5200; }
-      bool Ensure(shared_ptr<DALConnection> connection, String &sErrorMessage);
+      bool Ensure(std::shared_ptr<DALConnection> connection, String &sErrorMessage);
 
 
    private:

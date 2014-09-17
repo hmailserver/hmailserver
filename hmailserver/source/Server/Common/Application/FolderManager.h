@@ -15,8 +15,8 @@ namespace HM
       FolderManager(void);
       ~FolderManager(void);
 
-      bool GetInboxMessages(int accountID, vector<shared_ptr<Message> > &result);
-      bool DeleteInboxMessages(int accountID, set<int> uids, const boost::function<void()> &func);
+      bool GetInboxMessages(int accountID, std::vector<std::shared_ptr<Message> > &result);
+      bool DeleteInboxMessages(int accountID, std::set<int> uids, const std::function<void()> &func);
 
       bool UpdateMessageFlags(int accountID, int folderID, __int64 messageID, int flags);
 

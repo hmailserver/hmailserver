@@ -21,14 +21,14 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandDELETE::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandDELETE::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
 
       String sResponse = pArgument->Tag() + " OK Delete completed\r\n";
    
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       
       pParser->Parse(pArgument);
@@ -42,7 +42,7 @@ namespace HM
       if (sFolderName.CompareNoCase(_T("Inbox")) == 0)
          return IMAPResult(IMAPResult::ResultNo, "You cannot delete the inbox.");
          
-      shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultNo, "Folder could not be found.");
 
@@ -62,11 +62,11 @@ namespace HM
    /*
       Removes the folder from the in-memory list.
    */
-   void IMAPCommandDELETE::RemoveFolder_( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection )
+   void IMAPCommandDELETE::RemoveFolder_( std::shared_ptr<IMAPFolder> pFolder, std::shared_ptr<HM::IMAPConnection>  pConnection )
    {
       __int64 parentFolderID = pFolder->GetParentFolderID();
 
-      shared_ptr<IMAPFolders> parentFolderCollection;
+      std::shared_ptr<IMAPFolders> parentFolderCollection;
 
       if (pFolder->IsPublicFolder())
       {

@@ -18,24 +18,24 @@ namespace HM
 	   SMTPDeliverer();
 	   virtual ~SMTPDeliverer();
 
-      static void DeliverMessage(shared_ptr<Message> pMessage);
+      static void DeliverMessage(std::shared_ptr<Message> pMessage);
 
    private:
 
-      static bool PreprocessMessage_(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &ruleResult);
+      static bool PreprocessMessage_(std::shared_ptr<Message> pMessage, String &sendersIP, RuleResult &ruleResult);
 
-      static bool RunVirusProtection_(shared_ptr<Message> pMessage);
-      static bool RunGlobalRules_(shared_ptr<Message> pMessage, RuleResult &ruleResult);
+      static bool RunVirusProtection_(std::shared_ptr<Message> pMessage);
+      static bool RunGlobalRules_(std::shared_ptr<Message> pMessage, RuleResult &ruleResult);
 
-      static void SubmitErrorLog_(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages);
+      static void SubmitErrorLog_(std::shared_ptr<Message> pOrigMessage, std::vector<String> &saErrorMessages);
 
-      static bool HandleInfectedMessage_(shared_ptr<Message> pMessage, const String &virusName);
+      static bool HandleInfectedMessage_(std::shared_ptr<Message> pMessage, const String &virusName);
       
       
 
-      static void LogAwstatsMessageRejected_(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason);
+      static void LogAwstatsMessageRejected_(const String &sSendersIP, std::shared_ptr<Message> pMessage, const String &sReason);
 
-      static shared_ptr<Message> CreateAccountLevelMessage(shared_ptr<Message> pOriginalMessage, shared_ptr<Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress);
+      static std::shared_ptr<Message> CreateAccountLevelMessage(std::shared_ptr<Message> pOriginalMessage, std::shared_ptr<Account> pRecipientAccount, bool reuseMessage, const String &sOriginalAddress);
 
       
    };

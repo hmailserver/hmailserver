@@ -23,7 +23,7 @@ namespace HM
       void Refresh();
 
    protected:
-      virtual String GetCollectionName() const {return "SURBLServers"; }
+      virtual String GetCollectionName() const {return String("SURBLServers"); }
    private:
      
    };

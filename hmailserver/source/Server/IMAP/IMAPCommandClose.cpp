@@ -15,13 +15,13 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandCLOSE::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandCLOSE::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
       
       // Iterate through mail boxes and delete messages marked for deletion.
-      shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
+      std::shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
 
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultBad, "No folder selected.");

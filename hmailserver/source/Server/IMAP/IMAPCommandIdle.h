@@ -10,17 +10,17 @@ namespace HM
    class IMAPCommandIdle : public IMAPCommand
    {
    public:
-	   IMAPCommandIdle(shared_ptr<IMAPConnection> pConnection);
+	   IMAPCommandIdle(std::shared_ptr<IMAPConnection> pConnection);
 	   virtual ~IMAPCommandIdle();
 
-      IMAPResult ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
+      IMAPResult ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
       void Finish(bool sendNotificationToClient);
 
    private:
 
       String tag_;
 
-      weak_ptr<IMAPConnection> connection_;
+      std::weak_ptr<IMAPConnection> connection_;
    };
 
 }

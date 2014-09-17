@@ -36,17 +36,17 @@ namespace HM
    bool 
    SMTPConfiguration::Load()
    {
-      incoming_relays_ = shared_ptr<IncomingRelays>(new IncomingRelays());
+      incoming_relays_ = std::shared_ptr<IncomingRelays>(new IncomingRelays());
       if (!incoming_relays_->Refresh())
          return false;
 
-      routes_ = shared_ptr<Routes> (new Routes());
+      routes_ = std::shared_ptr<Routes> (new Routes());
       routes_->Refresh();
 
       return true;
    }
 
-   shared_ptr<PropertySet>
+   std::shared_ptr<PropertySet>
    SMTPConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
@@ -314,13 +314,13 @@ namespace HM
    }
 
    void 
-   SMTPConfiguration::OnPropertyChanged(shared_ptr<Property> pProperty)
+   SMTPConfiguration::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       String sPropertyName = pProperty->GetName();
 
       if (sPropertyName == PROPERTY_MAXDELIVERYTHREADS)
       {
-         shared_ptr<SMTPDeliveryManager> pDeliveryManager = Application::Instance()->GetSMTPDeliveryManager();
+         std::shared_ptr<SMTPDeliveryManager> pDeliveryManager = Application::Instance()->GetSMTPDeliveryManager();
          if (!pDeliveryManager)
             return;
 

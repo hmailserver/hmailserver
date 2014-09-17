@@ -136,6 +136,10 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+
+         if (!string.IsNullOrEmpty(_settings.SslCipherList))
+            _settings.SslCipherList = string.Empty;
+
          if (_settings.MaxSMTPConnections > 0)
             _settings.MaxSMTPConnections = 0;
          if (_settings.MaxIMAPConnections > 0)
@@ -153,8 +157,7 @@ namespace RegressionTests.Shared
 
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
-
-
+         
          EnableLogging(true);
 
          if (File.Exists(GetErrorLogFileName()))
@@ -406,7 +409,8 @@ namespace RegressionTests.Shared
       {
          Domains domains = application.Domains;
 
-         while (domains.Count > 0)
+         while (domains.Count 
+            > 0)
          {
             Domain domain = domains[0];
             domain.Delete();

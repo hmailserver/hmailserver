@@ -25,9 +25,10 @@ namespace HM
    AnsiString 
    Unicode::ToANSI(const String &sString)
    {
+      size_t i;
       int nLen = (wcslen(sString)+1)<<1;
       char *pAnsiString = new char [nLen];
-      wcstombs(pAnsiString, sString, nLen);
+      wcstombs_s(&i, pAnsiString, nLen, sString, nLen);
       AnsiString retval = pAnsiString;
       delete [] pAnsiString;
 

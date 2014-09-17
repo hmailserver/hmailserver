@@ -25,7 +25,7 @@ public:
 	{
 	}
 
-   void AttachItem(shared_ptr<HM::MimeHeader> pHeader);
+   void AttachItem(std::shared_ptr<HM::MimeHeader> pHeader);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEMESSAGEHEADERS)
 
@@ -56,7 +56,7 @@ public:
 
 private:
 
-   shared_ptr<HM::MimeHeader> header_;
+   std::shared_ptr<HM::MimeHeader> header_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(MessageHeaders), InterfaceMessageHeaders)

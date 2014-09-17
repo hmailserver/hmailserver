@@ -14,14 +14,14 @@ namespace HM
 	   PersistentAlias();
 	   virtual ~PersistentAlias();
 
-      static bool DeleteObject(shared_ptr<Alias> pAlias);
-      static bool SaveObject(shared_ptr<Alias> pAlias);
-      static bool SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode);
+      static bool DeleteObject(std::shared_ptr<Alias> pAlias);
+      static bool SaveObject(std::shared_ptr<Alias> pAlias);
+      static bool SaveObject(std::shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode);
 
-      static bool ReadObject(shared_ptr<Alias> pAlias, shared_ptr<DALRecordset> pRS);
-      static bool ReadObject(shared_ptr<Alias> pAlias, const String & sAddress);
-      static bool ReadObject(shared_ptr<Alias> pAlias, const SQLCommand &command);
-      static bool ReadObject(shared_ptr<Alias> pAlias, __int64 iID);
+      static bool ReadObject(std::shared_ptr<Alias> pAlias, std::shared_ptr<DALRecordset> pRS);
+      static bool ReadObject(std::shared_ptr<Alias> pAlias, const String & sAddress);
+      static bool ReadObject(std::shared_ptr<Alias> pAlias, const SQLCommand &command);
+      static bool ReadObject(std::shared_ptr<Alias> pAlias, __int64 iID);
 
    };
 }

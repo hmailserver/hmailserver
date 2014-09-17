@@ -18,7 +18,7 @@
 namespace HM
 {
 
-   IMAPCommandIdle::IMAPCommandIdle(shared_ptr<IMAPConnection> pConnection) :
+   IMAPCommandIdle::IMAPCommandIdle(std::shared_ptr<IMAPConnection> pConnection) :
       connection_(pConnection)
    {
 
@@ -26,7 +26,7 @@ namespace HM
 
    IMAPCommandIdle::~IMAPCommandIdle()
    {
-      shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
+      std::shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
       if (!safeConnection)
          return;
 
@@ -46,7 +46,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandIdle::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandIdle::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Handles an IMAP idle command from the client. Switches to IDLE mode by
@@ -83,7 +83,7 @@ namespace HM
    // Switches out of IDLE mode.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
+      std::shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
       if (!safeConnection)
          return;
 

@@ -29,7 +29,7 @@ namespace HM
       static String GetExecutableName();
 
       // --- global 
-      shared_ptr<DatabaseConnectionManager> GetDBManager() { return db_manager_; }
+      std::shared_ptr<DatabaseConnectionManager> GetDBManager() { return db_manager_; }
 
       // --- overridables
       virtual bool InitInstance(String &sErrorMessage);
@@ -50,24 +50,24 @@ namespace HM
       void StopServers();
       void SubmitPendingEmail();
 
-      shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return smtp_delivery_manager_;} 
-      shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return external_fetch_manager_;} 
+      std::shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return smtp_delivery_manager_;} 
+      std::shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return external_fetch_manager_;} 
 
-      shared_ptr<BackupManager> GetBackupManager() {return backup_manager_; }
+      std::shared_ptr<BackupManager> GetBackupManager() {return backup_manager_; }
 
-      shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
-      shared_ptr<WorkQueue> GetAsyncWorkQueue();
-      shared_ptr<IOService> GetIOService() {return io_service_; }
+      std::shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
+      std::shared_ptr<WorkQueue> GetAsyncWorkQueue();
+      std::shared_ptr<IOService> GetIOService() {return io_service_; }
       // The random work queue can run any task.
 
-      shared_ptr<NotificationServer> GetNotificationServer();
-      shared_ptr<FolderManager> GetFolderManager();
+      std::shared_ptr<NotificationServer> GetNotificationServer();
+      std::shared_ptr<FolderManager> GetFolderManager();
 
       String Reinitialize();
 
       int GetUniqueID();
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       bool OnDatabaseConnected(String &sErrorMessage);
 
@@ -82,17 +82,17 @@ namespace HM
       
       String last_connect_error_message_;
 
-      shared_ptr<DatabaseConnectionManager> db_manager_;
+      std::shared_ptr<DatabaseConnectionManager> db_manager_;
    
       // the servers
-      shared_ptr<SMTPDeliveryManager> smtp_delivery_manager_;
+      std::shared_ptr<SMTPDeliveryManager> smtp_delivery_manager_;
 
-      shared_ptr<ExternalFetchManager> external_fetch_manager_;
-      shared_ptr<BackupManager> backup_manager_;
-      shared_ptr<Scheduler> scheduler_;
-      shared_ptr<NotificationServer> notification_server_;
-      shared_ptr<IOService> io_service_;
-      shared_ptr<FolderManager> folder_manager_;
+      std::shared_ptr<ExternalFetchManager> external_fetch_manager_;
+      std::shared_ptr<BackupManager> backup_manager_;
+      std::shared_ptr<Scheduler> scheduler_;
+      std::shared_ptr<NotificationServer> notification_server_;
+      std::shared_ptr<IOService> io_service_;
+      std::shared_ptr<FolderManager> folder_manager_;
 
       const String maintenance_queue_;
       // The random work queue can run any type of task.

@@ -23,7 +23,7 @@ namespace HM
 
       void SetMaxSimultaneous(int iMaxSimultaneous);
 
-      void AddTask(shared_ptr<Task> pTask);
+      void AddTask(std::shared_ptr<Task> pTask);
       void Start();
 
       void Stop();
@@ -32,22 +32,22 @@ namespace HM
 
    private:
 
-      void WorkQueue::RemoveRunningTask_(shared_ptr<Task> task);
+      void WorkQueue::RemoveRunningTask_(std::shared_ptr<Task> task);
 
       void IoServiceRunWorker();
-      void ExecuteTask(shared_ptr<Task> pTask);
+      void ExecuteTask(std::shared_ptr<Task> pTask);
 
       boost::asio::io_service io_service_;
       boost::asio::io_service::work work_;
 
-      set<shared_ptr<Task>> runningTasks_;
+      std::set<std::shared_ptr<Task>> runningTasks_;
       boost::recursive_mutex runningTasksMutex_;
 
       unsigned int max_simultaneous_;
 
       String queue_name_;
 
-      set<shared_ptr<boost::thread>> workerThreads_;
+      std::set<std::shared_ptr<boost::thread>> workerThreads_;
    };
 
 }

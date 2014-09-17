@@ -42,7 +42,7 @@ END_COM_MAP()
 
 public:
 
-   void AttachItem(shared_ptr<HM::Result> pResult);
+   void AttachItem(std::shared_ptr<HM::Result> pResult);
 
    STDMETHOD(get_Value)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_Value)(/*[in]*/ long newVal);
@@ -52,7 +52,7 @@ public:
    STDMETHOD(put_Parameter)(/*[in]*/ long newVal);
 
 private:
-   shared_ptr<HM::Result> result_;
+   std::shared_ptr<HM::Result> result_;
 
 };
 

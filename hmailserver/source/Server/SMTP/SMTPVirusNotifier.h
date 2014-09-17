@@ -14,7 +14,7 @@ namespace HM
 	   SMTPVirusNotifier();
 	   virtual ~SMTPVirusNotifier();
 
-      static void CreateMessageDeletedNotification(const shared_ptr<Message> pOriginalMessage, const String &sRecipient);
+      static void CreateMessageDeletedNotification(const std::shared_ptr<Message> pOriginalMessage, const String &sRecipient);
       
    };
 

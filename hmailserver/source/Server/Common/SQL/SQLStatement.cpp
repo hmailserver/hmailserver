@@ -172,7 +172,7 @@ namespace HM
          // First add columns
          sSQL.append(_T("("));
          bool first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL.append(_T(", "));
@@ -185,7 +185,7 @@ namespace HM
 
          // Now append values
          first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL += ", ";
@@ -227,7 +227,7 @@ namespace HM
 
          // First add columns
          bool first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL.append(_T(", "));
@@ -295,7 +295,7 @@ namespace HM
 
             bool first = true;
 
-            boost_foreach(Column c, vecColumns)
+            for(Column c : vecColumns)
             {
                if (!first)
                   sSQL.append(_T(", "));
@@ -317,7 +317,7 @@ namespace HM
       {
          sSQL.append(_T(" WHERE "));
          bool first = true;
-         boost_foreach(Column col, where_clause_columns_)
+         for(Column col : where_clause_columns_)
          {
             if (!first)
                sSQL.append(_T(" AND "));
@@ -402,20 +402,20 @@ namespace HM
    }
 
    String 
-   SQLStatement::GetCreateDatabase(shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName)
+   SQLStatement::GetCreateDatabase(std::shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName)
    {
       HM::DatabaseSettings::SQLDBType DBType = pSettings->GetType();
       String sSQL;
       switch (DBType)
       {
       case DatabaseSettings::TypeMSSQLServer:
-         sSQL.Format(_T("create database %s"), sDatabaseName);
+         sSQL.Format(_T("create database %s"), sDatabaseName.c_str());
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sSQL.Format(_T("create database %s character set 'utf8'"), sDatabaseName);
+         sSQL.Format(_T("create database %s character set 'utf8'"), sDatabaseName.c_str());
          break;
       case DatabaseSettings::TypePGServer:
-         sSQL.Format(_T("create database \"%s\" ENCODING = 'UTF8'"), sDatabaseName);
+         sSQL.Format(_T("create database \"%s\" ENCODING = 'UTF8'"), sDatabaseName.c_str());
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetCreateDatabase()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -467,13 +467,13 @@ namespace HM
             Use SUBSTRING instead of the normal LEFT. LEFT doesn't work
             with MSSQL Compact Edition while SUBSTRING works with both.
          */
-         sRetVal.Format(_T("SUBSTRING(%s, 1, %d)"), sParamName, iLength);
+         sRetVal.Format(_T("SUBSTRING(%s, 1, %d)"), sParamName.c_str(), iLength);
          break;
       case DatabaseSettings::TypePGServer:
-         sRetVal.Format(_T("SUBSTRING(%s FROM 1 FOR %d)"), sParamName, iLength);
+         sRetVal.Format(_T("SUBSTRING(%s FROM 1 FOR %d)"), sParamName.c_str(), iLength);
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sRetVal.Format(_T("LEFT(%s, %d)"), sParamName, iLength);
+         sRetVal.Format(_T("LEFT(%s, %d)"), sParamName.c_str(), iLength);
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetLeftFunction()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -497,13 +497,13 @@ namespace HM
          Use SUBSTRING instead of the normal LEFT. LEFT doesn't work
          with MSSQL Compact Edition while SUBSTRING works with both.
          */
-         sRetVal.Format(_T("SELECT TOP %d FROM %s"), rows, tableName);
+         sRetVal.Format(_T("SELECT TOP %d FROM %s"), rows, tableName.c_str());
          break;
       case DatabaseSettings::TypePGServer:
-         sRetVal.Format(_T("SELECT * FROM %s LIMIT %d"), tableName, rows);
+         sRetVal.Format(_T("SELECT * FROM %s LIMIT %d"), tableName.c_str(), rows);
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sRetVal.Format(_T("SELECT * FROM %s LIMIT 0, %d"), tableName, rows);
+         sRetVal.Format(_T("SELECT * FROM %s LIMIT 0, %d"), tableName.c_str(), rows);
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetTopRows()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -561,7 +561,7 @@ namespace HM
    {
       String queryString = command.GetQueryString();
 
-      boost_foreach(SQLParameter parameter, command.GetParameters())
+      for(SQLParameter parameter : command.GetParameters())
       {
          String paramName = parameter.GetName();
 

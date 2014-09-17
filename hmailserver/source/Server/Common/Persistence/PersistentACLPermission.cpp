@@ -26,7 +26,7 @@ namespace HM
    }
 
    bool
-   PersistentACLPermission::DeleteObject(shared_ptr<ACLPermission> pObject)
+   PersistentACLPermission::DeleteObject(std::shared_ptr<ACLPermission> pObject)
    {
       SQLCommand command("delete from hm_acl where aclid = @ACLID");
       command.AddParameter("@ACLID", pObject->GetID());
@@ -59,7 +59,7 @@ namespace HM
    }
 
    bool 
-   PersistentACLPermission::ReadObject(shared_ptr<ACLPermission> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentACLPermission::ReadObject(std::shared_ptr<ACLPermission> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID(pRS->GetInt64Value("aclid"));
       pObject->SetShareFolderID(pRS->GetInt64Value("aclsharefolderid"));
@@ -74,7 +74,7 @@ namespace HM
    }
 
    bool
-   PersistentACLPermission::Validate(shared_ptr<ACLPermission> pObject)
+   PersistentACLPermission::Validate(std::shared_ptr<ACLPermission> pObject)
    {
       // Do some sanity checking
       switch (pObject->GetPermissionType())
@@ -112,13 +112,13 @@ namespace HM
    }
 
    bool 
-   PersistentACLPermission::SaveObject(shared_ptr<ACLPermission> pObject, String &errorMessage, PersistenceMode mode)
+   PersistentACLPermission::SaveObject(std::shared_ptr<ACLPermission> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentACLPermission::SaveObject(shared_ptr<ACLPermission> pObject)
+   PersistentACLPermission::SaveObject(std::shared_ptr<ACLPermission> pObject)
    {
       if (!Validate(pObject))
          return false;

@@ -15,12 +15,12 @@ namespace HM
 
       virtual void DoWork();
 
-      void SetBackupToRestore(shared_ptr<Backup> pBackup);
+      void SetBackupToRestore(std::shared_ptr<Backup> pBackup);
 
    private:
 
       bool do_backup_;
       
-      shared_ptr<Backup> backup_;
+      std::shared_ptr<Backup> backup_;
    };
 }

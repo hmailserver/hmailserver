@@ -42,11 +42,11 @@
 
 namespace HM
 {
-   POP3ClientConnection::POP3ClientConnection(shared_ptr<FetchAccount> pAccount,
+   POP3ClientConnection::POP3ClientConnection(std::shared_ptr<FetchAccount> pAccount,
                                               ConnectionSecurity connectionSecurity,
                                               boost::asio::io_service& io_service, 
                                               boost::asio::ssl::context& context,
-                                              shared_ptr<Event> disconnected,
+                                              std::shared_ptr<Event> disconnected,
                                               AnsiString remote_hostname) :
       TCPConnection(connectionSecurity, io_service, context, disconnected, remote_hostname),
       account_(pAccount),
@@ -256,7 +256,7 @@ namespace HM
       // Time to send the username.
 
       String sResponse;
-      sResponse.Format(_T("USER %s"), account_->GetUsername());
+      sResponse.Format(_T("USER %s"), account_->GetUsername().c_str());
 
       EnqueueWrite_(sResponse);
 
@@ -322,7 +322,7 @@ namespace HM
          // Time to send the username.
 
          String sResponse;
-         sResponse.Format(_T("PASS %s"), account_->GetPassword());
+         sResponse.Format(_T("PASS %s"), account_->GetPassword().c_str());
 
          current_state_ = StatePasswordSent;
 
@@ -365,8 +365,8 @@ namespace HM
          // We have connected successfully.
          // Time to send the username.
          
-         vector<String> vecLines = StringParser::SplitString(sData, "\r\n");
-         vector<String>::iterator iter = vecLines.begin();
+         std::vector<String> vecLines = StringParser::SplitString(sData, "\r\n");
+         std::vector<String>::iterator iter = vecLines.begin();
 
          if (vecLines.size() < 3)
          {
@@ -430,14 +430,14 @@ namespace HM
 
             // The message has already been downloaded. Give scripts a chance
             // to override the default delete behavior.
-            shared_ptr<Message> messageEmpty;
+            std::shared_ptr<Message> messageEmpty;
             FireOnExternalAccountDownload_(messageEmpty, sCurrentUID);
          }
          else
          {
             // Request message download now.
 
-            current_message_ = shared_ptr<Message> (new Message);
+            current_message_ = std::shared_ptr<Message> (new Message);
 
             int iMessageIdx = (*cur_message_).first;
 
@@ -515,15 +515,15 @@ namespace HM
       // remote POP3 server. This happens if hMailServer
       // has downloaded a message and than the user has
       // deleted it from the POP3 server.
-      shared_ptr<FetchAccountUIDList> uidList = GetUIDList_();
+      std::shared_ptr<FetchAccountUIDList> uidList = GetUIDList_();
 
       // Build a vector with the UID's to keep. All UID's
       // not in this list should be deleted from the database.
 
-      set<String> setUIDs;
+      std::set<String> setUIDs;
 
-      map<int ,String>::iterator iter = uidlresponse_.begin();
-      map<int ,String>::iterator iterEnd = uidlresponse_.end();
+      std::map<int ,String>::iterator iter = uidlresponse_.begin();
+      std::map<int ,String>::iterator iterEnd = uidlresponse_.end();
 
       for (; iter != iterEnd; iter++)
          setUIDs.insert((*iter).second);
@@ -621,7 +621,7 @@ namespace HM
    }
 
    bool 
-   POP3ClientConnection::ParseFirstBinary_(shared_ptr<ByteBuffer> pBuf)
+   POP3ClientConnection::ParseFirstBinary_(std::shared_ptr<ByteBuffer> pBuf)
    {
       // Locate the first line
       const char *pText = pBuf->GetCharBuffer();
@@ -669,7 +669,7 @@ namespace HM
       // we can check where we downloaded it from later on.
 
       String sHeader;
-      sHeader.Format(_T("X-hMailServer-ExternalAccount: %s\r\n"), account_->GetName());
+      sHeader.Format(_T("X-hMailServer-ExternalAccount: %s\r\n"), account_->GetName().c_str());
 
       AnsiString sAnsiHeader = sHeader;
 
@@ -677,7 +677,7 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::ParseData(shared_ptr<ByteBuffer> pBuf)
+   POP3ClientConnection::ParseData(std::shared_ptr<ByteBuffer> pBuf)
    {
       // Append message buffer with the binary data we've received.
       if (!transmission_buffer_)
@@ -691,7 +691,7 @@ namespace HM
          String fileName = PersistentMessage::GetFileName(current_message_);
 
          // Create a binary buffer for this message. 
-         transmission_buffer_ = shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
+         transmission_buffer_ = std::shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
          if (!transmission_buffer_->Initialize(fileName))
          {
             // We have probably failed to create the file...
@@ -716,9 +716,9 @@ namespace HM
       }
 
       // Since this may be a time-consuming task, do it asynchronously
-      shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
-         shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
-         (boost::bind(&POP3ClientConnection::HandlePOP3FinalizationTaskCompleted_, this), shared_from_this()));
+      std::shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
+         std::shared_ptr<AsynchronousTask<TCPConnection> >(new AsynchronousTask<TCPConnection>
+         (std::bind(&POP3ClientConnection::HandlePOP3FinalizationTaskCompleted_, this), shared_from_this()));
 
       Application::Instance()->GetAsyncWorkQueue()->AddTask(finalizationTask);
    }
@@ -795,10 +795,10 @@ namespace HM
       if (SpamProtection::IsWhiteListed(senderAddress, ipAddress))
          return true;
 
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
       
       // Run PreTransmissionTests. These consists of light tests such as DNSBL/SPF checks.
-      set<shared_ptr<SpamTestResult> > setResult = 
+      std::set<std::shared_ptr<SpamTestResult> > setResult = 
            SpamProtection::Instance()->RunPreTransmissionTests(senderAddress, ipAddress, ipAddress, hostName);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
@@ -812,7 +812,7 @@ namespace HM
       }
       else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
       {
-         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
+         std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
          if (messageData)
             messageData->Write(fileName);
       }
@@ -832,7 +832,7 @@ namespace HM
       }
       else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
       {
-         shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
+         std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
 
          if (messageData)
             messageData->Write(fileName);
@@ -849,7 +849,7 @@ namespace HM
       String fileName = PersistentMessage::GetFileName(current_message_);
 
       AnsiString sHeader = PersistentMessage::LoadHeader(fileName);
-      shared_ptr<MimeHeader> pHeader = shared_ptr<MimeHeader>(new MimeHeader);
+      std::shared_ptr<MimeHeader> pHeader = std::shared_ptr<MimeHeader>(new MimeHeader);
       pHeader->Load(sHeader, sHeader.GetLength());
 
       {
@@ -932,7 +932,7 @@ namespace HM
       else if (iDaysToKeep > 0)
       {
          // Check wether we should delete this UID.
-         shared_ptr<FetchAccountUID> pUID = GetUIDList_()->GetUID(sUID);
+         std::shared_ptr<FetchAccountUID> pUID = GetUIDList_()->GetUID(sUID);
 
          // Get the creation date of the UID.
          DateTime dtCreation = pUID->GetCreationDate();
@@ -961,7 +961,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::CreateRecipentList_(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::CreateRecipentList_(std::shared_ptr<MimeHeader> pHeader)
    {
       if (account_->GetProcessMIMERecipients())
       {  
@@ -974,7 +974,7 @@ namespace HM
       // Just fetch the account
       if (receiving_account_address_.IsEmpty())
       {
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(account_->GetAccountID());
+         std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(account_->GetAccountID());
          if (pAccount)
          {
             receiving_account_address_ = pAccount->GetAddress();
@@ -988,7 +988,7 @@ namespace HM
    }
 
    void
-   POP3ClientConnection::ProcessMIMERecipients_(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::ProcessMIMERecipients_(std::shared_ptr<MimeHeader> pHeader)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes through headers in the email and locates recipient. Adds these recipients
@@ -1004,13 +1004,13 @@ namespace HM
 
       // Parse this list.
       AddresslistParser oListParser;
-      std::vector<shared_ptr<Address> > vecAddresses = oListParser.ParseList(sAllRecipients);
-      std::vector<shared_ptr<Address> >::iterator iterAddress = vecAddresses.begin();
+      std::vector<std::shared_ptr<Address> > vecAddresses = oListParser.ParseList(sAllRecipients);
+      std::vector<std::shared_ptr<Address> >::iterator iterAddress = vecAddresses.begin();
 
       RecipientParser recipientParser;
       while (iterAddress != vecAddresses.end())
       {
-         shared_ptr<Address> pAddress = (*iterAddress);
+         std::shared_ptr<Address> pAddress = (*iterAddress);
 
          if (pAddress->sMailboxName.IsEmpty() || pAddress->sDomainName.IsEmpty())
          {
@@ -1035,7 +1035,7 @@ namespace HM
 }
 
    void 
-   POP3ClientConnection::RetrieveReceivedDate_(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::RetrieveReceivedDate_(std::shared_ptr<MimeHeader> pHeader)
    {
       if (!account_->GetProcessMIMEDate())
          return;
@@ -1060,7 +1060,7 @@ namespace HM
    }
 
    void 
-   POP3ClientConnection::ProcessReceivedHeaders_(shared_ptr<MimeHeader> pHeader)
+   POP3ClientConnection::ProcessReceivedHeaders_(std::shared_ptr<MimeHeader> pHeader)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes throguh all the "Received" headers of the email. Tries to parse the
@@ -1068,9 +1068,9 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       AnsiString sHeaderName = "Received";
-      vector<MimeField> &lstFields = pHeader->Fields();
-      vector<MimeField>::iterator iter = lstFields.begin();
-      vector<MimeField>::iterator iterEnd = lstFields.end();
+      std::vector<MimeField> &lstFields = pHeader->Fields();
+      std::vector<MimeField>::iterator iter = lstFields.begin();
+      std::vector<MimeField>::iterator iterEnd = lstFields.end();
 
       RecipientParser recipientParser;
       for (; iter != iterEnd; iter++)
@@ -1142,7 +1142,7 @@ namespace HM
       // Has an event overriden when messages should be deleted?
       if (event_results_.find(sUID) != event_results_.end())
       {
-         shared_ptr<Result> result = event_results_[sUID];
+         std::shared_ptr<Result> result = event_results_[sUID];
 
          switch (result->GetValue())
          {
@@ -1166,20 +1166,20 @@ namespace HM
 
    /// Fires an event which lets the user override the default delete-behavior on the remote server.
    void
-   POP3ClientConnection::FireOnExternalAccountDownload_(shared_ptr<Message> message, const String &uid)
+   POP3ClientConnection::FireOnExternalAccountDownload_(std::shared_ptr<Message> message, const String &uid)
    {
-      shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(account_, message, uid);
+      std::shared_ptr<Result> pResult = Events::FireOnExternalAccountDownload(account_, message, uid);
 
       if (pResult)
          event_results_[uid] = pResult;
    }
 
-   shared_ptr<FetchAccountUIDList>
+   std::shared_ptr<FetchAccountUIDList>
    POP3ClientConnection::GetUIDList_()
    {
       if (!fetch_account_uidlist_)
       {
-         fetch_account_uidlist_ = shared_ptr<FetchAccountUIDList>(new FetchAccountUIDList());
+         fetch_account_uidlist_ = std::shared_ptr<FetchAccountUIDList>(new FetchAccountUIDList());
          fetch_account_uidlist_->Refresh(account_->GetID());
       }
 

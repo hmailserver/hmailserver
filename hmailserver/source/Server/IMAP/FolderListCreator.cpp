@@ -30,10 +30,10 @@ namespace HM
    }
 
    String 
-   FolderListCreator::GetIMAPFolderList(__int64 iAccountID, shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, const String &sPrefix) 
+   FolderListCreator::GetIMAPFolderList(__int64 iAccountID, std::shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, const String &sPrefix) 
    {
-      vector<String> vecCurrentFolder;
-      vector<String> vecMatchingFolders;
+      std::vector<String> vecCurrentFolder;
+      std::vector<String> vecMatchingFolders;
 
       CreateIMAPFolderList_(iAccountID, pStartFolders, sWildcard, false, sPrefix, vecCurrentFolder, vecMatchingFolders);
 
@@ -46,10 +46,10 @@ namespace HM
    }
 
    String 
-   FolderListCreator::GetIMAPLSUBFolderList(__int64 iAccountID, shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, const String &sPrefix) 
+   FolderListCreator::GetIMAPLSUBFolderList(__int64 iAccountID, std::shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, const String &sPrefix) 
    {
-      vector<String> vecCurrentFolder;
-      vector<String> vecMatchingFolders;
+      std::vector<String> vecCurrentFolder;
+      std::vector<String> vecMatchingFolders;
 
       CreateIMAPFolderList_(iAccountID, pStartFolders, sWildcard, true, sPrefix, vecCurrentFolder, vecMatchingFolders);
 
@@ -62,7 +62,7 @@ namespace HM
    }
 
    void
-   FolderListCreator::CreateIMAPFolderList_(__int64 iAccountID, shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, bool bOnlySubscribed, const String &sPrefix, vector<String> &vecCurrentFolder, vector<String> &vecMatchingFolders) 
+   FolderListCreator::CreateIMAPFolderList_(__int64 iAccountID, std::shared_ptr<IMAPFolders> pStartFolders, const String &sWildcard, bool bOnlySubscribed, const String &sPrefix, std::vector<String> &vecCurrentFolder, std::vector<String> &vecMatchingFolders) 
    {
       if (vecCurrentFolder.size() > IMAPFolder::MaxFolderDepth)    
          return;
@@ -72,10 +72,10 @@ namespace HM
       bool publicFolderAccessible = false;
 
 	  ACLManager aclManager;
-      boost_foreach(shared_ptr<IMAPFolder> currentFolder, pStartFolders->GetVector())
+      for(std::shared_ptr<IMAPFolder> currentFolder : pStartFolders->GetVector())
       {
          // Check if the user has access to this folder. Otherwise just skip it.
-         shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(iAccountID, currentFolder);
+         std::shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(iAccountID, currentFolder);
          if (!pPermission || !pPermission->GetAllow(ACLPermission::PermissionLookup))
          {
             continue;
@@ -91,7 +91,7 @@ namespace HM
          if (!sPrefix.IsEmpty())
             sFullPath = sPrefix + hierarchyDelimiter + sFullPath;
 
-         shared_ptr<IMAPFolders> subFolders = currentFolder->GetSubFolders();
+         std::shared_ptr<IMAPFolders> subFolders = currentFolder->GetSubFolders();
          bool hasSubFolders = subFolders->GetCount() > 0;
 
          // Do we match?
@@ -117,7 +117,7 @@ namespace HM
          // we're listing public folders and are on the top level.
          if (FolderWildcardMatch_(publicFolderName, sWildcard, hierarchyDelimiter))
          {
-            shared_ptr<IMAPFolder> pFolderDummy;
+            std::shared_ptr<IMAPFolder> pFolderDummy;
             String sFolderLine = CreateFolderLine_(pFolderDummy, bOnlySubscribed, true, publicFolderName, sWildcard, false, hierarchyDelimiter);
 
             if (!sFolderLine.IsEmpty())
@@ -129,7 +129,7 @@ namespace HM
    }
 
    String 
-   FolderListCreator::CreateFolderLine_(shared_ptr<IMAPFolder> currentFolder, bool bOnlySubscribed, bool hasSubFolders, String &sFullPath, const String &sWildcard, bool isSelectable, String hierarchyDelimiter)
+   FolderListCreator::CreateFolderLine_(std::shared_ptr<IMAPFolder> currentFolder, bool bOnlySubscribed, bool hasSubFolders, String &sFullPath, const String &sWildcard, bool isSelectable, String hierarchyDelimiter)
    {
       String nameAttributes = hasSubFolders ? "\\HasChildren" : "\\HasNoChildren";
 
@@ -154,9 +154,9 @@ namespace HM
       hierarchyDelimiter.Replace(_T("\\"), _T("\\\\"));
 
       if (bOnlySubscribed && (!currentFolder || currentFolder->GetIsSubscribed()))
-         sFolderLine.Format(_T("* LSUB (%s) \"%s\" %s"), nameAttributes, hierarchyDelimiter, sFullPath);
+         sFolderLine.Format(_T("* LSUB (%s) \"%s\" %s"), nameAttributes.c_str(), hierarchyDelimiter.c_str(), sFullPath.c_str());
       else if (!bOnlySubscribed) 
-         sFolderLine.Format(_T("* LIST (%s) \"%s\" %s"), nameAttributes, hierarchyDelimiter, sFullPath);
+         sFolderLine.Format(_T("* LIST (%s) \"%s\" %s"), nameAttributes.c_str(), hierarchyDelimiter.c_str(), sFullPath.c_str());
 
       return sFolderLine;
    }

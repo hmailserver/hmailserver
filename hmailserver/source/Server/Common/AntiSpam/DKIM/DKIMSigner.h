@@ -12,7 +12,7 @@ namespace HM
    public:
       DKIMSigner();
 
-      void Sign(shared_ptr<Message> message);
+      void Sign(std::shared_ptr<Message> message);
    };
 
 }

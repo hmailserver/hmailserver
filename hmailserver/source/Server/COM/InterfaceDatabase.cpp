@@ -85,7 +85,7 @@ STDMETHODIMP InterfaceDatabase::get_IsConnected(VARIANT_BOOL *pVal)
       if (!config_)
          return GetAccessDenied();
 
-      shared_ptr<HM::DatabaseConnectionManager> pDBManager = HM::Application::Instance()->GetDBManager();
+      std::shared_ptr<HM::DatabaseConnectionManager> pDBManager = HM::Application::Instance()->GetDBManager();
       if (pDBManager)
          *pVal = db_manager_->GetIsConnected() ? VARIANT_TRUE : VARIANT_FALSE;
       else
@@ -275,7 +275,7 @@ STDMETHODIMP InterfaceDatabase::CommitTransaction()
       if (!conn_)
          return COMError::GenerateError("No transaction started");
    
-      shared_ptr<HM::DALConnection> pTempConn = conn_;
+      std::shared_ptr<HM::DALConnection> pTempConn = conn_;
       conn_.reset();
    
       HM::String sErrorMessage;
@@ -305,7 +305,7 @@ STDMETHODIMP InterfaceDatabase::RollbackTransaction()
       if (!conn_)
          return COMError::GenerateError("No transaction started");
    
-      shared_ptr<HM::DALConnection> pTempConn = conn_;
+      std::shared_ptr<HM::DALConnection> pTempConn = conn_;
       conn_.reset();
    
       HM::String sErrorMessage;
@@ -444,7 +444,7 @@ STDMETHODIMP InterfaceDatabase::UtilGetFileNameByMessageID(hyper lMessageID, BST
       HM::String sSQL;
       sSQL.Format(_T("select messagefilename from hm_messages where messageid = %d"), lMessageID);
    
-      shared_ptr<HM::DALRecordset> pRS = db_manager_->OpenRecordset(HM::SQLCommand(sSQL));
+      std::shared_ptr<HM::DALRecordset> pRS = db_manager_->OpenRecordset(HM::SQLCommand(sSQL));
       if (!pRS)
          return S_OK;
    
@@ -487,11 +487,11 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
       HM::String sEmpty;
    
       // Create a settings object which we use to connect to the server.
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
          new HM::DatabaseSettings(sEmpty, sDatabaseName, sEmpty, sPassword, sDirectory, sEmpty, HM::DatabaseSettings::TypeMSSQLCompactEdition, 0));
    
       // Connect to the new database
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
       {
@@ -542,11 +542,11 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
          new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database serve   
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       HM::String sErrorMessage;
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
@@ -562,7 +562,7 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       pConn->Disconnect();
    
       // Create a new settings object where we specify the database name as well.
-      pSettings = shared_ptr<HM::DatabaseSettings>(
+      pSettings = std::shared_ptr<HM::DatabaseSettings>(
          new HM::DatabaseSettings(sServerName, sDatabaseName, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Reconnect to the new database.
@@ -609,11 +609,11 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
          new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database server.
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       HM::String sErrorMessage;
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
@@ -651,7 +651,7 @@ InterfaceDatabase::EnsureDatabaseConnectivity_()
    if (!db_manager_->GetIsConnected())
    {
       HM::String sError;
-      sError.Format(_T("The connection to the database is not available.\r\n%s"), HM::Application::Instance()->GetLastErrorMessage());
+      sError.Format(_T("The connection to the database is not available.\r\n%s"), HM::Application::Instance()->GetLastErrorMessage().c_str());
 
       return COMError::GenerateError(sError);
    }

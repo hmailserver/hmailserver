@@ -107,7 +107,7 @@ namespace HM
          {
             // Parsing of the TCP/IP address failed. Report error to debug log.
             String formattedMessage;
-            formattedMessage.Format(_T("Unable to parse TCP/IP address. Address: %s, Error code: %d, Error message: %s"), String(addressString), error.value(), String(error.message()));
+            formattedMessage.Format(_T("Unable to parse TCP/IP address. Address: %s, Error code: %d, Error message: %s"), String(addressString).c_str(), error.value(), String(error.message()).c_str());
             LOG_DEBUG(formattedMessage);
          }
 

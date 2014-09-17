@@ -15,7 +15,7 @@
 
 namespace HM
 {
-   DeliveryTask::DeliveryTask(shared_ptr<Message> pMessage) :
+   DeliveryTask::DeliveryTask(std::shared_ptr<Message> pMessage) :
       Task("DeliveryTask"),
       message_(pMessage)
    {

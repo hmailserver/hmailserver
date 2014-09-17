@@ -51,12 +51,12 @@ namespace HM
       return parent_folder_id_;
    }
 
-   shared_ptr<Messages>
+   std::shared_ptr<Messages>
    IMAPFolder::GetMessages(bool bReloadIfNeeded)
    {
       if (messages_.get() == NULL)
       {
-         messages_ = shared_ptr<Messages>(new Messages(account_id_, dbid_));
+         messages_ = std::shared_ptr<Messages>(new Messages(account_id_, dbid_));
          folder_needs_refresh_ = true;      
       }
 
@@ -69,10 +69,10 @@ namespace HM
       return messages_;
    }
 
-   std::vector<shared_ptr<Message>>
+   std::vector<std::shared_ptr<Message>>
    IMAPFolder::GetMessagesCopy(bool bReloadIfNeeded)
    {
-      shared_ptr<Messages> messages = GetMessages(bReloadIfNeeded);
+      std::shared_ptr<Messages> messages = GetMessages(bReloadIfNeeded);
       
       return messages->GetCopy();
    }
@@ -83,22 +83,22 @@ namespace HM
       folder_needs_refresh_ = true; 
    }
 
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    IMAPFolder::GetSubFolders()
    {
       if (sub_folders_.get() == NULL)
-         sub_folders_ = shared_ptr<IMAPFolders>(new IMAPFolders(account_id_, dbid_));
+         sub_folders_ = std::shared_ptr<IMAPFolders>(new IMAPFolders(account_id_, dbid_));
 
       return sub_folders_;
    }
 
 
-   shared_ptr<ACLPermissions>
+   std::shared_ptr<ACLPermissions>
    IMAPFolder::GetPermissions()
    {
       // Always return a new one. Hopefully we don't have so many public folders
 	  // that this will become a performance issue.
-      shared_ptr<ACLPermissions> pPermissions = shared_ptr<ACLPermissions>(new ACLPermissions(dbid_));
+      std::shared_ptr<ACLPermissions> pPermissions = std::shared_ptr<ACLPermissions>(new ACLPermissions(dbid_));
       
 	  // No point in loading list of permissions for account level folder. 
 	  // (since account level folders never have permissions set)
@@ -153,7 +153,7 @@ namespace HM
    }
 
    std::vector<int> 
-   IMAPFolder::Expunge(const std::set<int> &uids, const boost::function<void()> &func)
+   IMAPFolder::Expunge(const std::set<int> &uids, const std::function<void()> &func)
    {
       return GetMessages()->Expunge(false, uids, func);
    }
@@ -262,15 +262,15 @@ namespace HM
 
       int iDepth = 1;
       
-      shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
-      vector<shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
-      vector<shared_ptr<IMAPFolder> >::iterator iterCurFolder = vecSubFolders.begin();
+      std::shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
+      std::vector<std::shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
+      std::vector<std::shared_ptr<IMAPFolder> >::iterator iterCurFolder = vecSubFolders.begin();
 
       int iSubDepth = 0;
       int iMaxSubDepth = 0;
       while (iterCurFolder != vecSubFolders.end())
       {
-         shared_ptr<IMAPFolder> pFolder = (*iterCurFolder);
+         std::shared_ptr<IMAPFolder> pFolder = (*iterCurFolder);
 
          iSubDepth = pFolder->GetFolderDepth(iRecursion);
 

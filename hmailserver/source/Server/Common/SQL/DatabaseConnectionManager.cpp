@@ -93,12 +93,12 @@ namespace HM
       long lDBPort = pIniFileSettings->GetDatabasePort();
       HM::DatabaseSettings::SQLDBType dbType = IniFileSettings::Instance()->GetDatabaseType();
 
-      shared_ptr<DatabaseSettings> pSettings = shared_ptr<DatabaseSettings> 
+      std::shared_ptr<DatabaseSettings> pSettings = std::shared_ptr<DatabaseSettings> 
          (new DatabaseSettings(sServer, sDatabase, sUsername, sPassword, sDatabaseDirectory, sDatabaseServerFailoverPartner, dbType, lDBPort));
 
       for (int i = 0; i < iNoOfConnections; i++)
       {
-         shared_ptr<DALConnection> pConnection = DALConnectionFactory::CreateConnection(pSettings);
+         std::shared_ptr<DALConnection> pConnection = DALConnectionFactory::CreateConnection(pSettings);
          DALConnection::ConnectionResult result = pConnection->Connect(sErrorMessage);
 
          if (result != DALConnection::Connected)
@@ -108,7 +108,7 @@ namespace HM
       }
 
       // Fetch first connection
-      std::set<shared_ptr<DALConnection> >::iterator iter = available_connections_.begin();
+      std::set<std::shared_ptr<DALConnection> >::iterator iter = available_connections_.begin();
       if (!(*iter)->CheckServerVersion(sErrorMessage))
          return DALConnection::FatalError;
 
@@ -122,14 +122,14 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      //std::set<shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
-      boost_foreach(shared_ptr<DALConnection> pConnection, available_connections_)
+      //std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
+      for(std::shared_ptr<DALConnection> pConnection : available_connections_)
       {
          pConnection->Disconnect();
       }
       available_connections_.clear();
 
-      boost_foreach(shared_ptr<DALConnection> pConnection, busy_connections_)
+      for(std::shared_ptr<DALConnection> pConnection : busy_connections_)
       {
          pConnection->Disconnect();
       }
@@ -146,7 +146,7 @@ namespace HM
    bool 
    DatabaseConnectionManager::Execute(const SQLCommand &command, __int64 *iInsertID, int iIgnoreErrors, String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pDALConn = GetConnection_();
+      std::shared_ptr<DALConnection> pDALConn = GetConnection_();
 
       if (!pDALConn)
       {
@@ -162,18 +162,18 @@ namespace HM
       return bResult;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    DatabaseConnectionManager::OpenRecordset(const SQLStatement &statement)
    {
       return OpenRecordset(statement.GetCommand());
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    DatabaseConnectionManager::OpenRecordset(const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRecordset;
+      std::shared_ptr<DALRecordset> pRecordset;
 
-      shared_ptr<DALConnection> pDALConn = GetConnection_();
+      std::shared_ptr<DALConnection> pDALConn = GetConnection_();
 
       if (!pDALConn)
       {
@@ -194,11 +194,11 @@ namespace HM
    }
 
    void
-   DatabaseConnectionManager::ReleaseConnection_(shared_ptr<DALConnection> pConnection)
+   DatabaseConnectionManager::ReleaseConnection_(std::shared_ptr<DALConnection> pConnection)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<shared_ptr<DALConnection> >::iterator iterConnection = busy_connections_.find(pConnection);
+      std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = busy_connections_.find(pConnection);
       if (iterConnection == busy_connections_.end())
       {
          assert(0);
@@ -215,7 +215,7 @@ namespace HM
    DatabaseConnectionManager::GetCurrentDatabaseVersion()
    {
       SQLCommand command("select * from hm_dbversion");
-      shared_ptr<DALRecordset> pRS = OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = OpenRecordset(command);
       if (!pRS)
          return 0;
 
@@ -224,7 +224,7 @@ namespace HM
       return iRetVal;
    }
 
-   shared_ptr<DALConnection>
+   std::shared_ptr<DALConnection>
    DatabaseConnectionManager::GetConnection_()
    {
       // Loop until we find a free connection
@@ -235,12 +235,12 @@ namespace HM
             boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
             // Locate an available connection
-            std::set<shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
+            std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
 
             if (iterConnection != available_connections_.end())
             {
                // Remove the connection from free and add to busy
-               shared_ptr<DALConnection> pConn = (*iterConnection);
+               std::shared_ptr<DALConnection> pConn = (*iterConnection);
 
                // Remove it from the list of available connections
                available_connections_.erase(iterConnection);
@@ -254,7 +254,7 @@ namespace HM
                   available_connections_.size() == 0)
                {
                   // There's no available connections at all. Nothing to wait for.
-                  shared_ptr<DALConnection> pEmpty;
+                  std::shared_ptr<DALConnection> pEmpty;
                   return pEmpty;
                }
             }
@@ -264,14 +264,14 @@ namespace HM
       }
    }
 
-   shared_ptr<DALConnection> 
+   std::shared_ptr<DALConnection> 
    DatabaseConnectionManager::BeginTransaction(String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pDALConnection = GetConnection_();
+      std::shared_ptr<DALConnection> pDALConnection = GetConnection_();
       if (!pDALConnection->BeginTransaction(sErrorMessage))
       {
          // Could not start database transaction.
-         shared_ptr<DALConnection> pEmpty;
+         std::shared_ptr<DALConnection> pEmpty;
          return pEmpty;
       }
 
@@ -279,7 +279,7 @@ namespace HM
    }
 
    bool
-   DatabaseConnectionManager::CommitTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage)
+   DatabaseConnectionManager::CommitTransaction(std::shared_ptr<DALConnection> pConnection, String &sErrorMessage)
    {
       bool bResult = pConnection->CommitTransaction(sErrorMessage);
       ReleaseConnection_(pConnection);
@@ -288,7 +288,7 @@ namespace HM
    }
 
    bool
-   DatabaseConnectionManager::RollbackTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage)
+   DatabaseConnectionManager::RollbackTransaction(std::shared_ptr<DALConnection> pConnection, String &sErrorMessage)
    {
       bool bResult = pConnection->RollbackTransaction(sErrorMessage);
       ReleaseConnection_(pConnection);
@@ -311,7 +311,7 @@ namespace HM
    bool
    DatabaseConnectionManager::ExecuteScript(const String &sFile, String &sErrorMessage)
    {
-      shared_ptr<DALConnection> pConnection = GetConnection_();
+      std::shared_ptr<DALConnection> pConnection = GetConnection_();
 
       SQLScriptRunner scriptRunner;
       bool result = scriptRunner.ExecuteScript(pConnection, sFile, sErrorMessage);
@@ -326,7 +326,7 @@ namespace HM
    {
       PrerequisiteList prerequisites;
 
-      shared_ptr<DALConnection> pConnection = GetConnection_();
+      std::shared_ptr<DALConnection> pConnection = GetConnection_();
 
       bool result = prerequisites.Ensure(pConnection, DBVersion, sErrorMessage);
 

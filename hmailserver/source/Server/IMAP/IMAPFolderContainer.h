@@ -17,10 +17,10 @@ namespace HM
 
       void SetEnabled(bool bEnabled);
 
-      shared_ptr<HM::IMAPFolders> GetFoldersForAccount(__int64 AccountID);
+      std::shared_ptr<HM::IMAPFolders> GetFoldersForAccount(__int64 AccountID);
       // Returns a list of all folders for the specified account.
 
-      shared_ptr<HM::IMAPFolders> GetPublicFolders();
+      std::shared_ptr<HM::IMAPFolders> GetPublicFolders();
 
       void SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox = 0);
       // Sets the folders dirty flag. Will cause the IMAP server to
@@ -34,10 +34,10 @@ namespace HM
 
       static bool IsPublicFolder(const std::vector<String> &vecFolderPath);
 
-      static shared_ptr<IMAPFolder> GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
+      static std::shared_ptr<IMAPFolder> GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
    private:
 
-      std::map<__int64, shared_ptr<IMAPFolders> > folders_;
+      std::map<__int64, std::shared_ptr<IMAPFolders> > folders_;
       
       static boost::recursive_mutex fetch_list_mutex_;
       

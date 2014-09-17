@@ -24,7 +24,7 @@ namespace HM
    }
 
 
-   /*shared_ptr<DALRecordset>
+   /*std::shared_ptr<DALRecordset>
    DALRecordsetFactory::CreateRecordset()
    {
 

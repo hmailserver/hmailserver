@@ -23,7 +23,7 @@ namespace HM
    }
 
    bool
-   PersistentSURBLServer::DeleteObject(shared_ptr<SURBLServer> pObject)
+   PersistentSURBLServer::DeleteObject(std::shared_ptr<SURBLServer> pObject)
    {
       SQLCommand command("delete from hm_surblservers where surblid = @SURBLID");
       command.AddParameter("@SURBLID", pObject->GetID());
@@ -33,7 +33,7 @@ namespace HM
    }
 
    bool 
-   PersistentSURBLServer::ReadObject(shared_ptr<SURBLServer> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentSURBLServer::ReadObject(std::shared_ptr<SURBLServer> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID (pRS->GetLongValue("surblid"));
       pObject->SetIsActive(pRS->GetLongValue("surblactive") == 1);
@@ -46,14 +46,14 @@ namespace HM
    }
 
    bool 
-   PersistentSURBLServer::SaveObject(shared_ptr<SURBLServer> pObject, String &errorMessage, PersistenceMode mode)
+   PersistentSURBLServer::SaveObject(std::shared_ptr<SURBLServer> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentSURBLServer::SaveObject(shared_ptr<SURBLServer> pObject)
+   PersistentSURBLServer::SaveObject(std::shared_ptr<SURBLServer> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_surblservers");

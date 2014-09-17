@@ -19,7 +19,7 @@ using namespace std;
 
 namespace HM
 {
-   ADOConnection::ADOConnection(shared_ptr<DatabaseSettings> pSettings) :
+   ADOConnection::ADOConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       HRESULT hr =cADOConnection.CreateInstance(__uuidof(Connection));
@@ -391,7 +391,7 @@ namespace HM
    bool 
    ADOConnection::CheckServerVersion(String &errorMessage)
    {
-      shared_ptr<ADOConnection> connection = shared_from_this();
+      std::shared_ptr<ADOConnection> connection = shared_from_this();
 
       ADORecordset recordset;
       if (recordset.TryOpen(connection, SQLCommand("SELECT SERVERPROPERTY('productversion') as ProductVersion"), errorMessage) != DALConnection::DALSuccess)
@@ -399,7 +399,7 @@ namespace HM
 
       String version = recordset.GetStringValue("ProductVersion");
 
-      vector<String> versionVector = StringParser::SplitString(version, ".");
+      std::vector<String> versionVector = StringParser::SplitString(version, ".");
       int majorVersion = _ttoi(versionVector[0]);
       
       if (majorVersion < RequiredVersion)
@@ -411,10 +411,10 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    ADOConnection::CreateRecordset()
    {
-      shared_ptr<ADORecordset> recordset = shared_ptr<ADORecordset>(new ADORecordset());
+      std::shared_ptr<ADORecordset> recordset = std::shared_ptr<ADORecordset>(new ADORecordset());
       return recordset;
    }
 
@@ -424,17 +424,17 @@ namespace HM
       sInput.Replace(_T("'"), _T("''"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    ADOConnection::CreateMacroExpander()
    {
-      shared_ptr<MSSQLMacroExpander> expander = shared_ptr<MSSQLMacroExpander>(new MSSQLMacroExpander());
+      std::shared_ptr<MSSQLMacroExpander> expander = std::shared_ptr<MSSQLMacroExpander>(new MSSQLMacroExpander());
       return expander;
    }
 
    void
    ADOConnection::InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const
    {
-      boost_foreach(const SQLParameter &parameter, sqlCommand.GetParameters())
+      for(const SQLParameter &parameter : sqlCommand.GetParameters())
       {
          String parameterName = parameter.GetName();
 

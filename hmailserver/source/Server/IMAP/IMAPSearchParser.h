@@ -87,10 +87,10 @@ namespace HM
 
       static CriteriaType GetCriteriaTypeByName(const String &sName);
 
-      vector<shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return sub_criterias_;}
+      std::vector<std::shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return sub_criterias_;}
 
-      void SetSequenceSet(vector<String> newVal) {sequence_set_ = newVal;}
-      vector<String> &GetSequenceSet() {return sequence_set_;}
+      void SetSequenceSet(std::vector<String> newVal) {sequence_set_ = newVal;}
+      std::vector<String> &GetSequenceSet() {return sequence_set_;}
 
    private:
 
@@ -103,8 +103,8 @@ namespace HM
       CriteriaType type_;
 
       String header_field_;
-      vector<shared_ptr<IMAPSearchCriteria> > sub_criterias_;
-      vector<String> sequence_set_;
+      std::vector<std::shared_ptr<IMAPSearchCriteria> > sub_criterias_;
+      std::vector<String> sequence_set_;
 
       bool is_or_;
    };
@@ -116,10 +116,10 @@ namespace HM
 	   IMAPSearchParser();
 	   virtual ~IMAPSearchParser();
 
-      IMAPResult ParseCommand(shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort);
+      IMAPResult ParseCommand(std::shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort);
 
-      shared_ptr<IMAPSearchCriteria>  GetCriteria() {return result_criteria_;}
-      shared_ptr<IMAPSortParser> GetSortParser() {return sort_parser_; }
+      std::shared_ptr<IMAPSearchCriteria>  GetCriteria() {return result_criteria_;}
+      std::shared_ptr<IMAPSortParser> GetSortParser() {return sort_parser_; }
 
       String GetCharsetName() 
       {
@@ -132,12 +132,12 @@ namespace HM
       bool NeedsDecoding_(IMAPSearchCriteria::CriteriaType criteriaType);
       String DecodeWordAccordingToCharset_(const String &inputValue);
       
-      IMAPResult ParseSegment_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
+      IMAPResult ParseSegment_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, std::shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
 
-      IMAPResult ParseWord_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
+      IMAPResult ParseWord_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, std::shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
 
-      shared_ptr<IMAPSortParser> sort_parser_;
-      shared_ptr<IMAPSearchCriteria> result_criteria_;
+      std::shared_ptr<IMAPSortParser> sort_parser_;
+      std::shared_ptr<IMAPSearchCriteria> result_criteria_;
 
       String charset_name_;
    };

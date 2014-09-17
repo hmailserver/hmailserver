@@ -281,7 +281,7 @@ namespace HM
       String sIniFile = GetInitializationFile();
 
       String sLog;
-      sLog.Format(_T("Configuration::CheckSettings - %s"), sIniFile);
+      sLog.Format(_T("Configuration::CheckSettings - %s"), sIniFile.c_str());
       LOG_DEBUG(sLog);
 
       switch (GetDatabaseType())
@@ -290,7 +290,7 @@ namespace HM
          {
             if (database_name_.IsEmpty())
             {
-               sErrorMessage.Format(_T("The setting Database in the section Database could not be read from %s"), sIniFile);
+               sErrorMessage.Format(_T("The setting Database in the section Database could not be read from %s"), sIniFile.c_str());
                return false;
             }
             break;
@@ -299,7 +299,7 @@ namespace HM
          {
             if (database_server_.IsEmpty())
             {
-               sErrorMessage.Format(_T("The setting Server in the section Database could not be read from %s"), sIniFile);
+               sErrorMessage.Format(_T("The setting Server in the section Database could not be read from %s"), sIniFile.c_str());
                return false;
             }
             break;

@@ -214,7 +214,7 @@ namespace HM
 
       String sResult;
       sResult.Format(_T("%s, %d %s %d %.02d:%.02d:%.02d %s"),
-                     sDayOfWeek, pTime.wDay, sMonth, pTime.wYear, pTime.wHour, pTime.wMinute, pTime.wSecond, sUTC);
+         sDayOfWeek.c_str(), pTime.wDay, sMonth.c_str(), pTime.wYear, pTime.wHour, pTime.wMinute, pTime.wSecond, sUTC.c_str());
 
       return sResult;
    }
@@ -230,7 +230,7 @@ namespace HM
    //
    //---------------------------------------------------------------------------()   
    {
-      vector<String> vecParts = StringParser::SplitString(sInDate, " ");
+      std::vector<String> vecParts = StringParser::SplitString(sInDate, " ");
 
       if (vecParts.size() < 5)
          return "";
@@ -240,7 +240,7 @@ namespace HM
       String sYear = vecParts[3];
 
       String sResult;
-      sResult.Format(_T("%s-%s-%s"), sDay, sMonth, sYear);
+      sResult.Format(_T("%s-%s-%s"), sDay.c_str(), sMonth.c_str(), sYear.c_str());
 
       return sResult;
    }
@@ -281,7 +281,7 @@ namespace HM
       // The string may contain double spaces. If so, remove these now.
       String sDate = sInDate;
       sDate.Replace(_T("  "), _T(" "));
-      vector<String> vecParts = StringParser::SplitString(sDate, " ");
+      std::vector<String> vecParts = StringParser::SplitString(sDate, " ");
 
       unsigned int iNumberOfParts = vecParts.size();
 
@@ -333,7 +333,7 @@ namespace HM
          return dt;
 
       // Parse out the time components
-      vector<String> vecTime = StringParser::SplitString(sTime, ":");
+      std::vector<String> vecTime = StringParser::SplitString(sTime, ":");
       if (vecTime.size() < 3)
          return dt;
 
@@ -374,7 +374,7 @@ namespace HM
    //
    //---------------------------------------------------------------------------()   
    {
-      vector<String> vecParts = StringParser::SplitString(sInDate, "-");
+      std::vector<String> vecParts = StringParser::SplitString(sInDate, "-");
 
       DateTime dt;
       if (vecParts.size() < 3)
@@ -489,7 +489,7 @@ namespace HM
 
       String sResult;
       sResult.Format(_T("%s-%s-%s %s %s"), 
-                     sDay, sMonth, sYear, sTime, sUTC);
+         sDay.c_str(), sMonth.c_str(), sYear.c_str(), sTime.c_str(), sUTC.c_str());
      
       return sResult;
    }

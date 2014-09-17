@@ -9,7 +9,7 @@
 #include "../COM/InterfaceFetchAccount.h"
 
 void 
-InterfaceFetchAccounts::Attach(shared_ptr<HM::FetchAccounts> pFetchAccounts)
+InterfaceFetchAccounts::Attach(std::shared_ptr<HM::FetchAccounts> pFetchAccounts)
 {
    fetch_accounts_ = pFetchAccounts;
 }
@@ -24,7 +24,7 @@ STDMETHODIMP InterfaceFetchAccounts::get_ItemByDBID(long lDBID, IInterfaceFetchA
       CComObject<InterfaceFetchAccount>* pInterfaceAccount = new CComObject<InterfaceFetchAccount>();
       pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItemByDBID(lDBID);
       if (!pFetchAccount)
          return DISP_E_BADINDEX;
    
@@ -51,7 +51,7 @@ STDMETHODIMP InterfaceFetchAccounts::get_Item(long lIndex, IInterfaceFetchAccoun
       CComObject<InterfaceFetchAccount>* pInterfaceAccount = new CComObject<InterfaceFetchAccount>();
       pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItem(lIndex);
+      std::shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItem(lIndex);
       if (!pFetchAccount)
          return DISP_E_BADINDEX;
    
@@ -149,7 +149,7 @@ STDMETHODIMP InterfaceFetchAccounts::Add(IInterfaceFetchAccount **pVal)
       CComObject<InterfaceFetchAccount>* pIntFA = new CComObject<InterfaceFetchAccount>();
       pIntFA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFA = shared_ptr<HM::FetchAccount>(new HM::FetchAccount);
+      std::shared_ptr<HM::FetchAccount> pFA = std::shared_ptr<HM::FetchAccount>(new HM::FetchAccount);
    
       pFA->SetAccountID(fetch_accounts_->GetAccountID());
    

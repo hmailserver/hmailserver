@@ -10,14 +10,14 @@ namespace HM
    class MirrorMessage
    {
    public:
-      MirrorMessage(shared_ptr<Message> message);
+      MirrorMessage(std::shared_ptr<Message> message);
       ~MirrorMessage(void);
 
       void Send();
 
    private:
 
-      shared_ptr<Message> message_;
+      std::shared_ptr<Message> message_;
 
    };
 }

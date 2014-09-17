@@ -13,11 +13,11 @@ namespace HM
 
       void Parse(const String &sExpression);
 
-      std::vector<pair<bool,String> > GetSortTypes () {return sort_types_; }
+      std::vector<std::pair<bool,String> > GetSortTypes () {return sort_types_; }
    private:
 
       // pair: ascending, criteria
       
-      vector<pair<bool,String> > sort_types_;
+      std::vector<std::pair<bool,String> > sort_types_;
    };
 }

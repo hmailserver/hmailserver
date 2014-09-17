@@ -17,8 +17,8 @@ namespace HM
       MessageData();
 	   virtual ~MessageData();
 
-      bool LoadFromMessage(const String &fileName, shared_ptr<Message> pMessage);
-      bool LoadFromMessage(shared_ptr<const Account> account, shared_ptr<Message> pMessage);
+      bool LoadFromMessage(const String &fileName, std::shared_ptr<Message> pMessage);
+      bool LoadFromMessage(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage);
 
       bool RefreshFromMessage();
 
@@ -70,18 +70,18 @@ namespace HM
 
       int GetSize() const;
 
-      shared_ptr<Attachments> GetAttachments();
+      std::shared_ptr<Attachments> GetAttachments();
 
-      shared_ptr<Message> GetMessage() {return message_; }
+      std::shared_ptr<Message> GetMessage() {return message_; }
    
       bool GetEncodeFields() {return encode_fields_; }
       void SetEncodeFields(bool bNewVal) {encode_fields_ = bNewVal; }
 
       void GenerateMessageID();
 
-      shared_ptr<MimeBody> CreatePart(const String &sContentType);
+      std::shared_ptr<MimeBody> CreatePart(const String &sContentType);
 
-      shared_ptr<MimeBody> GetMimeMessage();
+      std::shared_ptr<MimeBody> GetMimeMessage();
 
 	  void SetAutoReplied();
 	  bool IsAutoSubmitted();
@@ -91,12 +91,12 @@ namespace HM
       bool IsTextType(const String &sContentType);
       bool IsHTMLType(const String &sContentType);
 
-      shared_ptr<MimeBody> FindPart(const String &sType) const;
-      shared_ptr<MimeBody> FindPartNoRecurse(shared_ptr<MimeBody> parent, const AnsiString &sType) const;
+      std::shared_ptr<MimeBody> FindPart(const String &sType) const;
+      std::shared_ptr<MimeBody> FindPartNoRecurse(std::shared_ptr<MimeBody> parent, const AnsiString &sType) const;
 
-      shared_ptr<Message> message_;
-      shared_ptr<MimeBody> mime_mail_;
-      shared_ptr<Attachments> attachments_;
+      std::shared_ptr<Message> message_;
+      std::shared_ptr<MimeBody> mime_mail_;
+      std::shared_ptr<Attachments> attachments_;
 
       String message_file_name_;
 

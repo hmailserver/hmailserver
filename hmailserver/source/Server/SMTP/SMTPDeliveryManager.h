@@ -23,18 +23,18 @@ namespace HM
 
       void UncachePendingMessages();
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
    private:
       
       void SendStatistics_(bool bIgnoreMessageCount = false);
 
       void LoadPendingMessageList_();
-      shared_ptr<Message> GetNextMessage_();
+      std::shared_ptr<Message> GetNextMessage_();
 
       long cur_number_of_sent_;
 
-      shared_ptr<DALRecordset> pending_messages_;
+      std::shared_ptr<DALRecordset> pending_messages_;
       
       const String queue_name_;
 

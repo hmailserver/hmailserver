@@ -22,7 +22,7 @@ namespace HM
    }
 
    void
-   MessageRecipient::CopyFrom(shared_ptr<MessageRecipient> pRecip)
+   MessageRecipient::CopyFrom(std::shared_ptr<MessageRecipient> pRecip)
    {
       address_ = pRecip->GetAddress();
       local_account_id_ = pRecip->GetLocalAccountID();

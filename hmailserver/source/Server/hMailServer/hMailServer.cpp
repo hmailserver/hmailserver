@@ -191,7 +191,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
 
    // Parse the command line.
    HM::String sCommandLine = GetCommandLine();
-   vector<String> vecParams = StringParser::SplitString(sCommandLine, " ");
+   std::vector<String> vecParams = StringParser::SplitString(sCommandLine, " ");
 
    String sLastParam;
    if (!vecParams.empty())
@@ -291,9 +291,12 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       //     for debugging purposes.
       DEBUG_MODE = true;
 
+      ::CoInitialize(NULL);
+      
       // Connect to the database and create configuration objects.
       InitializeApplication();
 
+      
       while(true)
       {
          // This thread just sits here and waits

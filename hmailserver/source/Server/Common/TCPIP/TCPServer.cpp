@@ -30,7 +30,7 @@ using boost::asio::ip::tcp;
 
 namespace HM
 {
-   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate, shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
+   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
       acceptor_(io_service),
       context_(io_service, boost::asio::ssl::context::sslv23),
       ipaddress_(ipaddress),
@@ -64,7 +64,7 @@ namespace HM
 
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to initialize local acceptor. Error: %s. Address: %s, Port: %d."), 
-            msg, String(ipaddress_.ToString()), port_);
+            msg.c_str(), String(ipaddress_.ToString()).c_str(), port_);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4316, "TCPServer::Run()", sErrorMessage);
 
@@ -135,11 +135,11 @@ namespace HM
       if (acceptor_.is_open())
       {
         
-         shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, acceptor_.get_io_service(), context_);
+         std::shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, acceptor_.get_io_service(), context_);
 
          acceptor_.async_accept(pNewConnection->GetSocket(),
-            boost::bind(&TCPServer::HandleAccept, this, pNewConnection,
-            boost::asio::placeholders::error));
+            std::bind(&TCPServer::HandleAccept, this, pNewConnection,
+            std::placeholders::_1));
       }
    }
    
@@ -154,13 +154,13 @@ namespace HM
    }
 
    void 
-   TCPServer::HandleAccept(shared_ptr<TCPConnection> pConnection,
+   TCPServer::HandleAccept(std::shared_ptr<TCPConnection> pConnection,
       const boost::system::error_code& error)
    {
       if (error.value() == 995)
       {
          String sMessage;
-         sMessage.Format(_T("TCP - AcceptEx failed. Error code: %d, Message: %s"), error.value(), String(error.message()));
+         sMessage.Format(_T("TCP - AcceptEx failed. Error code: %d, Message: %s"), error.value(), String(error.message()).c_str());
          LOG_DEBUG(sMessage);
 
          /*
@@ -188,7 +188,7 @@ namespace HM
          String sMessage = Formatter::Format("TCP - {0} connected to {1}:{2}.", remoteAddress.ToString(), localAddress.ToString(), port_);
          LOG_TCPIP(sMessage);
 
-         shared_ptr<SecurityRange> securityRange = PersistentSecurityRange::ReadMatchingIP(remoteAddress);
+         std::shared_ptr<SecurityRange> securityRange = PersistentSecurityRange::ReadMatchingIP(remoteAddress);
 
          if (!securityRange)
          {
@@ -203,7 +203,7 @@ namespace HM
          {
             // Session creation failed. May not be matching IP range, or enough connections have been created.
             String message;
-            message.Format(_T("Client connection from %s was not accepted. Blocked either by IP range or by connection limit."), String(remoteAddress.ToString()));
+            message.Format(_T("Client connection from %s was not accepted. Blocked either by IP range or by connection limit."), String(remoteAddress.ToString()).c_str());
             LOG_DEBUG(message);
 
             // Give option to hold connection for anti-pounding & hopefully minimize DoS
@@ -213,7 +213,7 @@ namespace HM
             if (iBlockedIPHoldSeconds > 0)
             {
                Sleep(iBlockedIPHoldSeconds * 1000);
-               message.Format(_T("Held connection from %s for %i seconds before dropping."), String(remoteAddress.ToString()), iBlockedIPHoldSeconds);
+               message.Format(_T("Held connection from %s for %i seconds before dropping."), String(remoteAddress.ToString()).c_str(), iBlockedIPHoldSeconds);
                LOG_DEBUG(message);
             }
 
@@ -236,7 +236,7 @@ namespace HM
 
          // The outstanding accept-ex failed. This may or may not be an error. Default to being positive.
          String sMessage;
-         sMessage.Format(_T("TCP - AcceptEx failed. Error code: %d, Message: %s"), error.value(), String(error.message()));
+         sMessage.Format(_T("TCP - AcceptEx failed. Error code: %d, Message: %s"), error.value(), String(error.message()).c_str());
          LOG_TCPIP(sMessage);
       }
    }
@@ -248,12 +248,12 @@ namespace HM
       if (!Configuration::Instance()->GetUseScriptServer())
          return true;
 
-      shared_ptr<ClientInfo> pCliInfo = shared_ptr<ClientInfo>(new ClientInfo);
+      std::shared_ptr<ClientInfo> pCliInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
       pCliInfo->SetIPAddress(remoteAddress.ToString());
       pCliInfo->SetPort(port);
 
-      shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-      shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
 
       pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
       pContainer->AddObject("HMAILSERVER_CLIENT", pCliInfo, ScriptObject::OTClient);

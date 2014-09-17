@@ -28,7 +28,7 @@ public:
 	{
 	}
 
-   void AttachItem (shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField);
+   void AttachItem (std::shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEMESSAGEHEADER)
 
@@ -61,7 +61,7 @@ public:
 
 private:
 
-   shared_ptr<HM::MimeHeader> header_;
+   std::shared_ptr<HM::MimeHeader> header_;
    HM::MimeField *object_;
 
 };

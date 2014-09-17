@@ -33,16 +33,16 @@ namespace HM
 	   Configuration();
 	   virtual ~Configuration();
 
-      shared_ptr<POP3Configuration> GetPOP3Configuration() const { return pop3_configuration_; }
-      shared_ptr<SMTPConfiguration> GetSMTPConfiguration() const { return smtp_configuration_; }
-      shared_ptr<IMAPConfiguration> GetIMAPConfiguration() const { return imap_configuration_; }
+      std::shared_ptr<POP3Configuration> GetPOP3Configuration() const { return pop3_configuration_; }
+      std::shared_ptr<SMTPConfiguration> GetSMTPConfiguration() const { return smtp_configuration_; }
+      std::shared_ptr<IMAPConfiguration> GetIMAPConfiguration() const { return imap_configuration_; }
       AntiSpamConfiguration &GetAntiSpamConfiguration() { return anti_spam_configuration_; }
       AntiVirusConfiguration &GetAntiVirusConfiguration() { return anti_virus_configuration_; }
-      shared_ptr<CacheConfiguration> GetCacheConfiguration() const { return cache_configuration_; }
+      std::shared_ptr<CacheConfiguration> GetCacheConfiguration() const { return cache_configuration_; }
 
       bool Load();
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       bool GetUseSMTP() const;
       void SetUseSMTP(bool UseSMTP);
@@ -155,30 +155,30 @@ namespace HM
       String GetSslCipherList() const;
       void SetSslCipherList(String newValue);
 
-      shared_ptr<PropertySet> GetSettings() const;
+      std::shared_ptr<PropertySet> GetSettings() const;
 
-      shared_ptr<ServerMessages> GetServerMessages() {return server_messages_;}
-      shared_ptr<TCPIPPorts> GetTCPIPPorts() const;
-      shared_ptr<BlockedAttachments> GetBlockedAttachments() {return blocked_attachments_;}
-      shared_ptr<SSLCertificates> GetSSLCertificates() {return ssl_certificates_;}
-      shared_ptr<PropertySet> GetPropertySet() {return property_set_;}
+      std::shared_ptr<ServerMessages> GetServerMessages() {return server_messages_;}
+      std::shared_ptr<TCPIPPorts> GetTCPIPPorts() const;
+      std::shared_ptr<BlockedAttachments> GetBlockedAttachments() {return blocked_attachments_;}
+      std::shared_ptr<SSLCertificates> GetSSLCertificates() {return ssl_certificates_;}
+      std::shared_ptr<PropertySet> GetPropertySet() {return property_set_;}
 
    private:
 
-      shared_ptr<POP3Configuration> pop3_configuration_;
-      shared_ptr<SMTPConfiguration> smtp_configuration_;
-      shared_ptr<IMAPConfiguration> imap_configuration_;
+      std::shared_ptr<POP3Configuration> pop3_configuration_;
+      std::shared_ptr<SMTPConfiguration> smtp_configuration_;
+      std::shared_ptr<IMAPConfiguration> imap_configuration_;
       
-      shared_ptr<CacheConfiguration> cache_configuration_;
+      std::shared_ptr<CacheConfiguration> cache_configuration_;
 
       AntiSpamConfiguration anti_spam_configuration_;
       AntiVirusConfiguration anti_virus_configuration_;
 
-      shared_ptr<ServerMessages> server_messages_;
-      shared_ptr<TCPIPPorts> tcpip_ports_;
-      shared_ptr<BlockedAttachments> blocked_attachments_;
-      shared_ptr<SSLCertificates> ssl_certificates_;
+      std::shared_ptr<ServerMessages> server_messages_;
+      std::shared_ptr<TCPIPPorts> tcpip_ports_;
+      std::shared_ptr<BlockedAttachments> blocked_attachments_;
+      std::shared_ptr<SSLCertificates> ssl_certificates_;
 
-      shared_ptr<PropertySet> property_set_;
+      std::shared_ptr<PropertySet> property_set_;
    };
 }

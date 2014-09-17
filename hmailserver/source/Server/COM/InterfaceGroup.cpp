@@ -119,7 +119,7 @@ STDMETHODIMP InterfaceGroup::get_Members(IInterfaceGroupMembers **pVal)
       CComObject<InterfaceGroupMembers>* pItem = new CComObject<InterfaceGroupMembers>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GroupMembers> pGM = object_->GetMembers();
+      std::shared_ptr<HM::GroupMembers> pGM = object_->GetMembers();
    
       if (pGM)
       {

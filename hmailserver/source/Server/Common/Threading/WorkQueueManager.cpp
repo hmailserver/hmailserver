@@ -30,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       // Create the work queue
-      shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, sQueueName));
+      std::shared_ptr<WorkQueue> pWorkQueue = std::shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, sQueueName));
       pWorkQueue->Start();
 
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
@@ -41,7 +41,7 @@ namespace HM
    }
 
    void 
-   WorkQueueManager::AddTask(int iQueueID, shared_ptr<Task> pTask)
+   WorkQueueManager::AddTask(int iQueueID, std::shared_ptr<Task> pTask)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Adds a task to a worker queue.
@@ -50,7 +50,7 @@ namespace HM
       // Add the task to the work queue
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.find(iQueueID);
+      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.find(iQueueID);
 
       if (iterQueue == work_queues_.end())
       {
@@ -59,7 +59,7 @@ namespace HM
          assert(0);  
       }
 
-      shared_ptr<WorkQueue> pWorkQueue = (*iterQueue).second;
+      std::shared_ptr<WorkQueue> pWorkQueue = (*iterQueue).second;
 
       pWorkQueue->AddTask(pTask);
    }
@@ -74,8 +74,8 @@ namespace HM
       LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - {0}", sQueueName));
 
       // Locate the work queue
-      shared_ptr<WorkQueue> pQueue;
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue;
+      std::shared_ptr<WorkQueue> pQueue;
+      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue;
 
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
@@ -106,7 +106,7 @@ namespace HM
 
    }
 
-   shared_ptr<WorkQueue> 
+   std::shared_ptr<WorkQueue> 
    WorkQueueManager::GetQueue(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
@@ -115,32 +115,32 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = GetQueueIterator_(sQueueName);
+      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = GetQueueIterator_(sQueueName);
       if (iterQueue != work_queues_.end())
       {
-         shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
+         std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
             return pQueue;
 
          iterQueue++;
       }
 
-      shared_ptr<WorkQueue> pEmpty;
+      std::shared_ptr<WorkQueue> pEmpty;
       return pEmpty;
          
    }
 
-   std::map<int, shared_ptr<WorkQueue> >::iterator 
+   std::map<int, std::shared_ptr<WorkQueue> >::iterator 
    WorkQueueManager::GetQueueIterator_(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Returns a iterator to a queue with the specified name.
    //---------------------------------------------------------------------------
    {
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.begin();
+      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.begin();
       while (iterQueue != work_queues_.end())
       {
-         shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
+         std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
             return iterQueue;
 

@@ -28,16 +28,16 @@ namespace HM
    
    }
 
-   std::vector<shared_ptr<Message>>
+   std::vector<std::shared_ptr<Message>>
    Messages::GetCopy()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<shared_ptr<Message>> result;
+      std::vector<std::shared_ptr<Message>> result;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
-         shared_ptr<Message> messageCopy = shared_ptr<Message>(new Message(*oMessage.get()));
+         std::shared_ptr<Message> messageCopy = std::shared_ptr<Message>(new Message(*oMessage.get()));
          result.push_back(messageCopy);
       }
 
@@ -52,7 +52,7 @@ namespace HM
 
       long lNoOfSeen = 0;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          if (oMessage->GetFlagSeen()) 
             lNoOfSeen ++;
@@ -68,7 +68,7 @@ namespace HM
 
       long lNoOfRecent = 0;
 
-      boost_foreach(shared_ptr<Message> message, vecObjects)
+      for(std::shared_ptr<Message> message : vecObjects)
       {
          if (message->GetFlagRecent()) 
             lNoOfRecent ++;
@@ -85,7 +85,7 @@ namespace HM
 
       long lSize = 0;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          lSize += oMessage->GetSize();
       }
@@ -98,7 +98,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<Message> message, vecObjects)
+      for(std::shared_ptr<Message> message : vecObjects)
       {
          if (!message->GetFlagSeen())
             return message->GetUID();
@@ -115,7 +115,7 @@ namespace HM
 
       LOG_DEBUG("Messages::Save()");
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          LOG_DEBUG("Messages::Save() - Iteration");
 
@@ -134,19 +134,19 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost::function<void()> func;
+      std::function<void()> func;
       std::set<int> uids;
 
       return Expunge(true, uids, func);
    }
 
    std::vector<int>
-   Messages::Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const boost::function<void()> &func)
+   Messages::Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const std::function<void()> &func)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<int> vecExpungedMessages;
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
 
       long lIndex = 0;
       int expungedCount = 0;
@@ -154,7 +154,7 @@ namespace HM
       {
          lIndex++;
 
-         shared_ptr<Message> pCurMsg = (*iterMessage);
+         std::shared_ptr<Message> pCurMsg = (*iterMessage);
 
          if ((messagesMarkedForDeletion && pCurMsg->GetFlagDeleted()) ||
              uids.find(pCurMsg->GetUID()) != uids.end())
@@ -170,7 +170,7 @@ namespace HM
 
          if (expungedCount > 1000)
          {
-            if (!func.empty())
+            if (func)
                func();
 
             expungedCount = 0;
@@ -185,7 +185,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
       std::vector<int> vecExpungedMessages;
 
       long lIndex = 0;
@@ -193,7 +193,7 @@ namespace HM
       {
          lIndex++;
 
-         shared_ptr<Message> pCurMsg = (*iterMessage);
+         std::shared_ptr<Message> pCurMsg = (*iterMessage);
 
          PersistentMessage::DeleteObject(pCurMsg);
          vecExpungedMessages.push_back(lIndex);
@@ -270,7 +270,7 @@ namespace HM
 
       command.SetQueryString(sSQL);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return;
 
@@ -310,7 +310,7 @@ namespace HM
    }
 
    void
-   Messages::AddToCollection(shared_ptr<DALRecordset> pRS)
+   Messages::AddToCollection(std::shared_ptr<DALRecordset> pRS)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -326,7 +326,7 @@ namespace HM
 
          while (!pRS->IsEOF())
          {
-            shared_ptr<Message> msg = shared_ptr<Message> (new Message(false));
+            std::shared_ptr<Message> msg = std::shared_ptr<Message> (new Message(false));
             PersistentMessage::ReadObject(pRS, msg, false);
                   
             vecObjects.push_back(msg);
@@ -336,13 +336,13 @@ namespace HM
             pRS->MoveNext();
          }
 
-         shared_ptr<Message> pLastMessage = vecObjects[vecObjects.size() -1];
+         std::shared_ptr<Message> pLastMessage = vecObjects[vecObjects.size() -1];
          last_refreshed_uid_ = pLastMessage->GetUID();
       }
    }
 
    void 
-   Messages::AddItem(shared_ptr<Message> pObject)
+   Messages::AddItem(std::shared_ptr<Message> pObject)
    {
       // Rather than adding the message, refresh entire folder
       // content from database.
@@ -358,7 +358,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<Message> pCurMsg, vecObjects)
+      for(std::shared_ptr<Message> pCurMsg : vecObjects)
       {
          if (pCurMsg->GetID() == ID)
          {
@@ -375,14 +375,14 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<Message> message, vecObjects)
+      for(std::shared_ptr<Message> message : vecObjects)
       {
          message->SetFlagRecent(bRecent);
       }
    }
 
    bool
-   Messages::PreSaveObject(shared_ptr<Message> pMessage, XNode *node)
+   Messages::PreSaveObject(std::shared_ptr<Message> pMessage, XNode *node)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -402,7 +402,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
 
       // Locate the message
       while (iterMessage != vecObjects.end() && (*iterMessage)->GetID() != iDBID)
@@ -413,7 +413,7 @@ namespace HM
          vecObjects.erase(iterMessage);
    }
 
-   shared_ptr<Message>
+   std::shared_ptr<Message>
    Messages::GetItemByUID(unsigned int uid)
    {
       unsigned int dummy = 0;
@@ -421,12 +421,12 @@ namespace HM
    }
 
 
-   shared_ptr<Message>
+   std::shared_ptr<Message>
    Messages::GetItemByUID(unsigned int uid, unsigned int &foundIndex)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       foundIndex = 0;
-      boost_foreach(shared_ptr<Message> item, vecObjects)
+      for(std::shared_ptr<Message> item : vecObjects)
       {
          foundIndex++;
 
@@ -434,7 +434,7 @@ namespace HM
             return item;
       }
 
-      shared_ptr<Message> empty;
+      std::shared_ptr<Message> empty;
       return empty;
    }
 

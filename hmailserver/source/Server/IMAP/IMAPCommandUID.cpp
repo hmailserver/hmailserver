@@ -31,7 +31,7 @@ namespace HM
 
 
    IMAPResult
-   IMAPCommandUID::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandUID::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -42,7 +42,7 @@ namespace HM
       if (!pConnection->GetCurrentFolder())
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
       
@@ -56,7 +56,7 @@ namespace HM
          if (pParser->WordCount() < 4)
             return IMAPResult(IMAPResult::ResultBad, "Command requires at least 3 parameters.");
 
-         command_ = shared_ptr<IMAPFetch>(new IMAPFetch());
+         command_ = std::shared_ptr<IMAPFetch>(new IMAPFetch());
       }
       else if (sTypeOfUID.CompareNoCase(_T("COPY")) == 0)
       {
@@ -64,18 +64,18 @@ namespace HM
          if (pParser->WordCount() < 4)
             return IMAPResult(IMAPResult::ResultBad, "Command requires at least 3 parameters.");
 
-         command_ = shared_ptr<IMAPCopy>(new IMAPCopy());
+         command_ = std::shared_ptr<IMAPCopy>(new IMAPCopy());
       }
       else if (sTypeOfUID.CompareNoCase(_T("STORE")) == 0)
       {
          if (pParser->WordCount() < 4)
             return IMAPResult(IMAPResult::ResultBad, "Command requires at least 3 parameters.");
 
-         command_ = shared_ptr<IMAPStore>(new IMAPStore());
+         command_ = std::shared_ptr<IMAPStore>(new IMAPStore());
       }
       else if (sTypeOfUID.CompareNoCase(_T("SEARCH")) == 0)
       {
-         shared_ptr<IMAPCommandSEARCH> pCommand = shared_ptr<IMAPCommandSEARCH> (new IMAPCommandSEARCH(false));
+         std::shared_ptr<IMAPCommandSEARCH> pCommand = std::shared_ptr<IMAPCommandSEARCH> (new IMAPCommandSEARCH(false));
          pCommand->SetIsUID();
          IMAPResult result = pCommand->ExecuteCommand(pConnection, pArgument);
 
@@ -86,7 +86,7 @@ namespace HM
       }
       else if (sTypeOfUID.CompareNoCase(_T("SORT")) == 0)
       {
-         shared_ptr<IMAPCommandSEARCH> pCommand = shared_ptr<IMAPCommandSEARCH> (new IMAPCommandSEARCH(true));
+         std::shared_ptr<IMAPCommandSEARCH> pCommand = std::shared_ptr<IMAPCommandSEARCH> (new IMAPCommandSEARCH(true));
          pCommand->SetIsUID();
          IMAPResult result = pCommand->ExecuteCommand(pConnection, pArgument);
          

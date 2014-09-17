@@ -76,9 +76,9 @@ namespace HM
       String sData;
 
       if (bClient)
-         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
+         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
       else
-         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, CleanLogMessage_(sMessage));
+         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -99,9 +99,9 @@ namespace HM
       String sData;
       // Seems this was never done so now external account activity logs as client
       if (bClient)
-         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
+         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost, CleanLogMessage_(sMessage).c_str());
       else
-         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, CleanLogMessage_(sMessage));
+         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost, CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -120,7 +120,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, CleanLogMessage_(sMessage));
+      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -147,7 +147,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
+      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
 #ifdef _DEBUG
       OutputDebugString(sData);
@@ -170,7 +170,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
+      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -188,7 +188,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
+      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -211,7 +211,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
+      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
       if (enable_live_log_)
          LogLive_(sData);
@@ -226,7 +226,7 @@ namespace HM
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, CleanLogMessage_(sMessage));
+      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
       WriteData_(sData, Events);
    }
@@ -256,37 +256,37 @@ namespace HM
       switch (lt)
       {
       case Normal:
-         sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_, theTime );
+         sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case Error:
-         sFilename.Format(_T("%s\\ERROR_hmailserver_%s.log"), log_dir_, theTime );
+         sFilename.Format(_T("%s\\ERROR_hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case AWStats:
-         sFilename.Format(_T("%s\\hmailserver_awstats.log"), log_dir_ );
+         sFilename.Format(_T("%s\\hmailserver_awstats.log"), log_dir_.c_str());
          break;
       case Backup:
-         sFilename.Format(_T("%s\\hmailserver_backup.log"), log_dir_ );
+         sFilename.Format(_T("%s\\hmailserver_backup.log"), log_dir_.c_str());
          break;
       case Events:
-         sFilename.Format(_T("%s\\hmailserver_events.log"), log_dir_ );
+         sFilename.Format(_T("%s\\hmailserver_events.log"), log_dir_.c_str());
          break;
       case IMAP:
          if (sep_svc_logs_) 
-            sFilename.Format(_T("%s\\hmailserver_IMAP_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_IMAP_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case POP3:
          if (sep_svc_logs_) 
-            sFilename.Format(_T("%s\\hmailserver_POP3_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_POP3_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case SMTP:
          if (sep_svc_logs_) 
-            sFilename.Format(_T("%s\\hmailserver_SMTP_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_SMTP_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       }
 
@@ -527,7 +527,7 @@ namespace HM
       String sTime = GetCurrentTime();
       String sLogMessage;
 
-      sLogMessage.Format(_T("%s\t%s\r\n"), sTime, sData);
+      sLogMessage.Format(_T("%s\t%s\r\n"), sTime.c_str(), sData.c_str());
       WriteData_(sLogMessage, Backup);
    }
 }

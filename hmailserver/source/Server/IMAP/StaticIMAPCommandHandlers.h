@@ -18,7 +18,7 @@ namespace HM
 	   StaticIMAPCommandHandlers();
 	   virtual ~StaticIMAPCommandHandlers();
 
-      static std::map<IMAPConnection::eIMAPCommandType, shared_ptr<IMAPCommand> > &GetStaticHandlers() {return mapCommandHandlers; }
+      static std::map<IMAPConnection::eIMAPCommandType, std::shared_ptr<IMAPCommand> > &GetStaticHandlers() {return mapCommandHandlers; }
 
       static void Init();
       static void DeInit();
@@ -26,18 +26,18 @@ namespace HM
    private:
       
 
-      static std::map<IMAPConnection::eIMAPCommandType, shared_ptr<IMAPCommand> > mapCommandHandlers;
+      static std::map<IMAPConnection::eIMAPCommandType, std::shared_ptr<IMAPCommand> > mapCommandHandlers;
    };
 
    class IMAPCommandUNKNOWN : public IMAPCommand
    {
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
 
    };
 
    class IMAPCommandNOOP : public IMAPCommand
    {
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
    };
 
 

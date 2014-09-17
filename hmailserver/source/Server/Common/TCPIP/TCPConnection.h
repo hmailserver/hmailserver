@@ -17,13 +17,13 @@ namespace HM
    class SecurityRange;
 
    class TCPConnection :
-      public boost::enable_shared_from_this<TCPConnection>
+      public std::enable_shared_from_this<TCPConnection>
    {
    public:
       TCPConnection(ConnectionSecurity connection_security,
                     boost::asio::io_service& io_service,    
                     boost::asio::ssl::context& context,
-                    shared_ptr<Event> disconnected,
+                    std::shared_ptr<Event> disconnected,
                     AnsiString expected_remote_hostname);
       ~TCPConnection(void);
 
@@ -38,7 +38,7 @@ namespace HM
       void SetReceiveBinary(bool binary);
 
       void EnqueueWrite(const AnsiString &sData);
-      void EnqueueWrite(shared_ptr<ByteBuffer> pByteBuffer);
+      void EnqueueWrite(std::shared_ptr<ByteBuffer> pByteBuffer);
       void EnqueueRead();
       void EnqueueRead(const AnsiString &delimitor);
       void EnqueueShutdownSend();
@@ -51,8 +51,8 @@ namespace HM
       void UpdateLogoutTimer();
       void CancelLogoutTimer();
 
-      void SetSecurityRange(shared_ptr<SecurityRange> securityRange);
-      shared_ptr<SecurityRange> GetSecurityRange();
+      void SetSecurityRange(std::shared_ptr<SecurityRange> securityRange);
+      std::shared_ptr<SecurityRange> GetSecurityRange();
 
       boost::asio::ip::tcp::socket& GetSocket() {return socket_;}
 
@@ -83,7 +83,7 @@ namespace HM
 
       /* PARSING METHODS */
       virtual void ParseData(const AnsiString &sAnsiString) = 0;
-      virtual void ParseData(shared_ptr<ByteBuffer> pByteBuffer) = 0;
+      virtual void ParseData(std::shared_ptr<ByteBuffer> pByteBuffer) = 0;
    
    private:
 
@@ -91,7 +91,7 @@ namespace HM
       void HandshakeFailed_(const boost::system::error_code& error);
       void StartAsyncConnect_(const String &ip_adress, int port);
 
-      static void OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err);
+      static void OnTimeout(std::weak_ptr<TCPConnection> connection, boost::system::error_code const& err);
 
       String SafeGetIPAddress();
 
@@ -102,7 +102,7 @@ namespace HM
       void Disconnect();
       void Shutdown(boost::asio::socket_base::shutdown_type);
       
-      void AsyncWrite(shared_ptr<ByteBuffer> buffer);
+      void AsyncWrite(std::shared_ptr<ByteBuffer> buffer);
       void AsyncRead(const AnsiString &delimitor);
       void AsyncHandshake();
 
@@ -131,13 +131,13 @@ namespace HM
       bool has_timeout_;
       String remote_ip_address_;
 
-      shared_ptr<SecurityRange> security_range_;
+      std::shared_ptr<SecurityRange> security_range_;
 
       int session_id_;
       int timeout_;
 
       AnsiString expected_remote_hostname_;
-      shared_ptr<Event> disconnected_;
+      std::shared_ptr<Event> disconnected_;
       bool is_ssl_;
       bool is_client_;
    };

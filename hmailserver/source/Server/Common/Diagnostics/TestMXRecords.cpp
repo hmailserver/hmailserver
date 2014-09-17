@@ -35,7 +35,7 @@ namespace HM
       String result;
 
       String formattedString;
-      formattedString.Format(_T("Trying to resolve MX records for %s...\r\n"), local_domain_name_);
+      formattedString.Format(_T("Trying to resolve MX records for %s...\r\n"), local_domain_name_.c_str());
       result.append(formattedString);
 
       std::vector<String> foundNames;
@@ -43,7 +43,7 @@ namespace HM
       DNSResolver resolver;
       if (!resolver.GetMXRecords(local_domain_name_, foundNames) || foundNames.size() == 0)
       {
-         formattedString.Format(_T("ERROR: MX records for domain %s could not be resolved\r\n"), local_domain_name_);
+         formattedString.Format(_T("ERROR: MX records for domain %s could not be resolved\r\n"), local_domain_name_.c_str());
          result.append(formattedString);
          
          diagResult.SetDetails(result);
@@ -52,9 +52,9 @@ namespace HM
          return diagResult;
       }
 
-      boost_foreach(String foundName, foundNames)
+      for(String foundName : foundNames)
       {
-         formattedString.Format(_T("Host name found: %s\r\n"), foundName);
+         formattedString.Format(_T("Host name found: %s\r\n"), foundName.c_str());
          result.append(formattedString);
       }
 

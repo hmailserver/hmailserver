@@ -70,7 +70,7 @@ namespace HM
    }
 
 
-   const list<SQLParameter> &
+   const std::list<SQLParameter> &
    SQLCommand::GetParameters() const
    {
       return parameters_;

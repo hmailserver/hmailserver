@@ -19,7 +19,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandEXPUNGE::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandEXPUNGE::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -30,7 +30,7 @@ namespace HM
       }
 
       // Iterate through mail boxes and delete messages marked for deletion.
-      shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
+      std::shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
 
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
@@ -55,15 +55,15 @@ namespace HM
       if (!vecExpungedMessages.empty())
       {
          std::vector<__int64> affectedMessages;
-         boost_foreach(__int64 messageIndex, vecExpungedMessages)
+         for(__int64 messageIndex : vecExpungedMessages)
          {
             affectedMessages.push_back(messageIndex);
          }
 
          // Messages have been expunged
          // Notify the mailbox notifier that the mailbox contents have changed.
-         shared_ptr<ChangeNotification> pNotification = 
-            shared_ptr<ChangeNotification>(new ChangeNotification(pCurFolder->GetAccountID(), pCurFolder->GetID(),  ChangeNotification::NotificationMessageDeleted, affectedMessages));
+         std::shared_ptr<ChangeNotification> pNotification = 
+            std::shared_ptr<ChangeNotification>(new ChangeNotification(pCurFolder->GetAccountID(), pCurFolder->GetID(),  ChangeNotification::NotificationMessageDeleted, affectedMessages));
 
          Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
       }

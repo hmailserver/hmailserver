@@ -22,7 +22,7 @@ namespace HM
       bool GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames);
    private:
 
-      bool Resolve_(const String &sSearchFor, vector<String> &vecFoundNames, WORD ResourceType, int iRecursion);
+      bool Resolve_(const String &sSearchFor, std::vector<String> &vecFoundNames, WORD ResourceType, int iRecursion);
       bool IsDNSError_(int iErrorMessage);
 
       bool IsWSAError_(int iErrorMessage);

@@ -34,18 +34,18 @@ namespace HM
 
    }
 
-   shared_ptr<IMAPFolders> 
+   std::shared_ptr<IMAPFolders> 
    IMAPFolderContainer::GetFoldersForAccount(__int64 AccountID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = folders_.find(AccountID);
+      std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolders = folders_.find(AccountID);
       
-      shared_ptr<IMAPFolders> pFolders;
+      std::shared_ptr<IMAPFolders> pFolders;
 
       if (iterFolders == folders_.end())
       {
-         pFolders = shared_ptr<IMAPFolders>(new IMAPFolders(AccountID, -1));
+         pFolders = std::shared_ptr<IMAPFolders>(new IMAPFolders(AccountID, -1));
          pFolders->Refresh();
          folders_[AccountID] = pFolders;
       }
@@ -57,10 +57,10 @@ namespace HM
       return pFolders;
    }
 
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    IMAPFolderContainer::GetPublicFolders()
    {
-      shared_ptr<IMAPFolders> pFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
+      std::shared_ptr<IMAPFolders> pFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
 
       return pFolders;
    }
@@ -70,7 +70,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      shared_ptr<IMAPFolder> pFolder;
+      std::shared_ptr<IMAPFolder> pFolder;
       if (AccountID == 0)
       {
          // Get the public folder.
@@ -78,7 +78,7 @@ namespace HM
       }
       else
       {
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(AccountID); 
+         std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(AccountID); 
 
          if (iterFolder == folders_.end())
             return;
@@ -103,7 +103,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(iAccountID); 
+      std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(iAccountID); 
 
       if (iterFolder != folders_.end())
       {
@@ -138,11 +138,11 @@ namespace HM
          return false;
    }
    
-   shared_ptr<IMAPFolder> 
-   IMAPFolderContainer::GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
+   std::shared_ptr<IMAPFolder> 
+   IMAPFolderContainer::GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
    {
-      vector<String> tempFolderPath = vecFolderPath;
-      shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
+      std::vector<String> tempFolderPath = vecFolderPath;
+      std::shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
 
       while (!pTempFolder && tempFolderPath.size() > 0)
       {
@@ -159,7 +159,7 @@ namespace HM
    {
       if (accountID == 0)
       {
-         shared_ptr<IMAPFolder> folder = GetPublicFolders()->GetItemByDBIDRecursive(folderID);
+         std::shared_ptr<IMAPFolder> folder = GetPublicFolders()->GetItemByDBIDRecursive(folderID);
          if (!folder)
          {
             assert(0);
@@ -173,12 +173,12 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = folders_.find(accountID);
+         std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iter = folders_.find(accountID);
 
          if (iter == folders_.end())
             return;
 
-         shared_ptr<IMAPFolder> folder = (*iter).second->GetItemByDBIDRecursive(folderID);
+         std::shared_ptr<IMAPFolder> folder = (*iter).second->GetItemByDBIDRecursive(folderID);
          if (!folder)
          {
             assert(0);

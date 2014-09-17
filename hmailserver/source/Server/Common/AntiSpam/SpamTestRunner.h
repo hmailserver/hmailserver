@@ -19,11 +19,11 @@ namespace HM
 
       void LoadSpamTests();
 
-      set<shared_ptr<SpamTestResult> > RunSpamTest(shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore);
+      std::set<std::shared_ptr<SpamTestResult> > RunSpamTest(std::shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore);
 
    private:
 
-      std::vector<shared_ptr<SpamTest> > spam_tests_;
+      std::vector<std::shared_ptr<SpamTest> > spam_tests_;
 
    };
 

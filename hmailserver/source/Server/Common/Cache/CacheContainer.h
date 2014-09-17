@@ -25,19 +25,19 @@ namespace HM
       void CreateCaches();
       void DeleteCaches();
 
-      shared_ptr<const Account> GetAccount(const String &sName);
-      shared_ptr<const Account> GetAccount(__int64 iID);
+      std::shared_ptr<const Account> GetAccount(const String &sName);
+      std::shared_ptr<const Account> GetAccount(__int64 iID);
 
-      shared_ptr<const Domain> GetDomain(const String &sName);
-      shared_ptr<const Domain> GetDomain(__int64 iID);
+      std::shared_ptr<const Domain> GetDomain(const String &sName);
+      std::shared_ptr<const Domain> GetDomain(__int64 iID);
 
-      shared_ptr<const Alias> GetAlias(const String &sName);
-      shared_ptr<const Alias> GetAlias(__int64 iID);
+      std::shared_ptr<const Alias> GetAlias(const String &sName);
+      std::shared_ptr<const Alias> GetAlias(__int64 iID);
 
-      shared_ptr<const DistributionList> GetDistributionList(const String &sName);
-      shared_ptr<const DistributionList> GetDistributionList(__int64 iID);
+      std::shared_ptr<const DistributionList> GetDistributionList(const String &sName);
+      std::shared_ptr<const DistributionList> GetDistributionList(__int64 iID);
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       InboxIDCache &GetInboxIDCache();
 

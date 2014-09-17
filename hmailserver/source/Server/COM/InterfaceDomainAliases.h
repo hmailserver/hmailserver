@@ -45,7 +45,7 @@ END_COM_MAP()
 	{
 	}
 
-   void Attach(shared_ptr<HM::DomainAliases> pDomainAliases);
+   void Attach(std::shared_ptr<HM::DomainAliases> pDomainAliases);
 
 public:
 
@@ -61,7 +61,7 @@ public:
 
 private:
 
-   shared_ptr<HM::DomainAliases> domain_aliases_;
+   std::shared_ptr<HM::DomainAliases> domain_aliases_;
 
 };
 

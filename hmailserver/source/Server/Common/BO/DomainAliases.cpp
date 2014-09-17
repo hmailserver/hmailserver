@@ -47,16 +47,16 @@ namespace HM
       const String sMailbox = StringParser::ExtractAddress(sAddress);
 
       // Iterate over the domains to find a match.
-      vector<shared_ptr<DomainAlias> >::iterator iterAccount = vecObjects.begin();
+      std::vector<std::shared_ptr<DomainAlias> >::iterator iterAccount = vecObjects.begin();
       
-      boost_foreach(shared_ptr<DomainAlias> pFA, vecObjects)
+      for(std::shared_ptr<DomainAlias> pFA : vecObjects)
       {
          if (pFA->GetAlias().CompareNoCase(sDomainName) == 0)
          {
             // We found the domain ID
             __int64 iDomainID = pFA->GetDomainID();
          
-            shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
+            std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
             
             if (!pDomain)
                return sAddress;
@@ -71,7 +71,7 @@ namespace HM
    }
 
    bool
-   DomainAliases::PreSaveObject(shared_ptr<DomainAlias> pDA, XNode *node)
+   DomainAliases::PreSaveObject(std::shared_ptr<DomainAlias> pDA, XNode *node)
    {
       pDA->SetDomainID(domain_id_);
       return true;

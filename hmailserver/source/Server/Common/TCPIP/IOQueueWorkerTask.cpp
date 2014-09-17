@@ -36,7 +36,7 @@ namespace HM
 
             continueProcess = false;
          }
-         catch (thread_interrupted const&)
+         catch (const boost::thread_interrupted&)
          {
             
             return;
@@ -44,7 +44,7 @@ namespace HM
          catch (boost::system::system_error error)
          {
             String sErrorMessage;
-            sErrorMessage.Format(_T("An error occured while handling asynchronous requests. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
+            sErrorMessage.Format(_T("An error occured while handling asynchronous requests. Error number: %d, Description: %s"), error.code().value(), String(error.what()).c_str());
             
             ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "IOCPQueueWorkerTask::DoWork", sErrorMessage);
          }

@@ -39,12 +39,12 @@ namespace HM
 
    }
 
-   shared_ptr<FetchAccountUIDs>
+   std::shared_ptr<FetchAccountUIDs>
    FetchAccount::GetUIDs()
    {
       if (!uids_)
       {
-         uids_ = shared_ptr<FetchAccountUIDs> (new FetchAccountUIDs);
+         uids_ = std::shared_ptr<FetchAccountUIDs> (new FetchAccountUIDs);
          uids_->Refresh(id_);
       }
 

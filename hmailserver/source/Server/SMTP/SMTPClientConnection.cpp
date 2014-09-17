@@ -24,7 +24,7 @@ namespace HM
    SMTPClientConnection::SMTPClientConnection(ConnectionSecurity connection_security,
       boost::asio::io_service& io_service, 
       boost::asio::ssl::context& context,
-      shared_ptr<Event> disconnected,
+      std::shared_ptr<Event> disconnected,
       AnsiString expected_remote_hostname) :
       TCPConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
       current_state_(HELO),
@@ -86,7 +86,7 @@ namespace HM
    {
       if (GetConnectionSecurity() == CSSTARTTLSOptional)
       {
-         boost_foreach(shared_ptr<MessageRecipient> recipient, recipients_)
+         for(std::shared_ptr<MessageRecipient> recipient : recipients_)
             recipient->SetDeliveryResult(MessageRecipient::ResultOptionalHandshakeFailed);
       }
    }
@@ -98,7 +98,7 @@ namespace HM
    }
 
    int
-   SMTPClientConnection::SetDelivery(shared_ptr<Message> pDelMsg, std::vector<shared_ptr<MessageRecipient> > &vecRecipients)
+   SMTPClientConnection::SetDelivery(std::shared_ptr<Message> pDelMsg, std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients)
    {
       delivery_message_ = pDelMsg;
       recipients_ = vecRecipients;
@@ -247,7 +247,7 @@ namespace HM
    void
    SMTPClientConnection::ProtocolMailFromSent_()
    {
-      shared_ptr<MessageRecipient> pRecipient = GetNextRecipient_();
+      std::shared_ptr<MessageRecipient> pRecipient = GetNextRecipient_();
       if (!pRecipient) 
       {
          SendQUIT_();
@@ -275,7 +275,7 @@ namespace HM
          }
       }
 
-      shared_ptr<MessageRecipient> pRecipient = GetNextRecipient_();
+      std::shared_ptr<MessageRecipient> pRecipient = GetNextRecipient_();
       if (pRecipient)
       {
          // Send next recipient.
@@ -375,7 +375,7 @@ namespace HM
    void
    SMTPClientConnection::UpdateSuccessfulRecipients_()
    {
-      boost_foreach(shared_ptr<MessageRecipient> actualRecipient, actual_recipients_)
+      for(std::shared_ptr<MessageRecipient> actualRecipient : actual_recipients_)
          actualRecipient->SetDeliveryResult(MessageRecipient::ResultOK);
 
    }
@@ -470,7 +470,7 @@ namespace HM
    void 
    SMTPClientConnection::UpdateAllRecipientsWithError_(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError)
    {
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
       while (iterRecipient != recipients_.end())
       {
          UpdateRecipientWithError_(iErrorCode, sResponse, (*iterRecipient), bPreConnectError);
@@ -480,7 +480,7 @@ namespace HM
    }
 
    void 
-   SMTPClientConnection::UpdateRecipientWithError_(int iErrorCode, const AnsiString &sResponse, shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError)
+   SMTPClientConnection::UpdateRecipientWithError_(int iErrorCode, const AnsiString &sResponse, std::shared_ptr<MessageRecipient> pRecipient, bool bPreConnectError)
    {
       if (pRecipient->GetDeliveryResult() == MessageRecipient::ResultFatalError)
       {
@@ -519,7 +519,7 @@ namespace HM
          sData.Format(_T("   Error Type: SMTP\r\n")
             _T("   Connection to recipients server failed.\r\n")
             _T("   Error: %s\r\n"),
-            String(sResponse));
+            String(sResponse).c_str());
       }
       else
       {
@@ -527,7 +527,7 @@ namespace HM
             _T("   Remote server (%s) issued an error.\r\n")
             _T("   hMailServer sent: %s\r\n")
             _T("   Remote server replied: %s\r\n"),
-            String(GetIPAddressString()), String(last_sent_data_), String(sResponse));
+            String(GetIPAddressString()).c_str(), String(last_sent_data_).c_str(), String(sResponse).c_str());
 
       }
       pRecipient->SetErrorMessage(sData);
@@ -577,7 +577,7 @@ namespace HM
       SetState_(QUITSENT);
    }
 
-   shared_ptr<MessageRecipient> 
+   std::shared_ptr<MessageRecipient> 
    SMTPClientConnection::GetNextRecipient_()
    {
       while (1)
@@ -590,7 +590,7 @@ namespace HM
          }
          else
          {
-            shared_ptr<MessageRecipient> pEmpty;
+            std::shared_ptr<MessageRecipient> pEmpty;
             return pEmpty;
          }
       }
@@ -602,7 +602,7 @@ namespace HM
       if (!current_file_.Open(sFilename, File::OTReadOnly))
       {
          String sErrorMsg;
-         sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename);
+         sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5019, "SMTPClientConnection::_SendFileContents", sErrorMsg);
 
@@ -611,7 +611,7 @@ namespace HM
 
       transmission_buffer_.Initialize(shared_from_this());
 
-      shared_ptr<ByteBuffer> pBuf = current_file_.ReadChunk(GetBufferSize());
+      std::shared_ptr<ByteBuffer> pBuf = current_file_.ReadChunk(GetBufferSize());
 
       if (!pBuf)
          return;
@@ -630,7 +630,7 @@ namespace HM
    {
       // Continue sending the file..
       int bufferSize = GetBufferSize();
-      shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
+      std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
       while (pBuffer)
       {

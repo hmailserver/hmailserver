@@ -6,7 +6,7 @@
 #include "../SMTP/DeliveryQueue.h"
 #include "COMError.h"
 void
-InterfaceDeliveryQueue::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceDeliveryQueue::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    authentication_ = pAuthentication;
 }

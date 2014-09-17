@@ -7,7 +7,7 @@
 
 
 void 
-InterfaceRecipient::AttachItem(shared_ptr<HM::MessageRecipient> pRecipient)
+InterfaceRecipient::AttachItem(std::shared_ptr<HM::MessageRecipient> pRecipient)
 {
    object_ = pRecipient;
 }

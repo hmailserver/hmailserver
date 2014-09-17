@@ -180,7 +180,7 @@ public:
    }
 
    protected:
-      shared_ptr<HM::ScriptObjectContainer> object_container_;
+      std::shared_ptr<HM::ScriptObjectContainer> object_container_;
 
       HM::String last_error_message_;
 };
@@ -313,14 +313,14 @@ public:
       
    }
 
-   STDMETHOD(SetObjectContainer)(shared_ptr<HM::ScriptObjectContainer> pObject)
+   STDMETHOD(SetObjectContainer)(std::shared_ptr<HM::ScriptObjectContainer> pObject)
    {
       object_container_ = pObject;
 
       // Add the objects to namespace
-      vector<HM::String> vecNames = object_container_->GetObjectNames();
+      std::vector<HM::String> vecNames = object_container_->GetObjectNames();
       
-      boost_foreach(HM::String name, vecNames)
+      for(HM::String name : vecNames)
       {
          AddObject(name, TRUE);
       }

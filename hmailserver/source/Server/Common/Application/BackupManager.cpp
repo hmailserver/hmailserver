@@ -51,9 +51,9 @@ namespace HM
 
       is_running_ = true;
 
-      shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(true));
+      std::shared_ptr<BackupTask> pBackupTask = std::shared_ptr<BackupTask>(new BackupTask(true));
 
-      shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetMaintenanceWorkQueue();
+      std::shared_ptr<WorkQueue> pWorkQueue = Application::Instance()->GetMaintenanceWorkQueue();
       if (!pWorkQueue)
       {
          is_running_ = false;
@@ -72,7 +72,7 @@ namespace HM
 
 
    bool
-   BackupManager::StartRestore(shared_ptr<Backup> pBackup)
+   BackupManager::StartRestore(std::shared_ptr<Backup> pBackup)
    {
       Logger::Instance()->LogBackup("Restore started");
       LOG_DEBUG("BackupManager::StartRestore()");
@@ -88,7 +88,7 @@ namespace HM
 
       is_running_ = true;
 
-      shared_ptr<BackupTask> pBackupTask = shared_ptr<BackupTask>(new BackupTask(false));
+      std::shared_ptr<BackupTask> pBackupTask = std::shared_ptr<BackupTask>(new BackupTask(false));
       pBackupTask->SetBackupToRestore(pBackup);
       
       Application::Instance()->GetMaintenanceWorkQueue()->AddTask(pBackupTask);
@@ -97,12 +97,12 @@ namespace HM
       return true;
    }
 
-   shared_ptr<Backup>
+   std::shared_ptr<Backup>
    BackupManager::LoadBackup(const String &sZipFile) const
    {
       LOG_DEBUG("BackupManager::LoadBackup");
 
-      shared_ptr<Backup> pResult = shared_ptr<Backup>(new Backup);
+      std::shared_ptr<Backup> pResult = std::shared_ptr<Backup>(new Backup);
 
       // First uncompress our specification file.
       String sTempDir = IniFileSettings::Instance()->GetTempDirectory();
@@ -164,8 +164,8 @@ namespace HM
 
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
          String sEventCaller = "OnBackupCompleted()";
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnBackupCompleted, sEventCaller, pContainer);
@@ -184,8 +184,8 @@ namespace HM
 
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
          String sEventCaller = "OnBackupFailed(\"" + sReason + "\")";
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnBackupFailed, sEventCaller, pContainer);

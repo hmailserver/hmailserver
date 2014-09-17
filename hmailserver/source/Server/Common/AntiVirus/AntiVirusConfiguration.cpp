@@ -21,7 +21,7 @@ namespace HM
    
    }
 
-   shared_ptr<PropertySet> 
+   std::shared_ptr<PropertySet> 
    AntiVirusConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();

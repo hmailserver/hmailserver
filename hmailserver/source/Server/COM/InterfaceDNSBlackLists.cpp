@@ -70,7 +70,7 @@ InterfaceDNSBlackLists::get_Item(long Index, IInterfaceDNSBlackList **pVal)
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
       pInterfaceDNSBlackList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItem(Index);
+      std::shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItem(Index);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
@@ -115,7 +115,7 @@ InterfaceDNSBlackLists::get_ItemByDBID(long lDBID, IInterfaceDNSBlackList **pVal
 
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
       pInterfaceDNSBlackList->SetAuthentication(authentication_);
-      shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItemByDBID(lDBID);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
@@ -147,7 +147,7 @@ InterfaceDNSBlackLists::Add(IInterfaceDNSBlackList **pVal)
    
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
       pInterfaceDNSBlackList->SetAuthentication(authentication_);
-      shared_ptr<HM::DNSBlackList> pDNSBL = shared_ptr<HM::DNSBlackList>(new HM::DNSBlackList);
+      std::shared_ptr<HM::DNSBlackList> pDNSBL = std::shared_ptr<HM::DNSBlackList>(new HM::DNSBlackList);
    
       pInterfaceDNSBlackList->AttachItem(pDNSBL);
       pInterfaceDNSBlackList->AttachParent(black_lists_, false);
@@ -175,7 +175,7 @@ InterfaceDNSBlackLists::get_ItemByDNSHost(BSTR ItemName, IInterfaceDNSBlackList 
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
       pInterfaceDNSBlackList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DNSBlackList> pDNSBL = black_lists_->GetItemByName(ItemName);
+      std::shared_ptr<HM::DNSBlackList> pDNSBL = black_lists_->GetItemByName(ItemName);
       if (!pDNSBL)
          return S_FALSE;
    

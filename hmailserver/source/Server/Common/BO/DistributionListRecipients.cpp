@@ -34,7 +34,7 @@ namespace HM
    }
 
    bool
-   DistributionListRecipients::PreSaveObject(shared_ptr<DistributionListRecipient> pListRecipient, XNode *node)
+   DistributionListRecipients::PreSaveObject(std::shared_ptr<DistributionListRecipient> pListRecipient, XNode *node)
    {
       pListRecipient->SetListID(list_id_);
 

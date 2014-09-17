@@ -35,7 +35,7 @@ namespace HM
 
       // Fires an event (if the script engine has been turned
       // on in hMailAdmin. 
-      void FireEvent(Event e, const String &sEventCaller, shared_ptr<ScriptObjectContainer> pObjects);
+      void FireEvent(Event e, const String &sEventCaller, std::shared_ptr<ScriptObjectContainer> pObjects);
 
       // Checks the syntax of the scripts in the
       // event directory and return the result.

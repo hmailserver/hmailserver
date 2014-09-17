@@ -81,10 +81,10 @@ namespace HM
       if (sSSLCertificateName.IsEmpty())
          return 0;
 
-      shared_ptr<SSLCertificates> pSSLCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
+      std::shared_ptr<SSLCertificates> pSSLCertificates = std::shared_ptr<SSLCertificates>(new SSLCertificates);
       pSSLCertificates->Refresh();
 
-      shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByName(sSSLCertificateName);
+      std::shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByName(sSSLCertificateName);
       if (pCertificate)
          return (int) pCertificate->GetID();
       else
@@ -95,10 +95,10 @@ namespace HM
    String 
    TCPIPPort::GetSSLCertificateName_(__int64 iCertificateID)
    {
-      shared_ptr<SSLCertificates> pSSLCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
+      std::shared_ptr<SSLCertificates> pSSLCertificates = std::shared_ptr<SSLCertificates>(new SSLCertificates);
       pSSLCertificates->Refresh();
 
-      shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByDBID(iCertificateID);
+      std::shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByDBID(iCertificateID);
       if (pCertificate)
          return pCertificate->GetName();
       else

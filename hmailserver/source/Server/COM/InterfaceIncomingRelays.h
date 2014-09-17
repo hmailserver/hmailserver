@@ -51,11 +51,11 @@ END_COM_MAP()
    STDMETHOD(Refresh)();
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceIncomingRelay** pVal);
 
-   void Attach(shared_ptr<HM::IncomingRelays> pRanges);
+   void Attach(std::shared_ptr<HM::IncomingRelays> pRanges);
 private:
 
 
-   shared_ptr<HM::IncomingRelays> incoming_relays_;
+   std::shared_ptr<HM::IncomingRelays> incoming_relays_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(IncomingRelays), InterfaceIncomingRelays)

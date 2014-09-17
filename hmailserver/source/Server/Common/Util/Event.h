@@ -14,7 +14,7 @@ namespace HM
    
       void Wait();
 
-      bool WaitFor(chrono::milliseconds milliseconds);
+      bool WaitFor(boost::chrono::milliseconds milliseconds);
 
       void Set();
 

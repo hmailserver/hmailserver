@@ -16,14 +16,14 @@ namespace HM
       ~PersistentDistributionListRecipient(void);
 
       static bool DeleteByListID(__int64 iListID);
-      static bool DeleteObject(shared_ptr<DistributionListRecipient> pRecipient);
+      static bool DeleteObject(std::shared_ptr<DistributionListRecipient> pRecipient);
       
-      static bool SaveObject(shared_ptr<DistributionListRecipient> pRecipient);
-      static bool SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient);
+      static bool SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode);
 
-      static bool ReadObject(shared_ptr<DistributionListRecipient> pRecipient, long ObjectID);
-      static bool ReadObject(shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command);
-      static bool ReadObject(shared_ptr<DistributionListRecipient> pRecipient, shared_ptr<DALRecordset> pRS);
+      static bool ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, long ObjectID);
+      static bool ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command);
+      static bool ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

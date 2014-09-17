@@ -71,7 +71,7 @@ public:
 
 private:
    HRESULT EnsureDatabaseConnectivity_();
-   shared_ptr<HM::COMAuthentication> authentication_;
+   std::shared_ptr<HM::COMAuthentication> authentication_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Application), InterfaceApplication)

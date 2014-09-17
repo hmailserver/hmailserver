@@ -45,7 +45,7 @@ namespace HM
 
          // First stop the delivery queue.
          const String& sQueueName = Application::Instance()->GetSMTPDeliveryManager()->GetQueueName();
-         shared_ptr<WorkQueue> pWQ = WorkQueueManager::Instance()->GetQueue(sQueueName);
+         std::shared_ptr<WorkQueue> pWQ = WorkQueueManager::Instance()->GetQueue(sQueueName);
          if (!pWQ)
          {
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4210, "DeliveryQueueClearer::DoWork", "Could not fetch SMTP delivery queue.");
@@ -60,8 +60,8 @@ namespace HM
          oMessages.Refresh();
 
          // Iterate over messages to deliver.
-         std::vector<shared_ptr<Message> > vecMessages = oMessages.GetVector();
-         std::vector<shared_ptr<Message> >::iterator iterMessage = vecMessages.begin();
+         std::vector<std::shared_ptr<Message> > vecMessages = oMessages.GetVector();
+         std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecMessages.begin();
          while (iterMessage != vecMessages.end())
          {
             // Delete the message from the database
@@ -107,7 +107,7 @@ namespace HM
       is_clearing_ = true;
 
       // Use the random work queue to run the task.
-      shared_ptr<WorkQueue> pQueue = Application::Instance()->GetMaintenanceWorkQueue();
+      std::shared_ptr<WorkQueue> pQueue = Application::Instance()->GetMaintenanceWorkQueue();
 
       if (!pQueue)
       {
@@ -118,7 +118,7 @@ namespace HM
       }
 
       // Launch a thread that can clear the delivery queue.
-      shared_ptr<DeliveryQueueClearer> pClearer = shared_ptr<DeliveryQueueClearer>(new DeliveryQueueClearer);
+      std::shared_ptr<DeliveryQueueClearer> pClearer = std::shared_ptr<DeliveryQueueClearer>(new DeliveryQueueClearer);
 
       pQueue->AddTask(pClearer);
    }
@@ -133,7 +133,7 @@ namespace HM
    void 
    DeliveryQueue::Remove(__int64 iMessageID)
    {
-      shared_ptr<Message> pMessage = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message());
       if (!PersistentMessage::ReadObject(pMessage, iMessageID))
          return;
 
@@ -155,7 +155,7 @@ namespace HM
    void 
    DeliveryQueue::StartDelivery()
    {
-      shared_ptr<SMTPDeliveryManager> pDeliverer = Application::Instance()->GetSMTPDeliveryManager();
+      std::shared_ptr<SMTPDeliveryManager> pDeliverer = Application::Instance()->GetSMTPDeliveryManager();
       if (!pDeliverer)
          return;
 

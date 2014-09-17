@@ -48,7 +48,7 @@ namespace HM
          sCommandLine.Replace(_T("%FILE%"), sFilename);
       }
       else
-         sCommandLine.Format(_T("%s %s"), executablePath, sFilename);
+         sCommandLine.Format(_T("%s %s"), executablePath.c_str(), sFilename.c_str());
 
       unsigned int exitCode = 0;
       ProcessLauncher launcher(sCommandLine, sPath);

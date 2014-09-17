@@ -34,24 +34,24 @@ namespace HM
 
    }
 
-   shared_ptr<RuleCriterias>
+   std::shared_ptr<RuleCriterias>
    Rule::GetCriterias()
    {
       if (!criterias_)
       {
-         criterias_ = shared_ptr<RuleCriterias>(new RuleCriterias(id_));
+         criterias_ = std::shared_ptr<RuleCriterias>(new RuleCriterias(id_));
          criterias_->Refresh();
       }
 
       return criterias_;
    }
 
-   shared_ptr<RuleActions>
+   std::shared_ptr<RuleActions>
    Rule::GetActions()
    {
       if (!actions_)
       {
-         actions_ = shared_ptr<RuleActions>(new RuleActions(id_));
+         actions_ = std::shared_ptr<RuleActions>(new RuleActions(id_));
          actions_->Refresh();
       }
 

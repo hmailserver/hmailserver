@@ -11,7 +11,7 @@ namespace HM
    class TCPConnectionFactory
    {
    public:
-      virtual shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
+      virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) = 0;
    };
@@ -19,7 +19,7 @@ namespace HM
    class SMTPConnectionFactory : public TCPConnectionFactory
    {
    public:
-      virtual shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
+      virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
    };
@@ -27,7 +27,7 @@ namespace HM
    class POP3ConnectionFactory : public TCPConnectionFactory
    {
    public:
-      virtual shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
+      virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
    };
@@ -35,7 +35,7 @@ namespace HM
    class IMAPConnectionFactory : public TCPConnectionFactory
    {
    public:
-      virtual shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
+      virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context);
    };

@@ -10,7 +10,7 @@
 // InterfaceClient
 
 void 
-InterfaceClient::AttachItem(shared_ptr<HM::ClientInfo> pClientInfo)
+InterfaceClient::AttachItem(std::shared_ptr<HM::ClientInfo> pClientInfo)
 {
    client_info_ = pClientInfo;
 }

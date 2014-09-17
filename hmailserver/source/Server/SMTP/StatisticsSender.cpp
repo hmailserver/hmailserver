@@ -26,7 +26,7 @@ namespace HM
    StatisticsSender::SendStatistics(int iNoOfMessages) const
    {
       String sPage; 
-      sPage.Format(_T("/statistics/update.php?hm_version=%s&hm_messages=%d"), Application::Instance()->GetVersionNumber(), iNoOfMessages);
+      sPage.Format(_T("/statistics/update.php?hm_version=%s&hm_messages=%d"), Application::Instance()->GetVersionNumber().c_str(), iNoOfMessages);
 
       AnsiString output;
       HTTPClient Client;

@@ -24,7 +24,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandStartTls::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandStartTls::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       pConnection->SendAsciiData(pArgument->Tag() + " OK Begin TLS negotiation now\r\n");
 

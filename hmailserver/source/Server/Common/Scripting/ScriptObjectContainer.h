@@ -21,7 +21,7 @@ namespace HM
       };
 
       String sName;
-      shared_ptr<void> pObject;
+      std::shared_ptr<void> pObject;
       ObjectType eType;      
       
    };
@@ -33,13 +33,13 @@ namespace HM
       ~ScriptObjectContainer(void);
 
       void AddObject(const String &sName, ScriptObject::ObjectType type);
-      void AddObject(const String &sName, shared_ptr<void> pObj, ScriptObject::ObjectType type);
+      void AddObject(const String &sName, std::shared_ptr<void> pObj, ScriptObject::ObjectType type);
 
-      vector<String> GetObjectNames();
+      std::vector<String> GetObjectNames();
       bool GetObjectByName(const String &sName, LPUNKNOWN* ppunkItem) const;
    
    private:
 
-      map<String, shared_ptr<ScriptObject> > objects_;
+      std::map<String, std::shared_ptr<ScriptObject> > objects_;
    };
 }

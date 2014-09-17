@@ -79,46 +79,46 @@ namespace HM
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
       // Create one socket for each IP address specified in the multi-homing settings.
-      vector<shared_ptr<TCPIPPort> > vecTCPIPPorts = Configuration::Instance()->GetTCPIPPorts()->GetVector();
+      std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = Configuration::Instance()->GetTCPIPPorts()->GetVector();
 
-      vector<shared_ptr<TCPIPPort> >::iterator iterPort = vecTCPIPPorts.begin();
-      vector<shared_ptr<TCPIPPort> >::iterator iterPortEnd = vecTCPIPPorts.end();
+      std::vector<std::shared_ptr<TCPIPPort> >::iterator iterPort = vecTCPIPPorts.begin();
+      std::vector<std::shared_ptr<TCPIPPort> >::iterator iterPortEnd = vecTCPIPPorts.end();
 
 
       for (; iterPort != iterPortEnd; iterPort++)
       {
-         shared_ptr<TCPIPPort> pPort = (*iterPort);
+         std::shared_ptr<TCPIPPort> pPort = (*iterPort);
          IPAddress address = pPort->GetAddress();
          int iPort = pPort->GetPortNumber();
          SessionType st = pPort->GetProtocol();
          ConnectionSecurity connection_security = pPort->GetConnectionSecurity();
 
-         shared_ptr<SSLCertificate> pSSLCertificate;
+         std::shared_ptr<SSLCertificate> pSSLCertificate;
 
          if (connection_security == CSSSL ||
              connection_security == CSSTARTTLSOptional ||
              connection_security == CSSTARTTLSRequired)
          {
-            shared_ptr<SSLCertificates> pSSLCertificates = Configuration::Instance()->GetSSLCertificates();
+            std::shared_ptr<SSLCertificates> pSSLCertificates = Configuration::Instance()->GetSSLCertificates();
             pSSLCertificate = pSSLCertificates->GetItemByDBID(pPort->GetSSLCertificateID());
          }
 
          if (session_types_.find(st) == session_types_.end())
             continue;
 
-         shared_ptr<TCPConnectionFactory> pConnectionFactory;
-         shared_ptr<TCPServer> pTCPServer;
+         std::shared_ptr<TCPConnectionFactory> pConnectionFactory;
+         std::shared_ptr<TCPServer> pTCPServer;
 
          switch (st)
          {
          case STSMTP:
-            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new SMTPConnectionFactory());
+            pConnectionFactory = std::shared_ptr<TCPConnectionFactory>(new SMTPConnectionFactory());
             break;
          case STIMAP:
-            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new IMAPConnectionFactory());
+            pConnectionFactory = std::shared_ptr<TCPConnectionFactory>(new IMAPConnectionFactory());
             break;
          case STPOP3:
-            pConnectionFactory = shared_ptr<TCPConnectionFactory>(new POP3ConnectionFactory());
+            pConnectionFactory = std::shared_ptr<TCPConnectionFactory>(new POP3ConnectionFactory());
             break;
 
          default:
@@ -126,7 +126,7 @@ namespace HM
             break;
          }
 
-         pTCPServer = shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory, connection_security));
+         pTCPServer = std::shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory, connection_security));
 
          pTCPServer->Run();
 
@@ -141,31 +141,31 @@ namespace HM
 
       int iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue");
 
-      shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue("IOCPQueue");
+      std::shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue("IOCPQueue");
 
       // Launch a thread that holds the IOCP objects
       for (int i = 0; i < iThreadCount; i++)
       {
-         shared_ptr<IOCPQueueWorkerTask> pWorkerTask = shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(io_service_));
+         std::shared_ptr<IOCPQueueWorkerTask> pWorkerTask = std::shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(io_service_));
          WorkQueueManager::Instance()->AddTask(iQueueID, pWorkerTask);
       }	
 
       try
       {
          boost::mutex do_work_dummy_mutex;
-         boost::mutex::scoped_lock lock(do_work_dummy_mutex);
-         do_work_dummy.wait(lock);
+         boost::unique_lock<boost::mutex> lock(do_work_dummy_mutex);
 
+         do_work_dummy.wait(lock);
       }
-      catch (thread_interrupted const&)
+      catch (const boost::thread_interrupted&)
       {
          boost::this_thread::disable_interruption disabled;
 
          LOG_DEBUG("IOService::Stop()");
          io_service_.stop();
 
-         vector<shared_ptr<TCPServer> >::iterator iterServer = tcp_servers_.begin();
-         vector<shared_ptr<TCPServer> >::iterator iterEnd = tcp_servers_.end();
+         std::vector<std::shared_ptr<TCPServer> >::iterator iterServer = tcp_servers_.begin();
+         std::vector<std::shared_ptr<TCPServer> >::iterator iterEnd = tcp_servers_.end();
          for (; iterServer != iterEnd; iterServer++)
          {
             (*iterServer)->StopAccept();

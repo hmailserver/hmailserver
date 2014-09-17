@@ -80,9 +80,9 @@ namespace HM
       void SetPasswordEncryption(int iNewVal) {password_encryption_ = iNewVal; }
       long GetPasswordEncryption() const {return password_encryption_; }
 
-      shared_ptr<Messages> GetMessages();
-      shared_ptr<Rules> GetRules(); 
-      shared_ptr<IMAPFolders> GetFolders(); 
+      std::shared_ptr<Messages> GetMessages();
+      std::shared_ptr<Rules> GetRules(); 
+      std::shared_ptr<IMAPFolders> GetFolders(); 
 
       bool SpaceAvailable(__int64 iBytes) const;
       // Returns true if a message with iBytes bytes can fit inside the account
@@ -150,9 +150,9 @@ namespace HM
       bool vacation_message_is_on_;
       bool enable_signature_;
 
-      shared_ptr<Messages> messages_;
-      shared_ptr<Rules> rules_;
-      shared_ptr<IMAPFolders> folders_;
+      std::shared_ptr<Messages> messages_;
+      std::shared_ptr<Rules> rules_;
+      std::shared_ptr<IMAPFolders> folders_;
       
       AdminLevel admin_level_;
 

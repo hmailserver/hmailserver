@@ -22,7 +22,7 @@ namespace HM
       max_size_kb_(0),
       cancel_transmission_(false)
    {
-      buffer_ = shared_ptr<ByteBuffer>(new ByteBuffer);
+      buffer_ = std::shared_ptr<ByteBuffer>(new ByteBuffer);
    }
 
    TransparentTransmissionBuffer::~TransparentTransmissionBuffer(void)
@@ -31,7 +31,7 @@ namespace HM
    }
 
    bool
-   TransparentTransmissionBuffer::Initialize(weak_ptr<TCPConnection> pTCPConnection)
+   TransparentTransmissionBuffer::Initialize(std::weak_ptr<TCPConnection> pTCPConnection)
    {
       tcp_connection_ = pTCPConnection;
 
@@ -49,7 +49,7 @@ namespace HM
          // Log to event log and notify the sender of this error.
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename);
+         sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::SaveToFile_", sErrorMessage);
 
@@ -208,7 +208,7 @@ namespace HM
             // Copy the data up including this position
             int iCopySize = i+1;
 
-            shared_ptr<ByteBuffer> pOutBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
+            std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
             pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
 
             // Remove it from the old buffer
@@ -224,7 +224,7 @@ namespace HM
             // The parsed buffer can now be sent.
             if (is_sending_)
             {
-               if (shared_ptr<TCPConnection> connection = tcp_connection_.lock())
+               if (std::shared_ptr<TCPConnection> connection = tcp_connection_.lock())
                {
                   connection->EnqueueWrite(pOutBuffer);
                }
@@ -250,7 +250,7 @@ namespace HM
    }
 
    bool 
-   TransparentTransmissionBuffer::SaveToFile_(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::SaveToFile_(std::shared_ptr<ByteBuffer> pBuffer)
    {
       if (max_size_kb_ > 0 && (data_sent_ / 1024) > max_size_kb_)
       {
@@ -268,7 +268,7 @@ namespace HM
    }
 
    void 
-   TransparentTransmissionBuffer::InsertTransmissionPeriod_(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::InsertTransmissionPeriod_(std::shared_ptr<ByteBuffer> pBuffer)
    {
       // All . which are placed as the first character on a new
       // line should be replaced with ..
@@ -313,7 +313,7 @@ namespace HM
    }
 
    void
-   TransparentTransmissionBuffer::RemoveTransmissionPeriod_(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::RemoveTransmissionPeriod_(std::shared_ptr<ByteBuffer> pBuffer)
    {
       // Allocate maximum required length for the out buffer.
       char *pInBuffer = (char*) pBuffer->GetCharBuffer();

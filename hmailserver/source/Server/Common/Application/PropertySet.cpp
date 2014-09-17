@@ -31,12 +31,12 @@ namespace HM
    PropertySet::Refresh()
    {
       SQLCommand command("select * from hm_settings");
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
    
       if (!pRS)
          return;
 
-      std::map<String, shared_ptr<Property> > tmpMap;
+      std::map<String, std::shared_ptr<Property> > tmpMap;
 
       while (!pRS->IsEOF())
       {
@@ -52,7 +52,7 @@ namespace HM
             bIsCrypted = true;
          }
       
-         shared_ptr<Property> oProperty = shared_ptr<Property> (new Property(sPropertyName, lPropertyLong, sPropertyString));
+         std::shared_ptr<Property> oProperty = std::shared_ptr<Property> (new Property(sPropertyName, lPropertyLong, sPropertyString));
          if (bIsCrypted)
             oProperty->SetIsCrypted();
 
@@ -65,8 +65,8 @@ namespace HM
 
       items_ = tmpMap;
 
-      std::map<String, shared_ptr<Property> >::iterator iter = items_.begin();
-      std::map<String, shared_ptr<Property> >::iterator iterEnd = items_.end();
+      std::map<String, std::shared_ptr<Property> >::iterator iter = items_.begin();
+      std::map<String, std::shared_ptr<Property> >::iterator iterEnd = items_.end();
       for (; iter != iterEnd; iter++)
       {
          // Trigger an change-event for all options.
@@ -74,21 +74,21 @@ namespace HM
       }
    }
 
-   shared_ptr<Property>
+   std::shared_ptr<Property>
    PropertySet::GetProperty_(const String & sPropertyName)
    {
-      std::map<String, shared_ptr<Property> >::iterator iterProperty = items_.find(sPropertyName);
+      std::map<String, std::shared_ptr<Property> >::iterator iterProperty = items_.find(sPropertyName);
    
       if (iterProperty != items_.end())
          return (*iterProperty).second;
 
       String sErrorMessage;
-      sErrorMessage.Format(_T("The property %s could not be found."), sPropertyName);
+      sErrorMessage.Format(_T("The property %s could not be found."), sPropertyName.c_str());
       ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5015, "PropertySet::GetProperty_()", sErrorMessage);
 
       // Property was not found. Create one temporary in memory 
       // to avoid further problems.
-      shared_ptr<Property> oProperty = shared_ptr<Property>(new Property());
+      std::shared_ptr<Property> oProperty = std::shared_ptr<Property>(new Property());
       return oProperty;
    }
 
@@ -113,7 +113,7 @@ namespace HM
    void 
    PropertySet::SetLong(const String &sPropertyName, long lValue)
    {
-      shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
+      std::shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
       bool bChanged = lValue != pProperty->GetLongValue();
       pProperty->SetLongValue(lValue);
 
@@ -124,7 +124,7 @@ namespace HM
    void 
    PropertySet::SetBool(const String &sPropertyName, bool bValue)
    {
-      shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
+      std::shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
       bool bChanged = bValue != pProperty->GetBoolValue();
       pProperty->SetBoolValue(bValue);
 
@@ -135,7 +135,7 @@ namespace HM
    void 
    PropertySet::SetString(const String &sPropertyName, const String &sValue)
    {
-      shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
+      std::shared_ptr<Property> pProperty = GetProperty_(sPropertyName);
       bool bChanged = sValue != pProperty->GetStringValue();
       pProperty->SetStringValue(sValue);
 
@@ -144,7 +144,7 @@ namespace HM
    }
 
    void 
-   PropertySet::OnPropertyChanged_(shared_ptr<Property> pProperty)
+   PropertySet::OnPropertyChanged_(std::shared_ptr<Property> pProperty)
    {
       // Notify configuration that a setting has changed.
       Configuration::Instance()->OnPropertyChanged(pProperty);
@@ -163,11 +163,11 @@ namespace HM
    PropertySet::XMLStore(XNode *pBackupNode)
    {
       XNode *pPropertiesNode = pBackupNode->AppendChild(_T("Properties"));
-      std::map<String, shared_ptr<Property> >::iterator iterProperty = items_.begin();
+      std::map<String, std::shared_ptr<Property> >::iterator iterProperty = items_.begin();
 
       while (iterProperty != items_.end())
       {
-         shared_ptr<Property> oProperty = (*iterProperty).second;
+         std::shared_ptr<Property> oProperty = (*iterProperty).second;
 
          XNode *pNode = pPropertiesNode->AppendChild(String(oProperty->GetName()));
 
@@ -194,7 +194,7 @@ namespace HM
          String sStringValue = pPropertyNode->GetAttrValue(_T("StringValue"));
          int iLongValue = _ttoi(pPropertyNode->GetAttrValue(_T("LongValue")));
 
-         shared_ptr<Property> pProperty = GetProperty_(sName);
+         std::shared_ptr<Property> pProperty = GetProperty_(sName);
          if (pProperty)
          {
             pProperty->SetStringValue(sStringValue);

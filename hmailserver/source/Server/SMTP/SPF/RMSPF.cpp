@@ -6,6 +6,7 @@
 // License: You can do with this source whatever you want.
 
 #define STRICT
+
 #include "StdAfx.h"
 
 #undef _UNICODE
@@ -2090,25 +2091,31 @@ gethostname(spfbool ipv6, const uchar* addr, char* host, int hostsize,
    {
     // create domain name for reverse DNS lookup
     cp=domain;
+    int remaining = 80;
     if (!ipv6)
      {
       for (i=3; i>=0; i--)
        {
-	cp+=numtostr(cp,addr[i]);
-	*cp++='.';
+	      cp+=numtostr(cp,addr[i]);
+	      *cp++='.';
+         remaining--;
        }
-      strcpy(cp, "in-addr.arpa");
+      strcpy_s(cp, remaining, "in-addr.arpa");
      }
     else
      {
       for (i=15; i>=0; i--)
        {
-	*cp++=hexdigit[addr[i]&15];
-	*cp++='.';
-	*cp++=hexdigit[addr[i]>>4];
-	*cp++='.';
+         *cp++ = hexdigit[addr[i] & 15];
+         remaining--;
+         *cp++ = '.';
+         remaining--;
+         *cp++ = hexdigit[addr[i] >> 4];
+         remaining--;
+         *cp++ = '.';
+         remaining--;
        }
-      strcpy(cp, "ip6.arpa");
+      strcpy_s(cp, remaining, "ip6.arpa");
      }
 
     // look up DNS
@@ -2404,7 +2411,7 @@ expand(spfrec* spfp, const char* s, const char* s1, const char* domain,
 	  mac=tmp;
 	  if (spfp->spf_sender==NULL) // no local part
 	   {
-	    strcpy(tmp, "postmaster");
+	    strcpy_s(tmp, 256, "postmaster");
 	    len=10;
 	   }
 	  else

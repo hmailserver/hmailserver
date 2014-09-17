@@ -14,10 +14,10 @@ namespace HM
       PersistentDNSBlackList(void);
       ~PersistentDNSBlackList(void);
       
-      static bool DeleteObject(shared_ptr<DNSBlackList> pObject);
-      static bool SaveObject(shared_ptr<DNSBlackList> pObject, String &errorMessage, PersistenceMode mode);
-      static bool SaveObject(shared_ptr<DNSBlackList> pObject);
-      static bool ReadObject(shared_ptr<DNSBlackList> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<DNSBlackList> pObject);
+      static bool SaveObject(std::shared_ptr<DNSBlackList> pObject, String &errorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<DNSBlackList> pObject);
+      static bool ReadObject(std::shared_ptr<DNSBlackList> pObject, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

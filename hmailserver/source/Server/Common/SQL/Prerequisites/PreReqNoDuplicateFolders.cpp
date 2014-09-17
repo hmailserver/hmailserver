@@ -22,7 +22,7 @@ namespace HM
    }
 
    bool
-   PreReqNoDuplicateFolders::Ensure(shared_ptr<DALConnection> connection, String &sErrorMessage)
+   PreReqNoDuplicateFolders::Ensure(std::shared_ptr<DALConnection> connection, String &sErrorMessage)
    {
       SQLCommand command("select folderaccountid, folderparentid, foldername from hm_imapfolders "
                          "group by folderaccountid, folderparentid, foldername "
@@ -30,7 +30,7 @@ namespace HM
 
 
       // First locate all duplicate folders.
-      shared_ptr<DALRecordset> duplicateFolderList = connection->CreateRecordset();
+      std::shared_ptr<DALRecordset> duplicateFolderList = connection->CreateRecordset();
       if (!duplicateFolderList->Open(connection, command))
       {
          sErrorMessage = "Failed to execute SQL statement. Please check hMailServer log file.\r\n" + command.GetQueryString();
@@ -54,7 +54,7 @@ namespace HM
          locateCommand.AddParameter("@PARENTID", parentID);
          locateCommand.AddParameter("@FOLDERNAME", name);
 
-         shared_ptr<DALRecordset> conflictFoldersRecordset = connection->CreateRecordset();
+         std::shared_ptr<DALRecordset> conflictFoldersRecordset = connection->CreateRecordset();
          if (!conflictFoldersRecordset->Open(connection, locateCommand))
          {
             sErrorMessage = "Failed to execute SQL statement. Please check hMailServer log file.\r\n" + locateCommand.GetQueryString();
@@ -71,7 +71,7 @@ namespace HM
 
             // Generate a name. The string "name" is already escaped (above).
             String newName;
-            newName.Format(_T("%s-%d"), name, folderID);
+            newName.Format(_T("%s-%d"), name.c_str(), folderID);
 
             SQLCommand command("update hm_imapfolders set foldername = @FOLDERNAME where folderid = @FOLDERID");
             command.AddParameter("@FOLDERNAME", newName);

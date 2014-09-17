@@ -18,7 +18,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandListRights::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandListRights::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -26,7 +26,7 @@ namespace HM
       if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPACL())
          return IMAPResult(IMAPResult::ResultBad, "ACL is not enabled.");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
 
       if (pParser->ParamCount() != 2)
@@ -48,7 +48,7 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
       
-      shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
@@ -58,7 +58,7 @@ namespace HM
       String sPermissions = "l r s w i k x t e a";
 
       String sResponse;
-      sResponse.Format(_T("* LISTRIGHTS %s %s %s\r\n"), sOriginalFolderName, sIdentifier, sPermissions);
+      sResponse.Format(_T("* LISTRIGHTS %s %s %s\r\n"), sOriginalFolderName.c_str(), sIdentifier.c_str(), sPermissions.c_str());
       sResponse += pArgument->Tag() + _T(" OK ListRights complete\r\n");
 
       pConnection->SendAsciiData(sResponse);   

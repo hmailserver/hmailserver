@@ -34,7 +34,7 @@ namespace HM
 
 
    IMAPResult
-   IMAPStore::DoAction(shared_ptr<IMAPConnection> pConnection, int messageIndex,  shared_ptr<Message> pMessage, const shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPStore::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex,  std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pMessage || !pArgument)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
@@ -138,8 +138,8 @@ namespace HM
       std::vector<__int64> effectedMessages;
       effectedMessages.push_back(pMessage->GetID());
 
-      shared_ptr<ChangeNotification> pNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(pConnection->GetCurrentFolder()->GetAccountID(), pConnection->GetCurrentFolder()->GetID(),  ChangeNotification::NotificationMessageFlagsChanged, effectedMessages));
+      std::shared_ptr<ChangeNotification> pNotification = 
+         std::shared_ptr<ChangeNotification>(new ChangeNotification(pConnection->GetCurrentFolder()->GetAccountID(), pConnection->GetCurrentFolder()->GetID(),  ChangeNotification::NotificationMessageFlagsChanged, effectedMessages));
 
       Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
       // END IMAP IDLE
@@ -148,7 +148,7 @@ namespace HM
    }
 
    String 
-   IMAPStore::GetMessageFlags(shared_ptr<Message> pMessage, int messageIndex)
+   IMAPStore::GetMessageFlags(std::shared_ptr<Message> pMessage, int messageIndex)
    {
       // Build a flags string.
       String sFlags;
@@ -196,7 +196,7 @@ namespace HM
 
       // It really should be FETCH below...
       String sRet;
-      sRet.Format(_T("* %d FETCH (FLAGS (%s) UID %u)\r\n"), messageIndex, sFlags, pMessage->GetUID());
+      sRet.Format(_T("* %d FETCH (FLAGS (%s) UID %u)\r\n"), messageIndex, sFlags.c_str(), pMessage->GetUID());
       return sRet;
    }
       

@@ -28,13 +28,13 @@ namespace HM
    }
 
    DALConnection::ExecutionResult
-   MySQLRecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   MySQLRecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Opens a recordset specified by the given SQL string sSQL.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<MySQLConnection> pConn = static_pointer_cast<MySQLConnection>(pDALConn);
+      std::shared_ptr<MySQLConnection> pConn = std::static_pointer_cast<MySQLConnection>(pDALConn);
 
       String sSQL = command.GetQueryString();
 
@@ -319,10 +319,10 @@ namespace HM
       }
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    MySQLRecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
       unsigned int iFieldCount = MySQLInterface::Instance()->p_mysql_num_fields(result_);
 
       for (unsigned int i = 0; i < iFieldCount; i++)

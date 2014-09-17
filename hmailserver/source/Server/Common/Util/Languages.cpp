@@ -26,11 +26,11 @@ namespace HM
    {
       Language::LoadEnglish();
 
-      vector<String> languageFiles = 
+      std::vector<String> languageFiles = 
          FileUtilities::GetFilesInDirectory(IniFileSettings::Instance()->GetLanguageDirectory());
 
-      vector<String>::iterator iter = languageFiles.begin();
-      vector<String>::iterator iterEnd = languageFiles.end();
+      std::vector<String>::iterator iter = languageFiles.begin();
+      std::vector<String>::iterator iterEnd = languageFiles.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -47,32 +47,17 @@ namespace HM
          if (!IsValidLangauge_(sFormattedLanguage))
             continue;
 
-         shared_ptr<Language> pLanguage = shared_ptr<Language>(new Language(sFormattedLanguage, true));
+         std::shared_ptr<Language> pLanguage = std::shared_ptr<Language>(new Language(sFormattedLanguage, true));
          languages_[sFormattedLanguage] = pLanguage;
       }
-      
-      /*
-      vector<String> validLanguages = IniFileSettings::Instance()->GetValidLanguages();
-      boost_foreach(String language, validLanguages)
-      {
-         language.ToLower();
-
-         if (languages_.find(language) == languages_.end())
-         {
-            shared_ptr<Language> pLanguage = shared_ptr<Language>(new Language(language, false));
-            languages_[language] = pLanguage;
-         }
-      }
-      */
-
    }
 
    bool 
    Languages::IsValidLangauge_(const String &sLanguage) const
    {
-      vector<String> validLanguages = IniFileSettings::Instance()->GetValidLanguages();
-      vector<String>::iterator iter = validLanguages.begin();
-      vector<String>::iterator iterEnd = validLanguages.end();
+      std::vector<String> validLanguages = IniFileSettings::Instance()->GetValidLanguages();
+      std::vector<String>::iterator iter = validLanguages.begin();
+      std::vector<String>::iterator iterEnd = validLanguages.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -86,25 +71,25 @@ namespace HM
 
    }
 
-   shared_ptr<Language> 
+   std::shared_ptr<Language> 
    Languages::GetLanguage(const String &sLanguage)
    {
       String sFormattedLanguage = sLanguage;
       sFormattedLanguage.ToLower();
 
-      map<String, shared_ptr<Language> >::iterator iterLanguage = languages_.find(sFormattedLanguage);
+      std::map<String, std::shared_ptr<Language> >::iterator iterLanguage = languages_.find(sFormattedLanguage);
       if (iterLanguage != languages_.end())
          return (*iterLanguage).second;
      
-      shared_ptr<Language> pEmpty;
+      std::shared_ptr<Language> pEmpty;
       return pEmpty;
    }
 
-   shared_ptr<Language> 
+   std::shared_ptr<Language> 
    Languages::GetLanguage(int index)
    {
-      map<String, shared_ptr<Language> >::iterator iter = languages_.begin();
-      map<String, shared_ptr<Language> >::iterator iterEnd = languages_.end();
+      std::map<String, std::shared_ptr<Language> >::iterator iter = languages_.begin();
+      std::map<String, std::shared_ptr<Language> >::iterator iterEnd = languages_.end();
       
       int current = 0;
       for (; iter != iterEnd; iter++)
@@ -117,7 +102,7 @@ namespace HM
          current++;
       }
 
-      shared_ptr<Language> empty;
+      std::shared_ptr<Language> empty;
       return empty;
    }
 }

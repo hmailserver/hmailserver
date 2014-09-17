@@ -41,7 +41,7 @@ namespace HM
 
 
    void 
-   BackupTask::SetBackupToRestore(shared_ptr<Backup> pBackup)
+   BackupTask::SetBackupToRestore(std::shared_ptr<Backup> pBackup)
    {
       backup_ = pBackup;
    }

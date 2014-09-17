@@ -29,7 +29,7 @@ STDMETHODIMP InterfaceMessages::get_Count(long *pVal)
 }
 
 void 
-InterfaceMessages::Attach(shared_ptr<HM::Messages> pMessages) 
+InterfaceMessages::Attach(std::shared_ptr<HM::Messages> pMessages) 
 {
    messages_ = pMessages; 
 }
@@ -44,7 +44,7 @@ STDMETHODIMP InterfaceMessages::get_Item(long Index, IInterfaceMessage **pVal)
       CComObject<InterfaceMessage>* pInterfaceMessage = new CComObject<InterfaceMessage>();
       pInterfaceMessage->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Message> pMsg = messages_->GetItem(Index);
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItem(Index);
    
       if (pMsg)
       {
@@ -77,7 +77,7 @@ STDMETHODIMP InterfaceMessages::get_ItemByDBID(hyper DBID, IInterfaceMessage **p
       CComObject<InterfaceMessage>* pInterfaceMessage = new CComObject<InterfaceMessage>();
       pInterfaceMessage->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(DBID);
    
       if (pMsg)
       {
@@ -115,7 +115,7 @@ STDMETHODIMP InterfaceMessages::Add(IInterfaceMessage **pVal)
          return DISP_E_BADINDEX;
       }
       
-      shared_ptr<HM::Message> pNewMsg = shared_ptr<HM::Message>(new HM::Message);
+      std::shared_ptr<HM::Message> pNewMsg = std::shared_ptr<HM::Message>(new HM::Message);
       pNewMsg->SetAccountID(iAccountID);
       pNewMsg->SetFolderID(iFolderID);
       pNewMsg->SetState(HM::Message::Created);
@@ -143,7 +143,7 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
       if (!messages_)
          return GetAccessDenied();
 
-      shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(lDBID);	
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(lDBID);	
       
       if (!pMsg)
       {
@@ -178,8 +178,8 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
          affectedMessages.push_back(lDBID);
    
          // Notify clients that the message has been dropped.
-         shared_ptr<HM::ChangeNotification> notification = 
-            shared_ptr<HM::ChangeNotification>(new HM::ChangeNotification(messages_->GetAccountID(), messages_->GetFolderID(), HM::ChangeNotification::NotificationMessageDeleted, affectedMessages));
+         std::shared_ptr<HM::ChangeNotification> notification = 
+            std::shared_ptr<HM::ChangeNotification>(new HM::ChangeNotification(messages_->GetAccountID(), messages_->GetFolderID(), HM::ChangeNotification::NotificationMessageDeleted, affectedMessages));
    
          HM::Application::Instance()->GetNotificationServer()->SendNotification(notification);
       }

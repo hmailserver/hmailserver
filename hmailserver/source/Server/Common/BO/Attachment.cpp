@@ -14,7 +14,7 @@
 
 namespace HM
 {
-   Attachment::Attachment(shared_ptr<MimeBody> pMessage, shared_ptr<MimeBody> pAttachment) :
+   Attachment::Attachment(std::shared_ptr<MimeBody> pMessage, std::shared_ptr<MimeBody> pAttachment) :
       message_(pMessage),
       attachment_(pAttachment)
    {

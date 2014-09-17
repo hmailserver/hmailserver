@@ -13,8 +13,8 @@ namespace HM
 	   NameChanger();
 	   virtual ~NameChanger();
 
-      bool RenameDomain(const String& oldDomainName, shared_ptr<Domain> pDomain, String &errorMessage);
-      bool RenameAccount(const String& oldAccountName, shared_ptr<Account> pAccount, String &errorMessage);
+      bool RenameDomain(const String& oldDomainName, std::shared_ptr<Domain> pDomain, String &errorMessage);
+      bool RenameAccount(const String& oldAccountName, std::shared_ptr<Account> pAccount, String &errorMessage);
 
    private:
 

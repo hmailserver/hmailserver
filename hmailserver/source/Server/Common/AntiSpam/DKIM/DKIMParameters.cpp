@@ -18,10 +18,10 @@ namespace HM
    void
    DKIMParameters::Load(const AnsiString &parameters)
    {
-      vector<AnsiString> result = StringParser::SplitString(parameters, ";");
+      std::vector<AnsiString> result = StringParser::SplitString(parameters, ";");
 
    
-      boost_foreach(AnsiString parameter, result)
+      for(AnsiString parameter : result)
       {
          int equalsPos = parameter.Find("=");
          if (equalsPos < 0)
@@ -47,7 +47,7 @@ namespace HM
    bool 
    DKIMParameters::GetIsSet(const AnsiString &paramName) const
    {
-      map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
+      std::map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
 
       return iter != parameters_.end();
    }
@@ -55,7 +55,7 @@ namespace HM
    AnsiString 
    DKIMParameters::GetValue(const AnsiString &paramName) const
    {
-      map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
+      std::map<AnsiString, AnsiString>::const_iterator iter = parameters_.find(paramName);
 
       if (iter == parameters_.end())
          return "";

@@ -21,10 +21,10 @@ namespace HM
    }
 
    bool
-   PersistentRuleAction::ReadObject(shared_ptr<RuleAction> pRuleAction, const SQLCommand& command)
+   PersistentRuleAction::ReadObject(std::shared_ptr<RuleAction> pRuleAction, const SQLCommand& command)
    {
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 
       bool bRetVal = false;
       if (!pRS->IsEOF())
@@ -36,7 +36,7 @@ namespace HM
    }
 
    bool
-   PersistentRuleAction::ReadObject(shared_ptr<RuleAction> pRuleAction, shared_ptr<DALRecordset> pRS)
+   PersistentRuleAction::ReadObject(std::shared_ptr<RuleAction> pRuleAction, std::shared_ptr<DALRecordset> pRS)
    {
       if (pRS->IsEOF())
          return false;
@@ -61,14 +61,14 @@ namespace HM
    }
 
    bool
-   PersistentRuleAction::SaveObject(shared_ptr<RuleAction> pRuleAction, String &errorMessage, PersistenceMode mode)
+   PersistentRuleAction::SaveObject(std::shared_ptr<RuleAction> pRuleAction, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pRuleAction);
    }
 
    bool
-   PersistentRuleAction::SaveObject(shared_ptr<RuleAction> pRuleAction)
+   PersistentRuleAction::SaveObject(std::shared_ptr<RuleAction> pRuleAction)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_rule_actions");
@@ -116,7 +116,7 @@ namespace HM
    }
 
    bool
-   PersistentRuleAction::DeleteObject(shared_ptr<RuleAction> pRuleAction)
+   PersistentRuleAction::DeleteObject(std::shared_ptr<RuleAction> pRuleAction)
    {
       SQLCommand command("delete from hm_rule_actions where actionid = @ACTIONID");
       command.AddParameter("@ACTIONID", pRuleAction->GetID());
@@ -145,7 +145,7 @@ namespace HM
 
       SQLCommand command(sql);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 

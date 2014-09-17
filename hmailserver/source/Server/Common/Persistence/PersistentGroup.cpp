@@ -30,7 +30,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::DeleteObject(shared_ptr<Group> pObject)
+   PersistentGroup::DeleteObject(std::shared_ptr<Group> pObject)
    {
       SQLCommand command("delete from hm_groups where groupid = @GROUPID");
       command.AddParameter("@GROUPID", pObject->GetID());
@@ -45,7 +45,7 @@ namespace HM
    }
 
    bool 
-   PersistentGroup::ReadObject(shared_ptr<Group> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID(pRS->GetInt64Value("groupid"));
       pObject->SetName(pRS->GetStringValue("groupname"));
@@ -54,7 +54,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, const String & sName)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, const String & sName)
    {
       SQLStatement statement;
 
@@ -66,7 +66,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, __int64 ObjectID)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, __int64 ObjectID)
    {
       SQLCommand command("select * from hm_groups where groupid = @GROUPID");
       command.AddParameter("@GROUPID", ObjectID);
@@ -76,9 +76,9 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, const SQLCommand &command)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -92,14 +92,14 @@ namespace HM
    }
 
    bool 
-   PersistentGroup::SaveObject(shared_ptr<Group> pGroup)
+   PersistentGroup::SaveObject(std::shared_ptr<Group> pGroup)
    {
       String sErrorMessage;
       return SaveObject(pGroup, sErrorMessage, PersistenceModeNormal);
    }
 
    bool 
-   PersistentGroup::SaveObject(shared_ptr<Group> pGroup, String &sErrorMessage, PersistenceMode mode)
+   PersistentGroup::SaveObject(std::shared_ptr<Group> pGroup, String &sErrorMessage, PersistenceMode mode)
    {
       if (!PreSaveLimitationsCheck::CheckLimitations(mode, pGroup, sErrorMessage))
          return false;

@@ -41,9 +41,9 @@ namespace HM
    EmailAllUsers::Start(const String &sRecipientWildcard, const String &sFromAddress, const String &sFromName, const String &sSubject, const String &sBody)
    {
       // Create the message
-      shared_ptr<Message> pMessage = shared_ptr<Message>(new Message);
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message);
 
-      shared_ptr<MessageRecipients> pRecipients = pMessage->GetRecipients();
+      std::shared_ptr<MessageRecipients> pRecipients = pMessage->GetRecipients();
 
       // First read all accounts from the database.
       Accounts oAccounts(0);
@@ -52,11 +52,11 @@ namespace HM
       Domains oDomains;
       oDomains.Refresh();
 
-      vector<shared_ptr<Account> > vecAccounts = oAccounts.GetVector();
-      vector<shared_ptr<Account> >::iterator iterAccount = vecAccounts.begin();
+      std::vector<std::shared_ptr<Account> > vecAccounts = oAccounts.GetVector();
+      std::vector<std::shared_ptr<Account> >::iterator iterAccount = vecAccounts.begin();
       while (iterAccount != vecAccounts.end())
       {
-         shared_ptr<Account> pAccount = (*iterAccount);
+         std::shared_ptr<Account> pAccount = (*iterAccount);
 
          if (!StringParser::WildcardMatchNoCase(sRecipientWildcard, pAccount->GetAddress()))
          {
@@ -75,7 +75,7 @@ namespace HM
          String sDomainName = StringParser::ExtractDomain(pAccount->GetAddress());
 
          // Check that the domain is active.
-         shared_ptr<Domain> pDomain = oDomains.GetItemByName(sDomainName);
+         std::shared_ptr<Domain> pDomain = oDomains.GetItemByName(sDomainName);
 
          if (!pDomain || !pDomain->GetIsActive())
          {
@@ -85,7 +85,7 @@ namespace HM
          }
 
          // Add the recipient
-         shared_ptr<MessageRecipient> pRecipient = shared_ptr<MessageRecipient>(new MessageRecipient);
+         std::shared_ptr<MessageRecipient> pRecipient = std::shared_ptr<MessageRecipient>(new MessageRecipient);
          pRecipient->SetLocalAccountID(pAccount->GetID());
          pRecipient->SetAddress(pAccount->GetAddress());
 
@@ -101,7 +101,7 @@ namespace HM
       oMessageData.LoadFromMessage(fileName, pMessage);
 
       String sFrom;
-      sFrom.Format(_T("\"%s\" <%s>"), sFromName, sFromAddress);
+      sFrom.Format(_T("\"%s\" <%s>"), sFromName.c_str(), sFromAddress.c_str());
 
       oMessageData.SetReturnPath("");
       oMessageData.SetFrom(sFrom);

@@ -41,7 +41,7 @@ STDMETHODIMP InterfaceDomains::InterfaceSupportsErrorInfo(REFIID riid)
 }   
 
 void
-InterfaceDomains::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceDomains::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    COMAuthenticator::SetAuthentication(pAuthentication);
 }
@@ -53,7 +53,7 @@ STDMETHODIMP InterfaceDomains::Refresh()
       if (!authentication_->GetIsAuthenticated())
          return authentication_->GetAccessDenied();
    
-      objects_ = shared_ptr<HM::Domains>(new HM::Domains);
+      objects_ = std::shared_ptr<HM::Domains>(new HM::Domains);
    
       try
       {
@@ -109,7 +109,7 @@ STDMETHODIMP InterfaceDomains::Add(/*[out, retval] */IInterfaceDomain** pVal)
       CComObject<InterfaceDomain>* pDomainInterface = new CComObject<InterfaceDomain>;
       pDomainInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pDomain = shared_ptr<HM::Domain>(new HM::Domain());
+      std::shared_ptr<HM::Domain> pDomain = std::shared_ptr<HM::Domain>(new HM::Domain());
       
       pDomainInterface->AttachItem(pDomain);
       pDomainInterface->AttachParent(objects_, false);
@@ -140,7 +140,7 @@ STDMETHODIMP InterfaceDomains::get_ItemByName(BSTR ItemName, IInterfaceDomain **
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
       pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByName(ItemName);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByName(ItemName);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;
@@ -173,7 +173,7 @@ STDMETHODIMP InterfaceDomains::get_Item(long Index, IInterfaceDomain **pVal)
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
       pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = objects_->GetItem(Index);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItem(Index);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;
@@ -207,7 +207,7 @@ STDMETHODIMP InterfaceDomains::get_ItemByDBID(long DBID, IInterfaceDomain **pVal
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
       pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByDBID(DBID);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;

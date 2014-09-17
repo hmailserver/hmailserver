@@ -97,14 +97,14 @@ namespace HM
 
    }
 
-   shared_ptr<MimeHeader>
+   std::shared_ptr<MimeHeader>
    Utilities::GetMimeHeader(const BYTE *pByteBuf, int iBufSize)
    {
       // First locate end of header in the buffer.
       const char *pBuffer = (const char*) pByteBuf;
       const char *pBufferEndPos = StringParser::Search(pBuffer, iBufSize, "\r\n\r\n");
 
-      shared_ptr<MimeHeader> pMimeHeader = shared_ptr<MimeHeader>(new MimeHeader);
+      std::shared_ptr<MimeHeader> pMimeHeader = std::shared_ptr<MimeHeader>(new MimeHeader);
 
       if (!pBufferEndPos)
       {
@@ -157,7 +157,7 @@ namespace HM
    Utilities::GenerateReceivedHeader(const String &remote_ip, String remote_hostname, bool authenticated, bool start_tls_used)
    {
       String sComputerName = Utilities::ComputerName(); 
-      vector<String> results;
+      std::vector<String> results;
       // do a PTR lookup, solves an issue with some spam filerting programs such as SA
       // not having a PTR in the Received header.
       String ptrRecord;
@@ -193,12 +193,12 @@ namespace HM
       sResult.Format(_T("from %s (%s [%s])\r\n")
                      _T("\tby %s with ESMTP%s\r\n")
                      _T("\t; %s"), 
-                        remote_hostname,
-                        ptrRecord,
-                        remote_ip,
-                        sComputerName, 
-                        esmtp_additions,
-                        Time::GetCurrentMimeDate());
+                     remote_hostname.c_str(),
+                     ptrRecord.c_str(),
+                     remote_ip.c_str(),
+                     sComputerName.c_str(),
+                     esmtp_additions.c_str(),
+                     Time::GetCurrentMimeDate().c_str());
 
       return sResult;
 
@@ -212,7 +212,7 @@ namespace HM
       sGUID.Replace(_T("}"), _T(""));
 
       String sRetVal;
-      sRetVal.Format(_T("<%s@%s>"), sGUID , Utilities::ComputerName());
+      sRetVal.Format(_T("<%s@%s>"), sGUID.c_str(), Utilities::ComputerName().c_str());
       
       return sRetVal;
    }

@@ -29,7 +29,7 @@ InterfaceIMAPFolders::InterfaceSupportsErrorInfo(REFIID riid)
 }
 
 void
-InterfaceIMAPFolders::Attach(shared_ptr<HM::IMAPFolders> pFolders)
+InterfaceIMAPFolders::Attach(std::shared_ptr<HM::IMAPFolders> pFolders)
 {
    object_ = pFolders;
 }
@@ -62,7 +62,7 @@ InterfaceIMAPFolders::get_Item(long Index, IInterfaceIMAPFolder **pVal)
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
       pIMAPFolderInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItem(Index);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItem(Index);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;  
@@ -91,7 +91,7 @@ InterfaceIMAPFolders::get_ItemByDBID(long DBID, IInterfaceIMAPFolder **pVal)
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
       pIMAPFolderInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItemByDBID(DBID);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;  
@@ -123,7 +123,7 @@ InterfaceIMAPFolders::get_ItemByName(BSTR sName, IInterfaceIMAPFolder **pVal)
       HM::String sUnicode (sName);
       HM::AnsiString sFolderName = HM::ModifiedUTF7::Encode(sUnicode);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;
@@ -179,12 +179,12 @@ InterfaceIMAPFolders::Add(BSTR sName, IInterfaceIMAPFolder **pVal)
       pIMAPFolderInt->SetAuthentication(authentication_);
    
       // Check that it does not exist.
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
    
       if (pIMAPFolder)
          return COMError::GenerateError("Folder with specified name already exists");
    
-      pIMAPFolder = shared_ptr<HM::IMAPFolder>(new HM::IMAPFolder(object_->GetAccountID(), object_->GetParentID()));
+      pIMAPFolder = std::shared_ptr<HM::IMAPFolder>(new HM::IMAPFolder(object_->GetAccountID(), object_->GetParentID()));
       pIMAPFolder->SetFolderName(sFolderName);
    
       // We auto-subscribe to public folders.

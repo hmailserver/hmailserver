@@ -21,7 +21,7 @@ STDMETHODIMP InterfaceDiagnostics::PerformTests(IInterfaceDiagnosticResults **pV
    
       HM::String str;
       
-      vector<HM::DiagnosticResult> results = diagnostics_.PerformTests();
+      std::vector<HM::DiagnosticResult> results = diagnostics_.PerformTests();
       
       CComObject<InterfaceDiagnosticResults>* pResult = new CComObject<InterfaceDiagnosticResults>();
       pResult->SetAuthentication(authentication_);

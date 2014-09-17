@@ -41,7 +41,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandRangeAction::DoForMails(shared_ptr<IMAPConnection> pConnection, const String &sMailNos, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandRangeAction::DoForMails(std::shared_ptr<IMAPConnection> pConnection, const String &sMailNos, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       long lColonPos = -1;
 
@@ -49,7 +49,7 @@ namespace HM
 
       if (is_uid_)
       {
-         boost_foreach(String sCur, sSplitted)
+         for(String sCur : sSplitted)
          {
             lColonPos = sCur.Find(_T(":"));
 
@@ -63,10 +63,10 @@ namespace HM
                if (sSecondPart != _T("*"))
                   lEndDBID = _ttoi(sSecondPart);
 
-               std::vector<shared_ptr<Message>> messages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
+               std::vector<std::shared_ptr<Message>> messages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
 
                int index = 0;
-               boost_foreach(shared_ptr<Message> pMessage, messages)
+               for(std::shared_ptr<Message> pMessage: messages)
                {
                   index++;
                   unsigned int uid = pMessage->GetUID();
@@ -92,8 +92,8 @@ namespace HM
                unsigned int uid = _ttoi(sCur);
 
                unsigned int foundIndex = 0;
-               shared_ptr<Messages> messages = pConnection->GetCurrentFolder()->GetMessages();
-               shared_ptr<Message> message = messages->GetItemByUID(uid, foundIndex);
+               std::shared_ptr<Messages> messages = pConnection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<Message> message = messages->GetItemByUID(uid, foundIndex);
                if (!message)
                   continue;
                
@@ -108,7 +108,7 @@ namespace HM
       }
       else
       {
-         boost_foreach(String sCur, sSplitted)
+         for(String sCur: sSplitted)
          {
             lColonPos = sCur.Find(_T(":"));
 
@@ -125,7 +125,7 @@ namespace HM
                MessagesVector vecMessages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
                
                int index = 0;
-               boost_foreach(shared_ptr<Message> message, vecMessages)
+               for(std::shared_ptr<Message> message : vecMessages)
                {
                   index++;
 
@@ -146,7 +146,7 @@ namespace HM
             else 
             {
                int messageIndex = _ttoi(sCur);
-               shared_ptr<Message> pMessage = pConnection->GetCurrentFolder()->GetMessages()->GetItem(messageIndex-1);
+               std::shared_ptr<Message> pMessage = pConnection->GetCurrentFolder()->GetMessages()->GetItem(messageIndex-1);
 
                if (!pMessage)
                   continue;

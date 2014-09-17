@@ -34,12 +34,12 @@ namespace HM
    {
    }
 
-   shared_ptr<const Account>
+   std::shared_ptr<const Account>
    AccountLogon::Logon(const IPAddress &ipaddress, const String &username, const String &password, bool &disconnect)
    {
       disconnect = false;
 
-      shared_ptr<const Account> account = PasswordValidator::ValidatePassword(username, password);
+      std::shared_ptr<const Account> account = PasswordValidator::ValidatePassword(username, password);
       if (account)
       {
          PersistentAccount::UpdateLastLogonTime(account);
@@ -51,7 +51,7 @@ namespace HM
 
       if (Configuration::Instance()->GetAutoBanLogonEnabled() == false || maxInvalidLogonAttempts == 0)
       {
-         shared_ptr<Account> empty;
+         std::shared_ptr<Account> empty;
          return empty;
       }
 
@@ -68,7 +68,7 @@ namespace HM
          {
             // disconnect, but don't block.
             disconnect = true;
-            shared_ptr<Account> empty;
+            std::shared_ptr<Account> empty;
             return empty;
          }
 
@@ -77,14 +77,14 @@ namespace HM
          disconnect = true;
 
          // logon failed!
-         shared_ptr<Account> empty;
+         std::shared_ptr<Account> empty;
          return empty;
       }
 
       // logon failed, add new failure.
       logonFailure.AddFailure(ipaddress);
 
-      shared_ptr<Account> empty;
+      std::shared_ptr<Account> empty;
       return empty;
    }
 
@@ -108,7 +108,7 @@ namespace HM
       span.SetDateTimeSpan(0,0,minutes,0);
       dt = dt + span;
 
-      shared_ptr<SecurityRange> pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
+      std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName(GetIPRangeName_(username));
       pSecurityRange->SetPriority(20);
       pSecurityRange->SetLowerIP(ipaddress);

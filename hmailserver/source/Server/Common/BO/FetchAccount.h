@@ -65,7 +65,7 @@ namespace HM
       String GetNextTry() const {return next_try_;}
       void SetNextTry(const String &sNextTry) {next_try_ = sNextTry;}
 
-      shared_ptr<FetchAccountUIDs> GetUIDs();
+      std::shared_ptr<FetchAccountUIDs> GetUIDs();
 
       bool GetUseAntiSpam() const {return use_anti_spam_; }
       void SetUseAntiSpam(bool bNewVal) {use_anti_spam_ = bNewVal; }
@@ -94,7 +94,7 @@ namespace HM
       int minutes_;
       int days_to_keep_;
       bool is_active_;
-      shared_ptr<FetchAccountUIDs> uids_;
+      std::shared_ptr<FetchAccountUIDs> uids_;
 
       bool process_mimerecipients_;
       bool process_mimedate_;

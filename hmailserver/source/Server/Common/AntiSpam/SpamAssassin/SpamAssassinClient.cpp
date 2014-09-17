@@ -19,7 +19,7 @@ namespace HM
    SpamAssassinClient::SpamAssassinClient(const String &sFile,
                                           boost::asio::io_service& io_service, 
                                           boost::asio::ssl::context& context,
-                                          shared_ptr<Event> disconnected,
+                                          std::shared_ptr<Event> disconnected,
                                           bool &testCompleted) :
                TCPConnection(CSNone, io_service, context, disconnected, ""),
                test_completed_(testCompleted),
@@ -52,9 +52,6 @@ namespace HM
 	  String sConLen;
 	  sConLen.Format(_T("Content-length: %d\r\n"), message_size_);
 	  EnqueueWrite(sConLen);
-	  /*sConLen.Format(_T("Sent: Content-length: %d"), message_size_);
-	  LOG_DEBUG(sConLen);*/
-	  //Future feature, per user scanning. EnqueueWrite("User: " ); // send the current recipient.
 	  EnqueueWrite("\r\n");
      SendFileContents_(message_file_);
    }
@@ -77,14 +74,14 @@ namespace HM
    SpamAssassinClient::SendFileContents_(const String &sFilename)
    {
       String logMessage;
-      logMessage.Format(_T("Sending message to SpamAssassin. Session %d, File: %s"), GetSessionID(), sFilename);
+      logMessage.Format(_T("Sending message to SpamAssassin. Session %d, File: %s"), GetSessionID(), sFilename.c_str());
       LOG_DEBUG(logMessage);
 
       File oFile;
       if (!oFile.Open(sFilename, File::OTReadOnly))
       {
          String sErrorMsg;
-         sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename);
+         sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5019, "SMTPClientConnection::SendFileContents_", sErrorMsg);
 
@@ -94,7 +91,7 @@ namespace HM
       const int maxIterations = 100000;
       for (int i = 0; i < maxIterations; i++)
       {
-         shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(20000);
+         std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(20000);
 
          if (!pBuf)
             break;
@@ -132,7 +129,7 @@ namespace HM
    }
 
    void
-   SpamAssassinClient::ParseData(shared_ptr<ByteBuffer> pBuf)
+   SpamAssassinClient::ParseData(std::shared_ptr<ByteBuffer> pBuf)
    {
       if (!result_)
       {
@@ -140,7 +137,7 @@ namespace HM
          logMessage.Format(_T("Parsing response from SpamAssassin. Session %d"), GetSessionID());
          LOG_DEBUG(logMessage);
 
-         result_ = shared_ptr<File>(new File);
+         result_ = std::shared_ptr<File>(new File);
          result_->Open(FileUtilities::GetTempFileName(), File::OTAppend);
 
          spam_dsize_ = ParseFirstBuffer_(pBuf);
@@ -199,7 +196,7 @@ namespace HM
    }
 
    int
-   SpamAssassinClient::ParseFirstBuffer_(shared_ptr<ByteBuffer> pBuffer) const
+   SpamAssassinClient::ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer) const
    {
       // Don't send first line, since it's the Result header.
       char *pHeaderEndPosition = StringParser::Search(pBuffer->GetCharBuffer(), pBuffer->GetSize(), "\r\n\r\n");
@@ -212,7 +209,7 @@ namespace HM
       int headerLength = pHeaderEndPosition - pBuffer->GetCharBuffer();
       AnsiString spamAssassinHeader(pBuffer->GetCharBuffer(), headerLength);
 
-      vector<AnsiString> headerLines = StringParser::SplitString(spamAssassinHeader, "\r\n");
+      std::vector<AnsiString> headerLines = StringParser::SplitString(spamAssassinHeader, "\r\n");
       AnsiString firstLine = headerLines[0];
       AnsiString secondLine = headerLines[1];
 
@@ -235,7 +232,7 @@ namespace HM
 
       // Extract the second line from the first buffer. This buffer
       // contains the result of the operation (success / failure).
-      vector<AnsiString> contentLengthHeader = StringParser::SplitString(secondLine, ":");
+      std::vector<AnsiString> contentLengthHeader = StringParser::SplitString(secondLine, ":");
       if (contentLengthHeader.size() != 2)
       {
          LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Content-Length header not properly formatted. Expected: Content-Length:<value>, Got: {0}\r\n", secondLine));
@@ -243,7 +240,7 @@ namespace HM
       }
 
       int contentLength;
-      string sConSize = contentLengthHeader[1].Trim();
+      std::string sConSize = contentLengthHeader[1].Trim();
       if (!StringParser::TryParseInt(sConSize, contentLength))
       {
         LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Content-Length header not properly formatted. Expected: Content-Length:<value>, Got: {0}\r\n", secondLine));

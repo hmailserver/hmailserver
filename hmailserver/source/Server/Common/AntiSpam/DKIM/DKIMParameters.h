@@ -21,7 +21,7 @@ namespace HM
 
    private:
 
-      map<AnsiString, AnsiString> parameters_;
+      std::map<AnsiString, AnsiString> parameters_;
 
       AnsiString  DKIMQPDecode_(AnsiString input) const;
    };

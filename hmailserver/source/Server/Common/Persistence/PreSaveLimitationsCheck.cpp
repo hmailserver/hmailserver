@@ -39,10 +39,10 @@ namespace HM
 
    }
 
-   shared_ptr<Domain> 
+   std::shared_ptr<Domain> 
    PreSaveLimitationsCheck::GetDomain(__int64 id)
    {
-      shared_ptr<Domain> domain = shared_ptr<Domain>(new Domain);
+      std::shared_ptr<Domain> domain = std::shared_ptr<Domain>(new Domain);
 
       PersistentDomain::ReadObject(domain, id);
 
@@ -50,7 +50,7 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Account> account, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Account> account, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
@@ -68,7 +68,7 @@ namespace HM
       }
 
 
-      shared_ptr<Domain> domain = GetDomain(account->GetDomainID());
+      std::shared_ptr<Domain> domain = GetDomain(account->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeAccount, account->GetID(), account->GetAddress()))      
          return DuplicateError(resultDescription);
@@ -121,7 +121,7 @@ namespace HM
          }
          else
          {
-            shared_ptr<Account> currentAccountSettings = shared_ptr<Account>(new Account);
+            std::shared_ptr<Account> currentAccountSettings = std::shared_ptr<Account>(new Account);
             PersistentAccount::ReadObject(currentAccountSettings, account->GetID());
 
             if (currentSize - currentAccountSettings->GetAccountMaxSize() + account->GetAccountMaxSize() > domain->GetMaxSizeMB())
@@ -144,7 +144,7 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DistributionListRecipient> recipient, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionListRecipient> recipient, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
@@ -159,12 +159,12 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Alias> alias, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Alias> alias, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
-      shared_ptr<Domain> domain = GetDomain(alias->GetDomainID());
+      std::shared_ptr<Domain> domain = GetDomain(alias->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeAlias, alias->GetID(), alias->GetName()))      
          return DuplicateError(resultDescription);
@@ -184,12 +184,12 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DistributionList> list, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionList> list, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
-      shared_ptr<Domain> domain = GetDomain(list->GetDomainID());
+      std::shared_ptr<Domain> domain = GetDomain(list->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeList,list->GetID(), list->GetAddress()))      
          return DuplicateError(resultDescription);
@@ -208,12 +208,12 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Group> group, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Group> group, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
-      shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(group->GetName());
+      std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(group->GetName());
 
       if (pGroup && (group->GetID() == 0 || group->GetID() != pGroup->GetID()))
       {
@@ -232,24 +232,24 @@ namespace HM
    }
 
    bool 
-   PreSaveLimitationsCheck::GetDuplicateExist(shared_ptr<Domain> domain, ObjectType objectType, __int64 objectID, const String &objectName)
+   PreSaveLimitationsCheck::GetDuplicateExist(std::shared_ptr<Domain> domain, ObjectType objectType, __int64 objectID, const String &objectName)
    {
 
-      shared_ptr<Account> pAccount = shared_ptr<Account>(new Account);
+      std::shared_ptr<Account> pAccount = std::shared_ptr<Account>(new Account);
       if (PersistentAccount::ReadObject(pAccount, objectName))
       {
          if (pAccount && (pAccount->GetID() != objectID || objectType != TypeAccount) )
             return true;
       }
 
-      shared_ptr<Alias> pAlias = shared_ptr<Alias>(new Alias);
+      std::shared_ptr<Alias> pAlias = std::shared_ptr<Alias>(new Alias);
       if (PersistentAlias::ReadObject(pAlias, objectName))
       {
          if (pAlias && (pAlias->GetID() != objectID || objectType != TypeAlias))
             return true;
       }
 
-      shared_ptr<DistributionList> pList = shared_ptr<DistributionList>(new DistributionList);; 
+      std::shared_ptr<DistributionList> pList = std::shared_ptr<DistributionList>(new DistributionList);; 
       if (PersistentDistributionList::ReadObject(pList,objectName ))
       {
          if (pList && (pList->GetID() != objectID || objectType != TypeList))
@@ -260,12 +260,12 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Domain> domain, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Domain> domain, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domain->GetName());
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domain->GetName());
 
       if (pDomain && (domain->GetID() == 0 || domain->GetID() != pDomain->GetID()))
       {
@@ -281,8 +281,8 @@ namespace HM
       }
 
       // Check if there's a domain alias with this name. If so, this domain would be a duplciate.
-      shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
-      shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domain->GetName());
+      std::shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domain->GetName());
       if (pDomainAlias)
       {
          resultDescription = "A domain alias with this name already exists.";
@@ -293,13 +293,13 @@ namespace HM
    }
 
    bool
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<DomainAlias> domainAlias, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DomainAlias> domainAlias, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
 
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domainAlias->GetName());
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domainAlias->GetName());
 
       if (pDomain)
       {
@@ -308,8 +308,8 @@ namespace HM
       }
 
       // Check if there's a domain alias with this name. If so, this domain would be a duplciate.
-      shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
-      shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domainAlias->GetName());
+      std::shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domainAlias->GetName());
       if (pDomainAlias && (domainAlias->GetID() == 0 || domainAlias->GetID() != pDomainAlias->GetID()))
       {
          resultDescription = "A domain alias with this name already exists.";
@@ -320,14 +320,14 @@ namespace HM
    }
 
    bool 
-   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, shared_ptr<Route> route, String &resultDescription)
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Route> route, String &resultDescription)
    {
       if (mode == PersistenceModeRestore)
          return true;
 
-      shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
+      std::shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
 
-      shared_ptr<Route> existingRoute = pRoutes->GetItemByName(route->GetName());
+      std::shared_ptr<Route> existingRoute = pRoutes->GetItemByName(route->GetName());
       if (existingRoute && existingRoute->GetID() != route->GetID())
       {
         resultDescription = "Another route with this name already exists.";

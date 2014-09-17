@@ -74,14 +74,14 @@ namespace HM
       // Unlock all messages
       PersistentMessage::UnlockAll();
 
-      shared_ptr<WorkQueue> pQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+      std::shared_ptr<WorkQueue> pQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
 
       boost::mutex deliver_mutex;
 
       while (1)
       {
          // Deliver all pending messages
-         shared_ptr<Message> pMessage;
+         std::shared_ptr<Message> pMessage;
          while (pMessage = GetNextMessage_())
          {
             // Lock this message
@@ -92,7 +92,7 @@ namespace HM
                continue;
             }
 
-            shared_ptr<DeliveryTask> pDeliveryTask = shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
+            std::shared_ptr<DeliveryTask> pDeliveryTask = std::shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
             WorkQueueManager::Instance()->AddTask(queue_id_, pDeliveryTask);
             
             cur_number_of_sent_++;
@@ -102,7 +102,7 @@ namespace HM
             ServerStatus::Instance()->OnMessageProcessed();
          }
 
-         deliver_messages_.WaitFor(chrono::minutes(1));
+         deliver_messages_.WaitFor(boost::chrono::minutes(1));
       }
    
       
@@ -156,7 +156,7 @@ namespace HM
       pending_messages_ = Application::Instance()->GetDBManager()->OpenRecordset(command);
    }
 
-   shared_ptr<Message>
+   std::shared_ptr<Message>
    SMTPDeliveryManager::GetNextMessage_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
@@ -172,7 +172,7 @@ namespace HM
          LoadPendingMessageList_();
       }
 
-      shared_ptr<Message> pRetMessage;
+      std::shared_ptr<Message> pRetMessage;
       if (!pending_messages_ || pending_messages_->IsEOF())
          return pRetMessage;
       
@@ -187,7 +187,7 @@ namespace HM
          // Message was not found in cache. Read from database. Will
          // require 1 extra statement towards the database, since we
          // need to read recipients 
-         pRetMessage = shared_ptr<Message> (new Message(false));
+         pRetMessage = std::shared_ptr<Message> (new Message(false));
          PersistentMessage::ReadObject(pending_messages_, pRetMessage);
       }
 
@@ -209,13 +209,13 @@ namespace HM
    }
 
    void
-   SMTPDeliveryManager::OnPropertyChanged(shared_ptr<Property> pProperty)
+   SMTPDeliveryManager::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       String sPropertyName = pProperty->GetName();
       
       if (sPropertyName == PROPERTY_MAXDELIVERYTHREADS)
       {
-         shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+         std::shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
          
          if (!pWorkQueue)
             return;

@@ -37,7 +37,7 @@ public:
 #endif
    }
 
-   // void SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication);
+   // void SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEACCOUNTS)
 
@@ -68,13 +68,13 @@ END_COM_MAP()
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceAccount** pVal);
    STDMETHOD(get_Count)(/*[out, retval]*/ long *pVal);
 
-   void Attach(shared_ptr<HM::Accounts> pAccounts);
+   void Attach(std::shared_ptr<HM::Accounts> pAccounts);
    void SetDomain(__int64 Domain) { domain_id_ = Domain; }
 
 private:
 
-   shared_ptr<HM::Accounts> accounts_;
-   //shared_ptr<HM::COMAuthentication> authentication_;
+   std::shared_ptr<HM::Accounts> accounts_;
+   //std::shared_ptr<HM::COMAuthentication> authentication_;
 
    __int64 domain_id_;
 

@@ -139,19 +139,19 @@ namespace HM
       }
 
 
-      HM::String retVal;
+      HM::AnsiString retVal;
       if (encoding == hex)
       {
-         char *s = new char[digestLength*2+1];
+         char buffer[3];
+         buffer[2] = '\0';
 
-         for (int i=0; i<digestLength; i++)
-            sprintf(s+i*2, "%02x", results[i]);
+         for (int i = 0; i < digestLength; i++)
+         {
+            sprintf_s(buffer, 3, "%02x", results[i]);
 
-         s[digestLength*2]='\0';
+            retVal += buffer;
+         }
 
-         retVal = s;
-
-         delete [] s;
       }
       else if (encoding == base64)
       {

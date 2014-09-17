@@ -34,13 +34,13 @@ namespace HM
    }
 
    bool 
-   Events::FireOnDeliveryStart(shared_ptr<Message> pMessage)
+   Events::FireOnDeliveryStart(std::shared_ptr<Message> pMessage)
    {
       if (!Configuration::Instance()->GetUseScriptServer())
          return true;
 
-      shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-      shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
       pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
       pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
       String sEventCaller = "OnDeliveryStart(HMAILSERVER_MESSAGE)";
@@ -67,7 +67,7 @@ namespace HM
    }
 
    bool 
-   Events::FireOnDeliverMessage(shared_ptr<Message> pMessage)
+   Events::FireOnDeliverMessage(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Executes the OnDeliverMessage event.
@@ -75,8 +75,8 @@ namespace HM
    {
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
          pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
          String sEventCaller = "OnDeliverMessage(HMAILSERVER_MESSAGE)";
@@ -104,7 +104,7 @@ namespace HM
    }
 
    void
-   Events::FireOnDeliveryFailed(shared_ptr<Message> pMessage, const String &sSendersIP, const String &sRecipient, const String &sErrorMessage)
+   Events::FireOnDeliveryFailed(std::shared_ptr<Message> pMessage, const String &sSendersIP, const String &sRecipient, const String &sErrorMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called once each time delivery to a recipient failed. It may be called
@@ -134,7 +134,7 @@ namespace HM
             sErrorMessageCopy.TrimLeft();
             sErrorMessageCopy.TrimRight();
 
-            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, \"%s\", \"%s\")"), sRecipientCopy, sErrorMessageCopy);
+            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, \"%s\", \"%s\")"), sRecipientCopy.c_str(), sErrorMessageCopy.c_str());
          }
          else if (sScriptLanguage == _T("JScript"))
          {
@@ -147,10 +147,10 @@ namespace HM
             sErrorMessageCopy.TrimLeft();
             sErrorMessageCopy.TrimRight();
 
-            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, '%s', '%s')"), sRecipientCopy, sErrorMessageCopy);
+            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, '%s', '%s')"), sRecipientCopy.c_str(), sErrorMessageCopy.c_str());
          }
 
-         shared_ptr<ScriptObjectContainer> pContainer  = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
 
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnDeliveryFailed, sEventCaller, pContainer);
@@ -158,8 +158,8 @@ namespace HM
 
    }
 
-   shared_ptr<Result>
-   Events::FireOnExternalAccountDownload(shared_ptr<FetchAccount> fetchAccount, shared_ptr<Message> pMessage, const String &sRemoteUID)
+   std::shared_ptr<Result>
+   Events::FireOnExternalAccountDownload(std::shared_ptr<FetchAccount> fetchAccount, std::shared_ptr<Message> pMessage, const String &sRemoteUID)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called once each time delivery to a recipient failed. It may be called
@@ -167,7 +167,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Send an event
-      shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
       if (!Configuration::Instance()->GetUseScriptServer())
          return pResult;
       
@@ -182,21 +182,21 @@ namespace HM
          sRemoteUIDCopy.Replace(_T("\""), _T("\"\""));
 
          if (pMessage)
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, \"%s\")"), sRemoteUIDCopy);
+            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, \"%s\")"), sRemoteUIDCopy.c_str());
          else
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, Nothing, \"%s\")"), sRemoteUIDCopy);
+            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, Nothing, \"%s\")"), sRemoteUIDCopy.c_str());
       }
       else if (sScriptLanguage == _T("JScript"))
       {
          sRemoteUIDCopy.Replace(_T("'"), _T("\'"));
 
          if (pMessage)
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, '%s')"), sRemoteUIDCopy);
+            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, '%s')"), sRemoteUIDCopy.c_str());
          else
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, null, '%s')"), sRemoteUIDCopy);
+            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, null, '%s')"), sRemoteUIDCopy.c_str());
       }
 
-      shared_ptr<ScriptObjectContainer> pContainer  = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+      std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
       
       pContainer->AddObject("HMAILSERVER_FETCHACCOUNT", fetchAccount, ScriptObject::OTFetchAccount);
 

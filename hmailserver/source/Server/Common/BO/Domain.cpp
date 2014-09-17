@@ -43,57 +43,57 @@ namespace HM
 
    }
 
-   shared_ptr<Accounts>
+   std::shared_ptr<Accounts>
    Domain::GetAccounts()
    {
       if (!accounts_)
-         accounts_ = shared_ptr<Accounts>(new Accounts(id_));
+         accounts_ = std::shared_ptr<Accounts>(new Accounts(id_));
 
       accounts_->Refresh();
       return accounts_;
    }
 
 
-   shared_ptr<DomainAliases>
+   std::shared_ptr<DomainAliases>
    Domain::GetDomainAliases()
    {
       if (!domain_aliases_)
-         domain_aliases_ = shared_ptr<DomainAliases>(new DomainAliases(id_));
+         domain_aliases_ = std::shared_ptr<DomainAliases>(new DomainAliases(id_));
 
       domain_aliases_->Refresh();
       return domain_aliases_;
    }
 
-   shared_ptr<Accounts>
+   std::shared_ptr<Accounts>
    Domain::GetAccounts(__int64 iAccountID)
    {
       if (!accounts_)
       {
          // Only fetch a specific account and put it in the list. This happens
          // when an API client only has limited access.
-         accounts_ = shared_ptr<Accounts>(new Accounts(id_, iAccountID));
+         accounts_ = std::shared_ptr<Accounts>(new Accounts(id_, iAccountID));
       }
 
       accounts_->Refresh();
       return accounts_;
    }
 
-   shared_ptr<Aliases>
+   std::shared_ptr<Aliases>
    Domain::GetAliases()
    {
       if (!aliases_)
-         aliases_ = shared_ptr<Aliases>(new Aliases(id_));
+         aliases_ = std::shared_ptr<Aliases>(new Aliases(id_));
       
       aliases_->Refresh();
 
       return aliases_;
    }
 
-   shared_ptr<DistributionLists>
+   std::shared_ptr<DistributionLists>
    Domain::GetDistributionLists()
    {
       if (!distribution_lists_)
-         distribution_lists_ = shared_ptr<DistributionLists>(new DistributionLists(id_));
+         distribution_lists_ = std::shared_ptr<DistributionLists>(new DistributionLists(id_));
 
       distribution_lists_->Refresh();
 

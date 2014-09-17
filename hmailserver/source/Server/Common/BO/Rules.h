@@ -25,10 +25,10 @@ namespace HM
 
    protected:
       virtual String GetCollectionName() const {return "Rules"; }
-      virtual bool PreSaveObject(shared_ptr<Rule> pRule, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<Rule> pRule, XNode *node);
    private:
       
-      vector<shared_ptr<Rule> >::iterator GetRuleIterator_(__int64 iRuleID);
+      std::vector<std::shared_ptr<Rule> >::iterator GetRuleIterator_(__int64 iRuleID);
       void UpdateSortOrder_();
 
       __int64 account_id_;

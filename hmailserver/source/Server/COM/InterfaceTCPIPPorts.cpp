@@ -10,7 +10,7 @@
 #include "InterfaceTCPIPPort.h"
 
 void 
-InterfaceTCPIPPorts::Attach(shared_ptr<HM::TCPIPPorts> pBA) 
+InterfaceTCPIPPorts::Attach(std::shared_ptr<HM::TCPIPPorts> pBA) 
 { 
    tcpip_ports_ = pBA; 
 }
@@ -79,7 +79,7 @@ InterfaceTCPIPPorts::get_Item(long Index, IInterfaceTCPIPPort **pVal)
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
       pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItem(Index);
+      std::shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -125,7 +125,7 @@ InterfaceTCPIPPorts::get_ItemByDBID(long lDBID, IInterfaceTCPIPPort **pVal)
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
       pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -158,7 +158,7 @@ InterfaceTCPIPPorts::Add(IInterfaceTCPIPPort **pVal)
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
       pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = shared_ptr<HM::TCPIPPort>(new HM::TCPIPPort);
+      std::shared_ptr<HM::TCPIPPort> pBA = std::shared_ptr<HM::TCPIPPort>(new HM::TCPIPPort);
    
       pInterfaceTCPIPPort->AttachItem(pBA);
       pInterfaceTCPIPPort->AttachParent(tcpip_ports_, false);

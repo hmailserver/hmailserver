@@ -11,7 +11,7 @@
 #include "../Common/BO/DomainAlias.h"
 
 void 
-InterfaceDomainAliases::Attach(shared_ptr<HM::DomainAliases> pDomainAliases)
+InterfaceDomainAliases::Attach(std::shared_ptr<HM::DomainAliases> pDomainAliases)
 {
    domain_aliases_ = pDomainAliases;
 }
@@ -26,7 +26,7 @@ STDMETHODIMP InterfaceDomainAliases::get_ItemByDBID(long lDBID, IInterfaceDomain
       CComObject<InterfaceDomainAlias>* pInterfaceDA = new CComObject<InterfaceDomainAlias>();
       pInterfaceDA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItemByDBID(lDBID);
       if (!pDomainAlias)
          return DISP_E_BADINDEX;
    
@@ -53,7 +53,7 @@ STDMETHODIMP InterfaceDomainAliases::get_Item(long lIndex, IInterfaceDomainAlias
       CComObject<InterfaceDomainAlias>* pInterfaceAccount = new CComObject<InterfaceDomainAlias>();
       pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItem(lIndex);
+      std::shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItem(lIndex);
       if (!pDomainAlias)
          return DISP_E_BADINDEX;
    
@@ -83,7 +83,7 @@ STDMETHODIMP InterfaceDomainAliases::Add(IInterfaceDomainAlias **pVal)
       CComObject<InterfaceDomainAlias>* pIntDA = new CComObject<InterfaceDomainAlias>();
       pIntDA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDA = shared_ptr<HM::DomainAlias>(new HM::DomainAlias);
+      std::shared_ptr<HM::DomainAlias> pDA = std::shared_ptr<HM::DomainAlias>(new HM::DomainAlias);
    
       pDA->SetDomainID(domain_aliases_->GetDomainID());
    

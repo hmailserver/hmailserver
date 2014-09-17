@@ -39,7 +39,7 @@
 
 namespace HM
 { 
-   ExternalDelivery::ExternalDelivery(const String &sSendersIP, shared_ptr<Message> message, const RuleResult &globalRuleResult) :
+   ExternalDelivery::ExternalDelivery(const String &sSendersIP, std::shared_ptr<Message> message, const RuleResult &globalRuleResult) :
       _sendersIP(sSendersIP),
       original_message_(message),
       _globalRuleResult(globalRuleResult)
@@ -54,7 +54,7 @@ namespace HM
    /// Performs deliver to any external recipients. 
    /// Returns true if the message has been rescheduled for later delivery.
    bool
-   ExternalDelivery::Perform(vector<String> &saErrorMessages)
+   ExternalDelivery::Perform(std::vector<String> &saErrorMessages)
    {
       // DKIM-tag the message.
       if (original_message_->GetNoOfRetries() == 0)
@@ -63,12 +63,12 @@ namespace HM
          signer.Sign(original_message_);
       }
 
-      map<String,String> mapFailedDueToNonFatalError;
+      std::map<String,String> mapFailedDueToNonFatalError;
 
       ServerTargetResolver serverTargetResolver(original_message_, _globalRuleResult);
-      map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > > mapRecipients = serverTargetResolver.Resolve();
-      map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterDomain = mapRecipients.begin();
-      map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterEnd = mapRecipients.end();
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > mapRecipients = serverTargetResolver.Resolve();
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterDomain = mapRecipients.begin();
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterEnd = mapRecipients.end();
 
       unsigned int iMaxRecipientsInBatch = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPRecipientsInBatch();
       if (iMaxRecipientsInBatch == 0)
@@ -76,12 +76,12 @@ namespace HM
 
       for (; iterDomain != iterEnd; iterDomain++)
       {
-         shared_ptr<ServerInfo> serverInfo = (*iterDomain).first;
-         vector<shared_ptr<MessageRecipient> > vecRecipientsOnDomain = (*iterDomain).second;
+         std::shared_ptr<ServerInfo> serverInfo = (*iterDomain).first;
+         std::vector<std::shared_ptr<MessageRecipient> > vecRecipientsOnDomain = (*iterDomain).second;
 
          // Split up all the recipients for this server into batches of 100 or so.
-         vector<shared_ptr<MessageRecipient> > batch;
-         vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipientsOnDomain.begin();
+         std::vector<std::shared_ptr<MessageRecipient> > batch;
+         std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipientsOnDomain.begin();
          while (iterRecipient != vecRecipientsOnDomain.end())
          {
             batch.push_back(*iterRecipient);
@@ -113,7 +113,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::DeliverToSingleDomain_(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo)
+   ExternalDelivery::DeliverToSingleDomain_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Deliveres the message to external accounts (recipients not on this server).
@@ -126,7 +126,7 @@ namespace HM
          return;
       }
 
-      vector<HostNameAndIpAddress> mail_servers;
+      std::vector<HostNameAndIpAddress> mail_servers;
 
       // Run DNS query to find the recipient servers IP addresses.
       if (!ResolveRecipientServers_(serverInfo, vecRecipients, mail_servers))
@@ -144,8 +144,8 @@ namespace HM
 
          // Create a list of the remaining recipients. These are the recipients we have
          // not yet delivered to on a previous server (where i > 0). 
-         vector<shared_ptr<MessageRecipient> > remainingRecipients;
-         boost_foreach(shared_ptr<MessageRecipient> recipient, vecRecipients)
+         std::vector<std::shared_ptr<MessageRecipient> > remainingRecipients;
+         for(std::shared_ptr<MessageRecipient> recipient : vecRecipients)
          {
             if (recipient->GetDeliveryResult() == MessageRecipient::ResultUndefined ||
                 recipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
@@ -161,7 +161,7 @@ namespace HM
 
          bool retryWithoutStartTls = false;
 
-         boost_foreach(shared_ptr<MessageRecipient> recipient, remainingRecipients)
+         for(std::shared_ptr<MessageRecipient> recipient : remainingRecipients)
          {
             if (recipient->GetDeliveryResult() == MessageRecipient::ResultOptionalHandshakeFailed)
             {
@@ -198,7 +198,7 @@ namespace HM
    /// Resolves IP addresses for the recipient servers. This will either be a MX 
    /// lookup, or a A lookup, if SMTP relaying is used.
    bool 
-   ExternalDelivery::ResolveRecipientServers_(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<HostNameAndIpAddress> &saMailServers)
+   ExternalDelivery::ResolveRecipientServers_(std::shared_ptr<ServerInfo> &serverInfo, std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::vector<HostNameAndIpAddress> &saMailServers)
    {
       DNSResolver resolver;
 
@@ -212,7 +212,7 @@ namespace HM
          String target_host_name = serverInfo->GetHostName();
          String target_ip_address = serverInfo->GetIpAddress();
 
-         vector<String> mailServerHosts;
+         std::vector<String> mailServerHosts;
 
          bool useHostName = !target_host_name.IsEmpty();
 
@@ -227,12 +227,12 @@ namespace HM
             else
                mailServerHosts.push_back(target_host_name);
 
-            boost_foreach(String host, mailServerHosts)
+            for(String host : mailServerHosts)
             {
-               vector<String> ip_addresses;
+               std::vector<String> ip_addresses;
                dnsQueryOK = resolver.GetARecords(host, ip_addresses);
 
-               boost_foreach(String ip_address, ip_addresses)
+               for(String ip_address:  ip_addresses)
                {
                   HostNameAndIpAddress hostNameAndIpAddress;
                   hostNameAndIpAddress.SetHostName(host);
@@ -266,7 +266,7 @@ namespace HM
          dnsQueryOK = resolver.GetEmailServers(serverInfo->GetHostName(), saMailServers);
       }
 
-      shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+      std::shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
       const unsigned int maxNumberOfMXHosts = pSMTPConfig->GetMaxNumberOfMXHosts();
 
       if (maxNumberOfMXHosts > 0 && saMailServers.size() > maxNumberOfMXHosts)
@@ -286,15 +286,15 @@ namespace HM
    }
 
    bool
-   ExternalDelivery::RecipientWithNonFatalDeliveryErrorExists_(vector<shared_ptr<MessageRecipient> > &vecRecipients)
+   ExternalDelivery::RecipientWithNonFatalDeliveryErrorExists_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients)
    {
       // If there exists an recipient with nonfatal error,
       // we should try to deliver to other servers.
-      vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
       bool bTryNextServer = false;
       while (iterRecipient != vecRecipients.end())
       {
-         shared_ptr<MessageRecipient> pRecipient (*iterRecipient);
+         std::shared_ptr<MessageRecipient> pRecipient (*iterRecipient);
 
          if (pRecipient->GetDeliveryResult() == MessageRecipient::ResultUndefined ||
             pRecipient->GetDeliveryResult() == MessageRecipient::ResultNonFatalError)
@@ -310,16 +310,16 @@ namespace HM
    }
 
    void 
-   ExternalDelivery::HandleExternalDeliveryFailure_(vector<shared_ptr<MessageRecipient> > &vecRecipients,    
+   ExternalDelivery::HandleExternalDeliveryFailure_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients,    
                                                       bool bIsFatal,    
                                                       String &sErrorString)
    {
 
 
-      vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
       while (iterRecipient != vecRecipients.end())
       {
-         shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
+         std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
 
          // Unless this recipient has already fatally failed, or succeeded,
          // update the state of it.
@@ -341,7 +341,7 @@ namespace HM
    }
 
    void
-   ExternalDelivery::HandleNoRecipientServers_(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer)
+   ExternalDelivery::HandleNoRecipientServers_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Takes care of the situation when no valid recipient server addresses exist.
@@ -366,7 +366,7 @@ namespace HM
       }
 
       // Update the recipients with the bounce message text and delivery result.
-      boost_foreach(shared_ptr<MessageRecipient> recipient, vecRecipients)
+      for(std::shared_ptr<MessageRecipient> recipient : vecRecipients)
       {
          // Temp change to force non fatal no matter DNS result
          // Messages bouncing immediately due to no mail servers due to DNS issue
@@ -377,8 +377,8 @@ namespace HM
    }
 
    void
-   ExternalDelivery::DeliverToSingleServer_(vector<shared_ptr<MessageRecipient> > &vecRecipients,
-                                            shared_ptr<ServerInfo> serverInfo)
+   ExternalDelivery::DeliverToSingleServer_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients,
+                                            std::shared_ptr<ServerInfo> serverInfo)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Connects to a remote server and delivers the message to it.
@@ -391,11 +391,11 @@ namespace HM
          serverInfo->GetConnectionSecurity(), 
          serverInfo->GetUsername()));
 
-      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
-      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<SMTPClientConnection> pClientConnection 
-         = shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event()) ;
+      std::shared_ptr<SMTPClientConnection> pClientConnection 
+         = std::shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
 
       pClientConnection->SetDelivery(original_message_, vecRecipients);
 
@@ -427,7 +427,7 @@ namespace HM
    {
       IPAddress localAddress;
 
-      shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+      std::shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
 
       String smtpSettingBindToIP = pSMTPConfig->GetSMTPDeliveryBindToIP();
       String ruleBindToAddress = _globalRuleResult.GetBindToAddress();
@@ -443,9 +443,9 @@ namespace HM
 
    void 
    ExternalDelivery::CollectDeliveryResult_(const String &serverHostName, 
-                                             vector<shared_ptr<MessageRecipient> > &vecRecipients, 
-                                             vector<String> &saErrorMessages,
-                                             map<String,String> &mapFailedDueToNonFatalError)
+                                             std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, 
+                                             std::vector<String> &saErrorMessages,
+                                             std::map<String,String> &mapFailedDueToNonFatalError)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // This function is called after delivery has ended. It goes through the recipients
@@ -456,7 +456,7 @@ namespace HM
       LOG_DEBUG("Summarizing delivery result");
 
       // Check how the delivery went.
-      boost_foreach(shared_ptr<MessageRecipient> recipient, vecRecipients)
+      for(std::shared_ptr<MessageRecipient> recipient : vecRecipients)
       {
          if (recipient->GetDeliveryResult() == MessageRecipient::ResultOK)
          {
@@ -499,7 +499,7 @@ namespace HM
    /// Checks if we should reschedule the message for later delivery. If so, we do.
    /// Returns true if the message is rescheduled.
    bool
-   ExternalDelivery::RescheduleDelivery_(map<String,String> &mapFailedDueToNonFatalError, vector<String> &saErrorMessages)
+   ExternalDelivery::RescheduleDelivery_(std::map<String,String> &mapFailedDueToNonFatalError, std::vector<String> &saErrorMessages)
    {
 
       LOG_DEBUG("SD::RescheduleDelivery_");
@@ -583,7 +583,7 @@ namespace HM
          // Delivery failed the last time.
          String sErrorMessage;
 
-         map<String,String>::iterator iterFailed = mapFailedDueToNonFatalError.begin();
+         std::map<String,String>::iterator iterFailed = mapFailedDueToNonFatalError.begin();
          while (iterFailed != mapFailedDueToNonFatalError.end())
          {
             if (!sErrorMessage.IsEmpty())
@@ -619,10 +619,10 @@ namespace HM
    /// every try.
    // Type changed to bool for use in ETRN's
    bool 
-   ExternalDelivery::GetRetryOptions_(map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween)
+   ExternalDelivery::GetRetryOptions_(std::map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween)
    {
-      shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
-      shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
+      std::shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+      std::shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
 
       bool bFirstMatchingRoute = true;
 
@@ -631,8 +631,8 @@ namespace HM
       lNoOfRetries = pSMTPConfig->GetNoOfRetries();
       lMinutesBetween  = pSMTPConfig->GetMinutesBetweenTry();
 
-      map<String,String>::iterator iterAddress = mapFailedDueToNonFatalError.begin();
-      map<String, shared_ptr<Route> > matchingRoutes;
+      std::map<String,String>::iterator iterAddress = mapFailedDueToNonFatalError.begin();
+      std::map<String, std::shared_ptr<Route> > matchingRoutes;
 
       bool recipientsFoundNotMatchingRoute = false;
 
@@ -641,7 +641,7 @@ namespace HM
          String sAddress = (*iterAddress).first;
          String sDomainName = StringParser::ExtractDomain (sAddress).ToLower();
          
-         shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sDomainName);
+         std::shared_ptr<Route> pRoute = pRoutes->GetItemByNameWithWildcardMatch(sDomainName);
 
          if (pRoute)
          {
@@ -674,7 +674,7 @@ namespace HM
       // HOLD when non-route recipient would be BAD. :D
       if (matchingRoutes.size() == 1 && !recipientsFoundNotMatchingRoute)
       {
-         shared_ptr<Route> route = (*matchingRoutes.begin()).second;
+         std::shared_ptr<Route> route = (*matchingRoutes.begin()).second;
          String routeDescription = route->GetDescription();
 
          if (routeDescription.ToUpper().StartsWith(_T("ETRN")))

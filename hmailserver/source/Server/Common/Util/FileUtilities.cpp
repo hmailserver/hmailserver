@@ -59,7 +59,7 @@ namespace HM
          {
             // We still couldn't delete the file. Lets give up and report in windows event log.
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not delete the file %s. Tried 5 times without success. Windows error code: %d (%s)"), FileName, iLastError, Dictionary::GetWindowsErrorDescription(iLastError));
+            sErrorMessage.Format(_T("Could not delete the file %s. Tried 5 times without success. Windows error code: %d (%s)"), FileName.c_str(), iLastError, Dictionary::GetWindowsErrorDescription(iLastError).c_str());
 
             ErrorManager::Instance()->ReportError(ErrorManager::High, 5047, "File::DeleteFile", sErrorMessage);
             return false;
@@ -105,7 +105,7 @@ namespace HM
             int iLastError = ::GetLastError();
 
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried 5 times without success. Windows eror code: %d (%s)"), sFrom, sTo, iLastError, Dictionary::GetWindowsErrorDescription(iLastError));
+            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried 5 times without success. Windows eror code: %d (%s)"), sFrom.c_str(), sTo.c_str(), iLastError, Dictionary::GetWindowsErrorDescription(iLastError).c_str());
             ErrorManager::Instance()->ReportError(ErrorManager::High, 5048, "File::Copy", sErrorMessage);
             return false;
          }
@@ -153,7 +153,7 @@ namespace HM
             int iLastError = ::GetLastError();
 
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not move the file %s to %s. Tried 5 times without success. Windows eror code: %d (%s)"), sFrom, sTo, iLastError, Dictionary::GetWindowsErrorDescription(iLastError));
+            sErrorMessage.Format(_T("Could not move the file %s to %s. Tried 5 times without success. Windows eror code: %d (%s)"), sFrom.c_str(), sTo.c_str(), iLastError, Dictionary::GetWindowsErrorDescription(iLastError).c_str());
             ErrorManager::Instance()->ReportError(ErrorManager::High, 5049, "File::Normal", sErrorMessage);
 
             return false;
@@ -266,7 +266,7 @@ namespace HM
       oFile.Open(sFilename, File::OTReadOnly);
 
       // Read file
-      shared_ptr<ByteBuffer> pBuffer = oFile.ReadFile();
+      std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadFile();
 
       if (!pBuffer || pBuffer->GetSize() == 0)
       {
@@ -434,7 +434,7 @@ namespace HM
    FileUtilities::GetTempFileName()
    {
       String sTmpFile;
-      sTmpFile.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID() );      
+      sTmpFile.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory().c_str(), GUIDCreator::GetGUID().c_str());
       return sTmpFile;
    }
 
@@ -471,7 +471,7 @@ namespace HM
          {
             // We still couldn't copy the file. Lets give up and report in windows event log and hMailServer application log.
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not create the directory %s. Tried 5 times without success. Windows error code: %d (%s)"), sName, iWinErr, Dictionary::GetWindowsErrorDescription(iWinErr));
+            sErrorMessage.Format(_T("Could not create the directory %s. Tried 5 times without success. Windows error code: %d (%s)"), sName.c_str(), iWinErr, Dictionary::GetWindowsErrorDescription(iWinErr).c_str());
 
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5050, "File::CreateDirectory", sErrorMessage);
             return false;
@@ -532,7 +532,7 @@ namespace HM
 
       if (hFileFound == INVALID_HANDLE_VALUE)
       {
-         errorMessage.Format(_T("Find first file with wildcard %s failed. Error: %d."), sWildCard, GetLastError());
+         errorMessage.Format(_T("Find first file with wildcard %s failed. Error: %d."), sWildCard.c_str(), GetLastError());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4233, "File::CopyDirectory", errorMessage);
          return false;
       }
@@ -572,7 +572,7 @@ namespace HM
                continue;
 
             // The file exists , but we were not able to copy it.
-            errorMessage.Format(_T("Copy of file from %s to %s failed. Error: %d"), sOldFullPath, sNewFullPath, GetLastError());
+            errorMessage.Format(_T("Copy of file from %s to %s failed. Error: %d"), sOldFullPath.c_str(), sNewFullPath.c_str(), GetLastError());
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4232, "File::CopyDirectory", errorMessage);
             return false;
          }
@@ -634,10 +634,10 @@ namespace HM
       return true;
    }
 
-   vector<String> 
+   std::vector<String> 
    FileUtilities::GetFilesInDirectory(const String &sDirectoryName)
    {
-      vector<String> result;
+      std::vector<String> result;
       String sDir = sDirectoryName;
       if (sDir.Right(1) != _T("\\"))
          sDir += "\\";

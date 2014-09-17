@@ -9,7 +9,7 @@
 #include "InterfaceGreyListingWhiteAddress.h"
 
 void 
-InterfaceGreyListingWhiteAddresses::Attach(shared_ptr<HM::GreyListingWhiteAddresses> pBA) 
+InterfaceGreyListingWhiteAddresses::Attach(std::shared_ptr<HM::GreyListingWhiteAddresses> pBA) 
 { 
    gl_white_addresses_ = pBA; 
 }
@@ -63,7 +63,7 @@ InterfaceGreyListingWhiteAddresses::get_Item(long Index, IInterfaceGreyListingWh
       CComObject<InterfaceGreyListingWhiteAddress>* pInterfaceGreyListingWhiteAddress = new CComObject<InterfaceGreyListingWhiteAddress>();
       pInterfaceGreyListingWhiteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItem(Index);
+      std::shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -109,7 +109,7 @@ InterfaceGreyListingWhiteAddresses::get_ItemByDBID(long lDBID, IInterfaceGreyLis
       CComObject<InterfaceGreyListingWhiteAddress>* pInterfaceGreyListingWhiteAddress = new CComObject<InterfaceGreyListingWhiteAddress>();
       pInterfaceGreyListingWhiteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -139,7 +139,7 @@ InterfaceGreyListingWhiteAddresses::get_ItemByName(BSTR sName, IInterfaceGreyLis
       CComObject<InterfaceGreyListingWhiteAddress>* pInterfaceGreyListingWhiteAddress = new CComObject<InterfaceGreyListingWhiteAddress>();
       pInterfaceGreyListingWhiteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItemByName(sName);
+      std::shared_ptr<HM::GreyListingWhiteAddress> pBA = gl_white_addresses_->GetItemByName(sName);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -172,7 +172,7 @@ InterfaceGreyListingWhiteAddresses::Add(IInterfaceGreyListingWhiteAddress **pVal
       CComObject<InterfaceGreyListingWhiteAddress>* pInterfaceGreyListingWhiteAddress = new CComObject<InterfaceGreyListingWhiteAddress>();
       pInterfaceGreyListingWhiteAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::GreyListingWhiteAddress> pBA = shared_ptr<HM::GreyListingWhiteAddress>(new HM::GreyListingWhiteAddress);
+      std::shared_ptr<HM::GreyListingWhiteAddress> pBA = std::shared_ptr<HM::GreyListingWhiteAddress>(new HM::GreyListingWhiteAddress);
    
       pInterfaceGreyListingWhiteAddress->AttachItem(pBA);
       pInterfaceGreyListingWhiteAddress->AttachParent(gl_white_addresses_, false);

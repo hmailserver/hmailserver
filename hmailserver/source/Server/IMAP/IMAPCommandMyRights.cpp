@@ -23,7 +23,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandMyRights::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandMyRights::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -31,7 +31,7 @@ namespace HM
       if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPACL())
          return IMAPResult(IMAPResult::ResultBad, "ACL is not enabled.");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
 
       if (pParser->WordCount() < 2)
@@ -53,18 +53,18 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
       
-      shared_ptr<IMAPFolder> pSelectedFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pSelectedFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pSelectedFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
 	  ACLManager aclManager;
-      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(pConnection->GetAccount()->GetID(), pSelectedFolder);
+      std::shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(pConnection->GetAccount()->GetID(), pSelectedFolder);
       String sRightsString;
       if (pPermission)
          sRightsString = pPermission->GetRights();
 
       String sResponse;
-      sResponse.Format(_T("* MYRIGHTS \"%s\" %s\r\n"), sOriginalFolderName, sRightsString);
+      sResponse.Format(_T("* MYRIGHTS \"%s\" %s\r\n"), sOriginalFolderName.c_str(), sRightsString.c_str());
       sResponse += pArgument->Tag() + _T(" OK Myrights complete\r\n");
 
       pConnection->SendAsciiData(sResponse);   

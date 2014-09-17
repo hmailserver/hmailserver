@@ -38,7 +38,7 @@ END_COM_MAP()
 	{
 	}
 
-   void AttachItem(shared_ptr<HM::MessageRecipient> pRecipient);
+   void AttachItem(std::shared_ptr<HM::MessageRecipient> pRecipient);
 
 public:
 
@@ -48,7 +48,7 @@ public:
 
 private:
 
-   shared_ptr<HM::MessageRecipient> object_;
+   std::shared_ptr<HM::MessageRecipient> object_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Recipient), InterfaceRecipient)

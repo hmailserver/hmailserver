@@ -57,13 +57,13 @@ END_COM_MAP()
 
    STDMETHOD(Refresh)();
 
-   void Attach(shared_ptr<HM::Routes> pRoutes);
+   void Attach(std::shared_ptr<HM::Routes> pRoutes);
 
-   void InternalAdd(shared_ptr<HM::Route> pObject);
+   void InternalAdd(std::shared_ptr<HM::Route> pObject);
 
 public:
 
-   shared_ptr<HM::Routes> routes_;
+   std::shared_ptr<HM::Routes> routes_;
 
 };
 

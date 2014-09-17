@@ -14,11 +14,11 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandCapability::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandCapability::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       String sResponse = "* CAPABILITY IMAP4 IMAP4rev1 CHILDREN";
       
-      shared_ptr<IMAPConfiguration> pConfig = Configuration::Instance()->GetIMAPConfiguration();
+      std::shared_ptr<IMAPConfiguration> pConfig = Configuration::Instance()->GetIMAPConfiguration();
 
       if (pConfig->GetUseIMAPIdle())
          sResponse += " IDLE";

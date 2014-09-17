@@ -17,7 +17,7 @@ namespace HM
       virtual ~Scheduler();
 
 
-      void ScheduleTask(shared_ptr<ScheduledTask> pTask);
+      void ScheduleTask(std::shared_ptr<ScheduledTask> pTask);
 
       void DoWork();
 
@@ -26,7 +26,7 @@ namespace HM
       void RunTasks_();
 
       boost::recursive_mutex mutex_;
-      vector<shared_ptr<ScheduledTask >> scheduled_tasks_;
+      std::vector<std::shared_ptr<ScheduledTask >> scheduled_tasks_;
 
    };
 

@@ -13,7 +13,7 @@
 
 
 void 
-InterfaceWhiteListAddresses::Attach(shared_ptr<HM::WhiteListAddresses> pBA) 
+InterfaceWhiteListAddresses::Attach(std::shared_ptr<HM::WhiteListAddresses> pBA) 
 { 
    object_ = pBA; 
 }
@@ -88,7 +88,7 @@ InterfaceWhiteListAddresses::get_Item(long Index, IInterfaceWhiteListAddress **p
       CComObject<InterfaceWhiteListAddress>* pInterfaceWhiteListAddress = new CComObject<InterfaceWhiteListAddress>();
       pInterfaceWhiteListAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::WhiteListAddress> pBA = object_->GetItem(Index);
+      std::shared_ptr<HM::WhiteListAddress> pBA = object_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -134,7 +134,7 @@ InterfaceWhiteListAddresses::get_ItemByDBID(long lDBID, IInterfaceWhiteListAddre
       CComObject<InterfaceWhiteListAddress>* pInterfaceWhiteListAddress = new CComObject<InterfaceWhiteListAddress>();
       pInterfaceWhiteListAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::WhiteListAddress> pBA = object_->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::WhiteListAddress> pBA = object_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -164,7 +164,7 @@ InterfaceWhiteListAddresses::get_ItemByName(BSTR sName, IInterfaceWhiteListAddre
       CComObject<InterfaceWhiteListAddress>* pInterfaceWhiteListAddress = new CComObject<InterfaceWhiteListAddress>();
       pInterfaceWhiteListAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::WhiteListAddress> pBA = object_->GetItemByName(sName);
+      std::shared_ptr<HM::WhiteListAddress> pBA = object_->GetItemByName(sName);
    
       if (!pBA)
          return DISP_E_BADINDEX;
@@ -197,7 +197,7 @@ InterfaceWhiteListAddresses::Add(IInterfaceWhiteListAddress **pVal)
       CComObject<InterfaceWhiteListAddress>* pInterfaceWhiteListAddress = new CComObject<InterfaceWhiteListAddress>();
       pInterfaceWhiteListAddress->SetAuthentication(authentication_);
    
-      shared_ptr<HM::WhiteListAddress> pBA = shared_ptr<HM::WhiteListAddress>(new HM::WhiteListAddress);
+      std::shared_ptr<HM::WhiteListAddress> pBA = std::shared_ptr<HM::WhiteListAddress>(new HM::WhiteListAddress);
    
       pInterfaceWhiteListAddress->AttachItem(pBA);
       pInterfaceWhiteListAddress->AttachParent(object_, false);

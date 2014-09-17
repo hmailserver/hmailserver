@@ -15,17 +15,17 @@ namespace HM
       PersistentDistributionList(void);
       ~PersistentDistributionList(void);
 
-      static bool DeleteObject(shared_ptr<DistributionList> pDistList);
+      static bool DeleteObject(std::shared_ptr<DistributionList> pDistList);
       
-      static bool SaveObject(shared_ptr<DistributionList> pDistList);
-      static bool SaveObject(shared_ptr<DistributionList> pDistList, String &sErrorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<DistributionList> pDistList);
+      static bool SaveObject(std::shared_ptr<DistributionList> pDistList, String &sErrorMessage, PersistenceMode mode);
 
-      static bool ReadObject(shared_ptr<DistributionList> pDistList, const String &sAddress);
-      static bool ReadObject(shared_ptr<DistributionList> pDistList, __int64 ObjectID);
-      static bool ReadObject(shared_ptr<DistributionList> pDistList, const SQLCommand &command);
-      static bool ReadObject(shared_ptr<DistributionList> pDistList, shared_ptr<DALRecordset> pRS);
+      static bool ReadObject(std::shared_ptr<DistributionList> pDistList, const String &sAddress);
+      static bool ReadObject(std::shared_ptr<DistributionList> pDistList, __int64 ObjectID);
+      static bool ReadObject(std::shared_ptr<DistributionList> pDistList, const SQLCommand &command);
+      static bool ReadObject(std::shared_ptr<DistributionList> pDistList, std::shared_ptr<DALRecordset> pRS);
 
-      static bool DeleteMembers(shared_ptr<DistributionList> pDistList);
+      static bool DeleteMembers(std::shared_ptr<DistributionList> pDistList);
 
 
    private:

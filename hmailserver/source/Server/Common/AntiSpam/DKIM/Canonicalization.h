@@ -21,7 +21,7 @@ namespace HM
 
       virtual ~Canonicalization() {};
       virtual AnsiString CanonicalizeBody(AnsiString value) = 0;
-      virtual AnsiString CanonicalizeHeader(AnsiString value, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList ) = 0;
+      virtual AnsiString CanonicalizeHeader(AnsiString value, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList ) = 0;
       virtual AnsiString CanonicalizeHeaderValue(AnsiString value) = 0;
       virtual AnsiString CanonicalizeHeaderName(AnsiString value) = 0;
       virtual AnsiString CanonicalizeHeaderLine(AnsiString name, AnsiString value) = 0;
@@ -36,7 +36,7 @@ namespace HM
    public:
 
       virtual AnsiString CanonicalizeBody(AnsiString value);
-      virtual AnsiString CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList);
+      virtual AnsiString CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList);
       virtual AnsiString CanonicalizeHeaderValue(AnsiString value);
       virtual AnsiString CanonicalizeHeaderName(AnsiString value);
       
@@ -52,7 +52,7 @@ namespace HM
    public:
 
       virtual AnsiString CanonicalizeBody(AnsiString value);
-      virtual AnsiString CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField,  const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList);
+      virtual AnsiString CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField,  const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList);
       virtual AnsiString CanonicalizeHeaderLine(AnsiString name, AnsiString value)
       {
          return CanonicalizeHeaderName(name) + ": " + CanonicalizeHeaderValue(value);

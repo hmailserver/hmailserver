@@ -138,11 +138,11 @@ namespace HM
          DKIM END
       */
 
-      shared_ptr<Accounts> GetAccounts();
-      shared_ptr<Accounts> GetAccounts(__int64 iAccountID);
-      shared_ptr<Aliases> GetAliases();
-      shared_ptr<DistributionLists> GetDistributionLists();
-      shared_ptr<DomainAliases> GetDomainAliases();
+      std::shared_ptr<Accounts> GetAccounts();
+      std::shared_ptr<Accounts> GetAccounts(__int64 iAccountID);
+      std::shared_ptr<Aliases> GetAliases();
+      std::shared_ptr<DistributionLists> GetDistributionLists();
+      std::shared_ptr<DomainAliases> GetDomainAliases();
 
       bool XMLStore(XNode *pParentNode, int iBackupOptions);
       bool XMLLoad(XNode *pDomainNode, int iRestoreOptions);
@@ -177,9 +177,9 @@ namespace HM
       String dkim_selector_;
       String dkim_private_key_file_;
 
-      shared_ptr<Accounts> accounts_;
-      shared_ptr<Aliases> aliases_;
-      shared_ptr<DistributionLists> distribution_lists_;
-      shared_ptr<DomainAliases> domain_aliases_;
+      std::shared_ptr<Accounts> accounts_;
+      std::shared_ptr<Aliases> aliases_;
+      std::shared_ptr<DistributionLists> distribution_lists_;
+      std::shared_ptr<DomainAliases> domain_aliases_;
    };
 }

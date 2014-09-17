@@ -32,7 +32,7 @@ namespace HM
       SQLCommand command("select * from hm_fetchaccounts_uids where uidfaid = @UIDFAID");
       command.AddParameter("@UIDFAID", faid_);
 
-      shared_ptr<DALRecordset> pUIDRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pUIDRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pUIDRS)
          return;
 
@@ -42,7 +42,7 @@ namespace HM
          String sUIDValue = pUIDRS->GetStringValue("uidvalue");
          String sUIDTime = pUIDRS->GetStringValue("uidtime");
 
-         shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
+         std::shared_ptr<FetchAccountUID> pUID = std::shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
 
          fetched_uids_.insert(std::make_pair(sUIDValue, pUID));
 
@@ -64,7 +64,7 @@ namespace HM
       // Add to the database.
       __int64 iUIDID = PersistentFetchAccountUID::AddUID(faid_, sUIDValue);
 
-      shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sCreateTime));
+      std::shared_ptr<FetchAccountUID> pUID = std::shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sCreateTime));
 
       fetched_uids_.insert(std::make_pair(sUIDValue, pUID));
    }
@@ -72,7 +72,7 @@ namespace HM
    bool 
    FetchAccountUIDList::IsUIDInList(const String&sUID) const
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
+      std::map<String, std::shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
       if (iter == fetched_uids_.end())
          return false;
       
@@ -82,11 +82,11 @@ namespace HM
    void 
    FetchAccountUIDList::DeleteUID(const String &sUID)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iter = fetched_uids_.find(sUID);
+      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iter = fetched_uids_.find(sUID);
       if (iter == fetched_uids_.end())
          return;
 
-      shared_ptr<FetchAccountUID> pUID = (*iter).second;
+      std::shared_ptr<FetchAccountUID> pUID = (*iter).second;
 
       // Delete from the database
       PersistentFetchAccountUID::DeleteUID(pUID->GetID());
@@ -96,13 +96,13 @@ namespace HM
    }
 
    void 
-   FetchAccountUIDList::DeleteUIDsNotInSet(set<String> &setUIDs)
+   FetchAccountUIDList::DeleteUIDsNotInSet(std::set<String> &setUIDs)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterFA = fetched_uids_.begin();
-      std::map<String, shared_ptr<FetchAccountUID> >::iterator iterEnd = fetched_uids_.end();
+      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iterFA = fetched_uids_.begin();
+      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iterEnd = fetched_uids_.end();
       while (iterFA != iterEnd)
       {
-         shared_ptr<FetchAccountUID> pUID = (*iterFA).second;
+         std::shared_ptr<FetchAccountUID> pUID = (*iterFA).second;
 
          if (setUIDs.find(pUID->GetUID()) == setUIDs.end())
          {
@@ -121,14 +121,14 @@ namespace HM
    }
 
 
-   shared_ptr<FetchAccountUID> 
+   std::shared_ptr<FetchAccountUID> 
    FetchAccountUIDList::GetUID(const String &sUID)
    {
-      std::map<String, shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
+      std::map<String, std::shared_ptr<FetchAccountUID> >::const_iterator iter = fetched_uids_.find(sUID);
       if (iter == fetched_uids_.end())
       {
 
-         shared_ptr<FetchAccountUID> pEmpty;
+         std::shared_ptr<FetchAccountUID> pEmpty;
          return pEmpty;
       }
 

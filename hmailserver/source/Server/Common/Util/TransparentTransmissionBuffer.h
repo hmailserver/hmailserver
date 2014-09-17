@@ -33,12 +33,12 @@ namespace HM
       void Append(const BYTE *pBuffer, int iBufferSize);
       bool Flush(bool bForce = false);
       
-      bool Initialize(weak_ptr<TCPConnection> pTcpConnection);
+      bool Initialize(std::weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
 
       void SetMaxSizeKB(int maxSize);
       
-      shared_ptr<ByteBuffer> GetBuffer() 
+      std::shared_ptr<ByteBuffer> GetBuffer() 
       {
          return buffer_; 
       }
@@ -57,7 +57,7 @@ namespace HM
          return last_send_ended_with_newline_;
       }
 
-      bool SaveToFile_(shared_ptr<ByteBuffer> pBuffer);
+      bool SaveToFile_(std::shared_ptr<ByteBuffer> pBuffer);
       // Flushes the supplied buffer to file.
 
       int GetSize();
@@ -66,10 +66,10 @@ namespace HM
       String GetCancelMessage() {return cancel_message_;}
    private:
 
-      void InsertTransmissionPeriod_(shared_ptr<ByteBuffer> pIn);
-      void RemoveTransmissionPeriod_(shared_ptr<ByteBuffer> pIn);
+      void InsertTransmissionPeriod_(std::shared_ptr<ByteBuffer> pIn);
+      void RemoveTransmissionPeriod_(std::shared_ptr<ByteBuffer> pIn);
 
-      shared_ptr<ByteBuffer> buffer_;
+      std::shared_ptr<ByteBuffer> buffer_;
       // The buffer containing the data to send/receive.
       
       bool transmission_ended_;
@@ -82,7 +82,7 @@ namespace HM
       
       // Output types
       File file_;
-      weak_ptr<TCPConnection> tcp_connection_;
+      std::weak_ptr<TCPConnection> tcp_connection_;
 
       unsigned    int data_sent_;
       unsigned int max_size_kb_;

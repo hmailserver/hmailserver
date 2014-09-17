@@ -368,7 +368,7 @@ LPTSTR _tagXMLNode::LoadAttributes( LPCTSTR pszAttrs , LPPARSEINFO pi /*= &piDef
 					pi->erorr_occur = true;
 					pi->error_pointer = xml;
 					pi->error_code = PIE_ATTR_NO_VALUE;
-					pi->error_string.Format( _T("<%s> attribute has error "), name );
+               pi->error_string.Format(_T("<%s> attribute has error "), name.c_str());
 				}
 				return NULL;
 			}
@@ -461,7 +461,7 @@ LPTSTR _tagXMLNode::LoadAttributes( LPCTSTR pszAttrs, LPCTSTR pszEnd, LPPARSEINF
 					pi->erorr_occur = true;
 					pi->error_pointer = xml;
 					pi->error_code = PIE_ATTR_NO_VALUE;
-					pi->error_string.Format( _T("<%s> attribute has error "), name );
+               pi->error_string.Format(_T("<%s> attribute has error "), name.c_str());
 				}
 				return NULL;
 			}
@@ -814,7 +814,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 						pi->erorr_occur = true;
 						pi->error_pointer = xml;
 						pi->error_code = PIE_NOT_CLOSED;
-						pi->error_string.Format(_T("%s must be closed with </%s>"), name );
+                  pi->error_string.Format(_T("%s must be closed with </%s>"), name.c_str(), name.c_str());
 					}
 					// error cos not exist CloseTag </TAG>
 					return NULL;
@@ -869,7 +869,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 								pi->erorr_occur = true;
 								pi->error_pointer = xml;
 								pi->error_code = PIE_NOT_CLOSED;
-								pi->error_string.Format(_T("it must be closed with </%s>"), name );
+								pi->error_string.Format(_T("it must be closed with </%s>"), name.c_str() );
 							}
 							// error
 							return NULL;
@@ -895,7 +895,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 									pi->erorr_occur = true;
 									pi->error_pointer = xml;
 									pi->error_code = PIE_NOT_NESTED;
-									pi->error_string.Format(_T("'<%s> ... </%s>' is not wel-formed."), name, closename );
+									pi->error_string.Format(_T("'<%s> ... </%s>' is not wel-formed."), name.c_str(), closename.c_str() );
 								}
 								return NULL;
 							}
@@ -919,7 +919,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 								pi->erorr_occur = true;
 								pi->error_pointer = xml;
 								pi->error_code = PIE_NOT_CLOSED;
-								pi->error_string.Format(_T("it must be closed with </%s>"), name );
+								pi->error_string.Format(_T("it must be closed with </%s>"), name.c_str() );
 							}
 							return NULL;
 						}
@@ -977,7 +977,7 @@ LPTSTR _tagXMLDocument::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= NULL*/ )
       {
          // This error should be logged.
          HM::String sErrorMessage;
-         sErrorMessage.Format(_T("The XML data stream contains formatting errors. Code: %d, Error: %s"), pi->error_code, pi->error_string); 
+         sErrorMessage.Format(_T("The XML data stream contains formatting errors. Code: %d, Error: %s"), pi->error_code, pi->error_string.c_str());
          
          HM::ErrorManager::Instance()->ReportError(HM::ErrorManager::Medium, 4229, "_tagXMLDocument::Load", sErrorMessage);
       }

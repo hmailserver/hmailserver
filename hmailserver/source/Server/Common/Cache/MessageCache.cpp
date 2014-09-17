@@ -23,7 +23,7 @@ namespace HM
    }
 
    void 
-   MessageCache::AddMessage(shared_ptr<Message> pMessage)
+   MessageCache::AddMessage(std::shared_ptr<Message> pMessage)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
@@ -48,14 +48,14 @@ namespace HM
 
    }
 
-   shared_ptr<Message> 
+   std::shared_ptr<Message> 
    MessageCache::GetMessage(__int64 iMessageID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, shared_ptr<Message> >::iterator iterMessage = message_.find(iMessageID);
+      std::map<__int64, std::shared_ptr<Message> >::iterator iterMessage = message_.find(iMessageID);
 
-      shared_ptr<Message> pMessage;
+      std::shared_ptr<Message> pMessage;
       if (iterMessage == message_.end())
       {
          // Message not found in cache.

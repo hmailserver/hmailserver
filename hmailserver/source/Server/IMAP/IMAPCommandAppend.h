@@ -18,18 +18,18 @@ namespace HM
 	   IMAPCommandAppend();
 	   virtual ~IMAPCommandAppend();
 
-      virtual IMAPResult ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
-      void ParseBinary(shared_ptr<IMAPConnection> pConnection, shared_ptr<ByteBuffer> pBuf);
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
+      void ParseBinary(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<ByteBuffer> pBuf);
       
 
    private:
 
-      void Finish_(shared_ptr<IMAPConnection> pConnection);
-      bool TruncateBuffer_(const shared_ptr<IMAPConnection> pConnection );
-      bool WriteData_(const shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, int WriteLen);
+      void Finish_(std::shared_ptr<IMAPConnection> pConnection);
+      bool TruncateBuffer_(const std::shared_ptr<IMAPConnection> pConnection );
+      bool WriteData_(const std::shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, int WriteLen);
       void KillCurrentMessage_();
       
-      int GetMaxMessageSize_(shared_ptr<const Domain> pDomain);
+      int GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain);
 
       String current_tag_;
       String flags_to_set_;
@@ -39,8 +39,8 @@ namespace HM
       String message_file_name_;
 
       ByteBuffer append_buffer_;
-      shared_ptr<IMAPFolder> destination_folder_;
-      shared_ptr<Message> current_message_;
+      std::shared_ptr<IMAPFolder> destination_folder_;
+      std::shared_ptr<Message> current_message_;
 
       
    };

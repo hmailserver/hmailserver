@@ -40,10 +40,10 @@ namespace HM
          return false;
    }
 
-   set<shared_ptr<SpamTestResult> > 
-   SpamTestSPF::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> > 
+   SpamTestSPF::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
       String sMessage = "";
       int iScore = 0;
@@ -59,15 +59,15 @@ namespace HM
       if (result == SPF::Fail)
       {
          // Blocked by SPF.s
-         sMessage.Format(_T("Blocked by SPF (%s)"), sExplanation);
+         sMessage.Format(_T("Blocked by SPF (%s)"), sExplanation.c_str());
          iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseSPFScore();
 
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);
       }      
       else if (result == SPF::Pass)
       {
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
          setSpamTestResults.insert(pResult);
       }
 

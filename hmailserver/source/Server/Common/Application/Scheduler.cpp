@@ -39,9 +39,9 @@ namespace HM
          // Wait one minute.
          try
          {
-            boost::this_thread::sleep_for(chrono::minutes(1));
+            boost::this_thread::sleep_for(boost::chrono::minutes(1));
          }
-         catch (thread_interrupted const&)
+         catch (const boost::thread_interrupted&)
          {
             boost::this_thread::disable_interruption disabled;
 
@@ -58,11 +58,11 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      vector<shared_ptr<ScheduledTask >>::iterator iterTask;
+      std::vector<std::shared_ptr<ScheduledTask >>::iterator iterTask;
 
       for (iterTask = scheduled_tasks_.begin(); iterTask != scheduled_tasks_.end(); iterTask++)
       {
-         shared_ptr<ScheduledTask > pTask = (*iterTask);
+         std::shared_ptr<ScheduledTask > pTask = (*iterTask);
 
          // Check if we should run this task now.
          DateTime dtRunTime = pTask->GetNextRunTime();
@@ -80,7 +80,7 @@ namespace HM
    }  
 
    void
-   Scheduler::ScheduleTask(shared_ptr<ScheduledTask> pTask)
+   Scheduler::ScheduleTask(std::shared_ptr<ScheduledTask> pTask)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 

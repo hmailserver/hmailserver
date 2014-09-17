@@ -88,15 +88,15 @@ namespace HM
       bool GetAddDeliveredToHeader();
       void SetAddDeliveredToHeader(bool bNewVal);
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
-      shared_ptr<IncomingRelays> GetIncomingRelays() {return incoming_relays_;}
-      shared_ptr<Routes> GetRoutes() {return routes_;}
+      std::shared_ptr<IncomingRelays> GetIncomingRelays() {return incoming_relays_;}
+      std::shared_ptr<Routes> GetRoutes() {return routes_;}
 
    private:
 
-      shared_ptr<PropertySet> GetSettings_() const;
-      shared_ptr<IncomingRelays> incoming_relays_;
-      shared_ptr<Routes> routes_;
+      std::shared_ptr<PropertySet> GetSettings_() const;
+      std::shared_ptr<IncomingRelays> incoming_relays_;
+      std::shared_ptr<Routes> routes_;
    };
 }

@@ -24,7 +24,7 @@ namespace HM
    }
 
    void
-   IOOperationQueue::Push(shared_ptr<IOOperation> operation)
+   IOOperationQueue::Push(std::shared_ptr<IOOperation> operation)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
@@ -43,12 +43,12 @@ namespace HM
          return;
       }
 
-      std::vector<shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
-      std::vector<shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
+      std::vector<std::shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
+      std::vector<std::shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<IOOperation> oper = (*iter);
+         std::shared_ptr<IOOperation> oper = (*iter);
 
          if (oper->GetType() == type)
          {
@@ -69,7 +69,7 @@ namespace HM
       if (queue_operations_.empty())
          return false;
 
-      boost_foreach(shared_ptr<IOOperation> operation, queue_operations_)
+      for(std::shared_ptr<IOOperation> operation : queue_operations_)
       {
          if (operation->GetType() == IOOperation::BCTWrite)
             return true;
@@ -78,7 +78,7 @@ namespace HM
       return false;
    }
 
-   shared_ptr<IOOperation>
+   std::shared_ptr<IOOperation>
    IOOperationQueue::Front()
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
@@ -86,24 +86,24 @@ namespace HM
       // Do we have any items to process? If not, not much to do.
       if (queue_operations_.empty())
       {
-         shared_ptr<IOOperation> empty;
+         std::shared_ptr<IOOperation> empty;
          return empty;
       }
 
-      shared_ptr<IOOperation> nextOperation = queue_operations_.front();
+      std::shared_ptr<IOOperation> nextOperation = queue_operations_.front();
 
       if (ongoing_operations_.size() > 0)
       {
          IOOperation::OperationType pendingType = nextOperation->GetType();
 
-         std::vector<shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
-         std::vector<shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
+         std::vector<std::shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
+         std::vector<std::shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
 
          bool operation_can_be_processed = true;
 
          for (; iter != iterEnd; iter++)
          {
-            shared_ptr<IOOperation> ongoingOperation = (*iter);
+            std::shared_ptr<IOOperation> ongoingOperation = (*iter);
 
             IOOperation::OperationType ongoingType = ongoingOperation->GetType();
 
@@ -118,7 +118,7 @@ namespace HM
                      case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout messages to be sent to client.
                      case IOOperation::BCTShutdownSend: // We can't disable send-mode while we're sending data. Makes no sense.
                      case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're sending data.
-                        shared_ptr<IOOperation> empty;
+                        std::shared_ptr<IOOperation> empty;
                         return empty;  
 
                   }
@@ -134,7 +134,7 @@ namespace HM
                      break;
                   case IOOperation::BCTRead:      // We can not start new receives while we're processing data. Concurrent receives are not supported.
                   case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're processing data at the same time7.
-                     shared_ptr<IOOperation> empty;
+                     std::shared_ptr<IOOperation> empty;
                      return empty;  
                   }
                   break;
@@ -143,7 +143,7 @@ namespace HM
             case IOOperation::BCTShutdownSend: // Shutting down Send and performing other operations at the same time is not supported.
             case IOOperation::BCTHandshake:    // Doing a handshake and sending/receiving other data at the same time is not supported
                {
-                  shared_ptr<IOOperation> empty;
+                  std::shared_ptr<IOOperation> empty;
                   return empty;  
                   break;
                }

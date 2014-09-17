@@ -20,7 +20,7 @@ namespace HM
          ResultOptionalHandshakeFailed = 4
       };
 
-      void CopyFrom(shared_ptr<MessageRecipient> pRecip);
+      void CopyFrom(std::shared_ptr<MessageRecipient> pRecip);
 
       void SetAddress(const String & sNewVal) {address_ = sNewVal; }
       String GetAddress() const {return address_;}

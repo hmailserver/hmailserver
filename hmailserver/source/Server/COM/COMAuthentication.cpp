@@ -27,7 +27,7 @@ namespace HM
 
    }
 
-   shared_ptr<const Account>
+   std::shared_ptr<const Account>
    COMAuthentication::Authenticate(const String &sUsername, const String &sPassword)
    {
       // Try to fetch this account
@@ -56,7 +56,7 @@ namespace HM
             // Create a dummy account since the administrator
             // does not have a real email account.
 
-            account_ = shared_ptr<Account> 
+            account_ = std::shared_ptr<Account> 
                (
                   new Account("Administrator", Account::ServerAdmin)
                );
@@ -81,7 +81,7 @@ namespace HM
          // Create a dummy account since the administrator
          // does not have a real email account.
 
-         account_ = shared_ptr<Account> (new Account("Administrator", Account::ServerAdmin));
+         account_ = std::shared_ptr<Account> (new Account("Administrator", Account::ServerAdmin));
       }
    }
 

@@ -99,7 +99,7 @@ namespace HM
    }
 
    void
-   IMAPSimpleCommandParser::Parse(shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPSimpleCommandParser::Parse(std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!Validate_(pArgument->Command()))
          return;
@@ -213,7 +213,7 @@ namespace HM
             IMAPFolder::UnescapeFolderString(sCurWord);
          }
 
-         shared_ptr<IMAPSimpleWord> pWord = shared_ptr<IMAPSimpleWord>(new IMAPSimpleWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = std::shared_ptr<IMAPSimpleWord>(new IMAPSimpleWord);
          pWord->Value(sCurWord);
          pWord->Quoted(bCurWordIsQuoted);
          pWord->Paranthezied(bCurWordIsParanthezed);
@@ -267,7 +267,7 @@ namespace HM
    {
       for (int i = 0; i < WordCount(); i++)
       {
-         shared_ptr<IMAPSimpleWord> pWord = Word(i);
+         std::shared_ptr<IMAPSimpleWord> pWord = Word(i);
          if (pWord->Clammerized())
          {
             if (!pWord->LiteralData().IsEmpty())
@@ -276,10 +276,10 @@ namespace HM
       }
    }
 
-   shared_ptr<IMAPSimpleWord>
+   std::shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::QuotedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      std::vector<std::shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
       while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Quoted())
@@ -287,7 +287,7 @@ namespace HM
          iterWord++;
       }
 
-      shared_ptr<IMAPSimpleWord> pEmpty;
+      std::shared_ptr<IMAPSimpleWord> pEmpty;
       return pEmpty;
    }
 
@@ -295,7 +295,7 @@ namespace HM
    IMAPSimpleCommandParser::RemoveWord(int iWordIdx)
    {
       int iCurIdx = 0;
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      std::vector<std::shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
       while (iterWord != parsed_words_.end())
       {  
          if (iWordIdx == iCurIdx)
@@ -310,10 +310,10 @@ namespace HM
    }
 
 
-   shared_ptr<IMAPSimpleWord>
+   std::shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::ParantheziedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      std::vector<std::shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
       while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Paranthezied())
@@ -321,14 +321,14 @@ namespace HM
          iterWord++;
       }
 
-      shared_ptr<IMAPSimpleWord> pEmpty;
+      std::shared_ptr<IMAPSimpleWord> pEmpty;
       return pEmpty;
    }
 
-   shared_ptr<IMAPSimpleWord>
+   std::shared_ptr<IMAPSimpleWord>
    IMAPSimpleCommandParser::ClammerizedWord()
    {
-      std::vector<shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
+      std::vector<std::shared_ptr<IMAPSimpleWord> >::iterator iterWord = parsed_words_.begin();
       while (iterWord != parsed_words_.end())
       {
          if ((*iterWord)->Clammerized())
@@ -336,12 +336,12 @@ namespace HM
          iterWord++;
       }
 
-      shared_ptr<IMAPSimpleWord> pEmpty;
+      std::shared_ptr<IMAPSimpleWord> pEmpty;
       return pEmpty;
    }
 
    String 
-   IMAPSimpleCommandParser::GetParamValue(shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex)
+   IMAPSimpleCommandParser::GetParamValue(std::shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a parameter by it's index.
@@ -353,7 +353,7 @@ namespace HM
 
       for (int i = 1; i < iWordCount; i++)
       {
-         shared_ptr<IMAPSimpleWord> pWord = Word(i);
+         std::shared_ptr<IMAPSimpleWord> pWord = Word(i);
 
          if (!pWord)
             return "";
@@ -390,7 +390,7 @@ namespace HM
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
 
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST \"PARAM1\" \"PARAM2\"");
          pParser->Parse(pArgument);
 
@@ -412,7 +412,7 @@ namespace HM
       {  //  LIST PARAM1 PARAM2
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST PARAM1 PARAM2");
          pParser->Parse(pArgument);
 
@@ -434,7 +434,7 @@ namespace HM
       {  //  LIST "PARAM1" PARAM2
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST \"PARAM1\" PARAM2");
          pParser->Parse(pArgument);
 
@@ -456,7 +456,7 @@ namespace HM
 
       {  //  LIST PARAM1 "PARAM2"
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST PARAM1 \"PARAM2\"");
          pParser->Parse(pArgument);
 
@@ -478,7 +478,7 @@ namespace HM
 
       {  //  LIST "PARAM1"
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST PARAM1");
          pParser->Parse(pArgument);
 
@@ -500,7 +500,7 @@ namespace HM
 
       {  //  LIST PARAMTEST
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST PARAMTEST");
          pParser->Parse(pArgument);
 
@@ -522,7 +522,7 @@ namespace HM
 
       {  //  LIST PARAMTEST
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST PARAMTEST (I AM SICK)");
          pParser->Parse(pArgument);
 
@@ -544,7 +544,7 @@ namespace HM
 
       {  //  LIST PARAMTEST
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("LIST \"INBOX*\"");
          pParser->Parse(pArgument);
 
@@ -567,7 +567,7 @@ namespace HM
       {  //  LIST PARAMTEST
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE \"INBOX.\\\"Hej\\\"");
          pParser->Parse(pArgument);
 
@@ -590,7 +590,7 @@ namespace HM
       {  //  LIST PARAMTEST
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE \"INBOX.\\\"\"");
          pParser->Parse(pArgument);
 
@@ -613,7 +613,7 @@ namespace HM
       {  //  TEST 
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("");
          pParser->Parse(pArgument);
 
@@ -630,7 +630,7 @@ namespace HM
       {  //  PARANTHESE
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (TEST)");
          pParser->Parse(pArgument);
 
@@ -653,7 +653,7 @@ namespace HM
       {  //  PARANTHESE2
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (\"TEST\")");
          pParser->Parse(pArgument);
 
@@ -676,7 +676,7 @@ namespace HM
       {  //  PARANTHESE3
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (\"TE\"()\"ST\")");
          pParser->Parse(pArgument);
 
@@ -699,7 +699,7 @@ namespace HM
       {  //  PARANTHESE3
          // Purpose: Detect invalid paranthesis.
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (TE((()ST)");
          pParser->Parse(pArgument);
 
@@ -717,7 +717,7 @@ namespace HM
          // Purpose: Detect invalid paranthesis.
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (TEST");
          pParser->Parse(pArgument);
 
@@ -735,7 +735,7 @@ namespace HM
          // Correct paranthesis which may look incorrect
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
-         shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
+         std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE \"T((est\"");
          pParser->Parse(pArgument);
 

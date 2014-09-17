@@ -57,7 +57,7 @@ namespace HM
    }
 
    IPAddress 
-   IPAddressSQLHelper::Construct(shared_ptr<DALRecordset> recordset, const AnsiString &address1Column, const AnsiString &address2Column) const
+   IPAddressSQLHelper::Construct(std::shared_ptr<DALRecordset> recordset, const AnsiString &address1Column, const AnsiString &address2Column) const
    {
       __int64 address1 = recordset->GetInt64Value(address1Column);
 

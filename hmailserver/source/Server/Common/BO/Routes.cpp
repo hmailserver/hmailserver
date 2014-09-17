@@ -32,15 +32,15 @@ namespace HM
       DBLoad_(sSQL);
    }
 
-   shared_ptr<Route> 
+   std::shared_ptr<Route> 
    Routes::GetItemByNameWithWildcardMatch(const String &domainName)
    {
-      vector<shared_ptr<Route> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<Route> >::iterator iterEnd = vecObjects.end();
+      std::vector<std::shared_ptr<Route> >::iterator iter = vecObjects.begin();
+      std::vector<std::shared_ptr<Route> >::iterator iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<Route> pRoute = (*iter);
+         std::shared_ptr<Route> pRoute = (*iter);
 
          if (StringParser::WildcardMatchNoCase(pRoute->DomainName(), domainName))
          {
@@ -48,7 +48,7 @@ namespace HM
          }
       }
 
-      shared_ptr<Route> empty;
+      std::shared_ptr<Route> empty;
       return empty;
    }
 

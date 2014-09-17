@@ -46,7 +46,7 @@ STDMETHODIMP InterfaceApplication::InterfaceSupportsErrorInfo(REFIID riid)
 
 InterfaceApplication::InterfaceApplication()
 {
-   authentication_ = shared_ptr<HM::COMAuthentication>(new HM::COMAuthentication);
+   authentication_ = std::shared_ptr<HM::COMAuthentication>(new HM::COMAuthentication);
 
    authentication_->AttempAnonymousAuthentication();
 }
@@ -324,11 +324,11 @@ STDMETHODIMP InterfaceApplication::Authenticate(BSTR sUsername, BSTR sPassword, 
    try
    {
       // Authenticates the user and returns the account object.
-      shared_ptr<const HM::Account> pAccount = authentication_->Authenticate(sUsername, sPassword);
+      std::shared_ptr<const HM::Account> pAccount = authentication_->Authenticate(sUsername, sPassword);
    
       if (pAccount)
       {
-         shared_ptr<HM::Account> accountCopy = shared_ptr<HM::Account>(new HM::Account(*pAccount.get()));
+         std::shared_ptr<HM::Account> accountCopy = std::shared_ptr<HM::Account>(new HM::Account(*pAccount.get()));
    
          // Return the account.
          CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
@@ -411,7 +411,7 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
       CComObject<InterfaceRules >* pItem = new CComObject<InterfaceRules >();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rules> pRules = shared_ptr<HM::Rules>(new HM::Rules(0));
+      std::shared_ptr<HM::Rules> pRules = std::shared_ptr<HM::Rules>(new HM::Rules(0));
    
       if (pRules)
       {
@@ -432,7 +432,7 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
 HRESULT
 InterfaceApplication::EnsureDatabaseConnectivity_()
 {
-   shared_ptr<HM::DatabaseConnectionManager> pConnectionManager = HM::Application::Instance()->GetDBManager();
+   std::shared_ptr<HM::DatabaseConnectionManager> pConnectionManager = HM::Application::Instance()->GetDBManager();
    if (!pConnectionManager || !pConnectionManager->GetIsConnected())
    {
       return COMError::GenerateError("The connection to the database is not available. Please check the hMailServer error log for details.");

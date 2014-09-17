@@ -22,19 +22,19 @@ namespace HM
 	   IMAPFetch();
 	   virtual ~IMAPFetch();
 
-      virtual IMAPResult DoAction(shared_ptr<IMAPConnection> pConnection, int messageIndex, shared_ptr<Message> pMessage, const shared_ptr<IMAPCommandArgument> pArgument);
+      virtual IMAPResult DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument);
 
       
    private:
       
       String CreateEnvelopeStructure_(MimeHeader& oHeader);
-      String GetPartStructure_(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion);
-      String IteratePartRecursive_(shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion);
+      String GetPartStructure_(std::shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion);
+      String IteratePartRecursive_(std::shared_ptr<MimeBody> oPart, bool includeExtensionData, int iRecursion);
       String CreateEmailStructure_(const String &sField);
-      shared_ptr<MimeBody>GetMessagePartByPartNo_(shared_ptr<MimeBody>pBody, long iPartNo);
+      std::shared_ptr<MimeBody>GetMessagePartByPartNo_(std::shared_ptr<MimeBody>pBody, long iPartNo);
 
-      shared_ptr<ByteBuffer> GetByteBufferByBodyPart_(const String &messageFileName, shared_ptr<MimeBody> pBodyPart, IMAPFetchParser::BodyPart &oPart);
-      shared_ptr<MimeBody> GetBodyPartByRecursiveIdentifier_(shared_ptr<MimeBody> pBody, const String &sName);
+      std::shared_ptr<ByteBuffer> GetByteBufferByBodyPart_(const String &messageFileName, std::shared_ptr<MimeBody> pBodyPart, IMAPFetchParser::BodyPart &oPart);
+      std::shared_ptr<MimeBody> GetBodyPartByRecursiveIdentifier_(std::shared_ptr<MimeBody> pBody, const String &sName);
 
 
       void GetBytesToSend_(int iBufferSize, IMAPFetchParser::BodyPart &oPart, int &iOutStart, int &iOutCount);
@@ -42,14 +42,14 @@ namespace HM
       void ReportCriticalError_(const String &messageFileName, const String &sMessage);
 
       void AppendOutput_(String &sOutput, const String &sAppend);
-      void SendAndReset_(shared_ptr<IMAPConnection> pConnection, String &sOutput);
+      void SendAndReset_(std::shared_ptr<IMAPConnection> pConnection, String &sOutput);
 
-      shared_ptr<MimeBody> LoadMimeBody_(shared_ptr<IMAPFetchParser> pParser, const String &fileName);
-      bool GetMessageBodyNeeded_(shared_ptr<IMAPFetchParser> pParser);
+      std::shared_ptr<MimeBody> LoadMimeBody_(std::shared_ptr<IMAPFetchParser> pParser, const String &fileName);
+      bool GetMessageBodyNeeded_(std::shared_ptr<IMAPFetchParser> pParser);
 
       bool append_space_;
 
-      shared_ptr<IMAPFetchParser> parser_;
+      std::shared_ptr<IMAPFetchParser> parser_;
 
    };
 

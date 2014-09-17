@@ -46,7 +46,7 @@ END_COM_MAP()
 	}
 
 public:
-   void AttachItem(shared_ptr<HM::ClientInfo> pClientInfo);
+   void AttachItem(std::shared_ptr<HM::ClientInfo> pClientInfo);
 
    STDMETHOD(get_Port)(LONG* pVal);
    STDMETHOD(get_IPAddress)(BSTR* pVal);
@@ -55,7 +55,7 @@ public:
 
 private:
 
-   shared_ptr<HM::ClientInfo> client_info_;
+   std::shared_ptr<HM::ClientInfo> client_info_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Client), InterfaceClient)

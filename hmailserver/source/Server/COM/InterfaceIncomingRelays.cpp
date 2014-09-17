@@ -9,7 +9,7 @@
 #include "InterfaceIncomingRelay.h"
 
 void 
-InterfaceIncomingRelays::Attach(shared_ptr<HM::IncomingRelays> incomingRelays)
+InterfaceIncomingRelays::Attach(std::shared_ptr<HM::IncomingRelays> incomingRelays)
 {
    incoming_relays_ = incomingRelays;
 }
@@ -91,7 +91,7 @@ STDMETHODIMP InterfaceIncomingRelays::get_Item(long Index, IInterfaceIncomingRel
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItem(Index);
+      std::shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItem(Index);
    
       if (pRange)
       {
@@ -125,7 +125,7 @@ STDMETHODIMP InterfaceIncomingRelays::get_ItemByDBID(long DBID, IInterfaceIncomi
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByDBID(DBID);
    
       if (pRange)
       {
@@ -160,7 +160,7 @@ STDMETHODIMP InterfaceIncomingRelays::Add(IInterfaceIncomingRelay **pVal)
       CComObject<InterfaceIncomingRelay>* pInterfaceRange = new CComObject<InterfaceIncomingRelay>();
       pInterfaceRange->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = shared_ptr<HM::IncomingRelay>(new HM::IncomingRelay); 
+      std::shared_ptr<HM::IncomingRelay> pRange = std::shared_ptr<HM::IncomingRelay>(new HM::IncomingRelay); 
    
       pInterfaceRange->AttachItem(pRange);
       pInterfaceRange->AttachParent(incoming_relays_, false);
@@ -186,7 +186,7 @@ STDMETHODIMP InterfaceIncomingRelays::get_ItemByName(BSTR sName, IInterfaceIncom
       CComObject<InterfaceIncomingRelay>* pRangeInt = new CComObject<InterfaceIncomingRelay>();
       pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByName(sName);
+      std::shared_ptr<HM::IncomingRelay> pRange = incoming_relays_->GetItemByName(sName);
    
       if (pRange)
       {

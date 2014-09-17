@@ -21,7 +21,7 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      shared_ptr<Route>  GetItemByNameWithWildcardMatch(const String &domainName);
+      std::shared_ptr<Route>  GetItemByNameWithWildcardMatch(const String &domainName);
    protected:
 
       virtual String GetCollectionName() const {return "Routes"; }

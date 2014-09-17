@@ -115,20 +115,20 @@ namespace HM
    }
 
    IMAPResult 
-   IMAPSearchParser::ParseCommand(shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort)
+   IMAPSearchParser::ParseCommand(std::shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort)
    {
       // Replace literals in the command.
-      shared_ptr<IMAPSimpleCommandParser> pSimpleParser = shared_ptr<IMAPSimpleCommandParser> (new IMAPSimpleCommandParser);
+      std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser = std::shared_ptr<IMAPSimpleCommandParser> (new IMAPSimpleCommandParser);
 
       if (bIsSort)
       {
          pSimpleParser->Parse(pArgument);
          pSimpleParser->UnliteralData();
 
-         shared_ptr<IMAPSimpleWord> pSort = pSimpleParser->Word(0);
+         std::shared_ptr<IMAPSimpleWord> pSort = pSimpleParser->Word(0);
          if (pSort->Paranthezied())
          {
-            sort_parser_ = shared_ptr<IMAPSortParser>(new IMAPSortParser);
+            sort_parser_ = std::shared_ptr<IMAPSortParser>(new IMAPSortParser);
             sort_parser_->Parse(pSort->Value());
          }
 
@@ -175,13 +175,13 @@ namespace HM
       }
 
       // Replace literals in the command.
-      pSimpleParser = shared_ptr<IMAPSimpleCommandParser> (new IMAPSimpleCommandParser);
+      pSimpleParser = std::shared_ptr<IMAPSimpleCommandParser> (new IMAPSimpleCommandParser);
       pArgument->Command(resultString);
 
       pSimpleParser->Parse(pArgument);
       pSimpleParser->UnliteralData();
 
-      shared_ptr<IMAPSearchCriteria> pCriteria = shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
+      std::shared_ptr<IMAPSearchCriteria> pCriteria = std::shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
 
       int currentWord = 0;
       IMAPResult result = ParseSegment_(pSimpleParser, currentWord, pCriteria, 0);
@@ -194,7 +194,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPSearchParser::ParseSegment_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion)
+   IMAPSearchParser::ParseSegment_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, std::shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion)
    {
       iRecursion++;
       if (iRecursion > 50)
@@ -205,7 +205,7 @@ namespace HM
       int originalCriteriaCount = pCriteria->GetSubCriterias().size();
       for (; currentWord < pSimpleParser->WordCount(); currentWord++)
       {
-         shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(currentWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(currentWord);
          String sCurCommand = pWord->Value().ToUpper();
 
          
@@ -213,7 +213,7 @@ namespace HM
          if (sCurCommand == _T("OR"))
          {
             // We have a sub argument.
-            shared_ptr<IMAPSearchCriteria> pSubCriteria = shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria());
+            std::shared_ptr<IMAPSearchCriteria> pSubCriteria = std::shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria());
 
             pSubCriteria->SetType(IMAPSearchCriteria::CTSubCriteria);
             pSubCriteria->SetIsOR(true);
@@ -228,7 +228,7 @@ namespace HM
             continue;
          }
  
-         shared_ptr<IMAPSearchCriteria> pNewCriteria = shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
+         std::shared_ptr<IMAPSearchCriteria> pNewCriteria = std::shared_ptr<IMAPSearchCriteria> (new IMAPSearchCriteria);
          IMAPResult result = ParseWord_(pSimpleParser, pNewCriteria, currentWord );
          if (result.GetResult() != IMAPResult::ResultOK)
             return result;
@@ -250,7 +250,7 @@ namespace HM
    }
 
    IMAPResult 
-   IMAPSearchParser::ParseWord_(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord)
+   IMAPSearchParser::ParseWord_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, std::shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord)
    {
       String sCurCommand = pSimpleParser->Word(iCurrentWord)->Value();
 
@@ -262,7 +262,7 @@ namespace HM
          if (iCurrentWord > pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. NOT used but no search criteria specified.");
 
-         shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
          sCurCommand = pWord->Value().ToUpper();
       }
       else
@@ -316,7 +316,7 @@ namespace HM
          if (iCurrentWord > pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. Missing value.");
 
-         shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
 
          if (pWord)
          {
@@ -340,7 +340,7 @@ namespace HM
          if (iCurrentWord > pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. UID parameters missing.");
 
-         shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
          if (pWord)
          {
             String sTemp = pWord->Value();
@@ -379,7 +379,7 @@ namespace HM
          if (iCurrentWord > pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. Missing charset name.");
 
-         shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
+         std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
 
          if (pWord)
          {

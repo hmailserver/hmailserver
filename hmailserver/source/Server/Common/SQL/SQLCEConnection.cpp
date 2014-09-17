@@ -22,7 +22,7 @@ using namespace std;
 
 namespace HM
 {
-   SQLCEConnection::SQLCEConnection(shared_ptr<DatabaseSettings> pSettings) :
+   SQLCEConnection::SQLCEConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       HRESULT hr =cSQLCEConnection.CreateInstance(__uuidof(Connection));
@@ -81,7 +81,7 @@ namespace HM
       String sDatabaseFile = GetDatabaseFileName_(sDatabase);
 
       String sConnectionString;
-      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.3.5;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile, sPassword);
+      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.3.5;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile.c_str(), sPassword.c_str());
 
       return sConnectionString;
    }
@@ -173,7 +173,7 @@ namespace HM
          String sErrDesc =  err.Description();
 
          int iNativeErrorCode = ErrorManager::GetNativeErrorCode(err.ErrorInfo());
-         sErrorMessage.Format(_T("Database connection error. Source: %s, Error: %d, Description: %s Check database settings in hMailServer.ini."), sErrSource, iNativeErrorCode, sErrDesc);
+         sErrorMessage.Format(_T("Database connection error. Source: %s, Error: %d, Description: %s Check database settings in hMailServer.ini."), sErrSource.c_str(), iNativeErrorCode, sErrDesc.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5098, "SQLCEConnection::Connect", sErrorMessage);
 
@@ -400,7 +400,7 @@ namespace HM
 
       if (FileUtilities::Exists(sFullPath))
       {
-         sErrorMessage.Format(_T("Creation of SQL database failed. The database file, %s, already exists."), sFullPath);
+         sErrorMessage.Format(_T("Creation of SQL database failed. The database file, %s, already exists."), sFullPath.c_str());
          return false;
       }
 
@@ -519,17 +519,17 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    SQLCEConnection::CreateRecordset()
    {
-      shared_ptr<SQLCERecordset> recordset = shared_ptr<SQLCERecordset>(new SQLCERecordset());
+      std::shared_ptr<SQLCERecordset> recordset = std::shared_ptr<SQLCERecordset>(new SQLCERecordset());
       return recordset;
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    SQLCEConnection::CreateMacroExpander()
    {
-      shared_ptr<SQLCEMacroExpander> expander = shared_ptr<SQLCEMacroExpander>(new SQLCEMacroExpander());
+      std::shared_ptr<SQLCEMacroExpander> expander = std::shared_ptr<SQLCEMacroExpander>(new SQLCEMacroExpander());
       return expander;
    }
 
@@ -542,7 +542,7 @@ namespace HM
    void
    SQLCEConnection::InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const
    {
-      boost_foreach(const SQLParameter &parameter, sqlCommand.GetParameters())
+      for(const SQLParameter &parameter : sqlCommand.GetParameters())
       {
          String parameterName = parameter.GetName();
 

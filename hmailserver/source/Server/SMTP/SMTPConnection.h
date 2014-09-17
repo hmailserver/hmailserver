@@ -57,7 +57,7 @@ namespace HM
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void ParseData(const AnsiString &sRequest);
-      virtual void ParseData(shared_ptr<ByteBuffer> pBuf);
+      virtual void ParseData(std::shared_ptr<ByteBuffer> pBuf);
 
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
@@ -110,7 +110,7 @@ namespace HM
       // Make changes to the message before it's accepted for delivery. This is
       // for example where message signature and spam-headers are added.
 
-      void SetMessageSignature_(shared_ptr<MessageData> &pMessageData);
+      void SetMessageSignature_(std::shared_ptr<MessageData> &pMessageData);
       // Sets the signature of the message, based on the signature in the account
       // settings and domain settings.
 
@@ -149,7 +149,7 @@ namespace HM
 
       bool SendEHLOKeywords_();
 
-      int GetMaxMessageSize_(shared_ptr<const Domain> pDomain);
+      int GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain);
 
       bool ReadDomainAddressFromHelo_(const String &sRequest);
 
@@ -159,7 +159,7 @@ namespace HM
 
       bool GetIsLocalSender_();
 
-      String GetSpamTestResultMessage_(set<shared_ptr<SpamTestResult> > testResult) const;
+      String GetSpamTestResultMessage_(std::set<std::shared_ptr<SpamTestResult> > testResult) const;
 
       enum ConnectionState
       {
@@ -182,14 +182,14 @@ namespace HM
 
       ConnectionState current_state_;
 
-      shared_ptr<Message> current_message_;
+      std::shared_ptr<Message> current_message_;
 
       bool trace_headers_written_;
 
       String username_;
       String password_;
 
-      shared_ptr<SMTPConfiguration> smtpconf_;
+      std::shared_ptr<SMTPConfiguration> smtpconf_;
    
       AuthenticationType requestedAuthenticationType_;
       
@@ -200,17 +200,17 @@ namespace HM
 
       String helo_host_;
 
-      shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
+      std::shared_ptr<TransparentTransmissionBuffer> transmission_buffer_;
 
       // Spam detection 
       bool rejected_by_delayed_grey_listing_;
       int cur_no_of_rcptto_;
       int cur_no_of_invalid_commands_;
       
-      shared_ptr<const Domain> sender_domain_;
-      shared_ptr<const Account> sender_account_;
+      std::shared_ptr<const Domain> sender_domain_;
+      std::shared_ptr<const Account> sender_account_;
 
-      set<shared_ptr<SpamTestResult> > spam_test_results_;
+      std::set<std::shared_ptr<SpamTestResult> > spam_test_results_;
 
       bool re_authenticate_user_;
       bool pending_disconnect_;

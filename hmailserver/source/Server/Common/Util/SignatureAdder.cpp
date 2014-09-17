@@ -33,10 +33,10 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::SetSignature(shared_ptr<Message> pMessage, 
-      shared_ptr<const Domain> pSenderDomain, 
-      shared_ptr<const Account> pSenderAccount,
-      shared_ptr<MessageData> &pMessageData)
+   SignatureAdder::SetSignature(std::shared_ptr<Message> pMessage, 
+      std::shared_ptr<const Domain> pSenderDomain, 
+      std::shared_ptr<const Account> pSenderAccount,
+      std::shared_ptr<MessageData> &pMessageData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Sets the signature of the message, based on the signature in the account
@@ -122,8 +122,8 @@ namespace HM
       // A signature should be created.
       if (!pMessageData)
       {
-         pMessageData = shared_ptr<MessageData>(new MessageData());
-         shared_ptr<Account> emptyAccount;
+         pMessageData = std::shared_ptr<MessageData>(new MessageData());
+         std::shared_ptr<Account> emptyAccount;
          if (!pMessageData->LoadFromMessage(emptyAccount, pMessage))
             return false;
       }
@@ -165,7 +165,7 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::GetMessageIsReply_(shared_ptr<MessageData> &pMessageData)
+   SignatureAdder::GetMessageIsReply_(std::shared_ptr<MessageData> &pMessageData)
    {
       String sHeader = pMessageData->GetFieldValue("References");
       if (!sHeader.IsEmpty())
@@ -179,15 +179,15 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::GetMessageIsLocal_(shared_ptr<Message> pMessage)
+   SignatureAdder::GetMessageIsLocal_(std::shared_ptr<Message> pMessage)
    {
       String sFromAddressDomain = StringParser::ExtractDomain(pMessage->GetFromAddress());
       
       // Loop over the recipients and check if they are on the same domain.if
       
-      std::vector<shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
-      std::vector<shared_ptr<MessageRecipient> >::iterator iter = vecRecipients.begin();
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterEnd = vecRecipients.end();
+      std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iter = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterEnd = vecRecipients.end();
 
       for (; iter != iterEnd; iter++)
       {

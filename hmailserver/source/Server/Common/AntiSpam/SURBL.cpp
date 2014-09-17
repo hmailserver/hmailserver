@@ -32,7 +32,7 @@ namespace HM
    
 
    bool 
-   SURBL::Run(shared_ptr<SURBLServer> pSURBLServer, shared_ptr<MessageData> pMessageData)
+   SURBL::Run(std::shared_ptr<SURBLServer> pSURBLServer, std::shared_ptr<MessageData> pMessageData)
    {
       LOG_DEBUG("SURBL: Execute");
 
@@ -41,7 +41,7 @@ namespace HM
 
       int iCurPos = -1;
 	  
-      set<String> addresses;
+      std::set<String> addresses;
 
       while (true)
       {
@@ -66,7 +66,7 @@ namespace HM
 			if (addresses.find(sURL) == addresses.end())
 			{
 				String logMessage;
-				logMessage.Format(_T("SURBL: Found URL: %s"), sURL);
+            logMessage.Format(_T("SURBL: Found URL: %s"), sURL.c_str());
 				LOG_DEBUG(logMessage);
 
 				addresses.insert(sURL);
@@ -90,7 +90,7 @@ namespace HM
       boost::chrono::system_clock::time_point start_time = boost::chrono::system_clock::now();
 
       int processedAddresses = 0;
-      boost_foreach (String sURL, addresses)
+      for(String sURL : addresses)
       {
          boost::chrono::duration<double> elapsed_seconds = boost::chrono::system_clock::now() - start_time;
 

@@ -14,12 +14,12 @@ namespace HM
 	   PersistentRoute();
 	   virtual ~PersistentRoute();
 
-      static bool DeleteObject(shared_ptr<Route> pRoute);
+      static bool DeleteObject(std::shared_ptr<Route> pRoute);
 
-      static bool SaveObject(shared_ptr<Route> pRoute);
-      static bool SaveObject(shared_ptr<Route> pRoute, String &sErrorMessage, PersistenceMode mode);
-      static bool ReadObject(shared_ptr<Route> pRoute, long lID);
-      static bool ReadObject(shared_ptr<Route> pRoute, shared_ptr<DALRecordset> pRS);
+      static bool SaveObject(std::shared_ptr<Route> pRoute);
+      static bool SaveObject(std::shared_ptr<Route> pRoute, String &sErrorMessage, PersistenceMode mode);
+      static bool ReadObject(std::shared_ptr<Route> pRoute, long lID);
+      static bool ReadObject(std::shared_ptr<Route> pRoute, std::shared_ptr<DALRecordset> pRS);
    };
    
 }

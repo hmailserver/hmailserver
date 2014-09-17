@@ -45,19 +45,19 @@ namespace HM
 	   IMAPSimpleCommandParser();
 	   virtual ~IMAPSimpleCommandParser();
 
-      void Parse(shared_ptr<IMAPCommandArgument> pArgument);
+      void Parse(std::shared_ptr<IMAPCommandArgument> pArgument);
       int WordCount() {return parsed_words_.size(); }
       int ParamCount() {return parsed_words_.size() - 1; }
       
-      String GetParamValue(shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
+      String GetParamValue(std::shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
 
-      shared_ptr<IMAPSimpleWord> Word(int iIndex) {return parsed_words_[iIndex]; }
+      std::shared_ptr<IMAPSimpleWord> Word(int iIndex) {return parsed_words_[iIndex]; }
 
-      shared_ptr<IMAPSimpleWord> QuotedWord();
-      shared_ptr<IMAPSimpleWord> ParantheziedWord();
-      shared_ptr<IMAPSimpleWord> ClammerizedWord();
+      std::shared_ptr<IMAPSimpleWord> QuotedWord();
+      std::shared_ptr<IMAPSimpleWord> ParantheziedWord();
+      std::shared_ptr<IMAPSimpleWord> ClammerizedWord();
 
-      void AddWord(shared_ptr<IMAPSimpleWord> pWord) {parsed_words_.push_back(pWord); }
+      void AddWord(std::shared_ptr<IMAPSimpleWord> pWord) {parsed_words_.push_back(pWord); }
 
       void RemoveWord(int iWordIdx);
 
@@ -67,7 +67,7 @@ namespace HM
 
 
       int FindEndOfQuotedString_(const String &sInputString, int iWordStartPos);
-      std::vector<shared_ptr<IMAPSimpleWord> > parsed_words_;
+      std::vector<std::shared_ptr<IMAPSimpleWord> > parsed_words_;
 
       bool Validate_(const String &command);
 

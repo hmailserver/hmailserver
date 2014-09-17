@@ -19,14 +19,14 @@ namespace HM
       static void Unlock(__int64 ID);
       static void UnlockAll();
 		static bool IsLocked(__int64 ID);
-      static bool ReadObject(shared_ptr<FetchAccount> pFA, const SQLCommand& command);
-      static bool ReadObject(shared_ptr<FetchAccount> oFA, shared_ptr<DALRecordset> pRS);
-      static bool SaveObject(shared_ptr<FetchAccount> oFA, String &errorMessage,PersistenceMode mode);
-      static bool SaveObject(shared_ptr<FetchAccount> oFA);
-      static bool DeleteObject(shared_ptr<FetchAccount> pFA);
+      static bool ReadObject(std::shared_ptr<FetchAccount> pFA, const SQLCommand& command);
+      static bool ReadObject(std::shared_ptr<FetchAccount> oFA, std::shared_ptr<DALRecordset> pRS);
+      static bool SaveObject(std::shared_ptr<FetchAccount> oFA, String &errorMessage,PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<FetchAccount> oFA);
+      static bool DeleteObject(std::shared_ptr<FetchAccount> pFA);
       static void DeleteByAccountID(__int64 ID);
 
       static void SetRetryNow(__int64 iFAID);
-      static void SetNextTryTime(shared_ptr<FetchAccount> pFA);
+      static void SetNextTryTime(std::shared_ptr<FetchAccount> pFA);
    };
 }

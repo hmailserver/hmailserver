@@ -54,10 +54,10 @@ namespace HM
       return local_test_domain_name_;
    }
 
-   vector<DiagnosticResult>
+   std::vector<DiagnosticResult>
    Diagnostic::PerformTests()
    {
-      vector<DiagnosticResult> results;
+      std::vector<DiagnosticResult> results;
 
       TestInformationGatherer informationGatherer;
       results.push_back(informationGatherer.PerformTest());

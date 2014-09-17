@@ -130,7 +130,7 @@ namespace HM
 
       bool encodedParameter = false;
 
-      vector<AnsiString> parameters = StringParser::SplitString(AnsiString(value_), ";");
+      std::vector<AnsiString> parameters = StringParser::SplitString(AnsiString(value_), ";");
 
       for (unsigned int i = 1; i < parameters.size(); i++)
       {
@@ -314,7 +314,7 @@ namespace HM
       int lLength = (int)(pszEnd-pszStart)-2;
       char *pValue = new char[lLength + 1];
       memset(pValue, 0, lLength+1);
-      strncpy(pValue, pszStart, lLength);
+      strncpy_s(pValue, lLength+1, pszStart, lLength);
       value_ = pValue;
       delete [] pValue;
 
@@ -654,7 +654,7 @@ namespace HM
       if (!pszBoundary)				// generate a new boundary delimeter
       {
          ::srand(((unsigned)::time(NULL)) ^ (unsigned)this);
-         ::sprintf(buf, "__=_Part_Boundary_%03d_%06d.%06d", ++s_nPartNumber, rand(), rand());
+         ::sprintf_s(buf, 80, "__=_Part_Boundary_%03d_%06d.%06d", ++s_nPartNumber, rand(), rand());
          if (s_nPartNumber >= 9)
             s_nPartNumber = 0;
          pszBoundary = buf;
@@ -686,7 +686,7 @@ namespace HM
    int MimeHeader::GetLength() const
    {
       int nLength = 0;
-      vector<MimeField>::const_iterator it;
+      std::vector<MimeField>::const_iterator it;
       for (it = fields_.begin(); it != fields_.end(); it++)
          nLength += (*it).GetLength();
       return nLength + 2;				// a pair of CRLF indicate the end of header
@@ -704,8 +704,8 @@ namespace HM
    void 
       MimeHeader::DeleteField(MimeField *pField)
    {
-      vector<MimeField>::iterator iter = fields_.begin(); 
-      vector<MimeField>::const_iterator iterEnd = fields_.end();
+      std::vector<MimeField>::iterator iter = fields_.begin(); 
+      std::vector<MimeField>::const_iterator iterEnd = fields_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -732,7 +732,7 @@ namespace HM
    // store the header to string buffer
    void MimeHeader::Store(AnsiString &output) const
    {
-      vector<MimeField>::const_iterator it;
+      std::vector<MimeField>::const_iterator it;
       for (it = fields_.begin(); it != fields_.end(); it++)
       {
          const MimeField& fd = *it;
@@ -817,7 +817,7 @@ namespace HM
    bool 
       MimeHeader::FieldExists(const char *pszFieldName) const
    {
-      vector<MimeField>::iterator iter = FindField(pszFieldName);
+      std::vector<MimeField>::iterator iter = FindField(pszFieldName);
       if (iter == fields_.end())
          return false;
 
@@ -825,9 +825,9 @@ namespace HM
    }
 
 
-   vector<MimeField>::iterator MimeHeader::FindField(const char* pszFieldName) const
+   std::vector<MimeField>::iterator MimeHeader::FindField(const char* pszFieldName) const
    {
-      vector<MimeField>::iterator it;
+      std::vector<MimeField>::iterator it;
       MimeHeader *pThis = const_cast<MimeHeader*>(this);
       for (it = pThis->fields_.begin(); it != pThis->fields_.end(); it++)
       {
@@ -905,15 +905,15 @@ namespace HM
       return sWideStr;
    }
 
-   shared_ptr<MimeBody> 
+   std::shared_ptr<MimeBody> 
       MimeBody::LoadEncapsulatedMessage() const
    {
       // try to generate a file name using the message subject.
-      shared_ptr<MimeBody> pEncapsulatedMessage = shared_ptr<MimeBody>(new MimeBody);
+      std::shared_ptr<MimeBody> pEncapsulatedMessage = std::shared_ptr<MimeBody>(new MimeBody);
 
       int iLength = GetContentLength();
       char *pData = new char[iLength+1];
-      strncpy(pData, (const char*) GetContent(), iLength);
+      strncpy_s(pData, iLength+1, (const char*) GetContent(), iLength);
       int index = 0;
       pEncapsulatedMessage->Load(pData, iLength, index);
       delete [] pData;
@@ -927,7 +927,7 @@ namespace HM
       if (!IsEncapsulatedRFC822Message())
          return "";
 
-      shared_ptr<MimeBody> pEncapsulatedMessage = LoadEncapsulatedMessage();
+      std::shared_ptr<MimeBody> pEncapsulatedMessage = LoadEncapsulatedMessage();
 
       String sFilename = unicode ? 
          pEncapsulatedMessage->GetUnicodeFieldValue("Subject") :
@@ -1078,7 +1078,7 @@ namespace HM
 
       // Read the file as a text file. This will cause a null
       // to be added by File, which is required by Load() below.
-      shared_ptr<ByteBuffer> pFileContents = oFile.ReadTextFile();
+      std::shared_ptr<ByteBuffer> pFileContents = oFile.ReadTextFile();
 
       FreeBuffer();
       if (pFileContents->GetSize() > 0)
@@ -1122,7 +1122,7 @@ namespace HM
       if (!oFile.Open(pszFilename, File::OTReadOnly))
          return false;
 
-      shared_ptr<ByteBuffer> pUnencodedBuffer = oFile.ReadFile();
+      std::shared_ptr<ByteBuffer> pUnencodedBuffer = oFile.ReadFile();
 
       if (!pUnencodedBuffer)
          return false;
@@ -1171,16 +1171,16 @@ namespace HM
    {
       while (!bodies_.empty())
       {
-         shared_ptr<MimeBody> pBP = bodies_.back();
+         std::shared_ptr<MimeBody> pBP = bodies_.back();
          bodies_.pop_back();
          ASSERT(pBP != NULL);
       }
    }
 
    // create a new child body part, and add it to body part list
-   shared_ptr<MimeBody> MimeBody::CreatePart(const char* pszMediaType/*=NULL*/, shared_ptr<MimeBody> pWhere/*=NULL*/)
+   std::shared_ptr<MimeBody> MimeBody::CreatePart(const char* pszMediaType/*=NULL*/, std::shared_ptr<MimeBody> pWhere/*=NULL*/)
    {
-      shared_ptr<MimeBody> pBP = MimeEnvironment::CreateBodyPart(pszMediaType);
+      std::shared_ptr<MimeBody> pBP = MimeEnvironment::CreateBodyPart(pszMediaType);
       ASSERT(pBP != NULL);
       if (pWhere != NULL)
       {
@@ -1196,7 +1196,7 @@ namespace HM
    }
 
    // create a new child body part, and add it to body part list
-   void MimeBody::AddPart(shared_ptr<MimeBody> part)
+   void MimeBody::AddPart(std::shared_ptr<MimeBody> part)
    {
       bodies_.push_back(part);
    }
@@ -1207,7 +1207,7 @@ namespace HM
       return (int) bodies_.size();
    }
    // remove and delete a child body part
-   void MimeBody::ErasePart(shared_ptr<MimeBody> pBP)
+   void MimeBody::ErasePart(std::shared_ptr<MimeBody> pBP)
    {
       ASSERT(pBP != NULL);
       bodies_.remove(pBP);
@@ -1217,7 +1217,7 @@ namespace HM
    // Since we are using smart pointers, and it's not possible to cast
    // from <this> to a smart_ptr, we need to give this function a pointer
    // to itself. Really ugly but should work fine.
-   int MimeBody::GetAttachmentList(shared_ptr<MimeBody> pThis, BodyList& rList) const
+   int MimeBody::GetAttachmentList(std::shared_ptr<MimeBody> pThis, BodyList& rList) const
    {
       int nCount = 0;
       int nMediaType = GetMediaType();
@@ -1233,10 +1233,10 @@ namespace HM
 
       else
       {
-         list<shared_ptr<MimeBody> >::const_iterator it;
+         std::list<std::shared_ptr<MimeBody> >::const_iterator it;
          for (it=bodies_.begin(); it!=bodies_.end(); it++)
          {
-            shared_ptr<MimeBody> pBP = *it;
+            std::shared_ptr<MimeBody> pBP = *it;
             ASSERT(pBP != NULL);
             nCount += pBP->GetAttachmentList(pBP, rList);
          }
@@ -1249,10 +1249,10 @@ namespace HM
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         list<shared_ptr<MimeBody> >::iterator it = bodies_.begin();
+         std::list<std::shared_ptr<MimeBody> >::iterator it = bodies_.begin();
          while (it != bodies_.end())
          {
-            shared_ptr<MimeBody> pBody = (*it);
+            std::shared_ptr<MimeBody> pBody = (*it);
             if (pBody->IsAttachment())
                it = bodies_.erase(it);
             else
@@ -1262,14 +1262,14 @@ namespace HM
    }
 
    // clear all attachments from this subtype.
-   void MimeBody::RemoveAttachment(shared_ptr<MimeBody> pAttachment) 
+   void MimeBody::RemoveAttachment(std::shared_ptr<MimeBody> pAttachment) 
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         list<shared_ptr<MimeBody> >::iterator it = bodies_.begin();
+         std::list<std::shared_ptr<MimeBody> >::iterator it = bodies_.begin();
          while (it != bodies_.end())
          {
-            shared_ptr<MimeBody> pBody = (*it);
+            std::shared_ptr<MimeBody> pBody = (*it);
             if (pBody->IsAttachment() && pBody == pAttachment)
             {
                it = bodies_.erase(it);
@@ -1304,11 +1304,11 @@ namespace HM
 
       string strBoundary = GetBoundary();
       int nBoundSize = (int) strBoundary.size();
-      list<shared_ptr<MimeBody> >::const_iterator it;
+      std::list<std::shared_ptr<MimeBody> >::const_iterator it;
       for (it=bodies_.begin(); it!=bodies_.end(); it++)
       {
          nLength += nBoundSize + 6;	// include 2 leading hyphens and 2 pair of CRLFs
-         shared_ptr<MimeBody> pBP = *it;
+         std::shared_ptr<MimeBody> pBP = *it;
          ASSERT(pBP != NULL);
          nLength += pBP->GetLength();
       }
@@ -1349,7 +1349,7 @@ namespace HM
          AnsiString boundaryLine = Formatter::Format(_T("\r\n--{0}\r\n"), String(strBoundary));
          output.append(boundaryLine);
 
-         shared_ptr<MimeBody> pBP = *it;
+         std::shared_ptr<MimeBody> pBP = *it;
          ASSERT(pBP != NULL);	
 
          pBP->Store(output);
@@ -1495,7 +1495,7 @@ namespace HM
             pszBound2 = pszEnd;
          int nEntitySize = (int) (pszBound2 - pszStart);
 
-         shared_ptr<MimeBody> pBP = shared_ptr<MimeBody>(new MimeBody());
+         std::shared_ptr<MimeBody> pBP = std::shared_ptr<MimeBody>(new MimeBody());
 
          bodies_.push_back(pBP);
 

@@ -13,7 +13,7 @@
 
 namespace HM
 {
-   SQLScriptParser::SQLScriptParser(shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
+   SQLScriptParser::SQLScriptParser(std::shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
       settings_(pSettings),
       file_(sFile)
    {
@@ -52,9 +52,9 @@ namespace HM
          break;
       }
 
-      vector<String> vecCommands = StringParser::SplitString(sContents, sCommandSeparator);
-      vector<String>::iterator iter = vecCommands.begin();
-      vector<String>::iterator iterEnd = vecCommands.end();
+      std::vector<String> vecCommands = StringParser::SplitString(sContents, sCommandSeparator);
+      std::vector<String>::iterator iter = vecCommands.begin();
+      std::vector<String>::iterator iterEnd = vecCommands.end();
 
       for (; iter != iterEnd; iter++)
       {

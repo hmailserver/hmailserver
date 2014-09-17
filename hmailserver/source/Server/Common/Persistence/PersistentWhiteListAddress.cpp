@@ -25,7 +25,7 @@ namespace HM
    }
 
    bool
-   PersistentWhiteListAddress::DeleteObject(shared_ptr<WhiteListAddress> pObject)
+   PersistentWhiteListAddress::DeleteObject(std::shared_ptr<WhiteListAddress> pObject)
    {
       SQLCommand command("delete from hm_whitelist where whiteid = @WHITEID");
       command.AddParameter("@WHITEID", pObject->GetID());
@@ -34,7 +34,7 @@ namespace HM
    }
 
    bool 
-   PersistentWhiteListAddress::ReadObject(shared_ptr<WhiteListAddress> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentWhiteListAddress::ReadObject(std::shared_ptr<WhiteListAddress> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       IPAddressSQLHelper helper;
 
@@ -48,13 +48,13 @@ namespace HM
    }
 
    bool 
-   PersistentWhiteListAddress::SaveObject(shared_ptr<WhiteListAddress> pObject, String &errorMessage, PersistenceMode mode)
+   PersistentWhiteListAddress::SaveObject(std::shared_ptr<WhiteListAddress> pObject, String &errorMessage, PersistenceMode mode)
    {
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentWhiteListAddress::SaveObject(shared_ptr<WhiteListAddress> pObject)
+   PersistentWhiteListAddress::SaveObject(std::shared_ptr<WhiteListAddress> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_whitelist");

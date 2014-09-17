@@ -7,10 +7,10 @@
 
 namespace HM
 {
-   class SQLCEConnection : public DALConnection, public boost::enable_shared_from_this<SQLCEConnection>
+   class SQLCEConnection : public DALConnection, public std::enable_shared_from_this<SQLCEConnection>
    {
    public:
-	   SQLCEConnection(shared_ptr<DatabaseSettings> pSettings);
+	   SQLCEConnection(std::shared_ptr<DatabaseSettings> pSettings);
 	   virtual ~SQLCEConnection();
 
       ConnectionResult Connect(String &sErrorMessage);
@@ -32,11 +32,11 @@ namespace HM
 
       virtual bool CheckServerVersion(String &errorMessage);
 
-      virtual shared_ptr<DALRecordset> CreateRecordset();
+      virtual std::shared_ptr<DALRecordset> CreateRecordset();
 
       virtual void EscapeString(String &sInput);
 
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander();
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander();
 
       void InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const;
 

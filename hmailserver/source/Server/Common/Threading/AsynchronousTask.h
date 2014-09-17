@@ -11,7 +11,7 @@ namespace HM
    class AsynchronousTask : public Task
    {
    public:
-      AsynchronousTask(boost::function<void()> functionToRun, shared_ptr<T> parentHolder) :
+      AsynchronousTask(std::function<void()> functionToRun, std::shared_ptr<T> parentHolder) :
          Task("AsynchronousTask"),
          asynchronousFunction_(functionToRun),
          parentHolder_(parentHolder)
@@ -36,8 +36,8 @@ namespace HM
 
    private:
 
-      boost::function<void()> asynchronousFunction_;
+      std::function<void()> asynchronousFunction_;
 
-      shared_ptr<T> parentHolder_;
+      std::shared_ptr<T> parentHolder_;
    };
 }

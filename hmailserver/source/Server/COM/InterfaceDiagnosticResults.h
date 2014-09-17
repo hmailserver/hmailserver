@@ -51,9 +51,9 @@ public:
    STDMETHOD(get_Item)(/*[in]*/ long Index, /*[out, retval]*/ IInterfaceDiagnosticResult* *pVal);
    STDMETHOD(get_Count)(/*[out, retval]*/ long* pVal);
 
-   void AttachResults(vector<HM::DiagnosticResult> results) {results_ = results; }
+   void AttachResults(std::vector<HM::DiagnosticResult> results) {results_ = results; }
 
-   vector<HM::DiagnosticResult> results_;
+   std::vector<HM::DiagnosticResult> results_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DiagnosticResults), InterfaceDiagnosticResults)

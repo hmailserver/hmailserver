@@ -30,12 +30,12 @@ namespace HM
       String tempFile = FileUtilities::GetTempFileName();
       FileUtilities::WriteToFile(tempFile, bodyText, false);
 
-      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
       bool testCompleted;
 
-      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event());
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
+      std::shared_ptr<SpamAssassinClient> pSAClient = std::shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
 
       DNSResolver resolver;
 

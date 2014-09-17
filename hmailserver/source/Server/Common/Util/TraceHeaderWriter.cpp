@@ -25,7 +25,7 @@ namespace HM
    }
 
    bool 
-   TraceHeaderWriter::Write(const String &messageFileName, shared_ptr<Message> message, const vector<pair<AnsiString, AnsiString> > &headerFields)
+   TraceHeaderWriter::Write(const String &messageFileName, std::shared_ptr<Message> message, const std::vector<std::pair<AnsiString, AnsiString> > &headerFields)
    {
       if (headerFields.size() == 0)
          return true;
@@ -37,10 +37,10 @@ namespace HM
       if (!temporaryFile.Open(tempFile, File::OTCreate))
          return false;
 
-      typedef pair<AnsiString, AnsiString> headerField;
+      typedef std::pair<AnsiString, AnsiString> headerField;
 
       AnsiString prependString;
-      boost_foreach(headerField field, headerFields)
+      for(headerField field : headerFields)
       {
          prependString += field.first + ": " + field.second + "\r\n";
       }

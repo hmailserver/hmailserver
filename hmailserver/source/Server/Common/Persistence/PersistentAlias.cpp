@@ -28,7 +28,7 @@ namespace HM
 
    }
    bool
-   PersistentAlias::DeleteObject(shared_ptr<Alias> pAlias)
+   PersistentAlias::DeleteObject(std::shared_ptr<Alias> pAlias)
    {
       assert(pAlias->GetID());
 
@@ -47,7 +47,7 @@ namespace HM
    }
 
    bool
-   PersistentAlias::SaveObject(shared_ptr<Alias> pAlias)
+   PersistentAlias::SaveObject(std::shared_ptr<Alias> pAlias)
    {
       String sErrorMessage;
 
@@ -55,7 +55,7 @@ namespace HM
    }
 
    bool
-   PersistentAlias::SaveObject(shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode)
+   PersistentAlias::SaveObject(std::shared_ptr<Alias> pAlias, String &sErrorMessage, PersistenceMode mode)
    {
       if (!PreSaveLimitationsCheck::CheckLimitations(mode, pAlias, sErrorMessage))
          return false;
@@ -97,7 +97,7 @@ namespace HM
    }
 
    bool
-   PersistentAlias::ReadObject(shared_ptr<Alias> pAlias, const String & sName)
+   PersistentAlias::ReadObject(std::shared_ptr<Alias> pAlias, const String & sName)
    {
       SQLStatement statement;
 
@@ -109,7 +109,7 @@ namespace HM
    }
 
    bool
-   PersistentAlias::ReadObject(shared_ptr<Alias> pAccount, __int64 ObjectID)
+   PersistentAlias::ReadObject(std::shared_ptr<Alias> pAccount, __int64 ObjectID)
    {
       SQLCommand command("select * from hm_aliases where aliasid = @ALIASID");
       command.AddParameter("@ALIASID", ObjectID);
@@ -121,9 +121,9 @@ namespace HM
 
 
    bool
-   PersistentAlias::ReadObject(shared_ptr<Alias> pAlias, const SQLCommand &command)
+   PersistentAlias::ReadObject(std::shared_ptr<Alias> pAlias, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -139,7 +139,7 @@ namespace HM
 
 
    bool
-   PersistentAlias::ReadObject(shared_ptr<Alias> pAlias, shared_ptr<DALRecordset> pRS)
+   PersistentAlias::ReadObject(std::shared_ptr<Alias> pAlias, std::shared_ptr<DALRecordset> pRS)
    {
    
       pAlias->SetID(pRS->GetLongValue("aliasid"));

@@ -32,7 +32,7 @@ namespace HM
       SQLCommand command("select * from hm_fetchaccounts_uids where uidfaid = @UIDFAID");
       command.AddParameter("@UIDFAID", faid_);
 
-      shared_ptr<DALRecordset> pUIDRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pUIDRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pUIDRS)
          return;
 
@@ -42,7 +42,7 @@ namespace HM
          String sUIDValue = pUIDRS->GetStringValue("uidvalue");
          String sUIDTime = pUIDRS->GetStringValue("uidtime");
 
-         shared_ptr<FetchAccountUID> pUID = shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
+         std::shared_ptr<FetchAccountUID> pUID = std::shared_ptr<FetchAccountUID>(new FetchAccountUID(iUIDID, faid_, sUIDValue, sUIDTime));
 
          vecObjects.push_back(pUID);
 
@@ -52,7 +52,7 @@ namespace HM
    }
 
    bool
-   FetchAccountUIDs::PreSaveObject(shared_ptr<FetchAccountUID> pUID, XNode *node)
+   FetchAccountUIDs::PreSaveObject(std::shared_ptr<FetchAccountUID> pUID, XNode *node)
    {
       pUID->SetAccountID(faid_);
       return true;

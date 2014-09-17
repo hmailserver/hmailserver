@@ -97,36 +97,36 @@ namespace HM
       last_logon_time_ = oldAccount.last_logon_time_;
    }
 
-   shared_ptr<Messages>
+   std::shared_ptr<Messages>
    Account::GetMessages()
    {
       if (messages_.get() == NULL)
       {
-         messages_ = shared_ptr<Messages>(new Messages(id_, -1));
+         messages_ = std::shared_ptr<Messages>(new Messages(id_, -1));
          messages_->Refresh();
       }
 
       return messages_;
    }
 
-   shared_ptr<Rules>
+   std::shared_ptr<Rules>
    Account::GetRules()
    {
       if (rules_.get() == NULL)
       {
-         rules_ = shared_ptr<Rules>(new Rules(id_));
+         rules_ = std::shared_ptr<Rules>(new Rules(id_));
          rules_->Refresh();
       }
    
       return rules_;
    }
 
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    Account::GetFolders()
    {
       if (folders_.get() == NULL)
       {
-         folders_ = shared_ptr<IMAPFolders>(new HM::IMAPFolders(id_, -1));
+         folders_ = std::shared_ptr<IMAPFolders>(new HM::IMAPFolders(id_, -1));
          folders_->Refresh();
 
       }
@@ -305,7 +305,7 @@ namespace HM
       pNode->AppendAttr(_T("LastLogonTime"), String(last_logon_time_));
 
       // Store fetch accounts
-      shared_ptr<HM::FetchAccounts> pFetchAccounts = shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
+      std::shared_ptr<HM::FetchAccounts> pFetchAccounts = std::shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
       pFetchAccounts->Refresh();
       if (!pFetchAccounts->XMLStore(pNode, iBackupOptions))
          return false;
@@ -370,7 +370,7 @@ namespace HM
    Account::XMLLoadSubItems(XNode *pAccountNode, int iRestoreOptions)
    {
       // Load 
-      shared_ptr<HM::FetchAccounts> pFetchAccounts = shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
+      std::shared_ptr<HM::FetchAccounts> pFetchAccounts = std::shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
       pFetchAccounts->Refresh();
       if (!pFetchAccounts->XMLLoad(pAccountNode, iRestoreOptions))
          return false;

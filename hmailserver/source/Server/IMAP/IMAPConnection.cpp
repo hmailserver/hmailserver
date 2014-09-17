@@ -51,7 +51,7 @@ namespace HM
    IMAPConnection::IMAPConnection(ConnectionSecurity connection_security,
          boost::asio::io_service& io_service, 
          boost::asio::ssl::context& context) :
-      TCPConnection(connection_security, io_service, context, shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
       is_idling_(false),
       literal_data_to_receive_(0),
       pending_disconnect_(false),
@@ -140,26 +140,26 @@ namespace HM
    // Connection handlers that needs to be connection-specific (nonstatic)
    //---------------------------------------------------------------------------()
    {
-      mapCommandHandlers[IMAP_UID] = shared_ptr<IMAPCommandUID>(new IMAPCommandUID());
-      mapCommandHandlers[IMAP_APPEND] = shared_ptr<IMAPCommandAppend>(new IMAPCommandAppend());
-      mapCommandHandlers[IMAP_SEARCH] = shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(false));
-      mapCommandHandlers[IMAP_SORT] = shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(true));
-      mapCommandHandlers[IMAP_IDLE] = shared_ptr<IMAPCommandIdle>(new IMAPCommandIdle(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this())));
+      mapCommandHandlers[IMAP_UID] = std::shared_ptr<IMAPCommandUID>(new IMAPCommandUID());
+      mapCommandHandlers[IMAP_APPEND] = std::shared_ptr<IMAPCommandAppend>(new IMAPCommandAppend());
+      mapCommandHandlers[IMAP_SEARCH] = std::shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(false));
+      mapCommandHandlers[IMAP_SORT] = std::shared_ptr<IMAPCommandSEARCH>(new IMAPCommandSEARCH(true));
+      mapCommandHandlers[IMAP_IDLE] = std::shared_ptr<IMAPCommandIdle>(new IMAPCommandIdle(std::dynamic_pointer_cast<IMAPConnection>(shared_from_this())));
 
       mapStaticHandlers = StaticIMAPCommandHandlers::Instance()->GetStaticHandlers();
 
-      notification_client_ = shared_ptr<IMAPNotificationClient>(new IMAPNotificationClient());
-      notification_client_->SetConnection(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()));
+      notification_client_ = std::shared_ptr<IMAPNotificationClient>(new IMAPNotificationClient());
+      notification_client_->SetConnection(std::dynamic_pointer_cast<IMAPConnection>(shared_from_this()));
    }
 
    void 
-   IMAPConnection::ParseData(shared_ptr<ByteBuffer> pByteBuffer)
+   IMAPConnection::ParseData(std::shared_ptr<ByteBuffer> pByteBuffer)
    {
-      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_APPEND);
+      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_APPEND);
       IMAPCommand* pCommand = (*iterCommandHandler).second.get();
       IMAPCommandAppend * pCommandAppend  = static_cast<IMAPCommandAppend*>(pCommand);
 
-      pCommandAppend->ParseBinary(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()), pByteBuffer);
+      pCommandAppend->ParseBinary(std::dynamic_pointer_cast<IMAPConnection>(shared_from_this()), pByteBuffer);
    }
 
    void
@@ -189,7 +189,7 @@ namespace HM
       String sTag = command_buffer_.Mid(0, iSpace);
       String sCommand = command_buffer_.Mid(iSpace+1, iLineEnd - (iSpace+1));
 
-      shared_ptr<IMAPClientCommand> pCommand = shared_ptr<IMAPClientCommand>(new IMAPClientCommand);
+      std::shared_ptr<IMAPClientCommand> pCommand = std::shared_ptr<IMAPClientCommand>(new IMAPClientCommand);
 
       // Check if we should receive any literal data.
       if (literal_data_to_receive_ == 0)
@@ -429,7 +429,7 @@ namespace HM
    }
 
    void 
-   IMAPConnection::Login(shared_ptr<const Account> account)
+   IMAPConnection::Login(std::shared_ptr<const Account> account)
    {
       account_ = account;
 
@@ -441,7 +441,7 @@ namespace HM
    {
       CloseCurrentFolder();
 
-      shared_ptr<const Account> account;
+      std::shared_ptr<const Account> account;
       SetAccount_(account),
 
       SendAsciiData(goodbyeMessage);   
@@ -561,7 +561,7 @@ namespace HM
    }
 
    bool
-   IMAPConnection::AnswerCommand(shared_ptr<IMAPClientCommand> command)
+   IMAPConnection::AnswerCommand(std::shared_ptr<IMAPClientCommand> command)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Handles a single client command.
@@ -600,7 +600,7 @@ namespace HM
 
       bool bHandlerFound = false;
       
-      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(eCommand);
+      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(eCommand);
 
       if (iterCommandHandler != mapCommandHandlers.end())
          bHandlerFound = true;
@@ -621,9 +621,9 @@ namespace HM
       }
 
       
-      shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
+      std::shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
 
-      shared_ptr<IMAPCommandArgument> pArgument = shared_ptr<IMAPCommandArgument> (new IMAPCommandArgument);
+      std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument> (new IMAPCommandArgument);
       pArgument->Command(sCommandValue);
       pArgument->Tag(sCommandTag);
       
@@ -637,7 +637,7 @@ namespace HM
       
       bool postReceive = false;
       
-      IMAPResult result = pCommand->ExecuteCommand(boost::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
+      IMAPResult result = pCommand->ExecuteCommand(std::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
       {
@@ -689,9 +689,9 @@ namespace HM
          return;
       }
 
-      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_IDLE);
-      shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
-      shared_ptr<IMAPCommandIdle> pIdleCommand = boost::static_pointer_cast<IMAPCommandIdle>(pCommand);
+      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_IDLE);
+      std::shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
+      std::shared_ptr<IMAPCommandIdle> pIdleCommand = std::static_pointer_cast<IMAPCommandIdle>(pCommand);
       pIdleCommand->Finish(true);
    }
 
@@ -716,7 +716,7 @@ namespace HM
       public_imap_folders_ = IMAPFolderContainer::Instance()->GetPublicFolders();
    }
 
-   shared_ptr<IMAPFolder> 
+   std::shared_ptr<IMAPFolder> 
    IMAPConnection::GetFolderByFullPath(const String &sFolderName)
    {
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
@@ -725,10 +725,10 @@ namespace HM
       return GetFolderByFullPath(vecFolderPath);
    }
 
-   shared_ptr<IMAPFolder> 
+   std::shared_ptr<IMAPFolder> 
    IMAPConnection::GetFolderByFullPath(std::vector<String> &vecFolderPath)
    {
-      shared_ptr<IMAPFolder> pFolder;
+      std::shared_ptr<IMAPFolder> pFolder;
 
       if (vecFolderPath.size() > 0)
       {
@@ -791,7 +791,7 @@ namespace HM
    }
 
    void
-   IMAPConnection::SetCurrentFolder(shared_ptr<IMAPFolder> pFolder, bool readOnly)
+   IMAPConnection::SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly)
    {
       // First close the currently set folder. This will cause an unsubscribe from the 
       // current folder to be made and \recent flags to be removed.
@@ -829,7 +829,7 @@ namespace HM
    }
 
    void 
-   IMAPConnection::SetDelayedChangeNotification(shared_ptr<ChangeNotification> pNotification)
+   IMAPConnection::SetDelayedChangeNotification(std::shared_ptr<ChangeNotification> pNotification)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Sets a delayed change notification. This will be performed when the
@@ -840,7 +840,7 @@ namespace HM
    }
 
    bool 
-   IMAPConnection::CheckPermission(shared_ptr<IMAPFolder> pFolder, int iPermission)
+   IMAPConnection::CheckPermission(std::shared_ptr<IMAPFolder> pFolder, int iPermission)
    {
       if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPACL())
       {
@@ -849,7 +849,7 @@ namespace HM
       }
 
 	   ACLManager aclManager;
-      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
+      std::shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
       if (!pPermission)
          return false;
 
@@ -860,7 +860,7 @@ namespace HM
    }
 
    void
-   IMAPConnection::CheckFolderPermissions(shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess)
+   IMAPConnection::CheckFolderPermissions(std::shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess)
    {
       // Default no access.
       readAccess = false;
@@ -876,7 +876,7 @@ namespace HM
       }
 
       ACLManager aclManager;
-      shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
+      std::shared_ptr<ACLPermission> pPermission = aclManager.GetPermissionForFolder(account_->GetID(), pFolder);
       if (!pPermission)
          return;
 
@@ -891,7 +891,7 @@ namespace HM
    bool 
    IMAPConnection::IsAuthenticated()
    {
-      return account_;
+      return account_ != 0;
    }
 
    void

@@ -13,7 +13,7 @@ namespace HM
 {
    boost::shared_mutex whitelistAccessMutex_;
 
-   std::vector<shared_ptr<WhiteListAddress>> WhiteListCache::whitelistItems_;
+   std::vector<std::shared_ptr<WhiteListAddress>> WhiteListCache::whitelistItems_;
    bool WhiteListCache::needRefresh_ = true;
 
    WhiteListCache::WhiteListCache(void)
@@ -42,12 +42,12 @@ namespace HM
          Refresh();
       }
 
-      vector<shared_ptr<WhiteListAddress> >::iterator iter = whitelistItems_.begin();
-      vector<shared_ptr<WhiteListAddress> >::iterator iterEnd = whitelistItems_.end();
+      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iter = whitelistItems_.begin();
+      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iterEnd = whitelistItems_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<WhiteListAddress> pWhiteAddress = (*iter);
+         std::shared_ptr<WhiteListAddress> pWhiteAddress = (*iter);
 
          IPAddress iLowerIP = pWhiteAddress->GetLowerIPAddress();
          IPAddress iUpperIP = pWhiteAddress->GetUpperIPAddress();
@@ -83,15 +83,15 @@ namespace HM
       WhiteListAddresses addresses;
       addresses.Refresh();
 
-      vector<shared_ptr<WhiteListAddress> > vec = addresses.GetConstVector();
+      std::vector<std::shared_ptr<WhiteListAddress> > vec = addresses.GetConstVector();
 
-      vector<shared_ptr<WhiteListAddress> >::iterator iter = vec.begin();
-      vector<shared_ptr<WhiteListAddress> >::iterator iterEnd = vec.end();
+      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iter = vec.begin();
+      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iterEnd = vec.end();
 
-      std::vector<shared_ptr<WhiteListAddress>> items;
+      std::vector<std::shared_ptr<WhiteListAddress>> items;
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<WhiteListAddress> whiteAddress = (*iter);
+         std::shared_ptr<WhiteListAddress> whiteAddress = (*iter);
 
          items.push_back(whiteAddress);
       }

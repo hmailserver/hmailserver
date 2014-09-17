@@ -26,7 +26,7 @@ namespace HM
    FetchAccounts::RefreshPendingList()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_fetchaccounts where fanexttry <= %s and falocked = 0 and faactive = 1 order by faid asc"), SQLStatement::GetCurrentTimestamp());
+      sSQL.Format(_T("select * from hm_fetchaccounts where fanexttry <= %s and falocked = 0 and faactive = 1 order by faid asc"), SQLStatement::GetCurrentTimestamp().c_str());
 
       DBLoad_(sSQL);
    }
@@ -43,7 +43,7 @@ namespace HM
    }
 
    bool
-   FetchAccounts::PreSaveObject(shared_ptr<FetchAccount> pFA, XNode *node)
+   FetchAccounts::PreSaveObject(std::shared_ptr<FetchAccount> pFA, XNode *node)
    {
       pFA->SetAccountID(account_id_);
       return true;

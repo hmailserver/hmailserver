@@ -63,11 +63,11 @@ namespace HM
          line" is defined in Section 3.4.3.
       */
       
-      vector<AnsiString> lines = StringParser::SplitString(value, "\r\n");
+      std::vector<AnsiString> lines = StringParser::SplitString(value, "\r\n");
 
-      vector<String> output;
-      vector<String> cleanedLines;
-      boost_foreach (AnsiString line, lines)
+      std::vector<String> output;
+      std::vector<String> cleanedLines;
+      for (AnsiString line : lines)
       {
          line.Replace("\t", " ");
 
@@ -81,7 +81,7 @@ namespace HM
 
          if (!line.IsEmpty())
          {
-            boost_foreach (String cleaned, cleanedLines)
+            for (String cleaned : cleanedLines)
             {
                output.push_back(cleaned);
             }
@@ -102,15 +102,15 @@ namespace HM
    }
 
    AnsiString 
-   RelaxedCanonicalization::CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
+   RelaxedCanonicalization::CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
    {
       MimeHeader mimeHeader;
       mimeHeader.Load(header, header.GetLength(), true);
 
-      vector<MimeField> fields = mimeHeader.Fields();
+      std::vector<MimeField> fields = mimeHeader.Fields();
 
       String result;
-      boost_foreach(AnsiString headerField, fieldsToInclude)
+      for(AnsiString headerField : fieldsToInclude)
       {  
          headerField.Trim();
 
@@ -243,13 +243,13 @@ namespace HM
    }
 
    AnsiString 
-   SimpleCanonicalization::CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
+   SimpleCanonicalization::CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
    {
       // first build a formatted list of header lines.
       std::vector<AnsiString> formattedHeaderLines;
 
       AnsiString result;
-      vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
+      std::vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
 
       AnsiString foldedLines;
       for (int i = headerLines.size()-1; i >= 0; i--)
@@ -279,7 +279,7 @@ namespace HM
          }
       }
 
-      boost_foreach(AnsiString fieldToInclude, fieldsToInclude)
+      for(AnsiString fieldToInclude : fieldsToInclude)
       {
          fieldToInclude.Trim();
 

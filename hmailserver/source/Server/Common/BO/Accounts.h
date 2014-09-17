@@ -25,7 +25,7 @@ namespace HM
   
    protected:
       
-      virtual bool PreSaveObject(shared_ptr<Account> pAccount, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<Account> pAccount, XNode *node);
       virtual String GetCollectionName() const {return "Accounts"; }
 
 

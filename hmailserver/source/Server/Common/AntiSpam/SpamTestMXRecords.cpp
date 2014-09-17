@@ -39,10 +39,10 @@ namespace HM
    }
 
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestMXRecords::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestMXRecords::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
 
       String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
@@ -53,7 +53,7 @@ namespace HM
          String sMessage = _T("Sender domain does not have any MX records.");
          int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseMXChecksScore();;
 
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
 
       }

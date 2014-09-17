@@ -104,7 +104,7 @@ namespace HM
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::system_error &error)
    {
       String formatted_message;
-      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.code().value(), String(error.what()));
+      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription.c_str(), error.code().value(), String(error.what()).c_str());
 
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
@@ -113,7 +113,7 @@ namespace HM
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
    {
       String formatted_message;
-      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.what());
+      formatted_message.Format(_T("%s, Message: %s"), sDescription.c_str(), error.what());
 
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
@@ -153,15 +153,6 @@ namespace HM
    void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription)
    {
-#ifdef _ERROR_LOGGING_IN_MESSAGE_BOXES
-      
-      String sErrorToLog;
-      sErrorToLog.Format(_T("%s"), 
-                             sDescription);
-
-      MessageBoxW(0, sErrorToLog, _T("hMailServer"), 0);
-
-#else
       String sSeverityStr = GetSeverity(iSeverity);
 
       String sTempDesc = sDescription;
@@ -169,7 +160,7 @@ namespace HM
 
       String sErrorToLog;
       sErrorToLog.Format(_T("Severity: %d (%s), Code: HM%d, Source: %s, Description: %s"), 
-                            iSeverity, sSeverityStr, iErrorID, sSource, sTempDesc);
+                            iSeverity, sSeverityStr.c_str(), iErrorID, sSource.c_str(), sTempDesc);
 
       Logger::Instance()->LogError(sErrorToLog); 
 
@@ -194,7 +185,7 @@ namespace HM
             tempDescription.Replace(_T("\""), _T("\"\""));
 
             sEventCaller.Format(_T("OnError(%d, %d, \"%s\", \"%s\")"), 
-                                    iSeverity, iErrorID, tempSource, tempDescription);
+               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
          }
          else if (sScriptLanguage == _T("JScript"))
          {
@@ -205,15 +196,14 @@ namespace HM
             tempDescription.Replace(_T("'"), _T("\\'"));
 
             sEventCaller.Format(_T("OnError(%d, %d, '%s', '%s')"), 
-                                    iSeverity, iErrorID, tempSource, tempDescription);
+               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
          }
 
-         shared_ptr<ScriptObjectContainer> pContainer  = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnError, sEventCaller, pContainer);
 
       }
-#endif
    }
 
 

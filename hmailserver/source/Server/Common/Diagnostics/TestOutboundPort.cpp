@@ -46,7 +46,7 @@ namespace HM
          smtpPort = 25;
 
          String formattedString;
-         formattedString.Format(_T("SMTP relayer not in use. Attempting %s:%i...\r\n"), smtpHost, smtpPort);
+         formattedString.Format(_T("SMTP relayer not in use. Attempting %s:%i...\r\n"), smtpHost.c_str(), smtpPort);
 
          // Test to connect to mail.hmailserver.com or local_test_domain_name_
          runDetails = formattedString;

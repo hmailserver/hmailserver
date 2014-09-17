@@ -31,11 +31,11 @@ namespace HM
       String result;
 
       String formattedLine;
-      formattedLine.Format(_T("hMailServer version: %s\r\n"), Application::Instance()->GetVersion());
+      formattedLine.Format(_T("hMailServer version: %s\r\n"), Application::Instance()->GetVersion().c_str());
       result.append(formattedLine);
 
       String databaseType = DatabaseSettings::GetDatabaseTypeName(IniFileSettings::Instance()->GetDatabaseType());
-      formattedLine.Format(_T("Database type: %s\r\n"), databaseType);
+      formattedLine.Format(_T("Database type: %s\r\n"), databaseType.c_str());
       result.append(formattedLine);
 
       diagResult.SetSuccess(true);

@@ -50,9 +50,9 @@ namespace HM
 {
    bool MimeEnvironment::auto_folding_ = false;
    string MimeEnvironment::charset_;
-   list<MimeEnvironment::CODER_PAIR> MimeEnvironment::coders_;
-   list<MimeEnvironment::FIELD_CODER_PAIR> MimeEnvironment::field_coders_;
-   list<MimeEnvironment::MEDIA_TYPE_PAIR> MimeEnvironment::media_types_;
+   std::list<MimeEnvironment::CODER_PAIR> MimeEnvironment::coders_;
+   std::list<MimeEnvironment::FIELD_CODER_PAIR> MimeEnvironment::field_coders_;
+   std::list<MimeEnvironment::MEDIA_TYPE_PAIR> MimeEnvironment::media_types_;
    MimeEnvironment MimeEnvironment::mgr_;
 
    MimeEnvironment::MimeEnvironment()
@@ -100,10 +100,10 @@ namespace HM
    void MimeEnvironment::RegisterCoder(const char* pszCodingName, CODER_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszCodingName != NULL);
-	   list<CODER_PAIR>::iterator it = coders_.begin();
+	   std::list<CODER_PAIR>::iterator it = coders_.begin();
 	   while (it != coders_.end())
 	   {
-		   list<CODER_PAIR>::iterator it2 = it;
+		   std::list<CODER_PAIR>::iterator it2 = it;
 		   it++;
          if (!::_stricmp(pszCodingName, (*it2).first))
 			   coders_.erase(it2);
@@ -137,10 +137,10 @@ namespace HM
    void MimeEnvironment::RegisterFieldCoder(const char* pszFieldName, FIELD_CODER_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszFieldName != NULL);
-	   list<FIELD_CODER_PAIR>::iterator it = field_coders_.begin();
+	   std::list<FIELD_CODER_PAIR>::iterator it = field_coders_.begin();
 	   while (it != field_coders_.end())
 	   {
-		   list<FIELD_CODER_PAIR>::iterator it2 = it;
+		   std::list<FIELD_CODER_PAIR>::iterator it2 = it;
 		   it++;
 		   if (!::_stricmp(pszFieldName, (*it2).first))
 			   field_coders_.erase(it2);
@@ -171,10 +171,10 @@ namespace HM
    void MimeEnvironment::RegisterMediaType(const char* pszMediaType, BODY_PART_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszMediaType != NULL);
-	   list<MEDIA_TYPE_PAIR>::iterator it = media_types_.begin();
+	   std::list<MEDIA_TYPE_PAIR>::iterator it = media_types_.begin();
 	   while (it != media_types_.end())
 	   {
-		   list<MEDIA_TYPE_PAIR>::iterator it2 = it;
+		   std::list<MEDIA_TYPE_PAIR>::iterator it2 = it;
 		   it++;
 		   if (!::_stricmp(pszMediaType, (*it2).first))
 			   media_types_.erase(it2);
@@ -186,7 +186,7 @@ namespace HM
 	   }
    }
 
-   shared_ptr<MimeBody> MimeEnvironment::CreateBodyPart(const char* pszMediaType)
+   std::shared_ptr<MimeBody> MimeEnvironment::CreateBodyPart(const char* pszMediaType)
    {
 	   if (!pszMediaType || !::strlen(pszMediaType))
 		   pszMediaType = "text";
@@ -203,7 +203,7 @@ namespace HM
 		   }
 	   }
       
-      shared_ptr<MimeBody> pBody = shared_ptr<MimeBody>(new MimeBody);
+      std::shared_ptr<MimeBody> pBody = std::shared_ptr<MimeBody>(new MimeBody);
       return pBody;
       //return new MimeBody;			// default body part for unregistered media type
    }

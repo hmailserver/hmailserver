@@ -15,11 +15,11 @@ namespace HM
       Events(void);
       ~Events(void);
 
-      static bool FireOnDeliverMessage(shared_ptr<Message> pMessage);
-      static bool FireOnDeliveryStart(shared_ptr<Message> pMessage);
-      static void FireOnDeliveryFailed(shared_ptr<Message> pMessage, const String &sSendersIP, const String &sRecipient, const String &sErrorMessage);
+      static bool FireOnDeliverMessage(std::shared_ptr<Message> pMessage);
+      static bool FireOnDeliveryStart(std::shared_ptr<Message> pMessage);
+      static void FireOnDeliveryFailed(std::shared_ptr<Message> pMessage, const String &sSendersIP, const String &sRecipient, const String &sErrorMessage);
          
-      static shared_ptr<Result> FireOnExternalAccountDownload(shared_ptr<FetchAccount> fetchAccount, shared_ptr<Message> pMessage, const String &sRemoteUID);
+      static std::shared_ptr<Result> FireOnExternalAccountDownload(std::shared_ptr<FetchAccount> fetchAccount, std::shared_ptr<Message> pMessage, const String &sRemoteUID);
    };
 
 }

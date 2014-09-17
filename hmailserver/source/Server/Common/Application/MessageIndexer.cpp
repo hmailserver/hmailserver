@@ -44,7 +44,7 @@ namespace HM
       // Start the indexer now.
       LOG_DEBUG("Starting message indexing thread...");
 
-      boost::function<void ()> func = boost::bind( &MessageIndexer::WorkerFunc, this );
+      std::function<void ()> func = std::bind( &MessageIndexer::WorkerFunc, this );
       workerThread_ = boost::thread(func);
 
    }
@@ -63,10 +63,10 @@ namespace HM
          {
             IndexMessages_();
 
-            index_now_.WaitFor(chrono::minutes(1));
+            index_now_.WaitFor(boost::chrono::minutes(1));
          }
       }
-      catch (thread_interrupted const&)
+      catch (const boost::thread_interrupted&)
       {
          LOG_DEBUG("Indexing stopped.");
 
@@ -109,7 +109,7 @@ namespace HM
       {
          
          // added the boolean quickIndex to tell the funciton to use the quick index or the full index
-         set<shared_ptr<PersistentMessageMetaData::MessageInfo> > messagesToIndex = persistentMetaData.GetMessagesToIndex(bDoQuickIndex);
+         std::set<std::shared_ptr<PersistentMessageMetaData::MessageInfo> > messagesToIndex = persistentMetaData.GetMessagesToIndex(bDoQuickIndex);
          if (messagesToIndex.size() == 0)
          {
             LOG_DEBUG("No messages to index.");
@@ -118,7 +118,7 @@ namespace HM
             return;
          }
 
-         boost_foreach(shared_ptr<PersistentMessageMetaData::MessageInfo> messageToIndex, messagesToIndex)
+         for(std::shared_ptr<PersistentMessageMetaData::MessageInfo> messageToIndex : messagesToIndex)
          {
             boost::this_thread::interruption_point();
 
@@ -136,7 +136,7 @@ namespace HM
             String cc = header.GetUnicodeFieldValue("CC");
             String to = header.GetUnicodeFieldValue("TO");
 
-            shared_ptr<MessageMetaData> metaData = shared_ptr<MessageMetaData>(new MessageMetaData);
+            std::shared_ptr<MessageMetaData> metaData = std::shared_ptr<MessageMetaData>(new MessageMetaData);
 
             metaData->SetAccountID(messageToIndex->AccountID);
             metaData->SetFolderID(messageToIndex->FolderID);

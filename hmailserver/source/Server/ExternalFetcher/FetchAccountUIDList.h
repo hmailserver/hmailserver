@@ -18,13 +18,13 @@ namespace HM
 
       bool IsUIDInList(const String&sUID) const;
       void DeleteUID(const String &sUID);
-      void DeleteUIDsNotInSet(set<String> &vecUIDs);
+      void DeleteUIDsNotInSet(std::set<String> &vecUIDs);
       void AddUID(const String &sUIDValue);
 
-      shared_ptr<FetchAccountUID> GetUID(const String &sUID);
+      std::shared_ptr<FetchAccountUID> GetUID(const String &sUID);
    private:
 
-      std::map<String, shared_ptr<FetchAccountUID> > fetched_uids_;
+      std::map<String, std::shared_ptr<FetchAccountUID> > fetched_uids_;
 
       __int64 faid_;
    };

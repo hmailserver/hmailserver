@@ -62,27 +62,27 @@ namespace HM
 
       PersistentFetchAccount::UnlockAll();
 
-      fetch_accounts_ = shared_ptr<FetchAccounts> (new FetchAccounts(0));
+      fetch_accounts_ = std::shared_ptr<FetchAccounts> (new FetchAccounts(0));
 
 
       while (1)
       {
          fetch_accounts_->RefreshPendingList();
 
-         vector<shared_ptr<FetchAccount> > &vecAccounts = fetch_accounts_->GetVector();
-         vector<shared_ptr<FetchAccount> >::iterator iterFA = vecAccounts.begin();
+         std::vector<std::shared_ptr<FetchAccount> > &vecAccounts = fetch_accounts_->GetVector();
+         std::vector<std::shared_ptr<FetchAccount> >::iterator iterFA = vecAccounts.begin();
 
          while (iterFA != vecAccounts.end())
          {
             // Create a fetch task that will do the actual work, and
             // add this task to the queue.
-            shared_ptr<FetchAccount> pFA = (*iterFA);
+            std::shared_ptr<FetchAccount> pFA = (*iterFA);
 
             if (FetchIsAllowed_(pFA))
             {
                // We're allowed to fetch. Lock fetchaccount and start the fetcher.
                PersistentFetchAccount::Lock(pFA->GetID());
-               shared_ptr<ExternalFetchTask> pTask = shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
+               std::shared_ptr<ExternalFetchTask> pTask = std::shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
                WorkQueueManager::Instance()->AddTask(queue_id_, pTask);
             }
             else
@@ -97,14 +97,14 @@ namespace HM
 
          // We are currently not fetching anything
          // Sit here and wait a minute 
-         check_now_.WaitFor(chrono::minutes(1));
+         check_now_.WaitFor(boost::chrono::minutes(1));
       }
 
 
    }
 
    bool 
-   ExternalFetchManager::FetchIsAllowed_(shared_ptr<FetchAccount> pFA)
+   ExternalFetchManager::FetchIsAllowed_(std::shared_ptr<FetchAccount> pFA)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks whether hMailServer should fetch messages for this fetch account.
@@ -112,7 +112,7 @@ namespace HM
    {
       __int64 iAccountID = pFA->GetAccountID();
 
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(iAccountID);
+      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(iAccountID);
 
       if (!pAccount || !pAccount->GetActive())
       {
@@ -123,7 +123,7 @@ namespace HM
 
       __int64 iDomainID = pAccount->GetDomainID();
 
-      shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(iDomainID);
+      std::shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(iDomainID);
 
       if (!pDomain || !pDomain->GetIsActive())
       {

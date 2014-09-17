@@ -35,7 +35,7 @@ namespace HM
       SQLCommand command("select messageid, messagecurnooftries, messagecreatetime, messagefrom, messagenexttrytime, messagefilename, messagelocked from hm_messages "
                          " where messagetype = 1 OR messagetype = 3 order by messageid asc");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return "";
 
@@ -65,7 +65,7 @@ namespace HM
          SQLCommand selectCommand("select recipientaddress from hm_messagerecipients where recipientmessageid = @MESSAGEID");
          selectCommand.AddParameter("@MESSAGEID", lMessageID);
 
-         shared_ptr<DALRecordset> pRecipientsRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
+         std::shared_ptr<DALRecordset> pRecipientsRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
          if (!pRecipientsRS)
             return "";
 
@@ -79,7 +79,7 @@ namespace HM
             pRecipientsRS->MoveNext();
          }
 
-         sLine.Format(_T("%I64d\t%s\t%s\t%s\t%s\t%s\t%d\t%d"), lMessageID, sCreateTime, sFrom, sTo, sNextTryTime, sFileName, bLocked, lNoOfTries);
+         sLine.Format(_T("%I64d\t%s\t%s\t%s\t%s\t%s\t%d\t%d"), lMessageID, sCreateTime.c_str(), sFrom.c_str(), sTo.c_str(), sNextTryTime.c_str(), sFileName.c_str(), bLocked, lNoOfTries);
          
          if (!sRetVal.IsEmpty())
             sRetVal += "\r\n";

@@ -17,7 +17,7 @@
 #endif
 
 void
-InterfaceAccounts::Attach(shared_ptr<HM::Accounts> pAccounts)
+InterfaceAccounts::Attach(std::shared_ptr<HM::Accounts> pAccounts)
 {
    accounts_ = pAccounts;
 }
@@ -55,7 +55,7 @@ STDMETHODIMP InterfaceAccounts::Add(IInterfaceAccount **pVal)
       CComObject<InterfaceAccount>* pAccountInterface = new CComObject<InterfaceAccount>();
       pAccountInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
+      std::shared_ptr<HM::Account> pAccount = std::shared_ptr<HM::Account>(new HM::Account);
    
       pAccount->SetDomainID(domain_id_);
       
@@ -84,7 +84,7 @@ STDMETHODIMP InterfaceAccounts::Delete(long Index)
       if (!authentication_->GetIsDomainAdmin())
          return authentication_->GetAccessDenied();
    
-      shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
+      std::shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
       HM::PersistentAccount::DeleteObject(pAccount);
    
       return S_OK;
@@ -105,7 +105,7 @@ STDMETHODIMP InterfaceAccounts::get_Item(long Index, IInterfaceAccount **pVal)
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
       pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
+      std::shared_ptr<HM::Account> pAccount = accounts_->GetItem(Index);
    
       if (!pAccount)
          return DISP_E_BADINDEX;
@@ -150,7 +150,7 @@ STDMETHODIMP InterfaceAccounts::get_ItemByDBID(long DBID, IInterfaceAccount **pV
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
       pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = accounts_->GetItemByDBID(DBID);
+      std::shared_ptr<HM::Account> pAccount = accounts_->GetItemByDBID(DBID);
    
       if (!pAccount)
          return DISP_E_BADINDEX;  
@@ -180,7 +180,7 @@ STDMETHODIMP InterfaceAccounts::get_ItemByAddress(BSTR Address, IInterfaceAccoun
       CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
       pAccountInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = accounts_->GetItemByName(Address);
+      std::shared_ptr<HM::Account> pAccount = accounts_->GetItemByName(Address);
    
       if (!pAccount)
          return DISP_E_BADINDEX; 

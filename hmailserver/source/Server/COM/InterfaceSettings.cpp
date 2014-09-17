@@ -1250,7 +1250,7 @@ STDMETHODIMP InterfaceSettings::get_SSLCertificates(IInterfaceSSLCertificates **
       if (!GetIsServerAdmin())
          return false;
    
-      shared_ptr<HM::SSLCertificates> pSSLCertificates = HM::Configuration::Instance()->GetSSLCertificates();
+      std::shared_ptr<HM::SSLCertificates> pSSLCertificates = HM::Configuration::Instance()->GetSSLCertificates();
    
       CComObject<InterfaceSSLCertificates>* pItem = new CComObject<InterfaceSSLCertificates>();
       pItem->SetAuthentication(authentication_);
@@ -1870,7 +1870,7 @@ STDMETHODIMP InterfaceSettings::get_PublicFolders(IInterfaceIMAPFolders **pVal)
       if (!GetIsServerAdmin())
          return false;
    
-      shared_ptr<HM::IMAPFolders> pIMAPFolders = HM::Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
+      std::shared_ptr<HM::IMAPFolders> pIMAPFolders = HM::Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
    
       CComObject<InterfaceIMAPFolders>* pItem = new CComObject<InterfaceIMAPFolders>();
       pItem->SetAuthentication(authentication_);
@@ -1919,7 +1919,7 @@ STDMETHODIMP InterfaceSettings::get_Groups(IInterfaceGroups **pVal)
       CComObject<InterfaceGroups>* pItem = new CComObject<InterfaceGroups>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Groups> pGroups = config_->GetIMAPConfiguration()->GetGroups();
+      std::shared_ptr<HM::Groups> pGroups = config_->GetIMAPConfiguration()->GetGroups();
       pGroups->Refresh();
    
       if (pGroups)
@@ -1951,7 +1951,7 @@ STDMETHODIMP InterfaceSettings::get_IncomingRelays(IInterfaceIncomingRelays **pV
       CComObject<InterfaceIncomingRelays>* pItem = new CComObject<InterfaceIncomingRelays>();
       pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IncomingRelays> incomingRelays = config_->GetSMTPConfiguration()->GetIncomingRelays();
+      std::shared_ptr<HM::IncomingRelays> incomingRelays = config_->GetSMTPConfiguration()->GetIncomingRelays();
       
       if (incomingRelays)
       {

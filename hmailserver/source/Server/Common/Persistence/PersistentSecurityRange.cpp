@@ -30,7 +30,7 @@ namespace HM
    }
 
    bool
-   PersistentSecurityRange::DeleteObject(shared_ptr<SecurityRange> pSR)
+   PersistentSecurityRange::DeleteObject(std::shared_ptr<SecurityRange> pSR)
    {
       assert(pSR->GetID());
 
@@ -48,7 +48,7 @@ namespace HM
    }
 
    bool
-   PersistentSecurityRange::SaveObject(shared_ptr<SecurityRange> pSR)
+   PersistentSecurityRange::SaveObject(std::shared_ptr<SecurityRange> pSR)
    {
       String result;
 
@@ -56,7 +56,7 @@ namespace HM
    }
 
    bool
-   PersistentSecurityRange::SaveObject(shared_ptr<SecurityRange> pSR, String &result,  PersistenceMode mode)
+   PersistentSecurityRange::SaveObject(std::shared_ptr<SecurityRange> pSR, String &result,  PersistenceMode mode)
    {
       if (!Validate(pSR, result))
          return false;
@@ -114,7 +114,7 @@ namespace HM
    }
 
    bool
-   PersistentSecurityRange::ReadObject(shared_ptr<SecurityRange> pSR, __int64 lDBID)
+   PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, __int64 lDBID)
    {
       SQLCommand command(_T("select * from hm_securityranges where rangeid = @RANGEID"));
       command.AddParameter("@RANGEID", lDBID);
@@ -124,9 +124,9 @@ namespace HM
 
 
    bool
-   PersistentSecurityRange::ReadObject(shared_ptr<SecurityRange> pSR, const SQLCommand &command)
+   PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -142,7 +142,7 @@ namespace HM
 
 
    bool
-   PersistentSecurityRange::ReadObject(shared_ptr<SecurityRange> pSR, shared_ptr<DALRecordset> pRS)
+   PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, std::shared_ptr<DALRecordset> pRS)
    {
       IPAddressSQLHelper helper;
 
@@ -159,20 +159,20 @@ namespace HM
       return true;
    }
 
-   shared_ptr<SecurityRange>
+   std::shared_ptr<SecurityRange>
    PersistentSecurityRange::ReadMatchingIP(const IPAddress &ipaddress)
    {
-      shared_ptr<SecurityRange> empty;
+      std::shared_ptr<SecurityRange> empty;
 
       IPAddressSQLHelper helper;
       String sSQL;
 
       if (ipaddress.GetType() == IPAddress::IPV4)
       {
-         shared_ptr<SecurityRange> pSR = shared_ptr<SecurityRange>(new SecurityRange());
+         std::shared_ptr<SecurityRange> pSR = std::shared_ptr<SecurityRange>(new SecurityRange());
 
          sSQL.Format(_T("select * from hm_securityranges where %s >= rangelowerip1 and %s <= rangeupperip1 and rangelowerip2 IS NULL and rangeupperip2 IS NULL order by rangepriorityid desc"), 
-            String(helper.GetAddress1String(ipaddress)), String(helper.GetAddress1String(ipaddress)));
+            String(helper.GetAddress1String(ipaddress)).c_str(), String(helper.GetAddress1String(ipaddress)).c_str());
 
          if (!ReadObject(pSR, SQLCommand(sSQL)))
             return empty;
@@ -182,17 +182,17 @@ namespace HM
       else
       {
          // Read all IPv6 items.
-         shared_ptr<SecurityRange> bestMatch;
+         std::shared_ptr<SecurityRange> bestMatch;
 
          SQLCommand command(_T("select * from hm_securityranges where rangelowerip2 is not null order by rangepriorityid desc"));
          
-         shared_ptr<DALRecordset> recordset = Application::Instance()->GetDBManager()->OpenRecordset(command);
+         std::shared_ptr<DALRecordset> recordset = Application::Instance()->GetDBManager()->OpenRecordset(command);
          if (!recordset)
             return empty;
 
          while (!recordset->IsEOF())
          {
-            shared_ptr<SecurityRange> securityRange = shared_ptr<SecurityRange>(new SecurityRange());
+            std::shared_ptr<SecurityRange> securityRange = std::shared_ptr<SecurityRange>(new SecurityRange());
 
             if (ReadObject(securityRange, recordset) == false)
                return empty;
@@ -237,7 +237,7 @@ namespace HM
       oStatement.AddColumn("count(*) as c");
       oStatement.SetWhereClause(whereClause);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(oStatement);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(oStatement);
       if (!pRS)
          return false;
 
@@ -253,7 +253,7 @@ namespace HM
    }
 
    bool 
-   PersistentSecurityRange::Validate(shared_ptr<SecurityRange> pSR, String &result)
+   PersistentSecurityRange::Validate(std::shared_ptr<SecurityRange> pSR, String &result)
    {
       if (pSR->GetName().IsEmpty())
       {

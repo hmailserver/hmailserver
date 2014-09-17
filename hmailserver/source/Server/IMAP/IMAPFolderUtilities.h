@@ -18,6 +18,6 @@ namespace HM
 
       static bool IsPublicFolder(const std::vector<String> &vecFolderPath);
 
-      static shared_ptr<IMAPFolder> GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
+      static std::shared_ptr<IMAPFolder> GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
    };
 }

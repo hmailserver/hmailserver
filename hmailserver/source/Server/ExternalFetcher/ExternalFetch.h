@@ -21,6 +21,6 @@ namespace HM
       ExternalFetch(void);
       ~ExternalFetch(void);
 
-      void Start(shared_ptr<FetchAccount> pFA);
+      void Start(std::shared_ptr<FetchAccount> pFA);
    };
 }

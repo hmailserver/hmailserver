@@ -15,8 +15,8 @@ namespace HM
       IOOperationQueue();
       ~IOOperationQueue(void);
 
-      void Push(shared_ptr<IOOperation> operation);
-      shared_ptr<IOOperation> Front();
+      void Push(std::shared_ptr<IOOperation> operation);
+      std::shared_ptr<IOOperation> Front();
       void Pop(IOOperation::OperationType type);
 
       bool ContainsQueuedSendOperation();
@@ -25,9 +25,9 @@ namespace HM
 
       boost::recursive_mutex mutex_;
 
-      std::deque<shared_ptr<IOOperation> > queue_operations_;
+      std::deque<std::shared_ptr<IOOperation> > queue_operations_;
       
-      std::vector<shared_ptr<IOOperation > > ongoing_operations_;
+      std::vector<std::shared_ptr<IOOperation > > ongoing_operations_;
    };
 
 }

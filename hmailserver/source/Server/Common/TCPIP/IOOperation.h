@@ -21,19 +21,19 @@ namespace HM
          BCTHandshake
       };
 
-      IOOperation(OperationType type, shared_ptr<ByteBuffer> buffer);
+      IOOperation(OperationType type, std::shared_ptr<ByteBuffer> buffer);
       IOOperation(OperationType type, const AnsiString &string);
       ~IOOperation(void);
 
       OperationType GetType() {return type_; }
-      shared_ptr<ByteBuffer> GetBuffer() {return buffer_; }
+      std::shared_ptr<ByteBuffer> GetBuffer() {return buffer_; }
       AnsiString GetString() {return string_; }
 
    private:
 
       OperationType type_;
       AnsiString string_;
-      shared_ptr<ByteBuffer> buffer_;
+      std::shared_ptr<ByteBuffer> buffer_;
 
    };
 }

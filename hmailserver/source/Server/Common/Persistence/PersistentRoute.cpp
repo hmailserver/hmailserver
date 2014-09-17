@@ -28,7 +28,7 @@ namespace HM
    }
 
    bool
-   PersistentRoute::DeleteObject(shared_ptr<Route> pRoute)
+   PersistentRoute::DeleteObject(std::shared_ptr<Route> pRoute)
    {
       if (pRoute->GetID() == 0)
          return false;
@@ -43,14 +43,14 @@ namespace HM
    }
 
    bool 
-   PersistentRoute::SaveObject(shared_ptr<Route> pRoute)
+   PersistentRoute::SaveObject(std::shared_ptr<Route> pRoute)
    {
       String errorMessage;
       return SaveObject(pRoute, errorMessage, PersistenceModeNormal);
    }
 
    bool 
-   PersistentRoute::SaveObject(shared_ptr<Route> pRoute, String &sErrorMessage, PersistenceMode mode)
+   PersistentRoute::SaveObject(std::shared_ptr<Route> pRoute, String &sErrorMessage, PersistenceMode mode)
    {
       if (!PreSaveLimitationsCheck::CheckLimitations(mode, pRoute, sErrorMessage))
          return false;
@@ -100,12 +100,12 @@ namespace HM
    }
 
    bool
-   PersistentRoute::ReadObject(shared_ptr<Route> pRoute, long lID)
+   PersistentRoute::ReadObject(std::shared_ptr<Route> pRoute, long lID)
    {
       SQLCommand command("select * from hm_routes where routeid = @ROUTEID");
       command.AddParameter("@ROUTEID", lID);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -119,7 +119,7 @@ namespace HM
    }
 
    bool 
-   PersistentRoute::ReadObject(shared_ptr<Route> pRoute, shared_ptr<DALRecordset> pRS)
+   PersistentRoute::ReadObject(std::shared_ptr<Route> pRoute, std::shared_ptr<DALRecordset> pRS)
    {
       pRoute->SetID(pRS->GetLongValue("routeid"));
       pRoute->DomainName(pRS->GetStringValue("routedomainname"));

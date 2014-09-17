@@ -20,7 +20,7 @@ namespace HM
 
        int Count();
 
-       bool GetAllow(SessionType t, shared_ptr<SecurityRange> security_range);
+       bool GetAllow(SessionType t, std::shared_ptr<SecurityRange> security_range);
        void OnCreate(SessionType t);
        void OnDestroy(SessionType st);
 

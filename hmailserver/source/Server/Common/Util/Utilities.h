@@ -24,7 +24,7 @@ namespace HM
       static String GenerateMessageID();
       static String GenerateReceivedHeader(const String &remote_ip, String remote_hostname, bool authenticated, bool start_tls_used);
 
-      static shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, int iBufSize);
+      static std::shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, int iBufSize);
 
       static bool IsLocalHost(const String &sHostname);
 

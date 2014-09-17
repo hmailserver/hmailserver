@@ -57,7 +57,7 @@ END_COM_MAP()
       return S_OK;
    }
 
-   void Attach(shared_ptr<HM::IMAPFolder> pFolder);
+   void Attach(std::shared_ptr<HM::IMAPFolder> pFolder);
 
    STDMETHOD(get_ParentID)(/*[out, retval]*/ LONG *pVal);
    STDMETHOD(get_CurrentUID)(/*[out, retval]*/ LONG *pVal);
@@ -78,7 +78,7 @@ END_COM_MAP()
    STDMETHOD(Delete)();
 
 public:
-   shared_ptr<HM::IMAPFolder> object_;
+   std::shared_ptr<HM::IMAPFolder> object_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(IMAPFolder), InterfaceIMAPFolder)

@@ -13,7 +13,7 @@ namespace HM
    {
    public:
 
-      bool PerformForwarding(shared_ptr<const Account> pRecipientAccount, shared_ptr<Message> pOriginalMessage);
+      bool PerformForwarding(std::shared_ptr<const Account> pRecipientAccount, std::shared_ptr<Message> pOriginalMessage);
 
 
    };

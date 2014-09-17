@@ -25,7 +25,7 @@ namespace HM
    }
 
    bool
-   PersistentIncomingRelay::DeleteObject(shared_ptr<IncomingRelay> pSR)
+   PersistentIncomingRelay::DeleteObject(std::shared_ptr<IncomingRelay> pSR)
    {
       assert(pSR->GetID());
 
@@ -43,14 +43,14 @@ namespace HM
    }
 
    bool
-   PersistentIncomingRelay::SaveObject(shared_ptr<IncomingRelay> pSR, String &errorMessage, PersistenceMode mode)
+   PersistentIncomingRelay::SaveObject(std::shared_ptr<IncomingRelay> pSR, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pSR);
    }
 
    bool
-   PersistentIncomingRelay::SaveObject(shared_ptr<IncomingRelay> pSR)
+   PersistentIncomingRelay::SaveObject(std::shared_ptr<IncomingRelay> pSR)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_incoming_relays");
@@ -87,7 +87,7 @@ namespace HM
    }
 
    bool
-   PersistentIncomingRelay::ReadObject(shared_ptr<IncomingRelay> pSR, int lDBID)
+   PersistentIncomingRelay::ReadObject(std::shared_ptr<IncomingRelay> pSR, int lDBID)
    {
       SQLCommand command("select * from hm_incoming_relays where relayid = @RELAYID");
       command.AddParameter("@RELAYID", lDBID);
@@ -99,9 +99,9 @@ namespace HM
 
 
    bool
-   PersistentIncomingRelay::ReadObject(shared_ptr<IncomingRelay> pSR, const SQLCommand &command)
+   PersistentIncomingRelay::ReadObject(std::shared_ptr<IncomingRelay> pSR, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -117,7 +117,7 @@ namespace HM
 
 
    bool
-   PersistentIncomingRelay::ReadObject(shared_ptr<IncomingRelay> pSR, shared_ptr<DALRecordset> pRS)
+   PersistentIncomingRelay::ReadObject(std::shared_ptr<IncomingRelay> pSR, std::shared_ptr<DALRecordset> pRS)
    {
       pSR->SetID(pRS->GetLongValue("relayid"));
       

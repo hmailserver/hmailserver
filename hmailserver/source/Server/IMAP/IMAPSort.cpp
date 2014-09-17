@@ -33,7 +33,7 @@ namespace HM
    class IMAPSortSize {
    public:
       //Return true if s1 < s2; otherwise, return false.
-      bool operator()(const pair<int, shared_ptr<Message> > p1, const pair<int, shared_ptr<Message> >  p2)
+      bool operator()(const std::pair<int, std::shared_ptr<Message> > p1, const std::pair<int, std::shared_ptr<Message> >  p2)
       {
          return p1.second->GetSize() < p2.second->GetSize();
       }
@@ -47,7 +47,7 @@ namespace HM
       }
 
       //Return true if s1 < s2; otherwise, return false.
-      bool operator()(const pair<int, shared_ptr<Message> > p1, const pair<int, shared_ptr<Message> >  p2)
+      bool operator()(const std::pair<int, std::shared_ptr<Message> > p1, const std::pair<int, std::shared_ptr<Message> >  p2)
       {
          DateTime dt1 = date_time_info_[p1.second->GetID()];
          DateTime dt2 = date_time_info_[p2.second->GetID()];
@@ -68,7 +68,7 @@ namespace HM
       }
 
       //Return true if s1 < s2; otherwise, return false.
-      bool operator()(const pair<int, shared_ptr<Message> > p1, const pair<int, shared_ptr<Message> >  p2)
+      bool operator()(const std::pair<int, std::shared_ptr<Message> > p1, const std::pair<int, std::shared_ptr<Message> >  p2)
       {
          String sHeader1 = _mapHeaderFields[p1.second->GetID()];
          String sHeader2 = _mapHeaderFields[p2.second->GetID()];
@@ -92,27 +92,27 @@ namespace HM
 
 
    void 
-   IMAPSort::Sort(shared_ptr<IMAPConnection> pConnection, vector<pair<int, shared_ptr<Message> > > &vecMessages, shared_ptr<IMAPSortParser> pParser)
+   IMAPSort::Sort(std::shared_ptr<IMAPConnection> pConnection, std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, std::shared_ptr<IMAPSortParser> pParser)
    {
       // Sort messages according to the sort criteria
 
-      vector<pair<bool,String> > vecSortTypes = pParser->GetSortTypes();
+      std::vector<std::pair<bool,String> > vecSortTypes = pParser->GetSortTypes();
 
-      vector<pair<bool,String> >::iterator iterSortType = vecSortTypes.begin();
+      std::vector<std::pair<bool,String> >::iterator iterSortType = vecSortTypes.begin();
       // Skip to the last.
       while (iterSortType + 1 != vecSortTypes.end())
          iterSortType++;
 
       if (iterSortType != vecSortTypes.end())
       {
-         pair<bool,String> st = (*iterSortType);
+         std::pair<bool,String> st = (*iterSortType);
 
          String sHeaderField = st.second;
          SortField sortField = GetSortField_(sHeaderField);
 
          PersistentMessageMetaData messageMetaData;
 
-         map<__int64, String > databaseMetaData;
+         std::map<__int64, String > databaseMetaData;
 
          bool loadDBCache =  
             (sortField == From ||
@@ -154,11 +154,11 @@ namespace HM
 
             // Cache dates for all messages.
             std::map<__int64, DateTime> mapDateTimeInfo;
-            vector<pair<int, shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
+            std::vector<std::pair<int, std::shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
             while (iterMessage != vecMessages.end())
             {
                // Fetch message.
-               shared_ptr<Message> p1 = (*iterMessage).second;
+               std::shared_ptr<Message> p1 = (*iterMessage).second;
 
                // Retrieve the message date and convert it to a DateTime.
                DateTime dt1 = Time::GetDateFromSystemDate(p1->GetCreateTime());
@@ -191,12 +191,12 @@ namespace HM
          {
             // Cache dates for all messages. This is faster than sorting the strings.
             std::map<__int64, DateTime> mapDateTimeInfo;
-            vector<pair<int, shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
+            std::vector<std::pair<int, std::shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
             
             while (iterMessage != vecMessages.end())
             {
                // Fetch message.
-               shared_ptr<Message> p1 = (*iterMessage).second;
+               std::shared_ptr<Message> p1 = (*iterMessage).second;
                String headerValue = mapHeaderFields[p1->GetID()];
                
                DateTime dt1 = Time::GetDateFromSystemDate(headerValue);
@@ -252,9 +252,9 @@ namespace HM
 
 
    void 
-   IMAPSort::CacheHeaderFields_(shared_ptr<IMAPConnection> pConnection,
-                                const vector<pair<int, shared_ptr<Message> > > &vecMessages, 
-                                const map<__int64, String > &databaseMetaData, 
+   IMAPSort::CacheHeaderFields_(std::shared_ptr<IMAPConnection> pConnection,
+                                const std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, 
+                                const std::map<__int64, String > &databaseMetaData, 
                                 SortField &sortField,
                                 std::map<__int64, String> &mapHeaderFields)
    {
@@ -284,18 +284,18 @@ namespace HM
       // Cache the header field for all messages.
       bool bTrimLeadingSpecialCharacters = (sortField == From || sortField == To || sortField == CC);
 
-      vector<pair<int, shared_ptr<Message> > >::const_iterator iter = vecMessages.begin();
-      vector<pair<int, shared_ptr<Message> > >::const_iterator iterEnd = vecMessages.end();
+      std::vector<std::pair<int, std::shared_ptr<Message> > >::const_iterator iter = vecMessages.begin();
+      std::vector<std::pair<int, std::shared_ptr<Message> > >::const_iterator iterEnd = vecMessages.end();
 
       for (; iter != iterEnd; iter++)
       {
          // Fetch message.
-         const shared_ptr<Message> p1 = (*iter).second;
+         const std::shared_ptr<Message> p1 = (*iter).second;
 
          String sFieldValue = "";
 
          // Read message and parse out the value from the header.
-         map<__int64, String >::const_iterator dbMetaIter = databaseMetaData.find(p1->GetID());
+         std::map<__int64, String >::const_iterator dbMetaIter = databaseMetaData.find(p1->GetID());
          
          if (dbMetaIter == databaseMetaData.end())
          {

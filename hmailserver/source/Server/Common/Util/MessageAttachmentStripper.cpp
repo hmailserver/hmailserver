@@ -27,7 +27,7 @@ namespace HM
    }
 
    void
-   MessageAttachmentStripper::Strip(shared_ptr<Message> pMessage)
+   MessageAttachmentStripper::Strip(std::shared_ptr<Message> pMessage)
    {
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
@@ -36,7 +36,7 @@ namespace HM
       oMimeMessage.LoadFromFile(fileName);
 
       // Assume first part is the text to keep.
-      shared_ptr<MimeBody> pBody = oMimeMessage.FindFirstPart();
+      std::shared_ptr<MimeBody> pBody = oMimeMessage.FindFirstPart();
 
       if (!pBody)
       {
@@ -49,7 +49,7 @@ namespace HM
 
          if (pBody->IsMultiPart())
          {
-            shared_ptr<MimeBody> pSubBody = pBody->FindFirstPart();
+            std::shared_ptr<MimeBody> pSubBody = pBody->FindFirstPart();
 
            
             while (pSubBody)
@@ -80,16 +80,16 @@ namespace HM
    }
 
    void
-   MessageAttachmentStripper::WriteToDisk_(shared_ptr<Message> pMessage, MimeBody &oMainMessage, shared_ptr<MimeBody> pBody)
+   MessageAttachmentStripper::WriteToDisk_(std::shared_ptr<Message> pMessage, MimeBody &oMainMessage, std::shared_ptr<MimeBody> pBody)
    {
       if (!pBody)
          return;
 
       AnsiString sHeader;
 
-      vector<MimeField> oFieldList = oMainMessage.Fields();
+      std::vector<MimeField> oFieldList = oMainMessage.Fields();
 
-      vector<MimeField>::iterator iterField = oFieldList.begin();
+      std::vector<MimeField>::iterator iterField = oFieldList.begin();
 
       while (iterField != oFieldList.end())
       {
@@ -136,7 +136,7 @@ namespace HM
 
 
    bool
-   MessageAttachmentStripper::IsGoodTextPart_(shared_ptr<MimeBody> pBody)
+   MessageAttachmentStripper::IsGoodTextPart_(std::shared_ptr<MimeBody> pBody)
    {
       if (!pBody)
          return false;

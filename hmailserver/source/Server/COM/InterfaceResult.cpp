@@ -9,7 +9,7 @@
 // InterfaceResult
 
 void 
-InterfaceResult::AttachItem(shared_ptr<HM::Result> pResult)
+InterfaceResult::AttachItem(std::shared_ptr<HM::Result> pResult)
 {
    result_ = pResult;
 }

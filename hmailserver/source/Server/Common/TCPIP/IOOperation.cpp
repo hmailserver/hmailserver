@@ -13,7 +13,7 @@
 
 namespace HM
 {
-   IOOperation::IOOperation(OperationType type, shared_ptr<ByteBuffer> buffer) :
+   IOOperation::IOOperation(OperationType type, std::shared_ptr<ByteBuffer> buffer) :
       type_(type),
       buffer_(buffer)
    {

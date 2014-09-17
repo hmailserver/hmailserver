@@ -31,7 +31,12 @@ namespace HM
          OSVERSIONINFO OSversion;
 
          OSversion.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
+
+         // Disabling warning: "Deprecated. Use VerifyVersionInfo* or IsWindows* macros from VersionHelpers."
+         #pragma warning(push) 
+         #pragma warning(disable:4996)
          ::GetVersionEx(&OSversion);
+         #pragma warning (pop)
 
          switch(OSversion.dwPlatformId)
          {

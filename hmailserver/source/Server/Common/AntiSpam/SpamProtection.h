@@ -19,21 +19,21 @@ namespace HM
 
       void Load();
 
-      set<shared_ptr<SpamTestResult> > RunPreTransmissionTests(const String &sFromAddress, const IPAddress & iOriginatingIP, const IPAddress &iConnectingIP, const String &sHeloHost);
-      set<shared_ptr<SpamTestResult> > RunPostTransmissionTests(const String &sFromAddress, const IPAddress & iOriginatingIP, const IPAddress &iConnectingIP, shared_ptr<Message> pMessage);
+      std::set<std::shared_ptr<SpamTestResult> > RunPreTransmissionTests(const String &sFromAddress, const IPAddress & iOriginatingIP, const IPAddress &iConnectingIP, const String &sHeloHost);
+      std::set<std::shared_ptr<SpamTestResult> > RunPostTransmissionTests(const String &sFromAddress, const IPAddress & iOriginatingIP, const IPAddress &iConnectingIP, std::shared_ptr<Message> pMessage);
 
-      static shared_ptr<MessageData> TagMessageAsSpam(shared_ptr<Message> pMessage, set<shared_ptr<SpamTestResult> > setResult);
+      static std::shared_ptr<MessageData> TagMessageAsSpam(std::shared_ptr<Message> pMessage, std::set<std::shared_ptr<SpamTestResult> > setResult);
       static bool GreyListingAllowSend(const String &sSenderAddress, const String &sRecipientAddress, const IPAddress & iRemoteIP);
 
-      static int CalculateTotalSpamScore(set<shared_ptr<SpamTestResult> > result);
+      static int CalculateTotalSpamScore(std::set<std::shared_ptr<SpamTestResult> > result);
 
       static bool IsWhiteListed(const String &sFromAddress, const IPAddress & iIPAddress);
 
-      bool PerformGreyListing(shared_ptr<Message> message, const set<shared_ptr<SpamTestResult> > &spamTestResults, const String &toAddress, const IPAddress &ipaddress);
+      bool PerformGreyListing(std::shared_ptr<Message> message, const std::set<std::shared_ptr<SpamTestResult> > &spamTestResults, const String &toAddress, const IPAddress &ipaddress);
    private:
       
       
-      shared_ptr<SpamTestRunner> spam_test_runner_;
+      std::shared_ptr<SpamTestRunner> spam_test_runner_;
       
    };
 

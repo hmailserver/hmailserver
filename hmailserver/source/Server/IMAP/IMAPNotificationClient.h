@@ -11,15 +11,15 @@ namespace HM
    class ChangeNotification;
 
    class IMAPNotificationClient : public NotificationClient,
-                                  public boost::enable_shared_from_this<IMAPNotificationClient>
+                                  public std::enable_shared_from_this<IMAPNotificationClient>
    {
    public:
 
       IMAPNotificationClient();
       virtual ~IMAPNotificationClient();
 
-      void SetConnection(weak_ptr<IMAPConnection> connection);
-      virtual void OnNotification(shared_ptr<ChangeNotification> notification);
+      void SetConnection(std::weak_ptr<IMAPConnection> connection);
+      virtual void OnNotification(std::shared_ptr<ChangeNotification> notification);
 
       void SendCachedNotifications();
 
@@ -32,8 +32,8 @@ namespace HM
 
    private:
 
-      void CacheChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification);
-      void SendChangeNotification_(shared_ptr<ChangeNotification> pChangeNotification);
+      void CacheChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification);
+      void SendChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification);
 
       void SendEXISTS_(int iExists);
       void SendRECENT_(int recent);
@@ -41,9 +41,9 @@ namespace HM
       void SendFLAGS_(const std::set<__int64> & vecMessages);
 
       boost::recursive_mutex mutex_;
-      vector<shared_ptr<ChangeNotification> > cached_changes_;
+      std::vector<std::shared_ptr<ChangeNotification> > cached_changes_;
       
-      weak_ptr<IMAPConnection> parent_connection_;
+      std::weak_ptr<IMAPConnection> parent_connection_;
 
       __int64 account_id_;
       __int64 folder_id_;

@@ -166,11 +166,16 @@ namespace HM
          return;
       }
 
+      // Create null-terminated list of services hMailServer depends on.
       int iLength = ServiceName.GetLength() + 8;
+
       TCHAR * lpDependent = new TCHAR[iLength];
-      memset(lpDependent, 0, iLength * sizeof(TCHAR));
-      _tcscpy(lpDependent, _T("RPCSS"));
-      _tcscpy(lpDependent+6, ServiceName);
+      int memSize = iLength * sizeof(TCHAR);
+
+      memset(lpDependent, 0, memSize);
+
+      _tcscpy_s(lpDependent, memSize, _T("RPCSS"));
+      _tcscpy_s(lpDependent + 6, memSize-6, ServiceName);
       
       int iRet = ChangeServiceConfig( 
          hService,        // handle of service 

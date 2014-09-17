@@ -8,12 +8,12 @@ class COMCollectionItem
 {
 public:
 
-   void AttachItem(shared_ptr<T> pObject)
+   void AttachItem(std::shared_ptr<T> pObject)
    {
       object_ = pObject;
    }
 
-   void AttachParent(shared_ptr<P> pParentColl, bool bObjectIsInParent)
+   void AttachParent(std::shared_ptr<P> pParentColl, bool bObjectIsInParent)
    {
       parent_collection_ = pParentColl;
       object_is_in_collection_ = bObjectIsInParent;
@@ -28,8 +28,8 @@ public:
       object_is_in_collection_ = true;
    }
 
-   shared_ptr<P> parent_collection_;
-   shared_ptr<T> object_;
+   std::shared_ptr<P> parent_collection_;
+   std::shared_ptr<T> object_;
 
 
 private:

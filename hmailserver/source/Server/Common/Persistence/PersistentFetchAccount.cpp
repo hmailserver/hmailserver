@@ -58,7 +58,7 @@ namespace HM
 		SQLCommand command("select falocked from hm_fetchaccounts where faid = @FAID");
 		command.AddParameter("@FAID", ID);
 
-		shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+		std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 		if (!pRS || pRS->IsEOF())
 			return false;
 
@@ -67,9 +67,9 @@ namespace HM
 
 
    bool
-   PersistentFetchAccount::ReadObject(shared_ptr<FetchAccount> oFA, const SQLCommand& command)
+   PersistentFetchAccount::ReadObject(std::shared_ptr<FetchAccount> oFA, const SQLCommand& command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -83,7 +83,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccount::ReadObject(shared_ptr<FetchAccount> oFA, shared_ptr<DALRecordset> pRS)
+   PersistentFetchAccount::ReadObject(std::shared_ptr<FetchAccount> oFA, std::shared_ptr<DALRecordset> pRS)
    {
 
       if (pRS->IsEOF())
@@ -113,7 +113,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccount::DeleteObject(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::DeleteObject(std::shared_ptr<FetchAccount> pFA)
    {
       SQLCommand command("delete from hm_fetchaccounts where faid = @FAID");
       command.AddParameter("@FAID", pFA->GetID());
@@ -134,20 +134,20 @@ namespace HM
    void
    PersistentFetchAccount::DeleteByAccountID(__int64 iAccountID)
    {
-      shared_ptr<FetchAccounts> pFetchAccounts = shared_ptr<FetchAccounts>(new FetchAccounts(iAccountID));
+      std::shared_ptr<FetchAccounts> pFetchAccounts = std::shared_ptr<FetchAccounts>(new FetchAccounts(iAccountID));
       pFetchAccounts->Refresh();
       pFetchAccounts->DeleteAll();
    }
 
    bool 
-   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA, String &errorMessage, PersistenceMode mode)
+   PersistentFetchAccount::SaveObject(std::shared_ptr<FetchAccount> pFA, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - Not supported yet.
       return SaveObject(pFA);
    }
 
    bool 
-   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::SaveObject(std::shared_ptr<FetchAccount> pFA)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_fetchaccounts");
@@ -207,7 +207,7 @@ namespace HM
    }
       
    void
-   PersistentFetchAccount::SetNextTryTime(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::SetNextTryTime(std::shared_ptr<FetchAccount> pFA)
    {
       SQLCommand command;
 

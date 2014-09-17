@@ -272,7 +272,7 @@ InterfaceIMAPFolderPermission::get_Account(IInterfaceAccount **pVal)
       CComObject<InterfaceAccount>* pInterfaceAccount = new CComObject<InterfaceAccount>();
       pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Account> pAccount = shared_ptr<HM::Account>(new HM::Account);
+      std::shared_ptr<HM::Account> pAccount = std::shared_ptr<HM::Account>(new HM::Account);
    
       if (!HM::PersistentAccount::ReadObject(pAccount, (__int64) object_->GetPermissionAccountID()))
          return DISP_E_BADINDEX;
@@ -300,7 +300,7 @@ InterfaceIMAPFolderPermission::get_Group(IInterfaceGroup **pVal)
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
       pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pGroup = HM::Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(object_->GetPermissionGroupID());
+      std::shared_ptr<HM::Group> pGroup = HM::Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(object_->GetPermissionGroupID());
    
       if (!pGroup)
          return DISP_E_BADINDEX;

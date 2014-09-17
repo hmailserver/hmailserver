@@ -11,10 +11,10 @@ namespace HM
 
    class IMAPCommandDELETE : public IMAPCommand
    {
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
 
    private:
 
-      void RemoveFolder_( shared_ptr<IMAPFolder> pFolder, shared_ptr<HM::IMAPConnection>  pConnection );
+      void RemoveFolder_( std::shared_ptr<IMAPFolder> pFolder, std::shared_ptr<HM::IMAPConnection>  pConnection );
    };
 }

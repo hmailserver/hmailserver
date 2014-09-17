@@ -48,7 +48,7 @@ namespace HM
       // Delete all existing ports and then add new ones.
       DeleteAll();
 
-      shared_ptr<SecurityRange> pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
+      std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName("My computer");
       pSecurityRange->SetPriority(15);
       pSecurityRange->SetLowerIPString("127.0.0.1");
@@ -56,7 +56,7 @@ namespace HM
       pSecurityRange->SetOptions(71627);
       PersistentSecurityRange::SaveObject(pSecurityRange);
 
-      pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
+      pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName("Internet");
       pSecurityRange->SetPriority(10);
       pSecurityRange->SetLowerIPString("0.0.0.0");

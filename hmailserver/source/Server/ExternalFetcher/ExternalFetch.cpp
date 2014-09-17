@@ -35,14 +35,14 @@ namespace HM
    }
 
    void 
-   ExternalFetch::Start(shared_ptr<FetchAccount> pFA)
+   ExternalFetch::Start(std::shared_ptr<FetchAccount> pFA)
    {  
       LOG_DEBUG(Formatter::Format("Retrieving messages from external account {0}", pFA->GetName()));
       
-      shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
-      shared_ptr<Event> disconnectEvent = shared_ptr<Event>(new Event()) ;
-      shared_ptr<POP3ClientConnection> pClientConnection = shared_ptr<POP3ClientConnection> 
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event()) ;
+      std::shared_ptr<POP3ClientConnection> pClientConnection = std::shared_ptr<POP3ClientConnection> 
          (new POP3ClientConnection(pFA, 
                                    pFA->GetConnectionSecurity(), 
                                    pIOService->GetIOService(), 

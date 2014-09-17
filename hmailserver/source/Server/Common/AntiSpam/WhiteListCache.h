@@ -21,7 +21,7 @@ namespace HM
    private:
 
       static void Refresh();
-      static std::vector<shared_ptr<WhiteListAddress>> whitelistItems_;
+      static std::vector<std::shared_ptr<WhiteListAddress>> whitelistItems_;
       static bool needRefresh_;
    };
 }

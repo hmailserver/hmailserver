@@ -9,13 +9,13 @@ namespace HM
    public:
       Cache();
 
-      shared_ptr<const T> GetObject(const String &sName);
+      std::shared_ptr<const T> GetObject(const String &sName);
       // Retrieves an object using the object name.
 
-      shared_ptr<const T> GetObject(__int64 iID);
+      std::shared_ptr<const T> GetObject(__int64 iID);
       // Retrieves an object using the ID
 
-      void RemoveObject(shared_ptr<T> pObject);
+      void RemoveObject(std::shared_ptr<T> pObject);
       void RemoveObject(const String &sName);
       void RemoveObject(__int64 iID);
 
@@ -26,8 +26,8 @@ namespace HM
 
    private:
 
-      bool GetObjectIsWithinTTL_(shared_ptr<T> pObject);
-      void AddToCache_(shared_ptr<T> pObject);
+      bool GetObjectIsWithinTTL_(std::shared_ptr<T> pObject);
+      void AddToCache_(std::shared_ptr<T> pObject);
 
       int no_of_misses_;
       int no_of_hits_;
@@ -42,7 +42,7 @@ namespace HM
       // All access to the container is restricted by
       // a critical section
       
-      std::map<String, shared_ptr<T> > objects_;
+      std::map<String, std::shared_ptr<T> > objects_;
       // All the objects in the cache
    };
 
@@ -104,11 +104,11 @@ namespace HM
 
    template <class T, class P> 
    void 
-   Cache<T,P>::RemoveObject(shared_ptr<T> pObject)
+   Cache<T,P>::RemoveObject(std::shared_ptr<T> pObject)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(pObject->GetName());
+      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(pObject->GetName());
    
       if (iterObject != objects_.end())
          objects_.erase(iterObject);
@@ -121,7 +121,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(sName);
+      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(sName);
 
       if (iterObject != objects_.end())
          objects_.erase(iterObject);
@@ -135,12 +135,12 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Find the domain using the ID
-      std::map<String, shared_ptr<T> >::iterator iterObject = objects_.begin();
-      std::map<String, shared_ptr<T> >::iterator iterEnd = objects_.end();
+      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.begin();
+      std::map<String, std::shared_ptr<T> >::iterator iterEnd = objects_.end();
 
       for (; iterObject != iterEnd; iterObject++)
       {
-         shared_ptr<T> pObject = (*iterObject).second;
+         std::shared_ptr<T> pObject = (*iterObject).second;
 
          if (pObject->GetID() == iID)
          {
@@ -152,18 +152,18 @@ namespace HM
    }
 
    template <class T, class P> 
-   shared_ptr<const T> 
+   std::shared_ptr<const T> 
    Cache<T,P>::GetObject(const String &sName)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (enabled_)
       {
-         std::map<String, shared_ptr<T> >::iterator iterObject = objects_.find(sName);
+         std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(sName);
 
          if (iterObject != objects_.end())
          {
-            shared_ptr<T> pObject = (*iterObject).second;
+            std::shared_ptr<T> pObject = (*iterObject).second;
 
             if (GetObjectIsWithinTTL_(pObject))
                return pObject;
@@ -174,11 +174,11 @@ namespace HM
       }
 
       // Load the object
-      shared_ptr<T> pRetObject = shared_ptr<T>(new T);
+      std::shared_ptr<T> pRetObject = std::shared_ptr<T>(new T);
       
       if (!P::ReadObject(pRetObject, sName))
       {
-         shared_ptr<T> pEmpty;
+         std::shared_ptr<T> pEmpty;
          return pEmpty;
       }
 
@@ -189,7 +189,7 @@ namespace HM
    }
 
    template <class T, class P> 
-   shared_ptr<const T> 
+   std::shared_ptr<const T> 
    Cache<T,P>::GetObject(__int64 iID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
@@ -197,12 +197,12 @@ namespace HM
       if (enabled_)
       {
          // Find the domain using the ID
-         std::map<String, shared_ptr<T> >::iterator iterObject = objects_.begin();
-         std::map<String, shared_ptr<T> >::iterator iterEnd = objects_.end();
+         std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.begin();
+         std::map<String, std::shared_ptr<T> >::iterator iterEnd = objects_.end();
 
          for (; iterObject != iterEnd; iterObject++)
          {
-            shared_ptr<T> pObject = (*iterObject).second;
+            std::shared_ptr<T> pObject = (*iterObject).second;
 
             if (pObject->GetID() == iID)
             {
@@ -217,10 +217,10 @@ namespace HM
       }
 
       // Load the object
-      shared_ptr<T> pRetObject = shared_ptr<T>(new T);
+      std::shared_ptr<T> pRetObject = std::shared_ptr<T>(new T);
       if (!P::ReadObject(pRetObject, iID))
       {
-         shared_ptr<T> pEmpty;
+         std::shared_ptr<T> pEmpty;
          return pEmpty;
       }
 
@@ -232,7 +232,7 @@ namespace HM
 
    template <class T, class P> 
    void 
-   Cache<T,P>::AddToCache_(shared_ptr<T> pObject)
+   Cache<T,P>::AddToCache_(std::shared_ptr<T> pObject)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -250,7 +250,7 @@ namespace HM
 
    template <class T, class P> 
    bool 
-   Cache<T,P>::GetObjectIsWithinTTL_(shared_ptr<T> pObject)
+   Cache<T,P>::GetObjectIsWithinTTL_(std::shared_ptr<T> pObject)
    {
       if (pObject)
       {

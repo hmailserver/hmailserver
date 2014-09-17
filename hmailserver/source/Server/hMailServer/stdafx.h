@@ -9,27 +9,15 @@
 
 #pragma warning( disable : 4180 )
 
-// START: CRT + standard library settings.
-	#define _CRT_SECURE_NO_DEPRECATE
-	#define _SECURE_STL 0
-	#define _SECURE_SCL_DEPRECATE 0
-	#define _CRT_NON_CONFORMING_SWPRINTFS
-
-	// Defines whether Checked Iterators are enabled. If defined as 1, unsafe iterator
-	// use causes a runtime error. If defined as 0, checked iterators are disabled.
-	#define _SECURE_SCL 1
-
-	// If defined as 1, an out of range iterator use causes an exception at runtime. 
-	// If defined as 0, the program is terminated by calling invalid_parameter. 
-	// The default value for _SECURE_SCL_THROWS is 0, meaning the program will be 
-	// terminated by default. Requires _SECURE_SCL to also be defined.
-   #define _SECURE_SCL_THROWS 1
-// END: Standard library settings
-
-
 
 #define STRICT
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+
+// Following define is to solve this compilation warning:
+//    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : error C2220 : warning treated as error - no 'object' file generated
+//    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : warning C4996 : 'gethostbyaddr' : Use getnameinfo() or GetNameInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
@@ -53,8 +41,6 @@
 // START: ATL settings
 	#define _ATL_FREE_THREADEDLPCWSTR
 	#define _ATL_NO_AUTOMATIC_NAMESPACE
-	#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
-
 	// turns off ATL's hiding of some common and often safely ignored warning messages
 	#define _ATL_ALL_WARNINGS
 // END: ATL settings
@@ -75,31 +61,28 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
+
 //
 // STL INCLUDES
 //
 #include <map>
 #include <vector>
 #include <set> 
+#include <list> 
 #include <queue>
 #include <functional>
+#include <memory>
+
 
 //
 // BOOST INCLUDES
-//
-#include <boost/shared_ptr.hpp> 
-#include <boost/scoped_ptr.hpp> 
-#include <boost/enable_shared_from_this.hpp>
+
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/function.hpp>
+//#include <boost/condition_variable.hpp>
+#include <boost/thread.hpp>
+#include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
-#include <boost/thread/condition_variable.hpp>
-
-#define boost_foreach BOOST_FOREACH
 
 #ifdef _DEBUG
    #define _CRTDBG_MAP_ALLOC
@@ -107,8 +90,6 @@
    #include <crtdbg.h>
 #endif
 
-using namespace std;
-using namespace boost;
 
 // Start: Common files
    #include "..\Common\Util\StdString.h"

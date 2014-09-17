@@ -16,7 +16,7 @@
 
 namespace HM
 {
-   MySQLConnection::MySQLConnection(shared_ptr<DatabaseSettings> pSettings) :
+   MySQLConnection::MySQLConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       is_connected_ = false;
@@ -263,7 +263,7 @@ namespace HM
          String sMySQLErrorUnicode = sMySqlErrorAnsi;
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("MySQL: %s (Additional info: %s)"), sMySQLErrorUnicode, sAdditionalInfo);
+         sErrorMessage.Format(_T("MySQL: %s (Additional info: %s)"), sMySQLErrorUnicode.c_str(), sAdditionalInfo.c_str());
 
          sOutputErrorMessage = sErrorMessage;
 
@@ -476,10 +476,10 @@ namespace HM
       }
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    MySQLConnection::CreateRecordset()
    {
-      shared_ptr<MySQLRecordset> recordset = shared_ptr<MySQLRecordset>(new MySQLRecordset());
+      std::shared_ptr<MySQLRecordset> recordset = std::shared_ptr<MySQLRecordset>(new MySQLRecordset());
       return recordset;
    }
 
@@ -490,10 +490,10 @@ namespace HM
       sInput.Replace(_T("\\"), _T("\\\\"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    MySQLConnection::CreateMacroExpander()
    {
-      shared_ptr<MySQLMacroExpander> expander = shared_ptr<MySQLMacroExpander>(new MySQLMacroExpander());
+      std::shared_ptr<MySQLMacroExpander> expander = std::shared_ptr<MySQLMacroExpander>(new MySQLMacroExpander());
       return expander;
    }
 }
