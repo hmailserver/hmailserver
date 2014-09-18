@@ -13,6 +13,7 @@ AllowNoIcons=yes
 Uninstallable=true
 DirExistsWarning=no
 CreateAppDir=true
+MinVersion=0,5.1.2600
 
 [CustomMessages]
 ;configurations
@@ -109,6 +110,7 @@ Source: ".\Extras\tlds.txt"; DestDir: "{app}\Bin";  Flags: ignoreversion; Compon
 
 [Messages]
 BeveledLabel=hMailServer
+WinVersionTooLowError=This program requires Microsoft Windows XP Service Pack 3 or later.
 
 [INI]
 Filename: "{app}\Bin\hMailServer.INI"; Section: "Directories"; Key: "ProgramFolder"; String: "{app}";
