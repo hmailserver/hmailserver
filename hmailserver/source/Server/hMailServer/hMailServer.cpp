@@ -80,7 +80,6 @@ namespace HM
       void
       RegisterObjects()
       {
-
          HRESULT hr = CoInitializeSecurity(0, -1, 0, 0, RPC_C_AUTHN_LEVEL_CONNECT , RPC_C_IMP_LEVEL_IMPERSONATE, 0,0,0);
 
          if (FAILED(hr))
@@ -197,6 +196,8 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    if (!vecParams.empty())
       sLastParam = vecParams[vecParams.size() - 1];
 
+   _AtlModule.InitializeCom();
+
    // Register app id so that client can create instances
    // of us even when running as a service under the local
    // system account.
@@ -291,8 +292,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       //     for debugging purposes.
       DEBUG_MODE = true;
 
-      ::CoInitialize(NULL);
-      
       // Connect to the database and create configuration objects.
       InitializeApplication();
 

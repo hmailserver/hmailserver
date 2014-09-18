@@ -32,3 +32,4 @@ hmailserver/source/Server/hMailServer/Release/*
 *.vcxproj.filters
 *.sdf
 *.opensdf
+*.ipch
