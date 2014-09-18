@@ -91,6 +91,11 @@ namespace StressTest
             recipients.Add(account.Address);
 
             Marshal.ReleaseComObject(account);
+
+            if (i % 10 == 0)
+            {
+               TestTracer.WriteTraceInfo("Creating accounts: {0}/{1}", i, 1000);
+            }
          }
 
          Marshal.ReleaseComObject(accounts);
