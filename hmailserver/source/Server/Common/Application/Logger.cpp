@@ -39,7 +39,10 @@ namespace HM
       log_mask_ = 0;
       enable_live_log_ = false;
 
-      log_dir_ = IniFileSettings::GetLogDirectory();
+      auto ini_file_settings = IniFileSettings::Instance();
+
+      log_dir_ = ini_file_settings->GetLogDirectory();
+      sep_svc_logs_ = ini_file_settings->GetSepSvcLogs();
    }
 
    Logger::~Logger(void)
@@ -243,15 +246,7 @@ namespace HM
    Logger::GetCurrentLogFileName(LogType lt) 
    {
       String sFilename;
-
       String theTime = Time::GetCurrentDate();
-
-      IniFileSettings* pIniFileSettings = IniFileSettings::Instance();
-      if (!pIniFileSettings)
-      {
-         assert(0);
-      }
-      sep_svc_logs_ = pIniFileSettings->GetSepSvcLogs();
 
       switch (lt)
       {

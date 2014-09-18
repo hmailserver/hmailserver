@@ -178,8 +178,8 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
 {
    // Create the logger object. This needs to be done 
    // immediately so that we can log errors that occurs.
+   IniFileSettings::CreateInstance();
    Logger::CreateInstance();
-
 
    // Initailize some service variables.
    ServiceStatus.dwServiceType = SERVICE_WIN32; 
@@ -295,7 +295,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       // Connect to the database and create configuration objects.
       InitializeApplication();
 
-      
       while(true)
       {
          // This thread just sits here and waits
@@ -308,6 +307,11 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       _AtlModule.run_as_service_ = true;
 
 	  iRet = _AtlModule.WinMain(nShowCmd);
+     
+     if (iRet != 0)
+     {
+        ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5601, "_tWinMain", Formatter::Format("_AtlModule.WinMain returned {0}", iRet));
+     }
    }
 
 	//_CrtDumpMemoryLeaks();

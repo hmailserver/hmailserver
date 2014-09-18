@@ -15,7 +15,6 @@
 
 namespace HM
 {
-   String IniFileSettings::log_directory_;
    String IniFileSettings::ini_file_;
   
    IniFileSettings::IniFileSettings() :

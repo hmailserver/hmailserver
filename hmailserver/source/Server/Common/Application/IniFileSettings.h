@@ -40,7 +40,7 @@ namespace HM
       
       void SetAdministratorPassword(const String &sNewPassword);
       String GetAdministratorPassword();
-      static String GetLogDirectory();
+      String GetLogDirectory();
 
       String GetBinDirectory();
       String GetProgramDirectory() const { return app_directory_; }
@@ -147,7 +147,7 @@ namespace HM
       
       int preferred_hash_algorithm_;
 
-      static String log_directory_;
+      String log_directory_;
       static String ini_file_;
 
       bool dnsbl_checks_after_mail_from_;

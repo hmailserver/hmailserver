@@ -113,3 +113,4 @@
 5514, Unable to find appropriate MySQL character set.
 5515, Failed to enable lingering for session {0}
 5516, Attempted DNS lookup for empty host name.
+5601, _AtlModule.WinMain returned {0}.

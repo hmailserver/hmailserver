@@ -11,7 +11,6 @@
 #include "..\Util\Languages.h"
 #include "..\Util\TLD.h"
 #include "..\Application\ObjectCache.h"
-#include "..\Application\IniFileSettings.h"
 #include "..\Scripting\ScriptServer.h"
 #include "..\Application\Reinitializator.h"
 #include "..\TCPIP\LocalIPAddresses.h"
@@ -78,8 +77,7 @@ namespace HM
 
       CacheContainer::CreateInstance();
       MessageCache::CreateInstance();
-      IniFileSettings::CreateInstance();
-
+      
       TLD::CreateInstance();
       CodePages::CreateInstance();
 
@@ -105,7 +103,6 @@ namespace HM
       CodePages::DeleteInstance();
       TLD::DeleteInstance();
 
-      IniFileSettings::DeleteInstance();
       MessageCache::DeleteInstance();
       CacheContainer::DeleteInstance();
 
