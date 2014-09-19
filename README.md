@@ -10,9 +10,22 @@ Compiling hMailServer
 
 Required software:
 
-   * Visual Studio 2008 Service Pack 1
+   * Visual Studio 2013 Update 3*
    * InnoSetup (to build installation program)
    * Perl (ActiveState ActivePerl Communityedition 32 bit works fine)
+
+Configuring Visual Studio 2013 Express Edition
+==============================================
+
+These steps are only required if you are using Visual Studio 2013 Express Edition. The steps are required because Express Edition does not include Active Template Library which hMailServer relies on. ATL therefore needs to be installed separately:
+
+1. Download the (Windows Driver Kit 7.1 ISO)(http://www.microsoft.com/download/en/details.aspx?id=11800)
+2. Mount the ISO and run the installation. You only need to install "Build Environments"
+4. Open the solution hmailserver\source\Server\hMailServer\hMailServer.sln
+5. In the Solution Explorer, right click on hMailServer and select Properties
+6. Select Configuraton Properties -> VC++ Directories
+7. Add "{PATH-TO-WDK}\inc\atl71;" to the list of Include Directories. (Replace {PATH-TO-WDK} with the location whre you installed it.
+8. Add "{PATH-TO-WDK\lib\ATL\i386" to the list of Library Directories.  (Replace {PATH-TO-WDK} with the location whre you installed it.
 
 3rd party libraries
 ===================
@@ -25,7 +38,7 @@ Building OpenSSL
 ----------------
 1. Download OpenSSL 1.0.1i from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.  
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.1i
-2. Open up a Visual Studio 2008 32bit Command prompt
+2. Open up a Visual Studio 2013 32bit Command prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 4. Run Perl Configure no-asm VC-WIN32
 5. Run ms\do_ms
@@ -38,7 +51,7 @@ Building Boost
 2. Open a Command prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run bootstrap.bat
-5. Run bjam.exe --toolset=msvc-9.0 --build-type=complete
+5. Run bjam.exe --toolset=msvc-12.0 --build-type=complete
 
 
 Building hMailServer
