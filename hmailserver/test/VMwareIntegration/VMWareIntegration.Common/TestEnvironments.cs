@@ -39,7 +39,7 @@ namespace VMwareIntegration.Common
       static void AddBasicTestEnvironments(List<TestEnvironment> listEnvironments)
       {
          TestWindows2000(listEnvironments);
-         TestXPSP2(listEnvironments);
+         TestXPSP3(listEnvironments);
          TestWindows2003(listEnvironments);
          TestWindows2008(listEnvironments);
          TestWindowsVista(listEnvironments);
@@ -71,35 +71,35 @@ namespace VMwareIntegration.Common
          listEnvironments.Add(new TestEnvironment("Windows 2000", "New installation", "Internal", Windows2000Path, "Service Pack 4"));
       }
 
-      private static void TestXPSP2(List<TestEnvironment> listEnvironments)
+      private static void TestXPSP3(List<TestEnvironment> listEnvironments)
       {
          // Internal database
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "New installation", "Internal", WindowsXPPath, "Windows XP SP2, .NET Framework 2.0"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "New installation", "Internal", WindowsXPPath, "Windows XP SP3, .NET Framework 2.0"));
 
          // Test using PostgreSQL...
-         TestEnvironment tempEnv2 = new TestEnvironment("Windows XP SP2", "New installation", "PostgreSQL 8.3.1", WindowsXPPostgreSQL831Path, "Initial");
+         TestEnvironment tempEnv2 = new TestEnvironment("Windows XP SP3", "New installation", "PostgreSQL 8.3.1", WindowsXPPostgreSQL831Path, "Initial");
          tempEnv2.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:build"));
          listEnvironments.Add(tempEnv2);
 
          // Test using MySQL 5.0.51.
-         TestEnvironment tempEnv1 = new TestEnvironment("Windows XP SP2", "New installation", "MySQL 5.0.51", WindowsXPMySQL5_0_51Path, "Initial");
+         TestEnvironment tempEnv1 = new TestEnvironment("Windows XP SP3", "New installation", "MySQL 5.0.51", WindowsXPMySQL5_0_51Path, "Initial");
          tempEnv1.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
          tempEnv1.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
          listEnvironments.Add(tempEnv1);
 
          // Test using MySQL 5.6.20 (with proper UTF8-support).
-         TestEnvironment tempEnv3 = new TestEnvironment("Windows XP SP2", "New installation", "MySQL 5.6.20", WindowsXPMySQL5_6_20Path, "Initial");
+         TestEnvironment tempEnv3 = new TestEnvironment("Windows XP SP3", "New installation", "MySQL 5.6.20", WindowsXPMySQL5_6_20Path, "Initial");
          tempEnv3.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
          tempEnv3.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
          listEnvironments.Add(tempEnv3);
 
          // Test using SQL Server 2000.
-         var tempEnv4 = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2000", WindowsXPSQLServer2000Path, "Initial");
+         var tempEnv4 = new TestEnvironment("Windows XP SP3", "New installation", "SQL Server 2000", WindowsXPSQLServer2000Path, "Initial");
          tempEnv4.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:. DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
          listEnvironments.Add(tempEnv4);
 
          // Test using SQL Server 2005.
-         TestEnvironment tempEnv5 = new TestEnvironment("Windows XP SP2", "New installation", "SQL Server 2005", WindowsXPSQLServer2005Path, "Initial");
+         TestEnvironment tempEnv5 = new TestEnvironment("Windows XP SP3", "New installation", "SQL Server 2005", WindowsXPSQLServer2005Path, "Initial");
          tempEnv5.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:HI DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
          listEnvironments.Add(tempEnv5);
       }
@@ -120,16 +120,16 @@ namespace VMwareIntegration.Common
       private static void TestWindowsVista(List<TestEnvironment> listEnvironments)
       {
          // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows Vista", "New installation", "Internal", WindowsVistaPath, "Windows Vista SP2"));
+         listEnvironments.Add(new TestEnvironment("Windows Vista", "New installation", "Internal", WindowsVistaPath, "Windows Vista SP3"));
       }
 
       static void AddUpgradeTests(List<TestEnvironment> listEnvironments)
       {
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "PostgreSQL 8.3.1", WindowsXPHmail50PostgreSQL8_3_1, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal", WindowsXPHmail441InternalMySQL, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "SQL Server", WindowsXPHmail441SQLServerPath, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "Internal", WindowsXPHmail50InternalMSSQLCE, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP2", "Upgrade", "SQL Server 2000", WindowsXPHmail33SQL2000, "Initial"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "PostgreSQL 8.3.1", WindowsXPHmail50PostgreSQL8_3_1, "Initial"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "Internal", WindowsXPHmail441InternalMySQL, "Initial"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "SQL Server", WindowsXPHmail441SQLServerPath, "Initial"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "Internal", WindowsXPHmail50InternalMSSQLCE, "Initial"));
+         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "SQL Server 2000", WindowsXPHmail33SQL2000, "Initial"));
 
       }
    }
