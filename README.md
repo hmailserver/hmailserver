@@ -64,6 +64,11 @@ Building hMailServer
 4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
+Running in Debug
+==============================================
+
+If you want to run hMailServer in debug mode in Visual Studio, add the command argument /debug. You find this setting in the Project properties, under Configuration Properties -> Debugging.
+
 Releasing hMailServer
 --------------------
 
