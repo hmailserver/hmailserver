@@ -10,7 +10,7 @@ Compiling hMailServer
 
 Required software:
 
-   * Visual Studio 2013 Update 3*
+   * Visual Studio 2013 Update 3
    * InnoSetup (to build installation program)
    * Perl (ActiveState ActivePerl Communityedition 32 bit works fine)
 
