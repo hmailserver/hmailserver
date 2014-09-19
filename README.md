@@ -3,7 +3,9 @@ hMailServer
 
 hMailServer is an open source email server for Microsoft Windows.
 
-This page describes how to compile hMailServer. For more information about hMailServer, please go to http://www.hmailserver.com
+This page describes how to compile and run hMailServer in debug. 
+
+For other information about hMailServer, please go to http://www.hmailserver.com
 
 Compiling hMailServer
 ====================
