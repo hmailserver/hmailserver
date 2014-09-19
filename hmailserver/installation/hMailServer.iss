@@ -13,7 +13,7 @@ AllowNoIcons=yes
 Uninstallable=true
 DirExistsWarning=no
 CreateAppDir=true
-MinVersion=0,5.1.2600
+MinVersion=0,5.1sp3
 
 [CustomMessages]
 ;configurations
