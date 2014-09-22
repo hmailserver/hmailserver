@@ -27,18 +27,16 @@ namespace HM
    void 
    IOCPQueueWorkerTask::DoWork()
    {
-      bool continueProcess = true;
-      while (continueProcess)
+      while (true)
       {
          try
          {
             io_service_.run();
 
-            continueProcess = false;
+            return;
          }
          catch (thread_interrupted const&)
          {
-            
             return;
          }
          catch (boost::system::system_error error)
@@ -57,6 +55,8 @@ namespace HM
          {
             ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "IOCPQueueWorkerTask::DoWork", "An unknown error occured while handling asynchronous requests.");
          }
+
+         io_service_.reset();
       }
    }
 

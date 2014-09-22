@@ -199,7 +199,6 @@ namespace HM
       catch (...)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5324, "TCPConnection::AsyncConnectCompleted", "An unknown error occurred while handling asynchronous connect.");
-         throw;
       }
    }
 
@@ -442,13 +441,13 @@ namespace HM
    void 
    TCPConnection::AsyncHandshakeCompleted(const boost::system::error_code& error)
    {
-      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTHandshake);
-          this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       try
       {
+         BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+            operation_queue_.Pop(IOOperation::BCTHandshake);
+            this_->ProcessOperationQueue_();
+         } BOOST_SCOPE_EXIT_END
+
          if (!error)
          {
             // Send welcome message to client.
@@ -463,7 +462,6 @@ namespace HM
       catch (...)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5326, "TCPConnection::AsyncHandshakeCompleted", "An unknown error occurred while handling handshake.");
-         throw;
       }
 
    }
@@ -589,14 +587,12 @@ namespace HM
    void 
    TCPConnection::AsyncReadCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
-      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTRead);
-         this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       try
       {
-         // Remove the item we have just handled.
+         BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+            operation_queue_.Pop(IOOperation::BCTRead);
+            this_->ProcessOperationQueue_();
+         } BOOST_SCOPE_EXIT_END
 
          try
          {
@@ -704,6 +700,8 @@ namespace HM
                                String(s));
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message, error);
+
+               throw;
             }
             catch (...)
             {
@@ -711,13 +709,14 @@ namespace HM
                message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s));
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+               throw;
             }
          }
       }
       catch (...)
       {
          ReportError(ErrorManager::Medium, 5141, "TCPConnection::AsyncReadCompleted", "An error occurred while handling read operation.");
-         throw;
       }
    }
 
@@ -817,13 +816,13 @@ namespace HM
    void 
    TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
-      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTWrite);
-         this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       try
       {
+         BOOST_SCOPE_EXIT(&operation_queue_, this_) {
+            operation_queue_.Pop(IOOperation::BCTWrite);
+            this_->ProcessOperationQueue_();
+         } BOOST_SCOPE_EXIT_END
+
          if (error.value() != 0)
          {
             String message;
@@ -865,7 +864,6 @@ namespace HM
          message.Format(_T("An unknown error occurred while handling buffer write. Session ID: %d, Transferred bytes: %d"),  GetSessionID(), bytes_transferred);
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TCPConnection::AsyncWriteCompleted", message);
-         throw;
       }
    }
 
