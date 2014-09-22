@@ -268,7 +268,6 @@ namespace RegressionTests.SMTP
          }
       }
 
-      
 
       [Test]
       [Description(
@@ -1024,6 +1023,75 @@ namespace RegressionTests.SMTP
 
          CustomAssert.IsTrue(message.Contains("452 test@dummy-example.com"));
          CustomAssert.IsTrue(message.Contains("Tried 2 time(s)"));
+      }
+
+      [Test]
+      public void TestDeliverToServerNotSupportingEHLO()
+      {
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
+
+         var deliveryResults = new Dictionary<string, int>()
+            {
+               {"user1@dummy-example.com", 250}
+            };
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         {
+            server.ServerSupportsEhlo = false;
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            // Add a route so we can conenct to localhost.
+            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+
+            // Send message to this route.
+
+            if (!SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message"))
+               CustomAssert.Fail("Delivery failed");
+
+            // Wait for the client to disconnect.
+            server.WaitForCompletion();
+
+            TestSetup.AssertRecipientsInDeliveryQueue(0, false);
+
+            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+         }
+      }
+
+      [Test]
+      public void TestDeliverToServerNotSupportingHELO()
+      {
+         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
+
+         var deliveryResults = new Dictionary<string, int>()
+            {
+               {"user1@dummy-example.com", 250}
+            };
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         {
+            server.ServerSupportsHelo = false;
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            // Add a route so we can conenct to localhost.
+            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+
+            // Send message to this route.
+
+            if (!SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message"))
+               CustomAssert.Fail("Delivery failed");
+
+            // Wait for the client to disconnect.
+            server.WaitForCompletion();
+
+            TestSetup.AssertRecipientsInDeliveryQueue(0, true);
+
+            var msg = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+            CustomAssert.IsTrue(msg.Contains("Remote server replied: 550 Command HELO not recognized."));
+         }
       }
    }
 }

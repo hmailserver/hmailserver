@@ -37,11 +37,16 @@ namespace RegressionTests.Shared
       private SimulatedErrorType _simulatedError;
       private bool _transmittingData;
 
+      public bool ServerSupportsEhlo { get; set; }
+      public bool ServerSupportsHelo { get; set; }
+
       
       public SMTPServerSimulator(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity) :
          base(maxNumberOfConnections, port, connectionSecurity)
       {
          _recipientResults = new List<Dictionary<string, int>>();
+         ServerSupportsEhlo = true;
+         ServerSupportsHelo = true;
       }
 
       public SMTPServerSimulator(int maxNumberOfConnections, int port) :
@@ -116,13 +121,13 @@ namespace RegressionTests.Shared
 
       private bool ProcessCommand(string command)
       {
-         if (command.ToUpper().StartsWith("HELO"))
+         if (ServerSupportsHelo && command.ToUpper().StartsWith("HELO"))
          {
             Send("250 Test Server - Helo\r\n");
             return false;
          }
-
-         if (command.ToUpper().StartsWith("EHLO"))
+                 
+         if (ServerSupportsEhlo && command.ToUpper().StartsWith("EHLO"))
          {
             var response = new StringBuilder(); 
             
@@ -229,28 +234,29 @@ namespace RegressionTests.Shared
                Disconnect();
                return true;
             }
-
-
+            
             _messageData += command;
-         }
 
-         if (_messageData.IndexOf("\r\n.\r\n") > 0)
-         {
-            // remove the ending...
-            _messageData = _messageData.Replace("\r\n.\r\n", "\r\n");
-
-            Send("250 Test Server - Queued for delivery\r\n");
-
-            if (_simulatedError == SimulatedErrorType.DisconnectAfterMessageAccept)
+            if (_messageData.IndexOf("\r\n.\r\n") > 0)
             {
-               Disconnect();
-               return true;
+               // remove the ending...
+               _messageData = _messageData.Replace("\r\n.\r\n", "\r\n");
+
+               Send("250 Test Server - Queued for delivery\r\n");
+
+               if (_simulatedError == SimulatedErrorType.DisconnectAfterMessageAccept)
+               {
+                  Disconnect();
+                  return true;
+               }
+
+               _transmittingData = false;
+               return false;
             }
 
-            _transmittingData = false;
             return false;
          }
-
+         
          if (_expectingUsername)
          {
             _expectingUsername = false;
@@ -270,6 +276,11 @@ namespace RegressionTests.Shared
 
             return false;
          }
+
+
+         var commandName = command.Substring(0, 4);
+
+         Send(string.Format("550 Command {0} not recognized.\r\n", commandName));
 
          return false;
       }

@@ -49,7 +49,8 @@ namespace HM
 
       void ProtocolStateHELOEHLO_(const AnsiString &request);
       void ProtocolSendMailFrom_();
-      void ProtocolHELOEHLOSent_(const AnsiString &request);
+      void ProtocolHELOSent_(const AnsiString &request);
+      void ProtocolEHLOSent_(int code, const AnsiString &request);
       void ProtocolSTARTTLSSent_(int code);
       void ProtocolMailFromSent_();
       void ProtocolRcptToSent_(int code, const AnsiString &request);
@@ -80,6 +81,7 @@ namespace HM
       {
 	      HELO = 1,
          HELOSENT = 9,
+         EHLOSENT = 10,
          AUTHLOGINSENT = 11,
          USERNAMESENT = 12,
          PASSWORDSENT = 13,
