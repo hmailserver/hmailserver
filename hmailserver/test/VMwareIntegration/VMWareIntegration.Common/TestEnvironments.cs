@@ -24,7 +24,6 @@ namespace VMwareIntegration.Common
       private static string WindowsXPHmail50InternalMSSQLCE = @"C:\Build\VMWare\Windows XP - hMailServer 5.0 (B289 Internal SQL CE)\Windows XP - hMailServer 5.0 (B289 Internal SQL CE).vmx";
       private static string WindowsXPHmail33SQL2000 = @"C:\Build\VMWare\Windows XP - hMailServer 3.3 (B57, SQL Server 2000)\Windows XP - hMailServer 3.3 (B57, SQL Server 2000).vmx";
 
-      private static string Windows2000Path = @"C:\Build\VMware\Windows 2000\Windows 2000 Professional.vmx";
       private static string Windows2003Path = @"C:\Build\VMware\Windows Server 2003 Enterprise Edition\Windows Server 2003 Enterprise Edition.vmx";
       private static string Windows2008Path = @"C:\Build\VMware\Windows Server 2008\Windows Server 2008 (experimental).vmx";
       private static string WindowsVistaPath = @"C:\Build\VMware\Windows Vista\Windows Vista.vmx";
@@ -38,7 +37,6 @@ namespace VMwareIntegration.Common
 
       static void AddBasicTestEnvironments(List<TestEnvironment> listEnvironments)
       {
-         TestWindows2000(listEnvironments);
          TestXPSP3(listEnvironments);
          TestWindows2003(listEnvironments);
          TestWindows2008(listEnvironments);
@@ -63,12 +61,6 @@ namespace VMwareIntegration.Common
           }
 
           return name;
-      }
-
-      private static void TestWindows2000(List<TestEnvironment> listEnvironments)
-      {
-         // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows 2000", "New installation", "Internal", Windows2000Path, "Service Pack 4"));
       }
 
       private static void TestXPSP3(List<TestEnvironment> listEnvironments)
@@ -120,7 +112,7 @@ namespace VMwareIntegration.Common
       private static void TestWindowsVista(List<TestEnvironment> listEnvironments)
       {
          // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows Vista", "New installation", "Internal", WindowsVistaPath, "Windows Vista SP3"));
+         listEnvironments.Add(new TestEnvironment("Windows Vista", "New installation", "Internal", WindowsVistaPath, "Windows Vista SP2"));
       }
 
       static void AddUpgradeTests(List<TestEnvironment> listEnvironments)
