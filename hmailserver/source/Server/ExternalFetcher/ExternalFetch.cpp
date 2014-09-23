@@ -63,7 +63,7 @@ namespace HM
       else
       {
          String error_message = Formatter::Format("The IP address for external account {0} could not be resolved. Aborting fetch.", pFA->GetName());
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "ExternalFetch::Start", error_message);
+         LOG_APPLICATION(error_message);
          return;
       }
 
