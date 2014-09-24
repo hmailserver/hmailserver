@@ -843,11 +843,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Com\InterfaceClient.rgs"
+						RelativePath=".\InterfaceClient.rgs"
 						>
 					</File>
 					<File
-						RelativePath=".\InterfaceClient.rgs"
+						RelativePath="..\Com\InterfaceClient.rgs"
 						>
 					</File>
 					<File
@@ -1399,11 +1399,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Com\InterfaceResult.rgs"
+						RelativePath="..\COM\InterfaceResult.rgs"
 						>
 					</File>
 					<File
-						RelativePath="..\COM\InterfaceResult.rgs"
+						RelativePath="..\Com\InterfaceResult.rgs"
 						>
 					</File>
 					<File
@@ -1696,11 +1696,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceAntiSpam.rgs"
+							RelativePath=".\InterfaceAntiSpam.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceAntiSpam.rgs"
+							RelativePath="..\COM\InterfaceAntiSpam.rgs"
 							>
 						</File>
 						<File
@@ -1708,11 +1708,11 @@
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceBlockedAttachment.rgs"
+							RelativePath="..\COM\InterfaceBlockedAttachment.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceBlockedAttachment.rgs"
+							RelativePath=".\InterfaceBlockedAttachment.rgs"
 							>
 						</File>
 						<File
@@ -1736,19 +1736,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceGreyListingWhiteAddress.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceGreyListingWhiteAddress.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceGreyListingWhiteAddresses.rgs"
+							RelativePath="..\COM\InterfaceGreyListingWhiteAddress.rgs"
 							>
 						</File>
 						<File
 							RelativePath=".\InterfaceGreyListingWhiteAddresses.rgs"
+							>
+						</File>
+						<File
+							RelativePath="..\COM\InterfaceGreyListingWhiteAddresses.rgs"
 							>
 						</File>
 						<File
@@ -1760,11 +1760,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceIMAPFolders.rgs"
+							RelativePath=".\InterfaceIMAPFolders.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceIMAPFolders.rgs"
+							RelativePath="..\COM\InterfaceIMAPFolders.rgs"
 							>
 						</File>
 						<File
@@ -1776,19 +1776,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceServerMessage.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceServerMessage.rgs"
 							>
 						</File>
 						<File
-							RelativePath=".\InterfaceServerMessages.rgs"
+							RelativePath="..\COM\InterfaceServerMessage.rgs"
 							>
 						</File>
 						<File
 							RelativePath="..\COM\InterfaceServerMessages.rgs"
+							>
+						</File>
+						<File
+							RelativePath=".\InterfaceServerMessages.rgs"
 							>
 						</File>
 						<File
@@ -1800,19 +1800,19 @@
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceTCPIPPort.rgs"
-							>
-						</File>
-						<File
 							RelativePath=".\InterfaceTCPIPPort.rgs"
 							>
 						</File>
 						<File
-							RelativePath="..\COM\InterfaceTCPIPPorts.rgs"
+							RelativePath="..\COM\InterfaceTCPIPPort.rgs"
 							>
 						</File>
 						<File
 							RelativePath=".\InterfaceTCPIPPorts.rgs"
+							>
+						</File>
+						<File
+							RelativePath="..\COM\InterfaceTCPIPPorts.rgs"
 							>
 						</File>
 						<File
@@ -2537,6 +2537,14 @@
 						</File>
 						<File
 							RelativePath="..\Common\Application\ErrorManager.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Application\ExceptionHandler.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Application\ExceptionHandler.h"
 							>
 						</File>
 						<File
@@ -3788,6 +3796,14 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\Util\CustomStackWalker.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\CustomStackWalker.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Util\EmailAllUsers.h"
 							>
 						</File>
@@ -4005,6 +4021,22 @@
 						</File>
 						<File
 							RelativePath="..\Common\Util\SSPIValidation.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\StackLogger.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\StackLogger.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\StackWalker.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\StackWalker.h"
 							>
 						</File>
 						<File

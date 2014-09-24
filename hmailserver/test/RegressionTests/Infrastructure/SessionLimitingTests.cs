@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -10,6 +8,8 @@ namespace RegressionTests.Infrastructure
    [TestFixture]
    public class SessionLimitingTests : TestFixtureBase
    {
+      private TimeSpan _readTimeout = TimeSpan.FromSeconds(5);
+
       [Test]
       public void TestLimitImapSessionCount()
       {
@@ -20,16 +20,13 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(143));
-            string s1 = conn1.Receive();
-            CustomAssert.IsNotEmpty(s1);
             CustomAssert.IsTrue(conn2.Connect(143));
-            string s2 = conn2.Receive();
-            CustomAssert.IsNotEmpty(s2);
             CustomAssert.IsTrue(conn3.Connect(143));
-            string s3 = conn3.Receive();
-            CustomAssert.IsEmpty(s3);
+            CustomAssert.IsEmpty(conn3.Receive());
          }
 
+         var log2 = TestSetup.ReadCurrentDefaultLog();
+         CustomAssert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
       }
 
       [Test]
@@ -42,15 +39,13 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(25));
-            string s1 = conn1.Receive();
-            CustomAssert.IsNotEmpty(s1);
             CustomAssert.IsTrue(conn2.Connect(25));
-            string s2 = conn2.Receive();
-            CustomAssert.IsNotEmpty(s2);
             CustomAssert.IsTrue(conn3.Connect(25));
-            string s3 = conn3.Receive();
-            CustomAssert.IsEmpty(s3);
+            CustomAssert.IsEmpty(conn3.Receive());
          }
+
+         var log2 = TestSetup.ReadCurrentDefaultLog();
+         CustomAssert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
       }
 
       [Test]
@@ -63,14 +58,9 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(110));
-            string s1 = conn1.Receive();
-            CustomAssert.IsNotEmpty(s1);
             CustomAssert.IsTrue(conn2.Connect(110));
-            string s2 = conn2.Receive();
-            CustomAssert.IsNotEmpty(s2);
             CustomAssert.IsTrue(conn3.Connect(110));
-            string s3 = conn3.Receive();
-            CustomAssert.IsEmpty(s3);
+            CustomAssert.IsEmpty(conn3.Receive());
          }
       }
 

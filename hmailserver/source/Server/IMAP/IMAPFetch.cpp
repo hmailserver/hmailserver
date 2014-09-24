@@ -152,26 +152,12 @@ namespace HM
          {
             sMessageHeader = PersistentMessage::LoadHeader(messageFileName);
 
-            try
-            {
-               oMimeHeader.Load(sMessageHeader, sMessageHeader.length());
-            }
-            catch (...)
-            {
-               ReportCriticalError_(messageFileName, "ERROR HM10003 - IMAP FETCH: Error when loading MIME header for message.");
-            }
+            oMimeHeader.Load(sMessageHeader, sMessageHeader.length());
          }
 
-         try
-         {
-            String sTemp;
-            sTemp = "ENVELOPE " + CreateEnvelopeStructure_(oMimeHeader);
-            AppendOutput_(sOutput, sTemp);
-         }
-         catch (...)
-         {
-            ReportCriticalError_(messageFileName, "ERROR HM10004 - IMAP FETCH: Error when creating ENVELOPE structure for message.");
-         }
+         String sTemp;
+         sTemp = "ENVELOPE " + CreateEnvelopeStructure_(oMimeHeader);
+         AppendOutput_(sOutput, sTemp);
          
       }
 
@@ -185,20 +171,13 @@ namespace HM
       if (parser_->GetShowBodyStructure() ||
           parser_->GetShowBodyStructureNonExtensible())
       {
-         try
-         {
-            String sResult = "";
-            if (parser_->GetShowBodyStructure())
-               sResult = "BODYSTRUCTURE " + IteratePartRecursive_(pMimeBody, true, 0);
-            else
-               sResult = "BODY " + IteratePartRecursive_(pMimeBody, false, 0);
+         String sResult = "";
+         if (parser_->GetShowBodyStructure())
+            sResult = "BODYSTRUCTURE " + IteratePartRecursive_(pMimeBody, true, 0);
+         else
+            sResult = "BODY " + IteratePartRecursive_(pMimeBody, false, 0);
 
-            AppendOutput_(sOutput, sResult);
-         }
-         catch (...)
-         {
-            ReportCriticalError_(messageFileName, "ERROR HM10002 - IMAP FETCH: Error when creating body structure for message.");
-         }
+         AppendOutput_(sOutput, sResult);
       }
 
       std::vector<IMAPFetchParser::BodyPart> vecPartsToPeekAt = parser_->GetPartsToLookAt();

@@ -27,8 +27,8 @@ namespace HM
       static void ReadFileToBuf(HANDLE hFile, char *Buf, int iStart = -1, int iCount = -1);
       static String ReadCompleteTextFile(const String &sFilename);
 
-      static bool WriteToFile(const String &sFilename, String &sData, bool bUnicode);
-      static bool WriteToFile(const String &sFilename, AnsiString &sData);
+      static bool WriteToFile(const String &sFilename, const String &sData, bool bUnicode);
+      static bool WriteToFile(const String &sFilename, const AnsiString &sData);
 
       static long FileSize(const String &sFileName);
 

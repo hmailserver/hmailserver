@@ -208,16 +208,8 @@ namespace HM
    {
       recipientOK = false;
 
-      try
-      {
-         long lRecurse = 0;
-         CreateMessageRecipientList_(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4381, "RecipientParser::CreateMessageRecipientList", "An error occurred while creating message recipient list.");
-         throw;
-      }
+      long lRecurse = 0;
+      CreateMessageRecipientList_(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
    }
 
    void

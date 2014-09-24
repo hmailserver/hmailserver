@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "ErrorManager.h"
 
+
 #include <oledb.h>
 
 
@@ -113,7 +114,7 @@ namespace HM
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
    {
       String formatted_message;
-      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.what());
+      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, String(error.what()));
 
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }

@@ -87,7 +87,6 @@ namespace HM
    
    private:
 
-      void EnableLingering_();
       void HandshakeFailed_(const boost::system::error_code& error);
       void StartAsyncConnect_(const String &ip_adress, int port);
 

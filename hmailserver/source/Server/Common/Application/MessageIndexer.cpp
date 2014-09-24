@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 
 #include "MessageIndexer.h"
+
+#include "../Application/ExceptionHandler.h"
 #include "../BO/Message.h"
 #include "../BO/MessageMetaData.h"
 #include "../MIME/MIME.h"
@@ -52,30 +54,27 @@ namespace HM
    void
    MessageIndexer::WorkerFunc()
    {
+      boost::function<void()> func = boost::bind( &MessageIndexer::WorkerFuncInternal, this );
+      if (ExceptionHandler::Run("MessageIndexer", func))
+         return;
+   }
+
+   void
+   MessageIndexer::WorkerFuncInternal()
+   {
       LOG_DEBUG("Indexing messages...");
 
-      try
-      {
-         PersistentMessageMetaData persistentMetaData;
-         persistentMetaData.DeleteOrphanedItems();
+      PersistentMessageMetaData persistentMetaData;
+      persistentMetaData.DeleteOrphanedItems();
 
-         while (true)
-         {
-            IndexMessages_();
-
-            index_now_.WaitFor(chrono::minutes(1));
-         }
-      }
-      catch (thread_interrupted const&)
+      while (true)
       {
-         LOG_DEBUG("Indexing stopped.");
+         IndexMessages_();
 
-         // shutting down.
+         index_now_.WaitFor(chrono::minutes(1));
       }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5158, "MessageIndexer::DoWork", "An error occured while indexing messages. The indexing was aborted.");
-      }
+
+
    }
 
    void 

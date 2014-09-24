@@ -195,9 +195,16 @@ namespace RegressionTests.Shared
 
       public string ReadUntil(string text)
       {
+         return ReadUntil(text, TimeSpan.FromSeconds(10));
+      }
+
+      public string ReadUntil(string text, TimeSpan timeout)
+      {
+         DateTime stopTime = DateTime.Now + timeout;
+
          string result = Receive();
 
-         for (int i = 0; i < 1000; i++)
+         while (DateTime.Now < stopTime)
          {
             if (result.Contains(text))
                return result;
@@ -210,7 +217,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(10);
          }
 
-         throw new InvalidOperationException("Timeout while waiting for server response: " + text);
+         throw new TimeoutException("Timeout while waiting for server response: " + text);
       }
 
 

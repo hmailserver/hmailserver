@@ -365,7 +365,7 @@ namespace HM
    }
 
    bool 
-   FileUtilities::WriteToFile(const String &sFilename, String &sData, bool bUnicode)
+   FileUtilities::WriteToFile(const String &sFilename, const String &sData, bool bUnicode)
    {
       File oFile;
       if (!oFile.Open(sFilename, File::OTCreate))
@@ -394,7 +394,7 @@ namespace HM
    }
 
    bool 
-   FileUtilities::WriteToFile(const String &sFilename, AnsiString &sData)
+   FileUtilities::WriteToFile(const String &sFilename, const AnsiString &sData)
    {
       File oFile;
       if (!oFile.Open(sFilename, File::OTCreate))

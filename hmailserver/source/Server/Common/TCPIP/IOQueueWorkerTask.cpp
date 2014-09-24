@@ -8,7 +8,8 @@
 #include "IOQueueWorkerTask.h"
 
 #include "../Application/SessionManager.h"
-
+#include "../Application/ExceptionHandler.h"
+#include "../Util/CustomStackWalker.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -29,34 +30,24 @@ namespace HM
    {
       while (true)
       {
-         try
-         {
-            io_service_.run();
-
+         boost::function<void()> func = boost::bind( &IOCPQueueWorkerTask::DoWorkInner, this );
+         if (ExceptionHandler::Run("IOCPQueueWorkerTask", func))
             return;
-         }
-         catch (thread_interrupted const&)
-         {
-            return;
-         }
-         catch (boost::system::system_error error)
-         {
-            String sErrorMessage;
-            sErrorMessage.Format(_T("An error occured while handling asynchronous requests. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
-            
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "IOCPQueueWorkerTask::DoWork", sErrorMessage);
-         }
-         catch (std::exception const& e)
-         {
-            String sErrorMessage = Formatter::Format("An unknown error occured while handling asynchronous requests. Error number: {0}", e.what());
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "IOCPQueueWorkerTask::DoWork", sErrorMessage);
-         }
-         catch (...)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "IOCPQueueWorkerTask::DoWork", "An unknown error occured while handling asynchronous requests.");
-         }
+      
+      }
+   }
 
-         io_service_.reset();
+
+   void 
+   IOCPQueueWorkerTask::DoWorkInner()
+   {
+      try
+      {
+         io_service_.run();
+      }
+      catch (thread_interrupted const&)
+      {
+         return;
       }
    }
 
