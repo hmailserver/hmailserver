@@ -81,6 +81,8 @@ Source: "Microsoft.VC90.CRT\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Comp
 ; Main server
 Source: "..\source\server\hMailServer\Release\hMailServer.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\Release\hMailServer.tlb"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+Source: "..\source\server\hMailServer\Release\hMailServer.pdb"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+
 
 ; Database scripts
 Source: "..\source\DBScripts\*.sql"; DestDir: "{app}\DBScripts";Flags: ignoreversion recursesubdirs; Components: server;
