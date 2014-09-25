@@ -44,7 +44,7 @@ namespace HM
          }
       }
       // Start the indexer now.
-      LOG_DEBUG("Starting message indexing thread...");
+      LOG_DEBUG("Starting message indexer...");
 
       boost::function<void ()> func = boost::bind( &MessageIndexer::WorkerFunc, this );
       workerThread_ = boost::thread(func);
@@ -55,14 +55,14 @@ namespace HM
    MessageIndexer::WorkerFunc()
    {
       boost::function<void()> func = boost::bind( &MessageIndexer::WorkerFuncInternal, this );
-      if (ExceptionHandler::Run("MessageIndexer", func))
-         return;
+      ExceptionHandler::Run("MessageIndexer", func);
+      LOG_DEBUG("Message indexer stopped.");
    }
 
    void
    MessageIndexer::WorkerFuncInternal()
    {
-      LOG_DEBUG("Indexing messages...");
+      LOG_DEBUG("Message indexer started...");
 
       PersistentMessageMetaData persistentMetaData;
       persistentMetaData.DeleteOrphanedItems();
@@ -86,9 +86,16 @@ namespace HM
    void
    MessageIndexer::Stop()
    {
-      workerThread_.interrupt();
+      if (workerThread_.joinable())
+      {
+         if (!workerThread_.timed_join(boost::posix_time::milliseconds(1)))
+         {
+            // thread is running. interrupt it.
+            LOG_DEBUG("Stopping message indexer.");
+            workerThread_.interrupt();
+         }
+      }
    }
-
 
    void 
    MessageIndexer::IndexMessages_()
