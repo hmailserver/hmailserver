@@ -62,6 +62,9 @@ Building Boost
 
 Building hMailServer
 --------------------
+
+Visual Studio 2013 must be started with Run as Administrator.
+
 1. Download the source code from this Git repository.
 2. Compile the solution hmailserver\source\Server\hMailServer\hMailServer.sln.
    This will build the hMailServer server-part (hMailServer.exe)
