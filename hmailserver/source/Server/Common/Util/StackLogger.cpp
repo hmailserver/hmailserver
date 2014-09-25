@@ -45,10 +45,6 @@ namespace HM
 
       String message = Formatter::Format("An error has been detected and an error stack will be generated and saved in {0}.", full_path_to_stack_file);
 
-      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "ErrorManager::LogErrorDump", message);
-
+      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "StackLogger::Log", message);
    }
-
-   
-   
 } 

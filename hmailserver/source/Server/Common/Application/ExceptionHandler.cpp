@@ -6,6 +6,7 @@
 #include "ExceptionHandler.h"
 #include "../Util/StackLogger.h"
 
+#include <boost/thread/thread.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -21,6 +22,10 @@ namespace HM
 
    LONG WINAPI ExceptionFilterWithLogging(EXCEPTION_POINTERS* pExp, DWORD dwExpCode)
    {
+      // if an error occurs when shutting down, we want to log it completely before
+      // the shut down completes.
+      boost::this_thread::disable_interruption shutdown_temporarily_disabled;
+
       StackLogger::Log(dwExpCode, pExp->ContextRecord);
 
       return EXCEPTION_EXECUTE_HANDLER;
