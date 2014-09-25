@@ -15,6 +15,10 @@ Required software:
    * Visual Studio 2013 Update 3
    * InnoSetup (to build installation program)
    * Perl (ActiveState ActivePerl Communityedition 32 bit works fine)
+   
+**NOTE**
+
+You should not be compiling hMailServer on a computer which already runs a production version of hMailServer. When compiling hMailServer, the compilation will stop any already running version of hMailServer, and will register the compiled version as the hMailServer version on the machine (configuring the Windows service). This means that if you are running a production version of hMailServer on the machine, this version will stop running if you compile hMailServer. If this happens, the easiest path is to reinstall the production version.
 
 Configuring Visual Studio 2013 Express Edition
 ==============================================
