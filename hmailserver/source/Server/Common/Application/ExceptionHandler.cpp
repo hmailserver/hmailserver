@@ -4,7 +4,7 @@
 #include "StdAfx.h"
 
 #include "ExceptionHandler.h"
-#include "../Util/StackLogger.h"
+#include "../Util/ExceptionLogger.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -26,10 +26,16 @@ namespace HM
       // the shut down completes.
       boost::this_thread::disable_interruption shutdown_temporarily_disabled;
 
-      StackLogger::Log(dwExpCode, pExp->ContextRecord);
+      LOG_DEBUG("Logging stack trace...");
+
+      ExceptionLogger::Log(dwExpCode, pExp);
+
+      LOG_DEBUG("Completed logging stack trace...");
+
 
       return EXCEPTION_EXECUTE_HANDLER;
    }
+   
    
    bool
    ExceptionHandler::Run(const String &descriptive_name, boost::function<void()>& func)

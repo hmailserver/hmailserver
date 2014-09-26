@@ -566,7 +566,7 @@ namespace HM
       if (error.value() != 0)
       {
          String message;
-         message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
+         message.Format(_T("The write operation failed. Bytes transferred: %d"), bytes_transferred);
          ReportDebugMessage(message, error);
 
          EnqueueDisconnect();

@@ -7,15 +7,17 @@
 
 namespace HM
 {
-   class StackLogger
+   class ExceptionLogger
    {
    private:
-      StackLogger();
+      ExceptionLogger();
 
    public:
-      static void Log(int exception_code, const CONTEXT *context);
+      static void Log(int exception_code, EXCEPTION_POINTERS* pExp);
 
    private:
+
+      static void CreateMiniDump_(EXCEPTION_POINTERS* pExp, const String &file_name);
 
       static CustomStackWalker stack_walker_;
       static boost::mutex stack_walker_mutex_;
