@@ -21,11 +21,20 @@ namespace HM
 {
    CustomStackWalker ExceptionLogger::stack_walker_;
    boost::mutex ExceptionLogger::stack_walker_mutex_;
+   int ExceptionLogger::logged_exception_count_ = 0;
 
    void
    ExceptionLogger::Log(int exception_code, EXCEPTION_POINTERS* pExp)
    {
       boost::mutex::scoped_lock lock(stack_walker_mutex_);
+
+      if (logged_exception_count_ >= 10)
+      {
+         LOG_DEBUG("Skipping exception logging - too many logs created already.");
+         return;
+      }
+
+      logged_exception_count_++;
 
       String log_directory = IniFileSettings::Instance()->GetLogDirectory();
       String current_date_time = Time::GetCurrentDateTime();

@@ -21,5 +21,7 @@ namespace HM
 
       static CustomStackWalker stack_walker_;
       static boost::mutex stack_walker_mutex_;
+
+      static int logged_exception_count_;
    };
 }
