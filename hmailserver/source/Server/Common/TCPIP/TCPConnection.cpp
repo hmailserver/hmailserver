@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 #include "TCPConnection.h"
 
+#include "DisconnectedException.h"
+
 #include "../Util/ByteBuffer.h"
 #include "../BO/TCPIPPorts.h"
 #include "../Persistence/PersistentSecurityRange.h"
@@ -12,8 +14,6 @@
 #include "IPAddress.h"
 #include "IOOperation.h"
 #include "CertificateVerifier.h"
-
-#include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -43,7 +43,8 @@ namespace HM
       is_ssl_(false),
       expected_remote_hostname_(expected_remote_hostname),
       is_client_(false),
-      timeout_(0)
+      timeout_(0),
+      connection_state_(StateDisconnected)
    {
       session_id_ = Application::Instance()->GetUniqueID();
 
@@ -173,6 +174,8 @@ namespace HM
    {
       LOG_DEBUG(Formatter::Format("TCP connection started for session {0}", session_id_));
 
+      connection_state_ = StateConnected;
+
       OnConnected();
 
       if (connection_security_ == CSSSL)
@@ -182,8 +185,13 @@ namespace HM
    }
 
    void
-   TCPConnection::ProcessOperationQueue_()
+   TCPConnection::ProcessOperationQueue_(int recurse_level)
    {
+      if (recurse_level > 10)
+      {
+         throw std::logic_error(Formatter::FormatAsAnsi("Recurse level {0} was reached in TCPConnection::ProcessOperationQueue_ for session {1}", recurse_level, session_id_));
+      }
+
       // Pick out the next item to process...
       shared_ptr<IOOperation> operation = operation_queue_.Front();
 
@@ -215,14 +223,14 @@ namespace HM
          {
             Shutdown(boost::asio::ip::tcp::socket::shutdown_send);
             operation_queue_.Pop(IOOperation::BCTShutdownSend);
-            ProcessOperationQueue_();
+            ProcessOperationQueue_(recurse_level + 1);
             break;
          }
       case IOOperation::BCTDisconnect:
          {
             Disconnect();
             operation_queue_.Pop(IOOperation::BCTDisconnect);
-            ProcessOperationQueue_();
+            ProcessOperationQueue_(recurse_level + 1);
             break;
          }
 
@@ -237,35 +245,57 @@ namespace HM
       socket_.shutdown(what, ignored_error);
    }
 
-
    void 
    TCPConnection::EnqueueDisconnect()
    {
+      ConnectionState current_connection_state = connection_state_;
+
+      if (current_connection_state != StateConnected)
+      {
+         throw std::logic_error(Formatter::FormatAsAnsi("Attempting enqueue of disconnect on session {0}. Session is in state {1}", session_id_, current_connection_state));
+      }
+
+      connection_state_ = StatePendingDisconnect;
+
       shared_ptr<ByteBuffer> pBuf;
       shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_();
+      ProcessOperationQueue_(0);
    }
 
 
    void 
    TCPConnection::Disconnect()
    {
-      LOG_DEBUG("Closing TCP/IP socket");
-
       // Perform graceful shutdown. No more operations will be performed. 
       Shutdown(boost::asio::socket_base::shutdown_both);
-    }
+
+      connection_state_ = StateDisconnected;
+   }
+
+   void 
+   TCPConnection::ThrowIfNotConnected_()
+   {
+
+      ConnectionState current_connection_state = connection_state_;
+
+      if (current_connection_state != StateConnected)
+      {
+         throw DisconnectedException();
+      }
+   }
 
    void 
    TCPConnection::EnqueueHandshake()
    {
+      ThrowIfNotConnected_();
+
       shared_ptr<ByteBuffer> pBuf;
       shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_();
+      ProcessOperationQueue_(0);
    }
 
 
@@ -333,11 +363,6 @@ namespace HM
    void 
    TCPConnection::AsyncHandshakeCompleted(const boost::system::error_code& error)
    {
-      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTHandshake);
-         this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       if (!error)
       {
          // Send welcome message to client.
@@ -348,6 +373,10 @@ namespace HM
       {
          HandshakeFailed_(error);
       }
+
+      operation_queue_.Pop(IOOperation::BCTHandshake);
+      ProcessOperationQueue_(0);
+
    }
 
    void
@@ -367,11 +396,13 @@ namespace HM
    void 
    TCPConnection::EnqueueShutdownSend()
    {
+      ThrowIfNotConnected_();
+
       shared_ptr<ByteBuffer> pBuf;
       shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_();
+      ProcessOperationQueue_(0);
    }
 
    void 
@@ -383,10 +414,12 @@ namespace HM
    void 
    TCPConnection::EnqueueRead(const AnsiString &delimitor)
    {
+      ThrowIfNotConnected_();
+
       shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_();
+      ProcessOperationQueue_(0);
    }
 
    void 
@@ -422,13 +455,15 @@ namespace HM
    void 
    TCPConnection::AsyncReadCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
-       BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTRead);
-         this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       if (error.value() != 0)
       {
+         if (connection_state_ != StateConnected)
+         {
+            // The read failed, but we've already started the disconnection. So we should not log the failure
+            // or enqueue a new disconnect.
+            return;
+         }
+
          OnReadError(error.value());
 
          String message;
@@ -442,71 +477,78 @@ namespace HM
          }
 
          EnqueueDisconnect();
-
-         
-
-         return;
-      }
-
-      
-
-      // Disable the logout timer while we're parsing data. We don't want to terminate
-      // a client just because he has issued a long-running command. If we do this, we
-      // would have to take care of the fact that we're dropping a connection despite it
-      // still being active.
-      CancelLogoutTimer();
-
-      if (receive_binary_)
-      {
-         shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
-         pBuffer->Allocate(receive_buffer_.size());
-
-         std::istream is(&receive_buffer_);
-         is.read((char*) pBuffer->GetBuffer(), receive_buffer_.size());
-
-         try
-         {
-            ParseData(pBuffer);
-         }
-         catch (...)
-         {
-            String message;
-            message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
-
-            ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
-
-            throw;
-         }
       }
       else
       {
-         std::string s;
-         std::istream is(&receive_buffer_);
-         std::getline(is, s, '\r');
+         // Disable the logout timer while we're parsing data. We don't want to terminate
+         // a client just because he has issued a long-running command. If we do this, we
+         // would have to take care of the fact that we're dropping a connection despite it
+         // still being active.
+         CancelLogoutTimer();
 
-         // consume trailing \n on line.
-         receive_buffer_.consume(1);
-
-   #ifdef _DEBUG
-         String sDebugOutput;
-         sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s));
-         OutputDebugString(sDebugOutput);
-   #endif
-
-         try
+         if (receive_binary_)
          {
-            ParseData(s);
+            shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
+            pBuffer->Allocate(receive_buffer_.size());
+
+            std::istream is(&receive_buffer_);
+            is.read((char*) pBuffer->GetBuffer(), receive_buffer_.size());
+
+            try
+            {
+               ParseData(pBuffer);
+            }
+            catch (DisconnectedException&)
+            {
+               throw;
+            }
+            catch (...)
+            {
+               String message;
+               message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
+
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+               throw;
+            }
          }
-         catch (...)
+         else
          {
-            String message;
-            message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s));
+            std::string s;
+            std::istream is(&receive_buffer_);
+            std::getline(is, s, '\r');
 
-            ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+            // consume trailing \n on line.
+            receive_buffer_.consume(1);
 
-            throw;
+      #ifdef _DEBUG
+            String sDebugOutput;
+            sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s));
+            OutputDebugString(sDebugOutput);
+      #endif
+
+            try
+            {
+               ParseData(s);
+            }
+            catch (DisconnectedException&)
+            {
+               throw;
+            }
+            catch (...)
+            {
+               String message;
+               message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s));
+
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+               throw;
+            }
          }
       }
+
+      operation_queue_.Pop(IOOperation::BCTRead);
+      ProcessOperationQueue_(0);
    }
 
    void 
@@ -531,10 +573,12 @@ namespace HM
    void 
    TCPConnection::EnqueueWrite(shared_ptr<ByteBuffer> pBuffer)
    {
+      ThrowIfNotConnected_();
+
       shared_ptr<IOOperation> operation = shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
 
       operation_queue_.Push(operation);
-      ProcessOperationQueue_();
+      ProcessOperationQueue_(0);
    }
 
    void 
@@ -558,27 +602,33 @@ namespace HM
    void 
    TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
-      BOOST_SCOPE_EXIT(&operation_queue_, this_) {
-         operation_queue_.Pop(IOOperation::BCTWrite);
-         this_->ProcessOperationQueue_();
-      } BOOST_SCOPE_EXIT_END
-
       if (error.value() != 0)
       {
+         if (connection_state_ != StateConnected)
+         {
+            // The read failed, but we've already started the disconnection. So we should not log the failure
+            // or enqueue a new disconnect.
+            return;
+         }
+
          String message;
          message.Format(_T("The write operation failed. Bytes transferred: %d"), bytes_transferred);
          ReportDebugMessage(message, error);
 
          EnqueueDisconnect();
       }
-
-      bool containsQueuedSendOperations = operation_queue_.ContainsQueuedSendOperation();
-
-      if (!containsQueuedSendOperations)
+      else
       {
-         OnDataSent();
+         bool containsQueuedSendOperations = operation_queue_.ContainsQueuedSendOperation();
+
+         if (!containsQueuedSendOperations)
+         {
+            OnDataSent();
+         }
       }
 
+      operation_queue_.Pop(IOOperation::BCTWrite);
+      ProcessOperationQueue_(0);
    }
 
    IPAddress 
@@ -730,7 +780,6 @@ namespace HM
       has_timeout_ = true;
 
       OnConnectionTimeout();
-
       EnqueueDisconnect();
    }
 

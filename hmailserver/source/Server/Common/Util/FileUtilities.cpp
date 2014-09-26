@@ -314,7 +314,7 @@ namespace HM
             return sRetVal;
          }
       default:
-         throw new std::logic_error(Formatter::FormatAsAnsi("Unsupported encoding type: {0}", file_encoding));
+         throw std::logic_error(Formatter::FormatAsAnsi("Unsupported encoding type: {0}", file_encoding));
       }
    }
  

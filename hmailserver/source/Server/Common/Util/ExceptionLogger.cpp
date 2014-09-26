@@ -33,17 +33,21 @@ namespace HM
 
       String log_identifier = GUIDCreator::GetGUID();
 
-      String stack_file_name = "exceptioninfo_" + current_date_time + "_" + log_identifier + "_stacktrace.log";
-      String minidump_file_name = "exceptioninfo_" + current_date_time + "_" + log_identifier + "_minidump.dmp";
+      String stack_file_name = "errordetails_" + current_date_time + "_" + log_identifier + "_stacktrace.log";
+      String minidump_file_name = "errordetails_" + current_date_time + "_" + log_identifier + "_minidump.dmp";
       
       String full_path_to_minidump_file = FileUtilities::Combine(log_directory, minidump_file_name);
       String full_path_to_stack_file = FileUtilities::Combine(log_directory, stack_file_name);
 
+      LOG_DEBUG("Creating minidump...");
+      CreateMiniDump_(pExp, full_path_to_minidump_file);
+      LOG_DEBUG("Minidump created...");
+
+      LOG_DEBUG("Creating stacktrace...");
       CustomStackWalker sw;
       sw.ShowCallstack(GetCurrentThread(), pExp->ContextRecord);
       String stack_trace = sw.GetStackData();
-
-      CreateMiniDump_(pExp, full_path_to_minidump_file);
+      LOG_DEBUG("Stacktrace created...");
 
       String stack_dump_data;      
       stack_dump_data.append(Formatter::Format(_T("Exception code: {0}\r\n"), exception_code));
@@ -51,7 +55,7 @@ namespace HM
 
       FileUtilities::WriteToFile(full_path_to_stack_file, stack_dump_data);
 
-      String message = Formatter::Format("An error has been detected. A stack trace will be logged in {0}. A mini dump will be logged in {1}", full_path_to_stack_file, full_path_to_minidump_file);
+      String message = Formatter::Format("An error has been detected. A stack trace will be logged in {0}. A mini dump will be created in {1}", full_path_to_stack_file, full_path_to_minidump_file);
 
       ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "StackLogger::Log", message);
    }

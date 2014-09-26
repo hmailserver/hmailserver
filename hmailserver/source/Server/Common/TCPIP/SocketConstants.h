@@ -26,4 +26,11 @@ namespace HM
 
    };
 
+   enum ConnectionState
+   {
+      StateDisconnected = 0,
+      StateConnected = 1,
+      StatePendingDisconnect = 2
+   };
+
 }

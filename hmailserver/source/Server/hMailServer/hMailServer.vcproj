@@ -3492,6 +3492,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\TCPIP\DisconnectedException.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Tcpip\DNSResolver.cpp"
 							>
 						</File>

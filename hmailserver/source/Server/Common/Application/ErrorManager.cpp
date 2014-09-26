@@ -104,8 +104,8 @@ namespace HM
    void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::system_error &error)
    {
-      String formatted_message;
-      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, error.code().value(), String(error.what()));
+      String formatted_message 
+         = Formatter::Format(_T("{0}, Error code: {1}, Message: {2}"), sDescription, error.code().value(), error.what());
 
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
@@ -113,14 +113,11 @@ namespace HM
    void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
    {
-      String formatted_message;
-      formatted_message.Format(_T("%s, Error code: %d, Message: %s"), sDescription, String(error.what()));
+      String formatted_message
+         = Formatter::Format(_T("{0}, Message: {1}"), sDescription, error.what());
 
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
-
-
-
 
 
    String 

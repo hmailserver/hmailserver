@@ -41,8 +41,6 @@ namespace VMwareIntegration.Common
       {
          VMware vm = new VMware();
 
-         bool success = true;
-
          if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
              throw new Exception("Incorrect path to NUnit.");
 
@@ -95,7 +93,7 @@ namespace VMwareIntegration.Common
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
-            bool useLocalVersion = true;
+            bool useLocalVersion = false;
 
             if (useLocalVersion)
             {
@@ -115,34 +113,20 @@ namespace VMwareIntegration.Common
 
             int failureCount = Convert.ToInt32(doc.LastChild.Attributes["failures"].Value);
             int errorCount = Convert.ToInt32(doc.LastChild.Attributes["errors"].Value);
-            
+
             if (failureCount == 0 && errorCount == 0)
+            {
+               vm.PowerOff();
                return;
+            }
 
             string resultContent = File.ReadAllText(localResultFile);
-            success = false;
 
             throw new Exception(resultContent);
          }
-         catch (ThreadAbortException)
-         {
-            // Aborting. Power of virtual machine.
-            vm.PowerOff();
-            vm = null;
-
-         }
          catch (Exception e)
          {
-            success = false;
             throw e;
-         }
-         finally
-         {
-            if (success || _embedded || !_stopOnError)
-            {
-               if (vm != null)
-                  vm.PowerOff();
-            }
          }
       }
 

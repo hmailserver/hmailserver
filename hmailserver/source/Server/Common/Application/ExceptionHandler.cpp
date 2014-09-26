@@ -7,6 +7,7 @@
 #include "../Util/ExceptionLogger.h"
 
 #include <boost/thread/thread.hpp>
+#include "../TCPIP/DisconnectedException.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -26,12 +27,11 @@ namespace HM
       // the shut down completes.
       boost::this_thread::disable_interruption shutdown_temporarily_disabled;
 
-      LOG_DEBUG("Logging stack trace...");
+      LOG_DEBUG("Logging exception..");
 
       ExceptionLogger::Log(dwExpCode, pExp);
 
-      LOG_DEBUG("Completed logging stack trace...");
-
+      LOG_DEBUG("Completed logging of exception...");
 
       return EXCEPTION_EXECUTE_HANDLER;
    }
@@ -59,17 +59,21 @@ namespace HM
       {
          func();
       }
-      catch (thread_interrupted const&)
+      catch (thread_interrupted&)
       {
          // shutting down
       }
-      catch (boost::system::system_error error)
+      catch (DisconnectedException&)
+      {
+         LOG_DEBUG("Connection was terminated - Client is disconnected.");
+      }
+      catch (boost::system::system_error& error)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name), error);
 
          throw;
       }
-      catch (std::exception const& error)
+      catch (std::exception& error)
       {
          String sErrorMessage = 
             Formatter::Format("An error occured while executing '{0}'", descriptive_name);
