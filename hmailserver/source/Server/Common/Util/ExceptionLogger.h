@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "CustomStackWalker.h"
-
 namespace HM
 {
    class ExceptionLogger
@@ -19,9 +17,8 @@ namespace HM
 
       static void CreateMiniDump_(EXCEPTION_POINTERS* pExp, const String &file_name);
 
-      static CustomStackWalker stack_walker_;
-      static boost::mutex stack_walker_mutex_;
+      static bool TryToMakeRoom();
 
-      static int logged_exception_count_;
+      static boost::mutex logging_mutex_;
    };
 }

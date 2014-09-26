@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 #include "Languages.h"
 #include "Language.h"
+#include "FileInfo.h"
+
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -26,15 +28,16 @@ namespace HM
    {
       Language::LoadEnglish();
 
-      vector<String> languageFiles = 
-         FileUtilities::GetFilesInDirectory(IniFileSettings::Instance()->GetLanguageDirectory());
+      vector<FileInfo> languageFiles = 
+         FileUtilities::GetFilesInDirectory(IniFileSettings::Instance()->GetLanguageDirectory(), "*.ini");
 
-      vector<String>::iterator iter = languageFiles.begin();
-      vector<String>::iterator iterEnd = languageFiles.end();
+      vector<FileInfo>::iterator iter = languageFiles.begin();
+      vector<FileInfo>::iterator iterEnd = languageFiles.end();
 
       for (; iter != iterEnd; iter++)
       {
-         String sFileName = (*iter);
+         FileInfo fileInfo = (*iter);
+         String sFileName = fileInfo.GetName();
 
          int dotPos = sFileName.Find(_T("."));
          if (dotPos <= 0)

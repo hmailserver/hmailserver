@@ -5,6 +5,8 @@
 
 namespace HM
 {
+   class FileInfo;
+
    class FileUtilities
    {
    public:
@@ -43,7 +45,7 @@ namespace HM
       static bool DeleteFilesInDirectory(const String &sDirName);
       static bool DeleteDirectoriesInDirectory(const String &sDirName, const std::set<String> vecExcludes);
 
-      static vector<String> GetFilesInDirectory(const String &sDirectoryName);
+      static vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &sWildcard);
 
       static bool CreateDirectoryRecursive(const String &sDirName);
 

@@ -3800,14 +3800,6 @@
 							>
 						</File>
 						<File
-							RelativePath="..\Common\Util\CustomStackWalker.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Util\CustomStackWalker.h"
-							>
-						</File>
-						<File
 							RelativePath="..\Common\Util\EmailAllUsers.h"
 							>
 						</File>
@@ -3841,6 +3833,14 @@
 						</File>
 						<File
 							RelativePath="..\Common\Util\File.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\FileInfo.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\FileInfo.h"
 							>
 						</File>
 						<File
@@ -4033,14 +4033,6 @@
 						</File>
 						<File
 							RelativePath="..\Common\Util\SSPIValidation.h"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Util\StackWalker.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\Common\Util\StackWalker.h"
 							>
 						</File>
 						<File

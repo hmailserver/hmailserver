@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "CustomStackWalker.h"
+#include "FileInfo.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -11,15 +11,19 @@
 
 namespace HM
 {
-   CustomStackWalker::CustomStackWalker()
+   FileInfo::FileInfo(const String &name, const DateTime &created) :
+      name_(name),
+      created_(created)
+
+   {
+      
+   }
+
+   FileInfo::FileInfo()
    {
 
    }
 
-   void
-   CustomStackWalker::OnOutput(LPCSTR szText)
-   {
-      stack_data_.append(szText);
-      stack_data_.append("\r\n");
-   } 
+   
+
 }

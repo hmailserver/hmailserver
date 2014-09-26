@@ -4,8 +4,8 @@
 #include "StdAfx.h"
 
 #include "ExceptionLogger.h"
-#include "CustomStackWalker.h"
 
+#include "../Util/FileInfo.h"
 #include "../Util/Time.h"
 #include "../Util/GUIDCreator.h"
 #include "../Util/FileUtilities.h"
@@ -19,22 +19,18 @@
 
 namespace HM
 {
-   CustomStackWalker ExceptionLogger::stack_walker_;
-   boost::mutex ExceptionLogger::stack_walker_mutex_;
-   int ExceptionLogger::logged_exception_count_ = 0;
+   boost::mutex ExceptionLogger::logging_mutex_;
 
    void
    ExceptionLogger::Log(int exception_code, EXCEPTION_POINTERS* pExp)
    {
-      boost::mutex::scoped_lock lock(stack_walker_mutex_);
+      boost::mutex::scoped_lock lock(logging_mutex_);
 
-      if (logged_exception_count_ >= 10)
+      // limit the number of logs crated to prevent disk from becoming full.
+      if (!TryToMakeRoom())
       {
-         LOG_DEBUG("Skipping exception logging - too many logs created already.");
          return;
       }
-
-      logged_exception_count_++;
 
       String log_directory = IniFileSettings::Instance()->GetLogDirectory();
       String current_date_time = Time::GetCurrentDateTime();
@@ -42,33 +38,65 @@ namespace HM
 
       String log_identifier = GUIDCreator::GetGUID();
 
-      String stack_file_name = "errordetails_" + current_date_time + "_" + log_identifier + "_stacktrace.log";
-      String minidump_file_name = "errordetails_" + current_date_time + "_" + log_identifier + "_minidump.dmp";
+      String minidump_file_name = "minidump_" + current_date_time + "_" + log_identifier + ".dmp";
       
       String full_path_to_minidump_file = FileUtilities::Combine(log_directory, minidump_file_name);
-      String full_path_to_stack_file = FileUtilities::Combine(log_directory, stack_file_name);
 
       LOG_DEBUG("Creating minidump...");
       CreateMiniDump_(pExp, full_path_to_minidump_file);
       LOG_DEBUG("Minidump created...");
 
-      LOG_DEBUG("Creating stacktrace...");
-      CustomStackWalker sw;
-      sw.ShowCallstack(GetCurrentThread(), pExp->ContextRecord);
-      String stack_trace = sw.GetStackData();
-      LOG_DEBUG("Stacktrace created...");
-
-      String stack_dump_data;      
-      stack_dump_data.append(Formatter::Format(_T("Exception code: {0}\r\n"), exception_code));
-      stack_dump_data.append(Formatter::Format(_T("Stack trace follows: {0}\r\n"), String(stack_trace)));
-
-      FileUtilities::WriteToFile(full_path_to_stack_file, stack_dump_data);
-
-      String message = Formatter::Format("An error has been detected. A stack trace will be logged in {0}. A mini dump will be created in {1}", full_path_to_stack_file, full_path_to_minidump_file);
+      String message = Formatter::Format("An error has been detected. A mini dump has been written to {0}", full_path_to_minidump_file);
 
       ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "StackLogger::Log", message);
    }
 
+   bool 
+   ExceptionLogger::TryToMakeRoom()
+   {
+      // error logs are saved for 4 hours, rolling.
+
+      String log_directory = IniFileSettings::Instance()->GetLogDirectory();
+
+      vector<FileInfo> existing_files = FileUtilities::GetFilesInDirectory(log_directory, "minidump_*");
+
+      const int max_count = 10;
+      if (existing_files.size() < max_count)
+      {
+         // there's already room.
+         return true;
+      }
+
+
+      FileInfo oldest;
+
+      // check if there's files older than 4 hours.
+      boost_foreach(FileInfo file_info, existing_files)
+      {
+         if (oldest.GetCreateTime().GetStatus() == DateTime::invalid ||
+             file_info.GetCreateTime() < oldest.GetCreateTime())
+         {
+            oldest = file_info;
+         }
+      }
+
+      DateTime now = DateTime::GetCurrentTime();
+      DateTimeSpan age = now - oldest.GetCreateTime();
+      double hoursOld = age.GetNumberOfHours();
+
+      if (hoursOld < 4)
+      {
+         // we keep all error detail logs for 4 hours.
+         LOG_DEBUG(Formatter::Format("Minidump creation aborted. The max count ({0}) is reached and no log is older than 4 hours.", max_count));
+         return false;
+      }
+
+
+      String full_path = FileUtilities::Combine(log_directory, oldest.GetName());
+
+      FileUtilities::DeleteFile(full_path);
+      return true;
+   }
       
    void 
    ExceptionLogger::CreateMiniDump_(EXCEPTION_POINTERS* pExp, const String &file_name)
