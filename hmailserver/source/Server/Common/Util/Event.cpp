@@ -28,29 +28,23 @@ namespace HM
       boost::mutex::scoped_lock lock(mutex_);
 
       if (!is_set_)
-         set_condition_.wait(lock, boost::bind(&Event::is_set_, this));
+         set_condition_.wait(lock);
 
       is_set_ = false;
    }
 
-   bool 
+   void 
    Event::WaitFor(boost::chrono::milliseconds milliseconds)
    {
       boost::mutex::scoped_lock lock(mutex_);
 
-      if (is_set_)
-      {
-         is_set_ = false;
-         return true;
-      }
-      else
+      if (!is_set_)
       {
          // result will be false if there's a timeout.
-         bool result = set_condition_.wait_for(lock, milliseconds, boost::bind(&Event::is_set_, this));
-         is_set_ = false;
-         return result;
+         set_condition_.wait_for(lock, milliseconds);
       }
      
+      is_set_ = false;
    }
 
    void 

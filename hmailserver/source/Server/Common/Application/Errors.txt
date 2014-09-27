@@ -63,17 +63,13 @@
 5323, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting asynchronous connect.
 5324, TCPConnection::AsyncConnectCompleted, An unknown error occurred while handling asynchronous connect.
 5325, TCPConnection::_StartAsyncConnect, An unknown error occurred while starting connection.
-5326, TCPConnection::_StartAsyncConnect, An unknown error occurred while handling handshake.
 5327, TCPConnection::EnqueueWrite, An unknown error occurred while posting write buffer.
 5328, TCPConnection::EnqueueWrite, An unknown error occurred while posting write buffer.
 5329, TCPConnection::Write, An unknown error occurred while writing buffer.
-5330, TCPConnection::Shutdown, An unknown error occurred while shutting down socket.
 5331, TCPConnection::EnqueueRead, An unknown error occurred while posting read buffer.
 5332, TCPConnection::EnqueueRead, An unknown error occurred while starting async reading
 5333, TCPConnection::UpdateLogoutTimer, An unknown error occurred while updating logout timer.
 5334, TCPConnection::CancelLogoutTimer, An unknown error occurred while canceling logout timer.
-5335, TCPConnection::EnqueueDisconnect, An unknown error occurred while posting disconnect.
-5336, TCPConnection::Disconnect, An unknown error occurred while disconnecting.
 5337, TCPConnection::OnTimeout, An unknown error occurred while disconnecting.
 5338, TCPConnection::EnqueueShutdown, An unknown error occurred while posting shutdown.
 5339, TCPConnection::AsyncWriteCompleted, An unknown error occurred while handling buffer write.
@@ -113,4 +109,7 @@
 5514, Unable to find appropriate MySQL character set.
 5515, Failed to enable lingering for session {0}
 5516, Attempted DNS lookup for empty host name.
+5518, An error occured when accepting a connection
+5519, An error has been detected and an error stack will be generated and saved in {0}.
+5520, Failed to open socket on IP address {0}.
 5601, _AtlModule.WinMain returned {0}.

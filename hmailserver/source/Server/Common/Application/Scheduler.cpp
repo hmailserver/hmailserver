@@ -71,7 +71,7 @@ namespace HM
          if (dtRunTime <= dtNow)
          {
             // Yup, we should run this task now.
-            pTask->DoWork();
+            pTask->Run();
             
             // Update run time.
             pTask->SetNextRunTime();

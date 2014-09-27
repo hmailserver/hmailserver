@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Mail;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -96,76 +97,93 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void TestDistributionLists()
+      public void TestDistributionListModePublic()
       {
-         // Fetch default domain
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("recipient3@test.com");
+
+         var list = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
+
+         var announcer = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "announcer@test.com", "test");
+
+         // Switch list mode so that only a single announcer can send to list.
+         list.Mode = eDistributionListMode.eLMPublic;
+         list.RequireSMTPAuth = false;
+         list.Save();
+
+         var smtpClient = new SMTPClientSimulator();
+         CustomAssert.IsTrue(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         
+         foreach (var recipient in recipients)
+            IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
+      }
 
 
-         // Add distribution list
-         var oRecipients = new List<string>();
-         oRecipients.Add("recipient1@test.com");
-         oRecipients.Add("recipient2@test.com");
-         oRecipients.Add("recipient3@test.com");
+      [Test]
+      public void TestDistributionListModeAnnouncer()
+      {
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("recipient3@test.com");
 
-         SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", oRecipients);
+         var list = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
 
-         Account oAccount;
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
 
-         // Add alias pointing at the distribution list.
-         SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "listalias@test.com", "list1@test.com");
+         var announcer = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "announcer@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         // Switch list mode so that only a single announcer can send to list.
+         list.Mode = eDistributionListMode.eLMAnnouncement;
+         list.RequireSenderAddress = announcer.Address;
+         list.RequireSMTPAuth = false;
+         list.Save();
 
-         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
-         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 2", "Mail 2"));
-         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "listalias@test.com", "Mail 3", "Mail 3"));
+         var smtpClient = new SMTPClientSimulator();
+         CustomAssert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
 
-         IMAPClientSimulator.AssertMessageCount("recipient1@test.com", "test", "Inbox", 3);
-         IMAPClientSimulator.AssertMessageCount("recipient2@test.com", "test", "Inbox", 3);
-         IMAPClientSimulator.AssertMessageCount("recipient3@test.com", "test", "Inbox", 3);
+         foreach (var recipient in recipients)
+            IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
+      }
 
-         oRecipients.Add("recipient4@test.com");
-         oRecipients.Add("recipient5@test.com");
-         oRecipients.Add("recipient6@test.com");
-         oRecipients.Add("recipient7@test.com");
-         oRecipients.Add("recipient8@test.com");
+      [Test]
+      public void TestDistributionListModeMembers()
+      {
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("recipient3@test.com");
 
-         SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list2@test.com", oRecipients);
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient7@test.com", "test");
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient8@test.com", "test");
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         var list = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
 
-         CustomAssert.IsTrue(oSMTP.Send("test@test.com", "list2@test.com", "Mail 1", "Mail 1"));
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
 
-         IMAPClientSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 1);
+         var announcer = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "announcer@test.com", "test");
 
-         // Wait for the message to be completely delivered. The above assertion isn't enough to confirm that.
-         Thread.Sleep(1000);
+         // Switch list mode so that only a single announcer can send to list.
+         list.Mode = eDistributionListMode.eLMMembership;
+         list.RequireSenderAddress = announcer.Address;
+         list.RequireSMTPAuth = false;
+         list.Save();
 
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "announcer@test.com", "test");
-         DistributionList oList = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain,
-                                                                                            "list3-security@test.com",
-                                                                                            oRecipients);
-         oList.Mode = eDistributionListMode.eLMAnnouncement;
-         oList.RequireSenderAddress = oAccount.Address;
-         oList.RequireSMTPAuth = false;
-         oList.Save();
+         var smtpClient = new SMTPClientSimulator();
+         CustomAssert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         CustomAssert.IsFalse(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
+         CustomAssert.IsTrue(smtpClient.Send(recipients[0], list.Address, "Mail 1", "Mail 1"));
 
-         CustomAssert.IsFalse(oSMTP.Send("test@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
-         CustomAssert.IsTrue(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
-         IMAPClientSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 2);
-
-         oList.Mode = eDistributionListMode.eLMMembership;
-         oList.Save();
-
-         CustomAssert.IsFalse(oSMTP.Send(oAccount.Address, "list3-security@test.com", "Mail 1", "Mail 1"));
-
-         // THIS MESSAGE SHOULD SUCCED 
-         CustomAssert.IsTrue(oSMTP.Send("recipient5@test.com", "list3-security@test.com", "Mail 1", "Mail 1"));
-         IMAPClientSimulator.AssertMessageCount("recipient7@test.com", "test", "Inbox", 3);
+         foreach (var recipient in recipients)
+            IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
       }
 
       [Test]

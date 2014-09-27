@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 
 #include "MessageIndexer.h"
+
+#include "../Application/ExceptionHandler.h"
 #include "../BO/Message.h"
 #include "../BO/MessageMetaData.h"
 #include "../MIME/MIME.h"
@@ -42,7 +44,7 @@ namespace HM
          }
       }
       // Start the indexer now.
-      LOG_DEBUG("Starting message indexing thread...");
+      LOG_DEBUG("Starting message indexer...");
 
       std::function<void ()> func = std::bind( &MessageIndexer::WorkerFunc, this );
       workerThread_ = boost::thread(func);
@@ -52,30 +54,26 @@ namespace HM
    void
    MessageIndexer::WorkerFunc()
    {
-      LOG_DEBUG("Indexing messages...");
+      boost::function<void()> func = boost::bind( &MessageIndexer::WorkerFuncInternal, this );
+      ExceptionHandler::Run("MessageIndexer", func);
+      LOG_DEBUG("Message indexer stopped.");
+   }
 
-      try
+   void
+   MessageIndexer::WorkerFuncInternal()
+   {
+      LOG_DEBUG("Message indexer started...");
+
+      PersistentMessageMetaData persistentMetaData;
+      persistentMetaData.DeleteOrphanedItems();
+
+      while (true)
       {
-         PersistentMessageMetaData persistentMetaData;
-         persistentMetaData.DeleteOrphanedItems();
-
-         while (true)
-         {
-            IndexMessages_();
+         IndexMessages_();
 
             index_now_.WaitFor(boost::chrono::minutes(1));
-         }
       }
-      catch (const boost::thread_interrupted&)
-      {
-         LOG_DEBUG("Indexing stopped.");
 
-         // shutting down.
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5158, "MessageIndexer::DoWork", "An error occured while indexing messages. The indexing was aborted.");
-      }
    }
 
    void 
@@ -87,9 +85,16 @@ namespace HM
    void
    MessageIndexer::Stop()
    {
-      workerThread_.interrupt();
+      if (workerThread_.joinable())
+      {
+         if (!workerThread_.timed_join(boost::posix_time::milliseconds(1)))
+         {
+            // thread is running. interrupt it.
+            LOG_DEBUG("Stopping message indexer.");
+            workerThread_.interrupt();
+         }
+      }
    }
-
 
    void 
    MessageIndexer::IndexMessages_()

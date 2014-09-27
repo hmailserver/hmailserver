@@ -617,7 +617,7 @@ namespace HM
       {
          // Should never happen. If the command is not known to hMailServer, it is classified as
          // IMAP_UNKNOWN. This command is set up int he static command handlers.
-         throw new std::logic_error(Formatter::FormatAsAnsi("Handler for {0} was not found.", sCommandName));
+         throw std::logic_error(Formatter::FormatAsAnsi("Handler for {0} was not found.", sCommandName));
       }
 
       
@@ -666,7 +666,7 @@ namespace HM
       }
       else
       {
-         throw new std::logic_error(Formatter::FormatAsAnsi("Unsupported IMAP Result: {0}", result.GetResult()));
+         throw std::logic_error(Formatter::FormatAsAnsi("Unsupported IMAP Result: {0}", result.GetResult()));
       }
 
       // Report updates on the current folder.

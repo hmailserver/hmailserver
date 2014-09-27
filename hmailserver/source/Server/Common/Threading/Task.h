@@ -12,7 +12,7 @@ namespace HM
       Task(const String &name);
       ~Task(void);
 
-      virtual void DoWork() = 0;
+      void Run();
 
       String GetName() const {return name_;  }
 
@@ -21,6 +21,7 @@ namespace HM
    protected:
 
       void SetIsStarted() {is_started_.Set();}
+      virtual void DoWork() = 0;
 
    private:
       

@@ -39,54 +39,45 @@ namespace HM
       // This function does the actual clearing of the queue.
       //---------------------------------------------------------------------------()
    {
-      try
-      {
-         LOG_DEBUG("Clearing delivery queue");
+      LOG_DEBUG("Clearing delivery queue");
 
-         // First stop the delivery queue.
-         const String& sQueueName = Application::Instance()->GetSMTPDeliveryManager()->GetQueueName();
+      // First stop the delivery queue.
+      const String& sQueueName = Application::Instance()->GetSMTPDeliveryManager()->GetQueueName();
          std::shared_ptr<WorkQueue> pWQ = WorkQueueManager::Instance()->GetQueue(sQueueName);
-         if (!pWQ)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4210, "DeliveryQueueClearer::DoWork", "Could not fetch SMTP delivery queue.");
+      if (!pWQ)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4210, "DeliveryQueueClearer::DoWork", "Could not fetch SMTP delivery queue.");
 
-            return;
-         }
-         
-         pWQ->Stop();
+         return;
+      }
+      
+      pWQ->Stop();
 
-         // Load the delivery queue from the database
-         Messages oMessages(-1,-1);
-         oMessages.Refresh();
+      // Load the delivery queue from the database
+      Messages oMessages(-1,-1);
+      oMessages.Refresh();
 
-         // Iterate over messages to deliver.
+      // Iterate over messages to deliver.
          std::vector<std::shared_ptr<Message> > vecMessages = oMessages.GetVector();
          std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecMessages.begin();
-         while (iterMessage != vecMessages.end())
-         {
-            // Delete the message from the database
-            PersistentMessage::DeleteObject(*iterMessage);
-
-            // Next message in queue
-            iterMessage++;
-         }
-
-         // Tell the delivery queue to clear it's pending messages list.
-         Application::Instance()->GetSMTPDeliveryManager()->UncachePendingMessages();
-
-         // Make sure there doesn't exist any delivery tasks.
-         pWQ->Start();
-
-         DeliveryQueue::OnDeliveryQueueCleared();
-
-         LOG_DEBUG("Delivery queue cleared.");
-
-      }
-      catch (...)
+      while (iterMessage != vecMessages.end())
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4209, "DeliveryQueueClearer::DoWork()", "An unknown error occurred while clearing the delivery queue.");
-         throw;
+         // Delete the message from the database
+         PersistentMessage::DeleteObject(*iterMessage);
+
+         // Next message in queue
+         iterMessage++;
       }
+
+      // Tell the delivery queue to clear it's pending messages list.
+      Application::Instance()->GetSMTPDeliveryManager()->UncachePendingMessages();
+
+      // Make sure there doesn't exist any delivery tasks.
+      pWQ->Start();
+
+      DeliveryQueue::OnDeliveryQueueCleared();
+
+      LOG_DEBUG("Delivery queue cleared.");
 
    }
 

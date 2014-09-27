@@ -4,6 +4,7 @@
 #include "StdAfx.h"
 #include ".\fileutilities.h"
 
+#include "FileInfo.h"
 #include "File.h"
 #include "ByteBuffer.h"
 #include "GUIDCreator.h"
@@ -314,7 +315,7 @@ namespace HM
             return sRetVal;
          }
       default:
-         throw new std::logic_error(Formatter::FormatAsAnsi("Unsupported encoding type: {0}", file_encoding));
+         throw std::logic_error(Formatter::FormatAsAnsi("Unsupported encoding type: {0}", file_encoding));
       }
    }
  
@@ -365,7 +366,7 @@ namespace HM
    }
 
    bool 
-   FileUtilities::WriteToFile(const String &sFilename, String &sData, bool bUnicode)
+   FileUtilities::WriteToFile(const String &sFilename, const String &sData, bool bUnicode)
    {
       File oFile;
       if (!oFile.Open(sFilename, File::OTCreate))
@@ -394,7 +395,7 @@ namespace HM
    }
 
    bool 
-   FileUtilities::WriteToFile(const String &sFilename, AnsiString &sData)
+   FileUtilities::WriteToFile(const String &sFilename, const AnsiString &sData)
    {
       File oFile;
       if (!oFile.Open(sFilename, File::OTCreate))
@@ -634,32 +635,38 @@ namespace HM
       return true;
    }
 
-   std::vector<String> 
-   FileUtilities::GetFilesInDirectory(const String &sDirectoryName)
+
+   std::vector<FileInfo> 
+   FileUtilities::GetFilesInDirectory(const String &sDirectoryName, const String &sWildcard)
    {
-      std::vector<String> result;
-      String sDir = sDirectoryName;
-      if (sDir.Right(1) != _T("\\"))
-         sDir += "\\";
+      std::vector<FileInfo> result;
 
-      WIN32_FIND_DATA ffData;
-      HANDLE hFileFound = FindFirstFile(sDir + "*.*", &ffData);
+      String file_name_wildcard = sDirectoryName;
+      if (file_name_wildcard.Right(1) != _T("\\"))
+         file_name_wildcard += "\\";
 
-      if (hFileFound == INVALID_HANDLE_VALUE)
-         return result;
+      file_name_wildcard+= sWildcard;
 
-      while (hFileFound && FindNextFile(hFileFound, &ffData))
+      WIN32_FIND_DATA find_file_data;
+      HANDLE search_handle = FindFirstFile(file_name_wildcard, &find_file_data);
+
+      while (search_handle != INVALID_HANDLE_VALUE)
       {
-         if (!(ffData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+         if (!(find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
          {
-            result.push_back(ffData.cFileName);
+            result.push_back(FileInfo(find_file_data.cFileName, find_file_data.ftCreationTime));
+         }
+
+         if (!FindNextFile(search_handle, &find_file_data))
+         {
+            FindClose(search_handle);
+            break;
          }
       }
 
-      FindClose(hFileFound);
-
       return result;
    }
+
 
    bool
    FileUtilities::DeleteDirectoriesInDirectory(const String &sDirName, const std::set<String> vecExcludes)

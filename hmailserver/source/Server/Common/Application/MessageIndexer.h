@@ -23,6 +23,7 @@ namespace HM
    
 
       void WorkerFunc();
+      void WorkerFuncInternal();
 
       void IndexMessages_();
 

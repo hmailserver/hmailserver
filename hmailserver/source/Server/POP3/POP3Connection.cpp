@@ -667,49 +667,39 @@ namespace HM
    void 
    POP3Connection::ReadAndSend_()
    {
-      try
-      {
-         // Continue sending the file..
-         int bufferSize = GetBufferSize();
+      // Continue sending the file..
+      int bufferSize = GetBufferSize();
 
          std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
-         while (pBuffer)
+      while (pBuffer)
+      {
+         transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
+
+         if (transmission_buffer_.Flush())
          {
-            transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
-
-            if (transmission_buffer_.Flush())
-            {
-               // Data was sent. We'll wait with sending more data until
-               // the current data has been sent.
-               return; 
-            }
-
-            // No data was sent. Send some more...
-            pBuffer = current_file_.ReadChunk(bufferSize);
+            // Data was sent. We'll wait with sending more data until
+            // the current data has been sent.
+            return; 
          }
 
-         // We're done. Cleanup...
-         current_file_.Close();
-
-         // No more data to send. Make sure all buffered data is flushed.
-         transmission_buffer_.Flush(true);
-
-         if (!transmission_buffer_.GetLastSendEndedWithNewline())
-            EnqueueWrite_(""); // Send a newline character now.
-
-         EnqueueWrite_(".");
-
-         // Request new data from the client now.
-         EnqueueRead();
+         // No data was sent. Send some more...
+         pBuffer = current_file_.ReadChunk(bufferSize);
       }
-      catch (...)
-      {
-         String location = _T("An unknown error occurred while reading and sending file data.");
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5414, "POP3Connection::ReadAndSend_", location);
 
-         throw;
-      }
+      // We're done. Cleanup...
+      current_file_.Close();
+
+      // No more data to send. Make sure all buffered data is flushed.
+      transmission_buffer_.Flush(true);
+
+      if (!transmission_buffer_.GetLastSendEndedWithNewline())
+         EnqueueWrite_(""); // Send a newline character now.
+
+      EnqueueWrite_(".");
+
+      // Request new data from the client now.
+      EnqueueRead();
    }
    
    void

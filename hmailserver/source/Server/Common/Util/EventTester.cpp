@@ -31,10 +31,7 @@ namespace HM
    EventTester::TestWaitTimeoutNotSet()
    {
       Event ev;
-      bool result = ev.WaitFor(boost::chrono::milliseconds(1));
-
-      if (result)
-         throw new int;
+      ev.WaitFor(boost::chrono::milliseconds(1));
    }
 
    void
@@ -42,10 +39,7 @@ namespace HM
    {
       Event ev;
       ev.Set();
-      bool result = ev.WaitFor(boost::chrono::milliseconds(1));
-
-      if (!result)
-         throw new int;
+      ev.WaitFor(boost::chrono::milliseconds(1));
    }
 
 }

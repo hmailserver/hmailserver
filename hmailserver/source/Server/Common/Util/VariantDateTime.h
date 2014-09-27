@@ -136,6 +136,7 @@ namespace HM
 
       double GetNumberOfDays() const;
       double GetNumberOfSeconds() const;
+      double GetNumberOfHours() const;
 
       // Operations
    public:

@@ -18,6 +18,7 @@ namespace HM
       IOCPQueueWorkerTask(boost::asio::io_service &io_service);
 
       virtual void DoWork();
+      void DoWorkInner();
 
    private:
 

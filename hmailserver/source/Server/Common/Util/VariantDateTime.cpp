@@ -778,7 +778,16 @@ namespace HM
    DateTimeSpan::GetNumberOfSeconds() const
    {
       if (status_ == valid)
-         return span_ / 24 / 3600;
+         return span_ * 24 * 3600;
+      else
+         return 0;
+   }
+
+   double 
+   DateTimeSpan::GetNumberOfHours() const
+   {
+      if (status_ == valid)
+         return span_ * 24;
       else
          return 0;
    }

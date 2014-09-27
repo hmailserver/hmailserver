@@ -7,6 +7,9 @@
 
 #include "SocketConstants.h"
 #include "IOOperationQueue.h"
+
+#include <boost/atomic.hpp>
+
 using boost::asio::ip::tcp;
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket&> ssl_socket;
@@ -87,7 +90,7 @@ namespace HM
    
    private:
 
-      void EnableLingering_();
+      void ThrowIfNotConnected_();
       void HandshakeFailed_(const boost::system::error_code& error);
       void StartAsyncConnect_(const String &ip_adress, int port);
 
@@ -97,7 +100,7 @@ namespace HM
 
       bool IsClient();
 
-      void ProcessOperationQueue_();
+      void ProcessOperationQueue_(int recurse_level);
 
       void Disconnect();
       void Shutdown(boost::asio::socket_base::shutdown_type);
@@ -140,6 +143,8 @@ namespace HM
       std::shared_ptr<Event> disconnected_;
       bool is_ssl_;
       bool is_client_;
+
+      boost::atomic<ConnectionState> connection_state_;
    };
 
 }

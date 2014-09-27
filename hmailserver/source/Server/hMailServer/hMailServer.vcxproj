@@ -445,6 +445,7 @@ EXIT 0
     <ClCompile Include="..\Common\Application\DefaultDomain.cpp" />
     <ClCompile Include="..\Common\Application\Dictionary.cpp" />
     <ClCompile Include="..\Common\Application\ErrorManager.cpp" />
+    <ClCompile Include="..\Common\Application\ExceptionHandler.cpp" />
     <ClCompile Include="..\Common\Application\FolderManager.cpp" />
     <ClCompile Include="..\Common\Application\IniFileSettings.cpp" />
     <ClCompile Include="..\Common\Application\Logger.cpp" />
@@ -652,7 +653,9 @@ EXIT 0
     <ClCompile Include="..\Common\Util\Encoding\ModifiedUTF7.cpp" />
     <ClCompile Include="..\Common\Util\Event.cpp" />
     <ClCompile Include="..\Common\Util\EventTester.cpp" />
+    <ClCompile Include="..\Common\Util\ExceptionLogger.cpp" />
     <ClCompile Include="..\Common\Util\File.cpp" />
+    <ClCompile Include="..\Common\Util\FileInfo.cpp" />
     <ClCompile Include="..\Common\Util\FileUtilities.cpp" />
     <ClCompile Include="..\Common\Util\FolderManipulationLock.cpp" />
     <ClCompile Include="..\Common\Util\GUIDCreator.cpp" />
@@ -940,6 +943,7 @@ EXIT 0
     <ClInclude Include="..\Common\Application\DefaultDomain.h" />
     <ClInclude Include="..\Common\Application\Dictionary.h" />
     <ClInclude Include="..\Common\Application\ErrorManager.h" />
+    <ClInclude Include="..\Common\Application\ExceptionHandler.h" />
     <ClInclude Include="..\Common\Application\FolderManager.h" />
     <ClInclude Include="..\Common\Application\IniFileSettings.h" />
     <ClInclude Include="..\Common\Application\Logger.h" />
@@ -1156,7 +1160,9 @@ EXIT 0
     <ClInclude Include="..\Common\Util\Encoding\ModifiedUTF7.h" />
     <ClInclude Include="..\Common\Util\Event.h" />
     <ClInclude Include="..\Common\Util\EventTester.h" />
+    <ClInclude Include="..\Common\Util\ExceptionLogger.h" />
     <ClInclude Include="..\Common\Util\File.h" />
+    <ClInclude Include="..\Common\Util\FileInfo.h" />
     <ClInclude Include="..\Common\Util\FileUtilities.h" />
     <ClInclude Include="..\Common\Util\FolderManipulationLock.h" />
     <ClInclude Include="..\Common\Util\GUIDCreator.h" />

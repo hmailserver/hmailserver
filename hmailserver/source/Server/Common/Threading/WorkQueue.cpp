@@ -8,6 +8,7 @@
 #include "Task.h"
 
 
+#include "../Application/ExceptionHandler.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -63,32 +64,10 @@ namespace HM
       }
 
       LOG_DEBUG(Formatter::Format("Executing task {0} in work queue {1}", pTask->GetName(), queue_name_));
-
-      try
-      {
-         pTask->DoWork();
-      }
-      catch (const boost::thread_interrupted &)
-      {
-          boost::this_thread::disable_interruption disabled;
-          RemoveRunningTask_(pTask);
-          return;
-      }
-      catch (boost::system::system_error error)
-      {
-         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5501, "WorkQueue::ExecuteTask", exception_text, error);
-      }
-      catch (std::exception error)
-      {
-         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5501, "WorkQueue::ExecuteTask", exception_text, error);
-      }
-      catch (...)
-      {
-         String exception_text = Formatter::Format("An error occured while executing task {0}", pTask->GetName());
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5317, "WorkQueue::ExecuteTask", exception_text);
-      }
+      
+      String descriptive_name = Formatter::Format("Task-{0}", pTask->GetName());
+      boost::function<void()> func = boost::bind( &Task::Run, pTask );
+      ExceptionHandler::Run(descriptive_name, func);
 
       RemoveRunningTask_(pTask);
    }

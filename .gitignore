@@ -33,3 +33,4 @@ hmailserver/source/Server/hMailServer/Release/*
 *.sdf
 *.opensdf
 *.ipch
+*.orig

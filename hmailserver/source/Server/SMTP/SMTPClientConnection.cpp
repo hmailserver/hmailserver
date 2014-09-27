@@ -191,7 +191,10 @@ namespace HM
          ProtocolStateHELOEHLO_(Request);  
          return true;
       case HELOSENT:
-         ProtocolHELOEHLOSent_(Request);
+         ProtocolHELOSent_(Request);
+         return true;
+      case EHLOSENT:
+         ProtocolEHLOSent_(iCode, Request);
          return true;
       case STARTTLSSENT:
          ProtocolSTARTTLSSent_(iCode);
@@ -237,11 +240,16 @@ namespace HM
       String computer_name = Utilities::ComputerName(); 
 
       if (use_esmtp)
+      {
          EnqueueWrite_("EHLO " + computer_name);
+         SetState_(EHLOSENT);
+      }
       else
+      {
          EnqueueWrite_("HELO " + computer_name);
+         SetState_(HELOSENT);
+      }
          
-      SetState_(HELOSENT);
    }
 
    void
@@ -307,8 +315,36 @@ namespace HM
    }
 
    void
-   SMTPClientConnection::ProtocolHELOEHLOSent_(const AnsiString &request)
+   SMTPClientConnection::ProtocolHELOSent_(const AnsiString &request)
    {
+      ProtocolSendMailFrom_();
+   }
+
+   void
+   SMTPClientConnection::ProtocolEHLOSent_(int code, const AnsiString &request)
+   {
+      if (!IsPositiveCompletion(code))
+      {
+         bool ehlo_required = GetConnectionSecurity() == CSSTARTTLSRequired ||
+                              use_smtpauth_;
+
+         if (ehlo_required)
+         {
+            // hMailServer is configured to require EHLO, but the remote server does not support it.
+            UpdateAllRecipientsWithError_(500, "Server does not support EHLO command.", false);
+            SendQUIT_();
+         }
+         else
+         {
+            // Server does not support EHLO, but we do not require it. Switch to HELO.
+            String computer_name = Utilities::ComputerName(); 
+            EnqueueWrite_("HELO " + computer_name);
+            SetState_(HELOSENT);
+         }
+
+         return;
+      }
+
       if (GetConnectionSecurity() == CSSTARTTLSRequired || 
           GetConnectionSecurity() == CSSTARTTLSOptional)
       {

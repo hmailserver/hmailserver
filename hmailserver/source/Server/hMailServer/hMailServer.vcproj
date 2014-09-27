@@ -2540,6 +2540,14 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\Application\ExceptionHandler.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Application\ExceptionHandler.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Application\FolderManager.cpp"
 							>
 						</File>
@@ -3484,6 +3492,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\TCPIP\DisconnectedException.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Tcpip\DNSResolver.cpp"
 							>
 						</File>
@@ -3808,11 +3820,27 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\Util\ExceptionLogger.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\ExceptionLogger.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Util\File.cpp"
 							>
 						</File>
 						<File
 							RelativePath="..\Common\Util\File.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\FileInfo.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\FileInfo.h"
 							>
 						</File>
 						<File

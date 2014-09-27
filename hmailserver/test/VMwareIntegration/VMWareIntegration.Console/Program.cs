@@ -109,16 +109,11 @@ namespace VMwareIntegration.Console
             }
 
          });
-
+         C:
          System.Console.WriteLine("All tests completed. Press Enter to exit.");
 
          System.Console.ReadLine();
          return 0;
-      }
-
-      static void runner_TestCompleted(int testIndex, bool result, string message, string failureText)
-      {
-
       }
 
       private static void LogText(string text)

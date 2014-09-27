@@ -186,48 +186,40 @@ namespace HM
       if (!connection)
          return;
 
-      try
+      switch (pChangeNotification->GetType())
       {
-         switch (pChangeNotification->GetType())
+      case ChangeNotification::NotificationMessageAdded:
          {
-         case ChangeNotification::NotificationMessageAdded:
-            {
                std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               SendEXISTS_(pMessages->GetCount());
-               SendRECENT_(pMessages->GetNoOfRecent());
-               break;
-            }
-         case ChangeNotification::NotificationMessageDeleted:
-            {
-               // Send EXPUNGE
-               SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
-
-               // Send EXISTS
-               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               SendEXISTS_(pMessages->GetCount());
-               SendRECENT_(pMessages->GetNoOfRecent());
-
-               break;
-            }
-         case ChangeNotification::NotificationMessageFlagsChanged:
-            {
-               // Send flag notification
-               std::set<__int64> affectedMessages;
-               for(__int64 messageID : pChangeNotification->GetAffectedMessages())
-               {
-                  affectedMessages.insert(messageID);
-               }
-              
-               SendFLAGS_(affectedMessages);
-
-               break;
-            }
+            SendEXISTS_(pMessages->GetCount());
+            SendRECENT_(pMessages->GetNoOfRecent());
+            break;
          }
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4345, "IMAPMailboxChangeNotifier::OnMailboxChange", "An unknown error has occurred.");
-         throw;
+      case ChangeNotification::NotificationMessageDeleted:
+         {
+            // Send EXPUNGE
+            SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
+
+            // Send EXISTS
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+            SendEXISTS_(pMessages->GetCount());
+            SendRECENT_(pMessages->GetNoOfRecent());
+
+            break;
+         }
+      case ChangeNotification::NotificationMessageFlagsChanged:
+         {
+            // Send flag notification
+            std::set<__int64> affectedMessages;
+               for(__int64 messageID : pChangeNotification->GetAffectedMessages())
+            {
+               affectedMessages.insert(messageID);
+            }
+           
+            SendFLAGS_(affectedMessages);
+
+            break;
+         }
       }
    }
 

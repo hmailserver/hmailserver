@@ -342,112 +342,104 @@ namespace HM
 
       std::vector<String> vecFoundMXRecords;
 
-      try
+      if (!Resolve_(sDomainName, vecFoundMXRecords, DNS_TYPE_MX, 0))
       {
-         if (!Resolve_(sDomainName, vecFoundMXRecords, DNS_TYPE_MX, 0))
+         String logMessage;
+            logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName.c_str());
+         LOG_DEBUG(logMessage);
+
+         return false;
+      }
+
+      if (vecFoundMXRecords.empty())
+      {
+         /* RFC 2821:
+            If no MX records are found, but an A RR is found, the A RR is treated as
+            if it was associated with an implicit MX RR, with a preference of 0,
+            pointing to that host.  If one or more MX RRs are found for a given
+            name, SMTP systems MUST NOT utilize any A RRs associated with that
+            name unless they are located using the MX RRs;
+            (implemented here)
+         */
+
+         std::vector<String> a_records;
+         if (!GetARecords(sDomainName, a_records))
          {
             String logMessage;
-            logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName.c_str());
+               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
             LOG_DEBUG(logMessage);
 
             return false;
          }
+		 
+		 for(String record : a_records)         
+		 {
+		 	HostNameAndIpAddress hostAndAddress;
+            hostAndAddress.SetHostName(sDomainName);
+            hostAndAddress.SetIpAddress(record);
 
-         if (vecFoundMXRecords.empty())
+            saFoundNames.push_back(hostAndAddress);
+         }
+      }
+      else
+      {
+         // We've been able to find host names in the MX records. We should
+         // now translate them to IP addresses. Some host names may result
+         // in several IP addreses.
+         std::vector<String>::iterator iterDomain = vecFoundMXRecords.begin();
+
+         bool dnsSuccess = false;
+         for(String domain : vecFoundMXRecords)
          {
-            /* RFC 2821:
-               If no MX records are found, but an A RR is found, the A RR is treated as
-               if it was associated with an implicit MX RR, with a preference of 0,
-               pointing to that host.  If one or more MX RRs are found for a given
-               name, SMTP systems MUST NOT utilize any A RRs associated with that
-               name unless they are located using the MX RRs;
-               (implemented here)
-            */
+            // Resolve to domain name to IP address and put it in the list.
+            int iCountBefore = saFoundNames.size();
 
             std::vector<String> a_records;
-            if (!GetARecords(sDomainName, a_records))
-            {
-               String logMessage;
-               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
-               LOG_DEBUG(logMessage);
+            if (!GetARecords(domain, a_records))
+               continue;
 
-               return false;
+            dnsSuccess = true;
+            
+            if (saFoundNames.size() == iCountBefore)
+            {
+               // No mx records were found for this host name. Check if the host
+               // name is actually an IP address? It shouldn't be but....
+
+               if (StringParser::IsValidIPAddress(domain))
+               {
+                  // Okay, this is an invalid MX record. The MX record should always contain 
+                  // a host name but in this case it appears an IP address. We'll be kind to
+                  // the domain owner and still deliver the email to him.
+                  a_records.push_back(domain);
+               }
             }
 
-            for(String record : a_records)
+               for(String record : a_records)
             {
                HostNameAndIpAddress hostAndAddress;
-               hostAndAddress.SetHostName(sDomainName);
+               hostAndAddress.SetHostName(domain);
                hostAndAddress.SetIpAddress(record);
 
                saFoundNames.push_back(hostAndAddress);
             }
          }
-         else
+
+         if (!dnsSuccess)
          {
-            // We've been able to find host names in the MX records. We should
-            // now translate them to IP addresses. Some host names may result
-            // in several IP addreses.
-            std::vector<String>::iterator iterDomain = vecFoundMXRecords.begin();
-
-            bool dnsSuccess = false;
-            for(String domain : vecFoundMXRecords)
-            {
-               // Resolve to domain name to IP address and put it in the list.
-               int iCountBefore = saFoundNames.size();
-
-               std::vector<String> a_records;
-               if (!GetARecords(domain, a_records))
-                  continue;
-
-               dnsSuccess = true;
-               
-               if (saFoundNames.size() == iCountBefore)
-               {
-                  // No mx records were found for this host name. Check if the host
-                  // name is actually an IP address? It shouldn't be but....
-
-                  if (StringParser::IsValidIPAddress(domain))
-                  {
-                     // Okay, this is an invalid MX record. The MX record should always contain 
-                     // a host name but in this case it appears an IP address. We'll be kind to
-                     // the domain owner and still deliver the email to him.
-                     a_records.push_back(domain);
-                  }
-               }
-
-               for(String record : a_records)
-               {
-                  HostNameAndIpAddress hostAndAddress;
-                  hostAndAddress.SetHostName(domain);
-                  hostAndAddress.SetIpAddress(record);
-
-                  saFoundNames.push_back(hostAndAddress);
-               }
-            }
-
-            if (!dnsSuccess)
-            {
-               // All dns queries failed.
-               String logMessage;
+            // All dns queries failed.
+            String logMessage;
                logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
-               LOG_DEBUG(logMessage);
+            LOG_DEBUG(logMessage);
 
-               return false;
-            }
-
+            return false;
          }
 
-         String sLogMsg;
-         sLogMsg.Format(_T("DNS - MX Result: %d IP addresses were found."), saFoundNames.size());
+      }
 
-         LOG_SMTP(0,"TCP",sLogMsg);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5038, "DNSResolver::GetEmailServers", "An exception was thrown.");
-         throw;
-      }
+      String sLogMsg;
+      sLogMsg.Format(_T("DNS - MX Result: %d IP addresses were found."), saFoundNames.size());
+
+      LOG_SMTP(0,"TCP",sLogMsg);
 
             
       // Remove duplicate names.
@@ -477,40 +469,17 @@ namespace HM
    bool 
    DNSResolver::GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames)
    {
-      try
-      {
-         return Resolve_(sDomain, vecFoundNames, DNS_TYPE_MX, 0);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5039, "DNSResolver::GetMXRecords", "An exception was thrown.");
-         throw;
-      }
-
-      return false;
+      return Resolve_(sDomain, vecFoundNames, DNS_TYPE_MX, 0);
    }
 
    // JDR: added to do PTR lookups.
    bool 
    DNSResolver::GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames)
    {
-
-      try
-      {
-         std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
-         reverse(vecItems.begin(), vecItems.end());
-         String result = StringParser::JoinVector(vecItems, ".");
-         return Resolve_(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
-      }
-      catch (std::exception& e)
-      {
-         std::string ErrorMessage = "An exception was thrown: ";
-         ErrorMessage.append(e.what());
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5039, "DNSResolver::GetPTRRecords", ErrorMessage);
-         throw;
-      }
-
-      return false;
+      std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
+      reverse(vecItems.begin(), vecItems.end());
+      String result = StringParser::JoinVector(vecItems, ".");
+      return Resolve_(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
    }
 
 }

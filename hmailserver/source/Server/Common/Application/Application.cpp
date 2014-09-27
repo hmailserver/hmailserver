@@ -435,6 +435,8 @@ namespace HM
       if (notification_server_) notification_server_.reset();
       if (folder_manager_) folder_manager_.reset();
 
+      MessageIndexer::Instance()->Stop();
+      
       ServerStatus::Instance()->SetState(ServerStatus::StateStopped);
 
       LOG_APPLICATION("Servers stopped.")

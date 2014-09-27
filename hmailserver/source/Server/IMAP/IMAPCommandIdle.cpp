@@ -30,19 +30,11 @@ namespace HM
       if (!safeConnection)
          return;
 
-      try
-      {
-         if (safeConnection->GetIsIdling())
-         {     
-            Finish(false);
-         }
+      if (safeConnection->GetIsIdling())
+      {     
+         Finish(false);
       }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4301, "IMAPCommandIdle::~IMAPCommandIdle", "An unknown error has occurred.");
-         
-         throw;
-      }
+
    }
 
    IMAPResult
@@ -59,19 +51,10 @@ namespace HM
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultBad, "Command requires authentication.");
 
-      try
-      {
-         pConnection->SetIsIdling(true);
-         pConnection->SendAsciiData("+ idling\r\n");
+      pConnection->SetIsIdling(true);
+      pConnection->SendAsciiData("+ idling\r\n");
 
-         tag_ = pArgument->Tag();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4302, "IMAPCommandIdle::ExecuteCommand", "An unknown error has occurred.");
-
-         throw;
-      }
+      tag_ = pArgument->Tag();
 
       return IMAPResult();
    }
@@ -87,21 +70,12 @@ namespace HM
       if (!safeConnection)
          return;
 
-      try
-      {
-         safeConnection->SetIsIdling(false);
+      safeConnection->SetIsIdling(false);
 
-         if (sendNotificationToClient)
-         {
-            String sResponse = tag_ + " OK IDLE terminated\r\n";
-            safeConnection->SendAsciiData(sResponse);
-         }
-      }
-      catch (...)
+      if (sendNotificationToClient)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4303, "IMAPCommandIdle::Finish", "An unknown error has occurred.");
-
-         throw;
+         String sResponse = tag_ + " OK IDLE terminated\r\n";
+         safeConnection->SendAsciiData(sResponse);
       }
    }
 

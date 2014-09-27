@@ -497,78 +497,36 @@ namespace HM
          }
       }
 
-      try
-      {
-         sender_domain_ = CacheContainer::Instance()->GetDomain(StringParser::ExtractDomain(sAccountAddress));
-         sender_account_ = CacheContainer::Instance()->GetAccount(sAccountAddress);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10001, "SMTPConnection::_ProtocolMAIL", "Exception 1");
-         throw;
-      }
-         
+      sender_domain_ = CacheContainer::Instance()->GetDomain(StringParser::ExtractDomain(sAccountAddress));
+      sender_account_ = CacheContainer::Instance()->GetAccount(sAccountAddress);
 
-      try
-      {
-         // Check the max size
-         max_message_size_kb_ = GetMaxMessageSize_(sender_domain_);
+      // Check the max size
+      max_message_size_kb_ = GetMaxMessageSize_(sender_domain_);
 
-         // Check if estimated message size exceedes our
-         // maximum message size (according to RFC1653)
-         if (max_message_size_kb_ > 0 && 
-             iEstimatedMessageSize / 1024 > max_message_size_kb_)
-         {
-            // Message to big. Reject it.
-            String sMessage;
-            sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-                  iEstimatedMessageSize / 1024, max_message_size_kb_);
-            EnqueueWrite_(sMessage);
-            return ;
-         }
-      }
-      catch (...)
+      // Check if estimated message size exceedes our
+      // maximum message size (according to RFC1653)
+      if (max_message_size_kb_ > 0 && 
+          iEstimatedMessageSize / 1024 > max_message_size_kb_)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10002, "SMTPConnection::_ProtocolMAIL", "Exception 2");
-         throw;
+         // Message to big. Reject it.
+         String sMessage;
+         sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
+               iEstimatedMessageSize / 1024, max_message_size_kb_);
+         EnqueueWrite_(sMessage);
+         return ;
       }
       
-      try
-      {
-         if (re_authenticate_user_ && !ReAuthenticateUser())
-            return;
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10003, "SMTPConnection::_ProtocolMAIL", "Exception 3");
-         throw;
-      }
-            
+      if (re_authenticate_user_ && !ReAuthenticateUser())
+         return;
 
-      try
-      {
-         // Next time we do a mail from, we should re-authenticate the login credentials
-         re_authenticate_user_ = true;
+      // Next time we do a mail from, we should re-authenticate the login credentials
+      re_authenticate_user_ = true;
 
          current_message_ = std::shared_ptr<Message> (new Message);
-         current_message_->SetFromAddress(sFromAddress);
-         current_message_->SetState(Message::Delivering);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10004, "SMTPConnection::_ProtocolMAIL", "Exception 4");
-         throw;
-      }
+      current_message_->SetFromAddress(sFromAddress);
+      current_message_->SetState(Message::Delivering);
       
-      try
-      {
-         EnqueueWrite_("250 OK"); 
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 10005, "SMTPConnection::_ProtocolMAIL", "Exception 5");
-         throw;
-      }      
+      EnqueueWrite_("250 OK"); 
    }
 
    bool 
@@ -1355,64 +1313,56 @@ namespace HM
    // missing CR.
    //---------------------------------------------------------------------------()
    {
-      try
-      {
-         if (!current_message_)
-            return false;
+      if (!current_message_)
+         return false;
 
-         const String fileName = PersistentMessage::GetFileName(current_message_);
+      const String fileName = PersistentMessage::GetFileName(current_message_);
 
-         File oFile;
-         if (!oFile.Open(fileName, File::OTReadOnly))
-            return false;
+      File oFile;
+      if (!oFile.Open(fileName, File::OTReadOnly))
+         return false;
 
-         const int iChunkSize = 10000;
+      const int iChunkSize = 10000;
          std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
-         while (pBuffer)
-         {
-            // Check that buffer contains correct line endings.
-            const char *pChar = pBuffer->GetCharBuffer();
-            int iBufferSize = pBuffer->GetSize();
-
-            // Check from pos 3 to size-3. Not 100% sure, but
-            // we don't have to worry about buffer start/endings.
-
-            for (int i = 3; i < iBufferSize - 3; i++)
-            {
-               const char *pCurrentChar = pChar + i;
-
-               // Check chars.
-               if (*pCurrentChar == '\r')
-               {
-                  // Check next character
-                  if (i >= iBufferSize)
-                     return false;
-
-                  const char *pNextChar = pCurrentChar + 1;
-                  if (*pNextChar != '\n')
-                     return false;
-               }
-               else if (*pCurrentChar == '\n')
-               {
-                  // Check previous char
-                  if (i == 0)
-                     return false;
-
-                  const char *pPreviousChar = pCurrentChar - 1;
-                  if (*pPreviousChar != '\r')
-                     return false;
-               }
-            }
-
-            // Read next chunk
-            pBuffer = oFile.ReadChunk(iChunkSize);
-         }
-      }
-      catch (...)
+      while (pBuffer)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4328, "SMTPConnection::_CheckLineEndings", "Failed to check line endings.");
-      }
+         // Check that buffer contains correct line endings.
+         const char *pChar = pBuffer->GetCharBuffer();
+         int iBufferSize = pBuffer->GetSize();
 
+         // Check from pos 3 to size-3. Not 100% sure, but
+         // we don't have to worry about buffer start/endings.
+
+         for (int i = 3; i < iBufferSize - 3; i++)
+         {
+            const char *pCurrentChar = pChar + i;
+
+            // Check chars.
+            if (*pCurrentChar == '\r')
+            {
+               // Check next character
+               if (i >= iBufferSize)
+                  return false;
+
+               const char *pNextChar = pCurrentChar + 1;
+               if (*pNextChar != '\n')
+                  return false;
+            }
+            else if (*pCurrentChar == '\n')
+            {
+               // Check previous char
+               if (i == 0)
+                  return false;
+
+               const char *pPreviousChar = pCurrentChar - 1;
+               if (*pPreviousChar != '\r')
+                  return false;
+            }
+         }
+
+         // Read next chunk
+         pBuffer = oFile.ReadChunk(iChunkSize);
+      }
 
       return true;
    }

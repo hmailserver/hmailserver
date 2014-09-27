@@ -5,6 +5,8 @@
 
 namespace HM
 {
+   class FileInfo;
+
    class FileUtilities
    {
    public:
@@ -27,8 +29,8 @@ namespace HM
       static void ReadFileToBuf(HANDLE hFile, char *Buf, int iStart = -1, int iCount = -1);
       static String ReadCompleteTextFile(const String &sFilename);
 
-      static bool WriteToFile(const String &sFilename, String &sData, bool bUnicode);
-      static bool WriteToFile(const String &sFilename, AnsiString &sData);
+      static bool WriteToFile(const String &sFilename, const String &sData, bool bUnicode);
+      static bool WriteToFile(const String &sFilename, const AnsiString &sData);
 
       static long FileSize(const String &sFileName);
 
@@ -43,7 +45,7 @@ namespace HM
       static bool DeleteFilesInDirectory(const String &sDirName);
       static bool DeleteDirectoriesInDirectory(const String &sDirName, const std::set<String> vecExcludes);
 
-      static std::vector<String> GetFilesInDirectory(const String &sDirectoryName);
+      static std::vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &sWildCard);
 
       static bool CreateDirectoryRecursive(const String &sDirName);
 

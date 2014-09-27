@@ -1,9 +1,11 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.SMTP;
 using RegressionTests.Shared;
 using hMailServer;
@@ -167,9 +169,15 @@ namespace RegressionTests.POP3.Fetching
 
          fa.DownloadNow();
 
-         TestSetup.AssertReportedError("The IP address for external account Test could not be resolved. Aborting fetch.");
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+         {
+            var
+               log = TestSetup.ReadCurrentDefaultLog();
+            CustomAssert.IsTrue(
+               log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."));
+         });
 
-         fa.Delete();
+      fa.Delete();
       }
 
 
@@ -562,9 +570,12 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string error = TestSetup.ReadAndDeleteErrorLog();
-
-            CustomAssert.IsTrue(error.Contains("-ERR unhandled command"));
+            RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+            {
+               string error = TestSetup.ReadCurrentDefaultLog();
+               CustomAssert.IsTrue(error.Contains("-ERR unhandled command"));
+               CustomAssert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
+            });
          }
       }
 

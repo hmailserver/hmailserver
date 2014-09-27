@@ -243,8 +243,7 @@ namespace HM
          }
       }
 
-      // Disconnect immediately.
-      LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon USER command.");
+      // Disconnect immediately.;
       QuitNow_();
       return;
    }
@@ -331,7 +330,6 @@ namespace HM
          return;
       }
 
-      LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon PASS command.");
       QuitNow_();
       return;
    }
@@ -352,7 +350,6 @@ namespace HM
          return;
       }
 
-      LOG_DEBUG("POP3 External Account: Connection to remote POP3-server failed upon UIDL command.");
       QuitNow_();
       return;
    }
@@ -401,9 +398,6 @@ namespace HM
          return;
       }
 
-	  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5343, "POP3ClientConnection::ParseUIDLResponse_",
-         Formatter::Format("The remote server returned an error to the UIDL command: External account {0}, Message: {1}", account_->GetName(), sData));
- 
       QuitNow_();
    }
 
