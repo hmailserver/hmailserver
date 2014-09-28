@@ -33,3 +33,4 @@ hmailserver/source/Server/hMailServer/Release/*
 hmailserver/source/Server/hMailServer.Minidump/Debug/*
 *.sdf
 *.ipch
+hmailserver/source/Server/hMailServer.Minidump/Release/*

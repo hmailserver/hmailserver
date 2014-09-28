@@ -120,12 +120,13 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(hMailServerLibs)\boost_1_56_0&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				EnableFunctionLevelLinking="false"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				WarnAsError="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -138,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="hMailServerLibs)\boost_1_56_0\stage\lib"
+				IgnoreImportLibrary="true"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(hMailServerLibs)\boost_1_56_0\stage\lib&quot;"
 				GenerateDebugInformation="true"
