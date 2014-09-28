@@ -68,7 +68,7 @@
 				WarningLevel="3"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -3792,6 +3792,14 @@
 							>
 						</File>
 						<File
+							RelativePath="..\Common\Util\CrashSimulation.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\CrashSimulation.h"
+							>
+						</File>
+						<File
 							RelativePath="..\Common\Util\Crypt.cpp"
 							>
 						</File>
@@ -3937,6 +3945,14 @@
 						</File>
 						<File
 							RelativePath="..\Common\Util\MessageUtilities.h"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\MiniDumpInput.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\Common\Util\MiniDumpInput.h"
 							>
 						</File>
 						<File

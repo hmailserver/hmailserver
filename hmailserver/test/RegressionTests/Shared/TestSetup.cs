@@ -16,23 +16,26 @@ using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using hMailServer;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
    internal class TestSetup
    {
-      private readonly Application application;
+      private Application application;
       private Settings _settings;
 
       private static int _freePort = 20000;
 
       public TestSetup()
       {
-         application = new Application();
+
       }
 
       public void Authenticate()
       {
+         application = new Application();
+
          Account account = application.Authenticate("Administrator", "testar");
 
          if (account == null)
@@ -154,11 +157,7 @@ namespace RegressionTests.Shared
 
          EnableLogging(true);
 
-         if (File.Exists(GetErrorLogFileName()))
-         {
-            string contents = File.ReadAllText(GetErrorLogFileName());
-            CustomAssert.Fail(contents);
-         }
+         AssertNoReportedError();
 
          if (File.Exists(GetEventLogFileName()))
             File.Delete(GetEventLogFileName());
@@ -1016,12 +1015,35 @@ namespace RegressionTests.Shared
          AssertFileExists(file, true);
       }
 
-      public static void AssertReportedError(string content)
+      public static void AssertNoReportedError()
       {
-         string errorLog = ReadAndDeleteErrorLog();
-         CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
+         if (File.Exists(GetErrorLogFileName()))
+         {
+            string contents = File.ReadAllText(GetErrorLogFileName());
+            CustomAssert.Fail(contents);
+         }
+
       }
 
+      public static void AssertReportedError(string content)
+      {
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+            {
+               string errorLog = ReadAndDeleteErrorLog();
+               CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
+            });
+      }
+
+      public static void DeleteErrorLog()
+      {
+         var errorLog = GetErrorLogFileName();
+
+         if (File.Exists(errorLog))
+         {
+            File.Delete(errorLog);
+         }
+
+      }
 
       public static string ReadAndDeleteErrorLog()
       {

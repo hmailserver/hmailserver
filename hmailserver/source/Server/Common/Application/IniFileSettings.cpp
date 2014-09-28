@@ -36,7 +36,8 @@ namespace HM
       quick_retries_Minutes(0),
       queue_randomness_minutes_(0),
       mxtries_factor_(0),
-      sqldbtype_(HM::DatabaseSettings::TypeUnknown)
+      sqldbtype_(HM::DatabaseSettings::TypeUnknown),
+      crash_simulation_mode_(0)
    {
 
    }
@@ -167,6 +168,8 @@ namespace HM
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
+
+      crash_simulation_mode_ = ReadIniSettingInteger_("Settings", "CrashSimulationMode", 0);
    }
 
    bool 

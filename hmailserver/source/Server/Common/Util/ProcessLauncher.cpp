@@ -53,13 +53,15 @@ namespace HM
 
       ZeroMemory( &pi, sizeof(pi) );
 
+      DWORD creationFlags = 0;
+
       // Start the child process. 
       if ( !CreateProcess( NULL,    // No module name (use command line). 
          command_line_.GetBuffer(0), // Command line. 
          NULL,                      // Process handle not inheritable. 
          NULL,                      // Thread handle not inheritable. 
          FALSE,                     // Set handle inheritance to FALSE. 
-         0,                         // No creation flags. 
+         creationFlags,                         // No creation flags. 
          NULL,                      // Use parent's environment block. 
          working_directory_.GetBuffer(0),        // Use parent's starting directory. 
          &si,                       // Pointer to STARTUPINFO structure.

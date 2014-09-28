@@ -112,3 +112,5 @@
 5518, An error occured when accepting a connection
 5519, An error has been detected and an error stack will be generated and saved in {0}.
 5520, Failed to open socket on IP address {0}.
+5521, An error has been detected. hMailServer was unable to launch minidump generator.
+5522, An error has been detected. hMailServer attempted to generate minidump, but hMailServer.minidump.exe returned {0}.
