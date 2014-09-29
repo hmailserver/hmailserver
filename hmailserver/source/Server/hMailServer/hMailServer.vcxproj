@@ -647,6 +647,7 @@ EXIT 0
     <ClCompile Include="..\Common\Util\Charset.cpp" />
     <ClCompile Include="..\Common\Util\ClassTester.cpp" />
     <ClCompile Include="..\Common\Util\Compression.cpp" />
+    <ClCompile Include="..\Common\Util\CrashSimulation.cpp" />
     <ClCompile Include="..\Common\Util\Crypt.cpp" />
     <ClCompile Include="..\Common\Util\EmailAllUsers.cpp" />
     <ClCompile Include="..\Common\Util\Encoding\Base64.cpp" />
@@ -669,6 +670,7 @@ EXIT 0
     <ClCompile Include="..\Common\Util\Math.cpp" />
     <ClCompile Include="..\Common\Util\MessageAttachmentStripper.cpp" />
     <ClCompile Include="..\Common\Util\MessageUtilities.cpp" />
+    <ClCompile Include="..\Common\Util\MiniDumpInput.cpp" />
     <ClCompile Include="..\Common\Util\Parsing\AddresslistParser.cpp" />
     <ClCompile Include="..\Common\Util\Parsing\StringParser.cpp" />
     <ClCompile Include="..\Common\Util\Parsing\StringTreeParser.cpp" />
@@ -1154,6 +1156,7 @@ EXIT 0
     <ClInclude Include="..\Common\Util\Charset.h" />
     <ClInclude Include="..\Common\Util\ClassTester.h" />
     <ClInclude Include="..\Common\Util\Compression.h" />
+    <ClInclude Include="..\Common\Util\CrashSimulation.h" />
     <ClInclude Include="..\Common\Util\Crypt.h" />
     <ClInclude Include="..\Common\Util\EmailAllUsers.h" />
     <ClInclude Include="..\Common\Util\Encoding\Base64.h" />
@@ -1176,6 +1179,7 @@ EXIT 0
     <ClInclude Include="..\Common\Util\Math.h" />
     <ClInclude Include="..\Common\Util\MessageAttachmentStripper.h" />
     <ClInclude Include="..\Common\Util\MessageUtilities.h" />
+    <ClInclude Include="..\Common\Util\MiniDumpInput.h" />
     <ClInclude Include="..\Common\Util\Parsing\AddresslistParser.h" />
     <ClInclude Include="..\Common\Util\Parsing\StringParser.h" />
     <ClInclude Include="..\Common\Util\Parsing\StringTreeParser.h" />

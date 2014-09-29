@@ -70,6 +70,7 @@ namespace HM
       int GetNumberOfDatabaseConnectionAttempts() const;
       int GetDBConnectionAttemptsDelay() const;
       
+      int GetCrashSimulationMode() {return crash_simulation_mode_; }
       bool GetAddXAuthUserHeader() {return add_xauth_user_header_; }
       int GetMaxNumberOfExternalFetchThreads() {return max_no_of_external_fetch_threads_ ;}
       bool GetGreylistingEnabledDuringRecordExpiration() {return greylisting_enabled_during_record_expiration_;}
@@ -183,5 +184,7 @@ namespace HM
       int smtpdmax_size_drop_;
       bool backup_messages_dbonly_;
       bool add_xauth_user_ip_;
+
+      int crash_simulation_mode_;
    };
 }

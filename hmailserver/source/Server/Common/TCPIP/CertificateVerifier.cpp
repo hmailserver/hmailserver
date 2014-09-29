@@ -26,12 +26,12 @@ namespace HM
    {
       windows_error_code = 0;
 
-      LPSTR uage_identifier[] = { szOID_PKIX_KP_SERVER_AUTH };
+      LPSTR usage_identifier[] = { szOID_PKIX_KP_SERVER_AUTH, szOID_SERVER_GATED_CRYPTO, szOID_SGC_NETSCAPE };
 
       CERT_CHAIN_PARA params = { sizeof( params ) };
-      params.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
-      params.RequestedUsage.Usage.cUsageIdentifier = _countof( uage_identifier );
-      params.RequestedUsage.Usage.rgpszUsageIdentifier = uage_identifier;
+      params.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
+      params.RequestedUsage.Usage.cUsageIdentifier = _countof( usage_identifier );
+      params.RequestedUsage.Usage.rgpszUsageIdentifier = usage_identifier;
 
       PCCERT_CHAIN_CONTEXT chain_context = 0;
 

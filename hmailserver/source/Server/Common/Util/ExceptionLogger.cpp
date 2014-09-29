@@ -5,17 +5,24 @@
 
 #include "ExceptionLogger.h"
 
-#include "../Util/FileInfo.h"
-#include "../Util/Time.h"
-#include "../Util/GUIDCreator.h"
-#include "../Util/FileUtilities.h"
+#include "FileInfo.h"
+#include "Time.h"
+#include "GUIDCreator.h"
+#include "FileUtilities.h"
+#include "MiniDumpInput.h"
+#include "ProcessLauncher.h"
 
 #include <DbgHelp.h>
+
+#include <boost/interprocess/windows_shared_memory.hpp>
+#include <boost/interprocess/mapped_region.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
 #endif
+
+using namespace boost::interprocess;
 
 namespace HM
 {
@@ -42,13 +49,43 @@ namespace HM
       
       String full_path_to_minidump_file = FileUtilities::Combine(log_directory, minidump_file_name);
 
-      LOG_DEBUG("Creating minidump...");
-      CreateMiniDump_(pExp, full_path_to_minidump_file);
-      LOG_DEBUG("Minidump created...");
+      MiniDumpInput view;
+      view.ProcessId = ::GetCurrentProcessId();
+      view.ThreadId = ::GetCurrentThreadId();
+      view.ContextRecord = *pExp->ContextRecord;
+      view.ExceptionRecord = *pExp->ExceptionRecord;
 
-      String message = Formatter::Format("An error has been detected. A mini dump has been written to {0}", full_path_to_minidump_file);
+      _tcscpy_s(view.DumpFile, 2048, full_path_to_minidump_file.c_str());
 
-      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "StackLogger::Log", message);
+      windows_shared_memory shm (create_only, MiniDumpInput::SharedMemoryName.c_str(), read_write, 20000);
+      
+      mapped_region region(shm, read_write);
+
+      //Write all the memory to 1
+      std::memcpy(region.get_address(), &view, sizeof(MiniDumpInput));
+      
+      String command_line = "hMailServer.minidump.exe";
+
+      unsigned int exit_code;
+      ProcessLauncher launcher(command_line);
+      if (!launcher.Launch(exit_code))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5521, "StackLogger::Log", "An error has been detected. hMailServer was unable to launch minidump generator.");
+         return;
+      }
+
+      if (exit_code == 0)
+      {
+         String message = Formatter::Format("An error has been detected. A mini dump has been written to {0}", full_path_to_minidump_file);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5519, "StackLogger::Log", message);
+      }
+      else
+      {
+         String message = Formatter::Format("An error has been detected. hMailServer attempted to generate minidump, but hMailServer.minidump.exe returned {0}.", exit_code);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5521, "StackLogger::Log", message);
+         return;
+      }
+
    }
 
    bool 
@@ -98,80 +135,6 @@ namespace HM
       return true;
    }
       
-   void 
-   ExceptionLogger::CreateMiniDump_(EXCEPTION_POINTERS* pExp, const String &file_name)
-   {   
-
-      HMODULE debug_help_dll = LoadLibrary(_T("dbghelp.dll"));
-      if(debug_help_dll==NULL)
-      {
-         return;
-      }
-
-      HANDLE dump_file = CreateFile(
-         file_name,
-         GENERIC_WRITE,
-         0,
-         NULL,
-         CREATE_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL,
-         NULL);
-
-      if(dump_file==INVALID_HANDLE_VALUE)
-      {
-         return;
-      }
-
-      MINIDUMP_EXCEPTION_INFORMATION minidump_exception_info;
-      minidump_exception_info.ThreadId = GetCurrentThreadId();
-      minidump_exception_info.ExceptionPointers = pExp;
-      minidump_exception_info.ClientPointers = FALSE;
-
-      MINIDUMP_CALLBACK_INFORMATION minidump_callback_info;
-      minidump_callback_info.CallbackRoutine = NULL;
-      minidump_callback_info.CallbackParam = NULL;
-
-      typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
-         HANDLE hProcess, 
-         DWORD ProcessId, 
-         HANDLE hFile, 
-         MINIDUMP_TYPE DumpType, 
-         CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
-         CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, 
-         CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-
-      LPMINIDUMPWRITEDUMP pfnMiniDumpWriteDump = 
-         (LPMINIDUMPWRITEDUMP)GetProcAddress(debug_help_dll, "MiniDumpWriteDump");
-      if(!pfnMiniDumpWriteDump)
-      {    
-         // Bad MiniDumpWriteDump function
-         return;
-      }
-
-      HANDLE current_process = GetCurrentProcess();
-      DWORD process_id = GetCurrentProcessId();
-
-      BOOL bWriteDump = pfnMiniDumpWriteDump(
-         current_process,
-         process_id,
-         dump_file,
-         MiniDumpNormal,
-         &minidump_exception_info,
-         NULL,
-         &minidump_callback_info);
-
-      if(!bWriteDump)
-      {    
-         // Error writing dump.
-         return;
-      }
-
-      // Close file
-      CloseHandle(dump_file);
-
-      // Unload dbghelp.dll
-      FreeLibrary(debug_help_dll);
-   }
-
+   
 
 } 

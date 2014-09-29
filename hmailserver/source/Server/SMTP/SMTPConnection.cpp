@@ -61,6 +61,8 @@
 
 #include "../Common/Application/IniFileSettings.h"
 
+#include "../Common/Util/CrashSimulation.h"
+
 using namespace std;
 
 #ifdef _DEBUG
@@ -1575,6 +1577,12 @@ namespace HM
    void
    SMTPConnection::ProtocolHELP_()
    {
+      // The following code is to test the error handling in production environments.
+      // Crash simulation mode can be enabled in hMailServer.ini. 
+      int crash_simulation_mode = IniFileSettings::Instance()->GetCrashSimulationMode();
+      if (crash_simulation_mode > 0)
+         CrashSimulation::Execute(crash_simulation_mode);
+
       EnqueueWrite_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
    }
 

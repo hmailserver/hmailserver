@@ -175,6 +175,7 @@
     <Compile Include="IMAP\Examine.cs" />
     <Compile Include="IMAP\Fetch.cs" />
     <Compile Include="Infrastructure\CustomAssert.cs" />
+    <Compile Include="Infrastructure\ExceptionHandlerTests.cs" />
     <Compile Include="Infrastructure\Persistence\TCPIPPortTests.cs" />
     <Compile Include="Infrastructure\RetryHelper.cs" />
     <Compile Include="Infrastructure\SessionLimitingTests.cs" />

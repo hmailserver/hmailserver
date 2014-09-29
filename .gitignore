@@ -29,8 +29,10 @@ hmailserver/source/Server/hMailServer/hMailServer_i.c
 hmailserver/source/Server/hMailServer/hMailServer_p.c
 hmailserver/source/Server/hMailServer/x64/*
 hmailserver/source/Server/hMailServer/Release/*
+hmailserver/source/Server/hMailServer.Minidump/Debug/*
 *.vcxproj.filters
+*.orig
 *.sdf
 *.opensdf
 *.ipch
-*.orig
+hmailserver/source/Server/hMailServer.Minidump/Release/*
