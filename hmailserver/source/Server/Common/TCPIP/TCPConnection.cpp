@@ -252,7 +252,7 @@ namespace HM
 
       if (current_connection_state != StateConnected)
       {
-         throw std::logic_error(Formatter::FormatAsAnsi("Attempting enqueue of disconnect on session {0}. Session is in state {1}", session_id_, current_connection_state));
+         return;
       }
 
       connection_state_ = StatePendingDisconnect;
@@ -606,7 +606,7 @@ namespace HM
       {
          if (connection_state_ != StateConnected)
          {
-            // The read failed, but we've already started the disconnection. So we should not log the failure
+            // The write failed, but we've already started the disconnection. So we should not log the failure
             // or enqueue a new disconnect.
             return;
          }
