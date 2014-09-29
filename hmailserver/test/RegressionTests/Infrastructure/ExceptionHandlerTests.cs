@@ -22,6 +22,12 @@ namespace RegressionTests.Infrastructure
       [SetUp]
       public new void SetUp()
       {
+         if (Environment.OSVersion.Version.Major == 5 &&
+             Environment.OSVersion.Version.Minor == 0)
+         {
+            Assert.Pass("This functionality is not supported on Windows 2000.");
+         }
+
          DeleteAllMinidumps();
       }
 
@@ -140,6 +146,7 @@ namespace RegressionTests.Infrastructure
             TriggerCrashSimulationError();
 
          AssertMinidumpCount(10);
+         TestSetup.DeleteErrorLog();
 
          // We should log info that we skipped minidump generation.
          RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
@@ -153,13 +160,13 @@ namespace RegressionTests.Infrastructure
          var testminidump = minidumps[0];
          File.SetCreationTime(testminidump, new DateTime(2014,01,01));
 
+
          // Now we should be able to create another.
          TriggerCrashSimulationError();
 
-         RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
-         {
-            CustomAssert.IsFalse(File.Exists(testminidump));
-         });
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () => CustomAssert.IsFalse(File.Exists(testminidump)));
+
+         AssertMinidumpCount(10);
 
       }
 
@@ -189,9 +196,12 @@ namespace RegressionTests.Infrastructure
 
          WritePrivateProfileString("Settings", "CrashSimulationMode", mode.ToString(), iniFile);
 
-         var serviceManager = new ServiceController("hMailServer");
-         serviceManager.Stop();
-         serviceManager.Start();
+         var serviceController = new ServiceController("hMailServer");
+         serviceController.Stop();
+         serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
+
+         serviceController.Start();
+         serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
 
          base.TestFixtureSetUp();
       }
