@@ -11,9 +11,6 @@
 namespace HM
 {
 
-   typedef std::vector<std::shared_ptr<Message> > MessagesVector;
-   typedef std::vector<std::shared_ptr<Message> >::iterator MessagesIterator;
-
    class Messages : public Collection<Message, PersistentMessage>
    {
    public:

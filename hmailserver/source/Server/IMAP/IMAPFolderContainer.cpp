@@ -39,7 +39,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolders = folders_.find(AccountID);
+      auto iterFolders = folders_.find(AccountID);
       
       std::shared_ptr<IMAPFolders> pFolders;
 
@@ -78,7 +78,7 @@ namespace HM
       }
       else
       {
-         std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(AccountID); 
+         auto iterFolder = folders_.find(AccountID); 
 
          if (iterFolder == folders_.end())
             return;
@@ -103,7 +103,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iterFolder = folders_.find(iAccountID); 
+      auto iterFolder = folders_.find(iAccountID); 
 
       if (iterFolder != folders_.end())
       {
@@ -173,7 +173,7 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-         std::map<__int64, std::shared_ptr<HM::IMAPFolders> >::iterator iter = folders_.find(accountID);
+         auto iter = folders_.find(accountID);
 
          if (iter == folders_.end())
             return;

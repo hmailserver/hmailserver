@@ -43,8 +43,8 @@ namespace HM
    bool 
    GroupMembers::UserIsMember(__int64 iAccountID)
    {
-      std::vector<std::shared_ptr<GroupMember> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<GroupMember> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {

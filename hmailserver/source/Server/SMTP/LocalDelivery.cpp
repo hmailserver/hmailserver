@@ -67,7 +67,7 @@ namespace HM
       // NOTE: Since were manipulating the messages recipient vector below, we want to do a copy.
       //       We should iterate over the copy of recipients here. Not over the original list.
       std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = original_message_->GetRecipients()->GetVector();
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      auto iterRecipient = vecRecipients.begin();
 
       while (iterRecipient != vecRecipients.end())
       {

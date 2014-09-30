@@ -220,8 +220,8 @@ namespace HM
 
       AnsiString sHeaderName = "Received";
       std::vector<MimeField> &lstFields = pHeader->Fields();
-      std::vector<MimeField>::iterator iter = lstFields.begin();
-      std::vector<MimeField>::iterator iterEnd = lstFields.end();
+      auto iter = lstFields.begin();
+      auto iterEnd = lstFields.end();
    
       for (; iter != iterEnd; iter++)
       {

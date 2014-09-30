@@ -55,7 +55,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<__int64>::iterator iter =  locked_accounts_.find(iAccount);
+      auto iter =  locked_accounts_.find(iAccount);
       if (iter != locked_accounts_.end())
          locked_accounts_.erase(iter);
    }

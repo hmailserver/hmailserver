@@ -89,7 +89,7 @@ namespace HM
 
       // If the mirror address is on the recipient list, don't mirror it.
       std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = message_->GetRecipients()->GetVector();
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      auto iterRecipient = vecRecipients.begin();
       
       for(std::shared_ptr<MessageRecipient> recipipent : message_->GetRecipients()->GetVector())
       {

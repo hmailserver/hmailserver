@@ -155,7 +155,7 @@ namespace HM
    void 
    IMAPConnection::ParseData(std::shared_ptr<ByteBuffer> pByteBuffer)
    {
-      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_APPEND);
+      auto iterCommandHandler = mapCommandHandlers.find(IMAP_APPEND);
       IMAPCommand* pCommand = (*iterCommandHandler).second.get();
       IMAPCommandAppend * pCommandAppend  = static_cast<IMAPCommandAppend*>(pCommand);
 
@@ -234,7 +234,7 @@ namespace HM
       {
          std::vector<String> vecCommand = StringParser::SplitString(command_buffer_, "\r\n");
 
-         std::vector<String>::iterator iterLine = vecCommand.begin();
+         auto iterLine = vecCommand.begin();
          String sLine = (*iterLine);
 
          // Any literals?
@@ -600,7 +600,7 @@ namespace HM
 
       bool bHandlerFound = false;
       
-      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(eCommand);
+      auto iterCommandHandler = mapCommandHandlers.find(eCommand);
 
       if (iterCommandHandler != mapCommandHandlers.end())
          bHandlerFound = true;
@@ -628,7 +628,7 @@ namespace HM
       pArgument->Tag(sCommandTag);
       
       // Add literals.
-      std::vector<String>::iterator iterStr = command->vecLiteralData.begin();
+      auto iterStr = command->vecLiteralData.begin();
       while (iterStr != command->vecLiteralData.end())
       {
          pArgument->AddLiteral(*iterStr);
@@ -689,7 +689,7 @@ namespace HM
          return;
       }
 
-      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> >::iterator iterCommandHandler = mapCommandHandlers.find(IMAP_IDLE);
+      auto iterCommandHandler = mapCommandHandlers.find(IMAP_IDLE);
       std::shared_ptr<IMAPCommand> pCommand = (*iterCommandHandler).second;
       std::shared_ptr<IMAPCommandIdle> pIdleCommand = std::static_pointer_cast<IMAPCommandIdle>(pCommand);
       pIdleCommand->Finish(true);

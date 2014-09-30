@@ -39,7 +39,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "ACL: Expunge permission denied (Required for EXPUNGE command).");
 
       std::vector<int> vecExpungedMessages = pCurFolder->Expunge();
-      std::vector<int>::iterator iterExpunged = vecExpungedMessages.begin();
+      auto iterExpunged = vecExpungedMessages.begin();
 
       String sResponse;
       while (iterExpunged != vecExpungedMessages.end())

@@ -53,8 +53,8 @@ namespace HM
       }
 
       std::vector<String> vecCommands = StringParser::SplitString(sContents, sCommandSeparator);
-      std::vector<String>::iterator iter = vecCommands.begin();
-      std::vector<String>::iterator iterEnd = vecCommands.end();
+      auto iter = vecCommands.begin();
+      auto iterEnd = vecCommands.end();
 
       for (; iter != iterEnd; iter++)
       {

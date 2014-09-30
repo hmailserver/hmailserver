@@ -53,7 +53,7 @@ namespace HM
       oDomains.Refresh();
 
       std::vector<std::shared_ptr<Account> > vecAccounts = oAccounts.GetVector();
-      std::vector<std::shared_ptr<Account> >::iterator iterAccount = vecAccounts.begin();
+      auto iterAccount = vecAccounts.begin();
       while (iterAccount != vecAccounts.end())
       {
          std::shared_ptr<Account> pAccount = (*iterAccount);

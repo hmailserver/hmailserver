@@ -916,8 +916,8 @@ namespace HM
       // Fix for negative STAT results when box over 2GB
       __int64 iTotalSize = 0;
 
-      std::vector<std::shared_ptr<Message> >::iterator iter = messages_.begin();
-      std::vector<std::shared_ptr<Message> >::iterator iterEnd = messages_.end();
+      auto iter = messages_.begin();
+      auto iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -946,8 +946,8 @@ namespace HM
       iNoOfMessages = 0;
       iTotalBytes = 0;
 
-      std::vector<std::shared_ptr<Message> >::iterator iter = messages_.begin();
-      std::vector<std::shared_ptr<Message> >::iterator iterEnd = messages_.end();
+      auto iter = messages_.begin();
+      auto iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {

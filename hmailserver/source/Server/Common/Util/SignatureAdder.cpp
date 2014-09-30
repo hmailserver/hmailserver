@@ -186,8 +186,8 @@ namespace HM
       // Loop over the recipients and check if they are on the same domain.if
       
       std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iter = vecRecipients.begin();
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterEnd = vecRecipients.end();
+      auto iter = vecRecipients.begin();
+      auto iterEnd = vecRecipients.end();
 
       for (; iter != iterEnd; iter++)
       {

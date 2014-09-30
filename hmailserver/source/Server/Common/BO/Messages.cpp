@@ -146,7 +146,7 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<int> vecExpungedMessages;
-      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      auto iterMessage = vecObjects.begin();
 
       long lIndex = 0;
       int expungedCount = 0;
@@ -185,7 +185,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      auto iterMessage = vecObjects.begin();
       std::vector<int> vecExpungedMessages;
 
       long lIndex = 0;
@@ -402,7 +402,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      auto iterMessage = vecObjects.begin();
 
       // Locate the message
       while (iterMessage != vecObjects.end() && (*iterMessage)->GetID() != iDBID)

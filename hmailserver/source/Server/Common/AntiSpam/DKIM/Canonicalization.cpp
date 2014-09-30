@@ -284,8 +284,8 @@ namespace HM
          fieldToInclude.Trim();
 
          // locate the header line.
-         std::vector<AnsiString>::iterator iter = formattedHeaderLines.begin();
-         std::vector<AnsiString>::iterator iterEnd = formattedHeaderLines.end();
+         auto iter = formattedHeaderLines.begin();
+         auto iterEnd = formattedHeaderLines.end();
          
          for (; iter != iterEnd; iter++)
          {

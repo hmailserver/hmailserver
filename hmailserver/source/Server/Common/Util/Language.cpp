@@ -60,8 +60,8 @@ namespace HM
       
       std::vector<String> vecEnglishStrings = StringParser::SplitString(sEnglishContents, "\r\n");
 
-      std::vector<String>::iterator iterEnglishString = vecEnglishStrings.begin();
-      std::vector<String>::iterator iterEnglishStringEnd = vecEnglishStrings.end();
+      auto iterEnglishString = vecEnglishStrings.begin();
+      auto iterEnglishStringEnd = vecEnglishStrings.end();
       for (; iterEnglishString != iterEnglishStringEnd; iterEnglishString++)
       {
          String sString = (*iterEnglishString);
@@ -85,14 +85,14 @@ namespace HM
 
       std::vector<String> vecTranslatedStrings = StringParser::SplitString(sTranslatedContents, "\r\n");
 
-      std::vector<String>::iterator iterTranslatedString = vecTranslatedStrings.begin();
-      std::vector<String>::iterator iterTranslatedStringEnd = vecTranslatedStrings.end();
+      auto iterTranslatedString = vecTranslatedStrings.begin();
+      auto iterTranslatedStringEnd = vecTranslatedStrings.end();
       for (; iterTranslatedString != iterTranslatedStringEnd; iterTranslatedString++)
       {
          String sString = (*iterTranslatedString);
          std::pair<int, String> translatedPair = GetString_(sString);
 
-         std::map<int, String>::iterator englishPair = mapEnglishContent.find(translatedPair.first);
+         auto englishPair = mapEnglishContent.find(translatedPair.first);
          if (englishPair != mapEnglishContent.end())
          {
             strings_[(*englishPair).second] = translatedPair.second;

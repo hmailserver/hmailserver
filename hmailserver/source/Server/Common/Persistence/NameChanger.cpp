@@ -40,8 +40,8 @@ namespace HM
 
       // Update accounts...
       std::vector<std::shared_ptr<Account> > vecAccounts = pDomain->GetAccounts()->GetVector();
-      std::vector<std::shared_ptr<Account> >::iterator iterAccount = vecAccounts.begin();
-      std::vector<std::shared_ptr<Account> >::iterator iterAccountEnd = vecAccounts.end();
+      auto iterAccount = vecAccounts.begin() ;
+      auto iterAccountEnd = vecAccounts.end();
 
       for (; iterAccount != iterAccountEnd; iterAccount++)
       {
@@ -60,8 +60,8 @@ namespace HM
 
       // Update aliases...
       std::vector<std::shared_ptr<Alias> > vecAliases = pDomain->GetAliases()->GetVector();
-      std::vector<std::shared_ptr<Alias> >::iterator iterAlias = vecAliases.begin();
-      std::vector<std::shared_ptr<Alias> >::iterator iterAliasEnd = vecAliases.end();
+      auto iterAlias = vecAliases.begin();
+      auto iterAliasEnd = vecAliases.end();
 
       for (; iterAlias != iterAliasEnd; iterAlias++)
       {
@@ -81,8 +81,8 @@ namespace HM
 
       // Update lists...
       std::vector<std::shared_ptr<DistributionList> > vecLists = pDomain->GetDistributionLists()->GetVector();
-      std::vector<std::shared_ptr<DistributionList> >::iterator iterList = vecLists.begin();
-      std::vector<std::shared_ptr<DistributionList> >::iterator iterListEnd = vecLists.end();
+      auto iterList = vecLists.begin();
+      auto iterListEnd = vecLists.end();
 
       for (; iterList != iterListEnd; iterList++)
       {

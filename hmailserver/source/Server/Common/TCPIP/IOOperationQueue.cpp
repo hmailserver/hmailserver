@@ -43,8 +43,8 @@ namespace HM
          return;
       }
 
-      std::vector<std::shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
-      std::vector<std::shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
+      auto iter = ongoing_operations_.begin();
+      auto iterEnd = ongoing_operations_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -96,8 +96,8 @@ namespace HM
       {
          IOOperation::OperationType pendingType = nextOperation->GetType();
 
-         std::vector<std::shared_ptr<IOOperation >>::iterator iter = ongoing_operations_.begin();
-         std::vector<std::shared_ptr<IOOperation >>::iterator iterEnd = ongoing_operations_.end();
+         auto iter = ongoing_operations_.begin();
+         auto iterEnd = ongoing_operations_.end();
 
          bool operation_can_be_processed = true;
 

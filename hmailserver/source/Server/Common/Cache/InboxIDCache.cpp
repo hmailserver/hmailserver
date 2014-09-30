@@ -41,7 +41,7 @@ namespace HM
       if (enabled_)
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
-         std::map<__int64, __int64>::iterator iter = inbox_id_.find(accountID);
+         auto iter = inbox_id_.find(accountID);
 
          if (iter != inbox_id_.end())
          {

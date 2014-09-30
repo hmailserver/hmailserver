@@ -506,7 +506,7 @@ namespace HM
    void 
    SMTPClientConnection::UpdateAllRecipientsWithError_(int iErrorCode, const AnsiString &sResponse, bool bPreConnectError)
    {
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      auto iterRecipient = recipients_.begin();
       while (iterRecipient != recipients_.end())
       {
          UpdateRecipientWithError_(iErrorCode, sResponse, (*iterRecipient), bPreConnectError);

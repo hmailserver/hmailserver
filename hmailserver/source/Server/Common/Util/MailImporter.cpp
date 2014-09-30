@@ -129,7 +129,7 @@ namespace HM
       // Parse out the From-address
       std::shared_ptr<AddresslistParser> pFromParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
       std::vector<std::shared_ptr<Address> > vecAddresses = pFromParser->ParseList(pMsgData->GetFrom());
-      std::vector<std::shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+      auto iterElement = vecAddresses.begin();
 
       if (iterElement != vecAddresses.end())
       {
@@ -143,7 +143,7 @@ namespace HM
          // to parse the sender and recipients
          std::shared_ptr<AddresslistParser> pToParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
          std::vector<std::shared_ptr<Address> > vecAddresses = pToParser->ParseList(pMsgData->GetTo());
-         std::vector<std::shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+         auto iterElement = vecAddresses.begin();
 
          RecipientParser recipientParser;
          while (iterElement != vecAddresses.end())

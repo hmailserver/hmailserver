@@ -330,7 +330,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
          iterFirst++;
 
          if ((*iterFirst)->sPersonalName != _T("Test2 Testar"))
@@ -370,7 +370,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
          iterFirst++;
 
          if ((*iterFirst)->sPersonalName != _T("Test2 Testar"))
@@ -410,7 +410,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sPersonalName != _T("Martin Knafve"))
          {
@@ -469,7 +469,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sPersonalName != _T("MartinKnafve"))
          {
@@ -524,7 +524,7 @@ namespace HM
             throw;
          }
          
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sMailboxName != _T("webmaster"))
             throw;
@@ -551,7 +551,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          iterFirst++;
          iterFirst++;
@@ -595,7 +595,7 @@ namespace HM
          throw;
       }
 
-      std::vector<std::shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+      auto iterFirst = vecResult.begin();
 
       if ((*iterFirst)->sPersonalName != sFullname)
       {

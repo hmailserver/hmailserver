@@ -98,7 +98,7 @@ namespace HM
 
       std::vector<std::pair<bool,String> > vecSortTypes = pParser->GetSortTypes();
 
-      std::vector<std::pair<bool,String> >::iterator iterSortType = vecSortTypes.begin();
+      auto iterSortType = vecSortTypes.begin();
       // Skip to the last.
       while (iterSortType + 1 != vecSortTypes.end())
          iterSortType++;
@@ -154,7 +154,7 @@ namespace HM
 
             // Cache dates for all messages.
             std::map<__int64, DateTime> mapDateTimeInfo;
-            std::vector<std::pair<int, std::shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
+            auto iterMessage = vecMessages.begin();
             while (iterMessage != vecMessages.end())
             {
                // Fetch message.
@@ -191,7 +191,7 @@ namespace HM
          {
             // Cache dates for all messages. This is faster than sorting the strings.
             std::map<__int64, DateTime> mapDateTimeInfo;
-            std::vector<std::pair<int, std::shared_ptr<Message> > >::iterator iterMessage = vecMessages.begin();
+            auto iterMessage = vecMessages.begin();
             
             while (iterMessage != vecMessages.end())
             {

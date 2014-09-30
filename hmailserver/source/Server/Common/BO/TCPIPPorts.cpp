@@ -80,8 +80,8 @@ namespace HM
    std::shared_ptr<TCPIPPort> 
    TCPIPPorts::GetPort(const IPAddress &iIPAddress, int iPort)
    {
-      std::vector<std::shared_ptr<TCPIPPort> >::iterator iter = vecObjects.begin();   
-      std::vector<std::shared_ptr<TCPIPPort> >::iterator iterEnd = vecObjects.end();   
+      auto iter = vecObjects.begin();   
+      auto iterEnd = vecObjects.end();   
 
       std::vector<int> vecResult;
       for (; iter != iterEnd; iter++)

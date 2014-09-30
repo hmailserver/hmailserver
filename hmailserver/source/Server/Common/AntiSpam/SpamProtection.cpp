@@ -234,8 +234,8 @@ namespace HM
 
       if (config.GetAddHeaderReason())
       {
-         std::set<std::shared_ptr<SpamTestResult> >::iterator iter = setResult.begin();
-         std::set<std::shared_ptr<SpamTestResult> >::iterator iterEnd = setResult.end();
+         auto iter = setResult.begin();
+         auto iterEnd = setResult.end();
 
          int iFieldIdx = 1;
          int iTotalScore = 0;
@@ -305,8 +305,8 @@ namespace HM
    {
       int iTotalSpamScore = 0;
 
-      std::set<std::shared_ptr<SpamTestResult> >::iterator iter = result.begin();
-      std::set<std::shared_ptr<SpamTestResult> >::iterator iterEnd = result.end();
+      auto iter = result.begin();
+      auto iterEnd = result.end();
 
       for (; iter != iterEnd; iter++)
       {

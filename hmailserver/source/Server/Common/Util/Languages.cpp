@@ -60,8 +60,8 @@ namespace HM
    Languages::IsValidLangauge_(const String &sLanguage) const
    {
       std::vector<String> validLanguages = IniFileSettings::Instance()->GetValidLanguages();
-      std::vector<String>::iterator iter = validLanguages.begin();
-      std::vector<String>::iterator iterEnd = validLanguages.end();
+      auto iter = validLanguages.begin();
+      auto iterEnd = validLanguages.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -81,7 +81,7 @@ namespace HM
       String sFormattedLanguage = sLanguage;
       sFormattedLanguage.ToLower();
 
-      std::map<String, std::shared_ptr<Language> >::iterator iterLanguage = languages_.find(sFormattedLanguage);
+      auto iterLanguage = languages_.find(sFormattedLanguage);
       if (iterLanguage != languages_.end())
          return (*iterLanguage).second;
      
@@ -92,8 +92,8 @@ namespace HM
    std::shared_ptr<Language> 
    Languages::GetLanguage(int index)
    {
-      std::map<String, std::shared_ptr<Language> >::iterator iter = languages_.begin();
-      std::map<String, std::shared_ptr<Language> >::iterator iterEnd = languages_.end();
+      auto iter = languages_.begin();
+      auto iterEnd = languages_.end();
       
       int current = 0;
       for (; iter != iterEnd; iter++)

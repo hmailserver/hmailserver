@@ -37,8 +37,8 @@ namespace HM
    std::vector<std::shared_ptr<Rule> >::iterator 
    Rules::GetRuleIterator_(__int64 iRuleID)
    {
-      std::vector<std::shared_ptr<Rule> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iCurrentSortOrder = -1;
       std::shared_ptr<Rule> pRule;
@@ -58,13 +58,13 @@ namespace HM
    void
    Rules::MoveUp(__int64 iRuleID)
    {
-      std::vector<std::shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
-      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleIterator_(iRuleID);
+      auto iterEnd = vecObjects.end();
 
       if (iter == iterEnd || iter == vecObjects.begin())
          return;
 
-      std::vector<std::shared_ptr<Rule> >::iterator iterPrevious = iter - 1;
+      auto iterPrevious = iter - 1;
          
       // Move the rule to the previous position in the vector.
       std::shared_ptr<Rule> pRule = (*iter);
@@ -84,10 +84,10 @@ namespace HM
    void
    Rules::MoveDown(__int64 iRuleID)
    {
-      std::vector<std::shared_ptr<Rule> >::iterator iter = GetRuleIterator_(iRuleID);
-      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleIterator_(iRuleID);
+      auto iterEnd = vecObjects.end();
      
-      std::vector<std::shared_ptr<Rule> >::iterator iterNext = iter +1;
+      auto iterNext = iter +1;
 
       if (iter == iterEnd || iterNext == vecObjects.end())
          return;
@@ -110,8 +110,8 @@ namespace HM
    void 
    Rules::UpdateSortOrder_()
    {
-      std::vector<std::shared_ptr<Rule> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<Rule> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iSortOrder = 1;
 

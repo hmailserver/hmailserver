@@ -47,7 +47,7 @@ namespace HM
       const String sMailbox = StringParser::ExtractAddress(sAddress);
 
       // Iterate over the domains to find a match.
-      std::vector<std::shared_ptr<DomainAlias> >::iterator iterAccount = vecObjects.begin();
+      auto iterAccount = vecObjects.begin();
       
       for(std::shared_ptr<DomainAlias> pFA : vecObjects)
       {

@@ -33,8 +33,8 @@ namespace HM
       std::shared_ptr<SURBLServers> pSURBLServers = Configuration::Instance()->GetAntiSpamConfiguration().GetSURBLServers();
 
       std::vector<std::shared_ptr<SURBLServer> > vec = pSURBLServers->GetVector();
-      std::vector<std::shared_ptr<SURBLServer> >::iterator iter = vec.begin();
-      std::vector<std::shared_ptr<SURBLServer> >::iterator iterEnd = vec.end();
+      auto iter = vec.begin();
+      auto iterEnd = vec.end();
 
       for (; iter != iterEnd; iter++)
       {

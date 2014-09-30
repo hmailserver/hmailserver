@@ -76,7 +76,7 @@ namespace HM
    WorkQueue::RemoveRunningTask_(std::shared_ptr<Task> task)
    {
       boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
-      std::set<std::shared_ptr<Task>>::iterator iter = runningTasks_.find(task);
+      auto iter = runningTasks_.find(task);
       runningTasks_.erase(task);
    }
 
@@ -137,7 +137,7 @@ namespace HM
 
          for(std::shared_ptr<boost::thread> thread : completedThreads)
          {
-            std::set<std::shared_ptr<boost::thread>>::iterator iter = workerThreads_.find(thread);
+            auto iter = workerThreads_.find(thread);
 
             workerThreads_.erase(iter);
          }
@@ -153,7 +153,7 @@ namespace HM
          
 
          boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
-         std::set<std::shared_ptr<Task>>::iterator iter = runningTasks_.begin();
+         auto iter = runningTasks_.begin();
          if (iter != runningTasks_.end())
          {
             LOG_DEBUG(Formatter::Format("Still {0} remaining threads in queue {1}. First task: {2}", workerThreads_.size(), queue_name_, (*iter)->GetName()));

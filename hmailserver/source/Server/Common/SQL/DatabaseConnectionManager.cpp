@@ -108,7 +108,7 @@ namespace HM
       }
 
       // Fetch first connection
-      std::set<std::shared_ptr<DALConnection> >::iterator iter = available_connections_.begin();
+      auto iter = available_connections_.begin();
       if (!(*iter)->CheckServerVersion(sErrorMessage))
          return DALConnection::FatalError;
 
@@ -122,7 +122,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      //std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
+      //auto iterConnection = available_connections_.begin();
       for(std::shared_ptr<DALConnection> pConnection : available_connections_)
       {
          pConnection->Disconnect();
@@ -198,7 +198,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = busy_connections_.find(pConnection);
+      auto iterConnection = busy_connections_.find(pConnection);
       if (iterConnection == busy_connections_.end())
       {
          assert(0);
@@ -235,7 +235,7 @@ namespace HM
             boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
             // Locate an available connection
-            std::set<std::shared_ptr<DALConnection> >::iterator iterConnection = available_connections_.begin();
+            auto iterConnection = available_connections_.begin();
 
             if (iterConnection != available_connections_.end())
             {

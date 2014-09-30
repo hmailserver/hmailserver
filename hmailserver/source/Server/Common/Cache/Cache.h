@@ -108,7 +108,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(pObject->GetName());
+      auto iterObject = objects_.find(pObject->GetName());
    
       if (iterObject != objects_.end())
          objects_.erase(iterObject);
@@ -121,7 +121,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(sName);
+      auto iterObject = objects_.find(sName);
 
       if (iterObject != objects_.end())
          objects_.erase(iterObject);
@@ -135,8 +135,8 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       // Find the domain using the ID
-      std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.begin();
-      std::map<String, std::shared_ptr<T> >::iterator iterEnd = objects_.end();
+      auto iterObject = objects_.begin();
+      auto iterEnd = objects_.end();
 
       for (; iterObject != iterEnd; iterObject++)
       {
@@ -159,7 +159,7 @@ namespace HM
 
       if (enabled_)
       {
-         std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.find(sName);
+         auto iterObject = objects_.find(sName);
 
          if (iterObject != objects_.end())
          {
@@ -197,8 +197,8 @@ namespace HM
       if (enabled_)
       {
          // Find the domain using the ID
-         std::map<String, std::shared_ptr<T> >::iterator iterObject = objects_.begin();
-         std::map<String, std::shared_ptr<T> >::iterator iterEnd = objects_.end();
+         auto iterObject = objects_.begin();
+         auto iterEnd = objects_.end();
 
          for (; iterObject != iterEnd; iterObject++)
          {

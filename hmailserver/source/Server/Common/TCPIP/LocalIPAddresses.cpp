@@ -66,8 +66,8 @@ namespace HM
          if (pTCPIPPort->GetAddress().IsAny())
          {
             int portNumber = pTCPIPPort->GetPortNumber();
-            std::vector<IPAddress>::iterator iter = localAddresses.begin(); 
-            std::vector<IPAddress>::iterator iterEnd = localAddresses.end();
+            auto iter = localAddresses.begin(); 
+            auto iterEnd = localAddresses.end();
 
             for (; iter != iterEnd; iter++)
             {
@@ -90,8 +90,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalIPAddress(const IPAddress &address)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = local_ports_.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = local_ports_.end();
+      auto iter = local_ports_.begin();
+      auto iterEnd = local_ports_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -107,8 +107,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalPort(const IPAddress &address, int port)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = local_ports_.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = local_ports_.end();
+      auto iter = local_ports_.begin();
+      auto iterEnd = local_ports_.end();
 
       bool loopbackAddress = IsWithinLoopbackRange(address);
 

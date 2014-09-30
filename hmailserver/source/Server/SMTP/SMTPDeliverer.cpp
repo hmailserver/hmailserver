@@ -343,7 +343,7 @@ namespace HM
          {
             // Notify every receiver of the email.
             std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
-            std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+            auto iterRecipient = vecRecipients.begin();
 
             while (iterRecipient != vecRecipients.end())
             {

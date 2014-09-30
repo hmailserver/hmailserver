@@ -363,7 +363,7 @@ namespace HM
          // Time to send the username.
          
          std::vector<String> vecLines = StringParser::SplitString(sData, "\r\n");
-         std::vector<String>::iterator iter = vecLines.begin();
+         auto iter = vecLines.begin();
 
          if (vecLines.size() < 3)
          {
@@ -516,8 +516,8 @@ namespace HM
 
       std::set<String> setUIDs;
 
-      std::map<int ,String>::iterator iter = uidlresponse_.begin();
-      std::map<int ,String>::iterator iterEnd = uidlresponse_.end();
+      auto iter = uidlresponse_.begin();
+      auto iterEnd = uidlresponse_.end();
 
       for (; iter != iterEnd; iter++)
          setUIDs.insert((*iter).second);
@@ -999,7 +999,7 @@ namespace HM
       // Parse this list.
       AddresslistParser oListParser;
       std::vector<std::shared_ptr<Address> > vecAddresses = oListParser.ParseList(sAllRecipients);
-      std::vector<std::shared_ptr<Address> >::iterator iterAddress = vecAddresses.begin();
+      auto iterAddress = vecAddresses.begin();
 
       RecipientParser recipientParser;
       while (iterAddress != vecAddresses.end())
@@ -1063,8 +1063,8 @@ namespace HM
    {
       AnsiString sHeaderName = "Received";
       std::vector<MimeField> &lstFields = pHeader->Fields();
-      std::vector<MimeField>::iterator iter = lstFields.begin();
-      std::vector<MimeField>::iterator iterEnd = lstFields.end();
+      auto iter = lstFields.begin();
+      auto iterEnd = lstFields.end();
 
       RecipientParser recipientParser;
       for (; iter != iterEnd; iter++)

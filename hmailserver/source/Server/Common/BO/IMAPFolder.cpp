@@ -264,7 +264,7 @@ namespace HM
       
       std::shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
       std::vector<std::shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
-      std::vector<std::shared_ptr<IMAPFolder> >::iterator iterCurFolder = vecSubFolders.begin();
+      auto iterCurFolder = vecSubFolders.begin();
 
       int iSubDepth = 0;
       int iMaxSubDepth = 0;

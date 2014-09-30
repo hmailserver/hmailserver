@@ -100,10 +100,10 @@ namespace HM
    void MimeEnvironment::RegisterCoder(const char* pszCodingName, CODER_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszCodingName != NULL);
-	   std::list<CODER_PAIR>::iterator it = coders_.begin();
+	   auto it = coders_.begin();
 	   while (it != coders_.end())
 	   {
-		   std::list<CODER_PAIR>::iterator it2 = it;
+		   auto it2 = it;
 		   it++;
          if (!::_stricmp(pszCodingName, (*it2).first))
 			   coders_.erase(it2);
@@ -120,7 +120,7 @@ namespace HM
 	   if (!pszCodingName || !::strlen(pszCodingName))
 		   pszCodingName = "7bit";
 
-	   for (list<CODER_PAIR>::iterator it=coders_.begin(); it!=coders_.end(); it++)
+	   for (auto it=coders_.begin(); it!=coders_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
 		   if (!::_stricmp(pszCodingName, (*it).first))
@@ -137,10 +137,10 @@ namespace HM
    void MimeEnvironment::RegisterFieldCoder(const char* pszFieldName, FIELD_CODER_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszFieldName != NULL);
-	   std::list<FIELD_CODER_PAIR>::iterator it = field_coders_.begin();
+	   auto it = field_coders_.begin();
 	   while (it != field_coders_.end())
 	   {
-		   std::list<FIELD_CODER_PAIR>::iterator it2 = it;
+		   auto it2 = it;
 		   it++;
 		   if (!::_stricmp(pszFieldName, (*it2).first))
 			   field_coders_.erase(it2);
@@ -155,7 +155,7 @@ namespace HM
    FieldCodeBase* MimeEnvironment::CreateFieldCoder(const char* pszFieldName)
    {
 	   ASSERT(pszFieldName != NULL);
-	   for (list<FIELD_CODER_PAIR>::iterator it=field_coders_.begin(); it!=field_coders_.end(); it++)
+	   for (auto it=field_coders_.begin(); it!=field_coders_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
 		   if (::_stricmp(pszFieldName, (*it).first))
@@ -171,10 +171,10 @@ namespace HM
    void MimeEnvironment::RegisterMediaType(const char* pszMediaType, BODY_PART_FACTORY pfnCreateObject/*=NULL*/)
    {
 	   ASSERT(pszMediaType != NULL);
-	   std::list<MEDIA_TYPE_PAIR>::iterator it = media_types_.begin();
+	   auto it = media_types_.begin();
 	   while (it != media_types_.end())
 	   {
-		   std::list<MEDIA_TYPE_PAIR>::iterator it2 = it;
+		   auto it2 = it;
 		   it++;
 		   if (!::_stricmp(pszMediaType, (*it2).first))
 			   media_types_.erase(it2);
@@ -192,7 +192,7 @@ namespace HM
 		   pszMediaType = "text";
 
 	   ASSERT(pszMediaType != NULL);
-	   for (list<MEDIA_TYPE_PAIR>::iterator it=media_types_.begin(); it!=media_types_.end(); it++)
+	   for (auto it=media_types_.begin(); it!=media_types_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
 		   if (!::_stricmp(pszMediaType, (*it).first))

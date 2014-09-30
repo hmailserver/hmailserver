@@ -82,7 +82,7 @@ namespace HM
    void 
    FetchAccountUIDList::DeleteUID(const String &sUID)
    {
-      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iter = fetched_uids_.find(sUID);
+      auto iter = fetched_uids_.find(sUID);
       if (iter == fetched_uids_.end())
          return;
 
@@ -98,8 +98,8 @@ namespace HM
    void 
    FetchAccountUIDList::DeleteUIDsNotInSet(std::set<String> &setUIDs)
    {
-      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iterFA = fetched_uids_.begin();
-      std::map<String, std::shared_ptr<FetchAccountUID> >::iterator iterEnd = fetched_uids_.end();
+      auto iterFA = fetched_uids_.begin();
+      auto iterEnd = fetched_uids_.end();
       while (iterFA != iterEnd)
       {
          std::shared_ptr<FetchAccountUID> pUID = (*iterFA).second;

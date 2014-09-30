@@ -42,13 +42,13 @@ namespace HM
    void
    RuleActions::MoveUp(std::shared_ptr<RuleAction> pRuleToMove)
    {
-      std::vector<std::shared_ptr<RuleAction> >::iterator iter = GetRuleActionIterator_(pRuleToMove);
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleActionIterator_(pRuleToMove);
+      auto iterEnd = vecObjects.end();
 
       if (iter == iterEnd || iter == vecObjects.begin())
          return;
 
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterPrevious = iter - 1;
+      auto iterPrevious = iter - 1;
 
       // Move the rule to the previous position in the vector.
       std::shared_ptr<RuleAction> pRuleAction = (*iter);
@@ -66,10 +66,10 @@ namespace HM
    void
    RuleActions::MoveDown(std::shared_ptr<RuleAction> pRuleAction)
    {
-      std::vector<std::shared_ptr<RuleAction> >::iterator iter = GetRuleActionIterator_(pRuleAction);
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleActionIterator_(pRuleAction);
+      auto iterEnd = vecObjects.end();
 
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterNext = iter +1;
+      auto iterNext = iter +1;
 
       if (iter == iterEnd || iterNext == vecObjects.end())
          return;
@@ -90,8 +90,8 @@ namespace HM
    void 
    RuleActions::UpdateSortOrder_()
    {
-      std::vector<std::shared_ptr<RuleAction> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iSortOrder = 1;
 
@@ -116,8 +116,8 @@ namespace HM
    std::vector<std::shared_ptr<RuleAction> >::iterator 
    RuleActions::GetRuleActionIterator_(std::shared_ptr<RuleAction> pRuleAction)
    {
-      std::vector<std::shared_ptr<RuleAction> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iCurrentSortOrder = -1;
 

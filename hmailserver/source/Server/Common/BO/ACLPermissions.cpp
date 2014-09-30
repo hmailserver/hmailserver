@@ -45,8 +45,8 @@ namespace HM
    std::shared_ptr<ACLPermission> 
    ACLPermissions::GetPermissionForAccount(__int64 iAccountID)
    {
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -64,8 +64,8 @@ namespace HM
    std::shared_ptr<ACLPermission> 
    ACLPermissions::GetPermissionForGroup(__int64 iGroupID)
    {
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -92,7 +92,7 @@ namespace HM
    bool 
    ACLPermissions::DeletePermissionsForAccount(__int64 iAccountID)
    {
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
+      auto iter = vecObjects.begin();
 
       while (iter != vecObjects.end())
       {

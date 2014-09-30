@@ -67,8 +67,8 @@ namespace HM
 
       ServerTargetResolver serverTargetResolver(original_message_, _globalRuleResult);
       std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > mapRecipients = serverTargetResolver.Resolve();
-      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterDomain = mapRecipients.begin();
-      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterEnd = mapRecipients.end();
+      auto iterDomain = mapRecipients.begin();
+      auto iterEnd = mapRecipients.end();
 
       unsigned int iMaxRecipientsInBatch = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPRecipientsInBatch();
       if (iMaxRecipientsInBatch == 0)
@@ -81,7 +81,7 @@ namespace HM
 
          // Split up all the recipients for this server into batches of 100 or so.
          std::vector<std::shared_ptr<MessageRecipient> > batch;
-         std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipientsOnDomain.begin();
+         auto iterRecipient = vecRecipientsOnDomain.begin();
          while (iterRecipient != vecRecipientsOnDomain.end())
          {
             batch.push_back(*iterRecipient);
@@ -290,7 +290,7 @@ namespace HM
    {
       // If there exists an recipient with nonfatal error,
       // we should try to deliver to other servers.
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      auto iterRecipient = vecRecipients.begin();
       bool bTryNextServer = false;
       while (iterRecipient != vecRecipients.end())
       {
@@ -316,7 +316,7 @@ namespace HM
    {
 
 
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      auto iterRecipient = vecRecipients.begin();
       while (iterRecipient != vecRecipients.end())
       {
          std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
@@ -583,7 +583,7 @@ namespace HM
          // Delivery failed the last time.
          String sErrorMessage;
 
-         std::map<String,String>::iterator iterFailed = mapFailedDueToNonFatalError.begin();
+         auto iterFailed = mapFailedDueToNonFatalError.begin();
          while (iterFailed != mapFailedDueToNonFatalError.end())
          {
             if (!sErrorMessage.IsEmpty())
@@ -631,7 +631,7 @@ namespace HM
       lNoOfRetries = pSMTPConfig->GetNoOfRetries();
       lMinutesBetween  = pSMTPConfig->GetMinutesBetweenTry();
 
-      std::map<String,String>::iterator iterAddress = mapFailedDueToNonFatalError.begin();
+      auto iterAddress = mapFailedDueToNonFatalError.begin();
       std::map<String, std::shared_ptr<Route> > matchingRoutes;
 
       bool recipientsFoundNotMatchingRoute = false;

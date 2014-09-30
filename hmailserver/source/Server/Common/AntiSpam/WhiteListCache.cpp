@@ -42,8 +42,8 @@ namespace HM
          Refresh();
       }
 
-      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iter = whitelistItems_.begin();
-      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iterEnd = whitelistItems_.end();
+      auto iter = whitelistItems_.begin();
+      auto iterEnd = whitelistItems_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -85,8 +85,8 @@ namespace HM
 
       std::vector<std::shared_ptr<WhiteListAddress> > vec = addresses.GetConstVector();
 
-      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iter = vec.begin();
-      std::vector<std::shared_ptr<WhiteListAddress> >::iterator iterEnd = vec.end();
+      auto iter = vec.begin();
+      auto iterEnd = vec.end();
 
       std::vector<std::shared_ptr<WhiteListAddress>> items;
       for (; iter != iterEnd; iter++)

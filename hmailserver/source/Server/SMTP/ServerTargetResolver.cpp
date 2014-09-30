@@ -87,8 +87,8 @@ namespace HM
       }      
 
       // For every domain, determine where to deliver the message for the recipients.
-      std::map<String, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iter = sortedRecipients.begin();
-      std::map<String, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterEnd = sortedRecipients.end();
+      auto iter = sortedRecipients.begin();
+      auto iterEnd = sortedRecipients.end();
 
       std::map<String, std::shared_ptr<ServerInfo>> domainServerInfoMap;
 
@@ -123,15 +123,15 @@ namespace HM
       // host / port / credentials, we should merge the recipient lists. This may be the same for example if you are
       // using a SMTP relayer. The email message may contain recipients for 4 different domains, but we only want to
       // open one connection to the SMTP relay server.
-      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterServerInfo = serverInfos.begin();
-      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterServerInfoEnd = serverInfos.end();
+      auto iterServerInfo = serverInfos.begin();
+      auto iterServerInfoEnd = serverInfos.end();
 
       std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > result;
 
       for (; iterServerInfo != iterServerInfoEnd; iterServerInfo++)
       {
-         std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterResultInfos = result.begin();
-         std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >::iterator iterResultInfosEnd = result.end();
+         auto iterResultInfos = result.begin();
+         auto iterResultInfosEnd = result.end();
 
          bool foundExisting = false;
 
@@ -145,8 +145,8 @@ namespace HM
                // Add all recipients on this server info to the existing server info.
                std::vector<std::shared_ptr<MessageRecipient> >& vecRecipients = (*iterServerInfo).second;
 
-               std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
-               std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipientEnd = vecRecipients.end();
+               auto iterRecipient = vecRecipients.begin();
+               auto iterRecipientEnd = vecRecipients.end();
 
                // Copy all recipients to this server info
                for (; iterRecipient != iterRecipientEnd; iterRecipient++)

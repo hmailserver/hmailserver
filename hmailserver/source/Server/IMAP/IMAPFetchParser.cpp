@@ -146,7 +146,7 @@ namespace HM
          return result;
       
       std::vector<String> vecResult = ParseString_(sStringToParse);
-      std::vector<String>::iterator iter = vecResult.begin();
+      auto iter = vecResult.begin();
       while (iter != vecResult.end())
       {
          String sPart = (*iter);

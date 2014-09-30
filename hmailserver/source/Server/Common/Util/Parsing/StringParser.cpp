@@ -207,7 +207,7 @@ namespace HM
    StringParser::GetAllButFirst(std::vector<String> sInput)
    {
       std::vector<String> vecResult;
-      std::vector<String>::iterator iterCur = sInput.begin();
+      auto iterCur = sInput.begin();
 
       if (iterCur == sInput.end())
          return vecResult;
@@ -491,7 +491,7 @@ namespace HM
    {
 
       // Remove duplicate names.
-      std::vector<String>::iterator iter = items.begin();
+      auto iter = items.begin();
       std::set<String> duplicateCheck;
 
       while (iter != items.end())

@@ -129,8 +129,8 @@ namespace HM
       // separate ACL records, we should use the permissions from the last record.
       std::sort(vecObjects.begin(), vecObjects.end(), ACLSortID());
 
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -156,8 +156,8 @@ namespace HM
       }
 
       // Check if user is member of any of these groups.
-      std::list<std::pair<__int64, std::shared_ptr<ACLPermission> > >::iterator iterGroup = listGroupPermissions.begin();
-      std::list<std::pair<__int64, std::shared_ptr<ACLPermission> > >::iterator iterGroupEnd = listGroupPermissions.end();
+      auto iterGroup = listGroupPermissions.begin();
+      auto iterGroupEnd = listGroupPermissions.end();
 
       for (; iterGroup != iterGroupEnd; iterGroup++)
       {

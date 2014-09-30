@@ -500,7 +500,7 @@ namespace HM
       // 30-Apr-2004 17:38:48 +0200
 
       std::vector<String> vecParts = StringParser::SplitString(sMIMEDate, " ");
-      std::vector<String>::iterator iterPart = vecParts.begin();
+      auto iterPart = vecParts.begin();
 
       String sResult = "";
 

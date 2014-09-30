@@ -96,9 +96,7 @@ namespace HM
          }
 
          // Check that the IP address is one of these A records.
-
-         std::vector<String>::iterator iter;
-         for (iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
+         for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
             if ((*iter) == sIPAddress)
             {

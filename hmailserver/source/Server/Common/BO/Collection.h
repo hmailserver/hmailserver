@@ -182,8 +182,8 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<std::shared_ptr<T> >::iterator iter = vecObjects.begin();
-      std::vector<std::shared_ptr<T> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
       
       for (; iter != iterEnd; iter++)
       {
@@ -222,7 +222,7 @@ namespace HM
       if (index >= vecObjects.size())
          return false;
 
-      std::vector<std::shared_ptr<T> >::iterator iter = vecObjects.begin() + index;
+      auto iter = vecObjects.begin() + index;
       P::DeleteObject(*iter);
       vecObjects.erase(iter);
       

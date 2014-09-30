@@ -122,7 +122,7 @@ namespace HM
                if (sSecondPart != _T("*"))
                   lEndIndex = _ttoi(sSecondPart);
 
-               MessagesVector vecMessages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
+               auto vecMessages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
                
                int index = 0;
                for(std::shared_ptr<Message> message : vecMessages)

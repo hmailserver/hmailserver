@@ -58,9 +58,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::vector<std::shared_ptr<ScheduledTask >>::iterator iterTask;
-
-      for (iterTask = scheduled_tasks_.begin(); iterTask != scheduled_tasks_.end(); iterTask++)
+      for (auto iterTask = scheduled_tasks_.begin(); iterTask != scheduled_tasks_.end(); iterTask++)
       {
          std::shared_ptr<ScheduledTask > pTask = (*iterTask);
 

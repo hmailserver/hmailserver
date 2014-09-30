@@ -89,7 +89,7 @@ namespace HM
 
       std::vector<MimeField> oFieldList = oMainMessage.Fields();
 
-      std::vector<MimeField>::iterator iterField = oFieldList.begin();
+      auto iterField = oFieldList.begin();
 
       while (iterField != oFieldList.end())
       {

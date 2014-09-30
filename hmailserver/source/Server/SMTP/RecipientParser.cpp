@@ -402,7 +402,7 @@ namespace HM
          // Only members of the list can send messages. 
          // Check if the sender is a member of the list.
          std::vector<std::shared_ptr<DistributionListRecipient> > vecRecipients = pList->GetMembers()->GetVector();
-         std::vector<std::shared_ptr<DistributionListRecipient> >::iterator iterRecipient = vecRecipients.begin();
+         auto iterRecipient = vecRecipients.begin();
 
          Logger::Instance()->LogDebug("DistributionList::LMMembership");
 
@@ -464,7 +464,7 @@ namespace HM
          return;
       
       std::vector<std::shared_ptr<MessageRecipient> > vecResult = pRecipients->GetVector();
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecip = vecResult.begin();
+      auto iterRecip = vecResult.begin();
 
       while (iterRecip != vecResult.end())
       {

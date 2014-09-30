@@ -59,7 +59,7 @@ namespace HM
 
       std::shared_ptr<ColumnPositions> positions;
 
-      std::map<AnsiString, std::shared_ptr<ColumnPositions> >::iterator iter = map_table_columns_.find(selectIdentifier);
+      auto iter = map_table_columns_.find(selectIdentifier);
       if (iter == map_table_columns_.end())
       {
          positions = std::shared_ptr<ColumnPositions>(new ColumnPositions(pRecordset->GetColumnNames()));

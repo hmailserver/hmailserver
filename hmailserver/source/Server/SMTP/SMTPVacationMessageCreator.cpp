@@ -140,7 +140,7 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         multimap<String, String>::iterator iter = mapVacationMessageRecipients.find(sFrom);
+         auto iter = mapVacationMessageRecipients.find(sFrom);
 
          if (iter == mapVacationMessageRecipients.end())
          {
@@ -148,7 +148,7 @@ namespace HM
             return true;
          }
 
-         std::pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
+         auto iterRange = 
             mapVacationMessageRecipients.equal_range(sFrom);
 
          iter = iterRange.first;
@@ -183,10 +183,10 @@ namespace HM
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         std::pair<multimap<String, String>::iterator, multimap<String, String>::iterator> iterRange = 
+         auto iterRange = 
             mapVacationMessageRecipients.equal_range(sUserAddress);
 
-         multimap<String, String>::iterator iter = iterRange.first;
+         auto iter = iterRange.first;
          while (iter != iterRange.second)
             iter = mapVacationMessageRecipients.erase(iter);
       }

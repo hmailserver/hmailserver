@@ -335,8 +335,8 @@ namespace HM
 
       std::vector<String> vecCommands = StringParser::SplitString(sContents, ";");
 
-      std::vector<String>::iterator iterCommand = vecCommands.begin();
-      std::vector<String>::iterator iterEnd = vecCommands.end();
+      auto iterCommand = vecCommands.begin();
+      auto iterEnd = vecCommands.end();
       for (; iterCommand != iterEnd; iterCommand++)
       {
          String sSQL = (*iterCommand);

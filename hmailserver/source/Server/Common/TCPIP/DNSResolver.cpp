@@ -173,7 +173,7 @@ namespace HM
                   while (vecMailServersUnsorted.size() > 0)
                   {
                      // Find lowest preference.
-                     std::vector<structMailServer>::iterator iterServer = vecMailServersUnsorted.begin();
+                     auto iterServer = vecMailServersUnsorted.begin();
                      long iCurLowest = -1;
                      while (iterServer != vecMailServersUnsorted.end())
                      {
@@ -386,7 +386,7 @@ namespace HM
          // We've been able to find host names in the MX records. We should
          // now translate them to IP addresses. Some host names may result
          // in several IP addreses.
-         std::vector<String>::iterator iterDomain = vecFoundMXRecords.begin();
+         auto iterDomain = vecFoundMXRecords.begin();
 
          bool dnsSuccess = false;
          for(String domain : vecFoundMXRecords)
@@ -443,7 +443,7 @@ namespace HM
 
             
       // Remove duplicate names.
-      std::vector<HostNameAndIpAddress>::iterator iter = saFoundNames.begin();
+      auto iter = saFoundNames.begin();
       std::set<String> duplicateCheck;
 
       while (iter != saFoundNames.end())

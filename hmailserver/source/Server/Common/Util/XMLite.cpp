@@ -999,7 +999,7 @@ LPTSTR _tagXMLDocument::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= NULL*/ )
 
 LPXNode	_tagXMLDocument::GetRoot()
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end() ; ++(it) )
 	{
 		LPXNode node = *it;
@@ -1404,14 +1404,14 @@ LPCTSTR _tagXMLNode::GetChildAttrValue( LPCTSTR name, LPCTSTR attrname )
 //========================================================
 LPXNode	_tagXMLNode::Find( LPCTSTR name )
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end(); ++(it))
 	{
 		LPXNode child = *it;
 		if( child->name == name )
 			return child;
 
-		XNodes::iterator it = child->childs.begin();
+		auto it = child->childs.begin();
 		for( ; it != child->childs.end(); ++(it))
 		{
 			LPXNode find = child->Find( name );
@@ -1434,7 +1434,7 @@ LPXNode	_tagXMLNode::Find( LPCTSTR name )
 //========================================================
 XNodes::iterator _tagXMLNode::GetChildIterator( LPXNode node )
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end() ; ++(it) )
 	{
 		if( *it == node )
@@ -1485,7 +1485,7 @@ LPXNode _tagXMLNode::AppendChild( LPXNode node )
 //========================================================
 bool _tagXMLNode::RemoveChild( LPXNode node )
 {
-	XNodes::iterator it = GetChildIterator( node );
+	auto it = GetChildIterator( node );
 	if( it != childs.end())
 	{
 		delete *it;
@@ -1522,7 +1522,7 @@ LPXAttr _tagXMLNode::GetAttr( unsigned int i )
 //========================================================
 XAttrs::iterator _tagXMLNode::GetAttrIterator( LPXAttr attr )
 {
-	XAttrs::iterator it = attrs.begin();
+	auto it = attrs.begin();
 	for( ; it != attrs.end() ; ++(it) )
 	{
 		if( *it == attr )
@@ -1558,7 +1558,7 @@ LPXAttr _tagXMLNode::AppendAttr( LPXAttr attr )
 //========================================================
 bool _tagXMLNode::RemoveAttr( LPXAttr attr )
 {
-	XAttrs::iterator it = GetAttrIterator( attr );
+	auto it = GetAttrIterator( attr );
 	if( it != attrs.end())
 	{
 		delete *it;
@@ -1627,7 +1627,7 @@ LPXAttr _tagXMLNode::AppendAttr( LPCTSTR name /*= NULL*/, LPCTSTR value /*= NULL
 //========================================================
 LPXNode _tagXMLNode::DetachChild( LPXNode node )
 {
-	XNodes::iterator it = GetChildIterator( node );
+	auto it = GetChildIterator( node );
 	if( it != childs.end())
 	{
 		childs.erase( it );
@@ -1647,7 +1647,7 @@ LPXNode _tagXMLNode::DetachChild( LPXNode node )
 //========================================================
 LPXAttr _tagXMLNode::DetachAttr( LPXAttr attr )
 {
-	XAttrs::iterator it = GetAttrIterator( attr );
+	auto it = GetAttrIterator( attr );
 	if( it != attrs.end())
 	{
 		attrs.erase( it );

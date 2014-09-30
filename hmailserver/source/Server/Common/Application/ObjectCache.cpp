@@ -80,7 +80,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
-      std::set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);      
+      auto iterRefresh = account_rules_to_refresh_.find(iAccountID);      
       if (iterRefresh == account_rules_to_refresh_.end())
          account_rules_to_refresh_.insert(iAccountID);
    }
@@ -91,7 +91,7 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
       // First find the rules.
-      std::map<__int64, std::shared_ptr<Rules> >::iterator iterRules = account_rules_.find(iAccountID);
+      auto iterRules = account_rules_.find(iAccountID);
       std::shared_ptr<Rules> pRules;
 
       if (iterRules == account_rules_.end())
@@ -107,7 +107,7 @@ namespace HM
          pRules = (*iterRules).second;
       }
 
-      std::set<__int64>::iterator iterRefresh = account_rules_to_refresh_.find(iAccountID);
+      auto iterRefresh = account_rules_to_refresh_.find(iAccountID);
       if (iterRefresh != account_rules_to_refresh_.end())
       {
          pRules->Refresh();

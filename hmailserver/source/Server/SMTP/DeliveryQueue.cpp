@@ -59,7 +59,7 @@ namespace HM
 
       // Iterate over messages to deliver.
          std::vector<std::shared_ptr<Message> > vecMessages = oMessages.GetVector();
-         std::vector<std::shared_ptr<Message> >::iterator iterMessage = vecMessages.begin();
+         auto iterMessage = vecMessages.begin();
       while (iterMessage != vecMessages.end())
       {
          // Delete the message from the database

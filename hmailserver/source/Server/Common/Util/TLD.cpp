@@ -58,8 +58,7 @@ namespace HM
       }
 
       std::vector<String> vecTLDs = StringParser::SplitString(sContents, "\r\n");
-      std::vector<String>::iterator iter;
-      for (iter = vecTLDs.begin(); iter != vecTLDs.end(); iter++)
+      for (auto iter = vecTLDs.begin(); iter != vecTLDs.end(); iter++)
          tld_.insert(*iter);
 
    }

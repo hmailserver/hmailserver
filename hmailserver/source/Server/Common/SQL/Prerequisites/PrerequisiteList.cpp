@@ -34,8 +34,8 @@ namespace HM
    bool
    PrerequisiteList::Ensure(std::shared_ptr<DALConnection> connection, int scriptDatabaseVersion, String &sErrorMessage)
    {
-      std::vector<std::pair<int, std::shared_ptr<IPrerequisite > > >::iterator iter = prerequisites_.begin();
-      std::vector<std::pair<int, std::shared_ptr<IPrerequisite > > >::iterator iterEnd = prerequisites_.end();
+      auto iter = prerequisites_.begin();
+      auto iterEnd = prerequisites_.end();
 
       for (; iter != iterEnd; iter++)
       {

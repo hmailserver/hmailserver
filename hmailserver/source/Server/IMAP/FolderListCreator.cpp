@@ -248,8 +248,8 @@ namespace HM
       std::vector<String> vecWildcard = StringParser::SplitString(sWildcard, hierarchyDelimiter);
 
       // Build the response string.
-      std::vector<String>::iterator pathIterator = vecPath.begin();
-      std::vector<String>::iterator wildIterator = vecWildcard.begin();
+      auto pathIterator = vecPath.begin();
+      auto wildIterator = vecWildcard.begin();
 
       std::vector<String> vecResult;
       while (pathIterator != vecPath.end())

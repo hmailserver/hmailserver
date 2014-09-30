@@ -36,8 +36,8 @@ namespace HM
       std::shared_ptr<DNSBlackLists> pDNSBlackLists = Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
 
       std::vector<std::shared_ptr<DNSBlackList> > vec = pDNSBlackLists->GetVector();
-      std::vector<std::shared_ptr<DNSBlackList> >::iterator iter = vec.begin();
-      std::vector<std::shared_ptr<DNSBlackList> >::iterator iterEnd = vec.end();
+      auto iter = vec.begin();
+      auto iterEnd = vec.end();
       for (; iter != iterEnd; iter++)
       {
          std::shared_ptr<DNSBlackList> pDNSBL = (*iter);

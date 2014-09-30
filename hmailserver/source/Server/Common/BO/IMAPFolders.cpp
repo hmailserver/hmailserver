@@ -93,7 +93,7 @@ namespace HM
          long lPanicLevel = 0;
          while (vecIMAPFolders.size() > 0)
          {
-            std::vector<std::pair<__int64, std::shared_ptr<IMAPFolder> > >::iterator iterFolder = vecIMAPFolders.begin();
+            auto iterFolder = vecIMAPFolders.begin();
 
             while (iterFolder != vecIMAPFolders.end())
             {
@@ -219,8 +219,8 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<std::shared_ptr<IMAPFolder> >::iterator iterCurPos = vecObjects.begin();
-      std::vector<std::shared_ptr<IMAPFolder> >::iterator iterEnd = vecObjects.end();
+      auto iterCurPos = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       __int64 lRemoveFolderID = pFolderToRemove->GetID();
       for (; iterCurPos!= iterEnd; iterCurPos++)
@@ -304,7 +304,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<std::shared_ptr<IMAPFolder> >::iterator iterCurPos = vecObjects.begin();
+      auto iterCurPos = vecObjects.begin();
 
       for(std::shared_ptr<IMAPFolder> pFolder : vecObjects)
       {

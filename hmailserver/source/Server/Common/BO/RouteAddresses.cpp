@@ -34,7 +34,7 @@ namespace HM
    void
    RouteAddresses::DeleteByAddress(const String &sAddress)
    {
-      std::vector<std::shared_ptr<RouteAddress> >::iterator iterRoute = vecObjects.begin();
+      auto iterRoute = vecObjects.begin();
 
       while (iterRoute != vecObjects.end())
       {  

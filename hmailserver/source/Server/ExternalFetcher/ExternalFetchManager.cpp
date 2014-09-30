@@ -70,7 +70,7 @@ namespace HM
          fetch_accounts_->RefreshPendingList();
 
          std::vector<std::shared_ptr<FetchAccount> > &vecAccounts = fetch_accounts_->GetVector();
-         std::vector<std::shared_ptr<FetchAccount> >::iterator iterFA = vecAccounts.begin();
+         auto iterFA = vecAccounts.begin();
 
          while (iterFA != vecAccounts.end())
          {

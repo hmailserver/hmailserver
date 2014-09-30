@@ -53,7 +53,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, std::shared_ptr<Message> >::iterator iterMessage = message_.find(iMessageID);
+      auto iterMessage = message_.find(iMessageID);
 
       std::shared_ptr<Message> pMessage;
       if (iterMessage == message_.end())

@@ -75,7 +75,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<std::pair<int, int>>::iterator iterPos = folders_.find(lockPair);
+      auto iterPos = folders_.find(lockPair);
       if (iterPos != folders_.end())
       {
          try

@@ -162,7 +162,7 @@ namespace HM
 
       // Loop over the criterias in the command.
       std::vector<std::shared_ptr<IMAPSearchCriteria> > &vecCriterias = pParentCriteria->GetSubCriterias();
-      std::vector<std::shared_ptr<IMAPSearchCriteria> >::iterator iterCriteria = vecCriterias.begin();
+      auto iterCriteria = vecCriterias.begin();
 
       bool bMessageIsMatchingCriteria = true;
       while (iterCriteria != vecCriterias.end())

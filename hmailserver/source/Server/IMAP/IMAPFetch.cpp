@@ -109,8 +109,8 @@ namespace HM
          if (pMessage->GetFlagAnswered())
             setFlags.insert("Answered");
             
-         std::set<String>::iterator iter = setFlags.begin();
-         std::set<String>::iterator iterEnd = setFlags.end();
+         auto iter = setFlags.begin();
+         auto iterEnd = setFlags.end();
 
          for (; iter != iterEnd; iter++)
          {
@@ -184,7 +184,7 @@ namespace HM
       
       if (vecPartsToPeekAt.size() > 0)
       {
-         std::vector<IMAPFetchParser::BodyPart>::iterator iter = vecPartsToPeekAt.begin();
+         auto iter = vecPartsToPeekAt.begin();
 
          // First we should only print the part sizes..
          while (iter != vecPartsToPeekAt.end())   
@@ -303,7 +303,7 @@ namespace HM
       std::vector<String> vecPartPath = StringParser::SplitString(sTempName, ".");
 
       // Iterate over the vector to find the part.
-      std::vector<String>::iterator iterPart = vecPartPath.begin();
+      auto iterPart = vecPartPath.begin();
 
       while (iterPart != vecPartPath.end())
       {
@@ -427,7 +427,7 @@ namespace HM
       else if (oPart.GetShowBodyHeaderFields())
       {
          std::vector<String> vecHeaderFields = oPart.GetHeaderFields();
-         std::vector<String>::iterator iterHeader = vecHeaderFields.begin();
+         auto iterHeader = vecHeaderFields.begin();
          String sResponse;
          String sFields;
 
@@ -470,7 +470,7 @@ namespace HM
          String sFields;
 
          std::vector<MimeField> lstFields = pBodyPart->Fields();
-         std::vector<MimeField>::iterator iterHeader = lstFields.begin();
+         auto iterHeader = lstFields.begin();
 
          while (iterHeader != lstFields.end())
          {
@@ -479,7 +479,7 @@ namespace HM
             String sHeaderName = oField.GetName();
 
             // Should we send this header?
-            std::vector<String>::iterator iterExclude = vecHeaderFieldsNOT.begin();
+            auto iterExclude = vecHeaderFieldsNOT.begin();
             bool bSendThisHeader = true;
             while (iterExclude != vecHeaderFieldsNOT.end())
             {
@@ -960,7 +960,7 @@ namespace HM
       
       std::shared_ptr<AddresslistParser> pParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
       std::vector<std::shared_ptr<Address> > vecAddresses = pParser->ParseList(sField);
-      std::vector<std::shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+      auto iterElement = vecAddresses.begin();
 
       while (iterElement != vecAddresses.end())
       {

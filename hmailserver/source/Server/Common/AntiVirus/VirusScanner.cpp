@@ -151,7 +151,7 @@ namespace HM
       std::list<std::shared_ptr<MimeBody> > oList;
       pMimeBody->GetAttachmentList(pMimeBody, oList);
 
-      std::list<std::shared_ptr<MimeBody> >::iterator iter = oList.begin();
+      auto iter = oList.begin();
 
       while (iter != oList.end())
       {
@@ -196,8 +196,7 @@ namespace HM
       std::shared_ptr<BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
 
       std::vector<std::shared_ptr<BlockedAttachment> > vecBlockedAttachments = pBlockedAttachments->GetVector();
-      std::vector<std::shared_ptr<BlockedAttachment> >::iterator iterBA;
-
+      
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
       std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
@@ -214,7 +213,7 @@ namespace HM
          std::shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
 
          // Check if attachment matches blocked file.
-         for (iterBA = vecBlockedAttachments.begin(); iterBA < vecBlockedAttachments.end(); iterBA++)
+         for (auto iterBA = vecBlockedAttachments.begin(); iterBA < vecBlockedAttachments.end(); iterBA++)
          {
             String sWildcard = (*iterBA)->GetWildcard();
 

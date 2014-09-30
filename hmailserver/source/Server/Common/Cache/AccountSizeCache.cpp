@@ -28,7 +28,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = account_sizes_.find(accountID);
+      auto iter = account_sizes_.find(accountID);
       if (iter == account_sizes_.end())
          return;
 
@@ -47,7 +47,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = account_sizes_.find(accountID);
+      auto iter = account_sizes_.find(accountID);
       if (iter == account_sizes_.end())
          return;
 
@@ -60,7 +60,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = account_sizes_.find(accountID);
+      auto iter = account_sizes_.find(accountID);
       if (iter == account_sizes_.end())
       {
          __int64 size = PersistentAccount::GetMessageBoxSize(accountID);

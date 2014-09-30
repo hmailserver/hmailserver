@@ -223,8 +223,8 @@ namespace HM
       setDoesNotNeedEncoding.push_back("=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>");
       setDoesNotNeedEncoding.push_back("Nathaniel Borenstein <nsb@thumper.bellcore.com> (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)");
 
-      std::vector<String>::iterator iter = setDoesNotNeedEncoding.begin();
-      std::vector<String>::iterator iterEnd = setDoesNotNeedEncoding.end();
+      auto iter = setDoesNotNeedEncoding.begin();
+      auto iterEnd = setDoesNotNeedEncoding.end();
 
       for (; iter != iterEnd; iter++)
       {

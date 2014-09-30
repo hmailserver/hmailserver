@@ -446,7 +446,7 @@ namespace HM
       String sFromAddress;
 
       std::vector<String> vecParams = StringParser::SplitString(sMailFromParameters, " ");
-      std::vector<String>::iterator iterParam = vecParams.begin();
+      auto iterParam = vecParams.begin();
 
       if (iterParam != vecParams.end())
       {

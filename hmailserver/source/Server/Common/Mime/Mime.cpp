@@ -704,7 +704,7 @@ namespace HM
    void 
       MimeHeader::DeleteField(MimeField *pField)
    {
-      std::vector<MimeField>::iterator iter = fields_.begin(); 
+      auto iter = fields_.begin(); 
       std::vector<MimeField>::const_iterator iterEnd = fields_.end();
 
       for (; iter != iterEnd; iter++)
@@ -769,7 +769,7 @@ namespace HM
       AnsiString sResponse;
       // Iterate through the header fields and add to sResponse.
       std::vector<MimeField> oFields =  Fields();
-      std::vector<MimeField>::iterator iterField = oFields.begin();
+      auto iterField = oFields.begin();
 
       while (iterField != oFields.end())
       {
@@ -793,7 +793,7 @@ namespace HM
       String sResponse;
       // Iterate through the header fields and add to sResponse.
       std::vector<MimeField> oFields =  Fields();
-      std::vector<MimeField>::iterator iterField = oFields.begin();
+      auto iterField = oFields.begin();
 
       while (iterField != oFields.end())
       {
@@ -817,7 +817,7 @@ namespace HM
    bool 
       MimeHeader::FieldExists(const char *pszFieldName) const
    {
-      std::vector<MimeField>::iterator iter = FindField(pszFieldName);
+      auto iter = FindField(pszFieldName);
       if (iter == fields_.end())
          return false;
 
@@ -827,15 +827,15 @@ namespace HM
 
    std::vector<MimeField>::iterator MimeHeader::FindField(const char* pszFieldName) const
    {
-      std::vector<MimeField>::iterator it;
       MimeHeader *pThis = const_cast<MimeHeader*>(this);
-      for (it = pThis->fields_.begin(); it != pThis->fields_.end(); it++)
+      for (auto it = pThis->fields_.begin(); it != pThis->fields_.end(); it++)
       {
          MimeField& fd = *it;
          if (!::_stricmp(fd.GetName(), pszFieldName))
-            break;
+            return it;
       }
-      return it;
+
+      return pThis->fields_.end();
    }
 
    //////////////////////////////////////////////////////////////////////
@@ -1184,7 +1184,7 @@ namespace HM
       ASSERT(pBP != NULL);
       if (pWhere != NULL)
       {
-         for (BodyList::iterator it = bodies_.begin(); it != bodies_.end(); it++)
+         for (auto it = bodies_.begin(); it != bodies_.end(); it++)
             if (*it == pWhere)
             {
                bodies_.insert(it, pBP);
@@ -1249,7 +1249,7 @@ namespace HM
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         std::list<std::shared_ptr<MimeBody> >::iterator it = bodies_.begin();
+         auto it = bodies_.begin();
          while (it != bodies_.end())
          {
             std::shared_ptr<MimeBody> pBody = (*it);
@@ -1266,7 +1266,7 @@ namespace HM
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         std::list<std::shared_ptr<MimeBody> >::iterator it = bodies_.begin();
+         auto it = bodies_.begin();
          while (it != bodies_.end())
          {
             std::shared_ptr<MimeBody> pBody = (*it);

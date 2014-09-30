@@ -81,8 +81,8 @@ namespace HM
       // Create one socket for each IP address specified in the multi-homing settings.
       std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = Configuration::Instance()->GetTCPIPPorts()->GetVector();
 
-      std::vector<std::shared_ptr<TCPIPPort> >::iterator iterPort = vecTCPIPPorts.begin();
-      std::vector<std::shared_ptr<TCPIPPort> >::iterator iterPortEnd = vecTCPIPPorts.end();
+      auto iterPort = vecTCPIPPorts.begin();
+      auto iterPortEnd = vecTCPIPPorts.end();
 
 
       for (; iterPort != iterPortEnd; iterPort++)
@@ -164,8 +164,8 @@ namespace HM
          LOG_DEBUG("IOService::Stop()");
          io_service_.stop();
 
-         std::vector<std::shared_ptr<TCPServer> >::iterator iterServer = tcp_servers_.begin();
-         std::vector<std::shared_ptr<TCPServer> >::iterator iterEnd = tcp_servers_.end();
+         auto iterServer = tcp_servers_.begin();
+         auto iterEnd = tcp_servers_.end();
          for (; iterServer != iterEnd; iterServer++)
          {
             (*iterServer)->StopAccept();

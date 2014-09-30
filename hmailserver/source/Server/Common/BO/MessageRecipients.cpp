@@ -58,7 +58,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove recipients that are local, but does not exist.
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      auto iterRecipient = recipients_.begin();
       while (iterRecipient != recipients_.end())
       {
          std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
@@ -82,7 +82,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove recipients that are local, but does not exist.
-      std::vector<std::shared_ptr<MessageRecipient> >::iterator iterRecipient = recipients_.begin();
+      auto iterRecipient = recipients_.begin();
       while (iterRecipient != recipients_.end())
       {
          std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);

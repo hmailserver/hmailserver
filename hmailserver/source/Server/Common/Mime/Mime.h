@@ -256,7 +256,7 @@ namespace HM
    // add a new field or update an existing field
    inline void MimeHeader::SetField(const MimeField& field)
    {
-	   std::vector<MimeField>::iterator it = FindField(field.GetName());
+	   auto it = FindField(field.GetName());
 	   if (it != fields_.end())
 		   *it = field;
 	   else
@@ -266,7 +266,7 @@ namespace HM
    // find a field by name
    inline MimeField* MimeHeader::GetField(const char* pszFieldName) const
    {
-	   std::vector<MimeField>::iterator it = FindField(pszFieldName);
+	   auto it = FindField(pszFieldName);
    
       if ((std::vector<MimeField>::const_iterator) it != fields_.end())
 		   return &(*it);

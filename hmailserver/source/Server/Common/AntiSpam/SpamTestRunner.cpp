@@ -48,8 +48,8 @@ namespace HM
    std::set<std::shared_ptr<SpamTestResult> >
    SpamTestRunner::RunSpamTest(std::shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore)
    {
-      std::vector<std::shared_ptr<SpamTest> >::iterator iter = spam_tests_.begin(); 
-      std::vector<std::shared_ptr<SpamTest> >::iterator iterEnd = spam_tests_.end();
+      auto iter = spam_tests_.begin(); 
+      auto iterEnd = spam_tests_.end();
 
       std::set<std::shared_ptr<SpamTestResult> > setTotalResult;
 
@@ -71,8 +71,8 @@ namespace HM
 
          std::set<std::shared_ptr<SpamTestResult> > setResult = pSpamTest->RunTest(pInputData);
 
-         std::set<std::shared_ptr<SpamTestResult> >::iterator iter = setResult.begin();
-         std::set<std::shared_ptr<SpamTestResult> >::iterator iterEnd = setResult.end();
+         auto iter = setResult.begin();
+         auto iterEnd = setResult.end();
 
          int totalScoreBefore = iTotalScore;
          for (; iter != iterEnd; iter++)

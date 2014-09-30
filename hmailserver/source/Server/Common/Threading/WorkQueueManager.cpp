@@ -50,7 +50,7 @@ namespace HM
       // Add the task to the work queue
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.find(iQueueID);
+      auto iterQueue = work_queues_.find(iQueueID);
 
       if (iterQueue == work_queues_.end())
       {
@@ -115,7 +115,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = GetQueueIterator_(sQueueName);
+      auto iterQueue = GetQueueIterator_(sQueueName);
       if (iterQueue != work_queues_.end())
       {
          std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
@@ -137,7 +137,7 @@ namespace HM
    // Returns a iterator to a queue with the specified name.
    //---------------------------------------------------------------------------
    {
-      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue = work_queues_.begin();
+      auto iterQueue = work_queues_.begin();
       while (iterQueue != work_queues_.end())
       {
          std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;

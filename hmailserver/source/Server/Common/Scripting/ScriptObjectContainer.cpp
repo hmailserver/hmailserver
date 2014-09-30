@@ -116,7 +116,7 @@ namespace HM
    ScriptObjectContainer::GetObjectNames()
    {
       std::vector<String> vecNames;
-      std::map<String, std::shared_ptr<ScriptObject> >::iterator iterPos = objects_.begin();     
+      auto iterPos = objects_.begin();     
       
       while (iterPos != objects_.end())
       {
