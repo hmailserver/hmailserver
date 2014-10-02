@@ -594,8 +594,6 @@ namespace HM
    {  
       String sMessage = "QUIT\r\n";
       EnqueueWrite_(sMessage);
-      
-      Logger::Instance()->LogDebug("POP3ClientConnection::OnConnectionTimeout() - Connection timeout.");
    }
 
    
