@@ -335,6 +335,7 @@ namespace HM
       // Fix for mailbox remailing locked even after timeout
       // http://www.hmailserver.com/forum/viewtopic.php?f=7&t=22361
       UnlockMailbox_();
+
       String sMessage = "-ERR Autologout; idle too long\r\n";
       EnqueueWrite(sMessage);
    }
@@ -905,7 +906,8 @@ namespace HM
                messagesToDelete.insert(message->GetUID());
          }
 
-         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) account_->GetID(), messagesToDelete, boost::bind(&POP3Connection::UpdateLogoutTimer, this));
+         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) account_->GetID(), messagesToDelete, 
+            boost::bind(&POP3Connection::UpdateAutoLogoutTimer, this));
       }
    }
 

@@ -1485,16 +1485,14 @@ namespace HM
    void
    SMTPConnection::OnConnectionTimeout()
    {
-      ResetCurrentMessage_();
-
-      EnqueueWrite_("421 Connection timeout.\r\n");
+      EnqueueWrite_("421 Connection timeout.");
    }
   
    void
    SMTPConnection::OnExcessiveDataReceived()
    {
       ResetCurrentMessage_();
-      EnqueueWrite_("421 Excessive amounts of data sent to server.\r\n");
+      EnqueueWrite_("421 Excessive amounts of data sent to server.");
    }
 
    void 
@@ -1583,7 +1581,7 @@ namespace HM
       if (crash_simulation_mode > 0)
          CrashSimulation::Execute(crash_simulation_mode);
 
-      EnqueueWrite_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n");
+      EnqueueWrite_("211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY");
    }
 
    void

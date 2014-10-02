@@ -36,7 +36,6 @@ namespace HM
       timer_(io_service),
       receive_binary_(false),
       remote_port_(0),
-      has_timeout_(false),
       receive_buffer_(250000),
       disconnected_(disconnected),
       context_(context),
@@ -58,15 +57,6 @@ namespace HM
 
       if (disconnected_)
          disconnected_->Set();
-
-      try
-      {
-         CancelLogoutTimer();
-      }
-      catch(...)
-      {
-         // should never, and must never throw.
-      }
    }
 
    bool
@@ -425,6 +415,8 @@ namespace HM
    void 
    TCPConnection::AsyncRead(const AnsiString &delimitor)
    {
+      UpdateAutoLogoutTimer();
+
       function<void (const boost::system::error_code&, size_t)> AsyncReadCompletedFunction =
          boost::bind(&TCPConnection::AsyncReadCompleted, shared_from_this(),
          boost::asio::placeholders::error,
@@ -449,12 +441,13 @@ namespace HM
          }
       }
 
-      UpdateLogoutTimer();
    }
 
    void 
    TCPConnection::AsyncReadCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
+      UpdateAutoLogoutTimer();
+
       if (error.value() != 0)
       {
          if (connection_state_ != StateConnected)
@@ -480,12 +473,6 @@ namespace HM
       }
       else
       {
-         // Disable the logout timer while we're parsing data. We don't want to terminate
-         // a client just because he has issued a long-running command. If we do this, we
-         // would have to take care of the fact that we're dropping a connection despite it
-         // still being active.
-         CancelLogoutTimer();
-
          if (receive_binary_)
          {
             shared_ptr<ByteBuffer> pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer());
@@ -584,6 +571,8 @@ namespace HM
    void 
    TCPConnection::AsyncWrite(shared_ptr<ByteBuffer> buffer)
    {
+      UpdateAutoLogoutTimer();
+
       function<void (const boost::system::error_code&, size_t)> AsyncWriteCompletedFunction =
          boost::bind(&TCPConnection::AsyncWriteCompleted, shared_from_this(),
          boost::asio::placeholders::error,
@@ -596,12 +585,14 @@ namespace HM
          boost::asio::async_write
          (socket_, boost::asio::buffer(buffer->GetCharBuffer(), buffer->GetSize()), AsyncWriteCompletedFunction);
 
-      UpdateLogoutTimer();
+      
    }
 
    void 
    TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
    {
+      UpdateAutoLogoutTimer();
+
       if (error.value() != 0)
       {
          if (connection_state_ != StateConnected)
@@ -715,8 +706,17 @@ namespace HM
 
 
    void 
-   TCPConnection::UpdateLogoutTimer()
+   TCPConnection::UpdateAutoLogoutTimer()
    {
+      /*
+         The timer instance is not thread safe for multiple concurrent callers.
+
+         We may have multiple IO operations starting and stopping at the same time, so we need to synchronize
+         lock to the timer from preventing multiple threads from accessing at the same time.
+      */
+
+      boost::mutex::scoped_lock lock(autologout_timer_);
+
       boost::system::error_code error_code;
 
       // Put a timeout...
@@ -731,19 +731,6 @@ namespace HM
       timer_.async_wait(bind(&TCPConnection::OnTimeout, 
          boost::weak_ptr<TCPConnection>(shared_from_this()), _1));
    }
-
-   void 
-   TCPConnection::CancelLogoutTimer()
-   {
-      boost::system::error_code error_code;
-      timer_.cancel(error_code);
-
-      if (error_code)
-      {
-         ReportError(ErrorManager::Low, 5211, "TCPConnection::CancelLogoutTimer", "Failed to logout timer", error_code);
-      }
-   }
-
 
    void
    TCPConnection::OnTimeout(boost::weak_ptr<TCPConnection> connection, boost::system::error_code const& err)
@@ -770,17 +757,26 @@ namespace HM
    void 
    TCPConnection::Timeout()
    {
-      if (has_timeout_)
+      if (connection_state_ != StateConnected)
       {
-         // We've already posted a timeout once. Disconnect now.
+         // We have already enqueued a disconnect. Since we're still alive, disconnect the socket.
          Disconnect();
          return;
       }
 
-      has_timeout_ = true;
+      // If we will attempt to send more data to the client, such as a timeout message, that message
+      // will have 5 seconds before we give up.
+      SetTimeout(5);
 
+      // Let deriving clients send a disconnect message.
       OnConnectionTimeout();
+
+      // Queue up a disconnection.
       EnqueueDisconnect();
+
+      // Make sure the autologout timer is triggered. This is done in OnConnectionTimeout if we send
+      // a timeout message, but if we don't we need to make sure its triggerd.
+      UpdateAutoLogoutTimer();
    }
 
    void 
