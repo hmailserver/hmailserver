@@ -28,9 +28,9 @@ namespace HM
 
       double newTimeout = maxSecs;
 
-      // If the load is too high, decrease the timeout to 15 seconds.
+      // If the load is too high, decrease the timeout to 60 seconds.
       if (loadPercentage >= 70)
-         newTimeout = 15;
+         newTimeout = 60;
 
       // If we're below the minimal value, increase slightly.
       if (newTimeout < minSecs)

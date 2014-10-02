@@ -12,7 +12,6 @@ namespace HM
 
       enum Constants
       {
-         // This is the point where performance will decrease (a guessed value).
          MaxConnectionCountOptimized = 20000
       };
 

@@ -51,8 +51,7 @@ namespace HM
       IPAddress GetRemoteEndpointAddress();
       unsigned long GetLocalEndpointPort();
 
-      void UpdateLogoutTimer();
-      void CancelLogoutTimer();
+      void UpdateAutoLogoutTimer();
 
       void SetSecurityRange(std::shared_ptr<SecurityRange> securityRange);
       std::shared_ptr<SecurityRange> GetSecurityRange();
@@ -131,7 +130,6 @@ namespace HM
       bool receive_binary_;
       ConnectionSecurity connection_security_;
       long remote_port_;
-      bool has_timeout_;
       String remote_ip_address_;
 
       std::shared_ptr<SecurityRange> security_range_;
@@ -145,6 +143,7 @@ namespace HM
       bool is_client_;
 
       boost::atomic<ConnectionState> connection_state_;
+      boost::mutex autologout_timer_;
    };
 
 }
