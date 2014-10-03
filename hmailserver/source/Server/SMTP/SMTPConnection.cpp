@@ -982,52 +982,53 @@ namespace HM
       current_message_->SetSize(FileUtilities::FileSize(PersistentMessage::GetFileName(current_message_)));
 
 
-   // Let's archive message we just received
-   String sArchiveDir = IniFileSettings::Instance()->GetArchiveDir();
+      // Let's archive message we just received
+      String sArchiveDir = IniFileSettings::Instance()->GetArchiveDir();
 
-   if (!sArchiveDir.empty()) 
-   {
-      LOG_SMTP(GetSessionID(), GetIPAddressString(), "Archiving..");      
-
-      bool bArchiveHardlinks = IniFileSettings::Instance()->GetArchiveHardlinks();
-      String _messageFileName;
-      String sFileNameExclPath;
-      String sMessageArchivePath;
-      String sFromAddress1 = current_message_->GetFromAddress();
-      std::vector<String> vecParams1 = StringParser::SplitString(sFromAddress1,  "@");
-
-      // We need exactly 2 or not an email address
-      if (vecParams1.size() == 2)
+      if (!sArchiveDir.empty()) 
       {
-         String sResponse;
-         String sSenderName = vecParams1[0];
-         sSenderName = sSenderName.ToLower();
-         String sSenderDomain = vecParams1[1];
-         sSenderDomain = sSenderDomain.ToLower();
-         bool blocalSender1 = GetIsLocalSender_();
+         LOG_SMTP(GetSessionID(), GetIPAddressString(), "Archiving..");      
 
-         if (blocalSender1)
+         bool bArchiveHardlinks = IniFileSettings::Instance()->GetArchiveHardlinks();
+         String _messageFileName;
+         String sFileNameExclPath;
+         String sMessageArchivePath;
+         String sFromAddress1 = current_message_->GetFromAddress();
+         std::vector<String> vecParams1 = StringParser::SplitString(sFromAddress1,  "@");
+
+         // We need exactly 2 or not an email address
+         if (vecParams1.size() == 2)
          {
-            // First copy goes to local sender
-            _messageFileName = PersistentMessage::GetFileName(current_message_);
-            sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
-            sMessageArchivePath = sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName + "\\Sent-" + sFileNameExclPath;
+            String sResponse;
+            String sSenderName = vecParams1[0];
+            sSenderName = sSenderName.ToLower();
+            String sSenderDomain = vecParams1[1];
+            sSenderDomain = sSenderDomain.ToLower();
+            bool blocalSender1 = GetIsLocalSender_();
 
-            LOG_SMTP(GetSessionID(), GetIPAddressString(), "Local sender: " + sFromAddress1 + ". Putting in user folder: " + sMessageArchivePath);      
+            if (blocalSender1)
+            {
+               // First copy goes to local sender
+               _messageFileName = PersistentMessage::GetFileName(current_message_);
+               sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
+               sMessageArchivePath = sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName + "\\Sent-" + sFileNameExclPath;
 
-            FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
-         }
-         else
-         {
-            LOG_SMTP(GetSessionID(), GetIPAddressString(), "Non local sender, putting in common Inbound folder..");      
+               LOG_SMTP(GetSessionID(), GetIPAddressString(), "Local sender: " + sFromAddress1 + ". Putting in user folder: " + sMessageArchivePath);      
 
-            // First copy goes to common archive folder instead
-            _messageFileName = PersistentMessage::GetFileName(current_message_);
-            sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
-            sMessageArchivePath = sArchiveDir + "\\Inbound\\" + sFileNameExclPath;
+               FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
+            }
+            else
+            {
+               LOG_SMTP(GetSessionID(), GetIPAddressString(), "Non local sender, putting in common Inbound folder..");      
 
-            FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
-         }
+               // First copy goes to common archive folder instead
+               _messageFileName = PersistentMessage::GetFileName(current_message_);
+               sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
+               sMessageArchivePath = sArchiveDir + "\\Inbound\\" + sFileNameExclPath;
+
+               FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
+            }
+
             String sMessageArchivePath2;
 
             // Now create hardlink/copy for each *local* recipient
@@ -1074,28 +1075,29 @@ namespace HM
                         {
                            LOG_SMTP(GetSessionID(), GetIPAddressString(), "HardLink succeeded.");      
                         }
-                    }
-                    else
-                    {
-                       FileUtilities::Copy(sMessageArchivePath, sMessageArchivePath2, true);
-                    }
+                     }
+                     else
+                     {
+                        FileUtilities::Copy(sMessageArchivePath, sMessageArchivePath2, true);
+                     }
                   }
                }
-            iterRecipient++;
-         }
-   }
-   else
-   {
-      // Sender is either null/blank (ie <>) or some other odd thing happed so we'll save in Error folder
-      // either way as failsafe.
-      LOG_SMTP(GetSessionID(), GetIPAddressString(), "Sender is NULL or invalid. Saving to Error folder.");      
 
-      _messageFileName = PersistentMessage::GetFileName(current_message_);
-      sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
-      sMessageArchivePath = sArchiveDir + "\\Error\\" + sFileNameExclPath;
-      FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
-   }
-}   
+               iterRecipient++;
+            }
+         }
+         else
+         {
+            // Sender is either null/blank (ie <>) or some other odd thing happed so we'll save in Error folder
+            // either way as failsafe.
+            LOG_SMTP(GetSessionID(), GetIPAddressString(), "Sender is NULL or invalid. Saving to Error folder.");      
+
+            _messageFileName = PersistentMessage::GetFileName(current_message_);
+            sFileNameExclPath = FileUtilities::GetFileNameFromFullPath(_messageFileName);
+            sMessageArchivePath = sArchiveDir + "\\Error\\" + sFileNameExclPath;
+            FileUtilities::Copy(_messageFileName, sMessageArchivePath, true);
+         }
+      }   
 
       float dTime = ((float) GetTickCount() - (float) message_start_tc_) / (float) 1000;
       double dTCDiff = Math::Round(dTime ,3);
@@ -1160,7 +1162,6 @@ namespace HM
 
       SetReceiveBinary(false);
       EnqueueRead();
-  
    }
 
    void
