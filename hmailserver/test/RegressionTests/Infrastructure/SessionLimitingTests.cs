@@ -20,7 +20,9 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(143));
+            conn1.Receive();
             CustomAssert.IsTrue(conn2.Connect(143));
+            conn2.Receive();
             CustomAssert.IsTrue(conn3.Connect(143));
             CustomAssert.IsEmpty(conn3.Receive());
          }
@@ -39,7 +41,9 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(25));
+            conn1.Receive();
             CustomAssert.IsTrue(conn2.Connect(25));
+            conn2.Receive();
             CustomAssert.IsTrue(conn3.Connect(25));
             CustomAssert.IsEmpty(conn3.Receive());
          }
@@ -58,7 +62,9 @@ namespace RegressionTests.Infrastructure
          using (var conn3 = new TcpConnection())
          {
             CustomAssert.IsTrue(conn1.Connect(110));
+            conn1.Receive();
             CustomAssert.IsTrue(conn2.Connect(110));
+            conn2.Receive();
             CustomAssert.IsTrue(conn3.Connect(110));
             CustomAssert.IsEmpty(conn3.Receive());
          }

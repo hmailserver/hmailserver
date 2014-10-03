@@ -263,7 +263,7 @@ namespace RegressionTests.AntiSpam.DKIM
          string result = SendMessage();
          CustomAssert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Either the selector or private key file was not specified.");
       }
 
       [Test]
@@ -277,7 +277,7 @@ namespace RegressionTests.AntiSpam.DKIM
          string result = SendMessage();
          CustomAssert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Either the selector or private key file was not specified.");
       }
    }
 }

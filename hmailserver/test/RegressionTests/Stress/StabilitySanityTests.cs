@@ -94,7 +94,7 @@ namespace RegressionTests.Stress
             sock.IsPortOpen(25);
 
             // make sure that hMailServer reported an error during start up because the ports were blocked.
-            TestSetup.AssertReportedError();
+            TestSetup.AssertReportedError("Failed to bind to local port.");
          }
 
          // restart hMailServer again. everything is now back to normal.
@@ -126,7 +126,7 @@ namespace RegressionTests.Stress
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Message retrieval failed because message file");
       }
 
       [Test]
@@ -152,7 +152,7 @@ namespace RegressionTests.Stress
 
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Message retrieval failed because message file");
       }
 
 
@@ -183,7 +183,7 @@ namespace RegressionTests.Stress
          string result = sim.Fetch("1 BODY[1]");
 
          CustomAssert.IsTrue(result.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Message retrieval failed because message file");
       }
    }
 }

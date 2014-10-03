@@ -171,7 +171,7 @@ namespace RegressionTests.API
          back.SetBackupDir(@"C:\some-non-existant-directory");
          CustomAssert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
          string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
          CustomAssert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
@@ -198,7 +198,7 @@ namespace RegressionTests.API
          back.SetBackupDir(@"C:\some-non-existant-directory");
          CustomAssert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
          string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
          CustomAssert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
@@ -423,7 +423,7 @@ namespace RegressionTests.API
          File.Delete(message.Filename);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          CustomAssert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
@@ -459,7 +459,7 @@ namespace RegressionTests.API
          File.Delete(message.Filename);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          CustomAssert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
