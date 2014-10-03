@@ -212,7 +212,8 @@ namespace RegressionTests.AntiSpam
 
          CustomAssert.IsFalse(sMessageContents.Contains("X-Spam-Status"));
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("There was a communication error with SpamAssassin.",
+                                       "The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.");
       }
 
       [Test]

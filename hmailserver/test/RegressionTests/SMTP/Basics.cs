@@ -796,7 +796,8 @@ namespace RegressionTests.SMTP
 
             CustomAssert.IsTrue(result.StartsWith("4"), "Expected temporary error, but was: " + result);
 
-            TestSetup.AssertReportedError();
+            TestSetup.AssertReportedError("Failed to write to the file",
+                                          "Rejected message because no mail data has been saved in file");
          }
          finally
          {

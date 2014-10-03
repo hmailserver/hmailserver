@@ -1016,12 +1016,6 @@ namespace RegressionTests.Shared
          CustomAssert.Fail("Expected file does not exist:" + file);
       }
 
-      public static void AssertReportedError()
-      {
-         string file = GetErrorLogFileName();
-         AssertFileExists(file, true);
-      }
-
       public static void AssertNoReportedError()
       {
          if (File.Exists(GetErrorLogFileName()))
@@ -1032,13 +1026,22 @@ namespace RegressionTests.Shared
 
       }
 
-      public static void AssertReportedError(string content)
+      public static void AssertReportedError(params string[] contents)
       {
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+         try
+         {
+            RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
-               string errorLog = ReadAndDeleteErrorLog();
-               CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
+               string errorLog = ReadErrorLog();
+
+               foreach (var content in contents)
+                  CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
             });
+         }
+         finally
+         {
+            DeleteErrorLog();
+         }
       }
 
       public static void DeleteErrorLog()
@@ -1054,14 +1057,20 @@ namespace RegressionTests.Shared
 
       public static string ReadAndDeleteErrorLog()
       {
+         string contents = ReadErrorLog();
+
+         DeleteErrorLog();
+
+         return contents;
+      }
+
+      private static string ReadErrorLog()
+      {
          string file = GetErrorLogFileName();
          AssertFileExists(file, false);
 
-         string contents = File.ReadAllText(file);
-
-         File.Delete(file);
-
-         return contents;
+         return  File.ReadAllText(file);
+         
       }
 
 

@@ -76,7 +76,9 @@ namespace RegressionTests.Infrastructure
 
          TriggerCrashSimulationError();
 
-         TestSetup.AssertReportedError();
+         TestSetup.AssertReportedError("Description: An error occured while parsing data.",
+                                       "An error occured while executing 'IOCPQueueWorkerTask'",
+                                       "An error has been detected. A mini dump has been written");
 
          AssertMinidumpCount(1);
       }
