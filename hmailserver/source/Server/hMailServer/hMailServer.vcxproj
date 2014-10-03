@@ -646,6 +646,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1i\out32dll\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Smtp\SMTPDeliverer.cpp" />
     <ClCompile Include="..\Smtp\SMTPDeliveryManager.cpp" />
     <ClCompile Include="..\SMTP\SMTPForwarding.cpp" />
+    <ClCompile Include="..\SMTP\SMTPMessageHeaderCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVacationMessageCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
@@ -887,6 +888,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1i\out32dll\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\SQL\SQLScriptRunner.h" />
     <ClInclude Include="..\Common\Sql\SQLStatement.h" />
     <ClInclude Include="..\Common\TCPIP\CertificateVerifier.h" />
+    <ClInclude Include="..\Common\TCPIP\CipherInfo.h" />
     <ClInclude Include="..\Common\Tcpip\DNSResolver.h" />
     <ClInclude Include="..\Common\TCPIP\HostNameAndIpAddress.h" />
     <ClInclude Include="..\Common\TCPIP\IOOperation.h" />
@@ -1139,6 +1141,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1i\out32dll\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Smtp\SMTPDeliverer.h" />
     <ClInclude Include="..\Smtp\SMTPDeliveryManager.h" />
     <ClInclude Include="..\SMTP\SMTPForwarding.h" />
+    <ClInclude Include="..\SMTP\SMTPMessageHeaderCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVacationMessageCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />

@@ -58,7 +58,7 @@ namespace RegressionTests.POP3.Fetching
                   CustomAssert.Fail("No connection: " + contentSoFar);
 
                contentSoFar = TestSetup.ReadCurrentDefaultLog();
-               if (contentSoFar.Contains("SSL handshake with client failed."))
+               if (contentSoFar.Contains("TCPConnection - TLS/SSL handshake failed."))
                   break;
 
                Thread.Sleep(1000);
@@ -77,7 +77,7 @@ namespace RegressionTests.POP3.Fetching
                   CustomAssert.Fail("No connection: " + contentSoFar);
 
                contentSoFar = TestSetup.ReadCurrentDefaultLog();
-               if (contentSoFar.Contains("SSL handshake with client failed."))
+               if (contentSoFar.Contains("TCPConnection - TLS/SSL handshake failed."))
                   break;
 
                Thread.Sleep(1000);

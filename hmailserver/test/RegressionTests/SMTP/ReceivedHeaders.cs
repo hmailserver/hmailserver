@@ -76,5 +76,49 @@ namespace RegressionTests.SMTP
          }
       }
 
+      [Test]
+      [Description("Received header should include cipher information if SSL is used.")]
+      public void TestCipherInfoInReceivedHeader()
+      {
+         try
+         {
+            var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+
+            string errorMessage;
+            smtpClientSimulator.Send(true, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+               out errorMessage);
+
+            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            CustomAssert.IsTrue(message.Contains("version=TLS"));
+            CustomAssert.IsTrue(message.Contains("cipher="));
+            CustomAssert.IsTrue(message.Contains("bits="));
+         }
+         catch (Exception e)
+         {
+            CustomAssert.Fail(e.ToString());
+         }
+      }
+
+      [Test]
+      [Description("Received header should NOT include cipher information if SSL is NOT used.")]
+      public void TestMissingCipherInfoInReceivedHeader()
+      {
+         try
+         {
+            var smtpClientSimulator = new SMTPClientSimulator(false, 25);
+
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+               out errorMessage);
+
+            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            CustomAssert.IsFalse(message.Contains("cipher\r\n"));
+         }
+         catch (Exception e)
+         {
+            CustomAssert.Fail(e.ToString());
+         }
+      }
+
    }
 }

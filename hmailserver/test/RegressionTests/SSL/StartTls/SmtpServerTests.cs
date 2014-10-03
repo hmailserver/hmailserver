@@ -62,6 +62,28 @@ namespace RegressionTests.SSL.StartTls
       }
 
       [Test]
+      public void HandshakeCompletionShouldBeLoggedWithCipherDetails()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+
+         var default_log = TestSetup.ReadCurrentDefaultLog();
+
+         CustomAssert.IsTrue(default_log.Contains("Version: TLS"));
+         CustomAssert.IsTrue(default_log.Contains("Cipher: "));
+         CustomAssert.IsTrue(default_log.Contains("Bits: "));
+
+      }
+
+      [Test]
       public void IfStlsRequiredLogonShouldSucceedIfStls()
       {
          var smtpClientSimulator = new TcpConnection();

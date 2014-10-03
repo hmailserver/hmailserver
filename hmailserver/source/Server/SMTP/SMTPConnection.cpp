@@ -47,10 +47,6 @@
 #include "../common/Threading/AsynchronousTask.h"
 #include "../common/Threading/WorkQueue.h"
 
-#include "SMTPConnection.h"
-#include "SMTPConfiguration.h"
-#include "SMTPDeliveryManager.h"
-
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
 
@@ -62,6 +58,11 @@
 #include "../Common/Application/IniFileSettings.h"
 
 #include "../Common/Util/CrashSimulation.h"
+
+#include "SMTPConnection.h"
+#include "SMTPConfiguration.h"
+#include "SMTPDeliveryManager.h"
+#include "SMTPMessageHeaderCreator.h"
 
 using namespace std;
 
@@ -827,69 +828,22 @@ namespace HM
    {
       if (trace_headers_written_)
       {
-         std::shared_ptr<ByteBuffer> pBuffer = transmission_buffer_->GetBuffer();
-         std::shared_ptr<MimeHeader> pHeader = Utilities::GetMimeHeader(pBuffer->GetBuffer(), pBuffer->GetSize());
+         std::shared_ptr<MimeHeader> original_headers = Utilities::GetMimeHeader(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
 
-         String sOutput;
-
-         // Add received by tag.
-         String sReceivedLine;
-         String sReceivedIP;
-         String sAUTHIP;
-         String sAuthSenderReplacementIP = IniFileSettings::Instance()->GetAuthUserReplacementIP();
-         bool bAddXAuthUserIP = IniFileSettings::Instance()->GetAddXAuthUserIP();
+         SMTPMessageHeaderCreator header_creator(username_, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers);
          
+         if (IsSSLConnection())
+            header_creator.SetCipherInfo(GetCipherInfo());
 
-         // If sender is logged in and replace IP is enabled use it
-         if (!username_.IsEmpty() && !sAuthSenderReplacementIP.empty())
-         {
-            sReceivedIP = sAuthSenderReplacementIP;
-            sAUTHIP = GetIPAddressString();
-         }
-         else
-         {
-            sReceivedIP = GetIPAddressString();
-            sAUTHIP = sReceivedIP;
-         }
-
-         sReceivedLine.Format(_T("Received: %s\r\n"), Utilities::GenerateReceivedHeader(sReceivedIP, helo_host_, isAuthenticated_, start_tls_used_).c_str());
-         sOutput += sReceivedLine;
-
-         String sComputerName = Utilities::ComputerName(); 
-
-         // Add Message-ID header if it does not exist.
-         if (!pHeader->FieldExists("Message-ID"))
-         {
-            String sTemp;
-            sTemp.Format(_T("Message-ID: %s\r\n"), Utilities::GenerateMessageID().c_str());
-            sOutput += sTemp;
-         }
-
-         // Add X-AuthUser header if it does not exist.
-         if (IniFileSettings::Instance()->GetAddXAuthUserHeader() && !username_.IsEmpty())
-         {
-            if (!pHeader->FieldExists("X-AuthUser"))
-               sOutput += "X-AuthUser: " + username_ + "\r\n";
-         }
-
-         // Now add x- header for AUTH user if enabled since it was replaced above if so
-         // Likely would be good idea for this to be optional at some point
-         if (!username_.IsEmpty() && !sAuthSenderReplacementIP.empty() && bAddXAuthUserIP)
-         {
-            if (!pHeader->FieldExists("X-AuthUserIP"))
-               sOutput += "X-AuthUserIP: " + sAUTHIP + "\r\n";
-         }
+         AnsiString new_headers = header_creator.Create();
          
-         // We need to prepend these headers to the message buffer.
-         std::shared_ptr<ByteBuffer> pTempBuf = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-
-         AnsiString sOutputStr = sOutput;
-         pTempBuf->Add((BYTE*) sOutputStr.GetBuffer(), sOutputStr.GetLength());
-         pTempBuf->Add(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
-
+         std::shared_ptr<ByteBuffer> new_data = std::shared_ptr<ByteBuffer>(new ByteBuffer);
+         new_data->Add((BYTE*)new_headers.GetBuffer(), new_headers.GetLength());
+         new_data->Add(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
+        
          // Add to the original buffer
          transmission_buffer_->GetBuffer()->Empty();
-         transmission_buffer_->GetBuffer()->Add(pTempBuf->GetBuffer(), pTempBuf->GetSize());
+         transmission_buffer_->GetBuffer()->Add(new_data);
 
          trace_headers_written_ = false;
       }

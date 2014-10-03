@@ -14,6 +14,7 @@
 #include "../TCPIP/TCPServer.h"
 #include "../TCPIP/DNSResolver.h"
 
+
 #include "../../SMTP/SMTPConnection.h"
 
 #ifdef _DEBUG
@@ -153,56 +154,7 @@ namespace HM
       return sRetVal;
    }
 
-   String 
-   Utilities::GenerateReceivedHeader(const String &remote_ip, String remote_hostname, bool authenticated, bool start_tls_used)
-   {
-      String sComputerName = Utilities::ComputerName(); 
-      std::vector<String> results;
-      // do a PTR lookup, solves an issue with some spam filerting programs such as SA
-      // not having a PTR in the Received header.
-      String ptrRecord;
-      DNSResolver resolver;
-      if (!resolver.GetPTRRecords(remote_ip, results))
-      {
-         LOG_DEBUG("Could not get PTR record for IP (false)! " + remote_ip);
-         ptrRecord = "Unknown";
-      }
-      else
-      {
 
-         if (results.size() == 0)
-         {
-            LOG_DEBUG("Could not get PTR record for IP (empty)! " + remote_ip);
-            ptrRecord = "Unknown";
-         }
-         else ptrRecord = results[0];
-      }
-
-      if (remote_hostname.IsEmpty())
-         remote_hostname = remote_ip;
-
-      String esmtp_additions;
-
-      if (start_tls_used) 
-         esmtp_additions += "S";
-
-      if (authenticated) 
-         esmtp_additions += "A";
-
-      String sResult;
-      sResult.Format(_T("from %s (%s [%s])\r\n")
-                     _T("\tby %s with ESMTP%s\r\n")
-                     _T("\t; %s"), 
-                     remote_hostname.c_str(),
-                     ptrRecord.c_str(),
-                     remote_ip.c_str(),
-                     sComputerName.c_str(),
-                     esmtp_additions.c_str(),
-                     Time::GetCurrentMimeDate().c_str());
-
-      return sResult;
-
-   }
 
    String 
    Utilities::GenerateMessageID()

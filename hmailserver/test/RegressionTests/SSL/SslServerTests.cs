@@ -42,7 +42,7 @@ namespace RegressionTests.SSL
             CustomAssert.IsTrue(i != 40);
 
             string liveLog = _application.Settings.Logging.LiveLog;
-            if (liveLog.Contains("SSL handshake with client failed."))
+            if (liveLog.Contains("TCPConnection - TLS/SSL handshake failed."))
                break;
 
             Thread.Sleep(250);

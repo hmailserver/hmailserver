@@ -7,6 +7,7 @@ namespace HM
 {
    class MimeHeader;
    class DateTime;
+   class CipherInfo;
 
    class Utilities  
    {
@@ -22,7 +23,7 @@ namespace HM
       static String GetIPAddress (SOCKADDR_IN addr);
 
       static String GenerateMessageID();
-      static String GenerateReceivedHeader(const String &remote_ip, String remote_hostname, bool authenticated, bool start_tls_used);
+
 
       static std::shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, int iBufSize);
 
@@ -37,6 +38,8 @@ namespace HM
       bool IsValidIPAddress(const AnsiString string);
 
    private:
+
+      
 
       static String cached_win_32computer_name_;
 

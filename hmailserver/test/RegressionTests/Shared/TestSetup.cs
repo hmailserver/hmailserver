@@ -1064,6 +1064,7 @@ namespace RegressionTests.Shared
          return contents;
       }
 
+
       public void AssertFilesInUserDirectory(Account account, int expectedFileCount)
       {
          string domain = account.Address.Substring(account.Address.IndexOf("@") + 1);

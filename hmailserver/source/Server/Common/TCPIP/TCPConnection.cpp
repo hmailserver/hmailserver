@@ -14,6 +14,7 @@
 #include "IPAddress.h"
 #include "IOOperation.h"
 #include "CertificateVerifier.h"
+#include "CipherInfo.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -356,8 +357,16 @@ namespace HM
    {
       if (!error)
       {
-         // Send welcome message to client.
          is_ssl_ = true;
+
+         // Send welcome message to client.
+         auto cipher_info = GetCipherInfo();
+
+         String sMessage;
+         sMessage.Format(_T("TCPConnection - TLS/SSL handshake completed. Session Id: %d, Remote IP: %s, Version: %s, Cipher: %s, Bits: %d"), session_id_, SafeGetIPAddress().c_str(), String(cipher_info.GetVersion()).c_str(), String(cipher_info.GetName()).c_str(), cipher_info.GetBits());
+         LOG_TCPIP(sMessage);
+
+
          OnHandshakeCompleted();
       }
       else
@@ -376,7 +385,7 @@ namespace HM
       // The SSL handshake failed. This may happen for example if the user who has connected
       // to the TCP/IP port disconnects immediately without sending any data.
       String sMessage;
-      sMessage.Format(_T("TCPConnection - SSL handshake with client failed. Error code: %d, Message: %s, Remote IP: %s"), error.value(), String(error.message()).c_str(), SafeGetIPAddress().c_str());
+      sMessage.Format(_T("TCPConnection - TLS/SSL handshake failed. Session Id: %d, Remote IP: %s, Error code: %d, Message: %s"), session_id_, SafeGetIPAddress().c_str(), error.value(), String(error.message()).c_str());
       LOG_TCPIP(sMessage);
 
       OnHandshakeFailed();
@@ -696,6 +705,21 @@ namespace HM
    TCPConnection::GetIPAddressString()
    {
       return GetRemoteEndpointAddress().ToString();
+   }
+
+   CipherInfo
+   TCPConnection::GetCipherInfo()
+   {
+      if (!is_ssl_)
+      {
+         throw std::logic_error("Session is not SSL/TLS. Cipher info cannot be retrieved.");
+      }
+
+      auto ssl_handle = ssl_socket_.native_handle();
+      AnsiString name = SSL_get_cipher_name(ssl_handle);
+      AnsiString version = SSL_get_cipher_version(ssl_handle);
+      int bits = SSL_get_cipher_bits(ssl_handle, 0);
+      return CipherInfo(name, version, bits);
    }
 
 

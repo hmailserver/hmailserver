@@ -8,6 +8,7 @@
 #include "SocketConstants.h"
 #include "IOOperationQueue.h"
 
+
 #include <boost/atomic.hpp>
 
 using boost::asio::ip::tcp;
@@ -18,6 +19,7 @@ namespace HM
 {
    class ByteBuffer;
    class SecurityRange;
+   class CipherInfo;
 
    class TCPConnection :
       public std::enable_shared_from_this<TCPConnection>
@@ -64,6 +66,8 @@ namespace HM
 
       void Timeout();
 
+      CipherInfo GetCipherInfo();
+
    protected:
 
       int GetSessionID();
@@ -87,6 +91,7 @@ namespace HM
       virtual void ParseData(const AnsiString &sAnsiString) = 0;
       virtual void ParseData(std::shared_ptr<ByteBuffer> pByteBuffer) = 0;
    
+      AnsiString GetSslTlsCipher();
    private:
 
       void ThrowIfNotConnected_();
