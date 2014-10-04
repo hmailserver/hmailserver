@@ -9,6 +9,7 @@
 
 #include "../Application/SessionManager.h"
 #include "../Application/ExceptionHandler.h"
+#include "../TCPIP/DisconnectedException.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -40,13 +41,20 @@ namespace HM
    void 
    IOCPQueueWorkerTask::DoWorkInner()
    {
-      try
+      while (true)
       {
-         io_service_.run();
-      }
-	  catch (const boost::thread_interrupted&)
-      {
-         return;
+         try
+         {
+            io_service_.run();
+            return;
+         }
+         catch (DisconnectedException&)
+         {
+            LOG_DEBUG("Connection was terminated - Client is disconnected.");
+            // A client has disconnected. This is not an error scenario, so we can
+            // keep running.
+         }
+
       }
    }
 

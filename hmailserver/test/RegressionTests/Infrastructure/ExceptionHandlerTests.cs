@@ -109,6 +109,21 @@ namespace RegressionTests.Infrastructure
       }
 
       [Test]
+      public void DisconnectedExceptionShouldNotExitRunningThreads()
+      {
+         SetCrashSimulationMode(4);
+
+         for (int i = 0; i < 20; i++)
+         {
+            TriggerCrashSimulationError();
+            TestSetup.AssertNoReportedError();
+         }
+
+         var defaultLog = TestSetup.ReadCurrentDefaultLog();
+         CustomAssert.IsTrue(defaultLog.Contains("Connection was terminated - Client is disconnected."));
+      }
+
+      [Test]
       public void AtMost10MinidumpsAreGenerated()
       {
          SetCrashSimulationMode(3);

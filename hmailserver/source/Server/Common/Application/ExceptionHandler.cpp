@@ -7,7 +7,7 @@
 #include "../Util/ExceptionLogger.h"
 
 #include <boost/thread/thread.hpp>
-#include "../TCPIP/DisconnectedException.h"
+
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -62,10 +62,6 @@ namespace HM
       catch (boost::thread_interrupted&)
       {
          // shutting down
-      }
-      catch (DisconnectedException&)
-      {
-         LOG_DEBUG("Connection was terminated - Client is disconnected.");
       }
       catch (boost::system::system_error& error)
       {

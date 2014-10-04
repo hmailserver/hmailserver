@@ -5,6 +5,8 @@
 
 #include "CrashSimulation.h"
 
+#include "../TCPIP/DisconnectedException.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -27,6 +29,8 @@ namespace HM
             {
                memset(0, 1, 1);
             }
+         case 4:
+            throw DisconnectedException();
       }
    }
 
