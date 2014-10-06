@@ -29,7 +29,7 @@ namespace HM
    {
       tld_.clear();
 
-      String sTLDSFile = Utilities::GetExecutableDirectory();
+      String sTLDSFile = Utilities::GetBinDirectory();
       if (sTLDSFile.Right(1) != _T("\\"))
          sTLDSFile += "\\";
       sTLDSFile += "tlds.txt";

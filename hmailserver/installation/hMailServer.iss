@@ -108,6 +108,7 @@ Source: "..\source\Translations\*"; Excludes: "CVS,.cvsignore,.#*"; DestDir: "{a
 
 Source: ISC.dll; Flags: dontcopy
 Source: ".\Extras\tlds.txt"; DestDir: "{app}\Bin";  Flags: ignoreversion; Components: server;
+Source: ".\Extras\dh2048.pem"; DestDir: "{app}\Bin";  Flags: ignoreversion; Components: server;
 
 [Messages]
 BeveledLabel=hMailServer

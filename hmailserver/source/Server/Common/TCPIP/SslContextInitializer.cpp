@@ -6,6 +6,7 @@
 
 #include "../BO/SSLCertificate.h"
 #include "../Util/Encoding/Base64.h"
+#include "../Util/Utilities.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -29,7 +30,20 @@ namespace HM
       try
       {
          context.set_options(boost::asio::ssl::context::default_workarounds |
-            boost::asio::ssl::context::no_sslv2);
+                             boost::asio::ssl::context::no_sslv2 |
+                             boost::asio::ssl::context::single_dh_use);
+         
+         String bin_directory = Utilities::GetBinDirectory();
+         String dh2048_file = FileUtilities::Combine(bin_directory, "dh2048.pem");
+
+         if (FileUtilities::Exists(dh2048_file))
+         {
+            context.use_tmp_dh_file(AnsiString(dh2048_file));
+         }
+         else
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5603, "SslContextInitializer::InitServer", Formatter::Format("Unable to enable Diffie - Hellman key agreement.The required file {0} does not exist.", dh2048_file));
+         }
       }
       catch (boost::system::system_error ec)
       {

@@ -75,7 +75,7 @@ namespace HM
          foundAddressesJoined = "(none)";
 
       String logMessage = Formatter::Format("DNS lookup: {0}, {1} addresses found: {2}, Match: {3}", sCheckHost, foundAddresses.size(), foundAddressesJoined, isBlocked);
-      LOG_SMTP(0,"TCP",logMessage);
+      LOG_TCPIP(logMessage);
 
       return isBlocked;
    }

@@ -161,7 +161,7 @@ namespace HM
    void 
    ClassTester::LoadSettings_()
    {
-      String sAppPath = Utilities::GetExecutableDirectory();
+      String sAppPath = Utilities::GetBinDirectory();
       if (sAppPath.Right(1) != _T("\\"))
          sAppPath += _T("\\");
 

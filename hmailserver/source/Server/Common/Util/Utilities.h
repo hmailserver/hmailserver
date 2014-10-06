@@ -16,12 +16,10 @@ namespace HM
 	   virtual ~Utilities();
 
       static String ComputerName();
-      static String GetExecutableDirectory();
+      static String GetBinDirectory();
       static String GetWin32TempDirectory();
       static String GetUniqueTempDirectory();
-         
       static String GetIPAddress (SOCKADDR_IN addr);
-
       static String GenerateMessageID();
 
 

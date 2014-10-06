@@ -5,6 +5,8 @@
 #include "Utilities.h"
 #include "File.h"
 #include "Time.h"
+#include "Registry.h"
+
 
 #include "../Mime/Mime.h"
 #include "GUIDCreator.h"
@@ -13,8 +15,6 @@
 #include "../TCPIP/IPAddress.h"
 #include "../TCPIP/TCPServer.h"
 #include "../TCPIP/DNSResolver.h"
-
-
 #include "../../SMTP/SMTPConnection.h"
 
 #ifdef _DEBUG
@@ -124,13 +124,27 @@ namespace HM
    }
 
    String
-   Utilities::GetExecutableDirectory()
+   Utilities::GetBinDirectory()
    {
-      String sPathIncExe = Application::GetExecutableName();
-      // Find last slash.
-      int iLastSlash = sPathIncExe.ReverseFind(_T("\\"));
+      // The install key in the registry should be enough to tell us where we're installed.
+      String install_path;
+      Registry registry;
 
-      return sPathIncExe.Mid(0, iLastSlash);
+      if (registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\hMailServer", "InstallLocation", install_path))
+      {
+
+         return FileUtilities::Combine(install_path, "Bin");
+      }
+      else
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5602, "Utilities::GetBinDirectory", "Unable to read install path from HKEY_LOCAL_MACHINE\\SOFTWARE\\hMailServer. Using fallback method.");
+
+         // Lookup executable path.
+         String executable_full_path = Application::GetExecutableName();
+         int last_slash = executable_full_path.ReverseFind(_T("\\"));
+
+         return executable_full_path.Mid(0, last_slash);
+      }
    }
 
    String

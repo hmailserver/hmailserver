@@ -6,7 +6,6 @@
 
 #include "../Util/Crypt.h"
 #include "../Util/Utilities.h"
-#include "../Util/Registry.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -213,8 +212,7 @@ namespace HM
    {
       if (ini_file_.IsEmpty())
       {
-
-         String AppPath = Utilities::GetExecutableDirectory();
+         String AppPath = Utilities::GetBinDirectory();
 
          ini_file_ = AppPath;
 
@@ -222,30 +220,6 @@ namespace HM
             ini_file_ += "\\";
 
          ini_file_ += "hMailServer.ini";
-
-#ifdef _DEBUG
-
-         if (!FileUtilities::Exists(ini_file_))
-         {
-            // We're running in debug. Since the hMailServer.ini is not copied to 
-            // the Source\hMailServer\Debug directory, we need to locate it.
-            //
-            // We assume that the install location specified in the registry is
-            // the current one.
-            //
-            String installPath;
-
-            Registry registry;
-            if (registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\hMailServer", "InstallLocation", installPath))
-            {
-               ini_file_ = 
-                  FileUtilities::Combine(installPath, "Bin\\hMailServer.ini");
-            }
-
-
-         }
-
-#endif
       }
 
       return ini_file_;

@@ -115,3 +115,5 @@
 5521, An error has been detected. hMailServer was unable to launch minidump generator.
 5522, An error has been detected. hMailServer attempted to generate minidump, but hMailServer.minidump.exe returned {0}.
 5601, _AtlModule.WinMain returned {0}.
+5602, Unable to read install path from HKEY_LOCAL_MACHINE\SOFTWARE\\hMailServer. Using fallback method.
+5603, Unable to enable Diffie-Hellman key agreement. The required file {0} does not exist.

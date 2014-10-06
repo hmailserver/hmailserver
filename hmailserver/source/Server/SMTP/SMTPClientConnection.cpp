@@ -714,7 +714,7 @@ namespace HM
    {
       UpdateAllRecipientsWithError_(0, sErrorDescription, true);
 
-      LOG_SMTP_CLIENT(0,"TCP","SMTPDeliverer - Message " + StringParser::IntToString(delivery_message_->GetID()) + " - Connection failed: " + String(sErrorDescription) );
+      LOG_DEBUG("SMTPDeliverer - Message " + StringParser::IntToString(delivery_message_->GetID()) + " - Connection failed: " + String(sErrorDescription) );
    }
 }
 
