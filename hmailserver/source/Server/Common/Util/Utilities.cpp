@@ -132,12 +132,10 @@ namespace HM
 
       if (registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\hMailServer", "InstallLocation", install_path))
       {
-
          return FileUtilities::Combine(install_path, "Bin");
       }
       else
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5602, "Utilities::GetBinDirectory", "Unable to read install path from HKEY_LOCAL_MACHINE\\SOFTWARE\\hMailServer. Using fallback method.");
 
          // Lookup executable path.
          String executable_full_path = Application::GetExecutableName();
