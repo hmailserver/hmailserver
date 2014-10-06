@@ -26,10 +26,19 @@ namespace HM
    IMAPResult
    IMAPCommandStartTls::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      pConnection->SendAsciiData(pArgument->Tag() + " OK Begin TLS negotiation now\r\n");
+      if (pConnection->GetConnectionSecurity() == CSSTARTTLSOptional ||
+         pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
+         pConnection->SendAsciiData(pArgument->Tag() + " OK Begin TLS negotiation now\r\n");
 
-      pConnection->StartHandshake();
+         pConnection->StartHandshake();
 
-      return IMAPResult(IMAPResult::ResultOKSupressRead, "");
+         return IMAPResult(IMAPResult::ResultOKSupressRead, "");
+      }
+      else
+      {
+         return IMAPResult(IMAPResult::ResultBad, "Unknown or NULL command");
+      }
+      
    }
 }

@@ -412,15 +412,24 @@ namespace HM
    bool
    POP3Connection::ProtocolSTLS_()
    {
-      if (IsSSLConnection())
+      if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+         GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         EnqueueWrite_("-ERR Command not permitted when TLS active");
+         if (IsSSLConnection())
+         {
+            EnqueueWrite_("-ERR Command not permitted when TLS active");
+            return false;
+         }
+
+         EnqueueWrite_("+OK Begin TLS negotiation");
+         EnqueueHandshake();
+         return true;
+      }
+      else
+      {
+         EnqueueWrite_("-ERR Invalid command in current state.");
          return false;
       }
-
-      EnqueueWrite_("+OK Begin TLS negotiation" );        
-      EnqueueHandshake();
-      return true;
    }
 
    POP3Connection::ParseResult

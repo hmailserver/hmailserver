@@ -1725,20 +1725,28 @@ namespace HM
    void 
    SMTPConnection::ProtocolSTARTTLS_(const String &sRequest)
    {
-      const int command_length = 8;
-      bool hasParameters = sRequest.GetLength() > command_length;
-
-      if (hasParameters)
+      if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         SendErrorResponse_(501, "Syntax error (no parameters allowed)");
-         return;
+         const int command_length = 8;
+         bool hasParameters = sRequest.GetLength() > command_length;
+
+         if (hasParameters)
+         {
+            SendErrorResponse_(501, "Syntax error (no parameters allowed)");
+            return;
+         }
+
+         EnqueueWrite_("220 Ready to start TLS");
+
+         current_state_ = STARTTLS;
+
+         EnqueueHandshake();
       }
-
-      EnqueueWrite_("220 Ready to start TLS");
-
-      current_state_ = STARTTLS;
-      
-      EnqueueHandshake();
+      else
+      {
+         SendErrorResponse_(503, "Bad sequence of commands");
+      }
    }
 
    void 
