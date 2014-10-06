@@ -22,11 +22,23 @@ namespace hMailServer.Administrator.Utilities
          try
          {
             Type obj = Type.GetTypeFromProgID("hMailServer.Application", hostName);
-            hMailServer.Application app = (hMailServer.Application)Activator.CreateInstance(obj);
+            hMailServer.Application app = (hMailServer.Application) Activator.CreateInstance(obj);
 
             application = app;
 
             return app;
+         }
+         catch (COMException comException)
+         {
+            if (comException.ErrorCode == -2147023174)
+            {
+               MessageBox.Show("Unable to connect to the specified server.", EnumStrings.hMailServerAdministrator);
+            }
+            else
+            {
+               MessageBox.Show(comException.Message, EnumStrings.hMailServerAdministrator);
+            }
+
          }
          catch (Exception e)
          {
