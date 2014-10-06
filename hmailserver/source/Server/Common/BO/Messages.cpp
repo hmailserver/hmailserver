@@ -274,16 +274,18 @@ namespace HM
       if (!pRS)
          return;
 
-	  // int timeAfterOpenRecordset = GetTickCount();
-   
-      // Do this before we actually read the messages, so that we does not
-      // mark any unread message as recent. If we haven't actually read
-      // any messages, there's nothing to mark as read...
+      AddToCollection(pRS);
+
+      // When a message is added to the database, the \Recent flag is set. When this message loads the message
+      // list from the database, the \Recent flag will be set to the message in memory. Future sessions should
+      // not see the message \Recent flag, so we remove the flag from all messages in the account folder now.
+      //
+      // Note that IMAPConnection::CloseCurrentFolder also removes the \Recent flag, but from all messages in memory.
       if (account_id_ != -1 && !pRS->IsEOF())
       {
          // Mark all messages as recent
          String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID ";
-         
+
          SQLCommand updateCommand;
          updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
          updateCommand.AddParameter("@ACCOUNTID", account_id_);
@@ -299,14 +301,7 @@ namespace HM
          Application::Instance()->GetDBManager()->Execute(updateCommand);
       }
 
-      AddToCollection(pRS);
-
-	  // int timeAfterReadingRecordset = GetTickCount();
-
-	  // 
-	  //
-	  // LOG_DEBUG(Formatter::Format("Messages::Refresh - Time to load recordset {0}", timeAfterOpenRecordset - startTime));
-	  // LOG_DEBUG(Formatter::Format("Messages::Refresh - Time to read recordset {0}", timeAfterReadingRecordset - timeAfterOpenRecordset));
+      
    }
 
    void
