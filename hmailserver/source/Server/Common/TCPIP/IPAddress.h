@@ -43,6 +43,7 @@ namespace HM
       };
 
       AnsiString ToString() const;
+      AnsiString ToLongString() const;
 
       
       Type GetType() const;

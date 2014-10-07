@@ -473,14 +473,35 @@ namespace HM
       return Resolve_(sDomain, vecFoundNames, DNS_TYPE_MX, 0);
    }
 
-   // JDR: added to do PTR lookups.
    bool 
    DNSResolver::GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames)
    {
-      std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
-      reverse(vecItems.begin(), vecItems.end());
-      String result = StringParser::JoinVector(vecItems, ".");
-      return Resolve_(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
+      IPAddress address;
+      if (!address.TryParse(AnsiString(sIP), true))
+         return false;
+
+      if (address.GetType() == IPAddress::IPV4)
+      {
+         std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
+         reverse(vecItems.begin(), vecItems.end());
+         String result = StringParser::JoinVector(vecItems, ".");
+         return Resolve_(result + ".in-addr.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
+      }
+      else
+      {
+         AnsiString long_ipv6 = address.ToLongString();
+         long_ipv6.MakeReverse();
+         long_ipv6.Remove(':');
+
+         for (int i = long_ipv6.GetLength() - 1; i > 0; i--)
+         {
+            long_ipv6.insert(i, 1, '.');
+         }
+
+         return Resolve_(long_ipv6 + ".ip6.arpa", vecFoundNames, DNS_TYPE_PTR, 0);
+      }
+
+
    }
 
 }

@@ -183,6 +183,45 @@ namespace HM
          return result;
    }
 
+   AnsiString
+   IPAddress::ToLongString() const
+   {
+      if (GetType() == IPV4)
+         return ToString();
+
+      const int buffer_length = 40;
+
+      AnsiString result;
+      char *buffer = result.GetBuffer(40);
+
+      int pos = 0;
+
+      std::array<unsigned char, 16U> bytes = address_.to_v6().to_bytes();
+
+      for (unsigned int source_position = 1; source_position <= bytes.size(); source_position++)
+      {
+         auto byte = bytes[source_position-1];
+
+         char* position = buffer + pos;
+         int remaining = buffer_length - pos;
+
+         _snprintf_s(position, remaining, _TRUNCATE, "%02x", byte);
+         pos += 2;
+
+         if (source_position % 2 == 0 && source_position < bytes.size())
+         {
+            position = buffer + pos;
+            remaining = buffer_length - pos;
+
+            _snprintf_s(position, remaining, _TRUNCATE, ":");
+            pos++;
+         }
+      }
+
+      result.ReleaseBuffer();
+      return result;
+   }
+
    unsigned __int64 
    IPAddress::GetAddress1() const
    {
