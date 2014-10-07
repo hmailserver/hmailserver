@@ -100,16 +100,16 @@ namespace HM
       std::vector<String> results;
       // do a PTR lookup, solves an issue with some spam filerting programs such as SA
       // not having a PTR in the Received header.
-      String ptr_record;
+      String ptr_record_host;
       DNSResolver dns_resolver;
       if (!dns_resolver.GetPTRRecords(remote_ip_address_, results) || results.size() == 0)
       {
          LOG_DEBUG("Could not retrieve PTR record for IP (false)! " + remote_ip_address_);
-         ptr_record = "Unknown";
+         ptr_record_host = "Unknown";
       }
       else
       {
-         ptr_record = results[0];
+         ptr_record_host = results[0];
       }
 
       String remote_hostname = helo_host_.IsEmpty() ? remote_ip_address_ : helo_host_;
@@ -133,7 +133,7 @@ namespace HM
          _T("%s")
          _T("\t; %s\r\n"),
          remote_hostname.c_str(),
-         ptr_record.c_str(),
+         ptr_record_host.c_str(),
          overriden_received_ip.c_str(),
          local_computer_name.c_str(),
          esmtp_additions.c_str(),
