@@ -426,6 +426,7 @@ namespace HM
       }
       else if (oPart.GetShowBodyHeaderFields())
       {
+         std::set<String> included_fields;
          std::vector<String> vecHeaderFields = oPart.GetHeaderFields();
          auto iterHeader = vecHeaderFields.begin();
          String sResponse;
@@ -434,19 +435,27 @@ namespace HM
          while (iterHeader != vecHeaderFields.end())
          {
             String sHeaderField = (*iterHeader);
-            String sValue;
 
-            sValue = pBodyPart->GetRawFieldValue(sHeaderField);
+            String header_field_uppercase = sHeaderField; 
+            header_field_uppercase.MakeUpper();
 
-            if (sValue.GetLength() > 0)
+            if (included_fields.find(header_field_uppercase) == included_fields.end())
             {
-               if (!sFields.IsEmpty())
-                  sFields += " ";
+               String sValue;
 
-               sFields += sHeaderField;
+               sValue = pBodyPart->GetRawFieldValue(sHeaderField);
 
-               sResponse += sHeaderField + ": " + sValue + "\r\n";
+               if (sValue.GetLength() > 0)
+               {
+                  if (!sFields.IsEmpty())
+                     sFields += " ";
 
+                  sFields += sHeaderField;
+
+                  sResponse += sHeaderField + ": " + sValue + "\r\n";
+               }
+
+               included_fields.insert(header_field_uppercase);
             }
 
             iterHeader++;

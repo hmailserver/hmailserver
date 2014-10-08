@@ -165,6 +165,34 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      public void RequestingSameHeaderFieldMultipleTimesShouldReturnItOnce()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
+
+         string message = "From: Someone <someone@example.com>" + Environment.NewLine +
+                          "To: Someoen <someone@example.com>" + Environment.NewLine +
+                          "Date: Wed, 22 Apr 2009 11:05:09 \"GMT\"" + Environment.NewLine +
+                          "Subject: SubjectText" + Environment.NewLine +
+                          Environment.NewLine +
+                          "Hello" + Environment.NewLine;
+
+         var smtpSimulator = new SMTPClientSimulator();
+         CustomAssert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var oSimulator = new IMAPClientSimulator();
+         string sWelcomeMessage = oSimulator.Connect();
+         oSimulator.Logon(account.Address, "test");
+         oSimulator.SelectFolder("INBOX");
+         string result = oSimulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject Subject)]");
+         oSimulator.Disconnect();
+
+         CustomAssert.AreEqual(1, StringExtensions.Occurences(result, "SubjectText"));
+      }
+
+
+      [Test]
       [Description("Issue 282, hMailServer not working with Symbian N60 ")]
       public void TestFetchHeaderFieldsNot()
       {

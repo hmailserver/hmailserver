@@ -69,6 +69,7 @@
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
+    <Compile Include="Shared\StringExtensions.cs" />
     <Compile Include="Shared\TcpConnection.cs" />
     <Compile Include="Infrastructure\Delivery.cs" />
     <Compile Include="Infrastructure\DomainServices.cs" />
