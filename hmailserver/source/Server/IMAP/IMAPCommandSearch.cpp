@@ -107,7 +107,7 @@ namespace HM
          if (is_sort_)
          {
             IMAPSort oSorter;
-            oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetSortParser());
+            oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetCharsetName(), pParser->GetSortParser());
             // Sort the message vector
          }
 

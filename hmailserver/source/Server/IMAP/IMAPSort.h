@@ -29,7 +29,7 @@ namespace HM
 
       };
 
-      void Sort(std::shared_ptr<IMAPConnection> pConnection, std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, std::shared_ptr<IMAPSortParser> pParser);
+      void Sort(std::shared_ptr<IMAPConnection> pConnection, std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, String character_set, std::shared_ptr<IMAPSortParser> pParser);
 
    private:
 

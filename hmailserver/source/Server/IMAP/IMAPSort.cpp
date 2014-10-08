@@ -61,8 +61,9 @@ namespace HM
    class IMAPSortHeaderField 
    {
    public:
-      IMAPSortHeaderField(std::map<__int64, String> &mapHeaderFields) :
-         _mapHeaderFields(mapHeaderFields)
+      IMAPSortHeaderField(std::map<__int64, String> &mapHeaderFields, String character_set) :
+         _mapHeaderFields(mapHeaderFields),
+         character_set_(character_set)
       {
          
       }
@@ -73,12 +74,25 @@ namespace HM
          String sHeader1 = _mapHeaderFields[p1.second->GetID()];
          String sHeader2 = _mapHeaderFields[p2.second->GetID()];
          
-         int compareResult = CompareStringW(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, sHeader1, -1, sHeader2, -1);
+         int compare_result = 0;
 
-         if (compareResult == 0)
+         if (character_set_.CompareNoCase(_T("US-ASCII")) == 0)
+         {
+            AnsiString ansi_1 = sHeader1;
+            AnsiString ansi_2 = sHeader2;
+
+            return ansi_1 < ansi_2;
+         }
+         else
+         {
+            // Use UTF8 as default.
+            compare_result = CompareStringW(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, sHeader1, -1, sHeader2, -1);
+         }
+
+         if (compare_result == 0)
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5019, "IMAPSortHeaderField::operator()", "An error occurred while sorting. Check system locale settings.");
 
-         if (compareResult == CSTR_LESS_THAN)
+         if (compare_result == CSTR_LESS_THAN)
             return true;
          else
             return false;  
@@ -86,13 +100,13 @@ namespace HM
    private:
 
       std::map<__int64, String> &_mapHeaderFields;
-      bool _unicodeAwareCompare;
+      String character_set_;
    };   
   
 
 
    void 
-   IMAPSort::Sort(std::shared_ptr<IMAPConnection> pConnection, std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, std::shared_ptr<IMAPSortParser> pParser)
+   IMAPSort::Sort(std::shared_ptr<IMAPConnection> pConnection, std::vector<std::pair<int, std::shared_ptr<Message> > > &vecMessages, String character_set, std::shared_ptr<IMAPSortParser> pParser)
    {
       // Sort messages according to the sort criteria
 
@@ -182,10 +196,7 @@ namespace HM
                   sortField == From ||
                   sortField == To)
          {
-            std::sort(vecMessages.begin(), vecMessages.end(), IMAPSortHeaderField(mapHeaderFields));
-            std::sort(vecMessages.begin(), vecMessages.end(), IMAPSortHeaderField(mapHeaderFields));
-            std::sort(vecMessages.begin(), vecMessages.end(), IMAPSortHeaderField(mapHeaderFields));
-            std::sort(vecMessages.begin(), vecMessages.end(), IMAPSortHeaderField(mapHeaderFields));
+            std::sort(vecMessages.begin(), vecMessages.end(), IMAPSortHeaderField(mapHeaderFields, character_set));
          }
          else if (sortField == Date)
          {

@@ -132,6 +132,17 @@ namespace HM
             sort_parser_->Parse(pSort->Value());
          }
 
+         
+         // Second part should be character set.
+         if (pSimpleParser->WordCount() < 2)
+         {
+            return IMAPResult(IMAPResult::ResultBad, "SearchCharacter set must be specified.");
+         }
+
+         charset_name_ = pSimpleParser->Word(1)->Value();
+         if (!IsValidCharset_(charset_name_))
+            return IMAPResult(IMAPResult::ResultNo, "[BADCHARSET]");
+
          // Trim away the SORT part of the SEARCH expresson 
          // since we only care about SEARCH below.
          String tempString = pArgument->Command();
