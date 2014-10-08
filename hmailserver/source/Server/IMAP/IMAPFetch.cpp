@@ -719,7 +719,7 @@ namespace HM
 
          pField = oHeader.GetField("IN-REPLY-TO");
          if (pField)
-            sInReplyTo = Charset::Encode(pField->GetValue());
+            sInReplyTo = Charset::GetIMAPEncoded(pField->GetValue());
 
          if (sInReplyTo.IsEmpty())
             sResult += " NIL";
@@ -733,7 +733,7 @@ namespace HM
 
          pField = oHeader.GetField("Message-ID");
          if (pField)
-            sMessageID = Charset::Encode(pField->GetValue());
+            sMessageID = Charset::GetIMAPEncoded(pField->GetValue());
 
          if (sMessageID.IsEmpty())
             sResult += " NIL";

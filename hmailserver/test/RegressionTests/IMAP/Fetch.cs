@@ -132,6 +132,34 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      public void IfInReplyToFieldContainsQuoteThenFetchHeadersShouldEncodeIt()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
+
+         string message = "From: Someone <someone@example.com>" + Environment.NewLine +
+                          "To: Someoen <someone@example.com>" + Environment.NewLine +
+                          "In-Reply-To: ShouldBeEncodedDueToQuote\"" + Environment.NewLine +
+                          "Subject: Something" + Environment.NewLine +
+                          Environment.NewLine +
+                          "Hello" + Environment.NewLine;
+
+         var smtpSimulator = new SMTPClientSimulator();
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
+
+         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var oSimulator = new IMAPClientSimulator();
+         string sWelcomeMessage = oSimulator.Connect();
+         oSimulator.Logon(account.Address, "test");
+         oSimulator.SelectFolder("INBOX");
+         string result = oSimulator.Fetch("1 ENVELOPE");
+         oSimulator.Disconnect();
+
+         CustomAssert.IsFalse(result.Contains("ShouldBeEncodedDueToQuote"));
+      }
+
+
+      [Test]
       [Description("Issue 282, hMailServer not working with Symbian N60 ")]
       public void TestFetchHeaderFields()
       {
