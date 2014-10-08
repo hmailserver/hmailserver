@@ -21,7 +21,7 @@ namespace HM
       void SetConnection(std::weak_ptr<IMAPConnection> connection);
       virtual void OnNotification(std::shared_ptr<ChangeNotification> notification);
 
-      void SendCachedNotifications();
+      void SendCachedNotifications(bool send_expunge);
 
       static String GenerateRecentString(int recentMessages);
       static String GenerateExistsString(int recentMessages);

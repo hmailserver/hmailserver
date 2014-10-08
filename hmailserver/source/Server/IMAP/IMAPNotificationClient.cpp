@@ -115,7 +115,7 @@ namespace HM
    // Send a summary of all changes to the client...
    //---------------------------------------------------------------------------()
    void 
-   IMAPNotificationClient::SendCachedNotifications()
+   IMAPNotificationClient::SendCachedNotifications(bool send_expunge)
    {
       std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
 
@@ -143,15 +143,18 @@ namespace HM
             }
          case ChangeNotification::NotificationMessageDeleted:
             {
-               // Send EXPUNGE
-               SendEXPUNGE_(changeNotification->GetAffectedMessages());
+               if (send_expunge)
+               {
+                  // Send EXPUNGE
+                  SendEXPUNGE_(changeNotification->GetAffectedMessages());
 
-               // Send EXISTS
-               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               lastExists = pMessages->GetCount();
-               lastRecent = pMessages->GetNoOfRecent();
+                  // Send EXISTS
+                  std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+                  lastExists = pMessages->GetCount();
+                  lastRecent = pMessages->GetNoOfRecent();
 
-               break;
+                  break;
+               }
             }
          case ChangeNotification::NotificationMessageFlagsChanged:
             {
@@ -176,7 +179,24 @@ namespace HM
       if (lastRecent >= 0)
          SendRECENT_(lastExists);
 
-      cached_changes_.clear();
+      std::vector<std::shared_ptr<ChangeNotification> >::iterator iter = cached_changes_.begin();
+      
+      for (; iter != cached_changes_.end();)
+      {
+         std::shared_ptr<ChangeNotification> changeNotification = (*iter);
+
+         switch (changeNotification->GetType())
+         {
+         case ChangeNotification::NotificationMessageDeleted:
+            if (!send_expunge)
+            {
+               iter++;
+               continue;
+            }
+         }
+
+         iter = cached_changes_.erase(iter);
+      }
    }
 
    void 
@@ -224,6 +244,7 @@ namespace HM
    }
 
    void 
+
    IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & vecMessages)
    {
       std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();

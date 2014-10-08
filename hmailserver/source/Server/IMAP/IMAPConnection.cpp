@@ -637,6 +637,12 @@ namespace HM
       
       bool postReceive = false;
       
+      // Report updates on the current folder.
+      if (current_folder_)
+      {
+         NotifyFolderChange(eCommand);
+      }
+
       IMAPResult result = pCommand->ExecuteCommand(std::dynamic_pointer_cast<IMAPConnection>(shared_from_this()),  pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
@@ -669,9 +675,6 @@ namespace HM
          throw std::logic_error(Formatter::FormatAsAnsi("Unsupported IMAP Result: {0}", result.GetResult()));
       }
 
-      // Report updates on the current folder.
-      if (current_folder_)
-         NotifyFolderChange();
 
       return postReceive;
    }
@@ -696,13 +699,30 @@ namespace HM
    }
 
    void
-   IMAPConnection::NotifyFolderChange()
+   IMAPConnection::NotifyFolderChange(eIMAPCommandType active_command)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Notify the client about other changes which have been made.
    //---------------------------------------------------------------------------()
    {
-      notification_client_->SendCachedNotifications();
+      /*
+      IMAP RFC:
+      An EXPUNGE response MUST NOT be sent when no command is in
+      progress, nor while responding to a FETCH, STORE, or SEARCH
+      command.
+
+      IMAP IDLE RFC:
+      Untagged EXPUNGE responses are not permitted while the server is
+      responding to a SORT command, but are permitted during a UID SORT
+      command.
+      */
+
+      bool send_expunge = active_command != IMAP_FETCH &&
+                          active_command != IMAP_STORE &&
+                          active_command != IMAP_SEARCH &&
+                          active_command != IMAP_SORT;
+
+      notification_client_->SendCachedNotifications(send_expunge);
    }
 
    void

@@ -88,7 +88,7 @@ namespace HM
       std::shared_ptr<const Account> GetAccount() { return account_; }
       
       void RefreshIMAPFolders();
-      void NotifyFolderChange();
+      void NotifyFolderChange(eIMAPCommandType active_command);
       
       std::shared_ptr<IMAPFolders> GetAccountFolders() const { return imap_folders_;}
       std::shared_ptr<IMAPFolders> GetPublicFolders() const { return public_imap_folders_;}
