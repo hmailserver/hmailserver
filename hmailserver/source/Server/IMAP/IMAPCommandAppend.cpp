@@ -126,7 +126,7 @@ namespace HM
 
       destination_folder_ = pConnection->GetFolderByFullPath(sFolderName);
       if (!destination_folder_)
-         return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
+         return IMAPResult(IMAPResult::ResultNo, "[TRYCREATE] Folder could not be found.");
 
       if (!destination_folder_->IsPublicFolder())
       {
