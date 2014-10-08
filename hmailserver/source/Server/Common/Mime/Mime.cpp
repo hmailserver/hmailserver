@@ -1376,7 +1376,6 @@ namespace HM
          startSearch == 0 ||
          boundary.length() == 0)
       {
-         assert(0);
          return 0;
       }
 
@@ -1394,7 +1393,6 @@ namespace HM
          if (sizeRemainingAfterBoundaryString <= 2)
          {
             // malformed message. the end of the character string is the boundary line with no trailing crlf or --.
-            assert(0);
             return 0;
          }
 
@@ -1408,7 +1406,6 @@ namespace HM
          possibleEnding = FindString(possibleEnding+1, boundary.c_str(), endSearch);
       }
 
-      assert(0);
       return 0;
    }
 

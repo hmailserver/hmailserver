@@ -101,10 +101,11 @@ namespace HM
 
       std::shared_ptr<Message> message = folder->GetMessages()->GetItemByDBID(messageID);
 
-      message->SetFlags(flags);
-      PersistentMessage::SaveFlags(message);
+      if (!message)
+         return false;
 
-      return true;
+      message->SetFlags(flags);
+      return PersistentMessage::SaveFlags(message);
    }
 
 

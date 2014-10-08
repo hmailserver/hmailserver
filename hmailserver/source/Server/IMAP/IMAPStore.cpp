@@ -121,11 +121,15 @@ namespace HM
          pMessage->SetFlagFlagged(bFlagged);
       }
 
-
-      Application::Instance()->GetFolderManager()->UpdateMessageFlags(
+      bool result = Application::Instance()->GetFolderManager()->UpdateMessageFlags(
          (int) pConnection->GetCurrentFolder()->GetAccountID(), 
          (int) pConnection->GetCurrentFolder()->GetID(),
          pMessage->GetID(), pMessage->GetFlags());
+
+      if (!result)
+      {
+         return IMAPResult(IMAPResult::ResultNo, "Unable to store message flags.");
+      }
 
       if (!bSilent)
       {
