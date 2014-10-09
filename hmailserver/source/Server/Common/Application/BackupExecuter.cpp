@@ -72,16 +72,19 @@ namespace HM
             return false;
          }
 
-         // Check size of data directory and LOG it.
-         if (PersistentMessage::GetTotalMessageSize() > 1500)
+         if (!bMessagesDBOnly)
          {
-            Logger::Instance()->LogBackup("The size of the data directory exceeds the maximum RECOMMENDED size for the built in backup (1.5GB) so LOGGING. Please consult the backup documentation");
-
-            // Check size of data directory and STOP it.
-            if (PersistentMessage::GetTotalMessageSize() > 15000)
+            // We're about to backup the data directory. Check its size.
+            if (PersistentMessage::GetTotalMessageSize() > 1500)
             {
-               Application::Instance()->GetBackupManager()->OnBackupFailed("The size of the data directory exceeds the maximum size for the built in backup (15GB) so ABORTING. Please consult the backup documentation.");
-               return false;
+               Logger::Instance()->LogBackup("The size of the data directory exceeds the maximum RECOMMENDED size for the built in backup (1.5GB). Please consult the backup documentation");
+
+               // Check size of data directory and STOP it.
+               if (PersistentMessage::GetTotalMessageSize() > 15000)
+               {
+                  Application::Instance()->GetBackupManager()->OnBackupFailed("The size of the data directory exceeds the maximum size for the built in backup (15GB). Please consult the backup documentation.");
+                  return false;
+               }
             }
          }
       }
