@@ -128,8 +128,7 @@ namespace HM
             sRecipientCopy.Replace(_T("\""), _T(""));
             sErrorMessageCopy.Replace(_T("\""), _T(""));
 
-            sErrorMessageCopy.Replace(_T("\r"), _T(""));
-            sErrorMessageCopy.Replace(_T("\n"), _T(""));
+            sErrorMessageCopy.Replace(_T("\r\n"), _T("\" + vbCRLF + \""));
 
             sErrorMessageCopy.TrimLeft();
             sErrorMessageCopy.TrimRight();
@@ -141,8 +140,7 @@ namespace HM
             sRecipientCopy.Replace(_T("'"), _T("\\'"));
             sErrorMessageCopy.Replace(_T("'"), _T("\\'"));
 
-            sErrorMessageCopy.Replace(_T("\r"), _T(""));
-            sErrorMessageCopy.Replace(_T("\n"), _T(""));
+            sErrorMessageCopy.Replace(_T("\r\n"), _T("\\r\\n"));
 
             sErrorMessageCopy.TrimLeft();
             sErrorMessageCopy.TrimRight();
