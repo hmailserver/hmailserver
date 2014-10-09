@@ -260,8 +260,7 @@ namespace HM
          
       }
 
-	  // JDR: Added event name to the debug log. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
-	  LOG_DEBUG("ScriptServer::FireEvent-" + event_name_);
+	  LOG_DEBUG("Executing event " + event_name_);
 
       String sScript;
 
@@ -288,7 +287,7 @@ namespace HM
       pBasic->Run();
       pBasic->Terminate();
 
-      LOG_DEBUG("ScriptServer:~FireEvent");
+      LOG_DEBUG("Event completed");
    }
 
 }
