@@ -191,70 +191,55 @@ namespace HM
    }
 
    void
-   VirusScanner::BlockAttachments(std::shared_ptr<Message> pMessage)
+   VirusScanner::BlockAttachments(std::shared_ptr<Message> message)
    {
-      std::shared_ptr<BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
+      std::shared_ptr<BlockedAttachments> blocked_attachments_config = HM::Configuration::Instance()->GetBlockedAttachments();
+      std::vector<std::shared_ptr<BlockedAttachment> > blocked_attachment_wildcards = blocked_attachments_config->GetVector();
 
-      std::vector<std::shared_ptr<BlockedAttachment> > vecBlockedAttachments = pBlockedAttachments->GetVector();
-      
-      const String fileName = PersistentMessage::GetFileName(pMessage);
+      const String file_name = PersistentMessage::GetFileName(message);
 
-      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
-      pMsgData->LoadFromMessage(fileName, pMessage);
+      std::shared_ptr<MessageData> message_data = std::shared_ptr<MessageData>(new MessageData());
+      message_data->LoadFromMessage(file_name, message);
 
-      std::shared_ptr<Attachments> pAttachments = pMsgData->GetAttachments();
+      std::shared_ptr<Attachments> pAttachments = message_data->GetAttachments();
 
-      bool bChangesMade = false;
+      bool changes_made = false;
 
-      std::list<std::shared_ptr<Attachment>> attachments_to_delete;
-
-      for (unsigned int i = 0; i < pAttachments->GetCount(); i++)
+      for (auto attachment : pAttachments->GetVector())
       {
-         std::shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
-
          // Check if attachment matches blocked file.
-         for (auto iterBA = vecBlockedAttachments.begin(); iterBA < vecBlockedAttachments.end(); iterBA++)
-         {
-            String sWildcard = (*iterBA)->GetWildcard();
-
-            if (StringParser::WildcardMatchNoCase(sWildcard, pAttachment->GetFileName()))
+         auto matching_wildcard = std::find_if(blocked_attachment_wildcards.begin(), blocked_attachment_wildcards.end(), [&attachment](std::shared_ptr<BlockedAttachment> blocked_attachment)
             {
-               attachments_to_delete.push_back(pAttachment);
-               
-               break;
-            }
+               String wildcard_text = blocked_attachment->GetWildcard();
 
+               return StringParser::WildcardMatchNoCase(wildcard_text, attachment->GetFileName());
+            });
+
+         if (matching_wildcard != blocked_attachment_wildcards.end())
+         {
+            // Attachment should be blocked.
+            String updated_message_body = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
+
+            // Replace macros.
+            updated_message_body.Replace(_T("%MACRO_FILE%"), attachment->GetFileName());
+
+            // Add the new
+            attachment->SetFileName(attachment->GetFileName() + ".txt");
+            attachment->SetContent(updated_message_body);
+
+            changes_made = true;
          }
+
       }
 
-      for(std::shared_ptr<Attachment> pAttachment : attachments_to_delete)
+      if (changes_made)
       {
-         pAttachment->Delete();
-      }
-
-      for(std::shared_ptr<Attachment> pAttachment : attachments_to_delete)
-      {
-         String sBody = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
-
-         // Replace macros.
-         sBody.Replace(_T("%MACRO_FILE%"), pAttachment->GetFileName());
-
-         // Add the new
-         std::shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
-         pBody->SetRawText(sBody);
-
-         // Create an content-disposition header.
-         pBody->SetRawFieldValue(CMimeConst::ContentDisposition(), CMimeConst::Inline(), "");
-         pBody->SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), pAttachment->GetFileName() + ".txt");
-      }
-
-      if (attachments_to_delete.size())
-      {
-         pMsgData->Write(fileName);
-         
+         message_data->Write(file_name);
+            
          // Update the size of the message.
-         pMessage->SetSize(FileUtilities::FileSize(fileName));
+         message->SetSize(FileUtilities::FileSize(file_name));
       }
+
 
    }
 

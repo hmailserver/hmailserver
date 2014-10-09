@@ -38,6 +38,18 @@ namespace HM
       return attachment_->GetUnicodeFilename();
    }
 
+   void
+   Attachment::SetFileName(const String &file_name)
+   {
+      attachment_->SetFileName(file_name);
+   }
+
+   void 
+   Attachment::SetContent(const String &content)
+   {
+      attachment_->SetUnicodeText(content);
+   }
+
    int
    Attachment::GetSize()
    {

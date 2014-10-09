@@ -467,7 +467,7 @@ namespace HM
    }
 
    String
-      MimeHeader::GetUnicodeFilename() const
+   MimeHeader::GetUnicodeFilename() const
    {
       String rawValue = GetRawFilename();
       String unicodeValue = GetUnicodeFieldValue(CMimeConst::ContentDisposition(), rawValue);
@@ -476,7 +476,7 @@ namespace HM
    }
 
    String
-      MimeHeader::GetRawFilename() const
+   MimeHeader::GetRawFilename() const
    {
       AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename()); 
       if (sRawValue.IsEmpty())
@@ -485,15 +485,28 @@ namespace HM
       return sRawValue;
    }
 
+   void
+   MimeHeader::SetFileName(const String &file_name)
+   {
+      AnsiString encoded_filename = MIMEUnicodeEncoder::EncodeValue("utf-8", file_name);
+
+      AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
+      if (!sRawValue.IsEmpty())
+         SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), encoded_filename);
+      else
+         SetParameter(CMimeConst::ContentType(), CMimeConst::Name(), encoded_filename);
+      
+   }
+
    String
-      MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName) const
+   MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName) const
    {
       AnsiString sRawFieldValue = GetRawFieldValue(pszFieldName);
       return GetUnicodeFieldValue(pszFieldName, sRawFieldValue);
    }
 
    String
-      MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName, const AnsiString &sRawFieldValue)
+   MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName, const AnsiString &sRawFieldValue)
    {
       if (sRawFieldValue.IsEmpty())
          return sRawFieldValue;
@@ -515,7 +528,7 @@ namespace HM
    }
 
    void 
-      MimeHeader::SetUnicodeFieldValue(const AnsiString &sFieldName, const String & sFieldValue, const AnsiString & sCharset)
+   MimeHeader::SetUnicodeFieldValue(const AnsiString &sFieldName, const String & sFieldValue, const AnsiString & sCharset)
    {
       // Retrieve the current charset for this field.
       MimeField* pfd = GetField(sFieldName);
@@ -859,9 +872,10 @@ namespace HM
       // Retrieve the current charset for this field.
       std::string strCharset = GetCharset();
 
-      if (strCharset.size() == 0)
+      if (strCharset == "")
       {
-         return SetRawText(sText);
+         strCharset = "utf-8";
+         SetCharset(strCharset.c_str());
       }
 
       AnsiString sMBText = Charset::ToMultiByte(sText, strCharset);

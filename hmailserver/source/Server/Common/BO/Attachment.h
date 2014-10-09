@@ -13,6 +13,8 @@ namespace HM
 	   Attachment(std::shared_ptr<MimeBody> pMessage, std::shared_ptr<MimeBody> pAttachment);
 	   virtual ~Attachment();
 
+      void SetFileName(const String &file_name);
+      void SetContent(const String &content);
       String GetFileName();
       int GetSize();
       void Delete();

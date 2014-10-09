@@ -134,7 +134,6 @@
   <ItemGroup>
     <Compile Include="AntiSpam\DKIM\Signing.cs" />
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
-    <Compile Include="AntiVirus\Basics.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="API\Links.cs" />
     <Compile Include="Stress\ContentStressTest.cs" />

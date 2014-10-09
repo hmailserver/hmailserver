@@ -30,7 +30,7 @@ namespace HM
 
       static bool GetVirusScanningEnabled();
       static bool Scan(std::shared_ptr<Message> pMessage, String &virusName);
-      static void BlockAttachments(std::shared_ptr<Message> pMessage);
+      static void BlockAttachments(std::shared_ptr<Message> message);
 
       static void ResetCounter();
       static void DecreaseCounter();

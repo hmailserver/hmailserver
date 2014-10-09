@@ -22,8 +22,9 @@ namespace HM
 
       size_t GetCount() const;
       void Clear();
-      
       void Load();
+
+      std::vector<std::shared_ptr<Attachment> > GetVector() { return vecObjects; }
 
    private:
       std::vector<std::shared_ptr<Attachment> > vecObjects;
