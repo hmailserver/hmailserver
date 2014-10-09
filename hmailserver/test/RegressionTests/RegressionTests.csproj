@@ -89,6 +89,11 @@
     <Compile Include="Infrastructure\Timeouts.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />
+    <Compile Include="TestResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="hMailServer">
@@ -198,11 +203,6 @@
     <Compile Include="SSL\StartTls\ImapServerTests.cs" />
     <Compile Include="SSL\StartTls\Pop3ServerTests.cs" />
     <Compile Include="SSL\StartTls\SmtpServerTests.cs" />
-    <Compile Include="TestResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TestResources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Messages\MultipartMessageWithNoMainBodyText.txt" />
@@ -212,7 +212,23 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody-TextPlainContentType.txt" />
     <None Include="Resources\SecuniaBody1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextPlainAttachment.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody-NoContentType.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextHtmlBody-TextHtmlContentType.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextHtmlAttachment.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

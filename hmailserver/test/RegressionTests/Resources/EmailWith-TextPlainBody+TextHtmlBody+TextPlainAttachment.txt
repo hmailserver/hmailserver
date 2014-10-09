@@ -1,0 +1,49 @@
+From: "Example" <sender@example.com>
+To: <test@test.com>
+Subject: test
+Date: Tue, 7 Oct 2014 10:21:38 +0700
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_1324_01CFE218.7ABF8CE0"
+X-Mailer: Microsoft Outlook 15.0
+thread-index: Ac/h3csC7erchVDxTYep5Ouj0dYQ3Q==
+Content-Language: en-us
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_1324_01CFE218.7ABF8CE0
+Content-Type: multipart/related; boundary="----=_NextPart_001_1325_01CFE218.7ABF8CE0"
+
+
+------=_NextPart_001_1325_01CFE218.7ABF8CE0
+Content-Type: multipart/alternative; boundary="----=_NextPart_002_1326_01CFE218.7ABF8CE0"
+
+
+------=_NextPart_002_1326_01CFE218.7ABF8CE0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+PlainTextBody
+
+------=_NextPart_002_1326_01CFE218.7ABF8CE0
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<b>HtmlBody</b>
+
+------=_NextPart_002_1326_01CFE218.7ABF8CE0--
+
+------=_NextPart_001_1325_01CFE218.7ABF8CE0
+Content-Type: image/gif; name="image001.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <image001.gif@01CFE218.7A85B830>
+
+SomeGifData
+
+------=_NextPart_001_1325_01CFE218.7ABF8CE0--
+
+------=_NextPart_000_1324_01CFE218.7ABF8CE0
+Content-Type: text/plain; name="2 - Copy.txt"
+Content-Disposition: attachment; filename="2 - Copy.txt"
+
+Test
+------=_NextPart_000_1324_01CFE218.7ABF8CE0--

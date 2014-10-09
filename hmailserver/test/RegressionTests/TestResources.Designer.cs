@@ -61,6 +61,134 @@ namespace RegressionTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Example&quot; &lt;sender@example.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Tue, 7 Oct 2014 10:21:38 +0700
+        ///MIME-Version: 1.0
+        ///Content-Type: text/html
+        ///
+        ///&lt;b&gt;HtmlBody&lt;/b&gt;
+        ///.
+        /// </summary>
+        internal static string EmailWith_TextHtmlBody_TextHtmlContentType {
+            get {
+                return ResourceManager.GetString("EmailWith_TextHtmlBody_TextHtmlContentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Example&quot; &lt;sender@example.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Tue, 7 Oct 2014 10:21:38 +0700
+        ///MIME-Version: 1.0
+        ///
+        ///PlainTextBody
+        ///.
+        /// </summary>
+        internal static string EmailWith_TextPlainBody_NoContentType {
+            get {
+                return ResourceManager.GetString("EmailWith_TextPlainBody_NoContentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Test&quot; &lt;test@test.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Thu, 9 Oct 2014 15:53:22 +0200
+        ///Content-Type: multipart/alternative;
+        ///	boundary=&quot;----=_NextPart_000_005E_01CFE3D9.283B7F70&quot;
+        ///X-Mailer: Microsoft Outlook 15.0
+        ///Thread-Index: Ac/jyGMJFw9QC1reRDu6jDDRYEKIEw==
+        ///Content-Language: sv
+        ///
+        ///This is a multipart message in MIME format.
+        ///
+        ///------=_NextPart_000_005E_01CFE3D9.283B7F70
+        ///Content-Type: text/plain;
+        ///	charset=&quot;us-ascii&quot;
+        ///Content-Transfer-Encoding: 7bit
+        ///
+        ///PlainTextBody
+        ///
+        ///------=_NextPart_ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EmailWith_TextPlainBody_TextHtmlBody {
+            get {
+                return ResourceManager.GetString("EmailWith_TextPlainBody_TextHtmlBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Example&quot; &lt;sender@example.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Tue, 7 Oct 2014 10:21:38 +0700
+        ///MIME-Version: 1.0
+        ///Content-Type: multipart/mixed; boundary=&quot;----=_NextPart_000_1324_01CFE218.7ABF8CE0&quot;
+        ///X-Mailer: Microsoft Outlook 15.0
+        ///thread-index: Ac/h3csC7erchVDxTYep5Ouj0dYQ3Q==
+        ///Content-Language: en-us
+        ///
+        ///This is a multipart message in MIME format.
+        ///
+        ///------=_NextPart_000_1324_01CFE218.7ABF8CE0
+        ///Content-Type: multipart/related; boundary=&quot;----=_NextPart_001_1325_01CFE218.7ABF8CE0&quot;
+        ///
+        ///
+        ///---- [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EmailWith_TextPlainBody_TextHtmlBody_TextHtmlAttachment {
+            get {
+                return ResourceManager.GetString("EmailWith_TextPlainBody_TextHtmlBody_TextHtmlAttachment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Example&quot; &lt;sender@example.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Tue, 7 Oct 2014 10:21:38 +0700
+        ///MIME-Version: 1.0
+        ///Content-Type: multipart/mixed; boundary=&quot;----=_NextPart_000_1324_01CFE218.7ABF8CE0&quot;
+        ///X-Mailer: Microsoft Outlook 15.0
+        ///thread-index: Ac/h3csC7erchVDxTYep5Ouj0dYQ3Q==
+        ///Content-Language: en-us
+        ///
+        ///This is a multipart message in MIME format.
+        ///
+        ///------=_NextPart_000_1324_01CFE218.7ABF8CE0
+        ///Content-Type: multipart/related; boundary=&quot;----=_NextPart_001_1325_01CFE218.7ABF8CE0&quot;
+        ///
+        ///
+        ///---- [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EmailWith_TextPlainBody_TextHtmlBody_TextPlainAttachment {
+            get {
+                return ResourceManager.GetString("EmailWith_TextPlainBody_TextHtmlBody_TextPlainAttachment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From: &quot;Example&quot; &lt;sender@example.com&gt;
+        ///To: &lt;test@test.com&gt;
+        ///Subject: test
+        ///Date: Tue, 7 Oct 2014 10:21:38 +0700
+        ///MIME-Version: 1.0
+        ///Content-Type: text/plain
+        ///
+        ///PlainTextBody
+        ///.
+        /// </summary>
+        internal static string EmailWith_TextPlainBody_TextPlainContentType {
+            get {
+                return ResourceManager.GetString("EmailWith_TextPlainBody_TextPlainContentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ----------------------------------------------------------------------
         ///
         ///The final version of the CSI 6.0 has been released. 

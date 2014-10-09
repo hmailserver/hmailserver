@@ -118,6 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="EmailWith_TextHtmlBody_TextHtmlContentType" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-texthtmlbody-texthtmlcontenttype.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="EmailWith_TextPlainBody_NoContentType" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-textplainbody-nocontenttype.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="EmailWith_TextPlainBody_TextHtmlBody" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-textplainbody+texthtmlbody.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="EmailWith_TextPlainBody_TextHtmlBody_TextHtmlAttachment" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-textplainbody+texthtmlbody+texthtmlattachment.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="EmailWith_TextPlainBody_TextHtmlBody_TextPlainAttachment" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-textplainbody+texthtmlbody+textplainattachment.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="EmailWith_TextPlainBody_TextPlainContentType" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emailwith-textplainbody-textplaincontenttype.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="SecuniaBody1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\SecuniaBody1.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

@@ -63,7 +63,9 @@ namespace HM
       void SetRuleLoopCount(int iLoopCount);
       void IncreaseRuleLoopCount();
       
-      
+      std::shared_ptr<MimeBody> GetBodyTextPlainPart() const;
+      std::shared_ptr<MimeBody> GetBodyTextHtmlPart() const;
+
       bool GetHasBodyType(const String &sBodyType);
 
       bool Write(const String &fileName);
@@ -87,6 +89,8 @@ namespace HM
 	  bool IsAutoSubmitted();
 
    private:
+
+      std::shared_ptr<MimeBody> GetViewBodyPart_(int recursion_level, std::shared_ptr<MimeBody> source, const String &requested_content_type) const;
 
       bool IsTextType(const String &sContentType);
       bool IsHTMLType(const String &sContentType);

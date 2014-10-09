@@ -1,0 +1,8 @@
+From: "Example" <sender@example.com>
+To: <test@test.com>
+Subject: test
+Date: Tue, 7 Oct 2014 10:21:38 +0700
+MIME-Version: 1.0
+Content-Type: text/plain
+
+PlainTextBody

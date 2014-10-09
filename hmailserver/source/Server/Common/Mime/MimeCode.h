@@ -148,7 +148,7 @@ namespace HM
 	   // overrides
 	   virtual void Encode(AnsiString &output) const
 	   {
-         output.append((char*) input_, input_size_+1);
+         output.append((char*) input_, input_size_);
 	   }
 	   virtual void Decode(AnsiString & output)
 	   {
