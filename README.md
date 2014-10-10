@@ -36,7 +36,7 @@ These steps are only required if you are using Visual Studio 2013 Express Editio
 3rd party libraries
 ===================
 
-Some 3rd party libraries which hMailServer relies on are large and updated frequently. Rather than including these large libraries into the hMailServer git repository, they have to be downloaded and built, currently manually. When you build hMailServer, hMailServer will use a system environment variable, named hMailServerLibs, to locate these libraries.
+Some 3rd party libraries which hMailServer relies on are large and updated frequently. Rather than including these large libraries into the hMailServer git repository, they have to be downloaded and built, currently manually. When you build hMailServer, Visual Studio will use a system environment variable, named hMailServerLibs, to locate these libraries.
 
 Create an environment variable named hMailServerLibs pointing at a folder where you will store hMailServer libraries, such as C:\Dev\hMailLibs.
 
