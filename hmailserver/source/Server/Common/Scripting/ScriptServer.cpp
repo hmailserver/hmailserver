@@ -260,7 +260,8 @@ namespace HM
          
       }
 
-	  LOG_DEBUG("Executing event " + event_name_);
+
+	   LOG_DEBUG("Executing event " + event_name_);
 
       String sScript;
 
