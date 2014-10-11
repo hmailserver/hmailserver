@@ -44,6 +44,7 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
+           checkVerifyRemoteServerSslCertificate.Checked = settings.VerifyRemoteSslCertificate;
            textSslCipherList.Text = settings.SslCipherList;
 
            Marshal.ReleaseComObject(settings);
@@ -55,11 +56,15 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
+           bool cipherListChanged = textSslCipherList.Dirty;
+
+           settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
 
            Marshal.ReleaseComObject(settings);
 
-           Utility.AskRestartServer();
+           if (cipherListChanged)
+              Utility.AskRestartServer();
 
            DirtyChecker.SetClean(this);
            return true;
