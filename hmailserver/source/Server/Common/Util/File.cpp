@@ -5,6 +5,8 @@
 #include "File.h"
 #include "ByteBuffer.h"
 
+#include <boost/filesystem.hpp>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -13,28 +15,31 @@
 namespace HM
 {
    File::File() :
-      file_(INVALID_HANDLE_VALUE)
+      file_(nullptr)
    {
       
    }
 
    File::~File()
    {
-      if (file_ != INVALID_HANDLE_VALUE)
-         CloseHandle(file_);
+      Close();
    }
    
    void 
    File::Close()
    {
-      CloseHandle(file_);
-      file_ = INVALID_HANDLE_VALUE;
+      if (file_ != nullptr)
+      {
+         fclose(file_);
+         file_ = nullptr;
+      }
+
    }
 
    bool 
    File::IsOpen() const
    {
-      if (file_ == INVALID_HANDLE_VALUE)
+      if (file_ == nullptr)
          return false;
       
       return true;
@@ -43,57 +48,36 @@ namespace HM
    bool
    File::Open(const String &sFilename, OpenType ot)
    {
-      if (file_ != INVALID_HANDLE_VALUE)
+      if (IsOpen())
       {
          // The file should be closed, before we
          // try to open it again...
-
-         assert(0);
-         Close();
+         throw std::logic_error(Formatter::FormatAsAnsi("The file {0} is already open.", sFilename));
       }
 
-      DWORD dwDesiredAccess = 0;
-      DWORD dwShareMode = 0;
-      DWORD dwCreationDisposition = 0;
+      std::wstring open_mode;
 
       switch (ot)
       {
       case OTReadOnly:
-         dwDesiredAccess = GENERIC_READ;
-         dwShareMode = FILE_SHARE_READ;
-         dwCreationDisposition = OPEN_EXISTING;
+         open_mode = _T("rb");
          break;
       case OTCreate:
-         dwDesiredAccess = GENERIC_WRITE;
-         dwShareMode = FILE_SHARE_READ;
-         dwCreationDisposition = CREATE_ALWAYS;
+         open_mode = _T("wb");
          break;
       case OTAppend:
-         dwDesiredAccess = GENERIC_WRITE;
-         dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE; // FILE_SHARE_DELETE;
-         dwCreationDisposition = OPEN_ALWAYS;
+         open_mode = _T("ab");
          break;
       }
 
-      file_ = CreateFile(sFilename, 
-                              dwDesiredAccess, 
-                              dwShareMode, 
-                              NULL, // LPSECURITY_ATTRIBUTES
-                              dwCreationDisposition, // -- open or create.
-                              FILE_ATTRIBUTE_NORMAL, // attributes
-                              NULL // file template
-                           );
+      int open_error = _wfopen_s(&file_, sFilename.c_str(), open_mode.c_str());
 
-      if (file_ == INVALID_HANDLE_VALUE) 
-         return false;
+      if (open_error != 0)
+      {
+         throw std::exception(Formatter::FormatAsAnsi(_T("Unable to open the file {0}. Error: {1}."), sFilename, open_error));
+      }
 
       name_ = sFilename;
-
-      if (ot == OTAppend)
-      {  
-         // Go to end of file
-         SetFilePointer(file_,0,0,FILE_END);
-      }
 
       return true;
    }
@@ -104,30 +88,32 @@ namespace HM
       if (file_ == INVALID_HANDLE_VALUE)
          return 0;
 
-      return GetFileSize (file_, NULL);
+      return (int) boost::filesystem::file_size(name_);
    }
 
    bool 
    File::Write(const String &sWrite)
    {
-      String sTmp = sWrite;
-      DWORD dwWritten = 0;
-      return Write((const unsigned char*) sTmp.GetBuffer(), sTmp.GetLength() * sizeof(TCHAR), dwWritten);
+      String temp_nonconst = sWrite;
+
+      int result = fwrite(temp_nonconst.GetBuffer(), sizeof(TCHAR), temp_nonconst.GetLength(), file_);
+
+      return result == temp_nonconst.GetLength();
    }
 
    bool 
    File::Write(const AnsiString &sWrite)
    {  
-      AnsiString sTmp = sWrite;
-      DWORD dwWritten = 0;
-      return Write((const unsigned char*) sTmp.GetBuffer(), sTmp.GetLength(), dwWritten);
+      AnsiString temp_nonconst = sWrite;
+      int result = fwrite(temp_nonconst.GetBuffer(), sizeof(char), temp_nonconst.GetLength(), file_);
+      return result == temp_nonconst.GetLength();
    }
 
    bool 
    File::Write(const unsigned char *pBuf, int iBufLen, DWORD &dwNoOfBytesWritten)
    {
-      bool bResult = ::WriteFile(file_,pBuf, iBufLen, &dwNoOfBytesWritten, NULL) == TRUE;
-      return bResult;
+      int result = fwrite(pBuf, 1, iBufLen, file_);
+      return result == iBufLen;
    }
 
    bool 
@@ -161,19 +147,22 @@ namespace HM
       {
          std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
-         if (file_ == INVALID_HANDLE_VALUE)
-            return pFileContents;
+         if (file_ == nullptr)
+         {
+            throw std::logic_error(Formatter::FormatAsAnsi("Unable to read file {0}. File is not open.", name_));
+         }
 
          int iFileSize = GetSize();
 
          // Create a buffer to hold the file
          pFileContents->Allocate(iFileSize);
 
-         // Read the file to the buffer
-         SetFilePointer(file_, 0, 0, FILE_BEGIN);
+         int bytes_read = fread((void*) pFileContents->GetBuffer(), 1, iFileSize, file_);
 
-         unsigned long nBytesRead = 0;
-         ::ReadFile(file_, (LPVOID) pFileContents->GetBuffer(), iFileSize, &nBytesRead, NULL);
+         if (bytes_read != iFileSize)
+         {
+            throw std::logic_error(Formatter::FormatAsAnsi("Unable to read file {0}. Expected bytes: {1}, Actual read bytes: {2}.", name_, iFileSize, bytes_read));
+         }
 
          return pFileContents;
       }
@@ -217,13 +206,12 @@ namespace HM
          pReadBuffer->Allocate(iMaxSize);
 
          // Read
-         unsigned long nBytesRead = 0;
-         ::ReadFile(file_, (LPVOID) pReadBuffer->GetBuffer(), iMaxSize, &nBytesRead, NULL);
+         int bytes_read = fread((void*)pReadBuffer->GetBuffer(), 1, iMaxSize, file_);
 
-         if (nBytesRead > 0)
+         if (bytes_read > 0)
          {
             std::shared_ptr<ByteBuffer> pRetBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-            pRetBuffer->Add(pReadBuffer->GetBuffer(), nBytesRead);
+            pRetBuffer->Add(pReadBuffer->GetBuffer(), bytes_read);
             return pRetBuffer;
          }
          
@@ -235,15 +223,6 @@ namespace HM
 
       std::shared_ptr<ByteBuffer> pBuffer;
       return pBuffer;
-   }
-
-   bool 
-   File::MoveToEnd()
-   {
-      // --- Go to the end of the file.
-      SetFilePointer(file_,0,0,FILE_END);
-
-      return true;
    }
 
    String 

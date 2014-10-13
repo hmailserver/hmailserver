@@ -38,9 +38,6 @@ namespace HM
       bool Write(std::shared_ptr<ByteBuffer> pBuffer, DWORD &dwNoOfBytesWritten);
       bool Write(File &sourceFile);
       bool WriteBOF();
-      bool MoveToEnd();
-
-
 
       int GetSize();
 
@@ -52,7 +49,7 @@ namespace HM
 
    private:
       
-      HANDLE file_;
+      FILE * file_;
       String name_;
    };
 
