@@ -70,11 +70,11 @@ namespace HM
          break;
       }
 
-      int open_error = _wfopen_s(&file_, sFilename.c_str(), open_mode.c_str());
+      file_ = _wfsopen(sFilename.c_str(), open_mode.c_str(), _SH_DENYNO);
 
-      if (open_error != 0)
+      if (file_ == nullptr)
       {
-         throw std::exception(Formatter::FormatAsAnsi(_T("Unable to open the file {0}. Error: {1}."), sFilename, open_error));
+         return false;
       }
 
       name_ = sFilename;
@@ -91,9 +91,21 @@ namespace HM
       return (int) boost::filesystem::file_size(name_);
    }
 
+   bool
+   File::SetPosition(int position)
+   {
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to set position on file which has not been opened.");
+
+      return fseek(file_, position, 0) == 0;
+   }
+
    bool 
    File::Write(const String &sWrite)
    {
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
       String temp_nonconst = sWrite;
 
       int result = fwrite(temp_nonconst.GetBuffer(), sizeof(TCHAR), temp_nonconst.GetLength(), file_);
@@ -104,6 +116,9 @@ namespace HM
    bool 
    File::Write(const AnsiString &sWrite)
    {  
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
       AnsiString temp_nonconst = sWrite;
       int result = fwrite(temp_nonconst.GetBuffer(), sizeof(char), temp_nonconst.GetLength(), file_);
       return result == temp_nonconst.GetLength();
@@ -112,8 +127,11 @@ namespace HM
    bool 
    File::Write(const unsigned char *pBuf, int iBufLen, DWORD &dwNoOfBytesWritten)
    {
-      int result = fwrite(pBuf, 1, iBufLen, file_);
-      return result == iBufLen;
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
+      dwNoOfBytesWritten = fwrite(pBuf, 1, iBufLen, file_);
+      return dwNoOfBytesWritten == iBufLen;
    }
 
    bool 
@@ -140,6 +158,22 @@ namespace HM
       return true;
    }
 
+   bool 
+   File::ReadLine(AnsiString &sLine)
+   {
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to read to file which has not been opened.");
+
+      const int buffer_size = 10000;
+      char *line_buffer = sLine.GetBuffer(buffer_size);
+      
+      bool result = fgets(line_buffer, buffer_size, file_) != 0;
+
+      sLine.ReleaseBuffer();
+
+      return result;
+   }
+
    std::shared_ptr<ByteBuffer> 
    File::ReadFile()
    {
@@ -148,9 +182,7 @@ namespace HM
          std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
          if (file_ == nullptr)
-         {
-            throw std::logic_error(Formatter::FormatAsAnsi("Unable to read file {0}. File is not open.", name_));
-         }
+            throw std::logic_error("Attempt to read from file which has not been opened.");
 
          int iFileSize = GetSize();
 
@@ -200,6 +232,9 @@ namespace HM
    std::shared_ptr<ByteBuffer> 
    File::ReadChunk(int iMaxSize)
    {  
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to read from file which has not been opened.");
+
       try
       {
          std::shared_ptr<ByteBuffer> pReadBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);

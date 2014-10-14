@@ -95,7 +95,7 @@ namespace HM
 
       String log_directory = IniFileSettings::Instance()->GetLogDirectory();
 
-      std::vector<FileInfo> existing_files = FileUtilities::GetFilesInDirectory(log_directory, "minidump_*");
+      std::vector<FileInfo> existing_files = FileUtilities::GetFilesInDirectory(log_directory, "^minidump_.*$");
 
       const int max_count = 10;
       if (existing_files.size() < max_count)

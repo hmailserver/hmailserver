@@ -41,6 +41,8 @@ namespace HM
 
       int GetSize();
 
+      bool SetPosition(int position);
+      bool ReadLine(AnsiString &sLine);
       std::shared_ptr<ByteBuffer> ReadFile();
       std::shared_ptr<ByteBuffer> ReadTextFile();
       std::shared_ptr<ByteBuffer> ReadChunk(int iMaxSize);

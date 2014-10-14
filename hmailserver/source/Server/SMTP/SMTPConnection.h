@@ -159,6 +159,8 @@ namespace HM
 
       bool GetIsLocalSender_();
 
+      void HandleUnableToSaveMessageDataFile_(const String &file_name);
+
       String GetSpamTestResultMessage_(std::set<std::shared_ptr<SpamTestResult> > testResult) const;
 
       enum ConnectionState
