@@ -8,13 +8,13 @@ using System.Windows.Forms;
 
 namespace hMailServer.Administrator.Nodes
 {
-    class NodeSecurity : INode
+    class NodeSslTls : INode
     {
         public string Title
         {
             get
             {
-                return "Security";
+                return "SSL/TLS";
             }
             set { }
         }
@@ -36,7 +36,7 @@ namespace hMailServer.Administrator.Nodes
 
         public UserControl CreateControl()
         {
-            return new ucSecurity();
+            return new ucSSLTLS();
         }
 
         public List<INode> SubNodes

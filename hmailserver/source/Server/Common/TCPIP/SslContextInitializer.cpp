@@ -27,12 +27,13 @@ namespace HM
          return false;
       }
 
+      SetContextOptions_(context);
+
+      if (!SetCipherList_(context))
+         return false;
+
       try
-      {
-         context.set_options(boost::asio::ssl::context::default_workarounds |
-                             boost::asio::ssl::context::no_sslv2 |
-                             boost::asio::ssl::context::single_dh_use);
-         
+      {         
          String bin_directory = Utilities::GetBinDirectory();
          String dh2048_file = FileUtilities::Combine(bin_directory, "dh2048.pem");
 
@@ -121,7 +122,6 @@ namespace HM
          return false;
       }
 
-      SetCipherList_(context);
 
       return true;
    }
@@ -129,21 +129,10 @@ namespace HM
    bool
    SslContextInitializer::InitClient(boost::asio::ssl::context& context)
    { 
-      boost::system::error_code errorCode;
-      context.set_options(boost::asio::ssl::context::default_workarounds |
-         boost::asio::ssl::context::no_sslv2);
-
-      if (errorCode.value() != 0)
-      {
-         String errorMessage;
-         errorMessage.Format(_T("Failed to set default workarounds."));
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5144, "SslContextInitializer::InitClient", errorMessage, errorCode);
-
+      SetContextOptions_(context);
+         
+      if (!SetCipherList_(context))
          return false;
-      }
-
-      SetCipherList_(context);
 
       return true;
    }
@@ -155,7 +144,7 @@ namespace HM
       return "";
    }
 
-   void 
+   bool
    SslContextInitializer::SetCipherList_(boost::asio::ssl::context& context)
    {
       AnsiString cipher_list = Configuration::Instance()->GetSslCipherList();
@@ -165,7 +154,7 @@ namespace HM
       cipher_list.Replace(" ", "");
 
       if (cipher_list.Trim().IsEmpty())
-         return;
+         return true;
 
       // Asio does not expose cipher list. Access underlaying layer (OpenSSL) directly.
       SSL_CTX* ssl = context.native_handle();
@@ -174,8 +163,33 @@ namespace HM
       if (result == 0)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511,"SslContextInitializer::SetCipherList_", "Failed to set SSL ciphers");
-     
+         return false;
       }
+
+      return true;
+   }
+
+   void
+   SslContextInitializer::SetContextOptions_(boost::asio::ssl::context& context)
+   {
+      bool sslv30 = Configuration::Instance()->GetSslVersionEnabled(SslVersion30);
+      bool tlsv10 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion10);
+      bool tlsv11 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion11);
+      bool tlsv12 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion12);
+
+      int options = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2;
+
+      if (!sslv30)
+         options = options | SSL_OP_NO_SSLv3;
+      if (!tlsv10)
+         options = options | SSL_OP_NO_TLSv1;
+      if (!tlsv11)
+         options = options | SSL_OP_NO_TLSv1_1;
+      if (!tlsv12)
+         options = options | SSL_OP_NO_TLSv1_2;
+
+      SSL_CTX* ssl = context.native_handle();
+      SSL_CTX_set_options(ssl, options);
    }
 
 }

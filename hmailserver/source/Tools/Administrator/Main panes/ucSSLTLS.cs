@@ -14,9 +14,9 @@ using hMailServer.Shared;
 
 namespace hMailServer.Administrator
 {
-    public partial class ucSecurity : UserControl, ISettingsControl
+    public partial class ucSSLTLS : UserControl, ISettingsControl
     {
-       public ucSecurity()
+       public ucSSLTLS()
         {
             InitializeComponent();
 
@@ -46,6 +46,11 @@ namespace hMailServer.Administrator
 
            checkVerifyRemoteServerSslCertificate.Checked = settings.VerifyRemoteSslCertificate;
            textSslCipherList.Text = settings.SslCipherList;
+           checkSslVersion30.Checked = settings.SslVersion30Enabled;
+           checkTlsVersion10.Checked = settings.TlsVersion10Enabled;
+           checkTlsVersion11.Checked = settings.TlsVersion11Enabled;
+           checkTlsVersion12.Checked = settings.TlsVersion12Enabled;
+
 
            Marshal.ReleaseComObject(settings);
         }
@@ -56,14 +61,19 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           bool cipherListChanged = textSslCipherList.Dirty;
+           bool restartRequired = textSslCipherList.Dirty || checkSslVersion30.Dirty || checkTlsVersion10.Dirty || checkTlsVersion11.Dirty || checkTlsVersion12.Dirty;
 
            settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
 
+           settings.SslVersion30Enabled = checkSslVersion30.Checked;
+           settings.TlsVersion10Enabled = checkTlsVersion10.Checked;
+           settings.TlsVersion11Enabled = checkTlsVersion11.Checked;
+           settings.TlsVersion12Enabled = checkTlsVersion12.Checked;
+
            Marshal.ReleaseComObject(settings);
 
-           if (cipherListChanged)
+           if (restartRequired)
               Utility.AskRestartServer();
 
            DirtyChecker.SetClean(this);

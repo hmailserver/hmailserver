@@ -7,6 +7,7 @@
 
 #include "../AntiSpam/AntiSpamConfiguration.h"
 #include "../AntiVirus/AntiVirusConfiguration.h"
+#include "../TCPIP/SocketConstants.h"
 
 namespace HM
 {
@@ -154,6 +155,9 @@ namespace HM
 
       String GetSslCipherList() const;
       void SetSslCipherList(String newValue);
+
+      bool GetSslVersionEnabled(SslTlsVersion version) const;
+      void SetSslVersionEnabled(SslTlsVersion version, bool enabled);
 
       std::shared_ptr<PropertySet> GetSettings() const;
 

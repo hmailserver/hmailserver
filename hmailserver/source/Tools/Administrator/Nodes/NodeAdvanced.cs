@@ -52,7 +52,7 @@ namespace hMailServer.Administrator.Nodes
                 subNodes.Add(new NodeMirror());
                 subNodes.Add(new NodePerformance());
                 subNodes.Add(new NodeServerMessages());
-                subNodes.Add(new NodeSecurity());
+                subNodes.Add(new NodeSslTls());
                 subNodes.Add(new NodeScripts());
                 subNodes.Add(new NodeTCPIPPorts());
                 return subNodes;

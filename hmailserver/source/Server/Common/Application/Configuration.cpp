@@ -627,6 +627,27 @@ namespace HM
       GetSettings()->SetString(PROPERTY_SSLCIPHERLIST, newValue);
    }
 
+   bool
+   Configuration::GetSslVersionEnabled(SslTlsVersion version) const
+   {
+      return (GetSettings()->GetLong(PROPERTY_SSLVERSIONS) & version) ? true : false;
+   }
+
+   
+   void
+   Configuration::SetSslVersionEnabled(SslTlsVersion version, bool enabled)
+   {
+      int versions = GetSettings()->GetLong(PROPERTY_SSLVERSIONS);
+
+      if (enabled)
+         versions = versions | version;
+      else
+         versions = versions &~version;
+
+      GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
+   }
+
+
    bool 
    Configuration::XMLStore(XNode *pBackupNode)
    {

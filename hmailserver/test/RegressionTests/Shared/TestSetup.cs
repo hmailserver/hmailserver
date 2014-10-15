@@ -150,6 +150,16 @@ namespace RegressionTests.Shared
          if (_settings.MaxPOP3Connections > 0)
             _settings.MaxPOP3Connections = 0;
 
+         if (!_settings.SslVersion30Enabled)
+            _settings.SslVersion30Enabled = true;
+         if (!_settings.TlsVersion10Enabled)
+            _settings.TlsVersion10Enabled = true;
+         if (!_settings.TlsVersion11Enabled)
+            _settings.TlsVersion11Enabled = true;
+         if (!_settings.TlsVersion12Enabled)
+            _settings.TlsVersion12Enabled = true;
+
+
          hMailServer.AntiVirus antiVirus = _settings.AntiVirus;
 
          if (antiVirus.ClamAVEnabled)
@@ -160,7 +170,8 @@ namespace RegressionTests.Shared
 
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
-         
+
+
          EnableLogging(true);
 
          AssertNoReportedError();
