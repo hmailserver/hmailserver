@@ -717,7 +717,7 @@ namespace HM
 
       auto ssl_handle = ssl_socket_.native_handle();
       AnsiString name = SSL_get_cipher_name(ssl_handle);
-      AnsiString version = SSL_get_cipher_version(ssl_handle);
+      AnsiString version = SSL_get_version(ssl_handle);
       int bits = SSL_get_cipher_bits(ssl_handle, 0);
       return CipherInfo(name, version, bits);
    }
