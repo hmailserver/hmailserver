@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Authentication;
 using System.Text;
 
 namespace RegressionTests.Shared
@@ -27,9 +28,15 @@ namespace RegressionTests.Shared
       {
       }
 
-      public SMTPClientSimulator(bool useSSL, int port, IPAddress ipaddress)
+      public SMTPClientSimulator(bool useSSL, int port, IPAddress ipaddress) :
+         this(useSSL, SslProtocols.Default, port, ipaddress)
       {
-         _tcpConnection = new TcpConnection(useSSL);
+
+      }
+
+      public SMTPClientSimulator(bool useSSL, SslProtocols sslProtocols, int port, IPAddress ipaddress)
+      {
+         _tcpConnection = new TcpConnection(useSSL, sslProtocols);
          _port = port;
          _ipaddress = ipaddress;
       }

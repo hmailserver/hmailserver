@@ -19,15 +19,24 @@ namespace RegressionTests.Shared
    public class TcpConnection : IDisposable
    {
       private bool _useSslSocket;
+      private SslProtocols _sslProtocols = SslProtocols.Default;
 
       public TcpConnection()
       {
 
       }
 
-      public TcpConnection(bool useSSL)
+      public TcpConnection(bool useSSL) 
+         : this(useSSL, SslProtocols.Default)
+         
       {
          _useSslSocket = useSSL;
+      }
+
+      public TcpConnection(bool useSSL, SslProtocols protocols)
+      {
+         _useSslSocket = useSSL;
+         _sslProtocols = protocols;
       }
 
       public TcpConnection(TcpClient client)
@@ -129,7 +138,7 @@ namespace RegressionTests.Shared
          try
          {
 
-            _sslStream.AuthenticateAsClient("localhost");
+            _sslStream.AuthenticateAsClient("localhost", null, _sslProtocols, false);
          }
          catch (AuthenticationException)
          {
@@ -150,7 +159,7 @@ namespace RegressionTests.Shared
          try
          {
 
-            _sslStream.AuthenticateAsServer(certificate);
+            _sslStream.AuthenticateAsServer(certificate, false, _sslProtocols, false);
          }
          catch (AuthenticationException)
          {

@@ -64,8 +64,7 @@ namespace RegressionTests.Shared
 
       public Domain DoBasicSetup()
       {
-         if (application.ServerState == eServerState.hStateStopped)
-            application.Start();
+         bool restartRequired = false;
 
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
 
@@ -141,7 +140,10 @@ namespace RegressionTests.Shared
 
 
          if (!string.IsNullOrEmpty(_settings.SslCipherList))
+         {
+            restartRequired = true;
             _settings.SslCipherList = string.Empty;
+         }
 
          if (_settings.MaxSMTPConnections > 0)
             _settings.MaxSMTPConnections = 0;
@@ -151,13 +153,28 @@ namespace RegressionTests.Shared
             _settings.MaxPOP3Connections = 0;
 
          if (!_settings.SslVersion30Enabled)
+         {
             _settings.SslVersion30Enabled = true;
+            restartRequired = true;
+         }
+
          if (!_settings.TlsVersion10Enabled)
+         {
             _settings.TlsVersion10Enabled = true;
+            restartRequired = true;
+         }
+
          if (!_settings.TlsVersion11Enabled)
+         {
             _settings.TlsVersion11Enabled = true;
+            restartRequired = true;
+         }
+
          if (!_settings.TlsVersion12Enabled)
+         {
             _settings.TlsVersion12Enabled = true;
+            restartRequired = true;
+         }
 
 
          hMailServer.AntiVirus antiVirus = _settings.AntiVirus;
@@ -171,7 +188,6 @@ namespace RegressionTests.Shared
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
 
-
          EnableLogging(true);
 
          AssertNoReportedError();
@@ -179,6 +195,16 @@ namespace RegressionTests.Shared
          if (File.Exists(GetEventLogFileName()))
             File.Delete(GetEventLogFileName());
 
+         if (application.ServerState == eServerState.hStateStopped)
+            application.Start();
+         else if (application.ServerState == eServerState.hStateRunning)
+         {
+            if (restartRequired)
+            {
+               application.Stop();
+               application.Start();
+            }
+         }
          AssertRecipientsInDeliveryQueue(0);
 
          return domain;

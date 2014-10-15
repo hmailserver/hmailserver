@@ -69,6 +69,7 @@
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
+    <Compile Include="Shared\SslVersions.cs" />
     <Compile Include="Shared\StringExtensions.cs" />
     <Compile Include="Shared\TcpConnection.cs" />
     <Compile Include="Infrastructure\Delivery.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Rules\Rules.cs" />
     <Compile Include="Shared\SingletonProvider.cs" />
     <Compile Include="SMTP\Basics.cs" />
+    <Compile Include="SSL\SslTlsVersionTests.cs" />
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
