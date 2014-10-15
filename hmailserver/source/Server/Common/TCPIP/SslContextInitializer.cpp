@@ -29,8 +29,7 @@ namespace HM
       try
       {
          context.set_options(boost::asio::ssl::context::default_workarounds |
-            boost::asio::ssl::context::no_sslv2 |
-            boost::asio::ssl::context::no_sslv3);
+            boost::asio::ssl::context::no_sslv2);
       }
       catch (boost::system::system_error ec)
       {
@@ -118,8 +117,7 @@ namespace HM
    { 
       boost::system::error_code errorCode;
       context.set_options(boost::asio::ssl::context::default_workarounds |
-         boost::asio::ssl::context::no_sslv2 |
-         boost::asio::ssl::context::no_sslv3);
+         boost::asio::ssl::context::no_sslv2);
 
       if (errorCode.value() != 0)
       {
