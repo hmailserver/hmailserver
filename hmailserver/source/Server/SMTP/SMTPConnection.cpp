@@ -1532,7 +1532,7 @@ namespace HM
    {
       // The following code is to test the error handling in production environments.
       // Crash simulation mode can be enabled in hMailServer.ini. 
-      int crash_simulation_mode = IniFileSettings::Instance()->GetCrashSimulationMode();
+      int crash_simulation_mode = Configuration::Instance()->GetCrashSimulationMode();
       if (crash_simulation_mode > 0)
          CrashSimulation::Execute(crash_simulation_mode);
 

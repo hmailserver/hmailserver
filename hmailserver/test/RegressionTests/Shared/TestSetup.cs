@@ -1063,15 +1063,19 @@ namespace RegressionTests.Shared
 
       }
 
-      public static void AssertReportedError(params string[] contents)
+      public static void AssertReportedError(string firstContent, params string[] contents)
       {
+         var allExpectedContent = new List<string>();
+         allExpectedContent.Add(firstContent);
+         allExpectedContent.AddRange(contents);
+
          try
          {
             RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
                string errorLog = ReadErrorLog();
 
-               foreach (var content in contents)
+               foreach (var content in allExpectedContent)
                   CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
             });
          }
@@ -1101,12 +1105,12 @@ namespace RegressionTests.Shared
          return contents;
       }
 
-      private static string ReadErrorLog()
+      public static string ReadErrorLog()
       {
          string file = GetErrorLogFileName();
          AssertFileExists(file, false);
 
-         return  File.ReadAllText(file);
+         return File.ReadAllText(file);
          
       }
 

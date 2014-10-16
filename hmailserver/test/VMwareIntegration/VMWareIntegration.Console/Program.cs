@@ -88,23 +88,6 @@ namespace VMwareIntegration.Console
                {
                   LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
                   LogText(ex.ToString());
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-               
-               
-               
                }
             }
 

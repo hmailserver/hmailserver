@@ -41,7 +41,8 @@
 namespace HM
 {
 
-   Configuration::Configuration()
+   Configuration::Configuration() :
+      crash_simulation_mode_(0)
    {
 
    }
@@ -645,6 +646,19 @@ namespace HM
          versions = versions &~version;
 
       GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
+   }
+
+   int
+   Configuration::GetCrashSimulationMode() const
+   {
+      return crash_simulation_mode_;
+   }
+
+
+   void
+   Configuration::SetCrashSimulationMode(int mode)
+   {
+      crash_simulation_mode_ = mode;
    }
 
 

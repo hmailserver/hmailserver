@@ -1622,6 +1622,39 @@ STDMETHODIMP InterfaceSettings::put_MaxAsynchronousThreads(long newVal)
    }
 }
 
+STDMETHODIMP InterfaceSettings::get_CrashSimulationMode(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetCrashSimulationMode();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_CrashSimulationMode(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetCrashSimulationMode(newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
 STDMETHODIMP InterfaceSettings::get_MaxSMTPRecipientsInBatch(long *pVal)
 {
    try

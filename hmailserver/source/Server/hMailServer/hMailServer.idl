@@ -666,6 +666,9 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(97), helpstring("Enable TLS version 1.1")] HRESULT TlsVersion11Enabled([in] VARIANT_BOOL newVal);
    [propget, id(98), helpstring("Enable TLS version 1.2.")] HRESULT TlsVersion12Enabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(98), helpstring("Enable TLS version 1.2")] HRESULT TlsVersion12Enabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([out, retval] long *pVal);
+   [propput, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([in] long newVal);
 };
 
 

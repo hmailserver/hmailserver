@@ -238,6 +238,8 @@ END_COM_MAP()
    STDMETHOD(get_TlsVersion12Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_TlsVersion12Enabled)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_CrashSimulationMode)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_CrashSimulationMode)(/*[in]*/ long newVal);
 
    bool LoadSettings();
 
