@@ -87,7 +87,7 @@ namespace RegressionTests.Rules
          var oSMTP = new SMTPClientSimulator();
 
          // Spam folder
-         CustomAssert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         Assert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                                   "Detta ska hamna i public folder."));
 
          IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
@@ -211,11 +211,11 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "knafve@gmail.com", "SomeString",
                     "This mail should not be delivered - Test ActionBindToAddress.");
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
-         string errorLog = TestSetup.ReadAndDeleteErrorLog();
+         string errorLog = LogHandler.ReadAndDeleteErrorLog();
 
-         CustomAssert.IsTrue(errorLog.Contains("Failed to bind to IP address 255.254.253.252."));
+         Assert.IsTrue(errorLog.Contains("Failed to bind to IP address 255.254.253.252."));
       }
 
       [Test]
@@ -265,11 +265,11 @@ namespace RegressionTests.Rules
             fileCount += files.Length;
          }
 
-         CustomAssert.AreEqual(2, fileCount);
+         Assert.AreEqual(2, fileCount);
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), delegate
             {
-               var logContent = TestSetup.ReadCurrentDefaultLog();
+               var logContent = LogHandler.ReadCurrentDefaultLog();
                int loggedDeletionCount = new Regex(Regex.Escape("Delivery to this account was canceled by an account rule")).Matches(logContent).Count;
 
                Assert.AreEqual(2, loggedDeletionCount);
@@ -394,14 +394,14 @@ namespace RegressionTests.Rules
          var oSMTP = new SMTPClientSimulator();
 
          // Spam folder
-         CustomAssert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         Assert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                                   "Detta ska hamna i public folder."));
 
          // Wait for the folder to be created.
-         IMAPFolder folder = TestSetup.AssertFolderExists(_settings.PublicFolders, "MyFolder");
+         IMAPFolder folder = CustomAsserts.AssertFolderExists(_settings.PublicFolders, "MyFolder");
 
          // Wait for the message to appear.
-         TestSetup.AssertFolderMessageCount(folder, 1);
+         CustomAsserts.AssertFolderMessageCount(folder, 1);
 
          // Make sure we can't access it.
          bool ok = false;
@@ -413,7 +413,7 @@ namespace RegressionTests.Rules
          {
             ok = true;
          }
-         CustomAssert.IsTrue(ok);
+         Assert.IsTrue(ok);
 
 
          // Set permissions on this folder.
@@ -563,9 +563,9 @@ namespace RegressionTests.Rules
          var recipients = new List<string>();
          recipients.Add("test@test.com");
          if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
-            CustomAssert.Fail("Delivery failed");
+            Assert.Fail("Delivery failed");
          string message = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-         CustomAssert.IsTrue(message.Contains("Test message"));
+         Assert.IsTrue(message.Contains("Test message"));
 
          // Send a message and confirm that the rule affects it.
          var deliveryResults = new Dictionary<string, int>();
@@ -581,19 +581,19 @@ namespace RegressionTests.Rules
             recipients = new List<string>();
             recipients.Add("test@nonexistantdomain.com");
             if (!smtp.Send("test@test.com", recipients, "TestString", "Test message"))
-               CustomAssert.Fail("Delivery failed");
+               Assert.Fail("Delivery failed");
 
             server.WaitForCompletion();
          }
 
          // Submit the bounce message...
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          // Download it.
          message = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsTrue(message.Contains("550"));
-         CustomAssert.IsTrue(message.Contains("test@nonexistantdomain.com"));
+         Assert.IsTrue(message.Contains("550"));
+         Assert.IsTrue(message.Contains("test@nonexistantdomain.com"));
       }
 
       [Test]
@@ -914,7 +914,7 @@ namespace RegressionTests.Rules
          oSMTP.Send("ruletest@test.com", "ruletest@test.com", "abcdefghi",
                     "Detta ska inte hamna i mappen Inbox\\Wildcard");
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.RegEx", 2);
          IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 1);
@@ -1090,9 +1090,9 @@ namespace RegressionTests.Rules
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
          // Add a rule to this account.
-         SingletonProvider<TestSetup>.Instance.AddSpamRule(oAccount);
-         SingletonProvider<TestSetup>.Instance.AddCorporateRule(oAccount);
-         SingletonProvider<TestSetup>.Instance.AddExactMatchRule(oAccount);
+         AddSpamRule(oAccount);
+         AddCorporateRule(oAccount);
+         AddExactMatchRule(oAccount);
 
          var oSMTP = new SMTPClientSimulator();
 
@@ -1122,7 +1122,7 @@ namespace RegressionTests.Rules
 
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m1@test.com", "test");
          Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m2@test.com", "test");
-         SingletonProvider<TestSetup>.Instance.AddSpamRule(oAccount1);
+         AddSpamRule(oAccount1);
 
          // Send email to both recipients
          var lstRecipients = new List<string> {"ruletest-m1@test.com", "ruletest-m2@test.com"};
@@ -1136,7 +1136,7 @@ namespace RegressionTests.Rules
 
          var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon(oAccount2.Address, "test");
-         CustomAssert.IsFalse(sim.SelectFolder("Inbox.Spam"));
+         Assert.IsFalse(sim.SelectFolder("Inbox.Spam"));
       }
 
       [Test]
@@ -1182,7 +1182,7 @@ namespace RegressionTests.Rules
 
          // Test to send the message to account 1. Make sure a copy is created by this rule.
          oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
-         TestSetup.AssertRecipientsInDeliveryQueue(0, true);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
          IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
 
          string firstTemp = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
@@ -1205,10 +1205,10 @@ namespace RegressionTests.Rules
             second = firstTemp;
          }
 
-         CustomAssert.IsFalse(first.Contains("X-hMailServer-LoopCount: 1"), first);
-         CustomAssert.IsFalse(first.Contains("X-CopyRule: Criteria test"), first);
-         CustomAssert.IsTrue(second.Contains("X-hMailServer-LoopCount"), second);
-         CustomAssert.IsTrue(second.Contains("X-CopyRule: Criteria test"), second);
+         Assert.IsFalse(first.Contains("X-hMailServer-LoopCount: 1"), first);
+         Assert.IsFalse(first.Contains("X-CopyRule: Criteria test"), first);
+         Assert.IsTrue(second.Contains("X-hMailServer-LoopCount"), second);
+         Assert.IsTrue(second.Contains("X-CopyRule: Criteria test"), second);
       }
 
       [Test]
@@ -1252,7 +1252,7 @@ namespace RegressionTests.Rules
 
          // Test to send the message to account 1. Make sure a copy is created by this rule.
          oSMTP.Send(account1.Address, new List<string> {account1.Address, account2.Address}, "Test", "Test message.");
-         TestSetup.AssertRecipientsInDeliveryQueue(0, true);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
          IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
          IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 2);
 
@@ -1266,13 +1266,13 @@ namespace RegressionTests.Rules
 
          if (first.Contains("X-hMailServer-LoopCount: 1"))
          {
-            CustomAssert.IsFalse(second.Contains("X-CopyRule: CriteriaTest"), first);
-            CustomAssert.IsTrue(first.Contains("X-hMailServer-LoopCount"), first);
+            Assert.IsFalse(second.Contains("X-CopyRule: CriteriaTest"), first);
+            Assert.IsTrue(first.Contains("X-hMailServer-LoopCount"), first);
          }
          else
          {
-            CustomAssert.IsTrue(second.Contains("X-hMailServer-LoopCount: 1"), second);
-            CustomAssert.IsTrue(second.Contains("X-CopyRule: CriteriaTest"), first);
+            Assert.IsTrue(second.Contains("X-hMailServer-LoopCount: 1"), second);
+            Assert.IsTrue(second.Contains("X-CopyRule: CriteriaTest"), first);
          }
 
          first = POP3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
@@ -1280,13 +1280,13 @@ namespace RegressionTests.Rules
 
          if (first.Contains("X-hMailServer-LoopCount: 1"))
          {
-            CustomAssert.IsFalse(second.Contains("X-hMailServer-LoopCount"), first);
-            CustomAssert.IsTrue(first.Contains("X-CopyRule: CriteriaTest"), first);
+            Assert.IsFalse(second.Contains("X-hMailServer-LoopCount"), first);
+            Assert.IsTrue(first.Contains("X-CopyRule: CriteriaTest"), first);
          }
          else
          {
-            CustomAssert.IsTrue(second.Contains("X-hMailServer-LoopCount: 1"), second);
-            CustomAssert.IsTrue(second.Contains("X-CopyRule: CriteriaTest"), first);
+            Assert.IsTrue(second.Contains("X-hMailServer-LoopCount: 1"), second);
+            Assert.IsTrue(second.Contains("X-CopyRule: CriteriaTest"), first);
          }
       }
 
@@ -1346,11 +1346,11 @@ namespace RegressionTests.Rules
             smtpServer.WaitForCompletion();
          }
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0, true);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
 
          string first = POP3ClientSimulator.AssertGetFirstMessageText(adminAccount.Address, "test");
 
-         CustomAssert.IsTrue(first.Contains("X-hMailServer-LoopCount: 1"), first);
+         Assert.IsTrue(first.Contains("X-hMailServer-LoopCount: 1"), first);
 
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
       }
@@ -1396,7 +1396,7 @@ namespace RegressionTests.Rules
          oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
 
          IMAPClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          IMAPClientSimulator.AssertMessageCount(account3.Address, "test", "Inbox", 1);
          IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
       }
@@ -1464,21 +1464,21 @@ namespace RegressionTests.Rules
 
          SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
                                         "Detta ska inte hamna i mappen Inbox.Overriden.Test");
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single recipient.
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         TestSetup.AssertDeleteFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
 
          // Send message to two recipients. Recipient should still be one, since it's an account-level rule.
          SMTPClientSimulator.StaticSend(account1.Address, new List<string> {account1.Address, account2.Address},
                                         "SomeString", "Detta ska inte hamna i mappen Inbox.Overriden.Test");
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single recipient.
-         eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         TestSetup.AssertDeleteFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
+         eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
       }
 
       [Test]
@@ -1495,22 +1495,22 @@ namespace RegressionTests.Rules
 
          SMTPClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
                                         "Detta ska inte hamna i mappen Inbox.Overriden.Test");
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single recipient.
          
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         TestSetup.AssertDeleteFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
 
          // Send message to two recipients. 
          SMTPClientSimulator.StaticSend(account1.Address, new List<string> {account1.Address, account2.Address},
                                         "SomeString", "Detta ska inte hamna i mappen Inbox.Overriden.Test");
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a two recipients. Global rule is affected before message reaches recipients.
-         eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         TestSetup.AssertDeleteFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("\"2\""), eventLogText);
+         eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("\"2\""), eventLogText);
       }
 
       [Test]
@@ -1551,11 +1551,81 @@ namespace RegressionTests.Rules
          IMAPClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
 
          // Make sure a reply is sent back to account 1.
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
-         Message message = TestSetup.AssertGetFirstMessage(account1, "Inbox");
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+         Message message = CustomAsserts.AssertGetFirstMessage(account1, "Inbox");
 
-         CustomAssert.IsNullOrEmpty(message.FromAddress);
-         CustomAssert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
+         Assert.IsNullOrEmpty(message.FromAddress);
+         Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
       }
+
+      private void AddExactMatchRule(Account oAccount)
+      {
+         Rule oRule = oAccount.Rules.Add();
+         oRule.Name = "TestRule 3";
+         oRule.Active = true;
+
+         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
+         oRuleCriteria.UsePredefined = false;
+         oRuleCriteria.HeaderField = "Subject";
+         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
+         oRuleCriteria.MatchValue = "CORPORATE EXACT MATCH";
+         oRuleCriteria.Save();
+
+         // Add action
+         RuleAction oRuleAction = oRule.Actions.Add();
+         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         oRuleAction.IMAPFolder = "INBOX.Corporate";
+         oRuleAction.Save();
+
+         // Save the rule in the database
+         oRule.Save();
+      }
+
+      public void AddCorporateRule(Account oAccount)
+      {
+         Rule oRule = oAccount.Rules.Add();
+         oRule.Name = "TestRule 2";
+         oRule.Active = true;
+
+         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
+         oRuleCriteria.UsePredefined = false;
+         oRuleCriteria.HeaderField = "Subject";
+         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
+         oRuleCriteria.MatchValue = "**CORPORATE**";
+         oRuleCriteria.Save();
+
+         // Add action
+         RuleAction oRuleAction = oRule.Actions.Add();
+         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         oRuleAction.IMAPFolder = "INBOX.Corporate";
+         oRuleAction.Save();
+
+         // Save the rule in the database
+         oRule.Save();
+      }
+
+      public void AddSpamRule(Account oAccount)
+      {
+         Rule oRule = oAccount.Rules.Add();
+         oRule.Name = "TestRule 1";
+         oRule.Active = true;
+
+         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
+         oRuleCriteria.UsePredefined = false;
+         oRuleCriteria.HeaderField = "Subject";
+         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
+         oRuleCriteria.MatchValue = "**SPAM**";
+         oRuleCriteria.Save();
+
+         // Add action
+         RuleAction oRuleAction = oRule.Actions.Add();
+         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         oRuleAction.IMAPFolder = "INBOX.Spam";
+         oRuleAction.Save();
+
+         // Save the rule in the database
+         oRule.Save();
+      }
+
    }
 }

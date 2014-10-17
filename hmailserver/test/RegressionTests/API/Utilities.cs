@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -32,8 +33,8 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
-         CustomAssert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
       }
@@ -61,10 +62,10 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          hMailServer.Message message = _domain.Accounts[0].IMAPFolders.get_ItemByName("Inbox").Messages[0];
-         CustomAssert.IsFalse(fileName.Contains("$$$$.eml"));
+         Assert.IsFalse(fileName.Contains("$$$$.eml"));
       }
 
       [Test]
@@ -88,7 +89,7 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
       }
 
       [Test]
@@ -114,10 +115,10 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          hMailServer.Message message = _domain.Accounts[0].IMAPFolders.get_ItemByName("Inbox").Messages[0];
-         CustomAssert.AreEqual(fileName, message.Filename);
+         Assert.AreEqual(fileName, message.Filename);
       }
 
       [Test]
@@ -140,10 +141,10 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          string text = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
-         CustomAssert.IsTrue(text.Contains(messageText));
+         Assert.IsTrue(text.Contains(messageText));
       }
 
       [Test]
@@ -166,10 +167,10 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Inbox"));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Inbox"));
 
          string text = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
-         CustomAssert.IsTrue(text.Contains(messageText));
+         Assert.IsTrue(text.Contains(messageText));
       }
 
       [Test]
@@ -193,12 +194,12 @@ namespace RegressionTests.API
 
          File.WriteAllText(fileName, messageText);
 
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Woho"));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFileToIMAPFolder(fileName, account.ID, "Woho"));
 
          POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
          var sim = new IMAPClientSimulator();
          sim.ConnectAndLogon("test@test.com", "test");
-         CustomAssert.AreEqual(1, sim.GetMessageCount("Woho"));
+         Assert.AreEqual(1, sim.GetMessageCount("Woho"));
          sim.Disconnect();
       }
 
@@ -228,13 +229,13 @@ namespace RegressionTests.API
          SingletonProvider<TestSetup>.Instance.GetApp().Database.ExecuteSQL(sql);
 
          // Now try to insert the message.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, 0));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, 0));
 
          _application.Reinitialize();
 
          string newMessgaeFilename = _settings.PublicFolders[0].Messages[0].Filename;
-         CustomAssert.AreNotEqual(fileName, newMessgaeFilename);
-         CustomAssert.IsTrue(File.Exists(newMessgaeFilename));
+         Assert.AreNotEqual(fileName, newMessgaeFilename);
+         Assert.IsTrue(File.Exists(newMessgaeFilename));
       }
 
       [Test]
@@ -245,12 +246,12 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test message", "Test body");
 
          IMAPFolder folder = account.IMAPFolders.get_ItemByName("Inbox");
-         TestSetup.AssertFolderMessageCount(folder, 1);
+         CustomAsserts.AssertFolderMessageCount(folder, 1);
 
          hMailServer.Message message = account.IMAPFolders.get_ItemByName("Inbox").Messages[0];
 
          // Now nothing should happen.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
 
          // Move the message file to another folder.
          string domainPath = Path.Combine(_application.Settings.Directories.DataDirectory, _domain.Name);
@@ -263,18 +264,18 @@ namespace RegressionTests.API
                                     TestSetup.Escape(fileName), message.ID);
          SingletonProvider<TestSetup>.Instance.GetApp().Database.ExecuteSQL(sql);
 
-         CustomAssert.IsTrue(File.Exists(fileName));
+         Assert.IsTrue(File.Exists(fileName));
          // Now the file should be moved to the correct path.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
-         CustomAssert.IsFalse(File.Exists(fileName));
+         Assert.IsFalse(File.Exists(fileName));
 
          // Now nothing should happen because the file is no longer there.
-         CustomAssert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsFalse(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          string content = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsTrue(content.Contains("Test message"));
+         Assert.IsTrue(content.Contains("Test message"));
       }
 
       [Test]
@@ -285,14 +286,14 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test message", "Test body");
 
          IMAPFolder folder = account.IMAPFolders.get_ItemByName("Inbox");
-         TestSetup.AssertFolderMessageCount(folder, 1);
+         CustomAsserts.AssertFolderMessageCount(folder, 1);
 
          hMailServer.Message message = account.IMAPFolders.get_ItemByName("Inbox").Messages[0];
 
          string filename = message.Filename;
          // Now nothing should happen here.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(filename, account.ID));
-         CustomAssert.IsTrue(File.Exists(filename));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(filename, account.ID));
+         Assert.IsTrue(File.Exists(filename));
 
          string sql = string.Format("update hm_messages set messagefilename = '{0}' where messageid = {1}",
                                     TestSetup.Escape(message.Filename), message.ID);
@@ -300,15 +301,15 @@ namespace RegressionTests.API
          SingletonProvider<TestSetup>.Instance.GetApp().Database.ExecuteSQL(sql);
 
          // Now the path should be replaced.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
 
          // Now nothing should happen.
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
-         CustomAssert.IsTrue(File.Exists(message.Filename));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(message.Filename, account.ID));
+         Assert.IsTrue(File.Exists(message.Filename));
 
          string content = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsTrue(content.Contains("Test message"));
+         Assert.IsTrue(content.Contains("Test message"));
       }
    }
 }

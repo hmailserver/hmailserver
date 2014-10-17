@@ -21,7 +21,7 @@ namespace RegressionTests.Infrastructure
       }
 
       [TearDown]
-      public void TearDown()
+      public new void TearDown()
       {
          _settings.CrashSimulationMode = 0;
       }
@@ -100,8 +100,8 @@ namespace RegressionTests.Infrastructure
 
          AssertMinidumpsGeneratedAndErrorsLogged(0, false);
 
-         var defaultLog = TestSetup.ReadCurrentDefaultLog();
-         CustomAssert.IsTrue(defaultLog.Contains("Connection was terminated - Client is disconnected."));
+         var defaultLog = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(defaultLog.Contains("Connection was terminated - Client is disconnected."));
       }
 
       [Test]
@@ -118,8 +118,8 @@ namespace RegressionTests.Infrastructure
          // We should log info that we skipped minidump generation.
          RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
             {
-               var log = TestSetup.ReadCurrentDefaultLog();
-               CustomAssert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
+               var log = LogHandler.ReadCurrentDefaultLog();
+               Assert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
             });
 
 
@@ -147,8 +147,8 @@ namespace RegressionTests.Infrastructure
          // We should log info that we skipped minidump generation.
          RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
          {
-            var log = TestSetup.ReadCurrentDefaultLog();
-            CustomAssert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
+            var log = LogHandler.ReadCurrentDefaultLog();
+            Assert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
          });
 
          // Pretend one minidump is really old.
@@ -160,7 +160,7 @@ namespace RegressionTests.Infrastructure
          // Now we should be able to create another.
          TriggerCrashSimulationError();
 
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () => CustomAssert.IsFalse(File.Exists(testminidump)));
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () => Assert.IsFalse(File.Exists(testminidump)));
 
 
          AssertMinidumpsGeneratedAndErrorsLogged(10, true);
@@ -182,19 +182,19 @@ namespace RegressionTests.Infrastructure
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
          {
             var minidumps = GetMinidumps();
-            CustomAssert.AreEqual(count, minidumps.Length);
+            Assert.AreEqual(count, minidumps.Length);
 
             if (count > 0 || expectedLoggedErrors.Length > 0)
             {
-               string errorLog = TestSetup.ReadErrorLog();
+               string errorLog = LogHandler.ReadErrorLog();
                foreach (var minidump in minidumps)
                {
-                  CustomAssert.IsTrue(errorLog.Contains(minidump));
+                  Assert.IsTrue(errorLog.Contains(minidump));
                }
 
                foreach (var expectedLoggedError in expectedLoggedErrors)
                {
-                  CustomAssert.IsTrue(errorLog.Contains(expectedLoggedError));
+                  Assert.IsTrue(errorLog.Contains(expectedLoggedError));
                }
             }
 
@@ -203,7 +203,7 @@ namespace RegressionTests.Infrastructure
          if (delete)
          {
             DeleteAllMinidumps();
-            TestSetup.DeleteErrorLog();
+            LogHandler.DeleteErrorLog();
          }
       }
 

@@ -19,16 +19,16 @@ namespace RegressionTests.Infrastructure
          using (var conn2 = new TcpConnection())
          using (var conn3 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(143));
+            Assert.IsTrue(conn1.Connect(143));
             conn1.Receive();
-            CustomAssert.IsTrue(conn2.Connect(143));
+            Assert.IsTrue(conn2.Connect(143));
             conn2.Receive();
-            CustomAssert.IsTrue(conn3.Connect(143));
-            CustomAssert.IsEmpty(conn3.Receive());
+            Assert.IsTrue(conn3.Connect(143));
+            Assert.IsEmpty(conn3.Receive());
          }
 
-         var log2 = TestSetup.ReadCurrentDefaultLog();
-         CustomAssert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
+         var log2 = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
       }
 
       [Test]
@@ -40,16 +40,16 @@ namespace RegressionTests.Infrastructure
          using (var conn2 = new TcpConnection())
          using (var conn3 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(25));
+            Assert.IsTrue(conn1.Connect(25));
             conn1.Receive();
-            CustomAssert.IsTrue(conn2.Connect(25));
+            Assert.IsTrue(conn2.Connect(25));
             conn2.Receive();
-            CustomAssert.IsTrue(conn3.Connect(25));
-            CustomAssert.IsEmpty(conn3.Receive());
+            Assert.IsTrue(conn3.Connect(25));
+            Assert.IsEmpty(conn3.Receive());
          }
 
-         var log2 = TestSetup.ReadCurrentDefaultLog();
-         CustomAssert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
+         var log2 = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(log2.Contains("Blocked either by IP range or by connection limit."));
       }
 
       [Test]
@@ -61,12 +61,12 @@ namespace RegressionTests.Infrastructure
          using (var conn2 = new TcpConnection())
          using (var conn3 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(110));
+            Assert.IsTrue(conn1.Connect(110));
             conn1.Receive();
-            CustomAssert.IsTrue(conn2.Connect(110));
+            Assert.IsTrue(conn2.Connect(110));
             conn2.Receive();
-            CustomAssert.IsTrue(conn3.Connect(110));
-            CustomAssert.IsEmpty(conn3.Receive());
+            Assert.IsTrue(conn3.Connect(110));
+            Assert.IsEmpty(conn3.Receive());
          }
       }
 
@@ -80,9 +80,9 @@ namespace RegressionTests.Infrastructure
 
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(25));
+            Assert.IsTrue(conn1.Connect(25));
 
-            TestSetup.AssertSessionCount(eSessionType.eSTSMTP,countBefore+1);
+            CustomAsserts.AssertSessionCount(eSessionType.eSTSMTP,countBefore+1);
          }
 
       }
@@ -96,8 +96,8 @@ namespace RegressionTests.Infrastructure
 
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(143));
-            TestSetup.AssertSessionCount(eSessionType.eSTIMAP, countBefore + 1);
+            Assert.IsTrue(conn1.Connect(143));
+            CustomAsserts.AssertSessionCount(eSessionType.eSTIMAP, countBefore + 1);
          }
 
       }
@@ -111,27 +111,26 @@ namespace RegressionTests.Infrastructure
 
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(110));
-            TestSetup.AssertSessionCount(eSessionType.eSTPOP3, countBefore + 1);
+            Assert.IsTrue(conn1.Connect(110));
+            CustomAsserts.AssertSessionCount(eSessionType.eSTPOP3, countBefore + 1);
          }
 
       }
 
 
       [Test]
-      public void TestDisconnectingFromSmtpServerDecreasesPSmtpSessionCount()
+      public void TestDisconnectingFromSmtpServerDecreasesIMAPPSmtpSessionCount()
       {
          var app = SingletonProvider<TestSetup>.Instance.GetApp();
          var status = app.Status;
 
-         int countBefore;
+         int countBefore = status.get_SessionCount(eSessionType.eSTSMTP);
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(25));
-            countBefore = status.get_SessionCount(eSessionType.eSTSMTP);
+            Assert.IsTrue(conn1.Connect(25));
          }
 
-         TestSetup.AssertSessionCount(eSessionType.eSTSMTP, countBefore -1);
+         CustomAsserts.AssertSessionCount(eSessionType.eSTSMTP, countBefore);
       }
 
       [Test]
@@ -140,15 +139,13 @@ namespace RegressionTests.Infrastructure
          var app = SingletonProvider<TestSetup>.Instance.GetApp();
          var status = app.Status;
 
-         int countBefore;
+         int countBefore = status.get_SessionCount(eSessionType.eSTIMAP);
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(143));
-            countBefore = status.get_SessionCount(eSessionType.eSTIMAP);
+            Assert.IsTrue(conn1.Connect(143));
          }
 
-         TestSetup.AssertSessionCount(eSessionType.eSTIMAP, countBefore - 1);
-
+         AssertMaxSessionCount(eSessionType.eSTPOP3, countBefore);
       }
 
       [Test]
@@ -157,17 +154,26 @@ namespace RegressionTests.Infrastructure
          var app = SingletonProvider<TestSetup>.Instance.GetApp();
          var status = app.Status;
 
-         int countBefore;
+         int countBefore = status.get_SessionCount(eSessionType.eSTPOP3);
          using (var conn1 = new TcpConnection())
          {
-            CustomAssert.IsTrue(conn1.Connect(110));
-            countBefore = status.get_SessionCount(eSessionType.eSTPOP3);
+            Assert.IsTrue(conn1.Connect(110));
          }
 
-         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, countBefore - 1);
-
-
+         AssertMaxSessionCount(eSessionType.eSTPOP3, countBefore);
       }
 
+      public static void AssertMaxSessionCount(eSessionType sessionType, int maxExpectedCount)
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+         {
+            int count = application.Status.get_SessionCount(sessionType);
+
+            Assert.GreaterOrEqual(maxExpectedCount, count);
+         });
+
+      }
    }
 }

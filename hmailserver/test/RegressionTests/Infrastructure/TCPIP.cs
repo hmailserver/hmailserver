@@ -32,7 +32,7 @@ namespace RegressionTests.Infrastructure
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
          string query = application.Utilities.GetMailServer("martin@23sdfakm52lvcxbmvxcbmdtapvxcpaasdf.com");
-         CustomAssert.IsTrue(query.Length == 0);
+         Assert.IsTrue(query.Length == 0);
       }
 
       [Test]
@@ -66,9 +66,9 @@ namespace RegressionTests.Infrastructure
 
          oApp.Start();
 
-         CustomAssert.IsTrue(pSMTPSimulator.TestConnect(2500));
-         CustomAssert.IsTrue(pSMTPSimulator.TestConnect(11000));
-         CustomAssert.IsTrue(pSMTPSimulator.TestConnect(14300));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(2500));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(11000));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(14300));
 
          oApp.Stop();
 
@@ -80,7 +80,7 @@ namespace RegressionTests.Infrastructure
          oApp.Start();
 
          // Try to connect to the new port
-         CustomAssert.IsTrue(pSMTPSimulator.TestConnect(25000));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(25000));
 
          oApp.Stop();
 
@@ -103,9 +103,9 @@ namespace RegressionTests.Infrastructure
 
          oApp.Start();
 
-         CustomAssert.IsTrue(pSMTPSimulator.TestConnect(25));
-         CustomAssert.IsTrue(pPOP3Simulator.TestConnect(110));
-         CustomAssert.IsTrue(pPOP3Simulator.TestConnect(143));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(25));
+         Assert.IsTrue(pPOP3Simulator.TestConnect(110));
+         Assert.IsTrue(pPOP3Simulator.TestConnect(143));
       }
    }
 }

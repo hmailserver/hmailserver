@@ -39,7 +39,7 @@ namespace RegressionTests.IMAP
             Thread.Sleep(20);
          }
 
-         CustomAssert.Fail("Messages not indexed...");
+         Assert.Fail("Messages not indexed...");
       }
 
       private void SendMessage(string subject, string body, string to, string cc)
@@ -80,7 +80,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(CC) UTF-8 ALL");
 
-         CustomAssert.AreEqual("3 1 2", result);
+         Assert.AreEqual("3 1 2", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -89,7 +89,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(CC) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
       [Test]
@@ -121,7 +121,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(DATE) UTF-8 ALL");
 
-         CustomAssert.AreEqual("1 2 3 4 5", result);
+         Assert.AreEqual("1 2 3 4 5", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -130,7 +130,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
       [Test]
@@ -153,7 +153,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.IsTrue(result.StartsWith("1 2"));
+         Assert.IsTrue(result.StartsWith("1 2"));
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -162,7 +162,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
 
@@ -204,7 +204,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual("2 4 3 5 1 6", result);
+         Assert.AreEqual("2 4 3 5 1 6", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -213,7 +213,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
       [Test]
@@ -239,7 +239,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual("3 1 2", result);
+         Assert.AreEqual("3 1 2", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -248,7 +248,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
       [Test]
@@ -285,7 +285,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual("3 2 1 5 4", result);
+         Assert.AreEqual("3 2 1 5 4", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -294,7 +294,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
 
       [Test]
@@ -320,7 +320,7 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(TO) UTF-8 ALL");
 
-         CustomAssert.AreEqual("1 3 2", result);
+         Assert.AreEqual("1 3 2", result);
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -329,7 +329,7 @@ namespace RegressionTests.IMAP
          // Make sure the sort order is the same.
          string resultAfter = sim.Sort("(TO) UTF-8 ALL");
 
-         CustomAssert.AreEqual(result, resultAfter);
+         Assert.AreEqual(result, resultAfter);
       }
    }
 }

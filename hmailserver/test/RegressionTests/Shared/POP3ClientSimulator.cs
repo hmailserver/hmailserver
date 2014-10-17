@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
@@ -294,7 +295,7 @@ namespace RegressionTests.Shared
          _tcpConnection.Send("PASS " + sPassword + "\r\n");
          sData =
             _tcpConnection.ReadUntil(new List<string> { "+OK Mailbox locked and ready", "-ERR Invalid user name or password." });
-         CustomAssert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
+         Assert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
 
          _tcpConnection.Send("LIST\r\n");
          sData = _tcpConnection.ReadUntil("+OK");
@@ -323,7 +324,7 @@ namespace RegressionTests.Shared
          if (expectedCount == 0)
          {
             // just in case.
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          }
 
          int timeout = 100;
@@ -337,7 +338,7 @@ namespace RegressionTests.Shared
                return;
 
             if (actualCount > expectedCount)
-               CustomAssert.Fail(
+               Assert.Fail(
                   string.Format(
                      "Actual count exceeds expected count. Account name: {2}, Actual: {0}, Expected: {1}.",
                      actualCount, expectedCount, accountName));
@@ -346,7 +347,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(50);
          }
 
-         CustomAssert.Fail(string.Format("Wrong number of messages in inbox for {0}. Actual: {1}, Expected: {2}",
+         Assert.Fail(string.Format("Wrong number of messages in inbox for {0}. Actual: {1}, Expected: {2}",
                                    accountName, actualCount, expectedCount));
       }
 
@@ -366,7 +367,7 @@ namespace RegressionTests.Shared
          string text = pop3.GetFirstMessageText(accountName, accountPassword);
 
          if (text.Length == 0)
-            CustomAssert.Fail("Message was found but contents could not be received");
+            Assert.Fail("Message was found but contents could not be received");
 
          return text;
       }

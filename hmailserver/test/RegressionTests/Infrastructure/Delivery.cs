@@ -63,7 +63,7 @@ namespace RegressionTests.Infrastructure
 
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
-         CustomAssert.IsTrue(message.Contains("Delivered-To: mirror@test.com"));
+         Assert.IsTrue(message.Contains("Delivered-To: mirror@test.com"));
       }
 
       [Test]
@@ -91,9 +91,9 @@ namespace RegressionTests.Infrastructure
 
          string message = POP3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
-         CustomAssert.IsTrue(message.Contains("Delivered-To: mirror1@test.com,mirror2@test.com,mirror3@test.com"));
+         Assert.IsTrue(message.Contains("Delivered-To: mirror1@test.com,mirror2@test.com,mirror3@test.com"));
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
       }
 
       [Test]
@@ -124,11 +124,11 @@ namespace RegressionTests.Infrastructure
 
          string message = POP3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
-         CustomAssert.IsTrue(
+         Assert.IsTrue(
             message.Contains(
                "Delivered-To: mirror0@test.com,mirror1@test.com,mirror2@test.com,mirror3@test.com,mirror4@test.com,mirror5@test.com,mirror6@test.com,mirror7@test.com,mirror8@test.com,mirror9@test.com,mirror10@test.com,mirror11@test.com,mirror12@test.com,mirror13@test.com,mirror14@test\r\n"));
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
       }
    }
 }

@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using RegressionTests.SSL;
 
@@ -34,7 +35,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.DisconnectImmediate = true;
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();
@@ -55,16 +56,16 @@ namespace RegressionTests.POP3.Fetching
             for (int i = 0; i <= 10; i++)
             {
                if (i == 5)
-                  CustomAssert.Fail("No connection: " + contentSoFar);
+                  Assert.Fail("No connection: " + contentSoFar);
 
-               contentSoFar = TestSetup.ReadCurrentDefaultLog();
+               contentSoFar = LogHandler.ReadCurrentDefaultLog();
                if (contentSoFar.Contains("TCPConnection - TLS/SSL handshake failed."))
                   break;
 
                Thread.Sleep(1000);
             }
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             // try again.
             fa.DownloadNow();
@@ -74,9 +75,9 @@ namespace RegressionTests.POP3.Fetching
             for (int i = 0; i <= 10; i++)
             {
                if (i == 5)
-                  CustomAssert.Fail("No connection: " + contentSoFar);
+                  Assert.Fail("No connection: " + contentSoFar);
 
-               contentSoFar = TestSetup.ReadCurrentDefaultLog();
+               contentSoFar = LogHandler.ReadCurrentDefaultLog();
                if (contentSoFar.Contains("TCPConnection - TLS/SSL handshake failed."))
                   break;
 
@@ -108,7 +109,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();
@@ -152,7 +153,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();
@@ -179,9 +180,9 @@ namespace RegressionTests.POP3.Fetching
             for (int i = 0; i <= 10; i++)
             {
                if (i == 5)
-                  CustomAssert.Fail("No connection: " + contentSoFar);
+                  Assert.Fail("No connection: " + contentSoFar);
 
-               contentSoFar = TestSetup.ReadCurrentDefaultLog();
+               contentSoFar = LogHandler.ReadCurrentDefaultLog();
                if (contentSoFar.Contains(expectedMessage))
                   break;
 
@@ -213,7 +214,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();
@@ -257,7 +258,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();
@@ -301,7 +302,7 @@ namespace RegressionTests.POP3.Fetching
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
 
-            TestSetup.DeleteCurrentDefaultLog();
+            LogHandler.DeleteCurrentDefaultLog();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             FetchAccount fa = account.FetchAccounts.Add();

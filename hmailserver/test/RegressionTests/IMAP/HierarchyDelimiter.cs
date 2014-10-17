@@ -25,10 +25,10 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
          string listResponse = oSimulator.List();
-         CustomAssert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
-         CustomAssert.IsTrue(!listResponse.Contains("\"Test\""));
+         Assert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
+         Assert.IsTrue(!listResponse.Contains("\"Test\""));
          oSimulator.Disconnect();
       }
 
@@ -47,14 +47,14 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
          string listResponse = oSimulator.List();
-         CustomAssert.IsTrue(listResponse.Contains("\"Test\\Test\""));
-         CustomAssert.IsTrue(listResponse.Contains("\"Test\""));
-         CustomAssert.IsTrue(oSimulator.DeleteFolder("Test\\Test"));
+         Assert.IsTrue(listResponse.Contains("\"Test\\Test\""));
+         Assert.IsTrue(listResponse.Contains("\"Test\""));
+         Assert.IsTrue(oSimulator.DeleteFolder("Test\\Test"));
          listResponse = oSimulator.List();
-         CustomAssert.IsFalse(listResponse.Contains("Test\\Test"));
-         CustomAssert.IsTrue(listResponse.Contains("Test"));
+         Assert.IsFalse(listResponse.Contains("Test\\Test"));
+         Assert.IsTrue(listResponse.Contains("Test"));
          oSimulator.Disconnect();
       }
 
@@ -73,10 +73,10 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
          string listResponse = oSimulator.List();
-         CustomAssert.IsTrue(listResponse.Contains("\"Test\\Test\""));
-         CustomAssert.IsTrue(listResponse.Contains("\"Test\""));
+         Assert.IsTrue(listResponse.Contains("\"Test\\Test\""));
+         Assert.IsTrue(listResponse.Contains("\"Test\""));
          oSimulator.Disconnect();
       }
 
@@ -95,12 +95,12 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
-         CustomAssert.IsTrue(oSimulator.Subscribe("Test"));
-         CustomAssert.IsTrue(oSimulator.Subscribe("Test/Test"));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.Subscribe("Test"));
+         Assert.IsTrue(oSimulator.Subscribe("Test/Test"));
          string lsubResponse = oSimulator.LSUB();
-         CustomAssert.IsTrue(lsubResponse.Contains("\"Test/Test\""));
-         CustomAssert.IsTrue(lsubResponse.Contains("\"Test\""));
+         Assert.IsTrue(lsubResponse.Contains("\"Test/Test\""));
+         Assert.IsTrue(lsubResponse.Contains("\"Test\""));
          oSimulator.Disconnect();
       }
 
@@ -120,7 +120,7 @@ namespace RegressionTests.IMAP
          string result = oSimulator.Send("A01 NAMESPACE");
          string correctNamespaceSetting = "* NAMESPACE ((\"\" \"\\\\\")) NIL ((\"" + publicFolderName +
                                           "\" \"\\\\\"))";
-         CustomAssert.IsTrue(result.Contains(correctNamespaceSetting), result);
+         Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
          oSimulator.Disconnect();
 
          settings.IMAPHierarchyDelimiter = ".";
@@ -130,7 +130,7 @@ namespace RegressionTests.IMAP
 
          result = oSimulator.Send("A01 NAMESPACE");
          correctNamespaceSetting = "* NAMESPACE ((\"\" \".\")) NIL ((\"" + publicFolderName + "\" \".\"))";
-         CustomAssert.IsTrue(result.Contains(correctNamespaceSetting), result);
+         Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
          oSimulator.Disconnect();
 
          settings.IMAPHierarchyDelimiter = "/";
@@ -140,7 +140,7 @@ namespace RegressionTests.IMAP
 
          result = oSimulator.Send("A01 NAMESPACE");
          correctNamespaceSetting = "* NAMESPACE ((\"\" \"/\")) NIL ((\"" + publicFolderName + "\" \"/\"))";
-         CustomAssert.IsTrue(result.Contains(correctNamespaceSetting), result);
+         Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
          oSimulator.Disconnect();
       }
 
@@ -160,14 +160,14 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
          string listResponse = oSimulator.List();
-         CustomAssert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
-         CustomAssert.IsTrue(listResponse.Contains("\"Test\""));
-         CustomAssert.IsTrue(oSimulator.RenameFolder("Test", "Apa"));
+         Assert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
+         Assert.IsTrue(listResponse.Contains("\"Test\""));
+         Assert.IsTrue(oSimulator.RenameFolder("Test", "Apa"));
          listResponse = oSimulator.List();
-         CustomAssert.IsTrue(listResponse.Contains("\"" + newFolderName + "\""));
-         CustomAssert.IsTrue(listResponse.Contains("\"Apa\""));
+         Assert.IsTrue(listResponse.Contains("\"" + newFolderName + "\""));
+         Assert.IsTrue(listResponse.Contains("\"Apa\""));
          oSimulator.Disconnect();
       }
 
@@ -186,12 +186,12 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
-         CustomAssert.IsTrue(oSimulator.CreateFolder(folderName));
-         CustomAssert.IsTrue(oSimulator.Subscribe("Test"));
-         CustomAssert.IsTrue(oSimulator.Subscribe("Test\\Test"));
+         Assert.IsTrue(oSimulator.CreateFolder(folderName));
+         Assert.IsTrue(oSimulator.Subscribe("Test"));
+         Assert.IsTrue(oSimulator.Subscribe("Test\\Test"));
          string lsubResponse = oSimulator.LSUB();
-         CustomAssert.IsTrue(lsubResponse.Contains("\"Test\\Test\""));
-         CustomAssert.IsTrue(lsubResponse.Contains("\"Test\""));
+         Assert.IsTrue(lsubResponse.Contains("\"Test\\Test\""));
+         Assert.IsTrue(lsubResponse.Contains("\"Test\""));
          oSimulator.Disconnect();
       }
    }

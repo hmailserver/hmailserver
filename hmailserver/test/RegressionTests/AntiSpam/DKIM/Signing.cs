@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -63,13 +64,13 @@ namespace RegressionTests.AntiSpam.DKIM
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@example.com");
-            CustomAssert.IsTrue(smtp.Send("test@test.com", recipients, "Test", body));
+            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", body));
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
             string messageData = server.MessageData;
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             return messageData;
          }
@@ -102,7 +103,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("a=rsa-sha1"), result);
+         Assert.IsTrue(result.ToLower().Contains("a=rsa-sha1"), result);
       }
 
       [Test]
@@ -119,7 +120,7 @@ namespace RegressionTests.AntiSpam.DKIM
 
          if (result.ToLower().Contains("a=rsa-sha256") == false)
          {
-            CustomAssert.Fail(result);
+            Assert.Fail(result);
          }
       }
 
@@ -135,7 +136,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("simple/simple"), result);
+         Assert.IsTrue(result.ToLower().Contains("simple/simple"), result);
       }
 
       [Test]
@@ -148,7 +149,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("a=rsa-sha256"), result);
+         Assert.IsTrue(result.ToLower().Contains("a=rsa-sha256"), result);
       }
 
       [Test]
@@ -161,7 +162,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("relaxed/relaxed"), result);
+         Assert.IsTrue(result.ToLower().Contains("relaxed/relaxed"), result);
       }
 
       [Test]
@@ -174,8 +175,8 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
-         CustomAssert.IsTrue(result.ToLower().Contains("d=" + _domain.Name.ToLower()), result);
+         Assert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsTrue(result.ToLower().Contains("d=" + _domain.Name.ToLower()), result);
       }
 
       [Test]
@@ -188,8 +189,8 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
-         CustomAssert.IsTrue(result.Contains("s=MySelector"), result);
+         Assert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsTrue(result.Contains("s=MySelector"), result);
       }
 
 
@@ -203,7 +204,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage("");
-         CustomAssert.IsTrue(result.Contains("bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;"), result);
+         Assert.IsTrue(result.Contains("bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;"), result);
       }
 
       [Test]
@@ -216,7 +217,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage("Whati\r\nwhati\r\n\r\nwhati\r\n\r\n");
-         CustomAssert.IsTrue(result.Contains("bh=HfVBKUbHPvnfdY6y9RCu4IDyM+v+0HkekU0RPi3bgCk=;"), result);
+         Assert.IsTrue(result.Contains("bh=HfVBKUbHPvnfdY6y9RCu4IDyM+v+0HkekU0RPi3bgCk=;"), result);
       }
 
       [Test]
@@ -229,7 +230,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage("Test");
-         CustomAssert.IsTrue(result.Contains("bh=fdkeB/A0FkbVP2k4J4pNPoeWH6vqBm9+b0C3OY87Cw8=;"), result);
+         Assert.IsTrue(result.Contains("bh=fdkeB/A0FkbVP2k4J4pNPoeWH6vqBm9+b0C3OY87Cw8=;"), result);
       }
 
       [Test]
@@ -237,7 +238,7 @@ namespace RegressionTests.AntiSpam.DKIM
       public void TestSigningDisabled()
       {
          string result = SendMessage();
-         CustomAssert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
       }
 
       [Test]
@@ -250,7 +251,7 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
       }
 
       [Test]
@@ -261,9 +262,9 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError("Either the selector or private key file was not specified.");
+         CustomAsserts.AssertReportedError("Either the selector or private key file was not specified.");
       }
 
       [Test]
@@ -275,9 +276,9 @@ namespace RegressionTests.AntiSpam.DKIM
          _domain.Save();
 
          string result = SendMessage();
-         CustomAssert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError("Either the selector or private key file was not specified.");
+         CustomAsserts.AssertReportedError("Either the selector or private key file was not specified.");
       }
    }
 }

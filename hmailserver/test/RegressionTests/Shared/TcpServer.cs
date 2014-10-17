@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
@@ -53,7 +54,7 @@ namespace RegressionTests.Shared
 
       public void StartListen()
       {
-         Trace.WriteLine("Starting listen...");
+         Console.WriteLine("Starting listen...");
 
          _listenThreadStarted.Reset();
                  
@@ -64,7 +65,7 @@ namespace RegressionTests.Shared
 
          // Don't return until we have started to listen. This is done to prevent
          // someone from trying to continue the test before we're ready.
-         CustomAssert.IsTrue(_listenThreadStarted.WaitOne(TimeSpan.FromSeconds(15), false));
+         Assert.IsTrue(_listenThreadStarted.WaitOne(TimeSpan.FromSeconds(15), false));
 
          if (_workerThreadException != null)
             throw _workerThreadException;
@@ -183,15 +184,15 @@ namespace RegressionTests.Shared
             }
          }
 
-         string log = TestSetup.ReadCurrentDefaultLog();
+         string log = LogHandler.ReadCurrentDefaultLog();
 
          if (_numberOfConnectedClients < _maxNumberOfConnections)
-            CustomAssert.Fail(
+            Assert.Fail(
                string.Format(
                   "At {0} - Client did not connect to simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
                   DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
          else
-            CustomAssert.Fail(
+            Assert.Fail(
                string.Format(
                   "At {0} - Client did not disconnect from simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
                   DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
@@ -201,7 +202,7 @@ namespace RegressionTests.Shared
       {
          _stopServerEvent.Set();
 
-         CustomAssert.IsTrue(_workerThreadFinished.WaitOne(TimeSpan.FromSeconds(15), false));
+         Assert.IsTrue(_workerThreadFinished.WaitOne(TimeSpan.FromSeconds(15), false));
 
          if (_tcpListener != null)
             _tcpListener.Stop();

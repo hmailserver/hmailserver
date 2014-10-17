@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using Microsoft.VisualBasic;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -31,15 +32,15 @@ namespace RegressionTests.API
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var newApp = new Application();
-         CustomAssert.IsNotNull(newApp.Authenticate(account.Address, "test"));
+         Assert.IsNotNull(newApp.Authenticate(account.Address, "test"));
 
          Utilities utilities = newApp.Utilities;
 
          string encryptedResult = utilities.BlowfishEncrypt("Test");
-         CustomAssert.AreNotEqual("Test", encryptedResult, encryptedResult);
+         Assert.AreNotEqual("Test", encryptedResult, encryptedResult);
 
          string decrypted = utilities.BlowfishDecrypt(encryptedResult);
-         CustomAssert.AreEqual("Test", decrypted, decrypted);
+         Assert.AreEqual("Test", decrypted, decrypted);
       }
 
       [Test]
@@ -93,7 +94,7 @@ namespace RegressionTests.API
                uids.Add(paraContent);
          }
 
-         CustomAssert.AreEqual(6, uids.Count);
+         Assert.AreEqual(6, uids.Count);
 
          // Make sure the UIDS are sorted properly by creating a copy, sort the copy
          // and then compare to original.
@@ -101,7 +102,7 @@ namespace RegressionTests.API
          copy.InsertRange(0, uids);
          copy.Sort();
 
-         CustomAssert.AreEqual(copy, uids);
+         Assert.AreEqual(copy, uids);
       }
 
 
@@ -140,9 +141,9 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSendRaw("test@test.com", "test@test.com", messageText);
 
          hMailServer.Message message =
-            TestSetup.AssertRetrieveFirstMessage(account1.IMAPFolders.get_ItemByName("INBOX"));
-         CustomAssert.AreEqual(1, message.Attachments.Count);
-         CustomAssert.AreEqual("AUTOEXEC.BAT", message.Attachments[0].Filename);
+            CustomAsserts.AssertRetrieveFirstMessage(account1.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual("AUTOEXEC.BAT", message.Attachments[0].Filename);
       }
 
       [Test]
@@ -203,7 +204,7 @@ namespace RegressionTests.API
                uids.Add(paraContent);
          }
 
-         CustomAssert.AreEqual(7, uids.Count);
+         Assert.AreEqual(7, uids.Count);
 
          // Make sure the UIDS are sorted properly by creating a copy, sort the copy
          // and then compare to original.
@@ -211,7 +212,7 @@ namespace RegressionTests.API
          copy.InsertRange(0, uids);
          copy.Sort();
 
-         CustomAssert.AreEqual(copy, uids);
+         Assert.AreEqual(copy, uids);
       }
 
       [Test]
@@ -220,11 +221,11 @@ namespace RegressionTests.API
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Utilities utilities = app.Utilities;
 
-         CustomAssert.IsTrue(utilities.CriteriaMatch("Test", eRuleMatchType.eMTEquals, "Test"));
-         CustomAssert.IsFalse(utilities.CriteriaMatch("Testa", eRuleMatchType.eMTEquals, "Test"));
+         Assert.IsTrue(utilities.CriteriaMatch("Test", eRuleMatchType.eMTEquals, "Test"));
+         Assert.IsFalse(utilities.CriteriaMatch("Testa", eRuleMatchType.eMTEquals, "Test"));
 
-         CustomAssert.IsTrue(utilities.CriteriaMatch("Test*", eRuleMatchType.eMTWildcard, "Testar!"));
-         CustomAssert.IsFalse(utilities.CriteriaMatch("Test*", eRuleMatchType.eMTWildcard, "Tesb"));
+         Assert.IsTrue(utilities.CriteriaMatch("Test*", eRuleMatchType.eMTWildcard, "Testar!"));
+         Assert.IsFalse(utilities.CriteriaMatch("Test*", eRuleMatchType.eMTWildcard, "Tesb"));
       }
 
       [Test]
@@ -232,7 +233,7 @@ namespace RegressionTests.API
       {
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
 
-         CustomAssert.IsNotNull(app.Links.get_Domain(_domain.ID));
+         Assert.IsNotNull(app.Links.get_Domain(_domain.ID));
 
          app.Domains.DeleteByDBID(_domain.ID);
 
@@ -240,7 +241,7 @@ namespace RegressionTests.API
          {
             app.Links.get_Domain(_domain.ID);
 
-            CustomAssert.Fail("Didn't throw");
+            Assert.Fail("Didn't throw");
          }
          catch (Exception)
          {
@@ -261,14 +262,14 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Drop the current event log
          string eventLogFile = _settings.Logging.CurrentEventLog;
 
-         SingletonProvider<TestSetup>.Instance.DeleteEventLog();
+         LogHandler.DeleteEventLog();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
@@ -277,7 +278,7 @@ namespace RegressionTests.API
 
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
-         TestSetup.AssertFileExists(eventLogFile, false);
+         CustomAsserts.AssertFileExists(eventLogFile, false);
 
          // Check that it starts with Unicode markers.
          for (int i = 0; i <= 400; i++)
@@ -291,8 +292,8 @@ namespace RegressionTests.API
                br.Close();
                fs.Close();
 
-               CustomAssert.AreEqual(255, i1);
-               CustomAssert.AreEqual(254, i2);
+               Assert.AreEqual(255, i1);
+               Assert.AreEqual(254, i2);
 
                break;
             }
@@ -320,7 +321,7 @@ namespace RegressionTests.API
          var simulator1 = new IMAPClientSimulator();
          simulator1.ConnectAndLogon(account1.Address, "test");
          string result = simulator1.List();
-         CustomAssert.IsTrue(result.Contains(folder.Name));
+         Assert.IsTrue(result.Contains(folder.Name));
          simulator1.Disconnect();
 
          // Delete the folder and confirm it's no longer listed.
@@ -328,7 +329,7 @@ namespace RegressionTests.API
 
          simulator1.ConnectAndLogon(account1.Address, "test");
          result = simulator1.List();
-         CustomAssert.IsFalse(result.Contains(folder.Name));
+         Assert.IsFalse(result.Contains(folder.Name));
          simulator1.Disconnect();
       }
 
@@ -350,14 +351,14 @@ namespace RegressionTests.API
          permission.PermissionType = eACLPermissionType.ePermissionTypeGroup;
          permission.Save();
 
-         CustomAssert.AreEqual(permission.Group.Name, group.Name);
+         Assert.AreEqual(permission.Group.Name, group.Name);
 
          permission = folder.Permissions.Add();
          permission.PermissionAccountID = account1.ID;
          permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
          permission.Save();
 
-         CustomAssert.AreEqual(permission.Account.Address, account1.Address);
+         Assert.AreEqual(permission.Account.Address, account1.Address);
       }
 
       [Test]
@@ -375,7 +376,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -390,14 +391,14 @@ namespace RegressionTests.API
          string[] columns = text.Split('\t');
 
          if (columns.Length != 3)
-            CustomAssert.Fail("Wrong number of cols: " + text);
+            Assert.Fail("Wrong number of cols: " + text);
 
          string lastColumn = columns[columns.Length - 1];
 
-         CustomAssert.IsFalse(lastColumn.Contains("00:00:00"), lastColumn);
-         CustomAssert.IsTrue(lastColumn.Contains(DateTime.Now.Year.ToString()), lastColumn);
-         CustomAssert.IsTrue(lastColumn.Contains(DateTime.Now.Month.ToString()), lastColumn);
-         CustomAssert.IsTrue(lastColumn.Contains(DateTime.Now.Day.ToString()), lastColumn);
+         Assert.IsFalse(lastColumn.Contains("00:00:00"), lastColumn);
+         Assert.IsTrue(lastColumn.Contains(DateTime.Now.Year.ToString()), lastColumn);
+         Assert.IsTrue(lastColumn.Contains(DateTime.Now.Month.ToString()), lastColumn);
+         Assert.IsTrue(lastColumn.Contains(DateTime.Now.Day.ToString()), lastColumn);
       }
 
 
@@ -419,7 +420,7 @@ namespace RegressionTests.API
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          string liveLog = logging.LiveLog;
-         CustomAssert.IsTrue(liveLog.Length > 0, liveLog);
+         Assert.IsTrue(liveLog.Length > 0, liveLog);
 
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
@@ -427,7 +428,7 @@ namespace RegressionTests.API
          logging.EnableLiveLogging(true);
 
          liveLog = logging.LiveLog;
-         CustomAssert.IsFalse(liveLog.Contains("SMTPDeliverer - Message"));
+         Assert.IsFalse(liveLog.Contains("SMTPDeliverer - Message"));
       }
 
       [Test]
@@ -439,7 +440,7 @@ namespace RegressionTests.API
             "WhatTest\r\n";
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "First message",
+         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "First message",
                                                       "Test message"));
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
@@ -449,7 +450,7 @@ namespace RegressionTests.API
          Directory.CreateDirectory(accountPath);
          string fileName = Path.Combine(accountPath, "something.eml");
          File.WriteAllText(fileName, messageText);
-         CustomAssert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
+         Assert.IsTrue(_application.Utilities.ImportMessageFromFile(fileName, account.ID));
 
          // Since the cache isn't refreshed, the message has not yet appeared.
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
@@ -465,7 +466,7 @@ namespace RegressionTests.API
          messageText = sim.RETR(2);
          sim.QUIT();
 
-         CustomAssert.IsTrue(messageText.Contains("WhatTest"), messageText);
+         Assert.IsTrue(messageText.Contains("WhatTest"), messageText);
       }
 
       [Test]
@@ -482,8 +483,8 @@ namespace RegressionTests.API
 
          hMailServer.Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
 
-         CustomAssert.AreEqual(message.ID, utilities.RetrieveMessageID(message.Filename));
-         CustomAssert.AreEqual(0, utilities.RetrieveMessageID(@"C:\some\nonexistant\file"));
+         Assert.AreEqual(message.ID, utilities.RetrieveMessageID(message.Filename));
+         Assert.AreEqual(0, utilities.RetrieveMessageID(@"C:\some\nonexistant\file"));
       }
 
       [Test]
@@ -510,21 +511,21 @@ namespace RegressionTests.API
 
          hMailServer.Message oMessage = folder.Messages.Add();
 
-         CustomAssert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, oMessage.State);
 
          oMessage.Body = "Välkommen till verkligheten";
          oMessage.Subject = "Hej";
          oMessage.Save();
 
-         CustomAssert.AreEqual(2, oMessage.State);
-         CustomAssert.IsFalse(oMessage.Filename.Contains(settings.PublicFolderDiskName));
-         CustomAssert.IsTrue(oMessage.Filename.Contains(_domain.Name));
+         Assert.AreEqual(2, oMessage.State);
+         Assert.IsFalse(oMessage.Filename.Contains(settings.PublicFolderDiskName));
+         Assert.IsTrue(oMessage.Filename.Contains(_domain.Name));
 
          // Check that the message exists
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
-         CustomAssert.IsNotEmpty(message);
-         CustomAssert.Less(0, message.IndexOf("Hej"));
+         Assert.IsNotEmpty(message);
+         Assert.Less(0, message.IndexOf("Hej"));
       }
 
       [Test]
@@ -539,15 +540,15 @@ namespace RegressionTests.API
          // Send a message to the account.
          hMailServer.Message oMessage = testFolder.Messages.Add();
 
-         CustomAssert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, oMessage.State);
 
          oMessage.Body = "Välkommen till verkligheten";
          oMessage.Subject = "Hej";
          oMessage.Save();
 
-         CustomAssert.AreEqual(2, oMessage.State);
-         CustomAssert.IsTrue(oMessage.Filename.Contains(settings.PublicFolderDiskName));
-         CustomAssert.IsFalse(oMessage.Filename.Contains(_domain.Name));
+         Assert.AreEqual(2, oMessage.State);
+         Assert.IsTrue(oMessage.Filename.Contains(settings.PublicFolderDiskName));
+         Assert.IsFalse(oMessage.Filename.Contains(_domain.Name));
       }
 
       [Test]
@@ -558,20 +559,20 @@ namespace RegressionTests.API
          // Send a message to the account.
          var oMessage = new hMailServer.Message();
 
-         CustomAssert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, oMessage.State);
 
          oMessage.AddRecipient("Martin", oAccount1.Address);
          oMessage.Body = "Välkommen till verkligheten";
          oMessage.Subject = "Hej";
          oMessage.Save();
 
-         CustomAssert.AreEqual(1, oMessage.State);
+         Assert.AreEqual(1, oMessage.State);
 
          // Check that the message exists
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
-         CustomAssert.IsNotEmpty(message);
-         CustomAssert.Less(0, message.IndexOf("Hej"));
+         Assert.IsNotEmpty(message);
+         Assert.Less(0, message.IndexOf("Hej"));
       }
    }
 }

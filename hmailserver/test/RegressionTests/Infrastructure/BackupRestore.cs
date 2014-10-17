@@ -32,7 +32,7 @@ namespace RegressionTests.Infrastructure
       public void InitializeBackupSettings()
       {
          _application = SingletonProvider<TestSetup>.Instance.GetApp();
-         SetBackupDir(Path.Combine(Path.GetTempPath(), TestSetup.RandomString()));
+         SetBackupDir(Path.Combine(Path.GetTempPath(), TestSetup.UniqueString()));
 
          var dirInfo = new DirectoryInfo(_backupDir);
          dirInfo.Create();
@@ -48,7 +48,7 @@ namespace RegressionTests.Infrastructure
 
       internal bool Execute()
       {
-         TestSetup.AssertDeleteFile(_application.Settings.Backup.LogFile);
+         CustomAsserts.AssertDeleteFile(_application.Settings.Backup.LogFile);
 
          SetupEnvironment();
          if (!BackupEnvironment())
@@ -65,7 +65,7 @@ namespace RegressionTests.Infrastructure
 
       private bool WaitForBackupCompletion()
       {
-         CustomAssert.IsNotNull(_application);
+         Assert.IsNotNull(_application);
 
          for (int i = 0; i < 40; i++)
          {
@@ -96,7 +96,7 @@ namespace RegressionTests.Infrastructure
 
       private void WaitForRestoreCompletion(string lastServerStartTime)
       {
-         CustomAssert.IsNotNull(_application);
+         Assert.IsNotNull(_application);
 
          for (int i = 0; i < 600; i++)
          {
@@ -122,8 +122,8 @@ namespace RegressionTests.Infrastructure
       {
          // Set up the domain. It's already set-up...
          Domain domain = _application.Domains[0];
-         CustomAssert.IsNotNull(domain);
-         CustomAssert.AreEqual("test.com", domain.Name);
+         Assert.IsNotNull(domain);
+         Assert.AreEqual("test.com", domain.Name);
 
          SetupDomainObject(domain);
          SetupDomainObjects(domain);
@@ -355,38 +355,38 @@ namespace RegressionTests.Infrastructure
 
             IMAPFolders publicFolders = _application.Settings.PublicFolders;
 
-            CustomAssert.IsNotNull(publicFolders.get_ItemByName("Test1"));
-            CustomAssert.IsNotNull(publicFolders.get_ItemByName("Test2"));
-            CustomAssert.IsNotNull(publicFolders.get_ItemByName("Test3"));
-            CustomAssert.IsNotNull(publicFolders.get_ItemByName("ACL"));
+            Assert.IsNotNull(publicFolders.get_ItemByName("Test1"));
+            Assert.IsNotNull(publicFolders.get_ItemByName("Test2"));
+            Assert.IsNotNull(publicFolders.get_ItemByName("Test3"));
+            Assert.IsNotNull(publicFolders.get_ItemByName("ACL"));
 
             IMAPFolderPermissions permissions = publicFolders.get_ItemByName("ACL").Permissions;
-            CustomAssert.AreEqual(1, permissions.Count);
+            Assert.AreEqual(1, permissions.Count);
 
             Account account1 = domain.Accounts.get_ItemByAddress("acltest-1@test.com");
 
             IMAPFolderPermission permission = permissions[0];
 
-            CustomAssert.AreEqual(eACLPermissionType.ePermissionTypeUser, permission.PermissionType);
-            CustomAssert.AreEqual(account1.ID, permission.PermissionAccountID);
+            Assert.AreEqual(eACLPermissionType.ePermissionTypeUser, permission.PermissionType);
+            Assert.AreEqual(account1.ID, permission.PermissionAccountID);
 
-            CustomAssert.IsTrue(permission.get_Permission(eACLPermission.ePermissionAdminister));
-            CustomAssert.IsTrue(permission.get_Permission(eACLPermission.ePermissionInsert));
-            CustomAssert.IsFalse(permission.get_Permission(eACLPermission.ePermissionRead));
-            CustomAssert.IsFalse(permission.get_Permission(eACLPermission.ePermissionWriteSeen));
+            Assert.IsTrue(permission.get_Permission(eACLPermission.ePermissionAdminister));
+            Assert.IsTrue(permission.get_Permission(eACLPermission.ePermissionInsert));
+            Assert.IsFalse(permission.get_Permission(eACLPermission.ePermissionRead));
+            Assert.IsFalse(permission.get_Permission(eACLPermission.ePermissionWriteSeen));
 
             Group group1 = _application.Settings.Groups.get_ItemByName("ACLTestGroup");
 
             permissions = publicFolders.get_ItemByName("ACL").SubFolders.get_ItemByName("MySubFolder").Permissions;
             permission = permissions[0];
 
-            CustomAssert.AreEqual(eACLPermissionType.ePermissionTypeGroup, permission.PermissionType);
-            CustomAssert.AreEqual(group1.ID, permission.PermissionGroupID);
+            Assert.AreEqual(eACLPermissionType.ePermissionTypeGroup, permission.PermissionType);
+            Assert.AreEqual(group1.ID, permission.PermissionGroupID);
 
-            CustomAssert.IsTrue(permission.get_Permission(eACLPermission.ePermissionLookup));
-            CustomAssert.IsTrue(permission.get_Permission(eACLPermission.ePermissionDeleteMailbox));
-            CustomAssert.IsFalse(permission.get_Permission(eACLPermission.ePermissionRead));
-            CustomAssert.IsFalse(permission.get_Permission(eACLPermission.ePermissionWriteSeen));
+            Assert.IsTrue(permission.get_Permission(eACLPermission.ePermissionLookup));
+            Assert.IsTrue(permission.get_Permission(eACLPermission.ePermissionDeleteMailbox));
+            Assert.IsFalse(permission.get_Permission(eACLPermission.ePermissionRead));
+            Assert.IsFalse(permission.get_Permission(eACLPermission.ePermissionWriteSeen));
          }
       }
 
@@ -437,23 +437,23 @@ namespace RegressionTests.Infrastructure
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
          // Make sure the inbox contains two messages which should be backed up.
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
+         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
                                                       "Message 1 Body"));
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
+         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
                                                       "Message 2 Body"));
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
+         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
                                                       "Message 3 Body"));
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
          var sim = new IMAPClientSimulator();
-         CustomAssert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(sim.SelectFolder("Inbox"));
-         CustomAssert.IsTrue(sim.SetDeletedFlag(2));
-         CustomAssert.IsTrue(sim.Expunge());
+         Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(sim.SelectFolder("Inbox"));
+         Assert.IsTrue(sim.SetDeletedFlag(2));
+         Assert.IsTrue(sim.Expunge());
          sim.Disconnect();
 
          _folderCreationTime = account.IMAPFolders.get_ItemByName("INBOX").CreationTime;
@@ -542,7 +542,7 @@ namespace RegressionTests.Infrastructure
             pop3Server.WaitForCompletion();
          }
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
       }
 
@@ -639,59 +639,59 @@ namespace RegressionTests.Infrastructure
       private void ConfirmSSLCertificates()
       {
          SSLCertificate cert = _application.Settings.SSLCertificates[0];
-         CustomAssert.AreEqual("file1.txt", cert.CertificateFile);
-         CustomAssert.AreEqual("name1", cert.Name);
-         CustomAssert.AreEqual("pk1", cert.PrivateKeyFile);
+         Assert.AreEqual("file1.txt", cert.CertificateFile);
+         Assert.AreEqual("name1", cert.Name);
+         Assert.AreEqual("pk1", cert.PrivateKeyFile);
 
          cert = _application.Settings.SSLCertificates[1];
-         CustomAssert.AreEqual("file2.txt", cert.CertificateFile);
-         CustomAssert.AreEqual("name2", cert.Name);
-         CustomAssert.AreEqual("pk2", cert.PrivateKeyFile);
+         Assert.AreEqual("file2.txt", cert.CertificateFile);
+         Assert.AreEqual("name2", cert.Name);
+         Assert.AreEqual("pk2", cert.PrivateKeyFile);
       }
 
       private void ConfirmDNSBlackLists()
       {
          DNSBlackList black = _application.Settings.AntiSpam.DNSBlackLists.get_ItemByDNSHost("127.0.0.1");
-         CustomAssert.IsTrue(black.Active);
-         CustomAssert.AreEqual("127.5.2.1", black.ExpectedResult);
-         CustomAssert.AreEqual("Test", black.RejectMessage);
-         CustomAssert.AreEqual(4, black.Score);
+         Assert.IsTrue(black.Active);
+         Assert.AreEqual("127.5.2.1", black.ExpectedResult);
+         Assert.AreEqual("Test", black.RejectMessage);
+         Assert.AreEqual(4, black.Score);
 
          black = _application.Settings.AntiSpam.DNSBlackLists.get_ItemByDNSHost("127.0.0.2");
-         CustomAssert.IsTrue(black.Active);
-         CustomAssert.AreEqual("127.5.2.2", black.ExpectedResult);
-         CustomAssert.AreEqual("Test2", black.RejectMessage);
-         CustomAssert.AreEqual(5, black.Score);
+         Assert.IsTrue(black.Active);
+         Assert.AreEqual("127.5.2.2", black.ExpectedResult);
+         Assert.AreEqual("Test2", black.RejectMessage);
+         Assert.AreEqual(5, black.Score);
       }
 
       private void ConfirmIncomingRelay()
       {
          IncomingRelays relays = _application.Settings.IncomingRelays;
-         CustomAssert.AreEqual(1, relays.Count);
+         Assert.AreEqual(1, relays.Count);
 
          IncomingRelay relay = relays[0];
-         CustomAssert.AreEqual("Test", relay.Name);
-         CustomAssert.AreEqual("1.2.3.4", relay.LowerIP);
-         CustomAssert.AreEqual("4.3.2.1", relay.UpperIP);
+         Assert.AreEqual("Test", relay.Name);
+         Assert.AreEqual("1.2.3.4", relay.LowerIP);
+         Assert.AreEqual("4.3.2.1", relay.UpperIP);
       }
 
       private void ConfirmSURBLServers()
       {
          SURBLServer black = _application.Settings.AntiSpam.SURBLServers.get_ItemByDNSHost("127.0.0.1");
-         CustomAssert.IsTrue(black.Active);
-         CustomAssert.AreEqual("Test", black.RejectMessage);
-         CustomAssert.AreEqual(4, black.Score);
+         Assert.IsTrue(black.Active);
+         Assert.AreEqual("Test", black.RejectMessage);
+         Assert.AreEqual(4, black.Score);
 
          black = _application.Settings.AntiSpam.SURBLServers.get_ItemByDNSHost("127.0.0.2");
-         CustomAssert.IsTrue(black.Active);
-         CustomAssert.AreEqual("Test2", black.RejectMessage);
-         CustomAssert.AreEqual(5, black.Score);
+         Assert.IsTrue(black.Active);
+         Assert.AreEqual("Test2", black.RejectMessage);
+         Assert.AreEqual(5, black.Score);
       }
 
       private void ConfirmBlockedAttachments()
       {
          BlockedAttachments attachments = _application.Settings.AntiVirus.BlockedAttachments;
-         CustomAssert.Greater(attachments.Count, 0);
+         Assert.Greater(attachments.Count, 0);
 
          for (int i = 0; i < attachments.Count; i++)
          {
@@ -701,88 +701,88 @@ namespace RegressionTests.Infrastructure
                return;
          }
 
-         CustomAssert.Fail("Blocked attachment not found");
+         Assert.Fail("Blocked attachment not found");
       }
 
       private void ConfirmRoutes()
       {
          Routes routes = _application.Settings.Routes;
 
-         CustomAssert.AreEqual(2, routes.Count);
+         Assert.AreEqual(2, routes.Count);
 
          Route route = routes[0];
-         CustomAssert.AreEqual("test1.com", route.DomainName);
-         CustomAssert.AreEqual("description", route.Description);
-         CustomAssert.AreEqual(true, route.UseSSL);
-         CustomAssert.AreEqual(true, route.TreatSenderAsLocalDomain);
-         CustomAssert.AreEqual(false, route.TreatRecipientAsLocalDomain);
-         CustomAssert.AreEqual(false, route.TreatSecurityAsLocalDomain);
+         Assert.AreEqual("test1.com", route.DomainName);
+         Assert.AreEqual("description", route.Description);
+         Assert.AreEqual(true, route.UseSSL);
+         Assert.AreEqual(true, route.TreatSenderAsLocalDomain);
+         Assert.AreEqual(false, route.TreatRecipientAsLocalDomain);
+         Assert.AreEqual(false, route.TreatSecurityAsLocalDomain);
 
          route = routes[1];
-         CustomAssert.AreEqual("test2.com", route.DomainName);
-         CustomAssert.AreEqual("description2", route.Description);
-         CustomAssert.AreEqual(false, route.UseSSL);
-         CustomAssert.AreEqual(false, route.TreatSenderAsLocalDomain);
-         CustomAssert.AreEqual(true, route.TreatRecipientAsLocalDomain);
-         CustomAssert.AreEqual(true, route.TreatSecurityAsLocalDomain);
+         Assert.AreEqual("test2.com", route.DomainName);
+         Assert.AreEqual("description2", route.Description);
+         Assert.AreEqual(false, route.UseSSL);
+         Assert.AreEqual(false, route.TreatSenderAsLocalDomain);
+         Assert.AreEqual(true, route.TreatRecipientAsLocalDomain);
+         Assert.AreEqual(true, route.TreatSecurityAsLocalDomain);
 
-         CustomAssert.AreEqual(2, route.Addresses.Count);
+         Assert.AreEqual(2, route.Addresses.Count);
 
          var addresses = new List<string>();
          addresses.Add(route.Addresses[0].Address);
          addresses.Add(route.Addresses[1].Address);
 
-         CustomAssert.IsTrue(addresses.Contains("address1@test2.com"));
-         CustomAssert.IsTrue(addresses.Contains("address2@test2.com"));
+         Assert.IsTrue(addresses.Contains("address1@test2.com"));
+         Assert.IsTrue(addresses.Contains("address2@test2.com"));
       }
 
       private void ConfirmGreyListingWhiteList()
       {
          GreyListingWhiteAddresses addresses = _application.Settings.AntiSpam.GreyListingWhiteAddresses;
 
-         CustomAssert.AreEqual(2, addresses.Count);
+         Assert.AreEqual(2, addresses.Count);
 
          GreyListingWhiteAddress address = addresses[0];
-         CustomAssert.AreEqual("helo1", address.Description);
-         CustomAssert.AreEqual("1.1.1.1", address.IPAddress);
+         Assert.AreEqual("helo1", address.Description);
+         Assert.AreEqual("1.1.1.1", address.IPAddress);
 
          address = addresses[1];
-         CustomAssert.AreEqual("helo2", address.Description);
-         CustomAssert.AreEqual("2.2.2.2", address.IPAddress);
+         Assert.AreEqual("helo2", address.Description);
+         Assert.AreEqual("2.2.2.2", address.IPAddress);
       }
 
       private void ConfirmWhiteList()
       {
          WhiteListAddresses addresses = _application.Settings.AntiSpam.WhiteListAddresses;
 
-         CustomAssert.AreEqual(2, addresses.Count);
+         Assert.AreEqual(2, addresses.Count);
 
          WhiteListAddress address = addresses[0];
-         CustomAssert.AreEqual("Desc1", address.Description);
-         CustomAssert.AreEqual("Email1", address.EmailAddress);
-         CustomAssert.AreEqual("1.1.1.1", address.LowerIPAddress);
-         CustomAssert.AreEqual("2.2.2.2", address.UpperIPAddress);
+         Assert.AreEqual("Desc1", address.Description);
+         Assert.AreEqual("Email1", address.EmailAddress);
+         Assert.AreEqual("1.1.1.1", address.LowerIPAddress);
+         Assert.AreEqual("2.2.2.2", address.UpperIPAddress);
 
          address = addresses[1];
-         CustomAssert.AreEqual("Desc2", address.Description);
-         CustomAssert.AreEqual("Email2", address.EmailAddress);
-         CustomAssert.AreEqual("2.2.2.2", address.LowerIPAddress);
-         CustomAssert.AreEqual("21.21.21.21", address.UpperIPAddress);
+         Assert.AreEqual("Desc2", address.Description);
+         Assert.AreEqual("Email2", address.EmailAddress);
+         Assert.AreEqual("2.2.2.2", address.LowerIPAddress);
+         Assert.AreEqual("21.21.21.21", address.UpperIPAddress);
       }
 
       private void ConfirmDomainObject(Domain domain)
       {
-         CustomAssert.AreEqual("someone@test.com", domain.Postmaster);
-         CustomAssert.IsTrue(domain.SignatureEnabled);
-         CustomAssert.IsTrue(domain.AddSignaturesToLocalMail);
-         CustomAssert.IsTrue(domain.AddSignaturesToReplies);
-         CustomAssert.AreEqual("PLS", domain.SignaturePlainText);
-         CustomAssert.AreEqual("HTML", domain.SignatureHTML);
+         Assert.AreEqual("someone@test.com", domain.Postmaster);
+         Assert.IsTrue(domain.SignatureEnabled);
+         Assert.IsTrue(domain.AddSignaturesToLocalMail);
+         Assert.IsTrue(domain.AddSignaturesToReplies);
+         Assert.AreEqual("PLS", domain.SignaturePlainText);
+         Assert.AreEqual("HTML", domain.SignatureHTML);
 
-         CustomAssert.AreEqual("test.com", _application.Domains[0].Name);
-         CustomAssert.AreEqual(2, _application.Domains[0].DomainAliases.Count);
-         CustomAssert.AreEqual("test1.com", _application.Domains[0].DomainAliases[0].AliasName);
-         CustomAssert.AreEqual("test2.com", _application.Domains[0].DomainAliases[1].AliasName);
+         Assert.AreEqual("test.com", _application.Domains[0].Name);
+         Assert.AreEqual(2, _application.Domains[0].DomainAliases.Count);
+         Assert.AreEqual("test1.com", _application.Domains[0].DomainAliases[0].AliasName);
+         Assert.AreEqual("test2.com", _application.Domains[0].DomainAliases[1].AliasName);
       }
 
       private void ConfirmDomainObjects()
@@ -795,18 +795,18 @@ namespace RegressionTests.Infrastructure
       private void ConfirmDistributionListObject()
       {
          DistributionList list = _application.Domains[0].DistributionLists[0];
-         CustomAssert.AreEqual("list@test.com", list.Address);
-         CustomAssert.AreEqual(3, list.Recipients.Count);
-         CustomAssert.AreEqual("member1@test.com", list.Recipients[0].RecipientAddress);
-         CustomAssert.AreEqual("member2@test.com", list.Recipients[1].RecipientAddress);
-         CustomAssert.AreEqual("member3@test.com", list.Recipients[2].RecipientAddress);
+         Assert.AreEqual("list@test.com", list.Address);
+         Assert.AreEqual(3, list.Recipients.Count);
+         Assert.AreEqual("member1@test.com", list.Recipients[0].RecipientAddress);
+         Assert.AreEqual("member2@test.com", list.Recipients[1].RecipientAddress);
+         Assert.AreEqual("member3@test.com", list.Recipients[2].RecipientAddress);
       }
 
       private void ConfirmAliasObject()
       {
          Alias alias = _application.Domains[0].Aliases[0];
-         CustomAssert.AreEqual("alias@test.com", alias.Name);
-         CustomAssert.AreEqual("someone@test.com", alias.Value);
+         Assert.AreEqual("alias@test.com", alias.Name);
+         Assert.AreEqual("someone@test.com", alias.Value);
       }
 
       private void ConfirmAccountObject()
@@ -814,64 +814,64 @@ namespace RegressionTests.Infrastructure
          Account account = _application.Domains[0].Accounts.get_ItemByAddress("test@test.com");
 
 
-         CustomAssert.IsTrue(account.Active);
-         CustomAssert.AreEqual("AD", account.ADDomain);
-         CustomAssert.AreEqual(eAdminLevel.hAdminLevelDomainAdmin, account.AdminLevel);
-         CustomAssert.AreEqual("AU", account.ADUsername);
-         CustomAssert.AreEqual("FA", account.ForwardAddress);
-         CustomAssert.IsFalse(account.ForwardEnabled);
-         CustomAssert.IsTrue(account.ForwardKeepOriginal);
-         CustomAssert.IsFalse(account.IsAD);
-         CustomAssert.AreEqual(1250, account.MaxSize);
-         CustomAssert.AreEqual("First", account.PersonFirstName);
-         CustomAssert.AreEqual("Last", account.PersonLastName);
-         CustomAssert.IsTrue(account.SignatureEnabled);
-         CustomAssert.AreEqual("HTML", account.SignatureHTML);
-         CustomAssert.AreEqual("PLAIN", account.SignaturePlainText);
-         CustomAssert.AreEqual("VAC", account.VacationMessage);
-         CustomAssert.IsTrue(account.VacationMessageExpires);
-         CustomAssert.AreEqual("2020-01-01", account.VacationMessageExpiresDate.Substring(0, 10));
-         CustomAssert.IsTrue(account.VacationMessageIsOn);
-         CustomAssert.AreEqual("SUBJ", account.VacationSubject);
+         Assert.IsTrue(account.Active);
+         Assert.AreEqual("AD", account.ADDomain);
+         Assert.AreEqual(eAdminLevel.hAdminLevelDomainAdmin, account.AdminLevel);
+         Assert.AreEqual("AU", account.ADUsername);
+         Assert.AreEqual("FA", account.ForwardAddress);
+         Assert.IsFalse(account.ForwardEnabled);
+         Assert.IsTrue(account.ForwardKeepOriginal);
+         Assert.IsFalse(account.IsAD);
+         Assert.AreEqual(1250, account.MaxSize);
+         Assert.AreEqual("First", account.PersonFirstName);
+         Assert.AreEqual("Last", account.PersonLastName);
+         Assert.IsTrue(account.SignatureEnabled);
+         Assert.AreEqual("HTML", account.SignatureHTML);
+         Assert.AreEqual("PLAIN", account.SignaturePlainText);
+         Assert.AreEqual("VAC", account.VacationMessage);
+         Assert.IsTrue(account.VacationMessageExpires);
+         Assert.AreEqual("2020-01-01", account.VacationMessageExpiresDate.Substring(0, 10));
+         Assert.IsTrue(account.VacationMessageIsOn);
+         Assert.AreEqual("SUBJ", account.VacationSubject);
 
          // Confirm fetch account
          FetchAccount fa = account.FetchAccounts.get_Item(0);
-         CustomAssert.AreEqual(5, fa.DaysToKeepMessages);
-         CustomAssert.IsTrue(fa.Enabled);
-         CustomAssert.AreEqual(10, fa.MinutesBetweenFetch);
-         CustomAssert.AreEqual("test", fa.Name);
-         CustomAssert.AreEqual(_fetchAccountPort, fa.Port);
-         CustomAssert.AreEqual(true, fa.ProcessMIMEDate);
-         CustomAssert.IsTrue(fa.ProcessMIMERecipients);
-         CustomAssert.AreEqual("test", fa.Username);
-         CustomAssert.IsFalse(fa.UseSSL);
-         CustomAssert.AreEqual("127.0.0.1", fa.ServerAddress);
-         CustomAssert.IsTrue(fa.UseAntiSpam);
-         CustomAssert.IsTrue(fa.UseAntiVirus);
+         Assert.AreEqual(5, fa.DaysToKeepMessages);
+         Assert.IsTrue(fa.Enabled);
+         Assert.AreEqual(10, fa.MinutesBetweenFetch);
+         Assert.AreEqual("test", fa.Name);
+         Assert.AreEqual(_fetchAccountPort, fa.Port);
+         Assert.AreEqual(true, fa.ProcessMIMEDate);
+         Assert.IsTrue(fa.ProcessMIMERecipients);
+         Assert.AreEqual("test", fa.Username);
+         Assert.IsFalse(fa.UseSSL);
+         Assert.AreEqual("127.0.0.1", fa.ServerAddress);
+         Assert.IsTrue(fa.UseAntiSpam);
+         Assert.IsTrue(fa.UseAntiVirus);
 
          // Make sur no additional mail is downloaded. We have already downloaded it.
          DownloadFromExternalAccount(account, fa);
 
          Rule rule = account.Rules[0];
-         CustomAssert.AreEqual("MyRule", rule.Name);
+         Assert.AreEqual("MyRule", rule.Name);
 
          RuleCriteria criteria = rule.Criterias[0];
-         CustomAssert.AreEqual(eRuleMatchType.eMTGreaterThan, criteria.MatchType);
-         CustomAssert.AreEqual(eRulePredefinedField.eFTMessageSize, criteria.PredefinedField);
-         CustomAssert.AreEqual("0", criteria.MatchValue);
+         Assert.AreEqual(eRuleMatchType.eMTGreaterThan, criteria.MatchType);
+         Assert.AreEqual(eRulePredefinedField.eFTMessageSize, criteria.PredefinedField);
+         Assert.AreEqual("0", criteria.MatchValue);
 
          RuleAction action = rule.Actions[0];
-         CustomAssert.AreEqual(eRuleActionType.eRAForwardEmail, action.Type);
-         CustomAssert.AreEqual("someone@test.com", action.To);
-         CustomAssert.AreEqual("Test", action.Body);
-         CustomAssert.AreEqual("File", action.Filename);
-         CustomAssert.AreEqual("T", action.FromAddress);
-         CustomAssert.AreEqual("N", action.FromName);
-         CustomAssert.AreEqual("H", action.HeaderName);
-         CustomAssert.AreEqual("Folder", action.IMAPFolder);
-         CustomAssert.AreEqual("Script", action.ScriptFunction);
-         CustomAssert.AreEqual("Subj", action.Subject);
-         CustomAssert.AreEqual("Value", action.Value);
+         Assert.AreEqual(eRuleActionType.eRAForwardEmail, action.Type);
+         Assert.AreEqual("someone@test.com", action.To);
+         Assert.AreEqual("Test", action.Body);
+         Assert.AreEqual("File", action.Filename);
+         Assert.AreEqual("T", action.FromAddress);
+         Assert.AreEqual("N", action.FromName);
+         Assert.AreEqual("H", action.HeaderName);
+         Assert.AreEqual("Folder", action.IMAPFolder);
+         Assert.AreEqual("Script", action.ScriptFunction);
+         Assert.AreEqual("Subj", action.Subject);
+         Assert.AreEqual("Value", action.Value);
 
          IMAPFolder inbox = account.IMAPFolders.get_ItemByName("INBOX");
 
@@ -879,19 +879,19 @@ namespace RegressionTests.Infrastructure
 
          if (_backupMessages)
          {
-            CustomAssert.AreEqual(6, inbox.CurrentUID);
-            CustomAssert.AreEqual(_folderCreationTime, inbox.CreationTime);
+            Assert.AreEqual(6, inbox.CurrentUID);
+            Assert.AreEqual(_folderCreationTime, inbox.CreationTime);
 
-            CustomAssert.AreEqual(5, messages.Count);
-            CustomAssert.AreEqual("Message 1 Subject", messages[0].Subject);
-            CustomAssert.IsTrue(messages[1].Body.Contains("Message 3 Body"));
+            Assert.AreEqual(5, messages.Count);
+            Assert.AreEqual("Message 1 Subject", messages[0].Subject);
+            Assert.IsTrue(messages[1].Body.Contains("Message 3 Body"));
 
-            CustomAssert.AreEqual(1, messages[0].UID);
-            CustomAssert.AreEqual(3, messages[1].UID);
+            Assert.AreEqual(1, messages[0].UID);
+            Assert.AreEqual(3, messages[1].UID);
          }
          else
          {
-            CustomAssert.AreEqual(0, messages.Count);
+            Assert.AreEqual(0, messages.Count);
          }
       }
 
@@ -899,26 +899,26 @@ namespace RegressionTests.Infrastructure
       {
          Group group = _application.Settings.Groups.get_ItemByName("TestGroup");
 
-         CustomAssert.AreEqual("TestGroup", group.Name);
-         CustomAssert.AreEqual(3, group.Members.Count);
+         Assert.AreEqual("TestGroup", group.Name);
+         Assert.AreEqual(3, group.Members.Count);
 
-         CustomAssert.AreEqual("gm1@test.com", group.Members[0].Account.Address);
-         CustomAssert.AreEqual("gm2@test.com", group.Members[1].Account.Address);
-         CustomAssert.AreEqual("gm3@test.com", group.Members[2].Account.Address);
+         Assert.AreEqual("gm1@test.com", group.Members[0].Account.Address);
+         Assert.AreEqual("gm2@test.com", group.Members[1].Account.Address);
+         Assert.AreEqual("gm3@test.com", group.Members[2].Account.Address);
       }
 
       [Test]
       public void TestWithMessages()
       {
          _backupMessages = true;
-         CustomAssert.IsTrue(Execute());
+         Assert.IsTrue(Execute());
       }
 
       [Test]
       public void TestWithoutMessages()
       {
          _backupMessages = false;
-         CustomAssert.IsTrue(Execute());
+         Assert.IsTrue(Execute());
       }
    }
 }

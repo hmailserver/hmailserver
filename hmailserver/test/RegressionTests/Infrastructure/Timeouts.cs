@@ -16,7 +16,7 @@ namespace RegressionTests.Infrastructure
       [Test]
       public void TestImproperDisconnect()
       {
-         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, 0);
+         CustomAsserts.AssertSessionCount(eSessionType.eSTPOP3, 0);
 
          var application = SingletonProvider<TestSetup>.Instance.GetApp();
 
@@ -25,10 +25,10 @@ namespace RegressionTests.Infrastructure
 
          var oPOP3 = new POP3ClientSimulator();
          oPOP3.ConnectAndLogon(account.Address, "test");
-         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
+         CustomAsserts.AssertSessionCount(eSessionType.eSTPOP3, iCount + 1);
          oPOP3.Disconnect(); // Disconnect without sending quit
 
-         TestSetup.AssertSessionCount(eSessionType.eSTPOP3, iCount);
+         CustomAsserts.AssertSessionCount(eSessionType.eSTPOP3, iCount);
       }
    }
 }

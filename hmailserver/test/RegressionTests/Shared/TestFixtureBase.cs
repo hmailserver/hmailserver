@@ -1,8 +1,10 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using NUnit.Framework;
 using hMailServer;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
@@ -24,12 +26,23 @@ namespace RegressionTests.Shared
       [SetUp]
       public void SetUp()
       {
-         _domain = SingletonProvider<TestSetup>.Instance.DoBasicSetup();
+         _domain = SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
 
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
 
          // make sure we have internet access.
          TestSetup.GetLocalIpAddress();
+      }
+
+      [TearDown]
+      public void TearDown()
+      {
+         if (TestContext.CurrentContext.Result.Status == TestStatus.Failed)
+         {
+            Console.WriteLine("hMailServer log:");
+            Console.WriteLine(LogHandler.ReadCurrentDefaultLog());
+            Console.WriteLine();
+         }
       }
    }
 }

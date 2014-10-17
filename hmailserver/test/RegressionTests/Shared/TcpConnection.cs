@@ -91,8 +91,7 @@ namespace RegressionTests.Shared
          _tcpClient.Client.Blocking = true;
 
          if (_useSslSocket)
-            if (!HandshakeAsClient())
-               return false;
+            HandshakeAsClient();
          
          return true;
       }
@@ -129,46 +128,26 @@ namespace RegressionTests.Shared
             _tcpClient.Close();
       }
 
-      public bool HandshakeAsClient()
+      public void HandshakeAsClient()
       {
          // Create an SSL stream that will close the client's stream.
          _sslStream = new SslStream(_tcpClient.GetStream(), false,
                                     ValidateServerCertificate, null);
 
-         try
-         {
-
-            _sslStream.AuthenticateAsClient("localhost", null, _sslProtocols, false);
-         }
-         catch (AuthenticationException)
-         {
-            return false;
-         }
-
-
+         _sslStream.AuthenticateAsClient("localhost", null, _sslProtocols, false);
+         
          _useSslSocket = true;
-         return true;
       }
 
-      public bool HandshakeAsServer(X509Certificate2 certificate)
+      public void HandshakeAsServer(X509Certificate2 certificate)
       {
          // Create an SSL stream that will close the client's stream.
          _sslStream = new SslStream(_tcpClient.GetStream(), false,
                                     ValidateServerCertificate, null);
 
-         try
-         {
-
-            _sslStream.AuthenticateAsServer(certificate, false, _sslProtocols, false);
-         }
-         catch (AuthenticationException)
-         {
-            return false;
-         }
-
+         _sslStream.AuthenticateAsServer(certificate, false, _sslProtocols, false);
 
          _useSslSocket = true;
-         return true;
       }
 
       public bool IsSslConnection

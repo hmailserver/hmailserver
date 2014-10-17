@@ -44,8 +44,7 @@ namespace RegressionTests.SSL
          {
             string errorMessage;
 
-                     smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
-            out errorMessage);
+           smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",             out errorMessage);
          }
          catch (System.IO.IOException)
          {
@@ -54,8 +53,8 @@ namespace RegressionTests.SSL
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
-               var defaultLog = TestSetup.ReadCurrentDefaultLog();
-               CustomAssert.IsTrue(defaultLog.Contains("unknown protocol"));
+               var defaultLog = LogHandler.ReadCurrentDefaultLog();
+               Assert.IsTrue(defaultLog.Contains("unknown protocol"));
             });
       }
 
@@ -67,11 +66,11 @@ namespace RegressionTests.SSL
 
 
          string errorMessage;
-         CustomAssert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
+         Assert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
 
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         CustomAssert.IsTrue(message.Contains("version=SSLv3"), message);
+         Assert.IsTrue(message.Contains("version=SSLv3"), message);
 
       }
 
@@ -87,7 +86,7 @@ namespace RegressionTests.SSL
             smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
                out errorMessage);
 
-            CustomAssert.Fail("Was able to establish SSLv3 connection");
+            Assert.Fail("Was able to establish SSLv3 connection");
          }
          catch (System.IO.IOException)
          {
@@ -96,8 +95,8 @@ namespace RegressionTests.SSL
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
-               var defaultLog = TestSetup.ReadCurrentDefaultLog();
-               CustomAssert.IsTrue(defaultLog.Contains("wrong version number"));
+               var defaultLog = LogHandler.ReadCurrentDefaultLog();
+               Assert.IsTrue(defaultLog.Contains("wrong version number"));
             });
       }
 
@@ -108,10 +107,10 @@ namespace RegressionTests.SSL
          var smtpClientSimulator = new SMTPClientSimulator(true, SslProtocols.Tls, 25001, null);
 
          string errorMessage;
-         CustomAssert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
+         Assert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         CustomAssert.IsTrue(message.Contains("version=TLSv1"), message);
+         Assert.IsTrue(message.Contains("version=TLSv1"), message);
       }
 
    

@@ -31,12 +31,12 @@ namespace RegressionTests.AntiSpam
 
          _antiSpam.GreyListingEnabled = true;
 
-         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
+         Assert.IsFalse(SMTPClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
                                                        "Body"));
 
          _antiSpam.BypassGreylistingOnMailFromMX = true;
 
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
+         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
                                                       "Body"));
 
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -53,18 +53,18 @@ namespace RegressionTests.AntiSpam
          var recipients = new List<string>();
          recipients.Add(oAccount1.Address);
          bool result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsTrue(result);
+         Assert.IsTrue(result);
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          _antiSpam.GreyListingEnabled = true;
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsFalse(result);
+         Assert.IsFalse(result);
 
          _antiSpam.GreyListingEnabled = false;
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsTrue(result);
+         Assert.IsTrue(result);
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
       }
 
@@ -80,12 +80,12 @@ namespace RegressionTests.AntiSpam
          whiteAddress.IPAddress = "127.0.0.5";
          whiteAddress.Save();
 
-         CustomAssert.IsFalse(SMTPClientSimulator.StaticSend("external@example.com", account.Address, "Test", "Test"));
+         Assert.IsFalse(SMTPClientSimulator.StaticSend("external@example.com", account.Address, "Test", "Test"));
 
          whiteAddress.IPAddress = "*";
          whiteAddress.Save();
 
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("external@example.com", account.Address, "Test", "Test"));
+         Assert.IsTrue(SMTPClientSimulator.StaticSend("external@example.com", account.Address, "Test", "Test"));
 
          POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
       }
@@ -101,19 +101,19 @@ namespace RegressionTests.AntiSpam
          var recipients = new List<string>();
          recipients.Add(oAccount1.Address);
          bool result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsTrue(result);
+         Assert.IsTrue(result);
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          _antiSpam.GreyListingEnabled = true;
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsFalse(result);
+         Assert.IsFalse(result);
 
          _domain.AntiSpamEnableGreylisting = false;
          _domain.Save();
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsTrue(result);
+         Assert.IsTrue(result);
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          DomainAlias da = _domain.DomainAliases.Add();
@@ -124,14 +124,14 @@ namespace RegressionTests.AntiSpam
          recipients.Add("grey@test2.com");
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsTrue(result);
+         Assert.IsTrue(result);
          POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          _domain.AntiSpamEnableGreylisting = true;
          _domain.Save();
 
          result = smtp.Send("test@test.com", recipients, "Test", "Body");
-         CustomAssert.IsFalse(result);
+         Assert.IsFalse(result);
       }
    }
 }

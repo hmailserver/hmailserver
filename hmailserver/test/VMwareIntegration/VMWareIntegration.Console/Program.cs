@@ -45,7 +45,7 @@ namespace VMwareIntegration.Console
 
          var options = new ParallelOptions()
             {
-               MaxDegreeOfParallelism = 4
+               MaxDegreeOfParallelism = 4,
             };
 
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
@@ -88,11 +88,13 @@ namespace VMwareIntegration.Console
                {
                   LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
                   LogText(ex.ToString());
+
+                  throw;
                }
             }
 
          });
-         C:
+         
          System.Console.WriteLine("All tests completed. Press Enter to exit.");
 
          System.Console.ReadLine();

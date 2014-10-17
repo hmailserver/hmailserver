@@ -10,7 +10,7 @@ namespace VMwareIntegration.Common
 {
    public class TestRunner
    {
-      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.5.3";
+      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.6.3";
       
       private TestEnvironment _environment;
       private bool _stopOnError;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -20,8 +21,8 @@ namespace RegressionTests.POP3.Fetching
             Thread.Sleep(100);
          }
 
-         string defaultLog = TestSetup.ReadCurrentDefaultLog();
-         CustomAssert.Fail(string.Format("At {0}, fetch account was not unlocked.", DateTime.Now));
+         string defaultLog = LogHandler.ReadCurrentDefaultLog();
+         Assert.Fail(string.Format("At {0}, fetch account was not unlocked.", DateTime.Now));
       }
    }
 }

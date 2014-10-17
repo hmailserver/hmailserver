@@ -66,7 +66,7 @@ namespace RegressionTests.Infrastructure
 
          float sizeAfter = account.Size;
 
-         CustomAssert.Greater(sizeAfter, sizeBefore);
+         Assert.Greater(sizeAfter, sizeBefore);
       }
    }
 }

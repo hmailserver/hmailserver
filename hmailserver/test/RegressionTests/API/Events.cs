@@ -29,7 +29,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -40,9 +40,9 @@ namespace RegressionTests.API
 
          // Check that the message exists
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         CustomAssert.IsNotEmpty(message);
+         Assert.IsNotEmpty(message);
 
-         CustomAssert.Less(0, message.IndexOf("X-SpamResult: TEST"));
+         Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
       }
 
       [Test]
@@ -66,7 +66,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -77,18 +77,18 @@ namespace RegressionTests.API
 
          // Check that the message exists
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         CustomAssert.IsNotEmpty(message);
+         Assert.IsNotEmpty(message);
 
-         CustomAssert.Less(0, message.IndexOf("X-SpamResult: TEST"));
+         Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
 
 
          // Check that the message exists
          message = TestSetup.ReadExistingTextFile(eventLogFile);
 
-         CustomAssert.IsNotEmpty(message);
-         CustomAssert.IsTrue(message.Contains("Port: 25"));
-         CustomAssert.IsTrue(message.Contains("Address: 127"));
-         CustomAssert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
 
@@ -107,7 +107,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -116,8 +116,8 @@ namespace RegressionTests.API
          back.TestWithMessages();
 
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("Backup process completed"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("Backup process completed"));
       }
 
       [Test]
@@ -133,7 +133,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -142,8 +142,8 @@ namespace RegressionTests.API
          back.TestWithMessages();
 
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("Backup process completed"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("Backup process completed"));
       }
 
       [Test]
@@ -162,18 +162,18 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          var back = new BackupRestore();
          back.InitializeBackupSettings();
          back.SetBackupDir(@"C:\some-non-existant-directory");
-         CustomAssert.IsFalse(back.Execute());
+         Assert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
+         CustomAsserts.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
 
       [Test]
@@ -189,18 +189,18 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          var back = new BackupRestore();
          back.InitializeBackupSettings();
          back.SetBackupDir(@"C:\some-non-existant-directory");
-         CustomAssert.IsFalse(back.Execute());
+         Assert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
+         CustomAsserts.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
 
       [Test]
@@ -228,15 +228,15 @@ namespace RegressionTests.API
             File.Delete(eventLogFile);
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.IsPortOpen(25));
+         Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);
 
-         CustomAssert.IsNotEmpty(message);
-         CustomAssert.IsTrue(message.Contains("Port: 25"));
-         CustomAssert.IsTrue(message.Contains("Address: 127"));
-         CustomAssert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
       [Test]
@@ -261,15 +261,15 @@ namespace RegressionTests.API
             File.Delete(eventLogFile);
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.IsPortOpen(25));
+         Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);
 
-         CustomAssert.IsNotEmpty(message);
-         CustomAssert.IsTrue(message.Contains("Port: 25"));
-         CustomAssert.IsTrue(message.Contains("Address: 127"));
-         CustomAssert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
       [Test]
@@ -288,7 +288,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -299,9 +299,9 @@ namespace RegressionTests.API
 
          // Check that the message exists
          string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         CustomAssert.IsNotEmpty(message);
+         Assert.IsNotEmpty(message);
 
-         CustomAssert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
+         Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
       }
 
       [Test]
@@ -320,7 +320,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -329,12 +329,12 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("File: "), eventLogText);
-         CustomAssert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"), eventLogText);
-         CustomAssert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("File: "), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
       }
 
       [Test]
@@ -351,7 +351,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -360,12 +360,12 @@ namespace RegressionTests.API
          SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
-         CustomAssert.IsTrue(eventLogText.Contains("File: "));
-         CustomAssert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"));
-         CustomAssert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("File: "));
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"));
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
       }
 
       [Test]
@@ -390,7 +390,7 @@ namespace RegressionTests.API
          POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
-         CustomAssert.IsTrue(eventLogText.Contains("Delivering message"));
+         Assert.IsTrue(eventLogText.Contains("Delivering message"));
       }
 
       [Test]
@@ -418,15 +418,15 @@ namespace RegressionTests.API
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
-         TestSetup.AssertFolderMessageCount(inbox, 1);
+         CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-         CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError("Message retrieval failed because message file");
+         Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
+         CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
-         CustomAssert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
+         Assert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
       }
 
       [Test]
@@ -454,21 +454,21 @@ namespace RegressionTests.API
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
          SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
-         TestSetup.AssertFolderMessageCount(inbox, 1);
+         CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-         CustomAssert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError("Message retrieval failed because message file");
+         Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
+         CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
-         CustomAssert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
+         Assert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
       }
 
       [Test]
       public void TestOnExternalAccountDownload()
       {
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
 
 
          var messages = new List<string>();
@@ -511,7 +511,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -545,21 +545,21 @@ namespace RegressionTests.API
             string eventLogFile = _settings.Logging.CurrentEventLog;
             string logContents = TestSetup.ReadExistingTextFile(eventLogFile);
 
-            CustomAssert.IsTrue(logContents.Contains("FetchAccount: " + fa.Name));
+            Assert.IsTrue(logContents.Contains("FetchAccount: " + fa.Name));
 
-            CustomAssert.IsTrue(logContents.Contains("From: Martin@example1.com"));
-            CustomAssert.IsTrue(logContents.Contains("From: Martin@example2.com"));
-            CustomAssert.IsTrue(logContents.Contains("From: Martin@example3.com"));
+            Assert.IsTrue(logContents.Contains("From: Martin@example1.com"));
+            Assert.IsTrue(logContents.Contains("From: Martin@example2.com"));
+            Assert.IsTrue(logContents.Contains("From: Martin@example3.com"));
 
-            string appLogContent = TestSetup.ReadCurrentDefaultLog();
+            string appLogContent = LogHandler.ReadCurrentDefaultLog();
 
-            CustomAssert.IsTrue(pop3Server.DeletedMessages.Contains(1));
-            CustomAssert.IsFalse(pop3Server.DeletedMessages.Contains(2));
-            CustomAssert.IsTrue(pop3Server.DeletedMessages.Contains(3));
+            Assert.IsTrue(pop3Server.DeletedMessages.Contains(1));
+            Assert.IsFalse(pop3Server.DeletedMessages.Contains(2));
+            Assert.IsTrue(pop3Server.DeletedMessages.Contains(3));
 
-            CustomAssert.IsTrue(pop3Server.RetrievedMessages.Contains(1));
-            CustomAssert.IsTrue(pop3Server.RetrievedMessages.Contains(2));
-            CustomAssert.IsTrue(pop3Server.RetrievedMessages.Contains(3));
+            Assert.IsTrue(pop3Server.RetrievedMessages.Contains(1));
+            Assert.IsTrue(pop3Server.RetrievedMessages.Contains(2));
+            Assert.IsTrue(pop3Server.RetrievedMessages.Contains(3));
 
             POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
@@ -576,8 +576,8 @@ namespace RegressionTests.API
             pop3Server.WaitForCompletion();
 
             // Make sure that no messages are deleted.
-            CustomAssert.AreEqual(0, pop3Server.DeletedMessages.Count);
-            CustomAssert.AreEqual(0, pop3Server.RetrievedMessages.Count);
+            Assert.AreEqual(0, pop3Server.DeletedMessages.Count);
+            Assert.AreEqual(0, pop3Server.RetrievedMessages.Count);
 
             POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
          }

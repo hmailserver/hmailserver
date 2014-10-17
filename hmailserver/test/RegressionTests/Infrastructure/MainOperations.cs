@@ -15,7 +15,7 @@ namespace RegressionTests.Infrastructure
       [SetUp]
       public void Setup()
       {
-         SingletonProvider<TestSetup>.Instance.DoBasicSetup();
+         SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
       }
 
       #endregion
@@ -51,9 +51,9 @@ namespace RegressionTests.Infrastructure
          string sSWE = oLanguageSwedish.get_String("File");
          string sENG = oLanguageEnglish.get_String("File");
 
-         CustomAssert.AreEqual(sENG, "File");
-         CustomAssert.AreNotEqual(sSWE, sENG);
-         CustomAssert.AreNotEqual(sSWE, "");
+         Assert.AreEqual(sENG, "File");
+         Assert.AreNotEqual(sSWE, sENG);
+         Assert.AreNotEqual(sSWE, "");
       }
    }
 }

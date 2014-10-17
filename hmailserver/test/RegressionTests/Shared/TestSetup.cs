@@ -42,7 +42,7 @@ namespace RegressionTests.Shared
             account = application.Authenticate("Administrator", "");
 
          if (account == null)
-            CustomAssert.Fail("hMailServer API authentication failed");
+            Assert.Fail("hMailServer API authentication failed");
 
          _settings = application.Settings;
       }
@@ -62,7 +62,7 @@ namespace RegressionTests.Shared
       }
 
 
-      public Domain DoBasicSetup()
+      public Domain PerformBasicSetup()
       {
          bool restartRequired = false;
 
@@ -190,10 +190,10 @@ namespace RegressionTests.Shared
 
          EnableLogging(true);
 
-         AssertNoReportedError();
+         CustomAsserts.AssertNoReportedError();
 
-         if (File.Exists(GetEventLogFileName()))
-            File.Delete(GetEventLogFileName());
+         if (File.Exists(LogHandler.GetEventLogFileName()))
+            File.Delete(LogHandler.GetEventLogFileName());
 
          if (application.ServerState == eServerState.hStateStopped)
             application.Start();
@@ -205,7 +205,7 @@ namespace RegressionTests.Shared
                application.Start();
             }
          }
-         AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          return domain;
       }
@@ -235,31 +235,6 @@ namespace RegressionTests.Shared
          }
       }
 
-      public void DeleteEventLog()
-      {
-         AssertDeleteFile(GetEventLogFileName());
-      }
-
-      public static void AssertDeleteFile(string file)
-      {
-         for (int i = 0; i <= 400; i++)
-         {
-            if (!File.Exists(file))
-               return;
-
-            try
-            {
-               File.Delete(file);
-               return;
-            }
-            catch (Exception e)
-            {
-               if (i == 400)
-                  throw e;
-            }
-            Thread.Sleep(25);
-         }
-      }
 
       private void EnableLogging(bool enable)
       {
@@ -367,7 +342,7 @@ namespace RegressionTests.Shared
          application.SubmitEMail();
       }
 
-      private static int GetNumberOfMessagesInDeliveryQueue()
+      public static int GetNumberOfMessagesInDeliveryQueue()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
@@ -395,39 +370,6 @@ namespace RegressionTests.Shared
          }
 
          return count;
-      }
-
-      public static void AssertRecipientsInDeliveryQueue(int count)
-      {
-         AssertRecipientsInDeliveryQueue(count, true);
-      }
-
-      public static void AssertRecipientsInDeliveryQueue(int count, bool forceSend)
-      {
-         if (forceSend)
-            SendMessagesInQueue();
-
-         for (int i = 1; i <= 60; i++)
-         {
-            if (GetNumberOfMessagesInDeliveryQueue() == count)
-               return;
-
-            if (i%10 == 0 && forceSend)
-               SendMessagesInQueue();
-
-            Thread.Sleep(100);
-         }
-
-         int currentCount = GetNumberOfMessagesInDeliveryQueue();
-         if (currentCount == count)
-            return;
-
-         DeleteMessagesInQueue();
-
-         string message = string.Format(
-            "Message queue does not contain correct number of messages. Actual: {0}, Expected: {1}",
-            currentCount, count);
-         CustomAssert.Fail(message);
       }
 
       private void RemoveAllRules()
@@ -638,76 +580,7 @@ namespace RegressionTests.Shared
          return oList;
       }
 
-      public void AddSpamRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 1";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**SPAM**";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Spam";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public void AddCorporateRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 2";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**CORPORATE**";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public void AddExactMatchRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 3";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "CORPORATE EXACT MATCH";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public static string RandomString()
+      public static string UniqueString()
       {
          string s = Guid.NewGuid().ToString();
          s = s.Replace("{", "");
@@ -717,284 +590,10 @@ namespace RegressionTests.Shared
          return s;
       }
 
-      public static void WriteFile(string file, string contents)
-      {
-         StreamWriter streamWriter;
-
-         streamWriter = File.CreateText(file);
-         streamWriter.Write(contents);
-         streamWriter.Close();
-      }
-
-      public static void AssertSessionCount(eSessionType sessionType, int expectedCount)
-      {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
-         int timeout = 150;
-         while (timeout > 0)
-         {
-            int count = application.Status.get_SessionCount(sessionType);
-
-            if (count == expectedCount)
-               return;
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         CustomAssert.AreEqual(expectedCount, application.Status.get_SessionCount(sessionType));
-      }
-
-      public void AssertBounceMessageExistsInQueue(string bounceTo)
-      {
-         Status status = application.Status;
-         for (int i = 0; i < 100; i++)
-         {
-            if (status.UndeliveredMessages.Length == 0 || status.UndeliveredMessages.Contains("\t" + bounceTo))
-               return;
-
-            Thread.Sleep(100);
-         }
-
-         CustomAssert.Fail("Delivery queue not empty");
-      }
-
-      public string AssertLiveLogContents()
-      {
-         Logging logging = _settings.Logging;
-         for (int i = 0; i < 40; i++)
-         {
-            string contents = logging.LiveLog;
-            if (contents.Length > 0)
-               return contents;
-
-            Thread.Sleep(100);
-         }
-
-         return "";
-      }
-
-      public static void AssertSpamAssassinIsRunning()
-      {
-         Process[] processlist = Process.GetProcesses();
-
-         foreach (Process theprocess in processlist)
-         {
-            if (theprocess.ProcessName == "spamd")
-               return;
-         }
-
-         // Check if we can launch it...
-         try
-         {
-            var serviceController = new ServiceController("SpamAssassinJAM");
-            serviceController.Start();
-         }
-         catch (Exception)
-         {
-            CustomAssert.Inconclusive("Unable to start SpamAssassin process. Is SpamAssassin installed?");
-         }
-      }
-
-      public static void StopSpamAssassin()
-      {
-         // Check if we can launch it...
-         try
-         {
-            var serviceController = new ServiceController("SpamAssassinJAM");
-            serviceController.Stop(); 
-         }
-         catch (Exception)
-         {
-            CustomAssert.Inconclusive("Unable to stop SpamAssassin process. Is SpamAssassin installed?");
-         }
-
-
-      }
-
-      public static void AssertClamDRunning()
-      {
-         Process[] processlist = Process.GetProcesses();
-
-         foreach (Process theprocess in processlist)
-         {
-            if (theprocess.ProcessName == "clamd")
-               return;
-         }
-
-         // Check if we can launch it...
-         var startInfo = new ProcessStartInfo();
-         startInfo.FileName = @"C:\clamav\clamd.exe";
-         startInfo.WorkingDirectory = @"C:\Clamav";
-         startInfo.Arguments = "--daemon";
-
-         try
-         {
-            Process.Start(startInfo);
-
-            // Wait for clamav to start up.
-            for (int i = 0; i < 10; i++)
-            {
-               var sock = new TcpConnection();
-               if (sock.Connect(3310))
-                  return;
-               Thread.Sleep(1000);
-            }
-
-            CustomAssert.Fail("ClamD process not starting up.");
-         }
-         catch (Exception)
-         {
-            CustomAssert.Inconclusive("Unable to start ClamD process. Is ClamAV installed?");
-         }
-      }
-
-      public static Message AssertGetFirstMessage(Account account, string folderName)
-      {
-         IMAPFolder folder = account.IMAPFolders.get_ItemByName(folderName);
-
-         // Wait for message to appear.
-         AssertFolderMessageCount(folder, 1);
-
-         // return the message.
-         return folder.Messages[0];
-      }
-
-      public static void AssertFolderMessageCount(IMAPFolder folder, int expectedCount)
-      {
-         if (expectedCount == 0)
-         {
-            // just in case.
-            AssertRecipientsInDeliveryQueue(0);
-         }
-
-         int currentCount = 0;
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            currentCount = folder.Messages.Count;
-
-            if (currentCount == expectedCount)
-               return;
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Wrong number of messages in mailbox " + folder.Name;
-         CustomAssert.Fail(error);
-      }
-
-      public static Message AssertRetrieveFirstMessage(IMAPFolder folder)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            if (folder.Messages.Count > 0)
-            {
-               return folder.Messages[0];
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Could not retrieve message from folder";
-         CustomAssert.Fail(error);
-
-         return null;
-      }
-
-      public static IMAPFolder AssertFolderExists(IMAPFolders folders, string folderName)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            try
-            {
-               return folders.get_ItemByName(folderName);
-            }
-            catch (Exception)
-            {
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Folder could not be found " + folderName;
-         CustomAssert.Fail(error);
-         return null;
-      }
-
-      public static string GetErrorLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentErrorLog;
-      }
-
-      public static string GetDefaultLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentDefaultLog;
-      }
-
-      public static void DeleteCurrentDefaultLog()
-      {
-         for (int i = 0; i < 50; i++)
-         {
-            try
-            {
-               string filename = GetDefaultLogFileName();
-               if (File.Exists(filename))
-                  File.Delete(filename);
-
-               return;
-            }
-            catch (Exception)
-            {
-               Thread.Sleep(100);
-            }
-         }
-
-         CustomAssert.Fail("Failed to delete default log file during test");
-      }
-
-      public static string ReadCurrentDefaultLog()
-      {
-         string filename = GetDefaultLogFileName();
-         string content = string.Empty;
-         if (File.Exists(filename))
-            return ReadExistingTextFile(filename);
-
-         return content;
-      }
-
-      public static bool DefaultLogContains(string data)
-      {
-         string filename = GetDefaultLogFileName();
-
-         for (int i = 0; i < 40; i++)
-         {
-            if (File.Exists(filename))
-            {
-               string content = ReadExistingTextFile(filename);
-               if (content.Contains(data))
-                  return true;
-            }
-
-            Thread.Sleep(250);
-         }
-
-         return false;
-      }
-
-      public static string GetEventLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentEventLog;
-      }
-
+      
       public static string ReadExistingTextFile(string fileName)
       {
-         AssertFileExists(fileName, false);
+         CustomAsserts.AssertFileExists(fileName, false);
 
          for (int i = 1; i <= 100; i++)
          {
@@ -1024,204 +623,6 @@ namespace RegressionTests.Shared
          return "";
       }
 
-      public static void AssertFileExists(string file, bool delete)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            try
-            {
-               if (File.Exists(file))
-               {
-                   if (delete)
-                   {
-                       TestTracer.WriteTraceInfo("Deleting file {0}...", file);
-                       File.Delete(file);
-                   }
-
-                   return;
-               }
-            }
-            catch (Exception)
-            {
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         CustomAssert.Fail("Expected file does not exist:" + file);
-      }
-
-      public static void AssertNoReportedError()
-      {
-         if (File.Exists(GetErrorLogFileName()))
-         {
-            string contents = File.ReadAllText(GetErrorLogFileName());
-            CustomAssert.Fail(contents);
-         }
-
-      }
-
-      public static void AssertReportedError(string firstContent, params string[] contents)
-      {
-         var allExpectedContent = new List<string>();
-         allExpectedContent.Add(firstContent);
-         allExpectedContent.AddRange(contents);
-
-         try
-         {
-            RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
-            {
-               string errorLog = ReadErrorLog();
-
-               foreach (var content in allExpectedContent)
-                  CustomAssert.IsTrue(errorLog.Contains(content), errorLog);
-            });
-         }
-         finally
-         {
-            DeleteErrorLog();
-         }
-      }
-
-      public static void DeleteErrorLog()
-      {
-         var errorLog = GetErrorLogFileName();
-
-         if (File.Exists(errorLog))
-         {
-            File.Delete(errorLog);
-         }
-
-      }
-
-      public static string ReadAndDeleteErrorLog()
-      {
-         string contents = ReadErrorLog();
-
-         DeleteErrorLog();
-
-         return contents;
-      }
-
-      public static string ReadErrorLog()
-      {
-         string file = GetErrorLogFileName();
-         AssertFileExists(file, false);
-
-         return File.ReadAllText(file);
-         
-      }
-
-
-      public void AssertFilesInUserDirectory(Account account, int expectedFileCount)
-      {
-         string domain = account.Address.Substring(account.Address.IndexOf("@") + 1);
-         string mailbox = account.Address.Substring(0, account.Address.IndexOf("@"));
-
-         string domainDir = Path.Combine(_settings.Directories.DataDirectory, domain);
-         string userDir = Path.Combine(domainDir, mailbox);
-
-         AssertFilesInDirectory(userDir, expectedFileCount);
-      }
-
-      public void AssertFilesInDirectory(string directory, int expectedFileCount)
-      {
-         int count = 0;
-
-         if (Directory.Exists(directory))
-         {
-            string[] dirs = Directory.GetDirectories(directory);
-
-            foreach (string dir in dirs)
-            {
-               string[] files = Directory.GetFiles(dir);
-               count += files.Length;
-            }
-         }
-
-         CustomAssert.AreEqual(expectedFileCount, count);
-      }
-
-      public static string GetCurrentMIMEDateTime()
-      {
-         DateTime now = DateTime.Now;
-
-         string dayOfWeek = "";
-         switch (now.DayOfWeek)
-         {
-            case DayOfWeek.Monday:
-               dayOfWeek = "Mon";
-               break;
-            case DayOfWeek.Tuesday:
-               dayOfWeek = "Tue";
-               break;
-            case DayOfWeek.Wednesday:
-               dayOfWeek = "Wed";
-               break;
-            case DayOfWeek.Thursday:
-               dayOfWeek = "Thu";
-               break;
-            case DayOfWeek.Friday:
-               dayOfWeek = "Fri";
-               break;
-            case DayOfWeek.Saturday:
-               dayOfWeek = "Sat";
-               break;
-            case DayOfWeek.Sunday:
-               dayOfWeek = "Sun";
-               break;
-         }
-
-         string monthName = "";
-         switch (now.Month)
-         {
-            case 1:
-               monthName = "Jan";
-               break;
-            case 2:
-               monthName = "Feb";
-               break;
-            case 3:
-               monthName = "Mar";
-               break;
-            case 4:
-               monthName = "Apr";
-               break;
-            case 5:
-               monthName = "May";
-               break;
-            case 6:
-               monthName = "Jun";
-               break;
-            case 7:
-               monthName = "Jul";
-               break;
-            case 8:
-               monthName = "Aug";
-               break;
-            case 9:
-               monthName = "Sep";
-               break;
-            case 10:
-               monthName = "Oct";
-               break;
-            case 11:
-               monthName = "Nov";
-               break;
-            case 12:
-               monthName = "Dec";
-               break;
-         }
-
-         string timeString = now.ToString("HH':'mm':'ss");
-         string dateString = string.Format("{0}, {1} {2} {3} {4} +0100", dayOfWeek, now.Day, monthName, now.Year,
-                                           timeString);
-
-         return dateString;
-      }
-
       internal static IPAddress GetLocalIpAddress()
       {
          // Connect to another local address.
@@ -1238,7 +639,7 @@ namespace RegressionTests.Shared
             }
          }
 
-         CustomAssert.Fail("No local internet address found.");
+         Assert.Fail("No local internet address found.");
          return null;
       }
 
@@ -1252,41 +653,6 @@ namespace RegressionTests.Shared
          return result;
       }
 
-      public static string GetFileHash(string fileName)
-      {
-         byte[] bytes = File.ReadAllBytes(fileName);
-         SHA1 sha = new SHA1CryptoServiceProvider();
-         var hash = new StringBuilder();
-
-         byte[] hashedData = sha.ComputeHash(bytes);
-
-         foreach (byte b in hashedData)
-         {
-            hash.Append(string.Format("{0,2:X2}", b));
-         }
-
-         //return the hashed value
-         return hash.ToString();
-      }
-
-      public static void SendMessage(MailMessage mailMessage)
-      {
-         for (int i = 0; i < 5; i++)
-         {
-            try
-            {
-               var client = new SmtpClient("localhost", 25);
-               client.Send(mailMessage);
-
-               return;
-            }
-            catch
-            {
-               if (i == 4)
-                  throw;
-            }
-         }
-      }
 
       public static string Escape(string input)
       {
@@ -1308,12 +674,6 @@ namespace RegressionTests.Shared
          return escapedValue;
       }
 
-      public string GetPublicDirectory()
-      {
-         string dataDir = _settings.Directories.DataDirectory;
-         string publicDir = Path.Combine(dataDir, _settings.PublicFolderDiskName);
-         return publicDir;
-      }
 
       public static string CreateLargeDummyMailBody()
       {

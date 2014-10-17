@@ -33,7 +33,7 @@ namespace RegressionTests.SSL.StartTls
          imapSimulator.Connect();
          var data = imapSimulator.GetCapabilities();
 
-         CustomAssert.IsFalse(data.Contains("STARTTLS"));
+         Assert.IsFalse(data.Contains("STARTTLS"));
       }
 
       [Test]
@@ -43,7 +43,7 @@ namespace RegressionTests.SSL.StartTls
          imapSimulator.Connect();
          var data = imapSimulator.GetCapabilities();
 
-         CustomAssert.IsTrue(data.Contains("STARTTLS"));
+         Assert.IsTrue(data.Contains("STARTTLS"));
       }
 
       [Test]
@@ -72,7 +72,7 @@ namespace RegressionTests.SSL.StartTls
          // command is sent over TLS.
          imapSimulator.GetCapabilities();
 
-         CustomAssert.IsTrue(imapSimulator.Logon(_account.Address, "test"));
+         Assert.IsTrue(imapSimulator.Logon(_account.Address, "test"));
       }
 
       [Test]
@@ -82,9 +82,9 @@ namespace RegressionTests.SSL.StartTls
          imapSimulator.Connect();
 
          string errorMessage;
-         CustomAssert.IsFalse(imapSimulator.Logon(_account.Address, "test", out errorMessage));
+         Assert.IsFalse(imapSimulator.Logon(_account.Address, "test", out errorMessage));
 
-         CustomAssert.IsTrue(errorMessage.Contains("A01 BAD STARTTLS is required."));
+         Assert.IsTrue(errorMessage.Contains("A01 BAD STARTTLS is required."));
       }
 
       [Test]
@@ -98,8 +98,8 @@ namespace RegressionTests.SSL.StartTls
          imapSimulator.Connect();
 
          string errorMessage;
-         CustomAssert.IsFalse(imapSimulator.Logon(_account.Address, "test", out errorMessage));
-         CustomAssert.IsTrue(errorMessage.Contains("A01 BAD A SSL/TLS-connection is required for authentication."));
+         Assert.IsFalse(imapSimulator.Logon(_account.Address, "test", out errorMessage));
+         Assert.IsTrue(errorMessage.Contains("A01 BAD A SSL/TLS-connection is required for authentication."));
       }
    }
 }

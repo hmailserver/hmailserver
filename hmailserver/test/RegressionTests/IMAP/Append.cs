@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -17,8 +19,8 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
 
          // Confirm that the public folder is empty before we start our test.
-         string publicDir = testSetup.GetPublicDirectory();
-         testSetup.AssertFilesInDirectory(publicDir, 0);
+         string publicDir = GetPublicDirectory();
+         CustomAsserts.AssertFilesInDirectory(publicDir, 0);
 
          // Add a message to the inbox.
          oSimulator.Connect();
@@ -26,14 +28,14 @@ namespace RegressionTests.IMAP
          oSimulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
 
          // Confirm it exists in the IMAP folder.
-         CustomAssert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
+         Assert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
          oSimulator.Disconnect();
 
          // The public directory should still be empty - the message was added to the user account.
-         testSetup.AssertFilesInDirectory(publicDir, 0);
+         CustomAsserts.AssertFilesInDirectory(publicDir, 0);
 
          // There should be a single file in the users directory.
-         testSetup.AssertFilesInUserDirectory(oAccount, 1);
+         CustomAsserts.AssertFilesInUserDirectory(oAccount, 1);
       }
 
       [Test]
@@ -45,8 +47,8 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
 
          // Confirm that the public folder is empty before we start our test.
-         string publicDir = testSetup.GetPublicDirectory();
-         testSetup.AssertFilesInDirectory(publicDir, 0);
+         string publicDir = GetPublicDirectory();
+         CustomAsserts.AssertFilesInDirectory(publicDir, 0);
 
          IMAPFolders folders = _application.Settings.PublicFolders;
          IMAPFolder folder = folders.Add("Share");
@@ -66,16 +68,16 @@ namespace RegressionTests.IMAP
          oSimulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share {4}", "ABCD");
 
          // Confirm that the message exists in the public folder and not in the inbox.
-         CustomAssert.AreEqual(1, oSimulator.GetMessageCount("#Public.Share"));
-         CustomAssert.AreEqual(0, oSimulator.GetMessageCount("INBOX"));
+         Assert.AreEqual(1, oSimulator.GetMessageCount("#Public.Share"));
+         Assert.AreEqual(0, oSimulator.GetMessageCount("INBOX"));
          oSimulator.Disconnect();
 
 
          // The public directory should now contain the message.
-         testSetup.AssertFilesInDirectory(publicDir, 1);
+         CustomAsserts.AssertFilesInDirectory(publicDir, 1);
 
          // There users directory should still be empty.
-         testSetup.AssertFilesInUserDirectory(oAccount, 0);
+         CustomAsserts.AssertFilesInUserDirectory(oAccount, 0);
       }
 
       [Test]
@@ -87,7 +89,7 @@ namespace RegressionTests.IMAP
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral("check@test.com", "test");
          oSimulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
-         CustomAssert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
+         Assert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
          oSimulator.Disconnect();
       }
 
@@ -110,7 +112,7 @@ namespace RegressionTests.IMAP
                                                               message.ToString());
          imapSim.Logout();
 
-         CustomAssert.IsFalse(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
+         Assert.IsFalse(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
       }
 
       [Test]
@@ -132,7 +134,7 @@ namespace RegressionTests.IMAP
                                                               message.ToString());
          imapSim.Logout();
 
-         CustomAssert.IsTrue(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
+         Assert.IsTrue(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
       }
 
       [Test]
@@ -153,7 +155,7 @@ namespace RegressionTests.IMAP
                                                               message.ToString());
          imapSim.Logout();
 
-         CustomAssert.IsFalse(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
+         Assert.IsFalse(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
       }
 
       [Test]
@@ -174,7 +176,15 @@ namespace RegressionTests.IMAP
                                                               message.ToString());
          imapSim.Logout();
 
-         CustomAssert.IsTrue(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
+         Assert.IsTrue(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
+      }
+
+
+      private string GetPublicDirectory()
+      {
+         string dataDir = _settings.Directories.DataDirectory;
+         string publicDir = Path.Combine(dataDir, _settings.PublicFolderDiskName);
+         return publicDir;
       }
    }
 }

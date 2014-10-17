@@ -55,7 +55,7 @@
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="nunit.framework, Version=2.5.3.9345, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\libraries\nunit-2.5.3\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\libraries\nunit-2.6.3\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -69,6 +69,8 @@
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
+    <Compile Include="Infrastructure\CustomAsserts.cs" />
+    <Compile Include="Infrastructure\LogHandler.cs" />
     <Compile Include="Shared\SslVersions.cs" />
     <Compile Include="Shared\StringExtensions.cs" />
     <Compile Include="Shared\TcpConnection.cs" />
@@ -181,7 +183,6 @@
     <Compile Include="IMAP\Append.cs" />
     <Compile Include="IMAP\Examine.cs" />
     <Compile Include="IMAP\Fetch.cs" />
-    <Compile Include="Infrastructure\CustomAssert.cs" />
     <Compile Include="Infrastructure\ExceptionHandlerTests.cs" />
     <Compile Include="Infrastructure\Persistence\TCPIPPortTests.cs" />
     <Compile Include="Infrastructure\RetryHelper.cs" />

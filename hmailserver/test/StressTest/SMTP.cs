@@ -4,13 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using hMailServer.Test.Infrastructure;
 using NUnit.Framework;
 using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Net.Mail;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 namespace StressTest
 {
@@ -420,7 +421,7 @@ namespace StressTest
       [Description("Send messages being scanned by SpamAssassin.")]
       public void TestSendViaSpamAssassin()
       {
-         TestSetup.AssertSpamAssassinIsRunning();
+         CustomAsserts.AssertSpamAssassinIsRunning();
 
          SingletonProvider<TestSetup>.Instance.GetApp().Settings.AntiSpam.SpamAssassinEnabled = true;
 

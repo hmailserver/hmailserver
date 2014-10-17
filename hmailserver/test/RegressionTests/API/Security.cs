@@ -51,19 +51,19 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         CustomAssert.AreEqual(1, newApplication.Domains.Count);
+         Assert.AreEqual(1, newApplication.Domains.Count);
 
          Domains domains = SingletonProvider<TestSetup>.Instance.GetApp().Domains;
-         CustomAssert.AreEqual(2, domains.Count);
+         Assert.AreEqual(2, domains.Count);
 
          try
          {
             Domain secondDomain = newApplication.Domains.get_ItemByName("example.com");
-            CustomAssert.Fail("Was able to access other domain.");
+            Assert.Fail("Was able to access other domain.");
          }
          catch (COMException ex)
          {
-            CustomAssert.IsTrue(ex.Message.Contains("Invalid index."));
+            Assert.IsTrue(ex.Message.Contains("Invalid index."));
          }
       }
 
@@ -123,8 +123,8 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         CustomAssert.AreEqual(1, newApplication.Domains.Count);
-         CustomAssert.AreEqual(1, newApplication.Domains[0].Accounts.Count);
+         Assert.AreEqual(1, newApplication.Domains.Count);
+         Assert.AreEqual(1, newApplication.Domains[0].Accounts.Count);
 
          Account myAccount = newApplication.Domains[0].Accounts.get_ItemByAddress("user@test.com");
 
@@ -132,15 +132,15 @@ namespace RegressionTests.API
          {
             Account otherAccount = newApplication.Domains[0].Accounts.get_ItemByAddress("second@test.com");
 
-            CustomAssert.Fail();
+            Assert.Fail();
          }
          catch (COMException ex)
          {
-            CustomAssert.IsTrue(ex.Message.Contains("Invalid index."));
+            Assert.IsTrue(ex.Message.Contains("Invalid index."));
          }
 
          Domains domains = SingletonProvider<TestSetup>.Instance.GetApp().Domains;
-         CustomAssert.AreEqual(2, domains[0].Accounts.Count);
+         Assert.AreEqual(2, domains[0].Accounts.Count);
       }
 
       [Test]
@@ -154,19 +154,19 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         CustomAssert.AreEqual(1, newApplication.Domains.Count);
+         Assert.AreEqual(1, newApplication.Domains.Count);
 
          Domains domains = SingletonProvider<TestSetup>.Instance.GetApp().Domains;
-         CustomAssert.AreEqual(2, domains.Count);
+         Assert.AreEqual(2, domains.Count);
 
          try
          {
             Domain secondDomain = newApplication.Domains.get_ItemByName("example.com");
-            CustomAssert.Fail();
+            Assert.Fail();
          }
          catch (COMException ex)
          {
-            CustomAssert.IsTrue(ex.Message.Contains("Invalid index."));
+            Assert.IsTrue(ex.Message.Contains("Invalid index."));
          }
       }
 

@@ -38,14 +38,14 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL
-         CustomAssert.IsFalse(oSMTP.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
+         Assert.IsFalse(oSMTP.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
 
          DomainAlias oDA = _domain.DomainAliases.Add();
          oDA.AliasName = "dummy-example.com";
          oDA.Save();
 
          // THIS MESSAGE SHOULD SUCCEED
-         CustomAssert.IsTrue(oSMTP.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1"));
+         Assert.IsTrue(oSMTP.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1"));
          IMAPClientSimulator.AssertMessageCount("test@dummy-example.com", "test", "Inbox", 1);
       }
 
@@ -66,7 +66,7 @@ namespace RegressionTests.SMTP
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient4@test.com", "test");
 
-         CustomAssert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
+         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "list1@test.com", "Mail 1", "Mail 1"));
 
          IMAPClientSimulator.AssertMessageCount("recipient1@test.com", "test", "Inbox", 1);
          IMAPClientSimulator.AssertMessageCount("recipient2@test.com", "test", "Inbox", 1);
@@ -89,11 +89,11 @@ namespace RegressionTests.SMTP
          }
          catch (Exception ex)
          {
-            CustomAssert.IsTrue(ex.Message.Contains("The recipient address is empty"));
+            Assert.IsTrue(ex.Message.Contains("The recipient address is empty"));
             return;
          }
 
-         CustomAssert.Fail("No error reported when creating distribution list recipient with empty address");
+         Assert.Fail("No error reported when creating distribution list recipient with empty address");
       }
 
       [Test]
@@ -118,7 +118,7 @@ namespace RegressionTests.SMTP
          list.Save();
 
          var smtpClient = new SMTPClientSimulator();
-         CustomAssert.IsTrue(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         Assert.IsTrue(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
          
          foreach (var recipient in recipients)
             IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
@@ -148,8 +148,8 @@ namespace RegressionTests.SMTP
          list.Save();
 
          var smtpClient = new SMTPClientSimulator();
-         CustomAssert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
-         CustomAssert.IsTrue(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
+         Assert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         Assert.IsTrue(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
 
          foreach (var recipient in recipients)
             IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
@@ -178,9 +178,9 @@ namespace RegressionTests.SMTP
          list.Save();
 
          var smtpClient = new SMTPClientSimulator();
-         CustomAssert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
-         CustomAssert.IsFalse(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
-         CustomAssert.IsTrue(smtpClient.Send(recipients[0], list.Address, "Mail 1", "Mail 1"));
+         Assert.IsFalse(smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         Assert.IsFalse(smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
+         Assert.IsTrue(smtpClient.Send(recipients[0], list.Address, "Mail 1", "Mail 1"));
 
          foreach (var recipient in recipients)
             IMAPClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
@@ -218,7 +218,7 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL - Membership required, unknown sender domain
-         CustomAssert.IsFalse(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
+         Assert.IsFalse(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
          oList3.Delete();
 
@@ -233,7 +233,7 @@ namespace RegressionTests.SMTP
          oList3.Mode = eDistributionListMode.eLMMembership;
          oList3.Save();
 
-         CustomAssert.IsTrue(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
+         Assert.IsTrue(oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
          IMAPClientSimulator.AssertMessageCount("account1@test.com", "test", "Inbox", 1);
          IMAPClientSimulator.AssertMessageCount("account2@test.com", "test", "Inbox", 1);
@@ -289,7 +289,7 @@ namespace RegressionTests.SMTP
             };
 
          var smtpClient = new SMTPClientSimulator();
-         CustomAssert.IsTrue(smtpClient.Send(test.Address, recipients, "test" , "test"));
+         Assert.IsTrue(smtpClient.Send(test.Address, recipients, "test" , "test"));
 
          IMAPClientSimulator.AssertMessageCount("acc2@test.com", "test", "Inbox", 1); // Member in list
          IMAPClientSimulator.AssertMessageCount("acc3@test.com", "test", "Inbox", 1); // Member in list

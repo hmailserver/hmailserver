@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.SqlServer.Server;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
@@ -26,8 +27,8 @@ namespace RegressionTests.Shared
       {
          _tcpConnection = new TcpConnection();
 
-         CustomAssert.IsTrue(ConnectAndLogon(username, password));
-         CustomAssert.IsTrue(SelectFolder(mailbox));
+         Assert.IsTrue(ConnectAndLogon(username, password));
+         Assert.IsTrue(SelectFolder(mailbox));
       }
 
       public IMAPClientSimulator(bool useSSL, int port)
@@ -94,13 +95,13 @@ namespace RegressionTests.Shared
          string sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            CustomAssert.Fail("Literal ready not received.");
+            Assert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sPassword + "\r\n");
 
          sData = _tcpConnection.Receive();
          if (sData.StartsWith("A01 NO") || sData.StartsWith("+ Ready"))
-            CustomAssert.Fail("Logon failed");
+            Assert.Fail("Logon failed");
 
          // Logon using two literals.
 
@@ -108,19 +109,19 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            CustomAssert.Fail("Literal ready not received.");
+            Assert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sUsername + " {" + sPassword.Length.ToString() + "}\r\n");
          sData = _tcpConnection.Receive();
 
          if (sData.IndexOf("+ Ready") != 0)
-            CustomAssert.Fail("Literal ready not received.");
+            Assert.Fail("Literal ready not received.");
 
          _tcpConnection.Send(sPassword + "\r\n");
 
          sData = _tcpConnection.Receive();
          if (sData.StartsWith("A02 NO") || sData.StartsWith("+ Ready"))
-            CustomAssert.Fail("Logon failed.");
+            Assert.Fail("Logon failed.");
       }
 
       public bool CreateFolder(string sFolder)
@@ -247,7 +248,7 @@ namespace RegressionTests.Shared
          if (result.Contains("A14 OK"))
             return true;
 
-         CustomAssert.Fail(string.Format("IMAPClientSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
+         Assert.Fail(string.Format("IMAPClientSimulator.Close() - Expected BAD/OK, received: \"{0}\"", result));
          return false;
       }
 
@@ -269,7 +270,7 @@ namespace RegressionTests.Shared
                                            DateTime.Now.ToShortDateString(),
                                            sData);
 
-            CustomAssert.Fail(message);
+            Assert.Fail(message);
          }
 
          _tcpConnection.Send(folderName + "\r\n");
@@ -544,7 +545,7 @@ namespace RegressionTests.Shared
 
          if (!sData.Contains("A33 OK"))
          {
-            CustomAssert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
+            Assert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
             return 0;
          }
 
@@ -554,7 +555,7 @@ namespace RegressionTests.Shared
 
          if (iLength == 0)
          {
-            CustomAssert.Fail("Unparseable SELECT response");
+            Assert.Fail("Unparseable SELECT response");
          }
 
          string sValue = sData.Substring(iStartPos, iLength);
@@ -605,7 +606,7 @@ namespace RegressionTests.Shared
                return result;
 
             if (DateTime.Now - startTime > new TimeSpan(0, 0, 30))
-               CustomAssert.Fail("Timeout while waiting for data.");
+               Assert.Fail("Timeout while waiting for data.");
          }
 
          return result;
@@ -633,7 +634,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(25);
          }
 
-         CustomAssert.Fail("Folder not found: " + folderName);
+         Assert.Fail("Folder not found: " + folderName);
       }
 
 
@@ -643,11 +644,11 @@ namespace RegressionTests.Shared
          if (expectedCount == 0)
          {
             // make sure that we aren't currently delivering messages.
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          }
 
          var oIMAP = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
+         Assert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
 
          if (expectedCount != 0)
             oIMAP.AssertFolderExists(folderName);
@@ -675,7 +676,7 @@ namespace RegressionTests.Shared
 
          string error = "Wrong number of messages in mailbox " + folderName + " in account " + accountName +
                         " Actual: " + currentCount.ToString() + " Expected: " + expectedCount.ToString();
-         CustomAssert.Fail(error);
+         Assert.Fail(error);
       }
 
       public string NOOP()

@@ -39,7 +39,7 @@ namespace RegressionTests.SMTP
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         CustomAssert.IsTrue(message.Contains("ESMTPA\r\n"));
+         Assert.IsTrue(message.Contains("ESMTPA\r\n"));
       }
 
       [Test]
@@ -52,7 +52,7 @@ namespace RegressionTests.SMTP
          smtpClientSimulator.Send(true, string.Empty, string.Empty, _account.Address, _account.Address, "Test", "test", out errorMessage);
 
          var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         CustomAssert.IsTrue(message.Contains("ESMTPS\r\n"));
+         Assert.IsTrue(message.Contains("ESMTPS\r\n"));
       }
 
       [Test]
@@ -68,11 +68,11 @@ namespace RegressionTests.SMTP
                out errorMessage);
 
             var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            CustomAssert.IsTrue(message.Contains("ESMTPSA\r\n"));
+            Assert.IsTrue(message.Contains("ESMTPSA\r\n"));
          }
          catch (Exception e)
          {
-            CustomAssert.Fail(e.ToString());
+            Assert.Fail(e.ToString());
          }
       }
 
@@ -89,13 +89,13 @@ namespace RegressionTests.SMTP
                out errorMessage);
 
             var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            CustomAssert.IsTrue(message.Contains("version=TLS"));
-            CustomAssert.IsTrue(message.Contains("cipher="));
-            CustomAssert.IsTrue(message.Contains("bits="));
+            Assert.IsTrue(message.Contains("version=TLS"));
+            Assert.IsTrue(message.Contains("cipher="));
+            Assert.IsTrue(message.Contains("bits="));
          }
          catch (Exception e)
          {
-            CustomAssert.Fail(e.ToString());
+            Assert.Fail(e.ToString());
          }
       }
 
@@ -112,11 +112,11 @@ namespace RegressionTests.SMTP
                out errorMessage);
 
             var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            CustomAssert.IsFalse(message.Contains("cipher\r\n"));
+            Assert.IsFalse(message.Contains("cipher\r\n"));
          }
          catch (Exception e)
          {
-            CustomAssert.Fail(e.ToString());
+            Assert.Fail(e.ToString());
          }
       }
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -75,9 +76,9 @@ namespace RegressionTests.Security
                continue;
             }
 
-            CustomAssert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
-            CustomAssert.IsFalse(text.Contains(_password) || text.Contains(EncodeBase64(_password)), text);
-            CustomAssert.IsTrue(text.Contains("***"), text);
+            Assert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+            Assert.IsFalse(text.Contains(_password) || text.Contains(EncodeBase64(_password)), text);
+            Assert.IsTrue(text.Contains("***"), text);
          }
       }
 
@@ -105,7 +106,7 @@ namespace RegressionTests.Security
       {
          var sim = new IMAPClientSimulator();
          sim.Connect();
-         CustomAssert.IsTrue(sim.Send("a01 login " + GetUsername() + " {4}").StartsWith("+"));
+         Assert.IsTrue(sim.Send("a01 login " + GetUsername() + " {4}").StartsWith("+"));
          sim.Send(GetPassword());
          EnsureNoPassword();
       }
@@ -115,8 +116,8 @@ namespace RegressionTests.Security
       {
          var sim = new IMAPClientSimulator();
          sim.Connect();
-         CustomAssert.IsTrue(sim.Send("a01 login {" + GetUsername().Length.ToString() + "} {4}").StartsWith("+"));
-         CustomAssert.IsTrue(sim.Send(GetUsername() + " {" + GetPassword().Length.ToString() + "}").StartsWith("+"));
+         Assert.IsTrue(sim.Send("a01 login {" + GetUsername().Length.ToString() + "} {4}").StartsWith("+"));
+         Assert.IsTrue(sim.Send(GetUsername() + " {" + GetPassword().Length.ToString() + "}").StartsWith("+"));
          sim.Send(GetPassword());
          EnsureNoPassword();
       }
@@ -168,7 +169,7 @@ namespace RegressionTests.Security
             fa.Delete();
 
             string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-            CustomAssert.IsTrue(downloadedMessage.Contains(message));
+            Assert.IsTrue(downloadedMessage.Contains(message));
 
             EnsureNoPassword();
          }
@@ -187,7 +188,7 @@ namespace RegressionTests.Security
       {
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         CustomAssert.AreEqual(0, _status.UndeliveredMessages.Length);
+         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // No valid recipients...
          var deliveryResults = new Dictionary<string, int>();
@@ -205,16 +206,16 @@ namespace RegressionTests.Security
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             string undeliveredMessages = _status.UndeliveredMessages;
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             EnsureNoPassword();
          }
@@ -236,16 +237,16 @@ namespace RegressionTests.Security
 
          var sock = new TcpConnection();
          sock.Connect(25);
-         CustomAssert.IsTrue(sock.Receive().StartsWith("220"));
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
          sock.Send("EHLO test.com\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("250"));
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
 
          string base64EncodedUsername = EncodeBase64(GetUsername());
          sock.Send("AUTH LOGIN " + base64EncodedUsername + "\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("334"));
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
 
          sock.Send(EncodeBase64(GetPassword()) + "\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("535"));
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
          EnsureNoPassword();
       }
 
@@ -256,16 +257,16 @@ namespace RegressionTests.Security
 
          var sock = new TcpConnection();
          sock.Connect(25);
-         CustomAssert.IsTrue(sock.Receive().StartsWith("220"));
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
          sock.Send("EHLO test.com\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("250"));
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
          sock.Send("AUTH PLAIN\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("334"));
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
 
          string str = "\t" + GetUsername() + "\t" + GetPassword();
 
          sock.Send(EncodeBase64(str) + "\r\n");
-         CustomAssert.IsTrue(sock.Receive().StartsWith("535"));
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
          EnsureNoPassword();
       }
    }

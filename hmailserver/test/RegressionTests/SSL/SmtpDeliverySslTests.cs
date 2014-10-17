@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using RegressionTests.SMTP;
 
@@ -29,14 +30,14 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSTLS);
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -59,13 +60,13 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             smtpServer.WaitForCompletion();
 
-            CustomAssert.IsTrue(smtpServer.MessageData.Contains("Test message"), smtpServer.MessageData);
+            Assert.IsTrue(smtpServer.MessageData.Contains("Test message"), smtpServer.MessageData);
          }
       }
 
@@ -88,13 +89,13 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -117,16 +118,16 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
 
             var msg = POP3ClientSimulator.AssertGetFirstMessageText("sender@test.com", "test");
 
-            CustomAssert.IsTrue(msg.Contains("Server does not support STARTTLS"));
+            Assert.IsTrue(msg.Contains("Server does not support STARTTLS"));
          }
       }
 
@@ -149,9 +150,9 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();

@@ -4,9 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using hMailServer.Test.Infrastructure;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 
 namespace StressTest
@@ -17,7 +18,7 @@ namespace StressTest
       [Test]
       public void TestManyTCPIPConnections()
       {
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
 
          const int count = 1000;
 
@@ -43,7 +44,7 @@ namespace StressTest
 
          RetryHelper.TryAction(() =>
             {
-               string log = TestSetup.ReadCurrentDefaultLog();
+               string log = LogHandler.ReadCurrentDefaultLog();
 
                string connectionCreated = "TCP - 127.0.0.1 connected to 127.0.0.1:25.";
                string connectionEnded = "Ending session ";

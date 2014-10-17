@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using hMailServer;
 using NUnit.Framework;
 using System.Threading;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 
@@ -27,7 +28,7 @@ namespace StressTest
          antiSpam.SpamAssassinHost = "127.0.0.1";
          antiSpam.SpamAssassinPort = 783;
 
-         TestSetup.AssertSpamAssassinIsRunning();
+         CustomAsserts.AssertSpamAssassinIsRunning();
 
          _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
       }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using hMailServer;
+using NUnit.Framework;
 using RegressionTests.Shared;
 
 namespace RegressionTests.SSL
@@ -86,9 +87,9 @@ namespace RegressionTests.SSL
          var exampleKey = Path.Combine(sslPath, "example.key");
 
          if (!File.Exists(exampleCert))
-            CustomAssert.Fail("Certificate " + exampleCert + " was not found");
+            Assert.Fail("Certificate " + exampleCert + " was not found");
          if (!File.Exists(exampleKey))
-            CustomAssert.Fail("Private key " + exampleKey + " was not found");
+            Assert.Fail("Private key " + exampleKey + " was not found");
 
 
          SSLCertificate sslCertificate = application.Settings.SSLCertificates.Add();

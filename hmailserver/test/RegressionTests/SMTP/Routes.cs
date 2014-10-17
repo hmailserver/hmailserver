@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
@@ -44,12 +45,12 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -92,12 +93,12 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -140,13 +141,13 @@ namespace RegressionTests.SMTP
                   "user4@test.com"
                };
 
-            CustomAssert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            Assert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
-            CustomAssert.AreEqual(deliveryResults.Count, server.RcptTosReceived);
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.AreEqual(deliveryResults.Count, server.RcptTosReceived);
          }
       }
 
@@ -181,12 +182,12 @@ namespace RegressionTests.SMTP
             routeAddress.Save();
 
             var smtpClient = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            Assert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
 
@@ -209,8 +210,8 @@ namespace RegressionTests.SMTP
          var smtpClient = new SMTPClientSimulator();
 
          string resultMessage;
-         CustomAssert.IsFalse(smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
-         CustomAssert.AreEqual("550 Recipient not in route list.", resultMessage);
+         Assert.IsFalse(smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
+         Assert.AreEqual("550 Recipient not in route list.", resultMessage);
       }
 
       [Test]
@@ -231,15 +232,15 @@ namespace RegressionTests.SMTP
             route.Save();
           
             var smtpSimulator = new SMTPClientSimulator();
-            CustomAssert.IsTrue(smtpSimulator.Send("test@test.com",
+            Assert.IsTrue(smtpSimulator.Send("test@test.com",
                                            "test@dummy-example.com", "Mail 1", "Test message"));
 
 
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
-            var log = TestSetup.ReadCurrentDefaultLog();
+            var log = LogHandler.ReadCurrentDefaultLog();
 
-            CustomAssert.IsTrue(server.MessageData.Contains("Test message"));
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
    }

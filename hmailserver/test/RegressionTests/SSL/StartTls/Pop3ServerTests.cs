@@ -38,7 +38,7 @@ namespace RegressionTests.SSL.StartTls
 
          var data = pop3Simulator.CAPA();
 
-         CustomAssert.IsFalse(data.Contains("STLS"));
+         Assert.IsFalse(data.Contains("STLS"));
       }
 
       [Test]
@@ -52,7 +52,7 @@ namespace RegressionTests.SSL.StartTls
 
          var data = pop3Simulator.CAPA();
 
-         CustomAssert.IsTrue(data.Contains("STLS"));
+         Assert.IsTrue(data.Contains("STLS"));
       }
 
       [Test]
@@ -82,7 +82,7 @@ namespace RegressionTests.SSL.StartTls
 
          // run over TLS.
          var result = pop3Simulator.User("test@test.com");
-         CustomAssert.IsTrue(result.StartsWith("+OK"));
+         Assert.IsTrue(result.StartsWith("+OK"));
       }
 
       [Test]
@@ -95,7 +95,7 @@ namespace RegressionTests.SSL.StartTls
 
          // run over TLS.
          var result = pop3Simulator.User("test@test.com");
-         CustomAssert.IsTrue(result.StartsWith("-ERR STLS is required."));
+         Assert.IsTrue(result.StartsWith("-ERR STLS is required."));
       }
 
       [Test]
@@ -112,7 +112,7 @@ namespace RegressionTests.SSL.StartTls
 
          // run over TLS.
          var result = pop3Simulator.User("test@test.com");
-         CustomAssert.IsTrue(result.StartsWith("-ERR A SSL/TLS-connection is required for authentication."));
+         Assert.IsTrue(result.StartsWith("-ERR A SSL/TLS-connection is required for authentication."));
       }
    }
 }

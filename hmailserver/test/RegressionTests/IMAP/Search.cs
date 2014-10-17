@@ -38,12 +38,12 @@ namespace RegressionTests.IMAP
          string result =
             oSimulator.SendSingleCommand(
                "A4 SEARCH OR OR OR OR OR OR SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 ALL");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH"), result);
+         Assert.IsTrue(result.StartsWith("* SEARCH"), result);
 
          result =
             oSimulator.SendSingleCommand(
                "A4 SEARCH OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR OR SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008 ALL");
-         CustomAssert.IsTrue(result.StartsWith("A4 NO"), result);
+         Assert.IsTrue(result.StartsWith("A4 NO"), result);
       }
 
       [Test]
@@ -67,13 +67,13 @@ namespace RegressionTests.IMAP
 
          string result =
             oSimulator.SendSingleCommand("A4 SEARCH ALL OR OR SINCE 28-May-2008 SINCE 28-May-2008 SINCE 28-May-2008");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1"), result);
+         Assert.IsTrue(result.StartsWith("* SEARCH 1"), result);
 
          result = oSimulator.SendSingleCommand("A4 SEARCH ALL OR SMALLER 1 LARGER 10000");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH\r\n"), result);
+         Assert.IsTrue(result.StartsWith("* SEARCH\r\n"), result);
 
          result = oSimulator.SendSingleCommand("A4 SEARCH ALL OR OR SMALLER 1 LARGER 10000 SMALLER 10000");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1\r\n"), result);
+         Assert.IsTrue(result.StartsWith("* SEARCH 1\r\n"), result);
       }
 
       [Test]
@@ -93,7 +93,7 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          oSimulator.SetFlagOnFirstMessage(true, "\\ANSWERED");
          if (oSimulator.Search("ANSWERED") != "1")
@@ -191,11 +191,11 @@ namespace RegressionTests.IMAP
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var oSimulator = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.SendSingleCommand("A01 SEARCH CHARSET NONEXISTANT ALL SUBJECT MySubject");
-         CustomAssert.AreEqual("A01 NO [BADCHARSET]\r\n", result);
+         Assert.AreEqual("A01 NO [BADCHARSET]\r\n", result);
       }
 
       [Test]
@@ -216,22 +216,22 @@ namespace RegressionTests.IMAP
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var oSimulator = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
          string result = oSimulator.Search("CHARSET UTF-8 ALL TEXT InvalidText");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT TestStringA");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT TestString");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT TestStr");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("UNDELETED BODY \"TestString\"");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          oSimulator.Close();
       }
@@ -253,7 +253,7 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string formattedTomorrow =
             (DateTime.Now + new TimeSpan(1, 0, 0, 0)).ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture).ToUpper();
@@ -285,16 +285,16 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
-         CustomAssert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2001 ON 28-May-2001 ALL"));
-         CustomAssert.IsNullOrEmpty(oSimulator.Search("OR SINCE 28-May-2020 ON 28-May-2012 ALL"));
+         Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2001 ON 28-May-2001 ALL"));
+         Assert.IsNullOrEmpty(oSimulator.Search("OR SINCE 28-May-2020 ON 28-May-2012 ALL"));
 
          string formattedToday = DateTime.Now.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture).ToUpper();
-         CustomAssert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2017 ON " + formattedToday + " ALL"));
+         Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2017 ON " + formattedToday + " ALL"));
 
          string formatted2001 = new DateTime(2001, 01, 01).ToString("dd-MMM-yyyy").ToUpper();
-         CustomAssert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2008 ON " + formatted2001 + " ALL"));
+         Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2008 ON " + formatted2001 + " ALL"));
       }
 
       [Test]
@@ -317,12 +317,12 @@ namespace RegressionTests.IMAP
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
 
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Send("A01 SEARCH ALL OR (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test1) (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test2)");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1 2"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 1 2"));
       }
 
       [Test]
@@ -345,12 +345,12 @@ namespace RegressionTests.IMAP
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
 
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Send("A01 SEARCH ALL OR (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test1) (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test5)");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 1"));
       }
 
       [Test]
@@ -373,12 +373,12 @@ namespace RegressionTests.IMAP
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
 
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Send("A01 SEARCH ALL OR (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test5) (HEADER SUBJECT {5}");
          result = oSimulator.Send("Test2)");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 2"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 2"));
       }
 
       [Test]
@@ -400,7 +400,7 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          if (oSimulator.Search("OR (SINCE 28-May-2001) (ON 28-May-2001) ALL") != "1 2")
          {
@@ -427,7 +427,7 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          if (oSimulator.Search("OR (SUBJECT \"Test1\") (ON 28-May-2001) ALL") != "1")
          {
@@ -459,7 +459,7 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          if (oSimulator.Search("ALL (OR (HEADER SUBJECT \"Test1\") (HEADER SUBJECT \"Test2\"))") != "1 2")
          {
@@ -486,22 +486,22 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.SendSingleCommand("a01 search 2:4");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 2 3 4"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 2 3 4"));
 
          result = oSimulator.SendSingleCommand("a01 search 3,2");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 2 3"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 2 3"));
 
          result = oSimulator.SendSingleCommand("a01 search 3:*");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 3 4 5"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 3 4 5"));
 
          result = oSimulator.SendSingleCommand("a01 search 3,1,3");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1 3"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 1 3"));
 
          result = oSimulator.SendSingleCommand("a01 search 1:*");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1 2 3 4 5"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 1 2 3 4 5"));
       }
 
       [Test]
@@ -524,7 +524,7 @@ namespace RegressionTests.IMAP
          var oSimulator = new IMAPClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.SendSingleCommand("* UID SEARCH UID 1:*");
 
@@ -543,11 +543,11 @@ namespace RegressionTests.IMAP
             }
          }
 
-         CustomAssert.AreEqual(3, uids.Count, result);
+         Assert.AreEqual(3, uids.Count, result);
 
-         CustomAssert.AreEqual(1, uids[0]);
-         CustomAssert.AreEqual(2, uids[1]);
-         CustomAssert.AreEqual(3, uids[2]);
+         Assert.AreEqual(1, uids[0]);
+         Assert.AreEqual(2, uids[1]);
+         Assert.AreEqual(3, uids[2]);
       }
 
       [Test]
@@ -560,14 +560,14 @@ namespace RegressionTests.IMAP
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var oSimulator = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Search("CHARSET US-ASCII ALL SUBJECT MySubject");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET US-ASCII ALL SUBJECT MySubjact");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
       }
 
       [Test]
@@ -582,32 +582,32 @@ namespace RegressionTests.IMAP
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var oSimulator = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Search("CHARSET UTF-8 ALL TEXT GRΣΣK");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT ÅÄÖ");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT 標準語標準語");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT ßEßEß");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT ÅÅÅ");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT GREEK");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT ßEEEß");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT 標準語標語語");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
       }
 
       [Test]
@@ -621,20 +621,20 @@ namespace RegressionTests.IMAP
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var oSimulator = new IMAPClientSimulator();
-         CustomAssert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.Search("CHARSET UTF-8 ALL TEXT GRΣΣK");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT 標準語");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT GRΣΣK標準語");
-         CustomAssert.AreEqual("1", result);
+         Assert.AreEqual("1", result);
 
          result = oSimulator.Search("CHARSET UTF-8 ALL TEXT GRΣΣKWHAT標準語");
-         CustomAssert.AreEqual("", result);
+         Assert.AreEqual("", result);
       }
 
       [Test]
@@ -656,13 +656,13 @@ namespace RegressionTests.IMAP
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon("search@test.com", "test");
 
-         CustomAssert.IsTrue(oSimulator.SelectFolder("INBOX"));
+         Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          string result = oSimulator.SendSingleCommandWithLiteral("A01 SEARCH HEADER SUBJECT {5}", "Test1");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 1\r\n"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 1\r\n"));
 
          result = oSimulator.SendSingleCommandWithLiteral("A01 SEARCH HEADER SUBJECT {5}", "Test2");
-         CustomAssert.IsTrue(result.StartsWith("* SEARCH 2\r\n"));
+         Assert.IsTrue(result.StartsWith("* SEARCH 2\r\n"));
       }
    }
 }

@@ -25,7 +25,7 @@ namespace RegressionTests.Stress
          }
 
          var sim = new SMTPClientSimulator();
-         CustomAssert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
+         Assert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
       }
 
 
@@ -59,14 +59,14 @@ namespace RegressionTests.Stress
          string command = "A03 NOOP " + sb;
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.Connect(143));
+         Assert.IsTrue(socket.Connect(143));
          socket.Receive();
          socket.Send(command);
 
          try
          {
             string response = socket.Receive();
-            CustomAssert.IsTrue(response.StartsWith("* BYE"));
+            Assert.IsTrue(response.StartsWith("* BYE"));
          }
          catch (System.IO.IOException ex)
          {
@@ -90,14 +90,14 @@ namespace RegressionTests.Stress
          string command = "HELP " + sb;
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.Connect(110));
+         Assert.IsTrue(socket.Connect(110));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          try
          {
             string response = socket.Receive();
-            CustomAssert.IsTrue(response.StartsWith("-ERR"));
+            Assert.IsTrue(response.StartsWith("-ERR"));
 
             socket.Disconnect();
          }
@@ -122,12 +122,12 @@ namespace RegressionTests.Stress
          string command = "NOOP " + sb;
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.Connect(110));
+         Assert.IsTrue(socket.Connect(110));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         CustomAssert.IsTrue(response.StartsWith("-ERR Line to long."));
+         Assert.IsTrue(response.StartsWith("-ERR Line to long."));
 
          socket.Disconnect();
       }
@@ -146,14 +146,14 @@ namespace RegressionTests.Stress
          string command = "HELO " + sb;
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.Connect(25));
+         Assert.IsTrue(socket.Connect(25));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          try
          {
             string response = socket.Receive();
-            CustomAssert.IsTrue(response.StartsWith("421"));
+            Assert.IsTrue(response.StartsWith("421"));
 
             socket.Disconnect();
          }
@@ -177,12 +177,12 @@ namespace RegressionTests.Stress
          string command = "HELO " + sb;
 
          var socket = new TcpConnection();
-         CustomAssert.IsTrue(socket.Connect(25));
+         Assert.IsTrue(socket.Connect(25));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         CustomAssert.IsTrue(response.StartsWith("500"));
+         Assert.IsTrue(response.StartsWith("500"));
 
          socket.Disconnect();
       }
@@ -271,8 +271,8 @@ namespace RegressionTests.Stress
 
          string sContents = POP3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 
-         CustomAssert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
-         CustomAssert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);
+         Assert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
+         Assert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);
       }
 
       private void AssertIsConnectionTerminatedException(IOException exception)

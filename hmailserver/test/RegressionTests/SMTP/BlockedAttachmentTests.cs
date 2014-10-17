@@ -4,6 +4,7 @@ using System.Net.Mail;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
@@ -75,9 +76,9 @@ namespace RegressionTests.SMTP
 
          IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
 
-         Message message = TestSetup.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
-         CustomAssert.AreEqual(1, message.Attachments.Count);
-         CustomAssert.AreEqual("AUTOEXEC.dll.txt", message.Attachments[0].Filename);
+         Message message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual("AUTOEXEC.dll.txt", message.Attachments[0].Filename);
 
          string tempFile = Path.GetTempFileName();
          message.Attachments[0].SaveAs(tempFile);
@@ -91,7 +92,7 @@ namespace RegressionTests.SMTP
                                                                                            message.Attachments[0].
                                                                                               Filename.Length - 4));
 
-         CustomAssert.IsTrue(contents.Contains(removedMessage));
+         Assert.IsTrue(contents.Contains(removedMessage));
          File.Delete(tempFile);
       }
 
@@ -122,7 +123,7 @@ namespace RegressionTests.SMTP
 
             // Check that the message exists
             string message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            CustomAssert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachmentName)));
+            Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachmentName)));
 
          }
          finally
@@ -164,8 +165,8 @@ namespace RegressionTests.SMTP
 
             // Check that the message exists
             string message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            CustomAssert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment1Name)));
-            CustomAssert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment2Name)));
+            Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment1Name)));
+            Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment2Name)));
 
          }
          finally
@@ -205,15 +206,15 @@ namespace RegressionTests.SMTP
 
             IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
 
-            Message message = TestSetup.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
-            CustomAssert.AreEqual(1, message.Attachments.Count);
-            CustomAssert.AreEqual(expectedNewAttachmentName, message.Attachments[0].Filename);
+            Message message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+            Assert.AreEqual(1, message.Attachments.Count);
+            Assert.AreEqual(expectedNewAttachmentName, message.Attachments[0].Filename);
 
             string attachmentOnDisk = Path.GetTempFileName();
             message.Attachments[0].SaveAs(attachmentOnDisk);
             string contents = File.ReadAllText(attachmentOnDisk);
 
-            CustomAssert.IsTrue(
+            Assert.IsTrue(
                contents.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.",
                   attachmentName)), contents);
 

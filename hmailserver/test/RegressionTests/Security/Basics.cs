@@ -18,16 +18,16 @@ namespace RegressionTests.Security
 
          string message;
          var sim = new POP3ClientSimulator();
-         CustomAssert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
+         Assert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
 
 
          var simIMAP = new IMAPClientSimulator();
-         CustomAssert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
-         CustomAssert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
+         Assert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
+         Assert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 
          var simSMTP = new SMTPClientSimulator();
-         CustomAssert.IsFalse(simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
-         CustomAssert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
+         Assert.IsFalse(simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
+         Assert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
       }
    }
 }

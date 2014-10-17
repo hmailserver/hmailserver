@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using NUnit.Framework;
 
 namespace RegressionTests.Shared
 {
@@ -142,7 +143,7 @@ namespace RegressionTests.Shared
          _tcpConnection.Send("From: " + sFrom + "\r\n");
          _tcpConnection.Send("To: " + sCommaSeparatedRecipients + "\r\n");
          _tcpConnection.Send("Subject: " + sSubject + "\r\n");
-         _tcpConnection.Send("Date: " + TestSetup.GetCurrentMIMEDateTime() + "\r\n");
+         _tcpConnection.Send("Date: " + GetCurrentMIMEDateTime() + "\r\n");
 
          _tcpConnection.Send("\r\n");
 
@@ -180,7 +181,7 @@ namespace RegressionTests.Shared
          return Send(false, "", "", sFrom, sTo, sSubject, sBody, out result);
       }
 
-      public bool Send(bool useStartTls, string username, string password, string sFrom, string sTo, string sSubject, string sBody, out string result)
+      public bool Send(bool useStartTls, string username, string password, string sFrom, string sTo, string sSubject, string sBody, out string errorMessage)
       {
          string sData;
 
@@ -192,15 +193,18 @@ namespace RegressionTests.Shared
          if (useStartTls)
          {
             var capabilities1 = SendAndReceive("EHLO example.com\r\n");
-            CustomAssert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+            if (!capabilities1.Contains("STARTTLS"))
+               throw new Exception("Server does not support STARTTLS.");
 
             SendAndReceive("STARTTLS\r\n");
-            CustomAssert.IsTrue(_tcpConnection.HandshakeAsClient());
+
+            _tcpConnection.HandshakeAsClient();
          }
 
          if (!string.IsNullOrEmpty(username))
          {
-            if (!Logon(EncodeBase64(username), EncodeBase64(password), out result))
+            if (!Logon(EncodeBase64(username), EncodeBase64(password), out errorMessage))
                return false;
          }
 
@@ -215,7 +219,7 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
          if (sData.StartsWith("2") == false)
          {
-            result = TrimNewlline(sData);
+            errorMessage = TrimNewlline(sData);
             return false;
          }
 
@@ -240,7 +244,7 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
          if (sData.Substring(0, 3) != "250")
          {
-            result = TrimNewlline(sData);
+            errorMessage = TrimNewlline(sData);
             return false;
          }
 
@@ -250,7 +254,7 @@ namespace RegressionTests.Shared
 
          _tcpConnection.Disconnect();
 
-         result = "";
+         errorMessage = "";
          return true;
       }
 
@@ -331,5 +335,86 @@ namespace RegressionTests.Shared
          return Convert.ToBase64String(bytes);
       }
 
+
+
+      private static string GetCurrentMIMEDateTime()
+      {
+         DateTime now = DateTime.Now;
+
+         string dayOfWeek = "";
+         switch (now.DayOfWeek)
+         {
+            case DayOfWeek.Monday:
+               dayOfWeek = "Mon";
+               break;
+            case DayOfWeek.Tuesday:
+               dayOfWeek = "Tue";
+               break;
+            case DayOfWeek.Wednesday:
+               dayOfWeek = "Wed";
+               break;
+            case DayOfWeek.Thursday:
+               dayOfWeek = "Thu";
+               break;
+            case DayOfWeek.Friday:
+               dayOfWeek = "Fri";
+               break;
+            case DayOfWeek.Saturday:
+               dayOfWeek = "Sat";
+               break;
+            case DayOfWeek.Sunday:
+               dayOfWeek = "Sun";
+               break;
+         }
+
+         string monthName = "";
+         switch (now.Month)
+         {
+            case 1:
+               monthName = "Jan";
+               break;
+            case 2:
+               monthName = "Feb";
+               break;
+            case 3:
+               monthName = "Mar";
+               break;
+            case 4:
+               monthName = "Apr";
+               break;
+            case 5:
+               monthName = "May";
+               break;
+            case 6:
+               monthName = "Jun";
+               break;
+            case 7:
+               monthName = "Jul";
+               break;
+            case 8:
+               monthName = "Aug";
+               break;
+            case 9:
+               monthName = "Sep";
+               break;
+            case 10:
+               monthName = "Oct";
+               break;
+            case 11:
+               monthName = "Nov";
+               break;
+            case 12:
+               monthName = "Dec";
+               break;
+         }
+
+         string timeString = now.ToString("HH':'mm':'ss");
+         string dateString = string.Format("{0}, {1} {2} {3} {4} +0100", dayOfWeek, now.Day, monthName, now.Year,
+                                           timeString);
+
+         return dateString;
+      }
+
+      
    }
 }

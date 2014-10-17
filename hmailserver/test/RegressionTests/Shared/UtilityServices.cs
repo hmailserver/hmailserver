@@ -27,28 +27,28 @@ namespace RegressionTests.Shared
          Utilities utilities = _application.Utilities;
 
          // The password should not be a part of a user name.
-         CustomAssert.IsFalse(utilities.IsStrongPassword("testar@test.com", "testar"));
+         Assert.IsFalse(utilities.IsStrongPassword("testar@test.com", "testar"));
 
          // The password should be more than 4 characters long.
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "test"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "test"));
 
          // If the password is 6 characters or less, it should contain a number or special char
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "testar"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "testar"));
 
          // Typically bad passwords...
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "secret"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "password"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "info"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "webmaster"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "admin"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "12345"));
-         CustomAssert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "qwerty"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "secret"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "password"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "info"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "webmaster"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "admin"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "12345"));
+         Assert.IsFalse(utilities.IsStrongPassword("vaffe@test.com", "qwerty"));
 
          // Contains more than 6 characters - OK
-         CustomAssert.IsTrue(utilities.IsStrongPassword("vaffe@test.com", "testarp"));
+         Assert.IsTrue(utilities.IsStrongPassword("vaffe@test.com", "testarp"));
 
          // Contains more than 6 characters - OK
-         CustomAssert.IsTrue(utilities.IsStrongPassword("vaffe@test.com", "test_"));
+         Assert.IsTrue(utilities.IsStrongPassword("vaffe@test.com", "test_"));
       }
    }
 }

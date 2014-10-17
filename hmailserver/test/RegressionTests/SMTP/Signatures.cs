@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -15,7 +16,7 @@ namespace RegressionTests.SMTP
       private Account _account;
 
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "signature@test.com", "test");
       }
@@ -37,7 +38,7 @@ namespace RegressionTests.SMTP
 
          string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         CustomAssert.IsTrue(sMessageData.Contains("Regards Martin Knafve"));
+         Assert.IsTrue(sMessageData.Contains("Regards Martin Knafve"));
       }
 
       /// <summary>
@@ -153,7 +154,7 @@ namespace RegressionTests.SMTP
 
          string sMessageData = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
-         CustomAssert.IsTrue(sMessageData.Contains("Regards Knafve, Martin"));
+         Assert.IsTrue(sMessageData.Contains("Regards Knafve, Martin"));
       }
 
       [Test]
@@ -210,7 +211,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsFalse(messageData.Contains(_domain.SignaturePlainText));
+         Assert.IsFalse(messageData.Contains(_domain.SignaturePlainText));
       }
 
       /// <summary>
@@ -232,7 +233,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsTrue(messageData.Contains(_domain.SignaturePlainText));
+         Assert.IsTrue(messageData.Contains(_domain.SignaturePlainText));
       }
 
       /// <summary>
@@ -255,7 +256,7 @@ namespace RegressionTests.SMTP
 
          string messageData = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-         CustomAssert.IsTrue(messageData.Contains("%User.FirstName%"));
+         Assert.IsTrue(messageData.Contains("%User.FirstName%"));
       }
 
       [Test]
@@ -267,13 +268,13 @@ namespace RegressionTests.SMTP
          var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
          message.Attachments[1].SaveAs(tempFile);
 
-         CustomAssert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
-         CustomAssert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
 
          try
          {
             var content = File.ReadAllText(tempFile);
-            CustomAssert.AreEqual("Test", content);
+            Assert.AreEqual("Test", content);
          }
          finally
          {
@@ -290,13 +291,13 @@ namespace RegressionTests.SMTP
          var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
          message.Attachments[1].SaveAs(tempFile);
 
-         CustomAssert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
-         CustomAssert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
 
          try
          {
             var content = File.ReadAllText(tempFile);
-            CustomAssert.AreEqual("HtmlAttachment", content);
+            Assert.AreEqual("HtmlAttachment", content);
          }
          finally
          {
@@ -310,8 +311,8 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_NoContentType);
 
-         CustomAssert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
-         CustomAssert.AreEqual("", message.HTMLBody);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.AreEqual("", message.HTMLBody);
       }
 
       [Test]
@@ -320,8 +321,8 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_TextPlainContentType);
 
-         CustomAssert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
-         CustomAssert.AreEqual("", message.HTMLBody);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.AreEqual("", message.HTMLBody);
       }
 
       [Test]
@@ -330,8 +331,8 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextHtmlBody_TextHtmlContentType);
 
-         CustomAssert.AreEqual("", message.Body);
-         CustomAssert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
+         Assert.AreEqual("", message.Body);
+         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
          
       }
 
@@ -341,8 +342,8 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_TextHtmlBody);
 
-         CustomAssert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
-         CustomAssert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
 
       }
 
@@ -359,7 +360,7 @@ namespace RegressionTests.SMTP
 
          SMTPClientSimulator.StaticSendRaw(_account.Address, _account.Address, message);
 
-         return TestSetup.AssertGetFirstMessage(_account, "Inbox");
+         return CustomAsserts.AssertGetFirstMessage(_account, "Inbox");
 
 
       }
