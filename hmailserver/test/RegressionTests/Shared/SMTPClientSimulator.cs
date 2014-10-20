@@ -225,7 +225,13 @@ namespace RegressionTests.Shared
 
          // Select inbox
          _tcpConnection.Send("DATA\r\n");
-         _tcpConnection.Receive();
+         sData = _tcpConnection.Receive();
+         if (sData.Substring(0, 3) != "354")
+         {
+            result = TrimNewlline(sData);
+            return false;
+         }
+
 
          _tcpConnection.Send("From: " + sFrom + "\r\n");
          _tcpConnection.Send("To: " + sTo + "\r\n");

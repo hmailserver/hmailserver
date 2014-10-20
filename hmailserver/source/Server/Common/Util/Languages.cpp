@@ -29,7 +29,7 @@ namespace HM
       Language::LoadEnglish();
 
       std::vector<FileInfo> languageFiles = 
-         FileUtilities::GetFilesInDirectory(IniFileSettings::Instance()->GetLanguageDirectory(), "*.ini");
+         FileUtilities::GetFilesInDirectory(IniFileSettings::Instance()->GetLanguageDirectory(), "^.*[.]ini$");
 
       auto iter = languageFiles.begin();
       auto iterEnd = languageFiles.end();

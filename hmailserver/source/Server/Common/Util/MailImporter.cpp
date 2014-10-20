@@ -256,7 +256,7 @@ namespace HM
 
       String destinationDirectory = FileUtilities::Combine(currentCorrectDirectory, guidFolder);
       if (!FileUtilities::Exists(destinationDirectory))
-         FileUtilities::CreateDirectoryRecursive(destinationDirectory);
+         FileUtilities::CreateDirectory(destinationDirectory);
 
       String destinationFile = FileUtilities::Combine(destinationDirectory, resultFile);
 

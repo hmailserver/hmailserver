@@ -38,35 +38,9 @@ namespace HM
    }
 
    String 
-   Utilities::GetWin32TempDirectory()
-   {
-      // No username specified. Fetch local computer name.
-      if (!cached_win_32temp_dir_.IsEmpty())
-         return cached_win_32temp_dir_;
-
-      
-      unsigned long iSize = 255;
-      TCHAR pCharBuf[255];
-      
-      if (::GetTempPath(iSize, pCharBuf) != 0)
-      {
-         String sShort = pCharBuf;
-
-         if (sShort.Right(1) == _T("\\"))
-            sShort = sShort.Left(sShort.GetLength() - 1);
-
-         cached_win_32temp_dir_ = FileUtilities::GetLongPath(sShort);
-        
-      }
-
-      return cached_win_32temp_dir_;
-
-   }
-
-   String 
    Utilities::GetUniqueTempDirectory()
    {
-      return FileUtilities::Combine(GetWin32TempDirectory(), GUIDCreator::GetGUID());
+      return FileUtilities::Combine(IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID());
    }
 
 

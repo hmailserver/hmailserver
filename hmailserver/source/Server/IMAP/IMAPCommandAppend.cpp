@@ -200,7 +200,7 @@ namespace HM
 
       String destinationPath = FileUtilities::GetFilePath(message_file_name_);
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       File oFile;
       if (!oFile.Open(message_file_name_, File::OTAppend))

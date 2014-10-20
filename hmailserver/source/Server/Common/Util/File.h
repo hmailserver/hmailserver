@@ -38,12 +38,11 @@ namespace HM
       bool Write(std::shared_ptr<ByteBuffer> pBuffer, DWORD &dwNoOfBytesWritten);
       bool Write(File &sourceFile);
       bool WriteBOF();
-      bool MoveToEnd();
-
-
 
       int GetSize();
 
+      bool SetPosition(int position);
+      bool ReadLine(AnsiString &sLine);
       std::shared_ptr<ByteBuffer> ReadFile();
       std::shared_ptr<ByteBuffer> ReadTextFile();
       std::shared_ptr<ByteBuffer> ReadChunk(int iMaxSize);
@@ -52,7 +51,7 @@ namespace HM
 
    private:
       
-      HANDLE file_;
+      FILE * file_;
       String name_;
    };
 
