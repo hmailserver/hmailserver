@@ -185,7 +185,11 @@ namespace hMailServer.Administrator
       {
          formServerInformation serverDlg = new formServerInformation();
 
-         Server server = new Server();
+         Server server = new Server()
+            {
+               userName = "Administrator"
+            };
+
          serverDlg.Server = server;
 
          if (serverDlg.ShowDialog() == DialogResult.OK)

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -46,6 +47,11 @@ namespace hMailServer.Shared
       private void formEnterPassword_Load(object sender, EventArgs e)
       {
 
+      }
+
+      private void linkWhatIsThis_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+      {
+         Process.Start("https://www.hmailserver.com/documentation/latest/?page=reference_dialoghelp_hmailserver_password");
       }
    }
 }
