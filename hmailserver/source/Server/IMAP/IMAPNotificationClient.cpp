@@ -13,6 +13,7 @@
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/IMAPFolder.h"
 
+#include "../Common/TCPIP/DisconnectedException.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -94,7 +95,17 @@ namespace HM
          return;
 
       if (parentConnection->GetIsIdling())
-         SendChangeNotification_(notification);
+      {
+         try
+         {
+            SendChangeNotification_(notification);
+         }
+         catch (DisconnectedException&)
+         {
+            // We were unable to send the notifications to the client, because he has disconnected.
+            // This is normal behavior, and not an error we want to log.
+         }
+      }
       else
          CacheChangeNotification_(notification);
    }
