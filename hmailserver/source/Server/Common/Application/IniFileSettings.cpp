@@ -241,13 +241,6 @@ namespace HM
       return app_directory_ + "Languages";
    }
 
-   String 
-   IniFileSettings::GetCertificateAuthorityDirectory() const
-   {
-      return app_directory_ + "Externals\\CA";
-   }
-
-
    bool
    IniFileSettings::CheckSettings(String &sErrorMessage)
    {

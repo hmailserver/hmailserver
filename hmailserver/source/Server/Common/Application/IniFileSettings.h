@@ -50,7 +50,6 @@ namespace HM
       String GetDBScriptDirectory() const { return dbscript_directory_; }
       String GetDatabaseDirectory() const { return database_directory_; }
       String GetLanguageDirectory() const;
-      String GetCertificateAuthorityDirectory() const;
       String GetDatabaseServerFailoverPartner() const { return database_server_FailoverPartner; }
 
       void SetProgramDirectory(const String &sNewVal);
