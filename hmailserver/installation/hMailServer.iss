@@ -127,7 +127,6 @@ Filename: "{app}\Bin\hMailServer.INI"; Section: "GUILanguages"; Key: "ValidLangu
 Filename: "{app}\Bin\hMailServer.INI"; Section: "Security"; Key: "AdministratorPassword"; String: "{code:GetHashedPassword}"; Flags: createkeyifdoesntexist; Components: server;
 
 [Dirs]
-Name: "{app}\Externals\CA"; Components: server;
 Name: "{app}\Data"; Components: server;
 Name: "{app}\Database"; Components: server;
 Name: "{app}\Logs"; Components: server;
