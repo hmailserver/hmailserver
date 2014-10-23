@@ -228,7 +228,7 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.Receive();
          if (sData.Substring(0, 3) != "354")
          {
-            result = TrimNewlline(sData);
+            errorMessage = TrimNewlline(sData);
             return false;
          }
 
