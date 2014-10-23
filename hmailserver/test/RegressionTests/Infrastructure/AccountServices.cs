@@ -37,8 +37,8 @@ namespace RegressionTests.Infrastructure
          string text = POP3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          Assert.IsFalse(text.Contains("Return-Path: account2@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: account1@test.com"));
-         Assert.IsTrue(text.Contains("Return-Path: original-address@test.com"));
+         Assert.IsFalse(text.Contains("Return-Path: original-address@test.com"));
+         Assert.IsTrue(text.Contains("Return-Path: account1@test.com"));
       }
 
       [Test]
@@ -287,6 +287,35 @@ namespace RegressionTests.Infrastructure
          SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
 
          POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
+      }
+
+      [Test]
+      [Category("Accounts")]
+      [Description("Testing GitHub issue #50")]
+      public void WhenForwardingFromAddressShouldBeSetToForwardingAccount()
+      {
+         var sender = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@test.com", "test");
+         var forwarder = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "forwarder@test.com", "test");
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@test.com", "test");
+
+         forwarder.ForwardEnabled = true;
+         forwarder.ForwardAddress = recipient.Address;
+         forwarder.ForwardKeepOriginal = true;
+         forwarder.Save();
+
+         var smtpClientSimulator = new SMTPClientSimulator();
+         smtpClientSimulator.Send(sender.Address, forwarder.Address, "INBOX", "POP3 test message");
+
+         POP3ClientSimulator.AssertMessageCount(forwarder.Address, "test", 1);
+
+
+         // Tell hMailServer to deliver now, so that the forward takes effect.
+         SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
+
+         var message = POP3ClientSimulator.AssertGetFirstMessageText(recipient.Address, "test");
+
+
+         Assert.IsTrue(message.Contains("Return-Path: forwarder@test.com"));
       }
 
       [Test]
