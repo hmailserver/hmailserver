@@ -97,9 +97,9 @@ namespace RegressionTests.POP3
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3user@test.com", "test");
 
          // Send 5 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send("test@test.com", "pop3user@test.com", "INBOX", "POP3 test message");
+            smtpClientSimulator.Send("test@test.com", "pop3user@test.com", "INBOX", "POP3 test message");
 
 
          Pop3ClientSimulator.AssertMessageCount("pop3user@test.com", "test", 5);

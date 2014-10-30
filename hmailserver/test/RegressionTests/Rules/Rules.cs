@@ -84,10 +84,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                                   "Detta ska hamna i public folder.");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
@@ -133,10 +133,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "account1@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "account1@test.com", "SomeString",
                     "This should end up in the #public.share1.sub since user lacks right.");
 
          ImapClientSimulator.AssertMessageCount("account1@test.com", "test", "#public.Share1.Sub", 1);
@@ -171,10 +171,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "This should end up in the inbox since user lacks right.");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
@@ -205,10 +205,10 @@ namespace RegressionTests.Rules
          oRuleAction.Save();
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "knafve@gmail.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "knafve@gmail.com", "SomeString",
                     "This mail should not be delivered - Test ActionBindToAddress.");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -244,13 +244,13 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "a", "Test 2");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 3");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "b", "Test 2");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "a", "Test 2");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 3");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "b", "Test 2");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 2);
 
@@ -304,14 +304,14 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "SomeString",
+         smtpClientSimulator.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "SomeString",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "SomeStringA",
+         smtpClientSimulator.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "SomeStringA",
                     "Detta ska hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "somestring",
+         smtpClientSimulator.Send("ActionGlobalMoveToIMAPFolder@test.com", "ActionGlobalMoveToIMAPFolder@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
          ImapClientSimulator.AssertMessageCount("ActionGlobalMoveToIMAPFolder@test.com", "test", "Inbox.GlobalBox", 1);
@@ -357,10 +357,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
       }
@@ -391,10 +391,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                                   "Detta ska hamna i public folder.");
 
          // Wait for the folder to be created.
@@ -456,14 +456,14 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
                     "Detta ska hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
@@ -513,14 +513,14 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oAccountRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "Detta ska inte hamna i mappen Inbox.Overriden.Test");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
                     "Detta ska hamna i mappen Inbox.Overriden.Test");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox.Overriden.Test");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Overriden.Test", 1);
@@ -623,10 +623,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
 
          string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("ruletest@test.com", "test");
 
@@ -663,13 +663,13 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestStri", "Detta ska inte hamna Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "VaffeTestStringBaffe",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestStri", "Detta ska inte hamna Inbox\\Wildcard");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "VaffeTestStringBaffe",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
@@ -706,7 +706,7 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          string message = "From: Someone <Someone@example.org>" + Environment.NewLine +
                           "Content-Type: text/html; charset=\"Windows-1251\"" + Environment.NewLine +
@@ -714,7 +714,7 @@ namespace RegressionTests.Rules
                           Environment.NewLine +
                           "<HTML><Center>MyHTMLBody</Center></HTML>" + Environment.NewLine;
 
-         oSMTP.SendRaw("someone@example.org", account.Address, message);
+         smtpClientSimulator.SendRaw("someone@example.org", account.Address, message);
 
          // The message should be placed in the Wildcard folder, since the HTML body of the message contains MyHTMLBody.
          ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox.Wildcard", 1);
@@ -747,15 +747,15 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "TestString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "teststring", "Detta ska hamna Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "Testar",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "teststring", "Detta ska hamna Inbox\\Wildcard");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "Testar",
                     "Detta ska inte hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "teststring vaffe",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "teststring vaffe",
                     "Detta ska inte hamna i mappen Inbox\\Wildcard");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
@@ -789,14 +789,14 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "0", "Detta ska inte hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "1", "Detta ska inte hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "2", "Detta ska inte hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox\\GreaterThan");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox\\GreaterThan");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "0", "Detta ska inte hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "1", "Detta ska inte hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "2", "Detta ska inte hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox\\GreaterThan");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox\\GreaterThan");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.GreaterThan", 2);
@@ -828,13 +828,13 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "0", "Detta ska hamna i mappen Inbox\\LessThan");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "2", "Detta ska hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "0", "Detta ska hamna i mappen Inbox\\LessThan");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "2", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "3", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "4", "Detta ska hamna i mappen Inbox");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.LessThan", 1);
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox", 3);
@@ -866,14 +866,14 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeStringA",
                     "Detta ska hamna i mappen Inbox\\NotEquals");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "somestring",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "somestring",
                     "Detta ska inte hamna i mappen Inbox\\NotEquals");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.NotEquals", 1);
@@ -906,12 +906,12 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "abc", "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "abcdef", "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "abcdefghi",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "abc", "Detta ska hamna i mappen Inbox\\Wildcard");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "abcdef", "Detta ska hamna i mappen Inbox\\Wildcard");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "abcdefghi",
                     "Detta ska inte hamna i mappen Inbox\\Wildcard");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -946,12 +946,12 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "Exact wildcard",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "Exact wildcard",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "Exact wildcard",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "Exact wildcard",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 2);
@@ -985,10 +985,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("CriteriaWildcardNoCase@test.com", "CriteriaWildcardNoCase@test.com", "exact Test match",
+         smtpClientSimulator.Send("CriteriaWildcardNoCase@test.com", "CriteriaWildcardNoCase@test.com", "exact Test match",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
 
          ImapClientSimulator.AssertMessageCount("CriteriaWildcardNoCase@test.com", "test", "Inbox.Wildcard", 1);
@@ -1020,12 +1020,12 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "Exact Test Match",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "Exact Test Match",
                     "Detta ska hamna i mappen Inbox\\Wildcard");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "ExactMatchArInte",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "ExactMatchArInte",
                     "Detta ska inte hamna Inbox\\Wildcard");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Wildcard", 1);
@@ -1073,10 +1073,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString", "Detta ska hamna i public folder.");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Public.Share1", 1);
       }
@@ -1094,25 +1094,25 @@ namespace RegressionTests.Rules
          AddCorporateRule(oAccount);
          AddExactMatchRule(oAccount);
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "**SPAM** INBOX->SPAM",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "**SPAM** INBOX->SPAM",
                     "Detta ska hamna i mappen Inbox\\Spam");
 
          // Corporate folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "**CORPORATE** INBOX->CORPORATE",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "**CORPORATE** INBOX->CORPORATE",
                     "Detta ska hamna i mappen Inbox\\Corporate");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "CORPORATE EXACT MATCH",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "CORPORATE EXACT MATCH",
                     "Detta ska hamna i mappen Inbox\\Corporate");
 
          // Inbox folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "**CORPORATE EXACT MATCH**",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "**CORPORATE EXACT MATCH**",
                     "Detta ska hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "INBOX", "Detta ska hamna i mappen Inbox");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Spam", 1);
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "Inbox.Corporate", 2);
@@ -1129,7 +1129,7 @@ namespace RegressionTests.Rules
 
          const string sBody = "Test of sending same email to multiple accounts.";
 
-         oSMTP.Send(oAccount1.Address, lstRecipients, "**SPAM** INBOX->SPAM", sBody);
+         smtpClientSimulator.Send(oAccount1.Address, lstRecipients, "**SPAM** INBOX->SPAM", sBody);
 
          ImapClientSimulator.AssertMessageCount(oAccount1.Address, "test", "Inbox.Spam", 1);
          ImapClientSimulator.AssertMessageCount(oAccount2.Address, "test", "Inbox", 1);
@@ -1178,10 +1178,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Test to send the message to account 1. Make sure a copy is created by this rule.
-         oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
+         smtpClientSimulator.Send(account1.Address, account1.Address, "Test", "Test message.");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
          ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
 
@@ -1248,10 +1248,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Test to send the message to account 1. Make sure a copy is created by this rule.
-         oSMTP.Send(account1.Address, new List<string> {account1.Address, account2.Address}, "Test", "Test message.");
+         smtpClientSimulator.Send(account1.Address, new List<string> {account1.Address, account2.Address}, "Test", "Test message.");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
          ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 2);
          ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 2);
@@ -1338,10 +1338,10 @@ namespace RegressionTests.Rules
             // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(2, smtpServerPort, false);
 
-            var oSMTP = new SmtpClientSimulator();
+            var smtpClientSimulator = new SmtpClientSimulator();
 
             // Test to send the message to account 1. Make sure a copy is created by this rule.
-            oSMTP.Send(account.Address, new List<string> {"ahem@dummy-example.com"}, "Test", "Test message.");
+            smtpClientSimulator.Send(account.Address, new List<string> {"ahem@dummy-example.com"}, "Test", "Test message.");
 
             smtpServer.WaitForCompletion();
          }
@@ -1390,10 +1390,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Test to send the messge to account 1.
-         oSMTP.Send(account1.Address, account1.Address, "Test", "Test message.");
+         smtpClientSimulator.Send(account1.Address, account1.Address, "Test", "Test message.");
 
          ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -1441,10 +1441,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
                     "This should end up in the inbox since user lacks right.");
 
          ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "INBOX", 1);
@@ -1544,10 +1544,10 @@ namespace RegressionTests.Rules
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Test to send the message to account 2.
-         oSMTP.Send(account1.Address, account2.Address, "Test", "Test message.");
+         smtpClientSimulator.Send(account1.Address, account2.Address, "Test", "Test message.");
          ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
 
          // Make sure a reply is sent back to account 1.

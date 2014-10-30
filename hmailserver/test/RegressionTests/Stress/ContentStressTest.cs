@@ -265,10 +265,10 @@ namespace RegressionTests.Stress
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.SendRaw("mimetest@test.com", "mimetest@test.com", content);
+         smtpClientSimulator.SendRaw("mimetest@test.com", "mimetest@test.com", content);
 
          string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 

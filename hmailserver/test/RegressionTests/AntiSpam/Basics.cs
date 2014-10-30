@@ -84,9 +84,9 @@ namespace RegressionTests.AntiSpam
          _antiSpam.CheckHostInHeloScore = 125;
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
       }
 
       [Test]
@@ -103,22 +103,22 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account.
 
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
             "This is a test message\r\n consisting of correct lines");
 
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("SpamProtectionLineEndings@test.com",
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("SpamProtectionLineEndings@test.com",
             "SpamProtectionLineEndings@test.com", "INBOX",
             "This is a test message\r consisting of incorrect lines"));
 
 
 
          CustomAsserts.Throws<DeliveryFailedException>(
-            () => oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
+            () => smtpClientSimulator.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
                "This is a test message\n consisting of incorrect lines"));
 
 
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("SpamProtectionLineEndings@test.com",
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("SpamProtectionLineEndings@test.com",
             "SpamProtectionLineEndings@test.com", "INBOX",
             "This is a test message\n\r consisting of incorrect lines"));
 
@@ -149,7 +149,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          var sb = new StringBuilder();
          int iterations = ((40*1024)/100) + 1;
@@ -159,7 +159,7 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb);
 
@@ -198,7 +198,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          var sb = new StringBuilder();
          int iterations = ((40*1024)/100) + 1;
@@ -208,7 +208,7 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb);
 
@@ -240,12 +240,12 @@ namespace RegressionTests.AntiSpam
          _antiSpam.UseMXChecksScore = 2;
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("test@microsoft.com", "missingmxrecords@test.com", "INBOX", "This is a test message.");
+         smtpClientSimulator.Send("test@microsoft.com", "missingmxrecords@test.com", "INBOX", "This is a test message.");
 
          CustomAsserts.Throws<DeliveryFailedException>(
-            () => oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+            () => smtpClientSimulator.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
                "This is a test message."));
 
          _antiSpam.UseMXChecks = false;
@@ -276,9 +276,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-perm\r\nanent-test-point.com\">Test</a>");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -310,9 +310,9 @@ namespace RegressionTests.AntiSpam
          _antiSpam.UseSPFScore = 5;
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
+         smtpClientSimulator.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam"))
@@ -320,7 +320,7 @@ namespace RegressionTests.AntiSpam
 
          _antiSpam.UseSPF = false;
 
-         oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
+         smtpClientSimulator.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
          sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam"))
@@ -354,9 +354,9 @@ namespace RegressionTests.AntiSpam
          _antiSpam.UseSPFScore = 12;
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
+         smtpClientSimulator.Send("spftest@openspf.org", oAccount1.Address, "SPF test", "This is a test message.");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam"))
@@ -394,10 +394,10 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message without a SURBL url.");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -408,7 +408,7 @@ namespace RegressionTests.AntiSpam
             throw new Exception("Non-Spam message detected as spam");
 
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
 
          sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -450,9 +450,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message without a SURBL url.");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -464,7 +464,7 @@ namespace RegressionTests.AntiSpam
 
          Assert.IsTrue(sMessageContents.Contains(_domain.SignaturePlainText));
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                     "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
 
          sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -529,9 +529,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-perma=\r\nnent-test-point.com\">Test</a>");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -563,9 +563,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\r\nHello\">Test</a>");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -597,9 +597,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://surbl-org-permanent-test-point.com\">Test</a>\r\n");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -634,9 +634,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D'http://surbl-org-permanent-test-point.com'>Test</a>\r\n");
 
          oSURBLServer.Active = false;
@@ -670,9 +670,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
                     "Wrapped URL - <a href=3D\"http://test.example1fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example2fdafdsfds.com\">Test</a>\r\nWrapped URL - <a href=3D\"http://test.example3fdafdsfds.com\">Test</a>\r\n");
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -710,9 +710,9 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match", TestResources.SecuniaBody1);
+         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-Match", TestResources.SecuniaBody1);
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsFalse(sMessageContents.Contains("X-hMailServer-Spam"), "Spam message not detected as spam");

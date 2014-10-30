@@ -55,9 +55,9 @@ namespace RegressionTests.Infrastructure.Persistence
       {
          Account testAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "lowercase@test.com", "test");
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          string upperCase = testAccount.Address.ToUpper();
-         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
+         smtpClientSimulator.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          Pop3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
@@ -69,9 +69,9 @@ namespace RegressionTests.Infrastructure.Persistence
          Alias testAlias = SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "sometext@test.com",
                                                                           "LowerCase@test.com");
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          string upperCase = testAlias.Name.ToUpper();
-         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
+         smtpClientSimulator.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          Pop3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
@@ -87,9 +87,9 @@ namespace RegressionTests.Infrastructure.Persistence
          DistributionList list = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "myList@test.com",
                                                                                            recipients);
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          string upperCase = list.Address.ToUpper();
-         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
+         smtpClientSimulator.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          Pop3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }

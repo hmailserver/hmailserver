@@ -16,7 +16,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestDistributionListAnnouncementFromDomainAlias()
       {
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // 
          // TEST LIST SECURITY IN COMBINATION WITH DOMAIN NAME ALIASES
@@ -35,14 +35,14 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL
-         CustomAsserts.Throws<DeliveryFailedException>(()=> oSMTP.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
+         CustomAsserts.Throws<DeliveryFailedException>(()=> smtpClientSimulator.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
 
          DomainAlias oDA = _domain.DomainAliases.Add();
          oDA.AliasName = "dummy-example.com";
          oDA.Save();
 
          // THIS MESSAGE SHOULD SUCCEED
-         oSMTP.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1");
+         smtpClientSimulator.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1");
          ImapClientSimulator.AssertMessageCount("test@dummy-example.com", "test", "Inbox", 1);
       }
 
@@ -187,7 +187,7 @@ namespace RegressionTests.SMTP
       public void TestDistributionListsMembershipDomainAliases()
       {
          var oIMAP = new ImapClientSimulator();
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
@@ -215,7 +215,7 @@ namespace RegressionTests.SMTP
          oList3.Save();
 
          // THIS MESSAGE SHOULD FAIL - Membership required, unknown sender domain
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
          oList3.Delete();
 
@@ -230,7 +230,7 @@ namespace RegressionTests.SMTP
          oList3.Mode = eDistributionListMode.eLMMembership;
          oList3.Save();
 
-         oSMTP.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1");
+         smtpClientSimulator.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1");
 
          ImapClientSimulator.AssertMessageCount("account1@test.com", "test", "Inbox", 1);
          ImapClientSimulator.AssertMessageCount("account2@test.com", "test", "Inbox", 1);

@@ -113,15 +113,15 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
-         oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         smtpClientSimulator.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
 
          obAddresses.DeleteByDBID(obAddress.ID);
 
          // Check that it's deteceted as spam again.
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
                                    "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
 
          Pop3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);

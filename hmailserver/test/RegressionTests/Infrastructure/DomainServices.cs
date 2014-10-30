@@ -23,9 +23,9 @@ namespace RegressionTests.Infrastructure
                                                                              "test");
 
          // Send 5 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send("domain-alias-test@alias.com", "domain-alias-test@alias.com", "INBOX", "Alias test message");
+            smtpClientSimulator.Send("domain-alias-test@alias.com", "domain-alias-test@alias.com", "INBOX", "Alias test message");
 
          Pop3ClientSimulator.AssertMessageCount("domain-alias-test@alias.com", "test", 5);
 
@@ -39,7 +39,7 @@ namespace RegressionTests.Infrastructure
 
             // Send to the alias
             for (int i = 0; i < 5; i++)
-               oSMTP.Send(oAccount.Address, "datestalias@test.com", "INBOX", "Plus addressing message");
+               smtpClientSimulator.Send(oAccount.Address, "datestalias@test.com", "INBOX", "Plus addressing message");
             // Wait for completion
 
             Pop3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 5);
@@ -88,9 +88,9 @@ namespace RegressionTests.Infrastructure
          Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "plustest2@test.com", "test");
 
          // Send 5 messages to this account, without using plus addressing.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send("plustest@test.com", "plustest2@test.com", "INBOX", "Plus addressing message");
+            smtpClientSimulator.Send("plustest@test.com", "plustest2@test.com", "INBOX", "Plus addressing message");
          // Wait for completion
 
          // Check using POP3 that 5 messages exists.
@@ -98,7 +98,7 @@ namespace RegressionTests.Infrastructure
 
          // Send using plus addressing
          for (int i = 0; i < 5; i++)
-            oSMTP.Send("plustest@test.com", "plustest2+hejsan@test.com", "INBOX", "Plus addressing message");
+            smtpClientSimulator.Send("plustest@test.com", "plustest2+hejsan@test.com", "INBOX", "Plus addressing message");
          // Wait for completion
 
          Pop3ClientSimulator.AssertMessageCount("plustest2@test.com", "test", 10);
@@ -112,7 +112,7 @@ namespace RegressionTests.Infrastructure
 
             // Send to the alias
             for (int i = 0; i < 5; i++)
-               oSMTP.Send("plustest@test.com", "plusalias@test.com", "INBOX", "Plus addressing message");
+               smtpClientSimulator.Send("plustest@test.com", "plusalias@test.com", "INBOX", "Plus addressing message");
             // Wait for completion
 
             Pop3ClientSimulator.AssertMessageCount("plustest3@test.com", "test", 5);

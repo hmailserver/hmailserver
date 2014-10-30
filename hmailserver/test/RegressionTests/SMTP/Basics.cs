@@ -23,8 +23,8 @@ namespace RegressionTests.SMTP
       {
          for (int i = 0; i < 50; i++)
          {
-            var oSMTP = new SmtpClientSimulator();
-            oSMTP.Send("test@test.com", "bigaccount@test.com", "Big account email", "Body av email");
+            var smtpClientSimulator = new SmtpClientSimulator();
+            smtpClientSimulator.Send("test@test.com", "bigaccount@test.com", "Big account email", "Body av email");
          }
       }
 
@@ -200,10 +200,10 @@ namespace RegressionTests.SMTP
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          IPAddress localAddress = TestSetup.GetLocalIpAddress();
-         var oSMTP = new SmtpClientSimulator(false, 25, localAddress);
+         var smtpClientSimulator = new SmtpClientSimulator(false, 25, localAddress);
 
          // Delivery from external to local.
-         oSMTP.Send("test@external.com", "test@test.com", "Mail 1", "Mail 1");
+         smtpClientSimulator.Send("test@external.com", "test@test.com", "Mail 1", "Mail 1");
          Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
          string contents = TestSetup.ReadExistingTextFile(logging.CurrentAwstatsLog);
          CustomAsserts.AssertDeleteFile(logging.CurrentAwstatsLog);
@@ -212,7 +212,7 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(contents.Contains(expectedString), contents);
 
          // Failed delivery from local to local.
-         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("test@test.com", "test@test.com", "Mail 1", "Mail 1"));
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@test.com", "test@test.com", "Mail 1", "Mail 1"));
          contents = TestSetup.ReadExistingTextFile(logging.CurrentAwstatsLog);
          CustomAsserts.AssertDeleteFile(logging.CurrentAwstatsLog);
          expectedString = string.Format("\ttest@test.com\ttest@test.com\t{0}\t127.0.0.1\tSMTP\t?\t530\t",
@@ -348,40 +348,40 @@ namespace RegressionTests.SMTP
       {
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new TcpConnection();
-         oSMTP.Connect(25);
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
 
-         Assert.IsTrue(oSMTP.Receive().StartsWith("220"));
-         oSMTP.Send("HELO test\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("220"));
+         smtpClientSimulator.Send("HELO test\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
 
          // A few tests of invalid syntax.
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: <test@test.com\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: test@test.com>\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: <    test@test.com    \r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: <        \r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: >        \r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM: <sdsdfs@sdsdf.csd\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM <sdsdfs@sdsdf.csd>\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("MAIL FROM  sdsdfs@sdsdf.csd\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: <test@test.com\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: test@test.com>\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: <    test@test.com    \r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: <        \r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: >        \r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM: <sdsdfs@sdsdf.csd\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM <sdsdfs@sdsdf.csd>\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("MAIL FROM  sdsdfs@sdsdf.csd\r\n").StartsWith("250"));
 
          // Valid syntax, < and >
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM: <test@test.com>\r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RSET\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM: <test@test.com>\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RSET\r\n").StartsWith("250"));
 
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM: test@test.com\r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RSET\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM: test@test.com\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RSET\r\n").StartsWith("250"));
 
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM:    test@test.com   \r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RSET\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM:    test@test.com   \r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RSET\r\n").StartsWith("250"));
 
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM:test@test.com\r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RSET\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM:test@test.com\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RSET\r\n").StartsWith("250"));
 
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM:<test@test.com>\r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RSET\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM:<test@test.com>\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RSET\r\n").StartsWith("250"));
 
-         oSMTP.Disconnect();
+         smtpClientSimulator.Disconnect();
       }
 
       [Test]
@@ -448,7 +448,7 @@ namespace RegressionTests.SMTP
 
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "bigaccount@test.com", "test");
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
 
          var oThreads = new ArrayList();
@@ -616,24 +616,24 @@ namespace RegressionTests.SMTP
       {
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new TcpConnection();
-         oSMTP.Connect(25);
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
 
-         Assert.IsTrue(oSMTP.Receive().StartsWith("220"));
-         oSMTP.Send("HELO test\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("220"));
+         smtpClientSimulator.Send("HELO test\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
 
          // A few tests of invalid syntax.
-         Assert.IsTrue(oSMTP.SendAndReceive("MAIL FROM: <test@test.com>\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("RCPT TO: test@test.com>\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("RCPT TO: <test@test.com\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("RCPT TO <test@test.com\r\n").StartsWith("250"));
-         Assert.IsFalse(oSMTP.SendAndReceive("RCPT TO<test@test.com\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM: <test@test.com>\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("RCPT TO: test@test.com>\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("RCPT TO: <test@test.com\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("RCPT TO <test@test.com\r\n").StartsWith("250"));
+         Assert.IsFalse(smtpClientSimulator.SendAndReceive("RCPT TO<test@test.com\r\n").StartsWith("250"));
 
-         Assert.IsTrue(oSMTP.SendAndReceive("RCPT TO: <test@test.com>\r\n").StartsWith("250"));
-         Assert.IsTrue(oSMTP.SendAndReceive("RCPT TO: test@test.com\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RCPT TO: <test@test.com>\r\n").StartsWith("250"));
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("RCPT TO: test@test.com\r\n").StartsWith("250"));
 
-         oSMTP.Disconnect();
+         smtpClientSimulator.Disconnect();
       }
 
       [Test]
@@ -650,19 +650,19 @@ namespace RegressionTests.SMTP
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new TcpConnection();
-         oSMTP.Connect(25);
-         Assert.IsTrue(oSMTP.Receive().StartsWith("220"));
-         oSMTP.Send("HELO test\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
-         oSMTP.Send("MAIL FROM: test@test.com\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
-         oSMTP.Send("RCPT TO: knafve@gmail.com\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
-         oSMTP.Send("RCPT TO: knafve@gmail.com\r\n");
-         Assert.IsTrue(oSMTP.Receive().StartsWith("250"));
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("220"));
+         smtpClientSimulator.Send("HELO test\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
+         smtpClientSimulator.Send("MAIL FROM: test@test.com\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
+         smtpClientSimulator.Send("RCPT TO: knafve@gmail.com\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
+         smtpClientSimulator.Send("RCPT TO: knafve@gmail.com\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
 
-         oSMTP.Disconnect();
+         smtpClientSimulator.Disconnect();
       }
 
       [Test]
@@ -691,8 +691,8 @@ namespace RegressionTests.SMTP
 
             Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
-            var oSMTP = new SmtpClientSimulator();
-            oSMTP.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
+            var smtpClientSimulator = new SmtpClientSimulator();
+            smtpClientSimulator.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
                                            "test2@dummy-example.com", "Mail 1", "Test message");
 
 
@@ -719,7 +719,7 @@ namespace RegressionTests.SMTP
          Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multi2@test.com", "test");
          Account oAccount3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multi3@test.com", "test");
 
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          var lstRecipients = new List<string>();
          lstRecipients.Add("multi1@test.com");
@@ -728,7 +728,7 @@ namespace RegressionTests.SMTP
 
          string sBody = "Test of sending same email to multiple accounts.";
 
-         oSMTP.Send(oAccount1.Address, lstRecipients, "Multi test", sBody);
+         smtpClientSimulator.Send(oAccount1.Address, lstRecipients, "Multi test", sBody);
 
          var oPOP3 = new Pop3ClientSimulator();
 

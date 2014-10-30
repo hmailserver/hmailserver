@@ -27,8 +27,8 @@ namespace RegressionTests.Infrastructure
          oAccount1.Save();
 
          // Send a message...
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send("original-address@test.com", oAccount1.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("original-address@test.com", oAccount1.Address, "Test message", "This is the body");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          _application.SubmitEMail();
@@ -97,9 +97,9 @@ namespace RegressionTests.Infrastructure
          SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "alias2'quoted@test.com", "Addr'ess2@test.com");
 
          // Send 5 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
+            smtpClientSimulator.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
 
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
@@ -124,8 +124,8 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          // Send 2 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          var oPOP3 = new Pop3ClientSimulator();
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
@@ -142,7 +142,7 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          // Send another
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
@@ -184,8 +184,8 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          // Send a message...
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -216,8 +216,8 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          // Send 1 message to this account
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          // Wait a second to be sure that the message
          // are delivered.
@@ -251,8 +251,8 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          // Send 1 message to this account
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          string s = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Your message regarding -Test message- was not received.") < 0)
@@ -277,9 +277,9 @@ namespace RegressionTests.Infrastructure
          oAccount1.Save();
 
          // Send 2 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 2; i++)
-            oSMTP.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
+            smtpClientSimulator.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
 
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 2);
 
@@ -335,8 +335,8 @@ namespace RegressionTests.Infrastructure
          oAccount1.Save();
 
          // Send 2 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("Forward1@test.com", "Forward1@test.com", "INBOX", "POP3 test message");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
 
@@ -374,8 +374,8 @@ namespace RegressionTests.Infrastructure
          oAccount2.ForwardKeepOriginal = true;
          oAccount2.Save();
 
-         var oSMTP = new SmtpClientSimulator();
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          // Make sure that that a forward is made if no rule is set up.
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
@@ -407,7 +407,7 @@ namespace RegressionTests.Infrastructure
          oRule.Save();
 
          // Make sure that that a forward is made if no rule is set up.
-         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 0);
          _application.SubmitEMail();
          Pop3ClientSimulator.AssertMessageCount(oAccount3.Address, "test", 0);
@@ -428,9 +428,9 @@ namespace RegressionTests.Infrastructure
                                                                               "test");
 
          // Send 5 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send(oAccount1.Address, oAccount2.Address, "INBOX", "POP3 test message");
+            smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "INBOX", "POP3 test message");
 
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
@@ -448,9 +448,9 @@ namespace RegressionTests.Infrastructure
          SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "alias2'quoted@test.com", "Addr'ess2@test.com");
 
          // Send 5 messages to this account.
-         var oSMTP = new SmtpClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
+            smtpClientSimulator.Send(oAccount1.Address, "alias2'quoted@test.com", "INBOX", "Quoted message test message");
 
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 5);
       }
