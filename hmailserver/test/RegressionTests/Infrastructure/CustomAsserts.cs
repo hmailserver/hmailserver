@@ -13,6 +13,8 @@ namespace RegressionTests.Infrastructure
 {
    public static class CustomAsserts
    {
+      public delegate void AssertionBody();
+
       private static Application GetApp()
       {
          return SingletonProvider<TestSetup>.Instance.GetApp();
@@ -352,5 +354,24 @@ namespace RegressionTests.Infrastructure
          Assert.AreEqual(expectedFileCount, count);
       }
 
+      public static void Throws<T>(AssertionBody func) where T : Exception
+      {
+         var exceptionThrown = false;
+         try
+         {
+            func.Invoke();
+         }
+         catch (T)
+         {
+            exceptionThrown = true;
+         }
+
+         if (!exceptionThrown)
+         {
+            throw new InvalidOperationException(
+                String.Format("An exception of type {0} was expected, but not thrown", typeof(T))
+                );
+         }
+      }
    }
 }

@@ -437,16 +437,17 @@ namespace RegressionTests.Infrastructure
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
          // Make sure the inbox contains two messages which should be backed up.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
-                                                      "Message 1 Body"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
+            "Message 1 Body");
+
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
-                                                      "Message 2 Body"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
+                                                      "Message 2 Body");
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
-                                                      "Message 3 Body"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
+                                                      "Message 3 Body");
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
          var sim = new IMAPClientSimulator();

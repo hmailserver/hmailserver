@@ -87,8 +87,8 @@ namespace RegressionTests.Rules
          var oSMTP = new SMTPClientSimulator();
 
          // Spam folder
-         Assert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
-                                  "Detta ska hamna i public folder."));
+         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+                                  "Detta ska hamna i public folder.");
 
          IMAPClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.Share1", 1);
       }
@@ -394,8 +394,8 @@ namespace RegressionTests.Rules
          var oSMTP = new SMTPClientSimulator();
 
          // Spam folder
-         Assert.IsTrue(oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
-                                  "Detta ska hamna i public folder."));
+         oSMTP.Send("ruletest@test.com", "ruletest@test.com", "SomeString",
+                                  "Detta ska hamna i public folder.");
 
          // Wait for the folder to be created.
          IMAPFolder folder = CustomAsserts.AssertFolderExists(_settings.PublicFolders, "MyFolder");
@@ -562,8 +562,8 @@ namespace RegressionTests.Rules
          var smtp = new SMTPClientSimulator();
          var recipients = new List<string>();
          recipients.Add("test@test.com");
-         if (!smtp.Send("test@test.com", recipients, "Test", "Test message"))
-            Assert.Fail("Delivery failed");
+         smtp.Send("test@test.com", recipients, "Test", "Test message");
+
          string message = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(message.Contains("Test message"));
 
@@ -580,8 +580,8 @@ namespace RegressionTests.Rules
             // Send the actual message
             recipients = new List<string>();
             recipients.Add("test@nonexistantdomain.com");
-            if (!smtp.Send("test@test.com", recipients, "TestString", "Test message"))
-               Assert.Fail("Delivery failed");
+            smtp.Send("test@test.com", recipients, "TestString", "Test message");
+
 
             server.WaitForCompletion();
          }

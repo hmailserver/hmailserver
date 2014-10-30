@@ -213,13 +213,13 @@ namespace RegressionTests.Infrastructure.Persistence
             message.Append("ABCDEFGH");
          }
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
-                                                      message.ToString()));
+         SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+                                                      message.ToString());
          POP3ClientSimulator.AssertMessageCount("test@test.com", "secret1", 1);
          _domain.MaxMessageSize = 50;
          _domain.Save();
 
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+         CustomAsserts.Throws<DeliveryFailedException>(() => SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
                                                        message.ToString()));
       }
 

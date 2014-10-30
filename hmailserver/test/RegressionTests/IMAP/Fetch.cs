@@ -174,7 +174,7 @@ namespace RegressionTests.IMAP
                           "Hello" + Environment.NewLine;
 
          var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
 
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
@@ -206,7 +206,7 @@ namespace RegressionTests.IMAP
                           "Hello" + Environment.NewLine;
 
          var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
 
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
@@ -235,7 +235,7 @@ namespace RegressionTests.IMAP
                           "Hello" + Environment.NewLine;
 
          var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
 
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 

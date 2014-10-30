@@ -254,7 +254,7 @@ namespace RegressionTests.POP3
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody");
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          var sim = new POP3ClientSimulator();
@@ -268,7 +268,7 @@ namespace RegressionTests.POP3
          Assert.IsTrue(imapSimulator.Expunge());
          Assert.AreEqual(0, imapSimulator.GetMessageCount("Inbox"));
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "TestBody");
          IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          // This deletion should not have any effect, since the POP3 connection is referencing an old message.

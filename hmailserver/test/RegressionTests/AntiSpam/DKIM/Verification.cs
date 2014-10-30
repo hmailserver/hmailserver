@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -59,7 +61,7 @@ namespace RegressionTests.AntiSpam.DKIM
                               "" + "\r\n";
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsFalse(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
+         CustomAsserts.Throws<DeliveryFailedException>(() => SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
       }
 
       [Test]
@@ -99,7 +101,7 @@ namespace RegressionTests.AntiSpam.DKIM
                               "" + "\r\n";
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
+         SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          Assert.IsTrue(text.Contains("Rejected by DKIM. - (Score: 6)"));
@@ -140,7 +142,7 @@ namespace RegressionTests.AntiSpam.DKIM
                               "" + "\r\n";
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsFalse(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
+         CustomAsserts.Throws<DeliveryFailedException>(() => SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
       }
 
       [Test]
@@ -178,7 +180,7 @@ namespace RegressionTests.AntiSpam.DKIM
                               "" + "\r\n";
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
+         SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
 
@@ -217,7 +219,7 @@ namespace RegressionTests.AntiSpam.DKIM
                               "The quick brown fox jumped over the lazy dog." + "\r\n";
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsTrue(SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText));
+         SMTPClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText);
          string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
    }

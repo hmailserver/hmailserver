@@ -75,7 +75,7 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
+         oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message.");
          string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          if (!sMessageContents.Contains("X-Spam-Status"))
          {
@@ -209,7 +209,7 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsTrue(oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message."));
+         oSMTP.Send(account.Address, account.Address, "SA test", "This is a test message.");
          string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          Assert.IsFalse(sMessageContents.Contains("X-Spam-Status"));

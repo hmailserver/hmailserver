@@ -14,7 +14,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "examine@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test"));
+         SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test");
          POP3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 1);
 
          var simulator = new IMAPClientSimulator();
@@ -30,7 +30,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "examine@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test"));
+         SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test");
          POP3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 1);
 
          var simulator = new IMAPClientSimulator();
@@ -62,7 +62,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "examine@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test"));
+         SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test");
          POP3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 1);
 
          var simulator = new IMAPClientSimulator();
@@ -110,7 +110,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "examine@test.com", "test");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test"));
+         SMTPClientSimulator.StaticSend("test@test.com", oAccount.Address, "Test", "test");
          POP3ClientSimulator.AssertMessageCount(oAccount.Address, "test", 1);
 
          var simulator = new IMAPClientSimulator();

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -206,7 +207,7 @@ namespace RegressionTests.Security
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            Assert.IsTrue(smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"));
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -226,7 +227,9 @@ namespace RegressionTests.Security
       {
          var sim = new SMTPClientSimulator();
          string errorMsg;
-         sim.ConnectAndLogon(GetUsername(), GetPassword(), out errorMsg);
+
+         CustomAsserts.Throws<AuthenticationException>(() => sim.ConnectAndLogon(GetUsername(), GetPassword(), out errorMsg));
+         
          EnsureNoPassword();
       }
 

@@ -57,7 +57,7 @@ namespace RegressionTests.Infrastructure.Persistence
 
          var oSMTP = new SMTPClientSimulator();
          string upperCase = testAccount.Address.ToUpper();
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
+         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
@@ -71,7 +71,7 @@ namespace RegressionTests.Infrastructure.Persistence
 
          var oSMTP = new SMTPClientSimulator();
          string upperCase = testAlias.Name.ToUpper();
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
+         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }
@@ -89,7 +89,7 @@ namespace RegressionTests.Infrastructure.Persistence
 
          var oSMTP = new SMTPClientSimulator();
          string upperCase = list.Address.ToUpper();
-         Assert.IsTrue(oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body"));
+         oSMTP.Send("someone@dummy-example.com", upperCase, "test mail", "test body");
 
          POP3ClientSimulator.AssertMessageCount("lowercase@test.com", "test", 1);
       }

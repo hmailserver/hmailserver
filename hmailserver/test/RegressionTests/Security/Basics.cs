@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
+using System.Security.Authentication;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
@@ -26,7 +28,7 @@ namespace RegressionTests.Security
          Assert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 
          var simSMTP = new SMTPClientSimulator();
-         Assert.IsFalse(simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
+         CustomAsserts.Throws<AuthenticationException>(() => simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
          Assert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
       }
    }

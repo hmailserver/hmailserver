@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -25,7 +26,7 @@ namespace RegressionTests.Stress
          }
 
          var sim = new SMTPClientSimulator();
-         Assert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
+         CustomAsserts.Throws<DeliveryFailedException>(() => sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
       }
 
 

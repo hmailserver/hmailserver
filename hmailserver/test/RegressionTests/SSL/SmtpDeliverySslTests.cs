@@ -30,7 +30,7 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSTLS);
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -60,7 +60,7 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -89,7 +89,7 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -118,7 +118,7 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -150,7 +150,7 @@ namespace RegressionTests.SSL
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message"));
+            smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 

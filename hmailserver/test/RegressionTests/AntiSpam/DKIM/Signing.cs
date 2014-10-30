@@ -64,7 +64,7 @@ namespace RegressionTests.AntiSpam.DKIM
             var smtp = new SMTPClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", body));
+            smtp.Send("test@test.com", recipients, "Test", body);
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();

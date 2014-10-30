@@ -440,8 +440,8 @@ namespace RegressionTests.API
             "WhatTest\r\n";
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "First message",
-                                                      "Test message"));
+         SMTPClientSimulator.StaticSend(account.Address, account.Address, "First message",
+                                                      "Test message");
          POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
          // Create another message on disk and import it.

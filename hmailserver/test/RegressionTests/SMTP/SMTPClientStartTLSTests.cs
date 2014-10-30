@@ -37,8 +37,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            if (!smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -68,8 +67,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            if (!smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -99,8 +97,8 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            if (!smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
+               
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -130,8 +128,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
             var smtp = new SMTPClientSimulator();
-            if (!smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -168,8 +165,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
 
-            if (!SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -202,8 +198,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
 
-            if (!SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message"))
-               Assert.Fail("Delivery failed");
+            SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();

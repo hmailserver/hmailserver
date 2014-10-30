@@ -45,7 +45,7 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message");
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
@@ -93,7 +93,7 @@ namespace RegressionTests.SMTP
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
+            smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message");
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
@@ -141,7 +141,7 @@ namespace RegressionTests.SMTP
                   "user4@test.com"
                };
 
-            Assert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
+            smtpClient.Send("example@example.com", recipients, "Test", "Test message");
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
@@ -182,7 +182,7 @@ namespace RegressionTests.SMTP
             routeAddress.Save();
 
             var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
+            smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message");
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
@@ -209,8 +209,8 @@ namespace RegressionTests.SMTP
 
          var smtpClient = new SMTPClientSimulator();
 
-         string resultMessage;
-         Assert.IsFalse(smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
+         string resultMessage = "";
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
          Assert.AreEqual("550 Recipient not in route list.", resultMessage);
       }
 
@@ -232,8 +232,8 @@ namespace RegressionTests.SMTP
             route.Save();
           
             var smtpSimulator = new SMTPClientSimulator();
-            Assert.IsTrue(smtpSimulator.Send("test@test.com",
-                                           "test@dummy-example.com", "Mail 1", "Test message"));
+            smtpSimulator.Send("test@test.com",
+                                           "test@dummy-example.com", "Mail 1", "Test message");
 
 
             // This should now be processed via the rule -> route -> external server we've set up.

@@ -87,7 +87,7 @@ namespace RegressionTests.SSL
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3-ssl@test.com", "test");
 
          var smtpSim = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
+         smtpSim.Send("test@test.com", account.Address, "Test", "MyBody");
 
          for (int i = 0; i < 10; i++)
          {
@@ -124,7 +124,7 @@ namespace RegressionTests.SSL
             try
             {
                var smtpSim = new SMTPClientSimulator(true, 25001);
-               Assert.IsTrue(smtpSim.Send("test@test.com", account.Address, "Test", "MyBody"));
+               smtpSim.Send("test@test.com", account.Address, "Test", "MyBody");
 
                break;
             }

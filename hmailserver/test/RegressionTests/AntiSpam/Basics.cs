@@ -86,7 +86,7 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         Assert.IsFalse(oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
+         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match", "Test"));
       }
 
       [Test]
@@ -104,25 +104,23 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
 
          var oSMTP = new SMTPClientSimulator();
-         if (
-            !oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
-                        "This is a test message\r\n consisting of correct lines"))
-            throw new Exception("ERROR - Was not able to send correct email.");
+         oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
+            "This is a test message\r\n consisting of correct lines");
+
+         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("SpamProtectionLineEndings@test.com",
+            "SpamProtectionLineEndings@test.com", "INBOX",
+            "This is a test message\r consisting of incorrect lines"));
 
 
-         if (oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
-                        "This is a test message\r consisting of incorrect lines"))
-            throw new Exception("ERROR - Was able to send incorrect email.");
+
+         CustomAsserts.Throws<DeliveryFailedException>(
+            () => oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
+               "This is a test message\n consisting of incorrect lines"));
 
 
-         if (oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
-                        "This is a test message\n consisting of incorrect lines"))
-            throw new Exception("ERROR - Was able to send incorrect email.");
-
-
-         if (oSMTP.Send("SpamProtectionLineEndings@test.com", "SpamProtectionLineEndings@test.com", "INBOX",
-                        "This is a test message\n\r consisting of incorrect lines"))
-            throw new Exception("ERROR - Was able to send incorrect email.");
+         CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("SpamProtectionLineEndings@test.com",
+            "SpamProtectionLineEndings@test.com", "INBOX",
+            "This is a test message\n\r consisting of incorrect lines"));
 
          POP3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
       }
@@ -161,9 +159,9 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         Assert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
-                                  sb));
+                                  sb);
 
          string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam") ||
@@ -210,9 +208,9 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         Assert.IsTrue(oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+         oSMTP.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
-                                  sb));
+                                  sb);
 
          string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
@@ -244,12 +242,11 @@ namespace RegressionTests.AntiSpam
          // Send a messages to this account.
          var oSMTP = new SMTPClientSimulator();
 
-         if (!oSMTP.Send("test@microsoft.com", "missingmxrecords@test.com", "INBOX", "This is a test message."))
-            throw new Exception("ERROR - Was not able to send correct email.");
+         oSMTP.Send("test@microsoft.com", "missingmxrecords@test.com", "INBOX", "This is a test message.");
 
-         if (oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
-                        "This is a test message."))
-            throw new Exception("ERROR - Was not able to send incorrect email.");
+         CustomAsserts.Throws<DeliveryFailedException>(
+            () => oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+               "This is a test message."));
 
          _antiSpam.UseMXChecks = false;
 
@@ -499,8 +496,8 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
-                                                      "This is a test message without a SURBL url: -> http://www.youtube.com/ <-"));
+         SMTPClientSimulator.StaticSend("surbltest@test.com", "surbltest@test.com", "SURBL-Match",
+                                                      "This is a test message without a SURBL url: -> http://www.youtube.com/ <-");
 
          string sMessageContents = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam"))

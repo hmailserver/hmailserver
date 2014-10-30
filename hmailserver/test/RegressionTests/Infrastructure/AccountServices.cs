@@ -375,7 +375,7 @@ namespace RegressionTests.Infrastructure
          oAccount2.Save();
 
          var oSMTP = new SMTPClientSimulator();
-         Assert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
+         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
          // Make sure that that a forward is made if no rule is set up.
          POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
@@ -407,7 +407,7 @@ namespace RegressionTests.Infrastructure
          oRule.Save();
 
          // Make sure that that a forward is made if no rule is set up.
-         Assert.IsTrue(oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body"));
+         oSMTP.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
          POP3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 0);
          _application.SubmitEMail();
          POP3ClientSimulator.AssertMessageCount(oAccount3.Address, "test", 0);
