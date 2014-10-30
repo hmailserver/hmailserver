@@ -215,7 +215,7 @@ namespace StressTest
          string accountDir = Path.Combine(dataDir, "test");
 
          int memoryUsage = Shared.GetCurrentMemoryUsage();
-         int maxMemoryUsage = memoryUsage + 2;
+         int maxMemoryUsage = memoryUsage + 5;
 
          const int numberOfMessages = 1000;
 
