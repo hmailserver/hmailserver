@@ -33,7 +33,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -63,7 +63,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -93,7 +93,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -124,7 +124,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -161,7 +161,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
 
             // Send message to this route.
 
@@ -194,7 +194,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSRequired);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSRequired);
 
             // Send message to this route.
 

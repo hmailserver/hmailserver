@@ -689,5 +689,45 @@ namespace RegressionTests.Shared
          _freePort++;
          return _freePort;
       }
+
+
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
+      {
+         // Add a route pointing at localhost
+         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+
+         Route route = oSettings.Routes.Add();
+         route.DomainName = "dummy-example.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = port;
+         route.NumberOfTries = numberOfTries;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = treatSecurityAsLocal;
+         route.TreatSenderAsLocalDomain = treatSecurityAsLocal;
+         route.ConnectionSecurity = connectionSecurity;
+         route.Save();
+
+         return route;
+      }
+
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal)
+      {
+         return AddRoutePointingAtLocalhost(numberOfTries, port, treatSecurityAsLocal, eConnectionSecurity.eCSNone);
+      }
+
+      public static Route AddRoutePointingAtLocalhostMultipleHosts(int numberOfTries, int port)
+      {
+         // Add a route pointing at localhost
+         Route route = AddRoutePointingAtLocalhost(numberOfTries, port, false);
+         route.DomainName = "dummy-example.com";
+         route.TargetSMTPHost = "localhost|localhost";
+         route.TargetSMTPPort = port;
+         route.NumberOfTries = numberOfTries;
+         route.MinutesBetweenTry = 5;
+         route.Save();
+
+         return route;
+      }
+
    }
 }

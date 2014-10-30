@@ -125,7 +125,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
 
             // Now send a message from test@test.com to test@otherdomain.com.
             // Error scenario:
@@ -485,7 +485,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
+            Route route = TestSetup.AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -689,7 +689,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             var oSMTP = new SmtpClientSimulator();
             oSMTP.Send("test@sdag532sdfagdsa12fsdafdsa1.com",

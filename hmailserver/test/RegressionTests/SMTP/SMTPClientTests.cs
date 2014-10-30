@@ -30,44 +30,6 @@ namespace RegressionTests.SMTP
       private Status _status;
       private Account _account;
 
-      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
-      {
-         // Add a route pointing at localhost
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-
-         Route route = oSettings.Routes.Add();
-         route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost";
-         route.TargetSMTPPort = port;
-         route.NumberOfTries = numberOfTries;
-         route.MinutesBetweenTry = 5;
-         route.TreatRecipientAsLocalDomain = treatSecurityAsLocal;
-         route.TreatSenderAsLocalDomain = treatSecurityAsLocal;
-         route.ConnectionSecurity = connectionSecurity;
-         route.Save();
-
-         return route;
-      }
-
-      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal)
-      {
-         return AddRoutePointingAtLocalhost(numberOfTries, port, treatSecurityAsLocal, eConnectionSecurity.eCSNone);
-      }
-
-      public static Route AddRoutePointingAtLocalhostMultipleHosts(int numberOfTries, int port)
-      {
-         // Add a route pointing at localhost
-         Route route = AddRoutePointingAtLocalhost(numberOfTries, port, false);
-         route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost|localhost";
-         route.TargetSMTPPort = port;
-         route.NumberOfTries = numberOfTries;
-         route.MinutesBetweenTry = 5;
-         route.Save();
-
-         return route;
-      }
-
       [Test]
       [Description("Make sure that the bounce message doesn't include a SMTP auth password")]
       public void TestAuthFailurePasswordInBounce()
@@ -86,7 +48,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            Route route = AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
             route.RelayerRequiresAuth = true;
             route.RelayerAuthUsername = "user@example.com";
             route.SetRelayerAuthPassword("MySecretPassword");
@@ -118,7 +80,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(0, _status.UndeliveredMessages.Length);
 
          // Add a route so we can conenct to localhost.
-         AddRoutePointingAtLocalhost(1, 25, false);
+         TestSetup.AddRoutePointingAtLocalhost(1, 25, false);
 
          // Send message to this route.
          SmtpClientSimulator.StaticSend("test@test.com", "test@dummy-example.com", "subject", "body");
@@ -171,7 +133,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var sim = new SmtpClientSimulator(false, 11000);
@@ -210,7 +172,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -248,7 +210,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -289,7 +251,7 @@ namespace RegressionTests.SMTP
             server.SimulatedError = SimulatedErrorType.DisconnectAfterMessageAccept;
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -322,7 +284,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -357,7 +319,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var messageBody = TestSetup.CreateLargeDummyMailBody();
@@ -396,7 +358,7 @@ namespace RegressionTests.SMTP
             server.SimulatedError = SimulatedErrorType.DisconnectWithoutReplyOnQuit;
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -431,7 +393,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -471,7 +433,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -514,7 +476,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -551,7 +513,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -593,7 +555,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -636,7 +598,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            AddRoutePointingAtLocalhost(0, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(0, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -698,7 +660,7 @@ namespace RegressionTests.SMTP
 
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhostMultipleHosts(1, smtpServerPort);
+            TestSetup.AddRoutePointingAtLocalhostMultipleHosts(1, smtpServerPort);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -744,7 +706,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            Route route = AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
+            Route route = TestSetup.AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -814,7 +776,7 @@ namespace RegressionTests.SMTP
 
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
+            TestSetup.AddRoutePointingAtLocalhostMultipleHosts(2, smtpServerPort);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -856,7 +818,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(2, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(2, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -916,7 +878,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -957,7 +919,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            Route route = AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
             route.RelayerRequiresAuth = true;
             route.RelayerAuthUsername = "user@example.com";
             route.SetRelayerAuthPassword("MySecretPassword");
@@ -990,7 +952,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can connect to localhost.
-            AddRoutePointingAtLocalhost(2, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(2, smtpServerPort, false);
 
             // Send message to this route.
             var smtp = new SmtpClientSimulator();
@@ -1043,7 +1005,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             
             SmtpClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
@@ -1075,7 +1037,7 @@ namespace RegressionTests.SMTP
             server.StartListen();
 
             // Add a route so we can conenct to localhost.
-            SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.
 

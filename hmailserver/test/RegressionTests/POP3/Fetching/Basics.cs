@@ -364,7 +364,7 @@ namespace RegressionTests.POP3.Fetching
                smtpServer.StartListen();
 
                // Add a route so we can connect to localhost.
-               Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+               Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
                route.TreatSecurityAsLocalDomain = true;
                route.Save();
 

@@ -117,7 +117,7 @@ namespace RegressionTests.Security
          range.Save();
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = true;
          route.TreatSenderAsLocalDomain = true;
          route.Save();
@@ -190,7 +190,7 @@ namespace RegressionTests.Security
       public void TestSenderAsExternalDomainSendToLocalAccountFail()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatSenderAsLocalDomain = false;
          route.Save();
 
@@ -213,7 +213,7 @@ namespace RegressionTests.Security
       public void TestSenderAsExternalDomainSendToLocalAccountPass()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatSenderAsLocalDomain = false;
          route.Save();
 
@@ -239,7 +239,7 @@ namespace RegressionTests.Security
       public void TestSenderAsLocalDomainSendToExternal()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatSenderAsLocalDomain = true;
          route.Save();
 
@@ -261,7 +261,7 @@ namespace RegressionTests.Security
       public void TestSenderAsLocalDomainSendToLocalAccount()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatSenderAsLocalDomain = true;
          route.Save();
 
@@ -285,7 +285,7 @@ namespace RegressionTests.Security
       public void TestSenderAsLocalDomainSendToLocalAccountPass()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatSenderAsLocalDomain = true;
          route.Save();
 
@@ -310,7 +310,7 @@ namespace RegressionTests.Security
       public void TestUseCase3DeliveryFromExternalUserToPrimaryViaBackup()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = true;
          route.TreatSenderAsLocalDomain = false;
          route.Save();
@@ -339,7 +339,7 @@ namespace RegressionTests.Security
       public void TestUseCaseDeliveryFromPrimaryMXToBackupMX()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = true;
          route.TreatSenderAsLocalDomain = false;
          route.Save();
@@ -361,7 +361,7 @@ namespace RegressionTests.Security
       public void TestUseCaseDeliveryToLocalRoute()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = true;
          route.TreatSenderAsLocalDomain = false;
          route.Save();
@@ -393,7 +393,7 @@ namespace RegressionTests.Security
       public void TreatRecipientAsExternalDomain()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = false;
          route.Save();
 
@@ -411,7 +411,7 @@ namespace RegressionTests.Security
       public void TreatRecipientAsExternalDomainPermitted()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = false;
          route.Save();
 
@@ -446,7 +446,7 @@ namespace RegressionTests.Security
       public void TreatRecipientAsLocalDomain()
       {
          int smtpServerPort = TestSetup.GetNextFreePort();
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
          route.TreatRecipientAsLocalDomain = true;
          route.Save();
 

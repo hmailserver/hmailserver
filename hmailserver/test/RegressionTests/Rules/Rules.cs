@@ -536,7 +536,7 @@ namespace RegressionTests.Rules
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Add a route so we can conenct to localhost.
-         Route route = SMTPClientTests.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
+         Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
          // Add a global send-using-route rule
          Rule oRule = _application.Rules.Add();
@@ -1336,7 +1336,7 @@ namespace RegressionTests.Rules
             smtpServer.StartListen();
 
             // Add a route so we can connect to localhost.
-            SMTPClientTests.AddRoutePointingAtLocalhost(2, smtpServerPort, false);
+            TestSetup.AddRoutePointingAtLocalhost(2, smtpServerPort, false);
 
             var oSMTP = new SmtpClientSimulator();
 

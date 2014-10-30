@@ -227,7 +227,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
             route.TargetSMTPHost = "127.0.0.1";
             route.Save();
           
