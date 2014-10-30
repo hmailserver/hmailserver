@@ -13,17 +13,17 @@ namespace RegressionTests.Shared
    /// <summary>
    /// Summary description for IMAPClientSimulator.
    /// </summary>
-   public class IMAPClientSimulator
+   public class ImapClientSimulator
    {
       private readonly int _port = 143;
       private readonly TcpConnection _tcpConnection;
 
-      public IMAPClientSimulator()
+      public ImapClientSimulator()
       {
          _tcpConnection = new TcpConnection();
       }
 
-      public IMAPClientSimulator(string username, string password, string mailbox)
+      public ImapClientSimulator(string username, string password, string mailbox)
       {
          _tcpConnection = new TcpConnection();
 
@@ -31,7 +31,7 @@ namespace RegressionTests.Shared
          Assert.IsTrue(SelectFolder(mailbox));
       }
 
-      public IMAPClientSimulator(bool useSSL, int port)
+      public ImapClientSimulator(bool useSSL, int port)
       {
          _tcpConnection = new TcpConnection(useSSL);
          _port = port;
@@ -647,7 +647,7 @@ namespace RegressionTests.Shared
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          }
 
-         var oIMAP = new IMAPClientSimulator();
+         var oIMAP = new ImapClientSimulator();
          Assert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
 
          if (expectedCount != 0)

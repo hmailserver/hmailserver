@@ -19,15 +19,15 @@ namespace RegressionTests.Security
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "");
 
          string message;
-         var sim = new POP3ClientSimulator();
+         var sim = new Pop3ClientSimulator();
          Assert.IsFalse(sim.ConnectAndLogon(account1.Address, "", out message));
 
 
-         var simIMAP = new IMAPClientSimulator();
+         var simIMAP = new ImapClientSimulator();
          Assert.IsFalse(simIMAP.ConnectAndLogon(account1.Address, "", out message));
          Assert.AreEqual("A01 NO Invalid user name or password.\r\n", message);
 
-         var simSMTP = new SMTPClientSimulator();
+         var simSMTP = new SmtpClientSimulator();
          CustomAsserts.Throws<AuthenticationException>(() => simSMTP.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "", out message));
          Assert.AreEqual("535 Authentication failed. Restarting authentication process.\r\n", message);
       }

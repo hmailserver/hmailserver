@@ -23,7 +23,7 @@ namespace RegressionTests.Shared
       DisconnectAfterMessageAccept
    }
 
-   internal class SMTPServerSimulator : TcpServer
+   internal class SmtpServerSimulator : TcpServer
    {
       private readonly List<Dictionary<string, int>> _recipientResults;
       private Dictionary<string, int> _currentRecipientResult;
@@ -41,7 +41,7 @@ namespace RegressionTests.Shared
       public bool ServerSupportsHelo { get; set; }
 
       
-      public SMTPServerSimulator(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity) :
+      public SmtpServerSimulator(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity) :
          base(maxNumberOfConnections, port, connectionSecurity)
       {
          _recipientResults = new List<Dictionary<string, int>>();
@@ -49,7 +49,7 @@ namespace RegressionTests.Shared
          ServerSupportsHelo = true;
       }
 
-      public SMTPServerSimulator(int maxNumberOfConnections, int port) :
+      public SmtpServerSimulator(int maxNumberOfConnections, int port) :
          this(maxNumberOfConnections, port, eConnectionSecurity.eCSNone)
       {
          

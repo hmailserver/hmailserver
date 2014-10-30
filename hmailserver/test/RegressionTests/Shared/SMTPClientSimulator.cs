@@ -13,29 +13,29 @@ namespace RegressionTests.Shared
    /// <summary>
    /// Summary description for SMTPSimulator.
    /// </summary>
-   public class SMTPClientSimulator
+   public class SmtpClientSimulator
    {
       private readonly IPAddress _ipaddress;
       private readonly int _port = 25;
       private readonly TcpConnection _tcpConnection;
 
-      public SMTPClientSimulator() :
+      public SmtpClientSimulator() :
          this(false, 25)
       {
       }
 
-      public SMTPClientSimulator(bool useSSL, int port) :
+      public SmtpClientSimulator(bool useSSL, int port) :
          this(useSSL, port, null)
       {
       }
 
-      public SMTPClientSimulator(bool useSSL, int port, IPAddress ipaddress) :
+      public SmtpClientSimulator(bool useSSL, int port, IPAddress ipaddress) :
          this(useSSL, SslProtocols.Default, port, ipaddress)
       {
 
       }
 
-      public SMTPClientSimulator(bool useSSL, SslProtocols sslProtocols, int port, IPAddress ipaddress)
+      public SmtpClientSimulator(bool useSSL, SslProtocols sslProtocols, int port, IPAddress ipaddress)
       {
          _tcpConnection = new TcpConnection(useSSL, sslProtocols);
          _port = port;
@@ -315,13 +315,13 @@ namespace RegressionTests.Shared
 
       public static void StaticSend(string sFrom, List<string> lstRecipients, string sSubject, string sBody)
       {
-         var oSimulator = new SMTPClientSimulator();
+         var oSimulator = new SmtpClientSimulator();
          oSimulator.Send(sFrom, lstRecipients, sSubject, sBody);
       }
 
       public static void StaticSendRaw(string sFrom, string recipient, string sBody)
       {
-         var oSimulator = new SMTPClientSimulator();
+         var oSimulator = new SmtpClientSimulator();
          oSimulator.SendRaw(sFrom, recipient, sBody);
       }
 
@@ -330,7 +330,7 @@ namespace RegressionTests.Shared
          var messageRecipients = new List<string>();
          messageRecipients.Add(recipient);
 
-         var oSimulator = new SMTPClientSimulator();
+         var oSimulator = new SmtpClientSimulator();
          oSimulator.Send(sFrom, messageRecipients, sSubject, sBody);
       }
 

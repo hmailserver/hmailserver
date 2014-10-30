@@ -30,7 +30,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsNotEnabledStartTlsShouldNotBeShownInEhloResponse()
       {
-         var pop3Simulator = new POP3ClientSimulator(false, 110);
+         var pop3Simulator = new Pop3ClientSimulator(false, 110);
          pop3Simulator.Connect();
          string banner;
 
@@ -44,7 +44,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStartTlsIsEnabledStartTlsShouldBeShownInEhloResponse()
       {
-         var pop3Simulator = new POP3ClientSimulator(false, 11002);
+         var pop3Simulator = new Pop3ClientSimulator(false, 11002);
          pop3Simulator.Connect();
          string banner;
 
@@ -58,7 +58,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void StlsCommandShouldSwithToTls()
       {
-         var pop3Simulator = new POP3ClientSimulator(false, 11002);
+         var pop3Simulator = new Pop3ClientSimulator(false, 11002);
          pop3Simulator.Connect();
          string banner;
          pop3Simulator.ReceiveBanner(out banner);
@@ -73,7 +73,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldSucceedIfStls()
       {
-         var pop3Simulator = new POP3ClientSimulator(false, 11003);
+         var pop3Simulator = new Pop3ClientSimulator(false, 11003);
          pop3Simulator.Connect();
          string banner;
          pop3Simulator.ReceiveBanner(out banner);
@@ -88,7 +88,7 @@ namespace RegressionTests.SSL.StartTls
       [Test]
       public void IfStlsRequiredLogonShouldFailIfNoStls()
       {
-         var pop3Simulator = new POP3ClientSimulator(false, 11003);
+         var pop3Simulator = new Pop3ClientSimulator(false, 11003);
          pop3Simulator.Connect();
          string banner;
          pop3Simulator.ReceiveBanner(out banner);
@@ -105,7 +105,7 @@ namespace RegressionTests.SSL.StartTls
          range.RequireSSLTLSForAuth = true;
          range.Save();
 
-         var pop3Simulator = new POP3ClientSimulator(false, 11002);
+         var pop3Simulator = new Pop3ClientSimulator(false, 11002);
          pop3Simulator.Connect();
          string banner;
          pop3Simulator.ReceiveBanner(out banner);

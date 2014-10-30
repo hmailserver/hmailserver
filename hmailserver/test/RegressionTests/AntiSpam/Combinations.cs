@@ -51,14 +51,14 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
          oSMTP.Send("test@example.com", oAccount1.Address, "INBOX",
                                   "Test http://surbl-org-permanent-test-point.com/ Test 2");
 
-         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-2:"));
@@ -89,14 +89,14 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
          oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
                                   "This is a test message.");
 
-         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsFalse(message.Contains("X-hMailServer-Reason-2:"));
@@ -133,7 +133,7 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
 
          _settings.Logging.LogSMTP = true;
          _settings.Logging.LogDebug = true;

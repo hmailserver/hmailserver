@@ -30,7 +30,7 @@ namespace RegressionTests.IMAP
 
          string selectResult = string.Empty;
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          string examineResult = oSimulator1.ExamineFolder("#Public.Share1");
@@ -60,7 +60,7 @@ namespace RegressionTests.IMAP
 
          string selectResult = string.Empty;
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          oSimulator1.SelectFolder("#Public.Share1", out selectResult);
@@ -91,7 +91,7 @@ namespace RegressionTests.IMAP
 
          string selectResult = string.Empty;
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          oSimulator1.SelectFolder("#Public.Share1", out selectResult);
@@ -121,7 +121,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionPost, true);
          permission.Save();
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(account.Address, "test");
@@ -149,12 +149,12 @@ namespace RegressionTests.IMAP
 
          string folderName = "#Public.Share1";
 
-         SMTPClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
+         SmtpClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
 
          CustomAsserts.AssertFolderMessageCount(account1.IMAPFolders.get_ItemByName("INBOX"), 1);
          CustomAsserts.AssertFolderMessageCount(folder, 0);
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          oSimulator1.SelectFolder("INBOX");
@@ -185,7 +185,7 @@ namespace RegressionTests.IMAP
             Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account10@test.com",
                                                                                 "test");
 
-            var oSimulator1 = new IMAPClientSimulator();
+            var oSimulator1 = new ImapClientSimulator();
             oSimulator1.Connect();
             oSimulator1.Logon(account1.Address, "test");
             Assert.IsFalse(oSimulator1.CreateFolder("MyPublic"));
@@ -206,7 +206,7 @@ namespace RegressionTests.IMAP
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1c@test.com", "test");
          Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2c@test.com", "test");
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.CreateFolder("#Public.SharedFolder"));
@@ -234,7 +234,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.ConnectAndLogon("account9@test.com", "test");
          Assert.IsTrue(oSimulator1.SelectFolder("#public.Share1"));
          Assert.IsFalse(oSimulator1.DeleteFolder("#public.Share1"));
@@ -302,7 +302,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.ConnectAndLogon("account9@test.com", "test");
          Assert.IsTrue(oSimulator1.SelectFolder("#public.Share1"));
          Assert.IsFalse(oSimulator1.DeleteFolder("#public.Share1"));
@@ -375,7 +375,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.ConnectAndLogon("account9@test.com", "test");
          Assert.IsTrue(oSimulator1.CreateFolder("#public.Share1.MySub"));
          Assert.AreEqual(1, mySubFolders.Count);
@@ -428,7 +428,7 @@ namespace RegressionTests.IMAP
          string folderName = "#Public.Share1";
 
          // The account should not have permission since the first permission doesn't give him this.
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
@@ -450,7 +450,7 @@ namespace RegressionTests.IMAP
          permission2.Save();
 
          // The account should not have permission since the first permission does give him this.
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsTrue(oSimulator1.List().Contains(folderName));
@@ -478,11 +478,11 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1";
-         SMTPClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
+         SmtpClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
          CustomAsserts.AssertFolderMessageCount(account1.IMAPFolders.get_ItemByName("INBOX"), 1);
          CustomAsserts.AssertFolderMessageCount(folder, 0);
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          oSimulator1.SelectFolder("INBOX");
@@ -519,7 +519,7 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1";
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          string result = oSimulator1.GetACL(folderName);
@@ -566,7 +566,7 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1";
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
@@ -603,7 +603,7 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1";
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.LSUB().Contains(folderName));
@@ -638,7 +638,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
 
@@ -665,7 +665,7 @@ namespace RegressionTests.IMAP
          string folderName = "#Public.Share1";
 
          // account 1 should not have permission since they aren't added yet.
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
@@ -679,7 +679,7 @@ namespace RegressionTests.IMAP
 
 
          // account 1 should not have permission since he's not in the group
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsTrue(oSimulator1.List().Contains(folderName));
@@ -713,21 +713,21 @@ namespace RegressionTests.IMAP
          string folderName = "#Public.Share1";
 
          // account 1 should not have permission since he's not in the group
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
          oSimulator1.Disconnect();
 
          // account 2 should have permission since he is in the group
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account2.Address, "test");
          Assert.IsTrue(oSimulator1.List().Contains(folderName));
          oSimulator1.Disconnect();
 
          // account 3 should not have permission since he's not in the group
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account3.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
@@ -735,7 +735,7 @@ namespace RegressionTests.IMAP
 
          // add account 1 to the group to give him permission.
          GroupMember member = SingletonProvider<TestSetup>.Instance.AddGroupMember(group, account1);
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsTrue(oSimulator1.List().Contains(folderName));
@@ -743,7 +743,7 @@ namespace RegressionTests.IMAP
 
          // delete account 1 from the group again to remove permissios.
          group.Members.DeleteByDBID(member.ID);
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.List().Contains(folderName));
@@ -768,7 +768,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
 
@@ -795,7 +795,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
 
@@ -826,7 +826,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionRead, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          string folderName = "#Public.Share1";
@@ -857,7 +857,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionRead, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          string folderName = "#Public.Share1";
@@ -887,7 +887,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          string folderName = "#Public.Share1.MySub1.MySub2.MySub3.MySub4";
@@ -914,7 +914,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
 
@@ -961,7 +961,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionRead, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          string folderName = "#Public.Share1.MySub";
@@ -996,7 +996,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionRead, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          string folderName = "#Public.Share1";
@@ -1029,7 +1029,7 @@ namespace RegressionTests.IMAP
          string newFolderName = "AccountLevelFolder";
 
          // Test renaming from local folder name to shared folder.
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsFalse(oSimulator1.RenameFolder(oldFolderName, newFolderName));
@@ -1040,7 +1040,7 @@ namespace RegressionTests.IMAP
          oldFolderName = "LocalFolder";
          newFolderName = "#Public.Share1";
 
-         oSimulator1 = new IMAPClientSimulator();
+         oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          oSimulator1.CreateFolder(oldFolderName);
@@ -1068,7 +1068,7 @@ namespace RegressionTests.IMAP
 
          string oldFolderName = "#Public.Share1.MySub1";
          string newFolderName = "#Public.Share1.MySub2";
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsTrue(oSimulator1.CreateFolder(oldFolderName));
@@ -1109,7 +1109,7 @@ namespace RegressionTests.IMAP
          string oldFolderName = "#Public.Share1.MySub1";
          string newFolderName = "#Public.Share2";
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          Assert.IsTrue(oSimulator1.CreateFolder(oldFolderName));
@@ -1139,7 +1139,7 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1.MySub1";
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          Assert.IsTrue(oSimulator1.CreateFolder(folderName));
@@ -1157,7 +1157,7 @@ namespace RegressionTests.IMAP
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@test.com", "test");
          Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@test.com", "test");
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          Assert.IsTrue(oSimulator1.CreateFolder("SharedFolder"));
@@ -1176,7 +1176,7 @@ namespace RegressionTests.IMAP
          IMAPFolder folder = publicFolders.Add("Share1");
          folder.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          Assert.IsFalse(oSimulator1.CreateFolder("#Public.Share1.MySub1"));
@@ -1200,7 +1200,7 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionCreate, true);
          permission.Save();
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.LogonWithLiteral(account1.Address, "test");
          Assert.IsTrue(oSimulator1.CreateFolder("#Public.Share1.MySub1"));
@@ -1227,11 +1227,11 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          string folderName = "#Public.Share1";
-         SMTPClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
+         SmtpClientSimulator.StaticSend("test@test.com", account1.Address, "TestMessage", "Body");
          CustomAsserts.AssertFolderMessageCount(account1.IMAPFolders.get_ItemByName("INBOX"), 1);
          CustomAsserts.AssertFolderMessageCount(folder, 0);
 
-         var oSimulator1 = new IMAPClientSimulator();
+         var oSimulator1 = new ImapClientSimulator();
          oSimulator1.Connect();
          oSimulator1.Logon(account1.Address, "test");
          oSimulator1.SelectFolder("INBOX");

@@ -437,20 +437,20 @@ namespace RegressionTests.Infrastructure
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
          // Make sure the inbox contains two messages which should be backed up.
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
             "Message 1 Body");
 
-         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
                                                       "Message 2 Body");
-         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
                                                       "Message 3 Body");
-         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          Assert.IsTrue(sim.SelectFolder("Inbox"));
          Assert.IsTrue(sim.SetDeletedFlag(2));
@@ -536,7 +536,7 @@ namespace RegressionTests.Infrastructure
          messages.Add("Subject: Message 2\r\n");
          messages.Add("Subject: Message 3\r\n");
 
-         using (var pop3Server = new POP3Server(1, fa.Port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, fa.Port, messages))
          {
             pop3Server.StartListen();
             fa.DownloadNow();
@@ -544,7 +544,7 @@ namespace RegressionTests.Infrastructure
          }
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-         POP3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
       }
 
       private bool BackupEnvironment()

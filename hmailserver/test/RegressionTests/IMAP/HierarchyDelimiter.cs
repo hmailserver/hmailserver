@@ -22,7 +22,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test.Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -44,7 +44,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -70,7 +70,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -92,7 +92,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test/Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -115,7 +115,7 @@ namespace RegressionTests.IMAP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
          string result = oSimulator.Send("A01 NAMESPACE");
          string correctNamespaceSetting = "* NAMESPACE ((\"\" \"\\\\\")) NIL ((\"" + publicFolderName +
@@ -125,7 +125,7 @@ namespace RegressionTests.IMAP
 
          settings.IMAPHierarchyDelimiter = ".";
 
-         oSimulator = new IMAPClientSimulator();
+         oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
 
          result = oSimulator.Send("A01 NAMESPACE");
@@ -135,7 +135,7 @@ namespace RegressionTests.IMAP
 
          settings.IMAPHierarchyDelimiter = "/";
 
-         oSimulator = new IMAPClientSimulator();
+         oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
 
          result = oSimulator.Send("A01 NAMESPACE");
@@ -157,7 +157,7 @@ namespace RegressionTests.IMAP
          string folderName = "Test/Test";
          string newFolderName = "Apa/Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -183,7 +183,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new IMAPClientSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));

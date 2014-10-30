@@ -44,7 +44,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
 
          string result1 = "", result2 = "", result3 = "", result4 = "";
 
@@ -69,7 +69,7 @@ namespace RegressionTests.Security
          range.RequireSMTPAuthExternalToExternal = true;
          range.Save();
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("externaladdress@example.com", "someexternaladdress@example.com", "Mail 1",
                                    "Mail 1", out result));
@@ -95,7 +95,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("someexternaladdress@example.com", account1.Address, "Mail 1", "Mail 1"));
 
          range.RequireSMTPAuthExternalToLocal = false;
@@ -127,13 +127,13 @@ namespace RegressionTests.Security
          deliveryResults["dummy@dummy-example.com"] = 250;
 
          
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
             // Make sure we can't send to this route without using smtp auth.
-            var oSMTP = new SMTPClientSimulator();
+            var oSMTP = new SmtpClientSimulator();
             oSMTP.Send("someexternaladdress@example.com", "dummy@dummy-example.com", "Mail 1", "Mail 1");
 
             server.WaitForCompletion();
@@ -153,7 +153,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send(account1.Address, "someexternaladdress@example.com", "Mail 1", "Mail 1",
                                    out result));
@@ -171,7 +171,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send(account1.Address, account1.Address, "Mail 1", "Mail 1", out result));
          Assert.IsTrue(result.Contains("SMTP authentication is required."));
@@ -201,7 +201,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sales@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result;
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
       }
@@ -224,11 +224,11 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sales@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result;
          oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result);
 
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsTrue(text.Contains("Mail 1"));
       }
 
@@ -248,7 +248,7 @@ namespace RegressionTests.Security
          range.RequireSMTPAuthLocalToExternal = true;
          range.Save();
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("someone@dummy-example.com", "test@example.com", "Mail 1", "Mail 1", out result));
          Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
@@ -272,7 +272,7 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sales@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result));
          Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
@@ -296,11 +296,11 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sales@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result;
          oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result);
 
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsTrue(text.Contains("Mail 1"));
       }
 
@@ -318,12 +318,12 @@ namespace RegressionTests.Security
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
 
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            var oSMTP = new SMTPClientSimulator();
+            var oSMTP = new SmtpClientSimulator();
             string result;
             oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result);
 
@@ -346,11 +346,11 @@ namespace RegressionTests.Security
 
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sales@test.com", "test");
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result;
          oSMTP.Send("someone@dummy-example.com", account1.Address, "Mail 1", "Mail 1", out result);
 
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsTrue(text.Contains("Mail 1"));
       }
 
@@ -369,12 +369,12 @@ namespace RegressionTests.Security
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
 
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            var oSMTP = new SMTPClientSimulator();
+            var oSMTP = new SmtpClientSimulator();
             string result;
             oSMTP.Send("someone@dummy-example.com", "test@dummy-example.com", "Mail 1", "Mail 1",
                                      out result);
@@ -397,7 +397,7 @@ namespace RegressionTests.Security
          route.TreatRecipientAsLocalDomain = false;
          route.Save();
 
-         var oSMTP = new SMTPClientSimulator();
+         var oSMTP = new SmtpClientSimulator();
          string result = "";
          CustomAsserts.Throws<DeliveryFailedException>(() => oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result));
          Assert.IsTrue(result.Contains("530 SMTP authentication is required."));
@@ -424,12 +424,12 @@ namespace RegressionTests.Security
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
 
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            var oSMTP = new SMTPClientSimulator();
+            var oSMTP = new SmtpClientSimulator();
             string result;
             oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result);
 
@@ -453,12 +453,12 @@ namespace RegressionTests.Security
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@dummy-example.com"] = 250;
 
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            var oSMTP = new SMTPClientSimulator();
+            var oSMTP = new SmtpClientSimulator();
             string result;
             oSMTP.Send("someone@example.com", "test@dummy-example.com", "Mail 1", "Mail 1", out result);
 

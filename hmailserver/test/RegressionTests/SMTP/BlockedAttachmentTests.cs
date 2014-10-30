@@ -72,9 +72,9 @@ namespace RegressionTests.SMTP
                               "\r\n" +
                               "--------------050908050500020808050006--\r\n";
 
-         SMTPClientSimulator.StaticSendRaw("test@test.com", "test@test.com", messageText);
+         SmtpClientSimulator.StaticSendRaw("test@test.com", "test@test.com", messageText);
 
-         IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
 
          Message message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
          Assert.AreEqual(1, message.Attachments.Count);
@@ -122,7 +122,7 @@ namespace RegressionTests.SMTP
             }
 
             // Check that the message exists
-            string message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            string message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachmentName)));
 
          }
@@ -164,7 +164,7 @@ namespace RegressionTests.SMTP
             }
 
             // Check that the message exists
-            string message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            string message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment1Name)));
             Assert.IsTrue(message.Contains(string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment2Name)));
 
@@ -204,7 +204,7 @@ namespace RegressionTests.SMTP
 
             string expectedNewAttachmentName = attachmentName + ".txt";
 
-            IMAPClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
+            ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 1);
 
             Message message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
             Assert.AreEqual(1, message.Attachments.Count);

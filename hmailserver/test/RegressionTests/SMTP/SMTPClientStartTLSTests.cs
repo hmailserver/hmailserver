@@ -28,7 +28,7 @@ namespace RegressionTests.SMTP
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSOptional))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSOptional))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -36,7 +36,7 @@ namespace RegressionTests.SMTP
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
@@ -58,7 +58,7 @@ namespace RegressionTests.SMTP
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -66,7 +66,7 @@ namespace RegressionTests.SMTP
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSSTARTTLSOptional);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
@@ -88,7 +88,7 @@ namespace RegressionTests.SMTP
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSOptional))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSOptional))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -96,7 +96,7 @@ namespace RegressionTests.SMTP
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
                
 
@@ -119,7 +119,7 @@ namespace RegressionTests.SMTP
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -127,7 +127,7 @@ namespace RegressionTests.SMTP
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
@@ -154,7 +154,7 @@ namespace RegressionTests.SMTP
             };
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.ServerSupportsEhlo = false;
             server.AddRecipientResult(deliveryResults);
@@ -165,7 +165,7 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
 
-            SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
+            SmtpClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -187,7 +187,7 @@ namespace RegressionTests.SMTP
             };
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.ServerSupportsEhlo = false;
             server.AddRecipientResult(deliveryResults);
@@ -198,14 +198,14 @@ namespace RegressionTests.SMTP
 
             // Send message to this route.
 
-            SMTPClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
+            SmtpClientSimulator.StaticSend("test@test.com", "user1@dummy-example.com", "Test", "Test message");
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
 
-            var msg = POP3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+            var msg = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
             Assert.IsTrue(msg.Contains("Server does not support EHLO command."));
          }
       }

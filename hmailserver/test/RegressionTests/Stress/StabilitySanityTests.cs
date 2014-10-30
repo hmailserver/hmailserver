@@ -21,7 +21,7 @@ namespace RegressionTests.Stress
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          string deletedMessageText = _settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
          IMAPFolder inbox = account.IMAPFolders.get_ItemByName("Inbox");
 
          CustomAsserts.AssertFolderMessageCount(inbox, 1);
@@ -113,7 +113,7 @@ namespace RegressionTests.Stress
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          IMAPFolder inbox = account.IMAPFolders.get_ItemByName("Inbox");
 
@@ -124,7 +124,7 @@ namespace RegressionTests.Stress
 
          File.Delete(message.Filename);
 
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
 
          CustomAsserts.AssertReportedError("Message retrieval failed because message file");
@@ -138,7 +138,7 @@ namespace RegressionTests.Stress
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          IMAPFolder inbox = account.IMAPFolders.get_ItemByName("Inbox");
 
@@ -151,7 +151,7 @@ namespace RegressionTests.Stress
          DirectoryInfo parent = dir.Parent.Parent.Parent;
          parent.Delete(true);
 
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          CustomAsserts.AssertReportedError("Message retrieval failed because message file");
       }
@@ -165,7 +165,7 @@ namespace RegressionTests.Stress
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          IMAPFolder inbox = account.IMAPFolders.get_ItemByName("Inbox");
 
@@ -178,7 +178,7 @@ namespace RegressionTests.Stress
          DirectoryInfo parent = dir.Parent.Parent.Parent;
          parent.Delete(true);
 
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");

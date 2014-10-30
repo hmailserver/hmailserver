@@ -21,7 +21,7 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSTLS))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSTLS))
          {
             server.SetCertificate(SslSetup.GetCertificate());
             server.AddRecipientResult(deliveryResults);
@@ -29,7 +29,7 @@ namespace RegressionTests.SSL
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSTLS);
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
             smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -51,7 +51,7 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var smtpServer = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
+         using (var smtpServer = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
          {
             smtpServer.SetCertificate(SslSetup.GetCertificate());
             smtpServer.AddRecipientResult(deliveryResults);
@@ -59,7 +59,7 @@ namespace RegressionTests.SSL
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
             smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -80,7 +80,7 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSSTARTTLSRequired))
          {
             server.SetCertificate(SslSetup.GetCertificate());
             server.AddRecipientResult(deliveryResults);
@@ -88,7 +88,7 @@ namespace RegressionTests.SSL
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
             smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -109,7 +109,7 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
          {
             server.SetCertificate(SslSetup.GetCertificate());
             server.AddRecipientResult(deliveryResults);
@@ -117,7 +117,7 @@ namespace RegressionTests.SSL
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSRequired);
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
             smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -125,7 +125,7 @@ namespace RegressionTests.SSL
             // This should now be processed via the rule -> route -> external server we've set up.
             server.WaitForCompletion();
 
-            var msg = POP3ClientSimulator.AssertGetFirstMessageText("sender@test.com", "test");
+            var msg = Pop3ClientSimulator.AssertGetFirstMessageText("sender@test.com", "test");
 
             Assert.IsTrue(msg.Contains("Server does not support STARTTLS"));
          }
@@ -141,7 +141,7 @@ namespace RegressionTests.SSL
          deliveryResults["test@dummy-example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort, eConnectionSecurity.eCSNone))
          {
             server.SetCertificate(SslSetup.GetCertificate());
             server.AddRecipientResult(deliveryResults);
@@ -149,7 +149,7 @@ namespace RegressionTests.SSL
 
             Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSSTARTTLSOptional);
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
             smtpClient.Send(account.Address, "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);

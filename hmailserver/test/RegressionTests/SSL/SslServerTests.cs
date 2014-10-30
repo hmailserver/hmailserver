@@ -63,7 +63,7 @@ namespace RegressionTests.SSL
          {
             try
             {
-               var imapSim = new IMAPClientSimulator(true, 14301);
+               var imapSim = new ImapClientSimulator(true, 14301);
                imapSim.ConnectAndLogon(account.Address, "test");
                Assert.IsTrue(imapSim.SelectFolder("Inbox"), "SelectInbox");
                imapSim.CreateFolder("Test");
@@ -86,15 +86,15 @@ namespace RegressionTests.SSL
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3-ssl@test.com", "test");
 
-         var smtpSim = new SMTPClientSimulator();
+         var smtpSim = new SmtpClientSimulator();
          smtpSim.Send("test@test.com", account.Address, "Test", "MyBody");
 
          for (int i = 0; i < 10; i++)
          {
             try
             {
-               POP3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
-               var pop3Sim = new POP3ClientSimulator(true, 11001);
+               Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+               var pop3Sim = new Pop3ClientSimulator(true, 11001);
                string text = pop3Sim.GetFirstMessageText(account.Address, "test");
 
                Assert.IsTrue(text.Contains("MyBody"));
@@ -123,7 +123,7 @@ namespace RegressionTests.SSL
          {
             try
             {
-               var smtpSim = new SMTPClientSimulator(true, 25001);
+               var smtpSim = new SmtpClientSimulator(true, 25001);
                smtpSim.Send("test@test.com", account.Address, "Test", "MyBody");
 
                break;
@@ -135,8 +135,8 @@ namespace RegressionTests.SSL
             }
          }
 
-         POP3ClientSimulator.AssertMessageCount(account.Address, "test", i + 1);
-         var pop3Sim = new POP3ClientSimulator(false, 110);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", i + 1);
+         var pop3Sim = new Pop3ClientSimulator(false, 110);
          string text = pop3Sim.GetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains("MyBody"));
       }

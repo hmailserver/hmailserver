@@ -9,7 +9,7 @@ using RegressionTests.SSL;
 
 namespace RegressionTests.Shared
 {
-   internal class POP3Server : TcpServer
+   internal class Pop3ServerSimulator : TcpServer
    {
       private readonly List<string> _messages;
       private bool _disconnectImmediate;
@@ -22,13 +22,13 @@ namespace RegressionTests.Shared
       }
 
       
-      public POP3Server(int maxNumberOfConnections, int port, List<string> messages) :
+      public Pop3ServerSimulator(int maxNumberOfConnections, int port, List<string> messages) :
          this(maxNumberOfConnections, port, messages, eConnectionSecurity.eCSNone)
       {
          
       }
 
-      public POP3Server(int maxNumberOfConnections, int port, List<string> messages, eConnectionSecurity connectionSecurity) :
+      public Pop3ServerSimulator(int maxNumberOfConnections, int port, List<string> messages, eConnectionSecurity connectionSecurity) :
          base(maxNumberOfConnections, port, connectionSecurity)
       {
          _messages = messages;
