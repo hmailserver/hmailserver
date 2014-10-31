@@ -127,10 +127,10 @@ namespace RegressionTests.Infrastructure
          var smtpClientSimulator = new SmtpClientSimulator();
          smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
 
-         var oPOP3 = new Pop3ClientSimulator();
+         var pop3ClientSimulator = new Pop3ClientSimulator();
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
-         string s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
+         string s = pop3ClientSimulator.GetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Out of office!") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
 
@@ -147,7 +147,7 @@ namespace RegressionTests.Infrastructure
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
 
-         s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
+         s = pop3ClientSimulator.GetFirstMessageText(oAccount1.Address, "test");
          if (s.ToLower().IndexOf("re: test message") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
 
@@ -223,10 +223,10 @@ namespace RegressionTests.Infrastructure
          // are delivered.
 
          // Check using POP3 that 2 messages exists.
-         var oPOP3 = new Pop3ClientSimulator();
+         var pop3ClientSimulator = new Pop3ClientSimulator();
 
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
-         string s = oPOP3.GetFirstMessageText(oAccount1.Address, "test");
+         string s = pop3ClientSimulator.GetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Subject: Auto-Reply: Test message") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
       }

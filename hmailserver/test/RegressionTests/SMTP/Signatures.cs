@@ -47,7 +47,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestDomainSignature()
       {
-         var oPOP3 = new Pop3ClientSimulator();
+         var pop3ClientSimulator = new Pop3ClientSimulator();
 
          _domain.SignatureEnabled = true;
          _domain.AddSignaturesToLocalMail = true;

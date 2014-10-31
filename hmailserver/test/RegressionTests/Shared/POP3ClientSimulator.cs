@@ -331,9 +331,9 @@ namespace RegressionTests.Shared
          int actualCount = 0;
          while (timeout > 0)
          {
-            var oPOP3 = new Pop3ClientSimulator();
+            var pop3ClientSimulator = new Pop3ClientSimulator();
 
-            actualCount = oPOP3.GetMessageCount(accountName, accountPassword);
+            actualCount = pop3ClientSimulator.GetMessageCount(accountName, accountPassword);
             if (actualCount == expectedCount)
                return;
 

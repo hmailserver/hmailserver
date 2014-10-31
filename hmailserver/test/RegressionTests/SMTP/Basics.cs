@@ -730,7 +730,7 @@ namespace RegressionTests.SMTP
 
          smtpClientSimulator.Send(oAccount1.Address, lstRecipients, "Multi test", sBody);
 
-         var oPOP3 = new Pop3ClientSimulator();
+         var pop3ClientSimulator = new Pop3ClientSimulator();
 
          string sMessageData = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageData.IndexOf(sBody) < 0)
