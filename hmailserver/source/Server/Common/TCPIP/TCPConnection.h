@@ -70,6 +70,7 @@ namespace HM
 
    protected:
 
+      ConnectionState GetConnectionState() { return connection_state_;  }
       int GetSessionID();
 
       int GetBufferSize() {return BufferSize; }
@@ -92,6 +93,7 @@ namespace HM
       virtual void ParseData(std::shared_ptr<ByteBuffer> pByteBuffer) = 0;
    
       AnsiString GetSslTlsCipher();
+
    private:
 
       void ThrowIfNotConnected_();

@@ -59,7 +59,6 @@ namespace HM
    {
       imap_folders_.reset();
 
-      SessionManager::Instance()->OnCreate(STIMAP);
 
       // The IMAP RFC states that the minimum connection
       // timeout is 30 minutes. If the load increases, the timeout
@@ -78,7 +77,8 @@ namespace HM
       // before terminating ourselves.
       mapCommandHandlers.clear();
    
-      SessionManager::Instance()->OnDestroy(STIMAP);
+      if (GetConnectionState() != StatePendingConnect)
+         SessionManager::Instance()->OnSessionEnded(STIMAP);
 
       CloseCurrentFolder();
    }

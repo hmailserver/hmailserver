@@ -49,7 +49,6 @@ namespace HM
       transmission_buffer_(true),
       pending_disconnect_(false)
    {
-      SessionManager::Instance()->OnCreate(STPOP3);
 
       /*
         RFC 1939, Basic Operation
@@ -69,7 +68,8 @@ namespace HM
    {
       OnDisconnect();
 
-      SessionManager::Instance()->OnDestroy(STPOP3);
+      if (GetConnectionState() != StatePendingConnect)
+         SessionManager::Instance()->OnSessionEnded(STPOP3);
    }
 
    void

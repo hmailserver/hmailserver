@@ -29,9 +29,9 @@ namespace HM
       We pre-create one connection per protocol, so we set the counters to -1 here.
    */
    SessionManager::SessionManager(void) :
-      no_of_imapconnections_(-1),
-      no_of_smtpconnections_(-1),
-      no_of_pop3connections_(-1)
+      no_of_imapconnections_(0),
+      no_of_smtpconnections_(0),
+      no_of_pop3connections_(0)
    {
 
    }
@@ -41,52 +41,65 @@ namespace HM
    }
 
    bool 
-   SessionManager::GetAllow(SessionType session_type, std::shared_ptr<SecurityRange> security_range)
+   SessionManager::CreateSession(SessionType session_type, std::shared_ptr<SecurityRange> security_range)
    {
-      // Check that client isn't blocked by IP range.
       switch (session_type)
       {
       case STSMTP:
-         if (!security_range->GetAllowSMTP())
+         if (security_range == nullptr || !security_range->GetAllowSMTP())
             return false;
          break;
       case STPOP3:
-         if (!security_range->GetAllowPOP3())
+         if (security_range == nullptr || !security_range->GetAllowPOP3())
             return false;
          break;
       case STIMAP:
-         if (!security_range->GetAllowIMAP())
+         if (security_range == nullptr || !security_range->GetAllowIMAP())
             return false;
          break;
       }
-
-      int current_connections = GetNumberOfConnections(session_type);
-
+     
       // Check max per protocol
       int max_connections = 0;
       switch (session_type)
       {
       case STSMTP:
          {
+            int connection_count = no_of_smtpconnections_.fetch_add(1) + 1;
+
             max_connections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
-            if (max_connections > 0 && current_connections > max_connections)
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_smtpconnections_--;
                return false;
+            }
 
             break;
          }
       case STPOP3:
          {
+            int connection_count = no_of_pop3connections_.fetch_add(1) + 1;
+
             max_connections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
-            if (max_connections > 0 && current_connections > max_connections)
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_pop3connections_--;
                return false;
+            }
 
             break;
          }
       case STIMAP:
          {
+            int connection_count = no_of_imapconnections_.fetch_add(1) + 1;
+
             max_connections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
-            if (max_connections > 0 && current_connections > max_connections)
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_imapconnections_--;
                return false;
+            }
+
             break;
          }
       }
@@ -94,32 +107,8 @@ namespace HM
       return true;
    }
 
-   void
-   SessionManager::OnCreate(SessionType t)
-   {
-      switch (t)
-      {
-      case STSMTP:
-         {
-            no_of_smtpconnections_++;
-            break;
-         }
-      case STPOP3:
-         {
-            no_of_pop3connections_++;
-            break;
-         }
-      case STIMAP:
-         {
-            no_of_imapconnections_++;
-            break;
-         }
-      }
-   }
-
-
    void 
-   SessionManager::OnDestroy(SessionType st)
+   SessionManager::OnSessionEnded(SessionType st)
    {
       switch (st)
       {
@@ -133,6 +122,25 @@ namespace HM
          no_of_imapconnections_--;
          break;
       }
+
+#ifdef DEBUG
+      switch (st)
+      {
+      case STSMTP:
+         if (no_of_smtpconnections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
+      case STPOP3:
+         if (no_of_pop3connections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
+      case STIMAP:
+         if (no_of_imapconnections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
+      }
+#endif
+
    }
 
 

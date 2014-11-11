@@ -90,7 +90,6 @@ namespace HM
       isAuthenticated_(false),
       start_tls_used_(false)
    {
-      SessionManager::Instance()->OnCreate(STSMTP);
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
 
@@ -114,7 +113,8 @@ namespace HM
    {
       ResetCurrentMessage_();
 
-      SessionManager::Instance()->OnDestroy(STSMTP);
+      if (GetConnectionState() != StatePendingConnect)
+         SessionManager::Instance()->OnSessionEnded(STSMTP);
    }
 
 
