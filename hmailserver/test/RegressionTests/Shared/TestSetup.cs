@@ -20,7 +20,7 @@ using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
-   internal class TestSetup
+   public class TestSetup
    {
       private Application application;
       private Settings _settings;

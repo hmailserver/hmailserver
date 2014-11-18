@@ -60,39 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\RegressionTests\Infrastructure\CustomAsserts.cs">
-      <Link>External\CustomAsserts.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Infrastructure\LogHandler.cs">
-      <Link>External\LogHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Infrastructure\RetryHelper.cs">
-      <Link>External\RetryHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\IMAPClientSimulator.cs">
-      <Link>External\IMAPClientSimulator.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\POP3ClientSimulator.cs">
-      <Link>External\POP3ClientSimulator.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\SingletonProvider.cs">
-      <Link>External\SingletonProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\SMTPClientSimulator.cs">
-      <Link>External\SMTPClientSimulator.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\TcpConnection.cs">
-      <Link>External\TcpConnection.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\TestFixtureBase.cs">
-      <Link>External\TestFixtureBase.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\TestSetup.cs">
-      <Link>External\TestSetup.cs</Link>
-    </Compile>
-    <Compile Include="..\RegressionTests\Shared\TestTracer.cs">
-      <Link>External\TestTracer.cs</Link>
-    </Compile>
     <Compile Include="DKIM.cs" />
     <Compile Include="IMAP.cs" />
     <Compile Include="POP3.cs" />
@@ -116,6 +83,10 @@
     <ProjectReference Include="..\hMailServer.Test.Infrastructure\hMailServer.Test.Infrastructure.csproj">
       <Project>{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}</Project>
       <Name>hMailServer.Test.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RegressionTests\RegressionTests.csproj">
+      <Project>{8f691179-0851-4a25-ac78-3548dd0514fa}</Project>
+      <Name>RegressionTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

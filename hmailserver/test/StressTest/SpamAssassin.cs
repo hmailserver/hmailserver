@@ -38,14 +38,14 @@ namespace StressTest
       {
          for (int i = 0; i < 15; i++)
          {
-             SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
+             SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
          }
 
-         POP3ClientSimulator.AssertMessageCount(_account.Address, "test", 15);
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 15);
 
          for (int i = 0; i < 15; i++)
          {
-            string content = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            string content = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             Assert.IsTrue(content.Contains("X-Spam-Status"), content);
          }
@@ -74,11 +74,11 @@ namespace StressTest
             t.Join();
          }
 
-         POP3ClientSimulator.AssertMessageCount(_account.Address, "test", totalMessageCount);
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", totalMessageCount);
 
          for (int i = 0; i < totalMessageCount; i++)
          {
-            string content = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            string content = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             Assert.IsTrue(content.Contains("X-Spam-Status"), content);
          }
@@ -88,7 +88,7 @@ namespace StressTest
       {
          for (int message = 0; message < _threadedMessageCount; message++)
          {
-             SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
+             SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
          }
       }
 

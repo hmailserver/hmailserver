@@ -92,18 +92,19 @@ namespace StressTest
         public void TestDKIMBadSignature()
         {
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
+           
 
-            string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
-            string path = Path.Combine(Environment.CurrentDirectory, folder);
-            string[] files = Directory.GetFiles(path);
+           string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
+           string path = Path.Combine(Environment.CurrentDirectory, folder);
+           string[] files = Directory.GetFiles(path);
 
-            foreach (string file in files)
-            {
-                DeleteCurrentLog();
-                hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
-                Assert.AreEqual(hMailServer.eDKIMResult.eDKPermFail, result, file);
-                Assert.IsFalse(VerifyLoadSuccess());
-            }
+           foreach (string file in files)
+           {
+              DeleteCurrentLog();
+              hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
+              Assert.AreEqual(hMailServer.eDKIMResult.eDKPermFail, result, file);
+              Assert.IsFalse(VerifyLoadSuccess());
+           }
         }
 
         [Test]

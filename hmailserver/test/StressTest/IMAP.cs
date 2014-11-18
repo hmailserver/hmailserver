@@ -20,7 +20,7 @@ namespace StressTest
       [Test]
       public void TestLongIMAPCommand()
       {
-         IMAPClientSimulator sim = ConnectAndLogon();
+         ImapClientSimulator sim = ConnectAndLogon();
 
          // build a large string.
          StringBuilder sb = new StringBuilder();
@@ -40,9 +40,9 @@ namespace StressTest
       }
 
       
-      private static IMAPClientSimulator ConnectAndLogon()
+      private static ImapClientSimulator ConnectAndLogon()
       {
-         IMAPClientSimulator sim = new IMAPClientSimulator();
+         ImapClientSimulator sim = new ImapClientSimulator();
          sim.ConnectAndLogon("test@test.com", "test");
          return sim;
       }
