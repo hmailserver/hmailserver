@@ -24,7 +24,7 @@ namespace StressTest
       {
          Send100MBMessage();
 
-         POP3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
 
          TcpConnection socket = new TcpConnection();
          socket.Connect(110);
@@ -126,7 +126,7 @@ namespace StressTest
          result = socket.Receive();
          socket.Disconnect();
 
-         POP3ClientSimulator.AssertMessageCount(_domain.Accounts[0].Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(_domain.Accounts[0].Address, "test", 1);
       }
    }
 }

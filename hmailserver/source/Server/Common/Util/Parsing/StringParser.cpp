@@ -462,18 +462,13 @@ namespace HM
 
       int needleSize = strlen(needle);
 
-      // If the string we're searching for is longer than the string
-      // we're searching is, there's no point in performing the search.
-      if (needleSize > haystackSize)
-         return 0;
-
       for (int haystackIndex = 0; haystackIndex < haystackSize; haystackIndex++)
       {
-         int remainingHaystack = haystackSize - haystackIndex;
+         int remainingHaystackSize = haystackSize - haystackIndex;
 
          // If the string we're searching for is longer than the string
-         // we're searching is, there's no point in performing the search.
-         if (needleSize > haystackSize)
+         // we're searching in, there's no point in performing the search.
+         if (needleSize > remainingHaystackSize)
             return 0;
          
          const char *currentHaystackPosition = haystack + haystackIndex;
@@ -671,7 +666,9 @@ namespace HM
      if (p != 0) throw;  
      p = StringParser::Search("test", 4, "p");
      if (p != 0) throw;  
-      
+     p = StringParser::Search("test", 4, "feb");
+     if (p != 0) throw;
+
       // RESULT:
       /*
          Strings containing 80% us-ascii characters:

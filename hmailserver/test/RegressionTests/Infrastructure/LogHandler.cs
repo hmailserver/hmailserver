@@ -8,7 +8,7 @@ using RegressionTests.Shared;
 
 namespace RegressionTests.Infrastructure
 {
-   class LogHandler
+   public class LogHandler
    {
       public static void DeleteEventLog()
       {

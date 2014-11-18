@@ -32,7 +32,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3ClientSimulator();
+         var sim = new Pop3ClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -63,7 +63,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -102,7 +102,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3ClientSimulator();
+         var sim = new Pop3ClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -138,7 +138,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "te'st@test.com", "test");
 
-         var sim = new POP3ClientSimulator(TestSetup.GetLocalIpAddress(), false, 110);
+         var sim = new Pop3ClientSimulator(TestSetup.GetLocalIpAddress(), false, 110);
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -174,11 +174,11 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new SMTPClientSimulator();
+         var sim = new SmtpClientSimulator();
 
          //test@test.com / test
          string errorMessage;
-         Assert.IsTrue(sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "dGVzdA==", out errorMessage));
+         sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "dGVzdA==", out errorMessage);
          sim.Disconnect();
 
          // confirm that we can retrieve welcome message.
@@ -187,7 +187,7 @@ namespace RegressionTests.Security
          // fail to log on 3 times.
          for (int i = 0; i < 2; i++)
          {
-            Assert.IsFalse(sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "Vaffe==", out errorMessage));
+            CustomAsserts.Throws<System.Exception>(() => sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "Vaffe==", out errorMessage));
             sim.Disconnect();
 
             if (i == 2)

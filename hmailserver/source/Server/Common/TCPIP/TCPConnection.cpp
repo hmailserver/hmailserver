@@ -44,7 +44,7 @@ namespace HM
       expected_remote_hostname_(expected_remote_hostname),
       is_client_(false),
       timeout_(0),
-      connection_state_(StateDisconnected)
+      connection_state_(StatePendingConnect)
    {
       session_id_ = Application::Instance()->GetUniqueID();
 

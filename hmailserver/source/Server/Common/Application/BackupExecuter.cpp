@@ -389,9 +389,8 @@ namespace HM
       // so that we're sure that we're doing a clean restore
       String sDataDirectory = IniFileSettings::Instance()->GetDataDirectory();
       
-      std::set<String> vecExcludes;
       FileUtilities::DeleteFilesInDirectory(sDataDirectory);
-      FileUtilities::DeleteDirectoriesInDirectory(sDataDirectory, vecExcludes);
+      FileUtilities::DeleteDirectoriesInDirectory(sDataDirectory);
 
       String errorMessage;
       FileUtilities::CopyDirectory(sDirContainingDataFiles, sDataDirectory, errorMessage);

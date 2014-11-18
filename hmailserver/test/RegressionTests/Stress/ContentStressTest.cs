@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -24,8 +25,8 @@ namespace RegressionTests.Stress
             sb.Append("1234567890");
          }
 
-         var sim = new SMTPClientSimulator();
-         Assert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
+         var sim = new SmtpClientSimulator();
+         CustomAsserts.Throws<DeliveryFailedException>(() => sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
       }
 
 
@@ -264,12 +265,12 @@ namespace RegressionTests.Stress
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.SendRaw("mimetest@test.com", "mimetest@test.com", content);
+         smtpClientSimulator.SendRaw("mimetest@test.com", "mimetest@test.com", content);
 
-         string sContents = POP3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
+         string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 
          Assert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
          Assert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);

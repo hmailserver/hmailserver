@@ -24,7 +24,7 @@ namespace HM
       command_line_(commandLine),
       error_log_timeout_(0)
    {
-      working_directory_ = Utilities::GetWin32TempDirectory();
+      working_directory_ = IniFileSettings::Instance()->GetTempDirectory();
    }
 
    ProcessLauncher::~ProcessLauncher(void)

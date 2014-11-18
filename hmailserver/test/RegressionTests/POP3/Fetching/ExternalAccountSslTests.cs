@@ -30,7 +30,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(2, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(2, port, messages))
          {
             pop3Server.DisconnectImmediate = true;
             pop3Server.StartListen();
@@ -104,7 +104,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSTLS))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages, eConnectionSecurity.eCSTLS))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -128,7 +128,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
+            Pop3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -148,7 +148,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSNone))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages, eConnectionSecurity.eCSNone))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -209,7 +209,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSNone))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages, eConnectionSecurity.eCSNone))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -233,7 +233,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
+            Pop3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -253,7 +253,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -277,7 +277,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
+            Pop3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }
@@ -297,7 +297,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages, eConnectionSecurity.eCSSTARTTLSRequired))
          {
             pop3Server.SetCertificate(SslSetup.GetCertificate());
             pop3Server.StartListen();
@@ -321,7 +321,7 @@ namespace RegressionTests.POP3.Fetching
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
 
-            POP3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
+            Pop3ClientSimulator.AssertMessageCount("user@test.com", "test", 1);
 
             fa.Delete();
          }

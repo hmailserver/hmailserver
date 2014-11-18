@@ -38,7 +38,7 @@ namespace RegressionTests.SSL
       public void SslV2ShouldBeDisabled()
       {
          SetSslVersions(true, true, true, true);
-         var smtpClientSimulator = new SMTPClientSimulator(true, SslProtocols.Ssl2, 25001, null);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl2, 25001, null);
 
          try
          {
@@ -62,14 +62,14 @@ namespace RegressionTests.SSL
       public void ItShouldBePossibleToEnableSslV3()
       {
          SetSslVersions(true, false, false, false);
-         var smtpClientSimulator = new SMTPClientSimulator(true, SslProtocols.Ssl3, 25001, null);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl3, 25001, null);
 
 
          string errorMessage;
-         Assert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
+         smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
 
 
-         var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
          Assert.IsTrue(message.Contains("version=SSLv3"), message);
 
       }
@@ -78,7 +78,7 @@ namespace RegressionTests.SSL
       public void ItShouldBePossibleToDisableSslV3()
       {
          SetSslVersions(false, true, true, true);
-         var smtpClientSimulator = new SMTPClientSimulator(true, SslProtocols.Ssl3, 25001, null);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl3, 25001, null);
 
          try
          {
@@ -104,12 +104,12 @@ namespace RegressionTests.SSL
       public void WhenSSL3IsDisabledTLSShouldWork()
       {
          SetSslVersions(false, true, true, true);
-         var smtpClientSimulator = new SMTPClientSimulator(true, SslProtocols.Tls, 25001, null);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls, 25001, null);
 
          string errorMessage;
-         Assert.IsTrue(smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage));
+         smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
 
-         var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
          Assert.IsTrue(message.Contains("version=TLSv1"), message);
       }
 

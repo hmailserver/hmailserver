@@ -32,7 +32,6 @@ namespace HM
       virtual AnsiString GetCommandSeparator() const;
 
       virtual void EnqueueWrite_(const String &sData) ;
-      virtual void EnqueueWrite_DebugOnly(const String &sData) ;
 
       virtual void OnDisconnect();
       virtual void OnConnectionTimeout();

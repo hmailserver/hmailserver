@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -104,7 +105,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerLiteral()
       {
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          sim.Connect();
          Assert.IsTrue(sim.Send("a01 login " + GetUsername() + " {4}").StartsWith("+"));
          sim.Send(GetPassword());
@@ -114,7 +115,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerLiteral2()
       {
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          sim.Connect();
          Assert.IsTrue(sim.Send("a01 login {" + GetUsername().Length.ToString() + "} {4}").StartsWith("+"));
          Assert.IsTrue(sim.Send(GetUsername() + " {" + GetPassword().Length.ToString() + "}").StartsWith("+"));
@@ -125,7 +126,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestIMAPServerNormal()
       {
-         var sim = new IMAPClientSimulator();
+         var sim = new ImapClientSimulator();
          sim.ConnectAndLogon(GetUsername(), GetPassword());
          EnsureNoPassword();
       }
@@ -144,7 +145,7 @@ namespace RegressionTests.Security
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -168,7 +169,7 @@ namespace RegressionTests.Security
 
             fa.Delete();
 
-            string downloadedMessage = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
             Assert.IsTrue(downloadedMessage.Contains(message));
 
             EnsureNoPassword();
@@ -178,7 +179,7 @@ namespace RegressionTests.Security
       [Test]
       public void TestPOP3Server()
       {
-         var sim = new POP3ClientSimulator();
+         var sim = new Pop3ClientSimulator();
          sim.ConnectAndLogon(GetUsername(), GetPassword());
          EnsureNoPassword();
       }
@@ -196,7 +197,7 @@ namespace RegressionTests.Security
 
          int smtpServerPort = TestSetup.GetNextFreePort();
 
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -205,8 +206,8 @@ namespace RegressionTests.Security
             AddRoutePointingAtLocalhostWithAuth(0, smtpServerPort);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
-            Assert.IsTrue(smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message"));
+            var smtp = new SmtpClientSimulator();
+            smtp.Send("test@test.com", "test@dummy-example.com", "Test", "Test message");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
@@ -224,9 +225,11 @@ namespace RegressionTests.Security
       [Test]
       public void TestSMTPServerAuthLogin()
       {
-         var sim = new SMTPClientSimulator();
+         var sim = new SmtpClientSimulator();
          string errorMsg;
-         sim.ConnectAndLogon(GetUsername(), GetPassword(), out errorMsg);
+
+         CustomAsserts.Throws<AuthenticationException>(() => sim.ConnectAndLogon(GetUsername(), GetPassword(), out errorMsg));
+         
          EnsureNoPassword();
       }
 

@@ -49,7 +49,6 @@ namespace HM
       transmission_buffer_(true),
       pending_disconnect_(false)
    {
-      SessionManager::Instance()->OnCreate(STPOP3);
 
       /*
         RFC 1939, Basic Operation
@@ -69,7 +68,8 @@ namespace HM
    {
       OnDisconnect();
 
-      SessionManager::Instance()->OnDestroy(STPOP3);
+      if (GetConnectionState() != StatePendingConnect)
+         SessionManager::Instance()->OnSessionEnded(STPOP3);
    }
 
    void
@@ -801,74 +801,51 @@ namespace HM
    bool
    POP3Connection::SendFileHeader_(const String &sFilename, int iNoOfLines)
    {
-
-      bool bRetVal = false;
-
-      HANDLE handleFile;
-
-      handleFile = CreateFile(sFilename, 
-                        GENERIC_READ, 
-                        FILE_SHARE_READ, 
-                        NULL, // LPSECURITY_ATTRIBUTES
-                        OPEN_ALWAYS, // -- open or create.
-                        FILE_ATTRIBUTE_NORMAL, // attributes
-                        NULL // file template
-                        );
-
-      if (handleFile == INVALID_HANDLE_VALUE) 
+      File file;
+      if (!file.Open(sFilename, File::OTReadOnly))
          return false;
 
-      SetFilePointer(handleFile,0,0,FILE_BEGIN);
-
-      if (handleFile > 0)
-      {
+      int current_body_line_count = 0;
+      bool header_sent = false;
+      AnsiString line;
       
-         BYTE buf[1024];
-         memset(buf, 0, 1024);
+      AnsiString output_buffer;
 
-         unsigned long nbytes = 0;
-         BOOL bMoreData = TRUE;
-         int nBytesSent = 0;
-
-         bool bHeaderSent = false;
-         int iCurNoOfLines = 0;
-         while (bMoreData)
+      while (file.ReadLine(line))
+      {
+         if (header_sent)
          {
-         
-            String sLine;
-            bMoreData = FileUtilities::ReadLine(handleFile, sLine);
+            if (iNoOfLines <= 0)
+               break;
 
-            if (bHeaderSent)
-            {
-               if (iNoOfLines <= 0)
-                  break;
-              
-               EnqueueWrite_DebugOnly(sLine);
+            output_buffer += line;
 
-               iCurNoOfLines++;
+            current_body_line_count++;
 
-               if (iCurNoOfLines == iNoOfLines)
-                  break;
-            }
-            else
-            {
-               if (sLine.IsEmpty())
-                  bHeaderSent = true;
+            if (current_body_line_count == iNoOfLines)
+               break;
+         }
+         else
+         {
+            if (line == "\r\n")
+               header_sent = true;
 
-               EnqueueWrite_DebugOnly(sLine);
-            
-            }
-        
+            output_buffer += line;
          }
 
-         bRetVal = true;
-
+         if (output_buffer.size() > 10000)
+         {
+            EnqueueWrite(output_buffer);
+            output_buffer.Empty();
+         }
       }
 
+      if (!output_buffer.IsEmpty())
+      {
+         EnqueueWrite(output_buffer);
+      }
 
-      CloseHandle(handleFile);
-
-      return bRetVal;
+      return true;
    
    }
 
@@ -876,22 +853,6 @@ namespace HM
    POP3Connection::EnqueueWrite_(const String &sData)
    {
       if (Logger::Instance()->GetLogPOP3())
-      {
-         String sLogData = "SENT: " + sData;
-         sLogData.TrimRight(_T("\r\n"));
-
-         LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
-      }
-
-      EnqueueWrite(sData + "\r\n");
-   }
-
-   void
-   POP3Connection::EnqueueWrite_DebugOnly(const String &sData)
-   {
-      // Logs are crazy huge for clients that do a lot of TOP's so
-      // let's not log every email line unless loglevel is high enough
-      if (IniFileSettings::Instance()->GetLogLevel() >= 8)
       {
          String sLogData = "SENT: " + sData;
          sLogData.TrimRight(_T("\r\n"));

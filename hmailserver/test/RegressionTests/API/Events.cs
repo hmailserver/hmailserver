@@ -36,10 +36,10 @@ namespace RegressionTests.API
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -73,10 +73,10 @@ namespace RegressionTests.API
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -295,10 +295,10 @@ namespace RegressionTests.API
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
@@ -326,7 +326,7 @@ namespace RegressionTests.API
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -357,7 +357,7 @@ namespace RegressionTests.API
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -384,10 +384,10 @@ namespace RegressionTests.API
          scripting.Reload();
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          // Wait for the message to be delivered.
-         POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Delivering message"));
@@ -416,12 +416,12 @@ namespace RegressionTests.API
 
 
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
@@ -452,12 +452,12 @@ namespace RegressionTests.API
 
 
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
-         string text = POP3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
          CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
@@ -520,7 +520,7 @@ namespace RegressionTests.API
          FetchAccount fa;
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -561,12 +561,12 @@ namespace RegressionTests.API
             Assert.IsTrue(pop3Server.RetrievedMessages.Contains(2));
             Assert.IsTrue(pop3Server.RetrievedMessages.Contains(3));
 
-            POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
             
          }
 
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -579,7 +579,7 @@ namespace RegressionTests.API
             Assert.AreEqual(0, pop3Server.DeletedMessages.Count);
             Assert.AreEqual(0, pop3Server.RetrievedMessages.Count);
 
-            POP3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
          }
       }
    }

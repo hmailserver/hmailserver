@@ -16,15 +16,15 @@ namespace RegressionTests.MIME
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSendRaw(account.Address, account.Address,
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
                                            "From: test@test.com\r\n" +
                                            "Content-Type: text/plain; charset =\"iso-8859-1\" \r\n" +
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -37,15 +37,15 @@ namespace RegressionTests.MIME
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSendRaw(account.Address, account.Address,
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
                                            "From: test@test.com\r\n" +
                                            "Content-Type: text/plain; charset = \"iso-8859-1\"\r\n" +
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -58,15 +58,15 @@ namespace RegressionTests.MIME
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSendRaw(account.Address, account.Address,
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
                                            "From: test@test.com\r\n" +
                                            "Content-Type: text/plain; charset = iso-8859-1 \r\n" +
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -79,15 +79,15 @@ namespace RegressionTests.MIME
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSendRaw(account.Address, account.Address,
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
                                            "From: test@test.com\r\n" +
                                            "Content-Type: text/plain; charset=iso-8859-1 \r\n" +
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 
@@ -100,15 +100,15 @@ namespace RegressionTests.MIME
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSendRaw(account.Address, account.Address,
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
                                            "From: test@test.com\r\n" +
                                            "Content-Type: text/plain; charset =\"iso-8859-1\"\r\n" +
                                            "\r\n" +
                                            "Test\r\n");
 
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
          string result = sim.Fetch("1 BODYSTRUCTURE");
          sim.Disconnect();
 

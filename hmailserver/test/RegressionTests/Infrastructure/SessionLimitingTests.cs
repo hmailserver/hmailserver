@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -162,6 +163,32 @@ namespace RegressionTests.Infrastructure
 
          AssertMaxSessionCount(eSessionType.eSTPOP3, countBefore);
       }
+
+      [Test]
+      public void TestDisconnectingClientWithOnClientConnectEventShouldDecreaseConnectionCount()
+      {
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         var status = app.Status;
+         int countBefore = status.get_SessionCount(eSessionType.eSTSMTP);
+
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientConnect(oClient) " + Environment.NewLine +
+                         "   Result.Value = 1" + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var socket = new TcpConnection();
+         Assert.IsTrue(socket.Connect(110));
+         Assert.IsEmpty(socket.Receive());
+
+         AssertMaxSessionCount(eSessionType.eSTSMTP, countBefore);
+      }
+
 
       public static void AssertMaxSessionCount(eSessionType sessionType, int maxExpectedCount)
       {

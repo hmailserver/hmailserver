@@ -42,7 +42,6 @@ namespace HM
       connectionFactory_ = connectionFactory;
    }
 
-   
    TCPServer::~TCPServer(void)
    {
       LOG_DEBUG("TCPServer::~TCPServer");
@@ -154,7 +153,7 @@ namespace HM
    }
 
    void 
-   TCPServer::HandleAccept(std::shared_ptr<TCPConnection> pConnection,
+   TCPServer::HandleAccept(std::shared_ptr<TCPConnection> connection,
       const boost::system::error_code& error)
    {
       if (error.value() == 995)
@@ -166,8 +165,7 @@ namespace HM
          /*
              995: The I/O operation has been aborted because of either a thread exit or an application request
              
-             This happens when the servers are stopped. We shouldn't post any new accepts or do anything
-             else in this situation.
+             This happens when the servers are stopped. We shouldn't post any new accepts since we're shutting down.
         */
 
          return;
@@ -179,8 +177,8 @@ namespace HM
 
       if (!error)
       {
-         boost::asio::ip::tcp::endpoint localEndpoint = pConnection->GetSocket().local_endpoint();
-         boost::asio::ip::tcp::endpoint remoteEndpoint = pConnection->GetSocket().remote_endpoint();
+         boost::asio::ip::tcp::endpoint localEndpoint = connection->GetSocket().local_endpoint();
+         boost::asio::ip::tcp::endpoint remoteEndpoint = connection->GetSocket().remote_endpoint();
 
          IPAddress localAddress (localEndpoint.address());
          IPAddress remoteAddress (remoteEndpoint.address());
@@ -190,14 +188,7 @@ namespace HM
 
          std::shared_ptr<SecurityRange> securityRange = PersistentSecurityRange::ReadMatchingIP(remoteAddress);
 
-         if (!securityRange)
-         {
-            LOG_TCPIP("TCP - Connection dropped - No matching IP range.");
-            return;
-         }
-
-
-         bool allow = SessionManager::Instance()->GetAllow(sessionType_, securityRange);
+         bool allow = SessionManager::Instance()->CreateSession(sessionType_, securityRange);
         
          if (!allow)
          {
@@ -221,10 +212,17 @@ namespace HM
          }
 
          if (!FireOnAcceptEvent(remoteAddress, localEndpoint.port()))
+         {
+            // Session has been created, but is now terminated by a custom script. Since we haven't started the
+            // TCPConnection yet, we are still responsible for tracking connection count.
+            SessionManager::Instance()->OnSessionEnded(sessionType_);
             return;
+         }
 
-         pConnection->SetSecurityRange(securityRange);
-         pConnection->Start();
+         connection->SetSecurityRange(securityRange);
+         connection->Start();
+
+         // Now TCPConnection is responsible for decreasing the session count when the connection ends.
       }
       else
       {

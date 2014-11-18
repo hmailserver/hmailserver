@@ -90,7 +90,6 @@ namespace HM
       isAuthenticated_(false),
       start_tls_used_(false)
    {
-      SessionManager::Instance()->OnCreate(STSMTP);
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
 
@@ -114,7 +113,8 @@ namespace HM
    {
       ResetCurrentMessage_();
 
-      SessionManager::Instance()->OnDestroy(STSMTP);
+      if (GetConnectionState() != StatePendingConnect)
+         SessionManager::Instance()->OnSessionEnded(STSMTP);
    }
 
 
@@ -1015,7 +1015,7 @@ namespace HM
 
                      if (bArchiveHardlinks) 
                      {
-                        FileUtilities::CreateDirectoryRecursive(sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName);
+                        FileUtilities::CreateDirectory(sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName);
                         // This function call is odd in that original is 2nd anc destination is 1st..
                         BOOL fCreatedLink = CreateHardLink( sMessageArchivePath2, sMessageArchivePath, NULL ); // Last is reserved, must be NULL
 
@@ -1172,13 +1172,7 @@ namespace HM
 
       if (!FileUtilities::Exists(fileName))
       {
-         String sErrorMsg;
-         sErrorMsg.Format(_T("Rejected message because no mail data has been saved in file %s"), fileName.c_str());
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5019, "SMTPConnection::_OnPreAcceptTransfer", sErrorMsg);
-      
-         EnqueueWrite_("451 Rejected - No data saved.");
-         LogAwstatsMessageRejected_();
+         HandleUnableToSaveMessageDataFile_(fileName);
          return false;
       }
 
@@ -1260,6 +1254,16 @@ namespace HM
       }
 
       return true;
+   }
+
+   void 
+   SMTPConnection::HandleUnableToSaveMessageDataFile_(const String &file_name)
+   {
+      String sErrorMsg = Formatter::Format("Rejected message because no mail data has been saved in file {0}", file_name);
+      ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5019, "SMTPConnectionSMTPConnection::HandleUnableToSaveMessage_", sErrorMsg);
+
+      EnqueueWrite_("451 Rejected - No data saved.");
+      LogAwstatsMessageRejected_();
    }
 
    bool 
@@ -1605,7 +1609,12 @@ namespace HM
       current_state_ = DATA;
 
       transmission_buffer_ = std::shared_ptr<TransparentTransmissionBuffer>(new TransparentTransmissionBuffer(false));
-      transmission_buffer_->Initialize(PersistentMessage::GetFileName(current_message_));
+      if (!transmission_buffer_->Initialize(PersistentMessage::GetFileName(current_message_)))
+      {
+         HandleUnableToSaveMessageDataFile_(PersistentMessage::GetFileName(current_message_));
+         return;
+      }
+
       transmission_buffer_->SetMaxSizeKB(max_message_size_kb_);
 
       SetReceiveBinary(true);

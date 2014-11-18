@@ -728,7 +728,7 @@ namespace HM
    {
       const HM::String directoryName = HM::FileUtilities::GetFilePath(fileName);
       if (!HM::FileUtilities::Exists(directoryName))
-         HM::FileUtilities::CreateDirectoryRecursive(directoryName);
+         HM::FileUtilities::CreateDirectory(directoryName);
 
       bool result = mime_mail_->SaveAllToFile(fileName);
 

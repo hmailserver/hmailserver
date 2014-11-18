@@ -66,17 +66,17 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test C", "Body", "", "ÄÄÄ");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SendMessage("Test B", "Body", "", "ÖÖÖ");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          SendMessage("Test A", "Body", "", "ÅÅÅ");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(CC) UTF-8 ALL");
 
@@ -101,23 +101,23 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test A", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SendMessage("Test B", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          SendMessage("Test C", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
          SendMessage("Test D", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
 
          SendMessage("Test E", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(DATE) UTF-8 ALL");
 
@@ -142,14 +142,14 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test 1", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SendMessage("Test 2", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
@@ -175,32 +175,32 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test Σ", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
          // pos: 18
 
          SendMessage("Test Α", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
          // pos: 1
 
          SendMessage("Test Δ", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
          // pos: 4
 
          SendMessage("Test β", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
          // pos: 2
 
          SendMessage("Test κ", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
          // pos: 10
 
          SendMessage("Test Ψ", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 6);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 6);
          // pos: 23
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
@@ -225,17 +225,17 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test Ä", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SendMessage("Test Ö", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          SendMessage("Test Å", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
@@ -260,28 +260,28 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test Ç", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
          // pos: 4
 
          SendMessage("Test C", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
          // pos: 3
 
          SendMessage("Test B", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
          // pos: 2
 
          SendMessage("Test Ğ", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 4);
          // pos: 9
 
          SendMessage("Test G", "Body", "", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 5);
          // pos: 8
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
@@ -306,17 +306,17 @@ namespace RegressionTests.IMAP
 
          // disable...
          SendMessage("Test A", "Body", "ÅÅÅ", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
          SendMessage("Test B", "Body", "ÖÖÖ", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
          SendMessage("Test C", "Body", "ÄÄÄ", "");
-         IMAPClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
          AssertAllMessagesIndexed();
 
-         var sim = new IMAPClientSimulator(account.Address, "test", "Inbox");
+         var sim = new ImapClientSimulator(account.Address, "test", "Inbox");
 
          string result = sim.Sort("(TO) UTF-8 ALL");
 

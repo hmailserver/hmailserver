@@ -51,7 +51,7 @@ namespace RegressionTests.AntiSpam.DKIM
          deliveryResults["test@example.com"] = 250;
 
          int port = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, port))
+         using (var server = new SmtpServerSimulator(1, port))
          {
             server.SecondsToWaitBeforeTerminate = 60;
             server.AddRecipientResult(deliveryResults);
@@ -61,10 +61,10 @@ namespace RegressionTests.AntiSpam.DKIM
             AddRoutePointingAtLocalhost(5, port);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", body));
+            smtp.Send("test@test.com", recipients, "Test", body);
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();

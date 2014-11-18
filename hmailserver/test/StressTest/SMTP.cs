@@ -48,7 +48,7 @@ namespace StressTest
 
          var sw = new Stopwatch();
          sw.Start();
-         SMTPClientSimulator.StaticSend("test@test.com", "list@test.com", "Test", "Test message");
+         SmtpClientSimulator.StaticSend("test@test.com", "list@test.com", "Test", "Test message");
          sw.Stop();
 
          Console.WriteLine("Elapsed time: " + sw.Elapsed.TotalSeconds);
@@ -103,7 +103,7 @@ namespace StressTest
 
          var sw = new Stopwatch();
          sw.Start();
-         SMTPClientSimulator.StaticSend("test@test.com", recipients, "Test", "Test message");
+         SmtpClientSimulator.StaticSend("test@test.com", recipients, "Test", "Test message");
          sw.Stop();
 
          Console.WriteLine("Elapsed time: " + sw.Elapsed.TotalSeconds);
@@ -181,7 +181,7 @@ namespace StressTest
 
          for (int i = 1; i <= numberOfMessages; i++)
          {
-            Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "Test", "Test message"));
+            SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "Test", "Test message");
 
             if (i % 100 == 0)
             {
@@ -351,7 +351,7 @@ namespace StressTest
          socket.Receive();
          socket.Disconnect();
 
-         POP3ClientSimulator.AssertMessageCount(_domain.Accounts[0].Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(_domain.Accounts[0].Address, "test", 1);
       }
 
 

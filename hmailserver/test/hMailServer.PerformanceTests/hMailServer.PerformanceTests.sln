@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hMailServer.PerformanceTests", "hMailServer.PerformanceTests\hMailServer.PerformanceTests.csproj", "{B9678F32-2E33-49E3-B385-D60790A77B82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegressionTests", "..\RegressionTests\RegressionTests.csproj", "{8F691179-0851-4A25-AC78-3548DD0514FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9678F32-2E33-49E3-B385-D60790A77B82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9678F32-2E33-49E3-B385-D60790A77B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9678F32-2E33-49E3-B385-D60790A77B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9678F32-2E33-49E3-B385-D60790A77B82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F691179-0851-4A25-AC78-3548DD0514FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F691179-0851-4A25-AC78-3548DD0514FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F691179-0851-4A25-AC78-3548DD0514FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F691179-0851-4A25-AC78-3548DD0514FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

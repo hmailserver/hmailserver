@@ -710,7 +710,7 @@ namespace HM
       // We start by checking if it already exists. If not, attempt to create. We used
       // to create each folder before. Checking first will save some disk access.
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       // Move the old file to the new path.
       if (!FileUtilities::Move(sourceLocation, destinationFileName))
@@ -734,7 +734,7 @@ namespace HM
       // We start by checking if it already exists. If not, attempt to create. We used
       // to create each folder before. Checking first will save some disk access.
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       // Move the old file to the new path.
       if (!FileUtilities::Move(sourceLocation, destinationFileName))
@@ -755,7 +755,7 @@ namespace HM
       // in which the message should be put. If the dir doesn't exist, we'll
       // have slight problems creating a file in it.
       String sPath = FileUtilities::GetFilePath(sFileName);
-      FileUtilities::CreateDirectoryRecursive(sPath);
+      FileUtilities::CreateDirectory(sPath);
 
 
       // The file does not exists. May have been deleted

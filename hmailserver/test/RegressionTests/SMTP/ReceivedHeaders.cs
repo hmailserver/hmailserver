@@ -34,10 +34,10 @@ namespace RegressionTests.SMTP
       {
          string errorMessage;
 
-         var client = new SMTPClientSimulator();
+         var client = new SmtpClientSimulator();
          client.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "Test", out errorMessage);
 
-         var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
          Assert.IsTrue(message.Contains("ESMTPA\r\n"));
       }
@@ -46,12 +46,12 @@ namespace RegressionTests.SMTP
       [Description("Header should contain ESMTPS if STARTTLS is used.")]
       public void TestESMTPSInHeader()
       {
-         var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+         var smtpClientSimulator = new SmtpClientSimulator(false, 25002);
 
          string errorMessage;
          smtpClientSimulator.Send(true, string.Empty, string.Empty, _account.Address, _account.Address, "Test", "test", out errorMessage);
 
-         var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
          Assert.IsTrue(message.Contains("ESMTPS\r\n"));
       }
 
@@ -61,13 +61,13 @@ namespace RegressionTests.SMTP
       {
          try
          {
-            var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+            var smtpClientSimulator = new SmtpClientSimulator(false, 25002);
 
             string errorMessage;
             smtpClientSimulator.Send(true, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
                out errorMessage);
 
-            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsTrue(message.Contains("ESMTPSA\r\n"));
          }
          catch (Exception e)
@@ -82,13 +82,13 @@ namespace RegressionTests.SMTP
       {
          try
          {
-            var smtpClientSimulator = new SMTPClientSimulator(false, 25002);
+            var smtpClientSimulator = new SmtpClientSimulator(false, 25002);
 
             string errorMessage;
             smtpClientSimulator.Send(true, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
                out errorMessage);
 
-            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsTrue(message.Contains("version=TLS"));
             Assert.IsTrue(message.Contains("cipher="));
             Assert.IsTrue(message.Contains("bits="));
@@ -105,13 +105,13 @@ namespace RegressionTests.SMTP
       {
          try
          {
-            var smtpClientSimulator = new SMTPClientSimulator(false, 25);
+            var smtpClientSimulator = new SmtpClientSimulator(false, 25);
 
             string errorMessage;
             smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
                out errorMessage);
 
-            var message = POP3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+            var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsFalse(message.Contains("cipher\r\n"));
          }
          catch (Exception e)

@@ -20,9 +20,8 @@ namespace HM
 
        int Count();
 
-       bool GetAllow(SessionType t, std::shared_ptr<SecurityRange> security_range);
-       void OnCreate(SessionType t);
-       void OnDestroy(SessionType st);
+       bool CreateSession(SessionType t, std::shared_ptr<SecurityRange> security_range);
+       void OnSessionEnded(SessionType st);
 
        int GetNumberOfConnections(SessionType st);
        // Returns the number of connections for a specific connection timeout
