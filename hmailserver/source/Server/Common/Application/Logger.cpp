@@ -354,7 +354,8 @@ namespace HM
       
       if (!file->IsOpen())
       {
-         file->Open(fileName, File::OTAppend);
+         if (!file->Open(fileName, File::OTAppend))
+            throw std::exception(Formatter::FormatAsAnsi("Unable to open log file {0}.", fileName));
 
          if (!fileExists && writeUnicode)
          {
@@ -365,7 +366,7 @@ namespace HM
       return file;
    }
 
-   bool
+   void
    Logger::WriteData_(const String &sData, LogType lt)
    {
       boost::lock_guard<boost::recursive_mutex> guard(mtx_);
@@ -418,7 +419,6 @@ namespace HM
       if (!keepFileOpen)
          file->Close();
 
-      return true;
    }
 
 
