@@ -789,7 +789,7 @@ namespace HM
       SaveObject(pMessage);
 
       // Log the error.
-      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "PersistentMessage::_WriteDataToMessageFile", "Message retrieval failed because message file " + sFileName + " did not exist.");
+      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "PersistentMessage::EnsureFileExistance", "Message retrieval failed because message file " + sFileName + " did not exist.");
    }
 
    bool
