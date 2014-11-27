@@ -65,7 +65,14 @@ namespace HM
       }
       catch (boost::system::system_error& error)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name), error);
+         try
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name), error);
+         }
+         catch (...)
+         {
+            // Don't swallow the original exception.
+         }
 
          throw;
       }
@@ -74,7 +81,14 @@ namespace HM
          String sErrorMessage = 
             Formatter::Format("An error occured while executing '{0}'", descriptive_name);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name), error);
+         try
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name), error);
+         }
+         catch (...)
+         {
+            // Don't swallow the origial exception
+         }
          
          throw;
       }
@@ -83,7 +97,14 @@ namespace HM
          String sErrorMessage = 
             Formatter::Format("An error occured while executing '{0}'", descriptive_name);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name));
+         try
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "ExceptionHandler::Run", GetExceptionText(descriptive_name));
+         }
+         catch (...)
+         {
+            // Don't swallow the original exception
+         }
 
          throw;
       }
