@@ -197,7 +197,8 @@ namespace HM
    FileUtilities::ReadCompleteTextFile(const String &sFilename)
    {
       File oFile;
-      oFile.Open(sFilename, File::OTReadOnly);
+      if (!oFile.Open(sFilename, File::OTReadOnly))
+         return "";
 
       // Read file
       std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadFile();
@@ -258,7 +259,7 @@ namespace HM
       File file;
       if (!file.Open(sFilename, File::OTReadOnly))
       {
-         throw new std::logic_error(Formatter::FormatAsAnsi("Unable to open file {0}", sFilename));
+         throw std::logic_error(Formatter::FormatAsAnsi("Unable to open file {0}", sFilename));
       }
 
       file.SetPosition(iStart);
