@@ -24,7 +24,7 @@ namespace HM
 
       enum Constants
       {
-         FileChunkSize = 15000
+         FileChunkSize = 1048576 // 1MB
       };
 
       bool IsOpen() const;

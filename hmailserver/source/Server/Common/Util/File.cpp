@@ -14,6 +14,8 @@
 
 namespace HM
 {
+   
+
    File::File() :
       file_(nullptr)
    {
@@ -220,13 +222,12 @@ namespace HM
          // errno will be set to invalid argument. The below code therefore reads the file in chunks.
          int remaining_bytes = iMaxSize;
          BYTE *buffer_position = (BYTE*)pFileContents->GetBuffer();
-         const int block_size = 1024 * 50;
-
+         
          int total_bytes_read = 0;
 
          while (remaining_bytes > 0)
          {
-            int bytes_to_read = min(block_size, remaining_bytes);
+            int bytes_to_read = min(FileChunkSize, remaining_bytes);
             int bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
 
             total_bytes_read += bytes_actually_read;
