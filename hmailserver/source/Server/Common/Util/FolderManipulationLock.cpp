@@ -23,10 +23,18 @@ namespace HM
 
    FolderManipulationLock::~FolderManipulationLock(void)
    {
-      if (has_lock_)
+      try
       {
-         Release(lock_pair_);
+         if (has_lock_)
+         {
+            Release(lock_pair_);
+         }
       }
+      catch (...)
+      {
+
+      }
+
    }
 
    void

@@ -37,11 +37,19 @@ namespace HM
 
       int iMaxNumberOfThreads = Configuration::Instance()->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
       queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, queue_name_);
+
    }  
 
    SMTPDeliveryManager::~SMTPDeliveryManager()
    {
-      WorkQueueManager::Instance()->RemoveQueue(queue_name_);
+      try
+      {
+         WorkQueueManager::Instance()->RemoveQueue(queue_name_);
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void 
@@ -94,7 +102,7 @@ namespace HM
 
             std::shared_ptr<DeliveryTask> pDeliveryTask = std::shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
             WorkQueueManager::Instance()->AddTask(queue_id_, pDeliveryTask);
-            
+
             cur_number_of_sent_++;
 
             SendStatistics_();
@@ -104,7 +112,6 @@ namespace HM
 
          deliver_messages_.WaitFor(boost::chrono::minutes(1));
       }
-   
       
       return;
    }

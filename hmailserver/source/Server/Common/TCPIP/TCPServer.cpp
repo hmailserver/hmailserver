@@ -44,7 +44,7 @@ namespace HM
 
    TCPServer::~TCPServer(void)
    {
-      LOG_DEBUG("TCPServer::~TCPServer");
+      
    }
 
    bool

@@ -66,10 +66,17 @@ namespace HM
 
    POP3Connection::~POP3Connection()
    {
-      OnDisconnect();
+      try
+      {
+         OnDisconnect();
 
-      if (GetConnectionState() != StatePendingConnect)
-         SessionManager::Instance()->OnSessionEnded(STPOP3);
+         if (GetConnectionState() != StatePendingConnect)
+            SessionManager::Instance()->OnSessionEnded(STPOP3);
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void
@@ -657,7 +664,11 @@ namespace HM
 
       transmission_buffer_.Initialize(shared_from_this());
       
-      if (!current_file_.Open(fileName, File::OTReadOnly))
+      try
+      {
+         current_file_.Open(fileName, File::OTReadOnly);
+      }
+      catch (...)
       {
          String sErrorMessage;
          sErrorMessage.Format(_T("Could not send file %s via socket since it does not exist."), fileName.c_str());
@@ -680,7 +691,7 @@ namespace HM
       // Continue sending the file..
       int bufferSize = GetBufferSize();
 
-         std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
+      std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
       while (pBuffer)
       {
@@ -802,8 +813,14 @@ namespace HM
    POP3Connection::SendFileHeader_(const String &sFilename, int iNoOfLines)
    {
       File file;
-      if (!file.Open(sFilename, File::OTReadOnly))
+      try
+      {
+         file.Open(sFilename, File::OTReadOnly);
+      }
+      catch (...)
+      {
          return false;
+      }
 
       int current_body_line_count = 0;
       bool header_sent = false;

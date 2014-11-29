@@ -33,10 +33,17 @@ namespace HM
 
    IMAPNotificationClient::~IMAPNotificationClient()
    {
-      if (folder_list_change_subscription_id_ > 0)
+      try
       {
-         std::shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
-         notificationServer->UnsubscribeFolderListChanges(account_id_, folder_list_change_subscription_id_);
+         if (folder_list_change_subscription_id_ > 0)
+         {
+            std::shared_ptr<NotificationServer> notificationServer = Application::Instance()->GetNotificationServer();
+            notificationServer->UnsubscribeFolderListChanges(account_id_, folder_list_change_subscription_id_);
+         }
+      }
+      catch (...)
+      {
+
       }
    }
 

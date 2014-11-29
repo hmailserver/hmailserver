@@ -37,15 +37,24 @@ namespace HM
       queue_name_("External fetch queue")
    {
       int iMaxNumberOfSimultaneousTasks = IniFileSettings::Instance()->GetMaxNumberOfExternalFetchThreads();
-      
+
       queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, queue_name_);
+
    }
 
    ExternalFetchManager::~ExternalFetchManager(void)
    {
-      LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager")
-      WorkQueueManager::Instance()->RemoveQueue(queue_name_);
-      LOG_DEBUG("ExternalFetchManager::~ExternalFetchManager - Removed queue")
+      try
+      {
+         LOG_DEBUG("ExternalFetchManager::DoWork() - Exiting")
+         WorkQueueManager::Instance()->RemoveQueue(queue_name_);
+         LOG_DEBUG("ExternalFetchManager::DoWork() - Removed queue")
+      }
+      catch (...)
+      {
+
+      }
+
    }
 
    void
@@ -58,11 +67,12 @@ namespace HM
    {
       SetIsStarted();
 
-      Logger::Instance()->LogDebug("ExternalFetchManager::Start()");
+
+      Logger::Instance()->LogDebug("ExternalFetchManager::DoWork()");
 
       PersistentFetchAccount::UnlockAll();
 
-      fetch_accounts_ = std::shared_ptr<FetchAccounts> (new FetchAccounts(0));
+      fetch_accounts_ = std::shared_ptr<FetchAccounts>(new FetchAccounts(0));
 
 
       while (1)
@@ -99,8 +109,6 @@ namespace HM
          // Sit here and wait a minute 
          check_now_.WaitFor(boost::chrono::minutes(1));
       }
-
-
    }
 
    bool 

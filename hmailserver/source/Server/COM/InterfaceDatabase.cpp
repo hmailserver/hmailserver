@@ -40,9 +40,16 @@ InterfaceDatabase::InterfaceDatabase()
 
 InterfaceDatabase::~InterfaceDatabase()
 {
-   if (conn_)
+   try
    {
-      RollbackTransaction();
+      if (conn_)
+      {
+         RollbackTransaction();
+      }
+   }
+   catch (...)
+   {
+
    }
 }
    

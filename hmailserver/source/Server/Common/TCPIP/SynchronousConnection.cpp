@@ -31,9 +31,16 @@ namespace HM
 
    SynchronousConnection::~SynchronousConnection()
    {
-      boost::system::error_code err;
-      socket_.shutdown(tcp::socket::shutdown_both, err);
-      socket_.close(err);
+      try
+      {
+         boost::system::error_code err;
+         socket_.shutdown(tcp::socket::shutdown_both, err);
+         socket_.close(err);
+      }
+      catch (...)
+      {
+
+      }
    }
    
    bool 

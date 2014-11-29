@@ -23,7 +23,14 @@ namespace HM
 
    SQLCERecordset::~SQLCERecordset()
    {
-      Close_();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult

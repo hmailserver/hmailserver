@@ -26,10 +26,17 @@ namespace HM
 
    MySQLConnection::~MySQLConnection()
    {
-      if (dbconn_)
+      try
       {
-         MySQLInterface::Instance()->p_mysql_close(dbconn_);
-         dbconn_ = 0;
+         if (dbconn_)
+         {
+            MySQLInterface::Instance()->p_mysql_close(dbconn_);
+            dbconn_ = 0;
+         }
+      }
+      catch (...)
+      {
+
       }
          
    }

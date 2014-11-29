@@ -26,13 +26,20 @@ namespace HM
 
    IMAPCommandIdle::~IMAPCommandIdle()
    {
-      std::shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
-      if (!safeConnection)
-         return;
+      try
+      {
+         std::shared_ptr<IMAPConnection> safeConnection = connection_.lock();
+         if (!safeConnection)
+            return;
 
-      if (safeConnection->GetIsIdling())
-      {     
-         Finish(false);
+         if (safeConnection->GetIsIdling())
+         {
+            Finish(false);
+         }
+      }
+      catch (...)
+      {
+
       }
 
    }

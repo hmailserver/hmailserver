@@ -22,7 +22,14 @@ namespace HM
 
    ADORecordset::~ADORecordset()
    {
-      Close_();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult

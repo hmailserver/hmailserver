@@ -24,7 +24,14 @@ namespace HM
 
    MySQLRecordset::~MySQLRecordset()
    {
-      Close_();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult

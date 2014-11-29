@@ -42,7 +42,7 @@ namespace HM
 
    WorkQueue::~WorkQueue(void)
    {
-     LOG_DEBUG(Formatter::Format("Destructing work queue {0}", queue_name_));
+
    }
 
    void 

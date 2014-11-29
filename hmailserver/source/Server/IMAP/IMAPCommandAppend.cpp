@@ -36,7 +36,14 @@ namespace HM
 
    IMAPCommandAppend::~IMAPCommandAppend()
    {
-      KillCurrentMessage_();
+      try
+      {
+         KillCurrentMessage_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void 
@@ -203,11 +210,17 @@ namespace HM
          FileUtilities::CreateDirectory(destinationPath);
 
       File oFile;
-      if (!oFile.Open(message_file_name_, File::OTAppend))
+      
+      try
+      {
+         oFile.Open(message_file_name_, File::OTAppend);
+
+         oFile.Write(pBuf, WriteLen);
+      }
+      catch (...)
+      {
          return false;
-   
-      DWORD dwNoOfBytesWritten = 0;
-      oFile.Write(pBuf, WriteLen, dwNoOfBytesWritten);
+      }
 
       return true;
    }

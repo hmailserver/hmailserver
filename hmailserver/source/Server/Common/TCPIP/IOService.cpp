@@ -41,7 +41,7 @@ namespace HM
 
    IOService::~IOService(void)
    {
-      LOG_DEBUG("IOService::~IOService - Destructing");
+      
    }
 
    bool 

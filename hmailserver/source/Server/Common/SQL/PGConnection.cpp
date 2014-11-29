@@ -23,10 +23,17 @@ namespace HM
 
    PGConnection::~PGConnection()
    {
-      if (dbconn_)
+      try
       {
-         PQfinish(dbconn_);
-         dbconn_ = 0;
+         if (dbconn_)
+         {
+            PQfinish(dbconn_);
+            dbconn_ = 0;
+         }
+      }
+      catch (...)
+      {
+
       }
         
    }

@@ -24,7 +24,14 @@ namespace HM
 
    PGRecordset::~PGRecordset()
    {
-      Close_();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult

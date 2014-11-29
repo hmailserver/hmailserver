@@ -71,16 +71,23 @@ namespace HM
 
    IMAPConnection::~IMAPConnection()
    {
-      // Delete all command handles before we destroy ourselves.
-      // Some of the command handlers may try to access (this)
-      // on destruction, so it's important that we disconnect these
-      // before terminating ourselves.
-      mapCommandHandlers.clear();
-   
-      if (GetConnectionState() != StatePendingConnect)
-         SessionManager::Instance()->OnSessionEnded(STIMAP);
+      try
+      {
+         // Delete all command handles before we destroy ourselves.
+         // Some of the command handlers may try to access (this)
+         // on destruction, so it's important that we disconnect these
+         // before terminating ourselves.
+         mapCommandHandlers.clear();
 
-      CloseCurrentFolder();
+         if (GetConnectionState() != StatePendingConnect)
+            SessionManager::Instance()->OnSessionEnded(STIMAP);
+
+         CloseCurrentFolder();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void

@@ -111,10 +111,17 @@ namespace HM
 
    SMTPConnection::~SMTPConnection()
    {
-      ResetCurrentMessage_();
+      try
+      {
+         ResetCurrentMessage_();
 
-      if (GetConnectionState() != StatePendingConnect)
-         SessionManager::Instance()->OnSessionEnded(STSMTP);
+         if (GetConnectionState() != StatePendingConnect)
+            SessionManager::Instance()->OnSessionEnded(STSMTP);
+      }
+      catch (...)
+      {
+
+      }
    }
 
 
@@ -1280,11 +1287,23 @@ namespace HM
       const String fileName = PersistentMessage::GetFileName(current_message_);
 
       File oFile;
-      if (!oFile.Open(fileName, File::OTReadOnly))
-         return false;
+
+
+      std::shared_ptr<ByteBuffer> pBuffer;
 
       const int iChunkSize = 10000;
-         std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
+
+      try
+      {
+         oFile.Open(fileName, File::OTReadOnly);
+
+         pBuffer = oFile.ReadChunk(iChunkSize);
+      }
+      catch (...)
+      {
+         return false;
+      }
+
       while (pBuffer)
       {
          // Check that buffer contains correct line endings.
@@ -1322,9 +1341,16 @@ namespace HM
          }
 
          // Read next chunk
-         pBuffer = oFile.ReadChunk(iChunkSize);
+         try
+         {
+            pBuffer = oFile.ReadChunk(iChunkSize);
+         }
+         catch (...)
+         {
+            return false;
+         }
       }
-
+      
       return true;
    }
 

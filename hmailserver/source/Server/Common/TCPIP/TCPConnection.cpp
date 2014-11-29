@@ -54,10 +54,17 @@ namespace HM
 
    TCPConnection::~TCPConnection(void)
    {
-      LOG_DEBUG("Ending session " + StringParser::IntToString(session_id_));
+      try
+      {
+         LOG_DEBUG("Ending session " + StringParser::IntToString(session_id_));
 
-      if (disconnected_)
-         disconnected_->Set();
+         if (disconnected_)
+            disconnected_->Set();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    bool

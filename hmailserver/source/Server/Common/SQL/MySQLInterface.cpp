@@ -35,9 +35,16 @@ namespace HM
 
    MySQLInterface::~MySQLInterface()
    {
-      if (library_instance_)
+      try
       {
-         FreeLibrary(library_instance_);
+         if (library_instance_)
+         {
+            FreeLibrary(library_instance_);
+         }
+      }
+      catch (...)
+      {
+
       }
    }
 
