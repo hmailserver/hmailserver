@@ -1084,15 +1084,22 @@ namespace HM
    }
 
    int 
-      MimeBody::LoadFromFile(const AnsiString &pszFilename)
+   MimeBody::LoadFromFile(const AnsiString &pszFilename)
    {
       File oFile;
-      if (!oFile.Open(pszFilename, File::OTReadOnly))
-         return false;
 
-      // Read the file as a text file. This will cause a null
-      // to be added by File, which is required by Load() below.
-      std::shared_ptr<ByteBuffer> pFileContents = oFile.ReadTextFile();
+      std::shared_ptr<ByteBuffer> pFileContents;
+
+      try
+      {
+         oFile.Open(pszFilename, File::OTReadOnly);
+         pFileContents = oFile.ReadTextFile();
+
+      }
+      catch (...)
+      {
+         return false;
+      }
 
       FreeBuffer();
       if (pFileContents->GetSize() > 0)
@@ -1133,10 +1140,19 @@ namespace HM
    bool MimeBody::ReadFromFile(const String &pszFilename)
    {
       File oFile;
-      if (!oFile.Open(pszFilename, File::OTReadOnly))
-         return false;
+      std::shared_ptr<ByteBuffer> pUnencodedBuffer;
 
-      std::shared_ptr<ByteBuffer> pUnencodedBuffer = oFile.ReadFile();
+      try
+      {
+         oFile.Open(pszFilename, File::OTReadOnly);
+         pUnencodedBuffer = oFile.ReadFile();
+      }
+      catch (...)
+      {
+         return false;
+      }
+         
+       
 
       if (!pUnencodedBuffer)
          return false;

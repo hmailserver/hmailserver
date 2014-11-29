@@ -43,16 +43,15 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::Initialize(const String &sFilename)
    {
-      if (!file_.Open(sFilename, File::OTAppend))
+      try
       {
-         // This is not good. We failed to get a handle to the file.
-         // Log to event log and notify the sender of this error.
-
+         file_.Open(sFilename, File::OTAppend);
+      }
+      catch (...)
+      {
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename.c_str());
-
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::SaveToFile_", sErrorMessage);
-
          return false;
       } 
 
@@ -240,8 +239,14 @@ namespace HM
 
       if (!cancel_transmission_)
       {
-         DWORD dwNoOfBytesWritten = 0;
-         bool bResult = file_.Write(pBuffer, dwNoOfBytesWritten);
+         try
+         {
+            file_.Write(pBuffer);
+         }
+         catch (...)
+         {
+            return false;
+         }
       }
  
       return true;

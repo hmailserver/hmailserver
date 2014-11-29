@@ -9,6 +9,7 @@
 #include "../BO/Message.h"
 #include "../Mime/MimeTester.h"
 #include "../Util/Utilities.h"
+#include "../Util/FileTester.h"
 #include "../Util/MessageUtilities.h"
 #include "../Util/Charset.h"
 #include "../Util/RegularExpression.h"
@@ -25,6 +26,7 @@
 #include "../Util/Encoding/Base64.h"
 #include "../Util/Encoding/ModifiedUTF7.h"
 #include "../Util/Hashing/HashCreator.h"
+#include "../Util/EventTester.h"
 #include "../Util/EventTester.h"
 #include <boost/pool/object_pool.hpp>
 
@@ -49,6 +51,10 @@ namespace HM
    void
    ClassTester::DoTests()
    {
+      FileTester *pFileTester = new FileTester;
+      pFileTester->Test();
+
+      delete pFileTester;
       EventTester *pEventTester = new EventTester;
       pEventTester->Test();
       delete pEventTester;
