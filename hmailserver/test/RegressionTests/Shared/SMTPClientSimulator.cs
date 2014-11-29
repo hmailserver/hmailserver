@@ -189,7 +189,9 @@ namespace RegressionTests.Shared
          _tcpConnection.Connect(_ipaddress, _port);
 
          // Receive welcome message.
-         _tcpConnection.Receive();
+         var welcomeMessage = _tcpConnection.Receive();
+         if (!welcomeMessage.StartsWith("220") || !welcomeMessage.EndsWith("\r\n"))
+            throw new Exception("Received unexpected welcome message: " + welcomeMessage);
 
          if (useStartTls)
          {
@@ -210,26 +212,30 @@ namespace RegressionTests.Shared
          }
 
          _tcpConnection.Send("HELO example.com\r\n");
-         sData = _tcpConnection.Receive();
+         var helloResponse = _tcpConnection.Receive();
+         if (helloResponse != "250 Hello.\r\n")
+            throw new DeliveryFailedException("Unexpected response to HELO from server: " + helloResponse);
 
          // User
          _tcpConnection.Send("MAIL FROM:<" + sFrom + ">\r\n");
-         sData = _tcpConnection.Receive();
+         var mailFromResponse = _tcpConnection.Receive();
+         if (mailFromResponse != "250 OK\r\n")
+            throw new DeliveryFailedException("Unexpected response to HELO from server: " + helloResponse);
 
          _tcpConnection.Send("RCPT TO:<" + sTo + ">\r\n");
-         sData = _tcpConnection.Receive();
-         if (sData.StartsWith("2") == false)
+         var rcptToResponse = _tcpConnection.Receive();
+         if (!rcptToResponse.StartsWith("2") || !rcptToResponse.EndsWith("\r\n"))
          {
-            errorMessage = TrimNewlline(sData);
+            errorMessage = TrimNewlline(rcptToResponse);
             throw new DeliveryFailedException("Unexpected response from server: " + errorMessage);
          }
 
          // Select inbox
          _tcpConnection.Send("DATA\r\n");
-         sData = _tcpConnection.Receive();
-         if (sData.Substring(0, 3) != "354")
+         var dataResponse = _tcpConnection.Receive();
+         if (!dataResponse.StartsWith("354") || !dataResponse.EndsWith("\r\n"))
          {
-            errorMessage = TrimNewlline(sData);
+            errorMessage = TrimNewlline(dataResponse);
             throw new DeliveryFailedException("Unexpected response from server: " + errorMessage);
          }
 
