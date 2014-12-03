@@ -94,10 +94,14 @@ namespace VMwareIntegration.Console
             }
 
          });
-         
-         System.Console.WriteLine("All tests completed. Press Enter to exit.");
 
-         System.Console.ReadLine();
+         System.Console.WriteLine("All tests completed succesfully.");
+         if (System.Diagnostics.Debugger.IsAttached)
+         {
+            System.Console.WriteLine("Press Enter to exit.");
+            System.Console.ReadLine();
+         }
+
          return 0;
       }
 
