@@ -83,7 +83,13 @@ namespace RegressionTests.Shared
          EnableLogging(true);
 
          _settings.SSLCertificates.Clear();
-         
+
+         if (_settings.TCPIPThreads != 15)
+         {
+            _settings.TCPIPThreads = 15;
+            restartRequired = true;
+         }
+
          if (_settings.AutoBanOnLogonFailure)
             _settings.AutoBanOnLogonFailure = false;
 

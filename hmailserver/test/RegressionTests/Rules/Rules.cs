@@ -258,14 +258,17 @@ namespace RegressionTests.Rules
          string domainDir = Path.Combine(_application.Settings.Directories.DataDirectory, "test.com");
          string userDir = Path.Combine(domainDir, "ruletest");
 
-         string[] dirs = Directory.GetDirectories(userDir);
-         foreach (string dir in dirs)
-         {
-            string[] files = Directory.GetFiles(dir);
-            fileCount += files.Length;
-         }
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+            {
+               string[] dirs = Directory.GetDirectories(userDir);
+               foreach (string dir in dirs)
+               {
+                  string[] files = Directory.GetFiles(dir);
+                  fileCount += files.Length;
+               }
 
-         Assert.AreEqual(2, fileCount);
+               Assert.AreEqual(2, fileCount);
+            });
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), delegate
             {
