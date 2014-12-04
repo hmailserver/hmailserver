@@ -69,7 +69,10 @@ Building Boost
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run bootstrap.bat
 5. Run bjam.exe --toolset=msvc-12.0 --build-type=complete
-
+6. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib32
+7. Run bjam.exe --clean
+8. Run bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64
+9. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib64
 
 Building hMailServer
 --------------------
