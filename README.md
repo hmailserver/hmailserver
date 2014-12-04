@@ -63,8 +63,8 @@ The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains 
 
 Building Boost
 --------------
-1. Download Boost 1.56.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
-   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_56_0
+1. Download Boost 1.57.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
+   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_57_0
 2. Open a Command prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run bootstrap.bat
