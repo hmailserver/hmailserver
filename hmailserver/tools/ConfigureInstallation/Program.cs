@@ -46,9 +46,9 @@ namespace ConfigureInstallation
          File.WriteAllText(phpVersionFile, phpVersionContent);
 
          // Write installation program verison
-         if (ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer32.iss"), version, build))
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer32.iss"), version, build))
             return -1;
-         if (ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer64.iss"), version, build))
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer64.iss"), version, build))
             return -1;
 
          Console.WriteLine("All done. Exiting.");
@@ -60,19 +60,13 @@ namespace ConfigureInstallation
          if (!File.Exists(installationFile))
          {
             Console.WriteLine("Installation file {0} was not found.", installationFile);
-            {
-               
-               return true;
-            }
+            return false;
          }
+
          Console.WriteLine("Writing install version and output name to {0}", installationFile);
-
-
          Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}", version, build));
-
-         // Write installation output verison
          Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}", version, build));
-         return false;
+         return true;
       }
    }
 }
