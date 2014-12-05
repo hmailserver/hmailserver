@@ -30,13 +30,13 @@ namespace HM
       TransparentTransmissionBuffer(bool bSending);
       ~TransparentTransmissionBuffer(void);
 
-      void Append(const BYTE *pBuffer, int iBufferSize);
+      void Append(const BYTE *pBuffer, size_t iBufferSize);
       bool Flush(bool bForce = false);
       
       bool Initialize(std::weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
 
-      void SetMaxSizeKB(int maxSize);
+      void SetMaxSizeKB(size_t maxSize);
       
       std::shared_ptr<ByteBuffer> GetBuffer() 
       {
@@ -60,7 +60,7 @@ namespace HM
       bool SaveToFile_(std::shared_ptr<ByteBuffer> pBuffer);
       // Flushes the supplied buffer to file.
 
-      int GetSize();
+      size_t GetSize();
 
       bool GetCancelTransmission() {return cancel_transmission_;}
       String GetCancelMessage() {return cancel_message_;}
@@ -84,8 +84,8 @@ namespace HM
       File file_;
       std::weak_ptr<TCPConnection> tcp_connection_;
 
-      unsigned    int data_sent_;
-      unsigned int max_size_kb_;
+      size_t data_sent_;
+      size_t max_size_kb_;
 
       bool cancel_transmission_;
       String cancel_message_;

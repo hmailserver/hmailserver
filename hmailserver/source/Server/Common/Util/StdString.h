@@ -2292,7 +2292,7 @@ public:
 		return this->empty() ? const_cast<CT*>(this->data()) : &(this->at(0));
 	}
 
-	CT* SetBuf(int nLen)
+	CT* SetBuf(MYSIZE nLen)
 	{
 		nLen = ( nLen > 0 ? nLen : 0 );
 		if ( this->capacity() < 1 && nLen == 0 )
@@ -3061,7 +3061,7 @@ public:
 		return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
 	}
 
-	int Find(CT ch, int nStart) const
+	int Find(CT ch, MYSIZE nStart) const
 	{
 		// CString::Find docs say add 1 to nStart when it's not zero
 		// CString::Find code doesn't do that however.  We'll stick
@@ -3071,7 +3071,7 @@ public:
 		return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
 	}
 
-	int Find(PCMYSTR szSub, int nStart) const
+	int Find(PCMYSTR szSub, MYSIZE nStart) const
 	{
 		// CString::Find docs say add 1 to nStart when it's not zero
 		// CString::Find code doesn't do that however.  We'll stick
@@ -3093,7 +3093,7 @@ public:
       return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
    }
 
-   int FindNoCase(PCMYSTR szSub, int nStart) const
+   int FindNoCase(PCMYSTR szSub, MYSIZE nStart) const
    {
       MYTYPE sFindIn = this->c_str();
       MYTYPE sLookFor = szSub;
@@ -3373,7 +3373,7 @@ public:
          MYSIZE nNewLen		= sslen(szNew);
          if ( nNewLen > nOldLen )
          {
-            int nFound			= 0;
+            size_t nFound			= 0;
             while ( nIdx < this->length() &&
                (nIdx=this->FindNoCase(szOld, nIdx)) != MYBASE::npos )
             {

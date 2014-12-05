@@ -13,7 +13,7 @@ STDMETHODIMP InterfaceLanguages::get_Count(long *pVal)
 {
    try
    {
-      *pVal = HM::Languages::Instance()->GetCount();
+      *pVal = (int) HM::Languages::Instance()->GetCount();
    
       return S_OK;
    }

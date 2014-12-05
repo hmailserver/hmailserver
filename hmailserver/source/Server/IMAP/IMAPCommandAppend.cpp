@@ -99,7 +99,7 @@ namespace HM
       bytes_left_to_receive_ += 2;
 
       std::shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
-      int maxMessageSizeKB = GetMaxMessageSize_(domain);
+      size_t maxMessageSizeKB = GetMaxMessageSize_(domain);
 
       if (maxMessageSizeKB > 0 && 
           bytes_left_to_receive_ / 1024 > maxMessageSizeKB)
@@ -115,7 +115,7 @@ namespace HM
       // Can't use pParser->QuotedWord() since there may
       // be many quoted words in the command.
       
-      for (int i = 2; i < pParser->WordCount(); i++)
+      for (size_t i = 2; i < pParser->WordCount(); i++)
       {
          std::shared_ptr<IMAPSimpleWord> pWord = pParser->Word(i);
 
@@ -200,7 +200,7 @@ namespace HM
    }
    
    bool
-   IMAPCommandAppend::WriteData_(const std::shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
+   IMAPCommandAppend::WriteData_(const std::shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, size_t WriteLen)
    {
       if (!current_message_)
          return false;

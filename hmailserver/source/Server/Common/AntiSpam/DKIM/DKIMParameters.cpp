@@ -63,7 +63,7 @@ namespace HM
       return (*iter).second;
    }
 
-   unsigned int
+   size_t
    DKIMParameters::GetParamCount() const
    {
       return parameters_.size();

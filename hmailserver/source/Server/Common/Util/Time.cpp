@@ -283,7 +283,7 @@ namespace HM
       sDate.Replace(_T("  "), _T(" "));
       std::vector<String> vecParts = StringParser::SplitString(sDate, " ");
 
-      unsigned int iNumberOfParts = vecParts.size();
+      size_t iNumberOfParts = vecParts.size();
 
       DateTime dt;
       if (iNumberOfParts < 3)

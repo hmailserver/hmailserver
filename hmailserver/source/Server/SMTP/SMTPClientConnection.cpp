@@ -657,7 +657,7 @@ namespace HM
          return;
 
       BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();
-      int iSendBufferSize = pBuf->GetSize();
+      size_t iSendBufferSize = pBuf->GetSize();
 
       // Append the transmission buffer
       transmission_buffer_.Append(pSendBuffer, iSendBufferSize);

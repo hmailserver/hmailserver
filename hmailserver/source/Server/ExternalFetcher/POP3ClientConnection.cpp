@@ -628,7 +628,7 @@ namespace HM
       // Skip passed the end of the line
       pEndOfLine += 2;
 
-      int iLineLength = pEndOfLine - pText;
+      size_t iLineLength = pEndOfLine - pText;
 
       if (iLineLength <= 0)
       {
@@ -644,7 +644,7 @@ namespace HM
       
       ParseRETRResponse_(sLine);
 
-      int iRemaining = pBuf->GetSize() - iLineLength;
+      size_t iRemaining = pBuf->GetSize() - iLineLength;
       pBuf->Empty(iRemaining);
 
       return true;

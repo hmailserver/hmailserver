@@ -38,3 +38,4 @@ hmailserver/source/Server/hMailServer.Minidump/Release/*
 *.ipch
 
 hmailserver/test/RegressionTests/TestResult.xml
+hmailserver/source/Server/hMailServer.Minidump/x64/Release/*

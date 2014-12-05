@@ -313,7 +313,7 @@ namespace HM
       RegisterSessionTypes_();
 
       // Create the main work queue.
-      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
+      size_t iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
 
       notification_server_ = std::shared_ptr<NotificationServer>(new NotificationServer());
       folder_manager_ = std::shared_ptr<FolderManager>(new FolderManager());

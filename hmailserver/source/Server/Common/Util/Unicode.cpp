@@ -26,7 +26,7 @@ namespace HM
    Unicode::ToANSI(const String &sString)
    {
       size_t i;
-      int nLen = (wcslen(sString)+1)<<1;
+      size_t nLen = (wcslen(sString) + 1) << 1;
       char *pAnsiString = new char [nLen];
       wcstombs_s(&i, pAnsiString, nLen, sString, nLen);
       AnsiString retval = pAnsiString;

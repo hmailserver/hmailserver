@@ -103,7 +103,7 @@ namespace HM
 	   void Clear();
 	   int GetLength() const;
 	   void Store(AnsiString &output) const;
-	   int Load(const char* pszData, int nDataSize, bool unfold);
+	   int Load(const char* pszData, size_t nDataSize, bool unfold);
       
       static void UnfoldField(string& strField);
 
@@ -231,7 +231,7 @@ namespace HM
 	   virtual int GetLength() const;
 	   // serialization
 	   virtual void Store(AnsiString &output) const;
-	   virtual int Load(const char* pszData, int nDataSize, bool unfold = true);
+      virtual int Load(const char* pszData, size_t nDataSize, bool unfold = true);
 
       AnsiString Store() const;
 
@@ -465,12 +465,12 @@ namespace HM
 	   // serialization
 	   virtual void Store(AnsiString &output, bool bIncludeHeader=true) const;
    
-	   virtual int Load(const char* pszData, int nDataSize, int &index);
+      virtual int Load(const char* pszData, size_t nDataSize, size_t &index);
 
    protected:
 
 	   AnsiString text_;		// content (text) of the body part
-      int part_index_;
+      size_t part_index_;
 	   BodyList bodies_;			// list of all child body parts
 	   BodyList::iterator find_;
 

@@ -193,7 +193,7 @@ namespace HM
 
       int iRecursion = 0;
       int iOldFolderDepth = pFolderToRename->GetFolderDepth(iRecursion);
-      int iNewMaxFolderDepth = iOldFolderDepth + (vecNewPath.size()-1);
+      int iNewMaxFolderDepth = (int) (iOldFolderDepth + (vecNewPath.size()-1));
       
       if (iNewMaxFolderDepth > 25)
          return IMAPResult(IMAPResult::ResultNo, "To many sub-folders in structure.");

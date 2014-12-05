@@ -101,7 +101,7 @@ namespace HM
             break;
 
          BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();
-         int iSendBufferSize = pBuf->GetSize();
+         size_t iSendBufferSize = pBuf->GetSize();
 
          EnqueueWrite(pBuf);
       }
@@ -209,7 +209,7 @@ namespace HM
          return -1;
       }
             
-      int headerLength = pHeaderEndPosition - pBuffer->GetCharBuffer();
+      size_t headerLength = pHeaderEndPosition - pBuffer->GetCharBuffer();
       AnsiString spamAssassinHeader(pBuffer->GetCharBuffer(), headerLength);
 
       std::vector<AnsiString> headerLines = StringParser::SplitString(spamAssassinHeader, "\r\n");
@@ -251,7 +251,7 @@ namespace HM
       }
 
       // Remove the SA header lines from the result.
-      int iEndingBytesSize = pBuffer->GetSize() - headerLength - 4; // 4 due to header ending with \r\n\r\n.
+      size_t iEndingBytesSize = pBuffer->GetSize() - headerLength - 4; // 4 due to header ending with \r\n\r\n.
       pBuffer->Empty(iEndingBytesSize);
 
       return contentLength;

@@ -132,7 +132,7 @@ namespace HM
 		   is_encoding_(false) {}
 
    public:
-	   void SetInput(const char* pbInput, int nInputSize, bool bEncoding)
+	   void SetInput(const char* pbInput, size_t nInputSize, bool bEncoding)
 	   {
 		   input_ = (const unsigned char*) pbInput;
 		   input_size_ = nInputSize;
@@ -157,7 +157,7 @@ namespace HM
 
    protected:
 	   const unsigned char* input_;
-	   int input_size_;
+      size_t input_size_;
 	   bool is_encoding_;
    };
 
@@ -287,13 +287,13 @@ namespace HM
 
 	   virtual bool IsFoldingChar(char ch) const { return false; }
 	   virtual int GetDelimeter() const { return 0; }
-	   int FindSymbol(const char* pszData, int nSize, int& nDelimeter, int& nNonAscChars) const;
+      int FindSymbol(const char* pszData, size_t nSize, int& nDelimeter, int& nNonAscChars) const;
 	   void UnfoldField(string& strField) const;
-	   int SelectEncoding(int nLength, int nNonAsciiChars) const
+	   int SelectEncoding(size_t nLength, int nNonAsciiChars) const
 	   {
-		   int nQEncodeSize = nLength + nNonAsciiChars * 2;
-		   int nBEncodeSize = (nLength + 2) / 3 * 4;
-		   return (nQEncodeSize <= nBEncodeSize || nNonAsciiChars*5 <= nLength) ? 'Q' : 'B';
+         size_t nQEncodeSize = nLength + nNonAsciiChars * 2;
+         size_t nBEncodeSize = (nLength + 2) / 3 * 4;
+		   return (nQEncodeSize <= nBEncodeSize || ((size_t) nNonAsciiChars)*5 <= nLength) ? 'Q' : 'B';
 	   }
 
    protected:

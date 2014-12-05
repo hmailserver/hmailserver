@@ -213,8 +213,8 @@ namespace HM
          return IMAPResult(IMAPResult::ResultNo, "Search failed due to excessive search expression recursion.");
       }
       
-      int originalCriteriaCount = pCriteria->GetSubCriterias().size();
-      for (; currentWord < pSimpleParser->WordCount(); currentWord++)
+      int originalCriteriaCount = (int) pCriteria->GetSubCriterias().size();
+      for (; currentWord < (int) pSimpleParser->WordCount(); currentWord++)
       {
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(currentWord);
          String sCurCommand = pWord->Value().ToUpper();
@@ -270,7 +270,7 @@ namespace HM
          pNewCriteria->SetPositive(false);
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. NOT used but no search criteria specified.");
 
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
@@ -287,7 +287,7 @@ namespace HM
          // header field.
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. No header specified in header-search.");
 
          String sHeaderField = pSimpleParser->Word(iCurrentWord)->Value();            
@@ -295,7 +295,7 @@ namespace HM
          // Go to the header value.
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. No value specified in header-search.");
 
          String sHeaderValue = pSimpleParser->Word(iCurrentWord)->Value();
@@ -324,7 +324,7 @@ namespace HM
       {
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. Missing value.");
 
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
@@ -348,7 +348,7 @@ namespace HM
 
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. UID parameters missing.");
 
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);
@@ -387,7 +387,7 @@ namespace HM
       {
          iCurrentWord++;
 
-         if (iCurrentWord > pSimpleParser->WordCount() - 1)
+         if (iCurrentWord > (int) pSimpleParser->WordCount() - 1)
             return IMAPResult(IMAPResult::ResultBad, "Syntax error. Missing charset name.");
 
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(iCurrentWord);

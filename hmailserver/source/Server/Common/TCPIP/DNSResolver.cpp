@@ -393,7 +393,7 @@ namespace HM
          for(String domain : vecFoundMXRecords)
          {
             // Resolve to domain name to IP address and put it in the list.
-            int iCountBefore = saFoundNames.size();
+            size_t iCountBefore = saFoundNames.size();
 
             std::vector<String> a_records;
             if (!GetARecords(domain, a_records))

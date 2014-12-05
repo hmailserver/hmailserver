@@ -84,7 +84,7 @@ namespace HM
       // Start at the end.
       std::vector<String> vecParts = StringParser::SplitString(sHost, ".");
 
-      int iParts = vecParts.size();
+      size_t iParts = vecParts.size();
 
       if (iParts < 2)
          return false;

@@ -73,7 +73,7 @@ namespace HM
    }
 
    std::shared_ptr<MimeHeader>
-   Utilities::GetMimeHeader(const BYTE *pByteBuf, int iBufSize)
+   Utilities::GetMimeHeader(const BYTE *pByteBuf, size_t iBufSize)
    {
       // First locate end of header in the buffer.
       const char *pBuffer = (const char*) pByteBuf;
@@ -88,7 +88,7 @@ namespace HM
       }
 
       // Calculate the length of the header.
-      int iHeaderSize = pBufferEndPos - pBuffer + 2; // +2 for the last newline.
+      size_t iHeaderSize = pBufferEndPos - pBuffer + 2; // +2 for the last newline.
 
       // Load the header
       pMimeHeader->Load(pBuffer, iHeaderSize, true);

@@ -19,7 +19,7 @@ namespace HM
       static bool WildcardMatch(const String &pattern, const String &value);
       static bool WildcardMatchNoCase(const String &sWildcard, const String &sString);
 
-      static char* Search(const char *haystack, int haystackSize, const char *needle);
+      static char* Search(const char *haystack, size_t haystackSize, const char *needle);
 
       static String IntToString(int lTheInt);
       static String IntToString(unsigned int lTheInt);

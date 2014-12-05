@@ -266,7 +266,7 @@ LPTSTR _tcsenistr( LPCTSTR psz, LPCTSTR str, int len, int escape )
 //========================================================
 LPTSTR _tcseistr( LPCTSTR psz, LPCTSTR str, int escape )
 {
-	int len = _tcslen( str );
+   int len = (int) _tcslen(str);
 	return _tcsenistr( psz, str, len, escape );
 }
 
@@ -287,7 +287,7 @@ void _SetString( LPTSTR psz, LPTSTR end, HM::String* ps, bool trim = FALSE, int 
 		while( psz && psz < end && _istspace(*psz) ) psz++;
 		while( (end-1) && psz < (end-1) && _istspace(*(end-1)) ) end--;
 	}
-	int len = end - psz;
+	int len = (int) (end - psz);
 	if( len <= 0 ) return;
 	if( escape )
 	{
@@ -1334,7 +1334,7 @@ LPXNode _tagXMLNode::GetChild( unsigned int i )
 //========================================================
 int	_tagXMLNode::GetChildCount()
 {
-	return childs.size();
+	return (int) childs.size();
 }
 
 //========================================================
@@ -1806,7 +1806,7 @@ int tagXMLEntitys_::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
 	*ps = '\0';
 	
 	// total copied characters
-	return ps-str;	
+	return (int) (ps-str);	
 }
 
 int tagXMLEntitys_::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
@@ -1831,7 +1831,7 @@ int tagXMLEntitys_::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
 	*pes = '\0';
 	
 	// total copied characters
-	return pes-estr;
+	return (int) (pes-estr);
 }
 
 HM::String tagXMLEntitys_::Ref2Entity( LPCTSTR estr )
@@ -1839,7 +1839,7 @@ HM::String tagXMLEntitys_::Ref2Entity( LPCTSTR estr )
 	HM::String es;
 	if( estr )
 	{
-		int len = _tcslen(estr);
+		int len = (int) _tcslen(estr);
 		LPTSTR esbuf = es.GetBufferSetLength( len +1);
 		if( esbuf )
 			Ref2Entity( estr, esbuf, len );
@@ -1857,7 +1857,7 @@ HM::String tagXMLEntitys_::Entity2Ref( LPCTSTR str )
 		int nEntityCount = GetEntityCount(str);
 		if( nEntityCount == 0 )
 			return HM::String(str);
-		int len = _tcslen(str) + nEntityCount*10 ;
+		int len = (int) (_tcslen(str) + nEntityCount*10);
 		LPTSTR sbuf = s.GetBufferSetLength( len + 1 );
 		if( sbuf )
 			Entity2Ref( str, sbuf, len );

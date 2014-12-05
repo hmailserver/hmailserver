@@ -34,12 +34,12 @@ namespace HM
       
       void Write(const String &sWrite);
       void Write(const AnsiString &sWrite);
-      void Write(const unsigned char *pBuf, int iBufLen);
+      void Write(const unsigned char *pBuf, size_t iBufLen);
       void Write(std::shared_ptr<ByteBuffer> pBuffer);
       void Write(File &sourceFile);
       void WriteBOF();
 
-      void Write_(void *buffer, int item_size, int item_count);
+      void Write_(void *buffer, size_t item_size, size_t item_count);
 
       int GetSize();
 

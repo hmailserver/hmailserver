@@ -358,7 +358,7 @@ spfstrdup(const char* s)
   int len;
   char* cp;
 
-  len=strlen(s)+1;
+  len=(int) strlen(s)+1;
   cp=(char*)spfmalloc(len);
   if (cp!=NULL)
     memcpy(cp,s,len);
@@ -1041,8 +1041,8 @@ indomain(const char* subdomain, const char* domain)
   int i;
   int len;
 
-  len=strlen(domain);
-  i=strlen(subdomain)-len;
+  len=(int) strlen(domain);
+  i=(int) strlen(subdomain)-len;
   if (i<0 || i>0 && subdomain[i-1]!='.')
     return false;
   if (_memicmp(domain,subdomain+i,len)!=0)
@@ -1813,7 +1813,7 @@ makekey(char* key, const char* domain, int type)
   int keylen;
 
   // reverse parts in domain name
-  i=strlen(domain);
+  i=(int) strlen(domain);
   if (i>=SPFKEYSIZE)
     return 0;
   keylen=0;
@@ -2145,7 +2145,7 @@ gethostname(spfbool ipv6, const uchar* addr, char* host, int hostsize,
 	  cp=dnsp->Data.PTR.pNameHost;
 	  if (*cp!=0)
 	   {
-	    len=strlen(cp)+1;
+	    len=(int) strlen(cp)+1;
 	    if (datalen+len<=datasize)
 	      memcpy((char*)datap+datalen,cp,len);
 	    datalen+=len;
@@ -2232,7 +2232,7 @@ gethostname(spfbool ipv6, const uchar* addr, char* host, int hostsize,
    {
     if (result!=0) // PTR not found or A/AAAA does not match IP address
       cp="Unknown";
-    len=strlen(cp);
+    len=(int) strlen(cp);
     if (len>hostsize-1)
       len=hostsize-1;
     memcpy(host,cp,len);
@@ -2429,11 +2429,11 @@ expand(spfrec* spfp, const char* s, const char* s1, const char* domain,
 	  break;
 	case 'o': // responsible-domain
 	  mac=spfp->spf_domain;
-	  len=strlen(mac);
+	  len=(int) strlen(mac);
 	  break;
 	case 'd': // current-domain
 	  mac=domain;
-	  len=strlen(mac);
+	  len=(int) strlen(mac);
 	  break;
 	case 'c': // SMTP client IP (for explanation)
 	  if (fordomain) // allow 'c' macro only in explanation records
@@ -2470,13 +2470,13 @@ expand(spfrec* spfp, const char* s, const char* s1, const char* domain,
 	    gethostname(spfp->spf_ipv6,spfp->spf_ipaddr,tmp,sizeof(tmp),
 	      spfp->spf_domain,7|8,spfp->spf_time);
 	   }
-	  len=strlen(mac);
+	  len=(int) strlen(mac);
 	  break;
 	case 'h': // HELO/EHLO domain
 	  if (spfp->spf_helo!=NULL)
 	   {
 	    mac=spfp->spf_helo;
-	    len=strlen(mac);
+	    len=(int) strlen(mac);
 	    break;
 	   }
 	  mac=unknownstr;
@@ -2488,7 +2488,7 @@ expand(spfrec* spfp, const char* s, const char* s1, const char* domain,
 	  if (ourdomain!=NULL)
 	   {
 	    mac=ourdomain;
-	    len=strlen(mac);
+	    len=(int) strlen(mac);
 	    break;
 	   }
 	  mac=unknownstr;
@@ -3008,7 +3008,7 @@ lookup_mx(const char* domain, dnsrec** datapp, int datasize,
    #endif //SPFCACHE
 	       if (*cp!=0)
 	       {
-	         len=strlen(cp)+1;
+	         len=(int) strlen(cp)+1;
 	         if (datalen+len<=datasize)
 		         memcpy((char*)datap+datalen,cp,len);
 	         
@@ -3295,7 +3295,7 @@ getspf(const char* domain, const dnsrec** datapp, time_t currtime)
 
     if (dnsp->Data.TXT.dwStringCount==1)
      {
-      datalen=strlen(cp)+SPFEXPSIZE+1;
+      datalen=(int) strlen(cp)+SPFEXPSIZE+1;
       datap=(dnsrec*)spfmalloc(datalen);
       if (datap==NULL)
        {
@@ -3309,7 +3309,7 @@ getspf(const char* domain, const dnsrec** datapp, time_t currtime)
       // concatenate the strings
       datalen=SPFEXPSIZE+1;
       for (i=0; i<dnsp->Data.TXT.dwStringCount; i++)
-	datalen+=strlen(dnsp->Data.TXT.pStringArray[i]);
+	datalen+=(int) strlen(dnsp->Data.TXT.pStringArray[i]);
       datap=(dnsrec*)spfmalloc(datalen);
       if (datap==NULL)
        {
@@ -3319,7 +3319,7 @@ getspf(const char* domain, const dnsrec** datapp, time_t currtime)
       datalen=SPFEXPSIZE;
       for (i=0; i<dnsp->Data.TXT.dwStringCount; i++)
        {
-	len=strlen(dnsp->Data.TXT.pStringArray[i]);
+	len=(int) strlen(dnsp->Data.TXT.pStringArray[i]);
 	memcpy((char*)datap+datalen,dnsp->Data.TXT.pStringArray[i],len);
 	datalen+=len;
        }
@@ -3661,7 +3661,7 @@ check_host(spfrec* spfp, const char* domain)
 	cp++;
       while (ISNAMEC(*cp));
      }
-    namelen=cp-name;
+    namelen=(int) (cp-name);
 
     if (*cp=='=') // modifier
      {
@@ -3965,7 +3965,7 @@ getexplanation(spfrec* spfp)
 	  break;
 	 }
 	for (i=0; i<dnsp->Data.TXT.dwStringCount; i++)
-	  datalen+=strlen(dnsp->Data.TXT.pStringArray[i]);
+	  datalen+=(int) strlen(dnsp->Data.TXT.pStringArray[i]);
        }
 
       // concatenate the strings
@@ -3991,7 +3991,7 @@ getexplanation(spfrec* spfp)
 #endif //SPFCACHE
 	  for (i=0; i<dnsp->Data.TXT.dwStringCount; i++)
 	   {
-	    len=strlen(dnsp->Data.TXT.pStringArray[i]);
+	    len=(int) strlen(dnsp->Data.TXT.pStringArray[i]);
 	    memcpy((char*)datap+datalen,dnsp->Data.TXT.pStringArray[i],len);
 	    datalen+=len;
 	   }
@@ -4355,7 +4355,7 @@ SPFSetFallBack(const char* domain, const char* policy, long ttl)
   if (!checkversion(policy))
     return SPF_PermError;
 
-  datalen=strlen(policy)+SPFEXPSIZE+1;
+  datalen=(int) strlen(policy)+SPFEXPSIZE+1;
   datap=(dnsrec*)spfmalloc(datalen);
   if (datap==NULL)
     return SPF_TempError;

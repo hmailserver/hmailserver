@@ -265,7 +265,7 @@ namespace HM
    void 
    IMAPSimpleCommandParser::UnliteralData()
    {
-      for (int i = 0; i < WordCount(); i++)
+      for (size_t i = 0; i < WordCount(); i++)
       {
          std::shared_ptr<IMAPSimpleWord> pWord = Word(i);
          if (pWord->Clammerized())
@@ -348,7 +348,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       iParamIndex++;
-      int iWordCount = WordCount();
+      int iWordCount = (int) WordCount();
       int iLiteralIndex = 0;
 
       for (int i = 1; i < iWordCount; i++)

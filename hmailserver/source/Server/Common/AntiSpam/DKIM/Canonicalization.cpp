@@ -116,7 +116,7 @@ namespace HM
 
          // locate this field, starting from the end.
          String value;
-         for (int i = fields.size()-1; i >=0; i--)
+         for (size_t i = fields.size()-1; i >=0; i--)
          {
             MimeField field = fields[i];
 
@@ -252,7 +252,7 @@ namespace HM
       std::vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
 
       AnsiString foldedLines;
-      for (int i = headerLines.size()-1; i >= 0; i--)
+      for (size_t i = headerLines.size()-1; i >= 0; i--)
       {
          AnsiString line = headerLines[i];
 
