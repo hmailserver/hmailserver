@@ -46,16 +46,16 @@ namespace ConfigureInstallation
          File.WriteAllText(phpVersionFile, phpVersionContent);
 
          // Write installation program verison
-         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer32.iss"), version, build))
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_32.iss"), version, build, false))
             return -1;
-         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\hMailServer64.iss"), version, build))
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_64.iss"), version, build, true))
             return -1;
 
          Console.WriteLine("All done. Exiting.");
          return 0;
       }
 
-      private static bool ConfigureInstallationFile(string installationFile, string version, string build)
+      private static bool ConfigureInstallationFile(string installationFile, string version, string build, bool x64)
       {
          if (!File.Exists(installationFile))
          {
@@ -64,8 +64,17 @@ namespace ConfigureInstallation
          }
 
          Console.WriteLine("Writing install version and output name to {0}", installationFile);
-         Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}", version, build));
-         Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}", version, build));
+
+         if (x64)
+         {
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-64bit", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-64", version, build));            
+         }
+         else
+         {
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-32bit", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-32", version, build));
+         }
          return true;
       }
    }
