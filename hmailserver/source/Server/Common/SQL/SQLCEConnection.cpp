@@ -81,7 +81,7 @@ namespace HM
       String sDatabaseFile = GetDatabaseFileName_(sDatabase);
 
       String sConnectionString;
-      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.3.5;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile.c_str(), sPassword.c_str());
+      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.4.0;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile.c_str(), sPassword.c_str());
 
       return sConnectionString;
    }
@@ -414,7 +414,7 @@ namespace HM
       IUnknown           *pIUnknownSession    = NULL;
 
       // Create an instance of the OLE DB provider.
-      hr = CoCreateInstance( CLSID_SQLSERVERCE_3_5, 0, CLSCTX_INPROC_SERVER, 
+      hr = CoCreateInstance(CLSID_SQLSERVERCE, 0, CLSCTX_INPROC_SERVER,
          IID_IDBDataSourceAdmin, (void**)& pIDBDataSourceAdmin);
       if(FAILED(hr))
       {
@@ -453,6 +453,7 @@ namespace HM
          sErrorMessage.Format(_T("SysAllocString failed. Out of memory"));
          return false;
       }
+
 
       // Initialize the property sets.
       dbpropset[0].guidPropertySet = DBPROPSET_DBINIT;

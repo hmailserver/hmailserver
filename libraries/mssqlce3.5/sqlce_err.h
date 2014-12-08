@@ -1,7 +1,16 @@
 //=============================================================================
-// Microsoft SQL Server Compact (Version 3.5)
+// Microsoft SQL Server Compact (Version 4.0)
 //
-// Copyright (c)  Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//
+//
+// Use of this source code is subject to the terms of the Microsoft
+// premium shared source license agreement under which you licensed
+// this source code. If you did not accept the terms of the license
+// agreement, you are not authorized to use this source code.
+// For the terms of the license, please see the license agreement
+// signed by you and Microsoft.
+// THE SOURCE CODE IS PROVIDED "AS IS", WITH NO WARRANTIES OR INDEMNITIES.
 //
 // Component: Common files
 // 
@@ -12,6 +21,7 @@
 
 #ifndef __SQLCE_ERR_H__
 #define __SQLCE_ERR_H__
+
 
 //  HRESULTS
 //  Values are 32 bit values layed out as follows:
@@ -46,7 +56,7 @@
 // ****************************************************************************
 //
 // 1. DO NOT put an error (or description) on more than one line
-// 2. DO NOT include " in the description - this screws things up 
+// 2. DO NOT include " in the description
 // 3. Make sure the comment is at the end of a line and has a space 
 //    before the text ("// ")
 // 4. All Errors should document error parameters after the error string 
@@ -55,8 +65,24 @@
 // 5. DO NOT REMOVE // DEAD error codes; Everytime you add a new error, make 
 //    sure the number hasn't been used in the past; otherwise some user apps 
 //    could break;
+// 6. DO NOT exceed the maximum error message limit (CCH_MAX_ERRORMESSAGE)
 //
 // ****************************************************************************
+
+
+//
+// Maximum length of error message
+//
+#define CCH_MAX_ERRORMESSAGE 4096
+
+//
+// Note : IF you are adding the error message which will show the database path 
+// in it please make sure that the path is sttriped out in ADO.Net layer as it 
+// a potential security risk for Medium-Trust scenarious. The SqlCeError class 
+// in ADO.Net handles the task of strriping the path and only showing the
+// filename in the error message.
+//
+
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -97,9 +123,10 @@
 //
 //  Connectivity Minor Range    28000 -- 30499
 //
-//      28000 -- 28499  :   Transport           
-//      28500 -- 28999  :   Client Agent        
-//      29000 -- 29499  :   Server Agent        
+//      28000 -- 28249  :   Transport   
+//      28250 -- 28499  :   Replication provider
+//      28500 -- 28999  :   Client Agent
+//      29000 -- 29499  :   Server Agent
 //      29500 -- 29999  :   Message Protocol
 //      30000 -- 30499  :   SQLCE Relay (obsolete component as of now)
 //      30500 -- 39499  :   Unused
@@ -117,7 +144,7 @@
 #define SSCE_M_NULLINVALID                      25005           // The column cannot contain null values. [,,,Column name,Table name,]
 // DEAD SSCE_M_INVALIDOPERATION                 25006           // The operation cannot be performed on the object. [,,,,,]
 // DEAD SSCE_M_INTRANSACTION                    25007           // The operation cannot be performed in a transaction. [,,,,,]
-#define SSCE_M_INVALIDPARAMETER                 25008           // The parameter is not valid. [,,,,,]
+// DEAD SSCE_M_INVALIDPARAMETER                 25008           // The parameter is not valid. [,,,,,]
 #define SSCE_M_INVALIDPATH                      25009           // The path is not valid. Check the directory for the database. [,,,Path,,]
 #define SSCE_M_INVALIDFILENAME                  25010           // The file name is not valid. Check the file name for the database. [,,,File name,,]
 #define SSCE_M_INVALIDDATABASE                  25011           // The file that is being referenced is not a SQL Server Compact database file format. [,,,Databasename,,]
@@ -164,7 +191,7 @@
 #define SSCE_M_ILLEGALINDEXCOLUMN               25059           // Long value data type cannot be indexed. [,,,,,]
 #define SSCE_M_REFERENCENOTFOUND                25060           // The foreign key constraint does not exist. [,,,,,]
 // DEAD SSCE_M_OBJECTNOTREPLICABLE              25062           // The object is not replicable. [,,,Object name,,]
-#define SSCE_M_ONLYONESPECIALCOLUMN             25064           // Only one ROWGUID, autoincrement, and version are allowed for each column in a table. [,,,Object name,,]
+#define SSCE_M_ONLYONESPECIALCOLUMN             25064           // Another column of same special column type found.  ROWGUID, IDENTITY, rowversion are special column types.  For each special column type, there can be only column of that type. [,,,Object name,,]
 #define SSCE_M_TOOMANYINDEXES                   25065           // The limit of 249 indexes per tables has been exceeded. [,,,Table name,,]
 #define SSCE_M_TOOMANYCOLUMNS                   25066           // The limit of 1024 columns for a table has been exceeded. [Column count,,,Column name,,]
 #define SSCE_M_TRANSTOODEEP                     25067           // Internal error: The internal transactions for SQL Server Compact have exceeded the nesting limit. [,,,,,]
@@ -209,7 +236,7 @@
 #define SSCE_M_NOQUERYPROCESSOR                 25100           // Unable to create Command object because Query Processor module is not present on the device or not located in the same directory as the Storage Engine module. [,,,,,]
 #define SSCE_M_OUTOFBUFFERPOOLSPACE             25101           // SQL Server Compact has exceeded the buffer size. The default size can be increased on initialization by modifying the ssce: max buffer size property. [The default size,,,,,]
 #define SSCE_M_INITPROPCONFLICT                 25102           // Another user has opened the database with different instance-level initialization properties. [,,,,,]
-#define SSCE_M_CANTLOADSQLSEDLL                 25103           // Storage Engine module could not be loaded. Reinstall SQL Server Compact Edition. [,,,,,]
+#define SSCE_M_CANTLOADSQLSEDLL                 25103           // Storage Engine module could not be loaded. Reinstall SQL Server Compact. [,,,,,]
 #define SSCE_M_DATABASETOOBIG                   25104           // The database file is larger than the configured maximum database size. This setting takes effect on the first concurrent database connection only. [Required Max Database Size (in MB; 0 if unknown),,,,,]
 #define SSCE_M_INVALIDSECURITYDESCRIPTOR        25105           // Internal error: Invalid Security Descriptor was specified. [,,,,,]
 #define SSCE_M_TOOMANYCONSTRAINTS               25106           // The limit of 249 contstraints per table has been exceeded. [,,,TableName,,]
@@ -231,18 +258,18 @@
 #define SSCE_M_CANTCHANGEKEYCOLUMN              25119           // Cannot alter a column that is part of a key or an index. [,,,Index Name,Column,]
 #define SSCE_M_RODATABASEREQUIRESTEMPPATH       25120           // Opening a database as read-only requires a temp path to be specified. [,,,Db name,,]
 // DEAD SSCE_M_OUTSTANDINGLOCKS                 25121           // A generation cannot be bumped due to open transactions with changes pending. [,,,,,]
-#define SSCE_M_FATALLOCKFAILURE                 25122           // Internal error: Fatal failure of the lock susbsytem for this database. [,,,Db name,,]
-#define SSCE_M_LIBRARYLOADFAILURE               25123           // A SQL Server Compact DLL could not be loaded. Reinstall SQL Server Compact Edition. [,,,DLL Name,,]
+#define SSCE_M_FATALLOCKFAILURE                 25122           // Internal error: Fatal failure of the lock subsystem for this database. [,,,Db name,,]
+#define SSCE_M_LIBRARYLOADFAILURE               25123           // A SQL Server Compact DLL could not be loaded. Reinstall SQL Server Compact. [GetLastError,,,DLL Name,,]
 #define SSCE_M_INCONSISTENTLVVERSION            25124           // The long value was changed by another transaction. [,,,,,]
 #define SSCE_M_INVALIDSTATSOPTIONS              25125           // Internal error: Invalid statistics creation options. [Options,,,,,]
 #define SSCE_M_PENDINGUPDATE                    25126           // An update transaction is pending, cannot start a sync session. Try synchronizing again. [,,,,,]
 #define SSCE_M_INVALIDPROVIDERTYPE              25127           // Invalid provider type. [Db version,Requested version,,File name,,]
-#define SSCE_M_INVALIDSHAREDMEMORYFORMAT        25128           // SQL Server Compact has encountered two different versions of the product accessing the same database file. Ensure that each application accessing the same database file is using the same version of SQL Server Compact Edition. [,,,,,]
-#define SSCE_M_PREFIXTOOLARGE                   25129           // The string value that has been assigned to the LIKE clause in the SELECT statement exceeds the limit for SQL Server Compact Edition. The limit for single byte character set is 256 characters but can be smaller for double byte character set. [,,,,,]
+#define SSCE_M_INVALIDSHAREDMEMORYFORMAT        25128           // SQL Server Compact has encountered two different versions of the product accessing the same database file. Ensure that each application accessing the same database file is using the same version of SQL Server Compact. [,,,,,]
+#define SSCE_M_PREFIXTOOLARGE                   25129           // The string value that has been assigned to the LIKE clause in the SELECT statement exceeds the limit for SQL Server Compact. The limit for single byte character set is 256 characters but can be smaller for double byte character set. [,,,,,]
 #define SSCE_M_UNINSTALLEDCOLLATINGSEQ          25130           // The specified locale is not installed on this machine. Make sure you install the appropriate language pack. [LCID,,,,,]
-#define SSCE_M_CANTLOADSQLQPDLL                 25131           // Query Processor module could not be loaded. Reinstall SQL Server Compact Edition. [,,,,,]
+#define SSCE_M_CANTLOADSQLQPDLL                 25131           // Query Processor module could not be loaded. Reinstall SQL Server Compact. [,,,,,]
 // DEAD SSCE_M_RESTRICTEDPLATFORM               25132           // This version of SQL Server Compact is not licensed for production use. [,,,,,]
-#define SSCE_M_NOTSUPPORTED                     25133           // Inernal error: SQL Server Compact made an unsupported request to the host operating system. [,,,,,]
+#define SSCE_M_NOTSUPPORTED                     25133           // Internal error: SQL Server Compact made an unsupported request to the host operating system. [,,,,,]
 
 // Errors after this comment were added for v3.5
 //
@@ -251,9 +278,50 @@
 #define SSCE_M_NO_IDENTITY                      25136           // Table does not have a IDENTITY column. [,,,,,]
 #define SSCE_M_INVALIDENCRYPTIONMODE            25137           // The database encryption mode is invalid. [Input Encryption Mode,,,,,]
 #define SSCE_M_DBUPGRADENEEDED                  25138           // The database file has been created by an earlier version of SQL Server Compact. Please upgrade using SqlCeEngine.Upgrade() method. [,,,,,]
-#define SSCE_M_INVALID3XDATABASE                25139           // The file that is being referenced is not a valid SQL Server 2005 Compact Edition (version 3.1) or SQL Server 2005 Mobile Edition (version 3.0) database file to perform upgrade. [,,,Db name,,]
+#define SSCE_M_INVALID3XDATABASE                25139           // The file that is being referenced is not a valid SQL Server Compact 3.5 RTM/SP1/SP2 or SQL Server 2005 Compact Edition (version 3.1) or SQL Server 2005 Mobile Edition (version 3.0) database file to perform upgrade. [,,,Db name,,]
 #define SSCE_M_INVALIDSRCPASSWORD               25140           // The password specified for the source database is incorrect. [,,,Data Source,,]
 #define SSCE_M_ILLEGALSRCCOLLATINGSEQ           25141           // The source database locale is not supported on this operating system. [LCID,,,,,]
+#define SSCE_M_POSSIBLEDATALOSS                 25142           // The repair of the source database results in potential data loss. Full recovery is not possible. [,,,,,]
+
+// Errors after this comment were added for QFEs [25142 - 25147]
+//
+
+
+// Errors after this comment were added for v3.5 SP2
+//
+#define SSCE_M_TABLEALREADYTRACKED              25148           // The table is already being tracked for changes. To modify the change tracking options on the table, disable the change tracking on the table, and enable the change tracking with the new options. [,,,Table name,,]
+#define SSCE_M_INVALIDRETENTIONPERIOD           25149           // The specified retention period is invalid. The retention period cannot be more than 1000 days. [,,,Table name, Retention period,]
+#define SSCE_M_TABLEDOESNOTTRACKDELETES         25150           // The retention cleanup sequence in the tombstone table will not do any operation as the deletes are not being tracked in the user table. [,,,Table name,,]
+#define SSCE_M_CANTTRACKSYSTEMTABLES            25151           // The change tracking operations are not permitted on the system tables. [,,,Table name,,]
+#define SSCE_M_SYSTEMTABLEDELETIONFAILED        25152           // Could not drop system tables, as part of disabling tracking. [,,,,,]
+#define SSCE_M_DATABASENOTTRACKED               25153           // The database is not being tracked for changes. Enable tracking to perform the operation. [,,,,,]
+#define SSCE_M_READONLYDBPOSTINITFAILED         25154           // The database is opened with a read-only connection. Can't perform post-initialization operations like re-building indexes and upgrading public tracking. Please re-open with a read-write connection. [,,,Database name,,]
+#define SSCE_M_SPINLOCKZOMBIED                  25155           // Unable to connect to shared memory region of the SQL Server Compact database. This is because of another process, owning the shared memory region lock, has exited abnormally in the lock acquired state.  This is an intermittent problem. Closing and restarting the database connection should fix the problem. [Thread id,Process id,,Db name,,]
+
+
+// Errors after this comment were added for v4.0 but ported over for WM7
+//
+#define SSCE_M_FILECORRUPTED                    25156           // The database file is corrupted, possibly due to a file system issue. [,,,Database name,,]
+
+
+// Errors after this comment were added for v4.0 (starts at 25158)
+//
+#define SSCE_M_DEFAULTALREADYPRESENT            25158           // This column already had a default. [,,,,,]
+#define SSCE_M_NOTLONGVALUE                     25159           // The column is not of long value type. Check the column value type before opening the long value column. [,,,Table name, Column name,]
+#define SSCE_M_ALREADYHAVEPREFIX                25160           // The key column value cannot be added to the current search key. No more key column values can be added to the current search key. The current search key already contains a partial prefix of a key column. Change the make key logic to follow the index key column order and the index prefix range option. [,,,,,]
+#define SSCE_M_DELETEKEYNOTFOUND                25161           // The key cannot be deleted. The key to be deleted is already deleted from an index by another concurrent session. [,,,,,]
+#define SSCE_M_FREEDPAGE                        25162           // Lock cannot be acquired for a referred object. The page which contains the referred object is already freed by another concurrent session. [,,,,,]
+#define SSCE_M_NEEDSESSIONBEGIN                 25163           // The session cannot commit. Session begin did not happen or begin was not successful. Begin the session before its commit. [,,,,,]
+#define SSCE_M_MAXNOTIFYCLIENTS                 25164           // The client cannot be registered for notifications. The registered clients have already reached the maximum allowed limit. Retry after some notify clients are unregistered. [,,,,,]
+#define SSCE_M_LIBRARYVERIFICATIONFAILURE       25165           // The signature verification of the SQL Server Compact native binaries has failed. This could be due to the presence of incorrect version of the SQL Server Compact native binaries or the binaries may be from a different source than Microsoft. Please install SQL Server Compact binaries that have been digitally signed by Microsoft. [,,,DLL Name,,] 
+#define SSCE_M_LIBRARYNOTFOUND                  25166           // A SQL Server Compact DLL is not found. Please reinstall SQL Server Compact properly. [,,,DLL Name,,]
+#define SSCE_M_UNEXPECTEDSHAREDMEMORYOPEN       25167           // Internal Error while opening the share memory, cancelled the open. [,,,,,]
+#define SSCE_M_BADIMAGEFORMAT                   25168           // The binary is either not designed to run on windows or it contains an error. [,,,,,]
+#define SSCE_M_UPGRADENOTNEEDED                 25169           // Database upgrade is not required, the database is already in a compatible format. [,,,Db name,,]
+
+// Error for use when no error mapping exists from OS Error (GetLastError()) to SQL CE Error
+//
+#define SSCE_M_UNMAPPEDGETLASTERROR             25199           // The operating system error could not be mapped to a known set of errors. [Reported Error,Line Number,,,,]
 
 // Warnings
 //
@@ -267,11 +335,13 @@
 #define SSCE_WRN_RI_RECORDSDELETED              25207           // Additional records were deleted as a result of referential integrity actions. [,,,,,]
 // DEAD SSCE_WRN_ROWLOCKCONNECTFAILED           25208           // The request for a row-level lock was denied. [,,,,,]
 // DEAD SSCE_WRN_PAGELOCKCONNECTFAILED          25209           // The request for a page-level lock was denied. [,,,,,]
-#define SSCE_WRN_DEFAULTALREADYPRESENT          25210           // This column already had a default. [,,,,,]
+// DEAD SSCE_WRN_DEFAULTALREADYPRESENT          25210           // This column already had a default. [,,,,,]
 //
 //Warnings after this comment were added for v1.1 (PEBBLE) 
 //
-
+//Warnings after this comment were added for v4.0 
+//
+#define SSCE_WRN_NOCLEANUPDONE                  25211           // No metadata cleanup has been done as metadata must be retained for one day. The minimum retention period is one day. [,,,,,]
 
 // --------------------------------------------------------------------------------------
 //
@@ -372,14 +442,14 @@
 #define SSCE_M_TDSSERVERTHREADDEADLOCK          27996           // SQL Server Compact is not responding, potentially waiting for a lock timeout. The current connection will be closed. [,,,,,]
 #define SSCE_M_SCRIPTMAXSIZEEXCEEDED            27997           // The size of the executed SQL Server Compact script has exceeded its maximum value. Use [GO] statements to reduce the size of submitted SQL batches. [maximum size,,,,,] 
 #define SSCE_M_OUTOFMEMORY                      27998           // There is not enough memory on the device running SQL Server Compact to complete this operation. [,,,,,] 
-#define SSCE_M_INVALIDPRODUCTVER                27999           // SQL Server Compact 3.5 is either not installed or the installation has been corrupted. [,,,,,] 
+#define SSCE_M_INVALIDPRODUCTVER                27999           // SQL Server Compact 4.0 is either not installed or the installation has been corrupted. [,,,,,] 
 
 //***** Don't add any more errors here, read the comments below and add appropriately
 //
 
 // --------------------------------------------------------------------------------------
 //
-// Replication Transport    28000 - 28499
+// Replication Transport    28000 - 28249
 //
 #define SSCE_M_OPENTWICE                        28000           // Internal error: The table was unexpectedly opened. [,,,,,]
 #define SSCE_M_INTERNETREADERROR                28001           // Internal error: A read operation from the device or the IIS server returned an incorrect number of bytes while trying to process a synchronization request. [,,,,,]
@@ -409,8 +479,8 @@
 #define SSCE_M_HTTPSTATUSSVCUNAVAIL             28025           // The IIS service is not available. [,,,,,]
 // DEAD SSCE_M_HTTPSTATUSGATTIMEOUT             28026           // The gateway has timed out. [,,,,,]
 // DEAD SSCE_M_HTTPSNOTSUPPORTED                28027           // HTTPS is not supported on Windows CE 1.1-based devices. [,,,,,]
-#define SSCE_M_REPLPROHIBITED                   28028           // Merge replication is restricted from being processed with the SQL Server Compact Server Agent on the computer running IIS. Check the USAGE key in HKLM\\Software\\Microsoft\\Microsoft SQL Server Compact Edition\\v3.5\\Transport\\USAGE and change to a value of 0 or 1. [,,,,,]
-#define SSCE_M_RDAPROHIBITED                    28029           // Remote data access (RDA) is restricted from being processed with the SQL Server Compact Server Agent on the computer running IIS. Check the USAGE key in HKLM\\Software\\Microsoft\\Microsoft SQL Server Compact Edition\\v3.5\\Transport\\USAGE and change to a value of 0 or 2. [,,,,,]
+#define SSCE_M_REPLPROHIBITED                   28028           // Merge replication is restricted from being processed with the SQL Server Compact Server Agent on the computer running IIS. Check the USAGE key in HKLM\\Software\\Microsoft\\Microsoft SQL Server Compact Edition\\v4.0\\Transport\\USAGE and change to a value of 0 or 1. [,,,,,]
+#define SSCE_M_RDAPROHIBITED                    28029           // Remote data access (RDA) is restricted from being processed with the SQL Server Compact Server Agent on the computer running IIS. Check the USAGE key in HKLM\\Software\\Microsoft\\Microsoft SQL Server Compact Edition\\v4.0\\Transport\\USAGE and change to a value of 0 or 2. [,,,,,]
 #define SSCE_M_COMPRESSIONFAILED                28030           // Internal error: Compression failed. Try again.[,,,,,]
 #define SSCE_M_DECOMPRESSIONFAILED              28031           // Internal error: Decompression failed. Try again.[,,,,,]
 #define SSCE_M_FAILUREINITIALIZINGINTERNET      28032           // The call to InternetOpen failed. Check the major error for more information. [,,,,,]
@@ -428,6 +498,10 @@
 // Errors after this comment were added for v1.1 (PEBBLE) 
 //
 
+// --------------------------------------------------------------------------------------
+//
+// Replication provider    28250 - 28499
+//
 
 // --------------------------------------------------------------------------------------
 //
@@ -523,14 +597,14 @@
 // DEAD SSCE_M_MOVENEXTFAILED                       28579       // The move to the next row failed. [,,,,,]
 #define SSCE_M_INVALIDCOMPACTPARAMETER              28580       // The specified parameter is not valid. [,,,parameter name,,]
 #define SSCE_M_FAILUREMAKINGMESSAGE                 28581       // Internal error: The message cannot be built. The Make Message failed. [,,,,,]
-#define SSCE_M_INVALIDRDAPARAMETER                  28582       // The parameter is either not specified or not valid. [,,,,,]
+#define SSCE_M_INVALIDPARAMETER                     28582       // The parameter is either not specified or not valid. [,,,,,]
 #define SSCE_M_PUBLISHERLOGINMISSING                28583       // The Publisher login property is not specified. [,,,,,]
 
 // Errors after this comment were added for v3.0 (LAGUNA)
 //
 // DEAD SSCE_M_INVALIDCONNECTIONRETRYTIMEOUT        28584       // The value specified for the ConnectionRetryTimeout property is not valid. [ConnectionRetryTimeout,,,,,]
 // DEAD SSCE_M_INVALIDCOMPRESSIONLEVEL              28585       // The value specified for the CompressionLevel property is not valid. [CompressionLevel,,,,,]
-#define SSCE_M_INVALIDREPLPARAMETER                 28586       // The parameter is either not specified or not valid. [,,,,,]
+// DEAD SSCE_M_INVALIDREPLPARAMETER                 28586       // The parameter is either not specified or not valid. [,,,,,]
 #define SSCE_M_INVALIDHOSTNAME                      28587       // The HostName property value does not match the one saved for the subscription. To resolve, use the original HostName or reinitialize the subscription. [,,,current hostname,original hostname,]
 // DEAD SSCE_M_ROWHASCHANGED                        28588       // The row has changed by a different user and cannot be modified. [,,,,,]
 #define SSCE_M_CONNMANMAPURLFAILED                  28589       // The Connection Manager could not map a URL into a connection. Check your Connection Manager settings. [,,,URL,,]
@@ -550,11 +624,11 @@
 #define SSCE_M_UNIQUEREQUIRED                       28602       // Internal error: When trying to add a GUID tracking column, SQL Server Compact could not create the column because the column did not contain the uniqueidentifier attribute. [,,,Column name, Table name,]
 // DEAD SSCE_M_INVALIDROWVERSIONDEF                 28603       // Invalid type for rowversion column. [,,,Column name, Table name,]
 #define SSCE_M_READONLYTABLE                        28604       // Internal error: This table is read-only. The internal system objects and system lock tables are not updateable. [,,,Table name,,]
-#define SSCE_M_RESTRICTEDDDL                        28605       // Internal error: DDL operations are not allowed on system tables. [,,,Table name,,]
+#define SSCE_M_RESTRICTEDDDL                        28605       // Data Definition Language (DDL) operations are not allowed on this table, or on any system table or tracked user table.  Disable tracking before you run DDL operations. [,,,Table name,,]
 #define SSCE_M_QPDEFAULTSSERVICEMISSING             28606       // QP is missing and it is required to evaluate default expressions. Ensure that Query Processor module is in the same directory as the Storage Engine module. [,,,,,]
 #define SSCE_M_TABLEDOESNOTEXIST                    28607       // The table does not exist [,,,Table name,,]
 #define SSCE_M_CANTMODIFYCOLUMNTYPE                 28608       // Internal error: Cannot modify the column type [,,,Table name, Column name,]
-#define SSCE_M_INVALIDDBVERSION                     28609       // You are trying to access an older version of a SQL Server Compact database. If this is a SQL Server CE 1.0 or 2.0 database, run upgrade.exe. If this is a SQL Server Compact 3.5 database, run Compact / Repair. [Db version,Requested version,,File name,,]
+#define SSCE_M_INVALIDDBVERSION                     28609       // Incompatible Database Version. If this was a compatible file, run repair. For other cases refer to documentation. [Db version,Requested version,,File name,,]
 #define SSCE_M_SINGLEUSEROPERATION                  28610       // This operation requires the database to be opened in a single user mode and the database is currently in a multi-user mode. [,,,File name,,]
 #define SSCE_M_PATHTOOLONG                          28611       // The file resolves to a path that is too long. The maximum length is 260 characters. [,,,File name,,]
 #define SSCE_M_INVALIDRDAERRORTABLE                 28612       // The schema of the RDA error table  is not valid. Delete the error table and try to repull the table. [,,,,,]
@@ -598,6 +672,10 @@
 #define SSCE_M_DBAUTOUPGRADEFAILED                  28647       // The database auto upgrade from recognized old database format to the current database format failed due to a read-only connection.  Please open a the connection in write mode to perform auto upgrade. [Db version,Requested version,,File name,,]
 #define SSCE_M_CONFLICTINGSUBSCRIPTION              28648       // There is a conflicting subscription found. Can't use replication protocols RDA or merge with OCS. [,,,Table name,,]
 
+// Errors after this comment were added for v3.5 SP1
+//
+#define SSCE_M_AUTOPROXYURLACCESSFAILED             28649      // The proxy information can not be retrieved for the URL. proxyURL can not be accessed, try to manually access proxyURL [URL,proxyURL,,,,]
+#define SSCE_M_AUTOPROXYCALLFAILED                  28650      // Calling a method in JSProxy dll failed. Make sure JSProxy.dll is in path, and the method is exposed and can be called. [method name,,,,,]
 
 // Warnings
 //
@@ -630,14 +708,14 @@
 #define SSCE_M_INVALIDPUSHSEQUENCE                  29012       // Internal error: An error occurred during the push operation in the SQL Server Compact Server Agent. [,,,,,]
 // DEAD SSCE_M_PUSHPARAMSETONVALUE                  29013       // The attempt to replace an existing parameter value in the push operation failed. [,,,,,]
 // DEAD SSCE_M_NOTALLPARAMSETFORPUSH                29014       // Incomplete parameters were set for the push operation. [,,,,,]
-#define SSCE_M_PUSHPKCOLCOUNTMISMATCH               29015       // The expected number of columns in the primary key on SQL Server does not match the count in SQL Server Compact Edition. The schema on SQL Server has changed since the last RDA Pull. The table will have to be PULLED again to match the primary key schema defined on SQL Server. [Supplied count, Expected count,,,,]
+#define SSCE_M_PUSHPKCOLCOUNTMISMATCH               29015       // The expected number of columns in the primary key on SQL Server does not match the count in SQL Server Compact. The schema on SQL Server has changed since the last RDA Pull. The table will have to be PULLED again to match the primary key schema defined on SQL Server. [Supplied count, Expected count,,,,]
 #define SSCE_M_VF_MISSINGSERVERCOLUMN               29016       // Client-side and server-side columns for the RDA table do not match. [,,,Table name,,]
 #define SSCE_M_VF_MISMATCHEDTYPES                   29017       // The OLE DB data type information in the SQL Server Compact columns does not match the information in the SQL Server columns for the RDA table. [Client type, Server type,,Table name,,]
 #define SSCE_M_VF_MISSINGTABLE                      29018       // No columns were found. Either the table name is missing or the permissions are not valid. [,,,Table name,,]
 #define SSCE_M_NOROWSAFFECTED                       29020       // A row cannot be updated or deleted in the SQL Server by using RDA. [,,,,,]
 #define SSCE_M_TOOMANYROWSAFFECTED                  29021       // More than one row was affected by an RDA update or delete operation in the SQL Server database. [,,,,,]
 #define SSCE_M_INCORRECTPROVIDERVERSION             29022       // The version of the Microsoft OLE DB Provider for SQL Server is not correct. Install MDAC 2.8 or later. [,,,Version,,]
-#define SSCE_M_INCORRECTPROVIDER                    29023       // The OLE DB Provider for SQL Server on the computer running IIS is not compatible with SQL Server Compact Edition. Install MDAC 2.8 or later. [,,,Provider,,]
+#define SSCE_M_INCORRECTPROVIDER                    29023       // The OLE DB Provider for SQL Server on the computer running IIS is not compatible with SQL Server Compact. Install MDAC 2.8 or later. [,,,Provider,,]
 #define SSCE_M_VF_PRIMARYKEYCHANGE                  29024       // The push operation cannot match the order of the primary key columns on the client side and server side. Repull the table or reset the primary key column. [,,,,,]
 #define SSCE_M_VF_MISSINGSERVERPKCOLUMN             29025       // The push operation cannot find a primary key column on the SQL Server table. [,,,,,]
 #define SSCE_M_VF_EXTRASERVERPKCOLUMN               29026       // The push operation has found an extra primary key column on the SQL Server table. [,,,,,]
@@ -653,7 +731,7 @@
 // Following error is a V1.1 (Pebble) error
 // included here due to the numbering problem that produced the gap below.
 //
-#define SSCE_M_MISMATCHEDCOMPONENTS                 29034       // The SQL Server Compact Client Agent and SQL Server Compact Server Agent component versions do not match. Reinstall the replication components. [,,,SQL Server Compact Client Agent version,SQL Server Compact Server Agent version,]
+#define SSCE_M_MISMATCHEDCOMPONENTS                 29034       // The Client Agent and Server Agent component versions are incompatible. For a meaningful handshake, the Client Agent version should not be later than the Server Agent version. Client Agent version should be no earlier than SQL Server 2005 Mobile Edition (version 3.0).  Re-install the replication components with the matching versions for client and server agents. [,,,Client Agent version,Server Agent version,]
 // Note:  There is a gap in the numbering here. Do not renumber the following, since they are already documented.
 //        New errors for this section should continue from the highest value in the section.
 //        The two errors below are from V1.0    
@@ -691,15 +769,13 @@
 #define SSCE_M_CONNECTFAILUREIIS                    29061       // Failure to connect to SQL Server with provided connection information. SQL Server does not exist, access is denied because the IIS user is not a valid user on the SQL Server, or the password is incorrect.[,,,,,]
 #define SSCE_M_SELECTSTRINGMISSING                  29062       // The SQLSelectString parameter is not specified. [,,,,,] 
 
-
-
 // --------------------------------------------------------------------------------------
 //
 // Message Protocol     29500- 29999
 //  
 #define SSCE_M_TRANSPORTREADWRONGSIZE               29500       // Internal error: The transport read operation returned an incorrect data length. [Returned length,Expected length,,,,]
 #define SSCE_M_UNEXPECTEDSTATEWRITINGMESSAGE        29501       // Internal error: The write message failed. [,,,,,]
-#define SSCE_M_INVALIDCOLUMNNUMBER                  29502       // Internal error: The schema on SQL Server differs from the schema on SQL Server Compact Edition. [Column number,,,Table name,,]
+#define SSCE_M_INVALIDCOLUMNNUMBER                  29502       // Internal error: The schema on SQL Server differs from the schema on SQL Server Compact. [Column number,,,Table name,,]
 #define SSCE_M_CANTFINDCOLUMNBYNAME                 29503       // The column cannot be found. [,,,Column name,Table name,]
 #define SSCE_M_NAMESBUFFERTOOSMALL                  29504       // Internal error: The names buffer is too small. [,,,,,]
 // DEAD SSCE_M_INCORRECTNUMBEROFCOLUMNSPROCESSED    29505       // Incorrect number of columns processed. [columns processed,expected number,,,,]
@@ -852,14 +928,28 @@
 //
 #define SSCE_M_QP_NODEFAULTONROWVERCOL              25625           // Defaults cannot be created on row version columns. [,,,Name of table,Name of column,,]
 #define SSCE_M_QP_ALTERCOLUMN_SRC_TIMESTAMP_INVALID 25626           // Cannot alter column of type TIMESTAMP [,,,Column Name,,]
-#define SSCE_M_QP_NO_ORDERBY_WITHOUT_TOP_IN_SUBQUERY    25628       // The ORDER BY clause is invalid in subqueries unless TOP is also specified. [,,,,,]
-#define SSCE_M_QP_INVALID_TOP_VALUE                 25629           // Invalid argument in TOP clause. Argument must be integer type and evaluate to a positive integer less than 2147483648 (Size of int). [,,,,,]
-#define SSCE_M_QP_INVALID_TOP_EXPRESSION            25630           // Invalid expression in the TOP clause. Only constants, expressions on constants and parameters are allowed there.[,,,,,]
+#define SSCE_M_QP_NO_ORDERBY_WITHOUT_TOP_OR_OFFSET_IN_SUBQUERY   25628       // The ORDER BY clause is invalid in subqueries unless TOP or OFFSET is also specified. [,,,,,]
+#define SSCE_M_QP_INVALID_TOP_OR_FETCH_VALUE        25629           // The number of rows in the TOP/FETCH clause must be a positive integer. [,,,,,]
+#define SSCE_M_QP_INVALID_TOP_OR_FETCH_EXPRESSION   25630           // Invalid expression in the TOP/FETCH clause. Provide an integer constant, expression on constants or parameter.[,,,,,]
 #define SSCE_M_QP_NOCOL_ALIAS_IN_SUBQUERY           25632           // Column names must be specified for constants, expressions or aggregate functions when they occur in a FROM sub query. [,,,,,]
 #define SSCE_M_QP_MULTIPLE_COL_SPEC                 25633           // Column name was specified multiple times for a sub query. [,,,Name of column, Alias of sub query,]
 #define SSCE_M_QP_CORRELATED_AGGR_IN_APPLY          25634           // Aggregates on the right side of an APPLY cannot reference columns from the left side. [,,,,,]
 #define SSCE_M_QP_ALTERCOLUMN_TGT_TIMESTAMP_INVALID 25635           // Cannot alter column to be type TIMESTAMP [,,,Column Name,,]
 #define SSCE_M_QP_CONSTEXPR_IN_GROUP_BY             25636           // Each GROUP BY expression must contain at least one column that is not an outer reference. [,,,,,]
+
+// Errors after this comment were added for v3.5 sp1
+//
+#define SSCE_M_QP_NO_CONSTANT_IN_ORDERBY             25637          // A constant expression was encountered in the ORDER BY list. [,,,Position,,]
+#define SSCE_M_QP_NO_ORDERBY_WO_SELECT_IN_UNION      25638          // ORDER BY items must appear in the select list if the statement contains a UNION. [,,,,,]
+
+// Errors after this comment were added for v4.0
+//
+#define SSCE_M_QP_NO_OFFSET_WITHOUT_ORDERBY         25649           // OFFSET clause is invalid unless ORDER BY clause is specified. [,,,,,]
+#define SSCE_M_QP_NO_FETCH_WITHOUT_OFFSET           25650           // FETCH clause is invalid unless OFFSET clause is specified. [,,,,,]
+#define SSCE_M_QP_NO_TOP_WITH_OFFSET                25651           // TOP and OFFSET clause cannot be used together in the same query. [,,,,,]
+#define SSCE_M_QP_INVALID_SKIP_VALUE                25652           // The number of rows in the OFFSET clause must be a positive integer. [,,,,,]
+#define SSCE_M_QP_INVALID_SKIP_EXPRESSION           25653           // Invalid expression in the OFFSET clause. Provide an integer constant, expression on constants or parameter.[,,,,,]
+#define SSCE_M_QP_INVALID_FETCH_VALUE               25654           // The number of rows in the FETCH clause must be an integer greater than 0. [,,,,,]
 
 // --------------------------------------------------------------------------------------
 //
@@ -882,9 +972,9 @@
 #define SSCE_M_QP_SUBQUERYINVALIDOP                 25916       // An operator on the result data type from a subquery is not valid. [,,,,,]
 #define SSCE_M_QP_NOBITOPSUPPORT                    25917       // Bit operators (&,|,^,~) are not supported on real, float, money, and numeric data types. [,,,Data type,,]
 #define SSCE_M_QP_BADARITHTYPE                      25918       // The data type is not valid for the arithmetic operation. [,,,Data type (if known),,]
-// DEAD SSCE_M_QP_BADARITHOP                        25919       // The arithmetic operator is not recognized by SQL Server Compact Edition. [,,,Operator,,]
+// DEAD SSCE_M_QP_BADARITHOP                        25919       // The arithmetic operator is not recognized by SQL Server Compact. [,,,Operator,,]
 #define SSCE_M_QP_TRUNCATION                        25920       // The data was truncated while converting from one data type to another. [,,,Name of function(if known),,]
-#define SSCE_M_QP_INVALIDFUNCTIONNAME               25921       // The function is not recognized by SQL Server Compact Edition. [,,,Name of function,Data type (if known),]
+#define SSCE_M_QP_INVALIDFUNCTIONNAME               25921       // The function is not recognized by SQL Server Compact. [,,,Name of function,Data type (if known),]
 #define SSCE_M_QP_INVALIDFUNCTIONARGS               25922       // The specified argument value for the function is not valid. [Argument #,,,Name of function(if known),,]
 #define SSCE_M_QP_NOSUPPORTFORLOB                   25923       // The ntext and image data types cannot be used in WHERE, HAVING, GROUP BY, ON, or IN clauses, except when these data types are used with the LIKE or IS NULL predicates. [,,,,,]
 #define SSCE_M_QP_BINDTSYNTAX                       25924       // An overflow might have occurred while converting binary to datetime.[,,,,,]
@@ -934,6 +1024,7 @@
 // Errors after this comment were added for v3.5
 #define SSCE_M_QP_MISSINGPARAMETERTYPE              25956       // Parameter type has not been declared. [Parameter ordinal,,,Parameter name (if available),,]
 #define SSCE_M_QP_LOB_IN_UNION_DISTINCT             25957       // The ntext and image data types can be used in select list of UNION only when ALL option is specified. [,,,,,]
+#define SSCE_M_QP_OVERFLOW_IN_COUNT                 25958       // An overflow occurred in computing COUNT. COUNT can only be used when return values are less than 2^31. [,,,,,]
 
 // --------------------------------------------------------------------------------------
 //
@@ -959,7 +1050,7 @@
 #define SSCE_M_QP_BADADTMETAINFO                    26305       // The DDL statement contains invalid parameters associated with the column definition. [,,,,,]
 #define SSCE_M_QP_COERSIONERROR                     26306       // Data conversion failed. [OLE DB status value (if known),,,,,]
 #define SSCE_M_QP_BADQUERY                          26307       // Syntax error in query. [,,,,,]
-// DEAD SSCE_M_QP_ZEROLENGTHBINARYCONST             26308       // Zero-length binary constants are not supported in SQL Server Compact Edition. [,,,,,]
+// DEAD SSCE_M_QP_ZEROLENGTHBINARYCONST             26308       // Zero-length binary constants are not supported in SQL Server Compact. [,,,,,]
 
 // ***********************************************************************
 // NOTE : Our error number range is limited to the SQL Server error number 
@@ -990,7 +1081,6 @@
 // DEAD SSCE_M_INVALIDSERVERPORT                    30012       // The server port specified is not valid. [,,,,,]
 // DEAD SSCE_M_FAILUREACCESSINGSYSTEMMENU           30013       // The system menu cannot be accessed. [,,,,,]
 // DEAD SSCE_M_FAILURESETTINGREGISTRY               30014       // The registry keys cannot be set or created. [,,,,,]
-// DEAD SSCE_M_INVALIDARGUMENT                      30015       // A parameter passed to SQL Server Compact Edition Relay is not valid. [,,,,,]
 // DEAD SSCE_M_INVALIDARGUMENT                      30015       // A parameter passed to SQL Server Compact Relay is not valid. [,,,,,]
 // DEAD SSCE_M_MISSINGPORTORSERVER                  30017       // Either a port number is not valid or the server name is missing. [,,,,,]
 // DEAD SSCE_M_SOCKETCALLFAILED                     30018       // The socket call failed. [,,,,,]
@@ -1151,7 +1241,7 @@
 #define DB_E_RESOURCELOCKED                     (HRESULT)0x80040E92L    // The OLE DB object represented by this URL is locked by one or more other processes. [,,,,,]
 #define DB_E_NOTCOLLECTION                      (HRESULT)0x80040E93L    // The client requested an object type that is only valid for a collection. [,,,,,]
 #define DB_E_READONLY                           (HRESULT)0x80040E94L    // The caller requested write access to a read-only object. [,,,,,]
-#define DB_E_ASYNCNOTSUPPORTED                  (HRESULT)0x80040E95L    // The provider could not connect to the server for this object. [,,,,,]
+#define DB_E_ASYNCNOTSUPPORTED                  (HRESULT)0x80040E95L    // The provider does not support asynchronous operations. [,,,,,]
 #define DB_E_CANNOTCONNECT                      (HRESULT)0x80040E96L    // The provider could not connect to the server for this object. [,,,,,]
 #define DB_E_TIMEOUT                            (HRESULT)0x80040E97L    // The attempt to bind to the object timed out. [,,,,,]
 #define DB_E_RESOURCEEXISTS                     (HRESULT)0x80040E98L    // The provider was unable to create an object at this URL because an object named by this URL already exists. [,,,,,]
@@ -1159,6 +1249,9 @@
 #define DB_E_DROPRESTRICTED                     (HRESULT)0x80040E90L    // Column or constraint could not be dropped because it is referenced by a dependent view or constraint. [,,,,,]
 #define DB_E_DUPLICATECONSTRAINTID              (HRESULT)0x80040E99L    // Constraint already exists. [,,,,,]
 #define DB_E_OUTOFSPACE                         (HRESULT)0x80040E9AL    // Object cannot be created at this URL because the server is out of physical storage. [,,,,,]
+#define DB_E_NS_BOUNDARYDESCRIPTOR              (HRESULT)0x80040EA0L	// Failed to create boundary descriptor. [,,,,,]
+#define DB_E_NS_OPEN                            (HRESULT)0x80040EA1L	// Failed to create or open namespace. [,,,,,]
+#define DB_E_NS_ALREADY_EXISTS                  (HRESULT)0x80040EA2L	// Namespace already exists. [,,,,,]
 #define DB_S_ROWLIMITEXCEEDED                   (HRESULT)0x00040EC0L    // Fetching requested number of rows would have exceeded total number of active rows supported by the rowset. [,,,,,]
 #define DB_S_COLUMNTYPEMISMATCH                 (HRESULT)0x00040EC1L    // One or more column types are incompatible; conversion errors will occur during copying. [,,,,,]
 #define DB_S_TYPEINFOOVERRIDDEN                 (HRESULT)0x00040EC2L    // Parameter type information has been overridden by caller. [,,,,,]

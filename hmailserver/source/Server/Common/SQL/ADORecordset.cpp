@@ -115,7 +115,7 @@ namespace HM
    {
       try
       {
-         return cADORecordset->GetRecordCount();
+         return (long) cADORecordset->GetRecordCount();
       }
       catch ( _com_error &err)
       {

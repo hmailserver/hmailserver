@@ -1,8 +1,17 @@
 
 //=============================================================================
-// Microsoft SQL Server Compact (Version 3.5)
+// Microsoft SQL Server Compact (Version 4.0)
 //
-// Copyright (c)  Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//
+//
+// Use of this source code is subject to the terms of the Microsoft
+// premium shared source license agreement under which you licensed
+// this source code. If you did not accept the terms of the license
+// agreement, you are not authorized to use this source code.
+// For the terms of the license, please see the license agreement
+// signed by you and Microsoft.
+// THE SOURCE CODE IS PROVIDED "AS IS", WITH NO WARRANTIES OR INDEMNITIES.
 //
 // Component: Connectivity (Merge & RDA)
 // 
@@ -20,14 +29,6 @@
 
 
  /* File created by MIDL compiler version 6.00.0365 */
-/* Compiler settings for ca_mergex.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run)
-    protocol : dce , ms_ext, c_ext, robust
-    error checks: allocation ref bounds_check enum stub_data 
-    VC __declspec() decoration level: 
-         __declspec(uuid()), __declspec(selectany), __declspec(novtable)
-         DECLSPEC_UUID(), MIDL_INTERFACE()
-*/
 //@@MIDL_FILE_HEADING(  )
 
 
@@ -205,7 +206,9 @@ void __RPC_USER MIDL_user_free( void * );
 typedef /* [uuid] */  DECLSPEC_UUID("539ed304-a322-4294-9083-b6bd560ebd26") 
 enum REPAIROPTION
     {	DELETECORRUPTED	= 0,
-	RECOVERCORRUPTED	= 1
+	RECOVERCORRUPTED = 1,
+	RECOVERALLPOSSIBLEROWS = 1,
+        RECOVERALLORFAIL = 2
     } 	REPAIROPTION;
 
 typedef /* [uuid] */  DECLSPEC_UUID("ba00674b-ae9b-4c47-89dd-f3c9e3426a37") 
@@ -327,6 +330,10 @@ typedef /* [uuid] */  DECLSPEC_UUID("6a120382-da3d-4c7f-9673-02f227e646b5") stru
 #define INETOPT_MIN_CONNECTTIMEOUT               0*SECONDS
 #define INETOPT_MIN_SENDTIMEOUT                  0*SECONDS
 #define INETOPT_MIN_RECEIVETIMEOUT               0*SECONDS
+#define INETOPT_MIN_DATARECEIVETIMEOUT           0*SECONDS 
+#define INETOPT_MIN_DATASENDTIMEOUT              0*SECONDS
+#define INETOPT_MIN_CONTROLSENDTIMEOUT           0*SECONDS
+#define INETOPT_MIN_CONTROLRECEIVETIMEOUT        0*SECONDS
 //
 // INETOPT_MAX Values
 //
@@ -335,6 +342,10 @@ typedef /* [uuid] */  DECLSPEC_UUID("6a120382-da3d-4c7f-9673-02f227e646b5") stru
 #define INETOPT_MAX_CONNECTTIMEOUT               360*SECONDS
 #define INETOPT_MAX_SENDTIMEOUT                  360*SECONDS
 #define INETOPT_MAX_RECEIVETIMEOUT               360*SECONDS
+#define INETOPT_MAX_DATARECEIVETIMEOUT           360*SECONDS 
+#define INETOPT_MAX_DATASENDTIMEOUT              360*SECONDS
+#define INETOPT_MAX_CONTROLSENDTIMEOUT           360*SECONDS
+#define INETOPT_MAX_CONTROLRECEIVETIMEOUT        360*SECONDS
 //
 // INETOPT_DEFAULT Values
 //
@@ -343,6 +354,11 @@ typedef /* [uuid] */  DECLSPEC_UUID("6a120382-da3d-4c7f-9673-02f227e646b5") stru
 #define INETOPT_DEFAULT_CONNECTTIMEOUT           60*SECONDS
 #define INETOPT_DEFAULT_SENDTIMEOUT              60*SECONDS
 #define INETOPT_DEFAULT_RECEIVETIMEOUT           60*SECONDS
+#define INETOPT_DEFAULT_DATARECEIVETIMEOUT       60*SECONDS 
+#define INETOPT_DEFAULT_DATASENDTIMEOUT          60*SECONDS
+#define INETOPT_DEFAULT_CONTROLSENDTIMEOUT       60*SECONDS
+#define INETOPT_DEFAULT_CONTROLRECEIVETIMEOUT    60*SECONDS
+
 
 
 
@@ -1539,6 +1555,45 @@ void __RPC_STUB ISSCEErrors_Add_Stub(
         virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ReceiveTimeout( 
             /* [in] */ LONG newVal) = 0;
         
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DataSendTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DataSendTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DataReceiveTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DataReceiveTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_ControlSendTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ControlSendTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_ControlReceiveTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ControlReceiveTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_InternetTransportOptions( 
+            /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_InternetTransportOptions( 
+            /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal) = 0;
+        
+        virtual /* [id] */ HRESULT STDMETHODCALLTYPE ApplyLocalFile( 
+            /* [in] */ const WCHAR *pwszFileURL) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_PostSyncCleanup( 
+            /* [retval][out] */ SHORT *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_PostSyncCleanup( 
+            /* [in] */ SHORT newVal) = 0;
+        
     };
     
 #else 	/* C style interface */
@@ -1890,6 +1945,58 @@ void __RPC_STUB ISSCEErrors_Add_Stub(
             ISSCEMerge * This,
             /* [in] */ LONG newVal);
         
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_DataSendTimeout )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_DataSendTimeout )( 
+            ISSCEMerge * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_DataReceiveTimeout )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_DataReceiveTimeout )( 
+            ISSCEMerge * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_ControlSendTimeout )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_ControlSendTimeout )( 
+            ISSCEMerge * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_ControlReceiveTimeout )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_ControlReceiveTimeout )( 
+            ISSCEMerge * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_InternetTransportOptions )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_InternetTransportOptions )( 
+            ISSCEMerge * This,
+            /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal);
+        
+        /* [id] */ HRESULT ( STDMETHODCALLTYPE *ApplyLocalFile )( 
+            ISSCEMerge * This,
+            /* [in] */ const WCHAR *pwszFileURL);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_PostSyncCleanup )( 
+            ISSCEMerge * This,
+            /* [retval][out] */ SHORT *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_PostSyncCleanup )( 
+            ISSCEMerge * This,
+            /* [in] */ SHORT newVal);
+        
         END_INTERFACE
     } ISSCEMergeVtbl;
 
@@ -2164,6 +2271,45 @@ void __RPC_STUB ISSCEErrors_Add_Stub(
 
 #define ISSCEMerge_put_ReceiveTimeout(This,newVal)	\
     (This)->lpVtbl -> put_ReceiveTimeout(This,newVal)
+
+#define ISSCEMerge_get_DataSendTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_DataSendTimeout(This,pVal)
+
+#define ISSCEMerge_put_DataSendTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_DataSendTimeout(This,newVal)
+
+#define ISSCEMerge_get_DataReceiveTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_DataReceiveTimeout(This,pVal)
+
+#define ISSCEMerge_put_DataReceiveTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_DataReceiveTimeout(This,newVal)
+
+#define ISSCEMerge_get_ControlSendTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_ControlSendTimeout(This,pVal)
+
+#define ISSCEMerge_put_ControlSendTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_ControlSendTimeout(This,newVal)
+
+#define ISSCEMerge_get_ControlReceiveTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_ControlReceiveTimeout(This,pVal)
+
+#define ISSCEMerge_put_ControlReceiveTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_ControlReceiveTimeout(This,newVal)
+
+#define ISSCEMerge_get_InternetTransportOptions(This,pGetVal)	\
+    (This)->lpVtbl -> get_InternetTransportOptions(This,pGetVal)
+
+#define ISSCEMerge_put_InternetTransportOptions(This,pPutVal)	\
+    (This)->lpVtbl -> put_InternetTransportOptions(This,pPutVal)
+
+#define ISSCEMerge_ApplyLocalFile(This,pwszFileURL)	\
+    (This)->lpVtbl -> ApplyLocalFile(This,pwszFileURL)
+
+#define ISSCEMerge_get_PostSyncCleanup(This,pVal)	\
+    (This)->lpVtbl -> get_PostSyncCleanup(This,pVal)
+
+#define ISSCEMerge_put_PostSyncCleanup(This,newVal)	\
+    (This)->lpVtbl -> put_PostSyncCleanup(This,newVal)
 
 #endif /* COBJMACROS */
 
@@ -3176,6 +3322,163 @@ void __RPC_STUB ISSCEMerge_put_ReceiveTimeout_Stub(
     DWORD *_pdwStubPhase);
 
 
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_DataSendTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCEMerge_get_DataSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_DataSendTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCEMerge_put_DataSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_DataReceiveTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCEMerge_get_DataReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_DataReceiveTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCEMerge_put_DataReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_ControlSendTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCEMerge_get_ControlSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_ControlSendTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCEMerge_put_ControlSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_ControlReceiveTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCEMerge_get_ControlReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_ControlReceiveTimeout_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCEMerge_put_ControlReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_InternetTransportOptions_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal);
+
+
+void __RPC_STUB ISSCEMerge_get_InternetTransportOptions_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_InternetTransportOptions_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal);
+
+
+void __RPC_STUB ISSCEMerge_put_InternetTransportOptions_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_ApplyLocalFile_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ const WCHAR *pwszFileURL);
+
+
+void __RPC_STUB ISSCEMerge_ApplyLocalFile_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_get_PostSyncCleanup_Proxy( 
+    ISSCEMerge * This,
+    /* [retval][out] */ SHORT *pVal);
+
+
+void __RPC_STUB ISSCEMerge_get_PostSyncCleanup_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCEMerge_put_PostSyncCleanup_Proxy( 
+    ISSCEMerge * This,
+    /* [in] */ SHORT newVal);
+
+
+void __RPC_STUB ISSCEMerge_put_PostSyncCleanup_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+
 #endif 	/* __ISSCEMerge_INTERFACE_DEFINED__ */
 
 
@@ -3289,7 +3592,37 @@ void __RPC_STUB ISSCEMerge_put_ReceiveTimeout_Stub(
             /* [retval][out] */ LONG *pVal) = 0;
         
         virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ReceiveTimeout( 
-            /* [in] */ LONG newVal) = 0;        
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DataSendTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DataSendTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DataReceiveTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DataReceiveTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_ControlSendTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ControlSendTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_ControlReceiveTimeout( 
+            /* [retval][out] */ LONG *pVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_ControlReceiveTimeout( 
+            /* [in] */ LONG newVal) = 0;
+        
+        virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_InternetTransportOptions( 
+            /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal) = 0;
+        
+        virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_InternetTransportOptions( 
+            /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal) = 0;
         
     };
     
@@ -3437,6 +3770,46 @@ void __RPC_STUB ISSCEMerge_put_ReceiveTimeout_Stub(
             ISSCERDA * This,
             /* [in] */ LONG newVal);
         
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_DataSendTimeout )( 
+            ISSCERDA * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_DataSendTimeout )( 
+            ISSCERDA * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_DataReceiveTimeout )( 
+            ISSCERDA * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_DataReceiveTimeout )( 
+            ISSCERDA * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_ControlSendTimeout )( 
+            ISSCERDA * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_ControlSendTimeout )( 
+            ISSCERDA * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_ControlReceiveTimeout )( 
+            ISSCERDA * This,
+            /* [retval][out] */ LONG *pVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_ControlReceiveTimeout )( 
+            ISSCERDA * This,
+            /* [in] */ LONG newVal);
+        
+        /* [id][propget] */ HRESULT ( STDMETHODCALLTYPE *get_InternetTransportOptions )( 
+            ISSCERDA * This,
+            /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal);
+        
+        /* [id][propput] */ HRESULT ( STDMETHODCALLTYPE *put_InternetTransportOptions )( 
+            ISSCERDA * This,
+            /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal);
+        
         END_INTERFACE
     } ISSCERDAVtbl;
 
@@ -3549,6 +3922,36 @@ void __RPC_STUB ISSCEMerge_put_ReceiveTimeout_Stub(
 
 #define ISSCERDA_put_ReceiveTimeout(This,newVal)	\
     (This)->lpVtbl -> put_ReceiveTimeout(This,newVal)
+
+#define ISSCERDA_get_DataSendTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_DataSendTimeout(This,pVal)
+
+#define ISSCERDA_put_DataSendTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_DataSendTimeout(This,newVal)
+
+#define ISSCERDA_get_DataReceiveTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_DataReceiveTimeout(This,pVal)
+
+#define ISSCERDA_put_DataReceiveTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_DataReceiveTimeout(This,newVal)
+
+#define ISSCERDA_get_ControlSendTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_ControlSendTimeout(This,pVal)
+
+#define ISSCERDA_put_ControlSendTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_ControlSendTimeout(This,newVal)
+
+#define ISSCERDA_get_ControlReceiveTimeout(This,pVal)	\
+    (This)->lpVtbl -> get_ControlReceiveTimeout(This,pVal)
+
+#define ISSCERDA_put_ControlReceiveTimeout(This,newVal)	\
+    (This)->lpVtbl -> put_ControlReceiveTimeout(This,newVal)
+
+#define ISSCERDA_get_InternetTransportOptions(This,pGetVal)	\
+    (This)->lpVtbl -> get_InternetTransportOptions(This,pGetVal)
+
+#define ISSCERDA_put_InternetTransportOptions(This,pPutVal)	\
+    (This)->lpVtbl -> put_InternetTransportOptions(This,pPutVal)
 
 #endif /* COBJMACROS */
 
@@ -3924,6 +4327,127 @@ void __RPC_STUB ISSCERDA_put_ReceiveTimeout_Stub(
     DWORD *_pdwStubPhase);
 
 
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCERDA_get_DataSendTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCERDA_get_DataSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCERDA_put_DataSendTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCERDA_put_DataSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCERDA_get_DataReceiveTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCERDA_get_DataReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCERDA_put_DataReceiveTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCERDA_put_DataReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCERDA_get_ControlSendTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCERDA_get_ControlSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCERDA_put_ControlSendTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCERDA_put_ControlSendTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCERDA_get_ControlReceiveTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [retval][out] */ LONG *pVal);
+
+
+void __RPC_STUB ISSCERDA_get_ControlReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCERDA_put_ControlReceiveTimeout_Proxy( 
+    ISSCERDA * This,
+    /* [in] */ LONG newVal);
+
+
+void __RPC_STUB ISSCERDA_put_ControlReceiveTimeout_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propget] */ HRESULT STDMETHODCALLTYPE ISSCERDA_get_InternetTransportOptions_Proxy( 
+    ISSCERDA * This,
+    /* [retval][out] */ INTERNET_TRANSPORT_OPTIONS *pGetVal);
+
+
+void __RPC_STUB ISSCERDA_get_InternetTransportOptions_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [id][propput] */ HRESULT STDMETHODCALLTYPE ISSCERDA_put_InternetTransportOptions_Proxy( 
+    ISSCERDA * This,
+    /* [in] */ INTERNET_TRANSPORT_OPTIONS *pPutVal);
+
+
+void __RPC_STUB ISSCERDA_put_InternetTransportOptions_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+
 #endif 	/* __ISSCERDA_INTERFACE_DEFINED__ */
 
 
@@ -3961,6 +4485,11 @@ void __RPC_STUB ISSCERDA_put_ReceiveTimeout_Stub(
             /* [in] */ BSTR SourceConnection,
             /* [in] */ BSTR DestinationConnection) = 0;
         
+        virtual /* [id] */ HRESULT STDMETHODCALLTYPE Verify( 
+            /* [in] */ BSTR SourceConnection) = 0;
+        
+        virtual /* [id] */ HRESULT STDMETHODCALLTYPE VerifyEx( 
+            /* [in] */ BSTR SourceConnection) = 0;
         
     };
     
@@ -4005,6 +4534,14 @@ void __RPC_STUB ISSCERDA_put_ReceiveTimeout_Stub(
             /* [in] */ BSTR SourceConnection,
             /* [in] */ BSTR DestinationConnection);
         
+        /* [id] */ HRESULT ( STDMETHODCALLTYPE *Verify )( 
+            ISSCEEngine * This,
+            /* [in] */ BSTR SourceConnection);
+        
+        /* [id] */ HRESULT ( STDMETHODCALLTYPE *VerifyEx )( 
+            ISSCEEngine * This,
+            /* [in] */ BSTR SourceConnection);
+        
         END_INTERFACE
     } ISSCEEngineVtbl;
 
@@ -4042,6 +4579,12 @@ void __RPC_STUB ISSCERDA_put_ReceiveTimeout_Stub(
 
 #define ISSCEEngine_UpgradeDatabase(This,SourceConnection,DestinationConnection)	\
     (This)->lpVtbl -> UpgradeDatabase(This,SourceConnection,DestinationConnection)
+
+#define ISSCEEngine_Verify(This,SourceConnection)	\
+    (This)->lpVtbl -> Verify(This,SourceConnection)
+
+#define ISSCEEngine_VerifyEx(This,SourceConnection)	\
+    (This)->lpVtbl -> VerifyEx(This,SourceConnection)
 
 #endif /* COBJMACROS */
 
@@ -4100,12 +4643,10 @@ void __RPC_STUB ISSCEEngine_Repair_Stub(
     PRPC_MESSAGE _pRpcMessage,
     DWORD *_pdwStubPhase);
 
-
 /* [id] */ HRESULT STDMETHODCALLTYPE ISSCEEngine_UpgradeDatabase_Proxy( 
     ISSCEEngine * This,
     /* [in] */ BSTR SourceConnection,
     /* [in] */ BSTR DestinationConnection);
-
 
 void __RPC_STUB ISSCEEngine_UpgradeDatabase_Stub(
     IRpcStubBuffer *This,
@@ -4113,8 +4654,27 @@ void __RPC_STUB ISSCEEngine_UpgradeDatabase_Stub(
     PRPC_MESSAGE _pRpcMessage,
     DWORD *_pdwStubPhase);
 
+/* [id] */ HRESULT STDMETHODCALLTYPE ISSCEEngine_Verify_Proxy( 
+    ISSCEEngine * This,
+    /* [in] */ BSTR SourceConnection);
+
+void __RPC_STUB ISSCEEngine_Verify_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
 
 
+/* [id] */ HRESULT STDMETHODCALLTYPE ISSCEEngine_VerifyEx_Proxy( 
+    ISSCEEngine * This,
+    /* [in] */ BSTR SourceConnection);
+
+
+void __RPC_STUB ISSCEEngine_VerifyEx_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
 
 #endif 	/* __ISSCEEngine_INTERFACE_DEFINED__ */
 
@@ -4133,7 +4693,7 @@ void __RPC_STUB ISSCEEngine_UpgradeDatabase_Stub(
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("ea91e968-ef93-4ff1-86f3-75cc93416df2")
+class DECLSPEC_UUID("11D5B2D4-26A4-44F5-A48B-0FAC3A919ED8")
 Replication;
 #endif
 
@@ -4141,7 +4701,7 @@ Replication;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("8cd1b98d-d8d5-4b51-9564-48b12a98698f")
+class DECLSPEC_UUID("58BC9AD6-BF11-40B3-9AB1-E3F2ED784C08")
 RemoteDataAccess;
 #endif
 
@@ -4149,7 +4709,7 @@ RemoteDataAccess;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("a9d3060d-3526-4538-b13a-1913568daa0d")
+class DECLSPEC_UUID("68D45319-3702-4837-9F8E-DA6845D82482")
 Engine;
 #endif
 
@@ -4157,7 +4717,7 @@ Engine;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("9fd542d2-61c4-4e9f-a8e2-e6b8c7f64cbf")
+class DECLSPEC_UUID("92C2E038-C009-4338-9A4D-0011A5801654")
 SSCEErrors;
 #endif
 
@@ -4165,7 +4725,7 @@ SSCEErrors;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("20347534-760b-464d-b572-285e6b618257")
+class DECLSPEC_UUID("36228F21-B5C7-4054-8DC2-47D3E236E8B5")
 SSCEError;
 #endif
 
@@ -4173,7 +4733,7 @@ SSCEError;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("9e7e2cce-3f1f-4891-892c-ac8b486d03b2")
+class DECLSPEC_UUID("CAFC260B-B433-47CE-89A2-259BB0805652")
 SSCEParams;
 #endif
 
@@ -4181,7 +4741,7 @@ SSCEParams;
 
 #ifdef __cplusplus
 
-class DECLSPEC_UUID("7c7e6c99-bb8d-4718-aaa9-70c4320010de")
+class DECLSPEC_UUID("0B3A7B75-A9B0-4580-9AA5-1A7DA47AD1CB")
 SSCEParam;
 #endif
 #endif /* __SSCE_LIBRARY_DEFINED__ */
@@ -4220,25 +4780,25 @@ SSCECA_DEFINE_GUID(IID, IID_ISSCEEngine,0x10ec3e45,0x0870,0x4d7b,0x9a,0x2d,0xf4,
 SSCECA_DEFINE_GUID(IID, LIBID_SSCE,0xce4aacfa,0x3cfd,0x4028,0xb2,0xd9,0xf2,0x72,0x31,0x4f,0x07,0xc8);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_Replication,0xea91e968,0xef93,0x4ff1,0x86,0xf3,0x75,0xcc,0x93,0x41,0x6d,0xf2);
+SSCECA_DEFINE_GUID(CLSID, CLSID_Replication,0x11D5B2D4,0x26A4,0x44F5,0xA4,0x8B,0x0F,0xAC,0x3A,0x91,0x9E,0xD8);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_RemoteDataAccess,0x8cd1b98d,0xd8d5,0x4b51,0x95,0x64,0x48,0xb1,0x2a,0x98,0x69,0x8f);
+SSCECA_DEFINE_GUID(CLSID, CLSID_RemoteDataAccess,0x58BC9AD6,0xBF11,0x40B3,0x9A,0xB1,0xE3,0xF2,0xED,0x78,0x4C,0x08);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_Engine,0xa9d3060d,0x3526,0x4538,0xb1,0x3a,0x19,0x13,0x56,0x8d,0xaa,0x0d);
+SSCECA_DEFINE_GUID(CLSID, CLSID_Engine,0x68D45319,0x3702,0x4837,0x9F,0x8E,0xDA,0x68,0x45,0xD8,0x24,0x82);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEErrors,0x9fd542d2,0x61c4,0x4e9f,0xa8,0xe2,0xe6,0xb8,0xc7,0xf6,0x4c,0xbf);
+SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEErrors,0x92C2E038,0xC009,0x4338,0x9A,0x4D,0x00,0x11,0xA5,0x80,0x16,0x54);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEError,0x20347534,0x760b,0x464d,0xb5,0x72,0x28,0x5e,0x6b,0x61,0x82,0x57);
+SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEError,0x36228F21,0xB5C7,0x4054,0x8D,0xC2,0x47,0xD3,0xE2,0x36,0xE8,0xB5);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEParams,0x9e7e2cce,0x3f1f,0x4891,0x89,0x2c,0xac,0x8b,0x48,0x6d,0x03,0xb2);
+SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEParams,0xCAFC260B,0xB433,0x47CE,0x89,0xA2,0x25,0x9B,0xB0,0x80,0x56,0x52);
 
 
-SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEParam,0x7c7e6c99,0xbb8d,0x4718,0xaa,0xa9,0x70,0xc4,0x32,0x00,0x10,0xde);
+SSCECA_DEFINE_GUID(CLSID, CLSID_SSCEParam,0x0B3A7B75,0xA9B0,0x4580,0x9A,0xA5,0x1A,0x7D,0xA4,0x7A,0xD1,0xCB);
 
 
 /* Additional Prototypes for ALL interfaces */

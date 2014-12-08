@@ -584,16 +584,25 @@ begin
    if ( bNewInstallationWithSQLCE or bUpgradeWithSQLCE) then
    begin
       // Register SQL CE
-      szInstallApp :=ExpandConstant('{tmp}\SSCERuntime-ENU.msi ');
+      
       szParams := '/qn';
-
-      if (ShellExec('', szInstallApp, szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
+      
+      if (Is64BitInstallMode) then
       begin
-        Result:= true;
+        szInstallApp :=ExpandConstant('{tmp}\SSCERuntime_4.0.SP1_x64-ENU.exe');
       end
       else
       begin
-		    MsgBox('The installation of SQL Server 2005 Compact Edition failed.', mbError, MB_OK)
+        szInstallApp :=ExpandConstant('{tmp}\SSCERuntime_4.0.SP1_x86-ENU.exe');
+      end;
+      
+      if (ShellExec('', szInstallApp, szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
+      begin
+         Result:= true;
+      end
+      else
+      begin
+		    MsgBox('The installation of SQL Server 2005 Compact Edition (x86) failed.', mbError, MB_OK)
 		   	Result := false;
       end;
    end;
