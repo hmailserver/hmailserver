@@ -440,6 +440,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Common\Cache\MessageCache.cpp" />
     <ClCompile Include="..\Common\Diagnostics\Diagnostic.cpp" />
     <ClCompile Include="..\Common\Diagnostics\DiagnosticResult.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\Test64Bit.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestBackupDirectory.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestConnect.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestConnectToSelf.cpp" />
@@ -941,6 +942,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\Cache\MessageCache.h" />
     <ClInclude Include="..\Common\Diagnostics\Diagnostic.h" />
     <ClInclude Include="..\Common\Diagnostics\DiagnosticResult.h" />
+    <ClInclude Include="..\Common\Diagnostics\Test64Bit.h" />
     <ClInclude Include="..\Common\Diagnostics\TestBackupDirectory.h" />
     <ClInclude Include="..\Common\Diagnostics\TestConnect.h" />
     <ClInclude Include="..\Common\Diagnostics\TestConnectToSelf.h" />

@@ -12,6 +12,7 @@
 #include "TestBackupDirectory.h"
 #include "TestDataDirectory.h"
 #include "TestIPRanges.h"
+#include "Test64Bit.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -67,8 +68,8 @@ namespace HM
 
       if (local_test_domain_name_.GetLength() > 0)
       {
-      TestOutboundPort outboundPortTest(local_test_domain_name_);
-      results.push_back(outboundPortTest.PerformTest());
+         TestOutboundPort outboundPortTest(local_test_domain_name_);
+         results.push_back(outboundPortTest.PerformTest());
       }
       
       TestBackupDirectory backupDirectoryTest;
@@ -88,6 +89,9 @@ namespace HM
 
       TestIPRanges testIPRanges;
       results.push_back(testIPRanges.PerformTest());
+
+      Test64Bit test64bit;
+      results.push_back(test64bit.PerformTest());
 
       return results;
    }  
