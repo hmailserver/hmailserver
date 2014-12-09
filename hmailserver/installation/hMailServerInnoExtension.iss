@@ -585,18 +585,18 @@ begin
    begin
       // Register SQL CE
       
-      szParams := '/qn';
+      szParams := 'msiexec';
       
-      if (Is64BitInstallMode) then
+      if (IsWin64) then
       begin
-        szInstallApp :=ExpandConstant('{tmp}\SSCERuntime_4.0.SP1_x64-ENU.exe');
+        szParams := ExpandConstant('/I {tmp}\SSCERuntime_x64-ENU.msi /quiet');
       end
       else
       begin
-        szInstallApp :=ExpandConstant('{tmp}\SSCERuntime_4.0.SP1_x86-ENU.exe');
+        szParams := ExpandConstant('/I {tmp}\SSCERuntime_x86-ENU.msi /quiet');
       end;
       
-      if (ShellExec('', szInstallApp, szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
+      if (ShellExec('', 'msiexec', szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
       begin
          Result:= true;
       end
