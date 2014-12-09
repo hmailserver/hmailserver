@@ -67,13 +67,13 @@ namespace ConfigureInstallation
 
          if (x64)
          {
-            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-64bit", version, build));
-            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-64", version, build));            
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-x64", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x64", version, build));            
          }
          else
          {
-            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-32bit", version, build));
-            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-32", version, build));
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-x86", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x86", version, build));
          }
          return true;
       }
