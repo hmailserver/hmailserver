@@ -222,7 +222,7 @@ begin
    if (FileExists(szInifile) = False) then
    begin
 
-      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', szInifile) then
+      if RegQueryStringValue(HKLM32, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', szInifile) then
       begin
          szInifile := szInifile + 'Bin\hMailServer.ini';
       end;
@@ -893,7 +893,7 @@ begin
 	begin
    // Create a registry key that tell
 	  // other apps where we're installed.
-	  RegWriteStringValue(HKEY_LOCAL_MACHINE, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
+	  RegWriteStringValue(HKLM32, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
    	
 	  // Write db location to hMailServer.ini.
 	  szIniFile := ExpandConstant('{app}\Bin\hMailServer.ini');
