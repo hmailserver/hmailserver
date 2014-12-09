@@ -6,3 +6,16 @@ Source: "..\source\server\hMailServer\Release\hMailServer.Minidump.exe"; DestDir
 
 Source: "SQLCE\SSCERuntime_x86-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
 Source: "SQLCE\SSCERuntime_x64-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
+
+; Common tools
+Source: "..\source\tools\Administrator\bin\x86\Release\hMailAdmin.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: admintools;
+Source: "..\source\tools\DBUpdater\Bin\x86\Release\DBUpdater.exe"; DestDir: "{app}\Bin";  Flags: ignoreversion; Components: server;
+Source: "..\source\tools\DBSetup\Bin\x86\Release\DBSetup.exe"; DestDir: "{app}\Bin";Flags: ignoreversion;Components: server;
+Source: "..\Source\tools\DBSetupQuick\bin\x86\release\DBSetupQuick.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "..\source\tools\Administrator\bin\x86\Release\Interop.hMailServer.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: admintools;
+Source: "..\source\tools\shared\bin\x86\Release\Shared.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+
+; Data directory synchronizer
+Source: "..\source\Tools\DataDirectorySynchronizer\Bin\x86\Release\*.exe"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
+Source: "..\source\tools\Administrator\bin\x86\Release\Interop.hMailServer.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion; Components: admintools;
+Source: "..\source\Tools\Shared\Bin\x86\Release\*.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
