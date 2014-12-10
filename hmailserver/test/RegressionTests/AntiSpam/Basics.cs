@@ -208,7 +208,7 @@ namespace RegressionTests.AntiSpam
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
          }
 
-         smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
+            smtpClientSimulator.Send("surbltest@test.com", "surbltest@test.com", "SURBL-No-Match",
                                   "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-\r\n" +
                                   sb);
 

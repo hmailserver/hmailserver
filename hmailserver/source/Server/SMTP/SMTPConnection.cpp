@@ -899,20 +899,21 @@ namespace HM
             sMessage.Format(_T("552 Message size exceeds the drop maximum message size. Size: %d KB, Max size: %d KB - DROP!"), 
                 iBufSizeKB, iMaxSizeDrop);
             EnqueueWrite_(sMessage);
-         LogAwstatsMessageRejected_();
-         ResetCurrentMessage_();
-         SetReceiveBinary(false);
-         pending_disconnect_ = true;
-         EnqueueDisconnect();
-         return;
+            LogAwstatsMessageRejected_();
+            ResetCurrentMessage_();
+            SetReceiveBinary(false);
+            pending_disconnect_ = true;
+            EnqueueDisconnect();
+            return;
 
-      } else 
-      {
-         // We need more data.
-         EnqueueRead("");
-         return;
+         } 
+         else 
+         {
+            // We need more data.
+            EnqueueRead("");
+            return;
+         }
       }
-   }
 
       // Since this may be a time-consuming task, do it asynchronously
       std::shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
@@ -1304,7 +1305,7 @@ namespace HM
          return false;
       }
 
-      while (pBuffer)
+      while (pBuffer->GetSize() > 0)
       {
          // Check that buffer contains correct line endings.
          const char *pChar = pBuffer->GetCharBuffer();

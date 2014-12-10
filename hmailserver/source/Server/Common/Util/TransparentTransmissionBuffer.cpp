@@ -170,7 +170,16 @@ namespace HM
       int maxLineLength = MAX_LINE_LENGTH;
 
       // Start in the end and move 'back' MAX_LINE_LENGTH characters.
-      size_t searchEndPos = max(bufferSize - maxLineLength, 0);
+      size_t searchEndPos = 0;
+      
+      if (bufferSize == 0)
+         return dataProcessed;
+
+      if (bufferSize > maxLineLength)
+         searchEndPos = bufferSize - maxLineLength;
+      else
+         searchEndPos = 0;
+
       for (size_t i = bufferSize - 1; i >= searchEndPos; i--)
       {
          char s = pBuffer[i];
@@ -185,7 +194,7 @@ namespace HM
             last_send_ended_with_newline_ = s == '\n';
 
             // Copy the data up including this position
-            size_t iCopySize = i+1;
+            size_t iCopySize = i + 1;
 
             std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
             pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
@@ -207,9 +216,9 @@ namespace HM
                {
                   connection->EnqueueWrite(pOutBuffer);
                }
-               
+
             }
-            else 
+            else
             {
                SaveToFile_(pOutBuffer);
             }

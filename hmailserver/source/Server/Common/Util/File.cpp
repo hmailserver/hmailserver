@@ -236,13 +236,6 @@ namespace HM
       }
 
       pFileContents->DecreaseSize(iMaxSize - total_bytes_read);
-         
-      if (pFileContents->GetSize() == 0)
-      {
-         std::shared_ptr<ByteBuffer> empty;
-         return empty;
-      }
-
       return pFileContents;
    }
 
@@ -257,6 +250,9 @@ namespace HM
    {
       while (std::shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
       {  
+         if (sourceData->GetSize() == 0)
+            break;
+         
          Write(sourceData);
       }
    }

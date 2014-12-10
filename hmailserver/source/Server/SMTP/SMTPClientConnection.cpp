@@ -653,7 +653,7 @@ namespace HM
 
       std::shared_ptr<ByteBuffer> pBuf = current_file_.ReadChunk(GetBufferSize());
 
-      if (!pBuf)
+      if (pBuf->GetSize() == 0)
          return;
 
       BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();
@@ -672,7 +672,7 @@ namespace HM
       int bufferSize = GetBufferSize();
       std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
-      while (pBuffer)
+      while (pBuffer->GetSize() > 0)
       {
          transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
 

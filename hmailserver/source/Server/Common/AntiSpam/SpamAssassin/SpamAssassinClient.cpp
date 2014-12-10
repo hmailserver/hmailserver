@@ -97,7 +97,7 @@ namespace HM
       {
          std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(20000);
 
-         if (!pBuf)
+         if (pBuf->GetSize() == 0)
             break;
 
          BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();

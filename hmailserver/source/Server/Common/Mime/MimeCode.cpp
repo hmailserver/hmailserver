@@ -837,9 +837,11 @@ namespace HM
 		   }
 
 		   pszInput += nUnitSize + 1;
-		   nInputSize -= nUnitSize + 1;
-		   if (nInputSize <= 0)
-			   break;
+
+         if (nInputSize >= nUnitSize + 1)
+		      nInputSize -= nUnitSize + 1;
+         else
+            break;
 
          // Martin: Commented. If the header contained a ; we always folded
          // the header. If the content of the email was PGP encoded, this had
