@@ -116,9 +116,9 @@ namespace HM
 
          // locate this field, starting from the end.
          String value;
-         for (size_t i = fields.size()-1; i >=0; i--)
+         for (size_t i = fields.size(); i > 0; i--)
          {
-            MimeField field = fields[i];
+            MimeField field = fields[i-1];
 
             if (headerField.CompareNoCase(field.GetName()) == 0)
             {
@@ -252,9 +252,9 @@ namespace HM
       std::vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
 
       AnsiString foldedLines;
-      for (size_t i = headerLines.size()-1; i >= 0; i--)
+      for (size_t i = headerLines.size(); i > 0; i--)
       {
-         AnsiString line = headerLines[i];
+         AnsiString line = headerLines[i-1];
 
          if (line.StartsWith(" ") || line.StartsWith("\t"))
          {

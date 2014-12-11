@@ -1452,6 +1452,10 @@ namespace HM
 
       const char* pszDataBegin = pszData;	// preserve start position
       pszData += nSize;
+      
+      if (nSize >= nDataSize)
+         return (int)(pszData - pszDataBegin);
+
       nDataSize -= nSize;
       FreeBuffer();
 
@@ -1482,13 +1486,13 @@ namespace HM
             text_.append(pszData, nSize);
 
             pszData += nSize;
-            nDataSize -= nSize;
+
+            if (nSize >= nDataSize)
+               return (int)(pszData - pszDataBegin);
          }
          else
             return -1;
       }
-      if (nDataSize <= 0)
-         return (int)(pszData - pszDataBegin);
 
       // load child body parts
       string strBoundary = GetBoundary();

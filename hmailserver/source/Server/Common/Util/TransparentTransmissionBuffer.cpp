@@ -180,9 +180,9 @@ namespace HM
       else
          searchEndPos = 0;
 
-      for (size_t i = bufferSize - 1; i >= searchEndPos; i--)
+      for (size_t current_position = bufferSize; current_position > searchEndPos; current_position--)
       {
-         char s = pBuffer[i];
+         char s = pBuffer[current_position-1];
 
          // If we found a newline, send anything up until that.
          // If we're forcing a send, send all we got
@@ -194,14 +194,14 @@ namespace HM
             last_send_ended_with_newline_ = s == '\n';
 
             // Copy the data up including this position
-            size_t iCopySize = i + 1;
+            size_t bytes_to_copy = current_position;
 
             std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-            pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
+            pOutBuffer->Add(buffer_->GetBuffer(), bytes_to_copy);
 
             // Remove it from the old buffer
-            size_t iRemaining = buffer_->GetSize() - iCopySize;
-            buffer_->Empty(iRemaining);
+            size_t remaining_bytes = buffer_->GetSize() - bytes_to_copy;
+            buffer_->Empty(remaining_bytes);
 
             // Parse this buffer and add it to file/socket
             if (is_sending_)

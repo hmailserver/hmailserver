@@ -46,14 +46,7 @@ namespace HM
    {
       if (iLeaveEndingBytes > buffer_size_)
       {
-         assert(0);
-         iLeaveEndingBytes = buffer_size_;
-      }
-
-      if (iLeaveEndingBytes < 0)
-      {
-         assert(0);
-         iLeaveEndingBytes = 0;
+         throw std::logic_error(Formatter::FormatAsAnsi("The number of bytes to leave exceeds buffer size. Bytes to leave: {0}, Buffer size: {1}", iLeaveEndingBytes, buffer_size_));
       }
 
       // Allocate a temporary buffer.

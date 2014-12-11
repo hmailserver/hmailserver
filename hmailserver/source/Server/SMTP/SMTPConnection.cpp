@@ -1311,33 +1311,33 @@ namespace HM
          const char *pChar = pBuffer->GetCharBuffer();
          size_t iBufferSize = pBuffer->GetSize();
 
-         // Check from pos 3 to size-3. Not 100% sure, but
-         // we don't have to worry about buffer start/endings.
-
-         for (size_t i = 3; i < iBufferSize - 3; i++)
+         if (iBufferSize >= 3)
          {
-            const char *pCurrentChar = pChar + i;
-
-            // Check chars.
-            if (*pCurrentChar == '\r')
+            for (size_t i = 3; i < iBufferSize - 3; i++)
             {
-               // Check next character
-               if (i >= iBufferSize)
-                  return false;
+               const char *pCurrentChar = pChar + i;
 
-               const char *pNextChar = pCurrentChar + 1;
-               if (*pNextChar != '\n')
-                  return false;
-            }
-            else if (*pCurrentChar == '\n')
-            {
-               // Check previous char
-               if (i == 0)
-                  return false;
+               // Check chars.
+               if (*pCurrentChar == '\r')
+               {
+                  // Check next character
+                  if (i >= iBufferSize)
+                     return false;
 
-               const char *pPreviousChar = pCurrentChar - 1;
-               if (*pPreviousChar != '\r')
-                  return false;
+                  const char *pNextChar = pCurrentChar + 1;
+                  if (*pNextChar != '\n')
+                     return false;
+               }
+               else if (*pCurrentChar == '\n')
+               {
+                  // Check previous char
+                  if (i == 0)
+                     return false;
+
+                  const char *pPreviousChar = pCurrentChar - 1;
+                  if (*pPreviousChar != '\r')
+                     return false;
+               }
             }
          }
 

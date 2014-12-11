@@ -630,12 +630,6 @@ namespace HM
 
       size_t iLineLength = pEndOfLine - pText;
 
-      if (iLineLength <= 0)
-      {
-         // Wait for more data
-         return false;
-      }
-
       // Copy the first line from the binary buffer.
       AnsiString sLine;
       sLine.append(pText, iLineLength);
