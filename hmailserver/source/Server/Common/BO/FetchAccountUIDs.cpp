@@ -16,7 +16,8 @@
 
 namespace HM
 {
-   FetchAccountUIDs::FetchAccountUIDs(void)
+   FetchAccountUIDs::FetchAccountUIDs(void) :
+      faid_(0)
    {
    }
 

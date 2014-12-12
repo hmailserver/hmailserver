@@ -147,7 +147,7 @@ namespace HM
    { return charset_.c_str(); }
 
    inline void MimeField::Clear()
-   { name_.empty(); value_.empty(); charset_.empty(); }
+   { name_.clear(); value_.clear(); charset_.clear(); }
 
    class MIMEUnicodeEncoder
    {

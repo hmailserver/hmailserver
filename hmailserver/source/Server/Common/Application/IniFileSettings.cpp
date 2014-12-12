@@ -34,7 +34,32 @@ namespace HM
       quick_retries_Minutes(0),
       queue_randomness_minutes_(0),
       mxtries_factor_(0),
-      sqldbtype_(HM::DatabaseSettings::TypeUnknown)
+      sqldbtype_(HM::DatabaseSettings::TypeUnknown),
+      sep_svc_logs_(false),
+      archive_hardlinks_(false),
+      pop3dmin_timeout_(false),
+      pop3dmax_timeout_(false),
+      pop3cmin_timeout_(false),
+      pop3cmax_timeout_(false),
+      smtpdmin_timeout_(false),
+      smtpdmax_timeout_(false),
+      smtpcmin_timeout_(false),
+      smtpcmax_timeout_(false),
+      samin_timeout_(false),
+      samax_timeout_(false),
+      clam_min_timeout_(false),
+      clam_max_timeout_(false),
+      samove_vs_copy_(false),
+      indexer_full_minutes_(0),
+      indexer_full_limit_(0),
+      indexer_quick_limit_(0),
+      load_header_read_size_(0),
+      load_body_read_size_(0),
+      blocked_iphold_seconds_(0),
+      smtpdmax_size_drop_(0),
+      backup_messages_dbonly_(false),
+      add_xauth_user_ip_(false)
+      
    {
 
    }
@@ -502,5 +527,3 @@ namespace HM
       return FileUtilities::Combine(app_directory_, "Bin");
    }
 }
-
-

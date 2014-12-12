@@ -96,7 +96,21 @@ typedef struct _tagParseInfo
 	HM::String		error_string;		// [get] error string
 
 	LPXDoc		doc;
-	_tagParseInfo() { trim_value = false; entity_value = true; force_parse = false; entitys = &entityDefault; xml = NULL; erorr_occur = false; error_pointer = NULL; error_code = PIE_PARSE_WELFORMED; escape_value = 0; }
+
+	_tagParseInfo() 
+      { 
+         doc = NULL;
+         trim_value = false; 
+         entity_value = true; 
+         force_parse = false; 
+         entitys = &entityDefault; 
+         xml = NULL; 
+         erorr_occur = false; 
+         error_pointer = NULL; 
+         error_code = PIE_PARSE_WELFORMED; 
+         escape_value = 0; 
+         
+   }
 }PARSEINFO,*LPPARSEINFO;
 extern PARSEINFO piDefault;
 

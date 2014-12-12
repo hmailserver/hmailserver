@@ -1049,9 +1049,9 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 	// tab
 	if( opt && opt->newline )
 	{
-		if( opt && opt->newline )
-         sRetVal += "\r\n";
-		for( int i = 0 ; i < opt->tab_base ; i++)
+      sRetVal += "\r\n";
+
+      for( int i = 0 ; i < opt->tab_base ; i++)
 			sRetVal += '\t';
 	}
 
@@ -1131,14 +1131,15 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 		// Text Value
 		if( value != _T("") )
 		{
-			if( opt && opt->newline && !childs.empty() )
+			if( opt->newline && !childs.empty() )
 			{
-				if( opt && opt->newline )
-					sRetVal += "\r\n";
-				for( int i = 0 ; i < opt->tab_base ; i++)
+				sRetVal += "\r\n";
+
+            for( int i = 0 ; i < opt->tab_base ; i++)
 					sRetVal += '\t';
 			}
-			sRetVal += (opt->reference_value&&opt->entitys?opt->entitys->Entity2Ref(value):value);
+
+         sRetVal += (opt->reference_value&&opt->entitys?opt->entitys->Entity2Ref(value):value);
 		}
 
 		// </TAG> CloseTag

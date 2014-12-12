@@ -98,10 +98,12 @@ namespace HM
       int nSize = pszValue ? (int)::strlen(pszValue) : 0;
       string strValue;
       strValue.reserve(nSize+3);
-      if (!pszValue || *pszValue != '"')
+      
+      if (*pszValue != '"')
          strValue = "\"";
-      if (pszValue != NULL)
-         strValue += pszValue;
+      
+      strValue += pszValue;
+
       if (nSize < 2 || pszValue[nSize-1] != '"')
          strValue += "\"";
 

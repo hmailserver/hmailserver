@@ -30,7 +30,8 @@
 namespace HM
 {
 
-   IMAPCommandAppend::IMAPCommandAppend()
+   IMAPCommandAppend::IMAPCommandAppend() :
+      bytes_left_to_receive_(0)
    {
    }
 

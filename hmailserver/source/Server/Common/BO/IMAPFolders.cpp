@@ -26,7 +26,8 @@ namespace HM
    }
 
    IMAPFolders::IMAPFolders() :
-      account_id_(0)
+      account_id_(0),
+      parent_folder_id_(0)
    {
 
    }

@@ -16,7 +16,8 @@
 
 namespace HM
 {
-   FetchAccountUIDList::FetchAccountUIDList(void)
+   FetchAccountUIDList::FetchAccountUIDList(void) : 
+      faid_(0)
    {
    }
 

@@ -55,7 +55,8 @@ namespace HM
       is_idling_(false),
       literal_data_to_receive_(0),
       pending_disconnect_(false),
-      current_folder_read_only_(false)
+      current_folder_read_only_(false),
+      log_level_(0)
    {
       imap_folders_.reset();
 

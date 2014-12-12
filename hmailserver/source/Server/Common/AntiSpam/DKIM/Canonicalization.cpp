@@ -118,12 +118,13 @@ namespace HM
          String value;
          for (size_t i = fields.size(); i > 0; i--)
          {
-            MimeField field = fields[i-1];
+            size_t fieldIndex = i - 1;
+            MimeField field = fields[fieldIndex];
 
             if (headerField.CompareNoCase(field.GetName()) == 0)
             {
                // found
-               fields.erase(fields.begin()+i);
+               fields.erase(fields.begin() + fieldIndex);
 
                value = field.GetValue();
                break;

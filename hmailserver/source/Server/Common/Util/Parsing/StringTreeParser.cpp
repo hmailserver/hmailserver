@@ -12,7 +12,8 @@
 
 namespace HM
 {
-   StringTreeParser::StringTreeParser(void)
+   StringTreeParser::StringTreeParser(void) :
+      c_iCurState(0)
    {
    }
 

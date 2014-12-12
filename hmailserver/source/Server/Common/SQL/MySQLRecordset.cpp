@@ -17,7 +17,8 @@
 namespace HM
 {
    MySQLRecordset::MySQLRecordset() :
-      result_(0)
+      result_(0),
+      current_(0)
    {
       
    }

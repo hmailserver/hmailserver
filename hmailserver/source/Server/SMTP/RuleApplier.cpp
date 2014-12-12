@@ -41,7 +41,8 @@
 
 namespace HM
 {
-   RuleApplier::RuleApplier(void)
+   RuleApplier::RuleApplier(void) :
+      rule_account_id_(0)
    {
    }
 

@@ -18,8 +18,8 @@ namespace HM
    DistributionList::DistributionList(void) :
       domain_id_(false),
       require_auth_(false),
-      list_mode_(LMPublic)
-
+      list_mode_(LMPublic),
+      enabled_(false)
    {
       
    }
