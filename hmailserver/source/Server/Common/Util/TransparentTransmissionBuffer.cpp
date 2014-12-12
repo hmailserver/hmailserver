@@ -167,7 +167,7 @@ namespace HM
             Service Extensions.
       */
 
-      int maxLineLength = MAX_LINE_LENGTH;
+      size_t maxLineLength = MAX_LINE_LENGTH;
 
       // Start in the end and move 'back' MAX_LINE_LENGTH characters.
       size_t searchEndPos = 0;

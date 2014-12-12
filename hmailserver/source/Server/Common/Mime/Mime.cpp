@@ -276,7 +276,7 @@ namespace HM
    }
 
    // load a field from string buffer
-   int MimeField::Load(const char* pszData, size_t nDataSize, bool unfold)
+   size_t MimeField::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       Clear();
       ASSERT(pszData != NULL);
@@ -759,16 +759,16 @@ namespace HM
 
 
    // load a header from string buffer
-   int MimeHeader::Load(const char* pszData, size_t nDataSize, bool unfold)
+   size_t MimeHeader::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       ASSERT(pszData != NULL);
 
-      int nInput = 0;
+      size_t nInput = 0;
       while (pszData[nInput] != 0 && pszData[nInput] != '\r')
       {
          MimeField fd;
-         int nSize = fd.Load(pszData+nInput, nDataSize-nInput, unfold);
-         if (nSize <= 0)
+         size_t nSize = fd.Load(pszData + nInput, nDataSize - nInput, unfold);
+         if (nSize == 0)
             return nSize;
 
          nInput += nSize;
@@ -931,7 +931,8 @@ namespace HM
       char *pData = new char[iLength+1];
       strncpy_s(pData, iLength+1, (const char*) GetContent(), iLength);
       size_t index = 0;
-      pEncapsulatedMessage->Load(pData, iLength, index);
+      bool part_loaded;
+      pEncapsulatedMessage->Load(pData, iLength, index, part_loaded);
       delete [] pData;
 
       return pEncapsulatedMessage;
@@ -1016,7 +1017,8 @@ namespace HM
       ASSERT(text_ != NULL);
       size_t index = 0;
 
-      pMM->Load((const char*)text_, (int) text_.size(), index);
+      bool part_loaded;
+      pMM->Load((const char*)text_, (int) text_.size(), index, part_loaded);
    }
 
    bool 
@@ -1110,7 +1112,8 @@ namespace HM
          {
             // Minus one, since the last character is the null...
             size_t index = 0;
-            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index);
+            bool part_loaded;
+            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index, part_loaded);
          }
          catch (...)
          {
@@ -1442,14 +1445,15 @@ namespace HM
    }
 
    // load a body part from string buffer
-   int MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index)
+   size_t MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded)
    {
+      part_loaded = true;
       index++;
       part_index_ = index;
 
       // load header fields
-      int nSize = MimeHeader::Load(pszData, nDataSize, true);
-      if (nSize <= 0)
+      size_t nSize = MimeHeader::Load(pszData, nDataSize, true);
+      if (nSize == 0)
          return nSize;
 
       const char* pszDataBegin = pszData;	// preserve start position
@@ -1493,7 +1497,10 @@ namespace HM
                return (int)(pszData - pszDataBegin);
          }
          else
-            return -1;
+         {
+            part_loaded = false;
+            return 0;
+         }
       }
 
       // load child body parts
@@ -1532,14 +1539,17 @@ namespace HM
 
          bodies_.push_back(pBP);
 
-         int nInputSize = pBP->Load(pszStart, nEntitySize, part_index_);
-         if (nInputSize < 0)
+         bool part_loaded;
+         size_t nInputSize = pBP->Load(pszStart, nEntitySize, part_index_, part_loaded);
+         if (!part_loaded)
          {
             ErasePart(pBP);
             return nInputSize;
          }
          pszBound1 = pszBound2;
       }
+
+
       return (int)(pszEnd - pszDataBegin);
    }
 
