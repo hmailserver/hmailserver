@@ -6,8 +6,6 @@ Source: "License.rtf"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: s
 Source: "System files\dnsapi.dll"; DestDir: "{sys}"; Flags: uninsneveruninstall onlyifdoesntexist; Components: admintools; OnlyBelowVersion: 0,6;
 Source: "System files\ATL\atl70.dll"; DestDir: "{sys}";  Components: server;
 Source: ".\Extras\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
-Source: "{#HMAILSERVERLIBS}\openssl-1.0.1j\out64\libeay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
-Source: "{#HMAILSERVERLIBS}\openssl-1.0.1j\out64\ssleay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
 Source: "Microsoft.VC120.CRT\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
 
 ; Database scripts

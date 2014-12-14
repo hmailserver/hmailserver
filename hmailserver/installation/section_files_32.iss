@@ -19,3 +19,7 @@ Source: "..\source\tools\shared\bin\x86\Release\Shared.dll"; DestDir: "{app}\Bin
 Source: "..\source\Tools\DataDirectorySynchronizer\Bin\x86\Release\*.exe"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
 Source: "..\source\tools\Administrator\bin\x86\Release\Interop.hMailServer.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion; Components: admintools;
 Source: "..\source\Tools\Shared\Bin\x86\Release\*.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
+
+; OpenSSL
+Source: "{#HMAILSERVERLIBS}\openssl-1.0.1j\out32\libeay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "{#HMAILSERVERLIBS}\openssl-1.0.1j\out32\ssleay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
