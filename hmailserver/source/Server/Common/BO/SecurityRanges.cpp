@@ -50,7 +50,7 @@ namespace HM
 
       std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName("My computer");
-      pSecurityRange->SetPriority(15);
+      pSecurityRange->SetPriority(30);
       pSecurityRange->SetLowerIPString("127.0.0.1");
       pSecurityRange->SetUpperIPString("127.0.0.1");
       pSecurityRange->SetOptions(71627);

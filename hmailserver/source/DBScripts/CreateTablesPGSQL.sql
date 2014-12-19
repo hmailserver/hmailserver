@@ -511,7 +511,7 @@ CREATE INDEX idx_hm_logon_failures_failuretime ON hm_logon_failures (failuretime
 
 insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (10, 0, NULL, 4294967295, NULL, 96203, 'Internet', 0, '2001-01-01');
 
-insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (15, 2130706433, NULL, 2130706433, NULL, 71627, 'My computer', 0, '2001-01-01');
+insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (30, 2130706433, NULL, 2130706433, NULL, 71627, 'My computer', 0, '2001-01-01');
 
 insert into hm_servermessages (smname, smtext) values ('VIRUS_FOUND', 'Virus found');
 
