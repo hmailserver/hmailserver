@@ -127,7 +127,7 @@ namespace HM
    }
 
    void
-   File::Write(const unsigned char *pBuf, int iBufLen)
+   File::Write(const unsigned char *pBuf, size_t iBufLen)
    {
       Write_((void*) pBuf, 1, iBufLen);
    }
@@ -205,15 +205,15 @@ namespace HM
 
       // fread fails reading large files. If the file is too large, fread will read zero bytes and the
       // errno will be set to invalid argument. The below code therefore reads the file in chunks.
-      int remaining_bytes = iMaxSize;
+      size_t remaining_bytes = iMaxSize;
       BYTE *buffer_position = (BYTE*)pFileContents->GetBuffer();
          
-      int total_bytes_read = 0;
+      size_t total_bytes_read = 0;
 
       while (remaining_bytes > 0)
       {
-         int bytes_to_read = min(FileChunkSize, remaining_bytes);
-         int bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
+         size_t bytes_to_read = min(FileChunkSize, remaining_bytes);
+         size_t bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
 
          total_bytes_read += bytes_actually_read;
                 
@@ -236,13 +236,6 @@ namespace HM
       }
 
       pFileContents->DecreaseSize(iMaxSize - total_bytes_read);
-         
-      if (pFileContents->GetSize() == 0)
-      {
-         std::shared_ptr<ByteBuffer> empty;
-         return empty;
-      }
-
       return pFileContents;
    }
 
@@ -257,12 +250,15 @@ namespace HM
    {
       while (std::shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
       {  
+         if (sourceData->GetSize() == 0)
+            break;
+         
          Write(sourceData);
       }
    }
 
    void
-   File::Write_(void *buffer, int item_size, int item_count)
+   File::Write_(void *buffer, size_t item_size, size_t item_count)
    {
       if (file_ == nullptr)
          throw std::logic_error("Attempt to write to file which has not been opened.");
@@ -272,7 +268,7 @@ namespace HM
          throw std::logic_error(Formatter::FormatAsAnsi("Attempt to write {0} bytes to {1}. Exceeds max chunk size.", item_size * item_count, name_));
       }
 
-      int items_written = fwrite(buffer, item_size, item_count, file_);
+      size_t items_written = fwrite(buffer, item_size, item_count, file_);
 
       if (items_written != item_count)
       {

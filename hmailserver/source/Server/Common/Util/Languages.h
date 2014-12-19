@@ -17,7 +17,7 @@ namespace HM
 
       std::shared_ptr<Language> GetLanguage(const String &sLanguage);
       std::shared_ptr<Language> GetLanguage(int index);
-      int GetCount() {return languages_.size(); }
+      size_t GetCount() { return languages_.size(); }
 
      
    private:

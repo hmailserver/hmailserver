@@ -26,7 +26,7 @@ namespace HM
 
       void Finish_(std::shared_ptr<IMAPConnection> pConnection);
       bool TruncateBuffer_(const std::shared_ptr<IMAPConnection> pConnection );
-      bool WriteData_(const std::shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, int WriteLen);
+      bool WriteData_(const std::shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, size_t WriteLen);
       void KillCurrentMessage_();
       
       int GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain);
@@ -34,7 +34,7 @@ namespace HM
       String current_tag_;
       String flags_to_set_;
       String create_time_to_set_;
-      long bytes_left_to_receive_;
+      size_t bytes_left_to_receive_;
 
       String message_file_name_;
 

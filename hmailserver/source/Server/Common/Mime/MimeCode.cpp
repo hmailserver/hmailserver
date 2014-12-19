@@ -435,7 +435,7 @@ namespace HM
    {
 	   static const char* s_Base64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-	   int nFrom, nLineLen = 0;
+	   size_t nFrom, nLineLen = 0;
 	   unsigned char chHigh4bits = 0;
 
 	   for (nFrom=0; nFrom<input_size_; nFrom++)
@@ -647,7 +647,7 @@ namespace HM
 	   nMaxBlockSize = nMaxBlockSize / 4 * 3;
 	   ASSERT(nMaxBlockSize > 0);
 
-	   int processedBytes = 0;
+	   size_t processedBytes = 0;
 
       bool firstWord = true;
 
@@ -679,13 +679,13 @@ namespace HM
             currentSafeChar = endChar;
          }
 
-         int currentEncodeBlockSize = (int) (currentSafeChar - thisPartStartPosition);
+         size_t currentEncodeBlockSize = (currentSafeChar - thisPartStartPosition);
 
          output.append("=?");
          output.append(charset_);
          output.append("?B?");
 
-         int inputEncodeSize = min(input_size_ - processedBytes, currentEncodeBlockSize);
+         size_t inputEncodeSize = min(input_size_ - processedBytes, currentEncodeBlockSize);
 
          assert(inputEncodeSize == currentEncodeBlockSize);
 
@@ -764,7 +764,7 @@ namespace HM
 		   return MimeCodeBase::Encode(output);
 
 	   const char* pszInput = (const char*) input_;
-	   int nInputSize = input_size_;
+      size_t nInputSize = input_size_;
 	   int nNonAsciiChars, nDelimeter = GetDelimeter();
 	   int nLineLen = 0;
 	   
@@ -773,7 +773,7 @@ namespace HM
 	   // divide the field into syntactic units to encode
 	   for (;;)
 	   {
-		   int nUnitSize = FindSymbol(pszInput, nInputSize, nDelimeter, nNonAsciiChars);
+		   size_t nUnitSize = FindSymbol(pszInput, nInputSize, nDelimeter, nNonAsciiChars);
 		   if (!nNonAsciiChars || strCharset.empty())
          {
 			   strUnit.assign(pszInput, nUnitSize);
@@ -837,9 +837,11 @@ namespace HM
 		   }
 
 		   pszInput += nUnitSize + 1;
-		   nInputSize -= nUnitSize + 1;
-		   if (nInputSize <= 0)
-			   break;
+
+         if (nInputSize >= nUnitSize + 1)
+		      nInputSize -= nUnitSize + 1;
+         else
+            break;
 
          // Martin: Commented. If the header contained a ; we always folded
          // the header. If the content of the email was PGP encoded, this had
@@ -895,7 +897,7 @@ namespace HM
 	   }
    }
 
-   int FieldCodeBase::FindSymbol(const char* pszData, int nSize, int& nDelimeter, int& nNonAscChars) const
+   int FieldCodeBase::FindSymbol(const char* pszData, size_t nSize, int& nDelimeter, int& nNonAscChars) const
    {
 	   nNonAscChars = 0;
 	   const char* pszDataStart = pszData;

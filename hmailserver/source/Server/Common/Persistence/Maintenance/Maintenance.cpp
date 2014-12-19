@@ -46,8 +46,8 @@ namespace HM
 
       while (!pRS->IsEOF())
       {
-         unsigned int messageFolderID = (unsigned int) pRS->GetInt64Value("messagefolderid");
-         unsigned int messageUID = (unsigned int) pRS->GetInt64Value("messageuid");
+         __int64 messageFolderID = pRS->GetInt64Value("messagefolderid");
+         __int64 messageUID = pRS->GetInt64Value("messageuid");
 
          if (messageFolderID <= 0)
             return false;

@@ -42,23 +42,38 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
-1. Download OpenSSL 1.0.1i from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.  
+1. Download OpenSSL 1.0.1j from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.  
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.1i
 2. Open up a Visual Studio 2013 32bit Command prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 4. Run Perl Configure no-asm VC-WIN32
 5. Run ms\do_ms
 6. Run nmake -f ms\ntdll.mak
+7. Rename the folder out32dll to out32
+8. Remove the tmp32dll folder
+8. Exit the command prompt
+9. Start the VS2013 x64 Native Tools Command Prompt
+10. Change dir to %hMailServerLibs%\<OpenSSL-version>
+11. Run Perl Configure no-asm VC-WIN64A
+12. Run ms\do_win64a
+13. Run nmake -f ms\ntdll.mak
+14. Rename the folder out32dll to out64
+
+The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains the 64bit version
 
 Building Boost
 --------------
-1. Download Boost 1.56.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
-   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_56_0
+1. Download Boost 1.57.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
+   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_57_0
 2. Open a Command prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run bootstrap.bat
 5. Run bjam.exe --toolset=msvc-12.0 --build-type=complete
-
+6. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib32
+7. Run bjam.exe --clean
+8. Remove the bin.v2 folder
+8. Run bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64
+9. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib64
 
 Building hMailServer
 --------------------

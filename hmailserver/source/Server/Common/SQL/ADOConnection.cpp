@@ -135,8 +135,6 @@ namespace HM
       }
       catch ( _com_error &err )
       {
-         assert(0);
-
          _bstr_t bstrSource( err.Source() );
          _bstr_t bstrDescription( err.Description() );
      

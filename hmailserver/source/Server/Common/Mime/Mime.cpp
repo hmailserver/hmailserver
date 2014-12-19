@@ -98,10 +98,12 @@ namespace HM
       int nSize = pszValue ? (int)::strlen(pszValue) : 0;
       string strValue;
       strValue.reserve(nSize+3);
-      if (!pszValue || *pszValue != '"')
+      
+      if (*pszValue != '"')
          strValue = "\"";
-      if (pszValue != NULL)
-         strValue += pszValue;
+      
+      strValue += pszValue;
+
       if (nSize < 2 || pszValue[nSize-1] != '"')
          strValue += "\"";
 
@@ -274,7 +276,7 @@ namespace HM
    }
 
    // load a field from string buffer
-   int MimeField::Load(const char* pszData, int nDataSize, bool unfold)
+   size_t MimeField::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       Clear();
       ASSERT(pszData != NULL);
@@ -757,16 +759,16 @@ namespace HM
 
 
    // load a header from string buffer
-   int MimeHeader::Load(const char* pszData, int nDataSize, bool unfold)
+   size_t MimeHeader::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       ASSERT(pszData != NULL);
 
-      int nInput = 0;
+      size_t nInput = 0;
       while (pszData[nInput] != 0 && pszData[nInput] != '\r')
       {
          MimeField fd;
-         int nSize = fd.Load(pszData+nInput, nDataSize-nInput, unfold);
-         if (nSize <= 0)
+         size_t nSize = fd.Load(pszData + nInput, nDataSize - nInput, unfold);
+         if (nSize == 0)
             return nSize;
 
          nInput += nSize;
@@ -925,11 +927,12 @@ namespace HM
       // try to generate a file name using the message subject.
       std::shared_ptr<MimeBody> pEncapsulatedMessage = std::shared_ptr<MimeBody>(new MimeBody);
 
-      int iLength = GetContentLength();
+      size_t iLength = GetContentLength();
       char *pData = new char[iLength+1];
       strncpy_s(pData, iLength+1, (const char*) GetContent(), iLength);
-      int index = 0;
-      pEncapsulatedMessage->Load(pData, iLength, index);
+      size_t index = 0;
+      bool part_loaded;
+      pEncapsulatedMessage->Load(pData, iLength, index, part_loaded);
       delete [] pData;
 
       return pEncapsulatedMessage;
@@ -1012,9 +1015,10 @@ namespace HM
    {
       ASSERT(pMM != NULL);
       ASSERT(text_ != NULL);
-      int index = 0;
+      size_t index = 0;
 
-      pMM->Load((const char*)text_, (int) text_.size(), index);
+      bool part_loaded;
+      pMM->Load((const char*)text_, (int) text_.size(), index, part_loaded);
    }
 
    bool 
@@ -1107,8 +1111,9 @@ namespace HM
          try
          {
             // Minus one, since the last character is the null...
-            int index = 0;
-            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index);
+            size_t index = 0;
+            bool part_loaded;
+            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index, part_loaded);
          }
          catch (...)
          {
@@ -1371,7 +1376,7 @@ namespace HM
       {
          // If the initial body ends with \r\n, remove them. We add new ones below.
          if (bodies_.begin() == it && output.size() >= 2 && 
-            output[output.size()-2] == '\r' && output[output.size()-1] == '\n')
+            output.at(output.size()-2) == '\r' && output.at(output.size()-1) == '\n')
          {
             output = output.Mid(0, output.GetLength() - 2);
          }
@@ -1419,7 +1424,7 @@ namespace HM
          // return if the string after the boundary is either a newline, or a --.
          // this is to prevent the problem that we return incorrect boundaries
          // if the boundary string is a part of another boundary string.
-         int sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
+         size_t sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
          if (sizeRemainingAfterBoundaryString <= 2)
          {
             // malformed message. the end of the character string is the boundary line with no trailing crlf or --.
@@ -1440,18 +1445,23 @@ namespace HM
    }
 
    // load a body part from string buffer
-   int MimeBody::Load(const char* pszData, int nDataSize, int &index)
+   size_t MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded)
    {
+      part_loaded = true;
       index++;
       part_index_ = index;
 
       // load header fields
-      int nSize = MimeHeader::Load(pszData, nDataSize, true);
-      if (nSize <= 0)
+      size_t nSize = MimeHeader::Load(pszData, nDataSize, true);
+      if (nSize == 0)
          return nSize;
 
       const char* pszDataBegin = pszData;	// preserve start position
       pszData += nSize;
+      
+      if (nSize >= nDataSize)
+         return (int)(pszData - pszDataBegin);
+
       nDataSize -= nSize;
       FreeBuffer();
 
@@ -1482,13 +1492,16 @@ namespace HM
             text_.append(pszData, nSize);
 
             pszData += nSize;
-            nDataSize -= nSize;
+
+            if (nSize >= nDataSize)
+               return (int)(pszData - pszDataBegin);
          }
          else
-            return -1;
+         {
+            part_loaded = false;
+            return 0;
+         }
       }
-      if (nDataSize <= 0)
-         return (int)(pszData - pszDataBegin);
 
       // load child body parts
       string strBoundary = GetBoundary();
@@ -1526,14 +1539,17 @@ namespace HM
 
          bodies_.push_back(pBP);
 
-         int nInputSize = pBP->Load(pszStart, nEntitySize, part_index_);
-         if (nInputSize < 0)
+         bool part_loaded;
+         size_t nInputSize = pBP->Load(pszStart, nEntitySize, part_index_, part_loaded);
+         if (!part_loaded)
          {
             ErasePart(pBP);
             return nInputSize;
          }
          pszBound1 = pszBound2;
       }
+
+
       return (int)(pszEnd - pszDataBegin);
    }
 

@@ -3,19 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Nodes;
 using hMailServer.Administrator.Utilities;
 using System.Reflection;
 using Microsoft.Win32;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using hMailServer.Shared;
-using hMailServer.Administrator.Controls;
 
 namespace hMailServer.Administrator
 {

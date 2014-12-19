@@ -22,7 +22,7 @@ namespace HM
       static String GenerateMessageID();
 
 
-      static std::shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, int iBufSize);
+      static std::shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, size_t iBufSize);
 
       static bool IsLocalHost(const String &sHostname);
 

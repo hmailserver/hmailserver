@@ -40,7 +40,7 @@ namespace HM
 
       bool uncache_pending_messages_;
 
-      int queue_id_;
+      size_t queue_id_;
 
       Event deliver_messages_;
    };

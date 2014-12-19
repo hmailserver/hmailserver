@@ -1,0 +1,2 @@
+[_ISTool]
+EnableISX=true

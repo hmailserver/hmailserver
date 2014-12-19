@@ -103,7 +103,7 @@ namespace HM
 	   void Clear();
 	   int GetLength() const;
 	   void Store(AnsiString &output) const;
-	   int Load(const char* pszData, int nDataSize, bool unfold);
+      size_t Load(const char* pszData, size_t nDataSize, bool unfold);
       
       static void UnfoldField(string& strField);
 
@@ -147,7 +147,7 @@ namespace HM
    { return charset_.c_str(); }
 
    inline void MimeField::Clear()
-   { name_.empty(); value_.empty(); charset_.empty(); }
+   { name_.clear(); value_.clear(); charset_.clear(); }
 
    class MIMEUnicodeEncoder
    {
@@ -231,7 +231,7 @@ namespace HM
 	   virtual int GetLength() const;
 	   // serialization
 	   virtual void Store(AnsiString &output) const;
-	   virtual int Load(const char* pszData, int nDataSize, bool unfold = true);
+      virtual size_t Load(const char* pszData, size_t nDataSize, bool unfold = true);
 
       AnsiString Store() const;
 
@@ -465,17 +465,17 @@ namespace HM
 	   // serialization
 	   virtual void Store(AnsiString &output, bool bIncludeHeader=true) const;
    
-	   virtual int Load(const char* pszData, int nDataSize, int &index);
+      virtual size_t Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded);
 
    protected:
 
 	   AnsiString text_;		// content (text) of the body part
-      int part_index_;
+      size_t part_index_;
 	   BodyList bodies_;			// list of all child body parts
 	   BodyList::iterator find_;
 
    protected:
-	   bool AllocateBuffer(int nBufSize);
+	   bool AllocateBuffer(size_t nBufSize);
 	   void FreeBuffer();
 
       String GenerateFileNameFromEncapsulatedSubject(bool unicode) const;
@@ -516,7 +516,7 @@ namespace HM
       return pEmpty;
    }
 
-   inline bool MimeBody::AllocateBuffer(int nBufSize)
+   inline bool MimeBody::AllocateBuffer(size_t nBufSize)
    {
 
       text_.reserve(nBufSize);

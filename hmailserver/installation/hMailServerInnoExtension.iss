@@ -222,7 +222,7 @@ begin
    if (FileExists(szInifile) = False) then
    begin
 
-      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', szInifile) then
+      if RegQueryStringValue(HKLM32, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', szInifile) then
       begin
          szInifile := szInifile + 'Bin\hMailServer.ini';
       end;
@@ -401,8 +401,28 @@ begin
 
 end;
 
+
+procedure OverrideInstallationFolder();
+var
+  installFolder : String;
+  
+begin
+    // If hMailServer has been previously installed, and there's a reg key
+    // specifying where it was installed, we should install into the same
+    // folder as before. Normally InnoSetup keeps track of this automatically,
+    // but not when switching between x86 and x64 installs.
+    if RegQueryStringValue(HKLM32, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', installFolder) then
+    begin
+       if (Length(installFolder) > 2) then
+          WizardForm.DirEdit.Text := installFolder;
+    end;
+    
+end;
+
 procedure InitializeWizard();
 begin
+   OverrideInstallationFolder();
+
    if (WizardSilent() = false) then
    begin
       CreateWizardPages();
@@ -410,6 +430,7 @@ begin
 
    g_bUseInternal := true;
 end;
+
 
 function InitializeSetup(): Boolean;
 	var
@@ -584,16 +605,25 @@ begin
    if ( bNewInstallationWithSQLCE or bUpgradeWithSQLCE) then
    begin
       // Register SQL CE
-      szInstallApp :=ExpandConstant('{tmp}\SSCERuntime-ENU.msi ');
-      szParams := '/qn';
-
-      if (ShellExec('', szInstallApp, szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
+      
+      szParams := 'msiexec';
+      
+      if (IsWin64) then
       begin
-        Result:= true;
+        szParams := ExpandConstant('/I {tmp}\SSCERuntime_x64-ENU.msi /quiet');
       end
       else
       begin
-		    MsgBox('The installation of SQL Server 2005 Compact Edition failed.', mbError, MB_OK)
+        szParams := ExpandConstant('/I {tmp}\SSCERuntime_x86-ENU.msi /quiet');
+      end;
+      
+      if (ShellExec('', 'msiexec', szParams, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) = True) then
+      begin
+         Result:= true;
+      end
+      else
+      begin
+		    MsgBox('The installation of SQL Server 2005 Compact Edition (x86) failed.', mbError, MB_OK)
 		   	Result := false;
       end;
    end;
@@ -884,7 +914,7 @@ begin
 	begin
    // Create a registry key that tell
 	  // other apps where we're installed.
-	  RegWriteStringValue(HKEY_LOCAL_MACHINE, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
+	  RegWriteStringValue(HKLM32, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
    	
 	  // Write db location to hMailServer.ini.
 	  szIniFile := ExpandConstant('{app}\Bin\hMailServer.ini');

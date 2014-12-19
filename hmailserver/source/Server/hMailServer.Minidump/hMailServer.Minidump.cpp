@@ -22,7 +22,7 @@ int CreateMinidump(int process_id, int thread_id, EXCEPTION_POINTERS* pExp, cons
       return -1;
    }
 
-      HANDLE dump_file = CreateFile(
+      HANDLE dump_file = CreateFileW(
       file_name,
       GENERIC_WRITE,
       0,

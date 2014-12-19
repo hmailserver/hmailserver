@@ -53,9 +53,15 @@
 #include "Windows.h"
 
 // ADO
-#import "..\..\..\..\libraries\msado28\msado28.tlb" \
-   rename("EOF","adoEOF") \
-   no_namespace
+#if _WIN64
+   #import "..\..\..\..\libraries\msado28\msado28-x64.tlb" \
+      rename("EOF","adoEOF") \
+      no_namespace
+#else
+   #import "..\..\..\..\libraries\msado28\msado28-x32.tlb" \
+      rename("EOF","adoEOF") \
+      no_namespace
+#endif
 
 #include "resource.h"
 #include <atlbase.h>

@@ -21,7 +21,7 @@ namespace HM
    {
    }
 
-   int 
+   size_t 
    WorkQueueManager::CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
@@ -34,14 +34,14 @@ namespace HM
       pWorkQueue->Start();
 
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
-      int iQueueID = work_queues_.size() + 1;
+      size_t iQueueID = work_queues_.size() + 1;
       work_queues_[iQueueID] = pWorkQueue;
 
       return iQueueID;
    }
 
    void 
-   WorkQueueManager::AddTask(int iQueueID, std::shared_ptr<Task> pTask)
+   WorkQueueManager::AddTask(size_t iQueueID, std::shared_ptr<Task> pTask)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Adds a task to a worker queue.
@@ -75,7 +75,7 @@ namespace HM
 
       // Locate the work queue
       std::shared_ptr<WorkQueue> pQueue;
-      std::map<int, std::shared_ptr<WorkQueue> >::iterator iterQueue;
+      std::map<size_t, std::shared_ptr<WorkQueue> >::iterator iterQueue;
 
       {
          boost::lock_guard<boost::recursive_mutex> guard(mutex_);
@@ -130,7 +130,7 @@ namespace HM
          
    }
 
-   std::map<int, std::shared_ptr<WorkQueue> >::iterator 
+   std::map<size_t, std::shared_ptr<WorkQueue> >::iterator
    WorkQueueManager::GetQueueIterator_(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:

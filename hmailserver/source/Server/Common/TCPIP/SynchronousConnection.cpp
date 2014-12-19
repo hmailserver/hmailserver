@@ -80,7 +80,7 @@ namespace HM
    }
 
    bool 
-   SynchronousConnection::Write_(const unsigned char *buf, int bufSize)
+   SynchronousConnection::Write_(const unsigned char *buf, size_t bufSize)
    {
       try
       {

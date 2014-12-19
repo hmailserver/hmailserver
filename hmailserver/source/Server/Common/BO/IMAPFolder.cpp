@@ -33,6 +33,7 @@ namespace HM
    IMAPFolder::IMAPFolder() :
       account_id_(0), 
       dbid_(0),
+      current_uid_(0),
       folder_is_subscribed_(false),
       folder_needs_refresh_(true),
       parent_folder_id_(-1)

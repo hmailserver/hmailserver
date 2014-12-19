@@ -61,13 +61,13 @@ namespace HM
    }
 
    void 
-   TransparentTransmissionBuffer::SetMaxSizeKB(int maxSize)
+   TransparentTransmissionBuffer::SetMaxSizeKB(size_t maxSize)
    {
       max_size_kb_ = maxSize;
    }
 
    void 
-   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, int iBufferSize)
+   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, size_t iBufferSize)
    {
       if (iBufferSize == 0)
       {
@@ -96,7 +96,7 @@ namespace HM
       if (buffer_->GetSize() >= 3 && !is_sending_)
       {
          // If receiving, we should check for end-of-data
-         int iSize = buffer_->GetSize();
+         size_t iSize = buffer_->GetSize();
          const char *pCharBuffer = buffer_->GetCharBuffer();
 
          // Check if the buffer only contains a dot on an empty line.
@@ -129,7 +129,7 @@ namespace HM
          return false;
    }
 
-   int 
+   size_t
    TransparentTransmissionBuffer::GetSize()
    {  
       return data_sent_;
@@ -156,7 +156,7 @@ namespace HM
 
       // Locate last \n
       const char *pBuffer = buffer_->GetCharBuffer();
-      int bufferSize = buffer_->GetSize();
+      size_t bufferSize = buffer_->GetSize();
       
       /*
          RFC rfc2821
@@ -167,13 +167,22 @@ namespace HM
             Service Extensions.
       */
 
-      int maxLineLength = MAX_LINE_LENGTH;
+      size_t maxLineLength = MAX_LINE_LENGTH;
 
       // Start in the end and move 'back' MAX_LINE_LENGTH characters.
-      int searchEndPos = max(bufferSize - maxLineLength, 0);
-      for (int i = bufferSize - 1; i >= searchEndPos; i--)
+      size_t searchEndPos = 0;
+      
+      if (bufferSize == 0)
+         return dataProcessed;
+
+      if (bufferSize > maxLineLength)
+         searchEndPos = bufferSize - maxLineLength;
+      else
+         searchEndPos = 0;
+
+      for (size_t current_position = bufferSize; current_position > searchEndPos; current_position--)
       {
-         char s = pBuffer[i];
+         char s = pBuffer[current_position-1];
 
          // If we found a newline, send anything up until that.
          // If we're forcing a send, send all we got
@@ -185,14 +194,14 @@ namespace HM
             last_send_ended_with_newline_ = s == '\n';
 
             // Copy the data up including this position
-            int iCopySize = i+1;
+            size_t bytes_to_copy = current_position;
 
             std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-            pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
+            pOutBuffer->Add(buffer_->GetBuffer(), bytes_to_copy);
 
             // Remove it from the old buffer
-            int iRemaining = buffer_->GetSize() - iCopySize;
-            buffer_->Empty(iRemaining);
+            size_t remaining_bytes = buffer_->GetSize() - bytes_to_copy;
+            buffer_->Empty(remaining_bytes);
 
             // Parse this buffer and add it to file/socket
             if (is_sending_)
@@ -207,9 +216,9 @@ namespace HM
                {
                   connection->EnqueueWrite(pOutBuffer);
                }
-               
+
             }
-            else 
+            else
             {
                SaveToFile_(pOutBuffer);
             }
@@ -264,9 +273,9 @@ namespace HM
       char *pOutBuffer = new char[pBuffer->GetSize() * 2];
       char *pOutBufferStart = pOutBuffer;
 
-      int iInBufferSize = pBuffer->GetSize();
+      size_t iInBufferSize = pBuffer->GetSize();
      
-      for (int i = 0; i < iInBufferSize; i++)
+      for (size_t i = 0; i < iInBufferSize; i++)
       {
          char c = pInBuffer[i];
          if (c == '.')
@@ -289,7 +298,7 @@ namespace HM
       }
 
       // Clear the buffer and insert the new data
-      int iOutBufferLen = pOutBuffer - pOutBufferStart;
+      size_t iOutBufferLen = pOutBuffer - pOutBufferStart;
       pBuffer->Empty();
       pBuffer->Add((BYTE*) pOutBufferStart, iOutBufferLen);
 
@@ -306,9 +315,9 @@ namespace HM
       char *pOutBuffer = new char[pBuffer->GetSize()];
       char *pOutBufferStart = pOutBuffer;
 
-      int iInBufferSize = pBuffer->GetSize();
+      size_t iInBufferSize = pBuffer->GetSize();
 
-      for (int i = 0; i < iInBufferSize; i++)
+      for (size_t i = 0; i < iInBufferSize; i++)
       {
          char c = pInBuffer[i];
          if (c == '.')
@@ -326,7 +335,7 @@ namespace HM
       }
 
       // Clear the buffer and insert the new data
-      int iOutBufferLen = pOutBuffer - pOutBufferStart;
+      size_t iOutBufferLen = pOutBuffer - pOutBufferStart;
       pBuffer->Empty();
       pBuffer->Add((BYTE*) pOutBufferStart, iOutBufferLen);
 

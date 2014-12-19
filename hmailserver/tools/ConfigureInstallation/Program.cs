@@ -46,22 +46,36 @@ namespace ConfigureInstallation
          File.WriteAllText(phpVersionFile, phpVersionContent);
 
          // Write installation program verison
-         string installationFile = Path.Combine(rootDir, @"hmailserver\Installation\hMailServer.iss");
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_32.iss"), version, build, false))
+            return -1;
+         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_64.iss"), version, build, true))
+            return -1;
+
+         Console.WriteLine("All done. Exiting.");
+         return 0;
+      }
+
+      private static bool ConfigureInstallationFile(string installationFile, string version, string build, bool x64)
+      {
          if (!File.Exists(installationFile))
          {
             Console.WriteLine("Installation file {0} was not found.", installationFile);
-            return -1;
+            return false;
          }
+
          Console.WriteLine("Writing install version and output name to {0}", installationFile);
 
-         Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}", version, build));
-
-         // Write installation output verison
-         Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}", version, build));
-
-         Console.WriteLine("All done. Exiting");
-
-         return 0;
+         if (x64)
+         {
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-x64", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x64", version, build));            
+         }
+         else
+         {
+            Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-x86", version, build));
+            Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x86", version, build));
+         }
+         return true;
       }
    }
 }

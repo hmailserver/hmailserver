@@ -31,7 +31,7 @@ namespace RegressionTests.AntiSpam.DKIM
       private string GetPrivateKeyFile()
       {
          string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\SSL examples";
+         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\..\\SSL examples";
          string sslPath = Environment.CurrentDirectory;
          Environment.CurrentDirectory = originalPath;
 

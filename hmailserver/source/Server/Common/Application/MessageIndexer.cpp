@@ -20,7 +20,8 @@
 
 namespace HM
 {
-   MessageIndexer::MessageIndexer()
+   MessageIndexer::MessageIndexer() :
+      iIndexRunCount(0)
    {
       
    }

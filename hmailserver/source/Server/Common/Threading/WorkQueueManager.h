@@ -17,19 +17,19 @@ namespace HM
       WorkQueueManager(void);
       ~WorkQueueManager(void);
 
-      int CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName);
+      size_t CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName);
       void RemoveQueue(const String &sQueueName);
 
-      void AddTask(int iQueueID, std::shared_ptr<Task> pTask);
+      void AddTask(size_t iQueueID, std::shared_ptr<Task> pTask);
 
       std::shared_ptr<WorkQueue> GetQueue(const String &sQueueName);
 
    private:
 
-      std::map<int, std::shared_ptr<WorkQueue> >::iterator GetQueueIterator_(const String &sQueueName);
+      std::map<size_t, std::shared_ptr<WorkQueue> >::iterator GetQueueIterator_(const String &sQueueName);
 
       boost::recursive_mutex mutex_;
-      std::map<int, std::shared_ptr<WorkQueue> > work_queues_;
+      std::map<size_t, std::shared_ptr<WorkQueue> > work_queues_;
      
    };
 }

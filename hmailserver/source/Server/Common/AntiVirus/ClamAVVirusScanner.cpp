@@ -103,7 +103,7 @@ namespace HM
       {
          std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(STREAM_BLOCK_SIZE);
 
-         if (!pBuf)
+         if (pBuf->GetSize() == 0)
             break;
 
          // Send the request.

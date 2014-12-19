@@ -474,7 +474,7 @@ namespace HM
 
       // Parse the extensions 
       String sAuthParam;
-      int iEstimatedMessageSize = 0;
+      size_t iEstimatedMessageSize = 0;
       while (iterParam != vecParams.end())
       {
          String sParam = (*iterParam);
@@ -869,7 +869,7 @@ namespace HM
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
 
       // We need current message size in KB
-      int iBufSizeKB = transmission_buffer_->GetSize() / 1024;
+      size_t iBufSizeKB = transmission_buffer_->GetSize() / 1024;
 
       // Clear the old buffer
       pBuf->Empty();
@@ -889,7 +889,7 @@ namespace HM
       {
 
          String sLogData;
-         int iMaxSizeDrop = IniFileSettings::Instance()->GetSMTPDMaxSizeDrop();
+         size_t iMaxSizeDrop = IniFileSettings::Instance()->GetSMTPDMaxSizeDrop();
          if (iMaxSizeDrop > 0 && iBufSizeKB >= iMaxSizeDrop) 
          {
             sLogData.Format(_T("Size: %d KB, Max size: %d KB - DROP!!"), 
@@ -899,20 +899,21 @@ namespace HM
             sMessage.Format(_T("552 Message size exceeds the drop maximum message size. Size: %d KB, Max size: %d KB - DROP!"), 
                 iBufSizeKB, iMaxSizeDrop);
             EnqueueWrite_(sMessage);
-         LogAwstatsMessageRejected_();
-         ResetCurrentMessage_();
-         SetReceiveBinary(false);
-         pending_disconnect_ = true;
-         EnqueueDisconnect();
-         return;
+            LogAwstatsMessageRejected_();
+            ResetCurrentMessage_();
+            SetReceiveBinary(false);
+            pending_disconnect_ = true;
+            EnqueueDisconnect();
+            return;
 
-      } else 
-      {
-         // We need more data.
-         EnqueueRead("");
-         return;
+         } 
+         else 
+         {
+            // We need more data.
+            EnqueueRead("");
+            return;
+         }
       }
-   }
 
       // Since this may be a time-consuming task, do it asynchronously
       std::shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 
@@ -1304,39 +1305,39 @@ namespace HM
          return false;
       }
 
-      while (pBuffer)
+      while (pBuffer->GetSize() > 0)
       {
          // Check that buffer contains correct line endings.
          const char *pChar = pBuffer->GetCharBuffer();
-         int iBufferSize = pBuffer->GetSize();
+         size_t iBufferSize = pBuffer->GetSize();
 
-         // Check from pos 3 to size-3. Not 100% sure, but
-         // we don't have to worry about buffer start/endings.
-
-         for (int i = 3; i < iBufferSize - 3; i++)
+         if (iBufferSize >= 3)
          {
-            const char *pCurrentChar = pChar + i;
-
-            // Check chars.
-            if (*pCurrentChar == '\r')
+            for (size_t i = 3; i < iBufferSize - 3; i++)
             {
-               // Check next character
-               if (i >= iBufferSize)
-                  return false;
+               const char *pCurrentChar = pChar + i;
 
-               const char *pNextChar = pCurrentChar + 1;
-               if (*pNextChar != '\n')
-                  return false;
-            }
-            else if (*pCurrentChar == '\n')
-            {
-               // Check previous char
-               if (i == 0)
-                  return false;
+               // Check chars.
+               if (*pCurrentChar == '\r')
+               {
+                  // Check next character
+                  if (i >= iBufferSize)
+                     return false;
 
-               const char *pPreviousChar = pCurrentChar - 1;
-               if (*pPreviousChar != '\r')
-                  return false;
+                  const char *pNextChar = pCurrentChar + 1;
+                  if (*pNextChar != '\n')
+                     return false;
+               }
+               else if (*pCurrentChar == '\n')
+               {
+                  // Check previous char
+                  if (i == 0)
+                     return false;
+
+                  const char *pPreviousChar = pCurrentChar - 1;
+                  if (*pPreviousChar != '\r')
+                     return false;
+               }
             }
          }
 

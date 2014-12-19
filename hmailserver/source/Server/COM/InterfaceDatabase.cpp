@@ -523,6 +523,19 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
    
       return S_OK;   
    }
+   catch (_com_error &err)
+   {
+      _bstr_t bstrSource(err.Source());
+      _bstr_t bstrDescription(err.Description());
+
+      LPCSTR lpcSource = bstrSource;
+      HM::String sErrSource = lpcSource;
+
+      LPCSTR lpcDesc = bstrDescription;
+      HM::String sErrDesc = lpcDesc;
+
+      return COMError::GenerateGenericMessage();
+   }
    catch (...)
    {
       return COMError::GenerateGenericMessage();

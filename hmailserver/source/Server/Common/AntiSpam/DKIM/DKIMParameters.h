@@ -17,7 +17,7 @@ namespace HM
 
       
 
-      unsigned int GetParamCount() const;
+      size_t GetParamCount() const;
 
    private:
 

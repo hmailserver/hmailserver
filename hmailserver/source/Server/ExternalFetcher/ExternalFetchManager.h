@@ -27,7 +27,7 @@ namespace HM
 
       std::shared_ptr<FetchAccounts> fetch_accounts_;
 
-      int queue_id_;
+      size_t queue_id_;
       const String queue_name_;
 
       Event check_now_;

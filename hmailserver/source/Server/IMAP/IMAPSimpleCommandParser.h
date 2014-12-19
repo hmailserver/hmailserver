@@ -46,12 +46,12 @@ namespace HM
 	   virtual ~IMAPSimpleCommandParser();
 
       void Parse(std::shared_ptr<IMAPCommandArgument> pArgument);
-      int WordCount() {return parsed_words_.size(); }
-      int ParamCount() {return parsed_words_.size() - 1; }
+      size_t WordCount() {return parsed_words_.size(); }
+      size_t ParamCount() { return parsed_words_.size() - 1; }
       
       String GetParamValue(std::shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
 
-      std::shared_ptr<IMAPSimpleWord> Word(int iIndex) {return parsed_words_[iIndex]; }
+      std::shared_ptr<IMAPSimpleWord> Word(size_t iIndex) {return parsed_words_[iIndex]; }
 
       std::shared_ptr<IMAPSimpleWord> QuotedWord();
       std::shared_ptr<IMAPSimpleWord> ParantheziedWord();

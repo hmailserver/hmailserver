@@ -250,7 +250,7 @@ namespace HM
          }
       case UTF16:
          {
-            int iChars = pBuffer->GetSize() / sizeof(TCHAR);
+            size_t iChars = pBuffer->GetSize() / sizeof(TCHAR);
             String sRetVal((const wchar_t*) pBuffer->GetCharBuffer() +1, iChars -1);
             return sRetVal;
          }

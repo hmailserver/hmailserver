@@ -139,7 +139,7 @@ namespace HM
       if (iThreadCount <= 0)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4325, "IOService::DoWork()", "The number of TCP/IP threads has been set to zero.");
 
-      int iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue");
+      size_t iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iThreadCount, "IOCPQueue");
 
       std::shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue("IOCPQueue");
 

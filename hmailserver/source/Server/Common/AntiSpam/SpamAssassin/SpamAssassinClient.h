@@ -45,11 +45,11 @@ namespace HM
       String command_buffer_;
 
       String message_file_;
-	   int spam_dsize_;
+	   size_t spam_dsize_;
 	   int message_size_;
       std::shared_ptr<File> result_;
       bool &test_completed_;
 
-      int total_result_bytes_written_;
+      size_t total_result_bytes_written_;
   };
 }

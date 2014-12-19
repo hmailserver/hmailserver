@@ -455,16 +455,16 @@ namespace HM
    }
 
    char*
-   StringParser::Search(const char *haystack, int haystackSize, const char *needle)
+   StringParser::Search(const char *haystack, size_t haystackSize, const char *needle)
    {
       if (haystack == 0 || needle == 0)
          return 0;
 
-      int needleSize = strlen(needle);
+      size_t needleSize = strlen(needle);
 
-      for (int haystackIndex = 0; haystackIndex < haystackSize; haystackIndex++)
+      for (size_t haystackIndex = 0; haystackIndex < haystackSize; haystackIndex++)
       {
-         int remainingHaystackSize = haystackSize - haystackIndex;
+         size_t remainingHaystackSize = haystackSize - haystackIndex;
 
          // If the string we're searching for is longer than the string
          // we're searching in, there's no point in performing the search.

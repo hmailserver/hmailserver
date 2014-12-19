@@ -15,8 +15,6 @@ namespace HM
 	   IMAPFolderContainer();
 	   virtual ~IMAPFolderContainer();
 
-      void SetEnabled(bool bEnabled);
-
       std::shared_ptr<HM::IMAPFolders> GetFoldersForAccount(__int64 AccountID);
       // Returns a list of all folders for the specified account.
 
@@ -41,7 +39,6 @@ namespace HM
       
       static boost::recursive_mutex fetch_list_mutex_;
       
-      bool enabled_;
    
    };
 }
