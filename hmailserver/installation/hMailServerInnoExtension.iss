@@ -401,8 +401,28 @@ begin
 
 end;
 
+
+procedure OverrideInstallationFolder();
+var
+  installFolder : String;
+  
+begin
+    // If hMailServer has been previously installed, and there's a reg key
+    // specifying where it was installed, we should install into the same
+    // folder as before. Normally InnoSetup keeps track of this automatically,
+    // but not when switching between x86 and x64 installs.
+    if RegQueryStringValue(HKLM32, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\hMailServer_is1','InstallLocation', installFolder) then
+    begin
+       if (Length(installFolder) > 2) then
+          WizardForm.DirEdit.Text := installFolder;
+    end;
+    
+end;
+
 procedure InitializeWizard();
 begin
+   OverrideInstallationFolder();
+
    if (WizardSilent() = false) then
    begin
       CreateWizardPages();
@@ -410,6 +430,7 @@ begin
 
    g_bUseInternal := true;
 end;
+
 
 function InitializeSetup(): Boolean;
 	var
