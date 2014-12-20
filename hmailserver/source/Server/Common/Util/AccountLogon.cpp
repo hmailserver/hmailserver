@@ -108,9 +108,10 @@ namespace HM
       span.SetDateTimeSpan(0,0,minutes,0);
       dt = dt + span;
 
+
       std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName(GetIPRangeName_(username));
-      pSecurityRange->SetPriority(20);
+      pSecurityRange->SetPriority(100);
       pSecurityRange->SetLowerIP(ipaddress);
       pSecurityRange->SetUpperIP(ipaddress);
       pSecurityRange->SetExpires(true);
