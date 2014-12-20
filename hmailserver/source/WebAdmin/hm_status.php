@@ -216,7 +216,7 @@ switch($serverstate)
                      echo "<td>" . PreprocessOutput($columns[2]) . "</td>";
                      echo "<td>" . PreprocessOutput($columns[3]) . "</td>";
                      echo "<td>" . $columns[4] . "</td>";
-                     echo "<td>" . $columns[6] . "</td>";
+                     echo "<td>" . $columns[7] . "</td>";
                      echo "</tr>";
                   }
                }
