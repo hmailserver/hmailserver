@@ -46,7 +46,7 @@ namespace VMwareIntegration.Common
              throw new Exception("Incorrect path to NUnit.");
 
          string fixtureSourcePath = TestSettings.GetFixturePath();
-         string fixturePath = fixtureSourcePath + @"\bin\Release";
+         string fixturePath = fixtureSourcePath + @"\bin\x86\Release";
 
          // Check that the test fixture is available.
          var testAssemblies = Directory.GetFiles(fixturePath, "*.dll");
