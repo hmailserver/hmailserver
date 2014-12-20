@@ -71,22 +71,6 @@ namespace HM
             Application::Instance()->GetBackupManager()->OnBackupFailed("All messages are not located in the data folder.");
             return false;
          }
-
-         if (!bMessagesDBOnly)
-         {
-            // We're about to backup the data directory. Check its size.
-            if (PersistentMessage::GetTotalMessageSize() > 1500)
-            {
-               Logger::Instance()->LogBackup("The size of the data directory exceeds the maximum RECOMMENDED size for the built in backup (1.5GB). Please consult the backup documentation");
-
-               // Check size of data directory and STOP it.
-               if (PersistentMessage::GetTotalMessageSize() > 15000)
-               {
-                  Application::Instance()->GetBackupManager()->OnBackupFailed("The size of the data directory exceeds the maximum size for the built in backup (15GB). Please consult the backup documentation.");
-                  return false;
-               }
-            }
-         }
       }
 
       if (!FileUtilities::Exists(destination_))

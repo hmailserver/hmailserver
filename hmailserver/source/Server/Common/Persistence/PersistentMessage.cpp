@@ -844,46 +844,6 @@ namespace HM
          return false;
    }
 
-   __int64
-   PersistentMessage::GetTotalMessageSize()
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Returns the total size of all messages, calculated in megabytes.
-   //---------------------------------------------------------------------------()
-   {
-      SQLCommand command("select sum(messagesize) / 1024 / 1024 as mailboxsize from hm_messages");
-      
-      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
-      if (!pRS)
-         return false;
-
-      // Different data types on MySQL and MSSQL...
-
-      __int64 iSize = 0;
-      switch (IniFileSettings::Instance()->GetDatabaseType())
-      {
-      case DatabaseSettings::TypeMYSQLServer:
-         iSize = (__int64) pRS->GetDoubleValue("mailboxsize");;
-         break;
-      case DatabaseSettings::TypeMSSQLServer:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-      case DatabaseSettings::TypePGServer:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-
-	  // Untested fix: 1.5GB backup limit was being ignored for MSSQL CE
-	  // Believed quotes & size reported in admin were wrong due to this missing too
-	  case DatabaseSettings::TypeMSSQLCompactEdition:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-
-      case DatabaseSettings::TypeUnknown:
-         assert(0);
-      }
-
-      return iSize;
-   }
 
    int
    PersistentMessage::GetTotalMessageCount()

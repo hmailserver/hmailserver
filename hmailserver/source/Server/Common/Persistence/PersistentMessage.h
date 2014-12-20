@@ -56,9 +56,6 @@ namespace HM
       static int GetTotalMessageCount();
       static int GetTotalMessageCountDelivered();
       
-      static __int64 GetTotalMessageSize();
-      // Returns the total size of all messages, calculated in megabytes
-
       static bool DeleteByAccountID(__int64 iAccountID);
 
       static AnsiString LoadHeader(const String &fileName);
