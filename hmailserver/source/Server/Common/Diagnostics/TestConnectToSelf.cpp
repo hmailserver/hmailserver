@@ -57,16 +57,13 @@ namespace HM
          // Test to connect
          TestConnect connTest;
 
-         if (connTest.PerformTest("", foundName, 25, result))
+         if (connTest.PerformTest(CSNone, "", foundName, 25, result))
          {
             diagResult.SetSuccess(true);
             diagResult.SetDetails(result);
             return diagResult;
          }
       }
-
-      formattedString.Format(_T("ERROR: Was not able to open connection.\r\n"), local_domain_name_.c_str());
-      result.append(formattedString);
 
       diagResult.SetSuccess(false);
       diagResult.SetDetails(result);

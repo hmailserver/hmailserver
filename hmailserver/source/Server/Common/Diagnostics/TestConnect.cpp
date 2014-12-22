@@ -4,6 +4,11 @@
 #include "stdafx.h"
 #include "TestConnect.h"
 
+#include "TestConnection.h"
+#include "TestConnectionResult.h"
+
+#include "../TCPIP/IOService.h"
+
 using boost::asio::ip::tcp;
 
 #ifdef _DEBUG
@@ -14,9 +19,9 @@ using boost::asio::ip::tcp;
 namespace HM
 {
    bool
-   TestConnect::PerformTest(const String  &localAddressStr, const String &server, int port, String &result)
+   TestConnect::PerformTest(ConnectionSecurity connection_security, const String  &localAddressStr, const String &server, int port, String &result)
    {
-      boost::asio::io_service io_service;
+      std::shared_ptr<IOService> io_service_wrapper = Application::Instance()->GetIOService();
 
       IPAddress localAddress;
       if (!localAddressStr.IsEmpty())
@@ -34,7 +39,7 @@ namespace HM
       
 
       // Get a list of endpoints corresponding to the server name.
-      tcp::resolver resolver(io_service);
+      tcp::resolver resolver(io_service_wrapper->GetIOService());
       tcp::resolver::query query(AnsiString(server), AnsiString(StringParser::IntToString(port)), tcp::resolver::query::numeric_service);
       boost::system::error_code errorResolve = boost::asio::error::host_not_found;
       tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, errorResolve);
@@ -49,9 +54,10 @@ namespace HM
          result.append(formattedString);
          return false;
       }
-
+      
+      String last_error_message;
+      
       // Try each endpoint until we successfully establish a connection.
-      tcp::socket socket(io_service);
       boost::system::error_code error = boost::asio::error::host_not_found;
       while (error && endpoint_iterator != end)
       {
@@ -60,53 +66,54 @@ namespace HM
          String ipAddressString = adr.to_string();
          String formattedString;
          formattedString.Format(_T("Trying to connect to TCP/IP address %s on port %d.\r\n"), ipAddressString.c_str(), port);
-
          result.append(formattedString);
 
-         socket.close();
 
-         IPAddress emptyAddr;
-         bool any = emptyAddr.IsAny();
+         std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
+         
+         std::shared_ptr<TestConnectionResult> connection_result = std::make_shared<TestConnectionResult>();
 
-         if (!localAddress.IsAny())
+         std::shared_ptr<TestConnection> connection = std::make_shared<TestConnection>(connection_security, io_service_wrapper->GetIOService(), io_service_wrapper->GetClientContext(), disconnectEvent, server, connection_result);
+         if (connection->Connect(ipAddressString, port, localAddress))
          {
-            socket.open(boost::asio::ip::tcp::v4());
-            boost::system::error_code tempError;
-            socket.bind(boost::asio::ip::tcp::endpoint(localAddress.GetAddress(), 0), tempError);
+            connection.reset();
 
-            if (tempError)
+            disconnectEvent->Wait();
+            
+            if (connection_result->GetConnectedSuccesfully())
             {
-               result.append(Formatter::Format("ERROR: Unable to bind to address {0}.\r\n", localAddress.ToString()));
-               socket.close();
-               return false;
+               result.append(_T("Connected successfully.\r\n"));
+
+               if (connection_security == CSSSL)
+               {
+                  if (connection_result->GetHandshakeCompletedSuccesfully())
+                  {
+                     result.append(_T("SSL/TLS handshake completed successfully.\r\n"));
+                     return true;
+                  }
+                  else
+                  {
+                     result.append(_T("ERROR: Handshake failed.\r\n"));
+                     return false;
+                  }
+               }
+               else
+               {
+                  return true;
+               }
+            }
+            else
+            {
+               result.append(Formatter::Format("ERROR: It was not possible to connect. Error: {0}.\r\n", connection_result->GetErrorMessage()));
             }
          }
 
-         socket.connect(*endpoint_iterator++, error);
+         endpoint_iterator++;
       }
 
-      if (error)
-      {
-         // We were unable to connect.
-         result.append(_T("ERROR: It was not possible to connect.\r\n"));
-         return false;
-      }
-
-      // Read the response status line.
-      boost::asio::streambuf response;
-      boost::asio::read_until(socket, response, "\r\n");
-
-      std::string s;
-      std::istream is(&response);
-      std::getline(is, s, '\r');
-      result.append(Formatter::Format("Received: {0}.\r\n", String(s)));
-
-      // Close the socket again.
-      socket.close();
-
-      result.append(_T("Connected successfully.\r\n"));
-      return true;
-
+      // We were unable to connect.
+      result.append(_T("ERROR: Failed to connect to all servers.\r\n"));
+      return false;
    }
 
    

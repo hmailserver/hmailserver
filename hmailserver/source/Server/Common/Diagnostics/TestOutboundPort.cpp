@@ -36,9 +36,11 @@ namespace HM
       String runDetails;
 
 
-      String localAddressStr = Configuration::Instance()->GetSMTPConfiguration()->GetSMTPDeliveryBindToIP();
-      String smtpHost = Configuration::Instance()->GetSMTPConfiguration()->GetSMTPRelayer();
-      int smtpPort = Configuration::Instance()->GetSMTPConfiguration()->GetSMTPRelayerPort();
+      auto smtp_configuration = Configuration::Instance()->GetSMTPConfiguration();
+      String localAddressStr = smtp_configuration->GetSMTPDeliveryBindToIP();
+      String smtpHost = smtp_configuration->GetSMTPRelayer();
+      int smtpPort = smtp_configuration->GetSMTPRelayerPort();
+      auto connection_security = smtp_configuration->GetSMTPRelayerConnectionSecurity();
 
       if (smtpHost.GetLength() == 0)
       {
@@ -59,7 +61,7 @@ namespace HM
       
       TestConnect connTest;
       
-      if (connTest.PerformTest(localAddressStr, smtpHost, smtpPort, runDetails))
+      if (connTest.PerformTest(connection_security, localAddressStr, smtpHost, smtpPort, runDetails))
       {
          diagResult.SetDetails((runDetails));
          diagResult.SetSuccess(true);

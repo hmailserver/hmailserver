@@ -443,6 +443,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Common\Diagnostics\Test64Bit.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestBackupDirectory.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestConnect.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestConnection.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestConnectToSelf.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestDataDirectory.cpp" />
     <ClCompile Include="..\Common\Diagnostics\TestInformationGatherer.cpp" />
@@ -945,6 +946,8 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\Diagnostics\Test64Bit.h" />
     <ClInclude Include="..\Common\Diagnostics\TestBackupDirectory.h" />
     <ClInclude Include="..\Common\Diagnostics\TestConnect.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnection.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnectionResult.h" />
     <ClInclude Include="..\Common\Diagnostics\TestConnectToSelf.h" />
     <ClInclude Include="..\Common\Diagnostics\TestDataDirectory.h" />
     <ClInclude Include="..\Common\Diagnostics\TestInformationGatherer.h" />

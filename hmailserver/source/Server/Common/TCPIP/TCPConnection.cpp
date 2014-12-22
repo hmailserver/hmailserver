@@ -96,6 +96,7 @@ namespace HM
          if (error_code)
          {
             String errorMessage = Formatter::Format("Failed to open local socket on IP address {0}", localAddress.ToString());
+            OnCouldNotConnect(errorMessage);
             ReportError(ErrorManager::Medium, 5520, "TCPConnection::Connect", errorMessage, error_code);
             return false;
          }
@@ -107,6 +108,7 @@ namespace HM
          {
             String errorMessage = Formatter::Format("Failed to bind to IP address {0}.", localAddress.ToString());
             ReportError(ErrorManager::Medium, 4330, "TCPConnection::Connect", errorMessage, error_code);
+            OnCouldNotConnect(errorMessage);
 
             boost::system::error_code ignored_error_code;
             socket_.close(ignored_error_code);
