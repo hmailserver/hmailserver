@@ -62,7 +62,7 @@ namespace hMailServer.Administrator
         {
             _application = APICreator.Application;
 
-            labelVersion.Text = _application.Version;
+            labelVersion.Text = string.Format("{0} ({1})", _application.Version, _application.VersionArchitecture);
 
             ShowStatistics();
 

@@ -35,8 +35,9 @@ namespace HM
       virtual bool InitInstance(String &sErrorMessage);
       virtual bool ExitInstance();
 
-      String GetVersion() const;
-      String GetVersionNumber() const {return version_;}
+      String GetVersionNumber() const;
+      String GetVersionArchitecture() const;
+      
 
       String GetStartTime() const {return start_time_; }
 
@@ -76,7 +77,6 @@ namespace HM
       void RegisterSessionTypes_();
       void CreateScheduledTasks_();
 
-      String prod_name_;
       String version_;
       String start_time_;
       

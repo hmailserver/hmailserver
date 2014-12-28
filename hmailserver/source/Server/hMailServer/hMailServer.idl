@@ -1456,6 +1456,7 @@ interface IInterfaceApplication : IDispatch{
    [id(8), helpstring("Submits pending email messages. May be triggered if an email has been manually inserted into the database.")] HRESULT SubmitEMail();
    [propget, id(9), helpstring("Returns the Status object.")] HRESULT Status([out, retval] IInterfaceStatus** pVal);
    [propget, id(10), helpstring("Gets the current hMailServer version")] HRESULT Version([out, retval] BSTR *pVal);
+   
    [id(11), helpstring("Opens a connection to the hMailServer database.")] HRESULT Connect();
    [propget, id(12), helpstring("The initialization file currently in use.")] HRESULT InitializationFile([out, retval] BSTR *pVal);
    [id(13), helpstring("Reloads all the server settinsg")] HRESULT Reinitialize();
@@ -1465,6 +1466,8 @@ interface IInterfaceApplication : IDispatch{
    [id(17), helpstring("Authenticate the client.")] HRESULT Authenticate([in] BSTR Username, [in] BSTR Password, [out, retval] IInterfaceAccount** pAccount);
    [propget, id(18), helpstring("Quick links to access objects")] HRESULT Links([out, retval] IInterfaceLinks **pVal);
    [propget, id(19), helpstring("Gets a diagnostics object.")] HRESULT Diagnostics([out, retval] IInterfaceDiagnostics **pVal);
+
+   [propget, id(20), helpstring("Gets the current hMailServer architecture (x86/x64)")] HRESULT VersionArchitecture([out, retval] BSTR *pVal);
 };
 
 [

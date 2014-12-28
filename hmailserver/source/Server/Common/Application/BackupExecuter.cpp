@@ -103,7 +103,7 @@ namespace HM
 
       // Store backup mode
       pBackupInfoNode->AppendAttr(_T("Mode"), StringParser::IntToString(backup_mode_));
-      pBackupInfoNode->AppendAttr(_T("Version"), Application::Instance()->GetVersion());
+      pBackupInfoNode->AppendAttr(_T("Version"), Application::Instance()->GetVersionNumber());
 
       // Backup business objects
       if (backup_mode_ & Backup::BODomains)

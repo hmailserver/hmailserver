@@ -66,22 +66,8 @@ namespace HM
       asynchronous_tasks_queue_("Asynchronous task queue"),
       unique_id_(0)
    {
-      prod_name_ = _T("hMailServer");
       version_ = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
       start_time_ = Time::GetCurrentDateTime();
-   }
-
-   String
-   Application::GetVersion() const
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Returns the version of this application.
-   //---------------------------------------------------------------------------()
-   {
-      String sVersion;
-      sVersion.Format(_T("%s %s"), prod_name_.c_str(), version_.c_str());
-
-      return sVersion;
    }
 
    Application::~Application()
@@ -89,6 +75,21 @@ namespace HM
 
    }
 
+   String
+   Application::GetVersionNumber() const
+   {
+      return version_;
+   }
+
+   String
+   Application::GetVersionArchitecture() const
+   {
+#if _WIN64
+      return "x64";
+#else
+      return "x86";
+#endif 
+   }
 
    bool
    Application::InitInstance(String &sErrorMessage)

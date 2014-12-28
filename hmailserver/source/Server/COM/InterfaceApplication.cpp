@@ -362,6 +362,19 @@ STDMETHODIMP InterfaceApplication::get_Version(BSTR *pVal)
    }
 }
 
+STDMETHODIMP InterfaceApplication::get_VersionArchitecture(BSTR *pVal)
+{
+   try
+   {
+      *pVal = HM::Application::Instance()->GetVersionArchitecture().AllocSysString();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceApplication::get_Utilities(IInterfaceUtilities **pVal)
 {
    try

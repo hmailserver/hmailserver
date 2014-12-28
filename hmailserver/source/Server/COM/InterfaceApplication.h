@@ -61,6 +61,7 @@ public:
    STDMETHOD(get_Status)(/*[out, retval]*/ IInterfaceStatus** pVal);
    STDMETHOD(get_ServerState)(eServerState *pVal);
    STDMETHOD(get_Version)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(get_VersionArchitecture)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_InitializationFile)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_BackupManager)(/*[out, retval]*/ IInterfaceBackupManager** pVal);
    STDMETHOD(get_GlobalObjects)(/*[out, retval]*/ IInterfaceGlobalObjects** pVal);
