@@ -41,7 +41,7 @@ namespace HM
       static bool DeleteFilesInDirectory(const String &sDirName);
       static bool DeleteDirectoriesInDirectory(const String &sDirName);
 
-      static std::vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &sWildCard);
+      static std::vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &regularExpressionTest);
 
       static bool IsUNCPath(const String &sPath);
       static bool IsValidUNCFolder(const String &sPath);

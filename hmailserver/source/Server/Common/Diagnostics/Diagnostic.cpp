@@ -12,7 +12,7 @@
 #include "TestBackupDirectory.h"
 #include "TestDataDirectory.h"
 #include "TestIPRanges.h"
-#include "Test64Bit.h"
+#include "TestErrorLogs.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -90,8 +90,9 @@ namespace HM
       TestIPRanges testIPRanges;
       results.push_back(testIPRanges.PerformTest());
 
-      Test64Bit test64bit;
-      results.push_back(test64bit.PerformTest());
+      TestErrorLogs test_error_logs;
+      results.push_back(test_error_logs.PerformTest());
+
 
       return results;
    }  

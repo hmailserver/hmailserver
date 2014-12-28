@@ -8,15 +8,14 @@
 namespace HM
 {
 
-   class Test64Bit
+   class TestErrorLogs
    {
    public:
-      Test64Bit();
-      virtual ~Test64Bit();
+      TestErrorLogs();
+      virtual ~TestErrorLogs();
 
       DiagnosticResult PerformTest();
 
-   private:
    };
 
 
