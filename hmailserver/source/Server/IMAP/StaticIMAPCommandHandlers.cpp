@@ -47,17 +47,6 @@ namespace HM
 
    StaticIMAPCommandHandlers::StaticIMAPCommandHandlers()
    {
-
-   }
-
-   StaticIMAPCommandHandlers::~StaticIMAPCommandHandlers()
-   {
-
-   }
-
-   void
-   StaticIMAPCommandHandlers::Init()
-   {
       mapCommandHandlers[IMAPConnection::IMAP_LOGIN] = std::shared_ptr<IMAPCommandLOGIN>(new IMAPCommandLOGIN());
       mapCommandHandlers[IMAPConnection::IMAP_CHECK] = std::shared_ptr<IMAPCommandCHECK>(new IMAPCommandCHECK());
       mapCommandHandlers[IMAPConnection::IMAP_SELECT] = std::shared_ptr<IMAPCommandSELECT>(new IMAPCommandSELECT());
@@ -89,14 +78,9 @@ namespace HM
       mapCommandHandlers[IMAPConnection::IMAP_SETACL] = std::shared_ptr<IMAPCommandSetAcl>(new IMAPCommandSetAcl());
       mapCommandHandlers[IMAPConnection::IMAP_LISTRIGHTS] = std::shared_ptr<IMAPCommandListRights>(new IMAPCommandListRights());
       mapCommandHandlers[IMAPConnection::IMAP_STARTTLS] = std::shared_ptr<IMAPCommandStartTls>(new IMAPCommandStartTls());
-      
    }
 
-   void
-   StaticIMAPCommandHandlers::DeInit()
-   {
-      mapCommandHandlers.clear();
-   }
+
 
    // Tiny commands
 

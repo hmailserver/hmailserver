@@ -137,10 +137,6 @@ namespace HM
          return false;
       }
 
-      // Load the caches...
-      LOG_DEBUG("Application::InitInstance - Creating caches...");
-      CacheContainer::Instance()->CreateCaches();
-
       LOG_DEBUG("Application::InitInstance - Loading configuration...");
       if (!Configuration::Instance()->Load())
          return false;
@@ -241,9 +237,6 @@ namespace HM
 
       LOG_DEBUG("Application::ExitInstance - Closing database connection...");
       CloseDatabase();
-
-      LOG_DEBUG("Application::ExitInstance - Deleting caches...");
-      CacheContainer::Instance()->DeleteCaches();
 
       MimeEnvironment::SetAutoFolding(false);
 

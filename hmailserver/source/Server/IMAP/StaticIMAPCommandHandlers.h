@@ -16,12 +16,7 @@ namespace HM
 
    public:
 	   StaticIMAPCommandHandlers();
-	   virtual ~StaticIMAPCommandHandlers();
-
       static std::map<IMAPConnection::eIMAPCommandType, std::shared_ptr<IMAPCommand> > &GetStaticHandlers() {return mapCommandHandlers; }
-
-      static void Init();
-      static void DeInit();
 
    private:
       

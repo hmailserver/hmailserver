@@ -42,26 +42,6 @@ namespace HM
 
    }
 
-   void 
-   CacheContainer::CreateCaches()
-   {
-      Cache<Domain, PersistentDomain>::CreateInstance();
-      Cache<Account, PersistentAccount>::CreateInstance();
-      Cache<Alias, PersistentAlias>::CreateInstance();
-      Cache<DistributionList, PersistentDistributionList>::CreateInstance();
-      Cache<Group, PersistentGroup>::CreateInstance();
-   }
-
-   void 
-   CacheContainer::DeleteCaches()
-   {
-      Cache<Group, PersistentGroup>::DeleteInstance();
-      Cache<Domain, PersistentDomain>::DeleteInstance();
-      Cache<Account, PersistentAccount>::DeleteInstance();
-      Cache<Alias, PersistentAlias>::DeleteInstance();
-      Cache<DistributionList, PersistentDistributionList>::DeleteInstance();
-   }
-
    std::shared_ptr<const Account> 
    CacheContainer::GetAccount(const String &sName)
    {

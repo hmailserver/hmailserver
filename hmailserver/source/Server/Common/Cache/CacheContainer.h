@@ -22,9 +22,6 @@ namespace HM
       CacheContainer(void);
       ~CacheContainer(void);
 
-      void CreateCaches();
-      void DeleteCaches();
-
       std::shared_ptr<const Account> GetAccount(const String &sName);
       std::shared_ptr<const Account> GetAccount(__int64 iID);
 

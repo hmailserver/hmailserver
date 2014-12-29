@@ -366,7 +366,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Common\Application\RemoveExpiredRecords.cpp" />
     <ClCompile Include="..\Common\Application\Scheduler.cpp" />
     <ClCompile Include="..\Common\Application\SessionManager.cpp" />
-    <ClCompile Include="..\Common\Application\SingletonCreator.cpp" />
     <ClCompile Include="..\Common\Application\TimeoutCalculator.cpp" />
     <ClCompile Include="..\Common\Bo\Account.cpp" />
     <ClCompile Include="..\Common\Bo\Accounts.cpp" />
@@ -865,7 +864,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\Application\RemoveExpiredRecords.h" />
     <ClInclude Include="..\Common\Application\Scheduler.h" />
     <ClInclude Include="..\Common\Application\SessionManager.h" />
-    <ClInclude Include="..\Common\Application\SingletonCreator.h" />
     <ClInclude Include="..\Common\Application\TimeoutCalculator.h" />
     <ClInclude Include="..\Common\Application\Version.h" />
     <ClInclude Include="..\Common\Bo\Account.h" />

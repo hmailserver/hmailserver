@@ -16,7 +16,6 @@
 #include "../Common/Util/ClassTester.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/SystemInformation.h"
-#include "../Common/Application/SingletonCreator.h"
 
 // #define VLD_START_DISABLED
 // #include "C:\Temp\vld-10\vldapi.h"
@@ -176,11 +175,6 @@ HM::ChMailServerModule _AtlModule;
 extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, 
                                 LPTSTR lpCmdLine, int nShowCmd)
 {
-   // Create the logger object. This needs to be done 
-   // immediately so that we can log errors that occurs.
-   IniFileSettings::CreateInstance();
-   Logger::CreateInstance();
-
    // Initailize some service variables.
    ServiceStatus.dwServiceType = SERVICE_WIN32; 
    ServiceStatus.dwWin32ExitCode = 0;
@@ -264,8 +258,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       //     This is a bit ugly but should work fine
       //     for debugging purposes.
       DEBUG_MODE = true;
-
-	   SingletonCreator::Create();
 	
 	   String sErrorMessage;
       if (HM::Application::Instance()->InitInstance(sErrorMessage))
@@ -282,8 +274,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       HM::Application::Instance()->StopServers();
 
       HM::Application::Instance()->ExitInstance();
-      SingletonCreator::Delete();
-      Logger::DeleteInstance();
    }
    else if (sLastParam.CompareNoCase(_T("/Debug")) == 0)
    {
@@ -399,8 +389,6 @@ TerminateServer()
       ReportServiceStatus(SERVICE_STOPPED, 0);
    }
    
-   // De-allocate all singletons.
-   HM::SingletonCreator::Delete();
 
 }
 
@@ -447,7 +435,6 @@ void InitializeApplication()
    // servers.
 
    // First allocate all singletons.
-   SingletonCreator::Create();
    String sErrorMessage;
    if (HM::Application::Instance()->InitInstance(sErrorMessage))
    {

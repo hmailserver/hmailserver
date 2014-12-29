@@ -13,27 +13,7 @@
 
 namespace HM
 {
-   Logger* Logger::pInstanceApp = NULL;
-
-   void
-   Logger::CreateInstance()
-   {
-      pInstanceApp = new Logger();
-   }
-
-   void
-   Logger::DeleteInstance()
-   {
-      delete pInstanceApp;
-      pInstanceApp = 0;
-   }
-
-   Logger* 
-   Logger::Instance()
-   {
-      return pInstanceApp;
-   }
-
+   
    Logger::Logger()
    {
       log_mask_ = 0;
