@@ -44,7 +44,7 @@ namespace HM
          return false;
 
       // get folder lock.
-      result = inbox->GetMessagesCopy();
+      result = inbox->GetMessages()->GetCopy();
 
       return true;
    }

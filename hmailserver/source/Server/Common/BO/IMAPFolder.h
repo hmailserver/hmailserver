@@ -55,7 +55,7 @@ namespace HM
       std::vector<int> Expunge(const std::set<int> &uids, const std::function<void()> &func);
 
       std::shared_ptr<Messages> GetMessages(bool bReloadIfNeeded = true);
-      std::vector<std::shared_ptr<Message>> GetMessagesCopy(bool bReloadIfNeeded = true);
+
       std::shared_ptr<IMAPFolders> GetSubFolders();
       std::shared_ptr<ACLPermissions> GetPermissions();
 

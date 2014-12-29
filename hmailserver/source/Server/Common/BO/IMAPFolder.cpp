@@ -70,14 +70,6 @@ namespace HM
       return messages_;
    }
 
-   std::vector<std::shared_ptr<Message>>
-   IMAPFolder::GetMessagesCopy(bool bReloadIfNeeded)
-   {
-      std::shared_ptr<Messages> messages = GetMessages(bReloadIfNeeded);
-      
-      return messages->GetCopy();
-   }
-
    void
    IMAPFolder::SetFolderNeedsRefresh()
    {
