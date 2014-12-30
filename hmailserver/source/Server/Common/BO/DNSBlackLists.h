@@ -8,8 +8,6 @@
 #include "DNSBlackList.h"
 #include "../Persistence/PersistentDNSBlackList.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
 

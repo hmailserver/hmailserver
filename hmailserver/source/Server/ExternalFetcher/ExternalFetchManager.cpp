@@ -20,8 +20,7 @@
 #include "../COmmon/Persistence/PersistentDomain.h"
 #include "../COmmon/Persistence/PersistentAccount.h"
 
-#include "../COmmon/Cache/Cache.h"
-
+#include "../COmmon/Cache/CacheContainer.h"
 
 
 #ifdef _DEBUG
@@ -120,7 +119,7 @@ namespace HM
    {
       __int64 iAccountID = pFA->GetAccountID();
 
-      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(iAccountID);
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(iAccountID);
 
       if (!pAccount || !pAccount->GetActive())
       {
@@ -131,7 +130,7 @@ namespace HM
 
       __int64 iDomainID = pAccount->GetDomainID();
 
-      std::shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(iDomainID);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
 
       if (!pDomain || !pDomain->GetIsActive())
       {

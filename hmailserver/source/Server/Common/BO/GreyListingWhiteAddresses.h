@@ -8,8 +8,6 @@
 #include "GreyListingWhiteAddress.h"
 #include "../Persistence/PersistentGreyListingWhiteAddress.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class GreyListingWhiteAddresses : public Collection<GreyListingWhiteAddress, PersistentGreyListingWhiteAddress>

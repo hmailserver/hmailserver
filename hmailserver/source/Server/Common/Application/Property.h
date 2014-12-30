@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
-   class Property : public Cacheable
+   class Property
    {
    public:
       Property(void);

@@ -432,7 +432,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Common\BO\WhiteListAddress.cpp" />
     <ClCompile Include="..\Common\BO\WhiteListAddresses.cpp" />
     <ClCompile Include="..\Common\Cache\AccountSizeCache.cpp" />
-    <ClCompile Include="..\Common\Cache\Cacheable.cpp" />
     <ClCompile Include="..\Common\Cache\CacheConfiguration.cpp" />
     <ClCompile Include="..\Common\Cache\CacheContainer.cpp" />
     <ClCompile Include="..\Common\Cache\InboxIDCache.cpp" />
@@ -934,9 +933,9 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\BO\WhiteListAddresses.h" />
     <ClInclude Include="..\Common\Cache\AccountSizeCache.h" />
     <ClInclude Include="..\Common\Cache\Cache.h" />
-    <ClInclude Include="..\Common\Cache\Cacheable.h" />
     <ClInclude Include="..\Common\Cache\CacheConfiguration.h" />
     <ClInclude Include="..\Common\Cache\CacheContainer.h" />
+    <ClInclude Include="..\Common\Cache\CachedObject.h" />
     <ClInclude Include="..\Common\Cache\InboxIDCache.h" />
     <ClInclude Include="..\Common\Cache\MessageCache.h" />
     <ClInclude Include="..\Common\Diagnostics\Diagnostic.h" />

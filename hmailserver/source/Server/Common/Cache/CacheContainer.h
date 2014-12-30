@@ -27,6 +27,8 @@ namespace HM
 
       std::shared_ptr<const Domain> GetDomain(const String &sName);
       std::shared_ptr<const Domain> GetDomain(__int64 iID);
+      void RemoveDomain(std::shared_ptr<Domain> domain);
+
 
       std::shared_ptr<const Alias> GetAlias(const String &sName);
       std::shared_ptr<const Alias> GetAlias(__int64 iID);

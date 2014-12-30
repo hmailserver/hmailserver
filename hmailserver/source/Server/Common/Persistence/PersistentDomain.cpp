@@ -19,7 +19,7 @@
 #include "../BO/DistributionLists.h"
 #include "../BO/DistributionListRecipients.h"
 #include "../BO/DistributionListRecipient.h"
-#include "../Cache/Cache.h"
+#include "../Cache/CacheContainer.h"
 
 #include "NameChanger.h"
 
@@ -69,7 +69,7 @@ namespace HM
             return false;
          
          // Refresh the BO cache
-         Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pDomain);
+         CacheContainer::Instance()->RemoveDomain(pDomain);
 
          // Delete folder from data directory
          String sDomainFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + pDomain->GetName();
@@ -198,7 +198,7 @@ namespace HM
                return false;
 
             // Remove the old domain from the cache.
-            Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pTempDomain->GetName());
+            CacheContainer::Instance()->RemoveDomain(pTempDomain);
          }
       }
 
@@ -257,7 +257,7 @@ namespace HM
          pDomain->SetID((int) iDBID);
 
       // Refresh the BO cache
-      Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pDomain);
+      CacheContainer::Instance()->RemoveDomain(pDomain);
 
       return bRetVal;
    }
@@ -269,7 +269,7 @@ namespace HM
    // Returns true if an active account with the address accountaddress exists.
    //---------------------------------------------------------------------------()
    {
-      std::shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(DomainName);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(DomainName);
 
       if (pDomain)
       {

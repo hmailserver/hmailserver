@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
 
    class DistributionListRecipients;
    
-   class DistributionList : public Cacheable, public BusinessObject<DistributionList>
+   class DistributionList : public BusinessObject<DistributionList>
    {
    public:
       DistributionList(void);

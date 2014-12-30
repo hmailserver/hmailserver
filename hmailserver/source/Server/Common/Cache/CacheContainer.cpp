@@ -72,6 +72,12 @@ namespace HM
       return Cache<Domain, PersistentDomain>::Instance()->GetObject(iID);
    }
 
+   void
+   CacheContainer::RemoveDomain(std::shared_ptr<Domain> domain)
+   {
+      return Cache<Domain, PersistentDomain>::Instance()->RemoveObject(domain);
+   }
+
    std::shared_ptr<const Alias> 
    CacheContainer::GetAlias(const String &sName)
    {

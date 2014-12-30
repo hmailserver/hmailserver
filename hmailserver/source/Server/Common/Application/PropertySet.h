@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class DALRecordset;
    class Property;
       
-   class PropertySet : public Cacheable
+   class PropertySet
    {
    public:
       PropertySet(void);

@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
-   class Alias : public Cacheable, public BusinessObject<Alias>
+   class Alias : public BusinessObject<Alias>
    {
    public:
 	   Alias();

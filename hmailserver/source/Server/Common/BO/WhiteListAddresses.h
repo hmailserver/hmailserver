@@ -8,8 +8,6 @@
 #include "WhiteListAddress.h"
 #include "../Persistence/PersistentWhiteListAddress.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class WhiteListAddresses : public Collection<WhiteListAddress, PersistentWhiteListAddress>

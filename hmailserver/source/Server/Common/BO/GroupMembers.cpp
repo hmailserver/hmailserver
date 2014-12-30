@@ -6,7 +6,7 @@
 #include "GroupMembers.h"
 
 #include "../BO/Account.h"
-#include "../Cache/Cache.h"
+#include "../Cache/CacheContainer.h"
 #include "../Persistence/PersistentGroupMember.h"
 #include "../Persistence/PersistentAccount.h"
 
@@ -60,7 +60,7 @@ namespace HM
    void 
    GroupMembers::PostStoreObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pChildNode)
    {
-      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(pGroupMember->GetAccountID());
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pGroupMember->GetAccountID());
       if (!pAccount)
          return;
 
@@ -73,7 +73,7 @@ namespace HM
    GroupMembers::PreSaveObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pNode)
    {
       String sAddress = pNode->GetAttrValue(_T("Name"));
-      std::shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(sAddress);
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sAddress);
 
       if (!pAccount)
       {

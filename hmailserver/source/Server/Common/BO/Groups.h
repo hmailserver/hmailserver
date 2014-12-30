@@ -8,11 +8,9 @@
 #include "Group.h"
 #include "../Persistence/PersistentGroup.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
-   class Groups : public Cacheable, public Collection<Group, PersistentGroup>
+   class Groups : public Collection<Group, PersistentGroup>
    {
    public:
       Groups();
