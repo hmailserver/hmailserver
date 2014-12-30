@@ -401,4 +401,10 @@ namespace HM
       
    }
 
+   size_t 
+   Account::GetEstimatedCachingSize()
+   {
+      return 1024;
+   }
+
 }

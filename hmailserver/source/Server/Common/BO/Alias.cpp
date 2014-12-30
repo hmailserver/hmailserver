@@ -46,4 +46,10 @@ namespace HM
       return true;
    }
 
+
+   size_t
+   Alias::GetEstimatedCachingSize()
+   {
+      return 1024;
+   }
 }

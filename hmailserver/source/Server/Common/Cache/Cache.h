@@ -41,11 +41,17 @@ namespace HM
       void SetEnabled(bool bEnabled);
       void Clear();
 
+      void SetMaxSize(size_t max_size);
+      size_t GetMaxSize();
+      size_t GetSize();
+
    private:
+
+      void ResetEstimatedSizeIfEmpty();
 
 
       template<typename Tag, typename MultiIndexContainer, typename TagValue>
-      std::shared_ptr<T> GetItemBy(const MultiIndexContainer& s, TagValue value)
+      std::shared_ptr<T> GetItemBy_(const MultiIndexContainer& s, TagValue value)
       {
          typedef index<container_type, Tag>::type items_by_tag;
          items_by_tag& items = get<Tag>(objects_);
@@ -67,27 +73,29 @@ namespace HM
       }
       
       template<typename Tag, typename MultiIndexContainer, typename TagValue>
-      void RemoveBy(const MultiIndexContainer& s, TagValue value)
+      void RemoveBy_(const MultiIndexContainer& s, TagValue value)
       {
          typedef index<container_type, Tag>::type items_by_tag;
          items_by_tag& items = get<Tag>(objects_);
 
-         auto item = items.find(value);
+         auto item_iter = items.find(value);
 
-         if (item != items.end())
+         if (item_iter != items.end())
          {
-            items.erase(item);
+            auto item = (*item_iter);
+
+            if (current_estimated_size_ >= item.GetEstimatedSize())
+               current_estimated_size_ -= item.GetEstimatedSize();
+            
+            items.erase(item_iter);
          }
+
+         ResetEstimatedSizeIfEmpty();
 
       }
       
       bool GetObjectIsWithinTTL_(CachedObject<T> pObject);
       void AddToCache_(std::shared_ptr<T> pObject);
-
-      int no_of_misses_;
-      int no_of_hits_;
-      int ttl_;
-      bool enabled_;
 
       boost::recursive_mutex _mutex;
       
@@ -103,17 +111,26 @@ namespace HM
       > container_type;
 
       container_type objects_;
-      //std::map<String, std::shared_ptr<T> > objects_;
-      // All the objects in the cache
+
+      int no_of_misses_;
+      int no_of_hits_;
+      int ttl_;
+      bool enabled_;
+      size_t max_size_;
+      size_t current_estimated_size_;
    };
 
    template <class T, class P> 
-   Cache<T,P>::Cache()
+   Cache<T, P>::Cache() :
+      max_size_(0),
+      current_estimated_size_(0),
+      no_of_misses_(0),
+      no_of_hits_(0),
+      ttl_(0),
+      enabled_(false)
    {
-      no_of_misses_ = 0;
-      no_of_hits_ = 0;
-      ttl_ = 0;
-      enabled_ = false;
+      
+      
    }
 
    template <class T, class P> 
@@ -148,6 +165,28 @@ namespace HM
          Clear();
    }
 
+   template <class T, class P>
+   void
+   Cache<T, P>::SetMaxSize(size_t max_size)
+   {
+      max_size_ = max_size;
+   }
+
+   template <class T, class P>
+   size_t
+   Cache<T, P>::GetMaxSize()
+   {
+      return max_size_;
+   }
+
+
+   template <class T, class P>
+   size_t
+   Cache<T, P>::GetSize()
+   {
+      return current_estimated_size_;
+   }
+
 
    template <class T, class P> 
    int
@@ -169,7 +208,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      RemoveBy<name>(objects_, pObject->GetName());
+      RemoveBy_<name>(objects_, pObject->GetName());
    }
 
    template <class T, class P> 
@@ -178,7 +217,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      RemoveBy<name>(objects_, sName);
+      RemoveBy_<name>(objects_, sName);
 
 
    }
@@ -189,7 +228,7 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      RemoveBy<id>(objects_, iID);
+      RemoveBy_<id>(objects_, iID);
    }
 
    template <class T, class P> 
@@ -200,7 +239,7 @@ namespace HM
 
       if (enabled_)
       {
-         auto object = GetItemBy<name>(objects_, sName);
+         auto object = GetItemBy_<name>(objects_, sName);
 
          if (object != nullptr)
          {
@@ -231,7 +270,7 @@ namespace HM
 
       if (enabled_)
       {
-         auto object = GetItemBy<id>(objects_, iID);
+         auto object = GetItemBy_<id>(objects_, iID);
 
          if (object != nullptr)
             return object;
@@ -266,11 +305,36 @@ namespace HM
       }
 #endif
 
+      typedef index<container_type, timestamp>::type items_by_timestamp;
+      items_by_timestamp& items = get<timestamp>(objects_);
+
       CachedObject<T> object(pObject);
 
+      if (max_size_ > 0 && current_estimated_size_ + object.GetEstimatedSize() > max_size_)
+      {
+         // We've reached the cache max size. Remove items until we're 10% free.
+         size_t target_size = (size_t) (max_size_ * 0.9);
+
+         while (current_estimated_size_ > target_size)
+         {
+            auto item_iter = items.begin();
+            if (item_iter == items.end())
+               break;
+
+            auto item = (*item_iter);
+            
+            if (current_estimated_size_ >= item.GetEstimatedSize())
+               current_estimated_size_ -= item.GetEstimatedSize();
+
+            items.erase(item_iter);
+         }
+
+         ResetEstimatedSizeIfEmpty();
+      }
+
       no_of_misses_++;
-      get<name>(objects_).insert(object);
-      //objects_.insert(object);
+      current_estimated_size_ += object.GetEstimatedSize();
+      items.insert(object);
    }
 
    template <class T, class P> 
@@ -285,5 +349,17 @@ namespace HM
       }
 
       return false;
+   }
+
+
+   template <class T, class P>
+   void
+   Cache<T, P>::ResetEstimatedSizeIfEmpty()
+   {
+      if (objects_.size() == 0)
+      {
+         current_estimated_size_ = 0;
+      }
+
    }
 }

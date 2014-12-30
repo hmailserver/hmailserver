@@ -47,6 +47,8 @@ namespace HM
 
       std::shared_ptr<DistributionListRecipients> GetMembers() const;
 
+      size_t GetEstimatedCachingSize();
+
    protected:
 
       String address_;

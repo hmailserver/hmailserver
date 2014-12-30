@@ -71,4 +71,11 @@ namespace HM
       members->Refresh();
       return members;
    }
+
+   size_t
+   DistributionList::GetEstimatedCachingSize()
+   {
+      return 1024;
+   }
+
 }

@@ -116,6 +116,8 @@ namespace HM
       String GetPersonLastName() const;
       void SetPersonLastName(const String &sNewVal);
 
+      size_t GetEstimatedCachingSize();
+
    protected:
       __int64 domain_id_;
       

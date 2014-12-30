@@ -34,7 +34,11 @@ namespace HM
 {
    CacheContainer::CacheContainer(void)
    {
-
+      // Limit the cache of each entity to 1MB each.
+      Cache<Domain, PersistentDomain>::Instance()->SetMaxSize(1048576);
+      Cache<Domain, PersistentAccount>::Instance()->SetMaxSize(1048576);
+      Cache<Alias, PersistentAlias>::Instance()->SetMaxSize(1048576);
+      Cache<DistributionList, PersistentDistributionList>::Instance()->SetMaxSize(1048576);
    }
 
    CacheContainer::~CacheContainer(void)
@@ -54,6 +58,24 @@ namespace HM
       return Cache<Account, PersistentAccount>::Instance()->GetObject(iID);
    }
 
+   size_t
+   CacheContainer::GetAccountCacheSize()
+   {
+      return Cache<Account, PersistentAccount>::Instance()->GetSize();
+   }
+
+   void
+   CacheContainer::SetAccountCacheMaxSize(size_t max_size)
+   {
+      return Cache<Account, PersistentAccount>::Instance()->SetMaxSize(max_size);
+   }
+
+   size_t
+   CacheContainer::GetAccountCacheMaxSize()
+   {
+      return Cache<Account, PersistentAccount>::Instance()->GetMaxSize();
+   }
+
    std::shared_ptr<const Domain> 
    CacheContainer::GetDomain(const String &sName)
    {
@@ -70,6 +92,24 @@ namespace HM
    CacheContainer::GetDomain(__int64 iID)
    {
       return Cache<Domain, PersistentDomain>::Instance()->GetObject(iID);
+   }
+   
+   size_t
+   CacheContainer::GetDomainCacheSize()
+   {
+      return Cache<Domain, PersistentDomain>::Instance()->GetSize();
+   }
+
+   void
+   CacheContainer::SetDomainCacheMaxSize(size_t max_size)
+   {
+      return Cache<Domain, PersistentDomain>::Instance()->SetMaxSize(max_size);
+   }
+
+   size_t
+   CacheContainer::GetDomainCacheMaxSize()
+   {
+      return Cache<Domain, PersistentDomain>::Instance()->GetMaxSize();
    }
 
    void
@@ -90,6 +130,24 @@ namespace HM
       return Cache<Alias, PersistentAlias>::Instance()->GetObject(iID);
    }
 
+   size_t
+   CacheContainer::GetAliasCacheSize()
+   {
+      return Cache<Alias, PersistentAlias>::Instance()->GetSize();
+   }
+
+   void
+   CacheContainer::SetAliasCacheMaxSize(size_t max_size)
+   {
+      return Cache<Alias, PersistentAlias>::Instance()->SetMaxSize(max_size);
+   }
+
+   size_t
+   CacheContainer::GetAliasCacheMaxSize()
+   {
+      return Cache<Alias, PersistentAlias>::Instance()->GetMaxSize();
+   }
+
    std::shared_ptr<const DistributionList> 
    CacheContainer::GetDistributionList(const String &sName)
    {
@@ -100,6 +158,24 @@ namespace HM
    CacheContainer::GetDistributionList(__int64 iID)
    {
       return Cache<DistributionList, PersistentDistributionList>::Instance()->GetObject(iID);
+   }
+
+   size_t
+   CacheContainer::GetDistributionListCacheSize()
+   {
+      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetSize();
+   }
+
+   void
+   CacheContainer::SetDistributionListCacheMaxSize(size_t max_size)
+   {
+      return Cache<DistributionList, PersistentDistributionList>::Instance()->SetMaxSize (max_size);
+   }
+
+   size_t
+   CacheContainer::GetDistributionListCacheMaxSize()
+   {
+      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetMaxSize();
    }
 
    void 

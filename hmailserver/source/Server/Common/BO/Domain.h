@@ -146,6 +146,7 @@ namespace HM
       bool XMLLoad(XNode *pDomainNode, int iRestoreOptions);
       bool XMLLoadSubItems(XNode *pDomainNode, int iRestoreOptions);
 
+      size_t GetEstimatedCachingSize();
    protected:
 
       int anti_spam_options_;

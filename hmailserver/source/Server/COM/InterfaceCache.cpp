@@ -7,6 +7,7 @@
 
 #include "..\Common\Cache\Cache.h"
 #include "..\Common\Cache\CacheConfiguration.h"
+#include "..\Common\Cache\CacheContainer.h"
 
 #include "..\Common\BO\Domain.h"   
 #include "..\Common\BO\Account.h"
@@ -126,6 +127,60 @@ InterfaceCache::get_DomainHitRate(long *pVal)
    }
 }
 
+
+STDMETHODIMP
+InterfaceCache::get_DomainCacheSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetDomainCacheSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP
+InterfaceCache::put_DomainCacheMaxSizeKb(long pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      HM::CacheContainer::Instance()->SetDomainCacheMaxSize(pVal * 1024);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::get_DomainCacheMaxSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetDomainCacheMaxSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP 
 InterfaceCache::get_AccountCacheTTL(long *pVal)
 {
@@ -179,6 +234,60 @@ InterfaceCache::get_AccountHitRate(long *pVal)
       return COMError::GenerateGenericMessage();
    }
 }
+
+STDMETHODIMP
+InterfaceCache::get_AccountCacheSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetAccountCacheSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP
+InterfaceCache::put_AccountCacheMaxSizeKb(long pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      HM::CacheContainer::Instance()->SetAccountCacheMaxSize(pVal * 1024);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::get_AccountCacheMaxSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetAccountCacheMaxSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 
 STDMETHODIMP 
 InterfaceCache::get_AliasCacheTTL(long *pVal)
@@ -234,6 +343,59 @@ InterfaceCache::get_AliasHitRate(long *pVal)
    }
 }
 
+
+STDMETHODIMP
+InterfaceCache::get_AliasCacheSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetAliasCacheSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::put_AliasCacheMaxSizeKb(long pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      HM::CacheContainer::Instance()->SetAliasCacheMaxSize(pVal * 1024);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::get_AliasCacheMaxSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetAliasCacheMaxSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP 
 InterfaceCache::get_DistributionListCacheTTL(long *pVal)
 {
@@ -280,6 +442,58 @@ InterfaceCache::get_DistributionListHitRate(long *pVal)
          return false;
    
       *pVal = HM::Cache<HM::DistributionList, HM::PersistentDistributionList>::Instance()->GetHitRate();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::get_DistributionListCacheSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetDistributionListCacheSize() / 1024;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::put_DistributionListCacheMaxSizeKb(long pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      HM::CacheContainer::Instance()->SetDistributionListCacheMaxSize(pVal * 1024);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
+InterfaceCache::get_DistributionListCacheMaxSizeKb(long *pVal)
+{
+   try
+   {
+      if (!cache_config_)
+         return GetAccessDenied();
+
+      *pVal = HM::CacheContainer::Instance()->GetDistributionListCacheMaxSize() / 1024;
       return S_OK;
    }
    catch (...)

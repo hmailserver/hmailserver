@@ -86,6 +86,7 @@
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
+    <Compile Include="Infrastructure\Cache.cs" />
     <Compile Include="Infrastructure\CustomAsserts.cs" />
     <Compile Include="Infrastructure\LogHandler.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />

@@ -1900,8 +1900,8 @@ interface IInterfaceRecipient : IDispatch
 	pointer_default(unique)
 ]
 interface IInterfaceCache : IDispatch{
-	[propget, id(1), helpstring("Cache is enabled.")] HRESULT Enabled([out, retval] VARIANT_BOOL *pVal);
-	[propput, id(1), helpstring("Cache is enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
+   [propget, id(1), helpstring("Cache is enabled.")] HRESULT Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(1), helpstring("Cache is enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
 
    [propget, id(2), helpstring("Domain cache time (seconds).")] HRESULT DomainCacheTTL([out, retval] long *pVal);
    [propput, id(2), helpstring("Domain cache time (seconds)")] HRESULT DomainCacheTTL([in] long newVal);
@@ -1920,6 +1920,26 @@ interface IInterfaceCache : IDispatch{
    [propget, id(11), helpstring("Distribution list cache time (seconds).")] HRESULT DistributionListCacheTTL([out, retval] long *pVal);
    [propput, id(11), helpstring("Distribution list cache time (seconds)")] HRESULT DistributionListCacheTTL([in] long newVal);
    [propget, id(12), helpstring("Distribution list hit rate.")] HRESULT DistributionListHitRate([out, retval] long *pVal);
+
+   [propget, id(13), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DomainCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(13), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DomainCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(14), helpstring("Current size of cache (in kilobytes)")] HRESULT DomainCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(15), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AccountCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(15), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AccountCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(16), helpstring("Current size of cache (in kilobytes)")] HRESULT AccountCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(17), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AliasCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(17), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AliasCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(18), helpstring("Current size of cache (in kilobytes)")] HRESULT AliasCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(19), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DistributionListCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(19), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DistributionListCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(20), helpstring("Current size of cache (in kilobytes)")] HRESULT DistributionListCacheSizeKb([out, retval] long *pVal);
 
 };
 

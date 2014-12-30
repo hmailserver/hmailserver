@@ -16,7 +16,7 @@ namespace HM
          name_(object->GetName()),
          creation_time_(GetTickCount())
       {
-
+         SetEstimatedSize();
       }
 
       int
@@ -33,9 +33,22 @@ namespace HM
          return iAge;
       }
 
+      void
+      CachedObject::SetEstimatedSize()
+      {
+         estimated_size_ = object_->GetEstimatedCachingSize();
+      }
+
+      size_t
+      CachedObject::GetEstimatedSize()
+      {
+         return estimated_size_;
+      }
+
       __int64 id_;
       std::wstring name_;
       int creation_time_;
+      size_t estimated_size_;
 
       std::shared_ptr<T> object_;
    };

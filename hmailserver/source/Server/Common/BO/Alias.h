@@ -25,6 +25,8 @@ namespace HM
       bool XMLLoad(XNode *pNode, int iOptions);
       bool XMLLoadSubItems(XNode *pNode, int iOptions) {return true; }
 
+      size_t GetEstimatedCachingSize();
+
    protected:
 
       __int64 domain_id_;

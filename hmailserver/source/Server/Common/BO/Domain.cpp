@@ -498,4 +498,10 @@ namespace HM
       else
          anti_spam_options_ &= ~ASDKIMSHA1;
    }
+
+   size_t 
+   Domain::GetEstimatedCachingSize()
+   {
+      return 1024;
+   }
 }

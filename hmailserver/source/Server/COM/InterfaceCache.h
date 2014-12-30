@@ -48,19 +48,30 @@ public:
    STDMETHOD(get_DomainCacheTTL)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_DomainCacheTTL)(/*[in]*/ long newVal);
    STDMETHOD(get_DomainHitRate)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_DomainCacheSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_DomainCacheMaxSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_DomainCacheMaxSizeKb)(/*[out, retval]*/ long pVal);
 
    STDMETHOD(get_AccountCacheTTL)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_AccountCacheTTL)(/*[in]*/ long newVal);
    STDMETHOD(get_AccountHitRate)(/*[out, retval]*/ long *pVal);
-
+   STDMETHOD(get_AccountCacheSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_AccountCacheMaxSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_AccountCacheMaxSizeKb)(/*[out, retval]*/ long pVal);
 
    STDMETHOD(get_AliasCacheTTL)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_AliasCacheTTL)(/*[in]*/ long newVal);
    STDMETHOD(get_AliasHitRate)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_AliasCacheSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_AliasCacheMaxSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_AliasCacheMaxSizeKb)(/*[out, retval]*/ long pVal);
 
    STDMETHOD(get_DistributionListCacheTTL)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_DistributionListCacheTTL)(/*[in]*/ long newVal);
    STDMETHOD(get_DistributionListHitRate)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_DistributionListCacheSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(get_DistributionListCacheMaxSizeKb)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_DistributionListCacheMaxSizeKb)(/*[out, retval]*/ long pVal);
 
    STDMETHOD(Clear)();
 
