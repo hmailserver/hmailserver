@@ -46,7 +46,7 @@ namespace HM
 
       bool bResult = Application::Instance()->GetDBManager()->Execute(deleteCommand);
    
-      Cache<DistributionList, PersistentDistributionList>::Instance()->RemoveObject(pDistList);
+      Cache<DistributionList>::Instance()->RemoveObject(pDistList);
 
       return bResult;
    }
@@ -150,7 +150,7 @@ namespace HM
       if (bRetVal && bNewObject)
          pDistList->SetID((int) iDBID);
 
-      Cache<DistributionList, PersistentDistributionList>::Instance()->RemoveObject(pDistList);
+      Cache<DistributionList>::Instance()->RemoveObject(pDistList);
 
       return bRetVal;
    }

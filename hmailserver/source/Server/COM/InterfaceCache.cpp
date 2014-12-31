@@ -117,7 +117,7 @@ InterfaceCache::get_DomainHitRate(long *pVal)
       if (!GetIsServerAdmin())
          return false;
    
-      *pVal = HM::Cache<HM::Domain, HM::PersistentDomain>::Instance()->GetHitRate();
+      *pVal = HM::Cache<HM::Domain>::Instance()->GetHitRate();
    
       return S_OK;
    }
@@ -226,7 +226,7 @@ InterfaceCache::get_AccountHitRate(long *pVal)
       if (!GetIsServerAdmin())
          return false;
    
-      *pVal = HM::Cache<HM::Account, HM::PersistentAccount>::Instance()->GetHitRate();
+      *pVal = HM::Cache<HM::Account>::Instance()->GetHitRate();
       return S_OK;
    }
    catch (...)
@@ -334,7 +334,7 @@ InterfaceCache::get_AliasHitRate(long *pVal)
       if (!GetIsServerAdmin())
          return false;
    
-      *pVal = HM::Cache<HM::Alias, HM::PersistentAlias>::Instance()->GetHitRate();
+      *pVal = HM::Cache<HM::Alias>::Instance()->GetHitRate();
       return S_OK;
    }
    catch (...)
@@ -441,7 +441,7 @@ InterfaceCache::get_DistributionListHitRate(long *pVal)
       if (!GetIsServerAdmin())
          return false;
    
-      *pVal = HM::Cache<HM::DistributionList, HM::PersistentDistributionList>::Instance()->GetHitRate();
+      *pVal = HM::Cache<HM::DistributionList>::Instance()->GetHitRate();
       return S_OK;
    }
    catch (...)
@@ -513,10 +513,10 @@ InterfaceCache::Clear()
       if (!GetIsServerAdmin())
          return false;
    
-      HM::Cache<HM::Account, HM::PersistentAccount>::Instance()->Clear();
-      HM::Cache<HM::Domain, HM::PersistentDomain>::Instance()->Clear();
-      HM::Cache<HM::Alias, HM::PersistentAlias>::Instance()->Clear();
-      HM::Cache<HM::DistributionList, HM::PersistentDistributionList>::Instance()->Clear();
+      HM::Cache<HM::Account>::Instance()->Clear();
+      HM::Cache<HM::Domain>::Instance()->Clear();
+      HM::Cache<HM::Alias>::Instance()->Clear();
+      HM::Cache<HM::DistributionList>::Instance()->Clear();
    
       return S_OK;
    }

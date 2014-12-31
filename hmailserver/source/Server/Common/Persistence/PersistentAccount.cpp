@@ -82,7 +82,7 @@ namespace HM
       FileUtilities::DeleteDirectory(sAccountFolder);
 	  
       // Refresh caches.
-      Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+      Cache<Account>::Instance()->RemoveObject(pAccount);
 
       return bRet;
    }
@@ -188,7 +188,7 @@ namespace HM
 
 	   PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
 	   
-      Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+      Cache<Account>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());
       IMAPFolderContainer::Instance()->UncacheAccount(pAccount->GetID());
    
@@ -242,7 +242,7 @@ namespace HM
                return false;
 
             // Remove the old account from the cache.
-            Cache<Account, PersistentAccount>::Instance()->RemoveObject(tempAccount->GetAddress());
+            Cache<Account>::Instance()->RemoveObject(tempAccount->GetAddress());
          }
       }
 
@@ -316,7 +316,7 @@ namespace HM
       }
 
 	   if (!bNewObject)
-		  Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+		  Cache<Account>::Instance()->RemoveObject(pAccount);
 
       return bRetVal;
    }

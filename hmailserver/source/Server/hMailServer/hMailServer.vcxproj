@@ -760,6 +760,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Imap\IMAPSort.cpp" />
     <ClCompile Include="..\Imap\IMAPSortParser.cpp" />
     <ClCompile Include="..\Imap\IMAPStore.cpp" />
+    <ClCompile Include="..\IMAP\MessagesContainer.cpp" />
     <ClCompile Include="..\Imap\StaticIMAPCommandHandlers.cpp" />
     <ClCompile Include="..\Pop3\POP3Configuration.cpp" />
     <ClCompile Include="..\Pop3\POP3Connection.cpp" />
@@ -936,6 +937,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\Cache\CacheConfiguration.h" />
     <ClInclude Include="..\Common\Cache\CacheContainer.h" />
     <ClInclude Include="..\Common\Cache\CachedObject.h" />
+    <ClInclude Include="..\Common\Cache\CacheReaderWithDbFallback.h" />
     <ClInclude Include="..\Common\Cache\InboxIDCache.h" />
     <ClInclude Include="..\Common\Cache\MessageCache.h" />
     <ClInclude Include="..\Common\Diagnostics\Diagnostic.h" />
@@ -1263,6 +1265,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1j\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Imap\IMAPSort.h" />
     <ClInclude Include="..\Imap\IMAPSortParser.h" />
     <ClInclude Include="..\Imap\IMAPStore.h" />
+    <ClInclude Include="..\IMAP\MessagesContainer.h" />
     <ClInclude Include="..\Imap\StaticIMAPCommandHandlers.h" />
     <ClInclude Include="..\Pop3\POP3Configuration.h" />
     <ClInclude Include="..\Pop3\POP3Connection.h" />

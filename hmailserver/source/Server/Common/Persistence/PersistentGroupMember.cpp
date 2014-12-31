@@ -40,8 +40,6 @@ namespace HM
       SQLCommand command("delete from hm_group_members where memberid = @MEMBERID");
       command.AddParameter("@MEMBERID", pObject->GetID());
      
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject->GetGroupID());
-
       return Application::Instance()->GetDBManager()->Execute(command);
    }
 
@@ -96,8 +94,6 @@ namespace HM
       bool bRetVal = Application::Instance()->GetDBManager()->Execute(oStatement, bNewObject ? &iDBID : 0);
       if (bRetVal && bNewObject)
          pObject->SetID((long) iDBID);
-
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject->GetGroupID());
 
       return bRetVal;     
    }

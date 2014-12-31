@@ -11,10 +11,7 @@ namespace HM
    class Account;
    class Alias;
    class DistributionList;
-   class Group;
    class CacheConfiguration;
-   
-   
 
    class CacheContainer : public Singleton<CacheContainer>
    {
@@ -54,6 +51,7 @@ namespace HM
       void Clear();
    private:
 
+      
       InboxIDCache inbox_idcache_;
    };
 }

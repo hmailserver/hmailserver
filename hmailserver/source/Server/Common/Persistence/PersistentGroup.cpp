@@ -39,8 +39,6 @@ namespace HM
 
       PersistentACLPermission::DeleteOwnedByGroup(pObject->GetID());
 
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject);
-
       return bResult;
    }
 
@@ -134,9 +132,6 @@ namespace HM
       bool bRetVal = Application::Instance()->GetDBManager()->Execute(oStatement, bNewObject ? &iDBID : 0);
       if (bRetVal && bNewObject)
          pGroup->SetID((long) iDBID);
-
-	  if (!bNewObject)
-		Cache<Group, PersistentGroup>::Instance()->RemoveObject(pGroup);
 
       return bRetVal;      
    }

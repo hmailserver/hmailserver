@@ -40,7 +40,7 @@ namespace HM
     
          bResult = Application::Instance()->GetDBManager()->Execute(command);
 
-         Cache<Alias, PersistentAlias>::Instance()->RemoveObject(pAlias);
+         Cache<Alias>::Instance()->RemoveObject(pAlias);
       }
 
       return bResult;
@@ -91,7 +91,7 @@ namespace HM
       if (bRetVal && bNewObject)
          pAlias->SetID((int) iDBID);
 
-      Cache<Alias, PersistentAlias>::Instance()->RemoveObject(pAlias);
+      Cache<Alias>::Instance()->RemoveObject(pAlias);
 
       return bRetVal;
    }

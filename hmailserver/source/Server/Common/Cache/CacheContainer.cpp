@@ -25,6 +25,8 @@
 #include "../Persistence/PersistentGroup.h"
 #include "../Persistence/PersistentServerMessage.h"
 
+#include "CacheReaderWithDbFallback.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -35,10 +37,10 @@ namespace HM
    CacheContainer::CacheContainer(void)
    {
       // Limit the cache of each entity to 1MB each.
-      Cache<Domain, PersistentDomain>::Instance()->SetMaxSize(1048576);
-      Cache<Domain, PersistentAccount>::Instance()->SetMaxSize(1048576);
-      Cache<Alias, PersistentAlias>::Instance()->SetMaxSize(1048576);
-      Cache<DistributionList, PersistentDistributionList>::Instance()->SetMaxSize(1048576);
+      Cache<Domain>::Instance()->SetMaxSize(1048576);
+      Cache<Domain>::Instance()->SetMaxSize(1048576);
+      Cache<Alias>::Instance()->SetMaxSize(1048576);
+      Cache<DistributionList>::Instance()->SetMaxSize(1048576);
    }
 
    CacheContainer::~CacheContainer(void)
@@ -46,34 +48,39 @@ namespace HM
 
    }
 
-   std::shared_ptr<const Account> 
-   CacheContainer::GetAccount(const String &sName)
-   {
-      return Cache<Account, PersistentAccount>::Instance()->GetObject(sName);
-   }
+
 
    std::shared_ptr<const Account> 
    CacheContainer::GetAccount(__int64 iID)
    {
-      return Cache<Account, PersistentAccount>::Instance()->GetObject(iID);
+      CacheReaderWithDbFallback<Account, PersistentAccount, __int64> reader;
+      return reader.GetObject(iID);
    }
+
+   std::shared_ptr<const Account>
+   CacheContainer::GetAccount(const String &sName)
+   {
+      CacheReaderWithDbFallback<Account, PersistentAccount, String> reader;
+      return reader.GetObject(sName);
+   }
+
 
    size_t
    CacheContainer::GetAccountCacheSize()
    {
-      return Cache<Account, PersistentAccount>::Instance()->GetSize();
+      return Cache<Account>::Instance()->GetSize();
    }
 
    void
    CacheContainer::SetAccountCacheMaxSize(size_t max_size)
    {
-      return Cache<Account, PersistentAccount>::Instance()->SetMaxSize(max_size);
+      return Cache<Account>::Instance()->SetMaxSize(max_size);
    }
 
    size_t
    CacheContainer::GetAccountCacheMaxSize()
    {
-      return Cache<Account, PersistentAccount>::Instance()->GetMaxSize();
+      return Cache<Account>::Instance()->GetMaxSize();
    }
 
    std::shared_ptr<const Domain> 
@@ -85,97 +92,106 @@ namespace HM
          assert(0);
       }
 #endif
-      return Cache<Domain, PersistentDomain>::Instance()->GetObject(sName);
+      
+      CacheReaderWithDbFallback<Domain, PersistentDomain, String> reader;
+      auto domain = reader.GetObject(sName);
+
+      return domain;
    }
 
    std::shared_ptr<const Domain> 
    CacheContainer::GetDomain(__int64 iID)
    {
-      return Cache<Domain, PersistentDomain>::Instance()->GetObject(iID);
+      CacheReaderWithDbFallback<Domain, PersistentDomain, __int64> reader;
+      return reader.GetObject(iID);
    }
    
    size_t
    CacheContainer::GetDomainCacheSize()
    {
-      return Cache<Domain, PersistentDomain>::Instance()->GetSize();
+      return Cache<Domain>::Instance()->GetSize();
    }
 
    void
    CacheContainer::SetDomainCacheMaxSize(size_t max_size)
    {
-      return Cache<Domain, PersistentDomain>::Instance()->SetMaxSize(max_size);
+      return Cache<Domain>::Instance()->SetMaxSize(max_size);
    }
 
    size_t
    CacheContainer::GetDomainCacheMaxSize()
    {
-      return Cache<Domain, PersistentDomain>::Instance()->GetMaxSize();
+      return Cache<Domain>::Instance()->GetMaxSize();
    }
 
    void
    CacheContainer::RemoveDomain(std::shared_ptr<Domain> domain)
    {
-      return Cache<Domain, PersistentDomain>::Instance()->RemoveObject(domain);
+      return Cache<Domain>::Instance()->RemoveObject(domain);
    }
 
    std::shared_ptr<const Alias> 
    CacheContainer::GetAlias(const String &sName)
    {
-      return Cache<Alias, PersistentAlias>::Instance()->GetObject(sName);
+      CacheReaderWithDbFallback<Alias, PersistentAlias, String> reader;
+      return reader.GetObject(sName);
    }
 
    std::shared_ptr<const Alias> 
    CacheContainer::GetAlias(__int64 iID)
    {
-      return Cache<Alias, PersistentAlias>::Instance()->GetObject(iID);
+      CacheReaderWithDbFallback<Alias, PersistentAlias, __int64> reader;
+      return reader.GetObject(iID);
    }
 
    size_t
    CacheContainer::GetAliasCacheSize()
    {
-      return Cache<Alias, PersistentAlias>::Instance()->GetSize();
+      return Cache<Alias>::Instance()->GetSize();
    }
 
    void
    CacheContainer::SetAliasCacheMaxSize(size_t max_size)
    {
-      return Cache<Alias, PersistentAlias>::Instance()->SetMaxSize(max_size);
+      return Cache<Alias>::Instance()->SetMaxSize(max_size);
    }
 
    size_t
    CacheContainer::GetAliasCacheMaxSize()
    {
-      return Cache<Alias, PersistentAlias>::Instance()->GetMaxSize();
+      return Cache<Alias>::Instance()->GetMaxSize();
    }
 
    std::shared_ptr<const DistributionList> 
    CacheContainer::GetDistributionList(const String &sName)
    {
-      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetObject(sName);
+      CacheReaderWithDbFallback<DistributionList, PersistentDistributionList, String> reader;
+      return reader.GetObject(sName);
    }
 
    std::shared_ptr<const DistributionList> 
    CacheContainer::GetDistributionList(__int64 iID)
    {
-      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetObject(iID);
+      CacheReaderWithDbFallback<DistributionList, PersistentDistributionList, __int64> reader;
+      return reader.GetObject(iID);
    }
 
    size_t
    CacheContainer::GetDistributionListCacheSize()
    {
-      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetSize();
+      return Cache<DistributionList>::Instance()->GetSize();
    }
 
    void
    CacheContainer::SetDistributionListCacheMaxSize(size_t max_size)
    {
-      return Cache<DistributionList, PersistentDistributionList>::Instance()->SetMaxSize (max_size);
+      return Cache<DistributionList>::Instance()->SetMaxSize (max_size);
    }
 
    size_t
    CacheContainer::GetDistributionListCacheMaxSize()
    {
-      return Cache<DistributionList, PersistentDistributionList>::Instance()->GetMaxSize();
+      return Cache<DistributionList>::Instance()->GetMaxSize();
    }
 
    void 
@@ -187,23 +203,19 @@ namespace HM
       {
          bool bMainCacheEnabled = pProperty->GetBoolValue();
 
-         Cache<Domain, PersistentDomain>::Instance()->SetEnabled(bMainCacheEnabled);
-         Cache<Account, PersistentAccount>::Instance()->SetEnabled(bMainCacheEnabled);
-         Cache<Alias, PersistentAlias>::Instance()->SetEnabled(bMainCacheEnabled);
-         Cache<DistributionList, PersistentDistributionList>::Instance()->SetEnabled(bMainCacheEnabled);
-         Cache<Group, PersistentGroup>::Instance()->SetEnabled(bMainCacheEnabled);
+         Cache<Domain>::Instance()->SetEnabled(bMainCacheEnabled);
+         Cache<Account>::Instance()->SetEnabled(bMainCacheEnabled);
+         Cache<Alias>::Instance()->SetEnabled(bMainCacheEnabled);
+         Cache<DistributionList>::Instance()->SetEnabled(bMainCacheEnabled);
       }
       else if (sPropName == PROPERTY_DOMAINCACHETTL)
-         Cache<Domain, PersistentDomain>::Instance()->SetTTL(pProperty->GetLongValue());       
+         Cache<Domain>::Instance()->SetTTL(pProperty->GetLongValue());       
       else if (sPropName == PROPERTY_ACCOUNTCACHETTL)
-         Cache<Account, PersistentAccount>::Instance()->SetTTL(pProperty->GetLongValue());
+         Cache<Account>::Instance()->SetTTL(pProperty->GetLongValue());
       else if (sPropName == PROPERTY_ALIASCACHETTL)
-         Cache<Alias, PersistentAlias>::Instance()->SetTTL(pProperty->GetLongValue());
+         Cache<Alias>::Instance()->SetTTL(pProperty->GetLongValue());
       else if (sPropName == PROPERTY_DISTRIBUTIONLISTCACHETTL)
-         Cache<DistributionList, PersistentDistributionList>::Instance()->SetTTL(pProperty->GetLongValue());      
-      else if (sPropName == PROPERTY_GROUPCACHETTL)
-         Cache<Group, PersistentGroup>::Instance()->SetTTL(pProperty->GetLongValue());      
-
+         Cache<DistributionList>::Instance()->SetTTL(pProperty->GetLongValue());      
    }
 
    InboxIDCache &

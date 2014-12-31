@@ -20,16 +20,16 @@ namespace HM
    struct name {};
    struct timestamp {};
 
-   template <typename T, typename P>
-   class Cache : public Singleton<Cache<T,P>>
+   template <typename T>
+   class Cache : public Singleton<Cache<T>>
    {
    public:
       Cache();
 
-      std::shared_ptr<const T> GetObject(const String &sName);
+      std::shared_ptr<T> GetObject(const String &sName);
       // Retrieves an object using the object name.
 
-      std::shared_ptr<const T> GetObject(__int64 iID);
+      std::shared_ptr<T> GetObject(__int64 iID);
       // Retrieves an object using the ID
 
       void RemoveObject(std::shared_ptr<T> pObject);
@@ -45,6 +45,7 @@ namespace HM
       size_t GetMaxSize();
       size_t GetSize();
 
+      void Add(std::shared_ptr<T> pObject);
    private:
 
       void ResetEstimatedSizeIfEmpty();
@@ -95,7 +96,7 @@ namespace HM
       }
       
       bool GetObjectIsWithinTTL_(CachedObject<T> pObject);
-      void AddToCache_(std::shared_ptr<T> pObject);
+      
 
       boost::recursive_mutex _mutex;
       
@@ -120,8 +121,8 @@ namespace HM
       size_t current_estimated_size_;
    };
 
-   template <class T, class P> 
-   Cache<T, P>::Cache() :
+   template <class T> 
+   Cache<T>::Cache() :
       max_size_(0),
       current_estimated_size_(0),
       no_of_misses_(0),
@@ -133,9 +134,9 @@ namespace HM
       
    }
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::Clear()
+   Cache<T>::Clear()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -144,9 +145,9 @@ namespace HM
       no_of_hits_ = 0;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::SetTTL(int iNewVal)
+   Cache<T>::SetTTL(int iNewVal)
    {
       ttl_ = iNewVal;
 
@@ -155,9 +156,9 @@ namespace HM
    }
 
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::SetEnabled(bool bEnabled)
+   Cache<T>::SetEnabled(bool bEnabled)
    {
       enabled_ = bEnabled;
 
@@ -165,32 +166,32 @@ namespace HM
          Clear();
    }
 
-   template <class T, class P>
+   template <class T>
    void
-   Cache<T, P>::SetMaxSize(size_t max_size)
+   Cache<T>::SetMaxSize(size_t max_size)
    {
       max_size_ = max_size;
    }
 
-   template <class T, class P>
+   template <class T>
    size_t
-   Cache<T, P>::GetMaxSize()
+   Cache<T>::GetMaxSize()
    {
       return max_size_;
    }
 
 
-   template <class T, class P>
+   template <class T>
    size_t
-   Cache<T, P>::GetSize()
+   Cache<T>::GetSize()
    {
       return current_estimated_size_;
    }
 
 
-   template <class T, class P> 
+   template <class T> 
    int
-   Cache<T,P>::GetHitRate()
+   Cache<T>::GetHitRate()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -202,18 +203,18 @@ namespace HM
       return iHitRate;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(std::shared_ptr<T> pObject)
+   Cache<T>::RemoveObject(std::shared_ptr<T> pObject)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       RemoveBy_<name>(objects_, pObject->GetName());
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(const String &sName)
+   Cache<T>::RemoveObject(const String &sName)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -222,80 +223,50 @@ namespace HM
 
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(__int64 iID)
+   Cache<T>::RemoveObject(__int64 iID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       RemoveBy_<id>(objects_, iID);
    }
 
-   template <class T, class P> 
-   std::shared_ptr<const T> 
-   Cache<T,P>::GetObject(const String &sName)
+   template <class T> 
+   std::shared_ptr<T> 
+   Cache<T>::GetObject(const String &sName)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (enabled_)
       {
-         auto object = GetItemBy_<name>(objects_, sName);
-
-         if (object != nullptr)
-         {
-            return object;
-         }
+         return GetItemBy_<name>(objects_, sName);
       }
-
-      // Load the object
-      std::shared_ptr<T> pRetObject = std::shared_ptr<T>(new T);
-      
-      if (!P::ReadObject(pRetObject, sName))
-      {
-         std::shared_ptr<T> pEmpty;
-         return pEmpty;
-      }
-
-      if (enabled_)
-         AddToCache_(pRetObject);
-
-      return pRetObject;
+      return nullptr;
    }
 
-   template <class T, class P> 
-   std::shared_ptr<const T> 
-   Cache<T,P>::GetObject(__int64 iID)
+   template <class T> 
+   std::shared_ptr<T> 
+   Cache<T>::GetObject(__int64 iID)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (enabled_)
       {
-         auto object = GetItemBy_<id>(objects_, iID);
-
-         if (object != nullptr)
-            return object;
+         return GetItemBy_<id>(objects_, iID);
       }
 
-      // Load the object
-      std::shared_ptr<T> pRetObject = std::shared_ptr<T>(new T);
-      if (!P::ReadObject(pRetObject, iID))
-      {
-         std::shared_ptr<T> pEmpty;
-         return pEmpty;
-      }
-
-      if (enabled_)
-         AddToCache_(pRetObject);
-   
-      return pRetObject;
-
+      return nullptr;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::AddToCache_(std::shared_ptr<T> pObject)
+   Cache<T>::Add(std::shared_ptr<T> pObject)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      if (!enabled_)
+         return;
 
       // Object must be saved before it can be cached.
 #ifdef DEBUG
@@ -337,9 +308,9 @@ namespace HM
       items.insert(object);
    }
 
-   template <class T, class P> 
+   template <class T> 
    bool 
-   Cache<T,P>::GetObjectIsWithinTTL_(CachedObject<T> pObject)
+   Cache<T>::GetObjectIsWithinTTL_(CachedObject<T> pObject)
    {
       if (pObject.SecondsOld() < ttl_)
       {
@@ -352,9 +323,9 @@ namespace HM
    }
 
 
-   template <class T, class P>
+   template <class T>
    void
-   Cache<T, P>::ResetEstimatedSizeIfEmpty()
+   Cache<T>::ResetEstimatedSizeIfEmpty()
    {
       if (objects_.size() == 0)
       {

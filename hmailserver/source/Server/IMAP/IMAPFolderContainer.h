@@ -33,12 +33,11 @@ namespace HM
       static bool IsPublicFolder(const std::vector<String> &vecFolderPath);
 
       static std::shared_ptr<IMAPFolder> GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath);
+
    private:
 
       std::map<__int64, std::shared_ptr<IMAPFolders> > folders_;
       
       static boost::recursive_mutex fetch_list_mutex_;
-      
-   
    };
 }
