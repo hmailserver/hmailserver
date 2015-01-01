@@ -28,6 +28,7 @@
 #include "../common/Util/MessageUtilities.h"
 
 #include "../IMAP/IMAPFolderContainer.h"
+#include "../IMAP/MessagesContainer.h"
 
 #include "SMTPConfiguration.h"
 #include "SMTPVacationMessageCreator.h"
@@ -160,7 +161,7 @@ namespace HM
 
       // Tell the folder container that the users inbox is updated this will 
       // cause a refresh in the imap server whenever a new imap command is sent.
-      IMAPFolderContainer::Instance()->SetFolderNeedRefresh(accountLevelMessage->GetAccountID(), accountLevelMessage->GetFolderID());
+      MessagesContainer::Instance()->SetFolderNeedsRefresh(accountLevelMessage->GetFolderID());
 
       // Notify the mailbox notifier that the mailbox contents have changed.
       std::shared_ptr<ChangeNotification> changeNotification = 

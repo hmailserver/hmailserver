@@ -72,6 +72,8 @@ namespace HM
 
       bool OnDatabaseConnected(String &sErrorMessage);
 
+      boost::signals2::signal<void()> OnServerStopped;
+
    private:
 
       void RegisterSessionTypes_();

@@ -14,6 +14,7 @@
 #include "../../MIME/Mime.h"
 #include "../../TCPIP/DNSResolver.h"
 #include "../../Util/TraceHeaderWriter.h"
+#include "../../Util/FileUtilities.h"
 #include "../../Persistence/PersistentMessage.h"
 
 #include <openssl/rsa.h>

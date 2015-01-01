@@ -21,6 +21,7 @@
 #include "../SMTP/SMTPConfiguration.h"
 
 #include "IMAPSimpleCommandParser.h"
+#include "MessagesContainer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -284,7 +285,9 @@ namespace HM
       }
 
       PersistentMessage::SaveObject(current_message_);
-      destination_folder_->SetFolderNeedsRefresh();
+
+      MessagesContainer::Instance()->SetFolderNeedsRefresh(destination_folder_->GetID());
+
 
       String sResponse;
       if (pConnection->GetCurrentFolder() &&

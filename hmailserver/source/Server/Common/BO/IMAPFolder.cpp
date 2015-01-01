@@ -10,6 +10,8 @@
 #include "../BO/ACLPermissions.h"
 #include "../Util/Time.h"
 
+#include "../../IMAP/MessagesContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -24,7 +26,6 @@ namespace HM
       dbid_(0),
       current_uid_(0),
       folder_is_subscribed_(false),
-      folder_needs_refresh_(true),
       parent_folder_id_(iParentFolderID)
    {
       
@@ -35,7 +36,6 @@ namespace HM
       dbid_(0),
       current_uid_(0),
       folder_is_subscribed_(false),
-      folder_needs_refresh_(true),
       parent_folder_id_(-1)
    {
 
@@ -53,27 +53,9 @@ namespace HM
    }
 
    std::shared_ptr<Messages>
-   IMAPFolder::GetMessages(bool bReloadIfNeeded)
+   IMAPFolder::GetMessages()
    {
-      if (messages_.get() == NULL)
-      {
-         messages_ = std::shared_ptr<Messages>(new Messages(account_id_, dbid_));
-         folder_needs_refresh_ = true;      
-      }
-
-      if (folder_needs_refresh_ && bReloadIfNeeded)
-      {
-         folder_needs_refresh_ = false;
-         messages_->Refresh();
-      }
-
-      return messages_;
-   }
-
-   void
-   IMAPFolder::SetFolderNeedsRefresh()
-   {
-      folder_needs_refresh_ = true; 
+      return MessagesContainer::Instance()->GetMessages(account_id_, dbid_);
    }
 
    std::shared_ptr<IMAPFolders>

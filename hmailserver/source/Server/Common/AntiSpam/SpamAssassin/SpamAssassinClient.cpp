@@ -6,6 +6,7 @@
 
 #include "../../Util/ByteBuffer.h"
 #include "../../Util/File.h"
+#include "../../Util/FileUtilities.h"
 
 #include "../../Application/TimeoutCalculator.h"
 

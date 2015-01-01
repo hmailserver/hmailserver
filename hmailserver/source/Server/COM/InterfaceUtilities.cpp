@@ -17,7 +17,7 @@
 #include "../SMTP/DeliveryQueue.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/Persistence/Maintenance/Maintenance.h"
-
+#include "../Common/Util/Parsing/StringParser.h"
 #include "COMError.h"
 
 STDMETHODIMP InterfaceUtilities::InterfaceSupportsErrorInfo(REFIID riid)

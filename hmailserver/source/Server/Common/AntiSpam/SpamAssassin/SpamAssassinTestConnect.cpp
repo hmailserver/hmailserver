@@ -10,6 +10,7 @@
 #include "../../TCPIP/TCPConnection.h"
 #include "../../TCPIP/SslContextInitializer.h"
 #include "../../TCPIP/DNSResolver.h"
+#include "../../Util/FileUtilities.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

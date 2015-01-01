@@ -25,6 +25,7 @@
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/HostNameAndIpAddress.h"
 
+#include "../Util/FileUtilities.h"
 
 #include "../../SMTP/BLCheck.h"
 #include "../../SMTP/GreyListing.h"

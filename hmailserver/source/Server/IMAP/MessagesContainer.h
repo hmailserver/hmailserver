@@ -3,15 +3,28 @@
 
 #pragma once
 
+#include "../Common/Cache/Cache.h"
+
 namespace HM
 {
-   
+   class Messages;
+   class CachedMessages;
+
    class MessagesContainer : public Singleton<MessagesContainer>
    {
    public:
 
+      MessagesContainer();
+
+      std::shared_ptr<Messages> GetMessages(__int64 account_id, __int64 folder_id);
+
+      void SetFolderNeedsRefresh(__int64 folder_id);
+      void UncacheAccount(__int64 account_id);
+      void Clear();
+
    private:
       
+      Cache<CachedMessages> messages_cache_;
 
 
    };

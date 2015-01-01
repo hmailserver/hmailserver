@@ -15,7 +15,7 @@
 #include "../Common/SQL/Prerequisites/PrerequisiteList.h"
 
 #include "../Common/Util/PasswordGenerator.h"
-
+#include "../Common/SQL/SQLCommand.h"
 
 STDMETHODIMP 
 InterfaceDatabase::InterfaceSupportsErrorInfo(REFIID riid)

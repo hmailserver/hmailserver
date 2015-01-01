@@ -15,6 +15,8 @@
 #include "../Common/Tracking/ChangeNotification.h"
 
 
+#include "MessagesContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -78,7 +80,7 @@ namespace HM
       if (!PersistentMessage::SaveObject(pNewMessage))
          return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
 
-      pFolder->SetFolderNeedsRefresh();
+      MessagesContainer::Instance()->SetFolderNeedsRefresh(pFolder->GetID());
 
       // Set a delayed notification so that the any IMAP idle client is notified when this
       // command has been finished.

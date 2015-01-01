@@ -41,6 +41,19 @@ namespace HM
       Cache<Domain>::Instance()->SetMaxSize(1048576);
       Cache<Alias>::Instance()->SetMaxSize(1048576);
       Cache<DistributionList>::Instance()->SetMaxSize(1048576);
+
+
+      // When the server is stopped, the cache should be cleared.
+      Application::Instance()->OnServerStopped.connect
+         (
+         [this]() 
+            { 
+               Cache<Domain>::Instance()->Clear(); 
+               Cache<Domain>::Instance()->Clear();
+               Cache<Alias>::Instance()->Clear();
+               Cache<DistributionList>::Instance()->Clear();
+            }
+      );
    }
 
    CacheContainer::~CacheContainer(void)

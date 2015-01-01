@@ -84,11 +84,11 @@
 // BOOST INCLUDES
 
 #include <boost/bind.hpp>
-//#include <boost/condition_variable.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/signals2/signal.hpp>
 
 #ifdef _DEBUG
    #define _CRTDBG_MAP_ALLOC
@@ -118,6 +118,7 @@
    #include "..\Common\Util\Parsing\StringParser.h"
    #include "..\Common\Util\FileUtilities.h"
    #include "..\Common\Util\HeapChecker.h"
+
    #include "..\Common\BO\BusinessObject.h"
    #include "..\COM\COMAuthentication.h"
    #include "..\COM\COMAuthenticator.h"

@@ -13,6 +13,8 @@ using namespace boost::multi_index;
 
 #include "CachedObject.h"
 
+#pragma once
+
 namespace HM
 {
 
@@ -105,7 +107,7 @@ namespace HM
          indexed_by<
             hashed_unique<
             tag<id>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, __int64, id_)>,
-            hashed_unique<
+            hashed_non_unique<
             tag<name>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, std::wstring, name_)>,
             ordered_non_unique<
             tag<timestamp>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, int, creation_time_)> >

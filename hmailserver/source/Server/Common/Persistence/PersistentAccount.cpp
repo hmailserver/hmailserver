@@ -25,6 +25,7 @@
 #include "../Cache/AccountSizeCache.h"
 
 #include "../../IMAP/IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 
 #include "PreSaveLimitationsCheck.h"
 
@@ -191,7 +192,7 @@ namespace HM
       Cache<Account>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());
       IMAPFolderContainer::Instance()->UncacheAccount(pAccount->GetID());
-   
+      MessagesContainer::Instance()->UncacheAccount(pAccount->GetID());
       return true;
    }
    

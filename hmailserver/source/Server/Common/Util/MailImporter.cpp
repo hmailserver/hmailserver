@@ -16,6 +16,7 @@
 #include "..\..\SMTP\RecipientParser.h"
 #include "..\..\IMAP\IMAPConfiguration.h"
 #include "..\..\IMAP\IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 
 #include "MessageUtilities.h"
 
@@ -68,7 +69,9 @@ namespace HM
             bool result = ReplaceMessagePath_(messageID, originalFullPath);
             
             if (iAccountID > 0 && result)
-               IMAPFolderContainer::Instance()->UncacheAccount(iAccountID);
+            {
+               MessagesContainer::Instance()->UncacheAccount(iAccountID);
+            }
 
             return result;
 

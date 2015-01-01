@@ -6,6 +6,7 @@
 #include "Canonicalization.h"
 #include "../../MIME/MimeCode.h"
 #include "../../MIME/Mime.h"
+#include "..\../Util\Parsing\StringParser.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

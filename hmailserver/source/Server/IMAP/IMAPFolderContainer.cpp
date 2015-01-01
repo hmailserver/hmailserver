@@ -26,7 +26,11 @@ namespace HM
 
    IMAPFolderContainer::IMAPFolderContainer()
    {
-      
+      // When the server is stopped, the cache should be cleared.
+      Application::Instance()->OnServerStopped.connect
+         (
+         [this]() { Clear(); }
+      );
    }
 
    IMAPFolderContainer::~IMAPFolderContainer()
@@ -63,39 +67,6 @@ namespace HM
       std::shared_ptr<IMAPFolders> pFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
 
       return pFolders;
-   }
-
-   void
-   IMAPFolderContainer::SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox)
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
-
-      std::shared_ptr<IMAPFolder> pFolder;
-      if (AccountID == 0)
-      {
-         // Get the public folder.
-         pFolder = GetPublicFolders()->GetItemByDBIDRecursive(lMailBox);
-      }
-      else
-      {
-         auto iterFolder = folders_.find(AccountID); 
-
-         if (iterFolder == folders_.end())
-            return;
-
-         pFolder = (*iterFolder).second->GetItemByDBIDRecursive(lMailBox);
-      }
-
-      if (!pFolder)
-      {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("Folder could not be fetched. Account: %d, Folder: %d"), AccountID, lMailBox);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4214, "IMAPFolderContainer::SetFolderNeedRefresh", sErrorMessage);
-
-         return;
-      }
-
-      pFolder->SetFolderNeedsRefresh();
    }
 
    void 
