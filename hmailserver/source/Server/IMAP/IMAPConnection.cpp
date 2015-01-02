@@ -927,5 +927,17 @@ namespace HM
    {
       EnqueueHandshake();
    }
+
+   void 
+   IMAPConnection::SetRecentMessages(const std::set<__int64> &messages)
+   {
+      recent_messages_ = messages;
+   }
+
+   std::set<__int64>& 
+   IMAPConnection::GetRecentMessages()
+   {
+      return recent_messages_;
+   }
 }
 

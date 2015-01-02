@@ -5,6 +5,8 @@
 #include "IMAPCommandClose.h"
 #include "IMAPConnection.h"
 
+#include "MessagesContainer.h"
+
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolder.h"
 #ifdef _DEBUG
@@ -30,7 +32,13 @@ namespace HM
       if (!pConnection->GetCurrentFolderReadOnly() &&
           pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionExpunge))
       {
-         pCurFolder->Expunge();
+         std::function<bool(int, std::shared_ptr<Message>)> filter = [](int index, std::shared_ptr<Message> message)
+            {
+               return message->GetFlagDeleted();
+            };
+
+         auto messages = MessagesContainer::Instance()->GetMessages(pCurFolder->GetAccountID(), pCurFolder->GetID());
+         messages->DeleteMessages(filter);
       }
       
       pConnection->CloseCurrentFolder();

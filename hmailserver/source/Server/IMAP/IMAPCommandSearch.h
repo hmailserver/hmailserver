@@ -44,7 +44,8 @@ namespace HM
       String GetHeaderValue_(const String &fileName, std::shared_ptr<Message> pMessage, const String &sHeaderField);
       
       
-      bool DoesMessageMatch_(std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index);
+      bool DoesMessageMatch_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index);
+      bool IsMessageRecent_(std::shared_ptr<IMAPConnection> pConnection, __int64 message_uid);
 
       std::shared_ptr<MessageData> message_data_;
       std::shared_ptr<MimeHeader> mime_header_;

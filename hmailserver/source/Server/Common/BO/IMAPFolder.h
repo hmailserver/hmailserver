@@ -51,9 +51,6 @@ namespace HM
 
       String GetName() const {return GetFolderName(); }
       
-      std::vector<int> Expunge();
-      std::vector<int> Expunge(const std::set<int> &uids, const std::function<void()> &func);
-
       std::shared_ptr<Messages> GetMessages();
 
       std::shared_ptr<IMAPFolders> GetSubFolders();

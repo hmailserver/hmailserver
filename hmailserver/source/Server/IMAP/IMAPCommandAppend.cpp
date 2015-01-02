@@ -273,8 +273,7 @@ namespace HM
       current_message_->SetFlagDraft(bDraft);
       current_message_->SetFlagAnswered(bAnswered);
       current_message_->SetFlagFlagged(bFlagged);
-
-      current_message_->SetFlagRecent(true);
+    
          
       // Set the create time
       if (!create_time_to_set_.IsEmpty())
@@ -286,7 +285,10 @@ namespace HM
 
       PersistentMessage::SaveObject(current_message_);
 
+      pConnection->GetRecentMessages().insert(current_message_->GetID());
+
       MessagesContainer::Instance()->SetFolderNeedsRefresh(destination_folder_->GetID());
+
 
 
       String sResponse;
@@ -295,7 +297,7 @@ namespace HM
       {
          std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
-         sResponse += IMAPNotificationClient::GenerateRecentString(messages->GetNoOfRecent());
+         sResponse += IMAPNotificationClient::GenerateRecentString(pConnection->GetRecentMessages().size());
       }
 
       // Send the OK response to the client.

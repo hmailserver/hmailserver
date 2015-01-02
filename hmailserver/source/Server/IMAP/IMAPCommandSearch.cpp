@@ -97,7 +97,7 @@ namespace HM
             const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
 
             index++;
-            if (pMessage && DoesMessageMatch_(pParser->GetCriteria(), fileName, pMessage, index))
+            if (pMessage && DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
             {
                // Yup we got a match.
                vecMatchingMessages.push_back(make_pair(index, pMessage));
@@ -153,7 +153,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::DoesMessageMatch_(std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index)
+   IMAPCommandSEARCH::DoesMessageMatch_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index)
    {
       message_data_.reset();
       mime_header_.reset();
@@ -173,7 +173,7 @@ namespace HM
 
          if (pCriteria->GetType() == IMAPSearchCriteria::CTSubCriteria)
          {
-            if (!DoesMessageMatch_(pCriteria, fileName, pMessage, index))
+            if (!DoesMessageMatch_(pConnection, pCriteria, fileName, pMessage, index))
                bMessageIsMatchingCriteria = false;
          }
 
@@ -226,8 +226,10 @@ namespace HM
             }
          case IMAPSearchCriteria::CTRecent:
             {
-               if (pCriteria->GetPositive() && !pMessage->GetFlagRecent() ||
-                   !pCriteria->GetPositive() && pMessage->GetFlagRecent())
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+
+               if (pCriteria->GetPositive() && !is_recent ||
+                  !pCriteria->GetPositive() && is_recent)
                {
                   bMessageIsMatchingCriteria = false;
                }
@@ -351,7 +353,9 @@ namespace HM
             }
          case IMAPSearchCriteria::CTNew:
             {
-               bool bSet = pMessage->GetFlagRecent() && !pMessage->GetFlagSeen();
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+
+               bool bSet = is_recent && !pMessage->GetFlagSeen();
                if (pCriteria->GetPositive() && !bSet ||
                   !pCriteria->GetPositive() && bSet)
                {
@@ -361,7 +365,9 @@ namespace HM
             }
          case IMAPSearchCriteria::CTOld:
             {
-               bool bSet = !pMessage->GetFlagRecent();
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+               bool bSet = !is_recent;
+
                if (pCriteria->GetPositive() && !bSet ||
                   !pCriteria->GetPositive() && bSet)
                {
@@ -655,6 +661,15 @@ namespace HM
          return pCriteria->GetPositive();
       else
          return !pCriteria->GetPositive();
+   }
+
+   bool 
+   IMAPCommandSEARCH::IsMessageRecent_(std::shared_ptr<IMAPConnection> pConnection, __int64 message_uid)
+   {
+      auto& recent_messages = pConnection->GetRecentMessages();
+
+      auto recent_messages_iter = recent_messages.find(message_uid);
+      return recent_messages_iter != recent_messages.end();
    }
 
    String

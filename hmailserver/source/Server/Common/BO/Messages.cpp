@@ -62,23 +62,6 @@ namespace HM
    }
 
    long
-   Messages::GetNoOfRecent() const
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-      long lNoOfRecent = 0;
-
-      for(std::shared_ptr<Message> message : vecObjects)
-      {
-         if (message->GetFlagRecent()) 
-            lNoOfRecent ++;
-
-      }
-
-      return lNoOfRecent;
-   }
-
-   long
    Messages::GetSize() const
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
@@ -129,87 +112,33 @@ namespace HM
    
    }
 
-   std::vector<int>
-   Messages::Expunge()
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-      std::function<void()> func;
-      std::set<int> uids;
-
-      return Expunge(true, uids, func);
-   }
-
-   std::vector<int>
-   Messages::Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const std::function<void()> &func)
+   void
+   Messages::DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<int> vecExpungedMessages;
       auto iterMessage = vecObjects.begin();
 
-      long lIndex = 0;
-      int expungedCount = 0;
+      int index = 0;
       while (iterMessage != vecObjects.end())
       {
-         lIndex++;
+         index++;
 
-         std::shared_ptr<Message> pCurMsg = (*iterMessage);
+         std::shared_ptr<Message> message = (*iterMessage);
 
-         if ((messagesMarkedForDeletion && pCurMsg->GetFlagDeleted()) ||
-             uids.find(pCurMsg->GetUID()) != uids.end())
+         if (filter(index, message))
          {
-            PersistentMessage::DeleteObject(pCurMsg);
-            vecExpungedMessages.push_back(lIndex);
+            PersistentMessage::DeleteObject(message);
             iterMessage = vecObjects.erase(iterMessage);
-            lIndex--;
-            expungedCount++;
+            index--;
          }
          else
             iterMessage++;
-
-         if (expungedCount > 1000)
-         {
-            if (func)
-               func();
-
-            expungedCount = 0;
-         }
       }
 
-      return vecExpungedMessages;
    }
 
-   std::vector<int>
-   Messages::DeleteMessages()
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-      auto iterMessage = vecObjects.begin();
-      std::vector<int> vecExpungedMessages;
-
-      long lIndex = 0;
-      while (iterMessage != vecObjects.end())
-      {
-         lIndex++;
-
-         std::shared_ptr<Message> pCurMsg = (*iterMessage);
-
-         PersistentMessage::DeleteObject(pCurMsg);
-         vecExpungedMessages.push_back(lIndex);
-         iterMessage = vecObjects.erase(iterMessage);
-         lIndex--;
-      }
-
-      return vecExpungedMessages;
-   }
-
-   void
-   Messages::UndeleteAll()
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-   }
 
    void
    Messages::Refresh()

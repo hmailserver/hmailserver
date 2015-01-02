@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -227,7 +228,6 @@ namespace RegressionTests.POP3.Fetching
             Assert.AreEqual(1, pop3Server.DeletedMessages.Count);
          }
       }
-
 
       [Test]
       public void TestDeleteMutliple()

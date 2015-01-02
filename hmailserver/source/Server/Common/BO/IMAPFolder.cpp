@@ -120,20 +120,6 @@ namespace HM
       sFolderString = sOut;
    }
 
-
-   std::vector<int> 
-   IMAPFolder::Expunge()
-   {
-      return GetMessages()->Expunge();
-   }
-
-   std::vector<int> 
-   IMAPFolder::Expunge(const std::set<int> &uids, const std::function<void()> &func)
-   {
-      return GetMessages()->Expunge(false, uids, func);
-   }
-
-
    bool 
    IMAPFolder::XMLStore(XNode *pParentNode, int iBackupOptions)
    {

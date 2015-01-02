@@ -5,8 +5,10 @@
 #include "IMAPCommandExamine.h"
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
-#include "../Common/BO/ACLPermission.h"
 
+#include "MessagesContainer.h"
+
+#include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/Persistence/PersistentMessage.h"
@@ -43,11 +45,15 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for EXAMINE command).");
 
       pConnection->SetCurrentFolder(pSelectedFolder, true);
-      std::shared_ptr<Messages> pMessages = pSelectedFolder->GetMessages();
+      
+      std::set<__int64> recent_messages;
+      auto messages = MessagesContainer::Instance()->GetMessages(pSelectedFolder->GetAccountID(), pSelectedFolder->GetID(), recent_messages, false);
 
-      long lCount = pMessages->GetCount();
-      __int64 lFirstUnseenID = pMessages->GetFirstUnseenUID();
-      long lRecentCount = pMessages->GetNoOfRecent();
+      pConnection->SetRecentMessages(recent_messages);
+
+      long lCount = messages->GetCount();
+      __int64 lFirstUnseenID = messages->GetFirstUnseenUID();
+      long lRecentCount = recent_messages.size();
 
       String sRespTemp;
    

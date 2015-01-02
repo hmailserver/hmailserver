@@ -50,7 +50,7 @@ namespace HM
       void Add(std::shared_ptr<T> pObject);
    private:
 
-      void ResetEstimatedSizeIfEmpty();
+      void ResetEstimatedSizeIfEmpty_();
 
 
       template<typename Tag, typename MultiIndexContainer, typename TagValue>
@@ -93,7 +93,7 @@ namespace HM
             items.erase(item_iter);
          }
 
-         ResetEstimatedSizeIfEmpty();
+         ResetEstimatedSizeIfEmpty_();
 
       }
       
@@ -302,7 +302,7 @@ namespace HM
             items.erase(item_iter);
          }
 
-         ResetEstimatedSizeIfEmpty();
+         ResetEstimatedSizeIfEmpty_();
       }
 
       no_of_misses_++;
@@ -327,7 +327,7 @@ namespace HM
 
    template <class T>
    void
-   Cache<T>::ResetEstimatedSizeIfEmpty()
+   Cache<T>::ResetEstimatedSizeIfEmpty_()
    {
       if (objects_.size() == 0)
       {

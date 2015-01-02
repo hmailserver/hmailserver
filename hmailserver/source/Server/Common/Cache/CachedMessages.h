@@ -16,7 +16,7 @@ namespace HM
       
       CachedMessages(std::shared_ptr<Messages> messages) :
          messages_(messages),
-         refresh_needed_(false)
+         refresh_needed_(true)
       {
          
       }
@@ -42,8 +42,11 @@ namespace HM
       { 
          if (refresh_needed_)
          {
-            messages_->Refresh();
             refresh_needed_ = false;
+
+            LOG_DEBUG("Refreshing");
+            messages_->Refresh();
+            LOG_DEBUG("Refreshed");
          }
 
          return messages_; 
@@ -51,7 +54,9 @@ namespace HM
 
       void SetRefreshNeeded()
       {
+         LOG_DEBUG("SetRefreshNeeded-Before");
          refresh_needed_ = true;
+         LOG_DEBUG("SetRefreshNeeded-After");
       }
 
    private:

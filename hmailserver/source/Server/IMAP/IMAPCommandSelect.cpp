@@ -6,6 +6,7 @@
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
 #include "IMAPConfiguration.h"
+#include "MessagesContainer.h"
 
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolders.h"
@@ -50,11 +51,15 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for SELECT command).");
 
       pConnection->SetCurrentFolder(pSelectedFolder, false);
-      std::shared_ptr<Messages> pMessages = pSelectedFolder->GetMessages();
 
-      long lCount = pMessages->GetCount();
-      __int64 lFirstUnseenID = pMessages->GetFirstUnseenUID();
-      long lRecentCount = pMessages->GetNoOfRecent();
+      std::set<__int64> recent_messages;
+      auto messages = MessagesContainer::Instance()->GetMessages(pSelectedFolder->GetAccountID(), pSelectedFolder->GetID(), recent_messages, true);
+
+      pConnection->SetRecentMessages(recent_messages);
+
+      long lCount = messages->GetCount();
+      __int64 lFirstUnseenID = messages->GetFirstUnseenUID();
+      long lRecentCount = recent_messages.size();
 
       String sRespTemp;
 

@@ -32,22 +32,40 @@ namespace HM
    std::shared_ptr<Messages> 
    MessagesContainer::GetMessages(__int64 account_id, __int64 folder_id)
    {
+      std::set<__int64> recent_messages;
+
+      return GetMessages(account_id, folder_id, recent_messages, false);
+   }
+
+   std::shared_ptr<Messages>
+   MessagesContainer::GetMessages(__int64 account_id, __int64 folder_id, std::set<__int64> &recent_messages, bool update_recent_messages)
+   {
       auto cached_messages = messages_cache_.GetObject(folder_id);
 
-      if (cached_messages != nullptr)
+      if (cached_messages == nullptr)
       {
-         return cached_messages->GetMessages();
+         auto messages = std::shared_ptr<Messages>(new Messages(account_id, folder_id));
+
+         cached_messages = std::make_shared<CachedMessages>(messages);
+         messages_cache_.Add(cached_messages);
       }
 
-      auto messages = std::shared_ptr<Messages>(new Messages(account_id, folder_id));
-      messages->Refresh();
+      // this will cause message to be refreshed from db, if needed:
+      auto messages = cached_messages->GetMessages();
 
-      cached_messages = std::make_shared<CachedMessages>(messages);
+      recent_messages.clear();
+            
+      for (std::shared_ptr<Message> message : messages->GetVector())
+      {
+         if (message->GetFlagRecent())
+            recent_messages.insert(message->GetID());
+      }
 
-      messages_cache_.Add(cached_messages);
+
+      if (update_recent_messages)
+         messages->SetFlagRecentOnMessages(false);
 
       return messages;
-
    }
 
    void 

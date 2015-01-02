@@ -6,6 +6,7 @@
 #include "InterfaceMessages.h"
 #include "InterfaceMessage.h"
 
+#include "../IMAP/MessagesContainer.h"
 #include "../Common/BO/Message.h"
 #include "../Common/Persistence/PersistentMessage.h"
 
@@ -157,7 +158,13 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
    
       // Expunge the mailbox. Will cause the message to be
       // deleted from disk and database.
-      messages_->Expunge();
+      std::function<bool(int, std::shared_ptr<HM::Message>)> filter = [](int index, std::shared_ptr<HM::Message> message)
+         {
+            return true;
+         };
+
+      auto messages = HM::MessagesContainer::Instance()->GetMessages(messages_->GetAccountID(), messages_->GetFolderID());
+      messages->DeleteMessages(filter);
    
       // If we're aren't browsing in the message cache already, 
       // we need to delete the message from the cache now. This

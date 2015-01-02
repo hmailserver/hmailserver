@@ -17,6 +17,7 @@ namespace HM
       MessagesContainer();
 
       std::shared_ptr<Messages> GetMessages(__int64 account_id, __int64 folder_id);
+      std::shared_ptr<Messages> GetMessages(__int64 account_id, __int64 folder_id, std::set<__int64> &recent_messages, bool update_recent_messages);
 
       void SetFolderNeedsRefresh(__int64 folder_id);
       void UncacheAccount(__int64 account_id);

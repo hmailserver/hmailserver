@@ -9,6 +9,7 @@
 #include "../BO/IMAPFolder.h"
 
 #include "../../IMAP/IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 #include "../../IMAP/IMAPConfiguration.h"
 #include "../../IMAP/IMAPFolderUtilities.h"
 
@@ -44,13 +45,16 @@ namespace HM
          return false;
 
       // get folder lock.
-      result = inbox->GetMessages()->GetCopy();
+      std::set<__int64> recent_messages;
+      auto messages = MessagesContainer::Instance()->GetMessages(inbox->GetAccountID(), inbox->GetID(), recent_messages, false);
+
+      result = messages->GetCopy();
 
       return true;
    }
 
    bool 
-   FolderManager::DeleteInboxMessages(int accountID, std::set<int> uids, const std::function<void()> &func)
+   FolderManager::DeleteInboxMessages(int accountID, std::set<int> uids, const std::function<void()> &callbackEvery1000Message)
    {
       std::shared_ptr<IMAPFolders> folders = IMAPFolderContainer::Instance()->GetFoldersForAccount(accountID);
       if (!folders)
@@ -62,16 +66,35 @@ namespace HM
 
       __int64 inboxID = folder->GetID();
 
-      std::vector<int> expungedMessages = folder->Expunge(uids, func);
-      
-      if (expungedMessages.size() > 0)
-      {
-         std::vector<__int64> affectedMessages;
-         for(__int64 messageIndex : expungedMessages)
-         {
-            affectedMessages.push_back(messageIndex);
-         }
+      std::vector<__int64> affectedMessages;
 
+      int count = 0;
+
+      std::function<bool(int, std::shared_ptr<Message>)> filter = [&uids, &affectedMessages, &count, &callbackEvery1000Message](int index, std::shared_ptr<Message> message)
+         {
+            count++;
+
+            if ((count % 1000) == 0)
+            {
+               callbackEvery1000Message();
+            }
+
+            if (uids.find(message->GetUID()) != uids.end())
+            {
+               affectedMessages.push_back(index);
+               return true;
+            }
+            else
+            {
+               return false;
+            }
+         };
+
+      auto messages = MessagesContainer::Instance()->GetMessages(folder->GetAccountID(), folder->GetID());
+      messages->DeleteMessages(filter);
+      
+      if (affectedMessages.size() > 0)
+      {
          // Notify the mailbox notifier that the mailbox contents have changed.
          std::shared_ptr<ChangeNotification> pNotification = 
             std::shared_ptr<ChangeNotification>(new ChangeNotification(accountID, inboxID, ChangeNotification::NotificationMessageDeleted, affectedMessages));
