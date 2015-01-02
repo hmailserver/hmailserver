@@ -154,7 +154,7 @@ namespace HM
          case ChangeNotification::NotificationMessageAdded:
             {
                std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-               pMessages->Refresh();
+               pMessages->Refresh(false);
                lastExists = pMessages->GetCount();
                lastRecent = connection->GetRecentMessages().size();
                break;

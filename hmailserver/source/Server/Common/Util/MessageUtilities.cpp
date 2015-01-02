@@ -193,7 +193,7 @@ namespace HM
 
       PersistentMessage::SaveObject(pNewMessage);
 
-      pFolder->GetMessages()->AddItem(pNewMessage);
+      pFolder->GetMessages()->Refresh(false);
 
       std::shared_ptr<ChangeNotification> pNotification = 
          std::shared_ptr<ChangeNotification>(new ChangeNotification(pNewMessage->GetAccountID(), pNewMessage->GetFolderID(), ChangeNotification::NotificationMessageAdded));

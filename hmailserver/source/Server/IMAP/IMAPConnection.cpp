@@ -811,7 +811,7 @@ namespace HM
       // is in read-only mode - if it has been selected using the EXAMINE command.
       if (!current_folder_read_only_)
       {
-         current_folder_->GetMessages()->SetFlagRecentOnMessages(false);
+         current_folder_->GetMessages()->RemoveRecentFlags();
       }
 
       // Unload the folder.

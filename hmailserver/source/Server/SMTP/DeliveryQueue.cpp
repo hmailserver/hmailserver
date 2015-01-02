@@ -55,7 +55,7 @@ namespace HM
 
       // Load the delivery queue from the database
       Messages oMessages(-1,-1);
-      oMessages.Refresh();
+      oMessages.Refresh(false);
 
       // Iterate over messages to deliver.
          std::vector<std::shared_ptr<Message> > vecMessages = oMessages.GetVector();

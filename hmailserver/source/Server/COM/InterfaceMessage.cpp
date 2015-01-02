@@ -5,14 +5,16 @@
 
 #include "COMError.h"
 #include "InterfaceMessage.h"
-#include "../common/util/Utilities.h"
 #include "InterfaceAttachments.h"
 #include "InterfaceRecipients.h"
 #include "InterfaceMessageHeaders.h"
 
+#include "../IMAP/MessagesContainer.h"
+
 #include "../common/Tracking/ChangeNotification.h"
 #include "../common/Tracking/NotificationServer.h"
 
+#include "../common/util/Utilities.h"
 #include "../common/util/Time.h"
 #include "../common/util/MessageUtilities.h"
 #include "../SMTP/RecipientParser.h"
@@ -400,7 +402,7 @@ InterfaceMessage::SaveNewMessageToIMAPFolder_()
          return S_FALSE;
    
       // Add to parent collection
-      AddToParentCollection();
+      HM::MessagesContainer::Instance()->SetFolderNeedsRefresh(object_->GetFolderID());
    
       // Notify...
       std::shared_ptr<HM::ChangeNotification> pNotification = 

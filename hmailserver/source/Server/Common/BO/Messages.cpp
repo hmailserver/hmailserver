@@ -141,7 +141,7 @@ namespace HM
 
 
    void
-   Messages::Refresh()
+   Messages::Refresh(bool update_recent_flags)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
@@ -205,32 +205,7 @@ namespace HM
 
       AddToCollection(pRS);
 
-      // When a message is added to the database, the \Recent flag is set. When this message loads the message
-      // list from the database, the \Recent flag will be set to the message in memory. Future sessions should
-      // not see the message \Recent flag, so we remove the flag from all messages in the account folder now.
-      //
-      // Note that IMAPConnection::CloseCurrentFolder also removes the \Recent flag, but from all messages in memory.
-      if (account_id_ != -1 && !pRS->IsEOF())
-      {
-         // Mark all messages as recent
-         String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID ";
-
-         SQLCommand updateCommand;
-         updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
-         updateCommand.AddParameter("@ACCOUNTID", account_id_);
-
-         if (folder_id_ > 0)
-         {
-            sql.AppendFormat(_T(" and messagefolderid = @FOLDERID "), folder_id_);
-            updateCommand.AddParameter("@FOLDERID", folder_id_);
-         }
-
-         updateCommand.SetQueryString(sql);
-
-         Application::Instance()->GetDBManager()->Execute(updateCommand);
-      }
-
-      
+     
    }
 
    void
@@ -265,14 +240,6 @@ namespace HM
       }
    }
 
-   void 
-   Messages::AddItem(std::shared_ptr<Message> pObject)
-   {
-      // Rather than adding the message, refresh entire folder
-      // content from database.
-      Refresh();
-   }
-
    bool
    Messages::DeleteMessageByDBID(__int64 ID)
    //---------------------------------------------------------------------------()
@@ -295,14 +262,33 @@ namespace HM
    }
 
    void  
-   Messages::SetFlagRecentOnMessages(bool bRecent)
+   Messages::RemoveRecentFlags()
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       for(std::shared_ptr<Message> message : vecObjects)
       {
-         message->SetFlagRecent(bRecent);
+         message->SetFlagRecent(false);
       }
+
+      // When a message is added to the database, the \Recent flag is set. When this message loads the message
+      // list from the database, the \Recent flag will be set to the message in memory. Future sessions should
+      // not see the message \Recent flag, so we remove the flag from all messages in the account folder now.
+      if (account_id_ != -1 && folder_id_ != -1)
+      {
+         // Mark all messages as recent
+         String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID and messagefolderid = @FOLDERID";
+
+         SQLCommand updateCommand;
+         updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
+         updateCommand.AddParameter("@ACCOUNTID", account_id_);
+         updateCommand.AddParameter("@FOLDERID", folder_id_);
+         updateCommand.SetQueryString(sql);
+
+         Application::Instance()->GetDBManager()->Execute(updateCommand);
+      }
+
+
    }
 
    bool

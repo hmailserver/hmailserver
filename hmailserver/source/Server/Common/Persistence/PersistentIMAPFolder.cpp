@@ -67,7 +67,7 @@ namespace HM
          return false;
 
       // We must delete all email in this folder.
-      pFolder->GetMessages()->Refresh();
+      pFolder->GetMessages()->Refresh(false);
 
       std::function<bool(int, std::shared_ptr<Message>)> filter = [](int index, std::shared_ptr<Message> message)
          {

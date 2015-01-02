@@ -30,7 +30,7 @@ namespace HM
 
       void DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter);
 
-      void Refresh();
+      void Refresh(bool update_recent_flags);
 
       bool DeleteMessageByDBID(__int64 ID);
 
@@ -38,8 +38,7 @@ namespace HM
       
       void Remove(__int64 iDBID);
 
-      void SetFlagRecentOnMessages(bool bRecent);
-      void AddItem(std::shared_ptr<Message> pObject);
+      void RemoveRecentFlags();
 
       __int64 GetAccountID() {return account_id_; }
       __int64 GetFolderID() {return folder_id_; }

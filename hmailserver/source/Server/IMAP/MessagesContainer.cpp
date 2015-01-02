@@ -51,7 +51,7 @@ namespace HM
       }
 
       // this will cause message to be refreshed from db, if needed:
-      auto messages = cached_messages->GetMessages();
+      auto messages = cached_messages->GetMessages(update_recent_messages);
 
       recent_messages.clear();
             
@@ -63,7 +63,7 @@ namespace HM
 
 
       if (update_recent_messages)
-         messages->SetFlagRecentOnMessages(false);
+         messages->RemoveRecentFlags();
 
       return messages;
    }

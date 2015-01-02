@@ -38,15 +38,13 @@ namespace HM
          return 1024 * messages_->GetCount();
       }
 
-      std::shared_ptr<Messages> GetMessages() 
+      std::shared_ptr<Messages> GetMessages(bool update_recent_flags) 
       { 
          if (refresh_needed_)
          {
             refresh_needed_ = false;
 
-            LOG_DEBUG("Refreshing");
-            messages_->Refresh();
-            LOG_DEBUG("Refreshed");
+            messages_->Refresh(update_recent_flags);
          }
 
          return messages_; 
@@ -54,9 +52,7 @@ namespace HM
 
       void SetRefreshNeeded()
       {
-         LOG_DEBUG("SetRefreshNeeded-Before");
          refresh_needed_ = true;
-         LOG_DEBUG("SetRefreshNeeded-After");
       }
 
    private:
