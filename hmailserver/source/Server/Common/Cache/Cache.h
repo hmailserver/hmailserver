@@ -43,11 +43,14 @@ namespace HM
       void SetEnabled(bool bEnabled);
       void Clear();
 
+      void AdjustEstimatedSize(bool increase, size_t size_change);
+
       void SetMaxSize(size_t max_size);
       size_t GetMaxSize();
       size_t GetSize();
 
       void Add(std::shared_ptr<T> pObject);
+
    private:
 
       void ResetEstimatedSizeIfEmpty_();
@@ -332,6 +335,24 @@ namespace HM
       if (objects_.size() == 0)
       {
          current_estimated_size_ = 0;
+      }
+
+   }
+
+   template <class T>
+   void
+   Cache<T>::AdjustEstimatedSize(bool increase, size_t size_change)
+   {
+      if (increase)
+      {
+         current_estimated_size_ += size_change;
+      }
+      else
+      {
+         if (size_change > current_estimated_size_)
+            current_estimated_size_ -= size_change;
+         else
+            current_estimated_size_ = 0;
       }
 
    }

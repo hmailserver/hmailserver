@@ -36,11 +36,11 @@ namespace HM
 {
    CacheContainer::CacheContainer(void)
    {
-      // Limit the cache of each entity to 1MB each.
-      Cache<Domain>::Instance()->SetMaxSize(1048576);
-      Cache<Domain>::Instance()->SetMaxSize(1048576);
-      Cache<Alias>::Instance()->SetMaxSize(1048576);
-      Cache<DistributionList>::Instance()->SetMaxSize(1048576);
+      // Limit the cache of each entity to 10MB each.
+      Cache<Domain>::Instance()->SetMaxSize(10 * 1024 * 1024);
+      Cache<Domain>::Instance()->SetMaxSize(10 * 1024 * 1024);
+      Cache<Alias>::Instance()->SetMaxSize(10 * 1024 * 1024);
+      Cache<DistributionList>::Instance()->SetMaxSize(10 * 1024 * 1024);
 
 
       // When the server is stopped, the cache should be cleared.
