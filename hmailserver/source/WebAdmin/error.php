@@ -18,9 +18,9 @@
          
          The following description exists:<br/><br/>
          
-         <?php echo PreprocessOutput($errstr)?>
+         <?php echo $errstr?>
          </br><br/>
-         Error location: <?php echo PreprocessOutput($errfile)?><br/>
+         Error location: <?php echo $errfile?><br/>
          </font>
          <br/><br/>
          <input type="submit" onClick="history.back();" value="Go back">
