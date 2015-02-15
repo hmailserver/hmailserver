@@ -7,6 +7,13 @@ This page describes how to compile and run hMailServer in debug.
 
 For other information about hMailServer, please go to http://www.hmailserver.com
 
+Branches
+========
+
+   * The master branch contains the latest development version of hMailServer. This version is typically not yet released for production usage. If you want to add new features to hMailServer, use this branch.
+   
+   * The x.y.z (for exampel 5.6.2) contains the code for the version with the same name as the branch. For example, branch 5.6.1 contains hMailServer version 5.6.1. These branches are typically only used for bugfixes or minor features.
+
 Compiling hMailServer
 ====================
 
