@@ -42,7 +42,7 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
-1. Download OpenSSL 1.0.2 fromhttp://openssl.org/source/openssl-1.0.2.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
+1. Download OpenSSL 1.0.2 from http://openssl.org/source/openssl-1.0.2.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.2
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
