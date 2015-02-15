@@ -92,7 +92,7 @@ namespace HM
       if (sFlags.FindNoCase(_T("RECENT")) >= 0)
       {
          String sTemp;
-         long lNoOfRecent = pConnection->GetRecentMessages().size();
+         long lNoOfRecent = (int) pConnection->GetRecentMessages().size();
          sTemp.Format(_T("RECENT %d"), lNoOfRecent);
 
          if (bAddSpace)

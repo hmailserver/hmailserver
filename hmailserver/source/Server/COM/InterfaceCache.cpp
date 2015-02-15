@@ -136,7 +136,7 @@ InterfaceCache::get_DomainCacheSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetDomainCacheSize() / 1024;
+      *pVal = (int) HM::CacheContainer::Instance()->GetDomainCacheSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -172,7 +172,7 @@ InterfaceCache::get_DomainCacheMaxSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetDomainCacheMaxSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetDomainCacheMaxSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -243,7 +243,7 @@ InterfaceCache::get_AccountCacheSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetAccountCacheSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetAccountCacheSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -279,7 +279,7 @@ InterfaceCache::get_AccountCacheMaxSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetAccountCacheMaxSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetAccountCacheMaxSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -352,7 +352,7 @@ InterfaceCache::get_AliasCacheSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetAliasCacheSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetAliasCacheSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -387,7 +387,7 @@ InterfaceCache::get_AliasCacheMaxSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetAliasCacheMaxSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetAliasCacheMaxSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -458,7 +458,7 @@ InterfaceCache::get_DistributionListCacheSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetDistributionListCacheSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetDistributionListCacheSize() / 1024;
       return S_OK;
    }
    catch (...)
@@ -493,7 +493,7 @@ InterfaceCache::get_DistributionListCacheMaxSizeKb(long *pVal)
       if (!cache_config_)
          return GetAccessDenied();
 
-      *pVal = HM::CacheContainer::Instance()->GetDistributionListCacheMaxSize() / 1024;
+      *pVal = (int)HM::CacheContainer::Instance()->GetDistributionListCacheMaxSize() / 1024;
       return S_OK;
    }
    catch (...)

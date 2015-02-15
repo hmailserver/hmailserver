@@ -297,7 +297,7 @@ namespace HM
       {
          std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
-         sResponse += IMAPNotificationClient::GenerateRecentString(pConnection->GetRecentMessages().size());
+         sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessages().size());
       }
 
       // Send the OK response to the client.

@@ -53,7 +53,7 @@ namespace HM
 
       long lCount = messages->GetCount();
       __int64 lFirstUnseenID = messages->GetFirstUnseenUID();
-      long lRecentCount = recent_messages.size();
+      long lRecentCount = (int) recent_messages.size();
 
       String sRespTemp;
    

@@ -156,7 +156,7 @@ namespace HM
                std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                pMessages->Refresh(false);
                lastExists = pMessages->GetCount();
-               lastRecent = connection->GetRecentMessages().size();
+               lastRecent = (int)connection->GetRecentMessages().size();
                break;
             }
          case ChangeNotification::NotificationMessageDeleted:
@@ -169,7 +169,7 @@ namespace HM
                   // Send EXISTS
                   std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
                   lastExists = pMessages->GetCount();
-                  lastRecent = connection->GetRecentMessages().size();
+                  lastRecent = (int)connection->GetRecentMessages().size();
 
                   break;
                }
@@ -230,7 +230,7 @@ namespace HM
          {
                std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
             SendEXISTS_(pMessages->GetCount());
-            SendRECENT_(connection->GetRecentMessages().size());
+            SendRECENT_((int)connection->GetRecentMessages().size());
             break;
          }
       case ChangeNotification::NotificationMessageDeleted:
@@ -241,7 +241,7 @@ namespace HM
             // Send EXISTS
                std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
             SendEXISTS_(pMessages->GetCount());
-            SendRECENT_(connection->GetRecentMessages().size());
+            SendRECENT_((int)connection->GetRecentMessages().size());
 
             break;
          }
