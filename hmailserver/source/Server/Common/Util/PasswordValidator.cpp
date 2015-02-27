@@ -33,6 +33,12 @@ namespace HM
    std::shared_ptr<const Account>
    PasswordValidator::ValidatePassword(const String &sUsername, const String &sPassword)
    {
+	   return PasswordValidator::ValidatePassword(_T(""), sUsername, sPassword);
+   }
+
+   std::shared_ptr<const Account>
+   PasswordValidator::ValidatePassword(const String &sMasqname, const String &sUsername, const String &sPassword)
+   {
       std::shared_ptr<Account> pEmpty;
 
       // Apply domain name aliases to this domain name.
@@ -64,7 +70,37 @@ namespace HM
       if (!ValidatePassword(pAccount, sPassword))
          return pEmpty;
 
+      if (sMasqname.GetLength() == 0)
+	      return pAccount;
 
+      // if we get this far, we are authenticating against one username, but will actually login
+      // as a second username (rfc-4616)
+
+      // Apply domain name aliases to this domain name.
+      pDA = ObjectCache::Instance()->GetDomainAliases();
+      sAccountAddress = pDA->ApplyAliasesOnAddress(sMasqname);
+
+      // Apply default domain
+      sAccountAddress = DefaultDomain::ApplyDefaultDomain(sAccountAddress);
+
+      pAccount = CacheContainer::Instance()->GetAccount(sAccountAddress);
+
+      if (!pAccount)
+	      return pEmpty;
+
+      if (!pAccount->GetActive())
+	      return pEmpty;
+
+      // Check that the domain is active as well.
+
+      sDomain = StringParser::ExtractDomain(sAccountAddress);
+      pDomain = CacheContainer::Instance()->GetDomain(sDomain);
+
+      if (!pDomain)
+	      return pEmpty;
+
+      if (!pDomain->GetIsActive())
+	      return pEmpty;
 
       return pAccount;
    }

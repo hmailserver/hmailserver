@@ -36,6 +36,12 @@ namespace HM
           pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
          sResponse += " STARTTLS";
 
+      if (pConnection->GetRfc4616Enabled())
+	      sResponse += " AUTH=PLAIN";
+
+      if (pConnection->GetRfc4959Enabled())
+	      sResponse += " SASL-IR";
+
       sResponse += " NAMESPACE RIGHTS=texk";
 
       sResponse += "\r\n";

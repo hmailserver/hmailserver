@@ -299,8 +299,8 @@ namespace HM
 
       if (sRequest.GetLength() > 510)
       {
-         // This line is to long... is this an evil user?
-         EnqueueWrite_("500 Line to long.");
+         // This line is too long... is this an evil user?
+         EnqueueWrite_("500 Line too long.");
          return;
       }
 
@@ -518,7 +518,7 @@ namespace HM
       if (max_message_size_kb_ > 0 && 
           iEstimatedMessageSize / 1024 > max_message_size_kb_)
       {
-         // Message to big. Reject it.
+         // Message too big. Reject it.
          String sMessage;
          sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                iEstimatedMessageSize / 1024, max_message_size_kb_);

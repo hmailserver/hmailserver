@@ -80,6 +80,8 @@
     <IntDir>Debug\</IntDir>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(hMailServerLibs)\openssl-1.0.2\inc32;$(hMailServerLibs)\boost_1_57_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Dev\hMailLibs\boost_1_57_0\stage\lib32;C:\Dev\hMailLibs\openssl-1.0.2\out32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>

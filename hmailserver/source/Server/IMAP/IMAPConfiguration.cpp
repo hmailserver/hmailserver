@@ -184,6 +184,18 @@ namespace HM
       return groups_;
    }
 
+   void
+	   IMAPConfiguration::SetIMAPAuthAllowPlainText(bool newVal)
+   {
+	   GetSettings_()->SetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT, newVal);
+   }
+
+   bool
+	   IMAPConfiguration::GetIMAPAuthAllowPlainText()
+   {
+	   return GetSettings_()->GetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT);
+   }
+
    bool 
    IMAPConfiguration::XMLStore(XNode *pBackupNode, int iOptions)
    {

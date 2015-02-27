@@ -49,7 +49,8 @@ namespace HM
       String GetHierarchyDelimiter();
       bool SetHierarchyDelimiter(const String &newVal);
 
-      
+      void SetIMAPAuthAllowPlainText(bool newVal);
+      bool GetIMAPAuthAllowPlainText();
 
    private:
       std::shared_ptr<PropertySet> GetSettings_() const;

@@ -120,6 +120,14 @@ namespace HM
       std::shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
       void StartHandshake();
+
+      void SetCommandBuffer(const String &sval);
+
+      bool GetRfc4616Enabled();
+      void SetRfc4616Enabled(const bool bNewVal);
+      bool GetRfc4959Enabled();
+      void SetRfc4959Enabled(const bool bNewVal);
+
    protected:
 
       virtual void OnConnected();
@@ -173,7 +181,10 @@ namespace HM
 
       std::shared_ptr<IMAPNotificationClient> notification_client_;
 
-      int log_level_;      
+      int log_level_;
+
+      bool rfc4616_enabled_;
+      bool rfc4959_enabled_;
    };
    
 }

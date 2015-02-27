@@ -38,6 +38,8 @@ namespace HM
       void SetDatabasePort(long lNewValue);
       void SetIsInternalDatabase(bool newValue);
       
+      String GetIMAPMasterUser();
+
       void SetAdministratorPassword(const String &sNewPassword);
       String GetAdministratorPassword();
       String GetLogDirectory();
@@ -128,6 +130,7 @@ namespace HM
       String database_directory_;
       String database_server_FailoverPartner;
       String administrator_password_;
+      String imapmasteruser_;
 
       std::vector<String> valid_languages_;
 

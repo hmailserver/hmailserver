@@ -78,6 +78,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       administrator_password_ = ReadIniSettingString_("Security", "AdministratorPassword", "");
+      imapmasteruser_ = ReadIniSettingString_("Security", "IMAPMasterUser", "");
 
       database_server_ = ReadIniSettingString_("Database", "Server", "");
       database_name_ = ReadIniSettingString_("Database", "Database", "");
@@ -352,6 +353,12 @@ namespace HM
       administrator_password_ = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
 
       WriteIniSetting_("Security", "AdministratorPassword", administrator_password_);
+   }
+
+   String
+   IniFileSettings::GetIMAPMasterUser()
+   {
+	   return imapmasteruser_;
    }
 
    void 
