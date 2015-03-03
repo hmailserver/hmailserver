@@ -7,21 +7,31 @@ This page describes how to compile and run hMailServer in debug.
 
 For other information about hMailServer, please go to http://www.hmailserver.com
 
-Compiling hMailServer
+Building hMailServer
 ====================
+
+Branches
+--------
+
+   * The master branch contains the latest development version of hMailServer. This version is typically not yet released for production usage. If you want to add new features to hMailServer, use this branch.
+   
+   * The x.y.z (for exampel 5.6.2) contains the code for the version with the same name as the branch. For example, branch 5.6.1 contains hMailServer version 5.6.1. These branches are typically only used for bugfixes or minor features.
+
+Environment set up
+---------------------
 
 Required software:
 
    * Visual Studio 2013 Update 3
    * InnoSetup (to build installation program)
-   * Perl (ActiveState ActivePerl Communityedition 32 bit works fine)
+   * Perl (ActiveState ActivePerl Community Edition 32 bit works fine)
    
 **NOTE**
 
 You should not be compiling hMailServer on a computer which already runs a production version of hMailServer. When compiling hMailServer, the compilation will stop any already running version of hMailServer, and will register the compiled version as the hMailServer version on the machine (configuring the Windows service). This means that if you are running a production version of hMailServer on the machine, this version will stop running if you compile hMailServer. If this happens, the easiest path is to reinstall the production version.
 
 Configuring Visual Studio 2013 Express Edition
-==============================================
+----------------------------------------------
 
 These steps are only required if you are using Visual Studio 2013 Express Edition. The steps are required because Express Edition does not include Active Template Library which hMailServer relies on. ATL therefore needs to be installed separately:
 
@@ -34,7 +44,7 @@ These steps are only required if you are using Visual Studio 2013 Express Editio
 8. Add "{PATH-TO-WDK\lib\ATL\i386" to the list of Library Directories.  (Replace {PATH-TO-WDK} with the location whre you installed it.
 
 3rd party libraries
-===================
+-------------------
 
 Some 3rd party libraries which hMailServer relies on are large and updated frequently. Rather than including these large libraries into the hMailServer git repository, they have to be downloaded and built, currently manually. When you build hMailServer, Visual Studio will use a system environment variable, named hMailServerLibs, to locate these libraries.
 
@@ -42,6 +52,7 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
+
 1. Download OpenSSL 1.0.2 from http://openssl.org/source/openssl-1.0.2.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.2
 2. Start a VS2013 x86 Native Tools Command Prompt
@@ -64,6 +75,7 @@ The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains 
 
 Building Boost
 --------------
+
 1. Download Boost 1.57.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
    You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_57_0
 2. Open a Command prompt
@@ -90,12 +102,12 @@ Visual Studio 2013 must be started with Run as Administrator.
    This will build the hMailServer installation program.
 
 Running in Debug
-==============================================
+----------------
 
 If you want to run hMailServer in debug mode in Visual Studio, add the command argument /debug. You find this setting in the Project properties, under Configuration Properties -> Debugging.
 
 Releasing hMailServer
---------------------
+=====================
 
 Without finding any serious issues:
 
