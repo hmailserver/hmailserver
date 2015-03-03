@@ -130,5 +130,20 @@ namespace RegressionTests.Infrastructure
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
       }
+
+      [Test]
+      public void DeliveryShouldSucceedAfterClearingDeliveryQueue()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         _application.GlobalObjects.DeliveryQueue.Clear();
+
+         Assert.IsTrue(LogHandler.DefaultLogContains("Delivery queue cleared."));
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("test@test.com", "test@test.com", "INBOX", "Mirror test message");
+
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
+      }
    }
 }
