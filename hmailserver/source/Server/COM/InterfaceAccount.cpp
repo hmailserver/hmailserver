@@ -298,6 +298,20 @@ STDMETHODIMP InterfaceAccount::Save()
       if (!object_)
          return GetAccessDenied();
 
+      // Only server administrators have access to change settings for server administrators.
+      // Without this check, a domain administrator could change the settings for a server administrator, such
+      // as his password and the log on as server administrator.
+      // (This would only be possible if the server admin is added as a user to a domain which the domain admin
+      // is domain administrator for).
+      if (!authentication_->GetIsServerAdmin())
+      {
+         if (object_->GetAdminLevel() == HM::Account::ServerAdmin)
+         {
+            return COMError::GenerateError("You do not have access to save the user account. Server administrator accounts can only be updated by server administrators.");
+         }
+      }
+
+
       String sErrorMessage;
       if (PersistentAccount::SaveObject(object_, sErrorMessage, true, HM::PersistenceModeNormal))
       {
