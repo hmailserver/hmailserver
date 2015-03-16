@@ -85,7 +85,7 @@ namespace HM
    {
       LOG_DEBUG(Formatter::Format("Starting work queue {0}", queue_name_));
 
-      //io_service_.reset();
+      io_service_.reset();
 
       for ( std::size_t i = 0; i < max_simultaneous_; ++i )
       {
@@ -150,7 +150,6 @@ namespace HM
             return;
          }
 
-         
 
          boost::lock_guard<boost::recursive_mutex> guard(runningTasksMutex_);
          auto iter = runningTasks_.begin();
