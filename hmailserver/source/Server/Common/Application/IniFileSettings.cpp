@@ -36,6 +36,7 @@ namespace HM
       mxtries_factor_(0),
       sqldbtype_(HM::DatabaseSettings::TypeUnknown),
       sep_svc_logs_(false),
+	  rewrite_envelope_from_when_forwarding_(false),
       archive_hardlinks_(false),
       pop3dmin_timeout_(false),
       pop3dmax_timeout_(false),
@@ -182,6 +183,8 @@ namespace HM
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
+
+      rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
    }
 
    bool 

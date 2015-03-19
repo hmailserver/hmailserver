@@ -107,7 +107,7 @@ namespace HM
       int GetSMTPDMaxSizeDrop () {return smtpdmax_size_drop_; }
       bool GetBackupMessagesDBOnly () const { return backup_messages_dbonly_; }
       bool GetAddXAuthUserIP () const { return add_xauth_user_ip_; }
-
+      bool GetRewriteEnvelopeFromWhenForwarding() const { return rewrite_envelope_from_when_forwarding_; }
    private:   
 
       void WriteIniSetting_(const String &sSection, const String &sKey, const String &sValue);
@@ -182,6 +182,6 @@ namespace HM
       int smtpdmax_size_drop_;
       bool backup_messages_dbonly_;
       bool add_xauth_user_ip_;
-
+      bool rewrite_envelope_from_when_forwarding_;
    };
 }

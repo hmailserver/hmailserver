@@ -83,7 +83,9 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
      
-      pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
+      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+         pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
+
       pNewMessage->SetState(Message::Delivering);
       
       // Increase the number of rule-deliveries made.

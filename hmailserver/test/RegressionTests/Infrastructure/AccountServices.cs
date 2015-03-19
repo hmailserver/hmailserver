@@ -37,8 +37,9 @@ namespace RegressionTests.Infrastructure
          string text = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          Assert.IsFalse(text.Contains("Return-Path: account2@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: original-address@test.com"));
-         Assert.IsTrue(text.Contains("Return-Path: account1@test.com"));
+         Assert.IsFalse(text.Contains("Return-Path: account1@test.com"));
+         Assert.IsTrue(text.Contains("Return-Path: original-address@test.com"));
+         
       }
 
       [Test]
@@ -315,7 +316,7 @@ namespace RegressionTests.Infrastructure
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(recipient.Address, "test");
 
 
-         Assert.IsTrue(message.Contains("Return-Path: forwarder@test.com"));
+         Assert.IsTrue(message.Contains("Return-Path: sender@test.com"));
       }
 
       [Test]
