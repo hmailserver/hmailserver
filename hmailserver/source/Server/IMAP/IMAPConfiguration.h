@@ -32,12 +32,24 @@ namespace HM
 
       bool GetUseIMAPACL() const;
       void SetUseIMAPACL(bool bValue);
+      
+      bool GetIMAPAuthAllowPlainText() const;
+      void SetIMAPAuthAllowPlainText(bool bValue);
+
+      bool GetUseIMAPSASLPlain() const;
+      void SetUseIMAPSASLPlain(bool bValue);
+
+      bool GetUseIMAPSASLInitialResponse() const;
+      void SetUseIMAPSASLInitialResponse(bool bValue);
 
       long GetMaxIMAPConnections() const;
       void SetMaxIMAPConnections(int newVal);
 
       String GetIMAPPublicFolderName() const;
       void SetIMAPPublicFolderName(const String &newVal);
+
+      String GetIMAPMasterUser() const;
+      void SetIMAPMasterUser(const String &newVal);
 
       static String GetPublicFolderDiskName();
       std::shared_ptr<IMAPFolders> GetPublicFolders();
@@ -48,8 +60,6 @@ namespace HM
 
       String GetHierarchyDelimiter();
       bool SetHierarchyDelimiter(const String &newVal);
-
-      
 
    private:
       std::shared_ptr<PropertySet> GetSettings_() const;

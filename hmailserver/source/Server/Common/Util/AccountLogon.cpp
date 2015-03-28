@@ -37,9 +37,15 @@ namespace HM
    std::shared_ptr<const Account>
    AccountLogon::Logon(const IPAddress &ipaddress, const String &username, const String &password, bool &disconnect)
    {
+	   return Logon(ipaddress, _T(""), username, password, disconnect);
+   }
+
+   std::shared_ptr<const Account>
+   AccountLogon::Logon(const IPAddress &ipaddress, const String &masqname, const String &username, const String &password, bool &disconnect)
+   {
       disconnect = false;
 
-      std::shared_ptr<const Account> account = PasswordValidator::ValidatePassword(username, password);
+      std::shared_ptr<const Account> account = PasswordValidator::ValidatePassword(masqname, username, password);
       if (account)
       {
          PersistentAccount::UpdateLastLogonTime(account);

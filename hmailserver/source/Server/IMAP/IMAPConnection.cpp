@@ -174,7 +174,7 @@ namespace HM
    IMAPConnection::ParseData(const AnsiString &Request)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Parses a client POP3 command.
+   // Parses a client IMAP command.
    //---------------------------------------------------------------------------()
    {
       if (InternalParseData(Request))
@@ -624,7 +624,7 @@ namespace HM
       if (!bHandlerFound)
       {
          // Should never happen. If the command is not known to hMailServer, it is classified as
-         // IMAP_UNKNOWN. This command is set up int he static command handlers.
+         // IMAP_UNKNOWN. This command is set up in the static command handlers.
          throw std::logic_error(Formatter::FormatAsAnsi("Handler for {0} was not found.", sCommandName));
       }
 
@@ -834,6 +834,12 @@ namespace HM
       {
          notification_client_->SubscribeMessageChanges(current_folder_->GetAccountID(), pFolder->GetID());
       }
+   }
+
+   void
+   IMAPConnection::SetCommandBuffer(const String &sval)
+   {
+      command_buffer_ = sval;
    }
 
    void 

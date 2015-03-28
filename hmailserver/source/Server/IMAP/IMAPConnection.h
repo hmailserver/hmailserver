@@ -120,9 +120,14 @@ namespace HM
       std::shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
       void StartHandshake();
-
-      void SetRecentMessages(const std::set<__int64> &messages);
+	 
+	  void SetRecentMessages(const std::set<__int64> &messages);
       std::set<__int64>& GetRecentMessages();
+
+
+      void SetCommandBuffer(const String &sval);
+
+
    protected:
 
       virtual void OnConnected();
@@ -178,7 +183,10 @@ namespace HM
 
       std::shared_ptr<IMAPNotificationClient> notification_client_;
 
-      int log_level_;      
+      int log_level_;
+
+      bool rfc4616_enabled_;
+      bool rfc4959_enabled_;
    };
    
 }

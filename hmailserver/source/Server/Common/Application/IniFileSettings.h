@@ -37,7 +37,7 @@ namespace HM
       void SetDatabaseType(DatabaseSettings::SQLDBType type);
       void SetDatabasePort(long lNewValue);
       void SetIsInternalDatabase(bool newValue);
-      
+
       void SetAdministratorPassword(const String &sNewPassword);
       String GetAdministratorPassword();
       String GetLogDirectory();

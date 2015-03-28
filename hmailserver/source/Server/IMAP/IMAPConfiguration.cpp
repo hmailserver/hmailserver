@@ -134,6 +134,55 @@ namespace HM
       return GetSettings_()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
    }
 
+
+   void
+      IMAPConfiguration::SetIMAPAuthAllowPlainText(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT, newVal);
+   }
+
+   String
+   IMAPConfiguration::GetIMAPMasterUser() const
+   {
+      return GetSettings_()->GetString(PROPERTY_IMAPMASTERUSER);
+   }
+
+   void
+   IMAPConfiguration::SetIMAPMasterUser(const String &newVal)
+   {
+      GetSettings_()->SetString(PROPERTY_IMAPMASTERUSER, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetIMAPAuthAllowPlainText() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT);
+   }
+
+   void
+   IMAPConfiguration::SetUseIMAPSASLPlain(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSASLPLAIN, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetUseIMAPSASLPlain() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLPLAIN);
+   }
+
+   void
+   IMAPConfiguration::SetUseIMAPSASLInitialResponse(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetUseIMAPSASLInitialResponse() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE);
+   }
+
    bool
    IMAPConfiguration::SetHierarchyDelimiter(const String& newVal)
    {
@@ -183,6 +232,7 @@ namespace HM
    {
       return groups_;
    }
+
 
    bool 
    IMAPConfiguration::XMLStore(XNode *pBackupNode, int iOptions)

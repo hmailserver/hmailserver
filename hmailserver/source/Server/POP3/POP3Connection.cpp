@@ -264,8 +264,8 @@ namespace HM
 
       if (Request.GetLength() > 500)
       {
-         // This line is to long... is this an evil user?
-         EnqueueWrite_("-ERR Line to long.");
+         // This line is too long... is this an evil user?
+         EnqueueWrite_("-ERR Line too long.");
          return ResultNormalResponse;
       }
       
