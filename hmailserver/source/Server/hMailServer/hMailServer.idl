@@ -669,6 +669,18 @@ interface IInterfaceSettings : IDispatch{
 
    [propget, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([out, retval] long *pVal);
    [propput, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([in] long newVal);
+
+   [propget, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([out, retval] BSTR *pVal);
+   [propput, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([in] BSTR newVal);
+
+   [propget, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([in] VARIANT_BOOL newVal);
+
+   [propget, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([in] VARIANT_BOOL newVal);
 };
 
 

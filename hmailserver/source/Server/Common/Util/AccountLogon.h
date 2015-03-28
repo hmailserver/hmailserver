@@ -13,7 +13,8 @@ namespace HM
       AccountLogon(void);
       ~AccountLogon(void);
 
-      std::shared_ptr<const Account> Logon(const IPAddress & ipaddress, const String &sUsername, const String &sPassword, bool &disconnect); 
+      std::shared_ptr<const Account> Logon(const IPAddress &ipaddress, const String &sUsername, const String &sPassword, bool &disconnect);
+      std::shared_ptr<const Account> Logon(const IPAddress &ipaddress, const String &sMasqname, const String &sUsername, const String &sPassword, bool &disconnect);
 
    private:
 
