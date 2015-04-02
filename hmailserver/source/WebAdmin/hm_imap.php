@@ -18,8 +18,12 @@ if($action == "save")
 	$obSettings->IMAPQuotaEnabled = hmailGetVar("IMAPQuotaEnabled",0);
 	$obSettings->IMAPIdleEnabled  = hmailGetVar("IMAPIdleEnabled",0);
 	$obSettings->IMAPACLEnabled  = hmailGetVar("IMAPACLEnabled",0);
+    
+    $obSettings->IMAPSASLPlainEnabled  = hmailGetVar("IMAPSASLPlainEnabled",0);
+    $obSettings->IMAPSASLInitialResponseEnabled  = hmailGetVar("IMAPSASLInitialResponseEnabled",0);
+    $obSettings->IMAPMasterUser  = hmailGetVar("IMAPMasterUser","");
    
-   $obSettings->IMAPHierarchyDelimiter = hmailGetVar("IMAPHierarchyDelimiter","");
+    $obSettings->IMAPHierarchyDelimiter = hmailGetVar("IMAPHierarchyDelimiter","");
 }
 
 $welcomeimap = $obSettings->WelcomeIMAP;     
@@ -29,6 +33,12 @@ $IMAPSortEnabled  = $obSettings->IMAPSortEnabled;
 $IMAPQuotaEnabled = $obSettings->IMAPQuotaEnabled;
 $IMAPIdleEnabled  = $obSettings->IMAPIdleEnabled;
 $IMAPACLEnabled  = $obSettings->IMAPACLEnabled;
+
+
+$IMAPSASLPlainEnabled  = $obSettings->IMAPSASLPlainEnabled;
+$IMAPSASLInitialResponseEnabled  = $obSettings->IMAPSASLInitialResponseEnabled;
+$IMAPMasterUser  = $obSettings->IMAPMasterUser;
+
 $IMAPHierarchyDelimiter = $obSettings->IMAPHierarchyDelimiter;
 
 ?>
@@ -67,10 +77,14 @@ $IMAPHierarchyDelimiter = $obSettings->IMAPHierarchyDelimiter;
                </td>
             </tr>
             <?php
-               PrintCheckboxRow("IMAPSortEnabled", "IMAP Sort", $IMAPSortEnabled);
-               PrintCheckboxRow("IMAPQuotaEnabled", "IMAP Quota", $IMAPQuotaEnabled);
-               PrintCheckboxRow("IMAPIdleEnabled", "IMAP Idle", $IMAPIdleEnabled);
-               PrintCheckboxRow("IMAPACLEnabled", "IMAP ACL", $IMAPACLEnabled);
+               PrintCheckboxRow("IMAPSortEnabled", "Sort", $IMAPSortEnabled);
+               PrintCheckboxRow("IMAPQuotaEnabled", "Quota", $IMAPQuotaEnabled);
+               PrintCheckboxRow("IMAPIdleEnabled", "Idle", $IMAPIdleEnabled);
+               PrintCheckboxRow("IMAPACLEnabled", "ACL", $IMAPACLEnabled);
+               
+               PrintCheckboxRow("IMAPSASLPlainEnabled", "SASL Plain", $IMAPSASLPlainEnabled);
+               PrintCheckboxRow("IMAPSASLInitialResponseEnabled", "SASL Initial Client Response", $IMAPSASLInitialResponseEnabled);
+               PrintPropertyEditRow("IMAPMasterUser", "IMAP Master user", $IMAPMasterUser);
             ?>
             
       		<tr>
