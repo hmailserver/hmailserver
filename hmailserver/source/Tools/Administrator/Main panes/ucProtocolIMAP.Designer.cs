@@ -41,6 +41,10 @@ namespace hMailServer.Administrator
          this.textIMAPPublicFolderName = new hMailServer.Shared.ucText();
          this.labelPublicFolderName = new System.Windows.Forms.Label();
          this.tabPage2 = new System.Windows.Forms.TabPage();
+         this.labelIMAPMasterUser = new System.Windows.Forms.Label();
+         this.textIMAPMasterUser = new hMailServer.Shared.ucText();
+         this.checkEnableIMAPInitialResponse = new hMailServer.Administrator.Controls.ucCheckbox();
+         this.checkEnableIMAPPlain = new hMailServer.Administrator.Controls.ucCheckbox();
          this.labelHierarchyDelimiter = new System.Windows.Forms.Label();
          this.comboIMAPHierarchyDelimiter = new hMailServer.Administrator.Controls.ucComboBox();
          this.labelOther2 = new System.Windows.Forms.Label();
@@ -49,10 +53,6 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPQuota = new hMailServer.Administrator.Controls.ucCheckbox();
          this.labelExtensions = new System.Windows.Forms.Label();
          this.checkEnableIMAPSort = new hMailServer.Administrator.Controls.ucCheckbox();
-         this.checkEnableIMAPPlain = new hMailServer.Administrator.Controls.ucCheckbox();
-         this.checkEnableIMAPInitialResponse = new hMailServer.Administrator.Controls.ucCheckbox();
-         this.textIMAPMasterUser = new hMailServer.Shared.ucText();
-         this.labelIMAPMasterUser = new System.Windows.Forms.Label();
          this.tabControl.SuspendLayout();
          this.tabPage1.SuspendLayout();
          this.tabPage3.SuspendLayout();
@@ -208,6 +208,45 @@ namespace hMailServer.Administrator
          this.tabPage2.Text = "Advanced";
          this.tabPage2.UseVisualStyleBackColor = true;
          // 
+         // labelIMAPMasterUser
+         // 
+         this.labelIMAPMasterUser.AutoSize = true;
+         this.labelIMAPMasterUser.Location = new System.Drawing.Point(53, 176);
+         this.labelIMAPMasterUser.Name = "labelIMAPMasterUser";
+         this.labelIMAPMasterUser.Size = new System.Drawing.Size(91, 13);
+         this.labelIMAPMasterUser.TabIndex = 27;
+         this.labelIMAPMasterUser.Text = "IMAP Master user";
+         // 
+         // textIMAPMasterUser
+         // 
+         this.textIMAPMasterUser.Location = new System.Drawing.Point(56, 192);
+         this.textIMAPMasterUser.Name = "textIMAPMasterUser";
+         this.textIMAPMasterUser.Number = 0;
+         this.textIMAPMasterUser.Number64 = ((long)(0));
+         this.textIMAPMasterUser.Numeric = false;
+         this.textIMAPMasterUser.Size = new System.Drawing.Size(154, 20);
+         this.textIMAPMasterUser.TabIndex = 26;
+         // 
+         // checkEnableIMAPInitialResponse
+         // 
+         this.checkEnableIMAPInitialResponse.AutoSize = true;
+         this.checkEnableIMAPInitialResponse.Location = new System.Drawing.Point(35, 155);
+         this.checkEnableIMAPInitialResponse.Name = "checkEnableIMAPInitialResponse";
+         this.checkEnableIMAPInitialResponse.Size = new System.Drawing.Size(217, 17);
+         this.checkEnableIMAPInitialResponse.TabIndex = 25;
+         this.checkEnableIMAPInitialResponse.Text = "SASL Initial Client Response (RFC 4959)";
+         this.checkEnableIMAPInitialResponse.UseVisualStyleBackColor = true;
+         // 
+         // checkEnableIMAPPlain
+         // 
+         this.checkEnableIMAPPlain.AutoSize = true;
+         this.checkEnableIMAPPlain.Location = new System.Drawing.Point(35, 132);
+         this.checkEnableIMAPPlain.Name = "checkEnableIMAPPlain";
+         this.checkEnableIMAPPlain.Size = new System.Drawing.Size(136, 17);
+         this.checkEnableIMAPPlain.TabIndex = 24;
+         this.checkEnableIMAPPlain.Text = "SASL Plain (RFC 4616)";
+         this.checkEnableIMAPPlain.UseVisualStyleBackColor = true;
+         // 
          // labelHierarchyDelimiter
          // 
          this.labelHierarchyDelimiter.AutoSize = true;
@@ -245,9 +284,9 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPACL.AutoSize = true;
          this.checkEnableIMAPACL.Location = new System.Drawing.Point(35, 110);
          this.checkEnableIMAPACL.Name = "checkEnableIMAPACL";
-         this.checkEnableIMAPACL.Size = new System.Drawing.Size(75, 17);
+         this.checkEnableIMAPACL.Size = new System.Drawing.Size(46, 17);
          this.checkEnableIMAPACL.TabIndex = 18;
-         this.checkEnableIMAPACL.Text = "IMAP ACL";
+         this.checkEnableIMAPACL.Text = "ACL";
          this.checkEnableIMAPACL.UseVisualStyleBackColor = true;
          // 
          // checkEnableIMAPIdle
@@ -255,9 +294,9 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPIdle.AutoSize = true;
          this.checkEnableIMAPIdle.Location = new System.Drawing.Point(35, 87);
          this.checkEnableIMAPIdle.Name = "checkEnableIMAPIdle";
-         this.checkEnableIMAPIdle.Size = new System.Drawing.Size(72, 17);
+         this.checkEnableIMAPIdle.Size = new System.Drawing.Size(43, 17);
          this.checkEnableIMAPIdle.TabIndex = 17;
-         this.checkEnableIMAPIdle.Text = "IMAP Idle";
+         this.checkEnableIMAPIdle.Text = "Idle";
          this.checkEnableIMAPIdle.UseVisualStyleBackColor = true;
          // 
          // checkEnableIMAPQuota
@@ -265,9 +304,9 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPQuota.AutoSize = true;
          this.checkEnableIMAPQuota.Location = new System.Drawing.Point(35, 64);
          this.checkEnableIMAPQuota.Name = "checkEnableIMAPQuota";
-         this.checkEnableIMAPQuota.Size = new System.Drawing.Size(84, 17);
+         this.checkEnableIMAPQuota.Size = new System.Drawing.Size(55, 17);
          this.checkEnableIMAPQuota.TabIndex = 16;
-         this.checkEnableIMAPQuota.Text = "IMAP Quota";
+         this.checkEnableIMAPQuota.Text = "Quota";
          this.checkEnableIMAPQuota.UseVisualStyleBackColor = true;
          // 
          // labelExtensions
@@ -285,49 +324,10 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPSort.AutoSize = true;
          this.checkEnableIMAPSort.Location = new System.Drawing.Point(35, 41);
          this.checkEnableIMAPSort.Name = "checkEnableIMAPSort";
-         this.checkEnableIMAPSort.Size = new System.Drawing.Size(74, 17);
+         this.checkEnableIMAPSort.Size = new System.Drawing.Size(45, 17);
          this.checkEnableIMAPSort.TabIndex = 14;
-         this.checkEnableIMAPSort.Text = "IMAP Sort";
+         this.checkEnableIMAPSort.Text = "Sort";
          this.checkEnableIMAPSort.UseVisualStyleBackColor = true;
-         // 
-         // checkEnableIMAPPlain
-         // 
-         this.checkEnableIMAPPlain.AutoSize = true;
-         this.checkEnableIMAPPlain.Location = new System.Drawing.Point(35, 132);
-         this.checkEnableIMAPPlain.Name = "checkEnableIMAPPlain";
-         this.checkEnableIMAPPlain.Size = new System.Drawing.Size(136, 17);
-         this.checkEnableIMAPPlain.TabIndex = 24;
-         this.checkEnableIMAPPlain.Text = "SASL Plain (RFC 4616)";
-         this.checkEnableIMAPPlain.UseVisualStyleBackColor = true;
-         // 
-         // checkEnableIMAPInitialResponse
-         // 
-         this.checkEnableIMAPInitialResponse.AutoSize = true;
-         this.checkEnableIMAPInitialResponse.Location = new System.Drawing.Point(35, 155);
-         this.checkEnableIMAPInitialResponse.Name = "checkEnableIMAPInitialResponse";
-         this.checkEnableIMAPInitialResponse.Size = new System.Drawing.Size(217, 17);
-         this.checkEnableIMAPInitialResponse.TabIndex = 25;
-         this.checkEnableIMAPInitialResponse.Text = "SASL Initial Client Response (RFC 4959)";
-         this.checkEnableIMAPInitialResponse.UseVisualStyleBackColor = true;
-         // 
-         // textIMAPMasterUser
-         // 
-         this.textIMAPMasterUser.Location = new System.Drawing.Point(56, 192);
-         this.textIMAPMasterUser.Name = "textIMAPMasterUser";
-         this.textIMAPMasterUser.Number = 0;
-         this.textIMAPMasterUser.Number64 = ((long)(0));
-         this.textIMAPMasterUser.Numeric = false;
-         this.textIMAPMasterUser.Size = new System.Drawing.Size(154, 20);
-         this.textIMAPMasterUser.TabIndex = 26;
-         // 
-         // labelIMAPMasterUser
-         // 
-         this.labelIMAPMasterUser.AutoSize = true;
-         this.labelIMAPMasterUser.Location = new System.Drawing.Point(53, 176);
-         this.labelIMAPMasterUser.Name = "labelIMAPMasterUser";
-         this.labelIMAPMasterUser.Size = new System.Drawing.Size(91, 13);
-         this.labelIMAPMasterUser.TabIndex = 27;
-         this.labelIMAPMasterUser.Text = "IMAP Master user";
          // 
          // ucProtocolIMAP
          // 
