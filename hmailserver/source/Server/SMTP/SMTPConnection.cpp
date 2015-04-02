@@ -1434,16 +1434,16 @@ namespace HM
    {
       String sComputerName = Utilities::ComputerName(); 
 
-      String sData = "250-" + sComputerName + "\r\n";
+      String sData = "250-" + sComputerName;
       
       // Append size keyword
       {
          String sSizeKeyword;
          int iMaxSize = smtpconf_->GetMaxMessageSize() * 1000;
          if (iMaxSize > 0)
-            sSizeKeyword.Format(_T("250-SIZE %d\r\n"), iMaxSize);
+            sSizeKeyword.Format(_T("\r\n250-SIZE %d"), iMaxSize);
          else
-            sSizeKeyword.Format(_T("250-SIZE\r\n"));
+            sSizeKeyword.Format(_T("\r\n250-SIZE"));
          sData += sSizeKeyword;
       }
 
@@ -1452,17 +1452,22 @@ namespace HM
          if (GetConnectionSecurity() == CSSTARTTLSOptional ||
              GetConnectionSecurity() == CSSTARTTLSRequired)
          {
-            sData += "250-STARTTLS\r\n";
+            sData += "\r\n250-STARTTLS";
          }
       }
 
-      String sAuth = "250 AUTH LOGIN";
+      if (GetAuthIsEnabled_())
+      {
+         String sAuth = "\r\n250-AUTH LOGIN";
 
-      if (smtpconf_->GetAuthAllowPlainText())
-         sAuth += " PLAIN";
+         if (smtpconf_->GetAuthAllowPlainText())
+            sAuth += " PLAIN";
 
-      sData += sAuth;
-	   
+         sData += sAuth;
+      }
+
+      sData += "\r\n250 HELP";
+
       EnqueueWrite_(sData);
    
       return true;
@@ -1667,6 +1672,12 @@ namespace HM
    void 
    SMTPConnection::ProtocolAUTH_(const String &sRequest)
    {
+      if (!GetAuthIsEnabled_())
+      {
+         SendErrorResponse_(504, "Authentication not allowed.");
+         return;
+      }
+
       if (!CheckStartTlsRequired_())
          return;
 
@@ -2100,5 +2111,12 @@ namespace HM
       }
 
       return true;
+   }
+
+   bool
+   SMTPConnection::GetAuthIsEnabled_()
+   {
+      const auto authDisabledOnPorts = IniFileSettings::Instance()->GetAuthDisabledOnPorts();
+      return authDisabledOnPorts.find(GetLocalEndpointPort()) == authDisabledOnPorts.end();
    }
 }
