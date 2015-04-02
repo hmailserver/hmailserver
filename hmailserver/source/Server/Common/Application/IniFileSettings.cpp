@@ -168,6 +168,7 @@ namespace HM
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
 
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
+      m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
    }
 
    bool 
@@ -178,6 +179,7 @@ namespace HM
 
       return true;
    }
+
 
    void
    IniFileSettings::WriteIniSetting_(const String &sSection, const String &sKey, const String &sValue)
@@ -503,6 +505,27 @@ namespace HM
    IniFileSettings::GetBinDirectory()
    {
       return FileUtilities::Combine(app_directory_, "Bin");
+   }
+
+   std::set<int> 
+   IniFileSettings::GetAuthDisabledOnPorts()
+   {
+      if (m_sDisableAUTHList.IsEmpty())
+      {
+         std::set<int> empty;
+         return empty;
+      }
+
+      std::vector<String> authDisabledOnPortsStr = StringParser::SplitString(m_sDisableAUTHList, ",");
+
+      std::set<int> authDisabledOnPorts;
+
+      for (AnsiString port : authDisabledOnPortsStr)
+      {
+         authDisabledOnPorts.insert(atoi(port));
+      }
+
+      return authDisabledOnPorts;
    }
 }
 
