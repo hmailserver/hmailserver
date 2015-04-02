@@ -232,9 +232,9 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPInitialResponse.AutoSize = true;
          this.checkEnableIMAPInitialResponse.Location = new System.Drawing.Point(35, 155);
          this.checkEnableIMAPInitialResponse.Name = "checkEnableIMAPInitialResponse";
-         this.checkEnableIMAPInitialResponse.Size = new System.Drawing.Size(217, 17);
+         this.checkEnableIMAPInitialResponse.Size = new System.Drawing.Size(160, 17);
          this.checkEnableIMAPInitialResponse.TabIndex = 25;
-         this.checkEnableIMAPInitialResponse.Text = "SASL Initial Client Response (RFC 4959)";
+         this.checkEnableIMAPInitialResponse.Text = "SASL Initial Client Response";
          this.checkEnableIMAPInitialResponse.UseVisualStyleBackColor = true;
          // 
          // checkEnableIMAPPlain
@@ -242,9 +242,9 @@ namespace hMailServer.Administrator
          this.checkEnableIMAPPlain.AutoSize = true;
          this.checkEnableIMAPPlain.Location = new System.Drawing.Point(35, 132);
          this.checkEnableIMAPPlain.Name = "checkEnableIMAPPlain";
-         this.checkEnableIMAPPlain.Size = new System.Drawing.Size(136, 17);
+         this.checkEnableIMAPPlain.Size = new System.Drawing.Size(79, 17);
          this.checkEnableIMAPPlain.TabIndex = 24;
-         this.checkEnableIMAPPlain.Text = "SASL Plain (RFC 4616)";
+         this.checkEnableIMAPPlain.Text = "SASL Plain";
          this.checkEnableIMAPPlain.UseVisualStyleBackColor = true;
          // 
          // labelHierarchyDelimiter
