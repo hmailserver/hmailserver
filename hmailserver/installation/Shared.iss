@@ -123,7 +123,7 @@ Filename: "{app}\Bin\hMailServer.INI"; Section: "Directories"; Key: "TempFolder"
 Filename: "{app}\Bin\hMailServer.INI"; Section: "Directories"; Key: "EventFolder"; String: "{app}\Events"; Flags: createkeyifdoesntexist; Components: server;
 
 ; Languages
-Filename: "{app}\Bin\hMailServer.INI"; Section: "GUILanguages"; Key: "ValidLanguages"; String: "english,swedish";
+Filename: "{app}\Bin\hMailServer.INI"; Section: "GUILanguages"; Key: "ValidLanguages"; String: "english,swedish"; Flags: createkeyifdoesntexist; 
 Filename: "{app}\Bin\hMailServer.INI"; Section: "Security"; Key: "AdministratorPassword"; String: "{code:GetHashedPassword}"; Flags: createkeyifdoesntexist; Components: server;
 
 [Dirs]
