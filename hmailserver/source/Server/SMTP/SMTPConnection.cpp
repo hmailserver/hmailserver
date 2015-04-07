@@ -1647,7 +1647,7 @@ namespace HM
    {
       if (!GetAuthIsEnabled_())
       {
-         SendErrorResponse_(504, "Authentication not allowed.");
+         SendErrorResponse_(504, "Authentication not enabled.");
          return;
       }
 
