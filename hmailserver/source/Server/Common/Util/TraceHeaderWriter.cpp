@@ -34,36 +34,33 @@ namespace HM
       String tempFile = messageFileName + ".tmp";
 
       File temporaryFile;
-      try
-      {
-         temporaryFile.Open(tempFile, File::OTCreate);
-
-         typedef std::pair<AnsiString, AnsiString> headerField;
-
-         AnsiString prependString;
-         for (headerField field : headerFields)
-         {
-            prependString += field.first + ": " + field.second + "\r\n";
-         }
-
-         temporaryFile.Write(prependString);
-            
-         File messageFile;
-         messageFile.Open(messageFileName, File::OTReadOnly);
-
-         temporaryFile.Write(messageFile);
-
-         temporaryFile.Close();
-         messageFile.Close();
-      }
-      catch (...)
-      {
+      if (!temporaryFile.Open(tempFile, File::OTCreate))
          return false;
+
+      typedef std::pair<AnsiString, AnsiString> headerField;
+
+      AnsiString prependString;
+      for(headerField field : headerFields)
+      {
+         prependString += field.first + ": " + field.second + "\r\n";
       }
+      
+      if (!temporaryFile.Write(prependString))
+         return false;
 
+      File messageFile;
+      if (!messageFile.Open(messageFileName, File::OTReadOnly))
+         return false;
 
+      if (!temporaryFile.Write(messageFile))
+         return false;
+
+      temporaryFile.Close();
+      messageFile.Close();
 
       return FileUtilities::Move(tempFile, messageFileName, true);
+
+      return true;
    }
 
 }

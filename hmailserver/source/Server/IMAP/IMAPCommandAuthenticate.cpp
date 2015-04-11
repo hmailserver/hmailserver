@@ -20,9 +20,12 @@
 namespace HM
 {
 	IMAPResult
-		IMAPCommandAUTHENTICATE::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandAUTHENTICATE::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
 	{
-		String imapmasteruser = Configuration::Instance()->GetIMAPConfiguration()->GetIMAPMasterUser();
+      if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPSASLPlain())
+         return IMAPResult(IMAPResult::ResultNo, "IMAP AUTHENTICATE is not enabled.");
+
+      String imapmasteruser = Configuration::Instance()->GetIMAPConfiguration()->GetIMAPMasterUser();
 		String sParam, authzid, authcid, password, sDecode64;
 		String sDefaultDomain = Configuration::Instance()->GetDefaultDomain();
 

@@ -128,7 +128,7 @@ namespace RegressionTests.Stress
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         Assert.IsTrue(response.StartsWith("-ERR Line to long."));
+         Assert.IsTrue(response.StartsWith("-ERR Line too long."));
 
          socket.Disconnect();
       }

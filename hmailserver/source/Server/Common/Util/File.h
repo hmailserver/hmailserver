@@ -28,22 +28,22 @@ namespace HM
       };
 
       bool IsOpen() const;
-      void Open(const String &sFilename, OpenType ot);
+      bool Open(const String &sFilename, OpenType ot);
 
       void Close();
       
-      void Write(const String &sWrite);
-      void Write(const AnsiString &sWrite);
-      void Write(const unsigned char *pBuf, size_t iBufLen);
-      void Write(std::shared_ptr<ByteBuffer> pBuffer);
-      void Write(File &sourceFile);
-      void WriteBOF();
+      bool Write(const String &sWrite);
+      bool Write(const AnsiString &sWrite);
+      bool Write(const unsigned char *pBuf, size_t iBufLen);
+      bool Write(const unsigned char *pBuf, size_t iBufLen, size_t &noOfBytesWritten);
+      bool Write(std::shared_ptr<ByteBuffer> pBuffer, size_t &noOfBytesWritten);
+      bool Write(File &sourceFile);
+      bool WriteBOF();
 
-      void Write_(void *buffer, size_t item_size, size_t item_count);
-
+      void Write_(void *buffer, int item_size, int item_count);
       int GetSize();
 
-      void SetPosition(int position);
+      bool SetPosition(int position);
       bool ReadLine(AnsiString &sLine);
       std::shared_ptr<ByteBuffer> ReadFile();
       std::shared_ptr<ByteBuffer> ReadTextFile();
@@ -52,9 +52,7 @@ namespace HM
       String GetName() const;
 
    private:
-
-      void ThrowRuntimeError_(const AnsiString &message);
-
+      
       FILE * file_;
       String name_;
    };

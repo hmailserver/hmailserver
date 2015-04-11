@@ -79,17 +79,13 @@ namespace HM
       LOG_DEBUG(logMessage);
 
       File oFile;
-      
-      try
-      {
-         oFile.Open(sFilename, File::OTReadOnly);
-      }
-      catch (...)
+      if (!oFile.Open(sFilename, File::OTReadOnly))
       {
          String sErrorMsg;
-         sErrorMsg.Format(_T("Could not send file %s via socket since the file could not be opened."), sFilename.c_str());
+         sErrorMsg.Format(_T("Could not send file %s via socket since it does not exist."), sFilename.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::High, 5019, "SMTPClientConnection::SendFileContents_", sErrorMsg);
+
          return false;
       }
 
@@ -149,9 +145,10 @@ namespace HM
       }
 
       // Append output to the file
-      result_->Write(pBuf);
+      size_t written_bytes = 0;
+         result_->Write(pBuf, written_bytes);
 
-      total_result_bytes_written_ += pBuf->GetSize();
+      total_result_bytes_written_ += written_bytes;
 
       if (total_result_bytes_written_ < spam_dsize_)
          EnqueueRead();

@@ -217,6 +217,7 @@ namespace HM
       {
          oFile.Open(message_file_name_, File::OTAppend);
 
+
          oFile.Write(pBuf, WriteLen);
       }
       catch (...)

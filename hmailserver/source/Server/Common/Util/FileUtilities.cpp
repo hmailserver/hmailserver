@@ -197,14 +197,8 @@ namespace HM
    FileUtilities::ReadCompleteTextFile(const String &sFilename)
    {
       File oFile;
-      try
-      {
-         oFile.Open(sFilename, File::OTReadOnly);
-      }
-      catch (...)
-      {
+      if (!oFile.Open(sFilename, File::OTReadOnly))
          return "";
-      }
 
       // Read file
       std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadFile();
@@ -263,8 +257,11 @@ namespace HM
    FileUtilities::ReadFileToBuf(const String &sFilename, BYTE *OutBuf, int iStart, int iCount)
    {
       File file;
+      if (!file.Open(sFilename, File::OTReadOnly))
+      {
+         throw std::logic_error(Formatter::FormatAsAnsi("Unable to open file {0}", sFilename));
+      }
 
-      file.Open(sFilename, File::OTReadOnly);
       file.SetPosition(iStart);
 
       std::shared_ptr<ByteBuffer> bytes = file.ReadChunk(iCount);
@@ -277,42 +274,24 @@ namespace HM
    FileUtilities::WriteToFile(const String &sFilename, const String &sData, bool bUnicode)
    {
       File oFile;
-      
-      try
-      {
-         oFile.Open(sFilename, File::OTCreate);
-      }
-      catch (...)
-      {
+      if (!oFile.Open(sFilename, File::OTCreate))
          return false;
-      }
 
       if (bUnicode)
       {
-         try
-         {
-            oFile.WriteBOF();
-            oFile.Write(sData);
-         }
-         catch (...)
-         {
+         if (!oFile.WriteBOF())
             return false;
-         }
-            
+
+         if (!oFile.Write(sData))
+            return false;
       }
       else
       {
          // Enforce ANSI format.
          AnsiString sAnsi = sData;
 
-         try
-         {
-            oFile.Write(sAnsi);
-         }
-         catch (...)
-         {
+         if (!oFile.Write(sAnsi))
             return false;
-         }
       }
 
       oFile.Close();
@@ -324,16 +303,11 @@ namespace HM
    FileUtilities::WriteToFile(const String &sFilename, const AnsiString &sData)
    {
       File oFile;
-      
-      try
-      {
-         oFile.Open(sFilename, File::OTCreate);
-         oFile.Write(sData);
-      }
-      catch (...)
-      {
+      if (!oFile.Open(sFilename, File::OTCreate))
          return false;
-      }
+
+      if (!oFile.Write(sData))
+         return false;
 
       oFile.Close();
 

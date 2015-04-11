@@ -86,14 +86,9 @@ namespace HM
 
       // Send the file on the stream socket.
       File oFile;
-
-      try
+      if (!oFile.Open(sFilename, File::OTReadOnly))
       {
-         oFile.Open(sFilename, File::OTReadOnly);
-      }
-      catch (...)
-      {
-         String sErrorMsg = Formatter::Format("Could not send file {0} via socket since it could not be opened.", sFilename);
+         String sErrorMsg = Formatter::Format("Could not send file {0} via socket since it does not exist.", sFilename);
          return VirusScanningResult("ClamAVVirusScanner::Scan", sErrorMsg);
       }
 

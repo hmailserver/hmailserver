@@ -144,6 +144,14 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+         if (_settings.IMAPSASLPlainEnabled)
+            _settings.IMAPSASLPlainEnabled = false;
+         if (_settings.IMAPSASLInitialResponseEnabled)
+            _settings.IMAPSASLInitialResponseEnabled = false;
+         if (_settings.IMAPAuthAllowPlainText)
+            _settings.IMAPAuthAllowPlainText = false;
+         if (!string.IsNullOrEmpty(_settings.IMAPMasterUser))
+            _settings.IMAPMasterUser = string.Empty;
 
          if (!string.IsNullOrEmpty(_settings.SslCipherList))
          {

@@ -334,7 +334,8 @@ namespace HM
       
       if (!file->IsOpen())
       {
-         file->Open(fileName, File::OTAppend);
+         if (!file->Open(fileName, File::OTAppend))
+            throw std::exception(Formatter::FormatAsAnsi("Unable to open log file {0}.", fileName));
 
          if (!fileExists && writeUnicode)
          {
@@ -350,63 +351,53 @@ namespace HM
    {
       boost::lock_guard<boost::recursive_mutex> guard(mtx_);
 
-      // If we can't write to the log file, just keep running. We could fail to write to the log file for example
-      // if the files are stored on a network share and there's a temporary outage. We don't want such an outage
-      // to cause exception which terminate the server.
-      try
+      File *file = GetCurrentLogFile_(lt);
+
+      bool writeUnicode = false;
+      bool keepFileOpen = (log_mask_ & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
+
+      switch (lt)
       {
-         File *file = GetCurrentLogFile_(lt);
+      case Normal:
+      case Error:
+      case AWStats:
+      case IMAP:
+      case POP3:
+      case SMTP:
+         writeUnicode = false;
+         break;
+      case Backup:
+      case Events:
+         writeUnicode = true;
+         break;
+      }
 
-         bool writeUnicode = false;
-         bool keepFileOpen = (log_mask_ & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
+      if (writeUnicode)
+      {
+         file->Write(sData);
+      }
+      else
+      {
+         AnsiString sAnsiString;
+         // Let's truncate some of those crazy long log lines
+         // only when debug is not enabled or loglevel <= 2
+         // Only do it if long enough default is 500 by set by MaxLogLineLen
+         
+         int iDataLenTmp = sData.GetLength();
+         log_level_ = IniFileSettings::Instance()->GetLogLevel();
+         max_log_line_len_ = IniFileSettings::Instance()->GetMaxLogLineLen();
 
-         switch (lt)
-         {
-         case Normal:
-         case Error:
-         case AWStats:
-         case IMAP:
-         case POP3:
-         case SMTP:
-            writeUnicode = false;
-            break;
-         case Backup:
-         case Events:
-            writeUnicode = true;
-            break;
-         }
-
-         if (writeUnicode)
-         {
-            file->Write(sData);
-         }
+         if ((Logger::Instance()->GetLogDebug()) || (log_level_ > 2) || (iDataLenTmp < max_log_line_len_ ))
+            sAnsiString = sData;
          else
-         {
-            AnsiString sAnsiString;
-            // Let's truncate some of those crazy long log lines
-            // only when debug is not enabled or loglevel <= 2
-            // Only do it if long enough default is 500 by set by MaxLogLineLen
-
-            int iDataLenTmp = sData.GetLength();
-            log_level_ = IniFileSettings::Instance()->GetLogLevel();
-            max_log_line_len_ = IniFileSettings::Instance()->GetMaxLogLineLen();
-
-            if ((Logger::Instance()->GetLogDebug()) || (log_level_ > 2) || (iDataLenTmp < max_log_line_len_))
-               sAnsiString = sData;
-            else
-               sAnsiString = sData.Mid(0, max_log_line_len_ - 30) + " ... " + sData.Mid(iDataLenTmp - 25);
+            sAnsiString = sData.Mid(0, max_log_line_len_ - 30) + " ... " + sData.Mid(iDataLenTmp - 25);
             // We keep 25 of end which includes crlf but need to account for middle ... too
 
-            file->Write(sAnsiString);
-         }
+         file->Write(sAnsiString);
+      }
 
-         if (!keepFileOpen)
-            file->Close();
-      }
-      catch (...)
-      {
-         
-      }
+      if (!keepFileOpen)
+         file->Close();
 
    }
 

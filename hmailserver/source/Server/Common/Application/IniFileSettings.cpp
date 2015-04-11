@@ -128,6 +128,14 @@ namespace HM
       no_of_dbconnection_attempts_ = ReadIniSettingInteger_("Database", "ConnectionAttempts", 6);  
       no_of_dbconnection_attempts_Delay = ReadIniSettingInteger_("Database", "ConnectionAttemptsDelay", 5);  
       
+      if (sqldbtype_ == HM::DatabaseSettings::TypeMSSQLCompactEdition)
+      {
+         // Always use one database connection when working with SQL CE. SQL CE is supposed
+         // to be ACID, robust and so on but isn't really.
+         // http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=4141097&SiteID=1
+         no_of_dbconnections_ = 1;
+      }
+
       max_no_of_external_fetch_threads_ = ReadIniSettingInteger_("Settings", "MaxNumberOfExternalFetchThreads", 15);
       add_xauth_user_header_ = ReadIniSettingInteger_("Settings", "AddXAuthUserHeader", 0) == 1;
       

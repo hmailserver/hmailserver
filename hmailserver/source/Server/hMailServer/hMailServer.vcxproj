@@ -568,7 +568,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.2a\out64\ssleay32.dll $(OutDir)
     <ClCompile Include="..\Common\Util\ExceptionLogger.cpp" />
     <ClCompile Include="..\Common\Util\File.cpp" />
     <ClCompile Include="..\Common\Util\FileInfo.cpp" />
-    <ClCompile Include="..\Common\Util\FileTester.cpp" />
     <ClCompile Include="..\Common\Util\FileUtilities.cpp" />
     <ClCompile Include="..\Common\Util\FolderManipulationLock.cpp" />
     <ClCompile Include="..\Common\Util\GUIDCreator.cpp" />
@@ -1080,7 +1079,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.0.2a\out64\ssleay32.dll $(OutDir)
     <ClInclude Include="..\Common\Util\ExceptionLogger.h" />
     <ClInclude Include="..\Common\Util\File.h" />
     <ClInclude Include="..\Common\Util\FileInfo.h" />
-    <ClInclude Include="..\Common\Util\FileTester.h" />
     <ClInclude Include="..\Common\Util\FileUtilities.h" />
     <ClInclude Include="..\Common\Util\FolderManipulationLock.h" />
     <ClInclude Include="..\Common\Util\GUIDCreator.h" />
