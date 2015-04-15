@@ -148,9 +148,11 @@ namespace HM
       std::shared_ptr<Event> disconnected_;
       bool is_ssl_;
       bool is_client_;
+      bool handshake_in_progress_;
 
       boost::atomic<ConnectionState> connection_state_;
       boost::mutex autologout_timer_;
+
    };
 
 }
