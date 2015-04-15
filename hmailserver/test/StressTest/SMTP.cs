@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
+using hMailServer;
 using NUnit.Framework;
 using System.IO;
 using System.Diagnostics;
@@ -11,6 +13,7 @@ using System.Runtime.InteropServices;
 using System.Net.Mail;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using Attachment = System.Net.Mail.Attachment;
 using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 namespace StressTest
@@ -488,6 +491,43 @@ namespace StressTest
 
          totalCount += files.Length;
          return totalCount;
+      }
+
+      [Test]
+      public void TestManyInvalidConnectDisconnect()
+      {  
+         var status = _application.Status;
+
+         int before = status.get_SessionCount(eSessionType.eSTSMTP);
+
+         int count = 1000;
+
+         var connections = new List<TcpConnection>();
+         for (int i = 0; i < count; i++)
+         {
+            var conn = new TcpConnection(false);
+            conn.Connect(25);
+
+            connections.Add(conn);
+         }
+
+         RetryHelper.TryAction(() =>
+         {
+            int connCount = status.get_SessionCount(eSessionType.eSTSMTP);
+            Assert.GreaterOrEqual(connCount, count);
+         }, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(1));
+
+         foreach (var conn in connections)
+            conn.Dispose();
+
+         RetryHelper.TryAction(() =>
+         {
+            int after = status.get_SessionCount(eSessionType.eSTSMTP);
+            Assert.GreaterOrEqual(before, after);
+
+         }, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
+
+         
       }
    }
 }

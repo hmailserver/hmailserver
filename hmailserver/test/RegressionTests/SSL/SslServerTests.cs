@@ -140,5 +140,36 @@ namespace RegressionTests.SSL
          string text = pop3Sim.GetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains("MyBody"));
       }
+
+      [Test]
+      public void ConnectionCountShouldDecreaseWhenClientDisconnects()
+      {
+         var countBefore = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
+
+         using (var tcpConn = new TcpConnection(false))
+         {
+            tcpConn.Connect(25001);
+            
+            // Since there may be other connections lingering, we just check the increased count if
+            // it was zero previous to this test. Otherwise we might end up with false positives.
+            if (countBefore == 0)
+            {
+               RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+               {
+                  var countWhileConnected = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
+
+                  Assert.AreEqual(1, countWhileConnected);
+               });
+
+            }
+         }
+
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+         {
+            var countAfter = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
+
+            Assert.GreaterOrEqual(countBefore, countAfter);
+         });
+      }
    }
 }
