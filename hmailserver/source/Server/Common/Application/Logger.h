@@ -122,7 +122,7 @@ namespace HM
       File* GetCurrentLogFile_(LogType lt);
 
       void LogLive_(String &sMessage);
-      bool WriteData_(const String &sData, LogType = Normal);
+      void WriteData_(const String &sData, LogType = Normal);
    
       static Logger *pInstanceApp;   
      
