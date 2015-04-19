@@ -24,7 +24,7 @@ Required software:
 
    * Visual Studio 2013 Update 3
    * InnoSetup (to build installation program)
-   * Perl (ActiveState ActivePerl Community Edition 32 bit works fine)
+   * [Perl ActiveState ActivePerl Community Edition 32 bit works fine](https://www.activestate.com/activeperl/downloads)
    
 **NOTE**
 
