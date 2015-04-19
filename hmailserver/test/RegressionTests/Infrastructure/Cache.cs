@@ -10,7 +10,7 @@ namespace RegressionTests.Infrastructure
    public class Cache : TestFixtureBase
    {
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          _settings.Cache.Clear();
          _settings.Cache.Enabled = true;

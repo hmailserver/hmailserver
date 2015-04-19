@@ -102,7 +102,25 @@ namespace HM
    WorkQueue::IoServiceRunWorker()
    {
       LOG_DEBUG(Formatter::Format("Running worker in work queue {0}", queue_name_));
-      io_service_.run();
+
+      try
+      {
+         io_service_.run();
+      }
+      catch (boost::system::system_error& error)
+      {
+         if (error.code().value() == ERROR_ABANDONED_WAIT_0)
+         {
+            // If a call to GetQueuedCompletionStatus fails because the completion port handle associated with it is
+            // closed while the call is outstanding, the function returns FALSE, *lpOverlapped will be NULL, 
+            //and GetLastError will return ERROR_ABANDONED_WAIT_0.
+
+            return;
+         }
+
+         throw;
+      }
+
       LOG_DEBUG(Formatter::Format("Worker exited in work queue {0}", queue_name_));
    }
 

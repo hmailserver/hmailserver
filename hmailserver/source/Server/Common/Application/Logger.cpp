@@ -322,7 +322,18 @@ namespace HM
          break;
       }
 
-      bool fileExists = FileUtilities::Exists(fileName);
+      bool fileExists = false;
+
+      try
+      {
+         bool fileExists = FileUtilities::Exists(fileName);
+      }
+      catch (boost::system::system_error&)
+      {
+         // If the log is not accessible for some reason, such as error code 5 - access is denied, 
+         // then we can't open the log file. This will result in nothing being logged.
+         return nullptr;
+      }
 
       if (file->IsOpen())
       {
@@ -335,7 +346,7 @@ namespace HM
       if (!file->IsOpen())
       {
          if (!file->Open(fileName, File::OTAppend))
-            throw std::exception(Formatter::FormatAsAnsi("Unable to open log file {0}.", fileName));
+            return nullptr;
 
          if (!fileExists && writeUnicode)
          {
@@ -352,6 +363,8 @@ namespace HM
       boost::lock_guard<boost::recursive_mutex> guard(mtx_);
 
       File *file = GetCurrentLogFile_(lt);
+      if (file == nullptr)
+         return;
 
       bool writeUnicode = false;
       bool keepFileOpen = (log_mask_ & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
@@ -398,7 +411,6 @@ namespace HM
 
       if (!keepFileOpen)
          file->Close();
-
    }
 
 
