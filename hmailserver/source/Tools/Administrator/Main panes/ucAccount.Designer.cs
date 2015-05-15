@@ -73,7 +73,7 @@ namespace hMailServer.Administrator
             this.labelPersonalInformation = new System.Windows.Forms.Label();
             this.textLastName = new hMailServer.Shared.ucText();
             this.textFirstName = new hMailServer.Shared.ucText();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelMessagesCount = new System.Windows.Forms.Label();
             this.textMessagesCount = new System.Windows.Forms.TextBox();
             this.textPassword = new hMailServer.Administrator.Controls.ucPassword();
             this.textAddress = new hMailServer.Administrator.Controls.ucEmailEdit();
@@ -123,7 +123,7 @@ namespace hMailServer.Administrator
             // tabPageGeneral
             // 
             this.tabPageGeneral.Controls.Add(this.textMessagesCount);
-            this.tabPageGeneral.Controls.Add(this.label1);
+            this.tabPageGeneral.Controls.Add(this.labelMessagesCount);
             this.tabPageGeneral.Controls.Add(this.textPassword);
             this.tabPageGeneral.Controls.Add(this.textAddress);
             this.tabPageGeneral.Controls.Add(this.checkEnabled);
@@ -596,15 +596,15 @@ namespace hMailServer.Administrator
             this.textFirstName.Size = new System.Drawing.Size(159, 20);
             this.textFirstName.TabIndex = 4;
             // 
-            // label1
+            // labelMessagesCount
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 107);
-            this.label1.Margin = new System.Windows.Forms.Padding(0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(91, 13);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "Messages (count)";
+            this.labelMessagesCount.AutoSize = true;
+            this.labelMessagesCount.Location = new System.Drawing.Point(8, 107);
+            this.labelMessagesCount.Margin = new System.Windows.Forms.Padding(0);
+            this.labelMessagesCount.Name = "labelMessagesCount";
+            this.labelMessagesCount.Size = new System.Drawing.Size(91, 13);
+            this.labelMessagesCount.TabIndex = 14;
+            this.labelMessagesCount.Text = "Messages (count)";
             // 
             // textMessagesCount
             // 
@@ -864,6 +864,6 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.ColumnHeader columnHeader3;
        private System.Windows.Forms.Button buttonEditFolders;
        private System.Windows.Forms.TextBox textMessagesCount;
-       private System.Windows.Forms.Label label1;
+       private System.Windows.Forms.Label labelMessagesCount;
     }
 }
