@@ -115,6 +115,7 @@ namespace hMailServer.Administrator
             textMaxSize.Number = _representedAccount.MaxSize;
             checkEnabled.Checked = _representedAccount.Active;
             textSize.Text = Math.Round(_representedAccount.Size, 3).ToString();
+            textMessagesCount.Text = _representedAccount.Messages.Count.ToString();
 
             checkVacationMessageEnable.Checked = _representedAccount.VacationMessageIsOn;
             textVacationMessageSubject.Text = _representedAccount.VacationSubject;
