@@ -24,8 +24,7 @@ namespace VMwareIntegration.Console
       {
          var softwareUnderTest = args[0];
 
-         _logFile = args[1];
-         _logFile = _logFile.Replace("%TIMESTAMP%", DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
+         _logFile = string.Format("{0}-{1}.log", softwareUnderTest, DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
 
          if (!File.Exists(softwareUnderTest))
          {
