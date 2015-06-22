@@ -5,6 +5,13 @@
 
 #include "InterfaceLogging.h"
 
+InterfaceLogging::InterfaceLogging() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{
+
+}
+
 bool 
 InterfaceLogging::LoadSettings()
 {

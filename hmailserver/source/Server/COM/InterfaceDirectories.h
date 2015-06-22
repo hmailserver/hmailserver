@@ -22,11 +22,8 @@ class ATL_NO_VTABLE InterfaceDirectories :
    public HM::COMAuthenticator
 {
 public:
-   InterfaceDirectories()
-   {
-      
-   }
-
+   InterfaceDirectories();
+   
    void LoadSettings(HM::IniFileSettings *pIniFileSettings)
    {
       ini_file_settings_ = pIniFileSettings;

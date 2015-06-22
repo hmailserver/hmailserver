@@ -18,10 +18,8 @@ class ATL_NO_VTABLE InterfaceStatus :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceStatus()
-	{
-	}
-
+   InterfaceStatus();
+	
    bool LoadSettings();
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACESTATUS)

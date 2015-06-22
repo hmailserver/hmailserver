@@ -10,6 +10,11 @@
 
 #include "../Common/Application/MessageIndexer.h"
 
+InterfaceMessageIndexing::InterfaceMessageIndexing() :
+   config_(nullptr)
+{
+
+}
 
 bool 
 InterfaceMessageIndexing::LoadSettings()

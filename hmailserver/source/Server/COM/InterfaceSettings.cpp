@@ -39,9 +39,12 @@
 
 #include "../Common/BO/Groups.h"
 
-#ifdef _DEBUG
-long InterfaceSettings::counter = 0;
-#endif
+InterfaceSettings::InterfaceSettings() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{
+
+}
 
 STDMETHODIMP InterfaceSettings::InterfaceSupportsErrorInfo(REFIID riid)
 {

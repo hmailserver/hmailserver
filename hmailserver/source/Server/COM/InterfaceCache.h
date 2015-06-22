@@ -16,10 +16,8 @@ class ATL_NO_VTABLE InterfaceCache :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceCache()
-	{
-	}
-
+   InterfaceCache();
+	
    bool LoadSettings();
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACECACHE)
 

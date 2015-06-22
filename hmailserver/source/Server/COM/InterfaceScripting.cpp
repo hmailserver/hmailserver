@@ -7,6 +7,13 @@
 
 #include "..\Common\Scripting\ScriptServer.h"
 
+InterfaceScripting::InterfaceScripting() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{ 
+
+}
+
 bool 
 InterfaceScripting::LoadSettings()
 {

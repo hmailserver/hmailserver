@@ -18,20 +18,8 @@ class ATL_NO_VTABLE InterfaceSettings :
 {
 public:
 
-   InterfaceSettings()
-   {
-#ifdef _DEBUG
-      InterlockedIncrement(&counter);
-#endif
-   }
-
-   ~InterfaceSettings()
-   {
-#ifdef _DEBUG
-      InterlockedDecrement(&counter);
-#endif
-   }
-
+   InterfaceSettings();
+   
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACESETTINGS)
 
@@ -261,10 +249,6 @@ private:
    
    HM::Configuration *config_;
    HM::IniFileSettings *ini_file_settings_;
-
-#ifdef _DEBUG
-   static long counter;
-#endif
    
 };
 

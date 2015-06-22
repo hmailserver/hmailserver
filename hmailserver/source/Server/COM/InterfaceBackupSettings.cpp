@@ -7,6 +7,13 @@
 
 #include "../common/Application/IniFileSettings.h"
 
+InterfaceBackupSettings::InterfaceBackupSettings() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{
+
+}
+
 bool 
 InterfaceBackupSettings::LoadSettings()
 {

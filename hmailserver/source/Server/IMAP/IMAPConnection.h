@@ -184,9 +184,6 @@ namespace HM
       std::shared_ptr<IMAPNotificationClient> notification_client_;
 
       int log_level_;
-
-      bool rfc4616_enabled_;
-      bool rfc4959_enabled_;
    };
    
 }

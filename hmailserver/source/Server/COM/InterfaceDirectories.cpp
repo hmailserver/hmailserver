@@ -5,6 +5,12 @@
 #include "COMError.h"
 #include "InterfaceDirectories.h"
 
+InterfaceDirectories::InterfaceDirectories() :
+   ini_file_settings_(nullptr)
+{
+
+}
+
 STDMETHODIMP InterfaceDirectories::get_ProgramDirectory(BSTR *pVal)
 {
    try

@@ -19,10 +19,8 @@ class ATL_NO_VTABLE InterfaceBackupSettings :
    public HM::COMAuthenticator
 {
 public:
-   InterfaceBackupSettings()
-   {
+   InterfaceBackupSettings();
 
-   }
 
    bool LoadSettings();
 

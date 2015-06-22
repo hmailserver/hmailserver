@@ -33,7 +33,9 @@ InterfaceDatabase::InterfaceSupportsErrorInfo(REFIID riid)
    return S_FALSE;   
 }
 
-InterfaceDatabase::InterfaceDatabase()
+InterfaceDatabase::InterfaceDatabase() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
 {
 
 }

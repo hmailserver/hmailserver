@@ -18,6 +18,12 @@
 #include "InterfaceSURBLServers.h"
 #include "InterfaceDNSBlackLists.h"
 
+InterfaceAntiSpam::InterfaceAntiSpam() :
+   config_(nullptr)
+{
+
+}
+
 bool 
 InterfaceAntiSpam::LoadSettings()
 {

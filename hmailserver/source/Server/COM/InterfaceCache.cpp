@@ -25,6 +25,13 @@
 #include "..\Common\BO\BlockedAttachments.h"
 #include "..\Common\BO\GreyListingWhiteAddresses.h"
 
+InterfaceCache::InterfaceCache() :
+   config_(nullptr),
+   cache_config_(nullptr)
+{
+
+}
+
 bool 
 InterfaceCache::LoadSettings()
 {

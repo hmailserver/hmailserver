@@ -7,6 +7,12 @@
 
 #include "../Common/Mime/Mime.h"
 
+InterfaceMessageHeader::InterfaceMessageHeader() :
+   object_(nullptr)
+{
+
+}
+
 void 
 InterfaceMessageHeader::AttachItem (std::shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField)
 {

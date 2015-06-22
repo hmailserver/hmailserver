@@ -7,6 +7,14 @@
 
 #include "../Common/Util/ServerStatus.h"
 
+InterfaceStatus::InterfaceStatus() :
+   status_(nullptr),
+   application_(nullptr)
+{
+
+}
+
+
 bool 
 InterfaceStatus::LoadSettings()
 {

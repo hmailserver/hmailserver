@@ -16,9 +16,7 @@ class ATL_NO_VTABLE InterfaceLogging :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceLogging()
-	{
-	}
+   InterfaceLogging();
 
    bool LoadSettings();
 

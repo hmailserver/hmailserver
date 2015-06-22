@@ -299,7 +299,7 @@ namespace HM
             return true;
          }
 
-         size_t bytesWritten;
+         size_t bytesWritten = 0;
          if (!Write(sourceData, bytesWritten))
             return false;
 

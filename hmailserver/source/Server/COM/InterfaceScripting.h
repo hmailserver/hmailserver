@@ -16,9 +16,7 @@ class ATL_NO_VTABLE InterfaceScripting :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceScripting()
-	{
-	}
+   InterfaceScripting();
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACESCRIPTING)
 
