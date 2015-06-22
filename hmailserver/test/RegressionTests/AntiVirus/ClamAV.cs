@@ -16,6 +16,8 @@ namespace RegressionTests.AntiVirus
          CustomAsserts.AssertClamDRunning();
 
          _antiVirus = _application.Settings.AntiVirus;
+
+         _antiVirus.Action = eAntivirusAction.hDeleteEmail;
       }
 
       #endregion
