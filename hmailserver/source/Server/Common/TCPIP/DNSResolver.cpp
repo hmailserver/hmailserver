@@ -99,14 +99,14 @@ namespace HM
          return false;
       }
 
-      PDNS_RECORD pDnsRecords = NULL;
+      PDNS_RECORD pDnsRecord = NULL;
       PIP4_ARRAY pSrvList = NULL;
 
       DWORD fOptions = DNS_QUERY_STANDARD;
       
-      DNS_STATUS nDnsStatus = DnsQuery(sSearchFor, wType, fOptions, NULL, &pDnsRecords,NULL);
+      DNS_STATUS nDnsStatus = DnsQuery(sSearchFor, wType, fOptions, NULL, &pDnsRecord, NULL);
 
-      PDNS_RECORD pDnsRecordsToDelete = pDnsRecords;
+      PDNS_RECORD pDnsRecordsToDelete = pDnsRecord;
 
       if (nDnsStatus != 0)
       {
@@ -130,7 +130,7 @@ namespace HM
       {
          case DNS_TYPE_CNAME:
          {
-            String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
+            String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
             if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion+1))
                return false;
 
@@ -138,32 +138,32 @@ namespace HM
          }
          case DNS_TYPE_MX: 
             {
-               if (pDnsRecords->wType == DNS_TYPE_CNAME)
+               if (pDnsRecord->wType == DNS_TYPE_CNAME)
                {
                   // we received a CNAME response so we need to recurse over that.
-                  String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
+                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
                   if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
                      return false;
                }            
-               else if (pDnsRecords->wType == DNS_TYPE_MX)
+               else if (pDnsRecord->wType == DNS_TYPE_MX)
                {
                   std::vector<structMailServer> vecMailServersUnsorted;
 
                   do 
                   {
-                     String sName = pDnsRecords->pName;
+                     String sName = pDnsRecord->pName;
                      bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
 
-                     if (pDnsRecords->Flags.S.Section == DNSREC_ANSWER && bNameMatches) 
+                     if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
                      {
                         structMailServer structServer; 
-                        structServer.sHostName = pDnsRecords->Data.MX.pNameExchange;
-                        structServer.lPreference = pDnsRecords->Data.MX.wPreference;
+                        structServer.sHostName = pDnsRecord->Data.MX.pNameExchange;
+                        structServer.lPreference = pDnsRecord->Data.MX.wPreference;
 
                         vecMailServersUnsorted.push_back(structServer);
                      }
-                     pDnsRecords = pDnsRecords->pNext;
-                  } while (pDnsRecords);
+                     pDnsRecord = pDnsRecord->pNext;
+                  } while (pDnsRecord);
 
                   // Add the servers in sorted order.
                   while (vecMailServersUnsorted.size() > 0)
@@ -197,20 +197,20 @@ namespace HM
          break;
       case DNS_TYPE_TEXT: 
          {
-            if (pDnsRecords->wType == DNS_TYPE_CNAME)
+            if (pDnsRecord->wType == DNS_TYPE_CNAME)
             {
                // we received a CNAME response so we need to recurse over that.
-               String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
+               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
                if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
                   return false;
             }   
-            else if (pDnsRecords->wType == DNS_TYPE_TEXT)
+            else if (pDnsRecord->wType == DNS_TYPE_TEXT)
             {
                AnsiString retVal;
 
-               for (u_int i = 0; i < pDnsRecords->Data.TXT.dwStringCount; i++) 
+               for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
                {
-                  retVal += pDnsRecords->Data.TXT.pStringArray[i];
+                  retVal += pDnsRecord->Data.TXT.pStringArray[i];
                }
                
                vecFoundNames.push_back(retVal);
@@ -220,17 +220,17 @@ namespace HM
       // JDR: Added to perform PTR lookups.
       case DNS_TYPE_PTR: 
          {
-            if (pDnsRecords->wType == DNS_TYPE_CNAME)
+            if (pDnsRecord->wType == DNS_TYPE_CNAME)
             {
                // we received a CNAME response so we need to recurse over that.
-               String sDomainName = pDnsRecords->Data.CNAME.pNameHost;
+               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
                if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
                   return false;
             }   
-            else if (pDnsRecords->wType == DNS_TYPE_PTR)
+            else if (pDnsRecord->wType == DNS_TYPE_PTR)
             {
                AnsiString retVal;
-               retVal = pDnsRecords->Data.PTR.pNameHost;
+               retVal = pDnsRecord->Data.PTR.pNameHost;
                vecFoundNames.push_back(retVal);
             }
             break;
