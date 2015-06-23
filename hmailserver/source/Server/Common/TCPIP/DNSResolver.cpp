@@ -275,7 +275,7 @@ namespace HM
 
       // Get a list of endpoints corresponding to the server name.
       tcp::resolver resolver(io_service);
-      tcp::resolver::query query(AnsiString(sDomain), "25", tcp::resolver::query::numeric_service);
+      tcp::resolver::query query(AnsiString("ipv6.google.com"), "25", tcp::resolver::query::numeric_service);
 
       boost::system::error_code errorCode;
       tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, errorCode);
@@ -373,9 +373,9 @@ namespace HM
             return false;
          }
 		 
-		 for(String record : a_records)         
-		 {
-		 	HostNameAndIpAddress hostAndAddress;
+		    for(String record : a_records)         
+		    {
+		 	   HostNameAndIpAddress hostAndAddress;
             hostAndAddress.SetHostName(sDomainName);
             hostAndAddress.SetIpAddress(record);
 
