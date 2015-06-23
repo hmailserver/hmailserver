@@ -117,3 +117,4 @@
 5601, _AtlModule.WinMain returned {0}.
 5602, Unable to read install path from HKEY_LOCAL_MACHINE\SOFTWARE\\hMailServer. Using fallback method.
 5603, Unable to enable Diffie-Hellman key agreement. The required file {0} does not exist.
+5700, Could not delete the directory %s.

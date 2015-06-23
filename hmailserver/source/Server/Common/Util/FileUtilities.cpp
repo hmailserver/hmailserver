@@ -460,7 +460,18 @@ namespace HM
       {
          boost::filesystem::path current(file->path());
          if (boost::filesystem::is_directory(current))
-            boost::filesystem::remove(current);
+         {
+            boost::system::error_code error_code;
+            boost::filesystem::remove_all(current, error_code);
+
+            if (error_code)
+            {
+               String sErrorMessage;
+               sErrorMessage.Format(_T("Could not delete the directory %s."), file->path().string());
+               ErrorManager::Instance()->ReportError(ErrorManager::High, 5700, "FileUtilities::DeleteDirectoriesInDirectory", sErrorMessage, error_code);
+               return false;
+            }
+         }
       }
 
       return true;
