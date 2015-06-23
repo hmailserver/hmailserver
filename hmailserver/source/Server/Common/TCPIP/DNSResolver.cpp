@@ -18,11 +18,19 @@ using boost::asio::ip::tcp;
 
 namespace HM
 {
-   struct structMailServer
+   struct DnsRecordWithPreference
    {
-      long lPreference;
-      String sHostName;
+      DnsRecordWithPreference(long preference, String value)
+      {
+         Preference = preference;
+         Value = value;
+      }
+
+      long Preference;
+      String Value;
    };
+
+   bool SortDnsRecordWithPreference(DnsRecordWithPreference first, DnsRecordWithPreference second) { return (first.Preference<second.Preference); }
 
    DNSResolver::DNSResolver()
    {
@@ -126,121 +134,102 @@ namespace HM
          return true;
       }
 
-      switch (wType)
+      std::vector<DnsRecordWithPreference> foundDnsRecordsWithPreference;
+
+      do
       {
-         case DNS_TYPE_CNAME:
+         switch (wType)
          {
-            String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-            if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion+1))
-               return false;
-
-            break;
-         }
-         case DNS_TYPE_MX: 
+            case DNS_TYPE_CNAME:
             {
-               if (pDnsRecord->wType == DNS_TYPE_CNAME)
-               {
-                  // we received a CNAME response so we need to recurse over that.
-                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
-                     return false;
-               }            
-               else if (pDnsRecord->wType == DNS_TYPE_MX)
-               {
-                  std::vector<structMailServer> vecMailServersUnsorted;
+               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
+               if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion+1))
+                  return false;
 
-                  do 
+               break;
+            }
+            case DNS_TYPE_MX: 
+               {
+                  if (pDnsRecord->wType == DNS_TYPE_CNAME)
+                  {
+                     // we received a CNAME response so we need to recurse over that.
+                     String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
+                     if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
+                        return false;
+                  }            
+                  else if (pDnsRecord->wType == DNS_TYPE_MX)
                   {
                      String sName = pDnsRecord->pName;
                      bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
 
                      if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
                      {
-                        structMailServer structServer; 
-                        structServer.sHostName = pDnsRecord->Data.MX.pNameExchange;
-                        structServer.lPreference = pDnsRecord->Data.MX.wPreference;
-
-                        vecMailServersUnsorted.push_back(structServer);
-                     }
-                     pDnsRecord = pDnsRecord->pNext;
-                  } while (pDnsRecord);
-
-                  // Add the servers in sorted order.
-                  while (vecMailServersUnsorted.size() > 0)
-                  {
-                     // Find lowest preference.
-                     auto iterServer = vecMailServersUnsorted.begin();
-                     long iCurLowest = -1;
-                     while (iterServer != vecMailServersUnsorted.end())
-                     {
-                        if (iCurLowest == -1 || (*iterServer).lPreference < iCurLowest)
-                           iCurLowest = (*iterServer).lPreference;
-
-                        iterServer++;
-                     }
-
-                     // Add lowest to sorted list and remove from unsorted.
-                     iterServer = vecMailServersUnsorted.begin();
-                     while (iterServer != vecMailServersUnsorted.end())
-                     {
-                        if ((*iterServer).lPreference == iCurLowest)
-                        {
-                           vecFoundNames.push_back((*iterServer).sHostName);
-                           iterServer = vecMailServersUnsorted.erase(iterServer);
-                        }
-                        else
-                           iterServer++;
+                        DnsRecordWithPreference structServer(pDnsRecord->Data.MX.wPreference, pDnsRecord->Data.MX.pNameExchange);
+                        foundDnsRecordsWithPreference.push_back(structServer);
                      }
                   }
                }
-            }
-         break;
-      case DNS_TYPE_TEXT: 
-         {
-            if (pDnsRecord->wType == DNS_TYPE_CNAME)
+            break;
+         case DNS_TYPE_TEXT: 
             {
-               // we received a CNAME response so we need to recurse over that.
-               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-               if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
-                  return false;
-            }   
-            else if (pDnsRecord->wType == DNS_TYPE_TEXT)
-            {
-               AnsiString retVal;
-
-               for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
+               if (pDnsRecord->wType == DNS_TYPE_CNAME)
                {
-                  retVal += pDnsRecord->Data.TXT.pStringArray[i];
-               }
+                  // we received a CNAME response so we need to recurse over that.
+                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
+                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
+                     return false;
+               }   
+               else if (pDnsRecord->wType == DNS_TYPE_TEXT)
+               {
+                  AnsiString retVal;
+
+                  for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
+                  {
+                     retVal += pDnsRecord->Data.TXT.pStringArray[i];
+                  }
                
-               vecFoundNames.push_back(retVal);
+                  DnsRecordWithPreference structServer (0, retVal);
+                  foundDnsRecordsWithPreference.push_back(structServer);
+               }
+               break;
             }
-            break;
-         }
-      // JDR: Added to perform PTR lookups.
-      case DNS_TYPE_PTR: 
-         {
-            if (pDnsRecord->wType == DNS_TYPE_CNAME)
+         // JDR: Added to perform PTR lookups.
+         case DNS_TYPE_PTR: 
             {
-               // we received a CNAME response so we need to recurse over that.
-               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-               if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
-                  return false;
-            }   
-            else if (pDnsRecord->wType == DNS_TYPE_PTR)
-            {
-               AnsiString retVal;
-               retVal = pDnsRecord->Data.PTR.pNameHost;
-               vecFoundNames.push_back(retVal);
+               if (pDnsRecord->wType == DNS_TYPE_CNAME)
+               {
+                  // we received a CNAME response so we need to recurse over that.
+                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
+                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
+                     return false;
+               }   
+               else if (pDnsRecord->wType == DNS_TYPE_PTR)
+               {
+                  AnsiString retVal;
+                  retVal = pDnsRecord->Data.PTR.pNameHost;
+
+                  DnsRecordWithPreference structServer (0, retVal);
+                  foundDnsRecordsWithPreference.push_back(structServer);
+               }
+               break;
             }
-            break;
-         }
-         default:
-            {
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", "Querying unknown wType.");
-            }
+            default:
+               {
+                  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", "Querying unknown wType.");
+               }
             
-            break;
+               break;
+         }
+
+         pDnsRecord = pDnsRecord->pNext;
+      }
+      while (pDnsRecord != nullptr);
+
+      std::sort(foundDnsRecordsWithPreference.begin(), foundDnsRecordsWithPreference.end(), SortDnsRecordWithPreference);
+
+      for (DnsRecordWithPreference item : foundDnsRecordsWithPreference)
+      {
+         vecFoundNames.push_back(item.Value);
       }
 
       _FreeDNSRecord(pDnsRecordsToDelete);
