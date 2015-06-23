@@ -102,11 +102,7 @@ namespace HM
       PDNS_RECORD pDnsRecords = NULL;
       PIP4_ARRAY pSrvList = NULL;
 
-      DWORD fOptions;
-      fOptions = DNS_QUERY_STANDARD;
-
-      // We need this if not using system dns servers
-      //      fOptions = DNS_QUERY_BYPASS_CACHE;
+      DWORD fOptions = DNS_QUERY_STANDARD;
       
       DNS_STATUS nDnsStatus = DnsQuery(sSearchFor, wType, fOptions, NULL, &pDnsRecords,NULL);
 
