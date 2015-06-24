@@ -42,9 +42,9 @@ namespace HM
 {
 
    Configuration::Configuration() :
-      crash_simulation_mode_(0)
+      crash_simulation_mode_(0),
+      ipv6_available_(false)
    {
-
    }
 
    Configuration::~Configuration()
@@ -55,10 +55,12 @@ namespace HM
    bool 
    Configuration::Load()
    {
+      IPAddress address;
+      ipv6_available_ = address.TryParse("::F", false);
+
       property_set_ = std::shared_ptr<PropertySet>(new PropertySet());
       property_set_->Refresh();
-
-
+      
       pop3_configuration_ = std::shared_ptr<POP3Configuration>(new POP3Configuration);
       smtp_configuration_ = std::shared_ptr<SMTPConfiguration>(new SMTPConfiguration);
       imap_configuration_ = std::shared_ptr<IMAPConfiguration>(new IMAPConfiguration);
@@ -738,5 +740,11 @@ namespace HM
          return false;
 
       return true;
+   }
+
+   bool
+   Configuration::IsIPv6Available()
+   {
+      return ipv6_available_;
    }
 } 

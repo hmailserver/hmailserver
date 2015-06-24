@@ -89,7 +89,7 @@ namespace HM
          // the senders IP address.
          std::vector<String> saFoundNames;
          DNSResolver resolver;
-         if (!resolver.GetARecords(sHeloHost, saFoundNames))
+         if (!resolver.GetIpAddresses(sHeloHost, saFoundNames))
          {
             // DNS failure. Assume it's not spam.
             return true;

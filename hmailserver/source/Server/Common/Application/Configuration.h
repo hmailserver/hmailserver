@@ -43,6 +43,8 @@ namespace HM
 
       bool Load();
 
+      bool IsIPv6Available();
+
       void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       bool GetUseSMTP() const;
@@ -190,5 +192,7 @@ namespace HM
       std::shared_ptr<PropertySet> property_set_;
 
       int crash_simulation_mode_;
+
+      bool ipv6_available_;
    };
 }

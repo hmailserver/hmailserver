@@ -35,7 +35,7 @@ namespace HM
      
       String result;
 
-      if (TCPServer::HasIPV6())
+      if (Configuration::Instance()->IsIPv6Available())
       {
          String formattedString;
          formattedString.Format(_T("IPv6 support is available in operating system.\r\n"));

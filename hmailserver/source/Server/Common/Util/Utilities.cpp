@@ -404,7 +404,7 @@ namespace HM
       if (!utilities.IsValidIPAddress("127.0.0"))
          throw;
 
-      if (TCPServer::HasIPV6())
+      if (Configuration::Instance()->IsIPv6Available())
       {
          if (!utilities.IsValidIPAddress("2001:0db8:0000:0000:0000:0000:1428:07ab"))
             throw;

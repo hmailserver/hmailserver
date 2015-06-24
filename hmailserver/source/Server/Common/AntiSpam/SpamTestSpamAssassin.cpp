@@ -70,7 +70,7 @@ namespace HM
       DNSResolver resolver;
 
       std::vector<String> ip_addresses;
-      resolver.GetARecords(sHost, ip_addresses);
+      resolver.GetIpAddresses(sHost, ip_addresses);
 
       String ip_address;
       if (ip_addresses.size())

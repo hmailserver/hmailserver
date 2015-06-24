@@ -59,35 +59,16 @@ namespace HM
    bool
    DNSResolver::IsDNSError_(int iErrorMessage)
    {
-      // Assume non-fatal if we aren't sure it's not.
       switch (iErrorMessage)
       {
       case DNS_ERROR_RCODE_NAME_ERROR: // Domain doesn't exist
          return false;
       case ERROR_INVALID_NAME:
          return false;
-      case DNS_INFO_NO_RECORDS: // No records were found for the host. Not an error.
+      case DNS_INFO_NO_RECORDS:        // No records were found for the host. Not an error.
          return false;
-      case DNS_ERROR_NO_DNS_SERVERS: // No DNS servers found.
+      case DNS_ERROR_NO_DNS_SERVERS:   // No DNS servers found.
          return true;
-      }
-
-      return true;
-   }
-
-
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Determines whether the result of a WSA-function is an error or not.
-   //---------------------------------------------------------------------------()
-   bool
-   DNSResolver::IsWSAError_(int iErrorMessage)
-   {
-      // Assume non-fatal if we aren't sure it's not.
-      switch (iErrorMessage)
-      {
-      case WSAHOST_NOT_FOUND: // Domain doesn't exist
-         return false;
       }
 
       return true;
@@ -96,12 +77,9 @@ namespace HM
    bool
    DNSResolver::Resolve_(const String &sSearchFor, std::vector<String> &vecFoundNames, WORD wType, int iRecursion)
    {
-      USES_CONVERSION;
-
       if (iRecursion > 10)
       {
-         String sMessage;
-         sMessage.Format(_T("Too many recursions during query. Query: %s, Type: %d."), sSearchFor.c_str(), wType);
+         String sMessage = Formatter::Format("Too many recursions during query. Query: {0}, Type: {1}", sSearchFor, wType);
          ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::Resolve_", sMessage);
 
          return false;
@@ -126,7 +104,7 @@ namespace HM
          if (bDNSError)
          {
             String sMessage;
-            sMessage.Format(_T("DNS - Query failure. Treating as temporary failure. Query: %s, Type: %d, DnsQuery return value: %d."), sSearchFor.c_str(), wType, nDnsStatus);
+            sMessage.Format(_T("DNS - Query failure. Query: %s, Type: %d, DnsQuery return value: %d."), sSearchFor.c_str(), wType, nDnsStatus);
             LOG_TCPIP(sMessage);
             return false;
          }
@@ -138,8 +116,46 @@ namespace HM
 
       do
       {
-         switch (wType)
+         switch (pDnsRecord->wType)
          {
+            case DNS_TYPE_A:
+            {
+               SOCKADDR_IN addr;
+               memset(&addr, 0, sizeof addr);
+
+               addr.sin_family = AF_INET;
+               addr.sin_addr = *((in_addr*)&(pDnsRecord->Data.AAAA.Ip6Address));
+
+               char buf[128];
+               DWORD bufSize = sizeof(buf);
+
+               if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+               {
+                  DnsRecordWithPreference rec(0, buf);
+                  foundDnsRecordsWithPreference.push_back(rec);
+               }
+               
+               break;
+            }
+            case DNS_TYPE_AAAA:
+            {
+               SOCKADDR_IN6 addr;
+               memset(&addr, 0, sizeof addr);
+
+               addr.sin6_family = AF_INET6;
+               addr.sin6_addr = *((in_addr6*)&(pDnsRecord->Data.AAAA.Ip6Address));
+
+               char buf[128];
+               DWORD bufSize = sizeof(buf);
+
+               if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+               {
+                  DnsRecordWithPreference rec(0, buf);
+                  foundDnsRecordsWithPreference.push_back(rec);
+               }
+               
+               break;
+            }
             case DNS_TYPE_CNAME:
             {
                String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
@@ -149,76 +165,44 @@ namespace HM
                break;
             }
             case DNS_TYPE_MX: 
-               {
-                  if (pDnsRecord->wType == DNS_TYPE_CNAME)
-                  {
-                     // we received a CNAME response so we need to recurse over that.
-                     String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-                     if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_MX, iRecursion+1))
-                        return false;
-                  }            
-                  else if (pDnsRecord->wType == DNS_TYPE_MX)
-                  {
-                     String sName = pDnsRecord->pName;
-                     bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
-
-                     if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
-                     {
-                        DnsRecordWithPreference structServer(pDnsRecord->Data.MX.wPreference, pDnsRecord->Data.MX.pNameExchange);
-                        foundDnsRecordsWithPreference.push_back(structServer);
-                     }
-                  }
-               }
-            break;
-         case DNS_TYPE_TEXT: 
             {
-               if (pDnsRecord->wType == DNS_TYPE_CNAME)
-               {
-                  // we received a CNAME response so we need to recurse over that.
-                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_TEXT, iRecursion+1))
-                     return false;
-               }   
-               else if (pDnsRecord->wType == DNS_TYPE_TEXT)
-               {
-                  AnsiString retVal;
+               String sName = pDnsRecord->pName;
+               bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
 
-                  for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
-                  {
-                     retVal += pDnsRecord->Data.TXT.pStringArray[i];
-                  }
-               
-                  DnsRecordWithPreference structServer (0, retVal);
-                  foundDnsRecordsWithPreference.push_back(structServer);
+               if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
+               {
+                  DnsRecordWithPreference rec(pDnsRecord->Data.MX.wPreference, pDnsRecord->Data.MX.pNameExchange);
+                  foundDnsRecordsWithPreference.push_back(rec);
                }
+
                break;
             }
-         // JDR: Added to perform PTR lookups.
+         case DNS_TYPE_TEXT: 
+            {
+               AnsiString retVal;
+
+               for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
+                  retVal += pDnsRecord->Data.TXT.pStringArray[i];
+               
+               DnsRecordWithPreference rec (0, retVal);
+               foundDnsRecordsWithPreference.push_back(rec);
+
+               break;
+            }
          case DNS_TYPE_PTR: 
             {
-               if (pDnsRecord->wType == DNS_TYPE_CNAME)
-               {
-                  // we received a CNAME response so we need to recurse over that.
-                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-                  if (!Resolve_(sDomainName, vecFoundNames, DNS_TYPE_PTR, iRecursion+1))
-                     return false;
-               }   
-               else if (pDnsRecord->wType == DNS_TYPE_PTR)
-               {
-                  AnsiString retVal;
-                  retVal = pDnsRecord->Data.PTR.pNameHost;
+               AnsiString retVal;
+               retVal = pDnsRecord->Data.PTR.pNameHost;
 
-                  DnsRecordWithPreference structServer (0, retVal);
-                  foundDnsRecordsWithPreference.push_back(structServer);
-               }
+               DnsRecordWithPreference rec(0, retVal);
+               foundDnsRecordsWithPreference.push_back(rec);
                break;
             }
             default:
-               {
-                  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", "Querying unknown wType.");
-               }
-            
+            {
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", Formatter::Format("Queried for {0} but received type {1}", wType, pDnsRecord->wType));
                break;
+            }
          }
 
          pDnsRecord = pDnsRecord->pNext;
@@ -246,7 +230,7 @@ namespace HM
    // Code is platform independent.
    //---------------------------------------------------------------------------()
    bool 
-   DNSResolver::GetARecords(const String &sDomain, std::vector<String> &saFoundNames)
+   DNSResolver::GetIpAddresses(const String &sDomain, std::vector<String> &vecFoundNames)
    {
       if (sDomain.IsEmpty())
       {
@@ -254,64 +238,13 @@ namespace HM
          return false;
       }
 
+      bool ipv4AddressResult = Resolve_(sDomain, vecFoundNames, DNS_TYPE_A, 0);
 
-      // Do a DNS/A lookup. This may result in a AAAA result, if IPV6 is installed in the system.
-      boost::asio::io_service io_service;
+      bool ipv6AddressResult = Configuration::Instance()->IsIPv6Available() ?
+                                 Resolve_(sDomain, vecFoundNames, DNS_TYPE_AAAA, 0) :
+                                 false;
 
-      // Get a list of endpoints corresponding to the server name.
-      tcp::resolver resolver(io_service);
-      tcp::resolver::query query(AnsiString(sDomain), "25", tcp::resolver::query::numeric_service);
-
-      boost::system::error_code errorCode;
-      tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, errorCode);
-      
-      if (errorCode)
-      {
-         bool bDNSError = IsWSAError_(errorCode.value());
-
-         if (bDNSError)
-         {
-            String sMessage;
-            sMessage.Format(_T("DNS query failure. Query: %s, Type: A/AAAA, DnsQuery return value: %d. Message: %s"), sDomain.c_str(), errorCode.value(), String(errorCode.message()));
-            LOG_TCPIP(sMessage);
-            return false;
-         }
-
-         return true;
-      }
-
-      std::vector<String> addresses_ipv4;
-      std::vector<String> addresses_ipv6;
-
-      while (endpoint_iterator != tcp::resolver::iterator())   
-      {
-         tcp::endpoint endpoint = *endpoint_iterator;
-         boost::asio::ip::address adr = endpoint.address();
-
-         std::string result = adr.to_string(errorCode);
-
-         if (errorCode)
-         {
-            String sMessage;
-            sMessage.Format(_T("DNS query failure. Treating as temporary failure. Conversion of DNS record to string failed. Domain: %s, Error code: %d, Message: %s"), sDomain.c_str(), errorCode.value(), String(errorCode.message()).c_str());
-            LOG_TCPIP(sMessage);
-            return false;
-         }
-
-         if (adr.is_v4())
-            addresses_ipv4.push_back(result);
-         if (adr.is_v6())
-            addresses_ipv6.push_back(result);
-
-         endpoint_iterator++;
-      }
-
-      for(String address : addresses_ipv4)
-         saFoundNames.push_back(address);
-      for(String address : addresses_ipv6)
-         saFoundNames.push_back(address);
-
-      return true;
+      return ipv4AddressResult || ipv6AddressResult;
    }
 
    bool 
@@ -349,7 +282,7 @@ namespace HM
          */
 
          std::vector<String> a_records;
-         if (!GetARecords(sDomainName, a_records))
+         if (!GetIpAddresses(sDomainName, a_records))
          {
             String logMessage;
                logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
@@ -381,7 +314,7 @@ namespace HM
             size_t iCountBefore = saFoundNames.size();
 
             std::vector<String> a_records;
-            if (!GetARecords(domain, a_records))
+            if (!GetIpAddresses(domain, a_records))
                continue;
 
             dnsSuccess = true;

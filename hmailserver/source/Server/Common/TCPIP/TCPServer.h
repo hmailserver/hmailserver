@@ -28,8 +28,6 @@ namespace HM
       void Run();
       void StopAccept();
 
-      static bool HasIPV6();
-
    private:
       
       std::string GetPassword() const;
