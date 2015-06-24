@@ -209,7 +209,7 @@ namespace HM
    }
 
    std::shared_ptr<MessageData>
-   SpamProtection::TagMessageAsSpam(std::shared_ptr<Message> pMessage, std::set<std::shared_ptr<SpamTestResult> > setResult)
+   SpamProtection::AddSpamScoreHeaders(std::shared_ptr<Message> pMessage, std::set<std::shared_ptr<SpamTestResult> > setResult, bool classifiedAsSpam)
    {
       std::shared_ptr<MessageData> pMessageData;
 
@@ -230,8 +230,26 @@ namespace HM
       if (!pMessageData->LoadFromMessage(PersistentMessage::GetFileName(pMessage), pMessage))
          return pMessageData;
 
-      if (config.GetAddHeaderSpam())
-         pMessageData->SetFieldValue("X-hMailServer-Spam", "YES");
+      if (classifiedAsSpam)
+      {
+         if (config.GetAddHeaderSpam())
+         {
+            pMessageData->SetFieldValue("X-hMailServer-Spam", "YES");
+         }
+
+         if (config.GetPrependSubject())
+         {
+            // Add subject
+            String sSubject = pMessageData->GetFieldValue("Subject");
+
+            // Check if subject is already prepended. If so, don't do it again.
+            if (sSubject.Find(config.GetPrependSubjectText()) != 0)
+            {
+               sSubject = config.GetPrependSubjectText() + " " + sSubject;
+               pMessageData->SetFieldValue("Subject", sSubject);
+            }
+         }
+      }
 
       if (config.GetAddHeaderReason())
       {
@@ -258,22 +276,7 @@ namespace HM
          }
 
          pMessageData->SetFieldValue("X-hMailServer-Reason-Score", StringParser::IntToString(iTotalScore));
-         
       }
-
-      if (config.GetPrependSubject())
-      {
-         // Add subject
-         String sSubject = pMessageData->GetFieldValue("Subject");
-            
-         // Check if subject is already prepended. If so, don't do it again.
-         if (sSubject.Find(config.GetPrependSubjectText()) != 0)
-         {
-            sSubject = config.GetPrependSubjectText() + " " + sSubject;
-            pMessageData->SetFieldValue("Subject", sSubject);
-         }
-      }
-
 
       return pMessageData;
       

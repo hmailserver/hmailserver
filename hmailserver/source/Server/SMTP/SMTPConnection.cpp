@@ -1142,7 +1142,9 @@ namespace HM
 
       if (spam_test_results_.size() > 0)
       {
-         pMsgData = SpamProtection::TagMessageAsSpam(current_message_, spam_test_results_);
+         bool classifiedAsSpam = iTotalSpamScore >= iSpamMarkThreshold;
+
+         pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
 
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
