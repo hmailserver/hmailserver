@@ -281,7 +281,7 @@ namespace HM
       int iMarkThreshold = GetSpamMarkThreshold();
       int iDeleteThreshold  = GetSpamDeleteThreshold();
 
-      return min(iMarkThreshold, iDeleteThreshold);
+      return std::min(iMarkThreshold, iDeleteThreshold);
    }
 
    void

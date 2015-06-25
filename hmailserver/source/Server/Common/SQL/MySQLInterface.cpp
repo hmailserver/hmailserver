@@ -59,7 +59,7 @@ namespace HM
 
       String sPath(szPath);
 
-      int iLastSlash = max(sPath.ReverseFind(_T("\\")), sPath.ReverseFind(_T("/")));
+      int iLastSlash = std::max(sPath.ReverseFind(_T("\\")), sPath.ReverseFind(_T("/")));
       String sRetVal = sPath.Mid(0, iLastSlash);
       sRetVal += "\\libmysql.dll";
 

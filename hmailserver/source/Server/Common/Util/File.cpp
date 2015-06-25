@@ -238,7 +238,7 @@ namespace HM
 
          while (remaining_bytes > 0)
          {
-            size_t bytes_to_read = min(FileChunkSize, remaining_bytes);
+            size_t bytes_to_read = std::min((size_t) FileChunkSize, remaining_bytes);
             size_t bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
 
             total_bytes_read += bytes_actually_read;

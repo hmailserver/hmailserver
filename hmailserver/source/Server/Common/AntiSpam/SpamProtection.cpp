@@ -80,7 +80,7 @@ namespace HM
       pTestData->SetConnectingIP(iConnectingIP);
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
-      int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
+      int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
       std::set<std::shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PreTransmission, maxScore);
 
@@ -105,7 +105,7 @@ namespace HM
       int maxSizeToScanKB = 1024 * 5;
 
       if (config.GetAntiSpamMaxSizeKB() > 0)
-         maxSizeToScanKB = min(config.GetAntiSpamMaxSizeKB(), maxSizeToScanKB);
+         maxSizeToScanKB = std::min(config.GetAntiSpamMaxSizeKB(), maxSizeToScanKB);
 
       int messageSizeKB = FileUtilities::FileSize(fileName) / 1024;
       if (messageSizeKB > maxSizeToScanKB)
@@ -125,7 +125,7 @@ namespace HM
       pTestData->SetConnectingIP(iConnectingIP);
       pTestData->SetMessageData(pMessageData);
 
-      int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
+      int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
       std::set<std::shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PostTransmission, maxScore);
 

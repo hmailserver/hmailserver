@@ -13,6 +13,8 @@
 #define STRICT
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 
+#define NOMINMAX
+
 // Following define is to solve this compilation warning:
 //    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : error C2220 : warning treated as error - no 'object' file generated
 //    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : warning C4996 : 'gethostbyaddr' : Use getnameinfo() or GetNameInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
