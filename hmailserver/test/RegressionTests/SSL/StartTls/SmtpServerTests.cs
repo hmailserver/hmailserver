@@ -129,5 +129,25 @@ namespace RegressionTests.SSL.StartTls
          var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
          Assert.IsTrue(loginResult.StartsWith("530 A SSL/TLS-connection is required for authentication.")); // must run starttls first.
       }
+
+      [Test]
+      public void TestPlaintextCommandInjection()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         var resp = smtpClientSimulator.SendAndReceive("STARTTLS\r\nRSET\r\n");
+         Assert.AreEqual("220 Ready to start TLS\r\n", resp);
+         smtpClientSimulator.HandshakeAsClient();
+
+         var quitResponse = smtpClientSimulator.SendAndReceive("QUIT\r\n");
+         Assert.AreEqual(quitResponse, "221 goodbye\r\n");
+
+         var default_log = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsFalse(default_log.Contains("RSET"));
+      }
    }
 }
