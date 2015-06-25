@@ -373,6 +373,7 @@ namespace HM
          sMessage.Format(_T("TCPConnection - TLS/SSL handshake completed. Session Id: %d, Remote IP: %s, Version: %s, Cipher: %s, Bits: %d"), session_id_, SafeGetIPAddress().c_str(), String(cipher_info.GetVersion()).c_str(), String(cipher_info.GetName()).c_str(), cipher_info.GetBits());
          LOG_TCPIP(sMessage);
 
+         receive_buffer_.consume(receive_buffer_.size());
 
          OnHandshakeCompleted();
       }
