@@ -17,13 +17,13 @@
 #include "../SMTP/RecipientParser.h"
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/Utilities.h"
+#include "../Common/Util/ServerStatus.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/BO/MessageRecipients.h"
 #include "../common/util/MessageUtilities.h"
 #include "../common/Threading/AsynchronousTask.h"
 #include "../common/Threading/WorkQueue.h"
-
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 
@@ -806,8 +806,12 @@ namespace HM
       bool classifiedAsSpam = iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
       
       std::shared_ptr<MessageData> messageData = SpamProtection::AddSpamScoreHeaders(current_message_, setSpamTestResults, classifiedAsSpam);
+
       if (messageData)
          messageData->Write(fileName);
+
+      if (classifiedAsSpam)
+         ServerStatus::Instance()->OnSpamMessageDetected();
 
       return true;
    }

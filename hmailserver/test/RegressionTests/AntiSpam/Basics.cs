@@ -165,7 +165,6 @@ namespace RegressionTests.AntiSpam
 
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Contains("X-hMailServer-Spam") ||
-             sMessageContents.Contains("X-hMailServer-Reason") ||
              sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Spam message etected as spam even though it's larger than max spam size.");
 
@@ -403,7 +402,6 @@ namespace RegressionTests.AntiSpam
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Length == 0 ||
              sMessageContents.Contains("X-hMailServer-Spam") ||
-             sMessageContents.Contains("X-hMailServer-Reason") ||
              sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Non-Spam message detected as spam");
 
@@ -413,7 +411,6 @@ namespace RegressionTests.AntiSpam
 
          sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
-             !sMessageContents.Contains("X-hMailServer-Reason") ||
              !sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Spam message not detected as spam");
 
@@ -458,7 +455,6 @@ namespace RegressionTests.AntiSpam
          string sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (sMessageContents.Length == 0 ||
              sMessageContents.Contains("X-hMailServer-Spam") ||
-             sMessageContents.Contains("X-hMailServer-Reason") ||
              sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Non-Spam message detected as spam");
 
@@ -469,7 +465,6 @@ namespace RegressionTests.AntiSpam
 
          sMessageContents = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          if (!sMessageContents.Contains("X-hMailServer-Spam") ||
-             !sMessageContents.Contains("X-hMailServer-Reason") ||
              !sMessageContents.Contains("ThisIsSpam"))
             throw new Exception("Spam message not detected as spam");
 

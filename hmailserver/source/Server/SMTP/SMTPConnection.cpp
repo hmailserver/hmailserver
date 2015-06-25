@@ -1140,15 +1140,12 @@ namespace HM
       int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (spam_test_results_.size() > 0)
-      {
-         bool classifiedAsSpam = iTotalSpamScore >= iSpamMarkThreshold;
+      bool classifiedAsSpam = iTotalSpamScore >= iSpamMarkThreshold;
 
-         pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
+      pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
 
-         // Increase the spam-counter
+      if (classifiedAsSpam)
          ServerStatus::Instance()->OnSpamMessageDetected();
-      }
 
       SetMessageSignature_(pMsgData);
 
