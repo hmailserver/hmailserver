@@ -477,11 +477,16 @@ namespace HM
       size_t iEstimatedMessageSize = 0;
       while (iterParam != vecParams.end())
       {
-         String sParam = (*iterParam);
-         if (sParam.Left(4).CompareNoCase(_T("SIZE")) == 0)
-            iEstimatedMessageSize = _ttoi(sParam.Mid(5));
-         if (sParam.Left(5).CompareNoCase(_T("AUTH")) == 0)
-            sAuthParam = sParam.Mid(5);
+         String parameter = (*iterParam);
+         if (parameter.Left(4).CompareNoCase(_T("SIZE")) == 0)
+            iEstimatedMessageSize = _ttoi(parameter.Mid(5));
+         else if (parameter.Left(5).CompareNoCase(_T("AUTH")) == 0)
+            sAuthParam = parameter.Mid(5);
+         else
+         {
+            ReportUnsupportedEsmtpExtension_(parameter);
+            return;
+         }
 
          iterParam++;
       }
@@ -606,7 +611,33 @@ namespace HM
          return;
       }
 
+      // Parse the contents of the RCPT TO: command
+      String sRcptToParameters = Request.Mid(8).Trim();
+
       String sRecipientAddress;
+
+      std::vector<String> vecParams = StringParser::SplitString(sRcptToParameters, " ");
+      auto iterParam = vecParams.begin();
+
+      if (iterParam != vecParams.end())
+      {
+         if (!TryExtractAddress_((*iterParam), sRecipientAddress))
+         {
+            SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+            return;
+         }
+
+         iterParam++;
+      }
+
+      // Parse the extensions 
+      if (iterParam != vecParams.end())
+      {
+         String parameter = *iterParam;
+         ReportUnsupportedEsmtpExtension_(parameter);
+         return;
+      }
+
 
       if (!TryExtractAddress_(Request.Mid(8), sRecipientAddress))
       {
@@ -2117,5 +2148,12 @@ namespace HM
    {
       const auto authDisabledOnPorts = IniFileSettings::Instance()->GetAuthDisabledOnPorts();
       return authDisabledOnPorts.find(GetLocalEndpointPort()) == authDisabledOnPorts.end();
+   }
+
+   void 
+   SMTPConnection::ReportUnsupportedEsmtpExtension_(const String& parameter)
+   {
+      SendErrorResponse_(550, Formatter::Format("Unsupported ESMTP extension: {0}", parameter));
+
    }
 }

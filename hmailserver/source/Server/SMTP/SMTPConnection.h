@@ -134,6 +134,7 @@ namespace HM
       void ProtocolPassword_(const String &sRequest);
       void ProtocolDATA_();
 
+      void ReportUnsupportedEsmtpExtension_(const String &parameter);
 
       void AuthenticateUsingPLAIN_(const String &sLine);
       // Authenticates using a PLAIN line.
