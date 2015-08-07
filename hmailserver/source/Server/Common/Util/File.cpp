@@ -186,17 +186,7 @@ namespace HM
 
          int iFileSize = GetSize();
 
-         // Create a buffer to hold the file
-         pFileContents->Allocate(iFileSize);
-
-         int bytes_read = fread((void*) pFileContents->GetBuffer(), 1, iFileSize, file_);
-
-         if (bytes_read != iFileSize)
-         {
-            throw std::logic_error(Formatter::FormatAsAnsi("Unable to read file {0}. Expected bytes: {1}, Actual read bytes: {2}.", name_, iFileSize, bytes_read));
-         }
-
-         return pFileContents;
+         return ReadChunk(iFileSize);
       }
       catch (...)
       {
@@ -232,32 +222,74 @@ namespace HM
    std::shared_ptr<ByteBuffer> 
    File::ReadChunk(int iMaxSize)
    {  
-      if (file_ == nullptr)
-         throw std::logic_error("Attempt to read from file which has not been opened.");
-
       try
       {
-         std::shared_ptr<ByteBuffer> pReadBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-         pReadBuffer->Allocate(iMaxSize);
+         std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
-         // Read
-         int bytes_read = fread((void*)pReadBuffer->GetBuffer(), 1, iMaxSize, file_);
+         if (file_ == nullptr)
+            throw std::logic_error("Attempt to read from file which has not been opened.");
 
-         if (bytes_read > 0)
+         // Create a buffer to hold the file 
+         pFileContents->Allocate(iMaxSize);
+
+         // fread fails reading large files. If the file is too large, fread will read zero bytes and the
+         // errno will be set to invalid argument. The below code therefore reads the file in chunks.
+         int remaining_bytes = iMaxSize;
+         BYTE *buffer_position = (BYTE*)pFileContents->GetBuffer();
+         const int block_size = 1024 * 50;
+
+         int total_bytes_read = 0;
+
+         while (remaining_bytes > 0)
          {
-            std::shared_ptr<ByteBuffer> pRetBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-            pRetBuffer->Add(pReadBuffer->GetBuffer(), bytes_read);
-            return pRetBuffer;
+            int bytes_to_read = min(block_size, remaining_bytes);
+            int bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
+
+            total_bytes_read += bytes_actually_read;
+
+            if (bytes_actually_read != bytes_to_read)
+            {
+               if (feof(file_))
+               {
+                  // we've reached end of file.
+                  break;
+               }
+
+               char error_msg[255];
+               strerror_s(error_msg, 255, errno);
+               throw std::runtime_error(Formatter::FormatAsAnsi("Unable to read file {0}. Expected bytes: {1}, Actual read bytes: {2}. Error: {3}", name_, bytes_to_read, bytes_actually_read, error_msg));
+            }
+
+            buffer_position += bytes_actually_read;
+            remaining_bytes -= bytes_actually_read;
+
          }
-         
+
+         pFileContents->DecreaseSize(iMaxSize - total_bytes_read);
+
+         if (pFileContents->GetSize() == 0)
+         {
+            std::shared_ptr<ByteBuffer> empty;
+            return empty;
+         }
+
+         return pFileContents;
+      }
+      catch (boost::system::system_error& error)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         throw;
+      }
+      catch (std::exception& error)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         throw;
       }
       catch (...)
       {
-         throw;   
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.");
+         throw;
       }
-
-      std::shared_ptr<ByteBuffer> pBuffer;
-      return pBuffer;
    }
 
    String 
