@@ -158,9 +158,13 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
    
       // Expunge the mailbox. Will cause the message to be
       // deleted from disk and database.
-      std::function<bool(int, std::shared_ptr<HM::Message>)> filter = [](int index, std::shared_ptr<HM::Message> message)
+      std::function<bool(int, std::shared_ptr<HM::Message>)> filter = [&lDBID](int index, std::shared_ptr<HM::Message> message)
          {
-            return true;
+            if (message->GetID() == lDBID){
+               return true;
+            } else {
+               return false;
+            }
          };
 
       auto messages = HM::MessagesContainer::Instance()->GetMessages(messages_->GetAccountID(), messages_->GetFolderID());
