@@ -41,7 +41,7 @@ namespace HM
    {
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
-      const IPAddress &iIPAdress = pTestData->GetConnectingIP();
+      const IPAddress &iIPAdress = pTestData->GetOriginatingIP();
       String sHeloHost = pTestData->GetHeloHost();
 
       if (sHeloHost.IsEmpty())
