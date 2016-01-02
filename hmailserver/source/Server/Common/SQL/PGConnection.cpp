@@ -52,12 +52,12 @@ namespace HM
          long lDBPort = database_settings_->GetPort();
         
          String sConnectionString;
-         sConnectionString.Format(_T("host=%s port=%d user=%s password=%s"), sServer.c_str(), lDBPort, sUsername.c_str(), sPassword.c_str());
+         sConnectionString.Format(_T("host='%s' port='%d' user='%s' password='%s'"), sServer.c_str(), lDBPort, sUsername.c_str(), sPassword.c_str());
 
          if (sDatabase.IsEmpty())
-            sConnectionString += " dbname=postgres";
+            sConnectionString += " dbname='postgres'";
          else
-            sConnectionString += " dbname=" + sDatabase;
+            sConnectionString += " dbname='" + sDatabase + "'";
 
          dbconn_ = PQconnectdb(Unicode::ToANSI(sConnectionString));
 
