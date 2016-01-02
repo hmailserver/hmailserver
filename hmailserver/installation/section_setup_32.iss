@@ -1,3 +1,4 @@
 [Setup]
-OutputBaseFilename=hMailServer-5.4-B1929
-AppVerName=hMailServer 5.4-B1929
+OutputBaseFilename=hMailServer-1.0.0-B0-x86
+AppVerName=hMailServer 1.0.0-B0-x86
+AppVersion=1.0.0

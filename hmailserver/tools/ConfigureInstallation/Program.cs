@@ -21,6 +21,12 @@ namespace ConfigureInstallation
          var version = args[1];
          var build = args[2];
 
+         var versionParts = version.Split('.');
+
+         var versionMajor = versionParts[0];
+         var versionMinor = versionParts[1];
+         var versionPatch = versionParts[2];
+
          if (!Directory.Exists(rootDir))
          {
             Console.WriteLine("Root directory {0} was not found.", rootDir);
@@ -34,8 +40,14 @@ namespace ConfigureInstallation
             Console.WriteLine("Version file {0} was not found.", cppVersionFile);
             return -1;
          }
+
+         var numericVersion = string.Format("{0},{1},{2},{3}", versionMajor, versionMinor, versionPatch, 0);
+
          Console.WriteLine("Writing c++ version info to {0}", cppVersionFile);
-         var versionContent = string.Format("#pragma once\r\n\r\n#define HMAILSERVER_VERSION \"{0}\"\r\n#define HMAILSERVER_BUILD {1}\r\n\r\n", version, build);
+         var versionContent = string.Format(@"#pragma once
+                                              #define HMAILSERVER_VERSION ""{0}""
+                                              #define HMAILSERVER_VERSION_NUMERIC {1}
+                                              #define HMAILSERVER_BUILD {2}" + Environment.NewLine + Environment.NewLine, version, numericVersion, build);
          File.WriteAllText(cppVersionFile, versionContent);
 
          // Write C++ version header file.
@@ -75,6 +87,9 @@ namespace ConfigureInstallation
             Ini.Write(installationFile, "Setup", "AppVerName", string.Format("hMailServer {0}-B{1}-x86", version, build));
             Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x86", version, build));
          }
+
+         Ini.Write(installationFile, "Setup", "AppVersion", version);
+
          return true;
       }
    }

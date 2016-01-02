@@ -2,6 +2,9 @@
 //
 #include "resource.h"
 
+#include "../Common/Application/Version.h"
+
+
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -53,8 +56,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION HMAILSERVER_VERSION_NUMERIC
+ PRODUCTVERSION HMAILSERVER_VERSION_NUMERIC
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,11 +74,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "hMailServer"
             VALUE "FileDescription", "hMailServer"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", HMAILSERVER_VERSION
             VALUE "InternalName", "hMailServer.exe"
             VALUE "OriginalFilename", "hMailServer.exe"
             VALUE "ProductName", "hMailServer"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", HMAILSERVER_VERSION
         END
     END
     BLOCK "VarFileInfo"
