@@ -830,6 +830,10 @@ namespace HM
 
       while (file.ReadLine(line))
       {
+         // Perform dot stuffing
+         if (line.StartsWith("."))
+            line = "." + line;
+
          if (header_sent)
          {
             if (iNoOfLines <= 0)

@@ -363,6 +363,23 @@ namespace RegressionTests.POP3
       }
 
       [Test]
+      public void TestTopDotOnOtherwiseEmptyLineShouldBeEscaped()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test",
+                                          "Line1\r\nLine2\r\n..\r\nLine4\r\n..A\r\n.B\r\nLine6\r\n");
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var sim = new Pop3ClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         string result = sim.TOP(1, 100);
+
+         Assert.IsTrue(result.Contains("Line1\r\nLine2\r\n..\r\nLine4\r\n..A\r\nB\r\nLine6\r\n"), result);
+      }
+
+      [Test]
       public void TestUIDLInvalid()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
