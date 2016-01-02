@@ -74,11 +74,13 @@ namespace HM
 
       if (!library_instance_)
       {
-         sErrorMessage = "Error:\r\n" 
-                         "The MySQL client (libmysql.dll, 32 bit) could not be loaded.\r\n" 
-                         "hMailServer needs this file to be able to connect to MySQL.\r\n"
-                         "The MySQL client needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n" 
-                         "Path: " + sLibrary;
+         String versionArchitecture = Application::Instance()->GetVersionArchitecture();
+
+         sErrorMessage = Formatter::Format("Error:\r\n"
+               "The MySQL client (libmysql.dll, {0}) could not be loaded.\r\n"
+               "hMailServer needs this file to be able to connect to MySQL.\r\n"
+               "The MySQL client needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n"
+               "Path: {1}", versionArchitecture, sLibrary);
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5094, "MySQLInterface::Load", sErrorMessage);
 
