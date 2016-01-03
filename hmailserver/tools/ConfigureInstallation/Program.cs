@@ -41,7 +41,7 @@ namespace ConfigureInstallation
             return -1;
          }
 
-         var numericVersion = string.Format("{0},{1},{2},{3}", versionMajor, versionMinor, versionPatch, 0);
+         var numericVersion = string.Format("{0},{1},{2},{3}", versionMajor, versionMinor, versionPatch, build);
 
          Console.WriteLine("Writing c++ version info to {0}", cppVersionFile);
          var versionContent = string.Format(@"#pragma once
@@ -88,7 +88,9 @@ namespace ConfigureInstallation
             Ini.Write(installationFile, "Setup", "OutputBaseFilename", string.Format("hMailServer-{0}-B{1}-x86", version, build));
          }
 
-         Ini.Write(installationFile, "Setup", "AppVersion", version);
+         string versionWithBuild = string.Format("{0}.{1}", version, build);
+
+         Ini.Write(installationFile, "Setup", "AppVersion", versionWithBuild);
 
          return true;
       }
