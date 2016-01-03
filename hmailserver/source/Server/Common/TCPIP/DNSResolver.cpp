@@ -114,100 +114,105 @@ namespace HM
 
       std::vector<DnsRecordWithPreference> foundDnsRecordsWithPreference;
 
-      do
+      while (pDnsRecord != nullptr)
       {
-         switch (pDnsRecord->wType)
+         String name = pDnsRecord->pName;
+
+         if (pDnsRecord->wType == wType && sSearchFor.Equals(name))
          {
-            case DNS_TYPE_A:
+            switch (pDnsRecord->wType)
             {
-               SOCKADDR_IN addr;
-               memset(&addr, 0, sizeof addr);
-
-               addr.sin_family = AF_INET;
-               addr.sin_addr = *((in_addr*)&(pDnsRecord->Data.AAAA.Ip6Address));
-
-               char buf[128];
-               DWORD bufSize = sizeof(buf);
-
-               if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+               case DNS_TYPE_A:
                {
-                  DnsRecordWithPreference rec(0, buf);
-                  foundDnsRecordsWithPreference.push_back(rec);
+                  SOCKADDR_IN addr;
+                  memset(&addr, 0, sizeof addr);
+
+                  addr.sin_family = AF_INET;
+                  addr.sin_addr = *((in_addr*)&(pDnsRecord->Data.A.IpAddress));
+
+                  char buf[128];
+                  DWORD bufSize = sizeof(buf);
+
+                  if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+                  {
+                     DnsRecordWithPreference rec(0, buf);
+                     foundDnsRecordsWithPreference.push_back(rec);
+                  }
+
+                  break;
                }
-               
-               break;
-            }
-            case DNS_TYPE_AAAA:
-            {
-               SOCKADDR_IN6 addr;
-               memset(&addr, 0, sizeof addr);
-
-               addr.sin6_family = AF_INET6;
-               addr.sin6_addr = *((in_addr6*)&(pDnsRecord->Data.AAAA.Ip6Address));
-
-               char buf[128];
-               DWORD bufSize = sizeof(buf);
-
-               if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+               case DNS_TYPE_AAAA:
                {
-                  DnsRecordWithPreference rec(0, buf);
-                  foundDnsRecordsWithPreference.push_back(rec);
+                  SOCKADDR_IN6 addr;
+                  memset(&addr, 0, sizeof addr);
+
+                  addr.sin6_family = AF_INET6;
+                  addr.sin6_addr = *((in_addr6*)&(pDnsRecord->Data.AAAA.Ip6Address));
+
+                  char buf[128];
+                  DWORD bufSize = sizeof(buf);
+
+                  if (WSAAddressToStringA((sockaddr*)&addr, sizeof addr, NULL, buf, &bufSize) == 0)
+                  {
+                     DnsRecordWithPreference rec(0, buf);
+                     foundDnsRecordsWithPreference.push_back(rec);
+                  }
+
+                  break;
                }
-               
-               break;
-            }
-            case DNS_TYPE_CNAME:
-            {
-               String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
-               if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion+1))
-                  return false;
-
-               break;
-            }
-            case DNS_TYPE_MX: 
-            {
-               String sName = pDnsRecord->pName;
-               bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
-
-               if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
+               case DNS_TYPE_CNAME:
                {
-                  DnsRecordWithPreference rec(pDnsRecord->Data.MX.wPreference, pDnsRecord->Data.MX.pNameExchange);
-                  foundDnsRecordsWithPreference.push_back(rec);
+                  String sDomainName = pDnsRecord->Data.CNAME.pNameHost;
+                  if (!Resolve_(sDomainName, vecFoundNames, wType, iRecursion + 1))
+                     return false;
+
+                  break;
                }
+               case DNS_TYPE_MX:
+               {
+                  String sName = pDnsRecord->pName;
+                  bool bNameMatches = (sName.CompareNoCase(sSearchFor) == 0);
 
-               break;
-            }
-         case DNS_TYPE_TEXT: 
-            {
-               AnsiString retVal;
+                  if (pDnsRecord->Flags.S.Section == DNSREC_ANSWER && bNameMatches)
+                  {
+                     DnsRecordWithPreference rec(pDnsRecord->Data.MX.wPreference, pDnsRecord->Data.MX.pNameExchange);
+                     foundDnsRecordsWithPreference.push_back(rec);
+                  }
 
-               for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
-                  retVal += pDnsRecord->Data.TXT.pStringArray[i];
-               
-               DnsRecordWithPreference rec (0, retVal);
-               foundDnsRecordsWithPreference.push_back(rec);
+                  break;
+               }
+               case DNS_TYPE_TEXT:
+               {
+                  AnsiString retVal;
 
-               break;
-            }
-         case DNS_TYPE_PTR: 
-            {
-               AnsiString retVal;
-               retVal = pDnsRecord->Data.PTR.pNameHost;
+                  for (u_int i = 0; i < pDnsRecord->Data.TXT.dwStringCount; i++)
+                     retVal += pDnsRecord->Data.TXT.pStringArray[i];
 
-               DnsRecordWithPreference rec(0, retVal);
-               foundDnsRecordsWithPreference.push_back(rec);
-               break;
-            }
-            default:
-            {
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", Formatter::Format("Queried for {0} but received type {1}", wType, pDnsRecord->wType));
-               break;
+                  DnsRecordWithPreference rec(0, retVal);
+                  foundDnsRecordsWithPreference.push_back(rec);
+
+                  break;
+               }
+               case DNS_TYPE_PTR:
+               {
+                  AnsiString retVal;
+                  retVal = pDnsRecord->Data.PTR.pNameHost;
+
+                  DnsRecordWithPreference rec(0, retVal);
+                  foundDnsRecordsWithPreference.push_back(rec);
+                  break;
+               }
+               default:
+               {
+                  ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5036, "DNSResolver::Resolve_", Formatter::Format("Queried for {0} but received type {1}", wType, pDnsRecord->wType));
+                  break;
+               }
             }
          }
 
          pDnsRecord = pDnsRecord->pNext;
       }
-      while (pDnsRecord != nullptr);
+      
 
       std::sort(foundDnsRecordsWithPreference.begin(), foundDnsRecordsWithPreference.end(), SortDnsRecordWithPreference);
 
