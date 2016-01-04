@@ -52,7 +52,7 @@ namespace HM
    {
       session_id_ = Application::Instance()->GetUniqueID();
 
-      LOG_DEBUG("Creating session " + StringParser::IntToString(session_id_));
+      LOG_DEBUG("Pre-creating session " + StringParser::IntToString(session_id_));
    
    }
 
