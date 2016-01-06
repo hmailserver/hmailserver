@@ -309,6 +309,7 @@ namespace hMailServer.Administrator
          this.textRestoreFile.Numeric = false;
          this.textRestoreFile.Size = new System.Drawing.Size(282, 20);
          this.textRestoreFile.TabIndex = 24;
+         this.textRestoreFile.TextChanged += new System.EventHandler(this.textRestoreFile_TextChanged);
          // 
          // openFileDialog
          // 

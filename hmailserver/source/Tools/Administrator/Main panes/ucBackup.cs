@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.IO;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using System.Runtime.InteropServices;
@@ -132,28 +133,39 @@ namespace hMailServer.Administrator
                string fileName = openFileDialog.FileName;
 
                textRestoreFile.Text = fileName;
-
-               _backup = APICreator.Application.BackupManager.LoadBackup(fileName);
-
-               checkRestoreDomains.Checked = false;
-               checkRestoreMessages.Checked = false;
-               checkRestoreSettings.Checked = false;
-
-               checkRestoreSettings.Enabled = _backup.ContainsSettings;
-               checkRestoreDomains.Enabled = _backup.ContainsDomains;
-               checkRestoreMessages.Enabled = _backup.ContainsMessages;
-
-               // Is there anything to restore in the backup?
-               if (checkRestoreSettings.Enabled ||
-                   checkRestoreDomains.Enabled ||
-                   checkRestoreMessages.Enabled)
-               {
-                  buttonStartRestore.Enabled = true;
-               }
             }
         }
 
-        private void buttonShowLog2_Click(object sender, EventArgs e)
+       private void EnableRestoreSelection(string fileName)
+       {
+          try
+          {
+             _backup = APICreator.Application.BackupManager.LoadBackup(fileName);
+
+             checkRestoreDomains.Checked = false;
+             checkRestoreMessages.Checked = false;
+             checkRestoreSettings.Checked = false;
+
+             checkRestoreSettings.Enabled = _backup.ContainsSettings;
+             checkRestoreDomains.Enabled = _backup.ContainsDomains;
+             checkRestoreMessages.Enabled = _backup.ContainsMessages;
+
+             // Is there anything to restore in the backup?
+             if (checkRestoreSettings.Enabled ||
+                 checkRestoreDomains.Enabled ||
+                 checkRestoreMessages.Enabled)
+             {
+                buttonStartRestore.Enabled = true;
+             }
+          }
+          catch (Exception ex)
+          {
+             MessageBox.Show(ex.Message, EnumStrings.hMailServerAdministrator);
+          }
+
+       }
+
+       private void buttonShowLog2_Click(object sender, EventArgs e)
         {
             ShowLogFile();
         }
@@ -187,5 +199,24 @@ namespace hMailServer.Administrator
                 textDestination.Text = folderBrowserDialog.SelectedPath;
 
         }
+
+        private void textRestoreFile_TextChanged(object sender, EventArgs e)
+        {
+           if (File.Exists(textRestoreFile.Text))
+           {
+              EnableRestoreSelection(textRestoreFile.Text);
+           }
+           else
+           {
+              checkRestoreDomains.Checked = false;
+              checkRestoreMessages.Checked = false;
+              checkRestoreSettings.Checked = false;
+              checkRestoreDomains.Enabled = false;
+              checkRestoreMessages.Enabled = false;
+              checkRestoreSettings.Enabled = false;
+              buttonStartRestore.Enabled = false;
+           }
+        }
+
     }
 }
