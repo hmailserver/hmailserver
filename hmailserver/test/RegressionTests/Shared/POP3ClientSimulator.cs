@@ -284,7 +284,8 @@ namespace RegressionTests.Shared
 
       public int GetMessageCount(string sUsername, string sPassword)
       {
-         _tcpConnection.Connect(_port);
+         if (!_tcpConnection.Connect(_port))
+            throw new Exception(string.Format("Unable to connect to POP3 server on localhost on port {0}", _port));
 
          // Receive welcome message.
          string sData = _tcpConnection.Receive();
@@ -293,8 +294,7 @@ namespace RegressionTests.Shared
          sData = _tcpConnection.ReadUntil("+OK Send your password");
 
          _tcpConnection.Send("PASS " + sPassword + "\r\n");
-         sData =
-            _tcpConnection.ReadUntil(new List<string> { "+OK Mailbox locked and ready", "-ERR Invalid user name or password." });
+         sData = _tcpConnection.ReadUntil(new List<string> { "+OK Mailbox locked and ready", "-ERR Invalid user name or password." });
          Assert.IsTrue(sData.Contains("+OK Mailbox locked and ready"), sData);
 
          _tcpConnection.Send("LIST\r\n");
