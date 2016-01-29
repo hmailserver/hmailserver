@@ -82,14 +82,13 @@ namespace VMwareIntegration.Console
                try
                {
                   runner.Run();
+                  
                   LogText(string.Format("{0}: Test {1} completed successfully.",DateTime.Now, localIndex));
                }
                catch (Exception ex) 
                {
                   LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
                   LogText(ex.ToString());
-
-                  throw;
                }
             }
 
