@@ -80,6 +80,8 @@ namespace HM
       {
       case WSAHOST_NOT_FOUND: // Domain doesn't exist
          return false;
+      case WSANO_DATA: // Domain doesn't exist
+         return false;
       }
 
       return true;
