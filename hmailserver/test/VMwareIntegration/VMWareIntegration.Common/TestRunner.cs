@@ -173,7 +173,7 @@ namespace VMwareIntegration.Common
 
          for (int i = 0; i < 5; i++)
          {
-            string script = "ipconfig /renew\r\nping www.google.com -n 1 > C:\\pingresult.txt";
+            string script = "ipconfig /renew >> C:\\pingresult.txt\r\nping www.google.com -n 1 >> C:\\pingresult.txt";
             RunScriptInGuest(vmware, script);
 
             string pingResultFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
