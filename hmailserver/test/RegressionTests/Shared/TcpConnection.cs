@@ -51,38 +51,32 @@ namespace RegressionTests.Shared
 
       public bool Connect(int iPort)
       {
-         return Connect(null, iPort);
-      }
-
-      private IPAddress GetHostAddress(string hostName, bool allowIPv6)
-      {
-         var addresses = Dns.GetHostEntry(hostName).AddressList;
-
-         foreach (IPAddress address in addresses)
-         {
-            if (address.AddressFamily == AddressFamily.InterNetworkV6 && allowIPv6)
-               return address;
-            else if (address.AddressFamily == AddressFamily.InterNetwork)
-               return address;
-         }
-
-         return null;
+         return Connect(IPAddress.Parse("127.0.0.1"), iPort);
       }
 
       public bool Connect(IPAddress ipaddress, int iPort)
       {
-         IPEndPoint endPoint;
-
-         if (ipaddress != null)
-            endPoint = new IPEndPoint(ipaddress, iPort);
-         else
-            endPoint = new IPEndPoint(GetHostAddress("localhost", false), iPort);
+         if (ipaddress == null)
+            throw new ArgumentNullException("ipaddress");
 
          try
          {
-            _tcpClient = new TcpClient(endPoint.Address.ToString(), iPort);
-         }
+            _tcpClient = new TcpClient(ipaddress.AddressFamily);
 
+            var result = _tcpClient.BeginConnect(ipaddress, iPort, null, null);
+
+            var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(10), false);
+
+            if (!success)
+            {
+               return false;
+            }
+
+            if (!_tcpClient.Connected)
+            {
+               return false;
+            }
+         }
          catch
          {
             return false;

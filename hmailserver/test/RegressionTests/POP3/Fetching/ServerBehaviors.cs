@@ -153,7 +153,7 @@ namespace RegressionTests.POP3
          }
          
 
-            // Do it again
+            // Do it again, to make sure 
          using (var pop3Server = CreateServer())
          {
             pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.MessageAndTerminatonTogether;
@@ -162,62 +162,13 @@ namespace RegressionTests.POP3
             fetchAccount.DownloadNow();
             pop3Server.WaitForCompletion();
             LockHelper.WaitForUnlock(fetchAccount);
-
-            Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
-            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(_message));
          }
+
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
+         string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsTrue(downloadedMessage.Contains(_message));
+
       }
 
-      //[Test]
-      //public void TestSampleMessages()
-      //{
-      //   string folder = @"C:\Temp\hMailServer IssueTracker ID 342 Example EML Files";
-
-      //   var files = Directory.GetFiles(folder, "*.eml");
-
-      //   foreach (var file in files)
-      //   {
-      //      string content = File.ReadAllText(file);
-
-      //      TestMessage(content);
-
-      //      SetUp();
-      //      TestSetup();
-      //   }
-      //}
-
-      private void TestMessage(string messageContent)
-      {
-         FetchAccount fetchAccount;
-
-         using (var pop3Server = CreateServer(messageContent))
-         {
-            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
-            pop3Server.StartListen();
-
-            fetchAccount = CreateFetchAccount();
-
-            // Fetch message
-            fetchAccount.DownloadNow();
-            pop3Server.WaitForCompletion();
-            LockHelper.WaitForUnlock(fetchAccount);
-         }
-
-         // Do it again
-         using (var pop3Server = CreateServer(messageContent))
-         {
-            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.MessageAndTerminatonTogether;
-            pop3Server.StartListen();
-
-            fetchAccount.DownloadNow();
-            pop3Server.WaitForCompletion();
-            LockHelper.WaitForUnlock(fetchAccount);
-
-            Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 2);
-            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(messageContent));
-         }
-      }
    }
 }

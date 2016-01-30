@@ -57,7 +57,7 @@ namespace RegressionTests.Shared
 
       public void Run()
       {
-         Send("+OK\r\n");
+         Send("+OK SimulatedServer\r\n");
 
          DeletedMessages = new List<int>();
          RetrievedMessages = new List<int>();

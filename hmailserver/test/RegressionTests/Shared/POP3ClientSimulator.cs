@@ -17,21 +17,24 @@ namespace RegressionTests.Shared
       private readonly int _port = 110;
       private readonly TcpConnection _tcpConnection;
 
-      public Pop3ClientSimulator()
+      public Pop3ClientSimulator() :
+         this(false, 110)
       {
-         _tcpConnection = new TcpConnection();
+         
       }
+
+
+      public Pop3ClientSimulator(bool useSSL, int port) :
+         this(IPAddress.Parse("127.0.0.1"), useSSL, port)
+      {
+      }
+
 
       public Pop3ClientSimulator(IPAddress ipaddress, bool useSSL, int port)
       {
          _tcpConnection = new TcpConnection(useSSL);
          _port = port;
          _ipaddress = ipaddress;
-      }
-
-      public Pop3ClientSimulator(bool useSSL, int port) :
-         this(null, useSSL, port)
-      {
       }
 
       public bool Connect()
@@ -119,10 +122,10 @@ namespace RegressionTests.Shared
 
          while (eofCheck.IndexOf("\r\n.\r\n") < 0)
          {
-            if (eofCheck.IndexOf("-ERR no such message") >= 0)
+            if (eofCheck.StartsWith("-ERR"))
             {
                _tcpConnection.Disconnect();
-               return "";
+               throw new Exception(string.Format("Message with index {0} does not exist.", index));
             }
 
             string data = _tcpConnection.Receive();
@@ -271,7 +274,8 @@ namespace RegressionTests.Shared
 
       public string GetFirstMessageText(string sUsername, string sPassword)
       {
-         ConnectAndLogon(sUsername, sPassword);
+         if (!ConnectAndLogon(sUsername, sPassword))
+            throw new Exception("Unable to connect to server.");
 
          string sRetVal = RETR(1);
          DELE(1);
