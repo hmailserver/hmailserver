@@ -123,15 +123,16 @@ namespace RegressionTests.Infrastructure
          if (forceSend)
             TestSetup.SendMessagesInQueue();
 
-         for (int i = 1; i <= 60; i++)
+         DateTime timeoutTime = DateTime.UtcNow.AddSeconds(20);
+
+         while (DateTime.UtcNow < timeoutTime)
          {
             if (TestSetup.GetNumberOfMessagesInDeliveryQueue() == count)
                return;
 
-            if (i % 10 == 0 && forceSend)
-               TestSetup.SendMessagesInQueue();
+            TestSetup.SendMessagesInQueue();
 
-            Thread.Sleep(100);
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
          }
 
          int currentCount = TestSetup.GetNumberOfMessagesInDeliveryQueue();

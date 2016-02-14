@@ -171,9 +171,14 @@ namespace VMwareIntegration.Common
       {
          string pingResultData = string.Empty;
 
-         for (int i = 0; i < 5; i++)
+         DateTime timeoutTime = DateTime.UtcNow.AddSeconds(20);
+
+         while (DateTime.UtcNow < timeoutTime)
          {
-            string script = "ipconfig /renew >> C:\\pingresult.txt\r\nping www.google.com -n 1 >> C:\\pingresult.txt";
+            string script = @"echo %time% >> C:\pingresult.txt
+                              ipconfig /renew >> C:\pingresult.txt
+                              ping www.google.com -n 1 >> C:\pingresult.txt";
+
             RunScriptInGuest(vmware, script);
 
             string pingResultFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -184,6 +189,8 @@ namespace VMwareIntegration.Common
 
             if (pingResultData.Contains("Reply from "))
                return;
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
          }
 
          throw new Exception("No network access. Ping result: " + pingResultData);
