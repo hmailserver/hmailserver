@@ -12,6 +12,8 @@ namespace HM
    class DomainAlias;
    class DistributionListRecipient;
    class Route;
+   class SecurityRange;
+
    enum PersistenceMode;
    class PreSaveLimitationsCheck
    {
@@ -28,6 +30,7 @@ namespace HM
       static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Group> group, String &resultDescription);
       static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionListRecipient> pRecipient, String &resultDescription);
       static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Route> route, String &resultDescription);
+      static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<SecurityRange> route, String &resultDescription);
     
       
    private:
