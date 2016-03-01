@@ -220,9 +220,15 @@ namespace hMailServer.Administrator
          if (selectedNode == null)
             return;
 
-         hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
+         if (MessageBox.Show(Strings.Localize("Are you sure you want to delete all messages in the folder?"),
+            EnumStrings.hMailServerAdministrator,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
+         {
+            hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
 
-         folder.Messages.Clear();
+            folder.Messages.Clear();
+         }
       }
 
       private void deleteFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -231,13 +237,19 @@ namespace hMailServer.Administrator
          if (selectedNode == null)
             return;
 
-         hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
-         
-         folder.Delete();
+         if (MessageBox.Show(Strings.Localize("Are you sure you want to delete the folder?"),
+            EnumStrings.hMailServerAdministrator,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
+         {
+            hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
 
-         treeFolders.Nodes.Remove(selectedNode);
+            folder.Delete();
 
-         ShowCurrentFolder();
+            treeFolders.Nodes.Remove(selectedNode);
+
+            ShowCurrentFolder();
+         }
       }
 
       private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
