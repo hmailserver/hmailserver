@@ -345,11 +345,14 @@ namespace HM
       if (mode == PersistenceModeRestore)
          return true;
 
-      if (PersistentSecurityRange::Exists(securityRange->GetName()))
+      std::shared_ptr<SecurityRange> existingRange = std::make_shared<SecurityRange>();
+      if (PersistentSecurityRange::ReadObject(existingRange, securityRange->GetName()))
       {
-         resultDescription = "There is already an IP range with this name.";
-         return false;
-
+         if (existingRange->GetID() != securityRange->GetID())
+         {
+            resultDescription = "There is already an IP range with this name.";
+            return false;
+         }
       }
 
       return true;

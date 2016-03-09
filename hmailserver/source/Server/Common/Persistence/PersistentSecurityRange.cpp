@@ -126,6 +126,14 @@ namespace HM
       return ReadObject(pSR, command);
    }
 
+   bool
+   PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, const String &name)
+   {
+      SQLCommand command(_T("select * from hm_securityranges where rangename = @RANGENAME"));
+      command.AddParameter("@RANGENAME", name);
+
+      return ReadObject(pSR, command);
+   }
 
    bool
    PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, const SQLCommand &command)
