@@ -33,6 +33,12 @@ namespace VMwareIntegration.Console
             return -1;
          }
 
+         if (softwareUnderTest.Equals(_logFile, StringComparison.InvariantCultureIgnoreCase))
+         {
+            LogText("Software under test cannot be same as log file.");
+            return -1;
+         }
+
          LogText("Loading test suite...");
 
          // Load static container of all tests.
