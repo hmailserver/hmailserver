@@ -291,4 +291,83 @@ namespace HM
       LOG_DEBUG("Event completed");
    }
 
+   void
+   SMTPConnection::_ProtocolEHLO(const String &sRequest)
+   {
+
+      if (!_ReadDomainAddressFromHelo(sRequest))
+      {
+         // The client did not supply a parameter to
+         // the helo command which is syntaxically
+         // incorrect. Reject.
+         _SendErrorResponse(501, "EHLO Invalid domain address.");
+         return;
+      }
+
+      //
+      // Event OnHELO
+      //
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalPort());
+         pClientInfo->SetHELO(m_sHeloHost);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+
+         String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
+      }
+
+      _SendEHLOKeywords();
+
+      if (m_CurrentState == AUTHENTICATION)
+         m_CurrentState = HEADER;
+   }
+   
+   void
+   SMTPConnection::_ProtocolHELO(const String &sRequest)
+   {
+      if (!_ReadDomainAddressFromHelo(sRequest))
+      {
+         // The client did not supply a parameter to
+         // the helo command which is syntaxically
+         // incorrect. Reject.
+         _SendErrorResponse(501, "HELO Invalid domain address.");
+         return;
+      }
+
+      //
+      // Event OnHELO
+      //
+      
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+         shared_ptr<ClientInfo> pClientInfo = shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalPort());
+         pClientInfo->SetHELO(m_sHeloHost);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+
+         String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
+      }
+
+      _SendData("250 Hello.");
+
+      if (m_CurrentState == AUTHENTICATION)
+         m_CurrentState = HEADER;
+
+   }
+
 }
