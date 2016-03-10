@@ -30,6 +30,7 @@ namespace HM
       has_on_delivery_failed_(false),
       has_on_external_account_download_(false),
       has_on_smtpdata_(false)
+      has_on_EHLO_(false)
    {
       
    }
@@ -97,6 +98,7 @@ namespace HM
          has_on_delivery_failed_ = DoesFunctionExist_("OnDeliveryFailed");
          has_on_external_account_download_ = DoesFunctionExist_("OnExternalAccountDownload");
          has_on_smtpdata_ = DoesFunctionExist_("OnSMTPData");
+         has_on_EHLO_ = DoesFunctionExist_("OnEHLO");
 
       }
       catch (...)
@@ -250,7 +252,13 @@ namespace HM
          if (!has_on_smtpdata_)
             return;
          break;
-
+      case EventOnEHLO:
+		  event_name_ = _T("OnEHLO");
+	 if (!has_on_EHLO_)
+	    return;
+	 break;
+      
+      
       case EventCustom:
          break;
       default:
