@@ -28,6 +28,7 @@ namespace HM
          
          EventOnExternalAccountDownload = 1011,
          EventOnSMTPData = 1012,
+         EventOnEHLO = 1013,
       };
 
       ScriptServer(void);
@@ -64,6 +65,7 @@ namespace HM
       bool has_on_delivery_failed_;
       bool has_on_external_account_download_;
       bool has_on_smtpdata_;
+      bool has_on_EHLO_;
 
       String script_contents_;
       String script_extension_;
