@@ -37,11 +37,6 @@ namespace HM
          return false;
       }
 
-      // Get the path to the currently running executable
-      String sPath;
-      sPath = Application::GetExecutableName();
-      sPath += " RunAsService";
-
       // Check wether we already exists.
       if (DoesServiceExist(ServiceName))
       {
@@ -50,6 +45,9 @@ namespace HM
       }
       else
       {
+         // Get the path to the currently running executable
+         String sPath = "\"" + Application::GetExecutableName() + "\" RunAsService";
+
          // Check wether we should set the service dependent on MySQL.
          LPCTSTR szServiceDependencies = _T("RPCSS\0\0");
 
@@ -110,9 +108,7 @@ namespace HM
       }
 
       // Update the path to the executable
-      String sPath;
-      sPath = Application::GetExecutableName();
-      sPath += " RunAsService";
+      String sPath = "\"" + Application::GetExecutableName() + "\" RunAsService";
 
       if (ChangeServiceConfig(
                hService,        // handle of service 
