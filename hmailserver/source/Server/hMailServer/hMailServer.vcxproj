@@ -311,8 +311,8 @@ EXIT 0
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
-      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1q\out64\libeay32.dll $(OutDir)
-xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1q\out64\ssleay32.dll $(OutDir)
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1s\out64\libeay32.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-1.0.1s\out64\ssleay32.dll $(OutDir)
 "$(TargetPath)" /Register
 </Command>
     </PostBuildEvent>
