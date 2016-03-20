@@ -25,8 +25,9 @@ namespace RegressionTests.Shared
       }
 
       public SmtpClientSimulator(bool useSSL, int port) :
-         this(useSSL, port, null)
+         this(useSSL, port, IPAddress.Parse("127.0.0.1"))
       {
+
       }
 
       public SmtpClientSimulator(bool useSSL, int port, IPAddress ipaddress) :
@@ -193,7 +194,8 @@ namespace RegressionTests.Shared
       {
          string sData;
 
-         _tcpConnection.Connect(_ipaddress, _port);
+         if (!_tcpConnection.Connect(_ipaddress, _port))
+            throw new DeliveryFailedException("Unable to connect to server.");
 
          // Receive welcome message.
          var welcomeMessage = _tcpConnection.Receive();

@@ -848,11 +848,10 @@ namespace RegressionTests.SMTP
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
-            TestSetup.SendMessagesInQueue();
-            server.WaitForCompletion();
-
-            // 
+            // Force sending of messages
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+            server.WaitForCompletion();
+            
             string bounceMessage = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
 
             Assert.IsTrue(bounceMessage.Contains("400 user3@dummy-example.com"));

@@ -32,6 +32,12 @@ namespace VMwareIntegration.Console
             return -1;
          }
 
+         if (softwareUnderTest.Equals(_logFile, StringComparison.InvariantCultureIgnoreCase))
+         {
+            LogText("Software under test cannot be same as log file.");
+            return -1;
+         }
+
          LogText("Loading test suite...");
 
          // Load static container of all tests.
@@ -44,7 +50,7 @@ namespace VMwareIntegration.Console
 
          var options = new ParallelOptions()
             {
-               MaxDegreeOfParallelism = 4,
+               MaxDegreeOfParallelism = 3,
             };
 
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
@@ -81,14 +87,13 @@ namespace VMwareIntegration.Console
                try
                {
                   runner.Run();
+                  
                   LogText(string.Format("{0}: Test {1} completed successfully.",DateTime.Now, localIndex));
                }
                catch (Exception ex) 
                {
                   LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
                   LogText(ex.ToString());
-
-                  throw;
                }
             }
 

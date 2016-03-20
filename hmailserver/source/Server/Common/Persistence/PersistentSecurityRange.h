@@ -23,9 +23,10 @@ namespace HM
       static bool ReadObject(std::shared_ptr<SecurityRange> pSR, std::shared_ptr<DALRecordset> pRS);
       static bool ReadObject(std::shared_ptr<SecurityRange> pSR, const SQLCommand &command);
       static bool ReadObject(std::shared_ptr<SecurityRange> pSR, __int64 ObjectID);
+      static bool ReadObject(std::shared_ptr<SecurityRange> pSR, const String &name);
 
       static std::shared_ptr<SecurityRange> ReadMatchingIP(const IPAddress &ipaddress);
-
+      
       static bool DeleteExpired();
 
       static bool Exists(const String &name);

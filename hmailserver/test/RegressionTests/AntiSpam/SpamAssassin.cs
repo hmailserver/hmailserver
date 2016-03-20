@@ -22,7 +22,6 @@ namespace RegressionTests.AntiSpam
          CustomAsserts.AssertSpamAssassinIsRunning();
 
          // Enable spam assassin
-         application = SingletonProvider<TestSetup>.Instance.GetApp();
          hMailServer.AntiSpam antiSpam = _settings.AntiSpam;
 
          account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sa@test.com", "test");
@@ -46,7 +45,7 @@ namespace RegressionTests.AntiSpam
       #endregion
 
       private Account account;
-      private Application application;
+      
 
       [Test]
       public void ItShouldBePossibleToTestSAConnectionUsingAPISuccess()

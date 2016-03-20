@@ -17,7 +17,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          _settings.Scripting.Language = "JScript";
          // First set up a script
          string script =
@@ -48,8 +47,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          string eventLogFile = _settings.Logging.CurrentEventLog;
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
@@ -123,8 +120,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupCompletedVBScript()
       {
-         
-
          // First set up a script
          string script =
             @"Sub OnBackupCompleted()
@@ -149,7 +144,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -179,8 +173,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          // First set up a script
          string script =
             @"Sub OnBackupFailed(reason)
@@ -275,7 +267,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliverMessageJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
          // First set up a script
@@ -307,7 +298,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliveryFailedJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -326,22 +316,20 @@ namespace RegressionTests.API
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "), eventLogText);
-         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"), eventLogText);
          Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
       }
 
       [Test]
       public void TestOnDeliveryFailedVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          // First set up a script
          string script = "Sub OnDeliveryFailed(oMessage, sRecipient, sErrorMessage)" + Environment.NewLine +
                          " EventLog.Write(\"File: \" & oMessage.FileName) " + Environment.NewLine +
@@ -357,14 +345,14 @@ namespace RegressionTests.API
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "));
-         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"));
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"));
          Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
       }
 

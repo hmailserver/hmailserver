@@ -11,6 +11,7 @@
 #include "../Util/Time.h"
 
 #include "../SQL/IPAddressSQLHelper.h"
+#include "PreSaveLimitationsCheck.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -59,6 +60,9 @@ namespace HM
    PersistentSecurityRange::SaveObject(std::shared_ptr<SecurityRange> pSR, String &result,  PersistenceMode mode)
    {
       if (!Validate(pSR, result))
+         return false;
+
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pSR, result))
          return false;
 
       DateTime rangeExpiresTime = pSR->GetExpiresTime();
@@ -122,6 +126,14 @@ namespace HM
       return ReadObject(pSR, command);
    }
 
+   bool
+   PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, const String &name)
+   {
+      SQLCommand command(_T("select * from hm_securityranges where rangename = @RANGENAME"));
+      command.AddParameter("@RANGENAME", name);
+
+      return ReadObject(pSR, command);
+   }
 
    bool
    PersistentSecurityRange::ReadObject(std::shared_ptr<SecurityRange> pSR, const SQLCommand &command)

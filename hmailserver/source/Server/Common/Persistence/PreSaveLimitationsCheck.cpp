@@ -15,6 +15,8 @@
 #include "../BO/Groups.h"
 #include "../BO/Route.h"
 #include "../BO/Routes.h"
+#include "../BO/SecurityRanges.h"
+
 #include "../Cache/CacheContainer.h"
 #include "../Application/ObjectCache.h"
 
@@ -334,6 +336,25 @@ namespace HM
         return false;  
       }
  
+      return true;
+   }
+
+   bool
+   PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<SecurityRange> securityRange, String &resultDescription)
+   {
+      if (mode == PersistenceModeRestore)
+         return true;
+
+      std::shared_ptr<SecurityRange> existingRange = std::make_shared<SecurityRange>();
+      if (PersistentSecurityRange::ReadObject(existingRange, securityRange->GetName()))
+      {
+         if (existingRange->GetID() != securityRange->GetID())
+         {
+            resultDescription = "There is already an IP range with this name.";
+            return false;
+         }
+      }
+
       return true;
    }
 

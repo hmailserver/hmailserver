@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Collections.Generic;
+using System.Text;
 using hMailServer;
 using NUnit.Framework;
 using System.Threading;
@@ -81,6 +83,32 @@ namespace StressTest
             string content = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             Assert.IsTrue(content.Contains("X-Spam-Status"), content);
+         }
+      }
+
+      [Test]
+      public void TestVaryingMessageSizes()
+      {
+         const int messageSizeIncrease = 100;
+         for (int i = 0; i < 100000; i += messageSizeIncrease)
+         {
+            var messageBuilder = new StringBuilder();
+            messageBuilder.Append('A', messageSizeIncrease-2);
+            messageBuilder.AppendLine();
+
+            var message = messageBuilder.ToString();
+
+            SmtpClientSimulator.StaticSendRaw("test@test.com", "test@test.com", message);
+
+            var defaultLog = LogHandler.ReadCurrentDefaultLog();
+            
+            StringAssert.DoesNotContain("There was a communication error with SpamAssassin.", defaultLog);
+            
+            LogHandler.DeleteCurrentDefaultLog();
+
+            Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+
+            Console.WriteLine("{0} / 100000", i);
          }
       }
 
