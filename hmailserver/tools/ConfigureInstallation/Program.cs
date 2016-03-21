@@ -13,7 +13,7 @@ namespace ConfigureInstallation
       {
          if (args.Count() != 3)
          {
-            Console.WriteLine("Expected two parameters: RootDir, Version, Build");
+            Console.WriteLine("Expected three parameters: RootDir, Version, Build");
             return -1;
          }
 
