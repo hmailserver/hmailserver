@@ -36,7 +36,7 @@
 namespace HM
 {
 
-   const String CONST_UNKNOWN_USER = "550 Unknown user";
+   const String CONST_UNKNOWN_USER = "Unknown user";
 
    RecipientParser::RecipientParser()
    {
@@ -68,7 +68,7 @@ namespace HM
          if (iRecursionLevel > 25)
          {
             // Extreme aliasing. disallow
-            sErrMsg = "550 Mail server configuration error. Too many recursive forwards.";
+            sErrMsg = "Mail server configuration error. Too many recursive forwards.";
             return DP_RecipientUnknown;
          }
 
@@ -96,7 +96,7 @@ namespace HM
 
             if (!pDomain->GetIsActive())
             {
-               sErrMsg = "550 Domain has been disabled.";
+               sErrMsg = "Domain has been disabled.";
                return DP_RecipientUnknown;
             }
 
@@ -111,7 +111,7 @@ namespace HM
                }
                else
                {
-                  sErrMsg = "550 Account is not active.";
+                  sErrMsg = "Account is not active.";
                   return DP_RecipientUnknown;
                }
             }
@@ -127,7 +127,7 @@ namespace HM
                }
                else
                {
-                  sErrMsg = "550 Alias is not active.";
+                  sErrMsg = "Alias is not active.";
                   return DP_RecipientUnknown;
                }
             }
@@ -138,7 +138,7 @@ namespace HM
             {
                if (!pList->GetActive())
                {
-                  sErrMsg = "550 Distribution list is not active.";
+                  sErrMsg = "Distribution list is not active.";
                   return DP_RecipientUnknown;
                }
 
@@ -171,7 +171,7 @@ namespace HM
       
             // We found routes matching the recipients domain, but the recipient 
             // doesn't exist in any of them.
-            sErrMsg = "550 Recipient not in route list.";
+            sErrMsg = "Recipient not in route list.";
             return DP_RecipientUnknown;
          }
 
@@ -367,7 +367,7 @@ namespace HM
 
       if (pList->GetRequireAuth() && !bSenderIsAuthenticated)
       {
-         sErrMsg = "550 SMTP authentication required.";
+         sErrMsg = "SMTP authentication required.";
          return DP_PermissionDenied;
       }
 
@@ -386,7 +386,7 @@ namespace HM
          {
 	    // Let's adjust reason to better explain sender is not seen as OWNER
 	    // and differentiate from SENDER like list member etc
-            sErrMsg = "550 Not authorized owner.";
+            sErrMsg = "Not authorized owner.";
             return DP_PermissionDenied;
          }
 
@@ -423,7 +423,7 @@ namespace HM
          if (iterRecipient == vecRecipients.end())
          {
 	         // Let's adjust reason to better explain sender is not seen as allowed SENDER
-            sErrMsg = "550 Not authorized sender.";
+            sErrMsg = "Not authorized sender.";
             return DP_PermissionDenied;
          }
       }

@@ -866,8 +866,69 @@ namespace RegressionTests.SMTP
          sim.SendAndReceive("HELO\r\n");
          sim.SendAndReceive("HELO\r\n");
          sim.SendAndReceive("HELO\r\n");
-         sim.SendAndReceive("HELO\r\n");
          var result = sim.SendAndReceive("HELO\r\n");
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      [Test]
+      public void TestTooManyInvalidCommandsHELOLastCommandOK()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         var result = sim.SendAndReceive("HELO test.com\r\n");
+         Assert.IsTrue(result.Contains("250 Hello."), result);
+      }
+
+      [Test]
+      public void TestTooManyInvalidCommandsUnknownRcptShouldBeCounted()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO example.com\r\n");
+         sim.SendAndReceive("MAIL FROM: example@example.com\r\n");
+         var result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      [Test]
+      public void TestTooManyInvalidCommandsHELOSuccesfullCommandDoesNotResetCounter()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         var result = sim.SendAndReceive("HELO test.com\r\n");
+         Assert.IsTrue(result.Contains("250 Hello."), result);
+
+         result = sim.SendAndReceive("HELO\r\n");
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
 

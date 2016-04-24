@@ -314,16 +314,6 @@ namespace HM
 
       sFirstWord.MakeUpper();
 
-      if (Configuration::Instance()->GetDisconnectInvalidClients() &&
-          cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
-      {
-         // Disconnect
-         EnqueueWrite_("Too many invalid commands. Bye!");
-         pending_disconnect_ = true;
-         EnqueueDisconnect();
-         return;
-      }
-
       eSMTPCommandTypes eCommandType = GetCommandType_(sFirstWord);
 
       // The following commands are available regardless of of state.
@@ -671,8 +661,8 @@ namespace HM
       if (dp != RecipientParser::DP_Possible)
       {
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-         EnqueueWrite_(sErrMsg);
-
+         
+         SendErrorResponse_(550, sErrMsg);
          return;
       }
 
@@ -769,7 +759,7 @@ namespace HM
 
       if (!recipientOK)
       {
-         EnqueueWrite_("550 Unknown user");
+         SendErrorResponse_(550, "Unknown user");
          return;
       }
    
@@ -2003,13 +1993,26 @@ namespace HM
    void 
    SMTPConnection::SendErrorResponse_(int iErrorCode, const String &sResponse)
    {
+      if (iErrorCode >= 500 && iErrorCode <= 599)
+      {
+         cur_no_of_invalid_commands_++;
+
+         if (Configuration::Instance()->GetDisconnectInvalidClients() &&
+            cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
+         {
+            // Disconnect
+            EnqueueWrite_("Too many invalid commands. Bye!");
+            pending_disconnect_ = true;
+            EnqueueDisconnect();
+            return;
+         }
+      }
+
       String sData;
       sData.Format(_T("%d %s"), iErrorCode, sResponse.c_str());
       
       EnqueueWrite_(sData);
-
-      if (iErrorCode >= 500 && iErrorCode <= 599)
-         cur_no_of_invalid_commands_++;   
+     
    }
 
    bool
