@@ -354,8 +354,8 @@ begin
      Parent := g_pageDBType.Surface;
      Left := 32;
      Top := 40;
-     Width := 329;
-     Height := 17;
+     Width := g_pageDBType.Surface.Width;
+     Height := 40;
      Caption := 'Use built-in database engine (Microsoft SQL Compact)';
      TabOrder := 0;
      Checked := True;
@@ -368,9 +368,9 @@ begin
    begin
      Parent := g_pageDBType.Surface;
      Left := 32;
-     Top := 64;
-     Width := 329;
-     Height := 17;
+     Top := 90;
+     Width := g_pageDBType.Surface.Width
+	 Height := 40;
      Caption := 'Use external database engine (MSSQL, MySQL or PostgreSQL)';
      TabOrder := 1;
      OnClick := @rdoUseExternal_Click;
@@ -385,9 +385,9 @@ begin
    begin
      Parent := g_pageDBType.Surface;
      Left := 32;
-     Top := 100;
+     Top := 140;
      Width := 329;
-     Height := 17;
+     Height := 40;
      Caption := 'More information...';
      OnClick := @moreInfoLink_Click;
      Font := moreInfoFont;

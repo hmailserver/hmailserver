@@ -219,8 +219,6 @@ namespace HM
          std::shared_ptr<IMAPSimpleWord> pWord = pSimpleParser->Word(currentWord);
          String sCurCommand = pWord->Value().ToUpper();
 
-         
-
          if (sCurCommand == _T("OR"))
          {
             // We have a sub argument.
@@ -235,6 +233,15 @@ namespace HM
                return result;
             
             pCriteria->GetSubCriterias().push_back(pSubCriteria);
+
+            if (iRecursion > 1)
+            {
+               // This is a sub criteria. We only add two words here.
+               if (originalCriteriaCount + 2 == pCriteria->GetSubCriterias().size())
+               {
+                  return IMAPResult();
+               }
+            }
 
             continue;
          }

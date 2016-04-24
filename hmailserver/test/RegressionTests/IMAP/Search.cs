@@ -386,7 +386,6 @@ namespace RegressionTests.IMAP
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
-
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "search@test.com", "test");
 
          // Send a message to this account.
@@ -663,6 +662,29 @@ namespace RegressionTests.IMAP
 
          result = oSimulator.SendSingleCommandWithLiteral("A01 SEARCH HEADER SUBJECT {5}", "Test2");
          Assert.IsTrue(result.StartsWith("* SEARCH 2\r\n"));
+      }
+
+      [Test]
+      public void TestSearchWithNOTDeleted()
+      {
+         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "search@test.com", "test");
+
+         // Send a message to this account.
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("search@test.com", "search@test.com", "TestSubject", "TestBody");
+         smtpClientSimulator.Send("search@test.com", "search@test.com", "TestSubject", "TestBody");
+         ImapClientSimulator.AssertMessageCount("search@test.com", "test", "INBOX", 2);
+
+         var oSimulator = new ImapClientSimulator();
+
+         oSimulator.Connect();
+         oSimulator.Logon("search@test.com", "test");
+         oSimulator.SelectFolder("Inbox");
+         oSimulator.SetDeletedFlag(2);
+
+         var searchResult = oSimulator.Search("(OR FROM \"TestSubject\" (OR SUBJECT \"TestSubject\" BODY \"TestSubject\")) NOT DELETED");
+
+         Assert.AreEqual("1", searchResult);
       }
    }
 }
