@@ -325,15 +325,25 @@ namespace RegressionTests.Shared
 
       public static void AssertMessageCount(string accountName, string accountPassword, int expectedCount)
       {
+         AssertMessageCount(accountName, accountPassword, expectedCount, TimeSpan.FromSeconds(30));
+      }
+
+      public static void AssertMessageCount(string accountName, string accountPassword, int expectedCount, TimeSpan timeout)
+      {
+         var timeoutTime = DateTime.UtcNow + timeout;
+
          if (expectedCount == 0)
          {
             // just in case.
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          }
 
-         int timeout = 100;
          int actualCount = 0;
-         while (timeout > 0)
+
+         DateTime lastDebugEntryTimestamp = DateTime.UtcNow;
+
+
+         while (DateTime.UtcNow < timeoutTime)
          {
             var pop3ClientSimulator = new Pop3ClientSimulator();
 
@@ -347,7 +357,13 @@ namespace RegressionTests.Shared
                      "Actual count exceeds expected count. Account name: {2}, Actual: {0}, Expected: {1}.",
                      actualCount, expectedCount, accountName));
 
-            timeout--;
+            if (DateTime.UtcNow - lastDebugEntryTimestamp > TimeSpan.FromSeconds(10))
+            {
+               Console.WriteLine("Waiting for messages to appear in account. Actual: {0}, Expected: {1}", actualCount, expectedCount);
+
+               lastDebugEntryTimestamp = DateTime.UtcNow;
+            }
+
             Thread.Sleep(50);
          }
 

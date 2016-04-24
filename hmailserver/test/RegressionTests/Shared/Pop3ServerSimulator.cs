@@ -4,12 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Text;
 using hMailServer;
 using RegressionTests.SSL;
 
 namespace RegressionTests.Shared
 {
-   internal class Pop3ServerSimulator : TcpServer
+   public class Pop3ServerSimulator : TcpServer
    {
       private readonly List<string> _messages;
       private bool _disconnectImmediate;
@@ -127,10 +128,14 @@ namespace RegressionTests.Shared
 
             Send("+OK\r\n");
 
+            var builder = new StringBuilder();
+
             for (int i = 0; i < _messages.Count; i++)
             {
-               Send(string.Format("{0} UniqueID-{1}\r\n", i + 1, _messages[i].GetHashCode()));
+               builder.Append(string.Format("{0} UniqueID-{1}\r\n", i + 1, _messages[i].GetHashCode()));
             }
+
+            Send(builder.ToString());
 
             Send(".\r\n");
             return true;

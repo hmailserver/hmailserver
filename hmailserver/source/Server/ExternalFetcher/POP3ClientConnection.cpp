@@ -104,8 +104,7 @@ namespace HM
       command_buffer_.append(sRequest);
       command_buffer_.append("\r\n");
 
-      bool is_awaiting_multiline_response  = current_state_ == StateCAPASent ||
-                                             current_state_ == StateUIDLRequestSent;
+      bool is_awaiting_multiline_response  = current_state_ == StateCAPASent;
 
       if (is_awaiting_multiline_response)
       {
@@ -340,6 +339,8 @@ namespace HM
       if (CommandIsSuccessfull_(sData))
       {
          current_state_ = StateUIDLRequestSent;
+
+         SetReceiveBinary(true);
 
          // We have connected successfully.
          // Time to send the username.
@@ -665,14 +666,49 @@ namespace HM
    void
    POP3ClientConnection::ParseData(std::shared_ptr<ByteBuffer> pBuf)
    {
+      // 
+      if (current_state_ == StateUIDLRequestSent)
+      {
+         command_buffer_.append(pBuf->GetCharBuffer(), pBuf->GetSize());
+
+         pBuf->Empty();
+
+         if (command_buffer_.StartsWith("-ERR"))
+         {
+            // The server does not support UIDL. We can't fetch from this server.
+            LogPOP3String_(command_buffer_, false);
+            QuitNow_();
+            return;
+         }
+
+         if (command_buffer_ == ".\r\n" || command_buffer_.EndsWith("\r\n.\r\n"))
+         {
+            ParseUIDLResponse_(command_buffer_);
+
+            command_buffer_.clear();
+         }
+
+         EnqueueRead("");
+         return;
+      }
+
       // Append message buffer with the binary data we've received.
       if (!transmission_buffer_)
       {
-         if (!ParseFirstBinary_(pBuf))
+         if (_firstRetrResponseBuffer == nullptr)
+            _firstRetrResponseBuffer = std::make_shared<ByteBuffer>();
+
+         _firstRetrResponseBuffer->Add(pBuf);
+
+         if (!ParseFirstBinary_(_firstRetrResponseBuffer))
          {
             EnqueueRead("");
             return;
          }
+
+         pBuf->Empty();
+         pBuf->Add(_firstRetrResponseBuffer);
+         _firstRetrResponseBuffer->Empty();
 
          String fileName = PersistentMessage::GetFileName(current_message_);
 

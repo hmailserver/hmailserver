@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StressTest</RootNamespace>
     <AssemblyName>StressTest</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -67,6 +67,7 @@
     <Compile Include="IMAP.cs" />
     <Compile Include="LargeMessagesTest.cs" />
     <Compile Include="PerfTestEnvironmentSetUp.cs" />
+    <Compile Include="POP3Fetching.cs" />
     <Compile Include="POP3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shared.cs" />

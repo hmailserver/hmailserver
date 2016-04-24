@@ -13,7 +13,7 @@ using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
-   internal class TcpServer : IDisposable
+   public class TcpServer : IDisposable
    {
       private readonly ManualResetEvent _listenThreadStarted = new ManualResetEvent(false);
       private readonly ManualResetEvent _clientCompleted = new ManualResetEvent(false);
