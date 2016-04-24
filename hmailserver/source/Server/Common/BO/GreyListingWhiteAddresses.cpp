@@ -32,21 +32,5 @@ namespace HM
       DBLoad_(sSQL);
    }
 
-   bool 
-   GreyListingWhiteAddresses::GetIPExistsInWhiteList(const String &sCheckIP)
-   {
-      auto iter = vecObjects.begin();
-      auto iterEnd = vecObjects.end();
-
-      for (; iter != iterEnd; iter++)
-      {
-         String sWhiteIPAddress = (*iter)->GetIPAddress();
-
-         if (StringParser::WildcardMatch(sWhiteIPAddress, sCheckIP))
-            return true;
-      }
-
-      return false;
-   }
 
 }

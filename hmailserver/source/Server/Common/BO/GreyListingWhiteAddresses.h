@@ -19,8 +19,6 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      bool GetIPExistsInWhiteList(const String &sCheckIP);
-
    protected:
       virtual String GetCollectionName() const {return "GreyListingWhiteAddresses"; }
 
