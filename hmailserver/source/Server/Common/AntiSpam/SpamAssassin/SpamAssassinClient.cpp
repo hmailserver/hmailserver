@@ -28,7 +28,7 @@ namespace HM
    {
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSAMinTimeout(), IniFileSettings::Instance()->GetSAMaxTimeout()));
-      
+            
       message_file_ = sFile;
 	   spam_dsize_ = -1;
 	   message_size_ = -1;
@@ -39,7 +39,14 @@ namespace HM
 
    SpamAssassinClient::~SpamAssassinClient(void)
    {
-
+      try
+      {
+         Cleanup_();
+      }
+      catch (...)
+      {
+         
+      }
    }
 
    void
@@ -182,7 +189,6 @@ namespace HM
          {
             // Copy temp file to message file
             FileUtilities::Copy(sTempFile, message_file_, false);
-            FileUtilities::DeleteFile(sTempFile);
             LOG_DEBUG("SA - Copy+Delete used");
          }
 	  } 
@@ -273,11 +279,16 @@ namespace HM
 
       ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5157, "SpamAssassinClient::OnReadError", errorMessage);
 
-      if (result_)
+   }
+
+   void 
+   SpamAssassinClient::Cleanup_()
+   {
+      if (result_ != nullptr)
       {
          result_->Close();
          FileUtilities::DeleteFile(result_->GetName());
-         result_.reset();
+         result_ = nullptr;
       }
    }
 }

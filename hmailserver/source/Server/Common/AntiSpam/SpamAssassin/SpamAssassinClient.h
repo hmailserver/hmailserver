@@ -38,6 +38,7 @@ namespace HM
 
    private:
 
+      void Cleanup_();
       void FinishTesting_();
       int ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer) const;
       bool SendFileContents_(const String &sFilename);
