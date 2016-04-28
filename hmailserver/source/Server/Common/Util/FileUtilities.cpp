@@ -401,10 +401,24 @@ namespace HM
    }
 
    bool 
-   FileUtilities::DeleteDirectory(const String &sDirName)
+   FileUtilities::DeleteDirectory(const String &sDirName, bool force)
    {
-      boost::system::error_code error_code;
+      if (!force)
+      {
+         if (!boost::filesystem::is_directory(sDirName))
+         {
+            // The directory is already gone.
+            return true;
+         }
 
+         if (GetDirectoryContainsFileRecursive(sDirName))
+         {
+            // Directory is not empty.
+            return false;
+         }
+      }
+
+      boost::system::error_code error_code;
       boost::filesystem::remove_all(sDirName, error_code);
 
       if (error_code)
@@ -451,6 +465,34 @@ namespace HM
 
    }
 
+   bool
+   FileUtilities::GetDirectoryContainsFileRecursive(const String &sDirectoryName)
+   {
+      if (!boost::filesystem::is_directory(sDirectoryName))
+         return false;
+
+      std::vector<FileInfo> result;
+
+      for (boost::filesystem::directory_iterator file(sDirectoryName); file != boost::filesystem::directory_iterator(); ++file)
+      {
+         boost::filesystem::path current(file->path());
+
+         if(boost::filesystem::is_directory(current))
+         {
+            auto result = GetDirectoryContainsFileRecursive(current.wstring().c_str());
+
+            if (result)
+               return true;
+         }
+         else
+         {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
 
    bool
    FileUtilities::DeleteDirectoriesInDirectory(const String &sDirName)
@@ -459,7 +501,7 @@ namespace HM
       {
          boost::filesystem::path current(file->path());
          if (boost::filesystem::is_directory(current))
-            boost::filesystem::remove(current);
+            boost::filesystem::remove_all(current);
       }
 
       return true;

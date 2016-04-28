@@ -37,12 +37,12 @@ namespace HM
       static bool CreateDirectory(const String &sName);
 
       static bool CopyDirectory(String sFrom, String sTo, String &errorMessage);
-      static bool DeleteDirectory(const String &sDirName);
+      static bool DeleteDirectory(const String &sDirName, bool force);
       static bool DeleteFilesInDirectory(const String &sDirName);
       static bool DeleteDirectoriesInDirectory(const String &sDirName);
 
       static std::vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &sWildCard);
-
+      static bool GetDirectoryContainsFileRecursive(const String &sDirectoryName);
       static bool IsUNCPath(const String &sPath);
       static bool IsValidUNCFolder(const String &sPath);
       static bool IsFullPath(const String &sPath);

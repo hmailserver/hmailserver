@@ -64,16 +64,19 @@ namespace HM
 
          SQLCommand command("delete from hm_domains where domainid = @DOMAINID");
          command.AddParameter("@DOMAINID", iDomainID);
-           
+
          if (!Application::Instance()->GetDBManager()->Execute(command))
             return false;
-         
+
          // Refresh the BO cache
          Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pDomain);
 
          // Delete folder from data directory
-         String sDomainFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + pDomain->GetName();
-         FileUtilities::DeleteDirectory(sDomainFolder);
+         if (!pDomain->GetName().IsEmpty())
+         {
+            String sDomainFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + pDomain->GetName();
+            FileUtilities::DeleteDirectory(sDomainFolder, false);
+         }
 
          return true;
 

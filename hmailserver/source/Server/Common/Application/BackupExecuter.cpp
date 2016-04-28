@@ -196,7 +196,7 @@ namespace HM
 
          // Since the files are now compressed, we can deleted
          // the data backup directory
-         if (!FileUtilities::DeleteDirectory(sDataBackupDir))
+         if (!FileUtilities::DeleteDirectory(sDataBackupDir, true))
          {
             Application::Instance()->GetBackupManager()->OnBackupFailed("Could not delete files from the destination directory.");
             return false;
@@ -399,7 +399,7 @@ namespace HM
       {
          // The temporary directory we created while
          // unzipping should be deleted now.
-         FileUtilities::DeleteDirectory(sExtractedFilesDirectory);
+         FileUtilities::DeleteDirectory(sExtractedFilesDirectory, true);
       }
    }
 }

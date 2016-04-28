@@ -29,6 +29,13 @@ namespace RegressionTests.Infrastructure.Persistence
       }
 
       [Test]
+      public void TestAccountWithoutAddress()
+      {
+         var exception = Assert.Throws<COMException>(() => SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "", "secret2"));
+         Assert.AreEqual("Failed to save object. The account address is not a valid email address.", exception.Message);
+      }
+
+      [Test]
       public void TestAccountContainingForwardSlash()
       {
          try
@@ -282,6 +289,13 @@ namespace RegressionTests.Infrastructure.Persistence
          Assert.Fail("Duplicate domain name was permitted.");
       }
 
+      [Test]
+      public void TestDomainWithoutName()
+      {
+         var exception = Assert.Throws<COMException>(() => SingletonProvider<TestSetup>.Instance.AddDomain(""));
+
+         Assert.AreEqual("Failed to save object. The domain name you have entered is not a valid domain name.", exception.Message);
+      }
 
       [Test]
       public void TestDomainNameDuplicateDomainRename()

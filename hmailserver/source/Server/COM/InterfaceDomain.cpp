@@ -210,7 +210,7 @@ STDMETHODIMP InterfaceDomain::Save()
          return S_OK;
       }
    
-      return COMError::GenerateError(sErrorMessage);
+      return COMError::GenerateError("Failed to save object. " + sErrorMessage);
    }
    catch (...)
    {

@@ -182,7 +182,7 @@ namespace HM
       }
 
       // We were successful in copying the data directory for the domain in question. Now drop the old structure.
-      FileUtilities::DeleteDirectory(oldDirectory);
+      FileUtilities::DeleteDirectory(oldDirectory, true);
 
       return true;
    }
