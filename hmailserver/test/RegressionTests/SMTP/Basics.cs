@@ -609,6 +609,27 @@ namespace RegressionTests.SMTP
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
+
+      [Test]
+      [Category("SMTP")]
+      public void MailFromWithAuthParameterShouldBeAccepted()
+      {
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
+
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("220"));
+         smtpClientSimulator.Send("HELO test\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
+
+         // A few tests of invalid syntax.
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM: <test@test.com> AUTH=<>\r\n").StartsWith("250"));
+
+         smtpClientSimulator.Disconnect();
+      }
+
+
       [Test]
       [Category("SMTP")]
       [Description("Confirm that it's OK to send MAIL FROM without the < and >")]

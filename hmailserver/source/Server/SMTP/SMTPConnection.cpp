@@ -470,7 +470,7 @@ namespace HM
          String parameter = (*iterParam);
          if (parameter.Left(4).CompareNoCase(_T("SIZE")) == 0)
             iEstimatedMessageSize = _ttoi(parameter.Mid(5));
-         else if (parameter.Left(5).CompareNoCase(_T("AUTH")) == 0)
+         else if (parameter.Left(4).CompareNoCase(_T("AUTH")) == 0)
             sAuthParam = parameter.Mid(5);
          else
          {
