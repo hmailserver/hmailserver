@@ -79,8 +79,14 @@ namespace HM
       bool bRet = Application::Instance()->GetDBManager()->Execute(deleteCommand);
 
       // Delete folder from data directory
-      String sAccountFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + StringParser::ExtractDomain(pAccount->GetAddress()) + "\\" + StringParser::ExtractAddress(pAccount->GetAddress());
-      FileUtilities::DeleteDirectory(sAccountFolder);
+      String sDomainName = StringParser::ExtractDomain(pAccount->GetAddress());
+      String sMailbox = StringParser::ExtractAddress(pAccount->GetAddress());
+
+      if (!sDomainName.IsEmpty() && !sMailbox.IsEmpty())
+      {
+         String sAccountFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + sDomainName + "\\" + sMailbox;
+         FileUtilities::DeleteDirectory(sAccountFolder, false);
+      }
 	  
       // Refresh caches.
       Cache<Account>::Instance()->RemoveObject(pAccount);

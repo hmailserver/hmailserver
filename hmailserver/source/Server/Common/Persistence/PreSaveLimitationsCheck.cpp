@@ -69,6 +69,11 @@ namespace HM
          return false;
       }
 
+      if (!StringParser::IsValidEmailAddress(account->GetAddress()))
+      {
+         resultDescription = "The account address is not a valid email address.";
+         return false;
+      }
 
       std::shared_ptr<Domain> domain = GetDomain(account->GetDomainID());
 

@@ -349,7 +349,7 @@ ServiceMain(DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/)
    // Then it immediately calls the SetServiceStatus function to notify the 
    // service control manager that its status is SERVICE_START_PENDING. 
    // Tell SCM that we have started.
-   ReportServiceStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP);
+   ReportServiceStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
 
    // In Windows 2000/XP, we need to register objects directly
    // after service start. Otherwise it won't work. In later
@@ -409,7 +409,12 @@ ServiceController (DWORD Opcode)
    case SERVICE_CONTROL_CONTINUE: 
       ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
       break; 
+   case SERVICE_CONTROL_SHUTDOWN:
+      LOG_DEBUG("Received shutdown-request from Windows.");
+      TerminateServer();
+      break;
    case SERVICE_CONTROL_STOP: 
+      LOG_DEBUG("Received stop-request from Windows.");
       TerminateServer();
       // --- Send message to the main thread to quit.
       return; 

@@ -27,7 +27,7 @@ namespace RegressionTests.API
       public void TestAccountLink()
       {
          Account account =
-            SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test", "test");
+            SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          Assert.AreEqual(account.Address, _links.get_Account(account.ID).Address);
       }
