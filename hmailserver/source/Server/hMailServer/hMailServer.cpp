@@ -421,7 +421,12 @@ ServiceController (DWORD Opcode)
    case SERVICE_CONTROL_CONTINUE: 
       ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
       break; 
+   case SERVICE_CONTROL_SHUTDOWN:
+      LOG_DEBUG("Received shutdown-request from Windows.");
+      TerminateServer();
+      break;
    case SERVICE_CONTROL_STOP: 
+      LOG_DEBUG("Received stop-request from Windows.");
       TerminateServer();
       // --- Send message to the main thread to quit.
       return; 
