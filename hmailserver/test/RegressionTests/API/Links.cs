@@ -36,7 +36,7 @@ namespace RegressionTests.API
       public void TestAliasLink()
       {
          Alias alias =
-            SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "mytest", "test2");
+            SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "mytest@test.com", "test2");
 
          Assert.AreEqual(alias.Value, _links.get_Alias(alias.ID).Value);
       }
@@ -50,7 +50,7 @@ namespace RegressionTests.API
          recipients.Add("Laffe");
 
          DistributionList list =
-            SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "mytest", recipients);
+            SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "mytest@test.com", recipients);
 
          Assert.AreEqual(recipients.Count, _links.get_DistributionList(list.ID).Recipients.Count);
       }

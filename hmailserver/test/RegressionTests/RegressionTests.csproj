@@ -71,6 +71,8 @@
     <Compile Include="API\Basics.cs" />
     <Compile Include="Infrastructure\CustomAsserts.cs" />
     <Compile Include="Infrastructure\LogHandler.cs" />
+    <Compile Include="Infrastructure\Persistence\AccountNameValidation.cs" />
+    <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />
     <Compile Include="Shared\SslVersions.cs" />
     <Compile Include="Shared\StringExtensions.cs" />
@@ -88,6 +90,8 @@
     <Compile Include="Rules\Rules.cs" />
     <Compile Include="Shared\SingletonProvider.cs" />
     <Compile Include="SMTP\Basics.cs" />
+    <Compile Include="SMTP\RcptToParsing.cs" />
+    <Compile Include="SMTP\MailFromParsing.cs" />
     <Compile Include="SSL\SslTlsVersionTests.cs" />
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />

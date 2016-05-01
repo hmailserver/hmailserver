@@ -57,16 +57,16 @@ namespace HM
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // Original: [^<>" ]+@[^<>" ]+\.[^<>" ]+
+      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
       // 
-      // Rule set:
-      // - Don't allow spaces anywhere in the address.
-      // - Don't allow < or > or " anywhere.
-      //
+      // Basically:
+      // Disallow < > @ \ / " ? * | everywhere, except:
+      //    allow @ separating mailbox and domain name
+      //    allow " in start and end of mailbox name.
+      // If mailbox name is within quotes, allow space, if no quotes, don't allow space.
+      // 
 
-      String regularExpression = "[^<>\" ]+@[^<>\" ]+\\.[^<>\" ]+";
-
-      
+      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
@@ -76,13 +76,13 @@ namespace HM
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      if (AnyOfCharsExists_("<>,\"\\!#Â¤%&[]$Â£/*?", sDomainName))
-         return false;
-   
-      String sWildCard = "?*.?*";
-   
-      return WildcardMatch(sWildCard, sDomainName);
+      // Original: ^[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
 
+      String regularExpression = "^[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+
+      RegularExpression regexpEvaluator;
+      bool result = regexpEvaluator.TestExactMatch(regularExpression, sDomainName);
+      return result;
    }
 
    
@@ -576,14 +576,15 @@ namespace HM
       if (StringParser::IsValidEmailAddress("\"va@ff\"@test.co.uk")) throw;
       if (StringParser::IsValidEmailAddress("some one@test.co.uk")) throw;
       if (StringParser::IsValidEmailAddress("<someone@test.co.uk>")) throw;
+      if (StringParser::IsValidEmailAddress("va ff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("test@test.com")) throw;
       if (!StringParser::IsValidEmailAddress("test@hmailserver.com")) throw;
-      if (!StringParser::IsValidEmailAddress("test_test+testÃ¥Ã¤Ã¶|@hmailserver.com")) throw;
+      if (!StringParser::IsValidEmailAddress("test_test@hmailserver.com")) throw;
       if (!StringParser::IsValidEmailAddress("bill@microsoft.com")) throw;
       if (!StringParser::IsValidEmailAddress("martin@hmailserver.com")) throw;
       if (!StringParser::IsValidEmailAddress("vaff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("va'ff@test.co.uk")) throw;
-      
+      if (!StringParser::IsValidEmailAddress("\"va ff\"@test.co.uk")) throw;
       
 
       if (StringParser::ExtractAddress("\"va@ff\"@test.co.uk").Compare(_T("\"va@ff\"")) != 0) throw;

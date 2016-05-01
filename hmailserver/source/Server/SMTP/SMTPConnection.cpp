@@ -3,6 +3,9 @@
 
 
 #include "stdafx.h"
+
+#include <Boost/Regex.hpp>
+
 #include "../common/bo/Messages.h"
 #include "../common/bo/MessageData.h"
 
@@ -63,6 +66,8 @@
 #include "SMTPConfiguration.h"
 #include "SMTPDeliveryManager.h"
 #include "SMTPMessageHeaderCreator.h"
+
+
 
 using namespace std;
 
@@ -432,32 +437,26 @@ namespace HM
      
       if (Request.GetLength() < 10)
       {
-         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<mailbox@domain>[crlf]");
          return;
       }
 
       if (!Request.StartsWith(_T("MAIL FROM:")))
       {
-         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<mailbox@domain>[crlf]");
          return;
       }
 
       // Parse the contents of the MAIL FROM: command
-      String sMailFromParameters = Request.Mid(10).Trim();
+      String sMailFromArguments = Request.Mid(10).Trim();
+      
       String sFromAddress;
-
-      std::vector<String> vecParams = StringParser::SplitString(sMailFromParameters, " ");
-      auto iterParam = vecParams.begin();
-
-      if (iterParam != vecParams.end())
+      String sParameters;
+      if (!ParseMailFrom_(sMailFromArguments, sFromAddress, sParameters))
       {
-         if (!TryExtractAddress_((*iterParam), sFromAddress))
-         {
-            SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<userdomain>[crlf]");
-            return;
-         }         
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be MAIL FROM:<mailbox@domain>[crlf]");
+         return;
 
-         iterParam++;
       }
 
       sFromAddress = DefaultDomain::ApplyDefaultDomain(sFromAddress);
@@ -466,6 +465,9 @@ namespace HM
          return;
 
       // Parse the extensions 
+      std::vector<String> vecParams = StringParser::SplitString(sParameters, " ");
+      std::vector<String>::iterator iterParam = vecParams.begin();
+
       String sAuthParam;
       int iEstimatedMessageSize = 0;
       while (iterParam != vecParams.end())
@@ -595,7 +597,7 @@ namespace HM
 
       if (!Request.StartsWith(_T("RCPT TO:")))
       {
-         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<mailbox@domain>[crlf]");
          return;
       }
 
@@ -603,7 +605,7 @@ namespace HM
 
       if (!TryExtractAddress_(Request.Mid(8), sRecipientAddress))
       {
-         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<userdomain>[crlf]");
+         SendErrorResponse_(550, "Invalid syntax. Syntax should be RCPT TO:<mailbox@domain>[crlf]");
          return;
       }
 
@@ -2085,6 +2087,74 @@ namespace HM
 
       return true;
    }
+
+   bool
+   SMTPConnection::ParseMailFrom_(String mailFrom, String &address, String &parameters)
+   {
+      // Variants:
+      // (empty)
+      // example
+      // example@example.com
+      // <example@example.com>
+      // <example> param1=value1 param2=value2
+      // example param1=value1 param2=value2
+      // example@example.com param1=value1 param2=value2
+      // <example@example.com> param1=value1 param2=value2
+      // "a b"@example.com> param1=value1 param2=value2
+      
+      // Parameters always comes after the first space, except for when the mailbox part is quoted,
+      // in which case it's after the first space after the last quote.
+
+      int parameterStartPosition = 0;
+
+      int firstQuotePosition = mailFrom.Find(_T("\""));
+      if (firstQuotePosition > 0)
+      {
+         int lastQuotePosition = mailFrom.ReverseFind(_T("\""));
+
+         if (firstQuotePosition == lastQuotePosition)
+            return false;
+
+         parameterStartPosition = mailFrom.Find(_T(" "), lastQuotePosition);
+      }
+      else
+      {
+         parameterStartPosition = mailFrom.Find(_T(" "));
+      }
+
+      int emailAddressEndPosition = 0;
+
+      if (parameterStartPosition >= 0)
+      {
+         emailAddressEndPosition = parameterStartPosition;
+      }
+      else
+      {
+         emailAddressEndPosition = mailFrom.GetLength();
+      }
+
+      address = mailFrom.Left(emailAddressEndPosition);
+
+      parameters = parameterStartPosition > 0 ? mailFrom.Mid(parameterStartPosition) : _T("");
+
+      if (address.StartsWith(_T("<")))
+      {
+         if (!address.EndsWith(_T(">")))
+            return false;
+
+         address.TrimLeft('<');
+         address.TrimRight('>');
+
+         address.TrimLeft();
+         address.TrimRight();
+      }
+
+      parameters.TrimLeft();
+      parameters.TrimRight();
+
+      return true;
+   }
+
 
    bool
    SMTPConnection::GetAuthIsEnabled_()
