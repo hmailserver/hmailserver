@@ -635,7 +635,7 @@ namespace RegressionTests.SMTP
       [Description("Confirm that it's OK to send MAIL FROM without the < and >")]
       public void TestRcptToSyntax()
       {
-         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          var smtpClientSimulator = new TcpConnection();
          smtpClientSimulator.Connect(25);
@@ -692,8 +692,6 @@ namespace RegressionTests.SMTP
          )]
       public void TestSendExternalToExternalPermitted()
       {
-
-
          SecurityRange range =
             SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
          range.RequireSMTPAuthExternalToExternal = false;
@@ -715,6 +713,38 @@ namespace RegressionTests.SMTP
             var smtpClientSimulator = new SmtpClientSimulator();
             smtpClientSimulator.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
                                            "test2@dummy-example.com", "Mail 1", "Test message");
+
+
+            // This should now be processed via the rule -> route -> external server we've set up.
+            server.WaitForCompletion();
+
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
+         }
+      }
+
+      [Test]
+      public void TestSendExternalMailToMailboxContainingQuote()
+      {
+         var range = SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
+         range.RequireSMTPAuthExternalToExternal = false;
+         range.Save();
+
+
+         // Set up a server listening on port 250 which accepts email for test@otherdomain.com
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["\"John Smith\"@dummy-example.com"] = 250;
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
+
+            var smtpClientSimulator = new SmtpClientSimulator();
+            smtpClientSimulator.Send("\"John Smith\"@example.com",
+                                    "\"John Smith\"@dummy-example.com", "Mail 1", "Test message");
 
 
             // This should now be processed via the rule -> route -> external server we've set up.

@@ -316,6 +316,8 @@ namespace RegressionTests.Infrastructure.Persistence
                                     TestSetup.Escape(fileName), message.ID);
          SingletonProvider<TestSetup>.Instance.GetApp().Database.ExecuteSQL(sql);
 
+         SingletonProvider<TestSetup>.Instance.GetApp().Settings.Cache.Clear();
+
          // Now try to change the name of the domain or account. Should fail.
          account.Address = "test2@test.com";
          bool thrown = false;
@@ -353,6 +355,8 @@ namespace RegressionTests.Infrastructure.Persistence
          // Saving domain is OK, unless its address is changed.
          _domain.Name = "test.com";
          _domain.Save();
+
+         _domain.Delete();
       }
 
       [Test]

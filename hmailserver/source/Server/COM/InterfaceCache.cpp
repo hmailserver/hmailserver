@@ -14,16 +14,7 @@
 #include "..\Common\BO\Alias.h"
 #include "..\Common\BO\DistributionList.h"
 
-#include "..\Common\Persistence\PersistentDomain.h"
-#include "..\Common\Persistence\PersistentAccount.h"
-#include "..\Common\Persistence\PersistentAlias.h"
-#include "..\Common\Persistence\PersistentDistributionList.h"
-
-#include "..\Common\BO\Routes.h"
-#include "..\Common\BO\DNSBlackLists.h"
-#include "..\Common\BO\SURBLServers.h"
-#include "..\Common\BO\BlockedAttachments.h"
-#include "..\Common\BO\GreyListingWhiteAddresses.h"
+#include "../IMAP/MessagesContainer.h"
 
 InterfaceCache::InterfaceCache() :
    config_(nullptr),
@@ -524,7 +515,8 @@ InterfaceCache::Clear()
       HM::Cache<HM::Domain>::Instance()->Clear();
       HM::Cache<HM::Alias>::Instance()->Clear();
       HM::Cache<HM::DistributionList>::Instance()->Clear();
-   
+      HM::MessagesContainer::Instance()->Clear();
+
       return S_OK;
    }
    catch (...)

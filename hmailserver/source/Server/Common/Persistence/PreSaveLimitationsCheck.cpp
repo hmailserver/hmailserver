@@ -54,18 +54,12 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Account> account, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       if (account->GetVacationMessage().GetLength() > 1000)
       {
          resultDescription = "The auto reply message length exceeds the 1000 character limit.";
-         return false;
-      }
-
-      if (account->GetAddress().FindOneOf(_T("?*|\\/<>")) >= 0)
-      {
-         resultDescription = "The characters ?*|\\/<> are not permitted in hMailServer account addresses.";
          return false;
       }
 
@@ -75,10 +69,24 @@ namespace HM
          return false;
       }
 
+      // hMailServer does nopt support spaces or quotes in local accounts.
+      if (account->GetAddress().FindOneOf(_T(" \"")) != -1)
+      {
+         resultDescription = "The account address may not contain spaces or quotes.";
+         return false;
+      }
+
       std::shared_ptr<Domain> domain = GetDomain(account->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeAccount, account->GetID(), account->GetAddress()))      
          return DuplicateError(resultDescription);
+
+      auto domainName = StringParser::ExtractDomain(account->GetAddress());
+      if (domainName.CompareNoCase(domain->GetName()) != 0)
+      {
+         resultDescription = "The account address domain does not match the owning domain name.";
+         return false;
+      }
 
       if (account->GetID() == 0)
       {
@@ -153,7 +161,7 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionListRecipient> recipient, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       if (recipient->GetAddress().GetLength() == 0)
@@ -168,13 +176,20 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Alias> alias, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<Domain> domain = GetDomain(alias->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeAlias, alias->GetID(), alias->GetName()))      
          return DuplicateError(resultDescription);
+
+      auto domainName = StringParser::ExtractDomain(alias->GetName());
+      if (domainName.CompareNoCase(domain->GetName()) != 0)
+      {
+         resultDescription = "The alias address domain does not match the owning domain name.";
+         return false;
+      }
 
       if (alias->GetID() == 0)
       {
@@ -193,13 +208,20 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DistributionList> list, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<Domain> domain = GetDomain(list->GetDomainID());
 
       if (GetDuplicateExist(domain, TypeList,list->GetID(), list->GetAddress()))      
          return DuplicateError(resultDescription);
+
+      auto domainName = StringParser::ExtractDomain(list->GetAddress());
+      if (domainName.CompareNoCase(domain->GetName()) != 0)
+      {
+         resultDescription = "The distribution list domain does not match the owning domain name.";
+         return false;
+      }
 
       if (list->GetID() == 0)
       {
@@ -217,7 +239,7 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Group> group, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(group->GetName());
@@ -269,7 +291,7 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Domain> domain, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(domain->GetName());
@@ -302,7 +324,7 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<DomainAlias> domainAlias, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
 
@@ -329,7 +351,7 @@ namespace HM
    bool 
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Route> route, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<Routes> pRoutes = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
@@ -347,7 +369,7 @@ namespace HM
    bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<SecurityRange> securityRange, String &resultDescription)
    {
-      if (mode == PersistenceModeRestore)
+      if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
          return true;
 
       std::shared_ptr<SecurityRange> existingRange = std::make_shared<SecurityRange>();

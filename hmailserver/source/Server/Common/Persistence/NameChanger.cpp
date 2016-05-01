@@ -55,7 +55,8 @@ namespace HM
          if (UpdateDomainName_(currentVal, oldDomainName, newDomainName))
             pAccount->SetForwardAddress(currentVal);
 
-         PersistentAccount::SaveObject(pAccount);
+         if (!PersistentAccount::SaveObject(pAccount, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       // Update aliases...
@@ -76,7 +77,8 @@ namespace HM
          if (UpdateDomainName_(aliasValue, oldDomainName, newDomainName))
             pAlias->SetValue(aliasValue);
 
-         PersistentAlias::SaveObject(pAlias);
+         if (!PersistentAlias::SaveObject(pAlias, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       // Update lists...
@@ -103,7 +105,8 @@ namespace HM
             }
          }
 
-         PersistentDistributionList::SaveObject(pList);
+         if (!PersistentDistributionList::SaveObject(pList, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       return true;

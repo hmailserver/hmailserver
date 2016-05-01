@@ -127,33 +127,6 @@ namespace RegressionTests.AntiSpam
          Pop3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
-      [Test]
-      public void TestWildcardEscapeChar()
-      {
-         WhiteListAddresses obAddresses = _antiSpam.WhiteListAddresses;
-
-         WhiteListAddress obAddress = obAddresses.Add();
-         obAddress.EmailAddress = "white/list@microsoft.com";
-         obAddress.LowerIPAddress = "0.0.0.0";
-         obAddress.UpperIPAddress = "255.255.255.255";
-         obAddress.Description = "Test";
-         obAddress.Save();
-
-         // Enable SURBL.
-         var oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
-
-         // Send a messages to this account.
-         SmtpClientSimulator.StaticSend("white/list@microsoft.com", "whitelist@test.com", "SURBL-Match",
-                                                      "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
-
-         CustomAsserts.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
-                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-"));
-
-         Pop3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
-      }
 
       [Test]
       public void TestWildcardEscapedCharacters()

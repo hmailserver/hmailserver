@@ -161,7 +161,6 @@ namespace RegressionTests.Infrastructure
          var startInfo = new ProcessStartInfo();
          startInfo.FileName = @"C:\clamav\clamd.exe";
          startInfo.WorkingDirectory = @"C:\Clamav";
-         startInfo.Arguments = "--daemon";
 
          try
          {

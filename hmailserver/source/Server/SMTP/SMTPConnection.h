@@ -68,7 +68,7 @@ namespace HM
       void EnqueueWrite_(const String &sData);
       void SendBanner_();
 
-      bool TryExtractAddress_(const String &mailFromParameter, String& address);
+      bool ParseAddressWithExtensions_(String mailFrom, String &address, String &parameters);
       void HandleSMTPFinalizationTaskCompleted_();
 
       virtual void InternalParseData(const AnsiString &sRequest);
@@ -165,6 +165,8 @@ namespace HM
       void HandleUnableToSaveMessageDataFile_(const String &file_name);
 
       String GetSpamTestResultMessage_(std::set<std::shared_ptr<SpamTestResult> > testResult) const;
+
+
 
       enum ConnectionState
       {

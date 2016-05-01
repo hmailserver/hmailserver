@@ -14,6 +14,7 @@ namespace HM
    {
       PersistenceModeNormal = 0,
       PersistenceModeRestore = 1,
+      PersistenceModeRename = 2,
    };
    
 }
