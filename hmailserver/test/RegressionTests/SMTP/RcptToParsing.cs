@@ -35,6 +35,12 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void RcptToQuotedAddressWithSpaceWithoutGtLtShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: \"John Smith\"@example.com");
+      }
+
+      [Test]
       public void RcptToQuotedAddressWithoutSpaceShouldFail()
       {
          AssertInvalidRcptToCommand("RCPT TO: <John Smith@example.com>", "550 A valid address is required.");

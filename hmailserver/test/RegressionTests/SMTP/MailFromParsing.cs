@@ -52,6 +52,17 @@ namespace RegressionTests.SMTP
          AssertInvalidMailFromCommand("MAIL FROM: <example\\example@example.com>", "550 The address is not valid.");
       }
 
+      [Test]
+      public void MailFromQuotedAddressWithSpaceWithoutGtLtShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: \"John Smith\"@example.com");
+      }
+
+      [Test]
+      public void MailFromQuotedAddressWithSpaceWithExtensionsWithoutGtLtShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: \"John Smith\"@example.com AUTH=<>");
+      }
 
       [Test]
       public void MailFromQuotedAddressWithSpaceShouldSucceed()
