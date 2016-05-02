@@ -2124,7 +2124,7 @@ namespace HM
       int parameterStartPosition = 0;
 
       int firstQuotePosition = mailFrom.Find(_T("\""));
-      if (firstQuotePosition > 0)
+      if (firstQuotePosition >= 0)
       {
          int lastQuotePosition = mailFrom.ReverseFind(_T("\""));
 

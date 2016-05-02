@@ -35,6 +35,12 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void RcptToQuotedAddressWithSpaceWithoutGtLtShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: \"John Smith\"@example.com");
+      }
+
+      [Test]
       public void RcptToQuotedAddressWithoutSpaceShouldFail()
       {
          AssertInvalidRcptToCommand("RCPT TO: <John Smith@example.com>", "550 Invalid syntax. Syntax should be RCPT TO:<mailbox@domain>[crlf]");
