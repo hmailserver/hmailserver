@@ -79,7 +79,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void MailFromSingleQuoteShouldFail()
       {
-         AssertInvalidMailFromCommand("MAIL FROM: \"", "550 The address is not valid.");
+         AssertInvalidMailFromCommand("MAIL FROM: \"", "550 Invalid syntax. Syntax should be MAIL FROM:<mailbox@domain>[crlf]");
       }
 
       [Test]

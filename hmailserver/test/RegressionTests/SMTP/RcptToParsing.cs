@@ -49,7 +49,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void RcptToSingleQuoteShouldFail()
       {
-         AssertInvalidRcptToCommand("RCPT TO: \"", "550 A valid address is required.");
+         AssertInvalidRcptToCommand("RCPT TO: \"", "550 Invalid syntax. Syntax should be RCPT TO:<mailbox@domain>[crlf]");
       }
 
       [Test]
