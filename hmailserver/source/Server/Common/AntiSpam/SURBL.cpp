@@ -7,11 +7,9 @@
 #include "../../Common/BO/MessageData.h"
 #include "../../Common/BO/SURBLServer.h"
 #include "../../Common/TCPIP/DNSResolver.h"
-#include "../../Common/Util/FileUtilities.h"
 
 #include "../../Common/Util/TLD.h"
-
-#include <boost/timer/timer.hpp>
+#include <boost/regex/v4/regex.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -39,70 +37,85 @@ namespace HM
       // Extract body
       String sBody = pMessageData->GetBody() + pMessageData->GetHTMLBody(); 
 
-      int iCurPos = -1;
-	  
+      // Extract URL's from the mail body:
+      // Original: https?:\/\/([^?><\\ \"'\/]*)
+
+      String sRegex = "https?:\\/\\/([^?><\\\\ \\\"'\\/]*)";
+
       std::set<String> addresses;
 
-      while (true)
+      const int maxURLsToProcess = 15;
+
+      try
       {
-         iCurPos = GetURLStart_(sBody, iCurPos);
+         boost::wregex expression(sRegex);
+         boost::wsmatch matches;
 
-         if (iCurPos < 0 )
-            break;
+         String sRemainingSearchSpace = sBody;
 
-         // Start of URL
-         int iURLEnd = GetURLEndPos_(sBody, iCurPos);
-         int iURLLength = iURLEnd - iCurPos ;
+         while (boost::regex_search(sRemainingSearchSpace, matches, expression))
+         {
+            if (matches.size() < 2)
+            {
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5702, "SURBL::Run", "A regex match was found, but there were <2 matches in the result");
+               break;
+            }
 
-         String sURL = sBody.Mid(iCurPos, iURLLength);
+            String sURL = matches[1];
 
-         // Clean the URL from linefeeds
-         CleanURL_(sURL);
+            // Clean the URL from linefeeds
+            CleanURL_(sURL);
 
-         // Trim away top domain
-         if (!CleanHost_(sURL))
-            continue;
+            // Trim away top domain
+            if (!CleanHost_(sURL))
+               continue;
 
-			if (addresses.find(sURL) == addresses.end())
-			{
-				String logMessage;
-            logMessage.Format(_T("SURBL: Found URL: %s"), sURL.c_str());
-				LOG_DEBUG(logMessage);
+            if (addresses.find(sURL) == addresses.end())
+            {
+               String logMessage;
+               logMessage.Format(_T("SURBL: Found URL: %s"), sURL.c_str());
+               LOG_DEBUG(logMessage);
 
-				addresses.insert(sURL);
-			}
+               addresses.insert(sURL);
+
+               if (addresses.size() > maxURLsToProcess)
+               {
+                  break;
+               }
+            }
+            
+            sRemainingSearchSpace = matches.suffix();
+         }
+      }
+      catch (std::runtime_error &err) // regex_match will throw runtime_error if regexp is too complex.
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5701, "SURBL::Run", "Parsing HTML body with regular expression threw a runtime_error", err);
+         return true;
       }
 
-		if (addresses.size() > 0)
-		{
-			String logMessage = Formatter::Format("SURBL: {0} unique addresses found.", addresses.size());
-			LOG_DEBUG(logMessage);
-		}
+      if (addresses.size() > 0)
+      {
+         String logMessage = Formatter::Format("SURBL: {0} unique addresses found.", addresses.size());
+         LOG_DEBUG(logMessage);
+      }
 
-      // We stop processing URL's if:
-      // - 15 or more URLss have been processed.
-      // - More than 10 seconds have passed.
-      //
-     	// NEED FOR IMPROVEMENT: max URL's & time should be user-adjustable even if just by INI
-
-	   const int maxURLsToProcess = 15;
-
+      
       boost::chrono::system_clock::time_point start_time = boost::chrono::system_clock::now();
 
       int processedAddresses = 0;
-      for(String sURL : addresses)
+      for (String sURL : addresses)
       {
          boost::chrono::duration<double> elapsed_seconds = boost::chrono::system_clock::now() - start_time;
 
          if (elapsed_seconds.count() > 10)
          {
-				LOG_DEBUG("SURBL: Aborting. Too long time elapsed.");
+            LOG_DEBUG("SURBL: Aborting. Too long time elapsed.");
             return true;
          }
 
          if (processedAddresses > maxURLsToProcess)
          {
-				LOG_DEBUG("SURBL: Aborting. Too many urls.");
+            LOG_DEBUG("SURBL: Aborting. Too many urls.");
             return true;
          }
 
@@ -114,22 +127,21 @@ namespace HM
          DNSResolver resolver;
          if (!resolver.GetIpAddresses(sHostToLookup, saFoundNames))
          {
-				LOG_DEBUG("SURBL: DNS query failed.");
+            LOG_DEBUG("SURBL: DNS query failed.");
             return true;
          }
 
          if (saFoundNames.size() > 0)
          {
-				LOG_DEBUG("SURBL: Match found");
+            LOG_DEBUG("SURBL: Match found");
             return false;
          }
 
          processedAddresses++;
       }
 
-		LOG_DEBUG("SURBL: Match not found");
+      LOG_DEBUG("SURBL: Match not found");
       return true;
-
    }
 
    int 
@@ -194,10 +206,14 @@ namespace HM
    SURBL::CleanURL_(String &url) const
    {
       url.Replace(_T("=\r\n"), _T(""));
-      // We need to replace them individually as well just in case..
       url.Replace(_T("=\r"), _T(""));
       url.Replace(_T("=\n"), _T(""));
       url.MakeLower();
+
+      int newLinePosition = url.FindOneOf(_T("\r\n"));
+
+      if (newLinePosition >= 0)
+         url = url.Left(newLinePosition);
    }
 
    bool

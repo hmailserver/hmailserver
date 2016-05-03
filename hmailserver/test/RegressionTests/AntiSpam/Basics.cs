@@ -682,8 +682,7 @@ namespace RegressionTests.AntiSpam
       }
 
       [Test]
-      public void 
-         SurblTestRealWorldBody1()
+      public void SurblTestRealWorldBody1()
       {
          LogHandler.DeleteCurrentDefaultLog();
 

@@ -118,3 +118,5 @@
 5602, Unable to read install path from HKEY_LOCAL_MACHINE\SOFTWARE\\hMailServer. Using fallback method.
 5603, Unable to enable Diffie-Hellman key agreement. The required file {0} does not exist.
 5700, Could not delete the directory %s.
+5701, Parsing HTML body with regular expression threw a runtime_error
+5702, A regex match was found, but there were <2 matches in the result
