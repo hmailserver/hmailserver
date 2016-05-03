@@ -20,9 +20,5 @@ namespace HM
 
       void CleanURL_(String &sURL) const;
       bool CleanHost_(String &sDomain) const;
-      int GetURLStart_(const String &sBody, int iCurrentPos);
-      int GetURLEndPos_(const String &sBody, int iURLStart);
-
-      
    };
 }

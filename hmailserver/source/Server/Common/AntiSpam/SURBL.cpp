@@ -144,64 +144,6 @@ namespace HM
       return true;
    }
 
-   int 
-   SURBL::GetURLEndPos_(const String &sBody, int iURLStart)
-   {
-      for (int i = iURLStart; i < sBody.GetLength(); i++)
-      {
-         // Space added as fix to no test on plain-text emails without end slash
-         // Bill: cr and lf added as well for same reason
-         // Martin: Removed newline characters again. A URL may span multiple lines
-         //         If we stop searching for end of URL at end of newline, we'll
-         //         miss certain tests. Please see test case TestSURBLWithWrappedURL.
-         // Might be best to look for 1st non-allowed domain char instead..
-         wchar_t c = sBody[i];
-         if (c == '<' || c == '/' ||  c == '\\' ||  c == '>' ||c == ' ' || c == '"' || c == '\'')
-            return i;
-
-         if (c == '\r')
-         {
-            // if previous char was a =, which indicates that the url
-            // continues on the next line, keep on looking for end of link
-            if (i > 0)
-            {
-               if (sBody[i-1] != '=')
-                  return i;
-            }
-         }
-      }
-
-      return -1;
-   }
-
-   int 
-   SURBL::GetURLStart_(const String &sBody, int iCurrentPos)
-   {
-      int iHttpStart = sBody.Find(_T("http://"), iCurrentPos+1);
-      int iHttpsStart = sBody.Find(_T("https://"), iCurrentPos+1);
-
-		const int HttpPrefixLength = 7;
-		const int HttpsPrefixLength = 8;
-
-		// If neither http nor https is found, return
-		if (iHttpStart == -1 && iHttpsStart == -1)
-			return -1;
-
-		// If only https is found, return thatt
-      if (iHttpStart == -1)
-         return iHttpsStart + HttpsPrefixLength;
-
-		// If only http is found, return that
-      if (iHttpsStart == -1)
-         return iHttpStart + HttpPrefixLength;
-
-		// If both are found, return closest.
-      if (iHttpStart < iHttpsStart)
-         return iHttpStart + HttpPrefixLength;
-      else
-         return iHttpsStart + HttpsPrefixLength;
-   }
-
    void
    SURBL::CleanURL_(String &url) const
    {
