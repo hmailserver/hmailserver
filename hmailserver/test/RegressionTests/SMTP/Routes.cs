@@ -243,5 +243,35 @@ namespace RegressionTests.SMTP
             Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
       }
+
+      [Test]
+      public void RecipientNotInListButDomainHasCatchAll_EmailShouldEndUpInCatchAll()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // Add a route pointing at localhost
+         Route route = _settings.Routes.Add();
+         route.DomainName = "test.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = 255;
+         route.NumberOfTries = 1;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = true;
+         route.TreatSenderAsLocalDomain = true;
+         route.AllAddresses = false;
+         route.Save();
+
+         var routeAddress = route.Addresses.Add();
+         routeAddress.Address = "something@test.com";
+         routeAddress.Save();
+         route.Save();
+
+         _domain.Postmaster = "test@test.com";
+         _domain.Save();
+
+         SmtpClientSimulator.StaticSend("test@test.com", "other@test.com", "A", "B");
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
+      }
+
    }
 }

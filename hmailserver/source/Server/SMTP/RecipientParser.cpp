@@ -86,7 +86,7 @@ namespace HM
          if (bDomainIsLocal)
          {
             if (iRecursionLevel == 1)
-            {
+               {
                // Why only if iRecurse == 1?
                // Because:
                // If you have set up an alias pointing from user@local.com, user@external.com
@@ -168,11 +168,13 @@ namespace HM
 
                return DP_Possible;
             }
-      
-            // We found routes matching the recipients domain, but the recipient 
-            // doesn't exist in any of them.
-            sErrMsg = "Recipient not in route list.";
-            return DP_RecipientUnknown;
+
+            if (!pDomain || pDomain->GetPostmaster().IsEmpty())
+            {
+               // The recipient is not configured in the route, and the domain is external.
+               sErrMsg = "Recipient not in route list.";
+               return DP_RecipientUnknown;
+            }
          }
 
          // If this is a local domain, try to find a catch-all 
@@ -326,7 +328,8 @@ namespace HM
             AddRecipient_(pRecipients, NewRecipient);
          }
 
-         return;
+         if (!bIsLocalDomain || pDomain->GetPostmaster().IsEmpty())
+            return;
       }
 
       if (bIsLocalDomain)
