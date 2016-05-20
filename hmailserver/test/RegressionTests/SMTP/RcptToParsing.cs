@@ -17,9 +17,51 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void MailFromDomainWithDotShouldSucceed()
+      public void RcptToDomainWithDotShouldSucceed()
       {
          AssertValidMailRcptToCommand("RCPT TO: example@exa.mple.com");
+      }
+
+      [Test]
+      public void RcptToMailboxWithSpecialCharacters()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: !#$%&'*+-/=?^_`.{|}~@example.com");
+      }
+
+      [Test]
+      public void RcptToExample1ShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: user+mailbox@example.com");
+      }
+
+      [Test]
+      public void RcptToExample2ShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: customer/department=shipping@example.com");
+      }
+
+      [Test]
+      public void RcptToExample3ShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: $A12345@example.com");
+      }
+
+      [Test]
+      public void RcptToExample4ShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: !def!xyz%abc@example.com");
+      }
+
+      [Test]
+      public void RcptToExample5ShouldSucceed()
+      {
+         AssertValidMailRcptToCommand("RCPT TO: _somename@example.com");
+      }
+
+      [Test]
+      public void RcptToDomainWithSpecialCharactersShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: example@!#$%&'*+-/=?^_`.{|}~.com", "550 A valid address is required.");
       }
 
       [Test]
@@ -53,13 +95,13 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void MailFromWithForwardSlashShouldFail()
+      public void RcptToWithForwardSlashShouldSucceed()
       {
-         AssertInvalidRcptToCommand("RCPT TO: <example/example@example.com>", "550 A valid address is required.");
+         AssertValidMailRcptToCommand("RCPT TO: <example/example@example.com>");
       }
 
       [Test]
-      public void MailFromWithBackwardSlashShouldFail()
+      public void RcptToWithBackwardSlashShouldFail()
       {
          AssertInvalidRcptToCommand("RCPT TO: <example\\example@example.com>", "550 A valid address is required.");
       }

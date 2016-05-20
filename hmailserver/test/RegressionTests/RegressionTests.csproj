@@ -91,6 +91,7 @@
     <Compile Include="Infrastructure\CustomAsserts.cs" />
     <Compile Include="Infrastructure\LogHandler.cs" />
     <Compile Include="Infrastructure\Persistence\AccountNameValidation.cs" />
+    <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />
     <Compile Include="Shared\SslVersions.cs" />

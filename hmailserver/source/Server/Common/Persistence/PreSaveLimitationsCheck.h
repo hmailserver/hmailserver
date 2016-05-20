@@ -32,6 +32,7 @@ namespace HM
       static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<Route> route, String &resultDescription);
       static bool CheckLimitations(PersistenceMode mode, std::shared_ptr<SecurityRange> route, String &resultDescription);
     
+      static bool IsValidAccountAddress_(const String &sEmailAddress);
       
    private:
 
