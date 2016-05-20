@@ -17,7 +17,7 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void MailFromDomainWithDotShouldSucceed()
+      public void RcptToDomainWithDotShouldSucceed()
       {
          AssertValidMailRcptToCommand("RCPT TO: example@exa.mple.com");
       }
@@ -53,13 +53,13 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void MailFromWithForwardSlashShouldFail()
+      public void RcptToWithForwardSlashShouldFail()
       {
          AssertInvalidRcptToCommand("RCPT TO: <example/example@example.com>", "550 A valid address is required.");
       }
 
       [Test]
-      public void MailFromWithBackwardSlashShouldFail()
+      public void RcptToWithBackwardSlashShouldFail()
       {
          AssertInvalidRcptToCommand("RCPT TO: <example\\example@example.com>", "550 A valid address is required.");
       }
