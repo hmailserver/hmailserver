@@ -68,7 +68,10 @@ namespace HM
 
             // Trim away top domain
             if (!CleanHost_(sURL))
+            {
+               sRemainingSearchSpace = matches.suffix();
                continue;
+            }
 
             if (addresses.find(sURL) == addresses.end())
             {
