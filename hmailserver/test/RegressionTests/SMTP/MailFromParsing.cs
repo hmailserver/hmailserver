@@ -17,6 +17,50 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void MailFromMailboxWithSpecialCharacters()
+      {
+         AssertValidMailFromCommand("MAIL FROM: !#$%&'*+-/=?^_`.{|}~@example.com");
+      }
+
+      [Test]
+      public void MailFromDomainWithSpecialCharactersShouldFail()
+      {
+         AssertInvalidMailFromCommand("MAIL FROM: example@!#$%&'*+-/=?^_`.{|}~.com", "550 The address is not valid.");
+      }
+
+
+      [Test]
+      public void MailFromExample1ShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: user+mailbox@example.com");
+      }
+
+      [Test]
+      public void MailFromExample2ShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: customer/department=shipping@example.com");
+      }
+
+      [Test]
+      public void MailFromExample3ShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: $A12345@example.com");
+      }
+
+      [Test]
+      public void MailFromExample4ShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: !def!xyz%abc@example.com");
+      }
+
+      [Test]
+      public void MailFromExample5ShouldSucceed()
+      {
+         AssertValidMailFromCommand("MAIL FROM: _somename@example.com");
+      }
+
+
+      [Test]
       public void MailFromDomainWithDotShouldSucceed()
       {
          AssertValidMailFromCommand("MAIL FROM: example@exa.mple.com");
@@ -41,9 +85,9 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void MailFromWithForwardSlashShouldFail()
+      public void MailFromWithForwardSlashShouldSucceed()
       {
-         AssertInvalidMailFromCommand("MAIL FROM: <example/example@example.com>", "550 The address is not valid.");
+         AssertValidMailFromCommand("MAIL FROM: <example/example@example.com>");
       }
 
       [Test]

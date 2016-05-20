@@ -25,6 +25,8 @@
 #include "../../IMAP/IMAPConfiguration.h"
 #include "../../SMTP/SMTPConfiguration.h"
 
+#include "../Util/RegularExpression.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -52,6 +54,25 @@ namespace HM
    }
 
    bool
+   PreSaveLimitationsCheck::IsValidAccountAddress_(const String &sEmailAddress)
+   {
+      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // 
+      // Basically:
+      // Disallow < > @ \ / " ? * | everywhere, except:
+      //    allow @ separating mailbox and domain name
+      //    allow " in start and end of mailbox name.
+      // If mailbox name is within quotes, allow space, if no quotes, don't allow space.
+      // 
+
+      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+
+      RegularExpression regexpEvaluator;
+      bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
+      return result;
+   }
+
+   bool
    PreSaveLimitationsCheck::CheckLimitations(PersistenceMode mode, std::shared_ptr<Account> account, String &resultDescription)
    {
       if (mode == PersistenceModeRestore || mode == PersistenceModeRename)
@@ -63,7 +84,7 @@ namespace HM
          return false;
       }
 
-      if (!StringParser::IsValidEmailAddress(account->GetAddress()))
+      if (!IsValidAccountAddress_(account->GetAddress()))
       {
          resultDescription = "The account address is not a valid email address.";
          return false;

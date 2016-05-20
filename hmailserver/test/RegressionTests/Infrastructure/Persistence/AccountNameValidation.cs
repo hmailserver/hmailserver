@@ -60,6 +60,42 @@ namespace RegressionTests.Infrastructure.Persistence
       }
 
       [Test]
+      public void TestAccountContainingSpecialCharacters1()
+      {
+         AssertValidEmailAddress("user+mailbox@test.com");
+      }
+
+      [Test]
+      public void TestAccountContainingSpecialCharacters2()
+      {
+         AssertInvalidEmailAddress("customer/department=shipping@test.com");
+      }
+
+      [Test]
+      public void TestAccountContainingSpecialCharacters3()
+      {
+         AssertValidEmailAddress("$A12345@test.com");
+      }
+
+      [Test]
+      public void TestAccountContainingSpecialCharacters4()
+      {
+         AssertValidEmailAddress("!def!xyz%abc@test.com");
+      }
+
+      [Test]
+      public void TestAccountContainingSpecialCharacters5()
+      {
+         AssertValidEmailAddress("_somename@test.com");
+      }
+
+      [Test]
+      public void TestAccountContainingSpecialCharacters6()
+      {
+         AssertInvalidEmailAddress("!#$%&'*+-/=?^_`.{|}~@test.com");
+      }
+
+      [Test]
       public void TestAccountWithoutAddress()
       {
          AssertInvalidEmailAddress("");

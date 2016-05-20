@@ -52,21 +52,16 @@ namespace HM
       return sDomain;
    }
 
-
-
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // Original: ^(("[^<>@\\]+")|([^<> @\\"]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
       // 
-      // Basically:
-      // Disallow < > @ \ / " ? * | everywhere, except:
-      //    allow @ separating mailbox and domain name
-      //    allow " in start and end of mailbox name.
-      // If mailbox name is within quotes, allow space, if no quotes, don't allow space.
-      // 
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
 
-      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+      String regularExpression = "^((\"[^<>@\\\\]+\")|([^<> @\\\\\"]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
@@ -77,6 +72,9 @@ namespace HM
    StringParser::IsValidDomainName(const String &sDomainName)
    {
       // Original: ^[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
 
       String regularExpression = "^[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
 
