@@ -150,7 +150,7 @@ namespace RegressionTests.Infrastructure.Persistence
       public void TestDomain()
       {
          Domains domains = SingletonProvider<TestSetup>.Instance.GetApp().Domains;
-         _domain = SingletonProvider<TestSetup>.Instance.AddDomain(domains, "t'est2.com");
+         _domain = SingletonProvider<TestSetup>.Instance.AddDomain(domains, "test2.com");
          if (_domain.ID == 0)
             throw new Exception("Domain not properly saved");
 

@@ -55,13 +55,13 @@ namespace HM
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // Original: ^(("[^<>@\\]+")|([^<> @\\"]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // Original: ^(("[^<>@\\]+")|([^<> @\\"]+))@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
       // 
       // Conversion:
       // 1) Replace \ with \\
       // 2) Replace " with \"
 
-      String regularExpression = "^((\"[^<>@\\\\]+\")|([^<> @\\\\\"]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+      String regularExpression = "^((\"[^<>@\\\\]+\")|([^<> @\\\\\"]+))@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
@@ -71,12 +71,12 @@ namespace HM
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      // Original: ^[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // Original: ^(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
       // Conversion:
       // 1) Replace \ with \\
       // 2) Replace " with \"
 
-      String regularExpression = "^[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+      String regularExpression = "^(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sDomainName);

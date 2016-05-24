@@ -449,7 +449,7 @@ namespace HM
          throw;
 
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
-      if (hostName != _T(""))
+      if (hostName != _T("unknown"))
          throw;
 
       sHeader = "Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3]) "
@@ -512,7 +512,7 @@ namespace HM
          throw;
 
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
-      if (hostName != _T(""))
+      if (hostName != _T("unknown"))
         throw;
 
       sHeader = "Received: from outbound1.den.paypal.com ([216.113.188.96])\r\n"

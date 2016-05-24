@@ -119,6 +119,53 @@ namespace RegressionTests.SMTP
          AssertInvalidRcptToCommand("RCPT TO: <example@example.com> KEY=VALUE", "550 Invalid syntax. Syntax should be RCPT TO:<mailbox@domain>[crlf]");
       }
 
+      [Test]
+      public void RcptToWithDomainStartingWithDashShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@-startswithdash.com>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithDomainStartingWithDashWithoutTldShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@-startswithdash>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithTopDomainStartingWithDashShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@domain.-startswithdash>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithLastCharacterDashShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@domain.lastcharacterdash->", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithDomainStartingWithDotShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@.startswithdot.com>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithDomainEndingWithDotShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@endswithdot.>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithDomainWithDoubleDotShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@double..dot>", "550 A valid address is required.");
+      }
+
+      [Test]
+      public void RcptToWithDoubleAtShouldFail()
+      {
+         AssertInvalidRcptToCommand("RCPT TO: <user@@doubleAT.com>", "550 A valid address is required.");
+      }
 
 
       private void AssertInvalidRcptToCommand(string command, string expectedResponse)

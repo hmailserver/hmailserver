@@ -56,16 +56,13 @@ namespace HM
    bool
    PreSaveLimitationsCheck::IsValidAccountAddress_(const String &sEmailAddress)
    {
-      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@[^<>"\\/@\?\*| ]+\.[^<>"\\/@\?\*| ]+$
+      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
       // 
-      // Basically:
-      // Disallow < > @ \ / " ? * | everywhere, except:
-      //    allow @ separating mailbox and domain name
-      //    allow " in start and end of mailbox name.
-      // If mailbox name is within quotes, allow space, if no quotes, don't allow space.
-      // 
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
 
-      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@[^<>\"\\\\/@\\?\\*| ]+\\.[^<>\"\\\\/@\\?\\*| ]+$";
+      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
