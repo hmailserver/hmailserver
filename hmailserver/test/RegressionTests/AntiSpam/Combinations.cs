@@ -93,7 +93,7 @@ namespace RegressionTests.AntiSpam
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
-         smtpClientSimulator.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+         smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
                                   "This is a test message.");
 
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
@@ -145,7 +145,7 @@ namespace RegressionTests.AntiSpam
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
-         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
                                    "This is a test message. It contains incorrect MX records and a SURBL string: http://surbl-org-permanent-test-point.com/ SpamAssassinString: XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"));
 
          liveLog = _settings.Logging.LiveLog;

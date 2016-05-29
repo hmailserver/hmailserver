@@ -17,6 +17,12 @@ namespace RegressionTests.Infrastructure.Persistence
       }
 
       [Test]
+      public void TestDomainNameContainigSlash()
+      {
+         AssertInvalidDomainName("example\\1.com");
+      }
+
+      [Test]
       public void TestDomainWithoutName()
       {
          AssertInvalidDomainName("");

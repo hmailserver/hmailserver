@@ -134,7 +134,7 @@ namespace RegressionTests.AntiSpam
          WhiteListAddresses obAddresses = _antiSpam.WhiteListAddresses;
 
          WhiteListAddress obAddress = obAddresses.Add();
-         obAddress.EmailAddress = "white%list@micro_soft.com";
+         obAddress.EmailAddress = "white%li_st@microsoft.com";
          obAddress.LowerIPAddress = "0.0.0.0";
          obAddress.UpperIPAddress = "255.255.255.255";
          obAddress.Description = "Test";
@@ -147,7 +147,8 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         SmtpClientSimulator.StaticSend("white%list@micro_soft.com", "whitelist@test.com",
+
+         SmtpClientSimulator.StaticSend("white%li_st@microsoft.com", "whitelist@test.com",
                                                       "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
          CustomAsserts.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend("whiteAlist@micro_soft.com", "whitelist@test.com",
@@ -200,7 +201,7 @@ namespace RegressionTests.AntiSpam
          WhiteListAddresses obAddresses = _antiSpam.WhiteListAddresses;
 
          WhiteListAddress obAddress = obAddresses.Add();
-         obAddress.EmailAddress = "white'list@micro_soft.com";
+         obAddress.EmailAddress = "white'list@example.com";
          obAddress.LowerIPAddress = "0.0.0.0";
          obAddress.UpperIPAddress = "255.255.255.255";
          obAddress.Description = "Test";
@@ -213,7 +214,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Save();
 
          // Send a messages to this account.
-         SmtpClientSimulator.StaticSend("white'list@micro_soft.com", "whitelist@test.com",
+         SmtpClientSimulator.StaticSend("white'list@example.com", "whitelist@test.com",
                                                       "SURBL-Match",
                                                       "This is a test message with a SURBL url: -> http://surbl-org-permanent-test-point.com/ <-");
          CustomAsserts.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend("whitelist@micro_soft.com", "whitelist@test.com",
