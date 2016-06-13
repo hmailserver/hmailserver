@@ -80,7 +80,7 @@ namespace HM
          pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
          String sEventCaller = "OnDeliverMessage(HMAILSERVER_MESSAGE)";
-         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnMessageDeliver, sEventCaller, pContainer);
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnDeliverMessage, sEventCaller, pContainer);
 
          switch (pResult->GetValue())
          {

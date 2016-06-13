@@ -17,7 +17,7 @@ namespace HM
       {
          EventOnClientConnect = 1001,
          EventOnAcceptMessage = 1002,
-         EventOnMessageDeliver = 1003,
+         EventOnDeliverMessage = 1003,
          EventOnBackupCompleted = 1004,
          EventOnBackupFailed = 1005,
          EventOnDeliveryStart = 1006,

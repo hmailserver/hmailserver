@@ -196,72 +196,69 @@ namespace HM
          return;
 
 	  // JDR: stores the name of the method that is fired in the script. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
-	  String event_name_ = _T("Unknown");
+	  String event_name = _T("Unknown");
 
       switch (e)
       {
       case EventOnClientConnect:
-		 event_name_ = _T("OnClientConnect");
          if (!has_on_client_connect_)
             return;
+         event_name = _T("OnClientConnect");
          break;
       case EventOnAcceptMessage:
-		 event_name_ = _T("OnAcceptMessage");
          if (!has_on_accept_message_)
             return;
+         event_name = _T("OnAcceptMessage");
          break;
-      case EventOnMessageDeliver:
-	     event_name_ = _T("OnMessageDeliver");
+      case EventOnDeliverMessage:
          if (!has_on_deliver_message_)
             return;
+         event_name = _T("OnDeliverMessage");
          break;
       case EventOnBackupCompleted:
-		  event_name_ = _T("OnBackupCompleted");
          if (!has_on_backup_completed_)
             return;
+         event_name = _T("OnBackupCompleted");
          break;
       case EventOnBackupFailed:
-		  event_name_ = _T("OnBackupFailed");
          if (!has_on_backup_failed_)
             return;
+         event_name = _T("OnBackupFailed");
          break;
       case EventOnError:
-		  event_name_ = _T("OnError");
          if (!has_on_error_)
             return;
+         event_name = _T("OnError");
          break;
       case EventOnDeliveryStart:
-		  event_name_ = _T("OnDeliveryStart");
          if (!has_on_delivery_start_)
             return;
+         event_name = _T("OnDeliveryStart");
          break;
       case EventOnDeliveryFailed:
-		  event_name_ = _T("OnDeliveryFailed");
          if (!has_on_delivery_failed_)
             return;
+         event_name = _T("OnDeliveryFailed");
          break;
       case EventOnExternalAccountDownload:
-		  event_name_ = _T("OnExternalAccountDownload");
          if (!has_on_external_account_download_)
             return;
+         event_name = _T("OnExternalAccountDownload");
          break;
       case EventOnSMTPData:
-		  event_name_ = _T("OnSMTPData");
          if (!has_on_smtpdata_)
             return;
+         event_name = _T("OnSMTPData");
          break;
-
       case EventCustom:
          break;
       default:
          {
             return;
          }
-         
       }
 
-
-	   LOG_DEBUG("Executing event " + event_name_);
+	   LOG_DEBUG("Executing event " + event_name);
 
       String sScript;
 
