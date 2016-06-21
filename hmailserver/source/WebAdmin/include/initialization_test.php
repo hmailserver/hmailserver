@@ -3,9 +3,9 @@
       exit();
 
    $version = explode('.', phpversion());
-   if ((int) $version[0] != 5)
+   if ((int) $version[0] < 5)
    {
-      echo "hMailServer WebAdmin requires PHP5.";
+      echo "hMailServer WebAdmin requires PHP5 or later.";
       die;   
    }
 
