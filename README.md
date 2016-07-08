@@ -22,6 +22,7 @@ Environment set up
 
 Required software:
 
+   * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2013 Update 3
    * InnoSetup (to build installation program)
    * [Perl ActiveState ActivePerl Community Edition 32 bit works fine](https://www.activestate.com/activeperl/downloads)
@@ -53,8 +54,8 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 Building OpenSSL
 ----------------
 
-1. Download OpenSSL 1.0.2a from http://openssl.org/source/openssl-1.0.2a.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.2a
+1. Download OpenSSL 1.0.1t from https://www.openssl.org/source/openssl-1.0.1t.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
+   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.1t
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 4. Run Perl Configure no-asm VC-WIN32
