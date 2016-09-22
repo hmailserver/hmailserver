@@ -36,30 +36,6 @@ namespace RegressionTests.SSL
       }
 
       [Test]
-      public void SslV2ShouldBeDisabled()
-      {
-         SetSslVersions(true, true, true, true);
-         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl2, 25001, IPAddress.Parse("127.0.0.1"));
-
-         try
-         {
-            string errorMessage;
-
-           smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",             out errorMessage);
-         }
-         catch (System.IO.IOException)
-         {
-            // expected  
-         }
-
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
-            {
-               var defaultLog = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(defaultLog.Contains("unknown protocol"));
-            });
-      }
-
-      [Test]
       public void ItShouldBePossibleToEnableSslV3()
       {
          SetSslVersions(true, false, false, false);
