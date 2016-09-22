@@ -40,7 +40,7 @@ namespace HM
       // to a binary form. We use the SPF library to
       // do this.
 
-      char BinaryIP[16];
+      char BinaryIP[100];
       if (SPFStringToAddr(T2A(sSenderIP),family,BinaryIP)==NULL)
          return Neutral;
 
@@ -70,27 +70,13 @@ namespace HM
    {
       String sExplanation;
 
-      if (SPF::Instance()->Test("140.211.11.3", "users-return-12950-webmaster=domain1.de@httpd.apache.org", sExplanation) != SPF::Pass)
-      {
-         // Should be allowed.
-         throw;
-      }
-
-      OutputDebugStringA("Starting test...\r\n");
-      if (SPF::Instance()->Test("141.123.120.33", "example@advantagepayroll.com", sExplanation) != SPF::Pass)
-      {
-         // Should be allowed. advantagepayroll.com has SPF record mx ~all which means that
-         // their MX servers are allowed to send.
-         throw;
-      }
-
-      if (SPF::Instance()->Test("1.2.3.4", "example@instantpayroll.advantagepayroll.com", sExplanation) != SPF::Neutral)
+      if (SPF::Instance()->Test("5.189.183.138", "example@hmailserver.com", sExplanation) != SPF::Pass)
       {
          // Should be allowed. The sub domain instantpayroll.advantagepayroll.com does not have a SPF record.
          throw;
       }
 
-      if (SPF::Instance()->Test("1.2.3.4", "example@advantagepayroll.com", sExplanation) != SPF::Fail)
+      if (SPF::Instance()->Test("1.2.3.4", "example@hmailserver.com", sExplanation) != SPF::Fail)
       {
          // Should not be allowed. advantagepayroll.com has SPF records.
          throw;

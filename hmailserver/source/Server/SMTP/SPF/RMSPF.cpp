@@ -2097,10 +2097,11 @@ gethostname(spfbool ipv6, const uchar* addr, char* host, int hostsize,
       for (i=3; i>=0; i--)
        {
 	      cp+=numtostr(cp,addr[i]);
+         remaining--;
 	      *cp++='.';
          remaining--;
        }
-      strcpy_s(cp, remaining, "in-addr.arpa");
+       strcpy_s(cp, remaining, "in-addr.arpa");
      }
     else
      {
