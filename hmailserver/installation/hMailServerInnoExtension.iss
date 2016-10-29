@@ -358,7 +358,10 @@ begin
      Height := 40;
      Caption := 'Use built-in database engine (Microsoft SQL Compact)';
      TabOrder := 0;
-     Checked := True;
+     if (g_bUseInternal) then
+        Checked := True
+     else
+        Checked := False;
      OnClick := @rdoUseInternal_Click;
    end;
 
@@ -373,6 +376,10 @@ begin
 	 Height := 40;
      Caption := 'Use external database engine (MSSQL, MySQL or PostgreSQL)';
      TabOrder := 1;
+     if (g_bUseInternal) then
+        Checked := False
+     else
+        Checked := True;
      OnClick := @rdoUseExternal_Click;
    end;
 
@@ -421,6 +428,12 @@ end;
 
 procedure InitializeWizard();
 begin
+
+   if ExpandConstant('{param:useinternaldbms|true}') = 'true' then
+      g_bUseInternal := true
+   else
+      g_bUseInternal := false;
+
    OverrideInstallationFolder();
 
    if (WizardSilent() = false) then
@@ -428,7 +441,6 @@ begin
       CreateWizardPages();
    end;
 
-   g_bUseInternal := true;
 end;
 
 
