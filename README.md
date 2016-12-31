@@ -54,8 +54,8 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 Building OpenSSL
 ----------------
 
-1. Download OpenSSL 1.0.1t from https://www.openssl.org/source/openssl-1.0.1t.tar.gz and put it into %hMailServerLibs%\<OpenSSL-Version>.  
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.1t
+1. Download OpenSSL 1.0.2* from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>. Replace 1.0.2* with the latest 1.0.2-version available (1.0.2j at the time of this writing)
+   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.2j
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 4. Run the following commands:
@@ -83,8 +83,8 @@ The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains 
 Building Boost
 --------------
 
-1. Download Boost 1.57.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
-   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_57_0
+1. Download Boost 1.63.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
+   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_63_0
 2. Open a Command prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run the following commands
