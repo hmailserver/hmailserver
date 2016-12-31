@@ -92,7 +92,7 @@ Building Boost
      bootstrap.bat
      bjam.exe --toolset=msvc-12.0 --build-type=complete
      move stage\lib stage\lib32
-     bjam.exe -clean
+     bjam.exe --clean
      rmdir bin.v2 /s /q
      bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64
      move stage\lib stage\lib64
