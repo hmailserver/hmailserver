@@ -58,19 +58,25 @@ Building OpenSSL
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.1t
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
-4. Run Perl Configure no-asm VC-WIN32
-5. Run ms\do_ms
-6. Run nmake -f ms\ntdll.mak
-7. Rename the folder out32dll to out32
-8. Remove the tmp32dll folder
-8. Exit the command prompt
-9. Start a VS2013 x64 Native Tools Command Prompt
-10. Change dir to %hMailServerLibs%\<OpenSSL-version>
-11. Run Perl Configure no-asm VC-WIN64A
-12. Run ms\do_win64a
-13. Run nmake -f ms\ntdll.mak
-14. Rename the folder out32dll to out64
-15. Delete the tmp32dll folder
+4. Run the following commands:
+
+	<pre>Perl Configure no-asm VC-WIN32   
+	ms\do_ms  
+	nmake -f ms\ntdll.fdsa 
+	move out32dll out32 
+	rmdir tmp32dll /s /q 
+	</pre>
+5. Exit the command prompt.
+6. Start a VS2013 x64 Native Tools Command Prompt.
+7. Change dir to %hMailServerLibs%\<OpenSSL-version>
+8. Run the following commands
+
+    <pre>Perl Configure no-asm VC-WIN64A
+    ms\do_win64a
+    nmake -f ms\ntdll.mak
+    move out32dll out64
+    rmdir tmp32dll /s /q
+    </pre>
 
 The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains the 64bit version
 
@@ -81,13 +87,16 @@ Building Boost
    You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_57_0
 2. Open a Command prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
-4. Run bootstrap.bat
-5. Run bjam.exe --toolset=msvc-12.0 --build-type=complete
-6. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib32
-7. Run bjam.exe --clean
-8. Remove the bin.v2 folder
-8. Run bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64
-9. Rename %hMailServerLibs%\<Boost-Version>\stage\lib to lib64
+4. Run the following commands
+    <pre>
+     bootstrap.bat
+     bjam.exe --toolset=msvc-12.0 --build-type=complete
+     move stage\lib \stage\lib32
+     bjam.exe -clean
+     rmdir bin.v2 /s /q
+     bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64
+     move stage\lib stage\lib64
+    </pre>
 
 Building hMailServer
 --------------------
