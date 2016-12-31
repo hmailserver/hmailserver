@@ -70,7 +70,7 @@ Building OpenSSL
 12. Run ms\do_win64a
 13. Run nmake -f ms\ntdll.mak
 14. Rename the folder out32dll to out64
-15. Delete the tmp32 folder
+15. Delete the tmp32dll folder
 
 The folder out32 now contains the 32-bit version of OpenSSL, and out64 contains the 64bit version
 
