@@ -138,11 +138,12 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+         var expectedCipherList = GetCipherList();
 
-         if (!string.IsNullOrEmpty(_settings.SslCipherList))
+         if (_settings.SslCipherList != expectedCipherList)
          {
             restartRequired = true;
-            _settings.SslCipherList = string.Empty;
+            _settings.SslCipherList = expectedCipherList;
          }
 
          if (_settings.MaxSMTPConnections > 0)
@@ -208,6 +209,20 @@ namespace RegressionTests.Shared
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          return domain;
+      }
+
+      private string GetCipherList()
+      {
+         var osVersion = Environment.OSVersion.Version;
+         bool isWinXp = osVersion.Major == 5 && osVersion.Minor == 1;
+         bool isWindows2003 = osVersion.Major == 5 && osVersion.Minor == 2;
+
+         // Windows XP and Windows Server 2003 only supports RC4-MD5. OpenSSL 1.0.2 and later 
+         // has it disabled by default, so we need to enable it explicitly.
+         if (isWinXp || isWindows2003)
+            return "RC4-MD5";
+         
+         return "";
       }
 
       private void SetupBlockedAttachments()
