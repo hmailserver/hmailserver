@@ -320,7 +320,7 @@ namespace HM
 
       if (enable_peer_verification)
       {
-         verify_mode = boost::asio::ssl::context::verify_peer || boost::asio::ssl::context::verify_fail_if_no_peer_cert;
+         verify_mode = boost::asio::ssl::context::verify_peer | boost::asio::ssl::context::verify_fail_if_no_peer_cert;
                 
          if (!expected_remote_hostname_.IsEmpty())
          {
