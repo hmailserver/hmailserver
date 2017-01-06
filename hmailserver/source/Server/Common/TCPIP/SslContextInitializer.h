@@ -21,7 +21,7 @@ namespace HM
  
       static std::string  GetPassword_();
 
-      static bool SetCipherList_(boost::asio::ssl::context& context);
+      static void SetCipherList_(boost::asio::ssl::context& context);
       static void EnableEllipticCurveCrypto_(boost::asio::ssl::context& context);
       
    };
