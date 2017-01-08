@@ -4,7 +4,7 @@
 
    $distributionlistid 	= hmailGetVar("distributionlistid",0);
    $recipientid	      = hmailGetVar("recipientid",0);
-   $domainid	         = hmailGetVar("domainid",0);
+   $domainid	         = hmailGetVar("domainid",0,true);
    $action	            = hmailGetVar("action","");
    $recipientaddress    = hmailGetVar("recipientaddress","");
    

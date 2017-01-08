@@ -32,6 +32,7 @@ $TlsVersion12Enabled 		= $obSettings->TlsVersion12Enabled;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "ssltls");
       PrintHidden("action", "save");
    ?>   
@@ -45,13 +46,9 @@ $TlsVersion12Enabled 		= $obSettings->TlsVersion12Enabled;
                <th width="30%"></th>
                <th width="70%"></th>
             </tr>            
-			<tr>
-				<td><?php EchoTranslation("SSL/TLS ciphers ")?></td>
-				<td>
-					<textarea rows="12" cols="80" name="SslCipherList"><?php echo $SslCipherList?></textarea>
-				</td>
-			</tr>		
+
 			<?php
+				PrintPropertyAreaRow("SslCipherList", "SSL/TLS ciphers", $SslCipherList, 12, 80);
 				PrintCheckboxRow("VerifyRemoteSslCertificate", "Verify remote server SSL/TLS certificates", $VerifyRemoteSslCertificate);
 				PrintCheckboxRow("SslVersion30Enabled", "SSL v3.0", $SslVersion30Enabled);
 				PrintCheckboxRow("TlsVersion10Enabled", "TLS v1.0", $TlsVersion10Enabled);

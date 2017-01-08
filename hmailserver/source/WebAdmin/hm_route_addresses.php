@@ -25,12 +25,12 @@ $str_delete = $obLanguage->String("Remove");
 for ($i = 0; $i < $Count; $i++)
 {
 	$obAddress           = $obAddresses->Item($i);
-	$routeaddress        = $obAddress->Address;
+	$routeaddress        = PreprocessOutput($obAddress->Address);
 	$routeaddressid      = $obAddress->ID;
 	
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"80%\"><a href=\"?page=route_address&action=edit&routeid=$routeid&routeaddressid=$routeaddressid\">$routeaddress</a></td>";
-	echo "<td width=\"20%\"><a href=\"?page=background_route_address_save&action=delete&routeid=$routeid&routeaddressid=$routeaddressid\">$str_delete</a></td>";
+	echo "<td width=\"20%\"><a href=\"?page=background_route_address_save&csrftoken=$csrftoken&action=delete&routeid=$routeid&routeaddressid=$routeaddressid\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

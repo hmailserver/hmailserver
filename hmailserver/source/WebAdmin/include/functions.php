@@ -12,7 +12,9 @@ define("CONNECTION_SECURITY_TLS", 1);
 define("CONNECTION_SECURITY_STARTTLSOPTIONAL", 2);
 define("CONNECTION_SECURITY_STARTTLSREQUIRED", 3);
 
-function hmailGetVar($p_varname, $p_defaultvalue = null)
+define("CSRF_TOKEN_PARAMNAME", "csrftoken");
+
+function hmailGetVar($p_varname, $p_defaultvalue = null, $p_isnumeric = false)
 {
 	$retval = $p_defaultvalue;
 	if(isset($_GET[$p_varname]))
@@ -30,6 +32,11 @@ function hmailGetVar($p_varname, $p_defaultvalue = null)
 	
 	if (get_magic_quotes_gpc())
 	   $retval = stripslashes($retval);
+   
+	if ($p_isnumeric) 
+	{
+		$retval = intval($retval);
+	}
 	
 	return $retval;
 }
@@ -119,11 +126,9 @@ function EchoTranslation($string)
    echo $obLanguage->String($string);
 }
 
-
-function HMEscape($string)
+function EscapeStringForJs($string)
 {
-   $string = str_replace('\'', '\\\'', $string);
-   return $string;
+   return str_replace("\n", '\n', str_replace('"', '\"', addcslashes(str_replace("\r", '', (string)$string), "\0..\37'\\")));
 }
 
 function ExceptionHandler($exception)
@@ -212,9 +217,9 @@ function  PrintPasswordEntry($name, $caption, $length = 20)
    "
 		<tr>
 			<td>$caption</td>
-			<td>
-            <input type=\"password\" name=\"$name\" size=\"$length\">
-   	   </td>
+            <td>
+				<input type=\"password\" name=\"$name\" size=\"$length\" autocomplete=\"off\">
+			</td>
 		</tr>		
     ";
 }
@@ -274,6 +279,12 @@ function PrintHidden($name, $value)
    
 }
 
+function PrintHiddenCsrfToken()
+{
+   PrintHidden("csrftoken", get_csrf_session_token());
+   
+}
+
 function GetConfirmDelete()
 {
    global $obLanguage;
@@ -327,6 +338,54 @@ function GetHasRuleAccess($domainid, $accountid)
    
    return false;
    
+}
+
+function generate_random_string()
+{
+	if (function_exists("openssl_random_pseudo_bytes"))	
+	{
+		$bytes = openssl_random_pseudo_bytes(10);
+		return bin2hex($bytes);
+	} 
+	else 
+	{
+		$value = mt_rand();
+		return sha1(strval($value));
+	}
+}
+
+function ensure_csrf_session_token_exists()
+{
+	 if (isset($_SESSION["session_csrf_token"]) && !empty($_SESSION["session_csrf_token"]))
+		 return;
+	
+	$token = generate_random_string();
+	
+	$_SESSION["session_csrf_token"] = $token;
+}
+
+function get_csrf_session_token()
+{
+	return $_SESSION['session_csrf_token'];
+}
+
+function validate_csrf_token_supplied()
+{
+	if (!defined('CSRF_ENABLED') || CSRF_ENABLED !== true) 
+	{
+		// CSRF validaton has been disabled.
+		return;
+	}
+
+	$expected_token = get_csrf_session_token();
+	
+	$actual_token = hmailGetVar("csrftoken");
+	
+	if (strcmp($expected_token, $actual_token) !== 0)
+	{
+		echo "Invalid CSRF token.";
+		die;
+	}
 }
 
 ?>

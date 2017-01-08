@@ -102,6 +102,7 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "smtp");
       PrintHidden("action", "save");
 
@@ -132,6 +133,7 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
         
          <table border="0" width="100%" cellpadding="5">
       	<tr>
+		
       		<td><?php EchoTranslation("Number of retries")?></td>
       		<td><input type="text" name="smtpnooftries" value="<?php echo PreprocessOutput($smtpnooftries)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Number of retries")?>"></td>
       	</tr>
@@ -162,8 +164,7 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
             PrintPropertyEditRow("SMTPRelayerUsername", "User name", $SMTPRelayerUsername);
             PrintPasswordEntry("SMTPRelayerPassword", "Password");
          ?>
-         
-		 				
+	 				
 		<tr>
 			<td><?php EchoTranslation("Connection security")?></td>
 			<td><select name="SMTPRelayerConnectionSecurity">

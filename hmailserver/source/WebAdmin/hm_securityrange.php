@@ -84,6 +84,7 @@ $IsForwardingRelayChecked   = hmailCheckedIf1($IsForwardingRelay);
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_securityrange_save");
       PrintHidden("action", $action);
       PrintHidden("securityrangeid", $securityrangeid);

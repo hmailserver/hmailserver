@@ -5,7 +5,7 @@ if (!defined('IN_WEBADMIN'))
    
 $distributionlistid 	= hmailGetVar("distributionlistid",0);
 $recipientid	      = hmailGetVar("recipientid",0);
-$domainid	      = hmailGetVar("domainid",0);
+$domainid	      = hmailGetVar("domainid",0,true);
 $action	   = hmailGetVar("action","");
 
 if (hmailGetAdminLevel() == 0)
@@ -32,6 +32,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_distributionlist_recipient_save");
       PrintHidden("action", $action);
       PrintHidden("distributionlistid", $distributionlistid);

@@ -46,7 +46,7 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<td><a href=\"?page=whitelistaddress&action=edit&ID=$ID\">$LowerIPAddress</a></td>";
 	echo "<td><a href=\"?page=whitelistaddress&action=edit&ID=$ID\">$UpperIPAddress</a></td>";
 	echo "<td><a href=\"?page=whitelistaddress&action=edit&ID=$ID\">$EmailAddress</a></td>";
-	echo "<td><a href=\"?page=background_whitelistaddress_save&action=delete&ID=$ID\">$str_delete</a></td>";
+	echo "<td><a href=\"?page=background_whitelistaddress_save&csrftoken=$csrftoken&action=delete&ID=$ID\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

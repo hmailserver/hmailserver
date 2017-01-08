@@ -29,16 +29,15 @@ $str_delete = $obLanguage->String("Remove");
 for ($i = 0; $i < $Count; $i++)
 {
 	$dnsBlackList = $dnsBlacklists->Item($i);
-   $id          = $dnsBlackList->ID;
-	$name        = $dnsBlackList->DNSHost;
+    $id          = $dnsBlackList->ID;
+	$name        = PreprocessOutput($dnsBlackList->DNSHost);
 	$enabled     = $dnsBlackList->Active ? $obLanguage->String("Yes") : $obLanguage->String("No");
 	
-   $name = PreprocessOutput($name);
-      
+     
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"60%\"><a href=\"?page=surblserver&action=edit&id=$id&\">$name</a></td>";
-   echo "<td width=\"20%\">$enabled</td>";
-	echo "<td width=\"20%\"><a href=\"?page=background_surblserver_save&action=delete&id=$id\">$str_delete</a></td>";
+    echo "<td width=\"20%\">$enabled</td>";
+	echo "<td width=\"20%\"><a href=\"?page=background_surblserver_save&csrftoken=$csrftoken&action=delete&id=$id\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

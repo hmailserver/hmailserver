@@ -19,6 +19,7 @@ $mirroremailaddress = $obSettings->MirrorEMailAddress;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "mirror");
       PrintHidden("action", "save");
    ?>   

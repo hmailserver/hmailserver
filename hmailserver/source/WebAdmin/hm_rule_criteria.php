@@ -3,8 +3,8 @@ if (!defined('IN_WEBADMIN'))
    exit();
 
 $action = hmailGetVar("action", "");   
-$domainid = hmailGetVar("domainid", 0);
-$accountid = hmailGetVar("accountid", 0);
+$domainid = hmailGetVar("domainid", 0, true);
+$accountid = hmailGetVar("accountid", 0, true);
 $ruleid = hmailGetVar("ruleid", 0);
 $criteriaid = hmailGetVar("criteriaid", 0);
 
@@ -43,6 +43,7 @@ else
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_rule_save");
       PrintHidden("savetype", "criteria");
       PrintHidden("action", $action);

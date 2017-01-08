@@ -39,8 +39,11 @@ $KeepFilesOpen = $obLogging->KeepFilesOpen;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "logging");
       PrintHidden("action", "save");
+	  
+	  
    ?>   
    
    

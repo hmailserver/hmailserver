@@ -74,21 +74,21 @@ function testVirusScanner(scannerType)
 			  document.getElementById('ClamAVTestResult').innerHTML = "";
 			  var clamAVHost = document.getElementById('ClamAVHost').value;
 			  var clamAPort = document.getElementById('ClamAVPort').value;
-			  var url = "index.php?page=background_ajax_virustest&TestType=ClamAV&Hostname="+ clamAVHost + "&Port=" + clamAPort;
+			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=ClamAV&Hostname="+ clamAVHost + "&Port=" + clamAPort;
 			  sendRequest(url, "ClamAVTestResult");
 		  break;
 	      case "ClamWin":
 			  document.getElementById('ClamWinTestResult').innerHTML = "";
 			  var executable = document.getElementById('clamwinexecutable').value;
 			  var database = document.getElementById('clamwindbfolder').value;
-			  var url = "index.php?page=background_ajax_virustest&TestType=ClamWin&Executable="+ executable + "&DatabaseFolder=" + database;
+			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=ClamWin&Executable="+ executable + "&DatabaseFolder=" + database;
 			  sendRequest(url, "ClamWinTestResult");
 		  break;
 		  case "External":
 			  document.getElementById('ExternalTestResult').innerHTML = "";
 			  var executable = document.getElementById('customscannerexecutable').value;
 			  var returnValue = document.getElementById('customscannerreturnvalue').value;
-			  var url = "index.php?page=background_ajax_virustest&TestType=External&Executable="+ executable + "&ReturnValue=" + returnValue;
+			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=External&Executable="+ executable + "&ReturnValue=" + returnValue;
 			  sendRequest(url, "ExternalTestResult");
 			  break;
 		  default:
@@ -130,6 +130,7 @@ function printResponse(httpObject, elementName)
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "smtp_antivirus");
       PrintHidden("action", "save");
    ?>
@@ -258,7 +259,7 @@ function printResponse(httpObject, elementName)
                         <td><?php echo PreprocessOutput($description);?></td>                     
                         <td>
                         <?php
-                           echo "<a href=\"?page=background_blocked_attachment_save&action=delete&id=$id\">$str_delete</a>";
+                           echo "<a href=\"?page=background_blocked_attachment_save&csrftoken=$csrftoken&action=delete&id=$id\">$str_delete</a>";
                         ?>
                         </td>                     
                      </tr>

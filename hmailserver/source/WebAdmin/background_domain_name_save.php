@@ -5,7 +5,7 @@
    if (hmailGetAdminLevel() != ADMIN_SERVER)
    	hmailHackingAttemp(); // Only server can change these settings.      
       
-   $domainid	= hmailGetVar("domainid",0);
+   $domainid	= hmailGetVar("domainid",0,true);
    $aliasid	   = hmailGetVar("aliasid",0);
    $action	   = hmailGetVar("action","");
    $aliasname  = hmailGetVar("aliasname","");

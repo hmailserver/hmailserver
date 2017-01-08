@@ -28,6 +28,7 @@ $AutoBanMinutes = $obSettings->AutoBanMinutes;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "autoban");
       PrintHidden("action", "save");
    ?>

@@ -33,6 +33,7 @@ else
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_whitelistaddress_save");
       PrintHidden("action", "$action");
       PrintHidden("ID", "$ID");

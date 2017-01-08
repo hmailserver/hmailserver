@@ -4,7 +4,7 @@ if (!defined('IN_WEBADMIN'))
    exit();
    
 
-$domainid	= hmailGetVar("domainid",0);
+$domainid	= hmailGetVar("domainid",0,true);
 $action	   = hmailGetVar("action","");
 
 if (hmailGetAdminLevel() == 1 && ($domainid != hmailGetDomainID() || $action != "edit"))
@@ -112,6 +112,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+	  PrintHiddenCsrfToken();
       PrintHidden("page", "background_domain_save");
       PrintHidden("action", $action);
       PrintHidden("domainid", $DomainID);
@@ -191,7 +192,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
                      </td>                     
                      <td>
                      <?php
-                        echo "<a href=\"?page=background_domain_name_save&action=delete&domainid=$domainid&aliasid=$aliasid\">$str_delete</a>";
+                        echo "<a href=\"?page=background_domain_name_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&aliasid=$aliasid\">$str_delete</a>";
                      ?>
                      </td>                     
                      </tr>
