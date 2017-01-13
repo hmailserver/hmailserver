@@ -316,13 +316,14 @@ $str_server = $obLanguage->String("Server");
                ?>
                <table border="0" width="100%" cellpadding="5">
                <tr>
-                  <td width="50%">
+                  <td width="45%">
                      <i><?php EchoTranslation("Name");?></i>
                   </td>
-                  <td width="25%">
+                  <td width="20%">
                      <i><?php EchoTranslation("Enabled");?></i>
                   </td>
-                  
+                  <td width="20%">
+                  </td>
                   <td>
                   </td>
                </tr>
@@ -333,6 +334,8 @@ $str_server = $obLanguage->String("Server");
                $str_delete = $obLanguage->String("Remove");
                $str_yes = $obLanguage->String("Yes");
                $str_no = $obLanguage->String("No");
+               $str_move_up = $obLanguage->String("Move up");
+               $str_move_down = $obLanguage->String("Move down");
                
                $bgcolor = "#EEEEEE";
 
@@ -347,9 +350,15 @@ $str_server = $obLanguage->String("Server");
                   
                	echo "<tr bgcolor=\"$bgcolor\">";
                	echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$rulename</a></td>";
-                  echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$enabled</a></td>";
-               	echo "<td><a href=\"?page=background_rule_save&savetype=rule&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
-               	echo "</tr>";
+		echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$enabled</a></td>";
+               	echo "<td>";
+                if($i > 0)
+                  echo "<a href=\"?page=background_rule_save&action=move&savetype=ruleup&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_up</a> ";
+                if($i < $Count-1)
+                  echo "<a href=\"?page=background_rule_save&action=move&savetype=ruledown&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_down</a>";
+                echo "</td>";
+		echo "<td><a href=\"?page=background_rule_save&savetype=rule&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+                echo "</tr>";
                	
                	if ($bgcolor == "#EEEEEE")
                	   $bgcolor = "#DDDDDD";
