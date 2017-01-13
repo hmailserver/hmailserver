@@ -123,12 +123,15 @@ else
                   <h3>&nbsp;&nbsp;<?php EchoTranslation("Actions")?> <?php echo "(<a href=\"?page=rule_action&action=add&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\"><i>$str_add</i></a>)";?></h3>                    
                	<table border="0" width="100%" cellpadding="5">
                       <tr>
-                        <td width="80%"><i><?php EchoTranslation("Action")?></i></td>
+                        <td width="60%"><i><?php EchoTranslation("Action")?></i></td>
+			<td width="20%"></td>
                         <td width="20%"></td>
                       </tr>
                       <?php
                          $Actions = $rule->Actions;
                          $count = $Actions->Count;
+                         $str_move_up = $obLanguage->String("Move up");
+                         $str_move_down = $obLanguage->String("Move down");
                          
                          for ($i = 0; $i < $count; $i++)
                          {
@@ -138,8 +141,16 @@ else
                            $actionName = GetRuleActionString($action->Type);
                            ?>
                             <tr>
-                              <td width="25%"><?php echo "<a href=\"?page=rule_action&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$actionName</a>";?></td>
-                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_delete</a>";?></td>
+                              <td><?php echo "<a href=\"?page=rule_action&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$actionName</a>";?></td>
+                              <td>
+                              <?php
+                                if($i > 0)
+                                  echo "<a href=\"?page=background_rule_save&action=move&savetype=actionup&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_move_up</a>";
+                                if($i < $count-1)
+                                  echo "<a href=\"?page=background_rule_save&action=move&savetype=actiondown&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_move_down</a>";
+                              ?>
+                              </td>
+                              <td><?php echo "<a href=\"?page=background_rule_save&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_delete</a>";?></td>
                             </tr>                           
                            <?php
                          }
