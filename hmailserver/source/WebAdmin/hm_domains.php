@@ -39,7 +39,7 @@ for ($i = 1; $i <= $DomainCount; $i++)
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"60%\"><a href=\"?page=domain&action=edit&domainid=$domainid\">$domainname</a></td>";
 	echo "<td width=\"20%\">$domainmaxsize</td>";
-	echo "<td width=\"20%\"><a href=\"javascript:ConfirmDelete('$domainname_escaped', '?page=background_domain_save&action=delete&domainid=$domainid')\">$str_delete</a></td>";
+	echo "<td width=\"20%\"><a href=\"javascript:ConfirmDelete('$domainname_escaped', '?page=background_domain_save&csrftoken=$csrftoken&action=delete&domainid=$domainid')\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

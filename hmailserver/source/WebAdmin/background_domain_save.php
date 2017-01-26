@@ -2,7 +2,7 @@
    if (!defined('IN_WEBADMIN'))
       exit();
 
-   $domainid	= hmailGetVar("domainid",0);
+   $domainid	= hmailGetVar("domainid",0,true);
    $action	   = hmailGetVar("action","");
    $domainname     = hmailGetVar("domainname","");
    $domainactive   = hmailGetVar("domainactive","0");

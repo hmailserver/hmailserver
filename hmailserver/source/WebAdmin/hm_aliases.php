@@ -2,7 +2,7 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid  = hmailGetVar("domainid",null);
+$domainid  = hmailGetVar("domainid",null, true);
 
 if (hmailGetAdminLevel() == 0)
 	hmailHackingAttemp(); // Users are not allowed to show this page.
@@ -38,7 +38,7 @@ for ($i = 0; $i < $Count; $i++)
    
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"80%\"><a href=\"?page=alias&action=edit&domainid=$domainid&aliasid=$aliasid\">$aliasname</a></td>";
-   echo "<td><a href=\"javascript:ConfirmDelete('$aliasname_escaped', '?page=background_alias_save&action=delete&domainid=$domainid&aliasid=$aliasid')\">$str_delete</a></td>";
+   echo "<td><a href=\"javascript:ConfirmDelete('$aliasname_escaped', '?page=background_alias_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&aliasid=$aliasid')\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

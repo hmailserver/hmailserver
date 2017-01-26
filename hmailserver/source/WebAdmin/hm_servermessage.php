@@ -18,6 +18,7 @@ $messagetext	= $obServerMessage->Text;
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_servermessage_save");
       PrintHidden("messageid", "$messageid");
    ?>

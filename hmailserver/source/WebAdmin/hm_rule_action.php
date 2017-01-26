@@ -3,8 +3,8 @@ if (!defined('IN_WEBADMIN'))
    exit();
 
 $action = hmailGetVar("action", "");   
-$domainid = hmailGetVar("domainid", 0);
-$accountid = hmailGetVar("accountid", 0);
+$domainid = hmailGetVar("domainid", 0, true);
+$accountid = hmailGetVar("accountid", 0, true);
 $ruleid = hmailGetVar("ruleid", 0);
 $actionid = hmailGetVar("actionid", 0);
 
@@ -91,6 +91,7 @@ function hideAllPanels()
 <form action="index.php" name="mainForm" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_rule_save");
       PrintHidden("savetype", "action");
       PrintHidden("action", $action);

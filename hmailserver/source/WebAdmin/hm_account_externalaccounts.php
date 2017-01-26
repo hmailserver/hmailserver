@@ -2,8 +2,8 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid	= hmailGetVar("domainid",0);
-$accountid	= hmailGetVar("accountid",0);
+$domainid	= hmailGetVar("domainid",0,true);
+$accountid	= hmailGetVar("accountid",0,true);
 $action	   = hmailGetVar("action","");
 
 if (hmailGetAdminLevel() == 0 && ($accountid != hmailGetAccountID() || $domainid != hmailGetDomainID()))
@@ -44,15 +44,15 @@ for ($i = 0; $i < $Count; $i++)
 	$obFetchAccount          = $obFetchAccounts->Item($i);
 	
 	$FAID   				 = $obFetchAccount->ID;
-	$Name  					 = $obFetchAccount->Name;
-	$ServerAddress			 = $obFetchAccount->ServerAddress;
+	$Name  					 = PreprocessOutput($obFetchAccount->Name);
+	$ServerAddress			 = PreprocessOutput($obFetchAccount->ServerAddress);
 	
 	
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td><a href=\"?page=account_externalaccount&action=edit&domainid=$domainid&accountid=$accountid&faid=$FAID\">$Name</a></td>";
 	echo "<td><a href=\"?page=account_externalaccount&action=edit&domainid=$domainid&accountid=$accountid&faid=$FAID\">$ServerAddress</a></td>";
-	echo "<td><a href=\"?page=background_account_externalaccount_save&action=delete&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_delete</a></td>";
-	echo "<td><a href=\"?page=background_account_externalaccount_save&action=downloadnow&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_downloadnow</a></td>";
+	echo "<td><a href=\"?page=background_account_externalaccount_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_delete</a></td>";
+	echo "<td><a href=\"?page=background_account_externalaccount_save&csrftoken=$csrftoken&action=downloadnow&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_downloadnow</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

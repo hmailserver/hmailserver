@@ -7,6 +7,9 @@ require_once("include_versioncheck.php");
 
 session_start();
 
+// Enable CSRF protection
+ensure_csrf_session_token_exists();
+
 // Connect to hMailServer
 try
 {
@@ -19,6 +22,7 @@ catch(Exception $e)
    echo "This problem is often caused by DCOM permissions not being set.";
    die;
 }
+
 
 if ($obBaseApp->Version != REQUIRED_VERSION)
 {
