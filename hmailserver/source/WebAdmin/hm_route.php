@@ -49,6 +49,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_route_save");
       PrintHidden("action", $action);
       PrintHidden("routeid", $routeid);
@@ -97,7 +98,7 @@ if ($action == "edit")
             	</tr> 
             	<tr>
             		<td><?php EchoTranslation("Password")?></td>
-            		<td><input type="password" name="routeauthpassword" value="" size="20"></td>
+            		<td><input type="password" name="routeauthpassword" value="" size="20" autocomplete="off"></td>
             	</tr>
 				<tr>
 					<td><?php EchoTranslation("Connection security")?></td>

@@ -13,8 +13,6 @@ if($action == "save")
 {
 	$obSettings->MaxPOP3Connections= hmailGetVar("maxpop3connections",0);
 	$obSettings->WelcomePOP3= hmailGetVar("welcomepop3",0);
-	
-	
 }
 
 $maxpop3connections = $obSettings->MaxPOP3Connections;     
@@ -26,6 +24,7 @@ $welcomepop3 = $obSettings->WelcomePOP3;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "pop3");
       PrintHidden("action", "save");
    ?>   

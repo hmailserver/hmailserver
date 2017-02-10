@@ -43,15 +43,16 @@ for ($i = 0; $i < $Count; $i++)
    $rulename = PreprocessOutput($rulename);
    
 	echo "<tr bgcolor=\"$bgcolor\">";
-	echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid&\">$rulename</a></td>";
-	echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid&\">$enabled</a></td>";
+	echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid\">$rulename</a></td>";
+	echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid\">$enabled</a></td>";
 	echo "<td>";
 	if($i > 0)
-	  echo "<a href=\"?page=background_rule_save&action=move&savetype=ruleup&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_up</a> ";
+	  echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&action=move&savetype=ruleup&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_up</a> ";
 	if($i < $Count-1)
-	  echo "<a href=\"?page=background_rule_save&action=move&savetype=ruledown&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_down</a>";
+	  echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&action=move&savetype=ruledown&domainid=$domainid&accountid=$accountid&ruleid=$ruleid\">$str_move_down</a>";
 	echo "</td>";
-	echo "<td><a href=\"?page=background_rule_save&savetype=rule&action=delete&domainid=0&accountid=0&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+	echo "<td><a href=\"?page=background_rule_save&savetype=rule&csrftoken=$csrftoken&action=delete&domainid=0&accountid=0&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

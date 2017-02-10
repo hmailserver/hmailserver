@@ -56,7 +56,7 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"30%\"><a href=\"?page=tcpipport&action=edit&tcpipportid=$portid\">$protocol_name</a></td>";
 	echo "<td width=\"30%\"><a href=\"?page=tcpipport&action=edit&tcpipportid=$portid\">$portnumber</a></td>";
-	echo "<td width=\"20%\"><a href=\"?page=background_tcpipport_save&action=delete&tcpipportid=$portid\">$str_delete</a></td>";
+	echo "<td width=\"20%\"><a href=\"?page=background_tcpipport_save&csrftoken=$csrftoken&action=delete&tcpipportid=$portid\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

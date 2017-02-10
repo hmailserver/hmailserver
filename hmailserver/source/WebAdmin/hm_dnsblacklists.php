@@ -38,7 +38,7 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"60%\"><a href=\"?page=dnsblacklist&action=edit&id=$id&\">$name</a></td>";
    echo "<td width=\"20%\">$enabled</td>";
-	echo "<td width=\"20%\"><a href=\"?page=background_dnsblacklist_save&action=delete&id=$id\">$str_delete</a></td>";
+	echo "<td width=\"20%\"><a href=\"?page=background_dnsblacklist_save&csrftoken=$csrftoken&action=delete&id=$id\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

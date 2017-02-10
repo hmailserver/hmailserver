@@ -60,6 +60,7 @@ $listrequiresmtpauthchecked = hmailCheckedIf1($listrequiresmtpauth);
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_distributionlist_save");
       PrintHidden("action", $action);
       PrintHidden("distributionlistid", $distributionlistid);

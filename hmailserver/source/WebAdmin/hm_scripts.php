@@ -13,7 +13,17 @@ $action	   = hmailGetVar("action","");
 if($action == "save")
 {
 	$obScripting->Enabled = hmailGetVar("scriptingenabled",0);
+	
+	$langauge = hmailGetVar("scriptinglanguage",0);
+	
+	if ($langauge != "VBScript" && $langauge != "JScript")
+	{
+		echo "Unsupported language";
+		die;
+	}
+	
 	$obScripting->Language = hmailGetVar("scriptinglanguage",0);
+
 }
 elseif ($action == "checksyntax")
 {
@@ -41,6 +51,7 @@ $scriptingenabledchecked = hmailCheckedIf1($scriptingenabled);
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
          
             <?php
+			   PrintHiddenCsrfToken();
                PrintHidden("page", "scripts");
                PrintHidden("action", "save");
             ?>   
@@ -70,6 +81,7 @@ $scriptingenabledchecked = hmailCheckedIf1($scriptingenabled);
 
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
             <?php
+			   PrintHiddenCsrfToken();
                PrintHidden("page", "scripts");
                PrintHidden("action", "checksyntax");
             ?>   
@@ -92,6 +104,7 @@ $scriptingenabledchecked = hmailCheckedIf1($scriptingenabled);
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
          
             <?php
+			   PrintHiddenCsrfToken();
                PrintHidden("page", "scripts");
                PrintHidden("action", "reloadscripts");
             ?>            

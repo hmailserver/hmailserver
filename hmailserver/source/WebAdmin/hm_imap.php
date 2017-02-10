@@ -47,6 +47,7 @@ $IMAPHierarchyDelimiter = $obSettings->IMAPHierarchyDelimiter;
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "imap");
       PrintHidden("action", "save");
    ?>   

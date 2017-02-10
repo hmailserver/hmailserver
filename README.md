@@ -62,7 +62,7 @@ Building OpenSSL
 
 	<pre>Perl Configure no-asm VC-WIN32   
 	ms\do_ms  
-	nmake -f ms\ntdll.fdsa 
+	nmake -f ms\ntdll.mak
 	move out32dll out32 
 	rmdir tmp32dll /s /q 
 	</pre>

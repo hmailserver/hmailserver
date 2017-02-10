@@ -109,3 +109,5 @@ ul.tabbernav li.tabberactive a:hover
  height:200px;
  overflow:auto;
 }
+
+.tabber{display:none;}

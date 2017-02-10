@@ -4,8 +4,8 @@
       exit();
 
    $action	   = hmailGetVar("action","");
-   $domainid   = hmailGetVar("domainid", 0);
-   $accountid  = hmailGetVar("accountid", 0);
+   $domainid   = hmailGetVar("domainid", 0, true);
+   $accountid  = hmailGetVar("accountid", 0, true);
    $ruleid     = hmailGetVar("ruleid", 0);
    $criteriaid = hmailGetVar("criteriaid", 0);
    $actionid   = hmailGetVar("actionid", 0);

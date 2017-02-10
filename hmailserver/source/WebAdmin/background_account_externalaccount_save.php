@@ -2,9 +2,9 @@
    if (!defined('IN_WEBADMIN'))
       exit();
 
-   $domainid	= hmailGetVar("domainid",0);
-   $accountid 	= hmailGetVar("accountid",0);
-   $faid 		= hmailGetVar("faid",0);
+   $domainid	= hmailGetVar("domainid",0, true);
+   $accountid 	= hmailGetVar("accountid",0,true);
+   $faid 		= hmailGetVar("faid",0, true);
    $action	   = hmailGetVar("action","");
    
    if (hmailGetAdminLevel() == 0 && ($accountid != hmailGetAccountID() || $domainid != hmailGetDomainID()))
@@ -39,7 +39,7 @@
    $DaysToKeepMessagesValue = hmailGetVar("DaysToKeepMessagesValue",0);
    
    $obFA->Enabled               = hmailGetVar("Enabled",0);
-   $obFA->Name                  = hmailGetVar("Name",0);;
+   $obFA->Name                  = hmailGetVar("Name",0);
    $obFA->MinutesBetweenFetch   = hmailGetVar("MinutesBetweenFetch",0);
    $obFA->Port                  = hmailGetVar("Port",0);
    $obFA->ProcessMIMERecipients = hmailGetVar("ProcessMIMERecipients",0);
