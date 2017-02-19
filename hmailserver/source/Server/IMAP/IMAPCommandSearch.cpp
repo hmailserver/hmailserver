@@ -601,19 +601,22 @@ namespace HM
 
       String sHeader = message_data_->GetHeader();
       String sBody = message_data_->GetBody();
+      String sHTMLBody = message_data_->GetHTMLBody();
 
       String sTextToFind = pCriteria->GetText();
 
       if (pCriteria->GetPositive())
       {
          if (!sHeader.ContainsNoCase(sTextToFind) && 
-             !sBody.ContainsNoCase(sTextToFind))
+             !sBody.ContainsNoCase(sTextToFind) &&
+             !sHTMLBody.ContainsNoCase(sTextToFind))
              return false;
       }
       else
       {
          if (sHeader.ContainsNoCase(sTextToFind) ||
-             sBody.ContainsNoCase(sTextToFind))
+             sBody.ContainsNoCase(sTextToFind) ||
+             sHTMLBody.ContainsNoCase(sTextToFind))
              return false;
       }
 
