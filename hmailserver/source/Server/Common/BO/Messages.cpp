@@ -240,27 +240,6 @@ namespace HM
       }
    }
 
-   bool
-   Messages::DeleteMessageByDBID(__int64 ID)
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Deletes a message from the collection with the given database identifier.
-   //---------------------------------------------------------------------------()
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-      for(std::shared_ptr<Message> pCurMsg : vecObjects)
-      {
-         if (pCurMsg->GetID() == ID)
-         {
-            pCurMsg->SetFlagDeleted(true);
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    void  
    Messages::RemoveRecentFlags()
    {

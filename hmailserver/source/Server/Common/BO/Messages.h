@@ -32,8 +32,6 @@ namespace HM
 
       void Refresh(bool update_recent_flags);
 
-      bool DeleteMessageByDBID(__int64 ID);
-
       void AddToCollection(std::shared_ptr<DALRecordset> pRS);
       
       void Remove(__int64 iDBID);

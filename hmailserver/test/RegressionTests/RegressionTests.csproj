@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Messages.cs" />
     <Compile Include="IMAP\ConcurrentConnections.cs" />
     <Compile Include="Infrastructure\AccountProperties.cs" />
     <Compile Include="Infrastructure\AccountServices.cs" />
