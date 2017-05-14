@@ -80,6 +80,7 @@ namespace HM
                "The MySQL client (libmysql.dll, {0}) could not be loaded.\r\n"
                "hMailServer needs this file to be able to connect to MySQL.\r\n"
                "The MySQL client needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n"
+               "It can be obtained from https://dev.mysql.com/downloads/connector/c/.\r\n"
                "Path: {1}", versionArchitecture, sLibrary);
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5094, "MySQLInterface::Load", sErrorMessage);
