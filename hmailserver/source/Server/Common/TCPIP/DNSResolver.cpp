@@ -243,11 +243,11 @@ namespace HM
          return false;
       }
 
-      bool ipv4AddressResult = Resolve_(sDomain, vecFoundNames, DNS_TYPE_A, 0);
-
       bool ipv6AddressResult = Configuration::Instance()->IsIPv6Available() ?
                                  Resolve_(sDomain, vecFoundNames, DNS_TYPE_AAAA, 0) :
                                  false;
+	   
+      bool ipv4AddressResult = Resolve_(sDomain, vecFoundNames, DNS_TYPE_A, 0);
 
       return ipv4AddressResult || ipv6AddressResult;
    }
