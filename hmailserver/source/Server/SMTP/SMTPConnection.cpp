@@ -1786,8 +1786,12 @@ namespace HM
       if (GetConnectionSecurity() == CSSTARTTLSOptional ||
           GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-         const int command_length = 8;
-         bool hasParameters = sRequest.GetLength() > command_length;
+         const int commandLength = 8;
+
+         auto trimmedRequest = sRequest;
+         trimmedRequest.Trim();
+
+         bool hasParameters = trimmedRequest.GetLength() > commandLength;
 
          if (hasParameters)
          {
