@@ -63,6 +63,40 @@ namespace RegressionTests.SSL.StartTls
       }
 
       [Test]
+      [Description("A trailing space should be allowed to be compatible with malfunctioning servers.")]
+      public void StartTlsWithTrailingSpaceShouldBeAccepted()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         var startTlsResultText = smtpClientSimulator.SendAndReceive("STARTTLS \r\n");
+         StringAssert.Contains("220 Ready to start TLS", startTlsResultText);
+
+         smtpClientSimulator.HandshakeAsClient();
+
+         // Send a command over TLS.
+         var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsFalse(capabilities2.Contains("STARTTLS"));
+      }
+
+      [Test]
+      public void StartTlsWithParametersShouldBeRejected()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         var startTlsResultText = smtpClientSimulator.SendAndReceive("STARTTLS A=B\r\n");
+         StringAssert.Contains("501 Syntax error (no parameters allowed)", startTlsResultText);
+      }
+
+
+      [Test]
       public void HandshakeCompletionShouldBeLoggedWithCipherDetails()
       {
          var smtpClientSimulator = new TcpConnection();
