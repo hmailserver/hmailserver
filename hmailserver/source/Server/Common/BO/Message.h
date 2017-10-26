@@ -63,10 +63,49 @@ namespace HM
       void SetFolderID(__int64 iFolderID) { message_folder_id_ = (int) iFolderID; }
 
       short GetFlags() {return flags_; }
+	  short GetFlagsByUsr(int usr, int msgid)
+	  {
+		  SQLCommand command2("select * from hm_flags where MsgID = @MSGID and UsrID = @USERID ");
+		  command2.AddParameter("@MSGID", msgid);
+		  command2.AddParameter("@USERID", usr);
+		  std::shared_ptr<DALRecordset> pRS2 = Application::Instance()->GetDBManager()->OpenRecordset(command2);
+		  return (short)pRS2->GetLongValue("Flag");
+	  }
       void SetFlags(short iNewVal) {flags_ = iNewVal; }
+	  void SetFlagsByUsr(int user, short iNewVal, int msgid)
+	  {
+		  SQLCommand com("select * from hm_flags where MsgID=@MSGID and UsrID=@USRID");
+		  com.AddParameter("@MSGID", msgid);
+		  com.AddParameter("@USRID", user);
+		  std::shared_ptr<DALRecordset> pRS2;
+		  pRS2 = Application::Instance()->GetDBManager()->OpenRecordset(com);
+		  int MessageID = pRS2->GetLongValue("MsgID");
+		  if (MessageID == 0)
+		  {
+			  SQLStatement oStatement;
+			  oStatement.SetStatementType(SQLStatement::STInsert);
+			  oStatement.SetTable("hm_flags");
+			  oStatement.SetIdentityColumn("DataID");
+			  oStatement.AddColumn("MsgID", msgid);
+			  oStatement.AddColumn("UsrID", user);
+
+			  oStatement.AddColumn("Flag", flags_);
+			  Application::Instance()->GetDBManager()->Execute(oStatement);
+		  }
+		  else
+		  {
+			  SQLCommand komanda("update hm_flags set Flag = @FLAGS where MsgID=@MSGID and UsrID=@USRID");
+			  komanda.AddParameter("@FLAGS", flags_);
+			  komanda.AddParameter("@MSGID", msgid);
+			  komanda.AddParameter("@USRID", user);
+			  Application::Instance()->GetDBManager()->Execute(komanda);
+		  }
+	  }
 
       bool GetFlagSeen() const;
+	  bool GetFlagSeenByUsr(int usr, int msgid) const;
       void SetFlagSeen(bool bNewVal);
+	  void SetFlagSeenByUsr(int usr, bool nVal, int msgid);
       bool GetFlagDeleted() const;
       void SetFlagDeleted(bool bNewVal);
       bool GetFlagDraft() const;
@@ -115,6 +154,8 @@ namespace HM
 
       bool GetFlag_(int iFlag) const;
       void SetFlag_(int iFlag, bool bSet);
+	  bool GetFlagByUsr_(int iFlag, int usr, int msgid) const;
+	  void SetFlagByUsr_(int iFlag, bool bSet, int iUsr, int msgid);
 
       std::shared_ptr<MessageRecipients> recipients_;
 

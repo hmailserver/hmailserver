@@ -36,6 +36,8 @@ namespace HM
    IMAPResult
    IMAPStore::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex,  std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       if (!pMessage || !pArgument)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
 
@@ -82,8 +84,17 @@ namespace HM
       if (sCommand.FindNoCase(_T("-FLAGS")) >= 0)
       {
          // Remove flags
-         if (bSeen)
-            pMessage->SetFlagSeen(false);
+		  if (bSeen)
+		  {
+			  if (pMessage->GetAccountID() == 0)
+			  {
+				  pMessage->SetFlagSeenByUsr(userID, false, pMessage->GetID());
+			  }
+			  else
+			  {
+				  pMessage->SetFlagSeen(false);
+			  }
+		  }
          if (bDeleted)
             pMessage->SetFlagDeleted(false);
          if (bDraft)
@@ -99,8 +110,17 @@ namespace HM
       else if (sCommand.FindNoCase(_T("+FLAGS")) >= 0)
       {
          // Add flags
-         if (bSeen)
-            pMessage->SetFlagSeen(true);
+		  if (bSeen)
+		  {
+			  if (pMessage->GetAccountID() == 0)
+			  {
+				  pMessage->SetFlagSeenByUsr(userID, true, pMessage->GetID());
+			  }
+			  else
+			  {
+				  pMessage->SetFlagSeen(true);
+			  }
+		  }
          if (bDeleted)
             pMessage->SetFlagDeleted(true);
          if (bDraft)
@@ -114,17 +134,35 @@ namespace HM
       else if (sCommand.FindNoCase(_T("FLAGS")) >= 0)
       {
          // Set flags
-         pMessage->SetFlagSeen(bSeen);
+		  if (pMessage->GetAccountID() == 0)
+		  {
+			  pMessage->SetFlagSeenByUsr(userID, bSeen, pMessage->GetID());
+		  }
+		  else
+		  {
+			  pMessage->SetFlagSeen(bSeen);
+		  }
          pMessage->SetFlagDeleted(bDeleted);
          pMessage->SetFlagDraft(bDraft);
          pMessage->SetFlagAnswered(bAnswered);
          pMessage->SetFlagFlagged(bFlagged);
       }
 
-      bool result = Application::Instance()->GetFolderManager()->UpdateMessageFlags(
-         (int) pConnection->GetCurrentFolder()->GetAccountID(), 
-         (int) pConnection->GetCurrentFolder()->GetID(),
-         pMessage->GetID(), pMessage->GetFlags());
+	  bool result;
+	  if (pMessage->GetAccountID() == 0)
+	  {
+		  result = Application::Instance()->GetFolderManager()->UpdateMessageFlags(
+			  (int)pConnection->GetCurrentFolder()->GetAccountID(),
+			  (int)pConnection->GetCurrentFolder()->GetID(),
+			  pMessage->GetID(), pMessage->GetFlagsByUsr(userID, pMessage->GetID()), userID);
+	  }
+	  else
+	  {
+		  result = Application::Instance()->GetFolderManager()->UpdateMessageFlags(
+			  (int)pConnection->GetCurrentFolder()->GetAccountID(),
+			  (int)pConnection->GetCurrentFolder()->GetID(),
+			  pMessage->GetID(), pMessage->GetFlags(), userID);
+	  }
 
       if (!result)
       {
@@ -133,7 +171,7 @@ namespace HM
 
       if (!bSilent)
       {
-         pConnection->SendAsciiData(GetMessageFlags(pMessage, messageIndex));
+         pConnection->SendAsciiData(GetMessageFlags(pMessage, messageIndex, pConnection));
       }
 
       // BEGIN IMAP IDLE
@@ -152,8 +190,10 @@ namespace HM
    }
 
    String 
-   IMAPStore::GetMessageFlags(std::shared_ptr<Message> pMessage, int messageIndex)
+	   IMAPStore::GetMessageFlags(std::shared_ptr<Message> pMessage, int messageIndex, std::shared_ptr<IMAPConnection> pConnection)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       // Build a flags string.
       String sFlags;
 
@@ -189,13 +229,26 @@ namespace HM
          sFlags += "\\Draft";
       }
 
-      if (pMessage->GetFlagSeen())
-      {
-         if (!sFlags.IsEmpty()) 
-            sFlags += " ";
+	  if (pMessage->GetAccountID() == 0)
+	  {
+		  if (pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()))
+		  {
+			  if (!sFlags.IsEmpty())
+				  sFlags += " ";
 
-         sFlags += "\\Seen";
-      }
+			  sFlags += "\\Seen";
+		  }
+	  }
+	  else
+	  {
+		  if (pMessage->GetFlagSeen())
+		  {
+			  if (!sFlags.IsEmpty())
+				  sFlags += " ";
+
+			  sFlags += "\\Seen";
+		  }
+	  }
 
 
       // It really should be FETCH below...

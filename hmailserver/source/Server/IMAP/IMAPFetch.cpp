@@ -15,7 +15,7 @@
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/ByteBuffer.h"
 #include "../Common/BO/ACLPermission.h"
-
+#include "../Common/BO/Account.h"
 #include "../Common/Persistence/PersistentMessage.h"
 
 #ifdef _DEBUG
@@ -40,6 +40,8 @@ namespace HM
    IMAPResult
    IMAPFetch::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       if (!pArgument || !pMessage)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
 
@@ -98,8 +100,16 @@ namespace HM
 
          std::set<String> setFlags;
          
-         if (pMessage->GetFlagSeen())
-            setFlags.insert("Seen");
+		 if (pMessage->GetAccountID() == 0)
+		 {
+			 if (pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()))
+				 setFlags.insert("Seen");
+		 }
+		 else
+		 {
+			 if (pMessage->GetFlagSeen())
+				 setFlags.insert("Seen");
+		 }
          if (pMessage->GetFlagDeleted())
             setFlags.insert("Deleted");
          if (pMessage->GetFlagFlagged())
@@ -234,16 +244,34 @@ namespace HM
          bool bMayChangeSeen = pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteSeen);
 
          // Since the user has looked at the email, we should set the Seen flag.
-         if (bMayChangeSeen && !pMessage->GetFlagSeen())
-         {  
-            // Update seen flag in the cached copy of the message...
-            pMessage->SetFlagSeen(true);
+		 if (pMessage->GetAccountID() == 0)
+		 {
+			 if (bMayChangeSeen && !pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()))
+			 {
+				 pMessage->SetFlagSeenByUsr(userID, true, pMessage->GetID());
 
-            Application::Instance()->GetFolderManager()->UpdateMessageFlags(
-               (int) pConnection->GetCurrentFolder()->GetAccountID(), 
-               (int) pConnection->GetCurrentFolder()->GetID(),
-               pMessage->GetID(), pMessage->GetFlags());
-         }
+
+				 Application::Instance()->GetFolderManager()->UpdateMessageFlags(
+					 (int)pConnection->GetCurrentFolder()->GetAccountID(),
+					 (int)pConnection->GetCurrentFolder()->GetID(),
+					 pMessage->GetID(), pMessage->GetFlagsByUsr(userID, pMessage->GetID()), userID);
+
+			 }
+
+		 }
+		 else
+		 {
+			 if (bMayChangeSeen && !pMessage->GetFlagSeen())
+			 {
+				 // Update seen flag in the cached copy of the message...
+				 pMessage->SetFlagSeen(true);
+
+				 Application::Instance()->GetFolderManager()->UpdateMessageFlags(
+					 (int)pConnection->GetCurrentFolder()->GetAccountID(),
+					 (int)pConnection->GetCurrentFolder()->GetID(),
+					 pMessage->GetID(), pMessage->GetFlags(), userID);
+			 }
+		 }
       }
 
       sOutput += ")\r\n";

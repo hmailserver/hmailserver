@@ -89,6 +89,15 @@ namespace HM
    {
       return (flags_ & iFlag) > 0;
    }
+   bool
+	   Message::GetFlagByUsr_(int iFlag, int usr, int msgid) const
+   {
+	   SQLCommand command2("select * from hm_flags where MsgID = @MSGID and UsrID = @USERID ");
+	   command2.AddParameter("@MSGID", msgid);
+	   command2.AddParameter("@USERID", usr);
+	   std::shared_ptr<DALRecordset> pRS2 = Application::Instance()->GetDBManager()->OpenRecordset(command2);
+	   return (((short)pRS2->GetLongValue("Flag")) & iFlag > 0);
+   }
 
    void
    Message::SetFlag_(int iFlag, bool bSet)
@@ -98,6 +107,40 @@ namespace HM
       else
          flags_ = flags_ & ~iFlag;
    }
+   void
+	   Message::SetFlagByUsr_(int iFlag, bool bSet, int iUsr, int msgid)
+   {
+	   if (bSet)
+		   flags_ = flags_ | iFlag;
+	   else
+		   flags_ = flags_ & ~iFlag;
+	   SQLCommand com("select * from hm_flags where MsgID=@MSGID and UsrID=@USRID");
+	   com.AddParameter("@MSGID", msgid);
+	   com.AddParameter("@USRID", iUsr);
+	   std::shared_ptr<DALRecordset> pRS2;
+	   pRS2 = Application::Instance()->GetDBManager()->OpenRecordset(com);
+	   int MessageID = pRS2->GetLongValue("MsgID");
+	   if (MessageID == 0)
+	   {
+		   SQLStatement oStatement;
+		   oStatement.SetStatementType(SQLStatement::STInsert);
+		   oStatement.SetTable("hm_flags");
+		   oStatement.SetIdentityColumn("DataID");
+		   oStatement.AddColumn("MsgID", msgid);
+		   oStatement.AddColumn("UsrID", iUsr);
+
+		   oStatement.AddColumn("Flag", flags_);
+		   Application::Instance()->GetDBManager()->Execute(oStatement);
+	   }
+	   else
+	   {
+		   SQLCommand komanda("update hm_flags set Flag = @FLAGS where MsgID=@MSGID and UsrID=@USRID");
+		   komanda.AddParameter("@FLAGS", flags_);
+		   komanda.AddParameter("@MSGID", msgid);
+		   komanda.AddParameter("@USRID", iUsr);
+		   Application::Instance()->GetDBManager()->Execute(komanda);
+	   }
+   }
 
    bool 
    Message::GetFlagSeen() const
@@ -105,10 +148,22 @@ namespace HM
       return GetFlag_(FlagSeen);
    }
 
+   bool
+	   Message::GetFlagSeenByUsr(int usr, int msgid) const
+   {
+	   return GetFlagByUsr_(FlagSeen, usr, msgid);
+   }
+
    void 
    Message::SetFlagSeen(bool bNewVal)
    {
       SetFlag_(FlagSeen, bNewVal);
+   }
+
+   void
+	   Message::SetFlagSeenByUsr(int usr, bool nVal, int msgid)
+   {
+	   SetFlagByUsr_(FlagSeen, nVal, usr, msgid);
    }
 
    bool 

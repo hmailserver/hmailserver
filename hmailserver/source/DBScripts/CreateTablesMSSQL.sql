@@ -12,6 +12,8 @@ if exists (select * from sysobjects where id = object_id('hm_domain_aliases') an
 
 if exists (select * from sysobjects where id = object_id('hm_messages') and objectproperty(id, 'isusertable') = 1) drop table hm_messages 
 
+if exists (select * from sysobjects where id = object_id('hm_flags') and objectproperty(id, 'isusertable') = 1) drop table hm_flags 
+
 if exists (select * from sysobjects where id = object_id('hm_message_metadata') and objectproperty(id, 'isusertable') = 1) drop table hm_message_metadata 
 
 if exists (select * from sysobjects where id = object_id('hm_settings') and objectproperty(id, 'isusertable') = 1) drop table hm_settings 
@@ -662,6 +664,15 @@ create table hm_logon_failures
    failuretime datetime not null
 ) 
 
+create table hm_flags
+(
+   MsgID int not null,
+   UsrID int not null,
+   Flag int
+) 
+
+ALTER TABLE hm_flags ADD CONSTRAINT hm_flags_pk PRIMARY KEY NONCLUSTERED (MsgID,UsrID) 
+
 CREATE NONCLUSTERED INDEX idx_hm_logon_failures_ipaddress ON hm_logon_failures (ipaddress1, ipaddress2) 
 
 CREATE CLUSTERED INDEX idx_hm_logon_failures_failuretime ON hm_logon_failures (failuretime) 
@@ -952,6 +963,3 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0) 
 
 insert into hm_dbversion values (5700)
-
-
-

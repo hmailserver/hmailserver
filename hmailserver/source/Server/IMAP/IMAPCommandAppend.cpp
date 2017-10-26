@@ -245,6 +245,8 @@ namespace HM
    void
    IMAPCommandAppend::Finish_(std::shared_ptr<IMAPConnection> pConnection)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       if (!current_message_)
          return;
 
@@ -270,7 +272,14 @@ namespace HM
       }
 
       current_message_->SetFlagDeleted(bDeleted);
-      current_message_->SetFlagSeen(bSeen);
+	  if (current_message_->GetAccountID() == 0)
+	  {
+		  current_message_->SetFlagSeenByUsr(userID, bSeen, current_message_->GetID());
+	  }
+	  else
+	  {
+		  current_message_->SetFlagSeen(bSeen);
+	  }
       current_message_->SetFlagDraft(bDraft);
       current_message_->SetFlagAnswered(bAnswered);
       current_message_->SetFlagFlagged(bFlagged);

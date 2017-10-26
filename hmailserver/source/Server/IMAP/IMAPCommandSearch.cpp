@@ -8,7 +8,7 @@
 #include "IMAPSort.h"
 #include "IMAPConfiguration.h"
 #include "IMAPListLookup.h"
-
+#include "../Common/BO/Account.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/BO/Message.h"
@@ -155,6 +155,8 @@ namespace HM
    bool
    IMAPCommandSEARCH::DoesMessageMatch_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       message_data_.reset();
       mime_header_.reset();
 
@@ -208,20 +210,42 @@ namespace HM
             }
          case IMAPSearchCriteria::CTSeen:
             {
-               if (pCriteria->GetPositive() && !pMessage->GetFlagSeen() ||
-                   !pCriteria->GetPositive() && pMessage->GetFlagSeen())
-               {
-                  bMessageIsMatchingCriteria = false;;
-               }
+				if (pMessage->GetAccountID() == 0)
+				{
+					if (pCriteria->GetPositive() && !pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()) ||
+						!pCriteria->GetPositive() && pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()))
+					{
+						bMessageIsMatchingCriteria = false;;
+					}
+				}
+				else
+				{
+					if (pCriteria->GetPositive() && !pMessage->GetFlagSeen() ||
+						!pCriteria->GetPositive() && pMessage->GetFlagSeen())
+					{
+						bMessageIsMatchingCriteria = false;;
+					}
+				}
                break;
             }
          case IMAPSearchCriteria::CTUnseen:
             {
-               if (pCriteria->GetPositive() && pMessage->GetFlagSeen() ||
-                   !pCriteria->GetPositive() && !pMessage->GetFlagSeen())
-               {
-                  bMessageIsMatchingCriteria = false;
-               }
+				if (pMessage->GetAccountID() == 0)
+				{
+					if (pCriteria->GetPositive() && pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()) ||
+						!pCriteria->GetPositive() && !pMessage->GetFlagSeenByUsr(userID, pMessage->GetID()))
+					{
+						bMessageIsMatchingCriteria = false;
+					}
+				}
+				else
+				{
+					if (pCriteria->GetPositive() && pMessage->GetFlagSeen() ||
+						!pCriteria->GetPositive() && !pMessage->GetFlagSeen())
+					{
+						bMessageIsMatchingCriteria = false;
+					}
+				}
                break;
             }
          case IMAPSearchCriteria::CTRecent:
@@ -354,13 +378,20 @@ namespace HM
          case IMAPSearchCriteria::CTNew:
             {
                bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
-
-               bool bSet = is_recent && !pMessage->GetFlagSeen();
-               if (pCriteria->GetPositive() && !bSet ||
-                  !pCriteria->GetPositive() && bSet)
-               {
-                  bMessageIsMatchingCriteria = false;
-               }
+			   bool bSet;
+			   if (pMessage->GetAccountID() == 0)
+			   {
+				   bSet = is_recent && !pMessage->GetFlagSeenByUsr(userID, pMessage->GetID());
+			   }
+			   else
+			   {
+				   bSet = is_recent && !pMessage->GetFlagSeen();
+			   }
+			   if (pCriteria->GetPositive() && !bSet ||
+				   !pCriteria->GetPositive() && bSet)
+			   {
+				   bMessageIsMatchingCriteria = false;
+			   }
                break;
             }
          case IMAPSearchCriteria::CTOld:

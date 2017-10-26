@@ -33,6 +33,8 @@ namespace HM
    IMAPResult
    IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
+	  std::shared_ptr<const Account> acc = pConnection->GetAccount();
+	  int userID = acc->GetID();
       if (!pArgument || !pOldMessage)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
       
@@ -74,8 +76,16 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "Failed to copy message");
 
       // Check if the user has access to set the Seen flag, otherwise 
-      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionWriteSeen))
-         pNewMessage->SetFlagSeen(false);  
+	  if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionWriteSeen))
+	  {
+		  if (pNewMessage->GetAccountID() == 0)
+		  {
+			  pNewMessage->SetFlagSeenByUsr(userID, false, pNewMessage->GetID());
+		  }
+		  else
+			  pNewMessage->SetFlagSeen(false);
+	  }
+         
 
       if (!PersistentMessage::SaveObject(pNewMessage))
          return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
