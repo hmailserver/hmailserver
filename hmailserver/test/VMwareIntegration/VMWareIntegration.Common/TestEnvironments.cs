@@ -11,22 +11,22 @@ namespace VMwareIntegration.Common
 {
    public class TestEnvironments
    {
-      private static string WindowsXPPath = @"C:\Build\VMware\Windows XP Professional\Windows XP Professional.vmx";
-      private static string WindowsXPPostgreSQL831Path = @"C:\Build\VMWare\Windows XP - PostgreSQL 8.3.1 (Link)\Windows XP - PostgreSQL 8.3.1 (Link).vmx";
-      private static string WindowsXPMySQL5_0_51Path = @"C:\Build\VMWare\Windows XP - MySQL 5.0.51 (Link)\Windows XP - MySQL 5.0.51 (Link).vmx";
-      private static string WindowsXPMySQL5_6_20Path = @"C:\Build\VMWare\Windows XP - MySQL 5.6.20 (Link)\Windows XP - MySQL 5.6.20 (Link).vmx";
-      private static string WindowsXPSQLServer2005Path = @"C:\Build\VMWare\Windows XP - SQL Server 2005\Windows XP - SQL Server 2005.vmx";
-      private static string WindowsXPSQLServer2000Path = @"C:\Build\VMWare\Windows XP - SQL Server 2000 (Link)\Windows XP - SQL Server 2000 (Link).vmx";
-      private static string WindowsXPHmail441SQLServerPath = @"C:\Build\VMWare\Windows XP - hMailServer 4.4.1 (SQL Server) (Link)\Windows XP - hMailServer 4.4.1 (SQL Server) (Link).vmx";
-      private static string WindowsXPHmail50PostgreSQL8_3_1 = @"C:\Build\VMWare\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link)\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link).vmx";
+      private static string WindowsXPPath = @"D:\Build\VMware\Windows XP Professional\Windows XP Professional.vmx";
+      private static string WindowsXPPostgreSQL831Path = @"D:\Build\VMWare\Windows XP - PostgreSQL 8.3.1 (Link)\Windows XP - PostgreSQL 8.3.1 (Link).vmx";
+      private static string WindowsXPMySQL5_0_51Path = @"D:\Build\VMWare\Windows XP - MySQL 5.0.51 (Link)\Windows XP - MySQL 5.0.51 (Link).vmx";
+      private static string WindowsXPMySQL5_6_20Path = @"D:\Build\VMWare\Windows XP - MySQL 5.6.20 (Link)\Windows XP - MySQL 5.6.20 (Link).vmx";
+      private static string WindowsXPSQLServer2005Path = @"D:\Build\VMWare\Windows XP - SQL Server 2005\Windows XP - SQL Server 2005.vmx";
+      private static string WindowsXPSQLServer2000Path = @"D:\Build\VMWare\Windows XP - SQL Server 2000 (Link)\Windows XP - SQL Server 2000 (Link).vmx";
+      private static string WindowsXPHmail441SQLServerPath = @"D:\Build\VMWare\Windows XP - hMailServer 4.4.1 (SQL Server) (Link)\Windows XP - hMailServer 4.4.1 (SQL Server) (Link).vmx";
+      private static string WindowsXPHmail50PostgreSQL8_3_1 = @"D:\Build\VMWare\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link)\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link).vmx";
                                                                
-      private static string WindowsXPHmail441InternalMySQL = @"C:\Build\VMWare\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link)\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link).vmx";
-      private static string WindowsXPHmail50InternalMSSQLCE = @"C:\Build\VMWare\Windows XP - hMailServer 5.0 (B289 Internal SQL CE)\Windows XP - hMailServer 5.0 (B289 Internal SQL CE).vmx";
-      private static string WindowsXPHmail33SQL2000 = @"C:\Build\VMWare\Windows XP - hMailServer 3.3 (B57, SQL Server 2000)\Windows XP - hMailServer 3.3 (B57, SQL Server 2000).vmx";
+      private static string WindowsXPHmail441InternalMySQL = @"D:\Build\VMWare\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link)\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link).vmx";
+      private static string WindowsXPHmail50InternalMSSQLCE = @"D:\Build\VMWare\Windows XP - hMailServer 5.0 (B289 Internal SQL CE)\Windows XP - hMailServer 5.0 (B289 Internal SQL CE).vmx";
+      private static string WindowsXPHmail33SQL2000 = @"D:\Build\VMWare\Windows XP - hMailServer 3.3 (B57, SQL Server 2000)\Windows XP - hMailServer 3.3 (B57, SQL Server 2000).vmx";
 
-      private static string Windows2003Path = @"C:\Build\VMware\Windows Server 2003 Enterprise Edition\Windows Server 2003 Enterprise Edition.vmx";
-      private static string Windows2008Path = @"C:\Build\VMware\Windows Server 2008\Windows Server 2008 (experimental).vmx";
-      private static string WindowsVistaPath = @"C:\Build\VMware\Windows Vista\Windows Vista.vmx";
+      private static string Windows2003Path = @"D:\Build\VMware\Windows Server 2003 Enterprise Edition\Windows Server 2003 Enterprise Edition.vmx";
+      private static string Windows2008Path = @"D:\Build\VMware\Windows Server 2008\Windows Server 2008 (experimental).vmx";
+      private static string WindowsVistaPath = @"D:\Build\VMware\Windows Vista\Windows Vista.vmx";
 
 
       static public void AddAll(List<TestEnvironment> listEnvironments)
