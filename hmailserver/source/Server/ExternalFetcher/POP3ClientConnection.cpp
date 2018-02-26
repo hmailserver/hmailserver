@@ -1010,8 +1010,10 @@ namespace HM
       String sCC = pHeader->GetRawFieldValue("CC");
       String sXRCPTTo = pHeader->GetRawFieldValue("X-RCPT-TO");
       String sXEnvelopeTo = pHeader->GetRawFieldValue("X-Envelope-To");
+      String sEnvelopeTo = pHeader->GetRawFieldValue("Envelope-To");
 
-      String sAllRecipients = sTo + "," + sCC + "," + sXRCPTTo + "," + sXEnvelopeTo;
+      //First check for explicit SMTP recipients
+      String sAllRecipients = sXRCPTTo + "," + sXEnvelopeTo + "," + sEnvelopeTo;
 
       // Parse this list.
       AddresslistParser oListParser;
@@ -1038,12 +1040,47 @@ namespace HM
          iterAddress++;
       }
 
-      // Go through the Received headers
-      ProcessReceivedHeaders_(pHeader);
-
       // Remove non-existent accounts.
       RemoveInvalidRecipients_();
-}
+
+      //If no explicit SMTP recipients then fallback to To, CC and Received headers
+      if (current_message_->GetRecipients()->GetCount() == 0)
+      {
+         String sAllRecipients = sTo + "," + sCC;
+
+         // Parse this list.
+         AddresslistParser oListParser;
+         std::vector<std::shared_ptr<Address> > vecAddresses = oListParser.ParseList(sAllRecipients);
+         auto iterAddress = vecAddresses.begin();
+
+         RecipientParser recipientParser;
+         while (iterAddress != vecAddresses.end())
+         {
+            std::shared_ptr<Address> pAddress = (*iterAddress);
+
+            if (pAddress->sMailboxName.IsEmpty() || pAddress->sDomainName.IsEmpty())
+            {
+               iterAddress++;
+               continue;
+            }
+
+            String sAddress = pAddress->sMailboxName + "@" + pAddress->sDomainName;
+
+            // Add the recipient to the message
+            bool recipientOK = false;
+            recipientParser.CreateMessageRecipientList(sAddress, current_message_->GetRecipients(), recipientOK);
+
+            iterAddress++;
+         }
+
+         // Go through the Received headers
+         ProcessReceivedHeaders_(pHeader);
+
+         // Remove non-existent accounts.
+         RemoveInvalidRecipients_();
+         
+      }
+   }
 
    void 
    POP3ClientConnection::RetrieveReceivedDate_(std::shared_ptr<MimeHeader> pHeader)
