@@ -8,7 +8,8 @@
    <form action="<?php echo $hmail_config['rooturl']; ?>index.php" method="post" onSubmit="return formCheck(this);" name="mainform">
    
       <?php
-         PrintHidden("page", "background_login");
+	     PrintHiddenCsrfToken();
+           PrintHidden("page", "background_login");
       ?>
 
       <br/><br/>
@@ -34,7 +35,7 @@
             	<input type="text" name="username" size="25" maxlength="256" /><br/>
 		<br/>
             	<?php EchoTranslation("Password")?>:<br/>
-            	<input type="password" name="password" size="25" maxlength="256" /><br/>
+            	<input type="password" name="password" size="25" maxlength="256" autocomplete="off" /><br/>
             	<br/>
             	<input type="submit" value="<?php EchoTranslation("OK")?>" />
             </td>

@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Threading;
 
@@ -131,7 +132,15 @@ namespace VMwareIntegration.Common
          }
          finally
          {
-            vm.PowerOff();
+            try
+            {
+               vm.PowerOff();
+            }
+            catch 
+            {
+               Console.WriteLine("Unable to power off VM. Maybe it's not powered on?");
+            }
+            
          }
       }
 

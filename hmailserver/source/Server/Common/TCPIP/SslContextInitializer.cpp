@@ -30,8 +30,7 @@ namespace HM
       SetContextOptions_(context);
       EnableEllipticCurveCrypto_(context);
 
-      if (!SetCipherList_(context))
-         return false;
+      SetCipherList_(context);
 
       try
       {         
@@ -132,8 +131,7 @@ namespace HM
    { 
       SetContextOptions_(context);
          
-      if (!SetCipherList_(context))
-         return false;
+      SetCipherList_(context);
 
       return true;
    }
@@ -145,7 +143,7 @@ namespace HM
       return "";
    }
 
-   bool
+   void
    SslContextInitializer::SetCipherList_(boost::asio::ssl::context& context)
    {
       AnsiString cipher_list = Configuration::Instance()->GetSslCipherList();
@@ -155,7 +153,7 @@ namespace HM
       cipher_list.Replace(" ", "");
 
       if (cipher_list.Trim().IsEmpty())
-         return true;
+         return;
 
       // Asio does not expose cipher list. Access underlaying layer (OpenSSL) directly.
       SSL_CTX* ssl = context.native_handle();
@@ -163,11 +161,16 @@ namespace HM
 
       if (result == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511,"SslContextInitializer::SetCipherList_", "Failed to set SSL ciphers");
-         return false;
+         // Unable to set the SSL cipher list. Collect the error code from OpenSSL so that 
+         // we can include that in the error message we log.
+         int errorCode = ERR_get_error();
+         const int bufferSize = 150;
+         AnsiString message;
+         ERR_error_string_n(errorCode, message.GetBuffer(bufferSize), bufferSize);
+
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::SetCipherList_", Formatter::Format("Failed to set SSL ciphers. Message: {0}", message));
       }
 
-      return true;
    }
 
    void

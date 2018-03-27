@@ -42,12 +42,12 @@ if($action == "performTests")
          if (strpos($detailsRows[$subRow], "ERROR:") === 0)
          {
             $resultString .= '<font color="red">';
-            $resultString .= $detailsRows[$subRow] . "<br/>";
+            $resultString .= PreprocessOutput($detailsRows[$subRow]) . "<br/>";
             $resultString .= '</font>';                  
          }
          else
          {
-            $resultString .= $detailsRows[$subRow] . "<br/>";
+            $resultString .= PreprocessOutput($detailsRows[$subRow]) . "<br/>";
          }
       }
       
@@ -68,6 +68,7 @@ if($action == "performTests")
    
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
             <?php
+  		       PrintHiddenCsrfToken();
                PrintHidden("page", "diagnostics");
                PrintHidden("action", "performTests");
 

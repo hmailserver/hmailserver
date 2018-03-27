@@ -35,6 +35,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_tcpipport_save");
       PrintHidden("action", "$action");
       PrintHidden("tcpipportid", "$tcpipportid");
@@ -90,7 +91,7 @@ if ($action == "edit")
                               $SSLCertificate = $SSLCertificates[$i];
                               
                               $id = $SSLCertificate->ID;
-                              $name = $SSLCertificate->Name;
+                              $name = PreprocessOutput($SSLCertificate->Name);
                            
                               ?>
                               <option value="<?php echo $id?>" <?php if ($id == "$SSLCertificateID") echo "selected";?> ><?php echo $name?></a>

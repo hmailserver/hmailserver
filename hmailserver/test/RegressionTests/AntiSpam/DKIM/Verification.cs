@@ -147,45 +147,6 @@ namespace RegressionTests.AntiSpam.DKIM
 
       [Test]
       [Description("Test that a message with a valid SHA1 signature is not blocked.")]
-      public void TestValidSignatureSHA1()
-      {
-         _antiSpam.DKIMVerificationEnabled = true;
-         _antiSpam.DKIMVerificationFailureScore = 100;
-
-         string messageText = @"DKIM-Signature: v=1; a=rsa-sha1; c=simple; d=messiah.edu; h=from:to" + "\r\n" +
-                              "	:subject:date; s=test3; i==6Along@messiah.edu; bh=OW2otvzd7V2TO8" + "\r\n" +
-                              "	w056SjbYRFCa0=; b=Vfr9HgUlyVf1ZaRVMV8VJNSDXn7f1j2N/rFM4PPmYIC2GD" + "\r\n" +
-                              "	pSelCRrdA979Buuu/Mmx9FTWoZJBL+s5tafFM8bw==" + "\r\n" +
-                              "Received: from x.y.test" + "\r\n" +
-                              "   by example.net" + "\r\n" +
-                              "   via TCP" + "\r\n" +
-                              "   with ESMTP" + "\r\n" +
-                              "   id ABC12345" + "\r\n" +
-                              "   for <mary@example.net>;  21 Nov 1997 10:05:43 -0600" + "\r\n" +
-                              "Received: from machine.example by x.y.test; 21 Nov 1997 10:01:22 -0600" + "\r\n" +
-                              "From: Jason Long <jlong@messiah.edu>" + "\r\n" +
-                              "To: Nobody <nobody@messiah.edu>" + "\r\n" +
-                              "Subject: dkim test (i= uses quoted-printable)" + "\r\n" +
-                              "Date: Wed, 9 Apr 2008 09:11:00 -0500" + "\r\n" +
-                              "" + "\r\n" +
-                              "Should pass." + "\r\n" +
-                              "" + "\r\n" +
-                              "This is a test" + "\r\n" +
-                              "  More lines here" + "\r\n" +
-                              "" + "\r\n" +
-                              "Blah  blah  blah" + "\r\n" +
-                              "" + "\r\n" +
-                              "" + "\r\n" +
-                              "" + "\r\n" +
-                              "" + "\r\n";
-
-         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SmtpClientSimulator.StaticSendRaw(account1.Address, account1.Address, messageText);
-         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
-      }
-
-      [Test]
-      [Description("Test that a message with a valid SHA1 signature is not blocked.")]
       public void TestValidSignatureSHA256()
       {
          _antiSpam.DKIMVerificationEnabled = true;

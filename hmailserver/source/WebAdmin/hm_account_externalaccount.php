@@ -3,9 +3,9 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid	= hmailGetVar("domainid",0);
-$accountid	= hmailGetVar("accountid",0);
-$faid 		= hmailGetVar("faid",0);
+$domainid	= hmailGetVar("domainid",0,true);
+$accountid	= hmailGetVar("accountid",0,true);
+$faid 		= hmailGetVar("faid",0, true);
 $action	   = hmailGetVar("action","");
 
 if (hmailGetAdminLevel() == 0 && ($accountid != hmailGetAccountID() || $domainid != hmailGetDomainID()))
@@ -68,6 +68,7 @@ if ($DaysToKeepMessages > 0)
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 	
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_account_externalaccount_save");
       PrintHidden("action", $action);
       PrintHidden("faid", $faid);
@@ -137,7 +138,7 @@ if ($DaysToKeepMessages > 0)
          					</tr>
          					<tr>
          						<td><input type="text" name="Username" value="<?php echo PreprocessOutput($Username)?>" size="25" checkallownull="false" checkmessage="<?php EchoTranslation("User name")?>"></td>
-         						<td><input type="password" name="Password" value=""  size="25"></td>
+         						<td><input type="password" name="Password" value=""  size="25" autocomplete="off"></td>
          					</tr>					
          				</table>
          			</td>

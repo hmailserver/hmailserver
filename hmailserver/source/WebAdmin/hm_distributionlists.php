@@ -40,7 +40,7 @@ for ($i = 0; $i < $Count; $i++)
 	
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td><a href=\"?page=distributionlist&action=edit&domainid=$domainid&distributionlistid=$listid&\">$listaddress</a></td>";
-   echo "<td width=\"20%\"><a href=\"javascript:ConfirmDelete('$listaddress_escaped', '?page=background_distributionlist_save&action=delete&domainid=$domainid&distributionlistid=$listid')\">$str_delete</a></td>";
+   echo "<td width=\"20%\"><a href=\"javascript:ConfirmDelete('$listaddress_escaped', '?page=background_distributionlist_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&distributionlistid=$listid')\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

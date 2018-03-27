@@ -3,8 +3,8 @@
    if (!defined('IN_WEBADMIN'))
       exit();
 
-   $domainid	= hmailGetVar("domainid",0);
-   $accountid	= hmailGetVar("accountid",0);
+   $domainid	= hmailGetVar("domainid",0,true);
+   $accountid	= hmailGetVar("accountid",0,true);
    $action	   = hmailGetVar("action","");
    
    $obDomain	= $obBaseApp->Domains->ItemByDBID($domainid);

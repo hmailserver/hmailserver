@@ -3,9 +3,9 @@ if (!defined('IN_WEBADMIN'))
    exit();
 
 $action = hmailGetVar("action", "");   
-$domainid = hmailGetVar("domainid", 0);
-$accountid = hmailGetVar("accountid", 0);
-$ruleid = hmailGetVar("ruleid", 0);
+$domainid = hmailGetVar("domainid", 0, true);
+$accountid = hmailGetVar("accountid", 0, true);
+$ruleid = hmailGetVar("ruleid", 0, true);
    
 // check permissions
 if (!GetHasRuleAccess($domainid, $accountid))
@@ -46,6 +46,7 @@ else
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_rule_save");
       PrintHidden("savetype", "rule");
       PrintHidden("action", $action);
@@ -109,7 +110,7 @@ else
                               <td width="25%"><?php echo "<a href=\"?page=rule_criteria&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&criteriaid=$criteriaid\">$fieldName</a>";?></td>
                               <td width="25%"><?php echo PreprocessOutput($matchType)?></td>
                               <td width="25%"><?php echo PreprocessOutput($matchValue)?></td>
-                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&savetype=criteria&action=delete&domainid=$domainid&accountid=$accountid&&ruleid=$ruleid&criteriaid=$criteriaid\">$str_delete</a>";?></td>
+                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&savetype=criteria&action=delete&domainid=$domainid&accountid=$accountid&&ruleid=$ruleid&criteriaid=$criteriaid\">$str_delete</a>";?></td>
                             </tr>                           
                            <?php
                          }
@@ -139,7 +140,7 @@ else
                            ?>
                             <tr>
                               <td width="25%"><?php echo "<a href=\"?page=rule_action&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$actionName</a>";?></td>
-                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_delete</a>";?></td>
+                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_delete</a>";?></td>
                             </tr>                           
                            <?php
                          }

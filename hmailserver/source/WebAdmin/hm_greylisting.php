@@ -36,6 +36,7 @@ $BypassGreylistingOnMailFromMX = $antiSpamSettings->BypassGreylistingOnMailFromM
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "greylisting");
       PrintHidden("action", "save");
    ?>   

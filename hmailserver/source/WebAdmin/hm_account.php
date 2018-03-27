@@ -2,8 +2,8 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid	= hmailGetVar("domainid",0);
-$accountid	= hmailGetVar("accountid",0);
+$domainid	= hmailGetVar("domainid",0,true);
+$accountid	= hmailGetVar("accountid",0,true);
 $action	   = hmailGetVar("action","");
 
 $error_message	   = hmailGetVar("error_message","");
@@ -112,6 +112,7 @@ $str_server = $obLanguage->String("Server");
 
 	
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_account_save");
       PrintHidden("action", $action);
       PrintHidden("domainid", $obDomain->ID);
@@ -141,7 +142,7 @@ $str_server = $obLanguage->String("Server");
       		</tr>
       		<tr>
       			<td><?php EchoTranslation("Password")?></td>
-      			<td><input type="password" name="accountpassword" value=""></td>
+      			<td><input type="password" name="accountpassword" value="" autocomplete="off"></td>
       		</tr>
          
       		<tr>
@@ -348,7 +349,7 @@ $str_server = $obLanguage->String("Server");
                	echo "<tr bgcolor=\"$bgcolor\">";
                	echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$rulename</a></td>";
                   echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$enabled</a></td>";
-               	echo "<td><a href=\"?page=background_rule_save&savetype=rule&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+               	echo "<td><a href=\"?page=background_rule_save&savetype=rule&csrftoken=$csrftoken&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
                	echo "</tr>";
                	
                	if ($bgcolor == "#EEEEEE")

@@ -42,7 +42,7 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid&\">$rulename</a></td>";
    echo "<td><a href=\"?page=rule&action=edit&domainid=0&accountid=0&ruleid=$ruleid&\">$enabled</a></td>";
-	echo "<td><a href=\"?page=background_rule_save&savetype=rule&action=delete&domainid=0&accountid=0&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+	echo "<td><a href=\"?page=background_rule_save&savetype=rule&csrftoken=$csrftoken&action=delete&domainid=0&accountid=0&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

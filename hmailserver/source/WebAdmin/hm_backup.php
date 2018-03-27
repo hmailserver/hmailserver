@@ -44,6 +44,7 @@ $backupcompresschecked = hmailCheckedIf1($backupcompress);
    
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
             <?php
+			   PrintHiddenCsrfToken();
                PrintHidden("page", "backup");
                PrintHidden("action", "save");
             ?>   
@@ -90,6 +91,7 @@ $backupcompresschecked = hmailCheckedIf1($backupcompress);
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
            
             <?php
+			   PrintHiddenCsrfToken();
                PrintHidden("page", "backup");
                PrintHidden("action", "startbackup");
             ?>   

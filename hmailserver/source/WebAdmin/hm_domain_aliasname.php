@@ -6,7 +6,7 @@ if (!defined('IN_WEBADMIN'))
 if (hmailGetAdminLevel() != ADMIN_SERVER)
    	hmailHackingAttemp(); // Only server can change these settings.   
    
-$domainid	= hmailGetVar("domainid",0);
+$domainid	= hmailGetVar("domainid",0,true);
 $action	   = hmailGetVar("action","");
 
 ?>
@@ -16,6 +16,7 @@ $action	   = hmailGetVar("action","");
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_domain_name_save");
       PrintHidden("action", $action);
       PrintHidden("domainid", $domainid);

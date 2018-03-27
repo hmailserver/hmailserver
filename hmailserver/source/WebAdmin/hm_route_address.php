@@ -26,6 +26,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_route_address_save");
       PrintHidden("action", $action);
       PrintHidden("routeid", $routeid);
