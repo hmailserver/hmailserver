@@ -84,10 +84,19 @@ namespace HM
       String sDatabase = database_settings_->GetDatabaseName();
       String sServerFailoverPartner = database_settings_->GetDatabaseServerFailoverPartner();
 
-      String sProvider = "sqloledb";
-      if (!sServerFailoverPartner.IsEmpty())
+      String sProvider = database_settings_->GetProvider();
+
+      if (sProvider.IsEmpty())
       {
-         sProvider = "SQLNCLI";
+         if (sServerFailoverPartner.IsEmpty())
+         {
+            sProvider = "sqloledb";
+         }
+         else
+         {
+            sProvider = "SQLNCLI";
+         }
+
       }
 
       if (bConnected)

@@ -86,6 +86,7 @@ namespace HM
       password_ = ReadIniSettingString_("Database", "Password", "");
       is_internal_database_ = ReadIniSettingInteger_("Database", "Internal", 0) == 1;
       database_server_FailoverPartner = ReadIniSettingString_("Database", "ServerFailoverPartner", "");
+      database_provider_ = ReadIniSettingString_("Database", "Provider", "");
 
       String sDatabaseType = ReadIniSettingString_("Database", "Type", "");
       

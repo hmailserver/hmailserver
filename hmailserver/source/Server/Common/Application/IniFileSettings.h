@@ -22,6 +22,7 @@ namespace HM
 
       bool GetDatabaseSettingsExists();
 
+      String GetDatabaseProvider() const { return database_provider_; }
       String GetDatabaseServer() const { return database_server_; }
       String GetDatabaseName() const { return database_name_; }
       String GetUsername() const { return username_; }
@@ -185,6 +186,7 @@ namespace HM
       bool backup_messages_dbonly_;
       bool add_xauth_user_ip_;
       bool rewrite_envelope_from_when_forwarding_;
+      String database_provider_;
 
       String m_sDisableAUTHList;
    };
