@@ -488,7 +488,7 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
    
       // Create a settings object which we use to connect to the server.
       std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sEmpty, sDatabaseName, sEmpty, sPassword, sDirectory, sEmpty, HM::DatabaseSettings::TypeMSSQLCompactEdition, 0));
+         new HM::DatabaseSettings(sEmpty, sEmpty, sDatabaseName, sEmpty, sPassword, sDirectory, sEmpty, HM::DatabaseSettings::TypeMSSQLCompactEdition, 0));
    
       // Connect to the new database
       std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
@@ -537,13 +537,14 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       const HM::String sDatabaseName = DatabaseName;
       const HM::String sUsername = Username;
       const HM::String sPassword = Password;
-   
+      const HM::String sProvider = ini_file_settings_->GetDatabaseProvider();
+
       if (sDatabaseName.Find(_T(" ")) >= 0)
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
       std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+         new HM::DatabaseSettings(sProvider, sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database serve   
       std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
@@ -563,7 +564,7 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
    
       // Create a new settings object where we specify the database name as well.
       pSettings = std::shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sDatabaseName, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+         new HM::DatabaseSettings(sProvider, sServerName, sDatabaseName, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Reconnect to the new database.
       pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
@@ -574,7 +575,7 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       HM::SQLScriptRunner scriptRunner;
       if (!scriptRunner.ExecuteScript(pConn, pSettings->GetDefaultScript(), sErrorMessage))
          return COMError::GenerateError(sErrorMessage);
-   
+
       ini_file_settings_->SetDatabaseDirectory("");
       ini_file_settings_->SetDatabaseType((HM::DatabaseSettings::SQLDBType) ServerType);
       ini_file_settings_->SetUsername(sUsername);
@@ -583,7 +584,7 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       ini_file_settings_->SetDatabaseServer(sServerName);
       ini_file_settings_->SetDatabaseName(sDatabaseName);
       ini_file_settings_->SetIsInternalDatabase(false);
-   
+	
       return S_OK;   
    }
    catch (...)
@@ -609,8 +610,10 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
+      HM::String sProvider = ini_file_settings_->GetDatabaseProvider();
+
       std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+         new HM::DatabaseSettings(sProvider, sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database server.
       std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
@@ -630,7 +633,7 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
       ini_file_settings_->SetDatabaseServer(sServerName);
       ini_file_settings_->SetDatabaseName(sDatabaseName);
       ini_file_settings_->SetIsInternalDatabase(ServerType == hDBTypeMSSQLCE);
-   
+      
       return S_OK;   
    }
    catch (...)
