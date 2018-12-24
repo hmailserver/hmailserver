@@ -2,8 +2,7 @@
 
 This Repositority provides only Bugfixes for Security and Reliability Problems.
 
-The hMailServer Community Development Repository on the other Hand provides new 
-Features and can be found here https://github.com/hMailServer-ComDevs
+For new Features and checkout the hMailServer Community Developer Repository: https://github.com/hMailServer-ComDevs
 
 hMailServer
 ===========
