@@ -1,7 +1,7 @@
 #### Information:
 
 This Repositority provides only Bugfixes for Security and Reliability Problems.
-No new Features will be added to this Version and it will be removed at January 1, 2020
+No new Features will be added to this Version and this repository will be removed on Jan 1, 2020
 because OpenSSL 1.0.2.x will reach EOL on 21, Dec, 2019
 
 For Futuredevelopment and new Features checkout the hMailServer Community Developer (HCD) 
