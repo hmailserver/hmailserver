@@ -1,10 +1,6 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-// Created: 2005-08-02
-// Purpose: To offer queue manipiulation to the COM API.
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "StdAfx.h"
-
+#include <stdafx.h>
 #include "DeliveryQueue.h"
 #include "SMTPDeliveryManager.h"
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <rdmgr>
+  <timestamp type="u64_t">1546028209</timestamp>
+  <hostname>CAMELOT</hostname>
+  <os>windows</os>
+  <product>Intel® Advisor 2018 Update 4</product>
+  <buildNumber type="s32_t">574144</buildNumber>
+  <logicalCPUCount type="s32_t">2</logicalCPUCount>
+  <physicalCoreCount type="s32_t">2</physicalCoreCount>
+  <CPUFrequency type="s64_t">3000000000</CPUFrequency>
+  <CPUFamily type="s32_t">6</CPUFamily>
+  <CPUModel type="s32_t">60</CPUModel>
+  <CPUStepping type="s32_t">3</CPUStepping>
+  <CPUBrandName>Intel(R) Pentium(R) CPU G3220 @ 3.00GHz</CPUBrandName>
+  <isa>sse4_2</isa>
+ </rdmgr>
+</root>

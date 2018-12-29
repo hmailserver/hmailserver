@@ -1,10 +1,6 @@
-// blowfish.cpp   C++ class implementation of the BLOWFISH encryption algorithm
-// _THE BLOWFISH ENCRYPTION ALGORITHM_
-// by Bruce Schneier
-// Revised code--3/20/94
-// Converted to C++ class 5/96, Jim Conger
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "stdafx.h"
+#include <stdafx.h>
 #include "blowfish.h"
 #include "blowfish.h2"	// holds the random digit tables
 

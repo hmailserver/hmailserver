@@ -1,10 +1,7 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-// Created 2005-10-05
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "StdAfx.h"
+#include <stdafx.h>
 #include ".\transparenttransmissionbuffer.h"
-
 #include "ByteBuffer.h"
 
 #ifdef _DEBUG
@@ -70,59 +67,61 @@ namespace HM
    void 
    TransparentTransmissionBuffer::Append(const BYTE *pBuffer, size_t iBufferSize)
    {
-      if (iBufferSize == 0)
-      {
-         // Nothing to add.
-         return;
-      }   
 
-      if (pBuffer == 0)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5411, "TransparentTransmissionBuffer::Append", "pBuffer is NULL");
-         throw;
-      }
 
-      if (buffer_ == 0)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "buffer_ is NULL");
-         throw;
-      }
+		   if (iBufferSize == 0)
+		   {
+			   // Nothing to add.
+			   return;
+		   }
 
-      data_sent_+= iBufferSize;
+		   if (pBuffer == 0)
+		   {
+			   ErrorManager::Instance()->ReportError(ErrorManager::High, 5411, "TransparentTransmissionBuffer::Append", "pBuffer is NULL");
+			   throw;
+		   }
 
-      // Add the new data to the buffer.
-      buffer_->Add(pBuffer, iBufferSize);
+		   if (buffer_ == 0)
+		   {
+			   ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "buffer_ is NULL");
+			   throw;
+		   }
 
-      // Check if we have received the entire buffer.
-      if (buffer_->GetSize() >= 3 && !is_sending_)
-      {
-         // If receiving, we should check for end-of-data
-         size_t iSize = buffer_->GetSize();
-         const char *pCharBuffer = buffer_->GetCharBuffer();
+		   data_sent_ += iBufferSize;
 
-         // Check if the buffer only contains a dot on an empty line.
-         bool bDotCRLFOnEmptyLine = (pCharBuffer[0] == '.' && pCharBuffer[1] == '\r' && pCharBuffer[2] == '\n');
+		   // Add the new data to the buffer.
+		   buffer_->Add(pBuffer, iBufferSize);
 
-         // Look for \r\n.\r\n. 
-         bool bLineBeginnningWithDotCRLF = buffer_->GetSize() >= 5 &&
-            (pCharBuffer[iSize -5] == '\r' && 
-            pCharBuffer[iSize -4] == '\n' && 
-            pCharBuffer[iSize -3] == '.' && 
-            pCharBuffer[iSize -2] == '\r' && 
-            pCharBuffer[iSize -1] == '\n');
+		   // Check if we have received the entire buffer.
+		   if (buffer_->GetSize() >= 3 && !is_sending_)
+		   {
+			   // If receiving, we should check for end-of-data
+			   size_t iSize = buffer_->GetSize();
+			   const char *pCharBuffer = buffer_->GetCharBuffer();
 
-         if (bDotCRLFOnEmptyLine || bLineBeginnningWithDotCRLF)
-         {
-            // Remove the transmission-end characters. (the 3 last)
-            buffer_->DecreaseSize(3);
+			   // Check if the buffer only contains a dot on an empty line.
+			   bool bDotCRLFOnEmptyLine = (pCharBuffer[0] == '.' && pCharBuffer[1] == '\r' && pCharBuffer[2] == '\n');
 
-            transmission_ended_ = true;
-         }
-      }
+			   // Look for \r\n.\r\n. 
+			   bool bLineBeginnningWithDotCRLF = buffer_->GetSize() >= 5 &&
+				   (pCharBuffer[iSize - 5] == '\r' &&
+				   pCharBuffer[iSize - 4] == '\n' &&
+				   pCharBuffer[iSize - 3] == '.' &&
+				   pCharBuffer[iSize - 2] == '\r' &&
+				   pCharBuffer[iSize - 1] == '\n');
+
+			   if (bDotCRLFOnEmptyLine || bLineBeginnningWithDotCRLF)
+			   {
+				   // Remove the transmission-end characters. (the 3 last)
+				   buffer_->DecreaseSize(3);
+
+				   transmission_ended_ = true;
+			   }
+		   }
+
    }
 
-   bool 
-   TransparentTransmissionBuffer::GetRequiresFlush()
+   bool    TransparentTransmissionBuffer::GetRequiresFlush()
    {
       if (buffer_->GetSize() > 40000 || transmission_ended_)
          return true;

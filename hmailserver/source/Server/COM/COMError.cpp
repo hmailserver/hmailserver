@@ -1,8 +1,6 @@
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-
-#include "stdafx.h"
+#include <stdafx.h>
 
 #include ".\comerror.h"
 

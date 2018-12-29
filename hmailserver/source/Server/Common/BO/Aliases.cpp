@@ -1,7 +1,6 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "stdafx.h"
+#include <stdafx.h>
 
 #include "Aliases.h"
 
@@ -25,7 +24,7 @@ namespace HM
    void
    Aliases::Refresh()
    {
-      String sSQL;
+      HM::String sSQL;
       sSQL.Format(_T("select * from hm_aliases where aliasdomainid = %I64d order by aliasname asc"), domain_id_);
 
       DBLoad_(sSQL);

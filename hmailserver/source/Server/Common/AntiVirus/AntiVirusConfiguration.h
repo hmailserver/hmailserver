@@ -1,5 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
 #pragma once
 

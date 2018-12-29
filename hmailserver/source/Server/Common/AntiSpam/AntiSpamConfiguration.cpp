@@ -1,9 +1,8 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "stdafx.h"
+#include <stdafx.h>
+
 #include "AntiSpamConfiguration.h"
-
 #include "../BO/SURBLServers.h"
 #include "../BO/DNSBlackLists.h"
 #include "../BO/GreyListingWhiteAddresses.h"
@@ -451,11 +450,4 @@ namespace HM
 
       return greyListingWhiteAddresses;
    }
-
-
-
-
 }
-
-
-

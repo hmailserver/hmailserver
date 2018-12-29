@@ -1,6 +1,4 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-// Created 2005-10-05
+// Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com
 
 // Purpose:
 //
@@ -88,7 +86,7 @@ namespace HM
       size_t max_size_kb_;
 
       bool cancel_transmission_;
-      String cancel_message_;
+      HM::String cancel_message_;
 
 
       enum Limits

@@ -1,13 +1,10 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "StdAfx.h"
+#include <stdafx.h>
 #include ".\databaseconnectionmanager.h"
-
 #include "DALConnection.h"
 #include "DALConnectionFactory.h"
 #include "DatabaseSettings.h"
-
 #include "ADORecordset.h"
 #include "MySQLRecordset.h"
 #include "PGRecordset.h"

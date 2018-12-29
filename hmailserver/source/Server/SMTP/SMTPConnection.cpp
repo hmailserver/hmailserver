@@ -1,14 +1,9 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-
-#include "stdafx.h"
-
+#include <stdafx.h>
 #include <Boost/Regex.hpp>
-
 #include "../common/bo/Messages.h"
 #include "../common/bo/MessageData.h"
-
 #include "../common/Cache/CacheContainer.h"
 #include "../common/Util/PasswordValidator.h"
 #include "../common/Util/AccountLogon.h"
@@ -878,7 +873,11 @@ namespace HM
       // Move the data from the incoming buffer to the transparent transmission buffer.
       // If we've received more data than the max message size, don't save it.
 
+
+
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
+
+
 
       // We need current message size in KB
       size_t iBufSizeKB = transmission_buffer_->GetSize() / 1024;

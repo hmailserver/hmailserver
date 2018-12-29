@@ -1,5 +1,4 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
 #pragma once
 
@@ -10,7 +9,7 @@ namespace HM
    class IMAPFolders;
    class Messages;
 
-   class Account  : public BusinessObject<Account>
+   class Account : public BusinessObject<Account>
    {
    public:
       enum AdminLevel
@@ -21,7 +20,7 @@ namespace HM
       };
 
 	   Account();
-      Account(const String &address, AdminLevel adminLevel);
+      Account(const HM::String &address, AdminLevel adminLevel);
 	   Account(const Account &oldAccount);
 
       virtual ~Account();

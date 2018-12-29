@@ -1,11 +1,6 @@
-// Copyright (c) 2007 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-//
-// Contains mapping between character sets and code pages
-// http://www.iana.org/assignments/character-sets
-// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/intl/unicode_81rn.asp
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "stdafx.h"
+#include <stdafx.h>
 #include "CodePages.h"
 
 

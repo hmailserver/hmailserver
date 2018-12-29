@@ -1,0 +1,29 @@
+
+Fixed: "Pre-Build Event" "Service is not started. More help is avaiable by type NET HELPMSG 3521" 
+(Win32|x64 - Debug/Release)
+
+Solved by: 
+A Batch command checks now first if the Service is running and stops it if not
+(Win32|x64 - Debug/Release)
+
+Fixed: Linker Warning:
+"LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library"
+
+Solved by:
+Adding Configuration Properties -> Linker -> "Ignore Specific Default Libraries" -> "MSVCRT" 
+(Win32|x64 - Debug/Release)
+
+Fixed: Post-Build Event - Warning:
+"Invalid number of parameters" if SSL's DLLs could not be copied (for ssleay32.dll)
+"Invalid number of parameters" if SSL's DLLs could not be copied (for libeay32.dll)
+(Win32 and x64 (Debug/Release)
+
+Solved by:
+*Corrected XCopy path quotations which for all Debug/Release Win32x64 Build Configs without warning
+
+If it succees:
+## HINT ## Copying SSL DLL's to hMailServer.exe output folder ...
+
+
+
+

@@ -187,6 +187,37 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+
+
+
+
+  <Target Name="Build">
+    <Message Text="Pre-Build in progress..."  Importance="high"/>
+
+    <PropertyGroup>
+      <OriginalFileName>$(SolutionDir)</OriginalFileName>
+      <ModifiedFileName>$(OriginalFileName.Replace("\Server\hMailServer\",""))</ModifiedFileName>
+    </PropertyGroup>
+
+    <!-- Run hMSBuildConfig before anything else -->
+     <Exec Command='"$(ModifiedFileName)\hMSBuildConfig\Debug\hMSBuildConfig.exe" --get_vs_devenvinfo' IgnoreExitCode="false"  ContinueOnError="false" /> 
+
+  </Target>
+
+
+  
+
+  <Target Name="Rebuild">
+    <Message Text="Rebuild"  Importance="high"/>
+  </Target>
+
+  <Target Name="Link">
+    <Message Text="Linking"  Importance="high"/>
+  </Target>
+
+  <Target Name="Clean">
+    <Message Text="Clean"  Importance="high"/>
+  </Target>
+
+
 </Project>

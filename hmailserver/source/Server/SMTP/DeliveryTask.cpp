@@ -1,12 +1,8 @@
-// Copyright (c) 2005 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "StdAfx.h"
-
+#include <stdafx.h>
 #include "DeliveryTask.h"
 #include "SMTPDeliverer.h"
-
-
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

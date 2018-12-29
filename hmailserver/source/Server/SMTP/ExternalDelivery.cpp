@@ -1,14 +1,9 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
+/* Copyright (c) Martin Knafve / The hMailServer Community Developers (HCD) hMailServer.com */
 
-#include "StdAfx.h"
-
+#include <stdafx.h>
 #include "./ExternalDelivery.h"
-
 #include "RuleResult.h"
-
 #include "../Common/AntiSpam/DKIM/DKIMSigner.h"
-
 #include "../Common/BO/Message.h"
 #include "../common/BO/MessageRecipient.h"
 #include "../common/BO/MessageRecipients.h"

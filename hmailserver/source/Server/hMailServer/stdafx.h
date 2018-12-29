@@ -1,38 +1,15 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
-// http://www.hmailserver.com
-
-// stdafx.h : include file for standard system include files,
-// or project specific include files that are used frequently,
-// but are changed infrequently
-
 #pragma once
-
-#pragma warning( disable : 4180 )
-
-
 #define STRICT
-#define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
-
+#define VC_EXTRALEAN // Exclude rarely-used stuff from Windows headers
 #define NOMINMAX
-
-// Following define is to solve this compilation warning:
-//    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : error C2220 : warning treated as error - no 'object' file generated
-//    C:\Dev\hMailLibs\VS2013\boost_1_56_0\boost/asio/detail/impl/socket_ops.ipp(2315) : warning C4996 : 'gethostbyaddr' : Use getnameinfo() or GetNameInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-
-
-// Modify the following defines if you have to target a platform prior to the ones specified below.
-// Refer to MSDN for the latest info on corresponding values for different platforms.
-
 #ifdef _WIN64
-
    // Windows Server 2003
    #define WINVER 0x0502	
    #define _WIN32_WINNT 0x0502	// Change this to the appropriate value to target Windows Server 2008 or later.
    #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
 
 #else
-
    #define WINVER 0x0400		// Change this to the appropriate value to target Windows 98 and Windows 2000 or later.
    #define _WIN32_WINNT 0x0500	// Change this to the appropriate value to target Windows 2000 or later.
    #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
@@ -129,6 +106,5 @@
    #include "../Common/Util/Strings/FormatArgument.h"
    #include "../Common/Util/Strings/Formatter.h"
 // End: Common files.
-
 #define COMPILE_NEWAPIS_STUBS
 using namespace ATL;
