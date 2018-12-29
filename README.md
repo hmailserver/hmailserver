@@ -7,12 +7,6 @@ because OpenSSL 1.0.2.x will reach EOL on 21, Dec, 2019
 For Futuredevelopment and new Features checkout the hMailServer Community Developer (HCD) 
 Repository https://github.com/hMailServer-ComDevs
 
-hMailServer
-===========
-
-hMailServer is an open source email server for Microsoft Windows.
-For other information about hMailServer, please go to http://www.hmailserver.com
-
 Guidelines:
 1) If you want to contribute, just provide bugfixes, but no new features
 2) Document your changes and/or improvements in way other Developers can understand what you did.
