@@ -44,6 +44,7 @@ namespace HM
 
       boost::asio::ip::tcp::acceptor acceptor_;
       boost::asio::ssl::context context_;
+      boost::asio::io_service& io_service_;
       SessionType sessionType_;
       std::shared_ptr<SSLCertificate> certificate_;
 

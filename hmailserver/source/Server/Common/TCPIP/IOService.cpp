@@ -34,7 +34,7 @@ namespace HM
 {
    IOService::IOService(void) :
        Task("IOService"),
-       client_context_(io_service_, boost::asio::ssl::context::sslv23)
+       client_context_(boost::asio::ssl::context::sslv23)
    {
       
    }
