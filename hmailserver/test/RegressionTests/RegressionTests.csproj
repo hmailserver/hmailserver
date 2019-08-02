@@ -75,6 +75,7 @@
     <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />
+    <Compile Include="Shared\ServiceRestartDetector.cs" />
     <Compile Include="Shared\SslVersions.cs" />
     <Compile Include="Shared\StringExtensions.cs" />
     <Compile Include="Shared\TcpConnection.cs" />
