@@ -229,14 +229,14 @@ END_COM_MAP()
    STDMETHOD(get_SslCipherList)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(put_SslCipherList)(/*[in]*/ BSTR newVal);
 
-   STDMETHOD(get_SslVersion30Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_SslVersion30Enabled)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_TlsVersion10Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_TlsVersion10Enabled)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_TlsVersion11Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_TlsVersion11Enabled)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_TlsVersion12Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_TlsVersion12Enabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsVersion13Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsVersion13Enabled)(/*[in]*/ VARIANT_BOOL newVal);
 
    STDMETHOD(get_CrashSimulationMode)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_CrashSimulationMode)(/*[in]*/ long newVal);

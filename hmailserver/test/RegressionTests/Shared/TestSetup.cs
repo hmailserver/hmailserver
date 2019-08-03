@@ -153,12 +153,6 @@ namespace RegressionTests.Shared
          if (_settings.MaxPOP3Connections > 0)
             _settings.MaxPOP3Connections = 0;
 
-         if (!_settings.SslVersion30Enabled)
-         {
-            _settings.SslVersion30Enabled = true;
-            restartRequired = true;
-         }
-
          if (!_settings.TlsVersion10Enabled)
          {
             _settings.TlsVersion10Enabled = true;
@@ -175,6 +169,12 @@ namespace RegressionTests.Shared
          {
             _settings.TlsVersion12Enabled = true;
             restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion13Enabled)
+         {
+             _settings.TlsVersion13Enabled = true;
+             restartRequired = true;
          }
 
 

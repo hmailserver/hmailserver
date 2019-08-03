@@ -658,8 +658,6 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([out, retval] BSTR *pVal);
    [propput, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([in] BSTR newVal);
 
-   [propget, id(95), helpstring("Enable SSL version 3.0")] HRESULT SslVersion30Enabled([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(95), helpstring("Enable SSL version 3.0")] HRESULT SslVersion30Enabled([in] VARIANT_BOOL newVal);
    [propget, id(96), helpstring("Enable TLS version 1.0.")] HRESULT TlsVersion10Enabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(96), helpstring("Enable TLS version 1.0")] HRESULT TlsVersion10Enabled([in] VARIANT_BOOL newVal);
    [propget, id(97), helpstring("Enable TLS version 1.1.")] HRESULT TlsVersion11Enabled([out, retval] VARIANT_BOOL *pVal);
@@ -669,6 +667,9 @@ interface IInterfaceSettings : IDispatch{
 
    [propget, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([out, retval] long *pVal);
    [propput, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([in] long newVal);
+
+   [propget, id(100), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(100), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
 };
 
 
