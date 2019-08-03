@@ -51,7 +51,11 @@ namespace RegressionTests.SSL
          }
          catch (System.Security.Authentication.AuthenticationException)
          {
-            // expected  
+            // on windows 10
+         }
+         catch (System.IO.IOException)
+         {
+            // on windows xp
          }
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
