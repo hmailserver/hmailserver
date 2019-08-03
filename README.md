@@ -49,7 +49,7 @@ Building OpenSSL
 3. Run the following commands:
 
    <pre>
-   Perl Configure no-asm VC-WIN32 --prefix=%cd%\out32 --openssldir=%cd%\out32
+   Perl Configure no-asm VC-WIN32 --prefix=%cd%\out32 --openssldir=%cd%\out32 -D_WIN32_WINNT=0x501 enable-weak-ssl-ciphers
    nmake install_sw
    </pre>
 

@@ -22,21 +22,9 @@
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
 
-#ifdef _WIN64
-
-   // Windows Server 2003
-   #define WINVER 0x0502	
-   #define _WIN32_WINNT 0x0502	// Change this to the appropriate value to target Windows Server 2008 or later.
-   #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
-
-#else
-
-   #define WINVER 0x0400		// Change this to the appropriate value to target Windows 98 and Windows 2000 or later.
-   #define _WIN32_WINNT 0x0500	// Change this to the appropriate value to target Windows 2000 or later.
-   #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
-
-#endif
-
+#define WINVER 0x0501
+#define _WIN32_WINNT 0x0501
+#define _WIN32_WINDOWS 0x0501
 
 // START: ATL settings
 	#define _ATL_FREE_THREADEDLPCWSTR
@@ -61,7 +49,6 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
-
 //
 // STL INCLUDES
 //
@@ -76,9 +63,10 @@
 
 //
 // BOOST INCLUDES
-
+//
+#define BOOST_USE_WINAPI_VERSION 0x0501
+#include <boost/winapi/config.hpp>
 #include <boost/bind.hpp>
-//#include <boost/condition_variable.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
