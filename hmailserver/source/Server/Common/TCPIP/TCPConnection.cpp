@@ -351,7 +351,7 @@ namespace HM
          {
             boost::system::error_code sni_error_code{ static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category() };
 
-            String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Exepcted remote host name: {0}."), expected_remote_hostname_);
+            String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Expected remote host name: {0}."), expected_remote_hostname_);
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5604, "TCPConnection::AsyncHandshake", error_message, sni_error_code);
 
             HandshakeFailed_(error_code);
