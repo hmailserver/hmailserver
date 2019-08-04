@@ -345,6 +345,18 @@ namespace HM
       else
       {
          LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}, Expected remote host name: {2}", session_id_, enable_peer_verification, expected_remote_hostname_));
+
+         // Set the expected remote host name for server name indication (SNI). This is required for TLS1.3 compliance.
+         if (!SSL_set_tlsext_host_name(ssl_socket_.native_handle(), expected_remote_hostname_.c_str()))
+         {
+            boost::system::error_code sni_error_code{ static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category() };
+
+            String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Exepcted remote host name: {0}."), expected_remote_hostname_);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5604, "TCPConnection::AsyncHandshake", error_message, sni_error_code);
+
+            HandshakeFailed_(error_code);
+            return;
+         }
       }
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
