@@ -202,14 +202,14 @@ namespace HM
       unsigned int siglen = EVP_PKEY_size(private_key);
       unsigned char *sig = (unsigned char*) OPENSSL_malloc(siglen);
       
-      EVP_MD_CTX headerSigningContext;
-      EVP_SignInit( &headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
+	  EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_create();
+      EVP_SignInit( headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
       
       String result;
 
-      if (EVP_SignUpdate( &headerSigningContext, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
+      if (EVP_SignUpdate( headerSigningContext, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
       {
-         if (EVP_SignFinal( &headerSigningContext, sig, &siglen, private_key) == 1)
+         if (EVP_SignFinal( headerSigningContext, sig, &siglen, private_key) == 1)
          {
             result = Base64::Encode((const char*) sig, siglen);
          }
@@ -224,7 +224,7 @@ namespace HM
       }
 
       EVP_PKEY_free(private_key);
-      EVP_MD_CTX_cleanup( &headerSigningContext );
+	  EVP_MD_CTX_destroy(headerSigningContext);
       OPENSSL_free(sig);
 
       return result;
@@ -388,15 +388,15 @@ namespace HM
          return result;
       }
 
-      EVP_MD_CTX hdr__ctx;
-      EVP_MD_CTX_init( &hdr__ctx );
+	  EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_create();
+      EVP_MD_CTX_init( hdr__ctx );
 
       if (tagA == "rsa-sha256")
-         EVP_VerifyInit( &hdr__ctx, EVP_sha256() );
+         EVP_VerifyInit( hdr__ctx, EVP_sha256() );
       else
-         EVP_VerifyInit( &hdr__ctx, EVP_sha1() );
+         EVP_VerifyInit( hdr__ctx, EVP_sha1() );
 
-      if (EVP_VerifyUpdate( &hdr__ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
+      if (EVP_VerifyUpdate( hdr__ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
       {
          // base64 decode the signature. we're working with binary
          // data here so we can't store it in a normal string. 
@@ -406,7 +406,7 @@ namespace HM
          AnsiString signature;
          encoder.GetOutput(signature);
 
-         if (EVP_VerifyFinal( &hdr__ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
+         if (EVP_VerifyFinal( hdr__ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
          {
             LOG_DEBUG("DKIM: Message passed validation.");
             result = Pass;
@@ -417,7 +417,7 @@ namespace HM
          }
       }
 
-      EVP_MD_CTX_cleanup( &hdr__ctx );
+      EVP_MD_CTX_destroy( hdr__ctx );
       EVP_PKEY_free(publicKey);
 
       return result;

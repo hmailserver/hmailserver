@@ -35,10 +35,10 @@ namespace RegressionTests.SSL
          AddPort(ports, 11003, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTPOP3);
          AddPort(ports, 14303, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTIMAP);
 
-         settings.SslVersion30Enabled = sslVersions == null || sslVersions.Ssl30;
          settings.TlsVersion10Enabled = sslVersions == null || sslVersions.Tls10;
          settings.TlsVersion11Enabled = sslVersions == null || sslVersions.Tls11;
          settings.TlsVersion12Enabled = sslVersions == null || sslVersions.Tls12;
+         settings.TlsVersion13Enabled = sslVersions == null || sslVersions.Tls13;
          
          application.Stop();
          application.Start();

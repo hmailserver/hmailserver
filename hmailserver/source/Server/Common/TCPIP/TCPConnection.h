@@ -122,6 +122,7 @@ namespace HM
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
+      void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
 
       boost::asio::ip::tcp::socket socket_;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlServer.Server;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 

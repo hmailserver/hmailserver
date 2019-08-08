@@ -36,9 +36,9 @@ namespace HM
 
    enum SslTlsVersion
    {
-      SslVersion30 = 1,
       TlsVersion10 = 2,
       TlsVersion11 = 4,
-      TlsVersion12 = 8
+      TlsVersion12 = 8,
+      TlsVersion13 = 16
    };
 }

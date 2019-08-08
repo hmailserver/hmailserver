@@ -16,14 +16,14 @@ namespace RegressionTests.SSL
    {
       private hMailServer.Account _account;
 
-      private void SetSslVersions(bool sslv3, bool tlsv10, bool tlsv11, bool tlsv12)
+      private void SetSslVersions(bool tlsv10, bool tlsv11, bool tlsv12, bool tlsv13)
       {
          SslSetup.SetupSSLPorts(_application, new SslVersions()
             {
-               Ssl30 = sslv3,
                Tls10 = tlsv10,
                Tls11 = tlsv11,
-               Tls12 = tlsv12
+               Tls12 = tlsv12,
+               Tls13 = tlsv13
             });
 
          Thread.Sleep(1000);
@@ -36,25 +36,9 @@ namespace RegressionTests.SSL
       }
 
       [Test]
-      public void ItShouldBePossibleToEnableSslV3()
-      {
-         SetSslVersions(true, false, false, false);
-         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl3, 25001, IPAddress.Parse("127.0.0.1"));
-
-
-         string errorMessage;
-         smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
-
-
-         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains("version=SSLv3"), message);
-
-      }
-
-      [Test]
       public void ItShouldBePossibleToDisableSslV3()
       {
-         SetSslVersions(false, true, true, true);
+         SetSslVersions(true, true, true, true);
          var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Ssl3, 25001, IPAddress.Parse("127.0.0.1"));
 
          try
@@ -65,22 +49,26 @@ namespace RegressionTests.SSL
 
             Assert.Fail("Was able to establish SSLv3 connection");
          }
+         catch (System.Security.Authentication.AuthenticationException)
+         {
+            // on windows 10
+         }
          catch (System.IO.IOException)
          {
-            // expected  
+            // on windows xp
          }
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
                var defaultLog = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(defaultLog.Contains("wrong version number"));
+               Assert.IsTrue(defaultLog.Contains("Message: version too low"));
             });
       }
 
       [Test]
       public void WhenSSL3IsDisabledTLSShouldWork()
       {
-         SetSslVersions(false, true, true, true);
+         SetSslVersions(true, true, true, true);
          var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls, 25001, IPAddress.Parse("127.0.0.1"));
 
          string errorMessage;
@@ -89,7 +77,6 @@ namespace RegressionTests.SSL
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
          Assert.IsTrue(message.Contains("version=TLSv1"), message);
       }
-
    
    }
 }
