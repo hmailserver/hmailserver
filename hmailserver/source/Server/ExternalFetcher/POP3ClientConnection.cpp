@@ -470,7 +470,6 @@ namespace HM
    POP3ClientConnection::StartMailboxCleanup_()
    {
       cur_message_ = downloaded_messages_.begin();
-      SetReceiveBinary(false);
 
       MailboxCleanup_();
    }
