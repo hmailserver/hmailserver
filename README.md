@@ -77,7 +77,6 @@ Building Boost
 
    <pre>
    bootstrap.bat vc12
-   bjam.exe --clean
    bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64 --build-dir=out64 -j 4
    </pre>
 
