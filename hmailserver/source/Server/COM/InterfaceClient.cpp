@@ -67,3 +67,15 @@ STDMETHODIMP InterfaceClient::get_HELO(BSTR *pVal)
    }
 }
 
+STDMETHODIMP InterfaceClient::get_Authenticated(VARIANT_BOOL *pVal)
+{
+	try
+	{
+		*pVal = client_info_->GetAUTH() ? VARIANT_TRUE : VARIANT_FALSE;
+		return S_OK;
+	}
+	catch (...)
+	{
+		return COMError::GenerateGenericMessage();
+	}
+}

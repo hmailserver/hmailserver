@@ -33,6 +33,10 @@
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 
+#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -47,7 +51,8 @@ namespace HM
       TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
       current_state_(AUTHORIZATION),
       transmission_buffer_(true),
-      pending_disconnect_(false)
+      pending_disconnect_(false),
+	  isAuthenticated_(false)
    {
 
       /*
@@ -446,6 +451,7 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
+	  String sUsername = username_;
       account_ = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
 
       if (disconnect)
@@ -453,6 +459,26 @@ namespace HM
          EnqueueWrite_("-ERR Invalid user name or password. Too many invalid logon attempts.");
          return ResultDisconnect;
       }
+
+	  if (account_)
+		  isAuthenticated_ = true;
+
+	  if (Configuration::Instance()->GetUseScriptServer())
+	  {
+		  std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+		  std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+		  pClientInfo->SetUsername(sUsername);
+		  pClientInfo->SetIPAddress(GetIPAddressString());
+		  pClientInfo->SetPort(GetLocalEndpointPort());
+		  pClientInfo->SetHELO("");
+		  pClientInfo->SetAUTH(isAuthenticated_);
+
+		  pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+		  String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+		  ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
+	  }
 
       if (!account_)
       {
