@@ -118,6 +118,7 @@ namespace HM
       TransparentTransmissionBuffer transmission_buffer_;
 
       bool pending_disconnect_;
+	  bool isAuthenticated_;
       File current_file_;
    };
 }
