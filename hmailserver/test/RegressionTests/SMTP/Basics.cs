@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -419,6 +420,23 @@ namespace RegressionTests.SMTP
          // Make sure it bounced.
          string content = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          Assert.IsTrue(content.Contains("Inbox is full"));
+      }
+
+      [Test]
+      [Category("SMTP")]
+      [Description("Test account max size limitation.")]
+      public void TestMaxSizeLimitation_AnnouncedText()
+      {
+         _settings.MaxMessageSize = 102400;
+
+         // Make sure that no bounce is sent.
+         var smtpClient = new SmtpClientSimulator();
+         smtpClient.Connect();
+         smtpClient.Receive(); // Receive banner
+
+         var ehloResponse = smtpClient.SendAndReceive("EHLO example.com\r\n");
+
+         StringAssert.Contains("250-SIZE 104857600", ehloResponse, ehloResponse);
       }
 
       [Test]
