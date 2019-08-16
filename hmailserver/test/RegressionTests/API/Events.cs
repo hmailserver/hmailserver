@@ -685,5 +685,77 @@ namespace RegressionTests.API
          Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
       }
 
+      [Test]
+      public void TestOnHelo_WithHelo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("HELO WORLD\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD"));
+      }
+
+      [Test]
+      public void TestOnHelo_WithEhlo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("EHLO WORLD2\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD2"));
+      }
+
    }
 }
