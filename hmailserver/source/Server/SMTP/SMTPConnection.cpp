@@ -661,22 +661,22 @@ namespace HM
 
       int iRelayOption = 0;
       if (localSender && localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
       else if (localSender && !localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
       else if (!localSender && localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
       else if (!localSender && !localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
 
       bool bAllowRelay = GetSecurityRange()->GetAllowOption(iRelayOption);
-
+         
       if (bAllowRelay == false)
       {
-	      // User is not allowed to send this email.
-	      SendErrorResponse_(550, "Delivery is not allowed to this address.");
-	      AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-	      return;
+         // User is not allowed to send this email.
+         SendErrorResponse_(550, "Delivery is not allowed to this address.");
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
+         return;
       }
 
       bool authenticationRequired = true;
@@ -697,7 +697,6 @@ namespace HM
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 530);
          return;
       }
-
 
       // Pre-transmission spam protection.
       if (type_ == SPPreTransmission)
