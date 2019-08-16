@@ -129,6 +129,9 @@ namespace RegressionTests.Shared
          if (_settings.MaxSMTPRecipientsInBatch != 100)
             _settings.MaxSMTPRecipientsInBatch = 100;
 
+         if (_settings.SMTPDeliveryBindToIP != "")
+            _settings.SMTPDeliveryBindToIP = "";
+
          if (_settings.IMAPHierarchyDelimiter != ".")
             _settings.IMAPHierarchyDelimiter = ".";
 

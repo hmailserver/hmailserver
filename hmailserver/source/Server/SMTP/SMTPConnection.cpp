@@ -659,25 +659,6 @@ namespace HM
 
       bool localSender = GetIsLocalSender_();
 
-      bool authenticationRequired = true;
-      if (localSender && localDelivery)
-         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToLocal();
-      else if (localSender && !localDelivery)
-         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToExternal();
-      else if (!localSender && localDelivery)
-         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthExternalToLocal();
-      else if (!localSender && !localDelivery)
-         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthExternalToExternal();
-
-      // If the user is local but not authenticated, maybe we should do SMTP authentication.
-      if (authenticationRequired && !isAuthenticated_)
-      {
-         // Authentication is required, but the user hasn't authenticated.
-         SendErrorResponse_(530, "SMTP authentication is required.");
-         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 530);
-         return;
-      }
-
       int iRelayOption = 0;
       if (localSender && localDelivery)
          iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
@@ -698,6 +679,24 @@ namespace HM
          return;
       }
 
+      bool authenticationRequired = true;
+      if (localSender && localDelivery)
+         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToLocal();
+      else if (localSender && !localDelivery)
+         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToExternal();
+      else if (!localSender && localDelivery)
+         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthExternalToLocal();
+      else if (!localSender && !localDelivery)
+         authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthExternalToExternal();
+
+      // If the user is local but not authenticated, maybe we should do SMTP authentication.
+      if (authenticationRequired && !isAuthenticated_)
+      {
+         // Authentication is required, but the user hasn't authenticated.
+         SendErrorResponse_(530, "SMTP authentication is required.");
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 530);
+         return;
+      }
 
       // Pre-transmission spam protection.
       if (type_ == SPPreTransmission)
