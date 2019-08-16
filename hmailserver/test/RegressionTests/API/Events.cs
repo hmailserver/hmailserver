@@ -570,5 +570,120 @@ namespace RegressionTests.API
             Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
          }
       }
+
+      [Test]
+      public void TestOnClientLogon_POP3()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-POP3\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-POP3"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      [Test]
+      public void TestOnClientLogon_IMAP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-IMAP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-IMAP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      [Test]
+      public void TestOnClientLogon_SMTP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-SMTP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+
+         string base64Username = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test@test.com"));
+         string base64Password = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test"));
+
+         var clientSimulator = new SmtpClientSimulator();
+         string errMsg;
+         clientSimulator.ConnectAndLogon(base64Username, base64Password, out errMsg);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-SMTP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
    }
 }
