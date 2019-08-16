@@ -659,6 +659,26 @@ namespace HM
 
       bool localSender = GetIsLocalSender_();
 
+      int iRelayOption = 0;
+      if (localSender && localDelivery)
+	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
+      else if (localSender && !localDelivery)
+	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
+      else if (!localSender && localDelivery)
+	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
+      else if (!localSender && !localDelivery)
+	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
+
+      bool bAllowRelay = GetSecurityRange()->GetAllowOption(iRelayOption);
+
+      if (bAllowRelay == false)
+      {
+	      // User is not allowed to send this email.
+	      SendErrorResponse_(550, "Delivery is not allowed to this address.");
+	      AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
+	      return;
+      }
+
       bool authenticationRequired = true;
       if (localSender && localDelivery)
          authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToLocal();
@@ -675,26 +695,6 @@ namespace HM
          // Authentication is required, but the user hasn't authenticated.
          SendErrorResponse_(530, "SMTP authentication is required.");
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 530);
-         return;
-      }
-
-      int iRelayOption = 0;
-      if (localSender && localDelivery)
-         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
-      else if (localSender && !localDelivery)
-         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
-      else if (!localSender && localDelivery)
-         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
-      else if (!localSender && !localDelivery)
-         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
-
-      bool bAllowRelay = GetSecurityRange()->GetAllowOption(iRelayOption);
-         
-      if (bAllowRelay == false)
-      {
-         // User is not allowed to send this email.
-         SendErrorResponse_(550, "Delivery is not allowed to this address.");
-         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
          return;
       }
 
@@ -1451,7 +1451,7 @@ namespace HM
       // Append size keyword
       {
          String sSizeKeyword;
-         int iMaxSize = smtpconf_->GetMaxMessageSize() * 1000;
+         int iMaxSize = smtpconf_->GetMaxMessageSize() * 1024;
          if (iMaxSize > 0)
             sSizeKeyword.Format(_T("\r\n250-SIZE %d"), iMaxSize);
          else
