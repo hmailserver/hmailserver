@@ -13,7 +13,7 @@ namespace HM
 {
    ClientInfo::ClientInfo() :
       port_(0),
-	  auth_(false)
+      is_authenticated_(false)
    {
 
    }

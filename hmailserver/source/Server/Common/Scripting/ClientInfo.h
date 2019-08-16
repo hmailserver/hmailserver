@@ -24,8 +24,8 @@ namespace HM
       void SetHELO(const String &HELO) { helo_ = HELO; }
       String GetHELO() const { return helo_; }
 
-	  bool GetAUTH() const { return auth_; }
-	  void SetAUTH(bool bNewVal) { auth_ = bNewVal; };
+      bool GetIsAuthenticated() const { return is_authenticated_; }
+      void SetIsAuthenticated(bool bNewVal) { is_authenticated_ = bNewVal; };
 
    private:
 
@@ -33,6 +33,6 @@ namespace HM
       long port_;
       String username_;
       String helo_;
-	  bool auth_;
+      bool is_authenticated_;
    };
 }
