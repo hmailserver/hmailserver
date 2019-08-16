@@ -1557,7 +1557,7 @@ namespace RegressionTests.Rules
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          Message message = CustomAsserts.AssertGetFirstMessage(account1, "Inbox");
 
-         Assert.IsNullOrEmpty(message.FromAddress);
+         Assert.AreEqual("ruletest2@test.com", message.FromAddress);
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
       }
 

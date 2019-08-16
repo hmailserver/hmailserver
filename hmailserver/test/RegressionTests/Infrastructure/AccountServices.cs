@@ -81,9 +81,9 @@ namespace RegressionTests.Infrastructure
          // Wait for the auto-reply.
          string text = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
-         Assert.IsTrue(text.Contains("Return-Path: account-a@test.com"));
+         Assert.IsFalse(text.Contains("Return-Path: account-a@test.com"));
          Assert.IsFalse(text.Contains("Return-Path: account2@test.com"));
-         Assert.IsFalse(text.Contains("Return-Path: external@test.com"));
+         Assert.IsTrue(text.Contains("Return-Path: external@test.com"));
       }
 
       [Test]
