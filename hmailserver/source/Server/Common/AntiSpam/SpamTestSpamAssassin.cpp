@@ -20,6 +20,7 @@
 #include "../BO/MessageData.h"
 #include "../BO/Message.h"
 #include "../Util/event.h"
+#include "../Util/TraceHeaderWriter.h"
 #include "../Persistence/PersistentMessage.h"
 
 
@@ -55,6 +56,17 @@ namespace HM
 
       std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
+
+	  // Add Return-Path header if none exist (ExternalAccount download?)
+	  if (pTestData->GetMessageData()->GetReturnPath().IsEmpty())
+	  {
+		  String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
+
+		  std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
+		  fieldsToWrite.push_back(std::make_pair("Return-Path", sEnvelopeFrom));
+		  TraceHeaderWriter writer;
+		  writer.Write(sFilename, pMessage, fieldsToWrite);
+	  }
       
       std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
@@ -104,7 +116,10 @@ namespace HM
 
       // Check if the message is tagged as spam.
       std::shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
-      pMessageData->RefreshFromMessage();
+	  pMessageData->RefreshFromMessage();
+	  // Remove Return-Path header.
+	  pMessageData->DeleteField("Return-Path");
+	  pMessageData->Write(sFilename);
 
       bool bIsSpam = false;
       AnsiString sSpamStatus = pMessageData->GetFieldValue("X-Spam-Status");
