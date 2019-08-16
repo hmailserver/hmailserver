@@ -1450,7 +1450,7 @@ namespace HM
       // Append size keyword
       {
          String sSizeKeyword;
-         int iMaxSize = smtpconf_->GetMaxMessageSize() * 1000;
+         int iMaxSize = smtpconf_->GetMaxMessageSize() * 1024;
          if (iMaxSize > 0)
             sSizeKeyword.Format(_T("\r\n250-SIZE %d"), iMaxSize);
          else
