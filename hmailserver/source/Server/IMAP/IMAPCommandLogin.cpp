@@ -49,12 +49,6 @@ namespace HM
       // The folder wildcard could be sent in a separate buffer.
       String sUsername = pParser->GetParamValue(pArgument, 0);
       String sPassword = pParser->GetParamValue(pArgument, 1);
-      String sDefaultDomain = Configuration::Instance()->GetDefaultDomain();
-
-      if ((sUsername.Find(_T("@")) == -1) && sDefaultDomain.IsEmpty())
-      {
-	      return IMAPResult(IMAPResult::ResultNo, "Invalid user name. Please use full email address as user name.");
-      }
 
       AccountLogon accountLogon;
       bool disconnect = false;
@@ -89,7 +83,10 @@ namespace HM
 
       if (!pAccount)
       {
-         return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
+         if (sUsername.Find(_T("@")) == -1)
+            return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password. Please use full email address as user name.");
+         else
+            return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
       }
 
       // Load mail boxes
