@@ -33,7 +33,7 @@ namespace HM
 
       std::vector<String> foundAddresses;
       DNSResolver resolver;
-      resolver.GetIpAddresses(sCheckHost, foundAddresses);
+      resolver.GetIpAddresses(sCheckHost, foundAddresses, false);
 
       bool isBlocked = false;
 

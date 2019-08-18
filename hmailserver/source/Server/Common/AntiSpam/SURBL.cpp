@@ -128,7 +128,7 @@ namespace HM
 
          std::vector<String> saFoundNames;
          DNSResolver resolver;
-         if (!resolver.GetIpAddresses(sHostToLookup, saFoundNames))
+         if (!resolver.GetIpAddresses(sHostToLookup, saFoundNames, false))
          {
             LOG_DEBUG("SURBL: DNS query failed.");
             return true;

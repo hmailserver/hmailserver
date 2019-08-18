@@ -180,7 +180,7 @@ namespace HM
             std::vector<String> found_ip_addresses;
                
             DNSResolver resolver;
-            resolver.GetIpAddresses(senderDomain, found_ip_addresses);
+            resolver.GetIpAddresses(senderDomain, found_ip_addresses, false);
 
             std::vector<HostNameAndIpAddress> host_name_with_addresses;
             resolver.GetEmailServers(senderDomain, host_name_with_addresses);

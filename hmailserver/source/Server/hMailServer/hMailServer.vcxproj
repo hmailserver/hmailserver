@@ -376,7 +376,9 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1c\out64\bin\libssl-1_1-x64.dll $(Out
     <ClCompile Include="..\Common\SQL\SQLScriptRunner.cpp" />
     <ClCompile Include="..\Common\Sql\SQLStatement.cpp" />
     <ClCompile Include="..\Common\TCPIP\CertificateVerifier.cpp" />
+    <ClCompile Include="..\Common\TCPIP\DNSRecord.cpp" />
     <ClCompile Include="..\Common\Tcpip\DNSResolver.cpp" />
+    <ClCompile Include="..\Common\TCPIP\DNSResolverWinApi.cpp" />
     <ClCompile Include="..\Common\TCPIP\HostNameAndIpAddress.cpp" />
     <ClCompile Include="..\Common\TCPIP\IOOperation.cpp" />
     <ClCompile Include="..\Common\TCPIP\IOOperationQueue.cpp" />
@@ -875,7 +877,9 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1c\out64\bin\libssl-1_1-x64.dll $(Out
     <ClInclude Include="..\Common\Sql\SQLStatement.h" />
     <ClInclude Include="..\Common\TCPIP\CertificateVerifier.h" />
     <ClInclude Include="..\Common\TCPIP\CipherInfo.h" />
+    <ClInclude Include="..\Common\TCPIP\DNSRecord.h" />
     <ClInclude Include="..\Common\Tcpip\DNSResolver.h" />
+    <ClInclude Include="..\Common\TCPIP\DNSResolverWinApi.h" />
     <ClInclude Include="..\Common\TCPIP\HostNameAndIpAddress.h" />
     <ClInclude Include="..\Common\TCPIP\IOOperation.h" />
     <ClInclude Include="..\Common\TCPIP\IOOperationQueue.h" />

@@ -41,7 +41,7 @@ namespace HM
       DNSResolver resolver;
 
       std::vector<String> ip_addresses;
-      resolver.GetIpAddresses(hostName, ip_addresses);
+      resolver.GetIpAddresses(hostName, ip_addresses, true);
 
       String ip_address;
       if (ip_addresses.size())

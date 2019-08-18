@@ -235,7 +235,7 @@ namespace HM
             for(String host : mailServerHosts)
             {
                std::vector<String> ip_addresses;
-               dnsQueryOK = resolver.GetIpAddresses(host, ip_addresses);
+               dnsQueryOK = resolver.GetIpAddresses(host, ip_addresses, true);
 
                for(String ip_address:  ip_addresses)
                {
