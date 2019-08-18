@@ -68,6 +68,8 @@ namespace HM
 
       CipherInfo GetCipherInfo();
 
+      void SetAllowConnectToSelf(bool allow)  { allow_connect_to_self_ = allow; }
+
    protected:
 
       ConnectionState GetConnectionState() { return connection_state_;  }
@@ -150,6 +152,7 @@ namespace HM
       bool is_ssl_;
       bool is_client_;
       bool handshake_in_progress_;
+      bool allow_connect_to_self_;
 
       boost::atomic<ConnectionState> connection_state_;
       boost::mutex autologout_timer_;

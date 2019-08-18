@@ -9,6 +9,8 @@
 
 #include "../TCPIP/IOService.h"
 
+#include "../TCPIP/DNSResolver.h"
+
 using boost::asio::ip::tcp;
 
 #ifdef _DEBUG
@@ -39,47 +41,40 @@ namespace HM
       
 
       // Get a list of endpoints corresponding to the server name.
-      tcp::resolver resolver(io_service_wrapper->GetIOService());
-      tcp::resolver::query query(AnsiString(server), AnsiString(StringParser::IntToString(port)), tcp::resolver::query::numeric_service);
-      boost::system::error_code errorResolve = boost::asio::error::host_not_found;
-      tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, errorResolve);
-      tcp::resolver::iterator end;
+      DNSResolver resolver;
 
-      if (errorResolve || endpoint_iterator == end)
+      std::vector<String> ipaddresses;
+      auto dnsResult = resolver.GetIpAddresses(server, ipaddresses, true);
+
+      if (!dnsResult || ipaddresses.size() == 0)
       {
          // Host was not found.
          String formattedString;
          formattedString.Format(_T("ERROR: The host name %s could not be resolved.\r\n"), server.c_str());
-         
+
          result.append(formattedString);
          return false;
       }
-      
-      String last_error_message;
-      
-      // Try each endpoint until we successfully establish a connection.
-      boost::system::error_code error = boost::asio::error::host_not_found;
-      while (error && endpoint_iterator != end)
-      {
-         boost::asio::ip::address adr = (*endpoint_iterator).endpoint().address();
 
-         String ipAddressString = adr.to_string();
+      String last_error_message;
+
+      for (auto ipaddress : ipaddresses)
+      {
          String formattedString;
-         formattedString.Format(_T("Trying to connect to TCP/IP address %s on port %d.\r\n"), ipAddressString.c_str(), port);
+         formattedString.Format(_T("Trying to connect to TCP/IP address %s on port %d.\r\n"), ipaddress, port);
          result.append(formattedString);
 
-
          std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
-         
+
          std::shared_ptr<TestConnectionResult> connection_result = std::make_shared<TestConnectionResult>();
 
          std::shared_ptr<TestConnection> connection = std::make_shared<TestConnection>(connection_security, io_service_wrapper->GetIOService(), io_service_wrapper->GetClientContext(), disconnectEvent, server, connection_result);
-         if (connection->Connect(ipAddressString, port, localAddress))
+         if (connection->Connect(ipaddress, port, localAddress))
          {
             connection.reset();
 
             disconnectEvent->Wait();
-            
+
             if (connection_result->GetConnectedSuccesfully())
             {
                result.append(_T("Connected successfully.\r\n"));
@@ -107,8 +102,6 @@ namespace HM
                result.append(Formatter::Format("ERROR: It was not possible to connect. Error: {0}.\r\n", connection_result->GetErrorMessage()));
             }
          }
-
-         endpoint_iterator++;
       }
 
       // We were unable to connect.

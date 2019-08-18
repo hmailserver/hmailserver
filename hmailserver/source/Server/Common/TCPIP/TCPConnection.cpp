@@ -48,10 +48,10 @@ namespace HM
       is_client_(false),
       timeout_(0),
       connection_state_(StatePendingConnect),
-      handshake_in_progress_(false)
+      handshake_in_progress_(false),
+      allow_connect_to_self_(false)
    {
       session_id_ = Application::Instance()->GetUniqueID();
-
       LOG_DEBUG("Pre-creating session " + StringParser::IntToString(session_id_));
    
    }
@@ -140,7 +140,7 @@ namespace HM
       //// that could start evil loops.
       //tcp::endpoint endpoint = *endpoint_iterator;
 
-      if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
+      if (!allow_connect_to_self_ && LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
       {
          String sMessage; 
             sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), remote_ip_address_.c_str(), remote_port_);
