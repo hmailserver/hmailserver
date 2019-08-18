@@ -9,6 +9,7 @@
 #include "DatabaseSettings.h"
 #include "Macros/MSSQLMacroExpander.h"
 #include "ADOInt64Helper.h"
+#include "../Util/Registry.h"
 
 using namespace std;
 
@@ -90,13 +91,20 @@ namespace HM
       {
          if (sServerFailoverPartner.IsEmpty())
          {
-            sProvider = "sqloledb";
+            // If MSOLEDBSQL v18 or later is installed, prefer that one. It supports TLS 1.2.
+            if (IsMSOLEDBSQL18OrLaterInstalled_())
+            {
+               sProvider = "MSOLEDBSQL";
+            }
+            else
+            {
+               sProvider = "sqloledb";
+            }
          }
          else
          {
             sProvider = "SQLNCLI";
          }
-
       }
 
       if (bConnected)
@@ -489,6 +497,40 @@ namespace HM
 
          queryString.Replace(parameterName, _T("?"));
       }
+   }
+
+   bool 
+   ADOConnection::IsMSOLEDBSQL18OrLaterInstalled_() const
+   {
+      Registry registry;
+      String value;
+      if (!registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\MSOLEDBSQL", "InstalledVersion", value))
+         return false;
+
+      auto versionInfo = StringParser::SplitString(value, ".");
+
+      if (versionInfo.size() != 4)
+      {
+         // Unsupported format
+         return false;
+      }
+
+      auto majorVersionStr = versionInfo[0];
+      if (!StringParser::IsNumeric(majorVersionStr))
+      {
+         // Unsupported format
+         return false;
+      }
+
+      int majorVersion = 0;
+      AnsiString str = majorVersionStr;
+      if (!StringParser::TryParseInt(str, majorVersion))
+      {
+         // Unsupported format
+         return false;
+      }
+
+      return majorVersion >= 18;
    }
 }
 

@@ -45,6 +45,8 @@ namespace HM
 
       __int64 GetIdentityFromRS_(_RecordsetPtr pRS) const;
 
+      bool IsMSOLEDBSQL18OrLaterInstalled_() const;
+
       _ConnectionPtr cADOConnection;  
       bool bConnected;
       
