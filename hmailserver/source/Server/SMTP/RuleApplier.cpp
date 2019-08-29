@@ -20,6 +20,7 @@
 #include "../Common/Util/Time.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/RegularExpression.h"
+#include "../common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "../Common/Persistence/PersistentMessage.h"
 
@@ -248,7 +249,10 @@ namespace HM
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
       std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pMsg);
+      if (pMsg->GetFromAddress().IsEmpty())
+         pMsg->SetFromAddress(sMailerDaemonAddress);
+      else if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
          pMsg->SetFromAddress(pAccount->GetAddress());
       
       // Add new recipients
