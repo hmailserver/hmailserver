@@ -69,6 +69,11 @@ namespace HM
          sHostName = Utilities::ComputerName();
       }
 
+      if (!IniFileSettings::Instance()->GetDaemonAddressDomain().IsEmpty())
+      {
+         sHostName = IniFileSettings::Instance()->GetDaemonAddressDomain();
+      }
+
       String sRetVal;
       sRetVal.Format(_T("mailer-daemon@%s"), sHostName.c_str());
 
