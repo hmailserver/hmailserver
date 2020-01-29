@@ -48,7 +48,7 @@ namespace HM
 
       try
       {
-         boost::wregex expression(sRegex);
+         boost::wregex expression(sRegex, boost::wregex::icase);
          boost::wsmatch matches;
 
          String sRemainingSearchSpace = sBody;
