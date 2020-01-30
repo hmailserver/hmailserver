@@ -38,9 +38,9 @@ namespace HM
       String sBody = pMessageData->GetBody() + pMessageData->GetHTMLBody(); 
 
       // Extract URL's from the mail body:
-      // Original: (?:https?:\/\/|\%3A\%2F\%2F)(?:www\.)?([\w\-\.\=\r\n]+)
+      // Original: (?:(?>https?)?(?>:\/\/|\%3A\%2F\%2F))(?:www\.)?([a-z0-9\-\.\=\r\n]+)
 
-      String sRegex = "(?:https?:\\/\\/|\\%3A\\%2F\\%2F)(?:www\\.)?([\\w\\-\\.\\=\\r\\n]+)";
+      String sRegex = "(?:(?>https?)?(?>:\\/\\/|\\%3A\\%2F\\%2F))(?:www\\.)?([a-z0-9\\-\\=\\.\\r\\n]+)";
 
       std::set<String> addresses;
 
