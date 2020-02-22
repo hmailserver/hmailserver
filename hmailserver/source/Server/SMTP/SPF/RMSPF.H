@@ -1,7 +1,7 @@
 // Header file for using SPF routines for Windows
 //
 // Author: Roger Moser (roger.moser@pamho.net)
-// Version 1.10
+// Version 1.12
 //
 // License: You can do with this source whatever you want.
 
@@ -204,8 +204,8 @@ SPFEXP void SPFAPI SPFCleanupCache(long ttl);
 // SPFGetHostName
 // --------------
 // Gets the host name from the IP address and tests if the A/AAAA record
-// points back to the IP address. Otherwise the returned host name is
-// "Unknown".
+// points back to the IP address. If there is no PTR record, the returned
+// host name is "Unknown".
 // Parameters:
 //   family: IP address family, AF_INET (2) or AF_INET6 (23)
 //   ipaddr: pointer to IP address in network byte order
@@ -213,8 +213,11 @@ SPFEXP void SPFAPI SPFCleanupCache(long ttl);
 //   size: size of buffer for returned host name
 //   domain: if not NULL, the function returns this domain if among the host
 //     names, otherwise a subdomain of it, otherwise the first host name
-// Return value: zero if the PTR entry exists and the A/AAAA record
-//   points back to the IP address, non-zero otherwise
+// Return values: zero     if the PTR entry exists and the A/AAAA record
+//                         points back to the IP address
+//                SPF_Fail if the PTR entry exists but the A/AAAA record
+//                         does not point back to the IP address
+//                non-zero otherwise
 
 SPFEXP int SPFAPI SPFGetHostName(int family, const void* ipaddr, char* host,
   int size, const char* domain);
