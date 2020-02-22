@@ -24,9 +24,9 @@
 
 namespace HM
 {
-   ServerTargetResolver::ServerTargetResolver(shared_ptr<Message> message, const RuleResult& globalRuleResult) :
+   ServerTargetResolver::ServerTargetResolver(std::shared_ptr<Message> message, const RuleResult& globalRuleResult) :
       _globalRuleResult(globalRuleResult),
-      _message(message)
+      message_(message)
    {
 
    }
@@ -35,27 +35,27 @@ namespace HM
    {
    }
 
-   map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >
+   std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >
    ServerTargetResolver::Resolve() 
    {  
-      map<shared_ptr<ServerInfo>, vector<shared_ptr<MessageRecipient> > > serverInfos;
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > serverInfos;
 
       // first check if all recipients should be delivered via a specific route. 
       // if this is the case there's no point in doing any further resolving.
       __int64 iFixedRouteID = _globalRuleResult.GetSendUsingRoute();
       if (iFixedRouteID > 0)
       {
-         shared_ptr<Route> pRoute = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByDBID(iFixedRouteID);
+         std::shared_ptr<Route> pRoute = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByDBID(iFixedRouteID);
          if (pRoute)
          {
             String domainName = pRoute->DomainName();
-            shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
+            std::shared_ptr<ServerInfo> serverInfo = GetFixedSMTPHostForDomain_(domainName);
 
             if (serverInfo)
             {
                // All recipients should go into the same SMTP server
-               std::vector<shared_ptr<MessageRecipient> > recipients;
-               boost_foreach(shared_ptr<MessageRecipient> recipient, _message->GetRecipients()->GetVector())
+               std::vector<std::shared_ptr<MessageRecipient> > recipients;
+               for(std::shared_ptr<MessageRecipient> recipient : message_->GetRecipients()->GetVector())
                {
                   recipients.push_back(recipient); 
                }
@@ -68,14 +68,14 @@ namespace HM
 
       // sort all recipients per domain, domain in lower case. this is done
       // so that we only need to look for routes for every domain once.
-      map<String, vector<shared_ptr<MessageRecipient> > > sortedRecipients;
-      boost_foreach(shared_ptr<MessageRecipient> recipient, _message->GetRecipients()->GetVector())
+      std::map<String, std::vector<std::shared_ptr<MessageRecipient> > > sortedRecipients;
+      for(std::shared_ptr<MessageRecipient> recipient : message_->GetRecipients()->GetVector())
       {
          String domainName = StringParser::ExtractDomain(recipient->GetAddress()).ToLower();
 
          if (sortedRecipients.find(domainName) == sortedRecipients.end())
          {
-            vector<shared_ptr<MessageRecipient> > recipientsOnDomain;
+            std::vector<std::shared_ptr<MessageRecipient> > recipientsOnDomain;
             recipientsOnDomain.push_back(recipient);
 
             sortedRecipients[domainName] = recipientsOnDomain;
@@ -87,48 +87,51 @@ namespace HM
       }      
 
       // For every domain, determine where to deliver the message for the recipients.
-      map<String, vector<shared_ptr<MessageRecipient> > >::iterator iter = sortedRecipients.begin();
-      map<String, vector<shared_ptr<MessageRecipient> > >::iterator iterEnd = sortedRecipients.end();
+      auto iter = sortedRecipients.begin();
+      auto iterEnd = sortedRecipients.end();
 
-      map<String, shared_ptr<ServerInfo>> domainServerInfoMap;
+      std::map<String, std::shared_ptr<ServerInfo>> domainServerInfoMap;
 
       for (; iter != iterEnd; iter++)
       {
          String domainName = (*iter).first;
          domainName.ToLower();
 
-         vector<shared_ptr<MessageRecipient> > vecRecipients = (*iter).second;
+         std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = (*iter).second;
 
-         shared_ptr<ServerInfo> serverInfo = _GetFixedSMTPHostForDomain(domainName);
+         std::shared_ptr<ServerInfo> serverInfo = GetFixedSMTPHostForDomain_(domainName);
 
          if (!serverInfo)
-            serverInfo = shared_ptr<ServerInfo>(new ServerInfo(false, domainName, 0, "", "", false));
+         {
+            std::shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+            serverInfo = std::shared_ptr<ServerInfo>(new ServerInfo(false, domainName, "", 25, "", "", pSMTPConfig->GetSMTPConnectionSecurity()));
+         }
 
          serverInfos.insert(std::make_pair(serverInfo, vecRecipients));
       }
 
       
-      map<shared_ptr<ServerInfo>, vector<shared_ptr<MessageRecipient> > > result = CreateDistinctMap(serverInfos);
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > result = CreateDistinctMap(serverInfos);
 
       return result;
    }
 
-   map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >
-   ServerTargetResolver::CreateDistinctMap(map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > > serverInfos)
+   std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > >
+   ServerTargetResolver::CreateDistinctMap(std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > serverInfos)
    {
       // Try to merge recipient lists for different serverinfo's. If we have two server info's with the same target
       // host / port / credentials, we should merge the recipient lists. This may be the same for example if you are
       // using a SMTP relayer. The email message may contain recipients for 4 different domains, but we only want to
       // open one connection to the SMTP relay server.
-      map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterServerInfo = serverInfos.begin();
-      map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterServerInfoEnd = serverInfos.end();
+      auto iterServerInfo = serverInfos.begin();
+      auto iterServerInfoEnd = serverInfos.end();
 
-      map<shared_ptr<ServerInfo>, vector<shared_ptr<MessageRecipient> > > result;
+      std::map<std::shared_ptr<ServerInfo>, std::vector<std::shared_ptr<MessageRecipient> > > result;
 
       for (; iterServerInfo != iterServerInfoEnd; iterServerInfo++)
       {
-         map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterResultInfos = result.begin();
-         map<shared_ptr<ServerInfo>, std::vector<shared_ptr<MessageRecipient> > >::iterator iterResultInfosEnd = result.end();
+         auto iterResultInfos = result.begin();
+         auto iterResultInfosEnd = result.end();
 
          bool foundExisting = false;
 
@@ -140,10 +143,10 @@ namespace HM
             if (newServerInfo == resultServerInfo)
             {
                // Add all recipients on this server info to the existing server info.
-               vector<shared_ptr<MessageRecipient> >& vecRecipients = (*iterServerInfo).second;
+               std::vector<std::shared_ptr<MessageRecipient> >& vecRecipients = (*iterServerInfo).second;
 
-               vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
-               vector<shared_ptr<MessageRecipient> >::iterator iterRecipientEnd = vecRecipients.end();
+               auto iterRecipient = vecRecipients.begin();
+               auto iterRecipientEnd = vecRecipients.end();
 
                // Copy all recipients to this server info
                for (; iterRecipient != iterRecipientEnd; iterRecipient++)
@@ -165,8 +168,8 @@ namespace HM
       return result;
    }
 
-   shared_ptr<ServerInfo>
-   ServerTargetResolver::_GetFixedSMTPHostForDomain(const String &sDomain)
+   std::shared_ptr<ServerInfo>
+   ServerTargetResolver::GetFixedSMTPHostForDomain_(const String &sDomain)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Check if there exists a fixed SMTP host for the domain given, and in that
@@ -178,18 +181,18 @@ namespace HM
       long lPort = 0;
       String sUsername;
       String sPassword;
-      bool bUseSSL = false;
+      ConnectionSecurity connection_security = CSNone;
 
-      shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
+      std::shared_ptr<SMTPConfiguration> pSMTPConfig = Configuration::Instance()->GetSMTPConfiguration();
 
       // Check if we have any route for this domain.
-      shared_ptr<Route> pRoute = pSMTPConfig->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
+      std::shared_ptr<Route> pRoute = pSMTPConfig->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
 
       if (pRoute)
       {
          sSMTPHost = pRoute->TargetSMTPHost();
          lPort = pRoute->TargetSMTPPort();
-         bUseSSL = pRoute->GetUseSSL();
+         connection_security = pRoute->GetConnectionSecurity();
 
          if (pRoute->GetRelayerRequiresAuth())
          {
@@ -215,16 +218,21 @@ namespace HM
                sPassword = pSMTPConfig->GetSMTPRelayerPassword();
             }
 
-            bUseSSL = pSMTPConfig->GetSMTPRelayerUseSSL();
+            connection_security = pSMTPConfig->GetSMTPRelayerConnectionSecurity();
          }
       }
 
       if (sSMTPHost.IsEmpty())
       {
-         return shared_ptr<ServerInfo>();
+         return std::shared_ptr<ServerInfo>();
       }
 
-      shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, sSMTPHost, lPort, sUsername, sPassword, bUseSSL));
+      bool is_ipaddress = StringParser::IsValidIPAddress(sSMTPHost);
+
+      String host_name = is_ipaddress ? "" : sSMTPHost;
+      String ip_address = is_ipaddress ? sSMTPHost : "";
+
+      std::shared_ptr<ServerInfo> serverInfo(new ServerInfo(true, host_name, ip_address, lPort, sUsername, sPassword, connection_security));
       return serverInfo;
 
    }

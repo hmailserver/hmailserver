@@ -2,11 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using RegressionTests;
 using System.IO;
 using RegressionTests.Shared;
 
@@ -96,29 +92,29 @@ namespace StressTest
         public void TestDKIMBadSignature()
         {
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
+           
 
-            string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
-            string path = Path.Combine(Environment.CurrentDirectory, folder);
-            string[] files = Directory.GetFiles(path);
+           string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
+           string path = Path.Combine(Environment.CurrentDirectory, folder);
+           string[] files = Directory.GetFiles(path);
 
-            foreach (string file in files)
-            {
-                DeleteCurrentLog();
-                hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
-                Assert.AreEqual(hMailServer.eDKIMResult.eDKPermFail, result, file);
-                Assert.IsFalse(VerifyLoadSuccess());
-            }
+           foreach (string file in files)
+           {
+              DeleteCurrentLog();
+              hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
+              Assert.AreEqual(hMailServer.eDKIMResult.eDKPermFail, result, file);
+              Assert.IsFalse(VerifyLoadSuccess());
+           }
         }
 
         [Test]
         public void TestDKIMMassTest()
         {
-            int verificationCount = 1000;
+            int verificationCount = 5000;
 
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
             string folderGood = Path.GetFullPath("../../../TestData/DKIM/Good");
-            string path = Path.Combine(Environment.CurrentDirectory, folderGood);
             string goodFile = Directory.GetFiles(folderGood)[0];
 
             for (int i = 0; i < verificationCount; i++)

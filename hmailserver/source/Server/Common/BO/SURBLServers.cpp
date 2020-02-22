@@ -28,7 +28,7 @@ namespace HM
    // Reads all SURBL servers from the database.
    //---------------------------------------------------------------------------()
    {
-      String sSQL = "select * from hm_surblservers order by surblid asc";
-      _DBLoad(sSQL);
+      String sSQL = String("select * from hm_surblservers order by surblid asc");
+      DBLoad_(sSQL);
    }
 }

@@ -5,6 +5,8 @@
 
 namespace HM
 {
+   class HostNameAndIpAddress;
+   class DNSRecord;
 
    class DNSResolver
    {
@@ -14,35 +16,17 @@ namespace HM
 	   DNSResolver();
 	   virtual ~DNSResolver();
 
-      bool GetEmailServers(const String &sDomainName, std::vector<String> &saFoundNames);
+      bool GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames);
       bool GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames);
-      bool GetARecords(const String &sDomain, std::vector<String> &saFoundNames);
+      bool GetIpAddresses(const String &sDomain, std::vector<String> &saFoundNames, bool followCnameRecords);
       bool GetTXTRecords(const String &sDomain, std::vector<String> &foundResult);
       bool GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames);
    private:
 
-      bool _Resolve(const String &sSearchFor, vector<String> &vecFoundNames, WORD ResourceType, int iRecursion);
-      bool _IsDNSError(int iErrorMessage);
+      bool GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords);
 
-      bool _IsWSAError(int iErrorMessage);
-
+      std::vector<String> GetDnsRecordsValues_(std::vector<DNSRecord> records);
    };
 
-   #ifdef _DEBUG
-   class DNSResolverTester
-   {
-   private:
-
-   public:
-
-      DNSResolverTester() {};
-      virtual ~DNSResolverTester() {} ;
-
-      void Test();
-   private:
-
-      
-   };
-   #endif
 
 }

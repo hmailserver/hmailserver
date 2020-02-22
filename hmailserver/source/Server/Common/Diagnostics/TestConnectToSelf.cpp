@@ -15,7 +15,7 @@
 namespace HM
 {
    TestConnectToSelf::TestConnectToSelf(const String &localDomainName) :
-      _localDomainName(localDomainName)
+      local_domain_name_(localDomainName)
    {
 
    }
@@ -35,15 +35,15 @@ namespace HM
       String result;
 
       String formattedString;
-      formattedString.Format(_T("Connecting to TCP/IP address in MX records for local domain domain %s...\r\n"), _localDomainName);
+      formattedString.Format(_T("Connecting to TCP/IP address in MX records for local domain domain %s...\r\n"), local_domain_name_.c_str());
       result.append(formattedString);
 
       std::vector<String> foundNames;
 
       DNSResolver resolver;
-      if (!resolver.GetMXRecords(_localDomainName, foundNames) || foundNames.size() == 0)
+      if (!resolver.GetMXRecords(local_domain_name_, foundNames) || foundNames.size() == 0)
       {
-         formattedString.Format(_T("ERROR: MX records for local domain %s could not be resolved\r\n"), _localDomainName);
+         formattedString.Format(_T("ERROR: MX records for local domain %s could not be resolved\r\n"), local_domain_name_.c_str());
          result.append(formattedString);
          
          diagResult.SetSuccess(false);
@@ -52,21 +52,18 @@ namespace HM
       }
 
       IPAddress anyAddress;
-      boost_foreach(String foundName, foundNames)
+      for(String foundName : foundNames)
       {
          // Test to connect
          TestConnect connTest;
 
-         if (connTest.PerformTest("", foundName, 25, result))
+         if (connTest.PerformTest(CSNone, "", foundName, 25, result))
          {
             diagResult.SetSuccess(true);
             diagResult.SetDetails(result);
             return diagResult;
          }
       }
-
-      formattedString.Format(_T("ERROR: Was not able to open connection.\r\n"), _localDomainName);
-      result.append(formattedString);
 
       diagResult.SetSuccess(false);
       diagResult.SetDetails(result);

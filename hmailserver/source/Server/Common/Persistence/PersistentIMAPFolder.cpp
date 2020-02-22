@@ -11,6 +11,7 @@
 #include "..\BO\IMAPFolder.h"
 
 #include "..\..\IMAP\IMAPFolderContainer.h"
+#include "..\..\IMAP\MessagesContainer.h"
 
 #include "..\Tracking\ChangeNotification.h"
 #include "..\Tracking\NotificationServer.h"
@@ -44,7 +45,7 @@ namespace HM
    }
 
    bool
-   PersistentIMAPFolder::DeleteObject(shared_ptr<IMAPFolder> pFolder)
+   PersistentIMAPFolder::DeleteObject(std::shared_ptr<IMAPFolder> pFolder)
    {
       return DeleteObject  (pFolder, false);
    }
@@ -56,7 +57,7 @@ namespace HM
 
    */
    bool
-   PersistentIMAPFolder::DeleteObject(shared_ptr<IMAPFolder> pFolder, bool forceDelete)
+   PersistentIMAPFolder::DeleteObject(std::shared_ptr<IMAPFolder> pFolder, bool forceDelete)
    {
       if (pFolder->GetID() <= 0)
          return false;
@@ -66,9 +67,16 @@ namespace HM
          return false;
 
       // We must delete all email in this folder.
-      pFolder->GetMessages()->Refresh();
-      pFolder->GetMessages()->DeleteMessages();
-      
+      pFolder->GetMessages()->Refresh(false);
+
+      std::function<bool(int, std::shared_ptr<Message>)> filter = [](int index, std::shared_ptr<Message> message)
+         {
+            return true;
+         };
+
+      auto messages = MessagesContainer::Instance()->GetMessages(pFolder->GetAccountID(), pFolder->GetID());
+      messages->DeleteMessages(filter);
+            
       if (!pFolder->GetPermissions()->DeleteAll())
          return false;
 
@@ -89,14 +97,14 @@ namespace HM
    }
 
    bool
-   PersistentIMAPFolder::SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage)
+   PersistentIMAPFolder::SaveObject(std::shared_ptr<IMAPFolder> pFolder, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage not supported yet.
       return SaveObject(pFolder);
    }
 
    bool
-   PersistentIMAPFolder::SaveObject(shared_ptr<IMAPFolder> pFolder)
+   PersistentIMAPFolder::SaveObject(std::shared_ptr<IMAPFolder> pFolder)
    {
       bool bNewObject = true;
       if (pFolder->GetID())
@@ -151,7 +159,7 @@ namespace HM
       SQLCommand command("SELECT folderid FROM hm_imapfolders WHERE folderaccountid = @FOLDERACCOUNTID and folderparentid = -1 and foldername = 'INBOX'");
       command.AddParameter("@FOLDERACCOUNTID", accountID);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
       {
          String message;
@@ -173,7 +181,7 @@ namespace HM
 
       SQLCommand command(_T("select count(*) as c from hm_imapfolders where foldername like '%" + theChar + "%'"));
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -183,7 +191,7 @@ namespace HM
    }
 
    unsigned int 
-   PersistentIMAPFolder::_GetCurrentUID(__int64 folderID)
+   PersistentIMAPFolder::GetCurrentUID_(__int64 folderID)
    {
       if (folderID == 0)
          return 0;
@@ -191,12 +199,12 @@ namespace HM
       SQLCommand command("SELECT foldercurrentuid FROM hm_imapfolders WHERE folderid = @FOLDERID");
       command.AddParameter("@FOLDERID", folderID);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
       {
          String message;
          message.Format(_T("Current UID for folder %I64d could not be looked up"), folderID);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::_GetCurrentUID", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::GetCurrentUID_", message);
 
          return 0;
       }
@@ -205,7 +213,7 @@ namespace HM
       {
          String message;
          message.Format(_T("Current UID for folder %I64d could not be looked up. Folder does not eixst."), folderID);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::_GetCurrentUID", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5207, "PersistentIMAPFolder::GetCurrentUID_", message);
 
          return 0;
       }
@@ -216,7 +224,7 @@ namespace HM
    }
 
    bool 
-   PersistentIMAPFolder::_IncreaseCurrentUID(__int64 folderID)
+   PersistentIMAPFolder::IncreaseCurrentUID_(__int64 folderID)
    {
       SQLCommand command("UPDATE hm_imapfolders SET foldercurrentuid = foldercurrentuid + 1 WHERE folderid = @FOLDERID");
       command.AddParameter("@FOLDERID", folderID);
@@ -230,8 +238,8 @@ namespace HM
       if (folderID == 0)
          return 0;
 
-      _IncreaseCurrentUID(folderID);
-      unsigned int newUID = _GetCurrentUID(folderID);
+      IncreaseCurrentUID_(folderID);
+      unsigned int newUID = GetCurrentUID_(folderID);
 
       IMAPFolderContainer::Instance()->UpdateCurrentUID(accountID, folderID, newUID);
 

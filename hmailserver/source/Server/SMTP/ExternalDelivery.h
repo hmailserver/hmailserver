@@ -9,41 +9,43 @@ namespace HM
    class MessageRecipient;
    class RuleResult;
    class ServerInfo;
-
+   class HostNameAndIpAddress;
 
    class ExternalDelivery
    {
    public:
-      ExternalDelivery(const String &sSendersIP, shared_ptr<Message> message, const RuleResult &globalRuleResult);
+      ExternalDelivery(const String &sSendersIP, std::shared_ptr<Message> message, const RuleResult &globalRuleResult);
       ~ExternalDelivery(void);
 
-      bool Perform(vector<String> &saErrorMessages);
+      bool Perform(std::vector<String> &saErrorMessages);
 
    private:
 
-      void _DeliverToExternalDomain(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
-      void _InitiateExternalConnection(vector<shared_ptr<MessageRecipient> > &vecRecipients, shared_ptr<ServerInfo> serverInfo);
 
-      bool _ResolveRecipientServer(shared_ptr<ServerInfo> &serverInfo, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<String> &saMailServers);
-      bool _RecipientWithNonFatalDeliveryErrorExists(vector<shared_ptr<MessageRecipient> > &vecRecipients);
-      void _HandleExternalDeliveryFailure(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bIsFatal, String &sErrorString);
-      void _HandleNoRecipientServers(vector<shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer);
+
+      void DeliverToSingleDomain_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::shared_ptr<ServerInfo> serverInfo);
+      void DeliverToSingleServer_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::shared_ptr<ServerInfo> serverInfo);
+
+      bool ResolveRecipientServers_(std::shared_ptr<ServerInfo> &serverInfo, std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::vector<HostNameAndIpAddress> &saMailServers);
+      bool RecipientWithNonFatalDeliveryErrorExists_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients);
+      void HandleExternalDeliveryFailure_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, bool bIsFatal, String &sErrorString);
+      void HandleNoRecipientServers_(std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, bool bDNSQueryOK, bool isSpecificRelayServer);
       
-      void _CollectDeliveryResult(const String &serverHostName, vector<shared_ptr<MessageRecipient> > &vecRecipients, vector<String> &saErrorMessages, map<String,String> &mapFailedDueToNonFatalError);
-      bool _RescheduleDelivery(map<String,String> &mapFailedDueToNonFatalError,vector<String> &saErrorMessages);
+      void CollectDeliveryResult_(const String &serverHostName, std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients, std::vector<String> &saErrorMessages, std::map<String,String> &mapFailedDueToNonFatalError);
+      bool RescheduleDelivery_(std::map<String,String> &mapFailedDueToNonFatalError, std::vector<String> &saErrorMessages);
       // Type changed from void to bool for use with ETRN.
       // Function not called anywhere else to matter
-      bool _GetRetryOptions(map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween);
+      bool GetRetryOptions_(std::map<String,String> &mapFailedDueToNonFatalError, long &lNoOfRetries, long &lMinutesBetween);
 
-      IPAddress _GetLocalAddress();
+      IPAddress GetLocalAddress_();
 
       const String &_sendersIP;
-      const shared_ptr<Message> _originalMessage;
+      const std::shared_ptr<Message> original_message_;
       const RuleResult &_globalRuleResult;   
 
-      int m_iQuickRetries;      
-      int m_iQuickRetriesMinutes;      
-      int m_iQueueRandomnessMinutes;
-      int m_iMXTriesFactor; 
+      int quick_retries_;      
+      int quick_retries_Minutes;      
+      int queue_randomness_minutes_;
+      int mxtries_factor_; 
    };
 }

@@ -1,7 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -15,7 +17,7 @@ namespace RegressionTests.AntiSpam
       [SetUp]
       public new void SetUp()
       {
-         TestSetup.AssertSpamAssassinIsRunning();
+         CustomAsserts.AssertSpamAssassinIsRunning();
       }
 
       #endregion
@@ -49,14 +51,14 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
-         Assert.IsTrue(oSMTP.Send("test@example.com", oAccount1.Address, "INBOX",
-                                  "Test http://surbl-org-permanent-test-point.com/ Test 2"));
+         smtpClientSimulator.Send("test@example.com", oAccount1.Address, "INBOX",
+                                  "Test http://surbl-org-permanent-test-point.com/ Test 2");
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-2:"));
@@ -87,14 +89,14 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
-         Assert.IsTrue(oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
-                                  "This is a test message."));
+         smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
+                                  "This is a test message.");
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsFalse(message.Contains("X-hMailServer-Reason-2:"));
@@ -103,6 +105,8 @@ namespace RegressionTests.AntiSpam
       [Test]
       public void TestSpamMultipleHits()
       {
+         CustomAsserts.AssertSpamAssassinIsRunning();  
+
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mult'ihit@test.com", "test");
 
          _settings.AntiSpam.SpamMarkThreshold = 1;
@@ -129,7 +133,7 @@ namespace RegressionTests.AntiSpam
 
          // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
          // We should only detect one of these two:
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          _settings.Logging.LogSMTP = true;
          _settings.Logging.LogDebug = true;
@@ -141,16 +145,16 @@ namespace RegressionTests.AntiSpam
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
-         Assert.IsFalse(oSMTP.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
                                    "This is a test message. It contains incorrect MX records and a SURBL string: http://surbl-org-permanent-test-point.com/ SpamAssassinString: XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"));
 
          liveLog = _settings.Logging.LiveLog;
 
          _settings.Logging.EnableLiveLogging(false);
 
-         int iFirst = liveLog.IndexOf("Running spam test");
-         int iLast = liveLog.LastIndexOf("Running spam test");
-         Assert.AreNotSame(-1, iFirst);
+         int iFirst = liveLog.IndexOf("Spam test:");
+         int iLast = liveLog.LastIndexOf("Spam test:");
+         Assert.AreNotEqual(-1, iFirst);
 
          // there should only be one spam test, since any spam match
          // should result in a spam score over the delete threshold.

@@ -27,7 +27,7 @@ namespace HM
       switch (operation)
       {
       case RecalculateFolderUID:
-         return _RecalculateFolderUID();
+         return RecalculateFolderUID_();
       }
 
       return false;
@@ -35,19 +35,19 @@ namespace HM
 
    // Goes through all mailboxes and sets the foldercurrentuid to the latest message uid.
    bool
-   Maintenance::_RecalculateFolderUID()
+   Maintenance::RecalculateFolderUID_()
    {
       AnsiString recordSQL = "SELECT messagefolderid, MAX(messageuid) as messageuid FROM hm_messages GROUP BY messagefolderid";
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(SQLCommand(recordSQL));
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(SQLCommand(recordSQL));
 
       if (!pRS)
          return false;
 
       while (!pRS->IsEOF())
       {
-         unsigned int messageFolderID = (unsigned int) pRS->GetInt64Value("messagefolderid");
-         unsigned int messageUID = (unsigned int) pRS->GetInt64Value("messageuid");
+         __int64 messageFolderID = pRS->GetInt64Value("messagefolderid");
+         __int64 messageUID = pRS->GetInt64Value("messageuid");
 
          if (messageFolderID <= 0)
             return false;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -158,6 +157,12 @@ namespace DBUpdater
          _upgradeScripts.Add(new UpgradeScript(5300, 5310));
          _upgradeScripts.Add(new UpgradeScript(5310, 5320));
          _upgradeScripts.Add(new UpgradeScript(5320, 5400));
+         _upgradeScripts.Add(new UpgradeScript(5400, 5500));
+         _upgradeScripts.Add(new UpgradeScript(5500, 5501));
+         _upgradeScripts.Add(new UpgradeScript(5501, 5502));
+         _upgradeScripts.Add(new UpgradeScript(5502, 5600));
+         _upgradeScripts.Add(new UpgradeScript(5600, 5601));
+         _upgradeScripts.Add(new UpgradeScript(5601, 5700));
       }
 
       private void buttonClose_Click(object sender, EventArgs e)
@@ -240,7 +245,7 @@ namespace DBUpdater
             case 5110:
                return "hMailServer 5.1.2";
             case 5200:
-               return "hMailServer 5.2 Alpha 1";
+               return "hMailServer 5.2 (Alpha 1)";
             case 5201:
                return "hMailServer 5.2";
             case 5300:
@@ -251,6 +256,18 @@ namespace DBUpdater
                return "hMailServer 5.3.2";
             case 5400:
                return "hMailServer 5.4";
+            case 5500:
+               return "hMailServer 5.5 (Alpha 1)";
+            case 5501:
+               return "hMailServer 5.5 (Alpha 2)";
+            case 5502:
+               return "hMailServer 5.5";
+            case 5600:
+               return "hMailServer 5.6 (Alpha 1)";
+            case 5601:
+               return "hMailServer 5.6";
+            case 5700:
+               return "hMailServer 5.7";
             default:
                return "Unknown version";
          }

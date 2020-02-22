@@ -24,7 +24,7 @@
 
 namespace HM
 {
-   CriticalSection AccountLogon::_IPRangeCreationLock;
+   boost::recursive_mutex AccountLogon::ip_range_creation_mutex_;
 
    AccountLogon::AccountLogon(void)
    {
@@ -34,12 +34,18 @@ namespace HM
    {
    }
 
-   shared_ptr<const Account>
+   std::shared_ptr<const Account>
    AccountLogon::Logon(const IPAddress &ipaddress, const String &username, const String &password, bool &disconnect)
+   {
+	   return Logon(ipaddress, _T(""), username, password, disconnect);
+   }
+
+   std::shared_ptr<const Account>
+   AccountLogon::Logon(const IPAddress &ipaddress, const String &masqname, const String &username, const String &password, bool &disconnect)
    {
       disconnect = false;
 
-      shared_ptr<const Account> account = PasswordValidator::ValidatePassword(username, password);
+      std::shared_ptr<const Account> account = PasswordValidator::ValidatePassword(masqname, username, password);
       if (account)
       {
          PersistentAccount::UpdateLastLogonTime(account);
@@ -51,7 +57,7 @@ namespace HM
 
       if (Configuration::Instance()->GetAutoBanLogonEnabled() == false || maxInvalidLogonAttempts == 0)
       {
-         shared_ptr<Account> empty;
+         std::shared_ptr<Account> empty;
          return empty;
       }
 
@@ -68,7 +74,7 @@ namespace HM
          {
             // disconnect, but don't block.
             disconnect = true;
-            shared_ptr<Account> empty;
+            std::shared_ptr<Account> empty;
             return empty;
          }
 
@@ -77,14 +83,14 @@ namespace HM
          disconnect = true;
 
          // logon failed!
-         shared_ptr<Account> empty;
+         std::shared_ptr<Account> empty;
          return empty;
       }
 
       // logon failed, add new failure.
       logonFailure.AddFailure(ipaddress);
 
-      shared_ptr<Account> empty;
+      std::shared_ptr<Account> empty;
       return empty;
    }
 
@@ -101,16 +107,17 @@ namespace HM
       // will result in a DB error. To prevent this, we use locking to
       // ensure that only one IP range is created at a time.
 
-      CriticalSectionScope scope(_IPRangeCreationLock);
+      boost::lock_guard<boost::recursive_mutex> guard(ip_range_creation_mutex_);
 
       DateTime dt = DateTime::GetCurrentTime();         
       DateTimeSpan span;
       span.SetDateTimeSpan(0,0,minutes,0);
       dt = dt + span;
 
-      shared_ptr<SecurityRange> pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
-      pSecurityRange->SetName(_GetIPRangeName(username));
-      pSecurityRange->SetPriority(20);
+
+      std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
+      pSecurityRange->SetName(GetIPRangeName_(username));
+      pSecurityRange->SetPriority(100);
       pSecurityRange->SetLowerIP(ipaddress);
       pSecurityRange->SetUpperIP(ipaddress);
       pSecurityRange->SetExpires(true);
@@ -121,7 +128,7 @@ namespace HM
    }      
 
    String 
-   AccountLogon::_GetIPRangeName(const String &username)
+   AccountLogon::GetIPRangeName_(const String &username)
    {
       String suggestion = "Auto-ban: " + username;
       if (!PersistentSecurityRange::Exists(suggestion))

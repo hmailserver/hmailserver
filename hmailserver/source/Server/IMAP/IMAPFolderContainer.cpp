@@ -22,11 +22,15 @@
 
 namespace HM
 {
-   CriticalSection IMAPFolderContainer::m_hFetchListCriticalSection;
+   boost::recursive_mutex IMAPFolderContainer::fetch_list_mutex_;
 
    IMAPFolderContainer::IMAPFolderContainer()
    {
-      
+      // When the server is stopped, the cache should be cleared.
+      Application::Instance()->OnServerStopped.connect
+         (
+         [this]() { Clear(); }
+      );
    }
 
    IMAPFolderContainer::~IMAPFolderContainer()
@@ -34,20 +38,20 @@ namespace HM
 
    }
 
-   shared_ptr<IMAPFolders> 
+   std::shared_ptr<IMAPFolders> 
    IMAPFolderContainer::GetFoldersForAccount(__int64 AccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolders = m_mapFolders.find(AccountID);
+      auto iterFolders = folders_.find(AccountID);
       
-      shared_ptr<IMAPFolders> pFolders;
+      std::shared_ptr<IMAPFolders> pFolders;
 
-      if (iterFolders == m_mapFolders.end())
+      if (iterFolders == folders_.end())
       {
-         pFolders = shared_ptr<IMAPFolders>(new IMAPFolders(AccountID, -1));
+         pFolders = std::shared_ptr<IMAPFolders>(new IMAPFolders(AccountID, -1));
          pFolders->Refresh();
-         m_mapFolders[AccountID] = pFolders;
+         folders_[AccountID] = pFolders;
       }
       else
       {
@@ -57,58 +61,25 @@ namespace HM
       return pFolders;
    }
 
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    IMAPFolderContainer::GetPublicFolders()
    {
-      shared_ptr<IMAPFolders> pFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
+      std::shared_ptr<IMAPFolders> pFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
 
       return pFolders;
-   }
-
-   void
-   IMAPFolderContainer::SetFolderNeedRefresh(__int64 AccountID, __int64 lMailBox)
-   {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
-
-      shared_ptr<IMAPFolder> pFolder;
-      if (AccountID == 0)
-      {
-         // Get the public folder.
-         pFolder = GetPublicFolders()->GetItemByDBIDRecursive(lMailBox);
-      }
-      else
-      {
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = m_mapFolders.find(AccountID); 
-
-         if (iterFolder == m_mapFolders.end())
-            return;
-
-         pFolder = (*iterFolder).second->GetItemByDBIDRecursive(lMailBox);
-      }
-
-      if (!pFolder)
-      {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("Folder could not be fetched. Account: %d, Folder: %d"), AccountID, lMailBox);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4214, "IMAPFolderContainer::SetFolderNeedRefresh", sErrorMessage);
-
-         return;
-      }
-
-      pFolder->SetFolderNeedsRefresh();
    }
 
    void 
    IMAPFolderContainer::UncacheAccount(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iterFolder = m_mapFolders.find(iAccountID); 
+      auto iterFolder = folders_.find(iAccountID); 
 
-      if (iterFolder != m_mapFolders.end())
+      if (iterFolder != folders_.end())
       {
          // The account exists. uncache it.
-         m_mapFolders.erase(iterFolder);
+         folders_.erase(iterFolder);
       }
 
    }
@@ -116,11 +87,11 @@ namespace HM
    bool 
    IMAPFolderContainer::Clear()
    {
-      CriticalSectionScope scope(m_hFetchListCriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-      bool bCleared = !m_mapFolders.empty();
+      bool bCleared = !folders_.empty();
 
-      m_mapFolders.clear();
+      folders_.clear();
 
       return bCleared;
    }
@@ -138,11 +109,11 @@ namespace HM
          return false;
    }
    
-   shared_ptr<IMAPFolder> 
-   IMAPFolderContainer::GetTopMostExistingFolder(shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
+   std::shared_ptr<IMAPFolder> 
+   IMAPFolderContainer::GetTopMostExistingFolder(std::shared_ptr<IMAPFolders> pContainer, const std::vector<String> &vecFolderPath)
    {
-      vector<String> tempFolderPath = vecFolderPath;
-      shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
+      std::vector<String> tempFolderPath = vecFolderPath;
+      std::shared_ptr<IMAPFolder> pTempFolder = pContainer->GetFolderByFullPath(tempFolderPath);
 
       while (!pTempFolder && tempFolderPath.size() > 0)
       {
@@ -159,7 +130,7 @@ namespace HM
    {
       if (accountID == 0)
       {
-         shared_ptr<IMAPFolder> folder = GetPublicFolders()->GetItemByDBIDRecursive(folderID);
+         std::shared_ptr<IMAPFolder> folder = GetPublicFolders()->GetItemByDBIDRecursive(folderID);
          if (!folder)
          {
             assert(0);
@@ -171,14 +142,14 @@ namespace HM
       }
       else
       {
-         CriticalSectionScope scope(m_hFetchListCriticalSection);
+         boost::lock_guard<boost::recursive_mutex> guard(fetch_list_mutex_);
 
-         std::map<__int64, shared_ptr<HM::IMAPFolders> >::iterator iter = m_mapFolders.find(accountID);
+         auto iter = folders_.find(accountID);
 
-         if (iter == m_mapFolders.end())
+         if (iter == folders_.end())
             return;
 
-         shared_ptr<IMAPFolder> folder = (*iter).second->GetItemByDBIDRecursive(folderID);
+         std::shared_ptr<IMAPFolder> folder = (*iter).second->GetItemByDBIDRecursive(folderID);
          if (!folder)
          {
             assert(0);

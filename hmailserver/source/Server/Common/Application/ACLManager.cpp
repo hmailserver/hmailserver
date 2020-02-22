@@ -34,7 +34,7 @@ namespace HM
    class ACLSortID {
    public:
       //Return true if s1 < s2; otherwise, return false.
-      bool operator()(const shared_ptr<ACLPermission> p1, const shared_ptr<ACLPermission>  p2)
+      bool operator()(const std::shared_ptr<ACLPermission> p1, const std::shared_ptr<ACLPermission>  p2)
       {
          return p1->GetID() < p2->GetID();
       }
@@ -55,8 +55,8 @@ namespace HM
    */
 
 
-   shared_ptr<ACLPermission> 
-   ACLManager::GetPermissionForFolder(__int64 iAccountID, shared_ptr<IMAPFolder> pFolder)
+   std::shared_ptr<ACLPermission> 
+   ACLManager::GetPermissionForFolder(__int64 iAccountID, std::shared_ptr<IMAPFolder> pFolder)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Input:
@@ -67,20 +67,20 @@ namespace HM
       if (pFolder->GetAccountID() == iAccountID)
       {
          // Folder is owned by requester. Full access.
-         shared_ptr<ACLPermission> pFullPermissions = shared_ptr<ACLPermission>(new ACLPermission);
+         std::shared_ptr<ACLPermission> pFullPermissions = std::shared_ptr<ACLPermission>(new ACLPermission);
          pFullPermissions->GrantAll();
          return pFullPermissions;         
       }
 
 
-      shared_ptr<IMAPFolders> pPublicFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
+      std::shared_ptr<IMAPFolders> pPublicFolders = Configuration::Instance()->GetIMAPConfiguration()->GetPublicFolders();
 
       // The user is trying to access a public folder. Determine the permissions for this one.
       // We have a list containing Folder A and Folder B1. Since not all folders may have permissions
       // we need to locate a parent folder in the structure which has a permission and then
       // inherit that one.
       
-      shared_ptr<IMAPFolder> pCheckFolder = pFolder;
+      std::shared_ptr<IMAPFolder> pCheckFolder = pFolder;
 
       int maxRecursions = 250;
       while (pCheckFolder && maxRecursions > 0)
@@ -89,12 +89,12 @@ namespace HM
 
          // Check if permissions is set for this folder. If it is, we need to check
          // if we have permissions to it.
-         shared_ptr<ACLPermissions> pPermissions = pCheckFolder->GetPermissions();
+         std::shared_ptr<ACLPermissions> pPermissions = pCheckFolder->GetPermissions();
 
          if (pPermissions && pPermissions->GetCount() > 0)
          {
             // We found permissions for this folder. Locate the permission for the given user.
-            shared_ptr<ACLPermission> pPermission = _GetPermissionForAccount(pPermissions, iAccountID);
+            std::shared_ptr<ACLPermission> pPermission = GetPermissionForAccount_(pPermissions, iAccountID);
 
             return pPermission;
          }
@@ -105,13 +105,13 @@ namespace HM
          pCheckFolder = pPublicFolders->GetItemByDBIDRecursive(iParentFolderID);
       }
 
-      shared_ptr<ACLPermission> pNoPermission;
+      std::shared_ptr<ACLPermission> pNoPermission;
       return pNoPermission;
 
    }
    
-   shared_ptr<ACLPermission> 
-   ACLManager::_GetPermissionForAccount(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID)
+   std::shared_ptr<ACLPermission> 
+   ACLManager::GetPermissionForAccount_(std::shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Goes through the list of permissions (typically a list of permissions connected
@@ -123,18 +123,18 @@ namespace HM
    // case, we use those.
    //---------------------------------------------------------------------------()
    {
-      std::vector<shared_ptr<ACLPermission> > vecObjects = pPermissions->GetVector();
+      std::vector<std::shared_ptr<ACLPermission> > vecObjects = pPermissions->GetVector();
 
       // Sort the list of permissions. If a user is a member of two groups set up in
       // separate ACL records, we should use the permissions from the last record.
       std::sort(vecObjects.begin(), vecObjects.end(), ACLSortID());
 
-      std::vector<shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
 
          if (pPermission->GetPermissionType() == 0 && pPermission->GetPermissionAccountID() == iAccountID)
             return pPermission;
@@ -144,10 +144,10 @@ namespace HM
       iter = vecObjects.begin();
       iterEnd = vecObjects.end();
 
-      std::list<std::pair<__int64, shared_ptr<ACLPermission> > > listGroupPermissions;
+      std::list<std::pair<__int64, std::shared_ptr<ACLPermission> > > listGroupPermissions;
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
 
          if (pPermission->GetPermissionType() == 1)
          {
@@ -156,16 +156,16 @@ namespace HM
       }
 
       // Check if user is member of any of these groups.
-      std::list<std::pair<__int64, shared_ptr<ACLPermission> > >::iterator iterGroup = listGroupPermissions.begin();
-      std::list<std::pair<__int64, shared_ptr<ACLPermission> > >::iterator iterGroupEnd = listGroupPermissions.end();
+      auto iterGroup = listGroupPermissions.begin();
+      auto iterGroupEnd = listGroupPermissions.end();
 
       for (; iterGroup != iterGroupEnd; iterGroup++)
       {
          __int64 iGroupID = (*iterGroup).first;
-         shared_ptr<ACLPermission> pPermission = (*iterGroup).second;
+         std::shared_ptr<ACLPermission> pPermission = (*iterGroup).second;
 
          // Fetch this group
-         shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(iGroupID);
+         std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(iGroupID);
 
          if (!pGroup)
          {
@@ -173,7 +173,7 @@ namespace HM
             sMessage.Format(_T("The group referenced by ACL ID %I64d (Group ID %I64d, Folder ID %I64d) does not exist. "), 
                pPermission->GetID(), iGroupID, pPermission->GetShareFolderID());
 
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5002, "ACLManager::_GetPermissionForAccount", sMessage);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5002, "ACLManager::GetPermissionForAccount_", sMessage);
 
             continue;
          }
@@ -189,27 +189,27 @@ namespace HM
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
 
          if (pPermission->GetPermissionType() == ACLPermission::PTAnyone)
             return pPermission;
       }
 
 
-      shared_ptr<ACLPermission> pEmpty;
+      std::shared_ptr<ACLPermission> pEmpty;
       return pEmpty;
    }
 
    bool 
-   ACLManager::SetACL(shared_ptr<IMAPFolder> pFolder, const String& sIdentifier, const String &sPermissions)
+   ACLManager::SetACL(std::shared_ptr<IMAPFolder> pFolder, const String& sIdentifier, const String &sPermissions)
    {
-      shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sIdentifier);
-      shared_ptr<Group> pGroup;
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sIdentifier);
+      std::shared_ptr<Group> pGroup;
 
       if (!pAccount)
       {
          // No account was found. Check if it's a group.
-         shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sIdentifier);
+         std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sIdentifier);
 
          if (!pGroup)
          {
@@ -226,9 +226,9 @@ namespace HM
          return false;
       }
 
-      shared_ptr<ACLPermissions> pFolderPermissions = pFolder->GetPermissions();
+      std::shared_ptr<ACLPermissions> pFolderPermissions = pFolder->GetPermissions();
       
-      shared_ptr<ACLPermission> pPermission;
+      std::shared_ptr<ACLPermission> pPermission;
       
       if (pAccount)
          pPermission = pFolderPermissions->GetPermissionForAccount(pAccount->GetID());
@@ -237,7 +237,7 @@ namespace HM
 
       if (!pPermission)
       {
-         pPermission = shared_ptr<ACLPermission>(new ACLPermission);
+         pPermission = std::shared_ptr<ACLPermission>(new ACLPermission);
 
          pPermission->SetShareFolderID(pFolder->GetID());
 

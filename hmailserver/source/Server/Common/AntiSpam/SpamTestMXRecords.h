@@ -18,11 +18,11 @@ namespace HM
 
       virtual String GetName() const;
       virtual bool GetIsEnabled();
-      virtual set<shared_ptr<SpamTestResult> > RunTest(shared_ptr<SpamTestData> pTestData);
+      virtual std::set<std::shared_ptr<SpamTestResult> > RunTest(std::shared_ptr<SpamTestData> pTestData);
 
    private:
 
-      bool _HasAnyMXRecords(const String &sSenderEMail);
+      bool HasAnyMXRecords_(const String &sSenderEMail);
 
    };
 

@@ -27,6 +27,15 @@ namespace hMailServer.Administrator.Controls
          _keys.Add(obj);
       }
 
+      public void AddItems(Dictionary<string, object> items)
+      {
+         foreach (var item in items)
+         {
+            base.Items.Add(item.Key);
+            _keys.Add(item.Value);
+         }
+      }
+
       public new object SelectedValue
       {
          set

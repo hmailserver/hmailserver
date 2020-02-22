@@ -35,10 +35,10 @@ namespace HM
          return false;
    }
    
-   std::vector<shared_ptr<Address> > 
+   std::vector<std::shared_ptr<Address> > 
    AddresslistParser::ParseList(const String &sList) const
    {
-      std::vector<shared_ptr<Address> > vecResult;
+      std::vector<std::shared_ptr<Address> > vecResult;
 
       std::vector<String> vecCompounds;
       
@@ -90,7 +90,7 @@ namespace HM
 
       // We now have a vector containing the recipients.
 
-      boost_foreach(String compound, vecCompounds)
+      for(String compound : vecCompounds)
       {
          String sFullName;
          String sMailbox;
@@ -98,7 +98,7 @@ namespace HM
 
          ExtractParts(compound, sFullName, sMailbox, sDomain);
 
-         shared_ptr<Address> pAddress = shared_ptr<Address> (new Address);
+         std::shared_ptr<Address> pAddress = std::shared_ptr<Address> (new Address);
          
          pAddress->sPersonalName = Charset::Encode(sFullName);
          
@@ -126,8 +126,8 @@ namespace HM
       
       String sEmailAddress;
 
-      _ExtractQuotedString(sCompound, sFullName);
-      _ExtractWithinGTLT(sCompound, sEmailAddress);
+      ExtractQuotedString_(sCompound, sFullName);
+      ExtractWithinGTLT_(sCompound, sEmailAddress);
       
       UnescapeString(sFullName);
       UnescapeString(sEmailAddress);
@@ -184,7 +184,7 @@ namespace HM
    }
 
    void 
-   AddresslistParser::_ExtractQuotedString(const String &sData, String &sQuotedString) const
+   AddresslistParser::ExtractQuotedString_(const String &sData, String &sQuotedString) const
    {
       sQuotedString = "";
       bool bInsideQuote = false;
@@ -230,7 +230,7 @@ namespace HM
    }
 
    void 
-   AddresslistParser::_ExtractWithinGTLT(const String &sData, String &sOutputString) const
+   AddresslistParser::ExtractWithinGTLT_(const String &sData, String &sOutputString) const
    {
       sOutputString = "";
 
@@ -301,17 +301,18 @@ namespace HM
    bool
    AddresslistParserTester::Test()
    {
-      _TestAddress("test@example.com", "test@example.com", "test","example.com");
-      _TestAddress("<martin@example.com>", "martin@example.com", "martin","example.com");
-      _TestAddress("\"servizio@example.it\"<servizio@example.it>", "servizio@example.it", "servizio", "example.it");
-      _TestAddress("\"Martin Knafve\" <martin@test.com>", "Martin Knafve", "martin", "test.com");
-      _TestAddress("Martin Knafve <test@domain.com>", "Martin Knafve", "test", "domain.com");      
-      _TestAddress("\"fdsa\\\"\" <test@test.com>", Charset::Encode("fdsa\""), "test", "test.com");      
-      _TestAddress("Emanuele Example <emanuele@example.com>", "Emanuele Example", "emanuele", "example.com");      
-      _TestAddress("Secunia Research <remove-vuln@example.com>", "Secunia Research", "remove-vuln", "example.com");      
-      _TestAddress("bugtraq@securityfocus.com", "bugtraq@securityfocus.com", "bugtraq", "securityfocus.com");
-      _TestAddress("Daniel <Daniel_SE@example.com>", "Daniel", "Daniel_SE", "example.com");
-      _TestAddress("\"Fredlund Example\" <Ingrid.Example@example.com>", "Fredlund Example", "Ingrid.Example", "example.com");
+      TestAddress_("@", "@", "","");
+      TestAddress_("test@example.com", "test@example.com", "test","example.com");
+      TestAddress_("<martin@example.com>", "martin@example.com", "martin","example.com");
+      TestAddress_("\"servizio@example.it\"<servizio@example.it>", "servizio@example.it", "servizio", "example.it");
+      TestAddress_("\"Martin Knafve\" <martin@test.com>", "Martin Knafve", "martin", "test.com");
+      TestAddress_("Martin Knafve <test@domain.com>", "Martin Knafve", "test", "domain.com");      
+      TestAddress_("\"fdsa\\\"\" <test@test.com>", Charset::Encode("fdsa\""), "test", "test.com");      
+      TestAddress_("Emanuele Example <emanuele@example.com>", "Emanuele Example", "emanuele", "example.com");      
+      TestAddress_("Secunia Research <remove-vuln@example.com>", "Secunia Research", "remove-vuln", "example.com");      
+      TestAddress_("bugtraq@securityfocus.com", "bugtraq@securityfocus.com", "bugtraq", "securityfocus.com");
+      TestAddress_("Daniel <Daniel_SE@example.com>", "Daniel", "Daniel_SE", "example.com");
+      TestAddress_("\"Fredlund Example\" <Ingrid.Example@example.com>", "Fredlund Example", "Ingrid.Example", "example.com");
 
 
       {  // MORE ADVANCED
@@ -320,7 +321,7 @@ namespace HM
 
          AddresslistParser* pParser= new AddresslistParser();
 
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
 
          if (vecResult.size() != 2)
          {
@@ -329,7 +330,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
          iterFirst++;
 
          if ((*iterFirst)->sPersonalName != _T("Test2 Testar"))
@@ -360,7 +361,7 @@ namespace HM
 
          AddresslistParser* pParser= new AddresslistParser();
 
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
 
          if (vecResult.size() != 2)
          {
@@ -369,7 +370,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
          iterFirst++;
 
          if ((*iterFirst)->sPersonalName != _T("Test2 Testar"))
@@ -400,7 +401,7 @@ namespace HM
 
          AddresslistParser* pParser= new AddresslistParser();
 
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
 
          if (vecResult.size() != 2)
          {
@@ -409,7 +410,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sPersonalName != _T("Martin Knafve"))
          {
@@ -459,7 +460,7 @@ namespace HM
 
          AddresslistParser* pParser= new AddresslistParser();
 
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
 
          if (vecResult.size() != 2)
          {
@@ -468,7 +469,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sPersonalName != _T("MartinKnafve"))
          {
@@ -516,14 +517,14 @@ namespace HM
          String sTestStr = "The Honor Society of Phi Kappa Phi <webmaster@phiphi.org>";
          AddresslistParser* pParser= new AddresslistParser();
          
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
          if (vecResult.size() != 1)
          {
             assert(0);
             throw;
          }
          
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          if ((*iterFirst)->sMailboxName != _T("webmaster"))
             throw;
@@ -541,7 +542,7 @@ namespace HM
 
          AddresslistParser* pParser= new AddresslistParser();
 
-         std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
+         std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sTestStr);
 
          if (vecResult.size() != 5)
          {
@@ -550,7 +551,7 @@ namespace HM
          }
          
          // Go to the second and check that it's right...
-         std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+         auto iterFirst = vecResult.begin();
 
          iterFirst++;
          iterFirst++;
@@ -582,11 +583,11 @@ namespace HM
    }
 
    void 
-   AddresslistParserTester::_TestAddress(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain)
+   AddresslistParserTester::TestAddress_(const String &sHeader, const String &sFullname, const String &sUser, const String &sDomain)
    {
       AddresslistParser* pParser= new AddresslistParser();
 
-      std::vector<shared_ptr<Address> > vecResult = pParser->ParseList(sHeader);
+      std::vector<std::shared_ptr<Address> > vecResult = pParser->ParseList(sHeader);
 
       if (vecResult.size() != 1)
       {
@@ -594,7 +595,7 @@ namespace HM
          throw;
       }
 
-      std::vector<shared_ptr<Address> >::iterator iterFirst = vecResult.begin();
+      auto iterFirst = vecResult.begin();
 
       if ((*iterFirst)->sPersonalName != sFullname)
       {

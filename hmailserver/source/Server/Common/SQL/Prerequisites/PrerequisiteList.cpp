@@ -17,7 +17,7 @@ namespace HM
 {
    PrerequisiteList::PrerequisiteList(void)
    {
-      _Initialize();
+      Initialize_();
    }
 
    PrerequisiteList::~PrerequisiteList(void)
@@ -25,17 +25,17 @@ namespace HM
    }
 
    void 
-   PrerequisiteList::_Initialize()
+   PrerequisiteList::Initialize_()
    {
-      shared_ptr<PreReqNoDuplicateFolders> duplicateFolderCheck = shared_ptr<PreReqNoDuplicateFolders>(new PreReqNoDuplicateFolders);
-      _prerequisites.push_back(std::make_pair(duplicateFolderCheck->GetDatabaseVersion(), duplicateFolderCheck));
+      std::shared_ptr<PreReqNoDuplicateFolders> duplicateFolderCheck = std::shared_ptr<PreReqNoDuplicateFolders>(new PreReqNoDuplicateFolders);
+      prerequisites_.push_back(std::make_pair(duplicateFolderCheck->GetDatabaseVersion(), duplicateFolderCheck));
    }
 
    bool
-   PrerequisiteList::Ensure(shared_ptr<DALConnection> connection, int scriptDatabaseVersion, String &sErrorMessage)
+   PrerequisiteList::Ensure(std::shared_ptr<DALConnection> connection, int scriptDatabaseVersion, String &sErrorMessage)
    {
-      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iter = _prerequisites.begin();
-      vector<pair<int, shared_ptr<IPrerequisite > > >::iterator iterEnd = _prerequisites.end();
+      auto iter = prerequisites_.begin();
+      auto iterEnd = prerequisites_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -43,7 +43,7 @@ namespace HM
 
          if (databaseVersion == scriptDatabaseVersion)
          {
-            shared_ptr<IPrerequisite > prereq = (*iter).second;
+            std::shared_ptr<IPrerequisite > prereq = (*iter).second;
 
             if (!prereq->Ensure(connection, sErrorMessage))
                return false;

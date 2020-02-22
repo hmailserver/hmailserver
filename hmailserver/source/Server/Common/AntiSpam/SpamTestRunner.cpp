@@ -36,28 +36,28 @@ namespace HM
    void 
    SpamTestRunner::LoadSpamTests()
    {
-      m_setSpamTests.push_back(shared_ptr<SpamTestDNSBlackLists> (new SpamTestDNSBlackLists));
-      m_setSpamTests.push_back(shared_ptr<SpamTestHeloHost> (new SpamTestHeloHost));
-      m_setSpamTests.push_back(shared_ptr<SpamTestMXRecords> (new SpamTestMXRecords));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSPF> (new SpamTestSPF));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
-      m_setSpamTests.push_back(shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
-      m_setSpamTests.push_back(shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
+      spam_tests_.push_back(std::shared_ptr<SpamTestDNSBlackLists> (new SpamTestDNSBlackLists));
+      spam_tests_.push_back(std::shared_ptr<SpamTestHeloHost> (new SpamTestHeloHost));
+      spam_tests_.push_back(std::shared_ptr<SpamTestMXRecords> (new SpamTestMXRecords));
+      spam_tests_.push_back(std::shared_ptr<SpamTestSPF> (new SpamTestSPF));
+      spam_tests_.push_back(std::shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
+      spam_tests_.push_back(std::shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
+      spam_tests_.push_back(std::shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
    }
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestRunner::RunSpamTest(shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestRunner::RunSpamTest(std::shared_ptr<SpamTestData> pInputData, SpamTest::SpamTestType iType, int iMaxScore)
    {
-      std::vector<shared_ptr<SpamTest> >::iterator iter = m_setSpamTests.begin(); 
-      std::vector<shared_ptr<SpamTest> >::iterator iterEnd = m_setSpamTests.end();
+      auto iter = spam_tests_.begin(); 
+      auto iterEnd = spam_tests_.end();
 
-      set<shared_ptr<SpamTestResult> > setTotalResult;
+      std::set<std::shared_ptr<SpamTestResult> > setTotalResult;
 
       int iTotalScore = 0;
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<SpamTest> pSpamTest = (*iter);
+         std::shared_ptr<SpamTest> pSpamTest = (*iter);
 
          if (!pSpamTest->GetIsEnabled())
             continue;
@@ -69,15 +69,15 @@ namespace HM
          
          String sName = pSpamTest->GetName();
 
-         set<shared_ptr<SpamTestResult> > setResult = pSpamTest->RunTest(pInputData);
+         std::set<std::shared_ptr<SpamTestResult> > setResult = pSpamTest->RunTest(pInputData);
 
-         set<shared_ptr<SpamTestResult> >::iterator iter = setResult.begin();
-         set<shared_ptr<SpamTestResult> >::iterator iterEnd = setResult.end();
+         auto iter = setResult.begin();
+         auto iterEnd = setResult.end();
 
          int totalScoreBefore = iTotalScore;
          for (; iter != iterEnd; iter++)
          {
-            shared_ptr<SpamTestResult> pResult = (*iter);
+            std::shared_ptr<SpamTestResult> pResult = (*iter);
             setTotalResult.insert(pResult);
 
             iTotalScore += pResult->GetSpamScore();
@@ -86,7 +86,7 @@ namespace HM
          int totalDiff = iTotalScore - totalScoreBefore;
 
          String sSpamTestResult;
-         sSpamTestResult.Format(_T("Spam test: %s, Score: %d"), sName, totalDiff);
+         sSpamTestResult.Format(_T("Spam test: %s, Score: %d"), sName.c_str(), totalDiff);
          LOG_DEBUG(sSpamTestResult);
 
          if (iTotalScore >= iMaxScore)

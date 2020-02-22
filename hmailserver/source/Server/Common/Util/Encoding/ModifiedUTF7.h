@@ -11,7 +11,7 @@ namespace HM
       static String Decode(const AnsiString &s);
 
    private:
-      static bool _IsSpecialCharacter(const wchar_t);
+      static bool IsSpecialCharacter_(const wchar_t);
    };
 
    class ModifiedUTF7Tester

@@ -8,6 +8,7 @@ namespace HM
 
    class IMAPFolder;
    class ACL;
+   enum PersistenceMode;
 
    class PersistentIMAPFolder
    {
@@ -16,10 +17,10 @@ namespace HM
 	   virtual ~PersistentIMAPFolder();
    public:
 
-      static bool DeleteObject(shared_ptr<IMAPFolder> pFolder);
-      static bool DeleteObject(shared_ptr<IMAPFolder> pFolder, bool forceDelete);
-      static bool SaveObject(shared_ptr<IMAPFolder> pFolder, String &errorMessage);
-      static bool SaveObject(shared_ptr<IMAPFolder> pFolder);
+      static bool DeleteObject(std::shared_ptr<IMAPFolder> pFolder);
+      static bool DeleteObject(std::shared_ptr<IMAPFolder> pFolder, bool forceDelete);
+      static bool SaveObject(std::shared_ptr<IMAPFolder> pFolder, String &errorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<IMAPFolder> pFolder);
       static bool DeleteByAccount(__int64 iAccountID);
 
       static bool GetExistsFolderContainingCharacter(String theChar);
@@ -30,8 +31,8 @@ namespace HM
 
    private:
 
-      static bool _IncreaseCurrentUID(__int64 folderID);
-      static unsigned int _GetCurrentUID(__int64 folderID);
+      static bool IncreaseCurrentUID_(__int64 folderID);
+      static unsigned int GetCurrentUID_(__int64 folderID);
 
 
    };

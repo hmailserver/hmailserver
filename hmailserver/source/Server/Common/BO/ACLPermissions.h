@@ -20,17 +20,17 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      shared_ptr<ACLPermission> GetPermissionForAccount(__int64 iAccountID);
-      shared_ptr<ACLPermission> GetPermissionForGroup(__int64 iGroupID);
+      std::shared_ptr<ACLPermission> GetPermissionForAccount(__int64 iAccountID);
+      std::shared_ptr<ACLPermission> GetPermissionForGroup(__int64 iGroupID);
       bool DeletePermissionsForAccount(__int64 iAccountID);
 
-      bool PreSaveObject(shared_ptr<ACLPermission> pPermission, XNode *pNode);
+      bool PreSaveObject(std::shared_ptr<ACLPermission> pPermission, XNode *pNode);
    protected:
       
       virtual String GetCollectionName() const {return "ACLs"; }
 
    private:
  
-      __int64 m_iFolderID;
+      __int64 folder_id_;
    };
 }

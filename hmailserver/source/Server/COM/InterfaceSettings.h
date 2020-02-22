@@ -18,20 +18,8 @@ class ATL_NO_VTABLE InterfaceSettings :
 {
 public:
 
-   InterfaceSettings()
-   {
-#ifdef _DEBUG
-      InterlockedIncrement(&counter);
-#endif
-   }
-
-   ~InterfaceSettings()
-   {
-#ifdef _DEBUG
-      InterlockedDecrement(&counter);
-#endif
-   }
-
+   InterfaceSettings();
+   
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACESETTINGS)
 
@@ -184,6 +172,13 @@ END_COM_MAP()
    STDMETHOD(get_SMTPRelayerUseSSL)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_SMTPRelayerUseSSL)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_SMTPRelayerConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_SMTPRelayerConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
+
+   STDMETHOD(get_SMTPConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_SMTPConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
+
+
    STDMETHOD(get_AddDeliveredToHeader)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_AddDeliveredToHeader)(/*[in]*/ VARIANT_BOOL newVal);
 
@@ -215,7 +210,36 @@ END_COM_MAP()
 
    STDMETHOD(get_MaxNumberOfMXHosts)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_MaxNumberOfMXHosts)(/*[in]*/ long newVal);
+   
+   STDMETHOD(get_VerifyRemoteSslCertificate)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_VerifyRemoteSslCertificate)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_SslCipherList)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(put_SslCipherList)(/*[in]*/ BSTR newVal);
+
+   STDMETHOD(get_TlsVersion10Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsVersion10Enabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsVersion11Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsVersion11Enabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsVersion12Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsVersion12Enabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsVersion13Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsVersion13Enabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_CrashSimulationMode)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_CrashSimulationMode)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_IMAPMasterUser)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(put_IMAPMasterUser)(/*[in]*/ BSTR newVal);
+
+   STDMETHOD(get_IMAPAuthAllowPlainText)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_IMAPAuthAllowPlainText)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_IMAPSASLPlainEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_IMAPSASLPlainEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_IMAPSASLInitialResponseEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_IMAPSASLInitialResponseEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
    bool LoadSettings();
 
@@ -223,12 +247,8 @@ private:
    
 
    
-   HM::Configuration *m_pConfig;
-   HM::IniFileSettings *m_pIniFileSettings;
-
-#ifdef _DEBUG
-   static long counter;
-#endif
+   HM::Configuration *config_;
+   HM::IniFileSettings *ini_file_settings_;
    
 };
 

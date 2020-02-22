@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -16,7 +17,7 @@ namespace RegressionTests.Security
       public new void SetUp()
       {
          _settings.ClearLogonFailureList();
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
       }
 
       #endregion
@@ -31,7 +32,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3Simulator();
+         var sim = new Pop3ClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -48,7 +49,7 @@ namespace RegressionTests.Security
 
          Assert.IsTrue(sim.GetWelcomeMessage().StartsWith("+OK"));
 
-         string logText = TestSetup.ReadCurrentDefaultLog();
+         string logText = LogHandler.ReadCurrentDefaultLog();
          Assert.IsFalse(logText.Contains("Blocked either by IP range or by connection limit."), logText);
       }
 
@@ -62,7 +63,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new IMAPSimulator();
+         var sim = new ImapClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -85,7 +86,7 @@ namespace RegressionTests.Security
 
          Assert.IsTrue(sim.GetWelcomeMessage().Length == 0);
 
-         string logText = TestSetup.ReadCurrentDefaultLog();
+         string logText = LogHandler.ReadCurrentDefaultLog();
          Assert.IsTrue(logText.Contains("Blocked either by IP range or by connection limit."), logText);
       }
 
@@ -101,7 +102,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new POP3Simulator();
+         var sim = new Pop3ClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -137,7 +138,7 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "te'st@test.com", "test");
 
-         var sim = new POP3Simulator(TestSetup.GetLocalIPAddress(), false, 110);
+         var sim = new Pop3ClientSimulator(TestSetup.GetLocalIpAddress(), false, 110);
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          sim.Disconnect();
 
@@ -159,7 +160,7 @@ namespace RegressionTests.Security
 
          Assert.IsTrue(sim.GetWelcomeMessage().Length == 0);
 
-         string logText = TestSetup.ReadCurrentDefaultLog();
+         string logText = LogHandler.ReadCurrentDefaultLog();
          Assert.IsTrue(logText.Contains("Blocked either by IP range or by connection limit."), logText);
       }
 
@@ -173,11 +174,11 @@ namespace RegressionTests.Security
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var sim = new SMTPClientSimulator();
+         var sim = new SmtpClientSimulator();
 
          //test@test.com / test
          string errorMessage;
-         Assert.IsTrue(sim.ConnectAndLogon(25, "dGVzdEB0ZXN0LmNvbQ==", "dGVzdA==", out errorMessage));
+         sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "dGVzdA==", out errorMessage);
          sim.Disconnect();
 
          // confirm that we can retrieve welcome message.
@@ -186,7 +187,7 @@ namespace RegressionTests.Security
          // fail to log on 3 times.
          for (int i = 0; i < 2; i++)
          {
-            Assert.IsFalse(sim.ConnectAndLogon(25, "dGVzdEB0ZXN0LmNvbQ==", "Vaffe==", out errorMessage));
+            CustomAsserts.Throws<System.Exception>(() => sim.ConnectAndLogon("dGVzdEB0ZXN0LmNvbQ==", "Vaffe==", out errorMessage));
             sim.Disconnect();
 
             if (i == 2)
@@ -197,7 +198,7 @@ namespace RegressionTests.Security
 
          Assert.IsTrue(sim.GetWelcomeMessage().Length == 0);
 
-         string logText = TestSetup.ReadCurrentDefaultLog();
+         string logText = LogHandler.ReadCurrentDefaultLog();
          Assert.IsTrue(logText.Contains("Blocked either by IP range or by connection limit."), logText);
       }
    }

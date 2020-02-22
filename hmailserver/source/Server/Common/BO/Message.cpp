@@ -38,150 +38,150 @@ namespace HM
 
    Message::Message(const Message& other) 
    {
-      m_iID = other.m_iID;
+      id_ = other.id_;
 
-      m_iMessageSize = other.m_iMessageSize;
-      m_sCreateTime = other.m_sCreateTime;
-      m_sFilename = other.m_sFilename;
-      m_sFromAddress = other.m_sFromAddress;
+      message_size_ = other.message_size_;
+      create_time_ = other.create_time_;
+      filename_ = other.filename_;
+      from_address_ = other.from_address_;
 
-      m_iMessageAccountID = other.m_iMessageAccountID;
-      m_iMessageFolderID = other.m_iMessageFolderID;
+      message_account_id_ = other.message_account_id_;
+      message_folder_id_ = other.message_folder_id_;
 
-      m_iMessageState = other.m_iMessageState;
-      m_iNoOfRetries = other.m_iNoOfRetries;
-      m_iFlags = other.m_iFlags;
+      message_state_ = other.message_state_;
+      no_of_retries_ = other.no_of_retries_;
+      flags_ = other.flags_;
 
-      _uid = other._uid;
+      uid_ = other.uid_;
    }
 
 
    void
    Message::Initialize(bool generateFileName)
    {
-      m_iMessageAccountID = 0;
-      m_iMessageState = Created;
-      m_iMessageFolderID = 0;
-      m_iMessageSize = 0;
-      m_iNoOfRetries = 0;
-      _uid = 0;
+      message_account_id_ = 0;
+      message_state_ = Created;
+      message_folder_id_ = 0;
+      message_size_ = 0;
+      no_of_retries_ = 0;
+      uid_ = 0;
 
       if (generateFileName)
       {
-         m_sFilename = GenerateFileName();
+         filename_ = GenerateFileName();
       }
 
       // Message flags.
-      m_iFlags = 0;
+      flags_ = 0;
    }
 
-   shared_ptr<MessageRecipients>
+   std::shared_ptr<MessageRecipients>
    Message::GetRecipients()
    {
-      if (!m_pRecipients)
-         m_pRecipients = shared_ptr<MessageRecipients>(new MessageRecipients);
+      if (!recipients_)
+         recipients_ = std::shared_ptr<MessageRecipients>(new MessageRecipients);
 
-      return m_pRecipients;
+      return recipients_;
    }
 
    bool
-   Message::_GetFlag(int iFlag) const
+   Message::GetFlag_(int iFlag) const
    {
-      return (m_iFlags & iFlag) > 0;
+      return (flags_ & iFlag) > 0;
    }
 
    void
-   Message::_SetFlag(int iFlag, bool bSet)
+   Message::SetFlag_(int iFlag, bool bSet)
    {
       if (bSet)
-         m_iFlags = m_iFlags | iFlag;
+         flags_ = flags_ | iFlag;
       else
-         m_iFlags = m_iFlags & ~iFlag;
+         flags_ = flags_ & ~iFlag;
    }
 
    bool 
    Message::GetFlagSeen() const
    {
-      return _GetFlag(FlagSeen);
+      return GetFlag_(FlagSeen);
    }
 
    void 
    Message::SetFlagSeen(bool bNewVal)
    {
-      _SetFlag(FlagSeen, bNewVal);
+      SetFlag_(FlagSeen, bNewVal);
    }
 
    bool 
    Message::GetFlagDeleted() const
    {
-      return _GetFlag(FlagDeleted);
+      return GetFlag_(FlagDeleted);
    }
 
    void 
    Message::SetFlagDeleted(bool bNewVal)
    {
-      _SetFlag(FlagDeleted, bNewVal);
+      SetFlag_(FlagDeleted, bNewVal);
    }
 
    bool 
    Message::GetFlagDraft() const
    {
-      return _GetFlag(FlagDraft);
+      return GetFlag_(FlagDraft);
    }
 
    void 
    Message::SetFlagDraft(bool bNewVal)
    {
-      _SetFlag(FlagDraft, bNewVal);
+      SetFlag_(FlagDraft, bNewVal);
    }
 
 
    bool 
    Message::GetFlagAnswered() const
    {
-      return _GetFlag(FlagAnswered);
+      return GetFlag_(FlagAnswered);
    }
 
    void 
    Message::SetFlagAnswered(bool bNewVal)
    {
-      _SetFlag(FlagAnswered, bNewVal);
+      SetFlag_(FlagAnswered, bNewVal);
    }
 
    bool 
    Message::GetFlagFlagged() const
    {
-      return _GetFlag(FlagFlagged);
+      return GetFlag_(FlagFlagged);
    }
 
    void 
    Message::SetFlagFlagged(bool bNewVal)
    {
-      _SetFlag(FlagFlagged, bNewVal);
+      SetFlag_(FlagFlagged, bNewVal);
    }
 
    bool 
    Message::GetFlagRecent() const
    {
-      return _GetFlag(FlagRecent);
+      return GetFlag_(FlagRecent);
    }
 
    void 
    Message::SetFlagRecent(bool bNewVal)
    {
-      _SetFlag(FlagRecent, bNewVal);
+      SetFlag_(FlagRecent, bNewVal);
    }
 
    bool 
    Message::GetFlagVirusScan() const
    {
-      return _GetFlag(FlagVirusScan);
+      return GetFlag_(FlagVirusScan);
    }
 
    void 
    Message::SetFlagVirusScan(bool bNewVal)
    {
-      _SetFlag(FlagVirusScan, bNewVal);
+      SetFlag_(FlagVirusScan, bNewVal);
    }
 
 
@@ -190,18 +190,18 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Message"));
 
-      String sFilename = m_sFilename;
+      String sFilename = filename_;
       sFilename.Replace(IniFileSettings::Instance()->GetDataDirectory() + _T("\\"), _T(""));
 
-      pNode->AppendAttr(_T("CreateTime"), String(m_sCreateTime));
+      pNode->AppendAttr(_T("CreateTime"), String(create_time_));
       pNode->AppendAttr(_T("Filename"), FileUtilities::GetFileNameFromFullPath(sFilename));
-      pNode->AppendAttr(_T("FromAddress"), String(m_sFromAddress));
-      pNode->AppendAttr(_T("State"), StringParser::IntToString(m_iMessageState));
-      pNode->AppendAttr(_T("Size"), StringParser::IntToString(m_iMessageSize));
-      pNode->AppendAttr(_T("NoOfRetries"), StringParser::IntToString(m_iNoOfRetries));
-      pNode->AppendAttr(_T("Flags"), StringParser::IntToString(m_iFlags));
-      pNode->AppendAttr(_T("ID"), StringParser::IntToString(m_iID));
-      pNode->AppendAttr(_T("UID"), StringParser::IntToString(_uid));
+      pNode->AppendAttr(_T("FromAddress"), String(from_address_));
+      pNode->AppendAttr(_T("State"), StringParser::IntToString(message_state_));
+      pNode->AppendAttr(_T("Size"), StringParser::IntToString(message_size_));
+      pNode->AppendAttr(_T("NoOfRetries"), StringParser::IntToString(no_of_retries_));
+      pNode->AppendAttr(_T("Flags"), StringParser::IntToString(flags_));
+      pNode->AppendAttr(_T("ID"), StringParser::IntToString(id_));
+      pNode->AppendAttr(_T("UID"), StringParser::IntToString(uid_));
 
       return true;
    }
@@ -209,14 +209,14 @@ namespace HM
    bool
    Message::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sCreateTime = pNode->GetAttrValue(_T("CreateTime"));
-      m_sFilename = pNode->GetAttrValue(_T("Filename"));
-      m_sFromAddress = pNode->GetAttrValue(_T("FromAddress"));
-      m_iMessageState = (State) _ttoi(pNode->GetAttrValue(_T("State")));
-      m_iMessageSize = _ttoi(pNode->GetAttrValue(_T("Size")));
-      m_iNoOfRetries = _ttoi(pNode->GetAttrValue(_T("NoOfRetries")));
-      m_iFlags = _ttoi(pNode->GetAttrValue(_T("Flags")));
-      _uid = _ttoi(pNode->GetAttrValue(_T("UID")));
+      create_time_ = pNode->GetAttrValue(_T("CreateTime"));
+      filename_ = pNode->GetAttrValue(_T("Filename"));
+      from_address_ = pNode->GetAttrValue(_T("FromAddress"));
+      message_state_ = (State) _ttoi(pNode->GetAttrValue(_T("State")));
+      message_size_ = _ttoi(pNode->GetAttrValue(_T("Size")));
+      no_of_retries_ = _ttoi(pNode->GetAttrValue(_T("NoOfRetries")));
+      flags_ = _ttoi(pNode->GetAttrValue(_T("Flags")));
+      uid_ = _ttoi(pNode->GetAttrValue(_T("UID")));
 
       return true;
    }
@@ -224,13 +224,13 @@ namespace HM
    String
    Message::GetPartialFileName() const
    {
-      return m_sFilename;
+      return filename_;
    }
 
    void
    Message::SetPartialFileName(const String &sFileName) 
    {
-      m_sFilename = sFileName;
+      filename_ = sFileName;
    }
 
    String 

@@ -13,25 +13,26 @@ public:
 
    }
 
-   static void CreateInstance()
-   {
-      pInstance = new T;
-   }
-
-   static void DeleteInstance()
-   {
-      delete pInstance;
-      pInstance = 0;
-   }
-
    static T * Instance()
    {
-      return pInstance;
+      if (instance_ == nullptr)
+      {
+         boost::lock_guard<boost::recursive_mutex> guard(create_instance_mutex_);
+
+         instance_ = new T();
+      }
+
+      
+
+      return instance_;
    }
 
 private:
 
-   static T * pInstance;
+   static T * instance_;
+   static boost::recursive_mutex create_instance_mutex_;
+
 };
 
-template <class T> T *Singleton<T>::pInstance = NULL;
+template <class T> T *Singleton<T>::instance_ = nullptr;
+template <class T> boost::recursive_mutex Singleton<T>::create_instance_mutex_;

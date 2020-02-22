@@ -14,9 +14,9 @@
 
 namespace HM
 {
-   Attachment::Attachment(shared_ptr<MimeBody> pMessage, shared_ptr<MimeBody> pAttachment) :
-      m_pMessage(pMessage),
-      m_pAttachment(pAttachment)
+   Attachment::Attachment(std::shared_ptr<MimeBody> pMessage, std::shared_ptr<MimeBody> pAttachment) :
+      message_(pMessage),
+      attachment_(pAttachment)
    {
 
    }
@@ -29,25 +29,37 @@ namespace HM
    void
    Attachment::SaveAs(const String &sSaveTo) const
    {
-      m_pAttachment->WriteToFile(sSaveTo);
+      attachment_->WriteToFile(sSaveTo);
    }
 
    String 
    Attachment::GetFileName()
    {
-      return m_pAttachment->GetUnicodeFilename();
+      return attachment_->GetUnicodeFilename();
+   }
+
+   void
+   Attachment::SetFileName(const String &file_name)
+   {
+      attachment_->SetFileName(file_name);
+   }
+
+   void 
+   Attachment::SetContent(const String &content)
+   {
+      attachment_->SetUnicodeText(content);
    }
 
    int
    Attachment::GetSize()
    {
-      return m_pAttachment->GetContentLength();
+      return attachment_->GetContentLength();
    }
 
    void
    Attachment::Delete()
    {
       // Remove this attachment from the parent message.
-      m_pMessage->RemoveAttachment(m_pAttachment);
+      message_->RemoveAttachment(attachment_);
    }
 }

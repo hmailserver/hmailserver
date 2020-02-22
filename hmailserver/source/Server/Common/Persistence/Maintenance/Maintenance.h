@@ -21,7 +21,7 @@ namespace HM
 
    private:
 
-      bool _RecalculateFolderUID();
+      bool RecalculateFolderUID_();
    };
 
 

@@ -23,38 +23,38 @@ namespace HM
       RuleApplier(void);
       ~RuleApplier(void);
 
-      void ApplyRules(shared_ptr<Rules> pRules, shared_ptr<const Account> account, shared_ptr<Message> pMessage, RuleResult &ruleResult);
+      void ApplyRules(std::shared_ptr<Rules> pRules, std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage, RuleResult &ruleResult);
 
       static bool TestMatch(String matchValue, RuleCriteria::MatchType matchType, String testValue);
 
-      static bool IsGeneratedResponseAllowed(shared_ptr<MessageData> pMsgData, bool bChkAutoSubmit);
+      static bool IsGeneratedResponseAllowed(std::shared_ptr<MessageData> pMsgData, bool bChkAutoSubmit);
 
    private:
 
       // Apply one rule to the message.
-      bool _ApplyRule(shared_ptr<Rule> pRule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
+      bool ApplyRule_(std::shared_ptr<Rule> pRule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
 
       // Do the actions for the message.
-      void _ApplyActions(shared_ptr<Rule> pRule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
+      void ApplyActions_(std::shared_ptr<Rule> pRule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
 
       // Do the action
-      void _ApplyAction(shared_ptr<Rule> pRule, shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
+      void ApplyAction_(std::shared_ptr<Rule> pRule, std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
 
       // Check wether pMessage matches pCriteria.
-      bool _MessageMatchesCriteria(shared_ptr<RuleCriteria> pCriteria, shared_ptr<MessageData> pMsgData) const;
+      bool MessageMatchesCriteria_(std::shared_ptr<RuleCriteria> pCriteria, std::shared_ptr<MessageData> pMsgData) const;
       
       // Actions
-      void _ApplyActionForward(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const;
-      void _ApplyActionCopy(shared_ptr<Rule> rule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const;
-      void _ApplyActionReply(shared_ptr<RuleAction> pAction, shared_ptr<MessageData> pMsgData) const;
-      void _ApplyActionScriptFunction(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const;
-      void _ApplyActionSetHeader(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const;
+      void ApplyAction_Forward(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
+      void ApplyAction_Copy(std::shared_ptr<Rule> rule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
+      void ApplyAction_Reply(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
+      void ApplyAction_ScriptFunction(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
+      void ApplyAction_SetHeader(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
 
       ;
 
    private:
 
-      __int64 m_iRuleAccountID;
+      __int64 rule_account_id_;
       
    };
 }

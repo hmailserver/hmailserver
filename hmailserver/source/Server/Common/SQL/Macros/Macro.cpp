@@ -13,7 +13,7 @@
 namespace HM
 {
    Macro::Macro() :
-      _type(Unknown)
+      type_(Unknown)
    {
       
    }

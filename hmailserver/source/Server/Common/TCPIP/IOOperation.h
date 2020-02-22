@@ -14,25 +14,26 @@ namespace HM
 
       enum OperationType
       {
-         BCTSend,
-         BCTReceive,
+         BCTWrite,
+         BCTRead,
          BCTShutdownSend,
          BCTDisconnect,
+         BCTHandshake
       };
 
-      IOOperation(OperationType type, shared_ptr<ByteBuffer> buffer);
+      IOOperation(OperationType type, std::shared_ptr<ByteBuffer> buffer);
       IOOperation(OperationType type, const AnsiString &string);
       ~IOOperation(void);
 
-      OperationType GetType() {return _type; }
-      shared_ptr<ByteBuffer> GetBuffer() {return _buffer; }
-      AnsiString GetString() {return _string; }
+      OperationType GetType() {return type_; }
+      std::shared_ptr<ByteBuffer> GetBuffer() {return buffer_; }
+      AnsiString GetString() {return string_; }
 
    private:
 
-      OperationType _type;
-      AnsiString _string;
-      shared_ptr<ByteBuffer> _buffer;
+      OperationType type_;
+      AnsiString string_;
+      std::shared_ptr<ByteBuffer> buffer_;
 
    };
 }

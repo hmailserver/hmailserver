@@ -58,7 +58,7 @@ namespace HM
 		SQLCommand command("select falocked from hm_fetchaccounts where faid = @FAID");
 		command.AddParameter("@FAID", ID);
 
-		shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+		std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 		if (!pRS || pRS->IsEOF())
 			return false;
 
@@ -67,9 +67,9 @@ namespace HM
 
 
    bool
-   PersistentFetchAccount::ReadObject(shared_ptr<FetchAccount> oFA, const SQLCommand& command)
+   PersistentFetchAccount::ReadObject(std::shared_ptr<FetchAccount> oFA, const SQLCommand& command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -83,7 +83,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccount::ReadObject(shared_ptr<FetchAccount> oFA, shared_ptr<DALRecordset> pRS)
+   PersistentFetchAccount::ReadObject(std::shared_ptr<FetchAccount> oFA, std::shared_ptr<DALRecordset> pRS)
    {
 
       if (pRS->IsEOF())
@@ -102,7 +102,7 @@ namespace HM
       oFA->SetDaysToKeep(pRS->GetLongValue("fadaystokeep"));
       oFA->SetProcessMIMERecipients(pRS->GetLongValue("faprocessmimerecipients") == 1);
       oFA->SetProcessMIMEDate(pRS->GetLongValue("faprocessmimedate") == 1);
-      oFA->SetUseSSL(pRS->GetLongValue("fausessl") == 1);
+      oFA->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("faconnectionsecurity"));
       oFA->SetNextTry(pRS->GetStringValue("fanexttry"));
       oFA->SetUseAntiSpam(pRS->GetLongValue("fauseantispam") == 1);
       oFA->SetUseAntiVirus(pRS->GetLongValue("fauseantivirus") == 1);
@@ -113,7 +113,7 @@ namespace HM
    }
 
    bool
-   PersistentFetchAccount::DeleteObject(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::DeleteObject(std::shared_ptr<FetchAccount> pFA)
    {
       SQLCommand command("delete from hm_fetchaccounts where faid = @FAID");
       command.AddParameter("@FAID", pFA->GetID());
@@ -134,20 +134,20 @@ namespace HM
    void
    PersistentFetchAccount::DeleteByAccountID(__int64 iAccountID)
    {
-      shared_ptr<FetchAccounts> pFetchAccounts = shared_ptr<FetchAccounts>(new FetchAccounts(iAccountID));
+      std::shared_ptr<FetchAccounts> pFetchAccounts = std::shared_ptr<FetchAccounts>(new FetchAccounts(iAccountID));
       pFetchAccounts->Refresh();
       pFetchAccounts->DeleteAll();
    }
 
    bool 
-   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA, String &errorMessage)
+   PersistentFetchAccount::SaveObject(std::shared_ptr<FetchAccount> pFA, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - Not supported yet.
       return SaveObject(pFA);
    }
 
    bool 
-   PersistentFetchAccount::SaveObject(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::SaveObject(std::shared_ptr<FetchAccount> pFA)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_fetchaccounts");
@@ -167,7 +167,7 @@ namespace HM
       oStatement.AddColumn("fanexttry", Time::GetCurrentDateTime());
       oStatement.AddColumn("faprocessmimerecipients", pFA->GetProcessMIMERecipients());
       oStatement.AddColumn("faprocessmimedate", pFA->GetProcessMIMEDate());
-      oStatement.AddColumn("fausessl", pFA->GetUseSSL());
+      oStatement.AddColumn("faconnectionsecurity", pFA->GetConnectionSecurity());
       oStatement.AddColumn("fauseantispam", pFA->GetUseAntiSpam());
       oStatement.AddColumn("fauseantivirus", pFA->GetUseAntiVirus());
       oStatement.AddColumn("faenablerouterecipients", pFA->GetEnableRouteRecipients());
@@ -207,7 +207,7 @@ namespace HM
    }
       
    void
-   PersistentFetchAccount::SetNextTryTime(shared_ptr<FetchAccount> pFA)
+   PersistentFetchAccount::SetNextTryTime(std::shared_ptr<FetchAccount> pFA)
    {
       SQLCommand command;
 

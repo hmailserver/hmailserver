@@ -34,9 +34,10 @@
    $allowremotetoremote		= hmailGetVar("allowremotetoremote","0");
 
    $enablespamprotection	= hmailGetVar("enablespamprotection","0");
-   $EnableAntiVirus        = hmailGetVar("EnableAntiVirus","0");
+   $EnableAntiVirus         = hmailGetVar("EnableAntiVirus","0");
    
    $IsForwardingRelay	   = hmailGetVar("IsForwardingRelay","0");
+   $RequireSSLTLSForAuth   = hmailGetVar("RequireSSLTLSForAuth","0");
    
    $Expires	   = hmailGetVar("Expires",0);
    $ExpiresTime	   = hmailGetVar("ExpiresTime","");
@@ -64,6 +65,7 @@
    $obSecurityRange->EnableSpamProtection = $enablespamprotection;
    $obSecurityRange->EnableAntiVirus = $EnableAntiVirus;
    $obSecurityRange->IsForwardingRelay = $IsForwardingRelay;
+   $obSecurityRange->RequireSSLTLSForAuth = $RequireSSLTLSForAuth;
    
    $obSecurityRange->Expires = $Expires;
    $obSecurityRange->ExpiresTime = $ExpiresTime;

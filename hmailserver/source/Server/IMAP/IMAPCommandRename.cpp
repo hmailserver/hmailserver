@@ -24,14 +24,14 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandRENAME::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandRENAME::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
 
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
 
       
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
 
@@ -42,7 +42,7 @@ namespace HM
       String sOldFolderName = pParser->GetParamValue(pArgument, 0);
       String sNewFolderName = pParser->GetParamValue(pArgument, 1);
             
-      shared_ptr<IMAPFolder> pFolderToRename = pConnection->GetFolderByFullPath(sOldFolderName);
+      std::shared_ptr<IMAPFolder> pFolderToRename = pConnection->GetFolderByFullPath(sOldFolderName);
       if (!pFolderToRename)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
@@ -59,8 +59,8 @@ namespace HM
          return result;
 
       // Get the old and new parent folders.
-      shared_ptr<IMAPFolder> pOldParentFolder = GetParentFolder(pConnection, vecOldPath);
-      shared_ptr<IMAPFolder> pNewParentFolder = GetParentFolder(pConnection, vecNewPath);
+      std::shared_ptr<IMAPFolder> pOldParentFolder = GetParentFolder(pConnection, vecOldPath);
+      std::shared_ptr<IMAPFolder> pNewParentFolder = GetParentFolder(pConnection, vecNewPath);
 
       if (vecNewPath.size() > 1 && !pNewParentFolder)
       {
@@ -133,13 +133,13 @@ namespace HM
       return IMAPResult();
    }
    
-   shared_ptr<IMAPFolder> 
-   IMAPCommandRENAME::GetParentFolder(shared_ptr<HM::IMAPConnection> pConnection, const std::vector<String> &vecFolderPath)
+   std::shared_ptr<IMAPFolder> 
+   IMAPCommandRENAME::GetParentFolder(std::shared_ptr<HM::IMAPConnection> pConnection, const std::vector<String> &vecFolderPath)
    {
       // Get the old parent folder
       if (vecFolderPath.size() < 1)
       {
-         shared_ptr<IMAPFolder> pEmpty;
+         std::shared_ptr<IMAPFolder> pEmpty;
          return pEmpty;
       }
       
@@ -147,13 +147,13 @@ namespace HM
       std::vector<String> vecParentFolder = vecFolderPath;
       vecParentFolder.resize(vecParentFolder.size() -1);
 
-      shared_ptr<IMAPFolder> pParentFolder = pConnection->GetFolderByFullPath(vecParentFolder);
+      std::shared_ptr<IMAPFolder> pParentFolder = pConnection->GetFolderByFullPath(vecParentFolder);
 
       return pParentFolder;
    }
 
    IMAPResult
-   IMAPCommandRENAME::ConfirmPossibleToRename(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPFolder> pFolderToRename, const std::vector<String> &vecOldPath, const std::vector<String> &vecNewPath)
+   IMAPCommandRENAME::ConfirmPossibleToRename(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPFolder> pFolderToRename, const std::vector<String> &vecOldPath, const std::vector<String> &vecNewPath)
    {
 
 
@@ -186,14 +186,14 @@ namespace HM
          
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
       String sNewFolderName = StringParser::JoinVector(vecNewPath, hierarchyDelimiter);
-      shared_ptr<IMAPFolder> pTargetFolder = pConnection->GetFolderByFullPath(sNewFolderName);
+      std::shared_ptr<IMAPFolder> pTargetFolder = pConnection->GetFolderByFullPath(sNewFolderName);
       if (pTargetFolder)
          return IMAPResult(IMAPResult::ResultNo, "Target folder already exist.");
 
 
       int iRecursion = 0;
       int iOldFolderDepth = pFolderToRename->GetFolderDepth(iRecursion);
-      int iNewMaxFolderDepth = iOldFolderDepth + (vecNewPath.size()-1);
+      int iNewMaxFolderDepth = (int) (iOldFolderDepth + (vecNewPath.size()-1));
       
       if (iNewMaxFolderDepth > 25)
          return IMAPResult(IMAPResult::ResultNo, "To many sub-folders in structure.");

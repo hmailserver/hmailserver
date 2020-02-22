@@ -31,79 +31,82 @@ namespace HM
    }
 
    bool
-   NameChanger::RenameDomain(const String& oldDomainName, shared_ptr<Domain> pDomain, String &errorMessage)
+   NameChanger::RenameDomain(const String& oldDomainName, std::shared_ptr<Domain> pDomain, String &errorMessage)
    {
       const String& newDomainName = pDomain->GetName();
 
-      if (!_RenameDomainDataDirectory(oldDomainName, pDomain->GetName(), errorMessage))
+      if (!RenameDomainDataDirectory_(oldDomainName, pDomain->GetName(), errorMessage))
          return false;
 
       // Update accounts...
-      std::vector<shared_ptr<Account> > vecAccounts = pDomain->GetAccounts()->GetVector();
-      std::vector<shared_ptr<Account> >::iterator iterAccount = vecAccounts.begin();
-      std::vector<shared_ptr<Account> >::iterator iterAccountEnd = vecAccounts.end();
+      std::vector<std::shared_ptr<Account> > vecAccounts = pDomain->GetAccounts()->GetVector();
+      auto iterAccount = vecAccounts.begin() ;
+      auto iterAccountEnd = vecAccounts.end();
 
       for (; iterAccount != iterAccountEnd; iterAccount++)
       {
-         shared_ptr<Account> pAccount = (*iterAccount);
+         std::shared_ptr<Account> pAccount = (*iterAccount);
 
          String sAddress = pAccount->GetAddress();
-         _UpdateDomainName(sAddress, oldDomainName, newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName, newDomainName);
          pAccount->SetAddress(sAddress);
 
          String currentVal = pAccount->GetForwardAddress();
-         if (_UpdateDomainName(currentVal, oldDomainName, newDomainName))
+         if (UpdateDomainName_(currentVal, oldDomainName, newDomainName))
             pAccount->SetForwardAddress(currentVal);
 
-         PersistentAccount::SaveObject(pAccount);
+         if (!PersistentAccount::SaveObject(pAccount, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       // Update aliases...
-      std::vector<shared_ptr<Alias> > vecAliases = pDomain->GetAliases()->GetVector();
-      std::vector<shared_ptr<Alias> >::iterator iterAlias = vecAliases.begin();
-      std::vector<shared_ptr<Alias> >::iterator iterAliasEnd = vecAliases.end();
+      std::vector<std::shared_ptr<Alias> > vecAliases = pDomain->GetAliases()->GetVector();
+      auto iterAlias = vecAliases.begin();
+      auto iterAliasEnd = vecAliases.end();
 
       for (; iterAlias != iterAliasEnd; iterAlias++)
       {
-         shared_ptr<Alias> pAlias = (*iterAlias);
+         std::shared_ptr<Alias> pAlias = (*iterAlias);
 
          String sAddress = pAlias->GetName();
-         _UpdateDomainName(sAddress, oldDomainName, newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName, newDomainName);
          pAlias->SetName(sAddress);
 
          String aliasValue = pAlias->GetValue();
 
-         if (_UpdateDomainName(aliasValue, oldDomainName, newDomainName))
+         if (UpdateDomainName_(aliasValue, oldDomainName, newDomainName))
             pAlias->SetValue(aliasValue);
 
-         PersistentAlias::SaveObject(pAlias);
+         if (!PersistentAlias::SaveObject(pAlias, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       // Update lists...
-      std::vector<shared_ptr<DistributionList> > vecLists = pDomain->GetDistributionLists()->GetVector();
-      std::vector<shared_ptr<DistributionList> >::iterator iterList = vecLists.begin();
-      std::vector<shared_ptr<DistributionList> >::iterator iterListEnd = vecLists.end();
+      std::vector<std::shared_ptr<DistributionList> > vecLists = pDomain->GetDistributionLists()->GetVector();
+      auto iterList = vecLists.begin();
+      auto iterListEnd = vecLists.end();
 
       for (; iterList != iterListEnd; iterList++)
       {
-         shared_ptr<DistributionList> pList = (*iterList);
+         std::shared_ptr<DistributionList> pList = (*iterList);
 
          String sAddress = pList->GetAddress();
-         _UpdateDomainName(sAddress, oldDomainName,newDomainName);
+         UpdateDomainName_(sAddress, oldDomainName,newDomainName);
          pList->SetAddress(sAddress);
 
-         vector<shared_ptr<HM::DistributionListRecipient>> recipients = pList->GetMembers()->GetVector();
-         boost_foreach(shared_ptr<DistributionListRecipient> recipient, recipients)
+         std::vector<std::shared_ptr<HM::DistributionListRecipient>> recipients = pList->GetMembers()->GetVector();
+         for(std::shared_ptr<DistributionListRecipient> recipient : recipients)
          {
             String address = recipient->GetAddress();
-            if (_UpdateDomainName(address,oldDomainName, newDomainName))
+            if (UpdateDomainName_(address,oldDomainName, newDomainName))
             {
                recipient->SetAddress(address);
                PersistentDistributionListRecipient::SaveObject(recipient);
             }
          }
 
-         PersistentDistributionList::SaveObject(pList);
+         if (!PersistentDistributionList::SaveObject(pList, errorMessage, PersistenceMode::PersistenceModeRename))
+            return false;
       }
 
       return true;
@@ -111,7 +114,7 @@ namespace HM
    }
 
    bool 
-   NameChanger::_UpdateDomainName(String &sAddress, const String &oldDomainName, const String& newDomainName)
+   NameChanger::UpdateDomainName_(String &sAddress, const String &oldDomainName, const String& newDomainName)
    {
 
       if (!sAddress.EndsWith("@" + oldDomainName))
@@ -133,7 +136,7 @@ namespace HM
    }
 
    bool
-   NameChanger::RenameAccount(const String& oldAccountName, shared_ptr<Account> pAccount, String &errorMessage)
+   NameChanger::RenameAccount(const String& oldAccountName, std::shared_ptr<Account> pAccount, String &errorMessage)
    {
       String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
       String domainName = StringParser::ExtractDomain(oldAccountName);
@@ -145,21 +148,21 @@ namespace HM
       String oldDirectoryName = FileUtilities::Combine(domainDirectory, oldMailboxName);
       String newDirectoryName = FileUtilities::Combine(domainDirectory, newMailboxName);
 
-      return _RenameDirectory(oldDirectoryName, newDirectoryName, errorMessage);
+      return RenameDirectory_(oldDirectoryName, newDirectoryName, errorMessage);
    }
 
    bool 
-   NameChanger::_RenameDomainDataDirectory(const String &oldDomainName, const String &newDomainName, String &errorMessage)
+   NameChanger::RenameDomainDataDirectory_(const String &oldDomainName, const String &newDomainName, String &errorMessage)
    {
       // Old director name
       String oldDirectory = FileUtilities::Combine(IniFileSettings::Instance()->GetDataDirectory(), oldDomainName);
       String newDirectory = FileUtilities::Combine(IniFileSettings::Instance()->GetDataDirectory(), newDomainName);
 
-      return _RenameDirectory(oldDirectory, newDirectory, errorMessage);
+      return RenameDirectory_(oldDirectory, newDirectory, errorMessage);
    }
 
    bool 
-   NameChanger::_RenameDirectory(const String &oldDirectory, const String &newDirectory, String &errorMessage)
+   NameChanger::RenameDirectory_(const String &oldDirectory, const String &newDirectory, String &errorMessage)
    {
       if (FileUtilities::Exists(newDirectory))
       {
@@ -182,7 +185,7 @@ namespace HM
       }
 
       // We were successful in copying the data directory for the domain in question. Now drop the old structure.
-      FileUtilities::DeleteDirectory(oldDirectory);
+      FileUtilities::DeleteDirectory(oldDirectory, true);
 
       return true;
    }

@@ -6,8 +6,11 @@
 #include "SpamAssassinTestConnect.h"
 #include "SpamAssassinClient.h"
 
-#include "../../TCPIP/IOCPServer.h"
+#include "../../TCPIP/IOService.h"
 #include "../../TCPIP/TCPConnection.h"
+#include "../../TCPIP/SslContextInitializer.h"
+#include "../../TCPIP/DNSResolver.h"
+#include "../../Util/FileUtilities.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -28,37 +31,51 @@ namespace HM
       String tempFile = FileUtilities::GetTempFileName();
       FileUtilities::WriteToFile(tempFile, bodyText, false);
 
-      shared_ptr<SpamAssassinClient> pSAClient = shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile));
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
-      shared_ptr<TCPConnection> pClientConnection = Application::Instance()->GetIOCPServer()->CreateConnection();
-      pClientConnection->Start(pSAClient);
+      bool testCompleted;
 
-      // Copy the event so that we know when we've disconnected.
-      Event disconnectEvent(pClientConnection->GetConnectionTerminationEvent());
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
+      std::shared_ptr<SpamAssassinClient> pSAClient = std::shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
 
-      // Here we handle of the ownership to the TCPIP-connection layer.
-      if (pClientConnection->Connect(hostName, port, IPAddress()))
+      DNSResolver resolver;
+
+      std::vector<String> ip_addresses;
+      resolver.GetIpAddresses(hostName, ip_addresses, true);
+
+      String ip_address;
+      if (ip_addresses.size())
       {
-         // Make sure we keep no references to the TCP connection so that it
-         // can be terminated whenever. We're longer own the connection.
-         pClientConnection.reset();
-
-         disconnectEvent.Wait();
-      }
-
-      // Copy back the file...
-      if (pSAClient->FinishTesting())
-      {
-         message = FileUtilities::ReadCompleteTextFile(tempFile);
-         FileUtilities::DeleteFile(tempFile);
-         return true;
+         ip_address = *(ip_addresses.begin());
       }
       else
       {
-         message = "Unable to connect to the specified SpamAssassin server.";
-         FileUtilities::DeleteFile(tempFile);
+         message = "The IP address for SpamAssassin could not be resolved. Aborting tests.";
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamAssassinTestConnect::TestConnect", message);
          return false;
       }
+
+      // Here we handle of the ownership to the TCPIP-connection layer.
+      if (pSAClient->Connect(ip_address, port, IPAddress()))
+      {
+         // Make sure we keep no references to the TCP connection so that it
+         // can be terminated whenever. We're longer own the connection.
+         pSAClient.reset();
+
+         disconnectEvent->Wait();
+      }
+
+      if (testCompleted)
+         message = FileUtilities::ReadCompleteTextFile(tempFile);
+      else
+      {
+         message = "Unable to connect to the specified SpamAssassin server.";
+      }
+
+      FileUtilities::DeleteFile(tempFile);
+
+      return testCompleted;
+
    }
 
 }

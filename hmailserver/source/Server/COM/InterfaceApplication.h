@@ -61,6 +61,7 @@ public:
    STDMETHOD(get_Status)(/*[out, retval]*/ IInterfaceStatus** pVal);
    STDMETHOD(get_ServerState)(eServerState *pVal);
    STDMETHOD(get_Version)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(get_VersionArchitecture)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_InitializationFile)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_BackupManager)(/*[out, retval]*/ IInterfaceBackupManager** pVal);
    STDMETHOD(get_GlobalObjects)(/*[out, retval]*/ IInterfaceGlobalObjects** pVal);
@@ -70,8 +71,8 @@ public:
    STDMETHOD(get_Rules)(/*[out, retval]*/ IInterfaceRules **pVal);
 
 private:
-   HRESULT _EnsureDatabaseConnectivity();
-   shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   HRESULT EnsureDatabaseConnectivity_();
+   std::shared_ptr<HM::COMAuthentication> authentication_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Application), InterfaceApplication)

@@ -18,11 +18,11 @@
 namespace HM
 {
    ACLPermission::ACLPermission(void) :
-      m_iShareFolderID(0),
-      m_iPermissionType(PTUser),
-      m_iPermissionGroupID(0),
-      m_iPermissionAccountID(0),
-      m_iValue(0)
+      share_folder_id_(0),
+      permission_type_(PTUser),
+      permission_group_id_(0),
+      permission_account_id_(0),
+      value_(0)
    {
       
    }
@@ -34,82 +34,82 @@ namespace HM
    void
    ACLPermission::GrantAll()
    {
-      m_iValue = m_iValue | 2047;
+      value_ = value_ | 2047;
    }
 
    __int64 
    ACLPermission::GetShareFolderID()
    {
-      return m_iShareFolderID;
+      return share_folder_id_;
    }
 
    void 
    ACLPermission::SetShareFolderID(__int64 iNewVal)
    {
-      m_iShareFolderID = iNewVal;
+      share_folder_id_ = iNewVal;
    }
 
    __int64 
    ACLPermission::GetPermissionGroupID()
    {
-      return m_iPermissionGroupID;
+      return permission_group_id_;
    }
 
    void 
    ACLPermission::SetPermissionGroupID(__int64 iNewVal)
    {
-      m_iPermissionGroupID = iNewVal;
+      permission_group_id_ = iNewVal;
    }
 
    __int64 
    ACLPermission::GetPermissionAccountID()
    {
-      return m_iPermissionAccountID;
+      return permission_account_id_;
    }
 
    void 
    ACLPermission::SetPermissionAccountID(__int64 iNewVal)
    {
-      m_iPermissionAccountID = iNewVal;
+      permission_account_id_ = iNewVal;
    }
 
    ACLPermission::ePermissionType
    ACLPermission::GetPermissionType()
    {
-      return m_iPermissionType;
+      return permission_type_;
    }
 
    void 
    ACLPermission::SetPermissionType(ePermissionType iNewVal)
    {
-      m_iPermissionType = iNewVal;
+      permission_type_ = iNewVal;
    }
 
    __int64 
    ACLPermission::GetValue()
    {
-      return m_iValue;
+      return value_;
    }
 
    void 
    ACLPermission::SetValue(__int64 iNewVal)
    {
-      m_iValue = iNewVal;
+      value_ = iNewVal;
    }
 
    bool 
    ACLPermission::GetAllow(ACLPermission::ePermission p) const
    {
-      return (m_iValue & p) ? true : false;
+      return (value_ & p) ? true : false;
    }
 
    void 
    ACLPermission::SetAllow(ACLPermission::ePermission p, bool bValue)
    {
       if (bValue)
-         m_iValue = m_iValue | p;
+         value_ = value_ | p;
       else
-         m_iValue = m_iValue & ~p;
+         value_ = value_ & ~p;
    }
 
    String 
@@ -219,9 +219,9 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Permission"));
 
-      pNode->AppendAttr(_T("Type"), StringParser::IntToString(m_iPermissionType));
-      pNode->AppendAttr(_T("Rights"), StringParser::IntToString(m_iValue));
-      pNode->AppendAttr(_T("Holder"), _GetPermissionHolderName(this));
+      pNode->AppendAttr(_T("Type"), StringParser::IntToString(permission_type_));
+      pNode->AppendAttr(_T("Rights"), StringParser::IntToString(value_));
+      pNode->AppendAttr(_T("Holder"), GetPermissionHolderName_(this));
 
       return true;
    }
@@ -229,16 +229,16 @@ namespace HM
    bool
    ACLPermission::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_iPermissionType = (ePermissionType) _ttoi(pNode->GetAttrValue(_T("Type")));
-      m_iValue = _ttoi(pNode->GetAttrValue(_T("Rights")));
+      permission_type_ = (ePermissionType) _ttoi(pNode->GetAttrValue(_T("Type")));
+      value_ = _ttoi(pNode->GetAttrValue(_T("Rights")));
 
       String sPermissionHolder = pNode->GetAttrValue(_T("Holder"));
 
-      switch (m_iPermissionType)
+      switch (permission_type_)
       {
       case ACLPermission::PTGroup:
          {
-            shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sPermissionHolder);
+            std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByName(sPermissionHolder);
 
             if (pGroup)
             {
@@ -249,7 +249,7 @@ namespace HM
          }
       case ACLPermission::PTUser:
          {
-            shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sPermissionHolder);
+            std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sPermissionHolder);
 
             if (pAccount)
             {
@@ -266,18 +266,18 @@ namespace HM
    }
 
    String
-   ACLPermission::_GetPermissionHolderName(ACLPermission *pPermission)  const
+   ACLPermission::GetPermissionHolderName_(ACLPermission *pPermission)  const
    {
       switch (pPermission->GetPermissionType())
       {
       case ACLPermission::PTGroup:
          {
-            shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(pPermission->GetPermissionGroupID());
+            std::shared_ptr<Group> pGroup = Configuration::Instance()->GetIMAPConfiguration()->GetGroups()->GetItemByDBID(pPermission->GetPermissionGroupID());
             return pGroup->GetName();
          }
       case ACLPermission::PTUser:
          {
-            shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pPermission->GetPermissionAccountID());
+            std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pPermission->GetPermissionAccountID());
             return pAccount->GetAddress();
          }
       case ACLPermission::PTAnyone:

@@ -29,24 +29,8 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_greylisting_whiteaddresses order by whiteipaddress asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
-   bool 
-   GreyListingWhiteAddresses::GetIPExistsInWhiteList(const String &sCheckIP)
-   {
-      vector<shared_ptr<GreyListingWhiteAddress> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<GreyListingWhiteAddress> >::iterator iterEnd = vecObjects.end();
-
-      for (; iter != iterEnd; iter++)
-      {
-         String sWhiteIPAddress = (*iter)->GetIPAddress();
-
-         if (StringParser::WildcardMatch(sWhiteIPAddress, sCheckIP))
-            return true;
-      }
-
-      return false;
-   }
 
 }

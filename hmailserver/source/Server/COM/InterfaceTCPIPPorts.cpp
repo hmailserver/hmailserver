@@ -10,9 +10,9 @@
 #include "InterfaceTCPIPPort.h"
 
 void 
-InterfaceTCPIPPorts::Attach(shared_ptr<HM::TCPIPPorts> pBA) 
+InterfaceTCPIPPorts::Attach(std::shared_ptr<HM::TCPIPPorts> pBA) 
 { 
-   m_pTCPIPPorts = pBA; 
+   tcpip_ports_ = pBA; 
 }
 
 STDMETHODIMP 
@@ -20,10 +20,10 @@ InterfaceTCPIPPorts::Refresh()
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return S_FALSE;
    
-      m_pTCPIPPorts->Refresh();
+      tcpip_ports_->Refresh();
    
       return S_OK;
    }
@@ -38,10 +38,10 @@ InterfaceTCPIPPorts::SetDefault()
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return S_FALSE;
    
-      m_pTCPIPPorts->SetDefault();
+      tcpip_ports_->SetDefault();
    
       return S_OK;
    }
@@ -55,10 +55,10 @@ STDMETHODIMP InterfaceTCPIPPorts::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return GetAccessDenied();
 
-      *pVal = m_pTCPIPPorts->GetCount();
+      *pVal = tcpip_ports_->GetCount();
    
       return S_OK;
    }
@@ -73,19 +73,19 @@ InterfaceTCPIPPorts::get_Item(long Index, IInterfaceTCPIPPort **pVal)
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return GetAccessDenied();
 
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
-      pInterfaceTCPIPPort->SetAuthentication(m_pAuthentication);
+      pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = m_pTCPIPPorts->GetItem(Index);
+      std::shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceTCPIPPort->AttachItem(pBA);
-      pInterfaceTCPIPPort->AttachParent(m_pTCPIPPorts, true);
+      pInterfaceTCPIPPort->AttachParent(tcpip_ports_, true);
       pInterfaceTCPIPPort->AddRef();
       *pVal = pInterfaceTCPIPPort;
    
@@ -102,10 +102,10 @@ InterfaceTCPIPPorts::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return GetAccessDenied();
 
-      m_pTCPIPPorts->DeleteItemByDBID(DBID);
+      tcpip_ports_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -119,19 +119,19 @@ InterfaceTCPIPPorts::get_ItemByDBID(long lDBID, IInterfaceTCPIPPort **pVal)
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return GetAccessDenied();
 
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
-      pInterfaceTCPIPPort->SetAuthentication(m_pAuthentication);
+      pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = m_pTCPIPPorts->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::TCPIPPort> pBA = tcpip_ports_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceTCPIPPort->AttachItem(pBA);
-      pInterfaceTCPIPPort->AttachParent(m_pTCPIPPorts, true);
+      pInterfaceTCPIPPort->AttachParent(tcpip_ports_, true);
       pInterfaceTCPIPPort->AddRef();
    
       *pVal = pInterfaceTCPIPPort;
@@ -149,19 +149,19 @@ InterfaceTCPIPPorts::Add(IInterfaceTCPIPPort **pVal)
 {
    try
    {
-      if (!m_pTCPIPPorts)
+      if (!tcpip_ports_)
          return GetAccessDenied();
 
-      if (!m_pTCPIPPorts)
-         return m_pAuthentication->GetAccessDenied();
+      if (!tcpip_ports_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceTCPIPPort>* pInterfaceTCPIPPort = new CComObject<InterfaceTCPIPPort>();
-      pInterfaceTCPIPPort->SetAuthentication(m_pAuthentication);
+      pInterfaceTCPIPPort->SetAuthentication(authentication_);
    
-      shared_ptr<HM::TCPIPPort> pBA = shared_ptr<HM::TCPIPPort>(new HM::TCPIPPort);
+      std::shared_ptr<HM::TCPIPPort> pBA = std::shared_ptr<HM::TCPIPPort>(new HM::TCPIPPort);
    
       pInterfaceTCPIPPort->AttachItem(pBA);
-      pInterfaceTCPIPPort->AttachParent(m_pTCPIPPorts, false);
+      pInterfaceTCPIPPort->AttachParent(tcpip_ports_, false);
    
       pInterfaceTCPIPPort->AddRef();
    

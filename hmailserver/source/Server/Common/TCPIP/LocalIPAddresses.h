@@ -19,7 +19,7 @@ namespace HM
 
    private:
       
-      std::vector<std::pair<IPAddress, int> > m_vecLocalPorts;
+      std::vector<std::pair<IPAddress, int> > local_ports_;
    };
 
 

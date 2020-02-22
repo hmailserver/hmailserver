@@ -26,11 +26,11 @@ namespace HM
       ~PersistentMessageMetaData(void);
 
       // quickIndex param added to choose new faster/limiting option
-      set<shared_ptr<MessageInfo> > GetMessagesToIndex(bool quickIndex);
+      std::set<std::shared_ptr<MessageInfo> > GetMessagesToIndex(bool quickIndex);
 
-      bool DeleteForMessage(shared_ptr<Message> message);
-      void GetMetaData(int accountID, int folderID, const String &headerField, map<__int64, String > &result);
-      bool SaveObject(shared_ptr<MessageMetaData> metaData);
+      bool DeleteForMessage(std::shared_ptr<Message> message);
+      void GetMetaData(int accountID, int folderID, const String &headerField, std::map<__int64, String > &result);
+      bool SaveObject(std::shared_ptr<MessageMetaData> metaData);
       bool DeleteOrphanedItems();
       int GetTotalMessageCount();
       void Clear();

@@ -15,18 +15,26 @@
 
 namespace HM
 {
-   PGConnection::PGConnection(shared_ptr<DatabaseSettings> pSettings) :
-      DALConnection(pSettings)
+   PGConnection::PGConnection(std::shared_ptr<DatabaseSettings> pSettings) :
+      DALConnection(pSettings),
+      dbconn_(nullptr)
    {
-      m_bIsConnected = false;
+      is_connected_ = false;
    }
 
    PGConnection::~PGConnection()
    {
-      if (m_pDBConn)
+      try
       {
-         PQfinish(m_pDBConn);
-         m_pDBConn = 0;
+         if (dbconn_)
+         {
+            PQfinish(dbconn_);
+            dbconn_ = 0;
+         }
+      }
+      catch (...)
+      {
+
       }
         
    }
@@ -37,30 +45,30 @@ namespace HM
       try
       {
 
-         String sUsername = m_pDatabaseSettings->GetUsername();
-         String sPassword = m_pDatabaseSettings->GetPassword();
-         String sServer = m_pDatabaseSettings->GetServer();
-         String sDatabase = m_pDatabaseSettings->GetDatabaseName();
-         long lDBPort = m_pDatabaseSettings->GetPort();
+         String sUsername = database_settings_->GetUsername();
+         String sPassword = database_settings_->GetPassword();
+         String sServer = database_settings_->GetServer();
+         String sDatabase = database_settings_->GetDatabaseName();
+         long lDBPort = database_settings_->GetPort();
         
          String sConnectionString;
-         sConnectionString.Format(_T("host=%s port=%d user=%s password=%s"), sServer, lDBPort, sUsername, sPassword);
+         sConnectionString.Format(_T("host='%s' port='%d' user='%s' password='%s'"), sServer.c_str(), lDBPort, sUsername.c_str(), sPassword.c_str());
 
          if (sDatabase.IsEmpty())
-            sConnectionString += " dbname=postgres";
+            sConnectionString += " dbname='postgres'";
          else
-            sConnectionString += " dbname=" + sDatabase;
+            sConnectionString += " dbname='" + sDatabase + "'";
 
-         m_pDBConn = PQconnectdb(Unicode::ToANSI(sConnectionString));
+         dbconn_ = PQconnectdb(Unicode::ToANSI(sConnectionString));
 
         
-         if (PQstatus(m_pDBConn) != CONNECTION_OK)
+         if (PQstatus(dbconn_) != CONNECTION_OK)
          {
-            sErrorMessage = PQerrorMessage(m_pDBConn);
+            sErrorMessage = PQerrorMessage(dbconn_);
             return TemporaryFailure;
          }
 
-         m_bIsConnected = true;
+         is_connected_ = true;
       }
       catch (...)
       {
@@ -75,10 +83,10 @@ namespace HM
    bool
    PGConnection::Disconnect()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         PQfinish(m_pDBConn);
-         m_pDBConn = 0;
+         PQfinish(dbconn_);
+         dbconn_ = 0;
       }
 
       return true;
@@ -101,7 +109,7 @@ namespace HM
             return DALConnection::DALUnknown;
          }
 
-         PGresult *pResult = PQexec(m_pDBConn, sQuery);
+         PGresult *pResult = PQexec(dbconn_, sQuery);
 
          bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
 
@@ -144,13 +152,13 @@ namespace HM
    bool
    PGConnection::IsConnected() const
    {
-      return m_bIsConnected;
+      return is_connected_;
    }
 
    PGconn*
    PGConnection::GetConnection() const
    {
-      return m_pDBConn;
+      return dbconn_;
    }
 
    DALConnection::ExecutionResult
@@ -181,7 +189,7 @@ namespace HM
          }
          else
          {
-            sErrorMsg  = PQerrorMessage(m_pDBConn);
+            sErrorMsg  = PQerrorMessage(dbconn_);
 
             if (sErrorMsg.IsEmpty())
                sErrorMsg = "Unknown error. Error structure not initialized.";
@@ -190,7 +198,7 @@ namespace HM
          }
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("Postgres: %s (Additional info: %s)"), sErrorMsg, sAdditionalInfo);
+         sErrorMessage.Format(_T("Postgres: %s (Additional info: %s)"), sErrorMsg.c_str(), sAdditionalInfo);
 
          sOutputErrorMessage = sErrorMessage;
 
@@ -239,10 +247,10 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    PGConnection::CreateRecordset()
    {
-      shared_ptr<PGRecordset> recordset = shared_ptr<PGRecordset>(new PGRecordset());
+      std::shared_ptr<PGRecordset> recordset = std::shared_ptr<PGRecordset>(new PGRecordset());
       return recordset;
    }
 
@@ -253,10 +261,10 @@ namespace HM
       sInput.Replace(_T("\\"), _T("\\\\"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    PGConnection::CreateMacroExpander()
    {
-      shared_ptr<PGSQLMacroExpander> expander = shared_ptr<PGSQLMacroExpander>(new PGSQLMacroExpander());
+      std::shared_ptr<PGSQLMacroExpander> expander = std::shared_ptr<PGSQLMacroExpander>(new PGSQLMacroExpander());
       return expander;
    }
 

@@ -40,18 +40,18 @@ namespace HM
 
    private:
 
-      __int64 m_iID;
+      __int64 id_;
 
-      String m_sCreateTime;
-      String m_sBlockEndTime;
-      String m_sDeleteTime;
+      String create_time_;
+      String block_end_time_;
+      String delete_time_;
 
-      IPAddress m_iIPAddress;
-      String m_sSenderAddress;
-      String m_sRecipientAddress;
+      IPAddress ipaddress_;
+      String sender_address_;
+      String recipient_address_;
 
-      int m_iPassedCount;
-      int m_iBlockedCount;
+      int passed_count_;
+      int blocked_count_;
 
    };
 }

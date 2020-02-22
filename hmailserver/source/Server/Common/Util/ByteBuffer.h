@@ -11,37 +11,37 @@ namespace HM
 	   ByteBuffer();
 	   virtual ~ByteBuffer();
 
-      bool IsEmpty() const {return m_lBufferSize == 0; }
+      bool IsEmpty() const {return buffer_size_ == 0; }
       // Returns true if the buffer is empty.
 
-      long GetSize() const {return m_lBufferSize; }
+      size_t GetSize() const {return buffer_size_; }
       // Returns the size of the buffer.
       
       void Empty();
       // Empties the entire buffer
       
-      void Empty(int iLeaveEndingBytes);
+      void Empty(size_t iLeaveEndingBytes);
       // Empties the entire buffer, except for the
       // remaining bytes
 
-      const BYTE* GetBuffer() const {return m_pBuffer; }
-      const char* GetCharBuffer() const  {return (const char*) m_pBuffer; }
+      const BYTE* GetBuffer() const {return buffer_; }
+      const char* GetCharBuffer() const  {return (const char*) buffer_; }
       // Returns pointer to the buffer
 
-      void Add(const BYTE *pBuf, long lSize);
+      void Add(const BYTE *pBuf, size_t lSize);
       void Add(ByteBuffer *pBuf);
-      void Add(shared_ptr<ByteBuffer> pBuf);
+      void Add(std::shared_ptr<ByteBuffer> pBuf);
       // Appends the buffer
    
-      void Allocate(long lSize);
+      void Allocate(size_t lSize);
       // Allocates a buffer.
 
-      void DecreaseSize(int iDecreaseWith);
+      void DecreaseSize(size_t iDecreaseWith);
 
    private:
 
-      BYTE *m_pBuffer;
-      long m_lBufferSize;
+      BYTE *buffer_;
+      size_t buffer_size_;
    };
 
 }

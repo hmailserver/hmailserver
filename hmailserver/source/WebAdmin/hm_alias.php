@@ -3,8 +3,8 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid	= hmailGetVar("domainid",0);
-$aliasid	   = hmailGetVar("aliasid",0);
+$domainid	= hmailGetVar("domainid",0,true);
+$aliasid	   = hmailGetVar("aliasid",0, true);
 $action	   = hmailGetVar("action","");
 
 $error_message	   = hmailGetVar("error_message","");
@@ -50,6 +50,7 @@ $aliasactivechecked = hmailCheckedIf1($aliasactive);
 
 	
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_alias_save");
       PrintHidden("action", $action);
       PrintHidden("domainid", $domainid);

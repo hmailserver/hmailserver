@@ -5,14 +5,21 @@
 
 #include "InterfaceLogging.h"
 
+InterfaceLogging::InterfaceLogging() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{
+
+}
+
 bool 
 InterfaceLogging::LoadSettings()
 {
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
-   m_pIniFileSettings = HM::IniFileSettings::Instance();
+   config_ = HM::Configuration::Instance();
+   ini_file_settings_ = HM::IniFileSettings::Instance();
 
    return true;
 }
@@ -23,10 +30,10 @@ InterfaceLogging::get_Enabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetUseLogging() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetUseLogging() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -40,10 +47,10 @@ InterfaceLogging::put_Enabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetUseLogging(newVal == VARIANT_TRUE);
+      config_->SetUseLogging(newVal == VARIANT_TRUE);
       
       return S_OK;
    }
@@ -58,10 +65,10 @@ InterfaceLogging::get_LogSMTP(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetLogSMTPConversations() )
+      if (config_->GetLogSMTPConversations() )
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -79,10 +86,10 @@ InterfaceLogging::put_LogSMTP(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogSMTPConversations(newVal == VARIANT_TRUE);
+      config_->SetLogSMTPConversations(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -97,10 +104,10 @@ InterfaceLogging::get_LogPOP3(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetLogPOP3Conversations() )
+      if (config_->GetLogPOP3Conversations() )
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -118,10 +125,10 @@ InterfaceLogging::put_LogPOP3(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogPOP3Conversations(newVal == VARIANT_TRUE);
+      config_->SetLogPOP3Conversations(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -136,12 +143,12 @@ InterfaceLogging::get_LogIMAP(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
    
-      if (m_pConfig->GetLogIMAPConversations() )
+      if (config_->GetLogIMAPConversations() )
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -159,10 +166,10 @@ InterfaceLogging::put_LogIMAP(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogIMAPConversations(newVal == VARIANT_TRUE);
+      config_->SetLogIMAPConversations(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -177,10 +184,10 @@ InterfaceLogging::get_AWStatsEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAWStatsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAWStatsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -195,10 +202,10 @@ InterfaceLogging::put_AWStatsEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetAWStatsEnabled(newVal == VARIANT_TRUE);
+      config_->SetAWStatsEnabled(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -213,10 +220,10 @@ InterfaceLogging::get_LogTCPIP(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetLogTCPIP() )
+      if (config_->GetLogTCPIP() )
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -234,10 +241,10 @@ InterfaceLogging::put_LogTCPIP(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogTCPIP(newVal == VARIANT_TRUE);
+      config_->SetLogTCPIP(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -252,12 +259,12 @@ InterfaceLogging::get_LogApplication(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
    
-      if (m_pConfig->GetLogApplication())
+      if (config_->GetLogApplication())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -275,10 +282,10 @@ InterfaceLogging::put_LogApplication(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogApplication(newVal == VARIANT_TRUE);
+      config_->SetLogApplication(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -293,7 +300,7 @@ InterfaceLogging::EnableLiveLogging(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       HM::Logger::Instance()->EnableLiveLogging(newVal == VARIANT_TRUE);
@@ -310,11 +317,11 @@ STDMETHODIMP InterfaceLogging::get_Device(eLogDevice *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = _INTLogDevice2COMLogDevice(m_pConfig->GetLogDevice());
+      *pVal = INTLogDevice2COMLogDevice_(config_->GetLogDevice());
       return S_OK;
    }
    catch (...)
@@ -327,10 +334,10 @@ STDMETHODIMP InterfaceLogging::put_Device(eLogDevice newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
    
-      m_pConfig->SetLogDevice (_COMLogDevice2INTLogDevice((newVal)));
+      config_->SetLogDevice (COMLogDevice2INTLogDevice_((newVal)));
       return S_OK;
    }
    catch (...)
@@ -340,7 +347,7 @@ STDMETHODIMP InterfaceLogging::put_Device(eLogDevice newVal)
 }
 
 int
-InterfaceLogging::_COMLogDevice2INTLogDevice(eLogDevice newVal)
+InterfaceLogging::COMLogDevice2INTLogDevice_(eLogDevice newVal)
 {
    switch (newVal)
    {
@@ -360,7 +367,7 @@ InterfaceLogging::_COMLogDevice2INTLogDevice(eLogDevice newVal)
 }
    
 eLogDevice
-InterfaceLogging::_INTLogDevice2COMLogDevice(int RelayMode)
+InterfaceLogging::INTLogDevice2COMLogDevice_(int RelayMode)
 {
    switch (RelayMode)
    {
@@ -383,11 +390,11 @@ STDMETHODIMP InterfaceLogging::get_LogFormat(eLogOutputFormat *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    
-      *pVal = _IntLogFormat2ComLogFormat(m_pConfig->GetLogFormat());
+      *pVal = IntLogFormat2ComLogFormat_(config_->GetLogFormat());
    
       return S_OK;
    }
@@ -401,10 +408,10 @@ STDMETHODIMP InterfaceLogging::put_LogFormat(eLogOutputFormat newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogFormat(_COMLogFormat2IntLogFormat(newVal));
+      config_->SetLogFormat(COMLogFormat2IntLogFormat_(newVal));
    
       return S_OK;
    }
@@ -415,7 +422,7 @@ STDMETHODIMP InterfaceLogging::put_LogFormat(eLogOutputFormat newVal)
 }
 
 int
-InterfaceLogging::_COMLogFormat2IntLogFormat(eLogOutputFormat newVal)
+InterfaceLogging::COMLogFormat2IntLogFormat_(eLogOutputFormat newVal)
 {
    switch (newVal)
    {
@@ -432,7 +439,7 @@ InterfaceLogging::_COMLogFormat2IntLogFormat(eLogOutputFormat newVal)
 }
    
 eLogOutputFormat
-InterfaceLogging::_IntLogFormat2ComLogFormat(int RelayMode)
+InterfaceLogging::IntLogFormat2ComLogFormat_(int RelayMode)
 {
    switch (RelayMode)
    {
@@ -453,10 +460,10 @@ STDMETHODIMP InterfaceLogging::get_LogDebug(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (m_pConfig->GetLogDebug() )
+      if (config_->GetLogDebug() )
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -473,10 +480,10 @@ STDMETHODIMP InterfaceLogging::put_LogDebug(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetLogDebug(newVal == VARIANT_TRUE);
+      config_->SetLogDebug(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -490,10 +497,10 @@ STDMETHODIMP InterfaceLogging::get_Directory(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pIniFileSettings->GetLogDirectory().AllocSysString();
+      *pVal = ini_file_settings_->GetLogDirectory().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -506,7 +513,7 @@ STDMETHODIMP InterfaceLogging::get_LiveLog(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetLiveLog().AllocSysString();
@@ -523,7 +530,7 @@ STDMETHODIMP InterfaceLogging::get_LiveLoggingEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetLiveLogEnabled();
@@ -540,7 +547,7 @@ STDMETHODIMP InterfaceLogging::get_MaskPasswordsInLog(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       // OBSOLETE
@@ -556,7 +563,7 @@ STDMETHODIMP InterfaceLogging::put_MaskPasswordsInLog(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       // OBSOLETE
@@ -572,10 +579,10 @@ STDMETHODIMP InterfaceLogging::get_KeepFilesOpen(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetKeepFilesOpen() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetKeepFilesOpen() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -588,10 +595,10 @@ STDMETHODIMP InterfaceLogging::put_KeepFilesOpen(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetKeepFilesOpen(newVal == VARIANT_TRUE);
+      config_->SetKeepFilesOpen(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -604,7 +611,7 @@ STDMETHODIMP InterfaceLogging::get_CurrentEventLog(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetCurrentLogFileName(HM::Logger::Events).AllocSysString();
@@ -620,7 +627,7 @@ STDMETHODIMP InterfaceLogging::get_CurrentErrorLog(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetCurrentLogFileName(HM::Logger::Error).AllocSysString();
@@ -636,7 +643,7 @@ STDMETHODIMP InterfaceLogging::get_CurrentAwstatsLog(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetCurrentLogFileName(HM::Logger::AWStats).AllocSysString();
@@ -652,7 +659,7 @@ STDMETHODIMP InterfaceLogging::get_CurrentDefaultLog(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = HM::Logger::Instance()->GetCurrentLogFileName(HM::Logger::Normal).AllocSysString();

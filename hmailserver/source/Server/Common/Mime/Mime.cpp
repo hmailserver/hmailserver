@@ -81,15 +81,15 @@ namespace HM
 
    void MimeField::GetValue(string& strValue) const
    {
-      string::size_type nEnd = m_strValue.find(';');
+      string::size_type nEnd = value_.find(';');
       if (nEnd != string::npos)
       {
-         while (nEnd > 0 && CMimeChar::IsSpace((unsigned char)m_strValue[nEnd-1]))
+         while (nEnd > 0 && CMimeChar::IsSpace((unsigned char)value_[nEnd-1]))
             nEnd--;
-         strValue.assign(m_strValue.c_str(), nEnd);
+         strValue.assign(value_.c_str(), nEnd);
       }
       else
-         strValue = m_strValue;
+         strValue = value_;
    }
 
    // set a parameter (attribute=value) of the field
@@ -98,10 +98,12 @@ namespace HM
       int nSize = pszValue ? (int)::strlen(pszValue) : 0;
       string strValue;
       strValue.reserve(nSize+3);
-      if (!pszValue || *pszValue != '"')
+      
+      if (*pszValue != '"')
          strValue = "\"";
-      if (pszValue != NULL)
-         strValue += pszValue;
+      
+      strValue += pszValue;
+
       if (nSize < 2 || pszValue[nSize-1] != '"')
          strValue += "\"";
 
@@ -109,18 +111,18 @@ namespace HM
       int nPos;
       if (!FindParameter(pszAttr, nPos, nSize, encodedParameter))	// add new parameter
       {
-         m_strValue.reserve(m_strValue.size() + ::strlen(pszAttr) + strValue.size() + 5);
+         value_.reserve(value_.size() + ::strlen(pszAttr) + strValue.size() + 5);
          //if (MimeEnvironment::AutoFolding())
-         //	m_strValue += ";\r\n\t";
+         //	value_ += ";\r\n\t";
          //else
-         //	m_strValue += "; ";
-         m_strValue += "; ";
-         m_strValue += pszAttr;
-         m_strValue += '=';
-         m_strValue += strValue;
+         //	value_ += "; ";
+         value_ += "; ";
+         value_ += pszAttr;
+         value_ += '=';
+         value_ += strValue;
       }
       else							// update existing parameter
-         m_strValue.replace(nPos, nSize, strValue);
+         value_.replace(nPos, nSize, strValue);
    }
 
    // get the value of a parameter
@@ -130,7 +132,7 @@ namespace HM
 
       bool encodedParameter = false;
 
-      vector<AnsiString> parameters = StringParser::SplitString(AnsiString(m_strValue), ";");
+      std::vector<AnsiString> parameters = StringParser::SplitString(AnsiString(value_), ";");
 
       for (unsigned int i = 1; i < parameters.size(); i++)
       {
@@ -249,10 +251,10 @@ namespace HM
 
    int MimeField::GetLength() const
    {
-      int nLength = (int) m_strName.size() + 4;
+      int nLength = (int) name_.size() + 4;
       FieldCodeBase* pCoder = MimeEnvironment::CreateFieldCoder(GetName());
-      pCoder->SetCharset(m_strCharset.c_str());
-      pCoder->SetInput(m_strValue.c_str(), (int)m_strValue.size(), true);
+      pCoder->SetCharset(charset_.c_str());
+      pCoder->SetInput(value_.c_str(), (int)value_.size(), true);
       delete pCoder;
       return nLength;
    }
@@ -260,12 +262,12 @@ namespace HM
    // store a field to string buffer
    void MimeField::Store(AnsiString &output) const
    {
-      output.append(m_strName);
+      output.append(name_);
       output.append(": ");
 
       FieldCodeBase* pCoder = MimeEnvironment::CreateFieldCoder(GetName());
-      pCoder->SetCharset(m_strCharset.c_str());
-      pCoder->SetInput(m_strValue.c_str(), (int)m_strValue.size(), true);
+      pCoder->SetCharset(charset_.c_str());
+      pCoder->SetInput(value_.c_str(), (int)value_.size(), true);
       pCoder->GetOutput(output);
       delete pCoder;
 
@@ -274,7 +276,7 @@ namespace HM
    }
 
    // load a field from string buffer
-   int MimeField::Load(const char* pszData, int nDataSize, bool unfold)
+   size_t MimeField::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       Clear();
       ASSERT(pszData != NULL);
@@ -294,7 +296,7 @@ namespace HM
       pszEnd = LineFind(pszStart, ':');
       if (pszEnd != NULL)				// if colon not found, Name would be empty
       {
-         m_strName.assign(pszStart, (pszEnd-pszStart));
+         name_.assign(pszStart, (pszEnd-pszStart));
          pszStart = pszEnd + 1;
       }
 
@@ -314,13 +316,13 @@ namespace HM
       int lLength = (int)(pszEnd-pszStart)-2;
       char *pValue = new char[lLength + 1];
       memset(pValue, 0, lLength+1);
-      strncpy(pValue, pszStart, lLength);
-      m_strValue = pValue;
+      strncpy_s(pValue, lLength+1, pszStart, lLength);
+      value_ = pValue;
       delete [] pValue;
 
       // We need to unfold the field value
       if (unfold)
-         UnfoldField(m_strValue);
+         UnfoldField(value_);
 
       // END change for hMailServer
 
@@ -366,7 +368,7 @@ namespace HM
       encodedParameter = false;
 
       ASSERT(pszAttr != NULL);
-      const char* pszParms = ::strchr(m_strValue.data(), ';');
+      const char* pszParms = ::strchr(value_.data(), ';');
 
       int nAttrSize = (int)::strlen(pszAttr);
 
@@ -416,7 +418,7 @@ namespace HM
          if (!::_memicmp(pszAttr, pszName, nAttrSize) &&
             (CMimeChar::IsSpace((unsigned char)pszName[nActualAttrNameSize]) || pszName[nActualAttrNameSize] == '='))
          {
-            nPos = (int)(pszParms - m_strValue.data());
+            nPos = (int)(pszParms - value_.data());
             nSize = (int)(pszParmEnd - pszParms);
 
             if (pszName + nAttrSize < pszParmEnd)
@@ -460,14 +462,14 @@ namespace HM
          pszType = "text";
 
       int nIndex = 0;
-      while (m_TypeTable[nIndex] != NULL &&
-         ::_memicmp(pszType, m_TypeTable[nIndex], ::strlen(m_TypeTable[nIndex])) != 0)
+      while (type_table_[nIndex] != NULL &&
+         ::_memicmp(pszType, type_table_[nIndex], ::strlen(type_table_[nIndex])) != 0)
          nIndex++;
       return (MediaType) nIndex;
    }
 
    String
-      MimeHeader::GetUnicodeFilename() const
+   MimeHeader::GetUnicodeFilename() const
    {
       String rawValue = GetRawFilename();
       String unicodeValue = GetUnicodeFieldValue(CMimeConst::ContentDisposition(), rawValue);
@@ -476,7 +478,7 @@ namespace HM
    }
 
    String
-      MimeHeader::GetRawFilename() const
+   MimeHeader::GetRawFilename() const
    {
       AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename()); 
       if (sRawValue.IsEmpty())
@@ -485,15 +487,28 @@ namespace HM
       return sRawValue;
    }
 
+   void
+   MimeHeader::SetFileName(const String &file_name)
+   {
+      AnsiString encoded_filename = MIMEUnicodeEncoder::EncodeValue("utf-8", file_name);
+
+      AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
+      if (!sRawValue.IsEmpty())
+         SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), encoded_filename);
+      else
+         SetParameter(CMimeConst::ContentType(), CMimeConst::Name(), encoded_filename);
+      
+   }
+
    String
-      MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName) const
+   MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName) const
    {
       AnsiString sRawFieldValue = GetRawFieldValue(pszFieldName);
       return GetUnicodeFieldValue(pszFieldName, sRawFieldValue);
    }
 
    String
-      MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName, const AnsiString &sRawFieldValue)
+   MimeHeader::GetUnicodeFieldValue(const AnsiString &pszFieldName, const AnsiString &sRawFieldValue)
    {
       if (sRawFieldValue.IsEmpty())
          return sRawFieldValue;
@@ -515,7 +530,7 @@ namespace HM
    }
 
    void 
-      MimeHeader::SetUnicodeFieldValue(const AnsiString &sFieldName, const String & sFieldValue, const AnsiString & sCharset)
+   MimeHeader::SetUnicodeFieldValue(const AnsiString &sFieldName, const String & sFieldValue, const AnsiString & sCharset)
    {
       // Retrieve the current charset for this field.
       MimeField* pfd = GetField(sFieldName);
@@ -601,7 +616,7 @@ namespace HM
          fd.SetName(CMimeConst::ContentType());
          fd.SetValue("text/plain");
          fd.SetParameter(CMimeConst::Charset(), pszCharset);
-         m_listFields.push_back(fd);
+         fields_.push_back(fd);
       }
       else
          pfd->SetParameter(CMimeConst::Charset(), pszCharset);
@@ -622,13 +637,13 @@ namespace HM
          {
             pszFileExt++;
             int nIndex = 0;
-            while (m_TypeCvtTable[nIndex].nMediaType != MEDIA_UNKNOWN)
+            while (type_cvt_table_[nIndex].nMediaType != MEDIA_UNKNOWN)
             {
-               if (!::_stricmp(pszFileExt, m_TypeCvtTable[nIndex].pszFileExt))
+               if (!::_stricmp(pszFileExt, type_cvt_table_[nIndex].pszFileExt))
                {
-                  strType = m_TypeTable[m_TypeCvtTable[nIndex].nMediaType];
+                  strType = type_table_[type_cvt_table_[nIndex].nMediaType];
                   strType += '/';
-                  strType += m_TypeCvtTable[nIndex].pszSubType;
+                  strType += type_cvt_table_[nIndex].pszSubType;
                   pszType = strType.c_str();
                   break;
                }
@@ -640,7 +655,7 @@ namespace HM
          fd.SetName(CMimeConst::ContentType());
          fd.SetValue(pszType);
          fd.SetParameter(CMimeConst::Name(), pszName);
-         m_listFields.push_back(fd);
+         fields_.push_back(fd);
       }
       else
          pfd->SetParameter(CMimeConst::Name(), pszName);
@@ -654,7 +669,7 @@ namespace HM
       if (!pszBoundary)				// generate a new boundary delimeter
       {
          ::srand(((unsigned)::time(NULL)) ^ (unsigned)this);
-         ::sprintf(buf, "__=_Part_Boundary_%03d_%06d.%06d", ++s_nPartNumber, rand(), rand());
+         ::sprintf_s(buf, 80, "__=_Part_Boundary_%03d_%06d.%06d", ++s_nPartNumber, rand(), rand());
          if (s_nPartNumber >= 9)
             s_nPartNumber = 0;
          pszBoundary = buf;
@@ -667,7 +682,7 @@ namespace HM
          fd.SetName(CMimeConst::ContentType());
          fd.SetValue("multipart/mixed");
          fd.SetParameter(CMimeConst::Boundary(), pszBoundary);
-         m_listFields.push_back(fd);
+         fields_.push_back(fd);
       }
       else
       {
@@ -679,15 +694,15 @@ namespace HM
 
    void MimeHeader::Clear()
    {
-      m_listFields.clear();
+      fields_.clear();
    }
 
    // return the length needed to store this header to string buffer
    int MimeHeader::GetLength() const
    {
       int nLength = 0;
-      vector<MimeField>::const_iterator it;
-      for (it = m_listFields.begin(); it != m_listFields.end(); it++)
+      std::vector<MimeField>::const_iterator it;
+      for (it = fields_.begin(); it != fields_.end(); it++)
          nLength += (*it).GetLength();
       return nLength + 2;				// a pair of CRLF indicate the end of header
    }
@@ -704,8 +719,8 @@ namespace HM
    void 
       MimeHeader::DeleteField(MimeField *pField)
    {
-      vector<MimeField>::iterator iter = m_listFields.begin(); 
-      vector<MimeField>::const_iterator iterEnd = m_listFields.end();
+      auto iter = fields_.begin(); 
+      std::vector<MimeField>::const_iterator iterEnd = fields_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -713,7 +728,7 @@ namespace HM
 
          if (&fd == pField)
          {
-            m_listFields.erase(iter);
+            fields_.erase(iter);
             return;
          }
 
@@ -732,8 +747,8 @@ namespace HM
    // store the header to string buffer
    void MimeHeader::Store(AnsiString &output) const
    {
-      vector<MimeField>::const_iterator it;
-      for (it = m_listFields.begin(); it != m_listFields.end(); it++)
+      std::vector<MimeField>::const_iterator it;
+      for (it = fields_.begin(); it != fields_.end(); it++)
       {
          const MimeField& fd = *it;
          fd.Store(output);
@@ -744,20 +759,20 @@ namespace HM
 
 
    // load a header from string buffer
-   int MimeHeader::Load(const char* pszData, int nDataSize, bool unfold)
+   size_t MimeHeader::Load(const char* pszData, size_t nDataSize, bool unfold)
    {
       ASSERT(pszData != NULL);
 
-      int nInput = 0;
+      size_t nInput = 0;
       while (pszData[nInput] != 0 && pszData[nInput] != '\r')
       {
          MimeField fd;
-         int nSize = fd.Load(pszData+nInput, nDataSize-nInput, unfold);
-         if (nSize <= 0)
+         size_t nSize = fd.Load(pszData + nInput, nDataSize - nInput, unfold);
+         if (nSize == 0)
             return nSize;
 
          nInput += nSize;
-         m_listFields.push_back(fd);	// don't use SetField in case of same name fields
+         fields_.push_back(fd);	// don't use SetField in case of same name fields
       }
 
       return nInput + 2;				// skip the ending CRLF
@@ -769,7 +784,7 @@ namespace HM
       AnsiString sResponse;
       // Iterate through the header fields and add to sResponse.
       std::vector<MimeField> oFields =  Fields();
-      std::vector<MimeField>::iterator iterField = oFields.begin();
+      auto iterField = oFields.begin();
 
       while (iterField != oFields.end())
       {
@@ -793,7 +808,7 @@ namespace HM
       String sResponse;
       // Iterate through the header fields and add to sResponse.
       std::vector<MimeField> oFields =  Fields();
-      std::vector<MimeField>::iterator iterField = oFields.begin();
+      auto iterField = oFields.begin();
 
       while (iterField != oFields.end())
       {
@@ -817,25 +832,25 @@ namespace HM
    bool 
       MimeHeader::FieldExists(const char *pszFieldName) const
    {
-      vector<MimeField>::iterator iter = FindField(pszFieldName);
-      if (iter == m_listFields.end())
+      auto iter = FindField(pszFieldName);
+      if (iter == fields_.end())
          return false;
 
       return true;
    }
 
 
-   vector<MimeField>::iterator MimeHeader::FindField(const char* pszFieldName) const
+   std::vector<MimeField>::iterator MimeHeader::FindField(const char* pszFieldName) const
    {
-      vector<MimeField>::iterator it;
       MimeHeader *pThis = const_cast<MimeHeader*>(this);
-      for (it = pThis->m_listFields.begin(); it != pThis->m_listFields.end(); it++)
+      for (auto it = pThis->fields_.begin(); it != pThis->fields_.end(); it++)
       {
          MimeField& fd = *it;
          if (!::_stricmp(fd.GetName(), pszFieldName))
-            break;
+            return it;
       }
-      return it;
+
+      return pThis->fields_.end();
    }
 
    //////////////////////////////////////////////////////////////////////
@@ -849,7 +864,7 @@ namespace HM
    // initialize the content with text
    int MimeBody::SetRawText(const AnsiString &sText)
    {
-      m_pbText = sText;
+      text_ = sText;
       return 0;
    }
 
@@ -859,9 +874,10 @@ namespace HM
       // Retrieve the current charset for this field.
       std::string strCharset = GetCharset();
 
-      if (strCharset.size() == 0)
+      if (strCharset == "")
       {
-         return SetRawText(sText);
+         strCharset = "utf-8";
+         SetCharset(strCharset.c_str());
       }
 
       AnsiString sMBText = Charset::ToMultiByte(sText, strCharset);
@@ -878,7 +894,7 @@ namespace HM
 
    string MimeBody::GetRawText()
    {
-      return m_pbText;
+      return text_;
    }
 
    String
@@ -905,17 +921,18 @@ namespace HM
       return sWideStr;
    }
 
-   shared_ptr<MimeBody> 
+   std::shared_ptr<MimeBody> 
       MimeBody::LoadEncapsulatedMessage() const
    {
       // try to generate a file name using the message subject.
-      shared_ptr<MimeBody> pEncapsulatedMessage = shared_ptr<MimeBody>(new MimeBody);
+      std::shared_ptr<MimeBody> pEncapsulatedMessage = std::shared_ptr<MimeBody>(new MimeBody);
 
-      int iLength = GetContentLength();
+      size_t iLength = GetContentLength();
       char *pData = new char[iLength+1];
-      strncpy(pData, (const char*) GetContent(), iLength);
-      int index = 0;
-      pEncapsulatedMessage->Load(pData, iLength, index);
+      strncpy_s(pData, iLength+1, (const char*) GetContent(), iLength);
+      size_t index = 0;
+      bool part_loaded;
+      pEncapsulatedMessage->Load(pData, iLength, index, part_loaded);
       delete [] pData;
 
       return pEncapsulatedMessage;
@@ -927,7 +944,7 @@ namespace HM
       if (!IsEncapsulatedRFC822Message())
          return "";
 
-      shared_ptr<MimeBody> pEncapsulatedMessage = LoadEncapsulatedMessage();
+      std::shared_ptr<MimeBody> pEncapsulatedMessage = LoadEncapsulatedMessage();
 
       String sFilename = unicode ? 
          pEncapsulatedMessage->GetUnicodeFieldValue("Subject") :
@@ -957,7 +974,7 @@ namespace HM
          sFilename = GenerateFileNameFromEncapsulatedSubject(true);
 
       if (sFilename.IsEmpty())
-         sFilename.Format(_T("ATT-%d.dat"), m_iPartIndex);
+         sFilename.Format(_T("ATT-%d.dat"), part_index_);
 
       return sFilename;
    }
@@ -971,7 +988,7 @@ namespace HM
          sFilename = GenerateFileNameFromEncapsulatedSubject(false);
 
       if (sFilename.IsEmpty())
-         sFilename.Format(_T("ATT-%d.dat"), m_iPartIndex);
+         sFilename.Format(_T("ATT-%d.dat"), part_index_);
 
       return sFilename;
    }
@@ -985,7 +1002,7 @@ namespace HM
       if (!AllocateBuffer(nSize+4))
          return false;
 
-      pMM->Store(m_pbText);
+      pMM->Store(text_);
 
       const char* pszType = GetContentType();
       if (!pszType || ::_memicmp(pszType, "message", 7) != 0)
@@ -997,10 +1014,11 @@ namespace HM
    void MimeBody::GetMessage(MimeBody* pMM) const
    {
       ASSERT(pMM != NULL);
-      ASSERT(m_pbText != NULL);
-      int index = 0;
+      ASSERT(text_ != NULL);
+      size_t index = 0;
 
-      pMM->Load((const char*)m_pbText, (int) m_pbText.size(), index);
+      bool part_loaded;
+      pMM->Load((const char*)text_, (int) text_.size(), index, part_loaded);
    }
 
    bool 
@@ -1078,7 +1096,7 @@ namespace HM
 
       // Read the file as a text file. This will cause a null
       // to be added by File, which is required by Load() below.
-      shared_ptr<ByteBuffer> pFileContents = oFile.ReadTextFile();
+      std::shared_ptr<ByteBuffer> pFileContents = oFile.ReadTextFile();
 
       FreeBuffer();
       if (pFileContents->GetSize() > 0)
@@ -1086,8 +1104,9 @@ namespace HM
          try
          {
             // Minus one, since the last character is the null...
-            int index = 0;
-            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index);
+            size_t index = 0;
+            bool part_loaded;
+            Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index, part_loaded);
          }
          catch (...)
          {
@@ -1122,7 +1141,7 @@ namespace HM
       if (!oFile.Open(pszFilename, File::OTReadOnly))
          return false;
 
-      shared_ptr<ByteBuffer> pUnencodedBuffer = oFile.ReadFile();
+      std::shared_ptr<ByteBuffer> pUnencodedBuffer = oFile.ReadFile();
 
       if (!pUnencodedBuffer)
          return false;
@@ -1133,7 +1152,7 @@ namespace HM
       pCoder->SetInput((const char*) pUnencodedBuffer->GetCharBuffer(), pUnencodedBuffer->GetSize(), true);
 
       // Copy the buffer
-      pCoder->GetOutput(m_pbText);
+      pCoder->GetOutput(text_);
 
       AnsiString sCharset = "utf-8";
 
@@ -1156,7 +1175,7 @@ namespace HM
       // First de-code the content.
       MimeCodeBase* pCoder = MimeEnvironment::CreateCoder(GetTransferEncoding());
       ASSERT(pCoder != NULL);
-      pCoder->SetInput(m_pbText, m_pbText.GetLength(), false);
+      pCoder->SetInput(text_, text_.GetLength(), false);
 
       AnsiString decoded;
       pCoder->GetOutput(decoded);
@@ -1169,55 +1188,55 @@ namespace HM
    // delete all child body parts
    void MimeBody::DeleteAll()
    {
-      while (!m_listBodies.empty())
+      while (!bodies_.empty())
       {
-         shared_ptr<MimeBody> pBP = m_listBodies.back();
-         m_listBodies.pop_back();
+         std::shared_ptr<MimeBody> pBP = bodies_.back();
+         bodies_.pop_back();
          ASSERT(pBP != NULL);
       }
    }
 
    // create a new child body part, and add it to body part list
-   shared_ptr<MimeBody> MimeBody::CreatePart(const char* pszMediaType/*=NULL*/, shared_ptr<MimeBody> pWhere/*=NULL*/)
+   std::shared_ptr<MimeBody> MimeBody::CreatePart(const char* pszMediaType/*=NULL*/, std::shared_ptr<MimeBody> pWhere/*=NULL*/)
    {
-      shared_ptr<MimeBody> pBP = MimeEnvironment::CreateBodyPart(pszMediaType);
+      std::shared_ptr<MimeBody> pBP = MimeEnvironment::CreateBodyPart(pszMediaType);
       ASSERT(pBP != NULL);
       if (pWhere != NULL)
       {
-         for (BodyList::iterator it = m_listBodies.begin(); it != m_listBodies.end(); it++)
+         for (auto it = bodies_.begin(); it != bodies_.end(); it++)
             if (*it == pWhere)
             {
-               m_listBodies.insert(it, pBP);
+               bodies_.insert(it, pBP);
                return pBP;
             }
       }
-      m_listBodies.push_back(pBP);
+      bodies_.push_back(pBP);
       return pBP;
    }
 
    // create a new child body part, and add it to body part list
-   void MimeBody::AddPart(shared_ptr<MimeBody> part)
+   void MimeBody::AddPart(std::shared_ptr<MimeBody> part)
    {
-      m_listBodies.push_back(part);
+      bodies_.push_back(part);
    }
 
    int 
       MimeBody::GetPartCount()
    {
-      return (int) m_listBodies.size();
+      return (int) bodies_.size();
    }
    // remove and delete a child body part
-   void MimeBody::ErasePart(shared_ptr<MimeBody> pBP)
+   void MimeBody::ErasePart(std::shared_ptr<MimeBody> pBP)
    {
       ASSERT(pBP != NULL);
-      m_listBodies.remove(pBP);
+      bodies_.remove(pBP);
    }
 
    // return a list of all attachment body parts belong to this body part
    // Since we are using smart pointers, and it's not possible to cast
    // from <this> to a smart_ptr, we need to give this function a pointer
    // to itself. Really ugly but should work fine.
-   int MimeBody::GetAttachmentList(shared_ptr<MimeBody> pThis, BodyList& rList) const
+   int MimeBody::GetAttachmentList(std::shared_ptr<MimeBody> pThis, BodyList& rList) const
    {
       int nCount = 0;
       int nMediaType = GetMediaType();
@@ -1233,10 +1252,10 @@ namespace HM
 
       else
       {
-         list<shared_ptr<MimeBody> >::const_iterator it;
-         for (it=m_listBodies.begin(); it!=m_listBodies.end(); it++)
+         std::list<std::shared_ptr<MimeBody> >::const_iterator it;
+         for (it=bodies_.begin(); it!=bodies_.end(); it++)
          {
-            shared_ptr<MimeBody> pBP = *it;
+            std::shared_ptr<MimeBody> pBP = *it;
             ASSERT(pBP != NULL);
             nCount += pBP->GetAttachmentList(pBP, rList);
          }
@@ -1249,12 +1268,12 @@ namespace HM
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         list<shared_ptr<MimeBody> >::iterator it = m_listBodies.begin();
-         while (it != m_listBodies.end())
+         auto it = bodies_.begin();
+         while (it != bodies_.end())
          {
-            shared_ptr<MimeBody> pBody = (*it);
+            std::shared_ptr<MimeBody> pBody = (*it);
             if (pBody->IsAttachment())
-               it = m_listBodies.erase(it);
+               it = bodies_.erase(it);
             else
                it++;
          }
@@ -1262,17 +1281,17 @@ namespace HM
    }
 
    // clear all attachments from this subtype.
-   void MimeBody::RemoveAttachment(shared_ptr<MimeBody> pAttachment) 
+   void MimeBody::RemoveAttachment(std::shared_ptr<MimeBody> pAttachment) 
    {
       if (GetMediaType() ==MEDIA_MULTIPART)
       {
-         list<shared_ptr<MimeBody> >::iterator it = m_listBodies.begin();
-         while (it != m_listBodies.end())
+         auto it = bodies_.begin();
+         while (it != bodies_.end())
          {
-            shared_ptr<MimeBody> pBody = (*it);
+            std::shared_ptr<MimeBody> pBody = (*it);
             if (pBody->IsAttachment() && pBody == pAttachment)
             {
-               it = m_listBodies.erase(it);
+               it = bodies_.erase(it);
                return;
             }
             else
@@ -1285,7 +1304,7 @@ namespace HM
    void MimeBody::Clear()
    {
       DeleteAll();
-      m_itFind = m_listBodies.end();
+      find_ = bodies_.end();
       FreeBuffer();
       MimeHeader::Clear();
    }
@@ -1299,16 +1318,16 @@ namespace HM
       if (bIncludeHeader)
          nLength += MimeHeader::GetLength();
 
-      if (m_listBodies.empty())
+      if (bodies_.empty())
          return nLength;
 
       string strBoundary = GetBoundary();
       int nBoundSize = (int) strBoundary.size();
-      list<shared_ptr<MimeBody> >::const_iterator it;
-      for (it=m_listBodies.begin(); it!=m_listBodies.end(); it++)
+      std::list<std::shared_ptr<MimeBody> >::const_iterator it;
+      for (it=bodies_.begin(); it!=bodies_.end(); it++)
       {
          nLength += nBoundSize + 6;	// include 2 leading hyphens and 2 pair of CRLFs
-         shared_ptr<MimeBody> pBP = *it;
+         std::shared_ptr<MimeBody> pBP = *it;
          ASSERT(pBP != NULL);
          nLength += pBP->GetLength();
       }
@@ -1326,9 +1345,9 @@ namespace HM
          MimeHeader::Store(output);
 
       // Copy the data to the output buffer. 
-      output.append(m_pbText);
+      output.append(text_);
 
-      if (m_listBodies.empty())
+      if (bodies_.empty())
          return;
 
       // store child body parts
@@ -1337,11 +1356,11 @@ namespace HM
          return;					// boundary not be set
 
       int nBoundSize = (int)strBoundary.size() + 6;
-      for (BodyList::const_iterator it=m_listBodies.begin(); it!=m_listBodies.end(); it++)
+      for (BodyList::const_iterator it=bodies_.begin(); it!=bodies_.end(); it++)
       {
          // If the initial body ends with \r\n, remove them. We add new ones below.
-         if (m_listBodies.begin() == it && output.size() >= 2 && 
-            output[output.size()-2] == '\r' && output[output.size()-1] == '\n')
+         if (bodies_.begin() == it && output.size() >= 2 && 
+            output.at(output.size()-2) == '\r' && output.at(output.size()-1) == '\n')
          {
             output = output.Mid(0, output.GetLength() - 2);
          }
@@ -1349,7 +1368,7 @@ namespace HM
          AnsiString boundaryLine = Formatter::Format(_T("\r\n--{0}\r\n"), String(strBoundary));
          output.append(boundaryLine);
 
-         shared_ptr<MimeBody> pBP = *it;
+         std::shared_ptr<MimeBody> pBP = *it;
          ASSERT(pBP != NULL);	
 
          pBP->Store(output);
@@ -1376,7 +1395,6 @@ namespace HM
          startSearch == 0 ||
          boundary.length() == 0)
       {
-         assert(0);
          return 0;
       }
 
@@ -1390,11 +1408,10 @@ namespace HM
          // return if the string after the boundary is either a newline, or a --.
          // this is to prevent the problem that we return incorrect boundaries
          // if the boundary string is a part of another boundary string.
-         int sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
+         size_t sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
          if (sizeRemainingAfterBoundaryString <= 2)
          {
             // malformed message. the end of the character string is the boundary line with no trailing crlf or --.
-            assert(0);
             return 0;
          }
 
@@ -1408,23 +1425,27 @@ namespace HM
          possibleEnding = FindString(possibleEnding+1, boundary.c_str(), endSearch);
       }
 
-      assert(0);
       return 0;
    }
 
    // load a body part from string buffer
-   int MimeBody::Load(const char* pszData, int nDataSize, int &index)
+   size_t MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded)
    {
+      part_loaded = true;
       index++;
-      m_iPartIndex = index;
+      part_index_ = index;
 
       // load header fields
-      int nSize = MimeHeader::Load(pszData, nDataSize, true);
-      if (nSize <= 0)
+      size_t nSize = MimeHeader::Load(pszData, nDataSize, true);
+      if (nSize == 0)
          return nSize;
 
       const char* pszDataBegin = pszData;	// preserve start position
       pszData += nSize;
+      
+      if (nSize >= nDataSize)
+         return (int)(pszData - pszDataBegin);
+
       nDataSize -= nSize;
       FreeBuffer();
 
@@ -1452,16 +1473,19 @@ namespace HM
       {
          if (AllocateBuffer(nSize+4))
          {
-            m_pbText.append(pszData, nSize);
+            text_.append(pszData, nSize);
 
             pszData += nSize;
-            nDataSize -= nSize;
+
+            if (nSize >= nDataSize)
+               return (int)(pszData - pszDataBegin);
          }
          else
-            return -1;
+         {
+            part_loaded = false;
+            return 0;
+         }
       }
-      if (nDataSize <= 0)
-         return (int)(pszData - pszDataBegin);
 
       // load child body parts
       string strBoundary = GetBoundary();
@@ -1495,18 +1519,21 @@ namespace HM
             pszBound2 = pszEnd;
          int nEntitySize = (int) (pszBound2 - pszStart);
 
-         shared_ptr<MimeBody> pBP = shared_ptr<MimeBody>(new MimeBody());
+         std::shared_ptr<MimeBody> pBP = std::shared_ptr<MimeBody>(new MimeBody());
 
-         m_listBodies.push_back(pBP);
+         bodies_.push_back(pBP);
 
-         int nInputSize = pBP->Load(pszStart, nEntitySize, m_iPartIndex);
-         if (nInputSize < 0)
+         bool part_loaded;
+         size_t nInputSize = pBP->Load(pszStart, nEntitySize, part_index_, part_loaded);
+         if (!part_loaded)
          {
             ErasePart(pBP);
             return nInputSize;
          }
          pszBound1 = pszBound2;
       }
+
+
       return (int)(pszEnd - pszDataBegin);
    }
 

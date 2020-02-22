@@ -19,7 +19,7 @@ namespace HM
 
    ServerThreads::ServerThreads()
    {  
-      m_bIsExitingAll = false; 
+      is_exiting_all_ = false; 
    }
 
    ServerThreads::~ServerThreads()
@@ -30,17 +30,17 @@ namespace HM
    bool 
    ServerThreads::AddThread(shared_ptr<ThreadIdentifier> pThread)
    {
-      m_oCritSec.Enter();
+      crit_sec_.Enter();
 
-      if (m_vecCurrentConnections.find(pThread) == m_vecCurrentConnections.end())
+      if (current_connections_.find(pThread) == current_connections_.end())
       {
-         m_vecCurrentConnections.insert(pThread);
-         m_oCritSec.Leave();
+         current_connections_.insert(pThread);
+         crit_sec_.Leave();
          return true;
       }
       else
       {
-         m_oCritSec.Leave();
+         crit_sec_.Leave();
          return false;
       }
    }
@@ -48,30 +48,30 @@ namespace HM
    bool
    ServerThreads::CloseThread(shared_ptr<ThreadIdentifier> pThread)
    {
-      if (m_bIsExitingAll)
+      if (is_exiting_all_)
       {
          // We are stopping the server right now.
          return true;
       }
 
-      m_oCritSec.Enter();
+      crit_sec_.Enter();
 
-      std::set<shared_ptr<ThreadIdentifier> >::iterator iter =  m_vecCurrentConnections.begin();;
-      while (iter != m_vecCurrentConnections.end())
+      std::set<shared_ptr<ThreadIdentifier> >::iterator iter =  current_connections_.begin();;
+      while (iter != current_connections_.end())
       {
          shared_ptr<ThreadIdentifier> pCurThread = (*iter);
          if (pCurThread == pThread)
          {
             pThread->Close();
             
-            m_vecCurrentConnections.erase(iter);
+            current_connections_.erase(iter);
             break;
          }
 
          iter++;
       }
 
-      m_oCritSec.Leave();  
+      crit_sec_.Leave();  
 
       return true;
    }
@@ -79,23 +79,23 @@ namespace HM
    bool
    ServerThreads::ExitAllThreads()
    {
-      m_bIsExitingAll = true;
+      is_exiting_all_ = true;
 
-      m_oCritSec.Enter();
+      crit_sec_.Enter();
 
-      std::set<shared_ptr<ThreadIdentifier> >::iterator iter =  m_vecCurrentConnections.begin();;
-      while (iter != m_vecCurrentConnections.end())
+      std::set<shared_ptr<ThreadIdentifier> >::iterator iter =  current_connections_.begin();;
+      while (iter != current_connections_.end())
       {
          // Actually stop the thread from running.
          shared_ptr<ThreadIdentifier> pThread = (*iter);
          pThread->Stop();
          iter++;
       }
-      m_vecCurrentConnections.clear();
+      current_connections_.clear();
 
-      m_oCritSec.Leave();     
+      crit_sec_.Leave();     
 
-      m_bIsExitingAll = false; 
+      is_exiting_all_ = false; 
 
       return true;
    }
@@ -104,21 +104,21 @@ namespace HM
    shared_ptr<ThreadIdentifier> 
    ServerThreads::GetThreadByThreadID(int iThreadID) 
    {
-      m_oCritSec.Enter();
+      crit_sec_.Enter();
 
-      std::set<shared_ptr<ThreadIdentifier> >::const_iterator iter =  m_vecCurrentConnections.begin();;
-      while (iter != m_vecCurrentConnections.end())
+      std::set<shared_ptr<ThreadIdentifier> >::const_iterator iter =  current_connections_.begin();;
+      while (iter != current_connections_.end())
       {
          shared_ptr<ThreadIdentifier> pThread = (*iter);
          if (pThread->GetThreadID() == iThreadID)
          {
-            m_oCritSec.Leave();
+            crit_sec_.Leave();
             return pThread;
          }
          iter++;
       }
 
-      m_oCritSec.Leave();
+      crit_sec_.Leave();
       shared_ptr<ThreadIdentifier> pEmpty;
       return pEmpty;
 
@@ -127,9 +127,9 @@ namespace HM
    int 
    ServerThreads::GetThreadCount()
    {
-       m_oCritSec.Enter();
-       int iRetVal = m_vecCurrentConnections.size();
-       m_oCritSec.Leave();
+       crit_sec_.Enter();
+       int iRetVal = current_connections_.size();
+       crit_sec_.Leave();
        return iRetVal; 
    }
 

@@ -15,26 +15,33 @@
 namespace HM
 {
    PGRecordset::PGRecordset() :
-      m_iRowCount(0),
-      m_pResult(0),
-      m_iCurRowNum(0)
+      row_count_(0),
+      result_(0),
+      cur_row_num_(0)
    {
        
    }
 
    PGRecordset::~PGRecordset()
    {
-      _Close();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult
-   PGRecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   PGRecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Opens a recordset specified by the given SQL string sSQL.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<PGConnection> pConn = static_pointer_cast<PGConnection>(pDALConn);
+      std::shared_ptr<PGConnection> pConn = std::static_pointer_cast<PGConnection>(pDALConn);
       
       String sSQL = command.GetQueryString();
 
@@ -49,21 +56,21 @@ namespace HM
 
          PGconn *pPG = pConn->GetConnection();
         
-         m_pResult = PQexec(pPG, sQuery);
+         result_ = PQexec(pPG, sQuery);
 
-         DALConnection::ExecutionResult result = pConn->CheckError(m_pResult, sSQL, sErrorMessage);
+         DALConnection::ExecutionResult result = pConn->CheckError(result_, sSQL, sErrorMessage);
          if (result != DALConnection::DALSuccess)
             return result;
 
-         ExecStatusType iExecResult = PQresultStatus(m_pResult);
+         ExecStatusType iExecResult = PQresultStatus(result_);
 
          if (iExecResult == PGRES_COMMAND_OK)
-            m_iRowCount = 0;
+            row_count_ = 0;
          else
-            m_iRowCount = PQntuples(m_pResult);
+            row_count_ = PQntuples(result_);
 
          // We're at the first row.
-         m_iCurRowNum = 0;
+         cur_row_num_ = 0;
       }
       catch (...)
       {
@@ -75,7 +82,7 @@ namespace HM
    }
 
    bool
-   PGRecordset::_Close()
+   PGRecordset::Close_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Closes a recordset.
@@ -83,9 +90,9 @@ namespace HM
    {
       try
       {
-         if (m_pResult)
+         if (result_)
          {
-            PQclear(m_pResult);
+            PQclear(result_);
          }
       }
       catch (...)
@@ -104,18 +111,18 @@ namespace HM
    // Returns the number of rows in current recordset. 
    //---------------------------------------------------------------------------()
    {
-      return m_iRowCount;
+      return row_count_;
    }
 
    bool
    PGRecordset::IsEOF() const
    {
-      if (!m_pResult)
+      if (!result_)
          return true;
 
       try
       {
-         if ((long) m_iCurRowNum >= RecordCount())
+         if ((long) cur_row_num_ >= RecordCount())
             return true;
          else 
             return false;
@@ -134,7 +141,7 @@ namespace HM
    // Moves the cursor to the next row in the recordset.
    //---------------------------------------------------------------------------()
    {
-      m_iCurRowNum++;
+      cur_row_num_++;
       return false;
    }
 
@@ -147,14 +154,14 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         int iColIdx = GetColumnIndex_(FieldName);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
 
          if (pValue == 0 || strlen(pValue) == 0)
             return "";
@@ -185,14 +192,14 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         int iColIdx = GetColumnIndex_(FieldName);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          long lVal = pValue ? atoi(pValue) : 0;
          return lVal;
       }
@@ -212,14 +219,14 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         int iColIdx = GetColumnIndex_(FieldName);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          __int64 lVal = pValue ? _atoi64(pValue) : 0;
          return lVal;
       }
@@ -239,14 +246,14 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
-         char *pValue = PQgetvalue(m_pResult, m_iCurRowNum, iColIdx);
+         int iColIdx = GetColumnIndex_(FieldName);
+         char *pValue = PQgetvalue(result_, cur_row_num_, iColIdx);
          double dbVal = pValue ? atof(pValue) : 0;
 
          return dbVal;
@@ -259,24 +266,24 @@ namespace HM
    }
 
    int 
-   PGRecordset::_GetColumnIndex(const AnsiString &sColumnName) const
+   PGRecordset::GetColumnIndex_(const AnsiString &sColumnName) const
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the index of a column in the recordset, based on the columns name.
    //---------------------------------------------------------------------------()
    {
-      if (!m_pResult)
+      if (!result_)
       {
          // Result set wasn't initialized. Shouldn't happen.
          ErrorManager::Instance()->ReportError(HM::ErrorManager::High, 5093, "PGConnection::Close", "An unknown error occurred while closing recordset.");
          return 0;
       }
 
-      unsigned int iFieldCount = PQnfields(m_pResult);
+      unsigned int iFieldCount = PQnfields(result_);
 
       for (unsigned int i = 0; i <= iFieldCount; i++)
       {
-         AnsiString sColName = PQfname(m_pResult, i);
+         AnsiString sColName = PQfname(result_, i);
 
          if (sColName == sColumnName)
             return i;
@@ -284,21 +291,21 @@ namespace HM
       }      
 
       // Result set wasn't initialized. Shouldn't happen.
-      ErrorManager::Instance()->ReportError(ErrorManager::High, 5092, "MySQLRecordset::_GetColumnIndex", "The requested column was not found. Column name: " + sColumnName);
+      ErrorManager::Instance()->ReportError(ErrorManager::High, 5092, "MySQLRecordset::GetColumnIndex_", "The requested column was not found. Column name: " + sColumnName);
 
       return -1;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    PGRecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
-      unsigned int iFieldCount = PQnfields(m_pResult);
+      unsigned int iFieldCount = PQnfields(result_);
 
       for (unsigned int i = 0; i <= iFieldCount; i++)
       {
-         AnsiString sColName = PQfname(m_pResult, i);
+         AnsiString sColName = PQfname(result_, i);
 
          result.push_back(sColName);
 
@@ -318,14 +325,14 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 
       try
       {
-         int iColIdx = _GetColumnIndex(FieldName);
-         bool isNull = PQgetisnull(m_pResult, m_iCurRowNum, iColIdx) == 1;
+         int iColIdx = GetColumnIndex_(FieldName);
+         bool isNull = PQgetisnull(result_, cur_row_num_, iColIdx) == 1;
 
          return isNull;
       }

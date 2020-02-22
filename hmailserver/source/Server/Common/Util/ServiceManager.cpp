@@ -34,27 +34,20 @@ namespace HM
 
       if (hSCManager == NULL)
       {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("OpenSCManager failed. (%d)"), GetLastError());
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5054, "ServiceManager::RegisterService", sErrorMessage);
-
          return false;
       }
-
-      // Get the path to the currently running executable
-      String sPath;
-      sPath = Application::GetExecutableName();
-      sPath += " RunAsService";
 
       // Check wether we already exists.
       if (DoesServiceExist(ServiceName))
       {
-         if (!_ReconfigureService(hSCManager, ServiceName))
+         if (!ReconfigureService_(hSCManager, ServiceName))
             return false;
       }
       else
       {
+         // Get the path to the currently running executable
+         String sPath = "\"" + Application::GetExecutableName() + "\" RunAsService";
+
          // Check wether we should set the service dependent on MySQL.
          LPCTSTR szServiceDependencies = _T("RPCSS\0\0");
 
@@ -94,7 +87,7 @@ namespace HM
    }
 
    bool
-   ServiceManager::_ReconfigureService(SC_HANDLE hSCManager, const String &ServiceName)
+   ServiceManager::ReconfigureService_(SC_HANDLE hSCManager, const String &ServiceName)
    //---------------------------------------------------------------------------//
    // DESCRIPTION:
    // Updates an existing hMailServer service.
@@ -108,16 +101,14 @@ namespace HM
 
       if (sclLock == NULL)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5056, "ServiceManager::_ReconfigureService", "Failed to obtain lock on service database.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5056, "ServiceManager::ReconfigureService_", "Failed to obtain lock on service database.");
 
          CloseServiceHandle(hService);
          return false;
       }
 
       // Update the path to the executable
-      String sPath;
-      sPath = Application::GetExecutableName();
-      sPath += " RunAsService";
+      String sPath = "\"" + Application::GetExecutableName() + "\" RunAsService";
 
       if (ChangeServiceConfig(
                hService,        // handle of service 
@@ -135,7 +126,7 @@ namespace HM
          String sErrorMessage;
          sErrorMessage.Format(_T("ChangeServiceConfig failed. (%d)"), GetLastError());
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5057, "ServiceManager::_ReconfigureService", sErrorMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5057, "ServiceManager::ReconfigureService_", sErrorMessage);
          return false;
       }
 
@@ -171,11 +162,16 @@ namespace HM
          return;
       }
 
+      // Create null-terminated list of services hMailServer depends on.
       int iLength = ServiceName.GetLength() + 8;
+
       TCHAR * lpDependent = new TCHAR[iLength];
-      memset(lpDependent, 0, iLength * sizeof(TCHAR));
-      _tcscpy(lpDependent, _T("RPCSS"));
-      _tcscpy(lpDependent+6, ServiceName);
+      int memSize = iLength * sizeof(TCHAR);
+
+      memset(lpDependent, 0, memSize);
+
+      _tcscpy_s(lpDependent, memSize, _T("RPCSS"));
+      _tcscpy_s(lpDependent + 6, memSize-6, ServiceName);
       
       int iRet = ChangeServiceConfig( 
          hService,        // handle of service 

@@ -6,11 +6,10 @@
 #include "../TCPIP/SocketConstants.h"
 #include "../TCPIP/IPAddress.h"
 
+#include <boost/atomic.hpp>
+
 namespace HM
 {
-   class SocketConnection;
-   class Socket;
-   class ProtocolParser;
    class SecurityRange;
 
    class SessionManager : public Singleton<SessionManager>
@@ -21,26 +20,19 @@ namespace HM
 
        int Count();
 
-       shared_ptr<ProtocolParser> CreateConnection(SessionType t, shared_ptr<SecurityRange> securityRange);
-      
-       void OnDisconnect(SessionType st);
+       bool CreateSession(SessionType t, std::shared_ptr<SecurityRange> security_range);
+       void OnSessionEnded(SessionType st);
 
-       void RegisterPreCreatedConnection(Socket* pSocket);
-
-       long GetNumberOfConnections(SessionType st);
+       int GetNumberOfConnections(SessionType st);
        // Returns the number of connections for a specific connection timeout
 
-       unsigned long GetNumberOfConnections();
+       int GetNumberOfConnections();
 
    private:
 
-      
-
-      long m_iNoOfSMTPConnections;
-      long m_iNoOfPOP3Connections;
-      long m_iNoOfIMAPConnections;
-
-   private:
+      boost::atomic<int> no_of_smtpconnections_;
+      boost::atomic<int> no_of_pop3connections_;
+      boost::atomic<int> no_of_imapconnections_;
 
    };
 }

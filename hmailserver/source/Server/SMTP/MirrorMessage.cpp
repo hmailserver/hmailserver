@@ -28,8 +28,8 @@
 
 namespace HM
 { 
-   MirrorMessage::MirrorMessage(shared_ptr<Message> message) :
-      _message(message)
+   MirrorMessage::MirrorMessage(std::shared_ptr<Message> message) :
+      message_(message)
    {
    }
 
@@ -47,27 +47,27 @@ namespace HM
          return;
 
       // Do not mirror messages sent from the mirror address
-      if (sMirrorAddress.CompareNoCase(_message->GetFromAddress()) == 0)
+      if (sMirrorAddress.CompareNoCase(message_->GetFromAddress()) == 0)
          return;
 
       // If message is sent from a mailer daemon address, don't mirror it.
-      if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(_message->GetFromAddress()))
+      if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(message_->GetFromAddress()))
          return;  
 
       // Is the mirror address a local domain?
       String sDomain = StringParser::ExtractDomain(sMirrorAddress);
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(sDomain);      
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(sDomain);      
 
       if (pDomain)
       {
          // The domain is local. See if the account exist.
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sMirrorAddress);
+         std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sMirrorAddress);
 
          if (!pDomain->GetIsActive() || !pAccount || !pAccount->GetActive())
          {
             // check if a route exists with the same name and account.
             bool found = false;
-            shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
+            std::shared_ptr<Route> route = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(sDomain);
             if (route)
             {
                if (route->ToAllAddresses() || route->GetAddresses()->GetItemByName(sMirrorAddress))
@@ -88,10 +88,10 @@ namespace HM
       String deliveredToAddresses;
 
       // If the mirror address is on the recipient list, don't mirror it.
-      vector<shared_ptr<MessageRecipient> > &vecRecipients = _message->GetRecipients()->GetVector();
-      vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = message_->GetRecipients()->GetVector();
+      auto iterRecipient = vecRecipients.begin();
       
-      boost_foreach(shared_ptr<MessageRecipient> recipipent, _message->GetRecipients()->GetVector())
+      for(std::shared_ptr<MessageRecipient> recipipent : message_->GetRecipients()->GetVector())
       {
          if (recipipent->GetAddress().CompareNoCase(sMirrorAddress) == 0)
          {
@@ -105,8 +105,8 @@ namespace HM
          deliveredToAddresses += recipipent->GetOriginalAddress();
       }
 
-      shared_ptr<Account> emptyAccount;
-      shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(emptyAccount, _message);
+      std::shared_ptr<Account> emptyAccount;
+      std::shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(emptyAccount, message_);
 
       pMsg->SetState(Message::Delivering);
 
@@ -119,7 +119,7 @@ namespace HM
       // than the mirror address. The problem is that the Delivered-To address is limited to
       // 256 characters due to database limitations.
       deliveredToAddresses = deliveredToAddresses.Mid(0, 255);
-      boost_foreach(shared_ptr<MessageRecipient> recipipent, pMsg->GetRecipients()->GetVector())
+      for(std::shared_ptr<MessageRecipient> recipipent : pMsg->GetRecipients()->GetVector())
       {
          recipipent->SetOriginalAddress(deliveredToAddresses);
       }

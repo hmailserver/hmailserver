@@ -44,11 +44,11 @@ public:
    STDMETHOD(SaveAs)(/*[out, retval]*/ BSTR pVal);
    STDMETHOD(Delete)();
 
-   void Attach(shared_ptr<HM::Attachment> pAttachment);
+   void Attach(std::shared_ptr<HM::Attachment> pAttachment);
 
 private:
 
-   shared_ptr<HM::Attachment> m_pAttachment;
+   std::shared_ptr<HM::Attachment> attachment_;
 
 };
 

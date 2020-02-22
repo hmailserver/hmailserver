@@ -12,65 +12,48 @@
 namespace HM
 {
    ByteBuffer::ByteBuffer() :
-      m_pBuffer (0),
-      m_lBufferSize (0)
+      buffer_ (0),
+      buffer_size_ (0)
    {
 
    }
 
    ByteBuffer::~ByteBuffer()
    {
-      try
+      if (buffer_)
       {
-         if (m_pBuffer)
-         {
-            delete [] m_pBuffer;
-            m_pBuffer = 0;
+         delete [] buffer_;
+         buffer_ = 0;
 
-            m_lBufferSize = 0;
-         }   
-      }
-      catch (...)
-      {
-         String message;
-         message.Format(_T("Error when emptying buffer. This: %d"), this);
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "ByteBuffer::~ByteBuffer", message);
-         throw;
-      }
+         buffer_size_ = 0;
+      }   
    }
 
    void 
    ByteBuffer::Empty()
    {
-      if (m_pBuffer)
+      if (buffer_)
       {
-         delete [] m_pBuffer;
-         m_pBuffer = 0;
+         delete [] buffer_;
+         buffer_ = 0;
 
-         m_lBufferSize = 0;
+         buffer_size_ = 0;
       }   
    }
 
    void 
-   ByteBuffer::Empty(int iLeaveEndingBytes)
+   ByteBuffer::Empty(size_t iLeaveEndingBytes)
    {
-      if (iLeaveEndingBytes > m_lBufferSize)
+      if (iLeaveEndingBytes > buffer_size_)
       {
-         assert(0);
-         iLeaveEndingBytes = m_lBufferSize;
-      }
-
-      if (iLeaveEndingBytes < 0)
-      {
-         assert(0);
-         iLeaveEndingBytes = 0;
+         throw std::logic_error(Formatter::FormatAsAnsi("The number of bytes to leave exceeds buffer size. Bytes to leave: {0}, Buffer size: {1}", iLeaveEndingBytes, buffer_size_));
       }
 
       // Allocate a temporary buffer.
       BYTE * pRemaining = new BYTE[iLeaveEndingBytes];
       
       // Copy the remaining data to this buffer.
-      memcpy(pRemaining, m_pBuffer + (m_lBufferSize - iLeaveEndingBytes), iLeaveEndingBytes );
+      memcpy(pRemaining, buffer_ + (buffer_size_ - iLeaveEndingBytes), iLeaveEndingBytes );
 
       // Empty this buffer.
       Empty();
@@ -82,15 +65,15 @@ namespace HM
    }
 
    void 
-   ByteBuffer::Allocate(long lSize)
+   ByteBuffer::Allocate(size_t lSize)
    {
       
       Empty();
       
       // Allocate a new buffer
-      m_pBuffer = new BYTE[lSize];
-      memset(m_pBuffer, 0, lSize);
-      m_lBufferSize = lSize;
+      buffer_ = new BYTE[lSize];
+      memset(buffer_, 0, lSize);
+      buffer_size_ = lSize;
    }
 
    void 
@@ -100,13 +83,13 @@ namespace HM
    }
 
    void 
-   ByteBuffer::Add(shared_ptr<ByteBuffer> pBuf)
+   ByteBuffer::Add(std::shared_ptr<ByteBuffer> pBuf)
    {
       Add(pBuf->GetBuffer(), pBuf->GetSize());
    }
 
    void
-   ByteBuffer::Add(const BYTE *pBuf, long lSize)
+   ByteBuffer::Add(const BYTE *pBuf, size_t lSize)
    {
       
       if (lSize == 0)
@@ -115,7 +98,7 @@ namespace HM
          return;
       }
 
-      long iTotBufLen = m_lBufferSize + lSize;
+      size_t iTotBufLen = buffer_size_ + lSize;
 
       // Allocate a new buffer big enough to contain
       // both old and new buffer.
@@ -123,22 +106,22 @@ namespace HM
       memset(tmpbuf, 0, iTotBufLen);
       
       // Copy the old data to the temporary buffer.
-      if (m_lBufferSize > 0)
-         memcpy(tmpbuf, m_pBuffer, m_lBufferSize);
+      if (buffer_size_ > 0)
+         memcpy(tmpbuf, buffer_, buffer_size_);
       
       // Copy the new data to the temporary buffer.
-      memcpy(tmpbuf + m_lBufferSize,pBuf, lSize);
+      memcpy(tmpbuf + buffer_size_,pBuf, lSize);
 
       // We should now repoint this->buffer to
       // tmpbuf. Free current buffer.
       Empty();
 
-      m_pBuffer = tmpbuf;
-      m_lBufferSize = iTotBufLen;
+      buffer_ = tmpbuf;
+      buffer_size_ = iTotBufLen;
    }
 
    void 
-   ByteBuffer::DecreaseSize(int iDecreaseWith)
+   ByteBuffer::DecreaseSize(size_t iDecreaseWith)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Decreases the size of the buffer. This is done just by decreasing the
@@ -146,7 +129,7 @@ namespace HM
    // but gives better performance than allocating a whole new buffer.
    //---------------------------------------------------------------------------()
    {
-      if (m_lBufferSize - iDecreaseWith < 0)
+      if (buffer_size_ - iDecreaseWith < 0)
       {
          // We should never get here. This code is only run if you
          // decrease so that the size get's negative.
@@ -154,7 +137,7 @@ namespace HM
          return ;
       }
 
-      m_lBufferSize -= iDecreaseWith;
+      buffer_size_ -= iDecreaseWith;
    }
 }
 

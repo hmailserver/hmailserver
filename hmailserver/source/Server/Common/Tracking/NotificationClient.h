@@ -12,6 +12,6 @@ namespace HM
    public:
       NotificationClient();
 
-      virtual void OnNotification(shared_ptr<ChangeNotification> notification) = 0;
+      virtual void OnNotification(std::shared_ptr<ChangeNotification> notification) = 0;
    };
 }

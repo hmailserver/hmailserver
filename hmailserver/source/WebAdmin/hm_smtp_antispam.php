@@ -91,7 +91,7 @@ function TestSpamAssassinConnection()
    {
       document.getElementById('SpamAssassinTestResult').innerHTML = "";
       
-      var url = "index.php?page=background_ajax_spamassassintest&Hostname="+ document.getElementById('SpamAssassinHost').value + "&Port=" + document.getElementById('SpamAssassinPort').value;
+      var url = "index.php?page=background_ajax_spamassassintest&csrftoken=<?php echo $csrftoken?>&Hostname="+ document.getElementById('SpamAssassinHost').value + "&Port=" + document.getElementById('SpamAssassinPort').value;
       
       httpObject.open("GET", url, true);
       httpObject.send(null);
@@ -107,6 +107,7 @@ function TestSpamAssassinConnection()
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "smtp_antispam");
       PrintHidden("action", "save");
    ?>

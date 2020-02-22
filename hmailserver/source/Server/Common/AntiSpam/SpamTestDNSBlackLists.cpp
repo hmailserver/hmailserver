@@ -33,14 +33,14 @@ namespace HM
    bool 
    SpamTestDNSBlackLists::GetIsEnabled()
    {
-      shared_ptr<DNSBlackLists> pDNSBlackLists = Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
+      std::shared_ptr<DNSBlackLists> pDNSBlackLists = Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
 
-      vector<shared_ptr<DNSBlackList> > vec = pDNSBlackLists->GetVector();
-      vector<shared_ptr<DNSBlackList> >::iterator iter = vec.begin();
-      vector<shared_ptr<DNSBlackList> >::iterator iterEnd = vec.end();
+      std::vector<std::shared_ptr<DNSBlackList> > vec = pDNSBlackLists->GetVector();
+      auto iter = vec.begin();
+      auto iterEnd = vec.end();
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<DNSBlackList> pDNSBL = (*iter);
+         std::shared_ptr<DNSBlackList> pDNSBL = (*iter);
 
          if (pDNSBL->GetIsActive())
             return true;
@@ -49,10 +49,10 @@ namespace HM
       return false;
    }
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestDNSBlackLists::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestDNSBlackLists::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
       String sMessage = "";
       int iScore = 0;
@@ -61,15 +61,15 @@ namespace HM
       if (addr.IsAny())
          return setSpamTestResults;
 
-      shared_ptr<DNSBlackLists> pDNSBlackLists = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
+      std::shared_ptr<DNSBlackLists> pDNSBlackLists = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
       
-      boost_foreach(shared_ptr<DNSBlackList> pDNSBL, pDNSBlackLists->GetVector())
+      for(std::shared_ptr<DNSBlackList> pDNSBL : pDNSBlackLists->GetVector())
       {
          if (pDNSBL->GetIsActive() && 
             BLCheck::ClientExistsInDNSBL(addr, pDNSBL->GetDNSHost(), pDNSBL->GetExpectedResult()))
          {
             int iSomeScore = pDNSBL->GetScore();
-            shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iSomeScore, pDNSBL->GetRejectMessage()));
+            std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iSomeScore, pDNSBL->GetRejectMessage()));
             
             setSpamTestResults.insert(pResult);
          }

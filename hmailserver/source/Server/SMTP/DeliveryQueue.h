@@ -15,7 +15,6 @@ namespace HM
       ~DeliveryQueueClearer(void);
 
       virtual void DoWork();
-      virtual void StopWork() {;}
 
    private:
 
@@ -35,6 +34,6 @@ namespace HM
       static void OnDeliveryQueueCleared();
    private:
 
-      static bool m_bIsClearing;
+      static bool is_clearing_;
    };
 }

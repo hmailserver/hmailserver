@@ -23,7 +23,7 @@ namespace HM
    }
 
    bool
-   PersistentGreyListingWhiteAddress::DeleteObject(shared_ptr<GreyListingWhiteAddress> pObject)
+   PersistentGreyListingWhiteAddress::DeleteObject(std::shared_ptr<GreyListingWhiteAddress> pObject)
    {
       SQLCommand command("delete from hm_greylisting_whiteaddresses where whiteid = @WHITEID");
       command.AddParameter("@WHITEID", pObject->GetID());
@@ -32,7 +32,7 @@ namespace HM
    }
 
    bool 
-   PersistentGreyListingWhiteAddress::ReadObject(shared_ptr<GreyListingWhiteAddress> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentGreyListingWhiteAddress::ReadObject(std::shared_ptr<GreyListingWhiteAddress> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID (pRS->GetLongValue("whiteid"));
       pObject->SetIPAddress(pRS->GetStringValue("whiteipaddress"));
@@ -42,14 +42,14 @@ namespace HM
    }
 
    bool 
-   PersistentGreyListingWhiteAddress::SaveObject(shared_ptr<GreyListingWhiteAddress> pObject, String &errorMessage)
+   PersistentGreyListingWhiteAddress::SaveObject(std::shared_ptr<GreyListingWhiteAddress> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentGreyListingWhiteAddress::SaveObject(shared_ptr<GreyListingWhiteAddress> pObject)
+   PersistentGreyListingWhiteAddress::SaveObject(std::shared_ptr<GreyListingWhiteAddress> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_greylisting_whiteaddresses");
@@ -91,7 +91,7 @@ namespace HM
 
       command1.AddParameter("@ADDRESS", address);
    
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command1);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command1);
       
       if (!pRS)
          return false;

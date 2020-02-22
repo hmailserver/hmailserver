@@ -6,6 +6,7 @@
 namespace HM
 {
    class BlockedAttachment;
+   enum PersistenceMode;
 
    class PersistentBlockedAttachment
    {
@@ -13,10 +14,10 @@ namespace HM
       PersistentBlockedAttachment(void);
       ~PersistentBlockedAttachment(void);
       
-      static bool DeleteObject(shared_ptr<BlockedAttachment> pObject);
-      static bool SaveObject(shared_ptr<BlockedAttachment> pObject);
-      static bool SaveObject(shared_ptr<BlockedAttachment> pObject, String &errorMessage);
-      static bool ReadObject(shared_ptr<BlockedAttachment> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<BlockedAttachment> pObject);
+      static bool SaveObject(std::shared_ptr<BlockedAttachment> pObject);
+      static bool SaveObject(std::shared_ptr<BlockedAttachment> pObject, String &errorMessage, PersistenceMode mode);
+      static bool ReadObject(std::shared_ptr<BlockedAttachment> pObject, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

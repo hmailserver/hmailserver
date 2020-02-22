@@ -22,7 +22,7 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandSetAcl::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandSetAcl::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
@@ -30,7 +30,7 @@ namespace HM
       if (!Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPACL())
          return IMAPResult(IMAPResult::ResultBad, "ACL is not enabled.");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
 
       if (pParser->ParamCount() < 3)
@@ -51,7 +51,7 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
       
-      shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 

@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -32,9 +33,9 @@ namespace RegressionTests.IMAP
          message.Attachments.Add(filename);
          message.Save();
 
-         TestSetup.AssertFolderMessageCount(account.IMAPFolders[0], 1);
+         CustomAsserts.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
          string result = oSimulator.Fetch("1 BODYSTRUCTURE");
@@ -49,17 +50,17 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody1");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody1");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 2);
 
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
 
-         var sim = new IMAPSimulator();
+         var sim = new ImapClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("1 BODY[1]");
@@ -90,9 +91,9 @@ namespace RegressionTests.IMAP
          message.Attachments.Add(filename);
          message.Save();
 
-         TestSetup.AssertFolderMessageCount(account.IMAPFolders[0], 1);
+         CustomAsserts.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
          string bodyStructureResponse = oSimulator.Fetch("1 BODYSTRUCTURE");
@@ -116,12 +117,12 @@ namespace RegressionTests.IMAP
                           Environment.NewLine +
                           "Hello" + Environment.NewLine;
 
-         var smtpSimulator = new SMTPClientSimulator();
+         var smtpSimulator = new SmtpClientSimulator();
          smtpSimulator.SendRaw(account.Address, account.Address, message);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -130,6 +131,34 @@ namespace RegressionTests.IMAP
 
          Assert.IsTrue(result.Contains("Wed, 22 Apr 2009 11:05:09 GMT"));
       }
+
+      [Test]
+      public void IfInReplyToFieldContainsQuoteThenFetchHeadersShouldEncodeIt()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
+
+         string message = "From: Someone <someone@example.com>" + Environment.NewLine +
+                          "To: Someoen <someone@example.com>" + Environment.NewLine +
+                          "In-Reply-To: ShouldBeEncodedDueToQuote\"" + Environment.NewLine +
+                          "Subject: Something" + Environment.NewLine +
+                          Environment.NewLine +
+                          "Hello" + Environment.NewLine;
+
+         var smtpSimulator = new SmtpClientSimulator();
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var oSimulator = new ImapClientSimulator();
+         string sWelcomeMessage = oSimulator.Connect();
+         oSimulator.Logon(account.Address, "test");
+         oSimulator.SelectFolder("INBOX");
+         string result = oSimulator.Fetch("1 ENVELOPE");
+         oSimulator.Disconnect();
+
+         Assert.IsFalse(result.Contains("ShouldBeEncodedDueToQuote"));
+      }
+
 
       [Test]
       [Description("Issue 282, hMailServer not working with Symbian N60 ")]
@@ -144,12 +173,12 @@ namespace RegressionTests.IMAP
                           Environment.NewLine +
                           "Hello" + Environment.NewLine;
 
-         var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         var smtpSimulator = new SmtpClientSimulator();
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -165,6 +194,34 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      public void RequestingSameHeaderFieldMultipleTimesShouldReturnItOnce()
+      {
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
+
+         string message = "From: Someone <someone@example.com>" + Environment.NewLine +
+                          "To: Someoen <someone@example.com>" + Environment.NewLine +
+                          "Date: Wed, 22 Apr 2009 11:05:09 \"GMT\"" + Environment.NewLine +
+                          "Subject: SubjectText" + Environment.NewLine +
+                          Environment.NewLine +
+                          "Hello" + Environment.NewLine;
+
+         var smtpSimulator = new SmtpClientSimulator();
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var oSimulator = new ImapClientSimulator();
+         string sWelcomeMessage = oSimulator.Connect();
+         oSimulator.Logon(account.Address, "test");
+         oSimulator.SelectFolder("INBOX");
+         string result = oSimulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject Subject)]");
+         oSimulator.Disconnect();
+
+         Assert.AreEqual(1, StringExtensions.Occurences(result, "SubjectText"));
+      }
+
+
+      [Test]
       [Description("Issue 282, hMailServer not working with Symbian N60 ")]
       public void TestFetchHeaderFieldsNot()
       {
@@ -177,12 +234,12 @@ namespace RegressionTests.IMAP
                           Environment.NewLine +
                           "Hello" + Environment.NewLine;
 
-         var smtpSimulator = new SMTPClientSimulator();
-         Assert.IsTrue(smtpSimulator.SendRaw(account.Address, account.Address, message));
+         var smtpSimulator = new SmtpClientSimulator();
+         smtpSimulator.SendRaw(account.Address, account.Address, message);
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
          oSimulator.SelectFolder("INBOX");
@@ -201,21 +258,21 @@ namespace RegressionTests.IMAP
       public void TestFetchInvalid()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody1");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody1");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody2");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody3");
 
-         IMAPSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 3);
 
-         var sim = new IMAPSimulator();
+         var sim = new ImapClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
          string result = sim.Fetch("0 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 OK FETCH completed"));
+         Assert.IsTrue(result.StartsWith("A17 OK FETCH completed"));
          result = sim.Fetch("-1 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 BAD"));
+         Assert.IsTrue(result.StartsWith("A17 BAD"));
          result = sim.Fetch("-100 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A01 BAD"));
+         Assert.IsTrue(result.StartsWith("A17 BAD"));
       }
    }
 }

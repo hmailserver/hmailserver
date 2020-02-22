@@ -7,14 +7,22 @@
 
 #include "../Common/Util/ServerStatus.h"
 
+InterfaceStatus::InterfaceStatus() :
+   status_(nullptr),
+   application_(nullptr)
+{
+
+}
+
+
 bool 
 InterfaceStatus::LoadSettings()
 {
    if (!GetIsServerAdmin())
       return false;
 
-   m_pStatus = HM::ServerStatus::Instance();
-   m_pApplication = HM::Application::Instance();
+   status_ = HM::ServerStatus::Instance();
+   application_ = HM::Application::Instance();
 
    return true;
 }
@@ -25,10 +33,10 @@ InterfaceStatus::get_UndeliveredMessages(BSTR *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      HM::String sRetVal = m_pStatus->GetUnsortedMessageStatus();
+      HM::String sRetVal = status_->GetUnsortedMessageStatus();
       *pVal = sRetVal.AllocSysString();
    
       return S_OK;
@@ -44,10 +52,10 @@ InterfaceStatus::get_StartTime(BSTR *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      HM::String sRetVal = m_pApplication->GetStartTime();
+      HM::String sRetVal = application_->GetStartTime();
       *pVal = sRetVal.AllocSysString();
       return S_OK;
    }
@@ -62,10 +70,10 @@ InterfaceStatus::get_ProcessedMessages(long *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      *pVal = m_pStatus->GetNumberOfProcessedMessages();
+      *pVal = status_->GetNumberOfProcessedMessages();
       return S_OK;
    }
    catch (...)
@@ -79,10 +87,10 @@ InterfaceStatus::get_RemovedViruses(long *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      *pVal = m_pStatus->GetNumberOfRemovedViruses();
+      *pVal = status_->GetNumberOfRemovedViruses();
       return S_OK;
    }
    catch (...)
@@ -96,10 +104,10 @@ InterfaceStatus::get_RemovedSpamMessages(long *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      *pVal = m_pStatus->GetNumberOfDetectedSpamMessages();
+      *pVal = status_->GetNumberOfDetectedSpamMessages();
       return S_OK;
    }
    catch (...)
@@ -113,10 +121,10 @@ InterfaceStatus::get_SessionCount(eSessionType iType, long *pVal)
 {
    try
    {
-      if (!m_pStatus)
+      if (!status_)
          return GetAccessDenied();
 
-      *pVal = m_pStatus->GetNumberOfSessions(iType);
+      *pVal = status_->GetNumberOfSessions(iType);
       return S_OK;
    }
    catch (...)

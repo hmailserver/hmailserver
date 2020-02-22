@@ -36,10 +36,10 @@ STDMETHODIMP InterfaceRoute::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
    catch (...)
@@ -52,10 +52,10 @@ STDMETHODIMP InterfaceRoute::get_DomainName(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->DomainName().AllocSysString();
+      *pVal = object_->DomainName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -68,10 +68,10 @@ STDMETHODIMP InterfaceRoute::put_DomainName(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->DomainName(newVal);
+      object_->DomainName(newVal);
       return S_OK;
    }
    catch (...)
@@ -84,10 +84,10 @@ STDMETHODIMP InterfaceRoute::get_Description(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDescription().AllocSysString();
+      *pVal = object_->GetDescription().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -100,10 +100,10 @@ STDMETHODIMP InterfaceRoute::put_Description(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDescription(newVal);
+      object_->SetDescription(newVal);
       return S_OK;
    }
    catch (...)
@@ -116,10 +116,10 @@ STDMETHODIMP InterfaceRoute::get_TargetSMTPHost(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->TargetSMTPHost().AllocSysString();
+      *pVal = object_->TargetSMTPHost().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -132,10 +132,10 @@ STDMETHODIMP InterfaceRoute::put_TargetSMTPHost(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->TargetSMTPHost(newVal);
+      object_->TargetSMTPHost(newVal);
       return S_OK;
    }
    catch (...)
@@ -148,10 +148,10 @@ STDMETHODIMP InterfaceRoute::get_TargetSMTPPort(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->TargetSMTPPort();
+      *pVal = object_->TargetSMTPPort();
       return S_OK;
    }
    catch (...)
@@ -164,10 +164,10 @@ STDMETHODIMP InterfaceRoute::put_TargetSMTPPort(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->TargetSMTPPort(newVal);
+      object_->TargetSMTPPort(newVal);
       return S_OK;
    }
    catch (...)
@@ -180,10 +180,10 @@ STDMETHODIMP InterfaceRoute::get_NumberOfTries(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->NumberOfTries();
+      *pVal = object_->NumberOfTries();
       return S_OK;
    }
    catch (...)
@@ -196,10 +196,10 @@ STDMETHODIMP InterfaceRoute::put_NumberOfTries(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->NumberOfTries(newVal);
+      object_->NumberOfTries(newVal);
       return S_OK;
    }
    catch (...)
@@ -212,10 +212,10 @@ STDMETHODIMP InterfaceRoute::get_MinutesBetweenTry(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->MinutesBetweenTry();
+      *pVal = object_->MinutesBetweenTry();
       return S_OK;
    }
    catch (...)
@@ -228,10 +228,10 @@ STDMETHODIMP InterfaceRoute::put_MinutesBetweenTry(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->MinutesBetweenTry(newVal);
+      object_->MinutesBetweenTry(newVal);
       return S_OK;
    }
    catch (...)
@@ -244,11 +244,11 @@ STDMETHODIMP InterfaceRoute::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentRoute::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentRoute::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -268,10 +268,10 @@ STDMETHODIMP InterfaceRoute::get_AllAddresses(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->ToAllAddresses() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->ToAllAddresses() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -285,10 +285,10 @@ STDMETHODIMP InterfaceRoute::put_AllAddresses(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->ToAllAddresses(newVal == VARIANT_TRUE ? true : false);
+      object_->ToAllAddresses(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -302,13 +302,13 @@ STDMETHODIMP InterfaceRoute::get_Addresses(IInterfaceRouteAddresses **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceRouteAddresses>* pInterfaceAddresses = new CComObject<InterfaceRouteAddresses>;
-      pInterfaceAddresses->SetAuthentication(m_pAuthentication);
+      pInterfaceAddresses->SetAuthentication(authentication_);
       
-      shared_ptr<HM::RouteAddresses> pAdresses = m_pObject->GetAddresses();
+      std::shared_ptr<HM::RouteAddresses> pAdresses = object_->GetAddresses();
    
       pInterfaceAddresses->Attach(pAdresses);
       pInterfaceAddresses->AddRef();
@@ -327,11 +327,11 @@ STDMETHODIMP InterfaceRoute::get_RelayerRequiresAuth(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
-      *pVal = m_pObject->GetRelayerRequiresAuth() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetRelayerRequiresAuth() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -345,11 +345,11 @@ STDMETHODIMP InterfaceRoute::put_RelayerRequiresAuth(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
-      m_pObject->SetRelayerRequiresAuth(newVal == VARIANT_TRUE ? true : false);
+      object_->SetRelayerRequiresAuth(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -363,11 +363,11 @@ STDMETHODIMP InterfaceRoute::get_TreatSecurityAsLocalDomain(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
-      *pVal = m_pObject->GetTreatRecipientAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetTreatRecipientAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -381,10 +381,10 @@ STDMETHODIMP InterfaceRoute::put_TreatSecurityAsLocalDomain(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetTreatRecipientAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
+      object_->SetTreatRecipientAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)
@@ -397,11 +397,11 @@ STDMETHODIMP InterfaceRoute::get_TreatSenderAsLocalDomain(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
-      *pVal = m_pObject->GetTreatSenderAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetTreatSenderAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -415,10 +415,10 @@ STDMETHODIMP InterfaceRoute::put_TreatSenderAsLocalDomain(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetTreatSenderAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
+      object_->SetTreatSenderAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)
@@ -431,11 +431,11 @@ STDMETHODIMP InterfaceRoute::get_TreatRecipientAsLocalDomain(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
-      *pVal = m_pObject->GetTreatRecipientAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetTreatRecipientAsLocalDomain() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -449,10 +449,10 @@ STDMETHODIMP InterfaceRoute::put_TreatRecipientAsLocalDomain(VARIANT_BOOL newVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetTreatRecipientAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
+      object_->SetTreatRecipientAsLocalDomain(newVal == VARIANT_TRUE ? true : false);
       return S_OK;
    }
    catch (...)
@@ -465,10 +465,10 @@ STDMETHODIMP InterfaceRoute::get_RelayerAuthUsername(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRelayerAuthUsername().AllocSysString();
+      *pVal = object_->GetRelayerAuthUsername().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -481,10 +481,10 @@ STDMETHODIMP InterfaceRoute::put_RelayerAuthUsername(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRelayerAuthUsername(HM::String(newVal));
+      object_->SetRelayerAuthUsername(HM::String(newVal));
       return S_OK;
    }
    catch (...)
@@ -497,10 +497,10 @@ STDMETHODIMP InterfaceRoute::SetRelayerAuthPassword(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRelayerAuthPassword(HM::String(newVal));
+      object_->SetRelayerAuthPassword(HM::String(newVal));
       return S_OK;
    }
    catch (...)
@@ -513,10 +513,10 @@ STDMETHODIMP InterfaceRoute::get_UseSSL(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUseSSL() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetConnectionSecurity() == HM::CSSSL ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -530,10 +530,47 @@ STDMETHODIMP InterfaceRoute::put_UseSSL(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUseSSL(newVal == VARIANT_TRUE ? true : false);
+      if (newVal == VARIANT_TRUE)
+         object_->SetConnectionSecurity(HM::CSSSL);
+      else
+         object_->SetConnectionSecurity(HM::CSNone);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceRoute::put_ConnectionSecurity(eConnectionSecurity newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetConnectionSecurity((HM::ConnectionSecurity) newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceRoute::get_ConnectionSecurity(eConnectionSecurity *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = (eConnectionSecurity) object_->GetConnectionSecurity();
+
       return S_OK;
    }
    catch (...)
@@ -546,17 +583,17 @@ STDMETHODIMP InterfaceRoute::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentRoute::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentRoute::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

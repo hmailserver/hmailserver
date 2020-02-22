@@ -5,6 +5,8 @@
 #include "File.h"
 #include "ByteBuffer.h"
 
+#include <boost/filesystem.hpp>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -12,29 +14,34 @@
 
 namespace HM
 {
+   
+
    File::File() :
-      m_hFile(INVALID_HANDLE_VALUE)
+      file_(nullptr)
    {
       
    }
 
    File::~File()
    {
-      if (m_hFile != INVALID_HANDLE_VALUE)
-         CloseHandle(m_hFile);
+      Close();
    }
    
    void 
    File::Close()
    {
-      CloseHandle(m_hFile);
-      m_hFile = INVALID_HANDLE_VALUE;
+      if (file_ != nullptr)
+      {
+         fclose(file_);
+         file_ = nullptr;
+      }
+
    }
 
    bool 
    File::IsOpen() const
    {
-      if (m_hFile == INVALID_HANDLE_VALUE)
+      if (file_ == nullptr)
          return false;
       
       return true;
@@ -43,57 +50,36 @@ namespace HM
    bool
    File::Open(const String &sFilename, OpenType ot)
    {
-      if (m_hFile != INVALID_HANDLE_VALUE)
+      if (IsOpen())
       {
          // The file should be closed, before we
          // try to open it again...
-
-         assert(0);
-         Close();
+         throw std::logic_error(Formatter::FormatAsAnsi("The file {0} is already open.", sFilename));
       }
 
-      DWORD dwDesiredAccess = 0;
-      DWORD dwShareMode = 0;
-      DWORD dwCreationDisposition = 0;
+      std::wstring open_mode;
 
       switch (ot)
       {
       case OTReadOnly:
-         dwDesiredAccess = GENERIC_READ;
-         dwShareMode = FILE_SHARE_READ;
-         dwCreationDisposition = OPEN_EXISTING;
+         open_mode = _T("rb");
          break;
       case OTCreate:
-         dwDesiredAccess = GENERIC_WRITE;
-         dwShareMode = FILE_SHARE_READ;
-         dwCreationDisposition = CREATE_ALWAYS;
+         open_mode = _T("wb");
          break;
       case OTAppend:
-         dwDesiredAccess = GENERIC_WRITE;
-         dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE; // FILE_SHARE_DELETE;
-         dwCreationDisposition = OPEN_ALWAYS;
+         open_mode = _T("ab");
          break;
       }
 
-      m_hFile = CreateFile(sFilename, 
-                              dwDesiredAccess, 
-                              dwShareMode, 
-                              NULL, // LPSECURITY_ATTRIBUTES
-                              dwCreationDisposition, // -- open or create.
-                              FILE_ATTRIBUTE_NORMAL, // attributes
-                              NULL // file template
-                           );
+      file_ = _wfsopen(sFilename.c_str(), open_mode.c_str(), _SH_DENYNO);
 
-      if (m_hFile == INVALID_HANDLE_VALUE) 
+      if (file_ == nullptr)
+      {
          return false;
-
-      m_sName = sFilename;
-
-      if (ot == OTAppend)
-      {  
-         // Go to end of file
-         SetFilePointer(m_hFile,0,0,FILE_END);
       }
+
+      name_ = sFilename;
 
       return true;
    }
@@ -101,39 +87,70 @@ namespace HM
    int 
    File::GetSize()
    {
-      if (m_hFile == INVALID_HANDLE_VALUE)
+      if (file_ == INVALID_HANDLE_VALUE)
          return 0;
 
-      return GetFileSize (m_hFile, NULL);
+      return (int) boost::filesystem::file_size(name_);
    }
+
+   bool
+   File::SetPosition(int position)
+   {
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to set position on file which has not been opened.");
+
+      return fseek(file_, position, 0) == 0;
+   }
+
 
    bool 
    File::Write(const String &sWrite)
    {
-      String sTmp = sWrite;
-      DWORD dwWritten = 0;
-      return Write((const unsigned char*) sTmp.GetBuffer(), sTmp.GetLength() * sizeof(TCHAR), dwWritten);
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
+      String temp_nonconst = sWrite;
+
+      size_t result = fwrite(temp_nonconst.GetBuffer(), sizeof(TCHAR), temp_nonconst.GetLength(), file_);
+
+      return result == temp_nonconst.GetLength();
    }
 
    bool 
    File::Write(const AnsiString &sWrite)
    {  
-      AnsiString sTmp = sWrite;
-      DWORD dwWritten = 0;
-      return Write((const unsigned char*) sTmp.GetBuffer(), sTmp.GetLength(), dwWritten);
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
+      AnsiString temp_nonconst = sWrite;
+      size_t result = fwrite(temp_nonconst.GetBuffer(), sizeof(char), temp_nonconst.GetLength(), file_);
+      return result == temp_nonconst.GetLength();
+   }
+
+   bool
+   File::Write(const unsigned char *pBuf, size_t iBufLen)
+   {
+      size_t noOfBytesWritten;
+
+      return Write(pBuf, iBufLen, noOfBytesWritten);
    }
 
    bool 
-   File::Write(const unsigned char *pBuf, int iBufLen, DWORD &dwNoOfBytesWritten)
+   File::Write(const unsigned char *pBuf, size_t iBufLen, size_t& dwNoOfBytesWritten)
    {
-      bool bResult = ::WriteFile(m_hFile,pBuf, iBufLen, &dwNoOfBytesWritten, NULL) == TRUE;
-      return bResult;
+      dwNoOfBytesWritten = 0;
+
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to write to file which has not been opened.");
+
+      dwNoOfBytesWritten = fwrite(pBuf, 1, iBufLen, file_);
+      return dwNoOfBytesWritten == iBufLen;
    }
 
    bool 
-   File::Write(shared_ptr<ByteBuffer> pBuffer, DWORD &dwNoOfBytesWritten)
+   File::Write(std::shared_ptr<ByteBuffer> pBuffer, size_t &noOfBytesWritten)
    {
-      return Write((const unsigned char*) pBuffer->GetCharBuffer(), pBuffer->GetSize(), dwNoOfBytesWritten);
+      return Write((const unsigned char*)pBuffer->GetCharBuffer(), pBuffer->GetSize(), noOfBytesWritten);
    }
 
    bool 
@@ -142,10 +159,10 @@ namespace HM
       // Write unicode beginner markers.
       unsigned char charByteOrderMarker[2] = {-1, -2};
 
-      DWORD dwWritten = 0;
-      Write(charByteOrderMarker, 2, dwWritten);
+      size_t bytesWritten;
+      Write(charByteOrderMarker, 2, bytesWritten);
 
-      if (dwWritten != 2)
+      if (bytesWritten != 2)
       {
          // Failed to write BOM.
          return false;
@@ -154,45 +171,36 @@ namespace HM
       return true;
    }
 
-   shared_ptr<ByteBuffer> 
-   File::ReadFile()
+   bool 
+   File::ReadLine(AnsiString &sLine)
    {
-      try
-      {
-         shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
+      if (file_ == nullptr)
+         throw std::logic_error("Attempt to read to file which has not been opened.");
 
-         if (m_hFile == INVALID_HANDLE_VALUE)
-            return pFileContents;
+      const int buffer_size = 10000;
+      char *line_buffer = sLine.GetBuffer(buffer_size);
+      
+      bool result = fgets(line_buffer, buffer_size, file_) != 0;
 
-         int iFileSize = GetSize();
+      sLine.ReleaseBuffer();
 
-         // Create a buffer to hold the file
-         pFileContents->Allocate(iFileSize);
-
-         // Read the file to the buffer
-         SetFilePointer(m_hFile, 0, 0, FILE_BEGIN);
-
-         unsigned long nBytesRead = 0;
-         ::ReadFile(m_hFile, (LPVOID) pFileContents->GetBuffer(), iFileSize, &nBytesRead, NULL);
-
-         return pFileContents;
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4227, "File::ReadFile", "An unknown error occurred while reading file from disk.");
-         throw;
-      }
-
-      shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
-      return pFileContents;
+      return result;
    }
 
-   shared_ptr<ByteBuffer> 
+   std::shared_ptr<ByteBuffer> 
+   File::ReadFile()
+   {
+      int iFileSize = GetSize();
+
+      return ReadChunk(iFileSize);
+   }
+
+   std::shared_ptr<ByteBuffer> 
    File::ReadTextFile()
    {
       try
       {
-         shared_ptr<ByteBuffer> pFileContents = ReadFile();
+         std::shared_ptr<ByteBuffer> pFileContents = ReadFile();
 
          const BYTE pByte = '\0';
          pFileContents->Add(&pByte, 1);
@@ -204,64 +212,98 @@ namespace HM
          throw;
       }
 
-      shared_ptr<ByteBuffer> pFileContents = shared_ptr<ByteBuffer>(new ByteBuffer);
+      std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
       return pFileContents;
    }
 
-   shared_ptr<ByteBuffer> 
+   std::shared_ptr<ByteBuffer> 
    File::ReadChunk(int iMaxSize)
    {  
       try
       {
-         shared_ptr<ByteBuffer> pReadBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
-         pReadBuffer->Allocate(iMaxSize);
+         std::shared_ptr<ByteBuffer> pFileContents = std::shared_ptr<ByteBuffer>(new ByteBuffer);
 
-         // Read
-         unsigned long nBytesRead = 0;
-         ::ReadFile(m_hFile, (LPVOID) pReadBuffer->GetBuffer(), iMaxSize, &nBytesRead, NULL);
-
-         if (nBytesRead > 0)
-         {
-            shared_ptr<ByteBuffer> pRetBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
-            pRetBuffer->Add(pReadBuffer->GetBuffer(), nBytesRead);
-            return pRetBuffer;
-         }
+         if (file_ == nullptr)
+            throw std::logic_error("Attempt to read from file which has not been opened.");
          
+         // Create a buffer to hold the file
+         pFileContents->Allocate(iMaxSize);
+
+         // fread fails reading large files. If the file is too large, fread will read zero bytes and the
+         // errno will be set to invalid argument. The below code therefore reads the file in chunks.
+         size_t remaining_bytes = iMaxSize;
+         BYTE *buffer_position = (BYTE*)pFileContents->GetBuffer();
+         
+         size_t total_bytes_read = 0;
+
+         while (remaining_bytes > 0)
+         {
+            size_t bytes_to_read = std::min((size_t) FileChunkSize, remaining_bytes);
+            size_t bytes_actually_read = fread((void*)buffer_position, 1, bytes_to_read, file_);
+
+            total_bytes_read += bytes_actually_read;
+                
+            if (bytes_actually_read != bytes_to_read)
+            {
+               if (feof(file_))
+               {
+                  // we've reached end of file.
+                  break;
+               }
+            
+               char error_msg[255];
+               strerror_s(error_msg, 255, errno);
+               throw std::runtime_error(Formatter::FormatAsAnsi("Unable to read file {0}. Expected bytes: {1}, Actual read bytes: {2}. Error: {3}", name_, bytes_to_read, bytes_actually_read, error_msg));
+            }
+
+            buffer_position += bytes_actually_read;
+            remaining_bytes -= bytes_actually_read;
+            
+         }
+
+         pFileContents->DecreaseSize(iMaxSize - total_bytes_read);
+         return pFileContents;
+      }
+      catch (boost::system::system_error& error)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         throw;
+      }
+      catch (std::exception& error)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         throw;
       }
       catch (...)
       {
-         throw;   
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.");
+         throw;
       }
 
-      shared_ptr<ByteBuffer> pBuffer;
-      return pBuffer;
-   }
-
-   bool 
-   File::MoveToEnd()
-   {
-      // --- Go to the end of the file.
-      SetFilePointer(m_hFile,0,0,FILE_END);
-
-      return true;
    }
 
    String 
    File::GetName() const
    {
-      return m_sName;
+      return name_;
    }
 
-   bool 
+	bool 
    File::Write(File &sourceFile)
    {
-      while (shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
+      while (std::shared_ptr<ByteBuffer> sourceData = sourceFile.ReadChunk(FileChunkSize))
       {
-         DWORD dummy;
-         if (!Write(sourceData, dummy))
+         if (sourceData->GetSize() == 0)
+         {
+            // Done reading source file.
+            return true;
+         }
+
+         size_t bytesWritten = 0;
+         if (!Write(sourceData, bytesWritten))
             return false;
 
-         if (dummy != sourceData->GetSize())
+         if (bytesWritten != sourceData->GetSize())
             return false;
       }
 

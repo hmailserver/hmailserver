@@ -13,23 +13,23 @@ namespace HM
    {
    public:
       
-      void Tag(const String & sNewVal) {m_sTag = sNewVal;}
-      String Tag() {return m_sTag;}
+      void Tag(const String & sNewVal) {tag_ = sNewVal;}
+      String Tag() {return tag_;}
 
-      void Command(const String & sNewVal) {m_sCommand = sNewVal;}
-      String Command() {return m_sCommand; }
+      void Command(const String & sNewVal) {command_ = sNewVal;}
+      String Command() {return command_; }
 
-      size_t LiteralCount() {return m_vecLiterals.size();}
+      size_t LiteralCount() {return literals_.size();}
       String Literal(unsigned int Index);
-      void AddLiteral(const String &sLiteral){m_vecLiterals.push_back(sLiteral);}
+      void AddLiteral(const String &sLiteral){literals_.push_back(sLiteral);}
 
-      std::vector<String> Literals() {return m_vecLiterals; }
-      void Literals(const std::vector<String> sInput) { m_vecLiterals = sInput; }
+      std::vector<String> Literals() {return literals_; }
+      void Literals(const std::vector<String> sInput) { literals_ = sInput; }
 
    private:
-      String m_sTag;
-      String m_sCommand;
-      std::vector<String> m_vecLiterals;
+      String tag_;
+      String command_;
+      std::vector<String> literals_;
    };
 
    class IMAPCommand
@@ -38,7 +38,7 @@ namespace HM
       IMAPCommand();
       ~IMAPCommand();
 
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument) = 0;
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument) = 0;
       
    };
 

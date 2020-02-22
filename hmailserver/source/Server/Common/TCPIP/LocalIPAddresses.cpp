@@ -27,7 +27,7 @@ namespace HM
    void
    LocalIPAddresses::LoadIPAddresses()
    {
-      m_vecLocalPorts.clear();
+      local_ports_.clear();
 
       std::vector<IPAddress> localAddresses;
 
@@ -53,34 +53,34 @@ namespace HM
          }
       }
 
-      shared_ptr<TCPIPPorts> pTCPIPPorts = Configuration::Instance()->GetTCPIPPorts();
+      std::shared_ptr<TCPIPPorts> pTCPIPPorts = Configuration::Instance()->GetTCPIPPorts();
 
-      const vector<shared_ptr<TCPIPPort> > vecTCPIPPorts = pTCPIPPorts->GetVector();
+      const std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = pTCPIPPorts->GetVector();
 
-      vector<shared_ptr<TCPIPPort> >::const_iterator iter = vecTCPIPPorts.begin();
-      vector<shared_ptr<TCPIPPort> >::const_iterator iterEnd = vecTCPIPPorts.end();
+      std::vector<std::shared_ptr<TCPIPPort> >::const_iterator iter = vecTCPIPPorts.begin();
+      std::vector<std::shared_ptr<TCPIPPort> >::const_iterator iterEnd = vecTCPIPPorts.end();
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<TCPIPPort> pTCPIPPort = (*iter);
+         std::shared_ptr<TCPIPPort> pTCPIPPort = (*iter);
 
          if (pTCPIPPort->GetAddress().IsAny())
          {
             int portNumber = pTCPIPPort->GetPortNumber();
-            std::vector<IPAddress>::iterator iter = localAddresses.begin(); 
-            std::vector<IPAddress>::iterator iterEnd = localAddresses.end();
+            auto iter = localAddresses.begin(); 
+            auto iterEnd = localAddresses.end();
 
             for (; iter != iterEnd; iter++)
             {
                IPAddress address = (*iter);
 
-               m_vecLocalPorts.push_back(std::make_pair(address, portNumber));
+               local_ports_.push_back(std::make_pair(address, portNumber));
 
-               m_vecLocalPorts.push_back(std::make_pair(IPAddress(), portNumber));
+               local_ports_.push_back(std::make_pair(IPAddress(), portNumber));
             }
          }
          else
          {
-            m_vecLocalPorts.push_back(std::make_pair(pTCPIPPort->GetAddress(), pTCPIPPort->GetPortNumber()));
+            local_ports_.push_back(std::make_pair(pTCPIPPort->GetAddress(), pTCPIPPort->GetPortNumber()));
          }
       }
 
@@ -90,8 +90,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalIPAddress(const IPAddress &address)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = m_vecLocalPorts.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = m_vecLocalPorts.end();
+      auto iter = local_ports_.begin();
+      auto iterEnd = local_ports_.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -107,8 +107,8 @@ namespace HM
    bool 
    LocalIPAddresses::IsLocalPort(const IPAddress &address, int port)
    {
-      std::vector<std::pair<IPAddress, int> >::iterator iter = m_vecLocalPorts.begin();
-      std::vector<std::pair<IPAddress, int> >::iterator iterEnd = m_vecLocalPorts.end();
+      auto iter = local_ports_.begin();
+      auto iterEnd = local_ports_.end();
 
       bool loopbackAddress = IsWithinLoopbackRange(address);
 

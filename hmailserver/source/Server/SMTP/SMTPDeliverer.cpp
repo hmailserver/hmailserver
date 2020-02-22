@@ -21,11 +21,10 @@
 #include "../common/TCPIP/TCPConnection.h"
 
 #include "../common/Util/Utilities.h"
-#include "../common/Util/Event.h"
 #include "../common/Util/MessageAttachmentStripper.h"
 #include "../common/Util/MessageUtilities.h"
 
-#include "../common/EventHandlers/Events.h"
+#include "../common/Scripting/Events.h"
 
 #include "../common/Persistence/PersistentMessage.h"
 #include "../common/Persistence/PersistentIMAPFolder.h"
@@ -66,7 +65,7 @@ namespace HM
    }
 
    void
-   SMTPDeliverer::DeliverMessage(shared_ptr<Message> pMessage)
+   SMTPDeliverer::DeliverMessage(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Submits the next message in the database. 
@@ -85,13 +84,13 @@ namespace HM
 
       String sSendersIP;
       RuleResult globalRuleResult;
-      if (!_PreprocessMessage(pMessage, sSendersIP, globalRuleResult))
+      if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
       {
          // Message delivery was aborted during preprocessing.
          return;
       }
 
-      vector<String> saErrorMessages;
+      std::vector<String> saErrorMessages;
 
       // Perform deliver to local recipients.
       LocalDelivery localDeliverer(sSendersIP, pMessage, globalRuleResult);
@@ -108,7 +107,7 @@ namespace HM
       // If an error has occurred, now is the time to send an error
       // message back to the author of the email message.
       if (saErrorMessages.size() > 0)
-         _SubmitErrorLog(pMessage, saErrorMessages);
+         SubmitErrorLog_(pMessage, saErrorMessages);
 
       // Unless the message has been re-used, or has been rescheduled for
       // later delivery, we should delete it now.
@@ -142,7 +141,7 @@ namespace HM
    // Returns true if delivery should continue. False if it should be aborted.
    //---------------------------------------------------------------------------()
    bool
-   SMTPDeliverer::_PreprocessMessage(shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
+   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
    {
       // Before we do anything else, check that the message file exists. If the file
       // does not exist, there is nothing to deliver. So if the file does not exist,
@@ -173,44 +172,46 @@ namespace HM
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
 
+      String log_from_address = pMessage->GetFromAddress().IsEmpty() ? "<Empty>" : pMessage->GetFromAddress();
+
       String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: Delivering message from {1} to {2}. File: {3}",
-                                                pMessage->GetID(), pMessage->GetFromAddress(), sRecipientList, messageFileName);
+                                                pMessage->GetID(), log_from_address, sRecipientList, messageFileName);
 
       LOG_APPLICATION(sMessage);
 
       // Run the first event in the delivery chain
       if (!Events::FireOnDeliveryStart(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
          return false;
       }
 
       if (pMessage->GetRecipients()->GetCount() == 0)
       {
-         vector<String> saErrorMessages;
-         _SubmitErrorLog(pMessage, saErrorMessages);
+         std::vector<String> saErrorMessages;
+         SubmitErrorLog_(pMessage, saErrorMessages);
          PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Run virus protection.
-      if (!_RunVirusProtection(pMessage))
+      if (!RunVirusProtection_(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
          return false;
       }
 
       // Apply rules on this message.
-      if (!_RunGlobalRules(pMessage, globalRuleResult))
+      if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
-         _LogAwstatsMessageRejected(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
          return false;
       }
 
@@ -227,17 +228,17 @@ namespace HM
 
 
    void
-   SMTPDeliverer::_SubmitErrorLog(shared_ptr<Message> pOrigMessage, vector<String> &saErrorMessages)
+   SMTPDeliverer::SubmitErrorLog_(std::shared_ptr<Message> pOrigMessage, std::vector<String> &saErrorMessages)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Some of the messages was not sent to the recipient. We have to
    // send a mail back to the sender to tell him this.
    //---------------------------------------------------------------------------()
    {
-      LOG_DEBUG("SD::_SubmitErrorLog");      
+      LOG_DEBUG("SD::SubmitErrorLog_");      
       if (MailerDaemonAddressDeterminer::IsMailerDaemonAddress(pOrigMessage->GetFromAddress()))
       {
-         LOG_DEBUG("SD::~_SubmitErrorLog");      
+         LOG_DEBUG("SD::~SubmitErrorLog_");      
          return; // Avoid bounce-bounce
       }
 
@@ -250,14 +251,14 @@ namespace HM
 
       const String fileName = PersistentMessage::GetFileName(pOrigMessage);
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData> (new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData> (new MessageData());
       pMsgData->LoadFromMessage(fileName, pOrigMessage);
 
       // true because we don't want to send bounces if AutoSubmitted header
       if (!RuleApplier::IsGeneratedResponseAllowed(pMsgData, true))
       {
          String sMessage;
-         sMessage.Format(_T("Did not submit bounce message for message %I64d from %s since rule loop count was reached or Auto-Submitted header."), pOrigMessage->GetID(), String(pOrigMessage->GetFromAddress()));
+         sMessage.Format(_T("Did not submit bounce message for message %I64d from %s since rule loop count was reached or Auto-Submitted header."), pOrigMessage->GetID(), String(pOrigMessage->GetFromAddress()).c_str());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4404, "SMTPDeliverer::_ApplyForwarding", sMessage);
 
          return;
@@ -268,7 +269,7 @@ namespace HM
       String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pOrigMessage);
       
       String sMessageUndeliverable;
-      sMessageUndeliverable.Format(_T("%s"),Configuration::Instance()->GetServerMessages()->GetMessage("MESSAGE_UNDELIVERABLE"));
+      sMessageUndeliverable.Format(_T("%s"), Configuration::Instance()->GetServerMessages()->GetMessage("MESSAGE_UNDELIVERABLE").c_str());
       String sErrMsg = Configuration::Instance()->GetServerMessages()->GetMessage("SEND_FAILED_NOTIFICATION");
 
       sErrMsg.Replace(_T("%MACRO_SENT%"), pMsgData->GetSentTime());
@@ -285,13 +286,13 @@ namespace HM
       sErrMsg.Replace(_T("%MACRO_RECIPIENTS%"), sCollectedErrors);
 
       // Send a copy of this email.
-      shared_ptr<Message> pMsg = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
       pMsg->SetState(Message::Delivering);
       pMsg->SetFromAddress("");
 
       const String newFileName = PersistentMessage::GetFileName(pMsg);
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newFileName, pMsg);
 
       // Required headers
@@ -318,13 +319,13 @@ namespace HM
          // Save message
          PersistentMessage::SaveObject(pMsg);
 
-      LOG_DEBUG("SD::~_SubmitErrorLog"); 
+      LOG_DEBUG("SD::~SubmitErrorLog_"); 
 
    }
 
    
    bool
-   SMTPDeliverer::_HandleInfectedMessage(shared_ptr<Message> pMessage, const String &virusName)
+   SMTPDeliverer::HandleInfectedMessage_(std::shared_ptr<Message> pMessage, const String &virusName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Called if a virus is found in an email message. Checks in the configuration
@@ -341,8 +342,8 @@ namespace HM
          if (antiVirusConfig.AVNotifyReceiver())
          {
             // Notify every receiver of the email.
-            vector<shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
-            vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+            std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
+            auto iterRecipient = vecRecipients.begin();
 
             while (iterRecipient != vecRecipients.end())
             {
@@ -367,7 +368,7 @@ namespace HM
       }
       else if (antiVirusConfig.AVAction() == AntiVirusConfiguration::ActionStripAttachments)
       {
-         shared_ptr<MessageAttachmentStripper> pStripper = shared_ptr<MessageAttachmentStripper>(new MessageAttachmentStripper());
+         std::shared_ptr<MessageAttachmentStripper> pStripper = std::shared_ptr<MessageAttachmentStripper>(new MessageAttachmentStripper());
 
          pStripper->Strip(pMessage);
 
@@ -386,7 +387,7 @@ namespace HM
    }
 
    bool 
-   SMTPDeliverer::_RunVirusProtection(shared_ptr<Message> pMessage)
+   SMTPDeliverer::RunVirusProtection_(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs virus scanning. If a virus is found, it's handled according to the
@@ -414,7 +415,7 @@ namespace HM
          // Virus found.
          ServerStatus::Instance()->OnVirusRemoved();
 
-         if (!_HandleInfectedMessage(pMessage, virusName))
+         if (!HandleInfectedMessage_(pMessage, virusName))
             return false;
       }      
 
@@ -423,14 +424,14 @@ namespace HM
    }
 
    bool 
-   SMTPDeliverer::_RunGlobalRules(shared_ptr<Message> pMessage, RuleResult &ruleResult)
+   SMTPDeliverer::RunGlobalRules_(std::shared_ptr<Message> pMessage, RuleResult &ruleResult)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Performs global rules. We will do this on every retry of the message.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<RuleApplier> pRuleApplier = shared_ptr<RuleApplier>(new RuleApplier);
-      shared_ptr<Account> emptyAccount;
+      std::shared_ptr<RuleApplier> pRuleApplier = std::shared_ptr<RuleApplier>(new RuleApplier);
+      std::shared_ptr<Account> emptyAccount;
       pRuleApplier->ApplyRules(ObjectCache::Instance()->GetGlobalRules(), emptyAccount, pMessage, ruleResult);
 
       if (ruleResult.GetDeleteEmail())
@@ -441,7 +442,7 @@ namespace HM
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
             _T("Message deleted. Action was taken by a global rule (%s). "),
             pMessage->GetID(), 
-            sDeleteRuleName);
+            sDeleteRuleName.c_str());
 
          LOG_APPLICATION(sMessage);
 
@@ -453,7 +454,7 @@ namespace HM
    }
 
    void 
-   SMTPDeliverer::_LogAwstatsMessageRejected(const String &sSendersIP, shared_ptr<Message> pMessage, const String &sReason)
+   SMTPDeliverer::LogAwstatsMessageRejected_(const String &sSendersIP, std::shared_ptr<Message> pMessage, const String &sReason)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // If awstats logging is enabled, this function goes through all the recipients
@@ -469,8 +470,8 @@ namespace HM
       // Go through the recipients and log one row for each of them.
       String sFromAddress = pMessage->GetFromAddress();     
 
-      const std::vector<shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
-      std::vector<shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
+      const std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
+      std::vector<std::shared_ptr<MessageRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
       while (iterRecipient != vecRecipients.end())
       {
          String sRecipientAddress = (*iterRecipient)->GetAddress();

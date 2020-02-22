@@ -22,7 +22,7 @@ namespace HM
    }
 
    String 
-   PlusAddressing::ExtractAccountAddress(const String &sAddress, shared_ptr<const Domain> pDomain) 
+   PlusAddressing::ExtractAccountAddress(const String &sAddress, std::shared_ptr<const Domain> pDomain) 
    {  
       if (!pDomain || !pDomain->GetUsePlusAddressing())
       {

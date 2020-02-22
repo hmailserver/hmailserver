@@ -35,7 +35,6 @@
 
 #include "../../SMTP/SMTPDeliveryManager.h"
 #include "../../IMAP/IMAPConfiguration.h"
-#include "../../IMAP/IMAPFolderContainer.h"
 #include "../../ExternalFetcher/ExternalFetchManager.h"
 
 #include "../Threading/WorkQueueManager.h"
@@ -43,7 +42,7 @@
 #include "SessionManager.h"
 
 #include "../../SMTP/GreyListCleanerTask.h"
-#include "../TCPIP/IOCPServer.h"
+#include "../TCPIP/IOService.h"
 
 #include "../BO/Message.h"
 #include "../BO/Domain.h"
@@ -61,27 +60,13 @@
 namespace HM
 {
    Application::Application() :
-      m_sServerWorkQueue("Server queue"),
-      m_sRandomWorkQueue("Random queue"),
-      m_sAsynchronousTasksQueue("Aynchronous task queue"),
-      m_iUniqueID(0)
+      server_work_queue_("Server queue"),
+      maintenance_queue_("Maintenance queue"),
+      asynchronous_tasks_queue_("Asynchronous task queue"),
+      unique_id_(0)
    {
-      m_sProdName = _T("hMailServer");
-      m_sVersion = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
-      m_sStartTime = Time::GetCurrentDateTime();
-   }
-
-   String
-   Application::GetVersion() const
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Returns the version of this application.
-   //---------------------------------------------------------------------------()
-   {
-      String sVersion;
-      sVersion.Format(_T("%s %s"), m_sProdName, m_sVersion);
-
-      return sVersion;
+      version_ = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
+      start_time_ = Time::GetCurrentDateTime();
    }
 
    Application::~Application()
@@ -89,6 +74,21 @@ namespace HM
 
    }
 
+   String
+   Application::GetVersionNumber() const
+   {
+      return version_;
+   }
+
+   String
+   Application::GetVersionArchitecture() const
+   {
+#if _WIN64
+      return "x64";
+#else
+      return "x86";
+#endif 
+   }
 
    bool
    Application::InitInstance(String &sErrorMessage)
@@ -115,13 +115,13 @@ namespace HM
 
       // Start a random thread queue that can run different 
       // types of background tasks, such as backups etc.
-      WorkQueueManager::Instance()->CreateWorkQueue(100, m_sRandomWorkQueue, WorkQueue::eQTRandom);
+      WorkQueueManager::Instance()->CreateWorkQueue(5, maintenance_queue_);
 
       // Language needed for COM API
       Languages::Instance()->Load();
 
       // Create the backup manager that manages backup tasks...
-      m_pBackupManager = shared_ptr<BackupManager>(new BackupManager);
+      backup_manager_ = std::shared_ptr<BackupManager>(new BackupManager);
 
       LOG_DEBUG("Application::InitInstance - Connecting to database...");
       if (!OpenDatabase(sErrorMessage))
@@ -136,10 +136,6 @@ namespace HM
          return false;
       }
 
-      // Load the caches...
-      LOG_DEBUG("Application::InitInstance - Creating caches...");
-      CacheContainer::Instance()->CreateCaches();
-
       LOG_DEBUG("Application::InitInstance - Loading configuration...");
       if (!Configuration::Instance()->Load())
          return false;
@@ -148,7 +144,7 @@ namespace HM
 
       // Start an asynch workqueue which processes asynchronous tasks from clients.
       WorkQueueManager::Instance()->CreateWorkQueue(Configuration::Instance()->GetAsynchronousThreads(), 
-                                                    m_sAsynchronousTasksQueue, WorkQueue::eQTFixedSize);
+                                                    asynchronous_tasks_queue_);
 
       return true;
    }
@@ -160,16 +156,16 @@ namespace HM
       if (!IniFileSettings::Instance()->CheckSettings(sIniFileCheckError))
       {
          String sError;
-         sError.Format(_T("Loading of ini file settings failed. Error: %s"), sIniFileCheckError);
+         sError.Format(_T("Loading of ini file settings failed. Error: %s"), sIniFileCheckError.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5005, "Application::OpenDatabase", sError);
          return false;
       }
 
-      m_pDBManager = shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
-      bool bConnectedSuccessfully = m_pDBManager->CreateConnections(sErrorMessage);
+      db_manager_ = std::shared_ptr<DatabaseConnectionManager>(new DatabaseConnectionManager);
+      bool bConnectedSuccessfully = db_manager_->CreateConnections(sErrorMessage);
 
-      m_sLastConnectErrorMessage = sErrorMessage;
+      last_connect_error_message_ = sErrorMessage;
 
       if (!bConnectedSuccessfully)
       {
@@ -191,7 +187,7 @@ namespace HM
       if (iDBVersion == 0)
       {
          sErrorMessage = "Database version could not be detected.";
-         m_sLastConnectErrorMessage = sErrorMessage;
+         last_connect_error_message_ = sErrorMessage;
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5010, "Application::OnDatabaseConnected", sErrorMessage);
          return false;
       }
@@ -211,7 +207,7 @@ namespace HM
 
          sErrorMessage += sVersionInfo;
          
-         m_sLastConnectErrorMessage = sErrorMessage;
+         last_connect_error_message_ = sErrorMessage;
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5011, "Application::OnDatabaseConnected", sErrorMessage);
 
@@ -230,19 +226,16 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Close work queue
-      WorkQueueManager::Instance()->RemoveQueue(m_sRandomWorkQueue);
+      WorkQueueManager::Instance()->RemoveQueue(maintenance_queue_);
 
-      WorkQueueManager::Instance()->RemoveQueue(m_sAsynchronousTasksQueue);
+      WorkQueueManager::Instance()->RemoveQueue(asynchronous_tasks_queue_);
 
       // Backup manager is created by initinstance so should be destroyed here.
-      if (m_pBackupManager) 
-         m_pBackupManager.reset();
+      if (backup_manager_) 
+         backup_manager_.reset();
 
       LOG_DEBUG("Application::ExitInstance - Closing database connection...");
       CloseDatabase();
-
-      LOG_DEBUG("Application::ExitInstance - Deleting caches...");
-      CacheContainer::Instance()->DeleteCaches();
 
       MimeEnvironment::SetAutoFolding(false);
 
@@ -259,18 +252,18 @@ namespace HM
    // Close the database connection.
    //---------------------------------------------------------------------------()
    {
-      if (m_pDBManager)
+      if (db_manager_)
       {
          try
          {
-            m_pDBManager->Disconnect();
+            db_manager_->Disconnect();
          }
          catch (...)
          {
 
          }
 
-         m_pDBManager.reset();
+         db_manager_.reset();
       }
    }
 
@@ -308,80 +301,74 @@ namespace HM
 
       SpamProtection::Instance()->Load();
 
-      // Create queue for server tasks, such as responsing to SMTP and 
-      // POP3 and IMAP connections
-      m_pIOCPServer = shared_ptr<IOCPServer>(new IOCPServer);
-
-      _RegisterSessionTypes();
+      io_service_ = std::shared_ptr<IOService>(new IOService);
+      io_service_->Initialize();
+      RegisterSessionTypes_();
 
       // Create the main work queue.
-      int iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, m_sServerWorkQueue, WorkQueue::eQTPreLoad);
+      size_t iMainServerQueue = WorkQueueManager::Instance()->CreateWorkQueue(4, server_work_queue_);
 
-      m_pNotificationServer = shared_ptr<NotificationServer>(new NotificationServer());
-      _folderManager = shared_ptr<FolderManager>(new FolderManager());
+      notification_server_ = std::shared_ptr<NotificationServer>(new NotificationServer());
+      folder_manager_ = std::shared_ptr<FolderManager>(new FolderManager());
       
       // Create the scheduler. This is always in use.
-      m_pScheduler = shared_ptr<Scheduler>(new Scheduler);
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pScheduler);
+      scheduler_ = std::shared_ptr<Scheduler>(new Scheduler());
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, scheduler_);
 
-      // Always run the IOCP server.
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pIOCPServer);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, io_service_);
 
-      // Always run delivery manager. Software useless without it.
-      m_pSMTPDeliveryManager = shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pSMTPDeliveryManager);
+      smtp_delivery_manager_ = std::shared_ptr<SMTPDeliveryManager>(new SMTPDeliveryManager);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, smtp_delivery_manager_);
 
-      // ... and the external account fetch manager.
-      m_pExternalFetchManager = shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
-      WorkQueueManager::Instance()->AddTask(iMainServerQueue, m_pExternalFetchManager);
+      external_fetch_manager_ = std::shared_ptr<ExternalFetchManager> (new ExternalFetchManager);
+      WorkQueueManager::Instance()->AddTask(iMainServerQueue, external_fetch_manager_);
 
-      _CreateScheduledTasks();
+      CreateScheduledTasks_();
 
       if (Configuration::Instance()->GetMessageIndexing())
       {
-         MessageIndexer::Start();
+         MessageIndexer::Instance()->Start();
       }
 
+      start_time_ = Time::GetCurrentDateTime();
+
+      scheduler_->GetIsStartedEvent().Wait();
+      smtp_delivery_manager_->GetIsStartedEvent().Wait();
+      external_fetch_manager_->GetIsStartedEvent().Wait();
+      io_service_->GetIsStartedEvent().Wait();
+
       ServerStatus::Instance()->SetState(ServerStatus::StateRunning);
-
-      m_sStartTime = Time::GetCurrentDateTime();
-
-      // Wait for the IOCP server to signal start-up.
-      _serverStartEvent.Wait();
-      _serverStartEvent.Reset();
-
       LOG_APPLICATION("Servers started.")
 
       return true;
    }
 
    void 
-   Application::_RegisterSessionTypes()
+   Application::RegisterSessionTypes_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Registers the different session types...
    //---------------------------------------------------------------------------()
    {
-
       // Start SMTP server and delivery threads.
       if (Configuration::Instance()->GetUseSMTP())
       {
-         m_pIOCPServer->RegisterSessionType(STSMTP);
+         io_service_->RegisterSessionType(STSMTP);
       }
 
       if (Configuration::Instance()->GetUsePOP3())
       {
-         m_pIOCPServer->RegisterSessionType(STPOP3);
+         io_service_->RegisterSessionType(STPOP3);
       }
 
       if (Configuration::Instance()->GetUseIMAP())
       {
-         m_pIOCPServer->RegisterSessionType(STIMAP);
+         io_service_->RegisterSessionType(STIMAP);
       }
    }
 
    void 
-   Application::_CreateScheduledTasks()
+   Application::CreateScheduledTasks_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Create scheduled tasks.
@@ -389,17 +376,17 @@ namespace HM
    {
       if (Configuration::Instance()->GetUseSMTP())
       {
-         shared_ptr<GreyListCleanerTask> pCleanerTask = shared_ptr<GreyListCleanerTask>(new GreyListCleanerTask);
+         std::shared_ptr<GreyListCleanerTask> pCleanerTask = std::shared_ptr<GreyListCleanerTask>(new GreyListCleanerTask);
          pCleanerTask->SetReoccurance(ScheduledTask::RunInfinitely);
          pCleanerTask->SetMinutesBetweenRun(IniFileSettings::Instance()->GetGreylistingExpirationInterval());
-         m_pScheduler->ScheduleTask(pCleanerTask);
+         scheduler_->ScheduleTask(pCleanerTask);
       }
 
       // cleaning of expired IP ranges.
-      shared_ptr<RemoveExpiredRecords> removeExpiredRecordsTask = shared_ptr<RemoveExpiredRecords>(new RemoveExpiredRecords);
+      std::shared_ptr<RemoveExpiredRecords> removeExpiredRecordsTask = std::shared_ptr<RemoveExpiredRecords>(new RemoveExpiredRecords);
       removeExpiredRecordsTask->SetReoccurance(ScheduledTask::RunInfinitely);
       removeExpiredRecordsTask->SetMinutesBetweenRun(1);
-      m_pScheduler->ScheduleTask(removeExpiredRecordsTask);
+      scheduler_->ScheduleTask(removeExpiredRecordsTask);
 
    }
 
@@ -408,7 +395,7 @@ namespace HM
    {
       LOG_APPLICATION("Stopping servers...")
 
-      m_sStartTime = "";
+      start_time_ = "";
 
       if (ServerStatus::Instance()->GetState() != ServerStatus::StateRunning)
       {
@@ -418,21 +405,28 @@ namespace HM
 
       ServerStatus::Instance()->SetState(ServerStatus::StateStopping);
 
+      LOG_DEBUG("Application::StopServers() - Removing server work queue");
       // Then remove the main server.
-      WorkQueueManager::Instance()->RemoveQueue(m_sServerWorkQueue);
+      WorkQueueManager::Instance()->RemoveQueue(server_work_queue_);
 
-      // Unload the message list cache.
-      IMAPFolderContainer::Instance()->Clear();
+      OnServerStopped();
 
       // Deinitialize servers
-      if (m_pSMTPDeliveryManager) m_pSMTPDeliveryManager.reset();
-      if (m_pIOCPServer) m_pIOCPServer.reset();
-      if (m_pExternalFetchManager) m_pExternalFetchManager.reset();
-      if (m_pScheduler) m_pScheduler.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing IOCP");
+      if (io_service_) io_service_.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing DeliveryManager");
+      if (smtp_delivery_manager_) smtp_delivery_manager_.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing FetchManager");
+      if (external_fetch_manager_) external_fetch_manager_.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing Scheduler");
+      if (scheduler_) scheduler_.reset();
       
-      if (m_pNotificationServer) m_pNotificationServer.reset();
-      if (_folderManager) _folderManager.reset();
+      LOG_DEBUG("Application::StopServers() - Destructing Rest");
+      if (notification_server_) notification_server_.reset();
+      if (folder_manager_) folder_manager_.reset();
 
+      MessageIndexer::Instance()->Stop();
+      
       ServerStatus::Instance()->SetState(ServerStatus::StateStopped);
 
       LOG_APPLICATION("Servers stopped.")
@@ -460,40 +454,31 @@ namespace HM
    {
       LOG_DEBUG("Requesting SMTPDeliveryManager to start message delivery");
 
-      if (m_pSMTPDeliveryManager)
-         m_pSMTPDeliveryManager->SetDeliverMessage();
+      if (smtp_delivery_manager_)
+         smtp_delivery_manager_->SetDeliverMessage();
       else
          // We could not notify the SMTP delivery manager, since it does not exit.
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4219, "Application::SubmitPendingEmail", "Could not notify SMTP deliverer about new message, since SMTP deliverer does not exist. The operation requires the SMTP server to be on.");
    }
 
-   shared_ptr<WorkQueue>
-   Application::GetRandomWorkQueue()
+   std::shared_ptr<WorkQueue>
+   Application::GetMaintenanceWorkQueue()
    {
-      shared_ptr<WorkQueue> pWorkQueue;
-      
-      for (int i = 0; i < 10; i++)
-      {
-         pWorkQueue = WorkQueueManager::Instance()->GetQueue(m_sRandomWorkQueue);
-
-         if (pWorkQueue)
-            break;
-
-         Sleep(2000);
-      }
+      std::shared_ptr<WorkQueue> pWorkQueue =
+         WorkQueueManager::Instance()->GetQueue(maintenance_queue_);
       
       if (!pWorkQueue)
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetRandomWorkQueue()", "Random work queue not available.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetMaintenanceWorkQueue()", "Maintenance work queue not available.");
 
       return pWorkQueue;
 
       
    }
 
-   shared_ptr<WorkQueue>
+   std::shared_ptr<WorkQueue>
    Application::GetAsyncWorkQueue()
    {
-      shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(m_sAsynchronousTasksQueue);
+      std::shared_ptr<WorkQueue> pAsynchQueue = WorkQueueManager::Instance()->GetQueue(asynchronous_tasks_queue_);
 
       if (!pAsynchQueue)
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5118, "Application::GetAsyncWorkQueue()", "Async work queue not available.");
@@ -504,19 +489,13 @@ namespace HM
    int 
    Application::GetUniqueID()
    {
-      int iResult = InterlockedIncrement(&m_iUniqueID);
+      int iResult = InterlockedIncrement(&unique_id_);
 
       return iResult;
    }
 
-   void 
-   Application::SetServerStartedEvent()
-   {
-      _serverStartEvent.Set();
-   }
-
    void
-   Application::OnPropertyChanged(shared_ptr<Property> pProperty)
+   Application::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       if (ServerStatus::Instance()->GetState() == ServerStatus::StateStopped)
          return;
@@ -525,7 +504,7 @@ namespace HM
 
       if (sPropertyName == PROPERTY_MAX_NUMBER_OF_ASYNC_TASKS)
       {
-         shared_ptr<WorkQueue> pWorkQueue = GetAsyncWorkQueue();
+         std::shared_ptr<WorkQueue> pWorkQueue = GetAsyncWorkQueue();
 
          if (!pWorkQueue)
             return;
@@ -534,15 +513,15 @@ namespace HM
       }
    }
 
-   shared_ptr<NotificationServer> 
+   std::shared_ptr<NotificationServer> 
    Application::GetNotificationServer()
    {
-      return m_pNotificationServer;
+      return notification_server_;
    }
 
-   shared_ptr<FolderManager> 
+   std::shared_ptr<FolderManager> 
    Application::GetFolderManager()
    {
-      return _folderManager;
+      return folder_manager_;
    }
 }

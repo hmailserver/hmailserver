@@ -5,36 +5,36 @@ class IThreadTask
 public:
    IThreadTask()
    {
-      m_hStopRequest = CreateEvent(0,TRUE, FALSE,0);
-      m_hStopped = CreateEvent(0,TRUE, FALSE,0);
+      stop_request_ = CreateEvent(0,TRUE, FALSE,0);
+      stopped_ = CreateEvent(0,TRUE, FALSE,0);
    };
 
    virtual ~IThreadTask()
    {
-      CloseHandle(m_hStopRequest);
-      CloseHandle(m_hStopped);
+      CloseHandle(stop_request_);
+      CloseHandle(stopped_);
    }
    
    virtual void Stop()
    {
-      SetEvent(m_hStopRequest);
+      SetEvent(stop_request_);
    }
 
    void SetStoppedEvent()
    {
-      SetEvent(m_hStopped);
+      SetEvent(stopped_);
    }
 
    void WaitUntilStopped()
    {
       // Wait 10 seconds for thread to stop.
-      WaitForSingleObject(m_hStopped, 10000);
+      WaitForSingleObject(stopped_, 10000);
    }
 
 protected:
 
-   HANDLE m_hStopRequest;
-   HANDLE m_hStopped;
+   HANDLE stop_request_;
+   HANDLE stopped_;
    
 
 private:

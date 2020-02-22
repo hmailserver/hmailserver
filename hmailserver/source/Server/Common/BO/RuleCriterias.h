@@ -18,12 +18,12 @@ namespace HM
 
       void Refresh();
 
-      __int64 GetRuleID() const {return m_iRuleID; }
+      __int64 GetRuleID() const {return rule_id_; }
 
    protected:
       virtual String GetCollectionName() const {return "RuleCriterias"; }
-      virtual bool PreSaveObject(shared_ptr<RuleCriteria> pRuleCriteria, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<RuleCriteria> pRuleCriteria, XNode *node);
    private:
-      __int64 m_iRuleID;
+      __int64 rule_id_;
    };
 }

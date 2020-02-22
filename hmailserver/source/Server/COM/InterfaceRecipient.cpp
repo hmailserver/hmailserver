@@ -7,9 +7,9 @@
 
 
 void 
-InterfaceRecipient::AttachItem(shared_ptr<HM::MessageRecipient> pRecipient)
+InterfaceRecipient::AttachItem(std::shared_ptr<HM::MessageRecipient> pRecipient)
 {
-   m_pObject = pRecipient;
+   object_ = pRecipient;
 }
 
 STDMETHODIMP 
@@ -17,10 +17,10 @@ InterfaceRecipient::get_Address(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAddress().AllocSysString();
+      *pVal = object_->GetAddress().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -34,10 +34,10 @@ InterfaceRecipient::get_OriginalAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetOriginalAddress().AllocSysString();
+      *pVal = object_->GetOriginalAddress().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -51,10 +51,10 @@ InterfaceRecipient::get_IsLocalUser(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetLocalAccountID() > 0 ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetLocalAccountID() > 0 ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)

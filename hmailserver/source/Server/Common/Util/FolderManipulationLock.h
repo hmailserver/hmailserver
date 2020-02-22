@@ -18,12 +18,12 @@ namespace HM
       static void Acquire(std::pair<int, int> lockPair);
       static void Release(std::pair<int, int> lockPair);
 
-      static set<std::pair<int, int> > m_setFolders;
+      static std::set<std::pair<int, int> > folders_;
       
-      static CriticalSection m_CriticalSection; 
+      static boost::recursive_mutex mutex_; 
 
-      bool _hasLock;
+      bool has_lock_;
 
-      std::pair<int, int> _lockPair;
+      std::pair<int, int> lock_pair_;
    };
 }

@@ -6,6 +6,7 @@
 namespace HM
 {
    class GroupMember;
+   enum PersistenceMode;
 
    class PersistentGroupMember
    {
@@ -14,10 +15,10 @@ namespace HM
       ~PersistentGroupMember(void);
       
       static bool DeleteByAccount(__int64 iAccountID);
-      static bool DeleteObject(shared_ptr<GroupMember> pObject);
-      static bool SaveObject(shared_ptr<GroupMember> pObject);
-      static bool SaveObject(shared_ptr<GroupMember> pObject, String &errorMessage);
-      static bool ReadObject(shared_ptr<GroupMember> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<GroupMember> pObject);
+      static bool SaveObject(std::shared_ptr<GroupMember> pObject);
+      static bool SaveObject(std::shared_ptr<GroupMember> pObject, String &errorMessage, PersistenceMode mode);
+      static bool ReadObject(std::shared_ptr<GroupMember> pObject, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

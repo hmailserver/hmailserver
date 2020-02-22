@@ -6,6 +6,7 @@
 #include "Canonicalization.h"
 #include "../../MIME/MimeCode.h"
 #include "../../MIME/Mime.h"
+#include "..\../Util\Parsing\StringParser.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -20,7 +21,7 @@
 namespace HM
 {
    AnsiString 
-   Canonicalization::_GetDKIMWithoutSignature(AnsiString value)
+   Canonicalization::GetDKIMWithoutSignature_(AnsiString value)
    {
       // locate the b= tag
       int pos = value.Find("b=");
@@ -63,11 +64,11 @@ namespace HM
          line" is defined in Section 3.4.3.
       */
       
-      vector<AnsiString> lines = StringParser::SplitString(value, "\r\n");
+      std::vector<AnsiString> lines = StringParser::SplitString(value, "\r\n");
 
-      vector<String> output;
-      vector<String> cleanedLines;
-      boost_foreach (AnsiString line, lines)
+      std::vector<String> output;
+      std::vector<String> cleanedLines;
+      for (AnsiString line : lines)
       {
          line.Replace("\t", " ");
 
@@ -81,7 +82,7 @@ namespace HM
 
          if (!line.IsEmpty())
          {
-            boost_foreach (String cleaned, cleanedLines)
+            for (String cleaned : cleanedLines)
             {
                output.push_back(cleaned);
             }
@@ -102,28 +103,29 @@ namespace HM
    }
 
    AnsiString 
-   RelaxedCanonicalization::CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
+   RelaxedCanonicalization::CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
    {
       MimeHeader mimeHeader;
       mimeHeader.Load(header, header.GetLength(), true);
 
-      vector<MimeField> fields = mimeHeader.Fields();
+      std::vector<MimeField> fields = mimeHeader.Fields();
 
       String result;
-      boost_foreach(AnsiString headerField, fieldsToInclude)
+      for(AnsiString headerField : fieldsToInclude)
       {  
          headerField.Trim();
 
          // locate this field, starting from the end.
          String value;
-         for (int i = fields.size()-1; i >=0; i--)
+         for (size_t i = fields.size(); i > 0; i--)
          {
-            MimeField field = fields[i];
+            size_t fieldIndex = i - 1;
+            MimeField field = fields[fieldIndex];
 
             if (headerField.CompareNoCase(field.GetName()) == 0)
             {
                // found
-               fields.erase(fields.begin()+i);
+               fields.erase(fields.begin() + fieldIndex);
 
                value = field.GetValue();
                break;
@@ -161,7 +163,7 @@ namespace HM
          AnsiString relaxedFieldValue = CanonicalizeHeaderValue(signatureField.second);
 
          //and without a trailing CRLF.
-         result += relaxedHeaderName + ":" + _GetDKIMWithoutSignature(relaxedFieldValue);
+         result += relaxedHeaderName + ":" + GetDKIMWithoutSignature_(relaxedFieldValue);
       }
 
       return result;
@@ -243,18 +245,18 @@ namespace HM
    }
 
    AnsiString 
-   SimpleCanonicalization::CanonicalizeHeader(AnsiString header, const pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
+   SimpleCanonicalization::CanonicalizeHeader(AnsiString header, const std::pair<AnsiString, AnsiString> &signatureField, const std::vector<AnsiString> &fieldsToInclude, AnsiString &fieldList)
    {
       // first build a formatted list of header lines.
       std::vector<AnsiString> formattedHeaderLines;
 
       AnsiString result;
-      vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
+      std::vector<AnsiString> headerLines = StringParser::SplitString(header, "\r\n");
 
       AnsiString foldedLines;
-      for (int i = headerLines.size()-1; i >= 0; i--)
+      for (size_t i = headerLines.size(); i > 0; i--)
       {
-         AnsiString line = headerLines[i];
+         AnsiString line = headerLines[i-1];
 
          if (line.StartsWith(" ") || line.StartsWith("\t"))
          {
@@ -279,13 +281,13 @@ namespace HM
          }
       }
 
-      boost_foreach(AnsiString fieldToInclude, fieldsToInclude)
+      for(AnsiString fieldToInclude : fieldsToInclude)
       {
          fieldToInclude.Trim();
 
          // locate the header line.
-         std::vector<AnsiString>::iterator iter = formattedHeaderLines.begin();
-         std::vector<AnsiString>::iterator iterEnd = formattedHeaderLines.end();
+         auto iter = formattedHeaderLines.begin();
+         auto iterEnd = formattedHeaderLines.end();
          
          for (; iter != iterEnd; iter++)
          {
@@ -316,7 +318,7 @@ namespace HM
          // If there are more than one DKIM-signature fields in the header, this will be important.
          AnsiString headerName = signatureField.first;
 
-         AnsiString headerLine = headerName + ": " + _GetDKIMWithoutSignature(signatureField.second);
+         AnsiString headerLine = headerName + ": " + GetDKIMWithoutSignature_(signatureField.second);
 
          if (headerLine.EndsWith("\r\n"))
             headerLine = headerLine.Mid(0, headerLine.GetLength()-2);

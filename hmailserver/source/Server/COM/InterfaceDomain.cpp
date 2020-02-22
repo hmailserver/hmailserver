@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "InterfaceDomain.h"
-
 #include "InterfaceDomain.h"
 #include "InterfaceAccounts.h"
 #include "InterfaceAliases.h"
@@ -18,6 +17,7 @@
 #include "../Common/BO/Domains.h"
 
 #include "../Common/persistence/PersistentDomain.h"
+#include "../Common/persistence/PersistenceMode.h"
 
 #include "InterfaceDomains.h"
 
@@ -48,19 +48,19 @@ STDMETHODIMP InterfaceDomain::InterfaceSupportsErrorInfo(REFIID riid)
    
 
 void
-InterfaceDomain::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceDomain::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
-   m_pAuthentication = pAuthentication;
+   authentication_ = pAuthentication;
 }
 
 STDMETHODIMP InterfaceDomain::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
    catch (...)
@@ -73,10 +73,10 @@ STDMETHODIMP InterfaceDomain::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
    
       return S_OK;
    }
@@ -90,16 +90,16 @@ STDMETHODIMP InterfaceDomain::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String sName = newVal;
       sName.Trim();
    
-      m_pObject->SetName(sName);
+      object_->SetName(sName);
    
       return S_OK;
    }
@@ -113,13 +113,13 @@ STDMETHODIMP InterfaceDomain::get_Postmaster(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetPostmaster().AllocSysString();
+      *pVal = object_->GetPostmaster().AllocSysString();
    
       return S_OK;
    }
@@ -133,14 +133,14 @@ STDMETHODIMP InterfaceDomain::put_Postmaster(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
      
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetPostmaster(newVal);
+      object_->SetPostmaster(newVal);
    
       return S_OK;
    }
@@ -154,13 +154,13 @@ STDMETHODIMP InterfaceDomain::get_ADDomainName(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetADDomainName().AllocSysString();
+      *pVal = object_->GetADDomainName().AllocSysString();
    
       return S_OK;
    }
@@ -174,14 +174,14 @@ STDMETHODIMP InterfaceDomain::put_ADDomainName(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       // Set the active directory domain name
-      m_pObject->SetADDomainName(newVal);
+      object_->SetADDomainName(newVal);
    
       return S_OK;
    }
@@ -195,22 +195,22 @@ STDMETHODIMP InterfaceDomain::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       // Save object in the database.
       HM::String sErrorMessage;
-      if (HM::PersistentDomain::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentDomain::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
          return S_OK;
       }
    
-      return COMError::GenerateError(sErrorMessage);
+      return COMError::GenerateError("Failed to save object. " + sErrorMessage);
    }
    catch (...)
    {
@@ -222,13 +222,13 @@ STDMETHODIMP InterfaceDomain::get_Active(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (m_pObject->GetIsActive())
+      if (object_->GetIsActive())
          *pVal = VARIANT_TRUE;
       else
          *pVal = VARIANT_FALSE;
@@ -246,16 +246,16 @@ STDMETHODIMP InterfaceDomain::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       if (newVal == VARIANT_TRUE)
-         m_pObject->SetIsActive(true);
+         object_->SetIsActive(true);
       else
-         m_pObject->SetIsActive(false);
+         object_->SetIsActive(false);
    
       return S_OK;
    }
@@ -269,13 +269,13 @@ STDMETHODIMP InterfaceDomain::get_PlusAddressingEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
       
-      *pVal  = m_pObject->GetUsePlusAddressing() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal  = object_->GetUsePlusAddressing() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -289,13 +289,13 @@ STDMETHODIMP InterfaceDomain::put_PlusAddressingEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetUsePlusAddressing(newVal == VARIANT_TRUE);
+      object_->SetUsePlusAddressing(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -309,24 +309,24 @@ STDMETHODIMP InterfaceDomain::get_Accounts(IInterfaceAccounts **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceAccounts>* pItem = new CComObject<InterfaceAccounts>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Accounts> pAccounts;
+      std::shared_ptr<HM::Accounts> pAccounts;
    
-      if (m_pAuthentication->GetIsDomainAdmin())
-         pAccounts = m_pObject->GetAccounts();
+      if (authentication_->GetIsDomainAdmin())
+         pAccounts = object_->GetAccounts();
       else
-         pAccounts = m_pObject->GetAccounts(m_pAuthentication->GetAccountID());
+         pAccounts = object_->GetAccounts(authentication_->GetAccountID());
    
       if (pAccounts)
       {
-         pItem->SetAuthentication(m_pAuthentication);
+         pItem->SetAuthentication(authentication_);
          pItem->Attach(pAccounts);
-         pItem->SetDomain(m_pObject->GetID());
+         pItem->SetDomain(object_->GetID());
          pItem->AddRef();
          *pVal = pItem;
       }
@@ -343,16 +343,16 @@ STDMETHODIMP InterfaceDomain::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentDomain::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentDomain::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -366,7 +366,7 @@ STDMETHODIMP InterfaceDomain::SynchronizeDirectory()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       return S_OK;
@@ -381,22 +381,22 @@ STDMETHODIMP InterfaceDomain::get_Aliases(IInterfaceAliases **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceAliases>* pItem = new CComObject<InterfaceAliases>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Aliases> pAliases = m_pObject->GetAliases();
+      std::shared_ptr<HM::Aliases> pAliases = object_->GetAliases();
       pAliases->Refresh();
    
       if (pAliases)
       {
          pItem->Attach(pAliases);
-         pItem->SetDomain(m_pObject->GetID());
+         pItem->SetDomain(object_->GetID());
          pItem->AddRef();
          *pVal = pItem;
       }
@@ -414,16 +414,16 @@ STDMETHODIMP InterfaceDomain::get_DomainAliases(IInterfaceDomainAliases **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomainAliases>* pItem = new CComObject<InterfaceDomainAliases>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAliases> pDA = shared_ptr<HM::DomainAliases>(new HM::DomainAliases(m_pObject->GetID()));
+      std::shared_ptr<HM::DomainAliases> pDA = std::shared_ptr<HM::DomainAliases>(new HM::DomainAliases(object_->GetID()));
    
       if (pDA)
       {
@@ -448,22 +448,22 @@ STDMETHODIMP InterfaceDomain::get_DistributionLists(IInterfaceDistributionLists 
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDistributionLists>* pItem = new CComObject<InterfaceDistributionLists>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DistributionLists> pDistLists = m_pObject->GetDistributionLists();
+      std::shared_ptr<HM::DistributionLists> pDistLists = object_->GetDistributionLists();
       pDistLists->Refresh();
    
       if (pDistLists)
       {
          pItem->Attach(pDistLists);
-         pItem->SetDomain(m_pObject->GetID());
+         pItem->SetDomain(object_->GetID());
          pItem->AddRef();
          *pVal = pItem;
       }
@@ -481,13 +481,13 @@ STDMETHODIMP InterfaceDomain::get_MaxMessageSize(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxMessageSize();
+      *pVal = object_->GetMaxMessageSize();
       return S_OK;
    }
    catch (...)
@@ -500,13 +500,13 @@ STDMETHODIMP InterfaceDomain::put_MaxMessageSize(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxMessageSize(pVal);
+      object_->SetMaxMessageSize(pVal);
       return S_OK;
    }
    catch (...)
@@ -519,13 +519,13 @@ STDMETHODIMP InterfaceDomain::get_MaxSize(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxSizeMB();
+      *pVal = object_->GetMaxSizeMB();
       return S_OK;
    }
    catch (...)
@@ -538,13 +538,13 @@ STDMETHODIMP InterfaceDomain::put_MaxSize(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxSizeMB(pVal);
+      object_->SetMaxSizeMB(pVal);
       return S_OK;
    }
    catch (...)
@@ -557,13 +557,13 @@ STDMETHODIMP InterfaceDomain::get_Size(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = HM::PersistentDomain::GetSize(m_pObject);
+      *pVal = HM::PersistentDomain::GetSize(object_);
       return S_OK;
    }
    catch (...)
@@ -576,13 +576,13 @@ STDMETHODIMP InterfaceDomain::get_AllocatedSize(hyper  *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = HM::PersistentDomain::GetAllocatedSize(m_pObject);
+      *pVal = HM::PersistentDomain::GetAllocatedSize(object_);
       return S_OK;
    }
    catch (...)
@@ -595,13 +595,13 @@ STDMETHODIMP InterfaceDomain::get_PlusAddressingCharacter(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetPlusAddressingChar().AllocSysString();
+      *pVal = object_->GetPlusAddressingChar().AllocSysString();
    
       return S_OK;
    }
@@ -615,13 +615,13 @@ STDMETHODIMP InterfaceDomain::put_PlusAddressingCharacter(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetPlusAddressingChar(newVal);
+      object_->SetPlusAddressingChar(newVal);
    
       return S_OK;
    }
@@ -635,13 +635,13 @@ STDMETHODIMP InterfaceDomain::get_AntiSpamEnableGreylisting(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal  = m_pObject->GetASUseGreyListing() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal  = object_->GetASUseGreyListing() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -655,13 +655,13 @@ STDMETHODIMP InterfaceDomain::put_AntiSpamEnableGreylisting(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetASUseGreyListing(newVal == VARIANT_TRUE);
+      object_->SetASUseGreyListing(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -675,12 +675,12 @@ STDMETHODIMP InterfaceDomain::get_SignatureEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      *pVal  = m_pObject->GetEnableSignature() ? VARIANT_TRUE : VARIANT_FALSE;
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      *pVal  = object_->GetEnableSignature() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -693,12 +693,12 @@ STDMETHODIMP InterfaceDomain::put_SignatureEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      m_pObject->SetEnableSignature(newVal == VARIANT_TRUE);
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      object_->SetEnableSignature(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -711,12 +711,12 @@ STDMETHODIMP InterfaceDomain::get_SignatureMethod(eDomainSignatureMethod *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      *pVal  = (eDomainSignatureMethod) m_pObject->GetSignatureMethod();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      *pVal  = (eDomainSignatureMethod) object_->GetSignatureMethod();
       return S_OK;
    }
    catch (...)
@@ -729,12 +729,12 @@ STDMETHODIMP InterfaceDomain::put_SignatureMethod(eDomainSignatureMethod newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      m_pObject->SetSignatureMethod((HM::Domain::DomainSignatureMethod) newVal);
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      object_->SetSignatureMethod((HM::Domain::DomainSignatureMethod) newVal);
       return S_OK;
    }
    catch (...)
@@ -747,12 +747,12 @@ STDMETHODIMP InterfaceDomain::get_SignaturePlainText(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      *pVal  = m_pObject->GetSignaturePlainText().AllocSysString();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      *pVal  = object_->GetSignaturePlainText().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -765,12 +765,12 @@ STDMETHODIMP InterfaceDomain::put_SignaturePlainText(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      m_pObject->SetSignaturePlainText(newVal);
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      object_->SetSignaturePlainText(newVal);
       return S_OK;
    }
    catch (...)
@@ -783,12 +783,12 @@ STDMETHODIMP InterfaceDomain::get_SignatureHTML(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      *pVal  = m_pObject->GetSignatureHTML().AllocSysString();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      *pVal  = object_->GetSignatureHTML().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -801,12 +801,12 @@ STDMETHODIMP InterfaceDomain::put_SignatureHTML(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
-      m_pObject->SetSignatureHTML(newVal);
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
+      object_->SetSignatureHTML(newVal);
       return S_OK;
    }
    catch (...)
@@ -819,13 +819,13 @@ STDMETHODIMP InterfaceDomain::get_AddSignaturesToReplies(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetAddSignaturesToReplies() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAddSignaturesToReplies() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -838,13 +838,13 @@ STDMETHODIMP InterfaceDomain::put_AddSignaturesToReplies(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetAddSignaturesToReplies(newVal == VARIANT_TRUE);
+      object_->SetAddSignaturesToReplies(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -857,13 +857,13 @@ STDMETHODIMP InterfaceDomain::get_AddSignaturesToLocalMail(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetAddSignaturesToLocalMail() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAddSignaturesToLocalMail() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -876,13 +876,13 @@ STDMETHODIMP InterfaceDomain::put_AddSignaturesToLocalMail(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetAddSignaturesToLocalMail(newVal == VARIANT_TRUE);
+      object_->SetAddSignaturesToLocalMail(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -895,13 +895,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfAccounts(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();;
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();;
    
-      *pVal = m_pObject->GetMaxNoOfAccounts();
+      *pVal = object_->GetMaxNoOfAccounts();
       return S_OK;
    }
    catch (...)
@@ -914,13 +914,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfAccounts(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfAccounts(pVal);
+      object_->SetMaxNoOfAccounts(pVal);
       return S_OK;
    }
    catch (...)
@@ -933,13 +933,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfAliases(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxNoOfAliases();
+      *pVal = object_->GetMaxNoOfAliases();
       return S_OK;
    }
    catch (...)
@@ -952,13 +952,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfAliases(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfAliases(pVal);
+      object_->SetMaxNoOfAliases(pVal);
       return S_OK;
    }
    catch (...)
@@ -971,13 +971,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfDistributionLists(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxNoOfDistributionLists();
+      *pVal = object_->GetMaxNoOfDistributionLists();
       return S_OK;
    }
    catch (...)
@@ -990,13 +990,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfDistributionLists(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfDistributionLists(pVal);
+      object_->SetMaxNoOfDistributionLists(pVal);
       return S_OK;
    }
    catch (...)
@@ -1009,13 +1009,13 @@ STDMETHODIMP InterfaceDomain::get_MaxAccountSize(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxAccountSize();
+      *pVal = object_->GetMaxAccountSize();
       return S_OK;
    }
    catch (...)
@@ -1028,13 +1028,13 @@ STDMETHODIMP InterfaceDomain::put_MaxAccountSize(long pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxAccountSize(pVal);
+      object_->SetMaxAccountSize(pVal);
       return S_OK;
    }
    catch (...)
@@ -1047,13 +1047,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfAccountsEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();;
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();;
    
-      *pVal = m_pObject->GetMaxNoOfAccountsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetMaxNoOfAccountsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1066,13 +1066,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfAccountsEnabled(VARIANT_BOOL pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfAccountsEnabled(pVal == VARIANT_TRUE);
+      object_->SetMaxNoOfAccountsEnabled(pVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1085,13 +1085,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfAliasesEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxNoOfAliasesEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetMaxNoOfAliasesEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -1104,13 +1104,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfAliasesEnabled(VARIANT_BOOL pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfAliasesEnabled(pVal == VARIANT_TRUE);
+      object_->SetMaxNoOfAliasesEnabled(pVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1123,13 +1123,13 @@ STDMETHODIMP InterfaceDomain::get_MaxNumberOfDistributionListsEnabled(VARIANT_BO
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetMaxNoOfDistributionListsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetMaxNoOfDistributionListsEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -1143,13 +1143,13 @@ STDMETHODIMP InterfaceDomain::put_MaxNumberOfDistributionListsEnabled(VARIANT_BO
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetMaxNoOfDistributionListsEnabled(pVal == VARIANT_TRUE);
+      object_->SetMaxNoOfDistributionListsEnabled(pVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -1162,13 +1162,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMSignEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal  = m_pObject->GetDKIMEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal  = object_->GetDKIMEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -1182,13 +1182,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMSignEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMEnabled(newVal == VARIANT_TRUE);
+      object_->SetDKIMEnabled(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -1202,13 +1202,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMSelector(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetDKIMSelector().AllocSysString();
+      *pVal = object_->GetDKIMSelector().AllocSysString();
    
       return S_OK;
    }
@@ -1222,13 +1222,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMSelector(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMSelector(newVal);
+      object_->SetDKIMSelector(newVal);
    
       return S_OK;
    }
@@ -1242,13 +1242,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMPrivateKeyFile(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObject->GetDKIMPrivateKeyFile().AllocSysString();
+      *pVal = object_->GetDKIMPrivateKeyFile().AllocSysString();
    
       return S_OK;
    }
@@ -1262,13 +1262,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMPrivateKeyFile(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMPrivateKeyFile(newVal);
+      object_->SetDKIMPrivateKeyFile(newVal);
    
       return S_OK;
    }
@@ -1282,13 +1282,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMHeaderCanonicalizationMethod(eDKIMCanonica
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = (eDKIMCanonicalizationMethod)m_pObject->GetDKIMHeaderCanonicalizationMethod();
+      *pVal = (eDKIMCanonicalizationMethod)object_->GetDKIMHeaderCanonicalizationMethod();
    
       return S_OK;
    }
@@ -1302,13 +1302,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMHeaderCanonicalizationMethod(eDKIMCanonica
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMHeaderCanonicalizationMethod(newVal);
+      object_->SetDKIMHeaderCanonicalizationMethod(newVal);
    
       return S_OK;
    }
@@ -1322,13 +1322,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMBodyCanonicalizationMethod(eDKIMCanonicali
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = (eDKIMCanonicalizationMethod)m_pObject->GetDKIMBodyCanonicalizationMethod();
+      *pVal = (eDKIMCanonicalizationMethod)object_->GetDKIMBodyCanonicalizationMethod();
    
       return S_OK;
    }
@@ -1342,13 +1342,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMBodyCanonicalizationMethod(eDKIMCanonicali
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMBodyCanonicalizationMethod(newVal);
+      object_->SetDKIMBodyCanonicalizationMethod(newVal);
    
       return S_OK;
    }
@@ -1362,13 +1362,13 @@ STDMETHODIMP InterfaceDomain::get_DKIMSigningAlgorithm(eDKIMAlgorithm *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = (eDKIMAlgorithm) m_pObject->GetDKIMSigningAlgorithm();
+      *pVal = (eDKIMAlgorithm) object_->GetDKIMSigningAlgorithm();
    
       return S_OK;
    }
@@ -1382,13 +1382,13 @@ STDMETHODIMP InterfaceDomain::put_DKIMSigningAlgorithm(eDKIMAlgorithm newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsDomainAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsDomainAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObject->SetDKIMSigningAlgorithm(newVal);
+      object_->SetDKIMSigningAlgorithm(newVal);
    
       return S_OK;
    }

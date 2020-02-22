@@ -6,6 +6,9 @@
 
 #include "../Util/Event.h"
 
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 namespace HM
 {
    class Task;
@@ -14,63 +17,37 @@ namespace HM
    class WorkQueue
    {
    public:
-      
-      enum QueueType
-      {
-         eQTPreLoad = 0, // Pre-create a couple of threads
-         eQTFixedSize = 1, // Pre-create a fixed number of threads
-         eQTRandom = 2 // Don't pre-create. Create if we need threads.
-      };
 
-      WorkQueue(unsigned int iMaxSimultaneous, QueueType qtType, const String &sName);
+      WorkQueue(unsigned int iMaxSimultaneous, const String &sName);
       ~WorkQueue(void);
 
       void SetMaxSimultaneous(int iMaxSimultaneous);
 
-      void AddTask(shared_ptr<Task> pTask);
+      void AddTask(std::shared_ptr<Task> pTask);
       void Start();
-      void ThreadFunc();
-      
-      bool OnThreadReady(Thread *pThread);
-      void OnThreadExited(Thread *pThread);
 
-      void Stop(bool bPreKillWarning);
-      bool GetRunningThreadsExists();
-
-      int GetQueueSize();
-
-      void Pause();
-      void Continue();
-      void Clear();
-      bool GetIsPaused() {return m_bPause; }
+      void Stop();
 
       const String &GetName() const;
 
-      HANDLE GetQueueThreadHandle() const {return m_hThread; }
-      
-      shared_ptr<Task> GetTaskByName(const String &name, bool &isQueued);
-      void StopTask(const String &name);
-
    private:
 
-      queue<shared_ptr<Task> > m_qPendingTasks;
-      CriticalSection m_csPendingTasks;
+      void WorkQueue::RemoveRunningTask_(std::shared_ptr<Task> task);
 
-      map<HANDLE, shared_ptr<Thread> > m_mapThreads;
-      CriticalSection m_csThreads;
+      void IoServiceRunWorker();
+      void ExecuteTask(std::shared_ptr<Task> pTask);
 
-      unsigned int m_iMaxSimultaneous;
-      unsigned int m_iBaseLineThreadCount;
+      boost::asio::io_service io_service_;
+      boost::asio::io_service::work work_;
 
-      Event m_hCheckForTask;
-      Event m_hStopQueue;
-      HANDLE m_hThread;
+      std::set<std::shared_ptr<Task>> runningTasks_;
+      boost::recursive_mutex runningTasksMutex_;
 
-      String m_sQueueName;
+      unsigned int max_simultaneous_;
 
-      bool m_bPause;
+      String queue_name_;
 
-      QueueType m_qtType;
-
+      std::set<std::shared_ptr<boost::thread>> workerThreads_;
    };
+
 }

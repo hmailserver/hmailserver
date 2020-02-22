@@ -56,13 +56,4 @@ namespace HM
          antiSpamConfig.SetGreylistingTemporarilyDisabled(false);
    }
 
-   void 
-   GreyListCleanerTask::StopWork()
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Do nothing.
-   //---------------------------------------------------------------------------()
-   {
-
-   }
 }

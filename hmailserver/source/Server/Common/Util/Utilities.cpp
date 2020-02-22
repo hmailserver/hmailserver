@@ -5,6 +5,8 @@
 #include "Utilities.h"
 #include "File.h"
 #include "Time.h"
+#include "Registry.h"
+
 
 #include "../Mime/Mime.h"
 #include "GUIDCreator.h"
@@ -13,6 +15,7 @@
 #include "../TCPIP/IPAddress.h"
 #include "../TCPIP/TCPServer.h"
 #include "../TCPIP/DNSResolver.h"
+#include "../../SMTP/SMTPConnection.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -21,8 +24,8 @@
 
 namespace HM
 {
-   String Utilities::m_sCachedWin32ComputerName = "";
-   String Utilities::m_sCachedWin32TempDir = "";
+   String Utilities::cached_win_32computer_name_ = "";
+   String Utilities::cached_win_32temp_dir_ = "";
 
    Utilities::Utilities()
    {
@@ -35,35 +38,9 @@ namespace HM
    }
 
    String 
-   Utilities::GetWin32TempDirectory()
-   {
-      // No username specified. Fetch local computer name.
-      if (!m_sCachedWin32TempDir.IsEmpty())
-         return m_sCachedWin32TempDir;
-
-      
-      unsigned long iSize = 255;
-      TCHAR pCharBuf[255];
-      
-      if (::GetTempPath(iSize, pCharBuf) != 0)
-      {
-         String sShort = pCharBuf;
-
-         if (sShort.Right(1) == _T("\\"))
-            sShort = sShort.Left(sShort.GetLength() - 1);
-
-         m_sCachedWin32TempDir = FileUtilities::GetLongPath(sShort);
-        
-      }
-
-      return m_sCachedWin32TempDir;
-
-   }
-
-   String 
    Utilities::GetUniqueTempDirectory()
    {
-      return FileUtilities::Combine(GetWin32TempDirectory(), GUIDCreator::GetGUID());
+      return FileUtilities::Combine(IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID());
    }
 
 
@@ -81,28 +58,28 @@ namespace HM
          
 
       // No username specified. Fetch local computer name.
-      if (!m_sCachedWin32ComputerName.IsEmpty())
-         return m_sCachedWin32ComputerName;
+      if (!cached_win_32computer_name_.IsEmpty())
+         return cached_win_32computer_name_;
 
 
-      m_sCachedWin32ComputerName = "LOCALHOST";
+      cached_win_32computer_name_ = "LOCALHOST";
       TCHAR pCharBuf[255];
       unsigned long iSize = 255;
       if (::GetComputerName(pCharBuf, &iSize) == TRUE)
-         m_sCachedWin32ComputerName = pCharBuf;
+         cached_win_32computer_name_ = pCharBuf;
       
-      return m_sCachedWin32ComputerName ;
+      return cached_win_32computer_name_ ;
 
    }
 
-   shared_ptr<MimeHeader>
-   Utilities::GetMimeHeader(const BYTE *pByteBuf, int iBufSize)
+   std::shared_ptr<MimeHeader>
+   Utilities::GetMimeHeader(const BYTE *pByteBuf, size_t iBufSize)
    {
       // First locate end of header in the buffer.
       const char *pBuffer = (const char*) pByteBuf;
       const char *pBufferEndPos = StringParser::Search(pBuffer, iBufSize, "\r\n\r\n");
 
-      shared_ptr<MimeHeader> pMimeHeader = shared_ptr<MimeHeader>(new MimeHeader);
+      std::shared_ptr<MimeHeader> pMimeHeader = std::shared_ptr<MimeHeader>(new MimeHeader);
 
       if (!pBufferEndPos)
       {
@@ -111,7 +88,7 @@ namespace HM
       }
 
       // Calculate the length of the header.
-      int iHeaderSize = pBufferEndPos - pBuffer + 2; // +2 for the last newline.
+      size_t iHeaderSize = pBufferEndPos - pBuffer + 2; // +2 for the last newline.
 
       // Load the header
       pMimeHeader->Load(pBuffer, iHeaderSize, true);
@@ -121,13 +98,25 @@ namespace HM
    }
 
    String
-   Utilities::GetExecutableDirectory()
+   Utilities::GetBinDirectory()
    {
-      String sPathIncExe = Application::GetExecutableName();
-      // Find last slash.
-      int iLastSlash = sPathIncExe.ReverseFind(_T("\\"));
+      // The install key in the registry should be enough to tell us where we're installed.
+      String install_path;
+      Registry registry;
 
-      return sPathIncExe.Mid(0, iLastSlash);
+      if (registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\hMailServer", "InstallLocation", install_path))
+      {
+         return FileUtilities::Combine(install_path, "Bin");
+      }
+      else
+      {
+
+         // Lookup executable path.
+         String executable_full_path = Application::GetExecutableName();
+         int last_slash = executable_full_path.ReverseFind(_T("\\"));
+
+         return executable_full_path.Mid(0, last_slash);
+      }
    }
 
    String
@@ -151,72 +140,7 @@ namespace HM
       return sRetVal;
    }
 
-   String 
-   Utilities::GenerateReceivedHeader(const String &sRemoteIP, String sHostName)
-   {
-      String sComputerName = Utilities::ComputerName(); 
-      vector<String> results;
-      // do a PTR lookup, solves an issue with some spam filerting programs such as SA
-      // not having a PTR in the Received header.
-      String ptrRecord;
-      DNSResolver resolver;
-      if (!resolver.GetPTRRecords(sRemoteIP, results))
-      {
-         LOG_DEBUG("Could not get PTR record for IP (false)! " + sRemoteIP);
-         ptrRecord = "Unknown";
-      }
-      else
-      {
-         if (results.size() == 0)
-         {
-            LOG_DEBUG("Could not get PTR record for IP (empty)! " + sRemoteIP);
-            ptrRecord = "Unknown";
-         }
-         else ptrRecord = results[0];
-      }
 
-      if (sHostName.IsEmpty())
-         sHostName = sRemoteIP;
-
-      // Time-stamp-line = "Received:" FWS Stamp <CRLF>
-      // Stamp = From-domain By-domain Opt-info ";"  FWS date-time
-      // From-domain = "FROM" FWS Extended-Domain CFWS
-      // By-domain = "BY" FWS Extended-Domain CFWS
-      // Extended-Domain = Domain /
-      //                   ( Domain FWS "(" TCP-info ")" ) /           
-      //                   ( Address-literal FWS "(" TCP-info ")" )
-      // TCP-info        = Address-literal / 
-      //                   ( Domain FWS Address-literal )          
-      //                   ; Information derived by server from TCP connection
-      //                   ; not client EHLO.
-      //Opt-info = [Via] [With] [ID] [For]
-      //
-      // The header produced by hMailServer used to look like this:
-      //
-      // Received: from <hostinhelo> ([ip-address])
-      //              by <thiscomputername> 
-      //              with hMailServer; timestamp
-      //
-      // The header produced by hMailServer now looks like this:
-      //
-      // Received: from <hostinhelo> ([ip-address])
-      //              by <thiscomputername> 
-      //              ; timestamp
-
-      // JDR: insert the PTR result here. If none was found Unknown is used.
-      String sResult;
-      sResult.Format(_T("from %s (%s [%s])\r\n")
-                     _T("\tby %s\r\n")
-                     _T("\t; %s"), 
-                        sHostName,
-                        ptrRecord,
-                        sRemoteIP,
-                        sComputerName, 
-                        Time::GetCurrentMimeDate());
-
-      return sResult;
-
-   }
 
    String 
    Utilities::GenerateMessageID()
@@ -226,7 +150,7 @@ namespace HM
       sGUID.Replace(_T("}"), _T(""));
 
       String sRetVal;
-      sRetVal.Format(_T("<%s@%s>"), sGUID , Utilities::ComputerName());
+      sRetVal.Format(_T("<%s@%s>"), sGUID.c_str(), Utilities::ComputerName().c_str());
       
       return sRetVal;
    }
@@ -470,8 +394,8 @@ namespace HM
    void
    UtilitiesTester::Test()
    {
-      _TestReceivedHeaderParse();
-      _TestComputerName();
+      TestReceivedHeaderParse_();
+      TestComputerName_();
 
       Utilities utilities;
       if (utilities.IsValidIPAddress("127.0.0.A"))
@@ -480,7 +404,7 @@ namespace HM
       if (!utilities.IsValidIPAddress("127.0.0"))
          throw;
 
-      if (TCPServer::HasIPV6())
+      if (Configuration::Instance()->IsIPv6Available())
       {
          if (!utilities.IsValidIPAddress("2001:0db8:0000:0000:0000:0000:1428:07ab"))
             throw;
@@ -495,7 +419,7 @@ namespace HM
    }
 
    void 
-   UtilitiesTester::_TestReceivedHeaderParse()
+   UtilitiesTester::TestReceivedHeaderParse_()
    {
       String sHeader = "from host.edu (host.edu [1.2.3.4]) by mail.host.edu (8.8.5) id 004A21; Tue, Mar 18 1997 14:36:17 -0800 (PST)";
       String sRecipient = Utilities::GetRecipientFromReceivedHeader(sHeader);
@@ -525,7 +449,7 @@ namespace HM
          throw;
 
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
-      if (hostName != _T(""))
+      if (hostName != _T("unknown"))
          throw;
 
       sHeader = "Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3]) "
@@ -588,7 +512,7 @@ namespace HM
          throw;
 
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
-      if (hostName != _T(""))
+      if (hostName != _T("unknown"))
         throw;
 
       sHeader = "Received: from outbound1.den.paypal.com ([216.113.188.96])\r\n"
@@ -607,7 +531,7 @@ namespace HM
 
 
    void 
-   UtilitiesTester::_TestComputerName()
+   UtilitiesTester::TestComputerName_()
    {
       String sComputerName = Utilities::ComputerName();
       Utilities::IsLocalHost(sComputerName); // We can't check the result of this since 

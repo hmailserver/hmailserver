@@ -36,21 +36,27 @@ namespace HM
          return false;
    }
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestHeloHost::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestHeloHost::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
-      const IPAddress &iIPAdress = pTestData->GetConnectingIP();
+      const IPAddress &iIPAdress = pTestData->GetOriginatingIP();
       String sHeloHost = pTestData->GetHeloHost();
 
-      if (!_CheckHostInHelo(sHeloHost, iIPAdress))
+      if (sHeloHost.IsEmpty())
+      {
+         // Not possible to run this test without a host.
+         return setSpamTestResults;
+      }
+
+      if (!CheckHostInHelo_(sHeloHost, iIPAdress))
       {
          // Incorrect host in helo
          String sMessage = "The host name specified in HELO does not match IP address.";
          int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckHostInHeloScore();;
 
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
 
       }
@@ -60,7 +66,7 @@ namespace HM
 
 
    bool 
-   SpamTestHeloHost::_CheckHostInHelo(const String &sHeloHost, const IPAddress &address)
+   SpamTestHeloHost::CheckHostInHelo_(const String &sHeloHost, const IPAddress &address)
    {
       String sIPAddress = address.ToString();
 
@@ -83,16 +89,14 @@ namespace HM
          // the senders IP address.
          std::vector<String> saFoundNames;
          DNSResolver resolver;
-         if (!resolver.GetARecords(sHeloHost, saFoundNames))
+         if (!resolver.GetIpAddresses(sHeloHost, saFoundNames, true))
          {
             // DNS failure. Assume it's not spam.
             return true;
          }
 
          // Check that the IP address is one of these A records.
-
-         std::vector<String>::iterator iter;
-         for (iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
+         for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
             if ((*iter) == sIPAddress)
             {

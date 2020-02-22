@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +14,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>http://localhost/hMailAdmin/</PublishUrl>
@@ -30,32 +31,29 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x64\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -91,6 +89,12 @@
     </Compile>
     <Compile Include="Controls\ucPassword.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formImportMembers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formImportMembers.Designer.cs">
+      <DependentUpon>formImportMembers.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\formAbout.cs">
       <SubType>Form</SubType>
@@ -224,6 +228,12 @@
     <Compile Include="Interfaces\IMainForm.cs" />
     <Compile Include="Interfaces\INode.cs" />
     <Compile Include="Interfaces\ISettingsControl.cs" />
+    <Compile Include="Main panes\ucSSLTLS.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucSSLTLS.Designer.cs">
+      <DependentUpon>ucSSLTLS.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main panes\ucAccount.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -524,6 +534,7 @@
     <Compile Include="Main panes\ucWhiteListing.Designer.cs">
       <DependentUpon>ucWhiteListing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Nodes\NodeSslTls.cs" />
     <Compile Include="Nodes\NodeAccount.cs" />
     <Compile Include="Nodes\NodeAccounts.cs" />
     <Compile Include="Nodes\NodeAdvanced.cs" />
@@ -586,6 +597,10 @@
     <EmbeddedResource Include="Controls\ucItemsView.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ucItemsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\formImportMembers.resx">
+      <DependentUpon>formImportMembers.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\formAbout.resx">
       <SubType>Designer</SubType>
@@ -670,6 +685,10 @@
     <EmbeddedResource Include="Dialogs\formWhiteListAddress.resx">
       <SubType>Designer</SubType>
       <DependentUpon>formWhiteListAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucSSLTLS.resx">
+      <DependentUpon>ucSSLTLS.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Main panes\ucAccount.resx">
       <SubType>Designer</SubType>
@@ -889,6 +908,7 @@
       <DependentUpon>ucWelcome.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\APICreator.cs" />
+    <Compile Include="Utilities\ConnectionSecurityTypes.cs" />
     <Compile Include="Utilities\DirtyChecker.cs" />
     <Compile Include="Utilities\Encryption.cs" />
     <Compile Include="Utilities\EnumStrings.cs" />

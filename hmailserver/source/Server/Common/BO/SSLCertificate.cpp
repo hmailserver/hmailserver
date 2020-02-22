@@ -26,9 +26,9 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("SSLCertificate"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
-      pNode->AppendAttr(_T("CertificateFile"), m_sCertificateFile);
-      pNode->AppendAttr(_T("PrivateKeyFile"), m_sPrivateKeyFile);
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("CertificateFile"), certificate_file_);
+      pNode->AppendAttr(_T("PrivateKeyFile"), private_key_file_);
 
       return true;
    }
@@ -36,9 +36,9 @@ namespace HM
    bool 
    SSLCertificate::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sName = pNode->GetAttrValue(_T("Name"));
-      m_sCertificateFile = pNode->GetAttrValue(_T("CertificateFile"));
-      m_sPrivateKeyFile = pNode->GetAttrValue(_T("PrivateKeyFile"));
+      name_ = pNode->GetAttrValue(_T("Name"));
+      certificate_file_ = pNode->GetAttrValue(_T("CertificateFile"));
+      private_key_file_ = pNode->GetAttrValue(_T("PrivateKeyFile"));
 
       return true;
    }

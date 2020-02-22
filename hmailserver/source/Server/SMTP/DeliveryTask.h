@@ -12,13 +12,13 @@ namespace HM
    class DeliveryTask : public Task
    {
    public:
-      DeliveryTask(shared_ptr<Message> pMessage);
+      DeliveryTask(std::shared_ptr<Message> pMessage);
       ~DeliveryTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
+
    private:
       
-      shared_ptr<Message> m_pMessage;
+      std::shared_ptr<Message> message_;
    };
 }

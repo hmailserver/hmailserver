@@ -7,9 +7,9 @@ namespace HM
 {
    AccountCache::AccountCache(void)
    {
-      m_iCacheTTL = 5;
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
+      cache_ttl_ = 5;
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
    }
 
    AccountCache::~AccountCache(void)
@@ -19,42 +19,42 @@ namespace HM
    void
    AccountCache::SetTTL(int iNewVal)
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
 
-      m_iCacheTTL = iNewVal;
+      cache_ttl_ = iNewVal;
    }
 
 
    void 
    AccountCache::AddAccount(shared_ptr<Account> pAccount)
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
 
       // If we've gotten here, it means that we
       // have missed a cache. (otherwise we wouldn't
       // be adding an object to the cache)
-      m_iNoOfMisses++;
+      no_of_misses_++;
 
       // First check that someone else hasn't already added it.
-      if (m_mapAccounts.find(pAccount->GetAddress()) != m_mapAccounts.end())
+      if (accounts_.find(pAccount->GetAddress()) != accounts_.end())
          return;
 
-      m_mapAccounts[pAccount->GetAddress()] = pAccount;
+      accounts_[pAccount->GetAddress()] = pAccount;
    }
 
    shared_ptr<Account>
    AccountCache::GetAccount(const String &sAccountAddress, uint64 iAccountID )
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
       std::map<String, shared_ptr<Account> >::iterator iterAccount;
       if (iAccountID > 0)
       {
          // Find the Account using the ID
-         iterAccount = m_mapAccounts.begin();
-         while (iterAccount != m_mapAccounts.end())
+         iterAccount = accounts_.begin();
+         while (iterAccount != accounts_.end())
          {
             if ((*iterAccount).second->GetID() == iAccountID)
                break;
@@ -65,24 +65,24 @@ namespace HM
       else
       {
          // Find Account using it's name.
-         iterAccount = m_mapAccounts.find(sAccountAddress);
+         iterAccount = accounts_.find(sAccountAddress);
       }
 
-      if (iterAccount != m_mapAccounts.end())
+      if (iterAccount != accounts_.end())
       {
 
          shared_ptr<Account> pAccount = (*iterAccount).second;
 
-         if (pAccount->Seconds() < m_iCacheTTL)
+         if (pAccount->Seconds() < cache_ttl_)
          {
             // A somewhat fresh Account was found in the 
             // cache. Use this.
-            m_iNoOfHits++;
+            no_of_hits_++;
             return pAccount;
          }
 
          // Account is old. Delete it from the cache
-         m_mapAccounts.erase(iterAccount);
+         accounts_.erase(iterAccount);
       }
 
       shared_ptr<Account> pEmpty;
@@ -93,27 +93,27 @@ namespace HM
    void
    AccountCache::RemoveAccount(shared_ptr<Account> pAccount)
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
 
-      std::map<String, shared_ptr<Account> >::iterator iterAccount = m_mapAccounts.find(pAccount->GetName());
+      std::map<String, shared_ptr<Account> >::iterator iterAccount = accounts_.find(pAccount->GetName());
 
-      if (iterAccount != m_mapAccounts.end())
+      if (iterAccount != accounts_.end())
       {
-         m_mapAccounts.erase(iterAccount);
+         accounts_.erase(iterAccount);
       }
    }
 
    int 
    AccountCache::GetHitRate()
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
 
-      if (m_iNoOfHits == 0)
+      if (no_of_hits_ == 0)
          return 0;
 
-      int iHitRate = (int) (((float) m_iNoOfHits / (float) (m_iNoOfHits + m_iNoOfMisses)) * 100);
+      int iHitRate = (int) (((float) no_of_hits_ / (float) (no_of_hits_ + no_of_misses_)) * 100);
 
       return iHitRate;
    }
@@ -121,12 +121,12 @@ namespace HM
    void 
    AccountCache::ClearCache()
    {
-      CriticalSectionLeaver oLeaver(m_oAccountCritSec);
-      m_oAccountCritSec.Enter();
+      CriticalSectionLeaver oLeaver(account_crit_sec_);
+      account_crit_sec_.Enter();
 
-      m_mapAccounts.clear();
-      m_iNoOfHits = 0;
-      m_iNoOfMisses = 0;
+      accounts_.clear();
+      no_of_hits_ = 0;
+      no_of_misses_ = 0;
 
    }
 }

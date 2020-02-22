@@ -1,9 +1,12 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -22,8 +25,8 @@ namespace RegressionTests.Stress
             sb.Append("1234567890");
          }
 
-         var sim = new SMTPClientSimulator();
-         Assert.IsFalse(sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
+         var sim = new SmtpClientSimulator();
+         CustomAsserts.Throws<DeliveryFailedException>(() => sim.SendRaw("test@test.com", "test@test.com", sb.ToString()));
       }
 
 
@@ -44,9 +47,8 @@ namespace RegressionTests.Stress
       ///       command length.
       /// </summary>
       [Test]
-      public void TestLongLineInIMAPConversation()
+      public void TestExcessiveDataInIMAPConversation()
       {
-         // hMailServer is kind and allows up to 1000000 octets.
          var sb = new StringBuilder();
          for (int i = 0; i < 100000; i++)
          {
@@ -57,7 +59,7 @@ namespace RegressionTests.Stress
 
          string command = "A03 NOOP " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          Assert.IsTrue(socket.Connect(143));
          socket.Receive();
          socket.Send(command);
@@ -67,14 +69,45 @@ namespace RegressionTests.Stress
             string response = socket.Receive();
             Assert.IsTrue(response.StartsWith("* BYE"));
          }
-         catch (SocketException ex)
+         catch (System.IO.IOException ex)
          {
-            Assert.IsTrue(ex.ErrorCode == 10054);
+            AssertIsConnectionTerminatedException(ex);
          }
 
 
          socket.Disconnect();
       }
+
+      [Test]
+      public void TestExcessiveDataInPOP3Conversation()
+      {
+         var sb = new StringBuilder();
+         for (int i = 0; i < 100000; i++)
+         {
+            sb.Append("1234567890");
+         }
+                
+         
+         string command = "HELP " + sb;
+
+         var socket = new TcpConnection();
+         Assert.IsTrue(socket.Connect(110));
+         socket.Receive();
+         socket.Send(command + "\r\n");
+
+         try
+         {
+            string response = socket.Receive();
+            Assert.IsTrue(response.StartsWith("-ERR"));
+
+            socket.Disconnect();
+         }
+         catch (IOException ex)
+         {
+            AssertIsConnectionTerminatedException(ex);
+         }
+      }
+
 
       [Test]
       public void TestLongLineInPOP3Conversation()
@@ -89,15 +122,46 @@ namespace RegressionTests.Stress
 
          string command = "NOOP " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          Assert.IsTrue(socket.Connect(110));
          socket.Receive();
          socket.Send(command + "\r\n");
 
          string response = socket.Receive();
-         Assert.IsFalse(response.StartsWith("+OK"));
+         Assert.IsTrue(response.StartsWith("-ERR Line too long."));
 
          socket.Disconnect();
+      }
+
+      [Test]
+      public void TestExcessiveDataInSMTPConversation()
+      {
+         var sb = new StringBuilder();
+         for (int i = 0; i < 100000; i++)
+         {
+            sb.Append("1234567890");
+         }
+
+         sb.Append(".com");
+
+         string command = "HELO " + sb;
+
+         var socket = new TcpConnection();
+         Assert.IsTrue(socket.Connect(25));
+         socket.Receive();
+         socket.Send(command + "\r\n");
+
+         try
+         {
+            string response = socket.Receive();
+            Assert.IsTrue(response.StartsWith("421"));
+
+            socket.Disconnect();
+         }
+         catch (IOException ex)
+         {
+            AssertIsConnectionTerminatedException(ex);
+         }
       }
 
       [Test]
@@ -113,7 +177,7 @@ namespace RegressionTests.Stress
 
          string command = "HELO " + sb;
 
-         var socket = new TcpSocket();
+         var socket = new TcpConnection();
          Assert.IsTrue(socket.Connect(25));
          socket.Receive();
          socket.Send(command + "\r\n");
@@ -201,15 +265,24 @@ namespace RegressionTests.Stress
          // Save the rule in the database
          oRule.Save();
 
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.SendRaw("mimetest@test.com", "mimetest@test.com", content);
+         smtpClientSimulator.SendRaw("mimetest@test.com", "mimetest@test.com", content);
 
-         string sContents = POP3Simulator.AssertGetFirstMessageText("mimetest@test.com", "test");
+         string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("mimetest@test.com", "test");
 
          Assert.IsTrue(sContents.IndexOf("SomeHeader: SomeValue") > 0);
          Assert.IsTrue(sContents.IndexOf("------=_NextPart_000_000D_01C97C94.33D5E670.ALT--") > 0);
+      }
+
+      private void AssertIsConnectionTerminatedException(IOException exception)
+      {
+         var inner = exception.InnerException as SocketException;
+         Assert.IsNotNull(inner);
+     
+
+         Assert.AreEqual(10054, inner.ErrorCode);
       }
    }
 }

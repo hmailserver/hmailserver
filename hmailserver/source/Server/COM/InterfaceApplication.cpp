@@ -46,9 +46,9 @@ STDMETHODIMP InterfaceApplication::InterfaceSupportsErrorInfo(REFIID riid)
 
 InterfaceApplication::InterfaceApplication()
 {
-   m_pAuthentication = shared_ptr<HM::COMAuthentication>(new HM::COMAuthentication);
+   authentication_ = std::shared_ptr<HM::COMAuthentication>(new HM::COMAuthentication);
 
-   m_pAuthentication->AttempAnonymousAuthentication();
+   authentication_->AttempAnonymousAuthentication();
 }
 
 STDMETHODIMP InterfaceApplication::Start()
@@ -56,8 +56,8 @@ STDMETHODIMP InterfaceApplication::Start()
    try
    {
       // Start the server threads.
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       if (!HM::Application::Instance()->StartServers())
          return COMError::GenerateError("Server start failed. Please check the hMailServer error log.");
@@ -75,8 +75,8 @@ STDMETHODIMP InterfaceApplication::Stop()
    try
    {
       // Stop the server threads.
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
        
       HM::Application::Instance()->StopServers();
    
@@ -92,8 +92,8 @@ STDMETHODIMP InterfaceApplication::Reinitialize()
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String sErrorMessage = HM::Application::Instance()->Reinitialize();
       if (!sErrorMessage.IsEmpty())
@@ -111,15 +111,15 @@ STDMETHODIMP InterfaceApplication::get_Settings(IInterfaceSettings **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
       CComObject<InterfaceSettings>* pInterfaceSettings = new CComObject<InterfaceSettings>;
-      pInterfaceSettings->SetAuthentication(m_pAuthentication);
+      pInterfaceSettings->SetAuthentication(authentication_);
       pInterfaceSettings->LoadSettings();
    
       pInterfaceSettings->AddRef();
@@ -137,15 +137,15 @@ STDMETHODIMP InterfaceApplication::get_BackupManager(IInterfaceBackupManager **p
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
       CComObject<InterfaceBackupManager>* pInterfaceBackupManager = new CComObject<InterfaceBackupManager>;
-      pInterfaceBackupManager->SetAuthentication(m_pAuthentication);
+      pInterfaceBackupManager->SetAuthentication(authentication_);
       if (!pInterfaceBackupManager->LoadSettings())
          return COMError::GenerateError("Backup manager not available");
    	  
@@ -166,7 +166,7 @@ STDMETHODIMP InterfaceApplication::get_GlobalObjects(IInterfaceGlobalObjects **p
    {
       CComObject<InterfaceGlobalObjects>* pInterfaceGlobalObjects = new CComObject<InterfaceGlobalObjects>;
       
-      pInterfaceGlobalObjects->SetAuthentication(m_pAuthentication);
+      pInterfaceGlobalObjects->SetAuthentication(authentication_);
       pInterfaceGlobalObjects->AddRef();
       *pVal = pInterfaceGlobalObjects;
    
@@ -182,17 +182,17 @@ STDMETHODIMP InterfaceApplication::get_Domains(IInterfaceDomains **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
    
       CComObject<InterfaceDomains>* pInterfaceDomains = new CComObject<InterfaceDomains>;
    
-      pInterfaceDomains->SetAuthentication(m_pAuthentication);
+      pInterfaceDomains->SetAuthentication(authentication_);
       pInterfaceDomains->Refresh();
    
       pInterfaceDomains->AddRef();
@@ -210,8 +210,8 @@ STDMETHODIMP InterfaceApplication::get_ServerState(eServerState *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::ServerStatus::ServerState iState = (HM::ServerStatus::ServerState) HM::ServerStatus::Instance()->GetState();
    
@@ -248,7 +248,7 @@ STDMETHODIMP InterfaceApplication::get_Database(IInterfaceDatabase **pVal)
    {
       CComObject<InterfaceDatabase>* pInterfaceDatabase = new CComObject<InterfaceDatabase>;
    
-      pInterfaceDatabase->SetAuthentication(m_pAuthentication);
+      pInterfaceDatabase->SetAuthentication(authentication_);
       pInterfaceDatabase->LoadSettings();
    
       pInterfaceDatabase->AddRef();
@@ -267,12 +267,12 @@ InterfaceApplication::get_Status(IInterfaceStatus **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceStatus>* pStatus = new CComObject<InterfaceStatus>;
    
-      pStatus->SetAuthentication(m_pAuthentication);
+      pStatus->SetAuthentication(authentication_);
       pStatus->LoadSettings();
    
       pStatus->AddRef();
@@ -324,17 +324,17 @@ STDMETHODIMP InterfaceApplication::Authenticate(BSTR sUsername, BSTR sPassword, 
    try
    {
       // Authenticates the user and returns the account object.
-      shared_ptr<const HM::Account> pAccount = m_pAuthentication->Authenticate(sUsername, sPassword);
+      std::shared_ptr<const HM::Account> pAccount = authentication_->Authenticate(sUsername, sPassword);
    
       if (pAccount)
       {
-         shared_ptr<HM::Account> accountCopy = shared_ptr<HM::Account>(new HM::Account(*pAccount.get()));
+         std::shared_ptr<HM::Account> accountCopy = std::shared_ptr<HM::Account>(new HM::Account(*pAccount.get()));
    
          // Return the account.
          CComObject<InterfaceAccount>* pAccountInt = new CComObject<InterfaceAccount>();
    
          pAccountInt->AttachItem(accountCopy);
-         pAccountInt->SetAuthentication(m_pAuthentication);
+         pAccountInt->SetAuthentication(authentication_);
          pAccountInt->AddRef();
    
          *pVal = pAccountInt;
@@ -362,13 +362,26 @@ STDMETHODIMP InterfaceApplication::get_Version(BSTR *pVal)
    }
 }
 
+STDMETHODIMP InterfaceApplication::get_VersionArchitecture(BSTR *pVal)
+{
+   try
+   {
+      *pVal = HM::Application::Instance()->GetVersionArchitecture().AllocSysString();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceApplication::get_Utilities(IInterfaceUtilities **pVal)
 {
    try
    {
       CComObject<InterfaceUtilities>* pUtilities = new CComObject<InterfaceUtilities>;
    
-      pUtilities->SetAuthentication(m_pAuthentication);
+      pUtilities->SetAuthentication(authentication_);
       pUtilities->AddRef();
       *pVal = pUtilities;
    
@@ -384,8 +397,8 @@ STDMETHODIMP InterfaceApplication::get_InitializationFile(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *pVal = HM::IniFileSettings::Instance()->GetInitializationFile().AllocSysString();
    
@@ -401,17 +414,17 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
       CComObject<InterfaceRules >* pItem = new CComObject<InterfaceRules >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Rules> pRules = shared_ptr<HM::Rules>(new HM::Rules(0));
+      std::shared_ptr<HM::Rules> pRules = std::shared_ptr<HM::Rules>(new HM::Rules(0));
    
       if (pRules)
       {
@@ -430,9 +443,9 @@ STDMETHODIMP InterfaceApplication::get_Rules(IInterfaceRules **pVal)
 }
 
 HRESULT
-InterfaceApplication::_EnsureDatabaseConnectivity()
+InterfaceApplication::EnsureDatabaseConnectivity_()
 {
-   shared_ptr<HM::DatabaseConnectionManager> pConnectionManager = HM::Application::Instance()->GetDBManager();
+   std::shared_ptr<HM::DatabaseConnectionManager> pConnectionManager = HM::Application::Instance()->GetDBManager();
    if (!pConnectionManager || !pConnectionManager->GetIsConnected())
    {
       return COMError::GenerateError("The connection to the database is not available. Please check the hMailServer error log for details.");
@@ -445,15 +458,15 @@ STDMETHODIMP InterfaceApplication::get_Links(IInterfaceLinks **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      HRESULT hResult = _EnsureDatabaseConnectivity();
+      HRESULT hResult = EnsureDatabaseConnectivity_();
       if (hResult != S_OK)
          return hResult;
    
       CComObject<InterfaceLinks>* pItem = new CComObject<InterfaceLinks >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
       pItem->AddRef();
       *pVal = pItem;
    
@@ -469,12 +482,12 @@ STDMETHODIMP InterfaceApplication::get_Diagnostics(IInterfaceDiagnostics **pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDiagnostics>* pInterfaceDiagnostics = new CComObject<InterfaceDiagnostics>;
    
-      pInterfaceDiagnostics->SetAuthentication(m_pAuthentication);
+      pInterfaceDiagnostics->SetAuthentication(authentication_);
       pInterfaceDiagnostics->AddRef();
    
       *pVal = pInterfaceDiagnostics;

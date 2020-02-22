@@ -14,15 +14,11 @@ namespace HM
       SURBL(void);
       ~SURBL(void);
 
-      bool Run(shared_ptr<SURBLServer> pSURBLServer, shared_ptr<MessageData> pMessageData);
+      bool Run(std::shared_ptr<SURBLServer> pSURBLServer, std::shared_ptr<MessageData> pMessageData);
 
    private:
 
-      void _CleanURL(String &sURL) const;
-      bool _CleanHost(String &sDomain) const;
-      int _GetURLStart(const String &sBody, int iCurrentPos);
-      int _GetURLEndPos(const String &sBody, int iURLStart);
-
-      
+      void CleanURL_(String &sURL) const;
+      bool CleanHost_(String &sDomain) const;
    };
 }

@@ -10,13 +10,13 @@ InterfaceWhiteListAddress::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentWhiteListAddress::SaveObject(m_pObject))
+      if (HM::PersistentWhiteListAddress::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -34,16 +34,16 @@ STDMETHODIMP InterfaceWhiteListAddress::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentWhiteListAddress::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentWhiteListAddress::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -57,10 +57,10 @@ STDMETHODIMP InterfaceWhiteListAddress::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -74,10 +74,10 @@ STDMETHODIMP InterfaceWhiteListAddress::put_LowerIPAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetLowerIPAddress(newVal);
+      object_->SetLowerIPAddress(newVal);
       return S_OK;
    }
    catch (...)
@@ -90,10 +90,10 @@ STDMETHODIMP InterfaceWhiteListAddress::get_LowerIPAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetLowerIPAddressString().AllocSysString();
+      *pVal = object_->GetLowerIPAddressString().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -106,10 +106,10 @@ STDMETHODIMP InterfaceWhiteListAddress::put_UpperIPAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUpperIPAddress(newVal);
+      object_->SetUpperIPAddress(newVal);
       return S_OK;
    }
    catch (...)
@@ -122,10 +122,10 @@ STDMETHODIMP InterfaceWhiteListAddress::get_UpperIPAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUpperIPAddressString().AllocSysString();
+      *pVal = object_->GetUpperIPAddressString().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -138,10 +138,10 @@ STDMETHODIMP InterfaceWhiteListAddress::put_Description(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDescription(newVal);
+      object_->SetDescription(newVal);
       return S_OK;
    }
    catch (...)
@@ -154,10 +154,10 @@ STDMETHODIMP InterfaceWhiteListAddress::get_Description(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDescription().AllocSysString();
+      *pVal = object_->GetDescription().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -170,10 +170,10 @@ STDMETHODIMP InterfaceWhiteListAddress::put_EmailAddress(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetEMailAddress(newVal);
+      object_->SetEMailAddress(newVal);
       return S_OK;
    }
    catch (...)
@@ -186,10 +186,10 @@ STDMETHODIMP InterfaceWhiteListAddress::get_EmailAddress(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetEmailAddress().AllocSysString();
+      *pVal = object_->GetEmailAddress().AllocSysString();
       return S_OK;
    }
    catch (...)

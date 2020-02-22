@@ -31,7 +31,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = _T("select * from hm_blocked_attachments order by bawildcard asc");
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 }

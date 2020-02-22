@@ -14,9 +14,9 @@ namespace HM
 
    private:
 
-      void _AddCodePage(const AnsiString &sName, int iCodePage);
+      void AddCodePage_(const AnsiString &sName, int iCodePage);
 
-      std::map<AnsiString, int> m_mapCodePages;
+      std::map<AnsiString, int> code_pages_;
    };
 
 }

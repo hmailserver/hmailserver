@@ -13,14 +13,15 @@ namespace HM
       AccountLogon(void);
       ~AccountLogon(void);
 
-      shared_ptr<const Account> Logon(const IPAddress & ipaddress, const String &sUsername, const String &sPassword, bool &disconnect); 
+      std::shared_ptr<const Account> Logon(const IPAddress &ipaddress, const String &sUsername, const String &sPassword, bool &disconnect);
+      std::shared_ptr<const Account> Logon(const IPAddress &ipaddress, const String &sMasqname, const String &sUsername, const String &sPassword, bool &disconnect);
 
    private:
 
       void CreateIPRange(const IPAddress &ipaddress, const String &username, int minutes);
 
-      String _GetIPRangeName(const String &username);
+      String GetIPRangeName_(const String &username);
 
-      static CriticalSection _IPRangeCreationLock; 
+      static boost::recursive_mutex ip_range_creation_mutex_;
    };
 }

@@ -12,7 +12,7 @@
 #include "../Application/Property.h"
 #include "../Cache/CacheContainer.h"
 #include "../Application/ObjectCache.h"
-#include "..\Application\ScriptingHost\ScriptServer.h"
+#include "..\Scripting\ScriptServer.h"
 #include "..\Util\TLD.h"
 #include "..\TCPIP\LocalIPAddresses.h"
 
@@ -41,9 +41,10 @@
 namespace HM
 {
 
-   Configuration::Configuration()
+   Configuration::Configuration() :
+      crash_simulation_mode_(0),
+      ipv6_available_(false)
    {
-
    }
 
    Configuration::~Configuration()
@@ -54,39 +55,41 @@ namespace HM
    bool 
    Configuration::Load()
    {
-      _propertySet = shared_ptr<PropertySet>(new PropertySet());
-      _propertySet->Refresh();
+      IPAddress address;
+      ipv6_available_ = address.TryParse("::F", false);
 
-
-      m_pPOP3Configuration = shared_ptr<POP3Configuration>(new POP3Configuration);
-      m_pSMTPConfiguration = shared_ptr<SMTPConfiguration>(new SMTPConfiguration);
-      m_pIMAPConfiguration = shared_ptr<IMAPConfiguration>(new IMAPConfiguration);
-      m_pCacheConfiguration = shared_ptr<CacheConfiguration>(new CacheConfiguration);
+      property_set_ = std::shared_ptr<PropertySet>(new PropertySet());
+      property_set_->Refresh();
       
-      if (!m_pSMTPConfiguration->Load())
+      pop3_configuration_ = std::shared_ptr<POP3Configuration>(new POP3Configuration);
+      smtp_configuration_ = std::shared_ptr<SMTPConfiguration>(new SMTPConfiguration);
+      imap_configuration_ = std::shared_ptr<IMAPConfiguration>(new IMAPConfiguration);
+      cache_configuration_ = std::shared_ptr<CacheConfiguration>(new CacheConfiguration);
+      
+      if (!smtp_configuration_->Load())
          return false;
 
-      if (!_antiSpamConfiguration.Load())
+      if (!anti_spam_configuration_.Load())
          return false;
 
-      _serverMessages = shared_ptr<ServerMessages> (new ServerMessages);
-      _serverMessages->Refresh();
+      server_messages_ = std::shared_ptr<ServerMessages> (new ServerMessages);
+      server_messages_->Refresh();
 
-      _blockedAttachments = shared_ptr<BlockedAttachments>(new BlockedAttachments);
-      _blockedAttachments->Refresh();
+      blocked_attachments_ = std::shared_ptr<BlockedAttachments>(new BlockedAttachments);
+      blocked_attachments_->Refresh();
 
-      _sslCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
-      _sslCertificates->Refresh();
+      ssl_certificates_ = std::shared_ptr<SSLCertificates>(new SSLCertificates);
+      ssl_certificates_->Refresh();
 
       ScriptServer::Instance()->LoadScripts();
       TLD::Instance()->Initialize();
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
-      return m_pIMAPConfiguration->Load();
+      return imap_configuration_->Load();
    }
 
    void 
-   Configuration::OnPropertyChanged(shared_ptr<Property> pProperty)
+   Configuration::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       String sPropertyName = pProperty->GetName();
       if (sPropertyName == PROPERTY_LOGGING)
@@ -104,21 +107,21 @@ namespace HM
          Application::Instance()->OnPropertyChanged(pProperty);
       } 
 
-      if (m_pSMTPConfiguration)
-         m_pSMTPConfiguration->OnPropertyChanged(pProperty);
+      if (smtp_configuration_)
+         smtp_configuration_->OnPropertyChanged(pProperty);
    }
 
 
-   shared_ptr<PropertySet>
+   std::shared_ptr<PropertySet>
    Configuration::GetSettings() const
    {
-      return _propertySet;
+      return property_set_;
    }
 
-   shared_ptr<TCPIPPorts>
+   std::shared_ptr<TCPIPPorts>
    Configuration::GetTCPIPPorts() const
    {
-      shared_ptr<TCPIPPorts> tcpipPorts = shared_ptr<TCPIPPorts>(new TCPIPPorts);
+      std::shared_ptr<TCPIPPorts> tcpipPorts = std::shared_ptr<TCPIPPorts>(new TCPIPPorts);
       tcpipPorts->Refresh();
       return tcpipPorts;
    }
@@ -589,25 +592,83 @@ namespace HM
    bool 
    Configuration::GetMessageIndexing()
    {
-      return _propertySet->GetBool(PROPERTY_MESSAGE_INDEXING);
+      return property_set_->GetBool(PROPERTY_MESSAGE_INDEXING);
    }
 
    void 
    Configuration::SetMessageIndexing(bool enable)
    {
       if (enable)
-         MessageIndexer::Start();
+         MessageIndexer::Instance()->Start();
       else
-         MessageIndexer::Stop();
+         MessageIndexer::Instance()->Stop();
 
-      _propertySet->SetBool(PROPERTY_MESSAGE_INDEXING, enable);
+      property_set_->SetBool(PROPERTY_MESSAGE_INDEXING, enable);
    }
+
+   bool
+   Configuration::GetVerifyRemoteSslCertificate() const
+   {
+      return GetSettings()->GetBool(PROPERTY_VERIFYREMOTESSLCERTIFICATE);
+   }
+
+   void
+   Configuration::SetVerifyRemoteSslCertificate(bool UseSMTP)
+   {
+      GetSettings()->SetBool(PROPERTY_VERIFYREMOTESSLCERTIFICATE, UseSMTP);
+   }
+
+   String
+   Configuration::GetSslCipherList() const
+   {
+      return GetSettings()->GetString(PROPERTY_SSLCIPHERLIST);
+   }
+
+   void
+   Configuration::SetSslCipherList(String newValue)
+   {
+      GetSettings()->SetString(PROPERTY_SSLCIPHERLIST, newValue);
+   }
+
+   bool
+   Configuration::GetSslVersionEnabled(SslTlsVersion version) const
+   {
+      return (GetSettings()->GetLong(PROPERTY_SSLVERSIONS) & version) ? true : false;
+   }
+
+   
+   void
+   Configuration::SetSslVersionEnabled(SslTlsVersion version, bool enabled)
+   {
+      int versions = GetSettings()->GetLong(PROPERTY_SSLVERSIONS);
+
+      if (enabled)
+         versions = versions | version;
+      else
+         versions = versions &~version;
+
+      GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
+   }
+
+   int
+   Configuration::GetCrashSimulationMode() const
+   {
+      return crash_simulation_mode_;
+   }
+
+
+   void
+   Configuration::SetCrashSimulationMode(int mode)
+   {
+      crash_simulation_mode_ = mode;
+   }
+
 
    bool 
    Configuration::XMLStore(XNode *pBackupNode)
    {
       // PROPERTIES
-      _propertySet->XMLStore(pBackupNode);
+      property_set_->XMLStore(pBackupNode);
 
       // SECURITY RANGES
       SecurityRanges securityRanges;
@@ -615,19 +676,19 @@ namespace HM
       securityRanges.XMLStore(pBackupNode, 0);
 
       // RULES
-      shared_ptr<Rules> pRules = shared_ptr<Rules>(new Rules(0));
+      std::shared_ptr<Rules> pRules = std::shared_ptr<Rules>(new Rules(0));
       pRules->Refresh();
       pRules->XMLStore(pBackupNode, 0);
 
       // TCP/IP ports
       GetTCPIPPorts()->XMLStore(pBackupNode, 0);
-      _sslCertificates->XMLStore(pBackupNode, 0);
-      _blockedAttachments->XMLStore(pBackupNode, 0);
+      ssl_certificates_->XMLStore(pBackupNode, 0);
+      blocked_attachments_->XMLStore(pBackupNode, 0);
 
-      m_pSMTPConfiguration->XMLStore(pBackupNode, 0);
-      m_pIMAPConfiguration->XMLStore(pBackupNode, 0);
-      _antiSpamConfiguration.XMLStore(pBackupNode, 0);
-      m_pCacheConfiguration->XMLStore(pBackupNode, 0);
+      smtp_configuration_->XMLStore(pBackupNode, 0);
+      imap_configuration_->XMLStore(pBackupNode, 0);
+      anti_spam_configuration_.XMLStore(pBackupNode, 0);
+      cache_configuration_->XMLStore(pBackupNode, 0);
 
       return true;
    }
@@ -636,7 +697,7 @@ namespace HM
    Configuration::XMLLoad(XNode *pBackupNode, int iRestoreOptions)
    {
       // PROPERTIES
-      if (!_propertySet->XMLLoad(pBackupNode))
+      if (!property_set_->XMLLoad(pBackupNode))
          return false;
 
       // SECURITY RANGES
@@ -646,7 +707,7 @@ namespace HM
          return false;
 
       // RULES
-      shared_ptr<Rules> pRules = shared_ptr<Rules>(new Rules(0));
+      std::shared_ptr<Rules> pRules = std::shared_ptr<Rules>(new Rules(0));
       pRules->Refresh();
       if (!pRules->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
@@ -654,30 +715,36 @@ namespace HM
 
       // SSL certs must be restored before TCP/IP ports, since the
       // TCP/IP ports refers to the SSL certs.
-      _sslCertificates->Refresh();
-      if (!_sslCertificates->XMLLoad(pBackupNode, iRestoreOptions))
+      ssl_certificates_->Refresh();
+      if (!ssl_certificates_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       // TCP/IP ports
       if (!GetTCPIPPorts()->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      _blockedAttachments->Refresh();
-      if (!_blockedAttachments->XMLLoad(pBackupNode, iRestoreOptions))
+      blocked_attachments_->Refresh();
+      if (!blocked_attachments_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pSMTPConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!smtp_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pIMAPConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!imap_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!_antiSpamConfiguration.XMLLoad(pBackupNode, iRestoreOptions))
+      if (!anti_spam_configuration_.XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
-      if (!m_pCacheConfiguration->XMLLoad(pBackupNode, iRestoreOptions))
+      if (!cache_configuration_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       return true;
+   }
+
+   bool
+   Configuration::IsIPv6Available()
+   {
+      return ipv6_available_;
    }
 } 

@@ -24,7 +24,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandStore::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandStore::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
 
 
@@ -38,7 +38,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
 
-      shared_ptr<IMAPStore> pStore = shared_ptr<IMAPStore>(new IMAPStore());
+      std::shared_ptr<IMAPStore> pStore = std::shared_ptr<IMAPStore>(new IMAPStore());
       pStore->SetIsUID(false);
 
       String sResponse; 

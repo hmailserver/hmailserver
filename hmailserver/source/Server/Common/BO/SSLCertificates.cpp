@@ -31,7 +31,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_sslcertificates order by sslcertificatename asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 }

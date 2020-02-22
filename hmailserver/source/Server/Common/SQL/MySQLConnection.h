@@ -11,7 +11,7 @@ namespace HM
 {
    
 
-   class MySQLConnection : public DALConnection, public enable_shared_from_this<MySQLConnection>
+   class MySQLConnection : public DALConnection, public std::enable_shared_from_this<MySQLConnection>
    {
    public:
 
@@ -20,7 +20,7 @@ namespace HM
          RequiredVersion = 40118
       };
 
-	   MySQLConnection(shared_ptr<DatabaseSettings> pSettings);
+	   MySQLConnection(std::shared_ptr<DatabaseSettings> pSettings);
 	   virtual ~MySQLConnection();
 
       virtual ConnectionResult Connect(String &sErrorMessage);
@@ -40,31 +40,32 @@ namespace HM
       virtual void SetTimeout(int seconds) {}
 
       virtual bool GetSupportsCommandParameters() const {return false; }
-      ColumnPositionCache& GetColumnPositionCache() {return _columnPositionCache;}
+      ColumnPositionCache& GetColumnPositionCache() {return column_position_cache_;}
 
       virtual bool CheckServerVersion(String &errorMessage);
 
-      virtual shared_ptr<DALRecordset> CreateRecordset();
+      virtual std::shared_ptr<DALRecordset> CreateRecordset();
 
       virtual void EscapeString(String &sInput);
 
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander();
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander();
 
    private:
 
-      DALConnection::ExecutionResult _GetErrorType(hm_MYSQL *pSQL);
+      DALConnection::ExecutionResult GetErrorType_(hm_MYSQL *pSQL);
 
-      void _UpdatePassword();
-      void _RunScriptFile(const String &sFile) ;
-      void _RunCommand(const String &sCommand) ;
-      void LoadSupportsTransactions(const String &database);      
+      void UpdatePassword_();
+      void RunScriptFile_(const String &sFile) ;
+      void RunCommand_(const String &sCommand) ;
+      void LoadSupportsTransactions_(const String &database);      
+      void SetConnectionCharacterSet_();      
 
-      hm_MYSQL *m_pDBConn;
+      hm_MYSQL *dbconn_;
 
-      bool m_bIsConnected;
-      bool _supportsTransactions;
+      bool is_connected_;
+      bool supports_transactions_;
 
-      ColumnPositionCache _columnPositionCache;
+      ColumnPositionCache column_position_cache_;
 
    };
 

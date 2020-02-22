@@ -2,11 +2,6 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 using hMailServer.Administrator.Utilities;
@@ -185,7 +180,11 @@ namespace hMailServer.Administrator
       {
          formServerInformation serverDlg = new formServerInformation();
 
-         Server server = new Server();
+         Server server = new Server()
+            {
+               userName = "Administrator"
+            };
+
          serverDlg.Server = server;
 
          if (serverDlg.ShowDialog() == DialogResult.OK)

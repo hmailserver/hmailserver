@@ -18,14 +18,14 @@ namespace HM
 
       void DeleteByAddress(const String &sAddress);
 
-      __int64 GetRouteID() {return m_iRouteID; }
+      __int64 GetRouteID() {return route_id_; }
       
    protected:
       virtual String GetCollectionName() const {return "RouteAddresses"; }
-      bool PreSaveObject(shared_ptr<RouteAddress> routeAddress, XNode *node);
+      bool PreSaveObject(std::shared_ptr<RouteAddress> routeAddress, XNode *node);
 
    private:
-      __int64 m_iRouteID;
+      __int64 route_id_;
    };
 
 }

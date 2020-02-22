@@ -23,34 +23,34 @@
 namespace HM
 {
    Account::Account() :
-      m_iDomainID(0),
-      m_bForwardEnabled(false),
-      m_bForwardKeepOriginal(false),
-      m_bActive(false),
-      m_bIsAD(false),
-      m_iAccountMaxSize(0),
-      m_bVacationMessageIsOn(false),
-      m_iPasswordEncryption(0),
-      m_iAdminLevel(NormalUser),
-      m_bEnableSignature(false),
-      m_bVacationExpires(false)
+      domain_id_(0),
+      forward_enabled_(false),
+      forward_keep_original_(false),
+      active_(false),
+      is_ad_(false),
+      account_max_size_(0),
+      vacation_message_is_on_(false),
+      password_encryption_(0),
+      admin_level_(NormalUser),
+      enable_signature_(false),
+      vacation_expires_(false)
    {
       Initialize();
    }
 
    Account::Account(const String &address, AdminLevel adminLevel) :
-      m_sAddress(address),
-      m_iDomainID(0),
-      m_bForwardEnabled(false),
-      m_bForwardKeepOriginal(false),
-      m_bActive(false),
-      m_bIsAD(false),
-      m_iAccountMaxSize(0),
-      m_bVacationMessageIsOn(false),
-      m_iPasswordEncryption(0),
-      m_iAdminLevel(adminLevel),
-      m_bEnableSignature(false),
-      m_bVacationExpires(false)
+      address_(address),
+      domain_id_(0),
+      forward_enabled_(false),
+      forward_keep_original_(false),
+      active_(false),
+      is_ad_(false),
+      account_max_size_(0),
+      vacation_message_is_on_(false),
+      password_encryption_(0),
+      admin_level_(adminLevel),
+      enable_signature_(false),
+      vacation_expires_(false)
    {
       Initialize();
    }
@@ -58,8 +58,8 @@ namespace HM
    void
    Account::Initialize()
    {
-      m_sLastLogonTime = Time::GetCurrentDateTime();
-      m_sVacationExpiresDate = Time::GetCurrentDate();
+      last_logon_time_ = Time::GetCurrentDateTime();
+      vacation_expires_date_ = Time::GetCurrentDate();
    }
 
 
@@ -70,103 +70,103 @@ namespace HM
 
    Account::Account(const Account &oldAccount)
    {
-      m_iID = oldAccount.m_iID;
-      m_iDomainID = oldAccount.m_iDomainID;
-      m_iAccountMaxSize = oldAccount.m_iAccountMaxSize;
-      m_iPasswordEncryption = oldAccount.m_iPasswordEncryption;
-      m_sAddress = oldAccount.m_sAddress;
-      m_sPassword = oldAccount.m_sPassword;
-      m_sADDomain = oldAccount.m_sADDomain;
-      m_sADUsername = oldAccount.m_sADUsername;
-      m_sPersonFirstName = oldAccount.m_sPersonFirstName;
-      m_sPersonLastName = oldAccount.m_sPersonLastName;
-      m_sVacationMessage = oldAccount.m_sVacationMessage;
-      m_sVacationSubject = oldAccount.m_sVacationSubject;
-      m_bVacationExpires = oldAccount.m_bVacationExpires;
-      m_sVacationExpiresDate = oldAccount.m_sVacationExpiresDate;
-      m_sSignaturePlainText = oldAccount.m_sSignaturePlainText;
-      m_sSignatureHTML = oldAccount.m_sSignatureHTML;
-      m_sForwardAddress = oldAccount.m_sForwardAddress;
-      m_bForwardEnabled = oldAccount.m_bForwardEnabled;
-      m_bForwardKeepOriginal = oldAccount.m_bForwardKeepOriginal;
-      m_bActive = oldAccount.m_bActive;
-      m_bIsAD = oldAccount.m_bIsAD;
-      m_bVacationMessageIsOn = oldAccount.m_bVacationMessageIsOn;
-      m_bEnableSignature = oldAccount.m_bEnableSignature;
-      m_iAdminLevel = oldAccount.m_iAdminLevel;
-      m_sLastLogonTime = oldAccount.m_sLastLogonTime;
+      id_ = oldAccount.id_;
+      domain_id_ = oldAccount.domain_id_;
+      account_max_size_ = oldAccount.account_max_size_;
+      password_encryption_ = oldAccount.password_encryption_;
+      address_ = oldAccount.address_;
+      password_ = oldAccount.password_;
+      addomain_ = oldAccount.addomain_;
+      adusername_ = oldAccount.adusername_;
+      person_first_name_ = oldAccount.person_first_name_;
+      person_last_name_ = oldAccount.person_last_name_;
+      vacation_message_ = oldAccount.vacation_message_;
+      vacation_subject_ = oldAccount.vacation_subject_;
+      vacation_expires_ = oldAccount.vacation_expires_;
+      vacation_expires_date_ = oldAccount.vacation_expires_date_;
+      signature_plain_text_ = oldAccount.signature_plain_text_;
+      signature_html_ = oldAccount.signature_html_;
+      forward_address_ = oldAccount.forward_address_;
+      forward_enabled_ = oldAccount.forward_enabled_;
+      forward_keep_original_ = oldAccount.forward_keep_original_;
+      active_ = oldAccount.active_;
+      is_ad_ = oldAccount.is_ad_;
+      vacation_message_is_on_ = oldAccount.vacation_message_is_on_;
+      enable_signature_ = oldAccount.enable_signature_;
+      admin_level_ = oldAccount.admin_level_;
+      last_logon_time_ = oldAccount.last_logon_time_;
    }
 
-   shared_ptr<Messages>
+   std::shared_ptr<Messages>
    Account::GetMessages()
    {
-      if (m_oMessages.get() == NULL)
+      if (messages_.get() == NULL)
       {
-         m_oMessages = shared_ptr<Messages>(new Messages(m_iID, -1));
-         m_oMessages->Refresh();
+         messages_ = std::shared_ptr<Messages>(new Messages(id_, -1));
+         messages_->Refresh(false);
       }
 
-      return m_oMessages;
+      return messages_;
    }
 
-   shared_ptr<Rules>
+   std::shared_ptr<Rules>
    Account::GetRules()
    {
-      if (m_pRules.get() == NULL)
+      if (rules_.get() == NULL)
       {
-         m_pRules = shared_ptr<Rules>(new Rules(m_iID));
-         m_pRules->Refresh();
+         rules_ = std::shared_ptr<Rules>(new Rules(id_));
+         rules_->Refresh();
       }
    
-      return m_pRules;
+      return rules_;
    }
 
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    Account::GetFolders()
    {
-      if (m_pFolders.get() == NULL)
+      if (folders_.get() == NULL)
       {
-         m_pFolders = shared_ptr<IMAPFolders>(new HM::IMAPFolders(m_iID, -1));
-         m_pFolders->Refresh();
+         folders_ = std::shared_ptr<IMAPFolders>(new HM::IMAPFolders(id_, -1));
+         folders_->Refresh();
 
       }
 
-      return m_pFolders;
+      return folders_;
    }
 
 
    void 
    Account::SetPassword(const String & newVal)
    {
-      m_sPassword = newVal; 
+      password_ = newVal; 
    }
 
    void
    Account::SetVacationMessageIsOn(bool bNewVal)
    {
-      if (!bNewVal && m_bVacationMessageIsOn)
+      if (!bNewVal && vacation_message_is_on_)
       {
          // The user has just turned of the vacation
          // message. Notify the SMTP deliverer of this.
 
-         if (!m_sAddress.IsEmpty())
-            SMTPVacationMessageCreator::Instance()->VacationMessageTurnedOff(m_sAddress);
+         if (!address_.IsEmpty())
+            SMTPVacationMessageCreator::Instance()->VacationMessageTurnedOff(address_);
       }
 
-      m_bVacationMessageIsOn = bNewVal;
+      vacation_message_is_on_ = bNewVal;
    }
 
    bool
    Account::SpaceAvailable(__int64 iBytes) const
    {
-      if (m_iAccountMaxSize == 0)
+      if (account_max_size_ == 0)
          return true;
 
-      __int64 currentSize = AccountSizeCache::Instance()->GetSize(m_iID);
+      __int64 currentSize = AccountSizeCache::Instance()->GetSize(id_);
 
       // Calculate new size
       __int64 iNewSize = currentSize + iBytes;
-      __int64 iMaxSize = ((__int64) m_iAccountMaxSize) * 1024 * 1024;
+      __int64 iMaxSize = ((__int64) account_max_size_) * 1024 * 1024;
 
       if (iNewSize <= iMaxSize)
          return true;
@@ -177,97 +177,97 @@ namespace HM
    bool 
    Account::GetForwardEnabled() const
    {
-      return m_bForwardEnabled;
+      return forward_enabled_;
    }
 
    void 
    Account::SetForwardEnabled(bool bEnabled)
    {
-      m_bForwardEnabled = bEnabled;
+      forward_enabled_ = bEnabled;
    }
 
    bool 
    Account::GetForwardKeepOriginal() const
    {
-      return m_bForwardKeepOriginal;
+      return forward_keep_original_;
    }
 
    void 
    Account::SetForwardKeepOriginal(bool bEnabled)
    {
-      m_bForwardKeepOriginal = bEnabled;
+      forward_keep_original_ = bEnabled;
    }
 
    bool 
    Account::GetEnableSignature() const
    {
-      return m_bEnableSignature;
+      return enable_signature_;
    }
 
    void 
    Account::SetEnableSignature(bool bEnabled)
    {
-      m_bEnableSignature = bEnabled;
+      enable_signature_ = bEnabled;
    }
 
    String 
    Account::GetSignaturePlainText() const
    {
-      return m_sSignaturePlainText;
+      return signature_plain_text_;
    }
 
    void 
    Account::SetSignaturePlainText(const String &sSignature)
    {
-      m_sSignaturePlainText = sSignature;
+      signature_plain_text_ = sSignature;
    }
 
    String 
    Account::GetSignatureHTML() const
    {
-      return m_sSignatureHTML;
+      return signature_html_;
    }
 
    void 
    Account::SetSignatureHTML(const String &sSignature)
    {
-      m_sSignatureHTML = sSignature;
+      signature_html_ = sSignature;
    }
 
    String 
    Account::GetLastLogonTime() const
    {
-      return m_sLastLogonTime;
+      return last_logon_time_;
    }
 
    void 
    Account::SetLastLogonTime(const String &sNewVal)
    {
-      m_sLastLogonTime = sNewVal;
+      last_logon_time_ = sNewVal;
    }
 
    String 
    Account::GetPersonFirstName() const
    {
-      return m_sPersonFirstName;
+      return person_first_name_;
    }
 
    void 
    Account::SetPersonFirstName(const String &sNewVal)
    {
-      m_sPersonFirstName = sNewVal;
+      person_first_name_ = sNewVal;
    }
 
    String 
    Account::GetPersonLastName() const
    {
-      return m_sPersonLastName;
+      return person_last_name_;
    }
 
    void 
    Account::SetPersonLastName(const String &sNewVal)
    {
-      m_sPersonLastName = sNewVal;
+      person_last_name_ = sNewVal;
    }
 
    bool 
@@ -275,37 +275,37 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Account"));
 
-      Logger::Instance()->LogBackup("Backing up account " + m_sAddress + "...");
+      Logger::Instance()->LogBackup("Backing up account " + address_ + "...");
 
-      pNode->AppendAttr(_T("Name"), String(m_sAddress));
-      pNode->AppendAttr(_T("PersonFirstName"), m_sPersonFirstName);
-      pNode->AppendAttr(_T("PersonLastName"), m_sPersonLastName);
-      pNode->AppendAttr(_T("Active"), m_bActive ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("Password"), String(m_sPassword));
-      pNode->AppendAttr(_T("PasswordEncryption"), StringParser::IntToString(m_iPasswordEncryption));
-      pNode->AppendAttr(_T("MaxAccountSize"), StringParser::IntToString(m_iAccountMaxSize));
-      pNode->AppendAttr(_T("ADUsername"), m_sADUsername);
-      pNode->AppendAttr(_T("ADDomain"), m_sADDomain);
-      pNode->AppendAttr(_T("ADActive"), m_bIsAD ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("VacationMessageOn"), m_bVacationMessageIsOn ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("VacationMessage"), m_sVacationMessage);
-      pNode->AppendAttr(_T("VacationSubject"), m_sVacationSubject);
-      pNode->AppendAttr(_T("VacationExpires"), m_bVacationExpires ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("VacationExpireDate"), m_sVacationExpiresDate);
-      pNode->AppendAttr(_T("AdminLevel"), StringParser::IntToString(m_iAdminLevel));
+      pNode->AppendAttr(_T("Name"), String(address_));
+      pNode->AppendAttr(_T("PersonFirstName"), person_first_name_);
+      pNode->AppendAttr(_T("PersonLastName"), person_last_name_);
+      pNode->AppendAttr(_T("Active"), active_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("Password"), String(password_));
+      pNode->AppendAttr(_T("PasswordEncryption"), StringParser::IntToString(password_encryption_));
+      pNode->AppendAttr(_T("MaxAccountSize"), StringParser::IntToString(account_max_size_));
+      pNode->AppendAttr(_T("ADUsername"), adusername_);
+      pNode->AppendAttr(_T("ADDomain"), addomain_);
+      pNode->AppendAttr(_T("ADActive"), is_ad_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("VacationMessageOn"), vacation_message_is_on_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("VacationMessage"), vacation_message_);
+      pNode->AppendAttr(_T("VacationSubject"), vacation_subject_);
+      pNode->AppendAttr(_T("VacationExpires"), vacation_expires_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("VacationExpireDate"), vacation_expires_date_);
+      pNode->AppendAttr(_T("AdminLevel"), StringParser::IntToString(admin_level_));
       
-      pNode->AppendAttr(_T("ForwardEnabled"), m_bForwardEnabled ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("ForwardAddress"), String(m_sForwardAddress));
-      pNode->AppendAttr(_T("ForwardKeepOriginal"), m_bForwardKeepOriginal ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ForwardEnabled"), forward_enabled_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ForwardAddress"), String(forward_address_));
+      pNode->AppendAttr(_T("ForwardKeepOriginal"), forward_keep_original_ ? _T("1") : _T("0"));
 
-      pNode->AppendAttr(_T("EnableSignature"), m_bEnableSignature ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("SignaturePlainText"), m_sSignaturePlainText);
-      pNode->AppendAttr(_T("SignatureHTML"), m_sSignatureHTML);
+      pNode->AppendAttr(_T("EnableSignature"), enable_signature_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("SignaturePlainText"), signature_plain_text_);
+      pNode->AppendAttr(_T("SignatureHTML"), signature_html_);
 
-      pNode->AppendAttr(_T("LastLogonTime"), String(m_sLastLogonTime));
+      pNode->AppendAttr(_T("LastLogonTime"), String(last_logon_time_));
 
       // Store fetch accounts
-      shared_ptr<HM::FetchAccounts> pFetchAccounts = shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(m_iID));
+      std::shared_ptr<HM::FetchAccounts> pFetchAccounts = std::shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
       pFetchAccounts->Refresh();
       if (!pFetchAccounts->XMLStore(pNode, iBackupOptions))
          return false;
@@ -326,42 +326,42 @@ namespace HM
    bool
    Account::XMLLoad(XNode *pAccountNode, int iRestoreOptions)
    {
-      m_sAddress = pAccountNode->GetAttrValue(_T("Name"));
+      address_ = pAccountNode->GetAttrValue(_T("Name"));
 
-      Logger::Instance()->LogBackup("Restoring account " + m_sAddress + "...");
+      Logger::Instance()->LogBackup("Restoring account " + address_ + "...");
 
-      m_sPersonFirstName = pAccountNode->GetAttrValue(_T("PersonFirstName"));;
-      m_sPersonLastName = pAccountNode->GetAttrValue(_T("PersonLastName"));;
-      m_bActive = (pAccountNode->GetAttrValue(_T("Active")) == _T("1"));
-      m_sPassword = pAccountNode->GetAttrValue(_T("Password"));
-      m_iPasswordEncryption = _ttoi(pAccountNode->GetAttrValue(_T("PasswordEncryption")));
-      m_iAccountMaxSize = _ttoi(pAccountNode->GetAttrValue(_T("MaxAccountSize")));
-      m_sADUsername = pAccountNode->GetAttrValue(_T("ADUsername"));
-      m_sADDomain = pAccountNode->GetAttrValue(_T("ADDomain"));
-      m_bIsAD = pAccountNode->GetAttrValue(_T("ADActive")) == _T("1");
-      m_bVacationMessageIsOn = pAccountNode->GetAttrValue(_T("VacationMessageOn")) == _T("1");
-      m_sVacationMessage = pAccountNode->GetAttrValue(_T("VacationMessage"));
-      m_sVacationSubject = pAccountNode->GetAttrValue(_T("VacationSubject"));
-      m_bVacationExpires = (pAccountNode->GetAttrValue(_T("VacationExpires")) == _T("1"));
-      m_sVacationExpiresDate = pAccountNode->GetAttrValue(_T("VacationExpireDate"));
+      person_first_name_ = pAccountNode->GetAttrValue(_T("PersonFirstName"));;
+      person_last_name_ = pAccountNode->GetAttrValue(_T("PersonLastName"));;
+      active_ = (pAccountNode->GetAttrValue(_T("Active")) == _T("1"));
+      password_ = pAccountNode->GetAttrValue(_T("Password"));
+      password_encryption_ = _ttoi(pAccountNode->GetAttrValue(_T("PasswordEncryption")));
+      account_max_size_ = _ttoi(pAccountNode->GetAttrValue(_T("MaxAccountSize")));
+      adusername_ = pAccountNode->GetAttrValue(_T("ADUsername"));
+      addomain_ = pAccountNode->GetAttrValue(_T("ADDomain"));
+      is_ad_ = pAccountNode->GetAttrValue(_T("ADActive")) == _T("1");
+      vacation_message_is_on_ = pAccountNode->GetAttrValue(_T("VacationMessageOn")) == _T("1");
+      vacation_message_ = pAccountNode->GetAttrValue(_T("VacationMessage"));
+      vacation_subject_ = pAccountNode->GetAttrValue(_T("VacationSubject"));
+      vacation_expires_ = (pAccountNode->GetAttrValue(_T("VacationExpires")) == _T("1"));
+      vacation_expires_date_ = pAccountNode->GetAttrValue(_T("VacationExpireDate"));
 
-      m_iAdminLevel = (AdminLevel) _ttoi(pAccountNode->GetAttrValue(_T("AdminLevel")));
+      admin_level_ = (AdminLevel) _ttoi(pAccountNode->GetAttrValue(_T("AdminLevel")));
      
-      m_sForwardAddress = pAccountNode->GetAttrValue(_T("ForwardAddress"));
+      forward_address_ = pAccountNode->GetAttrValue(_T("ForwardAddress"));
 
-      m_bForwardEnabled = (pAccountNode->GetAttrValue(_T("ForwardEnabled")) == _T("1"));
-      m_sForwardAddress = pAccountNode->GetAttrValue(_T("ForwardAddress"));
-      m_bForwardKeepOriginal = (pAccountNode->GetAttrValue(_T("ForwardKeepOriginal")) == _T("1"));
+      forward_enabled_ = (pAccountNode->GetAttrValue(_T("ForwardEnabled")) == _T("1"));
+      forward_address_ = pAccountNode->GetAttrValue(_T("ForwardAddress"));
+      forward_keep_original_ = (pAccountNode->GetAttrValue(_T("ForwardKeepOriginal")) == _T("1"));
 
-      m_sSignaturePlainText = pAccountNode->GetAttrValue(_T("SignaturePlainText"));
-      m_sSignatureHTML = pAccountNode->GetAttrValue(_T("SignatureHTML"));
-      m_bEnableSignature = (pAccountNode->GetAttrValue(_T("EnableSignature")) == _T("1"));
+      signature_plain_text_ = pAccountNode->GetAttrValue(_T("SignaturePlainText"));
+      signature_html_ = pAccountNode->GetAttrValue(_T("SignatureHTML"));
+      enable_signature_ = (pAccountNode->GetAttrValue(_T("EnableSignature")) == _T("1"));
 
-      m_bEnableSignature = pAccountNode->GetAttrValue(_T("EnableSignature")) == _T("1");
-      m_sSignaturePlainText = pAccountNode->GetAttrValue(_T("SignaturePlainText"));
-      m_sSignatureHTML = pAccountNode->GetAttrValue(_T("SignatureHTML"));
+      enable_signature_ = pAccountNode->GetAttrValue(_T("EnableSignature")) == _T("1");
+      signature_plain_text_ = pAccountNode->GetAttrValue(_T("SignaturePlainText"));
+      signature_html_ = pAccountNode->GetAttrValue(_T("SignatureHTML"));
 
-      m_sLastLogonTime = pAccountNode->GetAttrValue(_T("LastLogonTime"));
+      last_logon_time_ = pAccountNode->GetAttrValue(_T("LastLogonTime"));
 
       return true;
    }
@@ -370,7 +370,7 @@ namespace HM
    Account::XMLLoadSubItems(XNode *pAccountNode, int iRestoreOptions)
    {
       // Load 
-      shared_ptr<HM::FetchAccounts> pFetchAccounts = shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(m_iID));
+      std::shared_ptr<HM::FetchAccounts> pFetchAccounts = std::shared_ptr<HM::FetchAccounts>(new HM::FetchAccounts(id_));
       pFetchAccounts->Refresh();
       if (!pFetchAccounts->XMLLoad(pAccountNode, iRestoreOptions))
          return false;
@@ -396,9 +396,15 @@ namespace HM
    bool 
    Account::GetVacationMessageIsOn() const
    {
-      return m_bVacationMessageIsOn;
+      return vacation_message_is_on_;
 
       
+   }
+
+   size_t 
+   Account::GetEstimatedCachingSize()
+   {
+      return 1024;
    }
 
 }

@@ -24,34 +24,35 @@ namespace HM
    }
 
    void
-   IOOperationQueue::Push(shared_ptr<IOOperation> operation)
+   IOOperationQueue::Push(std::shared_ptr<IOOperation> operation)
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      _queueOperations.push_back(operation);
+      queue_operations_.push_back(operation);
    }
 
    void
    IOOperationQueue::Pop(IOOperation::OperationType type)
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      if (_ongoingOperations.size() == 0)
+      if (ongoing_operations_.size() == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5131, "IOOperationQueue::Pop()", "Trying to pop operation list.");
+         String message = Formatter::Format("Trying to pop empty operation list. Type: {0}", type);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5131, "IOOperationQueue::Pop()", message);
          return;
       }
 
-      std::vector<shared_ptr<IOOperation >>::iterator iter = _ongoingOperations.begin();
-      std::vector<shared_ptr<IOOperation >>::iterator iterEnd = _ongoingOperations.end();
+      auto iter = ongoing_operations_.begin();
+      auto iterEnd = ongoing_operations_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<IOOperation> oper = (*iter);
+         std::shared_ptr<IOOperation> oper = (*iter);
 
          if (oper->GetType() == type)
          {
-            _ongoingOperations.erase(iter);
+            ongoing_operations_.erase(iter);
             return;
          }
 
@@ -63,111 +64,97 @@ namespace HM
    bool 
    IOOperationQueue::ContainsQueuedSendOperation()
    {
-      CriticalSectionScope scope (_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      if (_queueOperations.empty())
+      if (queue_operations_.empty())
          return false;
 
-      boost_foreach(shared_ptr<IOOperation> operation, _queueOperations)
+      for(std::shared_ptr<IOOperation> operation : queue_operations_)
       {
-         if (operation->GetType() == IOOperation::BCTSend)
+         if (operation->GetType() == IOOperation::BCTWrite)
             return true;
       }
 
       return false;
    }
 
-   shared_ptr<IOOperation>
+   std::shared_ptr<IOOperation>
    IOOperationQueue::Front()
    {
-      CriticalSectionScope scope(_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       // Do we have any items to process? If not, not much to do.
-      if (_queueOperations.empty())
+      if (queue_operations_.empty())
       {
-         shared_ptr<IOOperation> empty;
+         std::shared_ptr<IOOperation> empty;
          return empty;
       }
 
-      shared_ptr<IOOperation> nextOperation = _queueOperations.front();
+      std::shared_ptr<IOOperation> nextOperation = queue_operations_.front();
 
-      if (_ongoingOperations.size() > 0)
+      if (ongoing_operations_.size() > 0)
       {
          IOOperation::OperationType pendingType = nextOperation->GetType();
 
-         std::vector<shared_ptr<IOOperation >>::iterator iter = _ongoingOperations.begin();
-         std::vector<shared_ptr<IOOperation >>::iterator iterEnd = _ongoingOperations.end();
+         auto iter = ongoing_operations_.begin();
+         auto iterEnd = ongoing_operations_.end();
+
+         bool operation_can_be_processed = true;
 
          for (; iter != iterEnd; iter++)
          {
-            shared_ptr<IOOperation> ongoingOperation = (*iter);
+            std::shared_ptr<IOOperation> ongoingOperation = (*iter);
 
             IOOperation::OperationType ongoingType = ongoingOperation->GetType();
 
-            if (ongoingType == pendingType)
-            {
-               /*
-                  We already have a pending operation of this type. We don't allow another one.
-                  Case in point:
-                  1) It does not make sense to have two Receive/Disconnect/Shutdown at the same time.
-                  2) Having multiple sends at the same time might cause corruption problems, since the
-                     delivery order is not guaranteed.
-               */
-
-               shared_ptr<IOOperation> empty;
-               return empty;         
-            }
-
             switch (ongoingType)
             {
-            case IOOperation::BCTSend:
+            case IOOperation::BCTWrite:
                {
                   switch (pendingType)
                   {
-                     case IOOperation::BCTSend:         // We can only send one item at a time.
-                     case IOOperation::BCTReceive:      // We can not start to process new incoming commands before old data has been sent.
-                     case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout commands to be sent to client.
+                     case IOOperation::BCTWrite:         // We can only send one item at a time.
+                     case IOOperation::BCTRead:      // We can not start to process new incoming commands before old data has been sent.
+                     case IOOperation::BCTDisconnect:   // We can't disconnect - we want timeout messages to be sent to client.
                      case IOOperation::BCTShutdownSend: // We can't disable send-mode while we're sending data. Makes no sense.
-                        shared_ptr<IOOperation> empty;
+                     case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're sending data.
+                        std::shared_ptr<IOOperation> empty;
                         return empty;  
 
                   }
                   break;
                }
-            case IOOperation::BCTReceive:
+            case IOOperation::BCTRead:
                {
                   switch (pendingType)
                   {
-                  case IOOperation::BCTSend:         // We may send data while waiting for data - timeout messages to clients.
-                  case IOOperation::BCTDisconnect:   // We may disconnect even though we're waiting for data. If a client times out, this would be nice.
-                  case IOOperation::BCTShutdownSend: // It's OK to close the sending even thoug we're receiving data.
+                  case IOOperation::BCTWrite:         // We may send data while we're processing data (normal responses)
+                  case IOOperation::BCTDisconnect:   // We may disconnect while we're processing data
+                  case IOOperation::BCTShutdownSend: // It's OK to close the sending even though we're receiving data.
                      break;
-                  case IOOperation::BCTReceive:      // We can not start new receives while we're already waiting for data. Does not make any sense.
-                     shared_ptr<IOOperation> empty;
+                  case IOOperation::BCTRead:      // We can not start new receives while we're processing data. Concurrent receives are not supported.
+                  case IOOperation::BCTHandshake:    // We can't perform a SSL handshake while we're processing data at the same time7.
+                     std::shared_ptr<IOOperation> empty;
                      return empty;  
                   }
                   break;
                }
-            case IOOperation::BCTDisconnect:
+            case IOOperation::BCTDisconnect:   // If we're disconnecting we can't start any new operations.
+            case IOOperation::BCTShutdownSend: // Shutting down Send and performing other operations at the same time is not supported.
+            case IOOperation::BCTHandshake:    // Doing a handshake and sending/receiving other data at the same time is not supported
                {
-                  // If we're disconnecting we can't start any new operations.
-                  shared_ptr<IOOperation> empty;
+                  std::shared_ptr<IOOperation> empty;
                   return empty;  
-               }
-            case IOOperation::BCTShutdownSend:
-               {
-                  // Shutting down Send isn't an async operation. We can wait for it to complete.
-                  shared_ptr<IOOperation> empty;
-                  return empty;  
+                  break;
                }
             }         
          }
       }
 
 
-      _ongoingOperations.push_back(nextOperation);
+      ongoing_operations_.push_back(nextOperation);
 
-      _queueOperations.pop_front();
+      queue_operations_.pop_front();
 
       return nextOperation;
    }

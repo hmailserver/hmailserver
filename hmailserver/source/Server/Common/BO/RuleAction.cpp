@@ -12,10 +12,10 @@
 namespace HM
 {
    RuleAction::RuleAction(void) :
-      m_iType(Unknown),
-      m_iRuleID(0),
-      m_iSortOrder(0),
-      m_iRouteID(0)
+      type_(Unknown),
+      rule_id_(0),
+      sort_order_(0),
+      route_id_(0)
    {
    }
 
@@ -29,19 +29,19 @@ namespace HM
 
       XNode *pNode = pRuleNode->AppendChild(_T("Action"));
 
-      pNode->AppendAttr(_T("Type"), StringParser::IntToString(m_iType));
-      pNode->AppendAttr(_T("Subject"), m_sSubject);
-      pNode->AppendAttr(_T("Body"), m_sBody);
-      pNode->AppendAttr(_T("FromAddress"), m_sFromAddress);
-      pNode->AppendAttr(_T("FromName"), m_sFromName);
-      pNode->AppendAttr(_T("IMAPFolder"), m_sIMAPFolder);
-      pNode->AppendAttr(_T("FileName"), m_sFilename);
-      pNode->AppendAttr(_T("To"), m_sTo);
-      pNode->AppendAttr(_T("ScriptFunction"), m_sScriptFunction);
-      pNode->AppendAttr(_T("SortOrder"), StringParser::IntToString(m_iSortOrder));
-      pNode->AppendAttr(_T("Header"), m_sHeaderName);
-      pNode->AppendAttr(_T("Value"), m_sValue);
-      pNode->AppendAttr(_T("RouteID"), StringParser::IntToString(m_iRouteID));
+      pNode->AppendAttr(_T("Type"), StringParser::IntToString(type_));
+      pNode->AppendAttr(_T("Subject"), subject_);
+      pNode->AppendAttr(_T("Body"), body_);
+      pNode->AppendAttr(_T("FromAddress"), from_address_);
+      pNode->AppendAttr(_T("FromName"), from_name_);
+      pNode->AppendAttr(_T("IMAPFolder"), imapfolder_);
+      pNode->AppendAttr(_T("FileName"), filename_);
+      pNode->AppendAttr(_T("To"), to_);
+      pNode->AppendAttr(_T("ScriptFunction"), script_function_);
+      pNode->AppendAttr(_T("SortOrder"), StringParser::IntToString(sort_order_));
+      pNode->AppendAttr(_T("Header"), header_name_);
+      pNode->AppendAttr(_T("Value"), value_);
+      pNode->AppendAttr(_T("RouteID"), StringParser::IntToString(route_id_));
 
       return true;
    }
@@ -49,19 +49,19 @@ namespace HM
    bool
    RuleAction::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_iType = (RuleAction::Type) _ttoi(pNode->GetAttrValue(_T("Type")));
-      m_sSubject = pNode->GetAttrValue(_T("Subject"));
-      m_sBody = pNode->GetAttrValue(_T("Body"));
-      m_sFromAddress = pNode->GetAttrValue(_T("FromAddress"));
-      m_sFromName = pNode->GetAttrValue(_T("FromName"));
-      m_sIMAPFolder = pNode->GetAttrValue(_T("IMAPFolder"));
-      m_sFilename = pNode->GetAttrValue(_T("FileName"));
-      m_sTo = pNode->GetAttrValue(_T("To"));
-      m_sScriptFunction = pNode->GetAttrValue(_T("ScriptFunction"));
-      m_iSortOrder = _ttoi(pNode->GetAttrValue(_T("SortOrder")));
-      m_sHeaderName = pNode->GetAttrValue(_T("Header"));
-      m_sValue = pNode->GetAttrValue(_T("Value"));
-      m_iRouteID = _ttoi(pNode->GetAttrValue(_T("RouteID")));
+      type_ = (RuleAction::Type) _ttoi(pNode->GetAttrValue(_T("Type")));
+      subject_ = pNode->GetAttrValue(_T("Subject"));
+      body_ = pNode->GetAttrValue(_T("Body"));
+      from_address_ = pNode->GetAttrValue(_T("FromAddress"));
+      from_name_ = pNode->GetAttrValue(_T("FromName"));
+      imapfolder_ = pNode->GetAttrValue(_T("IMAPFolder"));
+      filename_ = pNode->GetAttrValue(_T("FileName"));
+      to_ = pNode->GetAttrValue(_T("To"));
+      script_function_ = pNode->GetAttrValue(_T("ScriptFunction"));
+      sort_order_ = _ttoi(pNode->GetAttrValue(_T("SortOrder")));
+      header_name_ = pNode->GetAttrValue(_T("Header"));
+      value_ = pNode->GetAttrValue(_T("Value"));
+      route_id_ = _ttoi(pNode->GetAttrValue(_T("RouteID")));
 
       return true;
    }

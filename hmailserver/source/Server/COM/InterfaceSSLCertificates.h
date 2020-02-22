@@ -62,11 +62,11 @@ public:
    STDMETHOD(DeleteByDBID)(/*[in]*/ long DBID);
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceSSLCertificate **pVal);
 
-   void Attach(shared_ptr<HM::SSLCertificates> pSSLCertificates);
+   void Attach(std::shared_ptr<HM::SSLCertificates> pSSLCertificates);
 
 public:
 
-   shared_ptr<HM::SSLCertificates> m_pSSLCertificates;
+   std::shared_ptr<HM::SSLCertificates> ssl_certificates_;
 
 
 };

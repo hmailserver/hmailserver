@@ -11,9 +11,9 @@
 #include "InterfaceGroup.h"
 
 void 
-InterfaceGroups::Attach(shared_ptr<HM::Groups> pBA) 
+InterfaceGroups::Attach(std::shared_ptr<HM::Groups> pBA) 
 { 
-   m_pGroups = pBA; 
+   groups_ = pBA; 
 }
 
 STDMETHODIMP 
@@ -21,13 +21,13 @@ InterfaceGroups::Refresh()
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
-      if (!m_pGroups)
+      if (!groups_)
          return S_FALSE;
    
-      m_pGroups->Refresh();
+      groups_->Refresh();
    
       return S_OK;
    }
@@ -41,10 +41,10 @@ STDMETHODIMP InterfaceGroups::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
-      *pVal = m_pGroups->GetCount();
+      *pVal = groups_->GetCount();
    
       return S_OK;
    }
@@ -59,19 +59,19 @@ InterfaceGroups::get_Item(long Index, IInterfaceGroup **pVal)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
-      pInterfaceGroup->SetAuthentication(m_pAuthentication);
+      pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pBA = m_pGroups->GetItem(Index);
+      std::shared_ptr<HM::Group> pBA = groups_->GetItem(Index);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceGroup->AttachItem(pBA);
-      pInterfaceGroup->AttachParent(m_pGroups, true);
+      pInterfaceGroup->AttachParent(groups_, true);
       pInterfaceGroup->AddRef();
       *pVal = pInterfaceGroup;
    
@@ -88,10 +88,10 @@ InterfaceGroups::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
-      m_pGroups->DeleteItemByDBID(DBID);
+      groups_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -105,19 +105,19 @@ InterfaceGroups::get_ItemByDBID(long lDBID, IInterfaceGroup **pVal)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
-      pInterfaceGroup->SetAuthentication(m_pAuthentication);
+      pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pBA = m_pGroups->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::Group> pBA = groups_->GetItemByDBID(lDBID);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceGroup->AttachItem(pBA);
-      pInterfaceGroup->AttachParent(m_pGroups, true);
+      pInterfaceGroup->AttachParent(groups_, true);
       pInterfaceGroup->AddRef();
    
       *pVal = pInterfaceGroup;
@@ -135,19 +135,19 @@ InterfaceGroups::get_ItemByName(BSTR sName, IInterfaceGroup **pVal)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
-      pInterfaceGroup->SetAuthentication(m_pAuthentication);
+      pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pBA = m_pGroups->GetItemByName(sName);
+      std::shared_ptr<HM::Group> pBA = groups_->GetItemByName(sName);
    
       if (!pBA)
          return DISP_E_BADINDEX;
    
       pInterfaceGroup->AttachItem(pBA);
-      pInterfaceGroup->AttachParent(m_pGroups, true);
+      pInterfaceGroup->AttachParent(groups_, true);
       pInterfaceGroup->AddRef();
    
       *pVal = pInterfaceGroup;
@@ -165,19 +165,19 @@ InterfaceGroups::Add(IInterfaceGroup **pVal)
 {
    try
    {
-      if (!m_pGroups)
+      if (!groups_)
          return GetAccessDenied();
 
-      if (!m_pGroups)
-         return m_pAuthentication->GetAccessDenied();
+      if (!groups_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceGroup>* pInterfaceGroup = new CComObject<InterfaceGroup>();
-      pInterfaceGroup->SetAuthentication(m_pAuthentication);
+      pInterfaceGroup->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Group> pBA = shared_ptr<HM::Group>(new HM::Group);
+      std::shared_ptr<HM::Group> pBA = std::shared_ptr<HM::Group>(new HM::Group);
    
       pInterfaceGroup->AttachItem(pBA);
-      pInterfaceGroup->AttachParent(m_pGroups, false);
+      pInterfaceGroup->AttachParent(groups_, false);
    
       pInterfaceGroup->AddRef();
    

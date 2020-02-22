@@ -10,11 +10,11 @@ namespace HM
 
    class IMAPCommandUNSUBSCRIBE : public IMAPCommand
    {
-      virtual IMAPResult ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument);
+      virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument);
 
    private:
 
-      IMAPResult ConfirmPossibleToUnsubscribe(shared_ptr<IMAPFolder> pFolder);
+      IMAPResult ConfirmPossibleToUnsubscribe(std::shared_ptr<IMAPFolder> pFolder);
    };
  
 

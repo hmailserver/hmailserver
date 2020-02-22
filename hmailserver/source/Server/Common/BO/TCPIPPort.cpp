@@ -13,10 +13,10 @@
 namespace HM
 {
    TCPIPPort::TCPIPPort(void) :
-      m_bUseSSL(false),
-      m_iPortNumber(0),
-      m_iPortProtocol(STUnknown),
-      m_iSSLCertificateID(0)
+      port_number_(0),
+      port_protocol_(STUnknown),
+      sslcertificate_id_(0),
+      connection_security_(CSNone)
    {
 
    }
@@ -29,7 +29,7 @@ namespace HM
    TCPIPPort::GetName() const
    {
       String sName;
-      sName.Format(_T("%d-%d"), m_iPortProtocol, m_iPortNumber);
+      sName.Format(_T("%d-%d"), port_protocol_, port_number_);
 
       return sName;
    }
@@ -40,14 +40,14 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("TCPIPPort"));
 
       pNode->AppendAttr(_T("Name"), GetName());
-      pNode->AppendAttr(_T("PortProtocol"), StringParser::IntToString(m_iPortProtocol));
-      pNode->AppendAttr(_T("PortNumber"), StringParser::IntToString(m_iPortNumber));
-      pNode->AppendAttr(_T("UseSSL"), m_bUseSSL ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("Address"), String(_address.ToString()));
+      pNode->AppendAttr(_T("PortProtocol"), StringParser::IntToString(port_protocol_));
+      pNode->AppendAttr(_T("PortNumber"), StringParser::IntToString(port_number_));
+      pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
+      pNode->AppendAttr(_T("Address"), String(address_.ToString()));
       
-      if (m_iSSLCertificateID > 0)
+      if (sslcertificate_id_ > 0)
       {
-         pNode->AppendAttr(_T("SSLCertificateName"), _GetSSLCertificateName(m_iSSLCertificateID));
+         pNode->AppendAttr(_T("SSLCertificateName"), GetSSLCertificateName_(sslcertificate_id_));
       }
 
       return true;
@@ -56,25 +56,35 @@ namespace HM
    bool 
    TCPIPPort::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_iPortProtocol = (SessionType) _ttoi(pNode->GetAttrValue(_T("PortProtocol")));
-      m_iPortNumber = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
-      m_bUseSSL = pNode->GetAttrValue(_T("UseSSL")) == _T("1");
-      _address.TryParse(pNode->GetAttrValue(_T("Address")));
-      m_iSSLCertificateID  = _GetSSLCertificateID(pNode->GetAttrValue(_T("SSLCertificateName")));
+      port_protocol_ = (SessionType) _ttoi(pNode->GetAttrValue(_T("PortProtocol")));
+      port_number_ = _ttoi(pNode->GetAttrValue(_T("PortNumber")));
+
+      address_.TryParse(pNode->GetAttrValue(_T("Address")));
+      sslcertificate_id_  = GetSSLCertificateID_(pNode->GetAttrValue(_T("SSLCertificateName")));
+
+      // Backwards compatibiltiy
+      if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
+      {
+         connection_security_ = CSSSL;
+      }
+      else
+      {
+         connection_security_ = (ConnectionSecurity) _ttoi(pNode->GetAttrValue(_T("ConnectionSecurity")));
+      }
 
       return true;
    }
 
    int
-   TCPIPPort::_GetSSLCertificateID(const String &sSSLCertificateName)
+   TCPIPPort::GetSSLCertificateID_(const String &sSSLCertificateName)
    {
       if (sSSLCertificateName.IsEmpty())
          return 0;
 
-      shared_ptr<SSLCertificates> pSSLCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
+      std::shared_ptr<SSLCertificates> pSSLCertificates = std::shared_ptr<SSLCertificates>(new SSLCertificates);
       pSSLCertificates->Refresh();
 
-      shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByName(sSSLCertificateName);
+      std::shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByName(sSSLCertificateName);
       if (pCertificate)
          return (int) pCertificate->GetID();
       else
@@ -83,12 +93,12 @@ namespace HM
    }
 
    String 
-   TCPIPPort::_GetSSLCertificateName(__int64 iCertificateID)
+   TCPIPPort::GetSSLCertificateName_(__int64 iCertificateID)
    {
-      shared_ptr<SSLCertificates> pSSLCertificates = shared_ptr<SSLCertificates>(new SSLCertificates);
+      std::shared_ptr<SSLCertificates> pSSLCertificates = std::shared_ptr<SSLCertificates>(new SSLCertificates);
       pSSLCertificates->Refresh();
 
-      shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByDBID(iCertificateID);
+      std::shared_ptr<SSLCertificate> pCertificate = pSSLCertificates->GetItemByDBID(iCertificateID);
       if (pCertificate)
          return pCertificate->GetName();
       else
@@ -110,18 +120,18 @@ namespace HM
    void 
    TCPIPPort::SetAddress(const IPAddress &address)
    {
-      _address = address;
+      address_ = address;
    }
 
    String
    TCPIPPort::GetAddressString() const
    {
-      return _address.ToString();
+      return address_.ToString();
    }
 
    IPAddress
    TCPIPPort::GetAddress() const
    {
-      return _address;
+      return address_;
    }
 }

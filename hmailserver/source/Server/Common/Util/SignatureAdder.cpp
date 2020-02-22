@@ -12,6 +12,8 @@
 #include "../BO/MessageRecipient.h"
 #include "../BO/MessageRecipients.h"
 
+#include "../Mime/Mime.h"
+
 #include "../../SMTP/SMTPConfiguration.h"
 
 #ifdef _DEBUG
@@ -33,56 +35,57 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::SetSignature(shared_ptr<Message> pMessage, 
-      shared_ptr<const Domain> pSenderDomain, 
-      shared_ptr<const Account> pSenderAccount,
-      shared_ptr<MessageData> &pMessageData)
+   SignatureAdder::SetSignature(std::shared_ptr<Message> message, 
+      std::shared_ptr<const Domain> sender_domain, 
+      std::shared_ptr<const Account> sender_account,
+      std::shared_ptr<MessageData> &message_data)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Sets the signature of the message, based on the signature in the account
    // settings and domain settings.
    //---------------------------------------------------------------------------()
    {  
-      if (!pMessage)
+      if (!message)
       {
+         assert(0);
          // Input error
          return false;
       }
 
-      if (!pSenderDomain)
+      if (!sender_domain)
       {
          // Not a local sender - nothing to do.
          return false;
       }
 
-      if (!pSenderDomain->GetAddSignaturesToLocalMail() && _GetMessageIsLocal(pMessage))
+      if (!sender_domain->GetAddSignaturesToLocalMail() && GetMessageIsLocal_(message))
       {
          // The message is local, but we have configured
          // the server not to add signatures to local email.
          return false;
       }
 
-      String sSignaturePlainText;
-      String sSignatureHTML;
+      String signature_plain_text;
+      String signature_html;
 
       // First check if an account signature has been specified.
-      if (pSenderAccount && pSenderAccount->GetEnableSignature())
+      if (sender_account && sender_account->GetEnableSignature())
       {
-         sSignaturePlainText = pSenderAccount->GetSignaturePlainText();
-         sSignatureHTML = pSenderAccount->GetSignatureHTML();
+         signature_plain_text = sender_account->GetSignaturePlainText();
+         signature_html = sender_account->GetSignatureHTML();
 
-         if (!sSignaturePlainText.IsEmpty() && sSignatureHTML.IsEmpty())
+         if (!signature_plain_text.IsEmpty() && signature_html.IsEmpty())
          {
             // Plain text specified but not HTML. Copy plain text to HTML.
-            sSignatureHTML = sSignaturePlainText;
-            sSignatureHTML.Replace(_T("\r\n"), _T("<br>\r\n"));
+            signature_html = signature_plain_text;
+            signature_html.Replace(_T("\r\n"), _T("<br>\r\n"));
          }
       }
 
-      if (pSenderDomain->GetEnableSignature())
+      if (sender_domain->GetEnableSignature())
       {
-         String sDomainPlainText = pSenderDomain->GetSignaturePlainText();
-         String sDomainHTML = pSenderDomain->GetSignatureHTML();
+         String sDomainPlainText = sender_domain->GetSignaturePlainText();
+         String sDomainHTML = sender_domain->GetSignatureHTML();
 
          if (!sDomainPlainText.IsEmpty() && sDomainHTML.IsEmpty())
          {
@@ -94,70 +97,73 @@ namespace HM
          // Check if we should overwrite the account signature with the 
          // domain signature, if we should append it, or if we just should
          // keep it.
-         if (pSenderDomain->GetSignatureMethod() == HM::Domain::SMSetIfNotSpecifiedInAccount)
+         if (sender_domain->GetSignatureMethod() == HM::Domain::SMSetIfNotSpecifiedInAccount)
          {
-            if (sSignaturePlainText.IsEmpty()) 
-               sSignaturePlainText = sDomainPlainText;
-            if (sSignatureHTML.IsEmpty())
-               sSignatureHTML = sDomainHTML;
+            if (signature_plain_text.IsEmpty()) 
+               signature_plain_text = sDomainPlainText;
+            if (signature_html.IsEmpty())
+               signature_html = sDomainHTML;
          }
-         else if (pSenderDomain->GetSignatureMethod() == HM::Domain::SMAppendToAccountSignature)
+         else if (sender_domain->GetSignatureMethod() == HM::Domain::SMAppendToAccountSignature)
          {
-            sSignaturePlainText += "\r\n\r\n" + sDomainPlainText;
-            sSignatureHTML += "<br><br>" + sDomainHTML;
+            signature_plain_text += "\r\n\r\n" + sDomainPlainText;
+            signature_html += "<br><br>" + sDomainHTML;
          }
-         else if (pSenderDomain->GetSignatureMethod() == HM::Domain::SMOverwriteAccountSignature)
+         else if (sender_domain->GetSignatureMethod() == HM::Domain::SMOverwriteAccountSignature)
          {
-            sSignaturePlainText = sDomainPlainText;
-            sSignatureHTML = sDomainHTML;
+            signature_plain_text = sDomainPlainText;
+            signature_html = sDomainHTML;
          }            
       }
 
-      if (sSignaturePlainText.IsEmpty() && sSignatureHTML.IsEmpty())  
+      if (signature_plain_text.IsEmpty() && signature_html.IsEmpty())  
       {
          // No signature should be created.
          return false;
       }
 
       // A signature should be created.
-      if (!pMessageData)
+      if (!message_data)
       {
-         pMessageData = shared_ptr<MessageData>(new MessageData());
-         shared_ptr<Account> emptyAccount;
-         if (!pMessageData->LoadFromMessage(emptyAccount, pMessage))
+         message_data = std::shared_ptr<MessageData>(new MessageData());
+         std::shared_ptr<Account> emptyAccount;
+         if (!message_data->LoadFromMessage(emptyAccount, message))
             return false;
       }
 
-      if (!pSenderDomain->GetAddSignaturesToReplies() && _GetMessageIsReply(pMessageData))
+      if (!sender_domain->GetAddSignaturesToReplies() && GetMessageIsReply_(message_data))
       {
          // The message is a reply, but we have configured the
          // server not to add signatures to replies
          return false;
       }
 
-      String sCurrentBodyPlainText = pMessageData->GetBody();
-      String sCurrentBodyHTML = pMessageData->GetHTMLBody();
-
-      if (!sSignaturePlainText.IsEmpty())
-         sCurrentBodyPlainText += "\r\n" + sSignaturePlainText;
-
-      if (!sCurrentBodyHTML.IsEmpty() && !sSignatureHTML.IsEmpty())
-         sCurrentBodyHTML += "<br>" + sSignatureHTML;
-
-      if (pSenderAccount)
+      if (sender_account)
       {
-         sCurrentBodyPlainText.ReplaceNoCase(_T("%User.FirstName%"), pSenderAccount->GetPersonFirstName());
-         sCurrentBodyPlainText.ReplaceNoCase(_T("%User.LastName%"), pSenderAccount->GetPersonLastName());
+         signature_plain_text.ReplaceNoCase(_T("%User.FirstName%"), sender_account->GetPersonFirstName());
+         signature_plain_text.ReplaceNoCase(_T("%User.LastName%"), sender_account->GetPersonLastName());
+         signature_plain_text.ReplaceNoCase(_T("%User.Address%"), sender_account->GetAddress());
 
-         sCurrentBodyHTML.ReplaceNoCase(_T("%User.FirstName%"), pSenderAccount->GetPersonFirstName());
-         sCurrentBodyHTML.ReplaceNoCase(_T("%User.LastName%"), pSenderAccount->GetPersonLastName());
+         signature_html.ReplaceNoCase(_T("%User.FirstName%"), sender_account->GetPersonFirstName());
+         signature_html.ReplaceNoCase(_T("%User.LastName%"), sender_account->GetPersonLastName());
+         signature_html.ReplaceNoCase(_T("%User.Address%"), sender_account->GetAddress());
       }
 
-      if (!sCurrentBodyPlainText.IsEmpty() && pMessageData->GetHasBodyType("text/plain"))
-         pMessageData->SetBody(sCurrentBodyPlainText);
+      auto text_plain_body_part = message_data->GetBodyTextPlainPart();
+      if (text_plain_body_part)
+      {
+         String text_plan_body_content = text_plain_body_part->GetUnicodeText();
+         text_plan_body_content += "\r\n" + signature_plain_text;
+         text_plain_body_part->SetUnicodeText(text_plan_body_content);
+      }
 
-      if (!sCurrentBodyHTML.IsEmpty() && pMessageData->GetHasBodyType("text/html"))
-         pMessageData->SetHTMLBody(sCurrentBodyHTML);
+      auto text_html_body_part = message_data->GetBodyTextHtmlPart();
+      if (text_html_body_part)
+      {
+         String text_html_body_content = text_html_body_part->GetUnicodeText();
+         text_html_body_content += "<br/>\r\n" + signature_html;
+         text_html_body_part->SetUnicodeText(text_html_body_content);
+      }
 
       return true;      
 
@@ -165,13 +171,13 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::_GetMessageIsReply(shared_ptr<MessageData> &pMessageData)
+   SignatureAdder::GetMessageIsReply_(std::shared_ptr<MessageData> &message_data)
    {
-      String sHeader = pMessageData->GetFieldValue("References");
+      String sHeader = message_data->GetFieldValue("References");
       if (!sHeader.IsEmpty())
          return true; // Contains Reference header - It's a reply.
 
-      sHeader = pMessageData->GetFieldValue("In-Reply-To");
+      sHeader = message_data->GetFieldValue("In-Reply-To");
       if (!sHeader.IsEmpty())
          return true; // Contains In-Reply-To header - It's a reply.
 
@@ -179,15 +185,15 @@ namespace HM
    }
 
    bool 
-   SignatureAdder::_GetMessageIsLocal(shared_ptr<Message> pMessage)
+   SignatureAdder::GetMessageIsLocal_(std::shared_ptr<Message> message)
    {
-      String sFromAddressDomain = StringParser::ExtractDomain(pMessage->GetFromAddress());
+      String sFromAddressDomain = StringParser::ExtractDomain(message->GetFromAddress());
       
       // Loop over the recipients and check if they are on the same domain.if
       
-      std::vector<shared_ptr<MessageRecipient> > &vecRecipients = pMessage->GetRecipients()->GetVector();
-      std::vector<shared_ptr<MessageRecipient> >::iterator iter = vecRecipients.begin();
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterEnd = vecRecipients.end();
+      std::vector<std::shared_ptr<MessageRecipient> > &vecRecipients = message->GetRecipients()->GetVector();
+      auto iter = vecRecipients.begin();
+      auto iterEnd = vecRecipients.end();
 
       for (; iter != iterEnd; iter++)
       {

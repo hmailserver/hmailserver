@@ -10,7 +10,7 @@ namespace HM
    public:
       SQLScriptRunner();
 
-      bool ExecuteScript(shared_ptr<DALConnection> connectionObject, const String &sFile, String &sErrorMessage);
+      bool ExecuteScript(std::shared_ptr<DALConnection> connectionObject, const String &sFile, String &sErrorMessage);
 
    private:
 

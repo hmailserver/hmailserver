@@ -7,30 +7,35 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using hMailServer;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
-   internal class TestSetup
+   public class TestSetup
    {
-      private readonly Application application;
+      private Application application;
       private Settings _settings;
 
       private static int _freePort = 20000;
 
       public TestSetup()
       {
-         application = new Application();
+
       }
 
       public void Authenticate()
       {
+         application = new Application();
+
          Account account = application.Authenticate("Administrator", "testar");
 
          if (account == null)
@@ -57,15 +62,17 @@ namespace RegressionTests.Shared
       }
 
 
-      public Domain DoBasicSetup()
+      public Domain PerformBasicSetup()
       {
-         if (application.ServerState == eServerState.hStateStopped)
-            application.Start();
+         bool restartRequired = false;
 
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
 
+         _settings.TCPIPPorts.SetDefault();
+
          _settings.SecurityRanges.SetDefault();
 
+         SetupBlockedAttachments();
          DisableSpamProtection();
          DisableVirusProtection();
          RemoveAllRoutes();
@@ -75,9 +82,13 @@ namespace RegressionTests.Shared
          ClearGreyListingWhiteAddresses();
          EnableLogging(true);
 
-
          _settings.SSLCertificates.Clear();
-         _settings.TCPIPPorts.SetDefault();
+
+         if (_settings.TCPIPThreads != 15)
+         {
+            _settings.TCPIPThreads = 15;
+            restartRequired = true;
+         }
 
          if (_settings.AutoBanOnLogonFailure)
             _settings.AutoBanOnLogonFailure = false;
@@ -97,6 +108,9 @@ namespace RegressionTests.Shared
          if (_settings.SMTPRelayer != "")
             _settings.SMTPRelayer = "";
 
+         if (_settings.SMTPRelayerConnectionSecurity != eConnectionSecurity.eCSNone)
+            _settings.SMTPRelayerConnectionSecurity = eConnectionSecurity.eCSNone;
+
          if (_settings.MaxDeliveryThreads != 50)
             _settings.MaxDeliveryThreads = 50;
 
@@ -115,6 +129,9 @@ namespace RegressionTests.Shared
          if (_settings.MaxSMTPRecipientsInBatch != 100)
             _settings.MaxSMTPRecipientsInBatch = 100;
 
+         if (_settings.SMTPDeliveryBindToIP != "")
+            _settings.SMTPDeliveryBindToIP = "";
+
          if (_settings.IMAPHierarchyDelimiter != ".")
             _settings.IMAPHierarchyDelimiter = ".";
 
@@ -126,6 +143,56 @@ namespace RegressionTests.Shared
 
          if (_settings.MaxNumberOfMXHosts != 15)
             _settings.MaxNumberOfMXHosts = 15;
+
+         if (_settings.VerifyRemoteSslCertificate)
+            _settings.VerifyRemoteSslCertificate = false;
+
+         if (_settings.IMAPSASLPlainEnabled)
+            _settings.IMAPSASLPlainEnabled = false;
+         if (_settings.IMAPSASLInitialResponseEnabled)
+            _settings.IMAPSASLInitialResponseEnabled = false;
+         if (_settings.IMAPAuthAllowPlainText)
+            _settings.IMAPAuthAllowPlainText = false;
+         if (!string.IsNullOrEmpty(_settings.IMAPMasterUser))
+            _settings.IMAPMasterUser = string.Empty;
+
+         if (!string.IsNullOrEmpty(_settings.SslCipherList))
+         {
+            restartRequired = true;
+            _settings.SslCipherList = string.Empty;
+         }
+
+         if (_settings.MaxSMTPConnections > 0)
+            _settings.MaxSMTPConnections = 0;
+         if (_settings.MaxIMAPConnections > 0)
+            _settings.MaxIMAPConnections = 0;
+         if (_settings.MaxPOP3Connections > 0)
+            _settings.MaxPOP3Connections = 0;
+
+         if (!_settings.TlsVersion10Enabled)
+         {
+            _settings.TlsVersion10Enabled = true;
+            restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion11Enabled)
+         {
+            _settings.TlsVersion11Enabled = true;
+            restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion12Enabled)
+         {
+            _settings.TlsVersion12Enabled = true;
+            restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion13Enabled)
+         {
+             _settings.TlsVersion13Enabled = true;
+             restartRequired = true;
+         }
+
 
          hMailServer.AntiVirus antiVirus = _settings.AntiVirus;
 
@@ -140,45 +207,58 @@ namespace RegressionTests.Shared
 
          EnableLogging(true);
 
-         if (File.Exists(GetErrorLogFileName()))
+         CustomAsserts.AssertNoReportedError();
+
+         if (File.Exists(LogHandler.GetEventLogFileName()))
+            File.Delete(LogHandler.GetEventLogFileName());
+
+         if (application.ServerState == eServerState.hStateStopped)
+            application.Start();
+         else if (application.ServerState == eServerState.hStateRunning)
          {
-            string contents = File.ReadAllText(GetErrorLogFileName());
-            Assert.Fail(contents);
+            if (restartRequired)
+            {
+               application.Stop();
+               application.Start();
+            }
          }
-
-         if (File.Exists(GetEventLogFileName()))
-            File.Delete(GetEventLogFileName());
-
-         AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          return domain;
       }
-
-      public void DeleteEventLog()
+	  
+      private string GetCipherList()
       {
-         AssertDeleteFile(GetEventLogFileName());
+         return
+            "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK;";
       }
 
-      public static void AssertDeleteFile(string file)
-      {
-         for (int i = 0; i <= 400; i++)
-         {
-            if (!File.Exists(file))
-               return;
 
-            try
+      private void SetupBlockedAttachments()
+      {
+         var antiVirusSettings = _settings.AntiVirus;
+
+         bool blockExists = false;
+         for (int i = 0; i < antiVirusSettings.BlockedAttachments.Count; i++)
+         {
+            var item = antiVirusSettings.BlockedAttachments[i];
+
+            if (item.Wildcard == "*.bat")
             {
-               File.Delete(file);
-               return;
+               blockExists = true;
+               break;
             }
-            catch (Exception e)
-            {
-               if (i == 400)
-                  throw e;
-            }
-            Thread.Sleep(25);
+         }
+
+         if (blockExists == false)
+         {
+            var item = antiVirusSettings.BlockedAttachments.Add();
+            item.Description = "Batch scripts";
+            item.Wildcard = "*.bat";
+            item.Save();
          }
       }
+
 
       private void EnableLogging(bool enable)
       {
@@ -265,7 +345,7 @@ namespace RegressionTests.Shared
       }
 
 
-      private static void DeleteMessagesInQueue()
+      public static void DeleteMessagesInQueue()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          DeliveryQueue queue = application.GlobalObjects.DeliveryQueue;
@@ -286,7 +366,7 @@ namespace RegressionTests.Shared
          application.SubmitEMail();
       }
 
-      private static int GetNumberOfMessagesInDeliveryQueue()
+      public static int GetNumberOfMessagesInDeliveryQueue()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
@@ -316,39 +396,6 @@ namespace RegressionTests.Shared
          return count;
       }
 
-      public static void AssertRecipientsInDeliveryQueue(int count)
-      {
-         AssertRecipientsInDeliveryQueue(count, true);
-      }
-
-      public static void AssertRecipientsInDeliveryQueue(int count, bool forceSend)
-      {
-         if (forceSend)
-            SendMessagesInQueue();
-
-         for (int i = 1; i <= 60; i++)
-         {
-            if (GetNumberOfMessagesInDeliveryQueue() == count)
-               return;
-
-            if (i%10 == 0 && forceSend)
-               SendMessagesInQueue();
-
-            Thread.Sleep(100);
-         }
-
-         int currentCount = GetNumberOfMessagesInDeliveryQueue();
-         if (currentCount == count)
-            return;
-
-         DeleteMessagesInQueue();
-
-         string message = string.Format(
-            "Message queue does not contain correct number of messages. Actual: {0}, Expected: {1}",
-            currentCount, count);
-         Assert.Fail(message);
-      }
-
       private void RemoveAllRules()
       {
          while (application.Rules.Count > 0)
@@ -364,7 +411,8 @@ namespace RegressionTests.Shared
       {
          Domains domains = application.Domains;
 
-         while (domains.Count > 0)
+         while (domains.Count 
+            > 0)
          {
             Domain domain = domains[0];
             domain.Delete();
@@ -556,76 +604,7 @@ namespace RegressionTests.Shared
          return oList;
       }
 
-      public void AddSpamRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 1";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**SPAM**";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Spam";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public void AddCorporateRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 2";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**CORPORATE**";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public void AddExactMatchRule(Account oAccount)
-      {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 3";
-         oRule.Active = true;
-
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "CORPORATE EXACT MATCH";
-         oRuleCriteria.Save();
-
-         // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
-
-         // Save the rule in the database
-         oRule.Save();
-      }
-
-      public static string RandomString()
+      public static string UniqueString()
       {
          string s = Guid.NewGuid().ToString();
          s = s.Replace("{", "");
@@ -635,250 +614,10 @@ namespace RegressionTests.Shared
          return s;
       }
 
-      public static void WriteFile(string file, string contents)
-      {
-         StreamWriter streamWriter;
-
-         streamWriter = File.CreateText(file);
-         streamWriter.Write(contents);
-         streamWriter.Close();
-      }
-
-      public void AssertBounceMessageExistsInQueue(string bounceTo)
-      {
-         Status status = application.Status;
-         for (int i = 0; i < 100; i++)
-         {
-            if (status.UndeliveredMessages.Length == 0 || status.UndeliveredMessages.Contains("\t" + bounceTo))
-               return;
-
-            Thread.Sleep(100);
-         }
-
-         Assert.Fail("Delivery queue not empty");
-      }
-
-      public string AssertLiveLogContents()
-      {
-         Logging logging = _settings.Logging;
-         for (int i = 0; i < 40; i++)
-         {
-            string contents = logging.LiveLog;
-            if (contents.Length > 0)
-               return contents;
-
-            Thread.Sleep(100);
-         }
-
-         return "";
-      }
-
-      public static void AssertSpamAssassinIsRunning()
-      {
-         Process[] processlist = Process.GetProcesses();
-
-         foreach (Process theprocess in processlist)
-         {
-            if (theprocess.ProcessName == "spamd")
-               return;
-         }
-
-         // Check if we can launch it...
-         string spamdExecutable = @"C:\Program Files (x86)\SpamAssassin\spamd.exe";
-
-         try
-         {
-            Process.Start(spamdExecutable);
-         }
-         catch (Exception)
-         {
-            Assert.Ignore("Unable to start SpamAssassin process. Is SpamAssassin installed?");
-         }
-      }
-
-      public static void AssertClamDRunning()
-      {
-         Process[] processlist = Process.GetProcesses();
-
-         foreach (Process theprocess in processlist)
-         {
-            if (theprocess.ProcessName == "clamd")
-               return;
-         }
-
-         // Check if we can launch it...
-         var startInfo = new ProcessStartInfo();
-         startInfo.FileName = @"C:\clamav\clamd.exe";
-         startInfo.WorkingDirectory = @"C:\Clamav";
-         startInfo.Arguments = "--daemon";
-
-         try
-         {
-            Process.Start(startInfo);
-
-            // Wait for clamav to start up.
-            for (int i = 0; i < 10; i++)
-            {
-               var sock = new TcpSocket();
-               if (sock.Connect(3310))
-                  return;
-               Thread.Sleep(1000);
-            }
-
-            Assert.Fail("ClamD process not starting up.");
-         }
-         catch (Exception)
-         {
-            Assert.Ignore("Unable to start ClamD process. Is ClamAV installed?");
-         }
-      }
-
-      public static Message AssertGetFirstMessage(Account account, string folderName)
-      {
-         IMAPFolder folder = account.IMAPFolders.get_ItemByName(folderName);
-
-         // Wait for message to appear.
-         AssertFolderMessageCount(folder, 1);
-
-         // return the message.
-         return folder.Messages[0];
-      }
-
-      public static void AssertFolderMessageCount(IMAPFolder folder, int expectedCount)
-      {
-         if (expectedCount == 0)
-         {
-            // just in case.
-            AssertRecipientsInDeliveryQueue(0);
-         }
-
-         int currentCount = 0;
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            currentCount = folder.Messages.Count;
-
-            if (currentCount == expectedCount)
-               return;
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Wrong number of messages in mailbox " + folder.Name;
-         Assert.Fail(error);
-      }
-
-      public static Message AssertRetrieveFirstMessage(IMAPFolder folder)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            if (folder.Messages.Count > 0)
-            {
-               return folder.Messages[0];
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Could not retrieve message from folder";
-         Assert.Fail(error);
-
-         return null;
-      }
-
-      public static IMAPFolder AssertFolderExists(IMAPFolders folders, string folderName)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            try
-            {
-               return folders.get_ItemByName(folderName);
-            }
-            catch (Exception)
-            {
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         string error = "Folder could not be found " + folderName;
-         Assert.Fail(error);
-         return null;
-      }
-
-      public static string GetErrorLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentErrorLog;
-      }
-
-      public static string GetDefaultLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentDefaultLog;
-      }
-
-      public static void DeleteCurrentDefaultLog()
-      {
-         for (int i = 0; i < 50; i++)
-         {
-            try
-            {
-               string filename = GetDefaultLogFileName();
-               if (File.Exists(filename))
-                  File.Delete(filename);
-
-               return;
-            }
-            catch (Exception)
-            {
-               Thread.Sleep(100);
-            }
-         }
-
-         Assert.Fail("Failed to delete default log file during test");
-      }
-
-      public static string ReadCurrentDefaultLog()
-      {
-         string filename = GetDefaultLogFileName();
-         string content = string.Empty;
-         if (File.Exists(filename))
-            return ReadExistingTextFile(filename);
-
-         return content;
-      }
-
-      public static bool DefaultLogContains(string data)
-      {
-         string filename = GetDefaultLogFileName();
-
-         for (int i = 0; i < 40; i++)
-         {
-            if (File.Exists(filename))
-            {
-               string content = ReadExistingTextFile(filename);
-               if (content.Contains(data))
-                  return true;
-            }
-
-            Thread.Sleep(250);
-         }
-
-         return false;
-      }
-
-      public static string GetEventLogFileName()
-      {
-         return SingletonProvider<TestSetup>.Instance.GetApp().Settings.Logging.CurrentEventLog;
-      }
-
+      
       public static string ReadExistingTextFile(string fileName)
       {
-         AssertFileExists(fileName, false);
+         CustomAsserts.AssertFileExists(fileName, false);
 
          for (int i = 1; i <= 100; i++)
          {
@@ -908,174 +647,19 @@ namespace RegressionTests.Shared
          return "";
       }
 
-      public static void AssertFileExists(string file, bool delete)
-      {
-         int timeout = 100;
-         while (timeout > 0)
-         {
-            try
-            {
-               if (File.Exists(file))
-               {
-                  if (delete)
-                     File.Delete(file);
-
-                  return;
-               }
-            }
-            catch (Exception)
-            {
-            }
-
-            timeout--;
-            Thread.Sleep(100);
-         }
-
-         Assert.Fail("Expected file does not exist:" + file);
-      }
-
-      public static void AssertReportedError()
-      {
-         string file = GetErrorLogFileName();
-         AssertFileExists(file, true);
-      }
-
-      public static void AssertReportedError(string content)
-      {
-         string errorLog = ReadAndDeleteErrorLog();
-         Assert.IsTrue(errorLog.Contains(content), errorLog);
-      }
-
-
-      public static string ReadAndDeleteErrorLog()
-      {
-         string file = GetErrorLogFileName();
-         AssertFileExists(file, false);
-
-         string contents = File.ReadAllText(file);
-
-         File.Delete(file);
-
-         return contents;
-      }
-
-      public void AssertFilesInUserDirectory(Account account, int expectedFileCount)
-      {
-         string domain = account.Address.Substring(account.Address.IndexOf("@") + 1);
-         string mailbox = account.Address.Substring(0, account.Address.IndexOf("@"));
-
-         string domainDir = Path.Combine(_settings.Directories.DataDirectory, domain);
-         string userDir = Path.Combine(domainDir, mailbox);
-
-         AssertFilesInDirectory(userDir, expectedFileCount);
-      }
-
-      public void AssertFilesInDirectory(string directory, int expectedFileCount)
-      {
-         int count = 0;
-
-         if (Directory.Exists(directory))
-         {
-            string[] dirs = Directory.GetDirectories(directory);
-
-            foreach (string dir in dirs)
-            {
-               string[] files = Directory.GetFiles(dir);
-               count += files.Length;
-            }
-         }
-
-         Assert.AreEqual(expectedFileCount, count);
-      }
-
-      public static string GetCurrentMIMEDateTime()
-      {
-         DateTime now = DateTime.Now;
-
-         string dayOfWeek = "";
-         switch (now.DayOfWeek)
-         {
-            case DayOfWeek.Monday:
-               dayOfWeek = "Mon";
-               break;
-            case DayOfWeek.Tuesday:
-               dayOfWeek = "Tue";
-               break;
-            case DayOfWeek.Wednesday:
-               dayOfWeek = "Wed";
-               break;
-            case DayOfWeek.Thursday:
-               dayOfWeek = "Thu";
-               break;
-            case DayOfWeek.Friday:
-               dayOfWeek = "Fri";
-               break;
-            case DayOfWeek.Saturday:
-               dayOfWeek = "Sat";
-               break;
-            case DayOfWeek.Sunday:
-               dayOfWeek = "Sun";
-               break;
-         }
-
-         string monthName = "";
-         switch (now.Month)
-         {
-            case 1:
-               monthName = "Jan";
-               break;
-            case 2:
-               monthName = "Feb";
-               break;
-            case 3:
-               monthName = "Mar";
-               break;
-            case 4:
-               monthName = "Apr";
-               break;
-            case 5:
-               monthName = "May";
-               break;
-            case 6:
-               monthName = "Jun";
-               break;
-            case 7:
-               monthName = "Jul";
-               break;
-            case 8:
-               monthName = "Aug";
-               break;
-            case 9:
-               monthName = "Sep";
-               break;
-            case 10:
-               monthName = "Oct";
-               break;
-            case 11:
-               monthName = "Nov";
-               break;
-            case 12:
-               monthName = "Dec";
-               break;
-         }
-
-         string timeString = now.ToString("HH':'mm':'ss");
-         string dateString = string.Format("{0}, {1} {2} {3} {4} +0100", dayOfWeek, now.Day, monthName, now.Year,
-                                           timeString);
-
-         return dateString;
-      }
-
-      internal static IPAddress GetLocalIPAddress()
+      internal static IPAddress GetLocalIpAddress()
       {
          // Connect to another local address.
          IPHostEntry iphostentry = Dns.GetHostEntry(Dns.GetHostName());
 
          foreach (IPAddress ipaddress in iphostentry.AddressList)
          {
-            if (ipaddress.ToString().Contains(".") && !ipaddress.ToString().Contains("127.0.0"))
+            if (ipaddress.AddressFamily == AddressFamily.InterNetwork)
             {
-               return ipaddress;
+               if (ipaddress.ToString().Contains("192.168."))
+               {
+                  return ipaddress;
+               }
             }
          }
 
@@ -1093,41 +677,6 @@ namespace RegressionTests.Shared
          return result;
       }
 
-      public static string GetFileHash(string fileName)
-      {
-         byte[] bytes = File.ReadAllBytes(fileName);
-         SHA1 sha = new SHA1CryptoServiceProvider();
-         var hash = new StringBuilder();
-
-         byte[] hashedData = sha.ComputeHash(bytes);
-
-         foreach (byte b in hashedData)
-         {
-            hash.Append(string.Format("{0,2:X2}", b));
-         }
-
-         //return the hashed value
-         return hash.ToString();
-      }
-
-      public static void SendMessage(MailMessage mailMessage)
-      {
-         for (int i = 0; i < 5; i++)
-         {
-            try
-            {
-               var client = new SmtpClient("localhost", 25);
-               client.Send(mailMessage);
-
-               return;
-            }
-            catch
-            {
-               if (i == 4)
-                  throw;
-            }
-         }
-      }
 
       public static string Escape(string input)
       {
@@ -1149,12 +698,6 @@ namespace RegressionTests.Shared
          return escapedValue;
       }
 
-      public string GetPublicDirectory()
-      {
-         string dataDir = _settings.Directories.DataDirectory;
-         string publicDir = Path.Combine(dataDir, _settings.PublicFolderDiskName);
-         return publicDir;
-      }
 
       public static string CreateLargeDummyMailBody()
       {
@@ -1170,5 +713,45 @@ namespace RegressionTests.Shared
          _freePort++;
          return _freePort;
       }
+
+
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
+      {
+         // Add a route pointing at localhost
+         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+
+         Route route = oSettings.Routes.Add();
+         route.DomainName = "dummy-example.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = port;
+         route.NumberOfTries = numberOfTries;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = treatSecurityAsLocal;
+         route.TreatSenderAsLocalDomain = treatSecurityAsLocal;
+         route.ConnectionSecurity = connectionSecurity;
+         route.Save();
+
+         return route;
+      }
+
+      internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal)
+      {
+         return AddRoutePointingAtLocalhost(numberOfTries, port, treatSecurityAsLocal, eConnectionSecurity.eCSNone);
+      }
+
+      public static Route AddRoutePointingAtLocalhostMultipleHosts(int numberOfTries, int port)
+      {
+         // Add a route pointing at localhost
+         Route route = AddRoutePointingAtLocalhost(numberOfTries, port, false);
+         route.DomainName = "dummy-example.com";
+         route.TargetSMTPHost = "localhost|localhost";
+         route.TargetSMTPPort = port;
+         route.NumberOfTries = numberOfTries;
+         route.MinutesBetweenTry = 5;
+         route.Save();
+
+         return route;
+      }
+
    }
 }

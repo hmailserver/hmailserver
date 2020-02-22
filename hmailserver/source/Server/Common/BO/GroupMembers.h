@@ -20,18 +20,18 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      __int64 GetGroupID() {return m_iGroupID; }
+      __int64 GetGroupID() {return group_id_; }
       bool UserIsMember(__int64 iAccountID);
 
    protected:
 
       virtual String GetCollectionName() const {return "GroupMembers"; }
 
-      void PostStoreObject(shared_ptr<GroupMember> pGroupMember, XNode *pChildNode);
-      bool PreSaveObject(shared_ptr<GroupMember> pGroupMember, XNode *pNode);
+      void PostStoreObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pChildNode);
+      bool PreSaveObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pNode);
 
    private:
  
-      __int64 m_iGroupID;
+      __int64 group_id_;
    };
 }

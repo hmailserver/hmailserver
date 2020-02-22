@@ -32,7 +32,7 @@
    $routerequiresauth   = hmailGetVar("routerequiresauth","0");
    $routeauthusername   = hmailGetVar("routeauthusername","0");
    $routeauthpassword   = hmailGetVar("routeauthpassword","0");
-   $usessl   = hmailGetVar("usessl","0");
+   $ConnectionSecurity   = hmailGetVar("ConnectionSecurity","0");
    
    $obRoute->DomainName = $routedomainname;
    $obRoute->TargetSMTPHost = $routetargetsmtphost;
@@ -47,7 +47,7 @@
    
    $obRoute->AllAddresses = hmailGetVar("AllAddresses","0");
    
-   $obRoute->UseSSL = $usessl;
+   $obRoute->ConnectionSecurity = $ConnectionSecurity;
    
    if ($routeauthpassword != "")
       $obRoute->SetRelayerAuthPassword($routeauthpassword);

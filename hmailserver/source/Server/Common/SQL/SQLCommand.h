@@ -16,7 +16,7 @@ namespace HM
 
       void SetQueryString(const String &queryString);
       String GetQueryString() const;
-      const list<SQLParameter> &GetParameters() const;
+      const std::list<SQLParameter> &GetParameters() const;
       void ClearParameters();
 
       void AddParameter(const AnsiString &name, const int &value);
@@ -27,8 +27,8 @@ namespace HM
 
    private:
 
-      list<SQLParameter> _parameters;
+      std::list<SQLParameter> parameters_;
 
-      String _queryString;
+      String query_string_;
    };
 }

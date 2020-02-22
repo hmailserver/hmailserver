@@ -29,18 +29,18 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_routes order by routedomainname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
-   shared_ptr<Route> 
+   std::shared_ptr<Route> 
    Routes::GetItemByNameWithWildcardMatch(const String &domainName)
    {
-      vector<shared_ptr<Route> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<Route> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<Route> pRoute = (*iter);
+         std::shared_ptr<Route> pRoute = (*iter);
 
          if (StringParser::WildcardMatchNoCase(pRoute->DomainName(), domainName))
          {
@@ -48,7 +48,7 @@ namespace HM
          }
       }
 
-      shared_ptr<Route> empty;
+      std::shared_ptr<Route> empty;
       return empty;
    }
 

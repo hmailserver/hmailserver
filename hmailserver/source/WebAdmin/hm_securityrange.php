@@ -24,8 +24,8 @@ $allowremotetoremote = 0;
 
 $enablespamprotection = 0;
 $IsForwardingRelay = 0;
-
 $EnableAntiVirus = 0;
+$RequireSSLTLSForAuth = 0;
 
 $RequireSMTPAuthLocalToLocal = true;
 $RequireSMTPAuthLocalToExternal = true;
@@ -54,9 +54,9 @@ if ($action == "edit")
    $allowremotetoremote		= $obSecurityRange->AllowDeliveryFromRemoteToRemote;
    
    $enablespamprotection	= $obSecurityRange->EnableSpamProtection;
-   $EnableAntiVirus	      = $obSecurityRange->EnableAntiVirus;
-   
-   $IsForwardingRelay	   = $obSecurityRange->IsForwardingRelay;
+   $EnableAntiVirus	        = $obSecurityRange->EnableAntiVirus;
+   $IsForwardingRelay	    = $obSecurityRange->IsForwardingRelay;
+   $RequireSSLTLSForAuth	= $obSecurityRange->RequireSSLTLSForAuth;
    
    $RequireSMTPAuthLocalToLocal           = $obSecurityRange->RequireSMTPAuthLocalToLocal;
    $RequireSMTPAuthLocalToExternal        = $obSecurityRange->RequireSMTPAuthLocalToExternal;
@@ -84,6 +84,7 @@ $IsForwardingRelayChecked   = hmailCheckedIf1($IsForwardingRelay);
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_securityrange_save");
       PrintHidden("action", $action);
       PrintHidden("securityrangeid", $securityrangeid);
@@ -195,6 +196,7 @@ $IsForwardingRelayChecked   = hmailCheckedIf1($IsForwardingRelay);
             <?php
                PrintCheckboxRow("enablespamprotection", "Anti-spam", $enablespamprotection);
                PrintCheckboxRow("EnableAntiVirus", "Anti-virus", $EnableAntiVirus);
+			   PrintCheckboxRow("RequireSSLTLSForAuth", "Require SSL/TLS for authentication", $RequireSSLTLSForAuth);
             ?>
   		  	
          </table>

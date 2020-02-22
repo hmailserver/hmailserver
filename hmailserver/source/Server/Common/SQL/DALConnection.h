@@ -12,7 +12,7 @@ namespace HM
    class DALConnection  
    {
    public:
-	   DALConnection(shared_ptr<DatabaseSettings> pDatabaseSettings);
+	   DALConnection(std::shared_ptr<DatabaseSettings> pDatabaseSettings);
 	   virtual ~DALConnection();
 
       enum ConnectionResult
@@ -45,7 +45,7 @@ namespace HM
       virtual bool RollbackTransaction(String &sErrorMessage) = 0;
       virtual void SetTimeout(int seconds) = 0;
 
-      void SetTryCount(int iTryCount) {m_iTryCount = iTryCount; }
+      void SetTryCount(int iTryCount) {try_count_ = iTryCount; }
       
 
       virtual bool GetSupportsCommandParameters() const = 0;
@@ -54,18 +54,18 @@ namespace HM
 
       virtual void EscapeString(String &sInput) = 0;
 
-      virtual shared_ptr<DALRecordset> CreateRecordset() = 0;
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander() = 0;
+      virtual std::shared_ptr<DALRecordset> CreateRecordset() = 0;
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander() = 0;
 
-      shared_ptr<DatabaseSettings> GetSettings() {return m_pDatabaseSettings; }
+      std::shared_ptr<DatabaseSettings> GetSettings() {return database_settings_; }
 
    protected:
 
-      shared_ptr<DatabaseSettings> m_pDatabaseSettings;
+      std::shared_ptr<DatabaseSettings> database_settings_;
 
    private:
 
-      int m_iTryCount;
+      int try_count_;
    };
 
 }

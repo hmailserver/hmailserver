@@ -16,7 +16,7 @@ InterfaceRoutes::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pRoutes = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
+   routes_ = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes();
 
    return true;
 }
@@ -26,10 +26,10 @@ STDMETHODIMP InterfaceRoutes::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
-      *pVal = m_pRoutes->GetCount();
+      *pVal = routes_->GetCount();
    
       return S_OK;
    }
@@ -43,18 +43,18 @@ STDMETHODIMP InterfaceRoutes::get_Item(long Index, IInterfaceRoute **pVal)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
       CComObject<InterfaceRoute>* pInterfaceRoute = new CComObject<InterfaceRoute>();
-      pInterfaceRoute->SetAuthentication(m_pAuthentication);
+      pInterfaceRoute->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Route> pRoute = m_pRoutes->GetItem(Index);
+      std::shared_ptr<HM::Route> pRoute = routes_->GetItem(Index);
    
       if (pRoute)
       {
          pInterfaceRoute->AttachItem(pRoute);
-         pInterfaceRoute->AttachParent(m_pRoutes, true);
+         pInterfaceRoute->AttachParent(routes_, true);
          pInterfaceRoute->AddRef();
          *pVal = pInterfaceRoute;
       }
@@ -76,10 +76,10 @@ STDMETHODIMP InterfaceRoutes::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
-      m_pRoutes->DeleteItemByDBID(DBID);
+      routes_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -93,19 +93,19 @@ STDMETHODIMP InterfaceRoutes::Add(IInterfaceRoute **pVal)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
-      if (!m_pRoutes)
-         return m_pAuthentication->GetAccessDenied();
+      if (!routes_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceRoute>* pRouteInterface = new CComObject<InterfaceRoute>();
-      pRouteInterface->SetAuthentication(m_pAuthentication);
+      pRouteInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Route> pRoute = shared_ptr<HM::Route>(new HM::Route);
+      std::shared_ptr<HM::Route> pRoute = std::shared_ptr<HM::Route>(new HM::Route);
    
       pRouteInterface->AttachItem(pRoute);
-      pRouteInterface->AttachParent(m_pRoutes, false);
+      pRouteInterface->AttachParent(routes_, false);
    
       pRouteInterface->AddRef();
       *pVal = pRouteInterface;
@@ -123,18 +123,18 @@ InterfaceRoutes::get_ItemByName(BSTR ItemName, IInterfaceRoute **pVal)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
    
       CComObject<InterfaceRoute>* pRouteInterface = new CComObject<InterfaceRoute>();
-      pRouteInterface->SetAuthentication(m_pAuthentication);
+      pRouteInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Route> pRoute = m_pRoutes->GetItemByName(ItemName);
+      std::shared_ptr<HM::Route> pRoute = routes_->GetItemByName(ItemName);
       if (!pRoute)
          return DISP_E_BADINDEX;
    
       pRouteInterface->AttachItem(pRoute);
-      pRouteInterface->AttachParent(m_pRoutes, true);
+      pRouteInterface->AttachParent(routes_, true);
    
       pRouteInterface->AddRef();
       *pVal = pRouteInterface;
@@ -152,18 +152,18 @@ InterfaceRoutes::get_ItemByDBID(long lDBID, IInterfaceRoute **pVal)
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
       CComObject<InterfaceRoute>* pRouteInterface = new CComObject<InterfaceRoute>();
-      pRouteInterface->SetAuthentication(m_pAuthentication);
+      pRouteInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Route> pRoute = m_pRoutes->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::Route> pRoute = routes_->GetItemByDBID(lDBID);
       if (!pRoute)
          return DISP_E_BADINDEX;
    
       pRouteInterface->AttachItem(pRoute);
-      pRouteInterface->AttachParent(m_pRoutes, true);
+      pRouteInterface->AttachParent(routes_, true);
    
       pRouteInterface->AddRef();
       *pVal = pRouteInterface;
@@ -181,11 +181,11 @@ InterfaceRoutes::Refresh()
 {
    try
    {
-      if (!m_pRoutes)
+      if (!routes_)
          return GetAccessDenied();
 
-      if (m_pRoutes)
-         m_pRoutes->Refresh();
+      if (routes_)
+         routes_->Refresh();
       else
          return S_FALSE;
    

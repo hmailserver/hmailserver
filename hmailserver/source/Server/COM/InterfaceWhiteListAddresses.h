@@ -63,11 +63,11 @@ public:
    STDMETHOD(DeleteByDBID)(/*[in]*/ long DBID);
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceWhiteListAddress **pVal);
 
-   void Attach(shared_ptr<HM::WhiteListAddresses> pWhiteListAddresses);
+   void Attach(std::shared_ptr<HM::WhiteListAddresses> pWhiteListAddresses);
 
 public:
 
-   shared_ptr<HM::WhiteListAddresses> m_pObject;
+   std::shared_ptr<HM::WhiteListAddresses> object_;
 
 };
 

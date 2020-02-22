@@ -19,17 +19,17 @@ namespace HM
 
       void SetAccountID(__int64 accountID);
 
-      const String &GetUID() const {return m_sUID; }
+      const String &GetUID() const {return uid_; }
       DateTime GetCreationDate() const;
-      __int64 GetAccountID() const {return m_iAccountID;}
+      __int64 GetAccountID() const {return account_id_;}
 
       bool XMLStore(XNode *pUIDsNode, int iBackupOptions);
       bool XMLLoad(XNode *pUIDNode, int iRestoreOptions);
       bool XMLLoadSubItems(XNode *pUIDNode, int iRestoreOptions) {return true; } 
 
    private:
-      __int64 m_iAccountID;
-      String m_sUID;
-      String m_sDate;
+      __int64 account_id_;
+      String uid_;
+      String date_;
    };
 }

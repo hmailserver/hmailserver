@@ -11,7 +11,7 @@ namespace HM
    {
    public:
 
-      virtual bool ProcessMacro(shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage) = 0;
+      virtual bool ProcessMacro(std::shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage) = 0;
 
    private:
 

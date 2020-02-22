@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "ClassTester.h"
-#include "../TCPIP/DNSResolver.h"
 #include "../Application/BackupManager.h"
 #include "../Application/TimeoutCalculator.h"
 #include "../BO/MessageData.h"
@@ -26,6 +25,7 @@
 #include "../Util/Encoding/Base64.h"
 #include "../Util/Encoding/ModifiedUTF7.h"
 #include "../Util/Hashing/HashCreator.h"
+#include "../Util/EventTester.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -49,12 +49,15 @@ namespace HM
    void
    ClassTester::DoTests()
    {
-	   OutputDebugString(_T("hMailServer: Testing mime parser\n"));
+      EventTester *pEventTester = new EventTester;
+      pEventTester->Test();
+      delete pEventTester;
+
+      OutputDebugString(_T("hMailServer: Testing mime parser\n"));
 	   MimeTester *pMimeTester = new MimeTester;
       pMimeTester->TestFolder("C:\\Temp\\Testdata\\martin");
 	   delete pMimeTester;
 
-      return;
       OutputDebugString(_T("hMailServer: Testing StringParser\n"));
       StringParserTester *pParser = new StringParserTester();
       pParser->Test();
@@ -156,9 +159,9 @@ namespace HM
    }
 
    void 
-   ClassTester::_LoadSettings()
+   ClassTester::LoadSettings_()
    {
-      String sAppPath = Utilities::GetExecutableDirectory();
+      String sAppPath = Utilities::GetBinDirectory();
       if (sAppPath.Right(1) != _T("\\"))
          sAppPath += _T("\\");
 
@@ -176,14 +179,14 @@ namespace HM
       if (!pBackupNode)
          throw;
 
-      m_sMimeDataPath = pBackupNode->GetChildValue(_T("MimeDataPath"));
+      mime_data_path_ = pBackupNode->GetChildValue(_T("MimeDataPath"));
    }
 
    void 
-   ClassTester::_TestBackup()
+   ClassTester::TestBackup_()
    {
-      shared_ptr<BackupManager> pBackupManager = Application::Instance()->GetBackupManager();
-      shared_ptr<Backup> pBackup = pBackupManager->LoadBackup("C:\\Temp\\Backup\\HMBackup 2006-12-10 091555.zip");
+      std::shared_ptr<BackupManager> pBackupManager = Application::Instance()->GetBackupManager();
+      std::shared_ptr<Backup> pBackup = pBackupManager->LoadBackup("C:\\Temp\\Backup\\HMBackup 2006-12-10 091555.zip");
       pBackup->SetRestoreOptions(1 | 2 | 4 | 8 | 16 | 32);
       pBackupManager->StartRestore(pBackup);
 

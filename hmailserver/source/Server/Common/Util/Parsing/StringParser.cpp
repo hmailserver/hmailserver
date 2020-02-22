@@ -52,21 +52,16 @@ namespace HM
       return sDomain;
    }
 
-
-
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // Original: [^<>" ]+@[^<>" ]+\.[^<>" ]+
+      // Original: ^(("[^<>@\\]+")|([^<> @\\"]+))@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
       // 
-      // Rule set:
-      // - Don't allow spaces anywhere in the address.
-      // - Don't allow < or > or " anywhere.
-      //
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
 
-      String regularExpression = "[^<>\" ]+@[^<>\" ]+\\.[^<>\" ]+";
-
-      
+      String regularExpression = "^((\"[^<>@\\\\]+\")|([^<> @\\\\\"]+))@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
@@ -76,13 +71,16 @@ namespace HM
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      if (_AnyOfCharsExists("<>,\"\\!#Â¤%&[]$Â£/*?", sDomainName))
-         return false;
-   
-      String sWildCard = "?*.?*";
-   
-      return WildcardMatch(sWildCard, sDomainName);
+      // Original: ^(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
 
+      String regularExpression = "^(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
+
+      RegularExpression regexpEvaluator;
+      bool result = regexpEvaluator.TestExactMatch(regularExpression, sDomainName);
+      return result;
    }
 
    
@@ -207,7 +205,7 @@ namespace HM
    StringParser::GetAllButFirst(std::vector<String> sInput)
    {
       std::vector<String> vecResult;
-      std::vector<String>::iterator iterCur = sInput.begin();
+      auto iterCur = sInput.begin();
 
       if (iterCur == sInput.end())
          return vecResult;
@@ -239,7 +237,7 @@ namespace HM
    }
 
    bool
-   StringParser::_AnyOfCharsExists(const String &sChars, const String &sLookIn)
+   StringParser::AnyOfCharsExists_(const String &sChars, const String &sLookIn)
    {
 
       for (int i = 0; i < sChars.GetLength(); i++)
@@ -455,25 +453,20 @@ namespace HM
    }
 
    char*
-   StringParser::Search(const char *haystack, int haystackSize, const char *needle)
+   StringParser::Search(const char *haystack, size_t haystackSize, const char *needle)
    {
       if (haystack == 0 || needle == 0)
          return 0;
 
-      int needleSize = strlen(needle);
+      size_t needleSize = strlen(needle);
 
-      // If the string we're searching for is longer than the string
-      // we're searching is, there's no point in performing the search.
-      if (needleSize > haystackSize)
-         return 0;
-
-      for (int haystackIndex = 0; haystackIndex < haystackSize; haystackIndex++)
+      for (size_t haystackIndex = 0; haystackIndex < haystackSize; haystackIndex++)
       {
-         int remainingHaystack = haystackSize - haystackIndex;
+         size_t remainingHaystackSize = haystackSize - haystackIndex;
 
          // If the string we're searching for is longer than the string
-         // we're searching is, there's no point in performing the search.
-         if (needleSize > haystackSize)
+         // we're searching in, there's no point in performing the search.
+         if (needleSize > remainingHaystackSize)
             return 0;
          
          const char *currentHaystackPosition = haystack + haystackIndex;
@@ -491,7 +484,7 @@ namespace HM
    {
 
       // Remove duplicate names.
-      std::vector<String>::iterator iter = items.begin();
+      auto iter = items.begin();
       std::set<String> duplicateCheck;
 
       while (iter != items.end())
@@ -581,14 +574,15 @@ namespace HM
       if (StringParser::IsValidEmailAddress("\"va@ff\"@test.co.uk")) throw;
       if (StringParser::IsValidEmailAddress("some one@test.co.uk")) throw;
       if (StringParser::IsValidEmailAddress("<someone@test.co.uk>")) throw;
+      if (StringParser::IsValidEmailAddress("va ff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("test@test.com")) throw;
       if (!StringParser::IsValidEmailAddress("test@hmailserver.com")) throw;
-      if (!StringParser::IsValidEmailAddress("test_test+testÃ¥Ã¤Ã¶|@hmailserver.com")) throw;
+      if (!StringParser::IsValidEmailAddress("test_test@hmailserver.com")) throw;
       if (!StringParser::IsValidEmailAddress("bill@microsoft.com")) throw;
       if (!StringParser::IsValidEmailAddress("martin@hmailserver.com")) throw;
       if (!StringParser::IsValidEmailAddress("vaff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("va'ff@test.co.uk")) throw;
-      
+      if (!StringParser::IsValidEmailAddress("\"va ff\"@test.co.uk")) throw;
       
 
       if (StringParser::ExtractAddress("\"va@ff\"@test.co.uk").Compare(_T("\"va@ff\"")) != 0) throw;
@@ -671,7 +665,9 @@ namespace HM
      if (p != 0) throw;  
      p = StringParser::Search("test", 4, "p");
      if (p != 0) throw;  
-      
+     p = StringParser::Search("test", 4, "feb");
+     if (p != 0) throw;
+
       // RESULT:
       /*
          Strings containing 80% us-ascii characters:

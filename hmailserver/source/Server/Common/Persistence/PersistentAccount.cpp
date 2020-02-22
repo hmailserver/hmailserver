@@ -9,6 +9,7 @@
 #include "PersistentIMAPFolder.h"
 #include "PersistentMessage.h"
 #include "PersistentGroupMember.h"
+#include "PersistenceMode.h"
 
 #include "../Util/File.h"
 #include "../Util/Crypt.h"
@@ -24,6 +25,7 @@
 #include "../Cache/AccountSizeCache.h"
 
 #include "../../IMAP/IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 
 #include "PreSaveLimitationsCheck.h"
 
@@ -45,7 +47,7 @@ namespace HM
    }
 
    bool
-   PersistentAccount::DeleteObject(shared_ptr<Account> pAccount)
+   PersistentAccount::DeleteObject(std::shared_ptr<Account> pAccount)
    {
       __int64 iID = pAccount->GetID();
       assert(iID);
@@ -57,7 +59,7 @@ namespace HM
       DeleteMessages(pAccount);
 
       // Force delete the inbox as well. DeleteMessages above does not delete it.
-      shared_ptr<IMAPFolder> inbox = pAccount->GetFolders()->GetFolderByName("Inbox");
+      std::shared_ptr<IMAPFolder> inbox = pAccount->GetFolders()->GetFolderByName("Inbox");
       if (inbox)
          PersistentIMAPFolder::DeleteObject(inbox, true);
 
@@ -77,17 +79,23 @@ namespace HM
       bool bRet = Application::Instance()->GetDBManager()->Execute(deleteCommand);
 
       // Delete folder from data directory
-      String sAccountFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + StringParser::ExtractDomain(pAccount->GetAddress()) + "\\" + StringParser::ExtractAddress(pAccount->GetAddress());
-      FileUtilities::DeleteDirectory(sAccountFolder);
+      String sDomainName = StringParser::ExtractDomain(pAccount->GetAddress());
+      String sMailbox = StringParser::ExtractAddress(pAccount->GetAddress());
+
+      if (!sDomainName.IsEmpty() && !sMailbox.IsEmpty())
+      {
+         String sAccountFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + sDomainName + "\\" + sMailbox;
+         FileUtilities::DeleteDirectory(sAccountFolder, false);
+      }
 	  
       // Refresh caches.
-      Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+      Cache<Account>::Instance()->RemoveObject(pAccount);
 
       return bRet;
    }
 
    bool
-   PersistentAccount::ReadObject(shared_ptr<Account> pAccount, __int64 ObjectID)
+   PersistentAccount::ReadObject(std::shared_ptr<Account> pAccount, __int64 ObjectID)
    {
       String sSQL = "select * from hm_accounts where accountid = @ACCOUNTID";
  
@@ -98,7 +106,7 @@ namespace HM
    }
 
    bool
-   PersistentAccount::ReadObject(shared_ptr<Account> pAccount, const String & sAddress)
+   PersistentAccount::ReadObject(std::shared_ptr<Account> pAccount, const String & sAddress)
    {
       SQLStatement statement;
       statement.SetStatementType(SQLStatement::STSelect);
@@ -112,9 +120,9 @@ namespace HM
    }
 
    bool
-   PersistentAccount::ReadObject(shared_ptr<Account> pAccount, const SQLCommand &command)
+   PersistentAccount::ReadObject(std::shared_ptr<Account> pAccount, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -130,7 +138,7 @@ namespace HM
 
 
    bool
-   PersistentAccount::ReadObject(shared_ptr<Account> pAccount, shared_ptr<DALRecordset> pRS)
+   PersistentAccount::ReadObject(std::shared_ptr<Account> pAccount, std::shared_ptr<DALRecordset> pRS)
    {
       pAccount->SetID(pRS->GetLongValue("accountid"));
       pAccount->SetActive(pRS->GetLongValue("accountactive") ? true : false);
@@ -180,45 +188,45 @@ namespace HM
    }
 
    bool
-   PersistentAccount::DeleteMessages(shared_ptr<Account> pAccount)
+   PersistentAccount::DeleteMessages(std::shared_ptr<Account> pAccount)
    {
       if (!pAccount || pAccount->GetID() == 0)
          return false;
 
 	   PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
 	   
-      Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+      Cache<Account>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());
       IMAPFolderContainer::Instance()->UncacheAccount(pAccount->GetID());
-   
+      MessagesContainer::Instance()->UncacheAccount(pAccount->GetID());
       return true;
    }
    
    bool
-   PersistentAccount::SaveObject(shared_ptr<Account> pAccount)
+   PersistentAccount::SaveObject(std::shared_ptr<Account> pAccount)
    {
       String sErrorMessage;
-      return SaveObject(pAccount, sErrorMessage, false);
+      return SaveObject(pAccount, sErrorMessage, false, PersistenceModeNormal);
    }
 
    bool
-   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage)
+   PersistentAccount::SaveObject(std::shared_ptr<Account> pAccount, String &sErrorMessage, PersistenceMode mode)
    {
-      return SaveObject(pAccount, sErrorMessage, false);
+      return SaveObject(pAccount, sErrorMessage, false, mode);
    }
 
 
    bool
-   PersistentAccount::SaveObject(shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox)
+   PersistentAccount::SaveObject(std::shared_ptr<Account> pAccount, String &sErrorMessage, bool createInbox, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pAccount, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pAccount, sErrorMessage))
          return false;
 
       __int64 iID = pAccount->GetID();
       if (iID > 0)
       {
          // First read the domain to see if we've changed its name.
-         shared_ptr<Account> tempAccount = shared_ptr<Account>(new Account());
+         std::shared_ptr<Account> tempAccount = std::shared_ptr<Account>(new Account());
          if (!PersistentAccount::ReadObject(tempAccount, iID))
             return false;
 
@@ -241,7 +249,7 @@ namespace HM
                return false;
 
             // Remove the old account from the cache.
-            Cache<Account, PersistentAccount>::Instance()->RemoveObject(tempAccount->GetAddress());
+            Cache<Account>::Instance()->RemoveObject(tempAccount->GetAddress());
          }
       }
 
@@ -315,7 +323,7 @@ namespace HM
       }
 
 	   if (!bNewObject)
-		  Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+		  Cache<Account>::Instance()->RemoveObject(pAccount);
 
       return bRetVal;
    }
@@ -326,7 +334,7 @@ namespace HM
       SQLCommand selectCommand("select sum(messagesize) as mailboxsize from hm_messages where messageaccountid = @ACCOUNTID");
       selectCommand.AddParameter("@ACCOUNTID", iAccountID);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
       if (!pRS)
          return false;
 
@@ -356,7 +364,7 @@ namespace HM
    bool
    PersistentAccount::CreateInbox(const Account &account)
    {
-      shared_ptr<IMAPFolder> inbox = shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+      std::shared_ptr<IMAPFolder> inbox = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
       inbox->SetFolderName("INBOX");
       inbox->SetIsSubscribed(true);
 
@@ -364,7 +372,7 @@ namespace HM
    }
 
    bool 
-   PersistentAccount::UpdateLastLogonTime(shared_ptr<const Account> pAccount)
+   PersistentAccount::UpdateLastLogonTime(std::shared_ptr<const Account> pAccount)
    {
       if (!pAccount)
          return false; 
@@ -380,7 +388,7 @@ namespace HM
    }
 
    bool
-   PersistentAccount::GetIsVacationMessageOn(shared_ptr<const Account> pAccount)
+   PersistentAccount::GetIsVacationMessageOn(std::shared_ptr<const Account> pAccount)
    {
       if (!pAccount->GetVacationMessageIsOn())
          return false;
@@ -397,7 +405,7 @@ namespace HM
       DateTime dtNow = DateTime::GetCurrentTime();
       DateTime dtExpires = Time::GetDateFromSystemDate(pAccount->GetVacationExpiresDate());
 
-      if (dtNow.m_status == DateTime::invalid || dtExpires.m_status == DateTime::invalid)
+      if (dtNow.status_ == DateTime::invalid || dtExpires.status_ == DateTime::invalid)
          return true;
 
       if (dtNow > dtExpires)
@@ -411,7 +419,7 @@ namespace HM
    }
 
    bool 
-   PersistentAccount::DisableVacationMessage(shared_ptr<const Account> pAccount)
+   PersistentAccount::DisableVacationMessage(std::shared_ptr<const Account> pAccount)
    {
       if (!pAccount)
          return false; 

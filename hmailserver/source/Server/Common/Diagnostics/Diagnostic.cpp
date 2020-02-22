@@ -12,6 +12,7 @@
 #include "TestBackupDirectory.h"
 #include "TestDataDirectory.h"
 #include "TestIPRanges.h"
+#include "TestErrorLogs.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -33,31 +34,31 @@ namespace HM
    void
    Diagnostic::SetLocalDomain(String &sDomainName)
    {
-      _localDomainName = sDomainName;
+      local_domain_name_ = sDomainName;
    }
 
    String
    Diagnostic::GetLocalDomain() const
    {
-      return _localDomainName;
+      return local_domain_name_;
    }
 
    void
    Diagnostic::SetTestDomain(String &sTestDomainName)
    {
-      _localTestDomainName = sTestDomainName;
+      local_test_domain_name_ = sTestDomainName;
    }
 
    String
    Diagnostic::GetTestDomain() const
    {
-      return _localTestDomainName;
+      return local_test_domain_name_;
    }
 
-   vector<DiagnosticResult>
+   std::vector<DiagnosticResult>
    Diagnostic::PerformTests()
    {
-      vector<DiagnosticResult> results;
+      std::vector<DiagnosticResult> results;
 
       TestInformationGatherer informationGatherer;
       results.push_back(informationGatherer.PerformTest());
@@ -65,21 +66,21 @@ namespace HM
       TestIPv6 ipv6Test; 
       results.push_back(ipv6Test.PerformTest());
 
-      if (_localTestDomainName.GetLength() > 0)
+      if (local_test_domain_name_.GetLength() > 0)
       {
-      TestOutboundPort outboundPortTest(_localTestDomainName);
-      results.push_back(outboundPortTest.PerformTest());
+         TestOutboundPort outboundPortTest(local_test_domain_name_);
+         results.push_back(outboundPortTest.PerformTest());
       }
       
       TestBackupDirectory backupDirectoryTest;
       results.push_back(backupDirectoryTest.PerformTest());
 
-      if (_localDomainName.GetLength() > 0)
+      if (local_domain_name_.GetLength() > 0)
       {
-         TestMXRecords mxRecordsTest(_localDomainName);
+         TestMXRecords mxRecordsTest(local_domain_name_);
          results.push_back(mxRecordsTest.PerformTest());
 
-         TestConnectToSelf selfConnect(_localDomainName);
+         TestConnectToSelf selfConnect(local_domain_name_);
          results.push_back(selfConnect.PerformTest());
       }
 
@@ -88,6 +89,10 @@ namespace HM
 
       TestIPRanges testIPRanges;
       results.push_back(testIPRanges.PerformTest());
+
+      TestErrorLogs test_error_logs;
+      results.push_back(test_error_logs.PerformTest());
+
 
       return results;
    }  

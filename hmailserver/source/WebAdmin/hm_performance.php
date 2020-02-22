@@ -69,6 +69,7 @@ $TotalIndexedCount = $obMessageIndexingSettings->TotalIndexedCount;
 
 <form action="index.php" method="post" name="mainform" onSubmit="return formCheck(this);">
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "performance");
       PrintHidden("action", "save");
    ?>   

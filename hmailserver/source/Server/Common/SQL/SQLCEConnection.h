@@ -7,10 +7,10 @@
 
 namespace HM
 {
-   class SQLCEConnection : public DALConnection, public boost::enable_shared_from_this<SQLCEConnection>
+   class SQLCEConnection : public DALConnection, public std::enable_shared_from_this<SQLCEConnection>
    {
    public:
-	   SQLCEConnection(shared_ptr<DatabaseSettings> pSettings);
+	   SQLCEConnection(std::shared_ptr<DatabaseSettings> pSettings);
 	   virtual ~SQLCEConnection();
 
       ConnectionResult Connect(String &sErrorMessage);
@@ -32,31 +32,28 @@ namespace HM
 
       virtual bool CheckServerVersion(String &errorMessage);
 
-      virtual shared_ptr<DALRecordset> CreateRecordset();
+      virtual std::shared_ptr<DALRecordset> CreateRecordset();
 
       virtual void EscapeString(String &sInput);
 
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander();
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander();
 
       void InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const;
 
    private:
 
-      bool _GetRequiresUpgrade(const String &sConnectionString);
+      bool GetRequiresUpgrade_(const String &sConnectionString);
+      String GetConnectionString_(const String &sDatabase, const String &sPassword) const;
+      String GetDatabaseFileName_(const String &sShortName) const;
 
+      virtual bool UpgradeDatabase_();
 
-      bool _InternalConnect();
-      String _GetConnectionString(const String &sDatabase, const String &sPassword) const;
-      String _GetDatabaseFileName(const String &sShortName) const;
+      DALConnection::ExecutionResult GetErrorType_(int iErrorCode);
 
-      virtual bool _UpgradeDatabase();
-
-      DALConnection::ExecutionResult _GetErrorType(int iErrorCode);
-
-      __int64 _GetIdentityFromRS(_RecordsetPtr pRS) const;
+      __int64 GetIdentityFromRS_(_RecordsetPtr pRS) const;
 
       _ConnectionPtr cSQLCEConnection;  
-      bool m_bConnected;
+      bool connected_;
 
 
    };

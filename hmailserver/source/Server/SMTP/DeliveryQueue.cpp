@@ -8,7 +8,6 @@
 #include "DeliveryQueue.h"
 #include "SMTPDeliveryManager.h"
 
-#include "../Common/Threading/Thread.h"
 #include "../Common/Threading/WorkQueueManager.h"
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/Message.h"
@@ -22,9 +21,10 @@
 namespace HM
 {
 
-   bool DeliveryQueue::m_bIsClearing = false;
+   bool DeliveryQueue::is_clearing_ = false;
 
-   DeliveryQueueClearer::DeliveryQueueClearer(void)
+   DeliveryQueueClearer::DeliveryQueueClearer(void) :
+       Task("DeliveryQueueClearer")
    {
    }
 
@@ -39,57 +39,45 @@ namespace HM
       // This function does the actual clearing of the queue.
       //---------------------------------------------------------------------------()
    {
-      try
+      LOG_DEBUG("Clearing delivery queue");
+
+      // First stop the delivery queue.
+      const String& sQueueName = Application::Instance()->GetSMTPDeliveryManager()->GetQueueName();
+         std::shared_ptr<WorkQueue> pWQ = WorkQueueManager::Instance()->GetQueue(sQueueName);
+      if (!pWQ)
       {
-         LOG_DEBUG("Clearing delivery queue");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4210, "DeliveryQueueClearer::DoWork", "Could not fetch SMTP delivery queue.");
 
-         // First stop the delivery queue.
-         const String& sQueueName = Application::Instance()->GetSMTPDeliveryManager()->GetQueueName();
-         shared_ptr<WorkQueue> pWQ = WorkQueueManager::Instance()->GetQueue(sQueueName);
-         if (!pWQ)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4210, "DeliveryQueueClearer::DoWork", "Could not fetch SMTP delivery queue.");
-
-            return;
-         }
-         
-         pWQ->Pause();
-
-         // Load the delivery queue from the database
-         Messages oMessages(-1,-1);
-         oMessages.Refresh();
-
-         // Iterate over messages to deliver.
-         std::vector<shared_ptr<Message> > vecMessages = oMessages.GetVector();
-         std::vector<shared_ptr<Message> >::iterator iterMessage = vecMessages.begin();
-         while (iterMessage != vecMessages.end())
-         {
-            // Delete the message from the database
-            PersistentMessage::DeleteObject(*iterMessage);
-
-            // Next message in queue
-            iterMessage++;
-         }
-
-         // Tell the delivery queue to clear it's pending messages list.
-         Application::Instance()->GetSMTPDeliveryManager()->UncachePendingMessages();
-
-         // Make sure there doesn't exist any delivery tasks.
-         pWQ->Clear();
-
-         // Start the queue again.
-         pWQ->Continue();
-
-         DeliveryQueue::OnDeliveryQueueCleared();
-
-         LOG_DEBUG("Delivery queue cleared.");
-
+         return;
       }
-      catch (...)
+      
+      pWQ->Stop();
+
+      // Load the delivery queue from the database
+      Messages oMessages(-1,-1);
+      oMessages.Refresh(false);
+
+      // Iterate over messages to deliver.
+         std::vector<std::shared_ptr<Message> > vecMessages = oMessages.GetVector();
+         auto iterMessage = vecMessages.begin();
+      while (iterMessage != vecMessages.end())
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4209, "DeliveryQueueClearer::DoWork()", "An unknown error occurred while clearing the delivery queue.");
-         throw;
+         // Delete the message from the database
+         PersistentMessage::DeleteObject(*iterMessage);
+
+         // Next message in queue
+         iterMessage++;
       }
+
+      // Tell the delivery queue to clear it's pending messages list.
+      Application::Instance()->GetSMTPDeliveryManager()->UncachePendingMessages();
+
+      // Make sure there doesn't exist any delivery tasks.
+      pWQ->Start();
+
+      DeliveryQueue::OnDeliveryQueueCleared();
+
+      LOG_DEBUG("Delivery queue cleared.");
 
    }
 
@@ -104,24 +92,24 @@ namespace HM
    void
    DeliveryQueue::Clear()
    {
-      if (m_bIsClearing)
+      if (is_clearing_)
          return;
 
-      m_bIsClearing = true;
+      is_clearing_ = true;
 
       // Use the random work queue to run the task.
-      shared_ptr<WorkQueue> pQueue = Application::Instance()->GetRandomWorkQueue();
+      std::shared_ptr<WorkQueue> pQueue = Application::Instance()->GetMaintenanceWorkQueue();
 
       if (!pQueue)
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5117, "DeliveryQueue::Clear()", "WorkQueue was not started. Queue could not be cleared.");
 
-         m_bIsClearing = false;
+         is_clearing_ = false;
          return;
       }
 
       // Launch a thread that can clear the delivery queue.
-      shared_ptr<DeliveryQueueClearer> pClearer = shared_ptr<DeliveryQueueClearer>(new DeliveryQueueClearer);
+      std::shared_ptr<DeliveryQueueClearer> pClearer = std::shared_ptr<DeliveryQueueClearer>(new DeliveryQueueClearer);
 
       pQueue->AddTask(pClearer);
    }
@@ -136,7 +124,7 @@ namespace HM
    void 
    DeliveryQueue::Remove(__int64 iMessageID)
    {
-      shared_ptr<Message> pMessage = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message());
       if (!PersistentMessage::ReadObject(pMessage, iMessageID))
          return;
 
@@ -152,13 +140,13 @@ namespace HM
    void 
    DeliveryQueue::OnDeliveryQueueCleared()
    {
-      m_bIsClearing = false;
+      is_clearing_ = false;
    }
 
    void 
    DeliveryQueue::StartDelivery()
    {
-      shared_ptr<SMTPDeliveryManager> pDeliverer = Application::Instance()->GetSMTPDeliveryManager();
+      std::shared_ptr<SMTPDeliveryManager> pDeliverer = Application::Instance()->GetSMTPDeliveryManager();
       if (!pDeliverer)
          return;
 

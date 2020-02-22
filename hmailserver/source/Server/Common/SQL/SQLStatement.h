@@ -58,14 +58,14 @@ namespace HM
       void AddWhereClauseColumn(const String &sName, const String &sValue);
       void AddWhereClauseColumn(const String &sName, const AnsiString &sValue);
 
-      void SetAdditionalSQL(const String &additionalSQL) {m_sAdditionalSQL = additionalSQL; }
+      void SetAdditionalSQL(const String &additionalSQL) {additional_sql_ = additionalSQL; }
 
-      void SetTable(const String & sName) { m_sTable = sName; }
-      void SetWhereClause(const String & sWhere) { m_sWhere = sWhere; }
+      void SetTable(const String & sName) { table_ = sName; }
+      void SetWhereClause(const String & sWhere) { where_ = sWhere; }
       void SetTopRows(int rows);
 
-      void SetStatementType(eStatementType iType) { m_Type = iType; }
-      void SetIdentityColumn(const String &sIdentityColumn) {m_sIdentityColumn = sIdentityColumn; }
+      void SetStatementType(eStatementType iType) { type_ = iType; }
+      void SetIdentityColumn(const String &sIdentityColumn) {identity_column_ = sIdentityColumn; }
 
       SQLCommand GetCommand() const;
       int GetNoOfCols() const;
@@ -74,7 +74,7 @@ namespace HM
 
       static String GetCurrentTimestamp();
       static String GetCurrentTimestampPlusMinutes(int iMinutes);
-      static String GetCreateDatabase(shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName);
+      static String GetCreateDatabase(std::shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName);
       static String GetLeftFunction(const String &sParamName, int iLength);
       static String GetTopRows(const String &tableName, int rows);
 
@@ -85,16 +85,16 @@ namespace HM
 
    private:
 
-      eStatementType m_Type;
+      eStatementType type_;
 
-      String m_sIdentityColumn;
-      String m_sWhere;
-      String m_sTable;
-      String m_sAdditionalSQL;
+      String identity_column_;
+      String where_;
+      String table_;
+      String additional_sql_;
 
-      int _topRows;
+      int top_rows_;
 
       std::vector<Column> vecColumns;
-      std::vector<Column> m_vecWhereClauseColumns;
+      std::vector<Column> where_clause_columns_;
    };
 }

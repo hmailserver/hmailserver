@@ -25,10 +25,10 @@ namespace HM
    bool 
    POP3Sessions::IsLocked(__int64 iAccount)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       bool bRet = false;
-      if (m_vecLockedAccounts.find(iAccount) != m_vecLockedAccounts.end())
+      if (locked_accounts_.find(iAccount) != locked_accounts_.end())
          bRet = true;
 
       return bRet;
@@ -37,11 +37,11 @@ namespace HM
    bool 
    POP3Sessions::Lock(__int64 iAccount)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      if (m_vecLockedAccounts.find(iAccount) == m_vecLockedAccounts.end())
+      if (locked_accounts_.find(iAccount) == locked_accounts_.end())
       {
-         m_vecLockedAccounts.insert(iAccount);
+         locked_accounts_.insert(iAccount);
          return true;
       }
       else
@@ -53,10 +53,10 @@ namespace HM
    void 
    POP3Sessions::Unlock(__int64 iAccount)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<__int64>::iterator iter =  m_vecLockedAccounts.find(iAccount);
-      if (iter != m_vecLockedAccounts.end())
-         m_vecLockedAccounts.erase(iter);
+      auto iter =  locked_accounts_.find(iAccount);
+      if (iter != locked_accounts_.end())
+         locked_accounts_.erase(iter);
    }
 }

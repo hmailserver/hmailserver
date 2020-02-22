@@ -59,7 +59,7 @@ namespace RegressionTests.API
          try
          {
             Domain secondDomain = newApplication.Domains.get_ItemByName("example.com");
-            Assert.Fail();
+            Assert.Fail("Was able to access other domain.");
          }
          catch (COMException ex)
          {

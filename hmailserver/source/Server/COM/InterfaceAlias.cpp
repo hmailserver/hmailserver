@@ -42,10 +42,10 @@ STDMETHODIMP InterfaceAlias::get_Active(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -58,10 +58,10 @@ STDMETHODIMP InterfaceAlias::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetIsActive(newVal == VARIANT_TRUE);
+      object_->SetIsActive(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -74,10 +74,10 @@ STDMETHODIMP InterfaceAlias::get_DomainID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetDomainID();
+      *pVal = (long) object_->GetDomainID();
    
       return S_OK;
    }
@@ -91,7 +91,7 @@ STDMETHODIMP InterfaceAlias::put_DomainID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // Only here for backwards compatibility (4.x)
@@ -107,10 +107,10 @@ STDMETHODIMP InterfaceAlias::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
    
       return S_OK;
    }
@@ -124,10 +124,10 @@ STDMETHODIMP InterfaceAlias::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
    
       return S_OK;
    }
@@ -141,10 +141,10 @@ STDMETHODIMP InterfaceAlias::get_Value(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetValue().AllocSysString();
+      *pVal = object_->GetValue().AllocSysString();
    
       return S_OK;
    }
@@ -158,10 +158,10 @@ STDMETHODIMP InterfaceAlias::put_Value(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetValue(newVal);
+      object_->SetValue(newVal);
    
       return S_OK;
    }
@@ -175,10 +175,10 @@ STDMETHODIMP InterfaceAlias::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      HM::PersistentAlias::DeleteObject(m_pObject);
+      HM::PersistentAlias::DeleteObject(object_);
    
       return S_OK;
    }
@@ -192,11 +192,11 @@ STDMETHODIMP InterfaceAlias::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       HM::String sErrorMessage;
-      if (HM::PersistentAlias::SaveObject(m_pObject, sErrorMessage))
+      if (HM::PersistentAlias::SaveObject(object_, sErrorMessage, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();

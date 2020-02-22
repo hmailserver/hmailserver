@@ -16,20 +16,27 @@
 
 namespace HM
 {
-   MySQLConnection::MySQLConnection(shared_ptr<DatabaseSettings> pSettings) :
+   MySQLConnection::MySQLConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
-      m_bIsConnected = false;
-      m_pDBConn = 0;
-      _supportsTransactions = false;
+      is_connected_ = false;
+      dbconn_ = 0;
+      supports_transactions_ = false;
    }
 
    MySQLConnection::~MySQLConnection()
    {
-      if (m_pDBConn)
+      try
       {
-         MySQLInterface::Instance()->p_mysql_close(m_pDBConn);
-         m_pDBConn = 0;
+         if (dbconn_)
+         {
+            MySQLInterface::Instance()->p_mysql_close(dbconn_);
+            dbconn_ = 0;
+         }
+      }
+      catch (...)
+      {
+
       }
          
    }
@@ -49,22 +56,22 @@ namespace HM
 
       try
       {
-         String sUsername = m_pDatabaseSettings->GetUsername();
-         String sPassword = m_pDatabaseSettings->GetPassword();
-         String sServer = m_pDatabaseSettings->GetServer();
-         String sDatabase = m_pDatabaseSettings->GetDatabaseName();
-         long lDBPort = m_pDatabaseSettings->GetPort();
+         String sUsername = database_settings_->GetUsername();
+         String sPassword = database_settings_->GetPassword();
+         String sServer = database_settings_->GetServer();
+         String sDatabase = database_settings_->GetDatabaseName();
+         long lDBPort = database_settings_->GetPort();
 
          if (lDBPort == 0)
             lDBPort = 3306;
          
          
 
-         m_pDBConn = MySQLInterface::Instance()->p_mysql_init(NULL);
+         dbconn_ = MySQLInterface::Instance()->p_mysql_init(NULL);
 
          //MYSQL *pResult = mysql_real_connect(
          hm_MYSQL *pResult = MySQLInterface::Instance()->p_mysql_real_connect(
-                     m_pDBConn, 
+                     dbconn_, 
                      Unicode::ToANSI(sServer), 
                      Unicode::ToANSI(sUsername), 
                      Unicode::ToANSI(sPassword), 
@@ -80,7 +87,7 @@ namespace HM
             // unsuccessful. For a successful connection, the return value is the same as the value 
             // of the first parameter.
 
-            const char *pError = MySQLInterface::Instance()->p_mysql_error(m_pDBConn);
+            const char *pError = MySQLInterface::Instance()->p_mysql_error(dbconn_);
             sErrorMessage = pError;
 
             return TemporaryFailure;
@@ -89,26 +96,21 @@ namespace HM
          if (CheckError(pResult, "mysql_real_connect()", sErrorMessage) != DALConnection::DALSuccess)
             return TemporaryFailure;
 
-         MySQLInterface::Instance()->p_mysql_query(m_pDBConn, "SET NAMES utf8");
- 
-
+         SetConnectionCharacterSet_();
 
          if (!sDatabase.IsEmpty())
          {
-            String sSwitchDB = "use " + sDatabase;
+            String switch_db_command = "use " + sDatabase;
 
-            if (MySQLInterface::Instance()->p_mysql_query(m_pDBConn, Unicode::ToANSI(sSwitchDB)))
+            if (TryExecute(SQLCommand(switch_db_command), sErrorMessage, 0, 0) != DALConnection::DALSuccess)
             {
-               CheckError(m_pDBConn, sSwitchDB, sErrorMessage);
                return TemporaryFailure;
             }
-
-            MySQLInterface::Instance()->p_mysql_store_result(m_pDBConn); // should always be called after mysql_query
          }
 
-         LoadSupportsTransactions(sDatabase);
+         LoadSupportsTransactions_(sDatabase);
 
-         m_bIsConnected = true;
+         is_connected_ = true;
       }
       catch (...)
       {
@@ -123,7 +125,7 @@ namespace HM
    MySQLConnection::CheckServerVersion(String &errorMessage)
    {
       // check server version.
-      int serverVersion = MySQLInterface::Instance()->p_mysql_get_server_version(m_pDBConn);
+      int serverVersion = MySQLInterface::Instance()->p_mysql_get_server_version(dbconn_);
       if (serverVersion < RequiredVersion)
       {
          errorMessage = "hMailServer requires MySQL 4.1.18 or newer. If you are using the internal MySQL database, please upgrade to the latest 4.x version prior to upgrading to version 5 or later.";
@@ -136,10 +138,10 @@ namespace HM
    bool
    MySQLConnection::Disconnect()
    {
-      if (m_pDBConn)
+      if (dbconn_)
       {
-         MySQLInterface::Instance()->p_mysql_close(m_pDBConn);
-         m_pDBConn = 0;
+         MySQLInterface::Instance()->p_mysql_close(dbconn_);
+         dbconn_ = 0;
       }
 
       return true;
@@ -161,20 +163,20 @@ namespace HM
             return DALConnection::DALUnknown;
          }
    
-         if (MySQLInterface::Instance()->p_mysql_query(m_pDBConn, Unicode::ToANSI(sQuery)))
+         if (MySQLInterface::Instance()->p_mysql_query(dbconn_, sQuery))
          {
             bool bIgnoreErrors = SQL.Find(_T("[IGNORE-ERRORS]")) >= 0;
             if (!bIgnoreErrors)
             {
-               if (iIgnoreErrors == 0 || !(_GetErrorType(m_pDBConn) & iIgnoreErrors))
+               if (iIgnoreErrors == 0 || !(GetErrorType_(dbconn_) & iIgnoreErrors))
                {
-                  DALConnection::ExecutionResult result = CheckError(m_pDBConn, SQL, sErrorMessage);
+                  DALConnection::ExecutionResult result = CheckError(dbconn_, SQL, sErrorMessage);
                   return result;
                }
             }
          }
 
-         hm_MYSQL_RES *pRes = MySQLInterface::Instance()->p_mysql_store_result(m_pDBConn); // should always be called after mysql_query
+         hm_MYSQL_RES *pRes = MySQLInterface::Instance()->p_mysql_store_result(dbconn_); // should always be called after mysql_query
 
          if (pRes)
             MySQLInterface::Instance()->p_mysql_free_result(pRes);
@@ -182,7 +184,7 @@ namespace HM
          // Fetch insert id.
          if (iInsertID > 0)
          {
-            *iInsertID = MySQLInterface::Instance()->p_mysql_insert_id(m_pDBConn);
+            *iInsertID = MySQLInterface::Instance()->p_mysql_insert_id(dbconn_);
          }
       }
       catch (...)
@@ -197,17 +199,17 @@ namespace HM
    bool
    MySQLConnection::IsConnected() const
    {
-      return m_bIsConnected;
+      return is_connected_;
    }
 
    hm_MYSQL*
    MySQLConnection::GetConnection() const
    {
-      return m_pDBConn;
+      return dbconn_;
    }
 
    DALConnection::ExecutionResult
-   MySQLConnection::_GetErrorType(hm_MYSQL *pSQL)
+   MySQLConnection::GetErrorType_(hm_MYSQL *pSQL)
    {
       try
       {
@@ -268,7 +270,7 @@ namespace HM
          String sMySQLErrorUnicode = sMySqlErrorAnsi;
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("MySQL: %s (Additional info: %s)"), sMySQLErrorUnicode, sAdditionalInfo);
+         sErrorMessage.Format(_T("MySQL: %s (Additional info: %s)"), sMySQLErrorUnicode.c_str(), sAdditionalInfo.c_str());
 
          sOutputErrorMessage = sErrorMessage;
 
@@ -305,17 +307,17 @@ namespace HM
       }
 
       // Remove dummy user created after installation.
-      _UpdatePassword();
+      UpdatePassword_();
          
       // Run the scripts file
       String sScriptsFile = IniFileSettings::Instance()->GetDBScriptDirectory() + "\\Internal MySQL\\HMS4.3-MySQL4.1.18.sql";
-      _RunScriptFile(sScriptsFile);
+      RunScriptFile_(sScriptsFile);
 
-      _RunCommand("FLUSH PRIVILEGES");
+      RunCommand_("FLUSH PRIVILEGES");
    }
 
    void 
-   MySQLConnection::_UpdatePassword()
+   MySQLConnection::UpdatePassword_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Remoevs any user that lacks user name. Used to tighten security on the internal
@@ -323,11 +325,11 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       // Remove the dummy user.
-      _RunCommand("DELETE FROM mysql.user WHERE User = ''");
+      RunCommand_("DELETE FROM mysql.user WHERE User = ''");
    }
 
    void 
-   MySQLConnection::_RunScriptFile(const String &sFile) 
+   MySQLConnection::RunScriptFile_(const String &sFile) 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs a SQL script which contains commands separated with semicolons. This
@@ -340,8 +342,8 @@ namespace HM
 
       std::vector<String> vecCommands = StringParser::SplitString(sContents, ";");
 
-      std::vector<String>::iterator iterCommand = vecCommands.begin();
-      std::vector<String>::iterator iterEnd = vecCommands.end();
+      auto iterCommand = vecCommands.begin();
+      auto iterEnd = vecCommands.end();
       for (; iterCommand != iterEnd; iterCommand++)
       {
          String sSQL = (*iterCommand);
@@ -350,13 +352,13 @@ namespace HM
          sSQL.TrimRight(_T("\r\n "));
 
          if (!sSQL.IsEmpty())
-            _RunCommand(sSQL);
+            RunCommand_(sSQL);
       }
 #endif
    }
 
    void 
-   MySQLConnection::_RunCommand(const String &sCommand) 
+   MySQLConnection::RunCommand_(const String &sCommand) 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Runs a single SQL command without any error handling.
@@ -370,7 +372,7 @@ namespace HM
    bool 
    MySQLConnection::BeginTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("BEGIN"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -381,7 +383,7 @@ namespace HM
    bool 
    MySQLConnection::CommitTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("COMMIT"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -393,7 +395,7 @@ namespace HM
    bool 
    MySQLConnection::RollbackTransaction(String &sErrorMessage)
    {
-      if (_supportsTransactions)
+      if (supports_transactions_)
       {
          return TryExecute(SQLCommand("ROLLBACK"), sErrorMessage, 0)  == DALSuccess;
       }
@@ -407,9 +409,9 @@ namespace HM
    }
 
    void 
-   MySQLConnection::LoadSupportsTransactions(const String &database)
+   MySQLConnection::LoadSupportsTransactions_(const String &database)
    {
-      _supportsTransactions = false;
+      supports_transactions_ = false;
 
       if (database.GetLength() == 0)
          return;
@@ -436,14 +438,55 @@ namespace HM
       if (tableCount > 0)
       {
          // Only InnoDB tables in this database. Enable transactions.
-         _supportsTransactions = true;
+         supports_transactions_ = true;
       }
    }
 
-   shared_ptr<DALRecordset> 
+   void 
+   MySQLConnection::SetConnectionCharacterSet_()
+   {
+      std::set<String> utf_character_sets;
+
+      MySQLRecordset rec;
+      if (!rec.Open(shared_from_this(), SQLCommand("SHOW CHARACTER SET LIKE 'UTF%'")))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", "Unable to find appropriate MySQL character set. Command SHOW CHARACTER SET LIKE 'UTF%' failed.");
+         return;
+      }
+
+
+      while (!rec.IsEOF())
+      {
+         String character_set  = rec.GetStringValue("Charset");
+         utf_character_sets.insert(character_set);
+         rec.MoveNext();
+      }
+
+      String character_set_to_use;
+
+      if (utf_character_sets.find("utf8mb4") != utf_character_sets.end())
+         character_set_to_use = "utf8mb4";
+      else if (utf_character_sets.find("utf8") != utf_character_sets.end())
+         character_set_to_use = "utf8";
+      else
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", "Unable to find appropriate MySQL character set.");
+         return;
+      }
+
+      String error_message;
+      AnsiString set_names_command = Formatter::Format("SET NAMES {0}", character_set_to_use);
+
+      if (TryExecute(SQLCommand(set_names_command), error_message, 0, 0) != DALConnection::DALSuccess)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5008, "MySQLConnection::LoadConnectionCharacterSet_", set_names_command);
+      }
+   }
+
+   std::shared_ptr<DALRecordset> 
    MySQLConnection::CreateRecordset()
    {
-      shared_ptr<MySQLRecordset> recordset = shared_ptr<MySQLRecordset>(new MySQLRecordset());
+      std::shared_ptr<MySQLRecordset> recordset = std::shared_ptr<MySQLRecordset>(new MySQLRecordset());
       return recordset;
    }
 
@@ -454,10 +497,10 @@ namespace HM
       sInput.Replace(_T("\\"), _T("\\\\"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    MySQLConnection::CreateMacroExpander()
    {
-      shared_ptr<MySQLMacroExpander> expander = shared_ptr<MySQLMacroExpander>(new MySQLMacroExpander());
+      std::shared_ptr<MySQLMacroExpander> expander = std::shared_ptr<MySQLMacroExpander>(new MySQLMacroExpander());
       return expander;
    }
 }

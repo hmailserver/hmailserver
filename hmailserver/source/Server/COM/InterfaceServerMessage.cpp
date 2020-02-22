@@ -14,10 +14,10 @@ InterfaceServerMessage::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (HM::PersistentServerMessage::SaveObject(m_pObject))
+      if (HM::PersistentServerMessage::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -38,10 +38,10 @@ STDMETHODIMP InterfaceServerMessage::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -55,10 +55,10 @@ STDMETHODIMP InterfaceServerMessage::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
       return S_OK;
    }
    catch (...)
@@ -71,10 +71,10 @@ STDMETHODIMP InterfaceServerMessage::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
    
       return S_OK;
    }
@@ -88,10 +88,10 @@ STDMETHODIMP InterfaceServerMessage::put_Text(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetText(newVal);
+      object_->SetText(newVal);
       return S_OK;
    }
    catch (...)
@@ -104,10 +104,10 @@ STDMETHODIMP InterfaceServerMessage::get_Text(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetText().AllocSysString();
+      *pVal = object_->GetText().AllocSysString();
    
       return S_OK;
    }

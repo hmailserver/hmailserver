@@ -17,25 +17,25 @@ namespace HM
 
    protected:
 
-     __int64 m_iID;
+     __int64 id_;
    };
 
    template <class T>
    BusinessObject<T>::BusinessObject()
    {
-      m_iID = 0;
+      id_ = 0;
    }
 
    template <class T>
    __int64 BusinessObject<T>::GetID() const
    {
-      return m_iID;
+      return id_;
    }
 
    template <class T> 
    void BusinessObject<T>::SetID(__int64 iNewID)
    {
-      m_iID = iNewID;
+      id_ = iNewID;
    }  
 
 }  

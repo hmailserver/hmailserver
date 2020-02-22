@@ -16,9 +16,7 @@ class ATL_NO_VTABLE InterfaceAntiSpam :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceAntiSpam()
-	{
-	}
+   InterfaceAntiSpam();
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEANTISPAM)
 
@@ -143,7 +141,7 @@ public:
 
 private:
 
-   HM::Configuration* m_pConfig;
+   HM::Configuration* config_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(AntiSpam), InterfaceAntiSpam)

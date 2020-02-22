@@ -14,7 +14,7 @@ namespace HM
 
       static String GetRevertedIP(const String & sIP);
 
-      static set<String> ExpandAddresses(const String &input);
+      static std::set<String> ExpandAddresses(const String &input);
 
 
    };

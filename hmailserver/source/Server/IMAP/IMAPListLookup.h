@@ -12,7 +12,7 @@ namespace HM
       IMAPListLookup();
       virtual ~IMAPListLookup();
 
-      static bool IsItemInList(vector<String> vecItems, int item);
+      static bool IsItemInList(std::vector<String> vecItems, int item);
 
    private:
 

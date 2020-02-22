@@ -48,10 +48,10 @@ STDMETHODIMP InterfaceIMAPFolder::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (HM::PersistentIMAPFolder::SaveObject(m_pObject))
+      if (HM::PersistentIMAPFolder::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -67,9 +67,9 @@ STDMETHODIMP InterfaceIMAPFolder::Save()
 }   
    
 void 
-InterfaceIMAPFolder::Attach(shared_ptr<HM::IMAPFolder> pFolder)
+InterfaceIMAPFolder::Attach(std::shared_ptr<HM::IMAPFolder> pFolder)
 {
-   m_pObject = pFolder;
+   object_ = pFolder;
 }
 
 STDMETHODIMP 
@@ -77,10 +77,10 @@ InterfaceIMAPFolder::get_ParentID(LONG *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetParentFolderID();
+      *pVal = (long) object_->GetParentFolderID();
       return S_OK;
    }
    catch (...)
@@ -94,10 +94,10 @@ InterfaceIMAPFolder::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      HM::String sUnicode = HM::ModifiedUTF7::Decode(m_pObject->GetFolderName());
+      HM::String sUnicode = HM::ModifiedUTF7::Decode(object_->GetFolderName());
       *pVal = sUnicode.AllocSysString();
       return S_OK;
    }
@@ -111,10 +111,10 @@ STDMETHODIMP InterfaceIMAPFolder::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetFolderName(HM::ModifiedUTF7::Encode(newVal));
+      object_->SetFolderName(HM::ModifiedUTF7::Encode(newVal));
       return S_OK;
    }
    catch (...)
@@ -128,10 +128,10 @@ InterfaceIMAPFolder::get_Subscribed(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetIsSubscribed() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetIsSubscribed() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -145,10 +145,10 @@ InterfaceIMAPFolder::put_Subscribed(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetIsSubscribed(newVal == VARIANT_TRUE);
+      object_->SetIsSubscribed(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -162,14 +162,14 @@ InterfaceIMAPFolder::get_Messages(IInterfaceMessages **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
    
       CComObject<InterfaceMessages>* pItem = new CComObject<InterfaceMessages>();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Messages> pMessages = m_pObject->GetMessages();
+      std::shared_ptr<HM::Messages> pMessages = object_->GetMessages();
    
       if (pMessages)
       {
@@ -191,13 +191,13 @@ InterfaceIMAPFolder::get_SubFolders(IInterfaceIMAPFolders **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolders>* pItem = new CComObject<InterfaceIMAPFolders >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolders> pFolders = m_pObject->GetSubFolders();
+      std::shared_ptr<HM::IMAPFolders> pFolders = object_->GetSubFolders();
    
       if (pFolders)
       {
@@ -219,21 +219,21 @@ InterfaceIMAPFolder::get_Permissions(IInterfaceIMAPFolderPermissions **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pObject->IsPublicFolder())
+      if (!object_->IsPublicFolder())
       {
          // This is not a public  folder. Not possible to modify permissions.
          return COMError::GenerateError("It is only possible to modify permissions for public folders.");
       }
    
       CComObject<InterfaceIMAPFolderPermissions>* pItem = new CComObject<InterfaceIMAPFolderPermissions >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      if (m_pObject)
+      if (object_)
       {
-         pItem->AttachItem(m_pObject);
+         pItem->AttachItem(object_);
          pItem->AddRef();
          *pVal = pItem;
       }
@@ -250,13 +250,13 @@ STDMETHODIMP InterfaceIMAPFolder::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pParentCollection)
-         return HM::PersistentIMAPFolder::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentIMAPFolder::DeleteObject(object_) ? S_OK : S_FALSE;
       
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -271,10 +271,10 @@ InterfaceIMAPFolder::get_CurrentUID(LONG *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetCurrentUID();
+      *pVal = (long) object_->GetCurrentUID();
       return S_OK;
    }
    catch (...)
@@ -288,10 +288,10 @@ InterfaceIMAPFolder::get_CreationTime(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = HM::Time::GetTimeStampFromDateTime(m_pObject->GetCreationTime()).AllocSysString();
+      *pVal = HM::Time::GetTimeStampFromDateTime(object_->GetCreationTime()).AllocSysString();
       return S_OK;
    }
    catch (...)

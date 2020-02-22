@@ -18,7 +18,7 @@
 namespace HM
 {
    AntiSpamConfiguration::AntiSpamConfiguration() :
-      m_bGreylistingTemporarilyDisabled(false)
+      greylisting_temporarily_disabled_(false)
    { 
    
    }
@@ -31,17 +31,17 @@ namespace HM
    bool 
    AntiSpamConfiguration::Load()
    {
-      _dnsBlackLists = shared_ptr<DNSBlackLists>(new DNSBlackLists);
-      _dnsBlackLists->Refresh();
+      dnsBlackLists_ = std::shared_ptr<DNSBlackLists>(new DNSBlackLists);
+      dnsBlackLists_->Refresh();
 
-      _surblServers = shared_ptr<SURBLServers>(new SURBLServers);
-      _surblServers->Refresh();
+      surblServers_ = std::shared_ptr<SURBLServers>(new SURBLServers);
+      surblServers_->Refresh();
 
       return true;
    }
 
-   shared_ptr<PropertySet> 
-   AntiSpamConfiguration::_GetSettings()
+   std::shared_ptr<PropertySet> 
+   AntiSpamConfiguration::GetSettings_()
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -50,122 +50,122 @@ namespace HM
    void
    AntiSpamConfiguration::SetCheckHostInHelo(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_AS_CHECKHOSTINHELO, newVal);
+      GetSettings_()->SetBool(PROPERTY_AS_CHECKHOSTINHELO, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetCheckHostInHelo() 
    {
-      return _GetSettings()->GetBool(PROPERTY_AS_CHECKHOSTINHELO);
+      return GetSettings_()->GetBool(PROPERTY_AS_CHECKHOSTINHELO);
    }
 
    void
    AntiSpamConfiguration::SetCheckHostInHeloScore(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_AS_CHECKHOSTINHELOSCORE, newVal);
+      GetSettings_()->SetLong(PROPERTY_AS_CHECKHOSTINHELOSCORE, newVal);
    }
 
    int
    AntiSpamConfiguration::GetCheckHostInHeloScore() 
    {
-      return _GetSettings()->GetLong(PROPERTY_AS_CHECKHOSTINHELOSCORE);
+      return GetSettings_()->GetLong(PROPERTY_AS_CHECKHOSTINHELOSCORE);
    }
 
 
    void
    AntiSpamConfiguration::SetUseGreyListing(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_USEGREYLISTING, newVal);
+      GetSettings_()->SetBool(PROPERTY_USEGREYLISTING, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetUseGreyListing() 
    {
-      return _GetSettings()->GetBool(PROPERTY_USEGREYLISTING);
+      return GetSettings_()->GetBool(PROPERTY_USEGREYLISTING);
    }
 
    int
    AntiSpamConfiguration::GetGreyListingInitialDelay()
    {
-      return _GetSettings()->GetLong(PROPERTY_GL_INITIALDELAY);
+      return GetSettings_()->GetLong(PROPERTY_GL_INITIALDELAY);
    }
 
    void 
    AntiSpamConfiguration::SetGreyListingInitialDelay(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_GL_INITIALDELAY, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_GL_INITIALDELAY, lNewValue);
    }
 
    int
    AntiSpamConfiguration::GetGreyListingInitialDelete()
    {
-      return _GetSettings()->GetLong(PROPERTY_GL_INITIALDELETE);
+      return GetSettings_()->GetLong(PROPERTY_GL_INITIALDELETE);
    }
 
    void 
    AntiSpamConfiguration::SetGreyListingInitialDelete(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_GL_INITIALDELETE, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_GL_INITIALDELETE, lNewValue);
    }
 
    int
    AntiSpamConfiguration::GetGreyListingFinalDelete()
    {
-      return _GetSettings()->GetLong(PROPERTY_GL_FINALDELETE);
+      return GetSettings_()->GetLong(PROPERTY_GL_FINALDELETE);
    }
 
    void 
    AntiSpamConfiguration::SetGreyListingFinalDelete(int lNewValue)
    {
-      _GetSettings()->SetLong(PROPERTY_GL_FINALDELETE, lNewValue);
+      GetSettings_()->SetLong(PROPERTY_GL_FINALDELETE, lNewValue);
    }
 
    void
    AntiSpamConfiguration::SetAddHeaderSpam(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_AS_ADDHEADERSPAM, newVal);
+      GetSettings_()->SetBool(PROPERTY_AS_ADDHEADERSPAM, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetAddHeaderSpam() 
    {
-      return _GetSettings()->GetBool(PROPERTY_AS_ADDHEADERSPAM);
+      return GetSettings_()->GetBool(PROPERTY_AS_ADDHEADERSPAM);
    }
 
    void
    AntiSpamConfiguration::SetAddHeaderReason(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_AS_ADDHEADERREASON, newVal);
+      GetSettings_()->SetBool(PROPERTY_AS_ADDHEADERREASON, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetAddHeaderReason() 
    {
-      return _GetSettings()->GetBool(PROPERTY_AS_ADDHEADERREASON);
+      return GetSettings_()->GetBool(PROPERTY_AS_ADDHEADERREASON);
    }
 
    void
    AntiSpamConfiguration::SetPrependSubject(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_AS_PREPENDSUBJECT, newVal);
+      GetSettings_()->SetBool(PROPERTY_AS_PREPENDSUBJECT, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetPrependSubject() 
    {
-      return _GetSettings()->GetBool(PROPERTY_AS_PREPENDSUBJECT);
+      return GetSettings_()->GetBool(PROPERTY_AS_PREPENDSUBJECT);
    }
 
    void
    AntiSpamConfiguration::SetPrependSubjectText(const String &sText)
    {
-      _GetSettings()->SetString(PROPERTY_AS_PREPENDSUBJECTTEXT, sText);
+      GetSettings_()->SetString(PROPERTY_AS_PREPENDSUBJECTTEXT, sText);
    }
 
    String 
    AntiSpamConfiguration::GetPrependSubjectText() 
    {
-      return _GetSettings()->GetString(PROPERTY_AS_PREPENDSUBJECTTEXT);
+      return GetSettings_()->GetString(PROPERTY_AS_PREPENDSUBJECTTEXT);
    }
 
 
@@ -173,7 +173,7 @@ namespace HM
    AntiSpamConfiguration::XMLStore(XNode *pBackupNode, int iOptions)
    {
       // SURBL SERVERS
-      if (!_surblServers->XMLStore(pBackupNode, iOptions))
+      if (!surblServers_->XMLStore(pBackupNode, iOptions))
          return false;
 
       // GREYLISTING WHITEADDRESSES
@@ -185,7 +185,7 @@ namespace HM
          return false;
 
       // DNS BLACK LISTS
-      if (!_dnsBlackLists->XMLStore(pBackupNode, iOptions))
+      if (!dnsBlackLists_->XMLStore(pBackupNode, iOptions))
          return false;
 
       return true;
@@ -195,8 +195,8 @@ namespace HM
    AntiSpamConfiguration::XMLLoad(XNode *pBackupNode, int iRestoreOptions)
    {
       // SURBL SERVERS
-      _surblServers->Refresh();
-      if (!_surblServers->XMLLoad(pBackupNode, iRestoreOptions))
+      surblServers_->Refresh();
+      if (!surblServers_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       // GREYLISTING WHITEADDRESSES
@@ -208,8 +208,8 @@ namespace HM
          return false;
 
       // DNS BLACK LISTS
-      _dnsBlackLists->Refresh();
-      if (!_dnsBlackLists->XMLLoad(pBackupNode, iRestoreOptions))
+      dnsBlackLists_->Refresh();
+      if (!dnsBlackLists_->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       return true;
@@ -218,61 +218,61 @@ namespace HM
    bool 
    AntiSpamConfiguration::GetGreylistingTemporarilyDisabled()
    {
-      return m_bGreylistingTemporarilyDisabled;
+      return greylisting_temporarily_disabled_;
    }
 
    void 
    AntiSpamConfiguration::SetGreylistingTemporarilyDisabled(bool bNewVal)
    {
-      m_bGreylistingTemporarilyDisabled = bNewVal;
+      greylisting_temporarily_disabled_ = bNewVal;
    }
 
    void
    AntiSpamConfiguration::SetUseMXChecks(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_USEMXCHECK, newVal);
+      GetSettings_()->SetBool(PROPERTY_USEMXCHECK, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetUseMXChecks() 
    {
-      return _GetSettings()->GetBool(PROPERTY_USEMXCHECK);
+      return GetSettings_()->GetBool(PROPERTY_USEMXCHECK);
    }
 
    void
    AntiSpamConfiguration::SetUseMXChecksScore(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_USEMXCHECKSCORE, newVal);
+      GetSettings_()->SetLong(PROPERTY_USEMXCHECKSCORE, newVal);
    }
 
    int 
    AntiSpamConfiguration::GetUseMXChecksScore() 
    {
-      return _GetSettings()->GetLong(PROPERTY_USEMXCHECKSCORE);
+      return GetSettings_()->GetLong(PROPERTY_USEMXCHECKSCORE);
    }
 
    void
    AntiSpamConfiguration::SetSpamMarkThreshold(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_SPAMMARKTHRESHOLD, newVal);
+      GetSettings_()->SetLong(PROPERTY_SPAMMARKTHRESHOLD, newVal);
    }
 
    int 
    AntiSpamConfiguration::GetSpamMarkThreshold() 
    {
-      return _GetSettings()->GetLong(PROPERTY_SPAMMARKTHRESHOLD);
+      return GetSettings_()->GetLong(PROPERTY_SPAMMARKTHRESHOLD);
    }
 
    void
    AntiSpamConfiguration::SetSpamDeleteThreshold(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_SPAMDELETETHRESHOLD, newVal);
+      GetSettings_()->SetLong(PROPERTY_SPAMDELETETHRESHOLD, newVal);
    }
 
    int 
    AntiSpamConfiguration::GetSpamDeleteThreshold() 
    {
-      return _GetSettings()->GetLong(PROPERTY_SPAMDELETETHRESHOLD);
+      return GetSettings_()->GetLong(PROPERTY_SPAMDELETETHRESHOLD);
    }
 
    int
@@ -281,103 +281,103 @@ namespace HM
       int iMarkThreshold = GetSpamMarkThreshold();
       int iDeleteThreshold  = GetSpamDeleteThreshold();
 
-      return min(iMarkThreshold, iDeleteThreshold);
+      return std::min(iMarkThreshold, iDeleteThreshold);
    }
 
    void
    AntiSpamConfiguration::SetUseSPF(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_USESPF, newVal);
+      GetSettings_()->SetBool(PROPERTY_USESPF, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetUseSPF() 
    {
-      return _GetSettings()->GetBool(PROPERTY_USESPF);
+      return GetSettings_()->GetBool(PROPERTY_USESPF);
    }
 
    void
    AntiSpamConfiguration::SetUseSPFScore(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_USESPFSCORE, newVal);
+      GetSettings_()->SetLong(PROPERTY_USESPFSCORE, newVal);
    }
 
    int
    AntiSpamConfiguration::GetUseSPFScore() 
    {
-      return _GetSettings()->GetLong(PROPERTY_USESPFSCORE);
+      return GetSettings_()->GetLong(PROPERTY_USESPFSCORE);
    }
 
    void
    AntiSpamConfiguration::SetSpamAssassinEnabled(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_SPAMASSASSIN_ENABLED, newVal);
+      GetSettings_()->SetBool(PROPERTY_SPAMASSASSIN_ENABLED, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetSpamAssassinEnabled() 
    {
-      return _GetSettings()->GetBool(PROPERTY_SPAMASSASSIN_ENABLED);
+      return GetSettings_()->GetBool(PROPERTY_SPAMASSASSIN_ENABLED);
    }
 
    void
    AntiSpamConfiguration::SetSpamAssassinScore(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_SPAMASSASSIN_SCORE, newVal);
+      GetSettings_()->SetLong(PROPERTY_SPAMASSASSIN_SCORE, newVal);
    }
 
    int 
    AntiSpamConfiguration::GetSpamAssassinScore() 
    {
-      return _GetSettings()->GetLong(PROPERTY_SPAMASSASSIN_SCORE);
+      return GetSettings_()->GetLong(PROPERTY_SPAMASSASSIN_SCORE);
    }
 
    void
    AntiSpamConfiguration::SetSpamAssassinMergeScore(bool newVal)
    {
-      _GetSettings()->SetBool(PROPERTY_SPAMASSASSIN_MERGE_SCORE, newVal);
+      GetSettings_()->SetBool(PROPERTY_SPAMASSASSIN_MERGE_SCORE, newVal);
    }
 
    bool 
    AntiSpamConfiguration::GetSpamAssassinMergeScore() 
    {
-      return _GetSettings()->GetBool(PROPERTY_SPAMASSASSIN_MERGE_SCORE);
+      return GetSettings_()->GetBool(PROPERTY_SPAMASSASSIN_MERGE_SCORE);
    }
 
    void
    AntiSpamConfiguration::SetSpamAssassinHost(const String &newVal)
    {
-      _GetSettings()->SetString(PROPERTY_SPAMASSASSIN_HOST, newVal);
+      GetSettings_()->SetString(PROPERTY_SPAMASSASSIN_HOST, newVal);
    }
 
    String 
    AntiSpamConfiguration::GetSpamAssassinHost() 
    {
-      return _GetSettings()->GetString(PROPERTY_SPAMASSASSIN_HOST);
+      return GetSettings_()->GetString(PROPERTY_SPAMASSASSIN_HOST);
    }
 
    void
    AntiSpamConfiguration::SetSpamAssassinPort(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_SPAMASSASSIN_PORT, newVal);
+      GetSettings_()->SetLong(PROPERTY_SPAMASSASSIN_PORT, newVal);
    }
 
    int 
    AntiSpamConfiguration::GetSpamAssassinPort() 
    {
-      return _GetSettings()->GetLong(PROPERTY_SPAMASSASSIN_PORT);
+      return GetSettings_()->GetLong(PROPERTY_SPAMASSASSIN_PORT);
    }
 
    int 
    AntiSpamConfiguration::GetAntiSpamMaxSizeKB()
    {
-      return _GetSettings()->GetLong(PROPERTY_AS_MAX_SIZE);
+      return GetSettings_()->GetLong(PROPERTY_AS_MAX_SIZE);
    }
 
    void 
    AntiSpamConfiguration::SetAntiSpamMaxSizeKB(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_AS_MAX_SIZE, newVal);
+      GetSettings_()->SetLong(PROPERTY_AS_MAX_SIZE, newVal);
    }
 
    void 
@@ -389,64 +389,64 @@ namespace HM
    bool 
    AntiSpamConfiguration::GetDKIMVerificationEnabled()
    {
-      return _GetSettings()->GetBool(PROPERTY_AS_DKIM_VERIFICATION_ENABLE  );
+      return GetSettings_()->GetBool(PROPERTY_AS_DKIM_VERIFICATION_ENABLE  );
    }
 
    void
    AntiSpamConfiguration::SetDKIMVerificationEnabled(bool newValue)
    {
-      _GetSettings()->SetBool(PROPERTY_AS_DKIM_VERIFICATION_ENABLE , newValue);
+      GetSettings_()->SetBool(PROPERTY_AS_DKIM_VERIFICATION_ENABLE , newValue);
    }
 
 
    int
    AntiSpamConfiguration::GetDKIMVerificationFailureScore()
    {
-      return _GetSettings()->GetLong(PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE);
+      return GetSettings_()->GetLong(PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE);
    }
 
    void
    AntiSpamConfiguration::SetDKIMVerificationFailureScore(int newValue)
    {
-      _GetSettings()->SetLong(PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE, newValue);
+      GetSettings_()->SetLong(PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE, newValue);
    }
 
    bool 
    AntiSpamConfiguration::GetBypassGreyListingOnSPFSuccess()
    {
-      return _GetSettings()->GetBool(PROPERTY_BYPASS_GREYLISTING_ON_SPFSUCCESS  );
+      return GetSettings_()->GetBool(PROPERTY_BYPASS_GREYLISTING_ON_SPFSUCCESS  );
    }
 
    void
    AntiSpamConfiguration::SetBypassGreyListingOnSPFSuccess(bool newValue)
    {
-      _GetSettings()->SetBool(PROPERTY_BYPASS_GREYLISTING_ON_SPFSUCCESS , newValue);
+      GetSettings_()->SetBool(PROPERTY_BYPASS_GREYLISTING_ON_SPFSUCCESS , newValue);
    }
 
    bool 
    AntiSpamConfiguration::GetBypassGreyListingOnMailFromMX()
    {
-      return _GetSettings()->GetBool(PROPERTY_BYPASS_GREYLISTING_ON_MAILFROMMX  );
+      return GetSettings_()->GetBool(PROPERTY_BYPASS_GREYLISTING_ON_MAILFROMMX  );
    }
 
    void
    AntiSpamConfiguration::SetBypassGreyListingOnMailFromMX(bool newValue)
    {
-      _GetSettings()->SetBool(PROPERTY_BYPASS_GREYLISTING_ON_MAILFROMMX , newValue);
+      GetSettings_()->SetBool(PROPERTY_BYPASS_GREYLISTING_ON_MAILFROMMX , newValue);
    }
 
-   shared_ptr<WhiteListAddresses> 
+   std::shared_ptr<WhiteListAddresses> 
    AntiSpamConfiguration::GetWhiteListAddresses()
    {
-      shared_ptr<WhiteListAddresses> whiteListAddresses = shared_ptr<WhiteListAddresses>(new WhiteListAddresses);
+      std::shared_ptr<WhiteListAddresses> whiteListAddresses = std::shared_ptr<WhiteListAddresses>(new WhiteListAddresses);
       whiteListAddresses->Refresh();
       return whiteListAddresses;
    }
 
-   shared_ptr<GreyListingWhiteAddresses>
+   std::shared_ptr<GreyListingWhiteAddresses>
    AntiSpamConfiguration::GetGreyListingWhiteAddresses()
    {
-      shared_ptr<GreyListingWhiteAddresses> greyListingWhiteAddresses = shared_ptr<GreyListingWhiteAddresses>(new GreyListingWhiteAddresses);
+      std::shared_ptr<GreyListingWhiteAddresses> greyListingWhiteAddresses = std::shared_ptr<GreyListingWhiteAddresses>(new GreyListingWhiteAddresses);
       greyListingWhiteAddresses->Refresh();
 
       return greyListingWhiteAddresses;

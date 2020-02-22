@@ -5,6 +5,8 @@
 
 namespace HM
 {
+   class FileInfo;
+
    class FileUtilities
    {
    public:
@@ -18,35 +20,29 @@ namespace HM
 
       static bool DeleteFile(const String &FileName);
 
-      static bool ReadLine(HANDLE hFile, String &sLine);
+      //static bool ReadLine(HANDLE hFile, String &sLine);
       static bool Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories = false);
       static bool Move(const String &sFrom, const String &sTo, bool overwrite = false);
       static bool Exists(const String &sFilename);
 
       static void ReadFileToBuf(const String &sFilename, BYTE *Buf, int iStart = -1, int iCount = -1);
-      static void ReadFileToBuf(HANDLE hFile, char *Buf, int iStart = -1, int iCount = -1);
       static String ReadCompleteTextFile(const String &sFilename);
 
-      static bool WriteToFile(const String &sFilename, String &sData, bool bUnicode);
-      static bool WriteToFile(const String &sFilename, AnsiString &sData);
+      static bool WriteToFile(const String &sFilename, const String &sData, bool bUnicode);
+      static bool WriteToFile(const String &sFilename, const AnsiString &sData);
 
       static long FileSize(const String &sFileName);
 
       static String GetTempFileName();
       static bool CreateDirectory(const String &sName);
 
-      static String  GetShortPath(const String &sInPath);
-      static String  GetLongPath(const String &sInPath);
-
       static bool CopyDirectory(String sFrom, String sTo, String &errorMessage);
-      static bool DeleteDirectory(const String &sDirName);
+      static bool DeleteDirectory(const String &sDirName, bool force);
       static bool DeleteFilesInDirectory(const String &sDirName);
-      static bool DeleteDirectoriesInDirectory(const String &sDirName, const std::set<String> vecExcludes);
+      static bool DeleteDirectoriesInDirectory(const String &sDirName);
 
-      static vector<String> GetFilesInDirectory(const String &sDirectoryName);
-
-      static bool CreateDirectoryRecursive(const String &sDirName);
-
+      static std::vector<FileInfo> GetFilesInDirectory(const String &sDirectoryName, const String &regularExpressionTest);
+      static bool GetDirectoryContainsFileRecursive(const String &sDirectoryName);
       static bool IsUNCPath(const String &sPath);
       static bool IsValidUNCFolder(const String &sPath);
       static bool IsFullPath(const String &sPath);
@@ -54,6 +50,13 @@ namespace HM
       static String Combine(const String &path1, const String &path2);
 
    private:
+
+      enum FileEncoding
+      {
+         ANSI = 1,
+         UTF8 = 2,
+         UTF16 = 3
+      };
 
       
    };

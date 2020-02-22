@@ -103,16 +103,16 @@ namespace HM
 	   void Clear();
 	   int GetLength() const;
 	   void Store(AnsiString &output) const;
-	   int Load(const char* pszData, int nDataSize, bool unfold);
+      size_t Load(const char* pszData, size_t nDataSize, bool unfold);
       
       static void UnfoldField(string& strField);
 
    private:
-	   string m_strName;				// field name
-	   string m_strValue;		   // encoded value
-	   string m_strCharset;			// charset for non-ascii text
+	   string name_;				// field name
+	   string value_;		   // encoded value
+	   string charset_;			// charset for non-ascii text
 
-      string m_strDecodedValue;
+      string decoded_value_;
 
    private:
 
@@ -129,25 +129,25 @@ namespace HM
    };
 
    inline void MimeField::SetName(const char* pszName)
-   { m_strName = pszName; }
+   { name_ = pszName; }
 
    inline const char* MimeField::GetName() const
-   { return m_strName.data(); }
+   { return name_.data(); }
 
    inline void MimeField::SetValue(const char* pszValue)
-   { m_strValue = pszValue; }
+   { value_ = pszValue; }
 
    inline const char* MimeField::GetValue() const
-   { return m_strValue.data(); }
+   { return value_.data(); }
 
    inline void MimeField::SetCharset(const char* pszCharset)
-   { m_strCharset = pszCharset; }
+   { charset_ = pszCharset; }
 
    inline const char* MimeField::GetCharset() const
-   { return m_strCharset.c_str(); }
+   { return charset_.c_str(); }
 
    inline void MimeField::Clear()
-   { m_strName.empty(); m_strValue.empty(); m_strCharset.empty(); }
+   { name_.clear(); value_.clear(); charset_.clear(); }
 
    class MIMEUnicodeEncoder
    {
@@ -213,11 +213,12 @@ namespace HM
 	   const char* GetDisposition() const;			// Content-Disposition: ...
 	   virtual String GetUnicodeFilename() const;					// Content-Disposition: ...; filename=...
       virtual String GetRawFilename() const;					// Content-Disposition: ...; filename=...
+      void SetFileName(const String &file_name) ;
 	   void SetDescription(const char* pszValue, const char* pszCharset=NULL);
 	   const char* GetDescription() const;			// Content-Description: ...
 
-	   typedef vector<MimeField> CFieldList;
-	   CFieldList& Fields() { return m_listFields; }
+	   typedef std::vector<MimeField> CFieldList;
+	   CFieldList& Fields() { return fields_; }
    
       bool FieldExists(const char *pszFieldName) const;
 
@@ -230,13 +231,13 @@ namespace HM
 	   virtual int GetLength() const;
 	   // serialization
 	   virtual void Store(AnsiString &output) const;
-	   virtual int Load(const char* pszData, int nDataSize, bool unfold = true);
+      virtual size_t Load(const char* pszData, size_t nDataSize, bool unfold = true);
 
       AnsiString Store() const;
 
    protected:
-	   vector<MimeField> m_listFields;	// list of all header fields
-	   vector<MimeField>::iterator FindField(const char* pszFieldName) const;
+	   std::vector<MimeField> fields_;	// list of all header fields
+	   std::vector<MimeField>::iterator FindField(const char* pszFieldName) const;
 
 	   struct MediaTypeCvt
 	   {
@@ -244,8 +245,8 @@ namespace HM
 		   const char* pszSubType;		// subtype
 		   const char* pszFileExt;		// file extension name
 	   };
-	   static const MediaTypeCvt m_TypeCvtTable[];
-	   static const char* m_TypeTable[];
+	   static const MediaTypeCvt type_cvt_table_[];
+	   static const char* type_table_[];
 
    private:
       static String GetUnicodeFieldValue(const AnsiString &pszFieldName, const AnsiString &sRawFieldValue);
@@ -256,33 +257,33 @@ namespace HM
    // add a new field or update an existing field
    inline void MimeHeader::SetField(const MimeField& field)
    {
-	   vector<MimeField>::iterator it = FindField(field.GetName());
-	   if (it != m_listFields.end())
+	   auto it = FindField(field.GetName());
+	   if (it != fields_.end())
 		   *it = field;
 	   else
-		   m_listFields.push_back(field);
+		   fields_.push_back(field);
    }
 
    // find a field by name
    inline MimeField* MimeHeader::GetField(const char* pszFieldName) const
    {
-	   vector<MimeField>::iterator it = FindField(pszFieldName);
+	   auto it = FindField(pszFieldName);
    
-      if ((vector<MimeField>::const_iterator) it != m_listFields.end())
+      if ((std::vector<MimeField>::const_iterator) it != fields_.end())
 		   return &(*it);
 	   return NULL;
    }
 
    inline int MimeHeader::GetFieldCount() const
    {
-      return (int) m_listFields.size();
+      return (int) fields_.size();
    }
 
    inline MimeField* MimeHeader::GetField(unsigned int iIndex) 
    {
-      if (iIndex <= m_listFields.size() -1)
+      if (iIndex <= fields_.size() -1)
       {
-         HM::MimeField *pField = &m_listFields[iIndex];
+         HM::MimeField *pField = &fields_[iIndex];
 
          return pField;
       }
@@ -401,7 +402,7 @@ namespace HM
    {
    public:
 	   MimeBody() :				// instantiate a MimeBody object explicitly is not allowed. call CreatePart()
-         m_iPartIndex(0) {}
+         part_index_(0) {}
 	   virtual ~MimeBody() { Clear(); }
 
    public:
@@ -434,19 +435,19 @@ namespace HM
 	   // operations for 'multipart' media
 	   bool IsMultiPart() const;
 	   void DeleteAll();
-	   shared_ptr<MimeBody> CreatePart(const char* pszMediaType, shared_ptr<MimeBody> pWhere);
-      void AddPart(shared_ptr<MimeBody> );
+	   std::shared_ptr<MimeBody> CreatePart(const char* pszMediaType, std::shared_ptr<MimeBody> pWhere);
+      void AddPart(std::shared_ptr<MimeBody> );
       int GetPartCount();
 
-	   void ErasePart(shared_ptr<MimeBody> pBP);
-	   shared_ptr<MimeBody> FindFirstPart();
-	   shared_ptr<MimeBody> FindNextPart();
+	   void ErasePart(std::shared_ptr<MimeBody> pBP);
+	   std::shared_ptr<MimeBody> FindFirstPart();
+	   std::shared_ptr<MimeBody> FindNextPart();
       size_t GetNumberOfParts();
 
-	   typedef list<shared_ptr<MimeBody> > BodyList;
-	   int GetAttachmentList(shared_ptr<MimeBody> pThis, BodyList& rList) const;
+	   typedef std::list<std::shared_ptr<MimeBody> > BodyList;
+	   int GetAttachmentList(std::shared_ptr<MimeBody> pThis, BodyList& rList) const;
       void ClearAttachments();
-      void RemoveAttachment(shared_ptr<MimeBody> pAttachment);
+      void RemoveAttachment(std::shared_ptr<MimeBody> pAttachment);
       int LoadFromFile(const AnsiString &pszFilename);
       bool SaveAllToFile(const AnsiString &pszFilename);
 
@@ -455,7 +456,7 @@ namespace HM
       // not other things that exists in the Content-Type header.
 
       bool IsEncapsulatedRFC822Message() const;
-      shared_ptr<MimeBody> LoadEncapsulatedMessage() const;
+      std::shared_ptr<MimeBody> LoadEncapsulatedMessage() const;
 
    public:
 	   // overrides
@@ -464,27 +465,27 @@ namespace HM
 	   // serialization
 	   virtual void Store(AnsiString &output, bool bIncludeHeader=true) const;
    
-	   virtual int Load(const char* pszData, int nDataSize, int &index);
+      virtual size_t Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded);
 
    protected:
 
-	   AnsiString m_pbText;		// content (text) of the body part
-      int m_iPartIndex;
-	   BodyList m_listBodies;			// list of all child body parts
-	   BodyList::iterator m_itFind;
+	   AnsiString text_;		// content (text) of the body part
+      size_t part_index_;
+	   BodyList bodies_;			// list of all child body parts
+	   BodyList::iterator find_;
 
    protected:
-	   bool AllocateBuffer(int nBufSize);
+	   bool AllocateBuffer(size_t nBufSize);
 	   void FreeBuffer();
 
       String GenerateFileNameFromEncapsulatedSubject(bool unicode) const;
    };
 
    inline int MimeBody::GetContentLength() const
-   { return (int) m_pbText.size(); }
+   { return (int) text_.size(); }
 
    inline const AnsiString& MimeBody::GetContent() const
-   { return m_pbText; }
+   { return text_; }
 
    inline bool MimeBody::IsText() const
    { return GetMediaType() == MEDIA_TEXT; }
@@ -497,35 +498,35 @@ namespace HM
 
    inline size_t MimeBody::GetNumberOfParts()
    {
-      return m_listBodies.size();
+      return bodies_.size();
    }
 
-   inline shared_ptr<MimeBody> MimeBody::FindFirstPart()
+   inline std::shared_ptr<MimeBody> MimeBody::FindFirstPart()
    {
-	   m_itFind = m_listBodies.begin();
+	   find_ = bodies_.begin();
 	   return FindNextPart();
    }
 
-   inline shared_ptr<MimeBody> MimeBody::FindNextPart()
+   inline std::shared_ptr<MimeBody> MimeBody::FindNextPart()
    {
-	   if (m_itFind != m_listBodies.end())
-		   return *m_itFind++;
+	   if (find_ != bodies_.end())
+		   return *find_++;
 	   
-      shared_ptr<MimeBody> pEmpty;
+      std::shared_ptr<MimeBody> pEmpty;
       return pEmpty;
    }
 
-   inline bool MimeBody::AllocateBuffer(int nBufSize)
+   inline bool MimeBody::AllocateBuffer(size_t nBufSize)
    {
 
-      m_pbText.reserve(nBufSize);
+      text_.reserve(nBufSize);
 
       return true;
    }
 
    inline void MimeBody::FreeBuffer()
    {
-      m_pbText = "";
+      text_ = "";
    }
 
 }

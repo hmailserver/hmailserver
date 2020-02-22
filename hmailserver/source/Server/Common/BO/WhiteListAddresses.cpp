@@ -29,7 +29,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_whitelist order by whiteloweripaddress1 asc, whiteloweripaddress2 asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 

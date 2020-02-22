@@ -8,8 +8,6 @@
 #include "../Persistence/PersistentRoute.h"
 #include "Route.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class Routes : public Collection<Route, PersistentRoute>
@@ -21,7 +19,7 @@ namespace HM
       // Refreshes this collection from the database.
       void Refresh();
 
-      shared_ptr<Route>  GetItemByNameWithWildcardMatch(const String &domainName);
+      std::shared_ptr<Route>  GetItemByNameWithWildcardMatch(const String &domainName);
    protected:
 
       virtual String GetCollectionName() const {return "Routes"; }

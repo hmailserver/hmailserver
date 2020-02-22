@@ -20,8 +20,7 @@
 #include "../COmmon/Persistence/PersistentDomain.h"
 #include "../COmmon/Persistence/PersistentAccount.h"
 
-#include "../COmmon/Cache/Cache.h"
-
+#include "../COmmon/Cache/CacheContainer.h"
 
 
 #ifdef _DEBUG
@@ -33,16 +32,28 @@ namespace HM
 {
 
    ExternalFetchManager::ExternalFetchManager(void) :
-      m_sQueueName("External fetch queue")
+      Task("ExternalFetchManager"),
+      queue_name_("External fetch queue")
    {
       int iMaxNumberOfSimultaneousTasks = IniFileSettings::Instance()->GetMaxNumberOfExternalFetchThreads();
-      
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, m_sQueueName, WorkQueue::eQTRandom);
+
+      queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfSimultaneousTasks, queue_name_);
+
    }
 
    ExternalFetchManager::~ExternalFetchManager(void)
    {
-      WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
+      try
+      {
+         LOG_DEBUG("ExternalFetchManager::DoWork() - Exiting")
+         WorkQueueManager::Instance()->RemoveQueue(queue_name_);
+         LOG_DEBUG("ExternalFetchManager::DoWork() - Removed queue")
+      }
+      catch (...)
+      {
+
+      }
+
    }
 
    void
@@ -53,33 +64,35 @@ namespace HM
    // servers.
    //---------------------------------------------------------------------------()
    {
-      Logger::Instance()->LogDebug("ExternalFetchManager::Start()");
+      SetIsStarted();
 
-      
+
+      Logger::Instance()->LogDebug("ExternalFetchManager::DoWork()");
 
       PersistentFetchAccount::UnlockAll();
 
-      m_pFetchAccounts = shared_ptr<FetchAccounts> (new FetchAccounts(0));
+      fetch_accounts_ = std::shared_ptr<FetchAccounts>(new FetchAccounts(0));
+
 
       while (1)
       {
-         m_pFetchAccounts->RefreshPendingList();
+         fetch_accounts_->RefreshPendingList();
 
-         vector<shared_ptr<FetchAccount> > &vecAccounts = m_pFetchAccounts->GetVector();
-         vector<shared_ptr<FetchAccount> >::iterator iterFA = vecAccounts.begin();
+         std::vector<std::shared_ptr<FetchAccount> > &vecAccounts = fetch_accounts_->GetVector();
+         auto iterFA = vecAccounts.begin();
 
          while (iterFA != vecAccounts.end())
          {
             // Create a fetch task that will do the actual work, and
             // add this task to the queue.
-            shared_ptr<FetchAccount> pFA = (*iterFA);
+            std::shared_ptr<FetchAccount> pFA = (*iterFA);
 
-            if (_FetchIsAllowed(pFA))
+            if (FetchIsAllowed_(pFA))
             {
                // We're allowed to fetch. Lock fetchaccount and start the fetcher.
                PersistentFetchAccount::Lock(pFA->GetID());
-               shared_ptr<ExternalFetchTask> pTask = shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
-               WorkQueueManager::Instance()->AddTask(m_iQueueID, pTask);
+               std::shared_ptr<ExternalFetchTask> pTask = std::shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
+               WorkQueueManager::Instance()->AddTask(queue_id_, pTask);
             }
             else
             {
@@ -93,35 +106,12 @@ namespace HM
 
          // We are currently not fetching anything
          // Sit here and wait a minute 
-         const int iSize = 2;
-         HANDLE handles[iSize];
-
-         handles[0] = m_hStopTask.GetHandle();
-         handles[1] = m_hCheckNow.GetHandle();
-         // CheckNow is used if a check is triggered by the COM API. Then we don't
-         // want to wait 60 seconds to check.
-         
-
-         DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, 60000);
-
-         int iEvent = dwWaitResult - WAIT_OBJECT_0;
-
-         switch (iEvent)
-         {
-         case 0:
-            m_hStopTask.Reset();
-            return;
-         case 1:
-            m_hCheckNow.Reset();
-            continue;
-         }
+         check_now_.WaitFor(boost::chrono::minutes(1));
       }
-
-
    }
 
    bool 
-   ExternalFetchManager::_FetchIsAllowed(shared_ptr<FetchAccount> pFA)
+   ExternalFetchManager::FetchIsAllowed_(std::shared_ptr<FetchAccount> pFA)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Checks whether hMailServer should fetch messages for this fetch account.
@@ -129,7 +119,7 @@ namespace HM
    {
       __int64 iAccountID = pFA->GetAccountID();
 
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(iAccountID);
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(iAccountID);
 
       if (!pAccount || !pAccount->GetActive())
       {
@@ -140,7 +130,7 @@ namespace HM
 
       __int64 iDomainID = pAccount->GetDomainID();
 
-      shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(iDomainID);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
 
       if (!pDomain || !pDomain->GetIsActive())
       {
@@ -155,15 +145,9 @@ namespace HM
    }
 
    void 
-   ExternalFetchManager::StopWork()
-   {
-      m_hStopTask.Set();
-   }
-
-   void 
    ExternalFetchManager::SetCheckNow()
    {
-      m_hCheckNow.Set();
+      check_now_.Set();
    }
 
 }

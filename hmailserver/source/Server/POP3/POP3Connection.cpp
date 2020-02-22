@@ -4,6 +4,7 @@
 #include "stdafx.h"
 
 #include "../common/BO/Account.h"
+#include "../common/BO/SecurityRange.h"
 #include "../common/BO/Message.h"
 #include "../common/BO/Messages.h"
 #include "../common/util/file.h"
@@ -32,6 +33,10 @@
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 
+#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -40,11 +45,15 @@
 namespace HM
 {
 
-   POP3Connection::POP3Connection() :
-      m_CurrentState(AUTHENTICATION),
-       m_oTransmissionBuffer(true),
-      m_bPendingDisconnect(false)
+   POP3Connection::POP3Connection(ConnectionSecurity connection_security,
+      boost::asio::io_service& io_service, 
+      boost::asio::ssl::context& context) :
+      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
+      current_state_(AUTHORIZATION),
+      transmission_buffer_(true),
+      pending_disconnect_(false)
    {
+
       /*
         RFC 1939, Basic Operation
         A POP3 server MAY have an inactivity autologout timer.  Such a timer
@@ -57,18 +66,46 @@ namespace HM
 
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetPOP3DMinTimeout(), IniFileSettings::Instance()->GetPOP3DMaxTimeout()));
-
    }
 
    POP3Connection::~POP3Connection()
    {
-      OnDisconnect();
+      try
+      {
+         OnDisconnect();
 
-      SessionManager::Instance()->OnDisconnect(STPOP3);
+         if (GetConnectionState() != StatePendingConnect)
+            SessionManager::Instance()->OnSessionEnded(STPOP3);
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void
    POP3Connection::OnConnected()
+   {
+      if (GetConnectionSecurity() == CSNone ||
+          GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
+         SendBanner_();
+   }
+
+   void
+   POP3Connection::OnHandshakeCompleted()
+   {
+      if (GetConnectionSecurity() == CSSSL)
+         SendBanner_();
+      else if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+               GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
+         EnqueueRead();
+      }
+   }
+
+   void 
+   POP3Connection::SendBanner_()
    {
       String sData;
 
@@ -80,9 +117,9 @@ namespace HM
       else
          sData += sWelcome;
 
-      _SendData(sData);
+      EnqueueWrite_(sData);
 
-      PostReceive();
+      EnqueueRead();
    }
 
    AnsiString 
@@ -93,7 +130,7 @@ namespace HM
 
 
    void 
-   POP3Connection::_LogClientCommand(const String &sClientData) const
+   POP3Connection::LogClientCommand_(const String &sClientData)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Logs one client command.
@@ -109,7 +146,6 @@ namespace HM
 
       // Append
       sLogData = "RECEIVED: " + sLogData;
-      sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
       LOG_POP3(GetSessionID(), GetIPAddressString(), sLogData);      
    }
@@ -123,6 +159,8 @@ namespace HM
 
       if (command == _T("NOOP"))
          resolvedCommand = NOOP;
+      if (command == _T("STLS"))
+         resolvedCommand = STLS;
       else if (command == _T("USER"))
          resolvedCommand = USER;
       else if (command == _T("PASS"))
@@ -154,12 +192,13 @@ namespace HM
 
       switch (currentState)
       {
-      case AUTHENTICATION:
+      case AUTHORIZATION:
          {
             switch (resolvedCommand)
             {
             case USER:
             case PASS:
+            case STLS:
                return resolvedCommand;
             default:
                return INVALID;
@@ -206,12 +245,13 @@ namespace HM
       switch (result)
       {
       case ResultNormalResponse:
-         PostReceive();
+         EnqueueRead();
          break;
       case ResultStartSendMessage:
+      case ResultStartTls:
          break;
       case ResultDisconnect:
-         PostDisconnect();
+         EnqueueDisconnect();
          break;
       }
 
@@ -224,12 +264,12 @@ namespace HM
    // Parses a client POP3 command.
    //---------------------------------------------------------------------------()
    {
-      _LogClientCommand(Request);
+      LogClientCommand_(Request);
 
       if (Request.GetLength() > 500)
       {
-         // This line is to long... is this an evil user?
-         _SendData("-ERR Line to long.");
+         // This line is too long... is this an evil user?
+         EnqueueWrite_("-ERR Line too long.");
          return ResultNormalResponse;
       }
       
@@ -244,53 +284,58 @@ namespace HM
       else
          sCommand = Request;
 
-      POP3Command command = GetCommand(m_CurrentState, sCommand);
+      POP3Command command = GetCommand(current_state_, sCommand);
 
       switch (command)
       {
          case NOOP:
-            _SendData("+OK");
+            EnqueueWrite_("+OK");
             return ResultNormalResponse;
+         case STLS:
+            if (ProtocolSTLS_())
+               return ResultStartTls;
+            else
+               return ResultNormalResponse;
          case HELP:
-            _SendData("+OK Normal POP3 commands allowed");
+            EnqueueWrite_("+OK Normal POP3 commands allowed");
             return ResultNormalResponse;
          case USER:
-            _ProtocolUSER(sParameter);
+            ProtocolUSER_(sParameter);
             return ResultNormalResponse;
          case PASS:
-            return _ProtocolPASS(sParameter);
+            return ProtocolPASS_(sParameter);
          case STAT:
-            _ProtocolSTAT(sParameter);
+            ProtocolSTAT_(sParameter);
             return ResultNormalResponse;
          case LIST:
-            _ProtocolLIST(sParameter);
+            ProtocolLIST_(sParameter);
             return ResultNormalResponse;
          case RETR:
-            return _ProtocolRETR(sParameter);
+            return ProtocolRETR_(sParameter);
          case DELE:
-            _ProtocolDELE (sParameter);
+            ProtocolDELE_ (sParameter);
             return ResultNormalResponse;
          case TOP:
-            _ProtocolTOP(sParameter);
+            ProtocolTOP_(sParameter);
             return ResultNormalResponse;
          case RSET:
-            _ProtocolRSET();
+            ProtocolRSET_();
             return ResultNormalResponse;   
          case UIDL:
-            _ProtocolUIDL(sParameter);
+            ProtocolUIDL_(sParameter);
             return ResultNormalResponse;   
          case QUIT:
-            _ProtocolQUIT();
+            ProtocolQUIT_();
             return ResultDisconnect;
          case CAPA:
-            _SendData("+OK CAPA list follows\r\nUSER\r\nUIDL\r\nTOP\r\n.");
-            return ResultNormalResponse;
+            ProtocolCAPA_();
+            return ResultNormalResponse; 
          case INVALID:
-            _SendData("-ERR Invalid command in current state." );
+            EnqueueWrite_("-ERR Invalid command in current state." );
             return ResultNormalResponse;  
          default:
             assert(0); // What command is this?
-            _SendData("-ERR Invalid command in current state." );
+            EnqueueWrite_("-ERR Invalid command in current state." );
             return ResultNormalResponse;  
       }
    }
@@ -300,104 +345,172 @@ namespace HM
    {
       // Fix for mailbox remailing locked even after timeout
       // http://www.hmailserver.com/forum/viewtopic.php?f=7&t=22361
-      _UnlockMailbox();
+      UnlockMailbox_();
+
       String sMessage = "-ERR Autologout; idle too long\r\n";
-      SendData(sMessage);
+      EnqueueWrite(sMessage);
    }
 
    void
    POP3Connection::OnExcessiveDataReceived()
    {
       String sMessage = "-ERR Excessive amount of data sent to server.\r\n";
-      SendData(sMessage);
+      EnqueueWrite(sMessage);
    }
    
    void
-   POP3Connection::_ProtocolRSET()
+   POP3Connection::ProtocolRSET_()
    {
-      if (Application::Instance()->GetFolderManager()->GetInboxMessages((int) _account->GetID(), _messages))
+      if (Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
-         _ResetMailbox();
-         _SendData("+OK 0");
+         ResetMailbox_();
+         EnqueueWrite_("+OK 0");
       }
       else
-         _SendData("-ERR Unable to access mailbox.");
+         EnqueueWrite_("-ERR Unable to access mailbox.");
 
 
    }
 
+   void
+   POP3Connection::ProtocolCAPA_()
+   {
+      String capabilities = "USER\r\nUIDL\r\nTOP\r\n";
+
+      if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+          GetConnectionSecurity() == CSSTARTTLSRequired)
+         capabilities+="STLS\r\n";
+
+      String response = "+OK CAPA list follows\r\n" + capabilities + ".";
+      EnqueueWrite_(response);
+   }
 
    void
-   POP3Connection::_ProtocolQUIT()
+   POP3Connection::ProtocolQUIT_()
    {
       // NEED FOR BUG FIX: Unlock should not be allowed unless user was auth'd
       // because next pop check is allowed even if in-use!
       // Problem is people have grown accustomed to this & could cause more
       // issues if fixed.
-      _SaveMailboxChanges();
-      _UnlockMailbox();
+      SaveMailboxChanges_();
+      UnlockMailbox_();
 
-      _SendData("+OK POP3 server saying goodbye...");
+      EnqueueWrite_("+OK POP3 server saying goodbye...");
    }
 
    void
-   POP3Connection::_ProtocolUSER(const String &Parameter)
+   POP3Connection::ProtocolUSER_(const String &Parameter)
    {
+      if (GetConnectionSecurity() == CSSTARTTLSRequired &&
+          !IsSSLConnection())
+      {
+         EnqueueWrite_("-ERR STLS is required.");
+         return;
+      }
+
+      if (GetSecurityRange()->GetRequireTLSForAuth() && !IsSSLConnection())
+      {
+         EnqueueWrite_("-ERR A SSL/TLS-connection is required for authentication.");
+         return;
+      }
+
       // Apply domain aliases to the user name.
-      shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
-      m_Username = pDA->ApplyAliasesOnAddress(Parameter);
-      _SendData("+OK Send your password" );      
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      username_ = pDA->ApplyAliasesOnAddress(Parameter);
+      EnqueueWrite_("+OK Send your password" );      
+   }
+
+   bool
+   POP3Connection::ProtocolSTLS_()
+   {
+      if (GetConnectionSecurity() == CSSTARTTLSOptional ||
+         GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
+         if (IsSSLConnection())
+         {
+            EnqueueWrite_("-ERR Command not permitted when TLS active");
+            return false;
+         }
+
+         EnqueueWrite_("+OK Begin TLS negotiation");
+         EnqueueHandshake();
+         return true;
+      }
+      else
+      {
+         EnqueueWrite_("-ERR Invalid command in current state.");
+         return false;
+      }
    }
 
    POP3Connection::ParseResult
-   POP3Connection::_ProtocolPASS(const String &Parameter)
+   POP3Connection::ProtocolPASS_(const String &Parameter)
    {
-
-      m_Password = Parameter;
+      password_ = Parameter;
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      _account = accountLogon.Logon(GetIPAddress(), m_Username, m_Password, disconnect);
+      String sUsername = username_;
+      account_ = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
 
       if (disconnect)
       {
-         _SendData("-ERR Invalid user name or password. Too many invalid logon attempts.");
+         EnqueueWrite_("-ERR Invalid user name or password. Too many invalid logon attempts.");
          return ResultDisconnect;
       }
 
-      if (!_account)
+      const bool isAuthenticated = account_ != nullptr;
+
+      if (Configuration::Instance()->GetUseScriptServer())
       {
-         if (m_Username.Find(_T("@")) == -1)
-            _SendData("-ERR Invalid user name or password. Please use full email address as user name.");
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetUsername(sUsername);
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetHELO("");
+         pClientInfo->SetIsAuthenticated(isAuthenticated);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+         String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
+      }
+
+      if (!account_)
+      {
+         if (username_.Find(_T("@")) == -1)
+            EnqueueWrite_("-ERR Invalid user name or password. Please use full email address as user name.");
          else
-            _SendData("-ERR Invalid user name or password.");
+            EnqueueWrite_("-ERR Invalid user name or password.");
 
          return ResultNormalResponse;
       }
 
       // Try to lock mailbox.
-      if (!POP3Sessions::Instance()->Lock(_account->GetID()))
+      if (!POP3Sessions::Instance()->Lock(account_->GetID()))
       {
-         _SendData("-ERR Your mailbox is already locked");
+         EnqueueWrite_("-ERR Your mailbox is already locked");
          return ResultNormalResponse; 
       }
   
-      if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) _account->GetID(), _messages))
+      if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
-         _SendData("+ERR Server error: Failed to fetch messages in Inbox.");
+         EnqueueWrite_("+ERR Server error: Failed to fetch messages in Inbox.");
          return ResultNormalResponse;
       }
 
-      _ResetMailbox();
+      ResetMailbox_();
 
-      _SendData("+OK Mailbox locked and ready" );
-      m_CurrentState = TRANSACTION;
+      EnqueueWrite_("+OK Mailbox locked and ready" );
+      current_state_ = TRANSACTION;
       
       return ResultNormalResponse;
    }
 
    bool
-   POP3Connection::_ProtocolDELE(const String &Parameter)
+   POP3Connection::ProtocolDELE_(const String &Parameter)
    {
       String sInputParam;
       sInputParam = Parameter;
@@ -405,30 +518,30 @@ namespace HM
       sInputParam.TrimRight();
       long lMessageID = _ttol(sInputParam);
 
-      if (!_account)
+      if (!account_)
       {
-         _SendData("-ERR No such message (messages not loaded)");
+         EnqueueWrite_("-ERR No such message (messages not loaded)");
          return true;
       }
 
-      shared_ptr<Message> message = _GetMessage(lMessageID);
+      std::shared_ptr<Message> message = GetMessage_(lMessageID);
       if (message)
       {
          message->SetFlagDeleted(true);
-         _SendData("+OK msg deleted"); 
+         EnqueueWrite_("+OK msg deleted"); 
       }
       else
-         _SendData("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
 
       return true;
    }
 
    bool
-   POP3Connection::_ProtocolLIST(const String &sParameter)
+   POP3Connection::ProtocolLIST_(const String &sParameter)
    {
-      if (!_account)
+      if (!account_)
       {
-         _SendData("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -438,20 +551,20 @@ namespace HM
       {
          int iMessageCount = 0;
          __int64 iTotalBytes = 0;
-         _GetMailboxContents(iMessageCount, iTotalBytes);
+         GetMailboxContents_(iMessageCount, iTotalBytes);
 
          // preallocate memory to speed up a bit.
          sResponse.reserve(iMessageCount * 10);
 
          sResponse.Format(_T("+OK %d messages (%I64d octets)"), iMessageCount, iTotalBytes);
-         _SendData(sResponse);
+         EnqueueWrite_(sResponse);
       
       
          sResponse = "";
          String sRow;
 
          int index = 0;
-         boost_foreach(shared_ptr<Message> pMessage, _messages)
+         for(std::shared_ptr<Message> pMessage : messages_)
          {
             index++;
             if (!pMessage->GetFlagDeleted())
@@ -464,7 +577,7 @@ namespace HM
          sResponse += ".";
          
          // --- Send data to client.
-         _SendData(sResponse);
+         EnqueueWrite_(sResponse);
 
       }
       else
@@ -472,26 +585,26 @@ namespace HM
          // List only one single message.
          long messageIndex = _ttol(sParameter);
 
-         shared_ptr<Message> pMessage = _GetMessage(messageIndex);
+         std::shared_ptr<Message> pMessage = GetMessage_(messageIndex);
 
          if (pMessage)
             sResponse.Format(_T("+OK %d %d"), messageIndex, pMessage->GetSize());
          else
             sResponse = "-ERR No such message";
 
-         _SendData(sResponse);
+         EnqueueWrite_(sResponse);
       }
 
       return true;
    }
 
    bool
-   POP3Connection::_ProtocolUIDL(const String &Parameter)
+   POP3Connection::ProtocolUIDL_(const String &Parameter)
    {
       // Display a list of all the messages (index and size)
-      if (!_account)
+      if (!account_)
       {
-         _SendData("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -501,10 +614,10 @@ namespace HM
       {
          int iMessageCount = 0;
          __int64 iTotalBytes = 0;
-         _GetMailboxContents(iMessageCount, iTotalBytes);
+         GetMailboxContents_(iMessageCount, iTotalBytes);
 
          // Allocate a reasonable size...
-         sResponse.SetBuf(_messages.size() * 10);
+         sResponse.SetBuf(messages_.size() * 10);
 
          // Send number of messages.
          sResponse.Format(_T("+OK %d messages (%I64d octets)\r\n"), iMessageCount, iTotalBytes);
@@ -512,7 +625,7 @@ namespace HM
 
          // List the actual messages.
          int index = 0;
-         boost_foreach(shared_ptr<Message> pMessage, _messages)
+         for(std::shared_ptr<Message> pMessage : messages_)
          {
             index++;
             if (!pMessage->GetFlagDeleted())
@@ -528,7 +641,7 @@ namespace HM
       {  
          // List only one single message.
          long messageIndex = _ttol(Parameter);
-         shared_ptr<Message> pMessage = _GetMessage(messageIndex);
+         std::shared_ptr<Message> pMessage = GetMessage_(messageIndex);
 
          if (pMessage)
             sResponse.Format(_T("+OK %d %u"), messageIndex, pMessage->GetUID());
@@ -537,48 +650,52 @@ namespace HM
       }
 
       // --- Send data to client.
-      _SendData(sResponse);
+      EnqueueWrite_(sResponse);
 
       return true;   
    }
 
    POP3Connection::ParseResult
-   POP3Connection::_ProtocolRETR(const String &Parameter)
+   POP3Connection::ProtocolRETR_(const String &Parameter)
    {
-      if (!_account)
+      if (!account_)
       {
-         _SendData("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return ResultNormalResponse;
       }
 
       int iRequestedMessageIndex = _tstol(Parameter);
 
-      shared_ptr<Message> pMessage = _GetMessage(iRequestedMessageIndex);
+      std::shared_ptr<Message> pMessage = GetMessage_(iRequestedMessageIndex);
 
       if (!pMessage || pMessage->GetFlagDeleted())
       {
-         _SendData("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
          return ResultNormalResponse;
       }
 
-      PersistentMessage::EnsureFileExistance(_account, pMessage);
+      PersistentMessage::EnsureFileExistance(account_, pMessage);
 
-      _StartSendFile(pMessage);
+      StartSendFile_(pMessage);
 
       return ResultStartSendMessage;
    }
 
    void 
-   POP3Connection::_StartSendFile(shared_ptr<Message> message)
+   POP3Connection::StartSendFile_(std::shared_ptr<Message> message)
    {  
-      String fileName = PersistentMessage::GetFileName(_account, message);
+      String fileName = PersistentMessage::GetFileName(account_, message);
 
-      m_oTransmissionBuffer.Initialize(this);
+      transmission_buffer_.Initialize(shared_from_this());
       
-      if (!_currentFile.Open(fileName, File::OTReadOnly))
+      try
+      {
+         current_file_.Open(fileName, File::OTReadOnly);
+      }
+      catch (...)
       {
          String sErrorMessage;
-         sErrorMessage.Format(_T("Could not send file %s via socket since it does not exist."), fileName);
+         sErrorMessage.Format(_T("Could not send file %s via socket since it does not exist."), fileName.c_str());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5063, "POP3Connection::_SendFile", sErrorMessage);
          return;
       }
@@ -587,79 +704,69 @@ namespace HM
       responseTemp.Format(_T("+OK %d octets\r\n"), message->GetSize());
       AnsiString responseString = responseTemp;
 
-      m_oTransmissionBuffer.Append((BYTE*) responseString.GetBuffer(), responseString.GetLength());
+      transmission_buffer_.Append((BYTE*) responseString.GetBuffer(), responseString.GetLength());
       
-	  _ReadAndSend();
+	  ReadAndSend_();
    }
 
    void 
-   POP3Connection::_ReadAndSend()
+   POP3Connection::ReadAndSend_()
    {
-      try
+      // Continue sending the file..
+      int bufferSize = GetBufferSize();
+
+      std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
+
+      while (pBuffer->GetSize() > 0)
       {
-         // Continue sending the file..
-         int bufferSize = GetBufferSize();
+         transmission_buffer_.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
 
-         shared_ptr<ByteBuffer> pBuffer = _currentFile.ReadChunk(bufferSize);
-
-         while (pBuffer)
+         if (transmission_buffer_.Flush())
          {
-            m_oTransmissionBuffer.Append(pBuffer->GetBuffer(), pBuffer->GetSize());
-
-            if (m_oTransmissionBuffer.Flush())
-            {
-               // Data was sent. We'll wait with sending more data until
-               // the current data has been sent.
-               return; 
-            }
-
-            // No data was sent. Send some more...
-            pBuffer = _currentFile.ReadChunk(bufferSize);
+            // Data was sent. We'll wait with sending more data until
+            // the current data has been sent.
+            return; 
          }
 
-         // We're done. Cleanup...
-         _currentFile.Close();
-
-         // No more data to send. Make sure all buffered data is flushed.
-         m_oTransmissionBuffer.Flush(true);
-
-         if (!m_oTransmissionBuffer.GetLastSendEndedWithNewline())
-            _SendData(""); // Send a newline character now.
-
-         _SendData(".");
-
-         // Request new data from the client now.
-         PostReceive();
+         // No data was sent. Send some more...
+         pBuffer = current_file_.ReadChunk(bufferSize);
       }
-      catch (...)
-      {
-         String location = _T("An unknown error occurred while reading and sending file data.");
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5414, "POP3Connection::_ReadAndSend", location);
 
-         throw;
-      }
+      // We're done. Cleanup...
+      current_file_.Close();
+
+      // No more data to send. Make sure all buffered data is flushed.
+      transmission_buffer_.Flush(true);
+
+      if (!transmission_buffer_.GetLastSendEndedWithNewline())
+         EnqueueWrite_(""); // Send a newline character now.
+
+      EnqueueWrite_(".");
+
+      // Request new data from the client now.
+      EnqueueRead();
    }
    
    void
    POP3Connection::OnDataSent()
    {
       // Are we currently sending a file to the client?
-      if (!_currentFile.IsOpen())
+      if (!current_file_.IsOpen())
       {
          // No. Nothing to do now.
          return;
       }
 
-      _ReadAndSend();
+      ReadAndSend_();
    }
 
 
    bool
-   POP3Connection::_ProtocolTOP(const String &Parameter)
+   POP3Connection::ProtocolTOP_(const String &Parameter)
    {
-      if (!_account)
+      if (!account_)
       {
-         _SendData("-ERR Message list not loaded");
+         EnqueueWrite_("-ERR Message list not loaded");
          return true;
       }
 
@@ -686,23 +793,23 @@ namespace HM
 
       int iRequestedMessageIndex = _tstol(Msg);
 
-      shared_ptr<Message> pMessage = _GetMessage(iRequestedMessageIndex);
+      std::shared_ptr<Message> pMessage = GetMessage_(iRequestedMessageIndex);
 
       if (!pMessage || pMessage->GetFlagDeleted())
       {
-         _SendData("-ERR No such message");
+         EnqueueWrite_("-ERR No such message");
       }
       else
       {
-         String fileName = PersistentMessage::GetFileName(_account, pMessage);
+         String fileName = PersistentMessage::GetFileName(account_, pMessage);
 
          String sResponse;
          sResponse.Format(_T("+OK %d octets"), pMessage->GetSize());
-         _SendData(sResponse);
+         EnqueueWrite_(sResponse);
 
          // --- Send the file to the recipient.
-         _SendFileHeader(fileName, iNoOfLines);
-         _SendData("\r\n.");  
+         SendFileHeader_(fileName, iNoOfLines);
+         EnqueueWrite_("\r\n.");  
       }
         
 
@@ -712,156 +819,125 @@ namespace HM
    void
    POP3Connection::OnDisconnect()
    {
-      _UnlockMailbox();   
+      UnlockMailbox_();   
    }
 
 
    void
-   POP3Connection::_UnlockMailbox()
+   POP3Connection::UnlockMailbox_()
    {
-      if (!_account)
+      if (!account_)
          return;
 
-      POP3Sessions::Instance()->Unlock(_account->GetID());
-      _account.reset();
+      POP3Sessions::Instance()->Unlock(account_->GetID());
+      account_.reset();
    }
 
    bool
-   POP3Connection::_SendFileHeader(const String &sFilename, int iNoOfLines)
+   POP3Connection::SendFileHeader_(const String &sFilename, int iNoOfLines)
    {
-
-      bool bRetVal = false;
-
-      HANDLE handleFile;
-
-      handleFile = CreateFile(sFilename, 
-                        GENERIC_READ, 
-                        FILE_SHARE_READ, 
-                        NULL, // LPSECURITY_ATTRIBUTES
-                        OPEN_ALWAYS, // -- open or create.
-                        FILE_ATTRIBUTE_NORMAL, // attributes
-                        NULL // file template
-                        );
-
-      if (handleFile == INVALID_HANDLE_VALUE) 
-         return false;
-
-      SetFilePointer(handleFile,0,0,FILE_BEGIN);
-
-      if (handleFile > 0)
+      File file;
+      try
       {
-      
-         BYTE buf[1024];
-         memset(buf, 0, 1024);
-
-         unsigned long nbytes = 0;
-         BOOL bMoreData = TRUE;
-         int nBytesSent = 0;
-
-         bool bHeaderSent = false;
-         int iCurNoOfLines = 0;
-         while (bMoreData)
-         {
-         
-            String sLine;
-            bMoreData = FileUtilities::ReadLine(handleFile, sLine);
-
-            if (bHeaderSent)
-            {
-               if (iNoOfLines <= 0)
-                  break;
-              
-               _SendDataDebugOnly(sLine);
-
-               iCurNoOfLines++;
-
-               if (iCurNoOfLines == iNoOfLines)
-                  break;
-            }
-            else
-            {
-               if (sLine.IsEmpty())
-                  bHeaderSent = true;
-
-               _SendDataDebugOnly(sLine);
-            
-            }
-        
-         }
-
-         bRetVal = true;
-
+         file.Open(sFilename, File::OTReadOnly);
+      }
+      catch (...)
+      {
+         return false;
       }
 
+      int current_body_line_count = 0;
+      bool header_sent = false;
+      AnsiString line;
+      
+      AnsiString output_buffer;
 
-      CloseHandle(handleFile);
+      while (file.ReadLine(line))
+      {
+         // Perform dot stuffing
+         if (line.StartsWith("."))
+            line = "." + line;
 
-      return bRetVal;
+         if (header_sent)
+         {
+            if (iNoOfLines <= 0)
+               break;
+
+            output_buffer += line;
+
+            current_body_line_count++;
+
+            if (current_body_line_count == iNoOfLines)
+               break;
+         }
+         else
+         {
+            if (line == "\r\n")
+               header_sent = true;
+
+            output_buffer += line;
+         }
+
+         if (output_buffer.size() > 10000)
+         {
+            EnqueueWrite(output_buffer);
+            output_buffer.Empty();
+         }
+      }
+
+      if (!output_buffer.IsEmpty())
+      {
+         EnqueueWrite(output_buffer);
+      }
+
+      return true;
    
    }
 
    void
-   POP3Connection::_SendData(const String &sData)
+   POP3Connection::EnqueueWrite_(const String &sData)
    {
       if (Logger::Instance()->GetLogPOP3())
       {
          String sLogData = "SENT: " + sData;
          sLogData.TrimRight(_T("\r\n"));
-         sLogData.Replace(_T("\r\n"), _T("[nl]"));
 
          LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
       }
 
-      SendData(sData + "\r\n");
+      EnqueueWrite(sData + "\r\n");
    }
 
    void
-   POP3Connection::_SendDataDebugOnly(const String &sData)
-   {
-      // Logs are crazy huge for clients that do a lot of TOP's so
-      // let's not log every email line unless loglevel is high enough
-      if (IniFileSettings::Instance()->GetLogLevel() >= 8)
-      {
-         String sLogData = "SENT: " + sData;
-         sLogData.TrimRight(_T("\r\n"));
-         sLogData.Replace(_T("\r\n"), _T("[nl]"));
-
-         LOG_POP3(GetSessionID(),GetIPAddressString(), sLogData);
-      }
-
-      SendData(sData + "\r\n");
-   }
-
-   void
-   POP3Connection::_SaveMailboxChanges()
+   POP3Connection::SaveMailboxChanges_()
    {
       // Delete messages that has the delete flag on.
-      if (_account)
+      if (account_)
       {
          std::set<int> messagesToDelete;
-         boost_foreach(shared_ptr<Message> message, _messages)
+         for(std::shared_ptr<Message> message : messages_)
          {
             if (message->GetFlagDeleted())
                messagesToDelete.insert(message->GetUID());
          }
 
-         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) _account->GetID(), messagesToDelete, boost::bind(&POP3Connection::UpdateLogoutTimer, this));
+         Application::Instance()->GetFolderManager()->DeleteInboxMessages((int) account_->GetID(), messagesToDelete, std::bind(&POP3Connection::UpdateAutoLogoutTimer, this));
       }
    }
 
    bool 
-   POP3Connection::_ProtocolSTAT(const String &sParameter)
+   POP3Connection::ProtocolSTAT_(const String &sParameter)
    {
       int iMessageCount = 0;
       // Fix for negative STAT results when box over 2GB
       __int64 iTotalSize = 0;
 
-      std::vector<shared_ptr<Message> >::iterator iter = _messages.begin();
-      std::vector<shared_ptr<Message> >::iterator iterEnd = _messages.end();
+      auto iter = messages_.begin();
+      auto iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<Message> pMessage = (*iter);
+         std::shared_ptr<Message> pMessage = (*iter);
 
          if (!pMessage->GetFlagDeleted())
          {
@@ -874,24 +950,24 @@ namespace HM
       String sResponse; 
       sResponse.Format(_T("+OK %d %I64d"), iMessageCount, iTotalSize);
 
-      _SendData(sResponse);
+      EnqueueWrite_(sResponse);
 
       return true;
 
    }
 
    void
-   POP3Connection::_GetMailboxContents(int &iNoOfMessages, __int64 &iTotalBytes)
+   POP3Connection::GetMailboxContents_(int &iNoOfMessages, __int64 &iTotalBytes)
    {
       iNoOfMessages = 0;
       iTotalBytes = 0;
 
-      std::vector<shared_ptr<Message> >::iterator iter = _messages.begin();
-      std::vector<shared_ptr<Message> >::iterator iterEnd = _messages.end();
+      auto iter = messages_.begin();
+      auto iterEnd = messages_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<Message> pMessage = (*iter);
+         std::shared_ptr<Message> pMessage = (*iter);
 
          if (!pMessage->GetFlagDeleted())
          {
@@ -901,18 +977,18 @@ namespace HM
       }
    }
 
-   shared_ptr<Message>
-   POP3Connection::_GetMessage(unsigned int index)
+   std::shared_ptr<Message>
+   POP3Connection::GetMessage_(unsigned int index)
    {
-      shared_ptr<Message> result;
-      if (index >= 1 && index <= _messages.size())
-         result = _messages[index-1];
+      std::shared_ptr<Message> result;
+      if (index >= 1 && index <= messages_.size())
+         result = messages_[index-1];
 
       return result;
    }
 
    void
-   POP3Connection::_ResetMailbox()
+   POP3Connection::ResetMailbox_()
    {
          /* 
          Reset the mailbox state. The POP3 rfc specifies the following:
@@ -926,7 +1002,7 @@ namespace HM
          If there are messages marked for deletion in the mailbox, this woulnd't work.
 
       */
-      boost_foreach(shared_ptr<Message> message, _messages)
+      for(std::shared_ptr<Message> message : messages_)
          message->SetFlagDeleted(false);
    }
 }

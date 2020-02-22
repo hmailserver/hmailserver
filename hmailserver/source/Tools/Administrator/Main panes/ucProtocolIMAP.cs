@@ -2,11 +2,6 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using hMailServer.Administrator.Dialogs;
@@ -60,6 +55,10 @@ namespace hMailServer.Administrator
          checkEnableIMAPQuota.Checked = settings.IMAPQuotaEnabled;
          checkEnableIMAPIdle.Checked = settings.IMAPIdleEnabled;
          checkEnableIMAPACL.Checked = settings.IMAPACLEnabled;
+         checkEnableIMAPPlain.Checked = settings.IMAPSASLPlainEnabled;
+         checkEnableIMAPInitialResponse.Checked = settings.IMAPSASLInitialResponseEnabled;
+         textIMAPMasterUser.Text = settings.IMAPMasterUser;
+
          textIMAPPublicFolderName.Text = settings.IMAPPublicFolderName;
          comboIMAPHierarchyDelimiter.Text = settings.IMAPHierarchyDelimiter;
 
@@ -80,6 +79,10 @@ namespace hMailServer.Administrator
          settings.IMAPACLEnabled = checkEnableIMAPACL.Checked;
          settings.IMAPPublicFolderName = textIMAPPublicFolderName.Text;
 
+         settings.IMAPSASLPlainEnabled = checkEnableIMAPPlain.Checked;
+         settings.IMAPSASLInitialResponseEnabled = checkEnableIMAPInitialResponse.Checked;
+         settings.IMAPMasterUser = textIMAPMasterUser.Text;
+         
          bool setClean = true;
          try
          {

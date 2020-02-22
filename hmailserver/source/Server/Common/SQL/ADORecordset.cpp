@@ -17,20 +17,27 @@ namespace HM
 {
    ADORecordset::ADORecordset()
    {
-      m_iCurRow = 0;
+      cur_row_ = 0;
    }
 
    ADORecordset::~ADORecordset()
    {
-      _Close();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult
-   ADORecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   ADORecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
-      m_iCurRow = 0;
+      cur_row_ = 0;
 
-      shared_ptr<ADOConnection> pConn = static_pointer_cast<ADOConnection>(pDALConn);
+      std::shared_ptr<ADOConnection> pConn = std::static_pointer_cast<ADOConnection>(pDALConn);
       _ConnectionPtr pADOConnection = pConn->GetConnection();
 
       // Do we have a connection towards the database?
@@ -85,7 +92,7 @@ namespace HM
    
 
    bool
-   ADORecordset::_Close()
+   ADORecordset::Close_()
    {
       if (cADORecordset == NULL)
          return false;
@@ -108,7 +115,7 @@ namespace HM
    {
       try
       {
-         return cADORecordset->GetRecordCount();
+         return (long) cADORecordset->GetRecordCount();
       }
       catch ( _com_error &err)
       {
@@ -132,7 +139,7 @@ namespace HM
    bool
    ADORecordset::IsEOF() const
    {
-      if (m_iCurRow >= RecordCount())
+      if (cur_row_ >= RecordCount())
          return true;
       else
          return false;
@@ -141,7 +148,7 @@ namespace HM
    bool
    ADORecordset::MoveNext()
    {
-      m_iCurRow++;
+      cur_row_++;
       cADORecordset->MoveNext();
       return true;
    }
@@ -152,7 +159,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
@@ -201,7 +208,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -231,7 +238,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -269,7 +276,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -291,10 +298,10 @@ namespace HM
       return vaField.dblVal;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    ADORecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
       FieldsPtr      pFields;
       FieldPtr       pField;
@@ -328,7 +335,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 

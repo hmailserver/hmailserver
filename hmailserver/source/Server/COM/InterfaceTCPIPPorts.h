@@ -58,11 +58,11 @@ public:
    STDMETHOD(DeleteByDBID)(/*[in]*/ long DBID);
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceTCPIPPort **pVal);
 
-   void Attach(shared_ptr<HM::TCPIPPorts> pBlockedAttachments);
+   void Attach(std::shared_ptr<HM::TCPIPPorts> pBlockedAttachments);
 
 public:
 
-   shared_ptr<HM::TCPIPPorts> m_pTCPIPPorts;
+   std::shared_ptr<HM::TCPIPPorts> tcpip_ports_;
 
 };
 

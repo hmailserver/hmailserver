@@ -42,7 +42,7 @@ namespace HM
       int totalBanRanges = 0;
       bool localhostBanned = false;
 
-      boost_foreach(shared_ptr<SecurityRange> securityRange, ranges.GetVector())
+      for(std::shared_ptr<SecurityRange> securityRange : ranges.GetVector())
       {
          if (securityRange->GetExpires())
          {

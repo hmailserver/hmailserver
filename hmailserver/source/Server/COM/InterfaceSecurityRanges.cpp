@@ -15,8 +15,8 @@ InterfaceSecurityRanges::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pSecurityRanges = shared_ptr<HM::SecurityRanges> (new HM::SecurityRanges);
-   m_pSecurityRanges->Refresh();
+   security_ranges_ = std::shared_ptr<HM::SecurityRanges> (new HM::SecurityRanges);
+   security_ranges_->Refresh();
 
    return true;
 }
@@ -27,10 +27,10 @@ InterfaceSecurityRanges::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      *pVal = m_pSecurityRanges->GetCount();
+      *pVal = security_ranges_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -44,10 +44,10 @@ InterfaceSecurityRanges::Delete(long Index)
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      m_pSecurityRanges->DeleteItem(Index);
+      security_ranges_->DeleteItem(Index);
       return S_OK;
    }
    catch (...)
@@ -61,10 +61,10 @@ InterfaceSecurityRanges::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      m_pSecurityRanges->DeleteItemByDBID(DBID);
+      security_ranges_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -77,10 +77,10 @@ STDMETHODIMP InterfaceSecurityRanges::Refresh()
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      m_pSecurityRanges->Refresh();
+      security_ranges_->Refresh();
       return S_OK;
    }
    catch (...)
@@ -93,18 +93,18 @@ STDMETHODIMP InterfaceSecurityRanges::get_Item(long Index, IInterfaceSecurityRan
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = m_pSecurityRanges->GetItem(Index);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItem(Index);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pSecurityRanges, true);
+         pRangeInt->AttachParent(security_ranges_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }
@@ -127,18 +127,18 @@ STDMETHODIMP InterfaceSecurityRanges::get_ItemByDBID(long DBID, IInterfaceSecuri
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = m_pSecurityRanges->GetItemByDBID(DBID);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByDBID(DBID);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pSecurityRanges, true);
+         pRangeInt->AttachParent(security_ranges_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }
@@ -159,19 +159,19 @@ STDMETHODIMP InterfaceSecurityRanges::Add(IInterfaceSecurityRange **pVal)
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      if (!m_pSecurityRanges)
-         return m_pAuthentication->GetAccessDenied();
+      if (!security_ranges_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceSecurityRange>* pInterfaceRange = new CComObject<InterfaceSecurityRange>();
-      pInterfaceRange->SetAuthentication(m_pAuthentication);
+      pInterfaceRange->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = shared_ptr<HM::SecurityRange>(new HM::SecurityRange); 
+      std::shared_ptr<HM::SecurityRange> pRange = std::shared_ptr<HM::SecurityRange>(new HM::SecurityRange); 
    
       pInterfaceRange->AttachItem(pRange);
-      pInterfaceRange->AttachParent(m_pSecurityRanges, false);
+      pInterfaceRange->AttachParent(security_ranges_, false);
    
       pInterfaceRange->AddRef();
       *pVal = pInterfaceRange;
@@ -188,18 +188,18 @@ STDMETHODIMP InterfaceSecurityRanges::get_ItemByName(BSTR sName, IInterfaceSecur
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
       CComObject<InterfaceSecurityRange>* pRangeInt = new CComObject<InterfaceSecurityRange>();
-      pRangeInt->SetAuthentication(m_pAuthentication);
+      pRangeInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::SecurityRange> pRange = m_pSecurityRanges->GetItemByName(sName);
+      std::shared_ptr<HM::SecurityRange> pRange = security_ranges_->GetItemByName(sName);
    
       if (pRange)
       {
          pRangeInt->AttachItem(pRange);
-         pRangeInt->AttachParent(m_pSecurityRanges, true);
+         pRangeInt->AttachParent(security_ranges_, true);
          pRangeInt->AddRef();
          *pVal = pRangeInt;
       }
@@ -220,13 +220,13 @@ STDMETHODIMP InterfaceSecurityRanges::SetDefault()
 {
    try
    {
-      if (!m_pSecurityRanges)
+      if (!security_ranges_)
          return GetAccessDenied();
 
-      if (!m_pSecurityRanges)
-         return m_pAuthentication->GetAccessDenied();
+      if (!security_ranges_)
+         return authentication_->GetAccessDenied();
    
-      m_pSecurityRanges->SetDefault();
+      security_ranges_->SetDefault();
    
       return S_OK;
    }

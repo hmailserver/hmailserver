@@ -6,6 +6,7 @@
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
 #include "IMAPConfiguration.h"
+#include "MessagesContainer.h"
 
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolders.h"
@@ -20,13 +21,13 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandSELECT::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandSELECT::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
 
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
 
@@ -37,7 +38,7 @@ namespace HM
       if (sFolderName == Configuration::Instance()->GetIMAPConfiguration()->GetIMAPPublicFolderName())
          return IMAPResult(IMAPResult::ResultBad, "SELECT Only sub folders of the root shared folder can be selected.");
          
-      shared_ptr<IMAPFolder> pSelectedFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pSelectedFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pSelectedFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
@@ -50,11 +51,15 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for SELECT command).");
 
       pConnection->SetCurrentFolder(pSelectedFolder, false);
-      shared_ptr<Messages> pMessages = pSelectedFolder->GetMessages();
 
-      long lCount = pMessages->GetCount();
-      __int64 lFirstUnseenID = pMessages->GetFirstUnseenUID();
-      long lRecentCount = pMessages->GetNoOfRecent();
+      std::set<__int64> recent_messages;
+      auto messages = MessagesContainer::Instance()->GetMessages(pSelectedFolder->GetAccountID(), pSelectedFolder->GetID(), recent_messages, true);
+
+      pConnection->SetRecentMessages(recent_messages);
+
+      long lCount = messages->GetCount();
+      __int64 lFirstUnseenID = messages->GetFirstUnseenUID();
+      long lRecentCount = (int) recent_messages.size();
 
       String sRespTemp;
 

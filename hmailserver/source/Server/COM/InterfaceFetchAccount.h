@@ -85,6 +85,8 @@ public:
    STDMETHOD(put_UseAntiVirus)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_EnableRouteRecipients)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_EnableRouteRecipients)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_ConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_ConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
 private:
 
 };

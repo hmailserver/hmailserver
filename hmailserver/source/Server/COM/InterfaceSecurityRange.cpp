@@ -37,14 +37,14 @@ STDMETHODIMP InterfaceSecurityRange::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String result;
-      if (HM::PersistentSecurityRange::SaveObject(m_pObject, result))
+      if (HM::PersistentSecurityRange::SaveObject(object_, result, HM::PersistenceModeNormal))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -64,10 +64,10 @@ STDMETHODIMP InterfaceSecurityRange::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -81,10 +81,10 @@ STDMETHODIMP InterfaceSecurityRange::get_LowerIP(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetLowerIPString().AllocSysString();
+      *pVal = object_->GetLowerIPString().AllocSysString();
    
       return S_OK;
    }
@@ -98,10 +98,10 @@ STDMETHODIMP InterfaceSecurityRange::put_LowerIP(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetLowerIPString(newVal);
+      object_->SetLowerIPString(newVal);
    
       return S_OK;
    }
@@ -115,10 +115,10 @@ STDMETHODIMP InterfaceSecurityRange::get_UpperIP(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUpperIPString().AllocSysString();
+      *pVal = object_->GetUpperIPString().AllocSysString();
    
       return S_OK;
    }
@@ -132,10 +132,10 @@ STDMETHODIMP InterfaceSecurityRange::put_UpperIP(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUpperIPString(newVal);
+      object_->SetUpperIPString(newVal);
    
       return S_OK;
    }
@@ -149,10 +149,10 @@ STDMETHODIMP InterfaceSecurityRange::get_Priority(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetPriority();
+      *pVal = object_->GetPriority();
    
       return S_OK;
    }
@@ -166,10 +166,10 @@ STDMETHODIMP InterfaceSecurityRange::put_Priority(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetPriority(newVal);
+      object_->SetPriority(newVal);
       return S_OK;
    }
    catch (...)
@@ -182,10 +182,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowPOP3Connections(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowPOP3() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowPOP3() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -199,10 +199,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowPOP3Connections(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowPOP3 (newVal == VARIANT_TRUE);
+      object_->SetAllowPOP3 (newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -215,10 +215,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowSMTPConnections(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowSMTP() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowSMTP() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -232,10 +232,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowSMTPConnections(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowSMTP (newVal == VARIANT_TRUE);
+      object_->SetAllowSMTP (newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -248,10 +248,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowIMAPConnections(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowIMAP() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowIMAP() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -264,10 +264,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowIMAPConnections(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowIMAP (newVal == VARIANT_TRUE);
+      object_->SetAllowIMAP (newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -280,10 +280,10 @@ STDMETHODIMP InterfaceSecurityRange::get_Name(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -296,10 +296,10 @@ STDMETHODIMP InterfaceSecurityRange::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
       return S_OK;
    }
    catch (...)
@@ -312,7 +312,7 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireAuthForDeliveryToLocal(VARIANT_B
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Removed i 5.1
@@ -328,7 +328,7 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireAuthForDeliveryToLocal(VARIANT_B
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Removed i 5.1
@@ -344,7 +344,7 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireAuthForDeliveryToRemote(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Removed i 5.1
@@ -360,7 +360,7 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireAuthForDeliveryToRemote(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Removed i 5.1
@@ -376,10 +376,10 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireSMTPAuthLocalToLocal(VARIANT_BOO
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRequireSMTPAuthLocalToLocal() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetRequireSMTPAuthLocalToLocal() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -392,10 +392,10 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireSMTPAuthLocalToLocal(VARIANT_BOO
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRequireSMTPAuthLocalToLocal(newVal == VARIANT_TRUE);
+      object_->SetRequireSMTPAuthLocalToLocal(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -408,10 +408,10 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireSMTPAuthLocalToExternal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRequireSMTPAuthLocalToExternal() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetRequireSMTPAuthLocalToExternal() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -424,10 +424,10 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireSMTPAuthLocalToExternal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRequireSMTPAuthLocalToExternal(newVal == VARIANT_TRUE);
+      object_->SetRequireSMTPAuthLocalToExternal(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -440,10 +440,10 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireSMTPAuthExternalToLocal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRequireSMTPAuthExternalToLocal() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetRequireSMTPAuthExternalToLocal() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -456,10 +456,10 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireSMTPAuthExternalToLocal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRequireSMTPAuthExternalToLocal(newVal == VARIANT_TRUE);
+      object_->SetRequireSMTPAuthExternalToLocal(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -472,10 +472,10 @@ STDMETHODIMP InterfaceSecurityRange::get_RequireSMTPAuthExternalToExternal(VARIA
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRequireSMTPAuthExternalToExternal() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetRequireSMTPAuthExternalToExternal() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -488,10 +488,10 @@ STDMETHODIMP InterfaceSecurityRange::put_RequireSMTPAuthExternalToExternal(VARIA
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRequireSMTPAuthExternalToExternal(newVal == VARIANT_TRUE);
+      object_->SetRequireSMTPAuthExternalToExternal(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -504,10 +504,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowDeliveryFromLocalToLocal(VARIANT_B
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowRelayL2L() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowRelayL2L() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -520,10 +520,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowDeliveryFromLocalToLocal(VARIANT_B
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowRelayL2L(newVal == VARIANT_TRUE);
+      object_->SetAllowRelayL2L(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -536,10 +536,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowDeliveryFromLocalToRemote(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowRelayL2R() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowRelayL2R() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -552,10 +552,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowDeliveryFromLocalToRemote(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowRelayL2R(newVal == VARIANT_TRUE);
+      object_->SetAllowRelayL2R(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -568,10 +568,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowDeliveryFromRemoteToLocal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowRelayR2L() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowRelayR2L() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -584,10 +584,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowDeliveryFromRemoteToLocal(VARIANT_
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowRelayR2L(newVal == VARIANT_TRUE);
+      object_->SetAllowRelayR2L(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -600,10 +600,10 @@ STDMETHODIMP InterfaceSecurityRange::get_AllowDeliveryFromRemoteToRemote(VARIANT
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetAllowRelayR2R() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetAllowRelayR2R() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -616,10 +616,10 @@ STDMETHODIMP InterfaceSecurityRange::put_AllowDeliveryFromRemoteToRemote(VARIANT
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAllowRelayR2R(newVal == VARIANT_TRUE);
+      object_->SetAllowRelayR2R(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -632,10 +632,10 @@ STDMETHODIMP InterfaceSecurityRange::get_EnableSpamProtection(VARIANT_BOOL *pVal
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetSpamProtection() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetSpamProtection() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -648,10 +648,10 @@ STDMETHODIMP InterfaceSecurityRange::put_EnableSpamProtection(VARIANT_BOOL newVa
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetSpamProtection(newVal == VARIANT_TRUE);
+      object_->SetSpamProtection(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -664,10 +664,10 @@ STDMETHODIMP InterfaceSecurityRange::get_EnableAntiVirus(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetVirusProtection() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetVirusProtection() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -680,10 +680,42 @@ STDMETHODIMP InterfaceSecurityRange::put_EnableAntiVirus(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetVirusProtection(newVal == VARIANT_TRUE);
+      object_->SetVirusProtection(newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSecurityRange::get_RequireSSLTLSForAuth(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetRequireTLSForAuth() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSecurityRange::put_RequireSSLTLSForAuth(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetRequireTLSForAuth(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -696,7 +728,7 @@ STDMETHODIMP InterfaceSecurityRange::get_IsForwardingRelay(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Remove in 6.0. No longer used as of 5.1.
@@ -712,7 +744,7 @@ STDMETHODIMP InterfaceSecurityRange::put_IsForwardingRelay(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // OBSOLETE: Remove in 6.0. No longer used as of 5.1.
@@ -728,16 +760,16 @@ STDMETHODIMP InterfaceSecurityRange::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
       
-      if (!m_pParentCollection)
-         return HM::PersistentSecurityRange::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentSecurityRange::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }
@@ -751,10 +783,10 @@ STDMETHODIMP InterfaceSecurityRange::get_Expires(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetExpires() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetExpires() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -768,10 +800,10 @@ STDMETHODIMP InterfaceSecurityRange::put_Expires(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetExpires(newVal == VARIANT_TRUE);
+      object_->SetExpires(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -784,10 +816,10 @@ STDMETHODIMP InterfaceSecurityRange::get_ExpiresTime(VARIANT *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetExpiresTime().GetVariant();
+      *pVal = object_->GetExpiresTime().GetVariant();
       return S_OK;
    }
    catch (...)
@@ -800,11 +832,11 @@ STDMETHODIMP InterfaceSecurityRange::put_ExpiresTime(VARIANT newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
      
-      m_pObject->SetExpiresTime(newVal);
+      object_->SetExpiresTime(newVal);
       return S_OK;
    }
    catch (...)

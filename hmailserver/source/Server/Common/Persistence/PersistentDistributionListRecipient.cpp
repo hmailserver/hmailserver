@@ -3,9 +3,10 @@
 
 #include "stdafx.h"
 #include "persistentdistributionlistrecipient.h"
-
 #include "PersistentDistributionList.h"
 #include "PreSaveLimitationsCheck.h"
+#include "PersistenceMode.h"
+
 #include "../BO/DistributionList.h"
 #include "../Cache/Cache.h"
 
@@ -25,7 +26,7 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::DeleteObject(shared_ptr<DistributionListRecipient> pRecipient)
+   PersistentDistributionListRecipient::DeleteObject(std::shared_ptr<DistributionListRecipient> pRecipient)
    {
       if (pRecipient->GetID() == 0)
       {
@@ -38,7 +39,7 @@ namespace HM
 
       bool bResult = Application::Instance()->GetDBManager()->Execute(command);
 
-      Cache<DistributionList, PersistentDistributionList>::Instance()->RemoveObject(pRecipient->GetListID());
+      Cache<DistributionList>::Instance()->RemoveObject(pRecipient->GetListID());
 
       return bResult;
    }
@@ -53,7 +54,7 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, long ObjectID)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, long ObjectID)
    {
       SQLCommand selectCommand(_T("select * from hm_distributionlistsrecipients where distributionlistrecipientid = @RECIPIENTID"));
       selectCommand.AddParameter("@RECIPIENTID", ObjectID);
@@ -62,9 +63,9 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 
       bool bRetVal = false;
       if (!pRS->IsEOF())
@@ -78,7 +79,7 @@ namespace HM
 
 
    bool
-   PersistentDistributionListRecipient::ReadObject(shared_ptr<DistributionListRecipient> pRecipient, shared_ptr<DALRecordset> pRS)
+   PersistentDistributionListRecipient::ReadObject(std::shared_ptr<DistributionListRecipient> pRecipient, std::shared_ptr<DALRecordset> pRS)
    {
       pRecipient->SetID(pRS->GetLongValue("distributionlistrecipientid"));
       pRecipient->SetListID(pRS->GetLongValue("distributionlistrecipientlistid"));
@@ -88,18 +89,18 @@ namespace HM
    }
 
    bool
-   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient)
+   PersistentDistributionListRecipient::SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient)
    {
       String sErrorMessage;
 
-      return SaveObject(pRecipient, sErrorMessage);
+      return SaveObject(pRecipient, sErrorMessage, PersistenceModeNormal);
    }
 
 
    bool
-   PersistentDistributionListRecipient::SaveObject(shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage)
+   PersistentDistributionListRecipient::SaveObject(std::shared_ptr<DistributionListRecipient> pRecipient, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pRecipient, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pRecipient, sErrorMessage))
          return false;
 
       SQLStatement oStatement;
@@ -130,7 +131,7 @@ namespace HM
       if (bRetVal && bNewObject)
          pRecipient->SetID((int) iDBID);
 
-      Cache<DistributionList, PersistentDistributionList>::Instance()->RemoveObject(pRecipient->GetListID());
+      Cache<DistributionList>::Instance()->RemoveObject(pRecipient->GetListID());
 
       return bRetVal;
    }

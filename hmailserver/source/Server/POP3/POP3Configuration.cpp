@@ -21,8 +21,8 @@ namespace HM
 
    }
 
-   shared_ptr<PropertySet> 
-   POP3Configuration::_GetSettings() const
+   std::shared_ptr<PropertySet> 
+   POP3Configuration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -30,25 +30,25 @@ namespace HM
    void
    POP3Configuration::SetMaxPOP3Connections(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXPOP3CONNECTIONS, newVal);
+      GetSettings_()->SetLong(PROPERTY_MAXPOP3CONNECTIONS, newVal);
    }
 
    long
    POP3Configuration::GetMaxPOP3Connections() const
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXPOP3CONNECTIONS);
+      return GetSettings_()->GetLong(PROPERTY_MAXPOP3CONNECTIONS);
    }
 
 
    String 
    POP3Configuration::GetWelcomeMessage() const
    {
-      return _GetSettings()->GetString(PROPERTY_WELCOMEPOP3);
+      return GetSettings_()->GetString(PROPERTY_WELCOMEPOP3);
    }
 
    void 
    POP3Configuration::SetWelcomeMessage(const String &sMessage)
    {
-      _GetSettings()->SetString(PROPERTY_WELCOMEPOP3, sMessage);
+      GetSettings_()->SetString(PROPERTY_WELCOMEPOP3, sMessage);
    }
 }

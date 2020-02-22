@@ -35,7 +35,7 @@ namespace HM
 
       HKEY   hkey;
 
-      if(RegCreateKeyExW(HKEY_LOCAL_MACHINE, key, 0, NULL, 0, KEY_READ, NULL, &hkey, 0) != ERROR_SUCCESS)
+      if (RegCreateKeyExW(hive, key, 0, NULL, 0, KEY_READ | KEY_WOW64_32KEY, NULL, &hkey, 0) != ERROR_SUCCESS)
       {
          int err = GetLastError();
          return false;

@@ -19,21 +19,21 @@
 namespace HM
 {
    Domain::Domain() :
-      m_bUsePlusAddressing(false),
-      m_iActive(0),
-      m_iMaxMessageSize(0),
-      m_sPlusAddressingChar("+"),
-      m_iAntiSpamOptions(1),
-      m_iMaxSizeMB(0),
-      m_bEnableSignature(false),
-      m_eSignatureMethod(SMSetIfNotSpecifiedInAccount),
-      m_bAddSignaturesToLocalMail(true),
-      m_bAddSignaturesToReplies(false),
-      m_iMaxNoOfAccounts(0),
-      m_iMaxNoOfAliases(0),
-      m_iMaxNoOfDistributionLists(0),
-      m_iMaxAccountSize(0),
-      m_iLimitationsEnabled(0)
+      use_plus_addressing_(false),
+      active_(0),
+      max_message_size_(0),
+      plus_addressing_char_("+"),
+      anti_spam_options_(1),
+      max_size_mb_(0),
+      enable_signature_(false),
+      signature_method_(SMSetIfNotSpecifiedInAccount),
+      add_signatures_to_local_mail_(true),
+      add_signatures_to_replies_(false),
+      max_no_of_accounts_(0),
+      max_no_of_aliases_(0),
+      max_no_of_distribution_lists_(0),
+      max_account_size_(0),
+      limitations_enabled_(0)
    {
       
    }
@@ -43,61 +43,61 @@ namespace HM
 
    }
 
-   shared_ptr<Accounts>
+   std::shared_ptr<Accounts>
    Domain::GetAccounts()
    {
-      if (!m_pAccounts)
-         m_pAccounts = shared_ptr<Accounts>(new Accounts(m_iID));
+      if (!accounts_)
+         accounts_ = std::shared_ptr<Accounts>(new Accounts(id_));
 
-      m_pAccounts->Refresh();
-      return m_pAccounts;
+      accounts_->Refresh();
+      return accounts_;
    }
 
 
-   shared_ptr<DomainAliases>
+   std::shared_ptr<DomainAliases>
    Domain::GetDomainAliases()
    {
-      if (!m_pDomainAliases)
-         m_pDomainAliases = shared_ptr<DomainAliases>(new DomainAliases(m_iID));
+      if (!domain_aliases_)
+         domain_aliases_ = std::shared_ptr<DomainAliases>(new DomainAliases(id_));
 
-      m_pDomainAliases->Refresh();
-      return m_pDomainAliases;
+      domain_aliases_->Refresh();
+      return domain_aliases_;
    }
 
-   shared_ptr<Accounts>
+   std::shared_ptr<Accounts>
    Domain::GetAccounts(__int64 iAccountID)
    {
-      if (!m_pAccounts)
+      if (!accounts_)
       {
          // Only fetch a specific account and put it in the list. This happens
          // when an API client only has limited access.
-         m_pAccounts = shared_ptr<Accounts>(new Accounts(m_iID, iAccountID));
+         accounts_ = std::shared_ptr<Accounts>(new Accounts(id_, iAccountID));
       }
 
-      m_pAccounts->Refresh();
-      return m_pAccounts;
+      accounts_->Refresh();
+      return accounts_;
    }
 
-   shared_ptr<Aliases>
+   std::shared_ptr<Aliases>
    Domain::GetAliases()
    {
-      if (!m_pAliases)
-         m_pAliases = shared_ptr<Aliases>(new Aliases(m_iID));
+      if (!aliases_)
+         aliases_ = std::shared_ptr<Aliases>(new Aliases(id_));
       
-      m_pAliases->Refresh();
+      aliases_->Refresh();
 
-      return m_pAliases;
+      return aliases_;
    }
 
-   shared_ptr<DistributionLists>
+   std::shared_ptr<DistributionLists>
    Domain::GetDistributionLists()
    {
-      if (!m_pDistributionLists)
-         m_pDistributionLists = shared_ptr<DistributionLists>(new DistributionLists(m_iID));
+      if (!distribution_lists_)
+         distribution_lists_ = std::shared_ptr<DistributionLists>(new DistributionLists(id_));
 
-      m_pDistributionLists->Refresh();
+      distribution_lists_->Refresh();
 
-      return m_pDistributionLists;
+      return distribution_lists_;
    }
 
    bool 
@@ -105,32 +105,32 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("Domain"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
-      pNode->AppendAttr(_T("Postmaster"), m_sPostmaster);
-      pNode->AppendAttr(_T("ADDomainName"), m_sADDomainName);
-      pNode->AppendAttr(_T("Active"), StringParser::IntToString(m_iActive));
-      pNode->AppendAttr(_T("MaxMessageSize"), StringParser::IntToString(m_iMaxMessageSize));
-      pNode->AppendAttr(_T("MaxSize"), StringParser::IntToString(m_iMaxSizeMB));
-      pNode->AppendAttr(_T("MaxAccountSize"), StringParser::IntToString(m_iMaxAccountSize));
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("Postmaster"), postmaster_);
+      pNode->AppendAttr(_T("ADDomainName"), addomain_name_);
+      pNode->AppendAttr(_T("Active"), StringParser::IntToString(active_));
+      pNode->AppendAttr(_T("MaxMessageSize"), StringParser::IntToString(max_message_size_));
+      pNode->AppendAttr(_T("MaxSize"), StringParser::IntToString(max_size_mb_));
+      pNode->AppendAttr(_T("MaxAccountSize"), StringParser::IntToString(max_account_size_));
 
-      pNode->AppendAttr(_T("UsePlusAddressing"), m_bUsePlusAddressing ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("PlusAddressingChar"), m_sPlusAddressingChar);
-      pNode->AppendAttr(_T("AntiSpamOptions"), StringParser::IntToString(m_iAntiSpamOptions));
+      pNode->AppendAttr(_T("UsePlusAddressing"), use_plus_addressing_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("PlusAddressingChar"), plus_addressing_char_);
+      pNode->AppendAttr(_T("AntiSpamOptions"), StringParser::IntToString(anti_spam_options_));
 
-      pNode->AppendAttr(_T("EnableSignature"), m_bEnableSignature ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("SignatureMethod"), StringParser::IntToString(m_eSignatureMethod));
-      pNode->AppendAttr(_T("SignaturePlainText"), m_sSignaturePlainText);
-      pNode->AppendAttr(_T("SignatureHTML"), m_sSignatureHTML);
-      pNode->AppendAttr(_T("AddSignaturesToLocalMail"), m_bAddSignaturesToLocalMail ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("AddSignaturesToReplies"), m_bAddSignaturesToReplies ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("EnableSignature"), enable_signature_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("SignatureMethod"), StringParser::IntToString(signature_method_));
+      pNode->AppendAttr(_T("SignaturePlainText"), signature_plain_text_);
+      pNode->AppendAttr(_T("SignatureHTML"), signature_html_);
+      pNode->AppendAttr(_T("AddSignaturesToLocalMail"), add_signatures_to_local_mail_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("AddSignaturesToReplies"), add_signatures_to_replies_ ? _T("1") : _T("0"));
 
-      pNode->AppendAttr(_T("MaxNoOfAccounts"), StringParser::IntToString(m_iMaxNoOfAccounts));
-      pNode->AppendAttr(_T("MaxNoOfAliases"), StringParser::IntToString(m_iMaxNoOfAliases));
-      pNode->AppendAttr(_T("MaxNoOfLists"), StringParser::IntToString(m_iMaxNoOfDistributionLists));
-      pNode->AppendAttr(_T("LimitationsEnabled"), StringParser::IntToString(m_iLimitationsEnabled));
+      pNode->AppendAttr(_T("MaxNoOfAccounts"), StringParser::IntToString(max_no_of_accounts_));
+      pNode->AppendAttr(_T("MaxNoOfAliases"), StringParser::IntToString(max_no_of_aliases_));
+      pNode->AppendAttr(_T("MaxNoOfLists"), StringParser::IntToString(max_no_of_distribution_lists_));
+      pNode->AppendAttr(_T("LimitationsEnabled"), StringParser::IntToString(limitations_enabled_));
 
-      pNode->AppendAttr(_T("DKIMSelector"), _dkimSelector);
-      pNode->AppendAttr(_T("DKIMPrivateKeyFile"), _dkimPrivateKeyFile);
+      pNode->AppendAttr(_T("DKIMSelector"), dkim_selector_);
+      pNode->AppendAttr(_T("DKIMPrivateKeyFile"), dkim_private_key_file_);
 
       if (!GetDomainAliases()->XMLStore(pNode, iBackupOptions))
          return false;
@@ -151,34 +151,34 @@ namespace HM
    bool 
    Domain::XMLLoad(XNode *pNode, int iRestoreOptions)
    {
-      m_sName = pNode->GetAttrValue(_T("Name"));
-      m_sPostmaster = pNode->GetAttrValue(_T("Postmaster"));
-      m_sADDomainName = pNode->GetAttrValue(_T("ADDomainName"));
-      m_iActive = _ttoi(pNode->GetAttrValue(_T("Active")));
-      m_iMaxMessageSize = _ttoi(pNode->GetAttrValue(_T("MaxMessageSize")));
-      m_iMaxSizeMB = _ttoi(pNode->GetAttrValue(_T("MaxSize")));
-      m_iMaxAccountSize = _ttoi(pNode->GetAttrValue(_T("MaxAccountSize")));
+      name_ = pNode->GetAttrValue(_T("Name"));
+      postmaster_ = pNode->GetAttrValue(_T("Postmaster"));
+      addomain_name_ = pNode->GetAttrValue(_T("ADDomainName"));
+      active_ = _ttoi(pNode->GetAttrValue(_T("Active")));
+      max_message_size_ = _ttoi(pNode->GetAttrValue(_T("MaxMessageSize")));
+      max_size_mb_ = _ttoi(pNode->GetAttrValue(_T("MaxSize")));
+      max_account_size_ = _ttoi(pNode->GetAttrValue(_T("MaxAccountSize")));
 
-      m_bUsePlusAddressing = pNode->GetAttrValue(_T("UsePlusAddressing")) == _T("1");
-      m_sPlusAddressingChar = pNode->GetAttrValue(_T("PlusAddressingChar"));
-      m_iAntiSpamOptions = _ttoi(pNode->GetAttrValue(_T("AntiSpamOptions")));
+      use_plus_addressing_ = pNode->GetAttrValue(_T("UsePlusAddressing")) == _T("1");
+      plus_addressing_char_ = pNode->GetAttrValue(_T("PlusAddressingChar"));
+      anti_spam_options_ = _ttoi(pNode->GetAttrValue(_T("AntiSpamOptions")));
 
-      m_bEnableSignature = pNode->GetAttrValue(_T("EnableSignature")) == _T("1");
-      m_eSignatureMethod = (DomainSignatureMethod) _ttoi(pNode->GetAttrValue(_T("SignatureMethod")));
-      m_sSignaturePlainText = pNode->GetAttrValue(_T("SignaturePlainText"));
-      m_sSignatureHTML = pNode->GetAttrValue(_T("SignatureHTML"));
+      enable_signature_ = pNode->GetAttrValue(_T("EnableSignature")) == _T("1");
+      signature_method_ = (DomainSignatureMethod) _ttoi(pNode->GetAttrValue(_T("SignatureMethod")));
+      signature_plain_text_ = pNode->GetAttrValue(_T("SignaturePlainText"));
+      signature_html_ = pNode->GetAttrValue(_T("SignatureHTML"));
 
-      m_bAddSignaturesToLocalMail = pNode->GetAttrValue(_T("AddSignaturesToLocalMail")) == _T("1");
-      m_bAddSignaturesToReplies = pNode->GetAttrValue(_T("AddSignaturesToReplies")) == _T("1");
+      add_signatures_to_local_mail_ = pNode->GetAttrValue(_T("AddSignaturesToLocalMail")) == _T("1");
+      add_signatures_to_replies_ = pNode->GetAttrValue(_T("AddSignaturesToReplies")) == _T("1");
 
-      m_iMaxNoOfAccounts = _ttoi(pNode->GetAttrValue(_T("MaxNoOfAccounts")));
-      m_iMaxNoOfAliases = _ttoi(pNode->GetAttrValue(_T("MaxNoOfAliases")));
-      m_iMaxNoOfDistributionLists = _ttoi(pNode->GetAttrValue(_T("MaxNoOfLists")));
+      max_no_of_accounts_ = _ttoi(pNode->GetAttrValue(_T("MaxNoOfAccounts")));
+      max_no_of_aliases_ = _ttoi(pNode->GetAttrValue(_T("MaxNoOfAliases")));
+      max_no_of_distribution_lists_ = _ttoi(pNode->GetAttrValue(_T("MaxNoOfLists")));
       
-      m_iLimitationsEnabled = _ttoi(pNode->GetAttrValue(_T("LimitationsEnabled")));
+      limitations_enabled_ = _ttoi(pNode->GetAttrValue(_T("LimitationsEnabled")));
 
-      _dkimSelector = pNode->GetAttrValue(_T("DKIMSelector"));
-      _dkimPrivateKeyFile = pNode->GetAttrValue(_T("DKIMPrivateKeyFile"));
+      dkim_selector_ = pNode->GetAttrValue(_T("DKIMSelector"));
+      dkim_private_key_file_ = pNode->GetAttrValue(_T("DKIMPrivateKeyFile"));
 
       return true;
    }
@@ -204,250 +204,250 @@ namespace HM
    bool 
    Domain::GetASUseGreyListing() const
    {
-      return (m_iAntiSpamOptions & ASUseGreylisting) ? true : false;
+      return (anti_spam_options_ & ASUseGreylisting) ? true : false;
    }
 
    void 
    Domain::SetASUseGreyListing(bool bNewVal)
    {
       if (bNewVal)
-         m_iAntiSpamOptions = m_iAntiSpamOptions | ASUseGreylisting;
+         anti_spam_options_ = anti_spam_options_ | ASUseGreylisting;
       else
-         m_iAntiSpamOptions = m_iAntiSpamOptions & ~ASUseGreylisting;      
+         anti_spam_options_ = anti_spam_options_ & ~ASUseGreylisting;      
 
    }
 
    int
    Domain::GetMaxSizeMB() const
    {
-      return m_iMaxSizeMB;
+      return max_size_mb_;
    }
 
    void 
    Domain::SetMaxSizeMB(int iNewVal)
    {
-      m_iMaxSizeMB = iNewVal;
+      max_size_mb_ = iNewVal;
    }
 
    bool  
    Domain::GetEnableSignature() const
    {
-      return m_bEnableSignature;
+      return enable_signature_;
    }
 
    void 
    Domain::SetEnableSignature(bool bNewVal)
    {
-      m_bEnableSignature = bNewVal;
+      enable_signature_ = bNewVal;
    }
 
    Domain::DomainSignatureMethod 
    Domain::GetSignatureMethod() const
    {
-      return m_eSignatureMethod;
+      return signature_method_;
    }
 
    void 
    Domain::SetSignatureMethod(Domain::DomainSignatureMethod eSM)
    {
-      m_eSignatureMethod = eSM;
+      signature_method_ = eSM;
    }
 
    String 
    Domain::GetSignaturePlainText() const
    {
-      return m_sSignaturePlainText;
+      return signature_plain_text_;
    }
 
    void 
    Domain::SetSignaturePlainText(const String &sSignature)
    {
-      m_sSignaturePlainText = sSignature;
+      signature_plain_text_ = sSignature;
    }
 
    String 
    Domain::GetSignatureHTML() const
    {
-      return m_sSignatureHTML;
+      return signature_html_;
    }
 
    void 
    Domain::SetSignatureHTML(const String &sSignature)
    {
-      m_sSignatureHTML = sSignature;
+      signature_html_ = sSignature;
    }
 
 
    bool
    Domain::GetAddSignaturesToReplies() const
    {
-      return m_bAddSignaturesToReplies;
+      return add_signatures_to_replies_;
    }
 
    void 
    Domain::SetAddSignaturesToReplies(bool bNewVal)
    {
-      m_bAddSignaturesToReplies = bNewVal;
+      add_signatures_to_replies_ = bNewVal;
    }
 
    bool
    Domain::GetAddSignaturesToLocalMail() const
    {
-      return m_bAddSignaturesToLocalMail;
+      return add_signatures_to_local_mail_;
    }
 
    void 
    Domain::SetAddSignaturesToLocalMail(bool bNewVal)
    {
-      m_bAddSignaturesToLocalMail = bNewVal;
+      add_signatures_to_local_mail_ = bNewVal;
    }
 
    int
    Domain::GetMaxNoOfAccounts() const
    {
-      return m_iMaxNoOfAccounts;
+      return max_no_of_accounts_;
    }
 
    void 
    Domain::SetMaxNoOfAccounts(int iNewVal)
    {
-      m_iMaxNoOfAccounts = iNewVal;
+      max_no_of_accounts_ = iNewVal;
    }
 
    int
    Domain::GetMaxNoOfAliases() const
    {
-      return m_iMaxNoOfAliases;
+      return max_no_of_aliases_;
    }
 
    void 
    Domain::SetMaxNoOfAliases(int iNewVal)
    {
-      m_iMaxNoOfAliases = iNewVal;
+      max_no_of_aliases_ = iNewVal;
    }
 
    int
    Domain::GetMaxNoOfDistributionLists() const
    {
-      return m_iMaxNoOfDistributionLists;
+      return max_no_of_distribution_lists_;
    }
 
    void 
    Domain::SetMaxNoOfDistributionLists(int iNewVal)
    {
-      m_iMaxNoOfDistributionLists = iNewVal;
+      max_no_of_distribution_lists_ = iNewVal;
    }
 
    int
    Domain::GetLimitationsEnabled() const
    {
-      return m_iLimitationsEnabled;
+      return limitations_enabled_;
    }
 
    void
    Domain::SetLimitationsEnabled(int iNewVal)
    {
-      m_iLimitationsEnabled = iNewVal;
+      limitations_enabled_ = iNewVal;
    }
 
    bool
    Domain::GetMaxNoOfAccountsEnabled() const
    {
-      return (m_iLimitationsEnabled & MaxNoOfAccounts) ? true : false;
+      return (limitations_enabled_ & MaxNoOfAccounts) ? true : false;
    }
 
    void
    Domain::SetMaxNoOfAccountsEnabled(bool bNewVal)
    {
       if (bNewVal)
-         m_iLimitationsEnabled = m_iLimitationsEnabled | MaxNoOfAccounts;
+         limitations_enabled_ = limitations_enabled_ | MaxNoOfAccounts;
       else
-         m_iLimitationsEnabled = m_iLimitationsEnabled & ~MaxNoOfAccounts;
+         limitations_enabled_ = limitations_enabled_ & ~MaxNoOfAccounts;
    }
 
    bool
    Domain::GetMaxNoOfAliasesEnabled() const
    {
-      return (m_iLimitationsEnabled & MaxNoOfAliases) ? true : false;
+      return (limitations_enabled_ & MaxNoOfAliases) ? true : false;
    }
 
    void 
    Domain::SetMaxNoOfAliasesEnabled(bool bNewVal)
    {
       if (bNewVal)
-         m_iLimitationsEnabled = m_iLimitationsEnabled | MaxNoOfAliases;
+         limitations_enabled_ = limitations_enabled_ | MaxNoOfAliases;
       else
-         m_iLimitationsEnabled = m_iLimitationsEnabled & ~MaxNoOfAliases;
+         limitations_enabled_ = limitations_enabled_ & ~MaxNoOfAliases;
 
    }
 
    bool
    Domain::GetMaxNoOfDistributionListsEnabled() const
    {
-      return (m_iLimitationsEnabled & MaxNoOfDistributionLists) ? true : false;
+      return (limitations_enabled_ & MaxNoOfDistributionLists) ? true : false;
    }
 
    void 
    Domain::SetMaxNoOfDistributionListsEnabled(bool bNewVal)
    {
       if (bNewVal)
-         m_iLimitationsEnabled = m_iLimitationsEnabled | MaxNoOfDistributionLists;
+         limitations_enabled_ = limitations_enabled_ | MaxNoOfDistributionLists;
       else
-         m_iLimitationsEnabled = m_iLimitationsEnabled & ~MaxNoOfDistributionLists;
+         limitations_enabled_ = limitations_enabled_ & ~MaxNoOfDistributionLists;
    }
 
    int
    Domain::GetMaxAccountSize() const
    {
-      return m_iMaxAccountSize;
+      return max_account_size_;
    }
 
    void 
    Domain::SetMaxAccountSize(int iNewVal)
    {
-      m_iMaxAccountSize = iNewVal;
+      max_account_size_ = iNewVal;
    }
 
    bool
    Domain::GetDKIMEnabled() const
    {
-      return (m_iAntiSpamOptions & ASDKIMSign) ? true : false;
+      return (anti_spam_options_ & ASDKIMSign) ? true : false;
    }
 
    void
    Domain::SetDKIMEnabled(bool newValue)
    {
-      m_iAntiSpamOptions = newValue ? m_iAntiSpamOptions | ASDKIMSign : m_iAntiSpamOptions & ~ASDKIMSign;
+      anti_spam_options_ = newValue ? anti_spam_options_ | ASDKIMSign : anti_spam_options_ & ~ASDKIMSign;
    }
 
    AnsiString 
    Domain::GetDKIMSelector() const
    {
-      return _dkimSelector;
+      return dkim_selector_;
    }
 
    void 
    Domain::SetDKIMSelector(const String &newValue)
    {
-      _dkimSelector = newValue;
+      dkim_selector_ = newValue;
    }
 
    String 
    Domain::GetDKIMPrivateKeyFile() const
    {
-      return _dkimPrivateKeyFile;
+      return dkim_private_key_file_;
    }
 
    void 
    Domain::SetDKIMPrivateKeyFile(const String &newValue)
    {
-      _dkimPrivateKeyFile = newValue;
+      dkim_private_key_file_ = newValue;
    }
 
    int 
    Domain::GetDKIMHeaderCanonicalizationMethod() const
    {
-      if (m_iAntiSpamOptions & ASDKIMSimpleHeader)
+      if (anti_spam_options_ & ASDKIMSimpleHeader)
          return 1;
       else
          return 2;
@@ -457,16 +457,16 @@ namespace HM
    Domain::SetDKIMHeaderCanonicalizationMethod(int newValue)
    {
       if (newValue == 1)
-         m_iAntiSpamOptions |= ASDKIMSimpleHeader;
+         anti_spam_options_ |= ASDKIMSimpleHeader;
       else
-         m_iAntiSpamOptions &= ~ASDKIMSimpleHeader;
+         anti_spam_options_ &= ~ASDKIMSimpleHeader;
    }
 
 
    int 
    Domain::GetDKIMBodyCanonicalizationMethod() const
    {
-      if (m_iAntiSpamOptions & ASDKIMSimpleBody)
+      if (anti_spam_options_ & ASDKIMSimpleBody)
          return 1;
       else
          return 2;
@@ -476,15 +476,15 @@ namespace HM
    Domain::SetDKIMBodyCanonicalizationMethod(int newValue)
    {
       if (newValue == 1)
-         m_iAntiSpamOptions |= ASDKIMSimpleBody;
+         anti_spam_options_ |= ASDKIMSimpleBody;
       else
-         m_iAntiSpamOptions &=  ~ASDKIMSimpleBody;
+         anti_spam_options_ &=  ~ASDKIMSimpleBody;
    }
 
    int 
    Domain::GetDKIMSigningAlgorithm() const
    {
-      if (m_iAntiSpamOptions & ASDKIMSHA1)
+      if (anti_spam_options_ & ASDKIMSHA1)
          return 1;
       else
          return 2;
@@ -494,8 +494,14 @@ namespace HM
    Domain::SetDKIMSigningAlgorithm(int newValue)
    {
       if (newValue == 1)
-         m_iAntiSpamOptions |=  ASDKIMSHA1;
+         anti_spam_options_ |=  ASDKIMSHA1;
       else
-         m_iAntiSpamOptions &= ~ASDKIMSHA1;
+         anti_spam_options_ &= ~ASDKIMSHA1;
+   }
+
+   size_t 
+   Domain::GetEstimatedCachingSize()
+   {
+      return 1024;
    }
 }

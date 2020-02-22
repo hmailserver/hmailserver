@@ -55,14 +55,14 @@ public:
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceDistributionList** pVal);
    STDMETHOD(get_ItemByAddress)(/*[in]*/ BSTR sAddress, /*[out, retval]*/ IInterfaceDistributionList **pVal);
 
-   void Attach(shared_ptr<HM::DistributionLists> pDistributionLists);
-   void SetDomain(__int64 Domain) { m_iDomainID = Domain; }
+   void Attach(std::shared_ptr<HM::DistributionLists> pDistributionLists);
+   void SetDomain(__int64 Domain) { domain_id_ = Domain; }
 
 private:
-   void InternalAdd(shared_ptr<HM::DistributionList> pObject);
+   void InternalAdd(std::shared_ptr<HM::DistributionList> pObject);
 
-   shared_ptr<HM::DistributionLists> m_pDistributionLists;
-   __int64 m_iDomainID;
+   std::shared_ptr<HM::DistributionLists> distribution_lists_;
+   __int64 domain_id_;
 
 };
 

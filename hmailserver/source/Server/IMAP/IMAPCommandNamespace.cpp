@@ -17,12 +17,12 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandNamespace::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandNamespace::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
 
       if (pParser->WordCount() < 1)
@@ -37,7 +37,7 @@ namespace HM
       String sSharedNamespaces = "((\"" + sPublicFolderName + "\" \"" + hierarchyDelimiter + "\"))";
       String sResponse;
       
-      sResponse.Format(_T("* NAMESPACE %s %s %s\r\n"), sPersonalNamespace, sOtherUsersNamespace, sSharedNamespaces);
+      sResponse.Format(_T("* NAMESPACE %s %s %s\r\n"), sPersonalNamespace.c_str(), sOtherUsersNamespace.c_str(), sSharedNamespaces.c_str());
       sResponse += pArgument->Tag() + _T(" OK namespace command complete\r\n");
 
       pConnection->SendAsciiData(sResponse);   

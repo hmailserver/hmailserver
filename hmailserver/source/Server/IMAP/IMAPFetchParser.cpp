@@ -11,28 +11,28 @@
 
 namespace HM
 {
-   IMAPFetchParser::BodyPart::BodyPart() : m_sName(""), 
-      m_iOctetStart(-1),
-      m_iOctetCount(-1),
-      m_bShowBodyHeaderFields(false),
-      m_bShowBodyHeaderFieldsNOT(false),
-      m_bShowBodyHeader(false),
-      m_bShowBodyText(false),
-      m_bShowBodyFull(false)
+   IMAPFetchParser::BodyPart::BodyPart() : name_(""), 
+      octet_start_(-1),
+      octet_count_(-1),
+      show_body_header_fields_(false),
+      show_body_header_fields_NOT(false),
+      show_body_header_(false),
+      show_body_text_(false),
+      show_body_full_(false)
    {
 
    }
 
    IMAPFetchParser::IMAPFetchParser()
    {
-      m_bShowEnvelope = false;
-      m_bShowRFCSize = false;
-      m_bShowUID = false;
-      m_bShowFlags = false;
-      m_bShowInternalDate = false;
-      m_bShowBodyStructure = false;
-      m_bSetSeen = false;
-      m_bShowBodyStructureNonExtensible = false;
+      show_envelope_ = false;
+      show_rfcsize_ = false;
+      show_uid_ = false;
+      show_flags_ = false;
+      show_internal_date_ = false;
+      show_body_structure_ = false;
+      set_seen_ = false;
+      show_body_structure_NonExtensible = false;
    }
 
    IMAPFetchParser::~IMAPFetchParser()
@@ -41,7 +41,7 @@ namespace HM
    }
 
    void
-   IMAPFetchParser::_CleanFetchString(String &sString)
+   IMAPFetchParser::CleanFetchString_(String &sString)
    {
       if (sString.Left(1) == _T(" "))
          sString = sString.Mid(1);
@@ -56,7 +56,7 @@ namespace HM
    }
 
    IMAPResult
-   IMAPFetchParser::_ValidateSyntax(const String &sString)
+   IMAPFetchParser::ValidateSyntax_(const String &sString)
    {
       long lNoOfLeftPar = sString.NumberOf(_T("("));
       long lNoOfRightPar = sString.NumberOf(_T(")"));
@@ -75,12 +75,12 @@ namespace HM
    }
 
    std::vector<String>
-   IMAPFetchParser::_ParseString(String &sString)
+   IMAPFetchParser::ParseString_(String &sString)
    {
 
       std::vector<String> vecResult;
 
-      _CleanFetchString(sString);
+      CleanFetchString_(sString);
 
       while (!sString.IsEmpty())
       {
@@ -127,7 +127,7 @@ namespace HM
          }
          
 
-         _CleanFetchString(sString);
+         CleanFetchString_(sString);
 
 
       }
@@ -141,82 +141,82 @@ namespace HM
    {
       String sStringToParse = sCommand;
       
-      IMAPResult result = _ValidateSyntax(sStringToParse);
+      IMAPResult result = ValidateSyntax_(sStringToParse);
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
       
-      std::vector<String> vecResult = _ParseString(sStringToParse);
-      std::vector<String>::iterator iter = vecResult.begin();
+      std::vector<String> vecResult = ParseString_(sStringToParse);
+      auto iter = vecResult.begin();
       while (iter != vecResult.end())
       {
          String sPart = (*iter);
 
          
-         ePartType iType = _GetPartType(sPart);
+         ePartType iType = GetPartType_(sPart);
 
          switch (iType)
          {
             case BODYPEEK:
             {
-               IMAPFetchParser::BodyPart oPart = _ParseBODYPEEK(sPart);
-               m_vecPartsToLookAt.push_back(oPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_PEEK(sPart);
+               parts_to_look_at_.push_back(oPart);
                break;
             }
             
             case ENVELOPE:
             {
-               m_bShowEnvelope = true;
+               show_envelope_ = true;
                break;
             }
             
             case RFC822SIZE:
             {
-               m_bShowRFCSize = true;
+               show_rfcsize_ = true;
                break;
             }
 
             case UID:
             {
-               m_bShowUID = true;
+               show_uid_ = true;
                break;
             }
 
             case FLAGS:
             {
-               m_bShowFlags = true;
+               show_flags_ = true;
                break;
             }
 
             case INTERNALDATE:
             {
-               m_bShowInternalDate = true;
+               show_internal_date_ = true;
                break;
             }
 
             case BODYSTRUCTURE:
             {
-               m_bShowBodyStructure = true;
+               show_body_structure_ = true;
                break;
             }
             
             case BODYSTRUCTURENONEXTENSIBLE:
             {
-               m_bShowBodyStructureNonExtensible = true;
+               show_body_structure_NonExtensible = true;
                break;
             }
 
             case BODY:
             {
-               IMAPFetchParser::BodyPart oPart = _ParseBODY(sPart);
-               m_vecPartsToLookAt.push_back(oPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_(sPart);
+               parts_to_look_at_.push_back(oPart);
                break;
             }
             case RFC822:
             {
                // Same as:
-               IMAPFetchParser::BodyPart oPart = _ParseBODY(sPart);
+               IMAPFetchParser::BodyPart oPart = ParseBODY_(sPart);
                oPart.SetDescription("RFC822");
-               m_vecPartsToLookAt.push_back(oPart);
+               parts_to_look_at_.push_back(oPart);
                break;
 
             }
@@ -225,10 +225,10 @@ namespace HM
                // ALL
                // Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)
 
-               m_bShowFlags = true;
-               m_bShowInternalDate = true;
-               m_bShowRFCSize = true;
-               m_bShowEnvelope = true;
+               show_flags_ = true;
+               show_internal_date_ = true;
+               show_rfcsize_ = true;
+               show_envelope_ = true;
                break;
             }
 
@@ -237,9 +237,9 @@ namespace HM
                // FAST
                // Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE)
 
-               m_bShowFlags = true;
-               m_bShowInternalDate = true;
-               m_bShowRFCSize = true;
+               show_flags_ = true;
+               show_internal_date_ = true;
+               show_rfcsize_ = true;
                break;
             }
 
@@ -247,11 +247,11 @@ namespace HM
             {
                // FULL
                // Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)
-               m_bShowFlags = true;
-               m_bShowInternalDate = true;
-               m_bShowRFCSize = true;
-               m_bShowEnvelope = true;
-               m_bShowBodyStructure = true;
+               show_flags_ = true;
+               show_internal_date_ = true;
+               show_rfcsize_ = true;
+               show_envelope_ = true;
+               show_body_structure_ = true;
                break;
             }
             case RFC822HEADER:
@@ -263,9 +263,9 @@ namespace HM
                   returned).
                   */
             
-               IMAPFetchParser::BodyPart oPart = _ParseBODYPEEK("BODY[HEADER]");
+               IMAPFetchParser::BodyPart oPart = ParseBODY_PEEK("BODY[HEADER]");
                oPart.SetDescription("RFC822.HEADER");
-               m_vecPartsToLookAt.push_back(oPart);
+               parts_to_look_at_.push_back(oPart);
                break;
             }
             case RFC822TEXT:
@@ -275,9 +275,9 @@ namespace HM
                   of the resulting untagged FETCH data (RFC822.TEXT is returned).
                   */
 
-                  IMAPFetchParser::BodyPart oPart = _ParseBODY("BODY[TEXT]");
+                  IMAPFetchParser::BodyPart oPart = ParseBODY_("BODY[TEXT]");
                   oPart.SetDescription("RFC822.TEXT");
-                  m_vecPartsToLookAt.push_back(oPart);
+                  parts_to_look_at_.push_back(oPart);
 
                   break;
                }
@@ -290,7 +290,7 @@ namespace HM
    }
 
    IMAPFetchParser::BodyPart
-   IMAPFetchParser::_ParseBODY(const String &sString)
+   IMAPFetchParser::ParseBODY_(const String &sString)
    {
       BodyPart oPart;
       
@@ -315,8 +315,8 @@ namespace HM
          String sPartial = sNewName.Mid(iStart, iEnd - iStart);
          int iDotPos = sPartial.Find(_T("."));
          
-         oPart.m_iOctetStart = _ttoi(sPartial.Mid(0, iDotPos));
-         oPart.m_iOctetCount = _ttoi(sPartial.Mid(iDotPos+1));
+         oPart.octet_start_ = _ttoi(sPartial.Mid(0, iDotPos));
+         oPart.octet_count_ = _ttoi(sPartial.Mid(iDotPos+1));
 
          // Remove the octets part from the description.
          String sBefore = sNewName.Mid(0, iStart - 1);
@@ -334,7 +334,7 @@ namespace HM
       if (sBody.IsEmpty())
       {
          oPart.SetShowBodyFull(true);
-         m_bSetSeen = true;
+         set_seen_ = true;
       }
       else
       {
@@ -409,7 +409,7 @@ namespace HM
             String sAfter = sBody.Mid(lTemp + 5);
             sBody = sBefore + sAfter;
 
-            m_bSetSeen = true;
+            set_seen_ = true;
          }
 
          if (!oPart.GetShowBodyText() &&
@@ -418,7 +418,7 @@ namespace HM
              !oPart.GetShowBodyHeaderFieldsNOT())
          {
              oPart.SetShowBodyText(true);
-             m_bSetSeen = true;
+             set_seen_ = true;
          }
          
          sBody = sBody.TrimLeft(_T("."));
@@ -435,7 +435,7 @@ namespace HM
 
    
    IMAPFetchParser::ePartType
-   IMAPFetchParser::_GetPartType(const String &sPart)
+   IMAPFetchParser::GetPartType_(const String &sPart)
    {
       if (sPart.FindNoCase(_T("BODY.PEEK")) >= 0)
          return BODYPEEK;
@@ -487,16 +487,16 @@ namespace HM
 
 
    IMAPFetchParser::BodyPart
-   IMAPFetchParser::_ParseBODYPEEK(const String &sString)
+   IMAPFetchParser::ParseBODY_PEEK(const String &sString)
    {
-      BodyPart oPart = _ParseBODY(sString);
-      m_bSetSeen = false;
+      BodyPart oPart = ParseBODY_(sString);
+      set_seen_ = false;
 
       return oPart;
    }
 
    bool 
-   IMAPFetchParser::_IsPartSpecifier(const String &sString)
+   IMAPFetchParser::IsPartSpecifier_(const String &sString)
    {
       String sTemp = sString;
       sTemp.ToUpper();

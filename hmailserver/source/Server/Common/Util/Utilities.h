@@ -7,6 +7,7 @@ namespace HM
 {
    class MimeHeader;
    class DateTime;
+   class CipherInfo;
 
    class Utilities  
    {
@@ -15,16 +16,13 @@ namespace HM
 	   virtual ~Utilities();
 
       static String ComputerName();
-      static String GetExecutableDirectory();
-      static String GetWin32TempDirectory();
+      static String GetBinDirectory();
       static String GetUniqueTempDirectory();
-         
       static String GetIPAddress (SOCKADDR_IN addr);
-
       static String GenerateMessageID();
-      static String GenerateReceivedHeader(const String &RemoteIP, String sHostName);
 
-      static shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, int iBufSize);
+
+      static std::shared_ptr<MimeHeader> GetMimeHeader(const BYTE *pByteBuf, size_t iBufSize);
 
       static bool IsLocalHost(const String &sHostname);
 
@@ -38,9 +36,11 @@ namespace HM
 
    private:
 
-      static String m_sCachedWin32ComputerName;
+      
 
-      static String m_sCachedWin32TempDir;
+      static String cached_win_32computer_name_;
+
+      static String cached_win_32temp_dir_;
    };
 
    class UtilitiesTester
@@ -50,8 +50,8 @@ namespace HM
       void Test();
 
    private:
-      void _TestComputerName();
-      void _TestReceivedHeaderParse();
+      void TestComputerName_();
+      void TestReceivedHeaderParse_();
    };
 
 }

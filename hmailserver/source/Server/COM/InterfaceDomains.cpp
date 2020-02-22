@@ -41,7 +41,7 @@ STDMETHODIMP InterfaceDomains::InterfaceSupportsErrorInfo(REFIID riid)
 }   
 
 void
-InterfaceDomains::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceDomains::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
    COMAuthenticator::SetAuthentication(pAuthentication);
 }
@@ -50,18 +50,18 @@ STDMETHODIMP InterfaceDomains::Refresh()
 {
    try
    {
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
-      m_pObjects = shared_ptr<HM::Domains>(new HM::Domains);
+      objects_ = std::shared_ptr<HM::Domains>(new HM::Domains);
    
       try
       {
-         if (m_pAuthentication->GetIsServerAdmin())
+         if (authentication_->GetIsServerAdmin())
             // Load all domains
-            m_pObjects->Refresh();
+            objects_->Refresh();
          else
-            m_pObjects->Refresh(m_pAuthentication->GetDomainID());
+            objects_->Refresh(authentication_->GetDomainID());
       }
       catch (...)
       {
@@ -80,13 +80,13 @@ STDMETHODIMP InterfaceDomains::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
-      *pVal = m_pObjects->GetCount();
+      *pVal = objects_->GetCount();
    
       return S_OK;
    }
@@ -100,20 +100,20 @@ STDMETHODIMP InterfaceDomains::Add(/*[out, retval] */IInterfaceDomain** pVal)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pObjects)
-         return m_pAuthentication->GetAccessDenied();
+      if (!objects_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomain>* pDomainInterface = new CComObject<InterfaceDomain>;
-      pDomainInterface->SetAuthentication(m_pAuthentication);
+      pDomainInterface->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pDomain = shared_ptr<HM::Domain>(new HM::Domain());
+      std::shared_ptr<HM::Domain> pDomain = std::shared_ptr<HM::Domain>(new HM::Domain());
       
       pDomainInterface->AttachItem(pDomain);
-      pDomainInterface->AttachParent(m_pObjects, false);
-      pDomainInterface->SetAuthentication(m_pAuthentication);
+      pDomainInterface->AttachParent(objects_, false);
+      pDomainInterface->SetAuthentication(authentication_);
    
       pDomainInterface->AddRef();
    
@@ -131,23 +131,23 @@ STDMETHODIMP InterfaceDomains::get_ItemByName(BSTR ItemName, IInterfaceDomain **
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = m_pObjects->GetItemByName(ItemName);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByName(ItemName);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;
    
       pDomain->AttachItem(pPersDomain);
-      pDomain->AttachParent(m_pObjects, true);
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->AttachParent(objects_, true);
+      pDomain->SetAuthentication(authentication_);
    
       pDomain->AddRef();
       *pVal = pDomain;
@@ -164,23 +164,23 @@ STDMETHODIMP InterfaceDomains::get_Item(long Index, IInterfaceDomain **pVal)
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = m_pObjects->GetItem(Index);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItem(Index);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;
    
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->SetAuthentication(authentication_);
       pDomain->AttachItem(pPersDomain);
-      pDomain->AttachParent(m_pObjects, true);
+      pDomain->AttachParent(objects_, true);
    
       pDomain->AddRef();
    
@@ -198,23 +198,23 @@ STDMETHODIMP InterfaceDomains::get_ItemByDBID(long DBID, IInterfaceDomain **pVal
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomain>* pDomain = new CComObject<InterfaceDomain>();
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Domain> pPersDomain = m_pObjects->GetItemByDBID(DBID);
+      std::shared_ptr<HM::Domain> pPersDomain = objects_->GetItemByDBID(DBID);
    
       if (!pPersDomain)
          return DISP_E_BADINDEX;
    
-      pDomain->SetAuthentication(m_pAuthentication);
+      pDomain->SetAuthentication(authentication_);
       pDomain->AttachItem(pPersDomain);
-      pDomain->AttachParent(m_pObjects, true);
+      pDomain->AttachParent(objects_, true);
    
       pDomain->AddRef();
       *pVal = pDomain;
@@ -231,13 +231,13 @@ STDMETHODIMP InterfaceDomains::get_Names(BSTR *sNames)
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsAuthenticated())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsAuthenticated())
+         return authentication_->GetAccessDenied();
    
-      HM::String names = m_pObjects->GetNames();
+      HM::String names = objects_->GetNames();
    
       *sNames = names.AllocSysString();
    
@@ -253,13 +253,13 @@ STDMETHODIMP InterfaceDomains::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pObjects)
+      if (!objects_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      m_pObjects->DeleteItemByDBID(DBID);
+      objects_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }

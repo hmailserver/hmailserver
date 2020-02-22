@@ -27,26 +27,26 @@ namespace HM
 
    }
 
-   shared_ptr<DALConnection>
-   DALConnectionFactory::CreateConnection(shared_ptr<DatabaseSettings> pSettings)
+   std::shared_ptr<DALConnection>
+   DALConnectionFactory::CreateConnection(std::shared_ptr<DatabaseSettings> pSettings)
    {
-      shared_ptr<DALConnection> pConn;
+      std::shared_ptr<DALConnection> pConn;
       
       HM::DatabaseSettings::SQLDBType t = pSettings->GetType();
 
      switch (t)
       {
       case HM::DatabaseSettings::TypeMSSQLServer:
-         pConn = shared_ptr<ADOConnection>(new ADOConnection(pSettings));
+         pConn = std::shared_ptr<ADOConnection>(new ADOConnection(pSettings));
          break;
       case HM::DatabaseSettings::TypeMYSQLServer:
-         pConn = shared_ptr<MySQLConnection>(new MySQLConnection(pSettings));
+         pConn = std::shared_ptr<MySQLConnection>(new MySQLConnection(pSettings));
          break;
       case HM::DatabaseSettings::TypePGServer:
-         pConn = shared_ptr<PGConnection>(new PGConnection(pSettings));
+         pConn = std::shared_ptr<PGConnection>(new PGConnection(pSettings));
          break;
       case HM::DatabaseSettings::TypeMSSQLCompactEdition:
-         pConn = shared_ptr<SQLCEConnection>(new SQLCEConnection(pSettings));
+         pConn = std::shared_ptr<SQLCEConnection>(new SQLCEConnection(pSettings));
          break;
       }
    

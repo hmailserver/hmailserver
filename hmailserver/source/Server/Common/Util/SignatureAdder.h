@@ -16,18 +16,18 @@ namespace HM
 	   SignatureAdder();
       virtual ~SignatureAdder();
 
-      bool SetSignature(shared_ptr<Message> pMessage, 
-                        shared_ptr<const Domain> pSenderDomain, 
-                        shared_ptr<const Account> pSenderAccount,
-                        shared_ptr<MessageData> &pMessageData);
+      bool SetSignature(std::shared_ptr<Message> message, 
+                        std::shared_ptr<const Domain> sender_domain, 
+                        std::shared_ptr<const Account> sender_account,
+                        std::shared_ptr<MessageData> &message_data);
       // Sets the signature of the message, based on the signature in the account
       // settings and domain settings.
 
       
    private:
 
-      bool _GetMessageIsReply(shared_ptr<MessageData> &pMessageData);
-      bool _GetMessageIsLocal(shared_ptr<Message> pMessage);
+      bool GetMessageIsReply_(std::shared_ptr<MessageData> &message_data);
+      bool GetMessageIsLocal_(std::shared_ptr<Message> message);
    
 
    };

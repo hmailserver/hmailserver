@@ -14,23 +14,23 @@ namespace HM
       Rule(void);
       ~Rule(void);
 
-      __int64 GetAccountID() const {return m_iAccountID; }
-      void SetAccountID(__int64 newval) {m_iAccountID = newval; }
+      __int64 GetAccountID() const {return account_id_; }
+      void SetAccountID(__int64 newval) {account_id_ = newval; }
 
-      int GetSortOrder() const {return m_iSortOrder; }
-      void SetSortOrder(int newval) {m_iSortOrder = newval; }
+      int GetSortOrder() const {return sort_order_; }
+      void SetSortOrder(int newval) {sort_order_ = newval; }
 
-      String GetName() const {return m_sName; }
-      void SetName(const String &sName) {m_sName = sName;}
+      String GetName() const {return name_; }
+      void SetName(const String &sName) {name_ = sName;}
 
-      bool GetActive() const {return m_bActive; }
-      void SetActive(bool bNewVal) {m_bActive = bNewVal; }
+      bool GetActive() const {return active_; }
+      void SetActive(bool bNewVal) {active_ = bNewVal; }
 
-      bool GetUseAND() const {return m_bUseAND;}
-      void SetUseAND(bool bNewVal) {m_bUseAND = bNewVal; }
+      bool GetUseAND() const {return use_and_;}
+      void SetUseAND(bool bNewVal) {use_and_ = bNewVal; }
 
-      shared_ptr<RuleCriterias> GetCriterias();
-      shared_ptr<RuleActions> GetActions();
+      std::shared_ptr<RuleCriterias> GetCriterias();
+      std::shared_ptr<RuleActions> GetActions();
 
       bool XMLStore(XNode *pParentNode, int iOptions);
       bool XMLLoad(XNode *pRuleNode, int iOptions);
@@ -38,14 +38,14 @@ namespace HM
 
    private:
 
-      __int64 m_iAccountID;
-      int m_iSortOrder;
-      String m_sName;
+      __int64 account_id_;
+      int sort_order_;
+      String name_;
 
-      shared_ptr<RuleCriterias> m_pCriterias;
-      shared_ptr<RuleActions> m_pActions;
+      std::shared_ptr<RuleCriterias> criterias_;
+      std::shared_ptr<RuleActions> actions_;
 
-      bool m_bActive;
-      bool m_bUseAND;
+      bool active_;
+      bool use_and_;
    };
 }

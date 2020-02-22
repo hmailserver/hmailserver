@@ -17,11 +17,11 @@ namespace HM
       // Backups the server according to the settings
       // specified in the configuration.
 
-      shared_ptr<Backup> LoadBackup(const String &sZipFile) const;
+      std::shared_ptr<Backup> LoadBackup(const String &sZipFile) const;
       // Loads a backup from an XML stream and returns
       // an backup object that contains backup information.
 
-      bool StartRestore(shared_ptr<Backup> pBackup);
+      bool StartRestore(std::shared_ptr<Backup> pBackup);
       // Starts a restore of the backup. Restors the part of the
       // backup specified by iRestoreMode.
 
@@ -36,8 +36,8 @@ namespace HM
  
    private:
 
-      CriticalSection m_oStatusCritSec;
-      String m_sLog;
-      bool m_bIsRunning;
+      boost::recursive_mutex mutex_;
+      String log_;
+      bool is_running_;
    };
 }

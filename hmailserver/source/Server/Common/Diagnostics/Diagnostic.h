@@ -19,12 +19,12 @@ namespace HM
       String GetLocalDomain() const;
       String GetTestDomain() const;
 
-      vector<DiagnosticResult> PerformTests();
+      std::vector<DiagnosticResult> PerformTests();
 
    private:
 
-      String _localDomainName;
-      String _localTestDomainName;
+      String local_domain_name_;
+      String local_test_domain_name_;
    };
 
 

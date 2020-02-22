@@ -30,18 +30,18 @@ namespace HM
       const IPAddress &GetConnectingIP() const;
 
 
-      void SetMessageData(const shared_ptr<MessageData> pMessageData);
-      shared_ptr<MessageData> GetMessageData() const;
+      void SetMessageData(const std::shared_ptr<MessageData> pMessageData);
+      std::shared_ptr<MessageData> GetMessageData() const;
 
    private:
 
-      String m_sEnvelopeFrom;
+      String envelope_from_;
 
-      IPAddress _originatingAddress;
-      IPAddress _connectingAddress;
-      String m_sHeloHost;
+      IPAddress originatingAddress_;
+      IPAddress connectingAddress_;
+      String helo_host_;
 
-      shared_ptr<MessageData> m_pMessageData;
+      std::shared_ptr<MessageData> message_data_;
       
    };
 

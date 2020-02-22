@@ -12,6 +12,8 @@
 #include "..\SQL\SQLStatement.h"
 #include "../Cache/Cache.h"
 
+#include "PersistenceMode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -28,7 +30,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::DeleteObject(shared_ptr<Group> pObject)
+   PersistentGroup::DeleteObject(std::shared_ptr<Group> pObject)
    {
       SQLCommand command("delete from hm_groups where groupid = @GROUPID");
       command.AddParameter("@GROUPID", pObject->GetID());
@@ -37,13 +39,11 @@ namespace HM
 
       PersistentACLPermission::DeleteOwnedByGroup(pObject->GetID());
 
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject);
-
       return bResult;
    }
 
    bool 
-   PersistentGroup::ReadObject(shared_ptr<Group> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID(pRS->GetInt64Value("groupid"));
       pObject->SetName(pRS->GetStringValue("groupname"));
@@ -52,7 +52,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, const String & sName)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, const String & sName)
    {
       SQLStatement statement;
 
@@ -64,7 +64,7 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, __int64 ObjectID)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, __int64 ObjectID)
    {
       SQLCommand command("select * from hm_groups where groupid = @GROUPID");
       command.AddParameter("@GROUPID", ObjectID);
@@ -74,9 +74,9 @@ namespace HM
    }
 
    bool
-   PersistentGroup::ReadObject(shared_ptr<Group> pGroup, const SQLCommand &command)
+   PersistentGroup::ReadObject(std::shared_ptr<Group> pGroup, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -90,16 +90,16 @@ namespace HM
    }
 
    bool 
-   PersistentGroup::SaveObject(shared_ptr<Group> pGroup)
+   PersistentGroup::SaveObject(std::shared_ptr<Group> pGroup)
    {
       String sErrorMessage;
-      return SaveObject(pGroup, sErrorMessage);
+      return SaveObject(pGroup, sErrorMessage, PersistenceModeNormal);
    }
 
    bool 
-   PersistentGroup::SaveObject(shared_ptr<Group> pGroup, String &sErrorMessage)
+   PersistentGroup::SaveObject(std::shared_ptr<Group> pGroup, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pGroup, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pGroup, sErrorMessage))
          return false;
 
       SQLStatement oStatement;
@@ -132,9 +132,6 @@ namespace HM
       bool bRetVal = Application::Instance()->GetDBManager()->Execute(oStatement, bNewObject ? &iDBID : 0);
       if (bRetVal && bNewObject)
          pGroup->SetID((long) iDBID);
-
-	  if (!bNewObject)
-		Cache<Group, PersistentGroup>::Instance()->RemoveObject(pGroup);
 
       return bRetVal;      
    }

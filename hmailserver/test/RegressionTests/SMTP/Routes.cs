@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
@@ -19,7 +20,7 @@ namespace RegressionTests.SMTP
          deliveryResults["user@test.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -43,9 +44,9 @@ namespace RegressionTests.SMTP
 
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
-            var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            var smtpClient = new SmtpClientSimulator();
+            smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message");
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
@@ -67,7 +68,7 @@ namespace RegressionTests.SMTP
          _application.Settings.SMTPRelayer = "example.com";
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -91,9 +92,9 @@ namespace RegressionTests.SMTP
 
             SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "users@test.com", "user@test.com");
 
-            var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            var smtpClient = new SmtpClientSimulator();
+            smtpClient.Send("example@example.com", "users@test.com", "Test", "Test message");
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
@@ -113,7 +114,7 @@ namespace RegressionTests.SMTP
          deliveryResults["user4@test.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -130,7 +131,7 @@ namespace RegressionTests.SMTP
             route.AllAddresses = true;
             route.Save();
 
-            var smtpClient = new SMTPClientSimulator();
+            var smtpClient = new SmtpClientSimulator();
 
             var recipients = new List<string>()
                {
@@ -140,8 +141,8 @@ namespace RegressionTests.SMTP
                   "user4@test.com"
                };
 
-            Assert.IsTrue(smtpClient.Send("example@example.com", recipients, "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            smtpClient.Send("example@example.com", recipients, "Test", "Test message");
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
@@ -158,7 +159,7 @@ namespace RegressionTests.SMTP
          deliveryResults["user@stuff.example.com"] = 250;
 
          int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, smtpServerPort))
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
          {
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
@@ -180,9 +181,9 @@ namespace RegressionTests.SMTP
             routeAddress.Address = "user@" + _domain.Name;
             routeAddress.Save();
 
-            var smtpClient = new SMTPClientSimulator();
-            Assert.IsTrue(smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message"));
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            var smtpClient = new SmtpClientSimulator();
+            smtpClient.Send("example@example.com", "user@stuff.example.com", "Test", "Test message");
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             server.WaitForCompletion();
 
@@ -190,6 +191,87 @@ namespace RegressionTests.SMTP
          }
       }
 
+      [Test]
+      [Description("If a client attempts to deliver to a route, but the recipient is not in the route list an error should be returned.")]
+      public void RecipientNotInListShouldReturnError()
+      {
+         // Add a route pointing at localhost
+         Route route = _settings.Routes.Add();
+         route.DomainName = "test.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = 255;
+         route.NumberOfTries = 1;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = true;
+         route.TreatSenderAsLocalDomain = true;
+         route.AllAddresses = false; // only to recipients in list.
+         route.Save();
+
+         var smtpClient = new SmtpClientSimulator();
+
+         string resultMessage = "";
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClient.Send("example@example.com", "user1@test.com", "Test", "Test message", out resultMessage));
+         Assert.AreEqual("550 Recipient not in route list.", resultMessage);
+      }
+
+      [Test]
+      public void ShouldBePossibleToSendToRouteWithTargetIPAddress()
+      {
+         // Set up a server listening on port 250 which accepts email for test@otherdomain.com
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["test@dummy-example.com"] = 250;
+
+         int smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, true, eConnectionSecurity.eCSNone);
+            route.TargetSMTPHost = "127.0.0.1";
+            route.Save();
+          
+            var smtpSimulator = new SmtpClientSimulator();
+            smtpSimulator.Send("test@test.com",
+                                           "test@dummy-example.com", "Mail 1", "Test message");
+
+
+            // This should now be processed via the rule -> route -> external server we've set up.
+            server.WaitForCompletion();
+            var log = LogHandler.ReadCurrentDefaultLog();
+
+            Assert.IsTrue(server.MessageData.Contains("Test message"));
+         }
+      }
+
+      [Test]
+      public void RecipientNotInListButDomainHasCatchAll_EmailShouldEndUpInCatchAll()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // Add a route pointing at localhost
+         Route route = _settings.Routes.Add();
+         route.DomainName = "test.com";
+         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPPort = 255;
+         route.NumberOfTries = 1;
+         route.MinutesBetweenTry = 5;
+         route.TreatRecipientAsLocalDomain = true;
+         route.TreatSenderAsLocalDomain = true;
+         route.AllAddresses = false;
+         route.Save();
+
+         var routeAddress = route.Addresses.Add();
+         routeAddress.Address = "something@test.com";
+         routeAddress.Save();
+         route.Save();
+
+         _domain.Postmaster = "test@test.com";
+         _domain.Save();
+
+         SmtpClientSimulator.StaticSend("test@test.com", "other@test.com", "A", "B");
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
+      }
 
    }
 }

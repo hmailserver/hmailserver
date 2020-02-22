@@ -24,61 +24,61 @@ namespace HM
    void 
    SpamTestData::SetEnvelopeFrom(const String &sEnvelopeFrom)
    {
-      m_sEnvelopeFrom = sEnvelopeFrom;
+      envelope_from_ = sEnvelopeFrom;
    }
 
    String 
    SpamTestData::GetEnvelopeFrom() const
    {
-      return m_sEnvelopeFrom;
+      return envelope_from_;
    }
 
    void 
    SpamTestData::SetHeloHost(const String &sNewVal)
    {
-      m_sHeloHost = sNewVal;
+      helo_host_ = sNewVal;
    }
 
    String 
    SpamTestData::GetHeloHost() const
    {
-      return m_sHeloHost;
+      return helo_host_;
    }
 
    void 
    SpamTestData::SetOriginatingIP(const IPAddress &address)
    {
-      _originatingAddress = address;
+      originatingAddress_ = address;
    }
 
    const IPAddress&
    SpamTestData::GetOriginatingIP() const
    {
-      return _originatingAddress;
+      return originatingAddress_;
    }
 
    void 
    SpamTestData::SetConnectingIP(const IPAddress &iIPAddress)
    {
-      _connectingAddress = iIPAddress;
+      connectingAddress_ = iIPAddress;
    }
 
    const IPAddress&
    SpamTestData::GetConnectingIP() const
    {
-      return _connectingAddress;
+      return connectingAddress_;
    }
 
    void 
-   SpamTestData::SetMessageData(shared_ptr<MessageData> pMessageData)
+   SpamTestData::SetMessageData(std::shared_ptr<MessageData> pMessageData)
    {
-      m_pMessageData = pMessageData;
+      message_data_ = pMessageData;
    }
 
-   shared_ptr<MessageData>
+   std::shared_ptr<MessageData>
    SpamTestData::GetMessageData()  const
    {
-      return m_pMessageData;
+      return message_data_;
    }
 
 }

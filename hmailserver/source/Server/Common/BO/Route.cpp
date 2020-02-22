@@ -16,14 +16,14 @@
 namespace HM
 {
    Route::Route() : 
-      m_bUseSSL(false),
-      m_bToAllAddresses(true),
-      m_bRelayerRequiresAuthentication(false),
-      m_bTreatRecipientAsLocalDomain(false),
-      m_bTreatSenderAsLocalDomain(false),
-      m_lTargetSMTPPort(0),
-      m_lNumberOfTries(0),
-      m_lMinutesBetweenTry(0)
+      connection_security_(CSNone),
+      to_all_addresses_(true),
+      relayer_requires_authentication_(false),
+      treat_recipient_as_local_domain_(false),
+      treat_sender_as_local_domain_(false),
+      target_smtpport_(0),
+      number_of_tries_(0),
+      minutes_between_try_(0)
    {
       
    }
@@ -33,18 +33,18 @@ namespace HM
 
    }
 
-   shared_ptr<RouteAddresses>
+   std::shared_ptr<RouteAddresses>
    Route::GetAddresses()
    {
-       if (!m_pAddresses)
+       if (!addresses_)
        {
-          assert(m_iID);
-          m_pAddresses = shared_ptr<RouteAddresses>(new RouteAddresses(m_iID));
+          assert(id_);
+          addresses_ = std::shared_ptr<RouteAddresses>(new RouteAddresses(id_));
 
-          m_pAddresses->Refresh();
+          addresses_->Refresh();
        }
 
-       return m_pAddresses;
+       return addresses_;
    }
 
    bool 
@@ -52,19 +52,19 @@ namespace HM
    {
       XNode *pNode = pRoutesNode->AppendChild(_T("Route"));
 
-      pNode->AppendAttr(_T("Name"), m_sDomainName);
-      pNode->AppendAttr(_T("Description"), m_sDescription);
-      pNode->AppendAttr(_T("TargetHost"), m_sTargetSMTPHost);
-      pNode->AppendAttr(_T("TargetPort"), StringParser::IntToString(m_lTargetSMTPPort));
-      pNode->AppendAttr(_T("NumberOfTries"), StringParser::IntToString(m_lNumberOfTries));
-      pNode->AppendAttr(_T("MinutesBetweenTry"), StringParser::IntToString(m_lMinutesBetweenTry));
-      pNode->AppendAttr(_T("ToAllAddresses"), m_bToAllAddresses ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("RequiresAuthentication"), m_bRelayerRequiresAuthentication ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("Username"), m_sRelayerAuthUsername);
-      pNode->AppendAttr(_T("Password"), Crypt::Instance()->EnCrypt(m_sRelayerAuthPassword, Crypt::ETBlowFish));
-      pNode->AppendAttr(_T("TreatRecipientAsLocalDomain"), m_bTreatRecipientAsLocalDomain ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("TreatSenderAsLocalDomain"), m_bTreatSenderAsLocalDomain ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("UseSSL"), m_bUseSSL ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("Name"), domain_name_);
+      pNode->AppendAttr(_T("Description"), description_);
+      pNode->AppendAttr(_T("TargetHost"), target_smtphost_);
+      pNode->AppendAttr(_T("TargetPort"), StringParser::IntToString(target_smtpport_));
+      pNode->AppendAttr(_T("NumberOfTries"), StringParser::IntToString(number_of_tries_));
+      pNode->AppendAttr(_T("MinutesBetweenTry"), StringParser::IntToString(minutes_between_try_));
+      pNode->AppendAttr(_T("ToAllAddresses"), to_all_addresses_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("RequiresAuthentication"), relayer_requires_authentication_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("Username"), relayer_auth_username_);
+      pNode->AppendAttr(_T("Password"), Crypt::Instance()->EnCrypt(relayer_auth_password_, Crypt::ETBlowFish));
+      pNode->AppendAttr(_T("TreatRecipientAsLocalDomain"), treat_recipient_as_local_domain_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("TreatSenderAsLocalDomain"), treat_sender_as_local_domain_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ConnectionSecurity"), StringParser::IntToString(connection_security_));
 
       return GetAddresses()->XMLStore(pNode, iOptions);
 
@@ -73,19 +73,28 @@ namespace HM
    bool 
    Route::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sDomainName = pNode->GetAttrValue(_T("Name"));
-      m_sDescription = pNode->GetAttrValue(_T("Description"));
-      m_sTargetSMTPHost = pNode->GetAttrValue(_T("TargetHost"));
-      m_lTargetSMTPPort = _ttoi(pNode->GetAttrValue(_T("TargetPort")));
-      m_lNumberOfTries = _ttoi(pNode->GetAttrValue(_T("NumberOfTries")));
-      m_lMinutesBetweenTry = _ttoi(pNode->GetAttrValue(_T("MinutesBetweenTry")));
-      m_bToAllAddresses = pNode->GetAttrValue(_T("ToAllAddresses")) == _T("1");
-      m_bRelayerRequiresAuthentication = pNode->GetAttrValue(_T("RequiresAuthentication")) == _T("1");
-      m_sRelayerAuthUsername = pNode->GetAttrValue(_T("Username"));
-      m_sRelayerAuthPassword = Crypt::Instance()->DeCrypt(pNode->GetAttrValue(_T("Password")), Crypt::ETBlowFish);
-      m_bTreatRecipientAsLocalDomain = pNode->GetAttrValue(_T("TreatRecipientAsLocalDomain")) == _T("1");
-      m_bTreatSenderAsLocalDomain = pNode->GetAttrValue(_T("TreatSenderAsLocalDomain")) == _T("1");
-      m_bUseSSL = pNode->GetAttrValue(_T("UseSSL")) == _T("1");
+      domain_name_ = pNode->GetAttrValue(_T("Name"));
+      description_ = pNode->GetAttrValue(_T("Description"));
+      target_smtphost_ = pNode->GetAttrValue(_T("TargetHost"));
+      target_smtpport_ = _ttoi(pNode->GetAttrValue(_T("TargetPort")));
+      number_of_tries_ = _ttoi(pNode->GetAttrValue(_T("NumberOfTries")));
+      minutes_between_try_ = _ttoi(pNode->GetAttrValue(_T("MinutesBetweenTry")));
+      to_all_addresses_ = pNode->GetAttrValue(_T("ToAllAddresses")) == _T("1");
+      relayer_requires_authentication_ = pNode->GetAttrValue(_T("RequiresAuthentication")) == _T("1");
+      relayer_auth_username_ = pNode->GetAttrValue(_T("Username"));
+      relayer_auth_password_ = Crypt::Instance()->DeCrypt(pNode->GetAttrValue(_T("Password")), Crypt::ETBlowFish);
+      treat_recipient_as_local_domain_ = pNode->GetAttrValue(_T("TreatRecipientAsLocalDomain")) == _T("1");
+      treat_sender_as_local_domain_ = pNode->GetAttrValue(_T("TreatSenderAsLocalDomain")) == _T("1");
+
+      // Backwards compatibiltiy
+      if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
+      {
+         connection_security_ = CSSSL;
+      }
+      else
+      {
+         connection_security_ = (ConnectionSecurity) _ttoi(pNode->GetAttrValue(_T("ConnectionSecurity")));
+      }
 
       return true;
    }

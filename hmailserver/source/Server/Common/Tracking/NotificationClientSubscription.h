@@ -10,16 +10,16 @@ namespace HM
    class NotificationClientSubscription
    {
    public:
-      NotificationClientSubscription(__int64 subscriptionKey, weak_ptr<NotificationClient> client);
+      NotificationClientSubscription(__int64 subscriptionKey, std::weak_ptr<NotificationClient> client);
       virtual ~NotificationClientSubscription();
 
       __int64 GetSubscriptionKey();
-      weak_ptr<NotificationClient> GetSubscribedClient();
+      std::weak_ptr<NotificationClient> GetSubscribedClient();
 
    private:
 
-      __int64 _subscriptionKey;
-      weak_ptr<NotificationClient> _client;
+      __int64 subscription_key_;
+      std::weak_ptr<NotificationClient> client_;
 
    };
 }

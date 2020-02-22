@@ -11,9 +11,6 @@
 namespace HM
 {
 
-   typedef std::vector<shared_ptr<Message> > MessagesVector;
-   typedef std::vector<shared_ptr<Message> >::iterator MessagesIterator;
-
    class Messages : public Collection<Message, PersistentMessage>
    {
    public:
@@ -21,43 +18,37 @@ namespace HM
 	   virtual ~Messages();
 
       void Save();
-      void UndeleteAll();
 
       long GetSize() const;
       __int64 GetFirstUnseenUID() const;
       long GetNoOfSeen() const;
-      long GetNoOfRecent() const;
       
-      std::vector<shared_ptr<Message>> GetCopy();
-      std::vector<int> Expunge();
-      std::vector<int> Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const boost::function<void()> &func);
-      std::vector<int> DeleteMessages();
+      std::vector<std::shared_ptr<Message>> GetCopy();
 
-      shared_ptr<Message> GetItemByUID(unsigned int uid);
-      shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
+      std::shared_ptr<Message> GetItemByUID(unsigned int uid);
+      std::shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
 
-      void Refresh();
+      void DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter);
 
-      bool DeleteMessageByDBID(__int64 ID);
+      void Refresh(bool update_recent_flags);
 
-      void AddToCollection(shared_ptr<DALRecordset> pRS);
+      void AddToCollection(std::shared_ptr<DALRecordset> pRS);
       
       void Remove(__int64 iDBID);
 
-      void SetFlagRecentOnMessages(bool bRecent);
-      void AddItem(shared_ptr<Message> pObject);
+      void RemoveRecentFlags();
 
-      __int64 GetAccountID() {return m_iAccountID; }
-      __int64 GetFolderID() {return m_iFolderID; }
+      __int64 GetAccountID() {return account_id_; }
+      __int64 GetFolderID() {return folder_id_; }
 
    protected:
       virtual String GetCollectionName() const {return "Messages"; }
-      virtual bool PreSaveObject(shared_ptr<Message> pMessage, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<Message> pMessage, XNode *node);
    private:
 
-      unsigned int _lastRefreshedUID;
+      unsigned int last_refreshed_uid_;
 
-      __int64 m_iAccountID;
-      __int64 m_iFolderID;
+      __int64 account_id_;
+      __int64 folder_id_;
    };
 }

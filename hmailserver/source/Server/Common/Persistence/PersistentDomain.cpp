@@ -19,7 +19,7 @@
 #include "../BO/DistributionLists.h"
 #include "../BO/DistributionListRecipients.h"
 #include "../BO/DistributionListRecipient.h"
-#include "../Cache/Cache.h"
+#include "../Cache/CacheContainer.h"
 
 #include "NameChanger.h"
 
@@ -43,7 +43,7 @@ namespace HM
    }
 
    bool
-   PersistentDomain::DeleteObject(shared_ptr<Domain> pDomain)
+   PersistentDomain::DeleteObject(std::shared_ptr<Domain> pDomain)
    {
       __int64 iDomainID = pDomain->GetID();
       assert(iDomainID);
@@ -64,16 +64,19 @@ namespace HM
 
          SQLCommand command("delete from hm_domains where domainid = @DOMAINID");
          command.AddParameter("@DOMAINID", iDomainID);
-           
+
          if (!Application::Instance()->GetDBManager()->Execute(command))
             return false;
-         
+
          // Refresh the BO cache
-         Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pDomain);
+         CacheContainer::Instance()->RemoveDomain(pDomain);
 
          // Delete folder from data directory
-         String sDomainFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + pDomain->GetName();
-         FileUtilities::DeleteDirectory(sDomainFolder);
+         if (!pDomain->GetName().IsEmpty())
+         {
+            String sDomainFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + pDomain->GetName();
+            FileUtilities::DeleteDirectory(sDomainFolder, false);
+         }
 
          return true;
 
@@ -83,7 +86,7 @@ namespace HM
    }
 
    bool
-   PersistentDomain::ReadObject(shared_ptr<Domain> pDomain, __int64 ObjectID)
+   PersistentDomain::ReadObject(std::shared_ptr<Domain> pDomain, __int64 ObjectID)
    {
       SQLCommand command("select * from hm_domains where domainid = @DOMAINID");
       command.AddParameter("@DOMAINID", ObjectID);
@@ -94,7 +97,7 @@ namespace HM
    }
 
    bool
-   PersistentDomain::ReadObject(shared_ptr<Domain> pDomain, const String & sDomainName)
+   PersistentDomain::ReadObject(std::shared_ptr<Domain> pDomain, const String & sDomainName)
    {
       SQLStatement statement;
 
@@ -109,9 +112,9 @@ namespace HM
 
 
    bool
-   PersistentDomain::ReadObject(shared_ptr<Domain> pDomain, const SQLCommand &command)
+   PersistentDomain::ReadObject(std::shared_ptr<Domain> pDomain, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -125,7 +128,7 @@ namespace HM
 
 
    bool
-   PersistentDomain::ReadObject(shared_ptr<Domain> pDomain, shared_ptr<DALRecordset> pRS)
+   PersistentDomain::ReadObject(std::shared_ptr<Domain> pDomain, std::shared_ptr<DALRecordset> pRS)
    {
       pDomain->SetID(pRS->GetLongValue("domainid"));
       pDomain->SetName(pRS->GetStringValue("domainname"));
@@ -161,23 +164,23 @@ namespace HM
    }
 
    bool
-   PersistentDomain::SaveObject(shared_ptr<Domain> pDomain)
+   PersistentDomain::SaveObject(std::shared_ptr<Domain> pDomain)
    {
       String sErrorMessage;
-      return SaveObject(pDomain, sErrorMessage);
+      return SaveObject(pDomain, sErrorMessage, PersistenceModeNormal);
    }
 
    bool
-   PersistentDomain::SaveObject(shared_ptr<Domain> pDomain, String &sErrorMessage)
+   PersistentDomain::SaveObject(std::shared_ptr<Domain> pDomain, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(pDomain, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, pDomain, sErrorMessage))
          return false;
 
       __int64 iID = pDomain->GetID();
       if (iID > 0)
       {
          // First read the domain to see if we've changed its name.
-         shared_ptr<Domain> pTempDomain = shared_ptr<Domain>(new Domain());
+         std::shared_ptr<Domain> pTempDomain = std::shared_ptr<Domain>(new Domain());
          if (!PersistentDomain::ReadObject(pTempDomain, iID))
             return false;
 
@@ -198,7 +201,7 @@ namespace HM
                return false;
 
             // Remove the old domain from the cache.
-            Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pTempDomain->GetName());
+            CacheContainer::Instance()->RemoveDomain(pTempDomain);
          }
       }
 
@@ -257,7 +260,7 @@ namespace HM
          pDomain->SetID((int) iDBID);
 
       // Refresh the BO cache
-      Cache<Domain, PersistentDomain>::Instance()->RemoveObject(pDomain);
+      CacheContainer::Instance()->RemoveDomain(pDomain);
 
       return bRetVal;
    }
@@ -269,7 +272,7 @@ namespace HM
    // Returns true if an active account with the address accountaddress exists.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<const Domain> pDomain = Cache<Domain, PersistentDomain>::Instance()->GetObject(DomainName);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(DomainName);
 
       if (pDomain)
       {
@@ -281,7 +284,7 @@ namespace HM
    }
 
    int 
-   PersistentDomain::GetSize(shared_ptr<Domain> pDomain)
+   PersistentDomain::GetSize(std::shared_ptr<Domain> pDomain)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the current size of this domain, measured in mega bytes.
@@ -308,7 +311,7 @@ namespace HM
       SQLCommand command (sSQL);
       command.AddParameter("@DOMAINID", pDomain->GetID());
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS || pRS->IsEOF())
          return 0;
 
@@ -323,7 +326,7 @@ namespace HM
    }
 
    __int64 
-   PersistentDomain::GetAllocatedSize(shared_ptr<Domain> pDomain)
+   PersistentDomain::GetAllocatedSize(std::shared_ptr<Domain> pDomain)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the current allocated size of the domain in MB. This means the
@@ -347,7 +350,7 @@ namespace HM
 
       command.AddParameter("@DOMAINID", pDomain->GetID());
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS || pRS->IsEOF())
          return 0;
 

@@ -12,10 +12,10 @@
 namespace HM
 {
    SpamTestResult::SpamTestResult(const String &testName, Result result, int iSpamScore, const String &sMessage) :
-      m_iSpamScore(iSpamScore),
-      m_sMessage(sMessage),
-      _testName(testName),
-      _result(result)
+      spam_score_(iSpamScore),
+      message_(sMessage),
+      testName_(testName),
+      result_(result)
    {
 
    }

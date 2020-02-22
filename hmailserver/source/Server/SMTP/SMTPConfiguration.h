@@ -8,7 +8,8 @@ namespace HM
    class Routes;
    class DNSBlackLists;
    class BlockedAttachments;
-   
+   enum ConnectionSecurity;
+
    class SMTPConfiguration
    {
    public:
@@ -30,8 +31,11 @@ namespace HM
       void SetSMTPRelayerPort(long lPort);
       long GetSMTPRelayerPort();
 
-      void SetSMTPRelayerUseSSL(bool bNewValue);
-      bool GetSMTPRelayerUseSSL();
+      void SetSMTPRelayerConnectionSecurity(ConnectionSecurity connection_security);
+      ConnectionSecurity GetSMTPRelayerConnectionSecurity();
+
+      void SetSMTPConnectionSecurity(ConnectionSecurity connection_security);
+      ConnectionSecurity GetSMTPConnectionSecurity();
 
       void SetMaxNoOfDeliveryThreads(int lNewValue);
 
@@ -84,15 +88,15 @@ namespace HM
       bool GetAddDeliveredToHeader();
       void SetAddDeliveredToHeader(bool bNewVal);
 
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
-      shared_ptr<IncomingRelays> GetIncomingRelays() {return _incomingRelays;}
-      shared_ptr<Routes> GetRoutes() {return _routes;}
+      std::shared_ptr<IncomingRelays> GetIncomingRelays() {return incoming_relays_;}
+      std::shared_ptr<Routes> GetRoutes() {return routes_;}
 
    private:
 
-      shared_ptr<PropertySet> _GetSettings() const;
-      shared_ptr<IncomingRelays> _incomingRelays;
-      shared_ptr<Routes> _routes;
+      std::shared_ptr<PropertySet> GetSettings_() const;
+      std::shared_ptr<IncomingRelays> incoming_relays_;
+      std::shared_ptr<Routes> routes_;
    };
 }

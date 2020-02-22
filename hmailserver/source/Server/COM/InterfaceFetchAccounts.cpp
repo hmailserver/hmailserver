@@ -9,27 +9,27 @@
 #include "../COM/InterfaceFetchAccount.h"
 
 void 
-InterfaceFetchAccounts::Attach(shared_ptr<HM::FetchAccounts> pFetchAccounts)
+InterfaceFetchAccounts::Attach(std::shared_ptr<HM::FetchAccounts> pFetchAccounts)
 {
-   m_pFetchAccounts = pFetchAccounts;
+   fetch_accounts_ = pFetchAccounts;
 }
 
 STDMETHODIMP InterfaceFetchAccounts::get_ItemByDBID(long lDBID, IInterfaceFetchAccount** pVal)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
       CComObject<InterfaceFetchAccount>* pInterfaceAccount = new CComObject<InterfaceFetchAccount>();
-      pInterfaceAccount->SetAuthentication(m_pAuthentication);
+      pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFetchAccount = m_pFetchAccounts->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItemByDBID(lDBID);
       if (!pFetchAccount)
          return DISP_E_BADINDEX;
    
       pInterfaceAccount->AttachItem(pFetchAccount);
-      pInterfaceAccount->AttachParent(m_pFetchAccounts, true);
+      pInterfaceAccount->AttachParent(fetch_accounts_, true);
       pInterfaceAccount->AddRef();
       *pVal = pInterfaceAccount;   
    
@@ -45,18 +45,18 @@ STDMETHODIMP InterfaceFetchAccounts::get_Item(long lIndex, IInterfaceFetchAccoun
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
       CComObject<InterfaceFetchAccount>* pInterfaceAccount = new CComObject<InterfaceFetchAccount>();
-      pInterfaceAccount->SetAuthentication(m_pAuthentication);
+      pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFetchAccount = m_pFetchAccounts->GetItem(lIndex);
+      std::shared_ptr<HM::FetchAccount> pFetchAccount = fetch_accounts_->GetItem(lIndex);
       if (!pFetchAccount)
          return DISP_E_BADINDEX;
    
       pInterfaceAccount->AttachItem(pFetchAccount);
-      pInterfaceAccount->AttachParent(m_pFetchAccounts, true);
+      pInterfaceAccount->AttachParent(fetch_accounts_, true);
       pInterfaceAccount->AddRef();
       *pVal = pInterfaceAccount;   
    
@@ -72,10 +72,10 @@ STDMETHODIMP InterfaceFetchAccounts::Refresh(void)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
-      m_pFetchAccounts->Refresh();
+      fetch_accounts_->Refresh();
    
       return S_OK;
    }
@@ -89,10 +89,10 @@ STDMETHODIMP InterfaceFetchAccounts::Delete(LONG Index)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
-      m_pFetchAccounts->DeleteItem(Index);
+      fetch_accounts_->DeleteItem(Index);
    
       return S_OK;
    }
@@ -106,10 +106,10 @@ STDMETHODIMP InterfaceFetchAccounts::DeleteByDBID(LONG DBID)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
-      m_pFetchAccounts->DeleteItemByDBID(DBID);
+      fetch_accounts_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -123,10 +123,10 @@ STDMETHODIMP InterfaceFetchAccounts::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
-      *pVal = m_pFetchAccounts->GetCount();
+      *pVal = fetch_accounts_->GetCount();
    
       return S_OK;
    }
@@ -140,21 +140,21 @@ STDMETHODIMP InterfaceFetchAccounts::Add(IInterfaceFetchAccount **pVal)
 {
    try
    {
-      if (!m_pFetchAccounts)
+      if (!fetch_accounts_)
          return GetAccessDenied();
 
-      if (!m_pFetchAccounts)
-         return m_pAuthentication->GetAccessDenied();
+      if (!fetch_accounts_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceFetchAccount>* pIntFA = new CComObject<InterfaceFetchAccount>();
-      pIntFA->SetAuthentication(m_pAuthentication);
+      pIntFA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::FetchAccount> pFA = shared_ptr<HM::FetchAccount>(new HM::FetchAccount);
+      std::shared_ptr<HM::FetchAccount> pFA = std::shared_ptr<HM::FetchAccount>(new HM::FetchAccount);
    
-      pFA->SetAccountID(m_pFetchAccounts->GetAccountID());
+      pFA->SetAccountID(fetch_accounts_->GetAccountID());
    
       pIntFA->AttachItem(pFA);
-      pIntFA->AttachParent(m_pFetchAccounts, false);
+      pIntFA->AttachParent(fetch_accounts_, false);
    
       pIntFA->AddRef();
       *pVal = pIntFA;

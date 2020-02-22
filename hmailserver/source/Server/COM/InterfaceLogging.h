@@ -16,9 +16,7 @@ class ATL_NO_VTABLE InterfaceLogging :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceLogging()
-	{
-	}
+   InterfaceLogging();
 
    bool LoadSettings();
 
@@ -83,11 +81,11 @@ public:
    STDMETHOD(put_LogFormat)(/*[in]*/ eLogOutputFormat newVal);
 
 
-   int _COMLogDevice2INTLogDevice(eLogDevice newVal);
-   eLogDevice _INTLogDevice2COMLogDevice(int RelayMode);
+   int COMLogDevice2INTLogDevice_(eLogDevice newVal);
+   eLogDevice INTLogDevice2COMLogDevice_(int RelayMode);
 
-   int _COMLogFormat2IntLogFormat(eLogOutputFormat newVal);
-   eLogOutputFormat _IntLogFormat2ComLogFormat(int RelayMode);   
+   int COMLogFormat2IntLogFormat_(eLogOutputFormat newVal);
+   eLogOutputFormat IntLogFormat2ComLogFormat_(int RelayMode);   
 
    STDMETHOD(get_Directory)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_LiveLog)(/*[out, retval]*/ BSTR *pVal);
@@ -99,8 +97,8 @@ public:
    STDMETHOD(get_CurrentDefaultLog)(/*[out, retval]*/ BSTR *pVal);
 private:
 
-   HM::Configuration *m_pConfig;
-   HM::IniFileSettings *m_pIniFileSettings;
+   HM::Configuration *config_;
+   HM::IniFileSettings *ini_file_settings_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Logging), InterfaceLogging)

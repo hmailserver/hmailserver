@@ -22,7 +22,7 @@ using namespace std;
 
 namespace HM
 {
-   SQLCEConnection::SQLCEConnection(shared_ptr<DatabaseSettings> pSettings) :
+   SQLCEConnection::SQLCEConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       HRESULT hr =cSQLCEConnection.CreateInstance(__uuidof(Connection));
@@ -32,7 +32,7 @@ namespace HM
          assert(0);
       }  
 
-      m_bConnected = false;
+      connected_ = false;
    }
 
 
@@ -57,7 +57,7 @@ namespace HM
       try
       {
 
-         if (!m_bConnected)
+         if (!connected_)
             return false; // --- already disconnected.
 
          if (cSQLCEConnection->State == 1)
@@ -68,7 +68,7 @@ namespace HM
          assert(0);
       }
 
-      m_bConnected = false;
+      connected_ = false;
 
       return true;
    }
@@ -76,28 +76,28 @@ namespace HM
    
 
    String 
-   SQLCEConnection::_GetConnectionString(const String &sDatabase, const String &sPassword) const
+   SQLCEConnection::GetConnectionString_(const String &sDatabase, const String &sPassword) const
    {
-      String sDatabaseFile = _GetDatabaseFileName(sDatabase);
+      String sDatabaseFile = GetDatabaseFileName_(sDatabase);
 
       String sConnectionString;
-      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.3.5;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile, sPassword);
+      sConnectionString.Format(_T("Provider=Microsoft.SQLSERVER.CE.OLEDB.4.0;Data Source=%s;SSCE:Database Password=%s;SSCE:Max Database Size=4000;SSCE:Flush Interval=10;"), sDatabaseFile.c_str(), sPassword.c_str());
 
       return sConnectionString;
    }
 
 
    String 
-   SQLCEConnection::_GetDatabaseFileName(const String &sShortName) const
+   SQLCEConnection::GetDatabaseFileName_(const String &sShortName) const
    {
-      String sDatabaseDirectory = m_pDatabaseSettings->GetDatabaseDirectory();
+      String sDatabaseDirectory = database_settings_->GetDatabaseDirectory();
       String sDatabaseFile = sDatabaseDirectory + "\\" + sShortName + ".sdf";
 
       return sDatabaseFile;
    }
 
    bool 
-   SQLCEConnection::_GetRequiresUpgrade(const String &sConnectionString)
+   SQLCEConnection::GetRequiresUpgrade_(const String &sConnectionString)
    {
       BSTR sUsername = 0;
       BSTR sPassword = 0;
@@ -127,20 +127,20 @@ namespace HM
    DALConnection::ConnectionResult
    SQLCEConnection::Connect(String &sErrorMessage)
    {
-      String sPassword = m_pDatabaseSettings->GetPassword();
-      String sDatabase = m_pDatabaseSettings->GetDatabaseName();
+      String sPassword = database_settings_->GetPassword();
+      String sDatabase = database_settings_->GetDatabaseName();
 
-      if (m_bConnected)
+      if (connected_)
          return Connected;
       
-      String sConnectionString = _GetConnectionString(sDatabase, sPassword);
+      String sConnectionString = GetConnectionString_(sDatabase, sPassword);
       
       /*
          Check if the database engine needs to be upgraded.
       */
-      if (_GetRequiresUpgrade(sConnectionString))
+      if (GetRequiresUpgrade_(sConnectionString))
       {
-         if (!_UpgradeDatabase())
+         if (!UpgradeDatabase_())
             return FatalError;
       }
 
@@ -162,7 +162,7 @@ namespace HM
          SysFreeString(bsConnection);
 
 
-         m_bConnected = true;
+         connected_ = true;
          sErrorMessage = "";
          
          return DALConnection::Connected;
@@ -173,7 +173,7 @@ namespace HM
          String sErrDesc =  err.Description();
 
          int iNativeErrorCode = ErrorManager::GetNativeErrorCode(err.ErrorInfo());
-         sErrorMessage.Format(_T("Database connection error. Source: %s, Error: %d, Description: %s Check database settings in hMailServer.ini."), sErrSource, iNativeErrorCode, sErrDesc);
+         sErrorMessage.Format(_T("Database connection error. Source: %s, Error: %d, Description: %s Check database settings in hMailServer.ini."), sErrSource.c_str(), iNativeErrorCode, sErrDesc.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5098, "SQLCEConnection::Connect", sErrorMessage);
 
@@ -190,43 +190,43 @@ namespace HM
    }
 
    bool 
-   SQLCEConnection::_UpgradeDatabase()
+   SQLCEConnection::UpgradeDatabase_()
    {
       ISSCEEngine *pISSCEEngine = NULL;
       HRESULT hr = CoCreateInstance(CLSID_Engine, NULL, CLSCTX_INPROC_SERVER, IID_ISSCEEngine, (void**)&pISSCEEngine);
       if (FAILED(hr))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5122, "SQLCEConnection::_UpgradeDatabase()", "Failed to create instance of SQL CE Engine.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5122, "SQLCEConnection::UpgradeDatabase_()", "Failed to create instance of SQL CE Engine.");
          return false;
       }
 
-      String sOldConnectionString = _GetConnectionString(m_pDatabaseSettings->GetDatabaseName(), m_pDatabaseSettings->GetPassword());
-      String sNewConnectionString = _GetConnectionString(m_pDatabaseSettings->GetDatabaseName() + "_upgraded", m_pDatabaseSettings->GetPassword());
+      String sOldConnectionString = GetConnectionString_(database_settings_->GetDatabaseName(), database_settings_->GetPassword());
+      String sNewConnectionString = GetConnectionString_(database_settings_->GetDatabaseName() + "_upgraded", database_settings_->GetPassword());
 
       HRESULT result = pISSCEEngine->UpgradeDatabase(sOldConnectionString.AllocSysString(), sNewConnectionString.AllocSysString());
       if (FAILED(hr))
       {
          String sErrorMessage;
          sErrorMessage.Format(_T("Failed to upgrade SQL CE database. HRESULT: %d"), hr);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5123, "SQLCEConnection::_UpgradeDatabase()", sErrorMessage);       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5123, "SQLCEConnection::UpgradeDatabase_()", sErrorMessage);       
 
          return false;
       }
 
       pISSCEEngine->Release();
       
-      String sCurrentDatabaseFile = _GetDatabaseFileName(m_pDatabaseSettings->GetDatabaseName());
-      String sUpgradedDatabaseFile = _GetDatabaseFileName(m_pDatabaseSettings->GetDatabaseName() + "_upgraded");
+      String sCurrentDatabaseFile = GetDatabaseFileName_(database_settings_->GetDatabaseName());
+      String sUpgradedDatabaseFile = GetDatabaseFileName_(database_settings_->GetDatabaseName() + "_upgraded");
 
       if (!FileUtilities::Move(sCurrentDatabaseFile, sCurrentDatabaseFile + ".backup_v52"))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5124, "SQLCEConnection::_UpgradeDatabase()", "Moving of current database file to backup location failed.");       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5124, "SQLCEConnection::UpgradeDatabase_()", "Moving of current database file to backup location failed.");       
          return false;
       }
 
       if (!FileUtilities::Move(sUpgradedDatabaseFile, sCurrentDatabaseFile))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5125, "SQLCEConnection::_UpgradeDatabase()", "Moving of upgraded database file to current database file failed.");       
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5125, "SQLCEConnection::UpgradeDatabase_()", "Moving of upgraded database file to current database file failed.");       
          return false;
       }
 
@@ -242,7 +242,7 @@ namespace HM
    DALConnection::ExecutionResult
    SQLCEConnection::TryExecute(const SQLCommand &command, String &sErrorMessage, __int64 *iInsertID, int iIgnoreErrors)
    {
-      if (!m_bConnected)
+      if (!connected_)
          return DALConnection::DALConnectionProblem; // --- already disconnected.
 
       String queryString = command.GetQueryString();
@@ -274,7 +274,7 @@ namespace HM
 
             HRESULT hr = pIdentityRS->Open( bsIdentity, vtMissing, adOpenForwardOnly, adLockUnspecified, -1);
                         
-            *iInsertID = _GetIdentityFromRS(pIdentityRS);
+            *iInsertID = GetIdentityFromRS_(pIdentityRS);
             pIdentityRS->Close();
             pIdentityRS->PutRefActiveConnection(NULL); 
 
@@ -283,7 +283,7 @@ namespace HM
       }
       catch ( _com_error &err )
       {
-         ExecutionResult dbErr = _GetErrorType(_com_error::WCodeToHRESULT(err.WCode()));
+         ExecutionResult dbErr = GetErrorType_(_com_error::WCodeToHRESULT(err.WCode()));
          if (iIgnoreErrors > 0 && iIgnoreErrors & dbErr)
             return DALConnection::DALSuccess;
 
@@ -323,11 +323,11 @@ namespace HM
    bool
    SQLCEConnection::IsConnected() const
    { 
-      return m_bConnected; 
+      return connected_; 
    };
 
    __int64 
-   SQLCEConnection::_GetIdentityFromRS(_RecordsetPtr pRS) const
+   SQLCEConnection::GetIdentityFromRS_(_RecordsetPtr pRS) const
    {
       try
       {
@@ -366,7 +366,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5100, "SQLCEConnection::_GetIdentityFromRS", "Error while determening @@IDENTITY");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5100, "SQLCEConnection::GetIdentityFromRS_", "Error while determening @@IDENTITY");
          throw;
       }
 
@@ -380,7 +380,7 @@ namespace HM
    }
 
    DALConnection::ExecutionResult 
-   SQLCEConnection::_GetErrorType(int iErrorCode)
+   SQLCEConnection::GetErrorType_(int iErrorCode)
    {
       switch (iErrorCode)
       {
@@ -400,7 +400,7 @@ namespace HM
 
       if (FileUtilities::Exists(sFullPath))
       {
-         sErrorMessage.Format(_T("Creation of SQL database failed. The database file, %s, already exists."), sFullPath);
+         sErrorMessage.Format(_T("Creation of SQL database failed. The database file, %s, already exists."), sFullPath.c_str());
          return false;
       }
 
@@ -414,7 +414,7 @@ namespace HM
       IUnknown           *pIUnknownSession    = NULL;
 
       // Create an instance of the OLE DB provider.
-      hr = CoCreateInstance( CLSID_SQLSERVERCE_3_5, 0, CLSCTX_INPROC_SERVER, 
+      hr = CoCreateInstance(CLSID_SQLSERVERCE, 0, CLSCTX_INPROC_SERVER,
          IID_IDBDataSourceAdmin, (void**)& pIDBDataSourceAdmin);
       if(FAILED(hr))
       {
@@ -453,6 +453,7 @@ namespace HM
          sErrorMessage.Format(_T("SysAllocString failed. Out of memory"));
          return false;
       }
+
 
       // Initialize the property sets.
       dbpropset[0].guidPropertySet = DBPROPSET_DBINIT;
@@ -519,17 +520,17 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    SQLCEConnection::CreateRecordset()
    {
-      shared_ptr<SQLCERecordset> recordset = shared_ptr<SQLCERecordset>(new SQLCERecordset());
+      std::shared_ptr<SQLCERecordset> recordset = std::shared_ptr<SQLCERecordset>(new SQLCERecordset());
       return recordset;
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    SQLCEConnection::CreateMacroExpander()
    {
-      shared_ptr<SQLCEMacroExpander> expander = shared_ptr<SQLCEMacroExpander>(new SQLCEMacroExpander());
+      std::shared_ptr<SQLCEMacroExpander> expander = std::shared_ptr<SQLCEMacroExpander>(new SQLCEMacroExpander());
       return expander;
    }
 
@@ -542,7 +543,7 @@ namespace HM
    void
    SQLCEConnection::InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const
    {
-      boost_foreach(const SQLParameter &parameter, sqlCommand.GetParameters())
+      for(const SQLParameter &parameter : sqlCommand.GetParameters())
       {
          String parameterName = parameter.GetName();
 

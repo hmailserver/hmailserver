@@ -11,17 +11,17 @@ namespace HM
    class ChangeNotification;
 
    class IMAPNotificationClient : public NotificationClient,
-                                  public boost::enable_shared_from_this<IMAPNotificationClient>
+                                  public std::enable_shared_from_this<IMAPNotificationClient>
    {
    public:
 
       IMAPNotificationClient();
       virtual ~IMAPNotificationClient();
 
-      void SetConnection(weak_ptr<IMAPConnection> connection);
-      virtual void OnNotification(shared_ptr<ChangeNotification> notification);
+      void SetConnection(std::weak_ptr<IMAPConnection> connection);
+      virtual void OnNotification(std::shared_ptr<ChangeNotification> notification);
 
-      void SendCachedNotifications();
+      void SendCachedNotifications(bool send_expunge);
 
       static String GenerateRecentString(int recentMessages);
       static String GenerateExistsString(int recentMessages);
@@ -32,24 +32,23 @@ namespace HM
 
    private:
 
-      void _CacheChangeNotification(shared_ptr<ChangeNotification> pChangeNotification);
-      void _SendChangeNotification(shared_ptr<ChangeNotification> pChangeNotification);
+      void CacheChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification);
+      void SendChangeNotification_(std::shared_ptr<ChangeNotification> pChangeNotification);
 
-      void _SendEXISTS(int iExists);
-      void _SendRECENT(int recent);
-      void _SendEXPUNGE(const std::vector<__int64> & vecMessages);
-      void _SendFLAGS(const std::set<__int64> & vecMessages);
-      void _SendMessage(int iExists);
+      void SendEXISTS_(int iExists);
+      void SendRECENT_(int recent);
+      void SendEXPUNGE_(const std::vector<__int64> & vecMessages);
+      void SendFLAGS_(const std::set<__int64> & vecMessages);
 
-      CriticalSection _critSec;
-      vector<shared_ptr<ChangeNotification> > _cachedChanges;
+      boost::recursive_mutex mutex_;
+      std::vector<std::shared_ptr<ChangeNotification> > cached_changes_;
       
-      weak_ptr<IMAPConnection> _parentConnection;
+      std::weak_ptr<IMAPConnection> parent_connection_;
 
-      __int64 _accountID;
-      __int64 _folderID;
-      __int64 _messageChangeSubscriptionID;
-      __int64 _folderListChangeSubscriptionID;
+      __int64 account_id_;
+      __int64 folder_id_;
+      __int64 message_change_subscription_id_;
+      __int64 folder_list_change_subscription_id_;
 
    };
 

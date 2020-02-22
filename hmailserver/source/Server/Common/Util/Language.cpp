@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "StdAfx.h"
@@ -21,9 +21,9 @@ namespace HM
    std::map<int, String> Language::mapEnglishContent;
 
    Language::Language(const String &sName, bool isDownloded) :
-      m_bIsLoaded(false),
-      m_sName(sName),
-      _isDownloaded(isDownloded)
+      is_loaded_(false),
+      name_(sName),
+      is_downloaded_(isDownloded)
    {
    }
 
@@ -34,11 +34,11 @@ namespace HM
    String
    Language::GetString(const String &sEnglishString)
    {
-      if (!m_bIsLoaded)
+      if (!is_loaded_)
          Load();
 
-      std::map<String, String>::const_iterator iterString = m_mapStrings.find(sEnglishString);
-      if (iterString == m_mapStrings.end())
+      std::map<String, String>::const_iterator iterString = strings_.find(sEnglishString);
+      if (iterString == strings_.end())
          return sEnglishString;
       else
       {
@@ -60,8 +60,8 @@ namespace HM
       
       std::vector<String> vecEnglishStrings = StringParser::SplitString(sEnglishContents, "\r\n");
 
-      std::vector<String>::iterator iterEnglishString = vecEnglishStrings.begin();
-      std::vector<String>::iterator iterEnglishStringEnd = vecEnglishStrings.end();
+      auto iterEnglishString = vecEnglishStrings.begin();
+      auto iterEnglishStringEnd = vecEnglishStrings.end();
       for (; iterEnglishString != iterEnglishStringEnd; iterEnglishString++)
       {
          String sString = (*iterEnglishString);
@@ -69,7 +69,7 @@ namespace HM
          if (sString.Left(7) != _T("String_"))
             continue;
 
-         std::pair<int, String> pair = _GetString(sString);
+         std::pair<int, String> pair = GetString_(sString);
 
          mapEnglishContent[pair.first] = pair.second;
       }
@@ -79,32 +79,32 @@ namespace HM
    void 
    Language::Load()
    {
-      String sTranslatedLanguageFile = IniFileSettings::Instance()->GetLanguageDirectory() + "\\" + m_sName + ".ini";
+      String sTranslatedLanguageFile = IniFileSettings::Instance()->GetLanguageDirectory() + "\\" + name_ + ".ini";
       String sTranslatedContents = FileUtilities::ReadCompleteTextFile(sTranslatedLanguageFile);
       
 
       std::vector<String> vecTranslatedStrings = StringParser::SplitString(sTranslatedContents, "\r\n");
 
-      std::vector<String>::iterator iterTranslatedString = vecTranslatedStrings.begin();
-      std::vector<String>::iterator iterTranslatedStringEnd = vecTranslatedStrings.end();
+      auto iterTranslatedString = vecTranslatedStrings.begin();
+      auto iterTranslatedStringEnd = vecTranslatedStrings.end();
       for (; iterTranslatedString != iterTranslatedStringEnd; iterTranslatedString++)
       {
          String sString = (*iterTranslatedString);
-         std::pair<int, String> translatedPair = _GetString(sString);
+         std::pair<int, String> translatedPair = GetString_(sString);
 
-         std::map<int, String>::iterator englishPair = mapEnglishContent.find(translatedPair.first);
+         auto englishPair = mapEnglishContent.find(translatedPair.first);
          if (englishPair != mapEnglishContent.end())
          {
-            m_mapStrings[(*englishPair).second] = translatedPair.second;
+            strings_[(*englishPair).second] = translatedPair.second;
          }
         
       }
 
-      m_bIsLoaded = true;
+      is_loaded_ = true;
    }
 
    std::pair<int, String> 
-   Language::_GetString(const String &sLine)
+   Language::GetString_(const String &sLine)
    {
       int iValueStart = 7;
       int iEqualsPos = sLine.Find(_T("="));
@@ -119,7 +119,7 @@ namespace HM
    }
 
    void 
-   Language::_CleanString(String &sText) 
+   Language::CleanString_(String &sText) 
    {
       // Remove lading "&"
       if (sText.Left(1) == _T("&"))
@@ -139,7 +139,7 @@ namespace HM
       AnsiString output;
       HTTPClient client;
       
-      bool result = client.ExecuteScript("www.hmailserver.com", "/devnet/translation_getlanguage.php?language=" + m_sName, output);
+      bool result = client.ExecuteScript("www.hmailserver.com", "/devnet/translation_getlanguage.php?language=" + name_, output);
 
       String unicodeString = output;
       Unicode::MultiByteToWide(output, unicodeString);

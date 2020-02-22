@@ -16,9 +16,9 @@ namespace HM
 
 
    Messages::Messages(__int64 iAccountID, __int64 iFolderID) :
-      m_iAccountID(iAccountID),
-      m_iFolderID(iFolderID),
-      _lastRefreshedUID(0)
+      account_id_(iAccountID),
+      folder_id_(iFolderID),
+      last_refreshed_uid_(0)
    {
 
    }
@@ -28,16 +28,16 @@ namespace HM
    
    }
 
-   std::vector<shared_ptr<Message>>
+   std::vector<std::shared_ptr<Message>>
    Messages::GetCopy()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<shared_ptr<Message>> result;
+      std::vector<std::shared_ptr<Message>> result;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
-         shared_ptr<Message> messageCopy = shared_ptr<Message>(new Message(*oMessage.get()));
+         std::shared_ptr<Message> messageCopy = std::shared_ptr<Message>(new Message(*oMessage.get()));
          result.push_back(messageCopy);
       }
 
@@ -48,11 +48,11 @@ namespace HM
    long
    Messages::GetNoOfSeen() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       long lNoOfSeen = 0;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          if (oMessage->GetFlagSeen()) 
             lNoOfSeen ++;
@@ -62,30 +62,13 @@ namespace HM
    }
 
    long
-   Messages::GetNoOfRecent() const
-   {
-      CriticalSectionScope scope(_lock);
-
-      long lNoOfRecent = 0;
-
-      boost_foreach(shared_ptr<Message> message, vecObjects)
-      {
-         if (message->GetFlagRecent()) 
-            lNoOfRecent ++;
-
-      }
-
-      return lNoOfRecent;
-   }
-
-   long
    Messages::GetSize() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       long lSize = 0;
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          lSize += oMessage->GetSize();
       }
@@ -96,9 +79,9 @@ namespace HM
    __int64
    Messages::GetFirstUnseenUID() const
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<Message> message, vecObjects)
+      for(std::shared_ptr<Message> message : vecObjects)
       {
          if (!message->GetFlagSeen())
             return message->GetUID();
@@ -111,11 +94,11 @@ namespace HM
    void
    Messages::Save()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       LOG_DEBUG("Messages::Save()");
 
-      boost_foreach(shared_ptr<Message> oMessage, vecObjects)
+      for(std::shared_ptr<Message> oMessage : vecObjects)
       {
          LOG_DEBUG("Messages::Save() - Iteration");
 
@@ -129,100 +112,44 @@ namespace HM
    
    }
 
-   std::vector<int>
-   Messages::Expunge()
+   void
+   Messages::DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter)
    {
-      CriticalSectionScope scope(_lock);
-
-      boost::function<void()> func;
-      std::set<int> uids;
-
-      return Expunge(true, uids, func);
-   }
-
-   std::vector<int>
-   Messages::Expunge(bool messagesMarkedForDeletion, const std::set<int> &uids, const boost::function<void()> &func)
-   {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       std::vector<int> vecExpungedMessages;
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      auto iterMessage = vecObjects.begin();
 
-      long lIndex = 0;
-      int expungedCount = 0;
+      int index = 0;
       while (iterMessage != vecObjects.end())
       {
-         lIndex++;
+         index++;
 
-         shared_ptr<Message> pCurMsg = (*iterMessage);
+         std::shared_ptr<Message> message = (*iterMessage);
 
-         if ((messagesMarkedForDeletion && pCurMsg->GetFlagDeleted()) ||
-             uids.find(pCurMsg->GetUID()) != uids.end())
+         if (filter(index, message))
          {
-            PersistentMessage::DeleteObject(pCurMsg);
-            vecExpungedMessages.push_back(lIndex);
+            PersistentMessage::DeleteObject(message);
             iterMessage = vecObjects.erase(iterMessage);
-            lIndex--;
-            expungedCount++;
+            index--;
          }
          else
             iterMessage++;
-
-         if (expungedCount > 1000)
-         {
-            if (!func.empty())
-               func();
-
-            expungedCount = 0;
-         }
       }
 
-      return vecExpungedMessages;
    }
 
-   std::vector<int>
-   Messages::DeleteMessages()
-   {
-      CriticalSectionScope scope(_lock);
-
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
-      std::vector<int> vecExpungedMessages;
-
-      long lIndex = 0;
-      while (iterMessage != vecObjects.end())
-      {
-         lIndex++;
-
-         shared_ptr<Message> pCurMsg = (*iterMessage);
-
-         PersistentMessage::DeleteObject(pCurMsg);
-         vecExpungedMessages.push_back(lIndex);
-         iterMessage = vecObjects.erase(iterMessage);
-         lIndex--;
-      }
-
-      return vecExpungedMessages;
-   }
 
    void
-   Messages::UndeleteAll()
+   Messages::Refresh(bool update_recent_flags)
    {
-      CriticalSectionScope scope(_lock);
-
-
-
-   }
-
-   void
-   Messages::Refresh()
-   {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
 	  // int startTime = GetTickCount();
 
-      bool retrieveQueue = m_iAccountID == -1;
+      bool retrieveQueue = account_id_ == -1;
 
-      if (retrieveQueue && _lastRefreshedUID > 0)
+      if (retrieveQueue && last_refreshed_uid_ > 0)
       {
          /*
             We can't do partial refreshes of messages in the queue. Why? 
@@ -247,21 +174,21 @@ namespace HM
       {
          // Messages connected to a specific account
          sSQL += _T(" messageaccountid = @MESSAGEACCOUNTID ");
-         command.AddParameter("@MESSAGEACCOUNTID", m_iAccountID); 
+         command.AddParameter("@MESSAGEACCOUNTID", account_id_); 
       }
   
       // Should we fetch a specific folder?
-      if (m_iFolderID != -1)
+      if (folder_id_ != -1)
       {
          sSQL.AppendFormat(_T(" and messagefolderid = @MESSAGEFOLDERID "));
-         command.AddParameter("@MESSAGEFOLDERID", m_iFolderID); 
+         command.AddParameter("@MESSAGEFOLDERID", folder_id_); 
       }
 
       // Should we do an incremental refresh?
-      if (_lastRefreshedUID > 0)
+      if (last_refreshed_uid_ > 0)
       {
          sSQL.AppendFormat(_T(" and messageuid > @MESSAGEUID "));
-         command.AddParameter("@MESSAGEUID", _lastRefreshedUID); 
+         command.AddParameter("@MESSAGEUID", last_refreshed_uid_); 
       }
 
       if (retrieveQueue)
@@ -272,49 +199,19 @@ namespace HM
 
       command.SetQueryString(sSQL);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return;
 
-	  // int timeAfterOpenRecordset = GetTickCount();
-   
-      // Do this before we actually read the messages, so that we does not
-      // mark any unread message as recent. If we haven't actually read
-      // any messages, there's nothing to mark as read...
-      if (m_iAccountID != -1 && !pRS->IsEOF())
-      {
-         // Mark all messages as recent
-         String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID ";
-         
-         SQLCommand updateCommand;
-         updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
-         updateCommand.AddParameter("@ACCOUNTID", m_iAccountID);
-
-         if (m_iFolderID > 0)
-         {
-            sql.AppendFormat(_T(" and messagefolderid = @FOLDERID "), m_iFolderID);
-            updateCommand.AddParameter("@FOLDERID", m_iFolderID);
-         }
-
-         updateCommand.SetQueryString(sql);
-
-         Application::Instance()->GetDBManager()->Execute(updateCommand);
-      }
-
       AddToCollection(pRS);
 
-	  // int timeAfterReadingRecordset = GetTickCount();
-
-	  // 
-	  //
-	  // LOG_DEBUG(Formatter::Format("Messages::Refresh - Time to load recordset {0}", timeAfterOpenRecordset - startTime));
-	  // LOG_DEBUG(Formatter::Format("Messages::Refresh - Time to read recordset {0}", timeAfterReadingRecordset - timeAfterOpenRecordset));
+     
    }
 
    void
-   Messages::AddToCollection(shared_ptr<DALRecordset> pRS)
+   Messages::AddToCollection(std::shared_ptr<DALRecordset> pRS)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
       if (!pRS->IsEOF())
       {
@@ -328,7 +225,7 @@ namespace HM
 
          while (!pRS->IsEOF())
          {
-            shared_ptr<Message> msg = shared_ptr<Message> (new Message(false));
+            std::shared_ptr<Message> msg = std::shared_ptr<Message> (new Message(false));
             PersistentMessage::ReadObject(pRS, msg, false);
                   
             vecObjects.push_back(msg);
@@ -338,58 +235,48 @@ namespace HM
             pRS->MoveNext();
          }
 
-         shared_ptr<Message> pLastMessage = vecObjects[vecObjects.size() -1];
-         _lastRefreshedUID = pLastMessage->GetUID();
+         std::shared_ptr<Message> pLastMessage = vecObjects[vecObjects.size() -1];
+         last_refreshed_uid_ = pLastMessage->GetUID();
       }
-   }
-
-   void 
-   Messages::AddItem(shared_ptr<Message> pObject)
-   {
-      // Rather than adding the message, refresh entire folder
-      // content from database.
-      Refresh();
-   }
-
-   bool
-   Messages::DeleteMessageByDBID(__int64 ID)
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Deletes a message from the collection with the given database identifier.
-   //---------------------------------------------------------------------------()
-   {
-      CriticalSectionScope scope(_lock);
-
-      boost_foreach(shared_ptr<Message> pCurMsg, vecObjects)
-      {
-         if (pCurMsg->GetID() == ID)
-         {
-            pCurMsg->SetFlagDeleted(true);
-            return true;
-         }
-      }
-
-      return false;
    }
 
    void  
-   Messages::SetFlagRecentOnMessages(bool bRecent)
+   Messages::RemoveRecentFlags()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      boost_foreach(shared_ptr<Message> message, vecObjects)
+      for(std::shared_ptr<Message> message : vecObjects)
       {
-         message->SetFlagRecent(bRecent);
+         message->SetFlagRecent(false);
       }
+
+      // When a message is added to the database, the \Recent flag is set. When this message loads the message
+      // list from the database, the \Recent flag will be set to the message in memory. Future sessions should
+      // not see the message \Recent flag, so we remove the flag from all messages in the account folder now.
+      if (account_id_ != -1 && folder_id_ != -1)
+      {
+         // Mark all messages as recent
+         String sql = "update hm_messages set messageflags = messageflags & ~ @FLAGS where messageaccountid = @ACCOUNTID and messagefolderid = @FOLDERID";
+
+         SQLCommand updateCommand;
+         updateCommand.AddParameter("@FLAGS", Message::FlagRecent);
+         updateCommand.AddParameter("@ACCOUNTID", account_id_);
+         updateCommand.AddParameter("@FOLDERID", folder_id_);
+         updateCommand.SetQueryString(sql);
+
+         Application::Instance()->GetDBManager()->Execute(updateCommand);
+      }
+
+
    }
 
    bool
-   Messages::PreSaveObject(shared_ptr<Message> pMessage, XNode *node)
+   Messages::PreSaveObject(std::shared_ptr<Message> pMessage, XNode *node)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      pMessage->SetAccountID(m_iAccountID);
-      pMessage->SetFolderID(m_iFolderID);
+      pMessage->SetAccountID(account_id_);
+      pMessage->SetFolderID(folder_id_);
       return true;
    }
 
@@ -402,9 +289,9 @@ namespace HM
    // an object, that has already been deleted in the database.
    //---------------------------------------------------------------------------()
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<shared_ptr<Message> >::iterator iterMessage = vecObjects.begin();
+      auto iterMessage = vecObjects.begin();
 
       // Locate the message
       while (iterMessage != vecObjects.end() && (*iterMessage)->GetID() != iDBID)
@@ -415,7 +302,7 @@ namespace HM
          vecObjects.erase(iterMessage);
    }
 
-   shared_ptr<Message>
+   std::shared_ptr<Message>
    Messages::GetItemByUID(unsigned int uid)
    {
       unsigned int dummy = 0;
@@ -423,12 +310,12 @@ namespace HM
    }
 
 
-   shared_ptr<Message>
+   std::shared_ptr<Message>
    Messages::GetItemByUID(unsigned int uid, unsigned int &foundIndex)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
       foundIndex = 0;
-      boost_foreach(shared_ptr<Message> item, vecObjects)
+      for(std::shared_ptr<Message> item : vecObjects)
       {
          foundIndex++;
 
@@ -436,7 +323,7 @@ namespace HM
             return item;
       }
 
-      shared_ptr<Message> empty;
+      std::shared_ptr<Message> empty;
       return empty;
    }
 

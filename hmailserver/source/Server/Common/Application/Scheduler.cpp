@@ -16,6 +16,7 @@
 namespace HM
 {
    Scheduler::Scheduler()
+      : Task("Scheduler")
    {  
        
    }
@@ -28,36 +29,38 @@ namespace HM
    void 
    Scheduler::DoWork()
    {
+      SetIsStarted();
+
       while (true)
       {
          // Check if there are any tasks to run.
-         _RunTasks();
+         RunTasks_();
          
          // Wait one minute.
-         DWORD dwWaitResult = WaitForSingleObject(m_hStopTask.GetHandle(), 60000);
-
-         if (dwWaitResult == WAIT_OBJECT_0)
+         try
          {
-            CriticalSectionScope scope (m_oVecCritSec);
+            boost::this_thread::sleep_for(boost::chrono::minutes(1));
+         }
+         catch (const boost::thread_interrupted&)
+         {
+            boost::this_thread::disable_interruption disabled;
 
-            m_vecScheduledTasks.clear();
+            boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+            scheduled_tasks_.clear();
 
-            m_hStopTask.Reset();
             return;
          }
       }
    }
 
    void
-   Scheduler::_RunTasks()
+   Scheduler::RunTasks_()
    {
-      CriticalSectionScope scope(m_oVecCritSec); 
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      vector<shared_ptr<ScheduledTask >>::iterator iterTask;
-
-      for (iterTask = m_vecScheduledTasks.begin(); iterTask != m_vecScheduledTasks.end(); iterTask++)
+      for (auto iterTask = scheduled_tasks_.begin(); iterTask != scheduled_tasks_.end(); iterTask++)
       {
-         shared_ptr<ScheduledTask > pTask = (*iterTask);
+         std::shared_ptr<ScheduledTask > pTask = (*iterTask);
 
          // Check if we should run this task now.
          DateTime dtRunTime = pTask->GetNextRunTime();
@@ -66,7 +69,7 @@ namespace HM
          if (dtRunTime <= dtNow)
          {
             // Yup, we should run this task now.
-            pTask->DoWork();
+            pTask->Run();
             
             // Update run time.
             pTask->SetNextRunTime();
@@ -74,25 +77,19 @@ namespace HM
       }
    }  
 
-   void 
-   Scheduler::StopWork()
-   {
-      m_hStopTask.Set();
-   }
-
    void
-   Scheduler::ScheduleTask(shared_ptr<ScheduledTask> pTask)
+   Scheduler::ScheduleTask(std::shared_ptr<ScheduledTask> pTask)
    {
-      CriticalSectionScope scope(m_oVecCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       // If task should only be run once, run it now.
       if (pTask->GetReoccurance() == ScheduledTask::RunOnce)
       {
-         Application::Instance()->GetRandomWorkQueue()->AddTask(pTask);
+         Application::Instance()->GetMaintenanceWorkQueue()->AddTask(pTask);
          return;
       }
 
-      m_vecScheduledTasks.push_back(pTask);
+      scheduled_tasks_.push_back(pTask);
      
    }
 

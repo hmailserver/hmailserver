@@ -18,13 +18,19 @@
 #include "InterfaceSURBLServers.h"
 #include "InterfaceDNSBlackLists.h"
 
+InterfaceAntiSpam::InterfaceAntiSpam() :
+   config_(nullptr)
+{
+
+}
+
 bool 
 InterfaceAntiSpam::LoadSettings()
 {
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
+   config_ = HM::Configuration::Instance();
 
    return true;
 }
@@ -34,11 +40,11 @@ STDMETHODIMP InterfaceAntiSpam::get_SURBLServers(IInterfaceSURBLServers **pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       CComObject<InterfaceSURBLServers>* pSURBLServersInterface = new CComObject<InterfaceSURBLServers>();
-      pSURBLServersInterface->SetAuthentication(m_pAuthentication);
+      pSURBLServersInterface->SetAuthentication(authentication_);
       pSURBLServersInterface->LoadSettings();
    
       pSURBLServersInterface->AddRef();
@@ -56,10 +62,10 @@ STDMETHODIMP InterfaceAntiSpam::get_CheckHostInHelo(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetCheckHostInHelo() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetCheckHostInHelo() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -73,10 +79,10 @@ STDMETHODIMP InterfaceAntiSpam::put_CheckHostInHelo(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetCheckHostInHelo(newVal == VARIANT_TRUE ? true : false);
+      config_->GetAntiSpamConfiguration().SetCheckHostInHelo(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -90,10 +96,10 @@ STDMETHODIMP InterfaceAntiSpam::get_CheckHostInHeloScore(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetCheckHostInHeloScore();
+      *pVal = config_->GetAntiSpamConfiguration().GetCheckHostInHeloScore();
    
       return S_OK;
    }
@@ -107,10 +113,10 @@ STDMETHODIMP InterfaceAntiSpam::put_CheckHostInHeloScore(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetCheckHostInHeloScore(newVal);
+      config_->GetAntiSpamConfiguration().SetCheckHostInHeloScore(newVal);
    
       return S_OK;
    }
@@ -124,10 +130,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamMarkThreshold(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamMarkThreshold();
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamMarkThreshold();
    
       return S_OK;
    }
@@ -141,10 +147,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamMarkThreshold(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamMarkThreshold(newVal);
+      config_->GetAntiSpamConfiguration().SetSpamMarkThreshold(newVal);
    
       return S_OK;
    }
@@ -158,10 +164,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamDeleteThreshold(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
    
       return S_OK;
    }
@@ -175,10 +181,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamDeleteThreshold(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamDeleteThreshold(newVal);
+      config_->GetAntiSpamConfiguration().SetSpamDeleteThreshold(newVal);
    
       return S_OK;
    }
@@ -192,10 +198,10 @@ STDMETHODIMP InterfaceAntiSpam::get_GreyListingEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetUseGreyListing() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetUseGreyListing() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -208,10 +214,10 @@ STDMETHODIMP InterfaceAntiSpam::put_GreyListingEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetUseGreyListing(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetUseGreyListing(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -224,10 +230,10 @@ STDMETHODIMP InterfaceAntiSpam::get_GreyListingInitialDelay(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetGreyListingInitialDelay();
+      *pVal = config_->GetAntiSpamConfiguration().GetGreyListingInitialDelay();
       return S_OK;
    }
    catch (...)
@@ -240,10 +246,10 @@ STDMETHODIMP InterfaceAntiSpam::put_GreyListingInitialDelay(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetGreyListingInitialDelay(newVal);
+      config_->GetAntiSpamConfiguration().SetGreyListingInitialDelay(newVal);
       return S_OK;
    }
    catch (...)
@@ -256,10 +262,10 @@ STDMETHODIMP InterfaceAntiSpam::get_GreyListingInitialDelete(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetGreyListingInitialDelete();
+      *pVal = config_->GetAntiSpamConfiguration().GetGreyListingInitialDelete();
       return S_OK;
    }
    catch (...)
@@ -272,10 +278,10 @@ STDMETHODIMP InterfaceAntiSpam::put_GreyListingInitialDelete(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetGreyListingInitialDelete(newVal);
+      config_->GetAntiSpamConfiguration().SetGreyListingInitialDelete(newVal);
       return S_OK;
    }
    catch (...)
@@ -288,10 +294,10 @@ STDMETHODIMP InterfaceAntiSpam::get_GreyListingFinalDelete(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetGreyListingFinalDelete();
+      *pVal = config_->GetAntiSpamConfiguration().GetGreyListingFinalDelete();
       return S_OK;
    }
    catch (...)
@@ -304,10 +310,10 @@ STDMETHODIMP InterfaceAntiSpam::put_GreyListingFinalDelete(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetGreyListingFinalDelete(newVal);
+      config_->GetAntiSpamConfiguration().SetGreyListingFinalDelete(newVal);
       return S_OK;
    }
    catch (...)
@@ -320,10 +326,10 @@ STDMETHODIMP InterfaceAntiSpam::get_AddHeaderSpam(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetAddHeaderSpam() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetAddHeaderSpam() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -336,10 +342,10 @@ STDMETHODIMP InterfaceAntiSpam::put_AddHeaderSpam(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetAddHeaderSpam(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetAddHeaderSpam(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -352,10 +358,10 @@ STDMETHODIMP InterfaceAntiSpam::get_AddHeaderReason(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetAddHeaderReason() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetAddHeaderReason() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -368,10 +374,10 @@ STDMETHODIMP InterfaceAntiSpam::put_AddHeaderReason(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetAddHeaderReason(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetAddHeaderReason(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -384,10 +390,10 @@ STDMETHODIMP InterfaceAntiSpam::get_PrependSubject(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetPrependSubject() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetPrependSubject() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -400,10 +406,10 @@ STDMETHODIMP InterfaceAntiSpam::put_PrependSubject(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetPrependSubject(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetPrependSubject(newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -416,10 +422,10 @@ STDMETHODIMP InterfaceAntiSpam::get_PrependSubjectText(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetPrependSubjectText().AllocSysString();
+      *pVal = config_->GetAntiSpamConfiguration().GetPrependSubjectText().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -432,10 +438,10 @@ STDMETHODIMP InterfaceAntiSpam::put_PrependSubjectText(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetPrependSubjectText(newVal);
+      config_->GetAntiSpamConfiguration().SetPrependSubjectText(newVal);
       return S_OK;
    }
    catch (...)
@@ -448,14 +454,14 @@ STDMETHODIMP InterfaceAntiSpam::get_GreyListingWhiteAddresses(IInterfaceGreyList
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (!m_pConfig)
+      if (!config_)
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceGreyListingWhiteAddresses>* pGLWhiteList = new CComObject<InterfaceGreyListingWhiteAddresses>();
-      pGLWhiteList->SetAuthentication(m_pAuthentication);
+      pGLWhiteList->SetAuthentication(authentication_);
       pGLWhiteList->Attach(HM::Configuration::Instance()->GetAntiSpamConfiguration().GetGreyListingWhiteAddresses());
       pGLWhiteList->AddRef();
    
@@ -473,14 +479,14 @@ STDMETHODIMP InterfaceAntiSpam::get_WhiteListAddresses(IInterfaceWhiteListAddres
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      if (!m_pConfig)
+      if (!config_)
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceWhiteListAddresses>* pGLWhiteList = new CComObject<InterfaceWhiteListAddresses>();
-      pGLWhiteList->SetAuthentication(m_pAuthentication);
+      pGLWhiteList->SetAuthentication(authentication_);
       pGLWhiteList->Attach(HM::Configuration::Instance()->GetAntiSpamConfiguration().GetWhiteListAddresses());
       pGLWhiteList->AddRef();
    
@@ -498,10 +504,10 @@ STDMETHODIMP InterfaceAntiSpam::get_UseSPF(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetUseSPF() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetUseSPF() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -515,10 +521,10 @@ STDMETHODIMP InterfaceAntiSpam::put_UseSPF(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetUseSPF(newVal == VARIANT_TRUE ? true : false);
+      config_->GetAntiSpamConfiguration().SetUseSPF(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -532,10 +538,10 @@ STDMETHODIMP InterfaceAntiSpam::get_UseSPFScore(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetUseSPFScore();
+      *pVal = config_->GetAntiSpamConfiguration().GetUseSPFScore();
    
       return S_OK;
    }
@@ -549,10 +555,10 @@ STDMETHODIMP InterfaceAntiSpam::put_UseSPFScore(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetUseSPFScore(newVal);
+      config_->GetAntiSpamConfiguration().SetUseSPFScore(newVal);
    
       return S_OK;
    }
@@ -566,10 +572,10 @@ STDMETHODIMP InterfaceAntiSpam::get_UseMXChecks(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetUseMXChecks() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetUseMXChecks() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -583,10 +589,10 @@ STDMETHODIMP InterfaceAntiSpam::put_UseMXChecks(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetUseMXChecks(newVal == VARIANT_TRUE ? true : false);
+      config_->GetAntiSpamConfiguration().SetUseMXChecks(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -600,10 +606,10 @@ STDMETHODIMP InterfaceAntiSpam::get_UseMXChecksScore(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetUseMXChecksScore();
+      *pVal = config_->GetAntiSpamConfiguration().GetUseMXChecksScore();
    
       return S_OK;
    }
@@ -617,10 +623,10 @@ STDMETHODIMP InterfaceAntiSpam::put_UseMXChecksScore(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetUseMXChecksScore(newVal);
+      config_->GetAntiSpamConfiguration().SetUseMXChecksScore(newVal);
    
       return S_OK;
    }
@@ -634,11 +640,11 @@ STDMETHODIMP InterfaceAntiSpam::get_DNSBlackLists(IInterfaceDNSBlackLists **pVal
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       CComObject<InterfaceDNSBlackLists>* pDNSBlackListsInterface = new CComObject<InterfaceDNSBlackLists>();
-      pDNSBlackListsInterface->SetAuthentication(m_pAuthentication);
+      pDNSBlackListsInterface->SetAuthentication(authentication_);
       pDNSBlackListsInterface->LoadSettings();
    
       pDNSBlackListsInterface->AddRef();
@@ -656,7 +662,7 @@ STDMETHODIMP InterfaceAntiSpam::get_TarpitDelay(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       *pVal = 0;
@@ -672,7 +678,7 @@ STDMETHODIMP InterfaceAntiSpam::put_TarpitDelay(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       // OBSOLETE: To be removed in v6.
@@ -688,7 +694,7 @@ STDMETHODIMP InterfaceAntiSpam::get_TarpitCount(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       // OBSOLETE: To be removed in v6.
@@ -705,7 +711,7 @@ STDMETHODIMP InterfaceAntiSpam::put_TarpitCount(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       // OBSOLETE: To be removed in v6.
@@ -721,10 +727,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamAssassinEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamAssassinEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamAssassinEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -738,10 +744,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamAssassinEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamAssassinEnabled(newVal == VARIANT_TRUE ? true : false);
+      config_->GetAntiSpamConfiguration().SetSpamAssassinEnabled(newVal == VARIANT_TRUE ? true : false);
    
       return S_OK;
    }
@@ -755,10 +761,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamAssassinScore(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamAssassinScore();
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamAssassinScore();
    
       return S_OK;
    }
@@ -772,10 +778,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamAssassinScore(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamAssassinScore(newVal);
+      config_->GetAntiSpamConfiguration().SetSpamAssassinScore(newVal);
    
       return S_OK;
    }
@@ -789,10 +795,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamAssassinMergeScore(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamAssassinMergeScore() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamAssassinMergeScore() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -806,10 +812,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamAssassinMergeScore(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamAssassinMergeScore(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetSpamAssassinMergeScore(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -823,10 +829,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamAssassinHost(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamAssassinHost().AllocSysString();
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamAssassinHost().AllocSysString();
    
       return S_OK;
    }
@@ -840,10 +846,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamAssassinHost(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamAssassinHost(newVal);
+      config_->GetAntiSpamConfiguration().SetSpamAssassinHost(newVal);
    
       return S_OK;
    }
@@ -857,10 +863,10 @@ STDMETHODIMP InterfaceAntiSpam::get_SpamAssassinPort(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetSpamAssassinPort();
+      *pVal = config_->GetAntiSpamConfiguration().GetSpamAssassinPort();
    
       return S_OK;
    }
@@ -874,10 +880,10 @@ STDMETHODIMP InterfaceAntiSpam::put_SpamAssassinPort(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetSpamAssassinPort(newVal);
+      config_->GetAntiSpamConfiguration().SetSpamAssassinPort(newVal);
    
       return S_OK;
    }
@@ -891,10 +897,10 @@ STDMETHODIMP InterfaceAntiSpam::get_MaximumMessageSize(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetAntiSpamMaxSizeKB();
+      *pVal = config_->GetAntiSpamConfiguration().GetAntiSpamMaxSizeKB();
    
       return S_OK;
    }
@@ -908,10 +914,10 @@ STDMETHODIMP InterfaceAntiSpam::put_MaximumMessageSize(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetAntiSpamMaxSizeKB(newVal);
+      config_->GetAntiSpamConfiguration().SetAntiSpamMaxSizeKB(newVal);
    
       return S_OK;
    }
@@ -925,10 +931,10 @@ STDMETHODIMP InterfaceAntiSpam::ClearGreyListingTriplets()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().ClearGreyListingTriplets();
+      config_->GetAntiSpamConfiguration().ClearGreyListingTriplets();
       return S_OK;
    }
    catch (...)
@@ -941,7 +947,7 @@ STDMETHODIMP InterfaceAntiSpam::DKIMVerify(BSTR pVal, eDKIMResult *pResult)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       HM::DKIM dkim;
@@ -959,7 +965,7 @@ STDMETHODIMP InterfaceAntiSpam::TestSpamAssassinConnection(BSTR hostname, long p
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       HM::SpamAssassinTestConnect testClient;
@@ -980,10 +986,10 @@ STDMETHODIMP InterfaceAntiSpam::get_DKIMVerificationEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetDKIMVerificationEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetDKIMVerificationEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -997,10 +1003,10 @@ STDMETHODIMP InterfaceAntiSpam::put_DKIMVerificationEnabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetDKIMVerificationEnabled(newVal == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetDKIMVerificationEnabled(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -1014,10 +1020,10 @@ STDMETHODIMP InterfaceAntiSpam::get_DKIMVerificationFailureScore(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetDKIMVerificationFailureScore();
+      *pVal = config_->GetAntiSpamConfiguration().GetDKIMVerificationFailureScore();
    
       return S_OK;
    }
@@ -1031,10 +1037,10 @@ STDMETHODIMP InterfaceAntiSpam::put_DKIMVerificationFailureScore(long newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetDKIMVerificationFailureScore(newVal);
+      config_->GetAntiSpamConfiguration().SetDKIMVerificationFailureScore(newVal);
    
       return S_OK;
    }
@@ -1048,10 +1054,10 @@ STDMETHODIMP InterfaceAntiSpam::get_BypassGreylistingOnSPFSuccess(VARIANT_BOOL *
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetBypassGreyListingOnSPFSuccess() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetBypassGreyListingOnSPFSuccess() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -1065,10 +1071,10 @@ STDMETHODIMP InterfaceAntiSpam::put_BypassGreylistingOnSPFSuccess(VARIANT_BOOL n
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetBypassGreyListingOnSPFSuccess(newValue == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetBypassGreyListingOnSPFSuccess(newValue == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -1082,10 +1088,10 @@ STDMETHODIMP InterfaceAntiSpam::get_BypassGreylistingOnMailFromMX(VARIANT_BOOL *
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetAntiSpamConfiguration().GetBypassGreyListingOnMailFromMX() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetBypassGreyListingOnMailFromMX() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -1099,10 +1105,10 @@ STDMETHODIMP InterfaceAntiSpam::put_BypassGreylistingOnMailFromMX(VARIANT_BOOL n
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->GetAntiSpamConfiguration().SetBypassGreyListingOnMailFromMX(newValue == VARIANT_TRUE);
+      config_->GetAntiSpamConfiguration().SetBypassGreyListingOnMailFromMX(newValue == VARIANT_TRUE);
    
       return S_OK;
    }

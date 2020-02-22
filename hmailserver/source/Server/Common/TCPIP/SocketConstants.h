@@ -6,8 +6,6 @@
 namespace HM
 {
 
-   #define MAX_BUFF_SIZE       20000
-
    enum SessionType
    {
       STUnknown = 0,
@@ -19,4 +17,28 @@ namespace HM
       STListening = 6,
    };
 
+   enum ConnectionSecurity 
+   {
+      CSNone     = 0,
+      CSSSL      = 1,
+      CSSTARTTLSOptional = 2,
+      CSSTARTTLSRequired = 3
+
+   };
+
+   enum ConnectionState
+   {
+      StatePendingConnect = 0,
+      StateConnected = 1,
+      StatePendingDisconnect = 2,
+      StateDisconnected = 3
+   };
+
+   enum SslTlsVersion
+   {
+      TlsVersion10 = 2,
+      TlsVersion11 = 4,
+      TlsVersion12 = 8,
+      TlsVersion13 = 16
+   };
 }

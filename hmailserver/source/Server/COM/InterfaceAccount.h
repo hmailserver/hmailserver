@@ -38,7 +38,7 @@ public:
 #endif
    }
 
-   void SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication);
+   void SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEACCOUNT)
 
@@ -65,7 +65,7 @@ public:
 
    HRESULT STDMETHODCALLTYPE get_ID(LONG* pVal)
    {
-      *pVal = (int) m_pObject->GetID();
+      *pVal = (int) object_->GetID();
       return S_OK;
    }
 
@@ -143,7 +143,7 @@ public:
 
 private:
 
-   shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   std::shared_ptr<HM::COMAuthentication> authentication_;
 
 #ifdef _DEBUG
    static long counter;

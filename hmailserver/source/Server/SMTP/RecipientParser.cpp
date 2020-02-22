@@ -36,7 +36,7 @@
 namespace HM
 {
 
-   const String CONST_UNKNOWN_USER = "550 Unknown user";
+   const String CONST_UNKNOWN_USER = "Unknown user";
 
    RecipientParser::RecipientParser()
    {
@@ -56,7 +56,7 @@ namespace HM
 
       // Apply domain name aliases to the sender address. Can be done
       // outside the loop since this won't be recursed.
-      shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       sSender = pDA->ApplyAliasesOnAddress(sSender);
 
       String recipientAddress = sOriginalRecipient;
@@ -68,7 +68,7 @@ namespace HM
          if (iRecursionLevel > 25)
          {
             // Extreme aliasing. disallow
-            sErrMsg = "550 Mail server configuration error. Too many recursive forwards.";
+            sErrMsg = "Mail server configuration error. Too many recursive forwards.";
             return DP_RecipientUnknown;
          }
 
@@ -76,8 +76,8 @@ namespace HM
          const String primaryAddressWithoutPlusaddressing = pDA->ApplyAliasesOnAddress(recipientAddress);
          const String primaryDomain = StringParser::ExtractDomain(primaryAddressWithoutPlusaddressing);
          
-         shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
-         bDomainIsLocal = pDomain;
+         std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
+         bDomainIsLocal = pDomain != 0;
 
          // Apply plus addressing on the recipient address
          const String primaryAddress = PlusAddressing::ExtractAccountAddress(primaryAddressWithoutPlusaddressing, pDomain); 
@@ -86,7 +86,7 @@ namespace HM
          if (bDomainIsLocal)
          {
             if (iRecursionLevel == 1)
-            {
+               {
                // Why only if iRecurse == 1?
                // Because:
                // If you have set up an alias pointing from user@local.com, user@external.com
@@ -96,12 +96,12 @@ namespace HM
 
             if (!pDomain->GetIsActive())
             {
-               sErrMsg = "550 Domain has been disabled.";
+               sErrMsg = "Domain has been disabled.";
                return DP_RecipientUnknown;
             }
 
             // Check for an account with this name.
-            shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);
+            std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);
             if (pAccount)
             {
                if (pAccount->GetActive())
@@ -111,13 +111,13 @@ namespace HM
                }
                else
                {
-                  sErrMsg = "550 Account is not active.";
+                  sErrMsg = "Account is not active.";
                   return DP_RecipientUnknown;
                }
             }
 
             // If no account found, check if an alias with this name exists.
-            shared_ptr<const Alias> pAlias = CacheContainer::Instance()->GetAlias(primaryAddress);
+            std::shared_ptr<const Alias> pAlias = CacheContainer::Instance()->GetAlias(primaryAddress);
             if (pAlias)
             {
                if (pAlias->GetIsActive())
@@ -127,24 +127,24 @@ namespace HM
                }
                else
                {
-                  sErrMsg = "550 Alias is not active.";
+                  sErrMsg = "Alias is not active.";
                   return DP_RecipientUnknown;
                }
             }
 
             // Check if distributionlist with this address exists.
-            shared_ptr<const DistributionList> pList = CacheContainer::Instance()->GetDistributionList(primaryAddress);
+            std::shared_ptr<const DistributionList> pList = CacheContainer::Instance()->GetDistributionList(primaryAddress);
             if (pList)
             {
                if (!pList->GetActive())
                {
-                  sErrMsg = "550 Distribution list is not active.";
+                  sErrMsg = "Distribution list is not active.";
                   return DP_RecipientUnknown;
                }
 
                // Need to check if this sender is authorized to send
                // to this distribution list.
-               if (_UserCanSendToList(sSender, bSenderIsAuthed, pList, sErrMsg, iRecursionLevel) == DP_PermissionDenied)
+               if (UserCanSendToList_(sSender, bSenderIsAuthed, pList, sErrMsg, iRecursionLevel) == DP_PermissionDenied)
                   return DP_PermissionDenied;
 
 
@@ -157,7 +157,7 @@ namespace HM
 
          // We have not found the recipient yet. Check if the original address matches a route.
          String recipientDomain = StringParser::ExtractDomain(recipientAddress);
-         shared_ptr<Route> pRoute = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
+         std::shared_ptr<Route> pRoute = Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
          
          if (pRoute)
          {
@@ -168,12 +168,13 @@ namespace HM
 
                return DP_Possible;
             }
-      
-            // We found routes matching the recipients domain, but the recipient 
-            // doesn't exist in any of them.
-            // Temp fail in case route list is not up-to-date
-            sErrMsg = "421 Recipient not in route list.";
-            return DP_RecipientUnknown;
+
+            if (!pDomain || pDomain->GetPostmaster().IsEmpty())
+            {
+               // The recipient is not configured in the route, and the domain is external.
+               sErrMsg = "Recipient not in route list.";
+               return DP_RecipientUnknown;
+            }
          }
 
          // If this is a local domain, try to find a catch-all 
@@ -205,24 +206,16 @@ namespace HM
    }
 
    void 
-   RecipientParser::CreateMessageRecipientList(const String &sRecipientAddress, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
+   RecipientParser::CreateMessageRecipientList(const String &sRecipientAddress, std::shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
    {
       recipientOK = false;
 
-      try
-      {
-         long lRecurse = 0;
-         _CreateMessageRecipientList(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4381, "RecipientParser::CreateMessageRecipientList", "An error occurred while creating message recipient list.");
-         throw;
-      }
+      long lRecurse = 0;
+      CreateMessageRecipientList_(sRecipientAddress, sRecipientAddress, 0, pRecipients, recipientOK);
    }
 
    void
-   RecipientParser::_CreateMessageRecipientList(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
+   RecipientParser::CreateMessageRecipientList_(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, std::shared_ptr<MessageRecipients> pRecipients, bool &recipientOK)
    {
       lRecurse++;
 
@@ -232,7 +225,7 @@ namespace HM
          return;
       }
 
-      shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       String primaryAddress = pDA->ApplyAliasesOnAddress(recipientAddress);
       String primaryDomain = StringParser::ExtractDomain(primaryAddress);
 
@@ -240,7 +233,7 @@ namespace HM
       // have to care what type of email this is.
 
       
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
       
       // Apply plus addressing on the recipient address
       primaryAddress = PlusAddressing::ExtractAccountAddress(primaryAddress, pDomain); 
@@ -253,14 +246,14 @@ namespace HM
             return;
 
          // Check if there exists a account with this address.
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);
+         std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);
 
          if (pAccount)
          {
             if (!pAccount->GetActive())
                return;
 
-            shared_ptr<MessageRecipient> NewRecipient = shared_ptr<MessageRecipient>(new MessageRecipient);
+            std::shared_ptr<MessageRecipient> NewRecipient = std::shared_ptr<MessageRecipient>(new MessageRecipient);
          
             NewRecipient->SetLocalAccountID(pAccount->GetID());
             NewRecipient->SetAddress(primaryAddress);
@@ -269,39 +262,39 @@ namespace HM
 
             recipientOK = true;
 
-            _AddRecipient(pRecipients, NewRecipient);
+            AddRecipient_(pRecipients, NewRecipient);
 
             return;
          }
    
          // Check if there is a alias with this address.
-         shared_ptr<const Alias> pAlias = CacheContainer::Instance()->GetAlias(primaryAddress);
+         std::shared_ptr<const Alias> pAlias = CacheContainer::Instance()->GetAlias(primaryAddress);
 
          if (pAlias)
          {
             if (!pAlias->GetIsActive())
                return;
 
-            _CreateMessageRecipientList(pAlias->GetValue(), sOriginalAddress, lRecurse, pRecipients, recipientOK);
+            CreateMessageRecipientList_(pAlias->GetValue(), sOriginalAddress, lRecurse, pRecipients, recipientOK);
 
             return;
          }  
 
          // Check if there is a distribution list with this address.
-         shared_ptr<const DistributionList> pListADO = CacheContainer::Instance()->GetDistributionList(primaryAddress);
+         std::shared_ptr<const DistributionList> pListADO = CacheContainer::Instance()->GetDistributionList(primaryAddress);
 
          if (pListADO)
          {
             if (!pListADO->GetActive())
                return;
 
-            shared_ptr<const DistributionListRecipients> listRecipients = pListADO->GetMembers();
-            const vector<shared_ptr<DistributionListRecipient> > vecRecipients = listRecipients->GetConstVector();
-            vector<shared_ptr<DistributionListRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
+            std::shared_ptr<const DistributionListRecipients> listRecipients = pListADO->GetMembers();
+            const std::vector<std::shared_ptr<DistributionListRecipient> > vecRecipients = listRecipients->GetConstVector();
+            std::vector<std::shared_ptr<DistributionListRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
 
             while (iterRecipient != vecRecipients.end())
             {
-               _CreateMessageRecipientList((*iterRecipient)->GetAddress(), sOriginalAddress,lRecurse, pRecipients, recipientOK);
+               CreateMessageRecipientList_((*iterRecipient)->GetAddress(), sOriginalAddress,lRecurse, pRecipients, recipientOK);
 
                iterRecipient++;
             }
@@ -316,7 +309,7 @@ namespace HM
       // 2) The domain is not local. 
       // When we get here, one of these are true.
       String recipientDomain = StringParser::ExtractDomain(recipientAddress);
-      shared_ptr<Route> pRoute = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
+      std::shared_ptr<Route> pRoute = HM::Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(recipientDomain);
       if (pRoute)
       {
          bool isLocalName = false;
@@ -325,17 +318,18 @@ namespace HM
          {
             isLocalName = pRoute->GetTreatRecipientAsLocalDomain();
 
-            shared_ptr<MessageRecipient> NewRecipient = shared_ptr<MessageRecipient>(new MessageRecipient);
+            std::shared_ptr<MessageRecipient> NewRecipient = std::shared_ptr<MessageRecipient>(new MessageRecipient);
             NewRecipient->SetAddress(recipientAddress);
             NewRecipient->SetOriginalAddress(sOriginalAddress);
             NewRecipient->SetIsLocalName(isLocalName);
 
             recipientOK = true;
 
-            _AddRecipient(pRecipients, NewRecipient);
+            AddRecipient_(pRecipients, NewRecipient);
          }
 
-         return;
+         if (!bIsLocalDomain || pDomain->GetPostmaster().IsEmpty())
+            return;
       }
 
       if (bIsLocalDomain)
@@ -346,7 +340,7 @@ namespace HM
             // The domain is local but we could not find the recipient address
             // in our domain. We've looked in routes as well but not found a
             // match there either.
-            _CreateMessageRecipientList(sPostMaster, sOriginalAddress, lRecurse, pRecipients, recipientOK);
+            CreateMessageRecipientList_(sPostMaster, sOriginalAddress, lRecurse, pRecipients, recipientOK);
 
             return;
          }
@@ -356,7 +350,7 @@ namespace HM
          // The recipient is external. We have already checked if it's OK that the user
          // delivers to this, so go ahead.
 
-         shared_ptr<MessageRecipient> NewRecipient = shared_ptr<MessageRecipient>(new MessageRecipient);
+         std::shared_ptr<MessageRecipient> NewRecipient = std::shared_ptr<MessageRecipient>(new MessageRecipient);
 
          NewRecipient->SetAddress(recipientAddress);
          NewRecipient->SetOriginalAddress(sOriginalAddress);
@@ -365,18 +359,18 @@ namespace HM
 
          recipientOK = true;
 
-         _AddRecipient(pRecipients, NewRecipient);
+         AddRecipient_(pRecipients, NewRecipient);
       }
    }
 
    RecipientParser::DeliveryPossibility 
-   RecipientParser::_UserCanSendToList(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel)
+   RecipientParser::UserCanSendToList_(const String &sSender, bool bSenderIsAuthenticated, std::shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel)
    {
-      shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
 
       if (pList->GetRequireAuth() && !bSenderIsAuthenticated)
       {
-         sErrMsg = "550 SMTP authentication required.";
+         sErrMsg = "SMTP authentication required.";
          return DP_PermissionDenied;
       }
 
@@ -395,7 +389,7 @@ namespace HM
          {
 	    // Let's adjust reason to better explain sender is not seen as OWNER
 	    // and differentiate from SENDER like list member etc
-            sErrMsg = "550 Not authorized owner.";
+            sErrMsg = "Not authorized owner.";
             return DP_PermissionDenied;
          }
 
@@ -410,8 +404,8 @@ namespace HM
       {
          // Only members of the list can send messages. 
          // Check if the sender is a member of the list.
-         std::vector<shared_ptr<DistributionListRecipient> > vecRecipients = pList->GetMembers()->GetVector();
-         std::vector<shared_ptr<DistributionListRecipient> >::iterator iterRecipient = vecRecipients.begin();
+         std::vector<std::shared_ptr<DistributionListRecipient> > vecRecipients = pList->GetMembers()->GetVector();
+         auto iterRecipient = vecRecipients.begin();
 
          Logger::Instance()->LogDebug("DistributionList::LMMembership");
 
@@ -432,7 +426,7 @@ namespace HM
          if (iterRecipient == vecRecipients.end())
          {
 	         // Let's adjust reason to better explain sender is not seen as allowed SENDER
-            sErrMsg = "550 Not authorized sender.";
+            sErrMsg = "Not authorized sender.";
             return DP_PermissionDenied;
          }
       }
@@ -441,10 +435,10 @@ namespace HM
       // Check that the user is allowed to send to all recipient
       // of the list. This is a bit CPU intensive, but we need
       // to recursively look up all the recipients.
-      shared_ptr<DistributionListRecipients> pListMembers = pList->GetMembers();
+      std::shared_ptr<DistributionListRecipients> pListMembers = pList->GetMembers();
 
-      vector<shared_ptr<DistributionListRecipient> > vecRecipients = pListMembers->GetVector();
-      vector<shared_ptr<DistributionListRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<DistributionListRecipient> > vecRecipients = pListMembers->GetVector();
+      std::vector<std::shared_ptr<DistributionListRecipient> >::const_iterator iterRecipient = vecRecipients.begin();
 
       while (iterRecipient != vecRecipients.end())
       {
@@ -454,7 +448,7 @@ namespace HM
          if (dp == DP_PermissionDenied)
          {
             // Log the reason the message to the list is rejected which helps a ton with lists on lists
-            Logger::Instance()->LogDebug("RecipientParser::_UserCanSendToList::PermissionDENIED");
+            Logger::Instance()->LogDebug("RecipientParser::UserCanSendToList_::PermissionDENIED");
 
             return DP_PermissionDenied;
          }
@@ -465,15 +459,15 @@ namespace HM
    }
 
    void
-   RecipientParser::_AddRecipient(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient)
+   RecipientParser::AddRecipient_(std::shared_ptr<MessageRecipients> pRecipients, std::shared_ptr<MessageRecipient> pRecipient)
    {
       String address = pRecipient->GetAddress().ToLower();
 
       if (address.IsEmpty())
          return;
       
-      vector<shared_ptr<MessageRecipient> > vecResult = pRecipients->GetVector();
-      vector<shared_ptr<MessageRecipient> >::iterator iterRecip = vecResult.begin();
+      std::vector<std::shared_ptr<MessageRecipient> > vecResult = pRecipients->GetVector();
+      auto iterRecip = vecResult.begin();
 
       while (iterRecip != vecResult.end())
       {

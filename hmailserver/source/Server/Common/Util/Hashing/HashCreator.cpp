@@ -20,7 +20,7 @@
 namespace HM
 {
    HashCreator::HashCreator(HashCreator::HashType hashType) :
-      _hashType(hashType)
+      hash_type_(hashType)
    {
 
    }
@@ -28,27 +28,27 @@ namespace HM
    AnsiString HashCreator::GenerateHash(const AnsiString &inputString, const AnsiString &salt)
    {
       AnsiString saltString = salt;
-      if (saltString.GetLength() == 0 && _hashType == SHA256)
+      if (saltString.GetLength() == 0 && hash_type_ == SHA256)
       {     
          AnsiString randomString = PasswordGenerator::Generate();
-         saltString = _GetHash(randomString, hex);
+         saltString = GetHash_(randomString, hex);
          saltString = saltString.Mid(0, SALT_LENGTH);
       }
 
-      AnsiString value = saltString + _GetHash(saltString + inputString, hex);
+      AnsiString value = saltString + GetHash_(saltString + inputString, hex);
       return value;
    }
 
    AnsiString 
    HashCreator::GenerateHashNoSalt(const AnsiString &inputString, RequestedEncoding encoding)
    {
-      return _GetHash(inputString, encoding);
+      return GetHash_(inputString, encoding);
    }
 
    AnsiString 
    HashCreator::GenerateHashNoSalt(unsigned char *input, int inputLength, RequestedEncoding encoding)
    {
-      return _GetHashRaw(input, inputLength, encoding);
+      return GetHash_Raw(input, inputLength, encoding);
    }
 
 
@@ -57,7 +57,7 @@ namespace HM
    {
       if (useSalt)
       {
-         AnsiString salt = _GetSalt(originalHash);
+         AnsiString salt = GetSalt_(originalHash);
          AnsiString result = GenerateHash(password, salt);
 
          if (result == originalHash)
@@ -67,7 +67,7 @@ namespace HM
       }
       else
       {
-         AnsiString result = _GetHash(password, hex);
+         AnsiString result = GetHash_(password, hex);
 
          if (result == originalHash)
             return true;
@@ -78,23 +78,23 @@ namespace HM
 
    }
 
-   AnsiString HashCreator::_GetSalt(const AnsiString &inputString)
+   AnsiString HashCreator::GetSalt_(const AnsiString &inputString)
    {
       AnsiString result = inputString.Mid(0,SALT_LENGTH);
       return result;
    }
 
-   AnsiString HashCreator::_GetHash(const AnsiString &sInputString, HashCreator::RequestedEncoding encoding)
+   AnsiString HashCreator::GetHash_(const AnsiString &sInputString, HashCreator::RequestedEncoding encoding)
    {
       AnsiString temp = sInputString;
-      return _GetHashRaw((unsigned char*) temp.GetBuffer(), temp.GetLength(), encoding);
+      return GetHash_Raw((unsigned char*) temp.GetBuffer(), temp.GetLength(), encoding);
    }
 
-   AnsiString HashCreator::_GetHashRaw(const unsigned char *input, int inputLength, HashCreator::RequestedEncoding encoding)
+   AnsiString HashCreator::GetHash_Raw(const unsigned char *input, int inputLength, HashCreator::RequestedEncoding encoding)
    {
       int digestLength = 0;
 
-      switch (_hashType)
+      switch (hash_type_)
       {
       case SHA1:
          digestLength = SHA_DIGEST_LENGTH;
@@ -109,7 +109,7 @@ namespace HM
 
       unsigned char *results = new unsigned char[digestLength];
 
-      switch (_hashType)
+      switch (hash_type_)
       {
       case SHA1:
          {
@@ -139,19 +139,19 @@ namespace HM
       }
 
 
-      HM::String retVal;
+      HM::AnsiString retVal;
       if (encoding == hex)
       {
-         char *s = new char[digestLength*2+1];
+         char buffer[3];
+         buffer[2] = '\0';
 
-         for (int i=0; i<digestLength; i++)
-            sprintf(s+i*2, "%02x", results[i]);
+         for (int i = 0; i < digestLength; i++)
+         {
+            sprintf_s(buffer, 3, "%02x", results[i]);
 
-         s[digestLength*2]='\0';
+            retVal += buffer;
+         }
 
-         retVal = s;
-
-         delete [] s;
       }
       else if (encoding == base64)
       {

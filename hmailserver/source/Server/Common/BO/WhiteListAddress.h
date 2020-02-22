@@ -14,21 +14,21 @@ namespace HM
 
       String GetName() const;
 
-      IPAddress GetLowerIPAddress() const {return m_iWhiteLowerIPAddress; }
-      String GetLowerIPAddressString() const {return m_iWhiteLowerIPAddress.ToString(); }
-      void SetLowerIPAddress(const IPAddress &iIPAddress) {m_iWhiteLowerIPAddress = iIPAddress;}
+      IPAddress GetLowerIPAddress() const {return white_lower_ipaddress_; }
+      String GetLowerIPAddressString() const {return white_lower_ipaddress_.ToString(); }
+      void SetLowerIPAddress(const IPAddress &iIPAddress) {white_lower_ipaddress_ = iIPAddress;}
       bool SetLowerIPAddress(const String &iIPAddress);
 
-      IPAddress GetUpperIPAddress() const {return m_iWhiteUpperIPAddress; }
-      String GetUpperIPAddressString() const {return m_iWhiteUpperIPAddress.ToString(); }
-      void SetUpperIPAddress(const IPAddress &iIPAddress) {m_iWhiteUpperIPAddress = iIPAddress;}
+      IPAddress GetUpperIPAddress() const {return white_upper_ipaddress_; }
+      String GetUpperIPAddressString() const {return white_upper_ipaddress_.ToString(); }
+      void SetUpperIPAddress(const IPAddress &iIPAddress) {white_upper_ipaddress_ = iIPAddress;}
       bool SetUpperIPAddress(const String &iIPAddress);
 
-      String GetEmailAddress() const {return m_sWhiteEmailAddress; }
-      void SetEMailAddress(const String &sEmail) {m_sWhiteEmailAddress = sEmail; }
+      String GetEmailAddress() const {return white_email_address_; }
+      void SetEMailAddress(const String &sEmail) {white_email_address_ = sEmail; }
 
-      String GetDescription() const {return m_sWhiteDescription; }
-      void SetDescription(const String &sDescription) {m_sWhiteDescription = sDescription; }
+      String GetDescription() const {return white_description_; }
+      void SetDescription(const String &sDescription) {white_description_ = sDescription; }
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -36,13 +36,13 @@ namespace HM
 
    private:
 
-      IPAddress m_iWhiteLowerIPAddress;
-      IPAddress m_iWhiteUpperIPAddress;
+      IPAddress white_lower_ipaddress_;
+      IPAddress white_upper_ipaddress_;
 
       
 
-      String m_sWhiteEmailAddress;
-      String m_sWhiteDescription;
+      String white_email_address_;
+      String white_description_;
      
       
    };

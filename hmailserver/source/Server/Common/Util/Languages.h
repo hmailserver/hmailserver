@@ -15,16 +15,16 @@ namespace HM
 
       void Load();
 
-      shared_ptr<Language> GetLanguage(const String &sLanguage);
-      shared_ptr<Language> GetLanguage(int index);
-      int GetCount() {return m_mapLanguages.size(); }
+      std::shared_ptr<Language> GetLanguage(const String &sLanguage);
+      std::shared_ptr<Language> GetLanguage(int index);
+      size_t GetCount() { return languages_.size(); }
 
      
    private:
 
-      bool _IsValidLangauge(const String &sLanguage) const;
+      bool IsValidLangauge_(const String &sLanguage) const;
 
-      map<String, shared_ptr<Language> > m_mapLanguages;
+      std::map<String, std::shared_ptr<Language> > languages_;
 
 
       

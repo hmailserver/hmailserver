@@ -25,7 +25,7 @@ namespace HM
 
 
    bool 
-   PersistentMessageRecipient::DeleteObject(shared_ptr<MessageRecipient> pRecipient)
+   PersistentMessageRecipient::DeleteObject(std::shared_ptr<MessageRecipient> pRecipient)
    {
       SQLCommand command("delete from hm_messagerecipients where recipientaddress = @ADDRESS AND recipientmessageid = @MESSAGEID");
       command.AddParameter("@ADDRESS", pRecipient->GetAddress());

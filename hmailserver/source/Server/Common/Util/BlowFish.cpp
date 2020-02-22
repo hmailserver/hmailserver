@@ -35,7 +35,7 @@ namespace HM
       int iKeyLen = sKey.GetLength();
       BYTE *buf = new BYTE[iKeyLen + 1];
       memset(buf, 0, iKeyLen + 1);
-      strncpy((char*) buf, Unicode::ToANSI(sKey), iKeyLen);
+      strncpy_s((char*) buf, iKeyLen+1, Unicode::ToANSI(sKey), iKeyLen);
       
       Initialize(buf, iKeyLen );
      
@@ -149,7 +149,7 @@ namespace HM
    }
 
    String
-   BlowFishEncryptor::_ToHex(BYTE *Buf, int iBufLen)
+   BlowFishEncryptor::ToHex_(BYTE *Buf, int iBufLen)
    {
       String sRetVal;
       for (int i = 0; i < iBufLen; i++)
@@ -158,7 +158,7 @@ namespace HM
          //const char s = Buf[i];
          int iThisVal = Buf[i];
          char sBuf[255];
-         sprintf( sBuf, "%0.2x", iThisVal );
+         sprintf_s( sBuf, 255, "%0.2x", iThisVal );
          sRetVal += sBuf;
       }
 
@@ -166,7 +166,7 @@ namespace HM
    }
 
    int
-   BlowFishEncryptor::_ToByteArray(const String &sHex, BYTE *OutArray)
+   BlowFishEncryptor::ToByteArray_(const String &sHex, BYTE *OutArray)
    {
       int iLen = 0;
       for (int i = 0; i < sHex.GetLength(); i=i+2)
@@ -191,16 +191,15 @@ namespace HM
    {
 
       DWORD InLength = sUnEncrypted.GetLength();
-      
-      BYTE *pBuffer = new BYTE[255];
 
-      memset(pBuffer, 0, 255);
-
-      strncpy((char*) pBuffer, Unicode::ToANSI(sUnEncrypted), InLength);
+      const int bufSize = 255;
+      BYTE *pBuffer = new BYTE[bufSize];
+      memset(pBuffer, 0, bufSize);
+      strncpy_s((char*)pBuffer, bufSize, Unicode::ToANSI(sUnEncrypted), InLength);
 
       DWORD Length = Encode(pBuffer, pBuffer, InLength);
       
-      String sRetVal = _ToHex(pBuffer, Length);
+      String sRetVal = ToHex_(pBuffer, Length);
 
       delete [] pBuffer;
 
@@ -216,7 +215,7 @@ namespace HM
       BYTE *pBuffer = new BYTE[255];
       memset(pBuffer, 0, 255);
       
-      int InLength = _ToByteArray(sEncrypted, pBuffer);
+      int InLength = ToByteArray_(sEncrypted, pBuffer);
 
       DWORD OutLen = GetOutputLength(InLength);
       

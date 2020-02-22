@@ -13,7 +13,7 @@
 namespace HM
 {
    DistributionLists::DistributionLists(__int64 iDomainID) :
-      m_iDomainID(iDomainID)
+      domain_id_(iDomainID)
    {
 
    }
@@ -22,17 +22,17 @@ namespace HM
    {
    }
 
-   shared_ptr<DistributionList>
+   std::shared_ptr<DistributionList>
    DistributionLists::GetItemByAddress(const String & sAddress)
    {
 
-      boost_foreach(shared_ptr<DistributionList> Item, vecObjects)
+      for(std::shared_ptr<DistributionList> Item : vecObjects)
       {
          if (Item->GetAddress().CompareNoCase(sAddress) == 0)
             return Item;
       }
 
-      shared_ptr<DistributionList> pEmpty;
+      std::shared_ptr<DistributionList> pEmpty;
       return pEmpty;
    }
 
@@ -41,16 +41,16 @@ namespace HM
    DistributionLists::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_distributionlists where distributionlistdomainid = %I64d order by distributionlistaddress asc"), m_iDomainID);
+      sSQL.Format(_T("select * from hm_distributionlists where distributionlistdomainid = %I64d order by distributionlistaddress asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 
    bool
-   DistributionLists::PreSaveObject(shared_ptr<DistributionList> pList, XNode *node)
+   DistributionLists::PreSaveObject(std::shared_ptr<DistributionList> pList, XNode *node)
    {
-      pList->SetDomainID(m_iDomainID);
+      pList->SetDomainID(domain_id_);
 
       return true;
    }

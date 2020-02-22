@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using hMailServer;
 using NUnit.Framework;
-using System.IO;
 using System.Threading;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 
@@ -17,6 +17,7 @@ namespace StressTest
    public class SpamAssassin : TestFixtureBase
    {
       private int _threadedMessageCount;
+      private Account _account;
 
       [SetUp]
       public new void SetUp()
@@ -26,29 +27,27 @@ namespace StressTest
          hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
          antiSpam.SpamAssassinEnabled = true;
-         antiSpam.SpamAssassinHost = "localhost";
-         antiSpam.SpamAssassinHost = "192.168.127.128";
+         antiSpam.SpamAssassinHost = "127.0.0.1";
+         antiSpam.SpamAssassinPort = 783;
 
-         TestSetup.AssertSpamAssassinIsRunning();
+         CustomAsserts.AssertSpamAssassinIsRunning();
+
+         _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
       }
 
       [Test]
-      [Ignore]
       public void SingleThread()
       {
-         hMailServer.Account account =
-                    SingletonProvider<TestSetup>.Instance.AddAccount(_domain.Accounts, "test@test.com", "test");
-
          for (int i = 0; i < 15; i++)
          {
-             SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
+             SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
          }
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", 15);
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 15);
 
          for (int i = 0; i < 15; i++)
          {
-            string content = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string content = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             Assert.IsTrue(content.Contains("X-Spam-Status"), content);
          }
@@ -56,12 +55,8 @@ namespace StressTest
       }
 
       [Test]
-      [Ignore]
       public void MultiThread()
       {
-         hMailServer.Account account =
-                    SingletonProvider<TestSetup>.Instance.AddAccount(_domain.Accounts, "test@test.com", "test");
-
          int threadCount = 5;
          _threadedMessageCount = 100;
          int totalMessageCount = threadCount * _threadedMessageCount;
@@ -81,13 +76,39 @@ namespace StressTest
             t.Join();
          }
 
-         POP3Simulator.AssertMessageCount(account.Address, "test", totalMessageCount);
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", totalMessageCount);
 
          for (int i = 0; i < totalMessageCount; i++)
          {
-            string content = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string content = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
 
             Assert.IsTrue(content.Contains("X-Spam-Status"), content);
+         }
+      }
+
+      [Test]
+      public void TestVaryingMessageSizes()
+      {
+         const int messageSizeIncrease = 100;
+         for (int i = 0; i < 100000; i += messageSizeIncrease)
+         {
+            var messageBuilder = new StringBuilder();
+            messageBuilder.Append('A', messageSizeIncrease-2);
+            messageBuilder.AppendLine();
+
+            var message = messageBuilder.ToString();
+
+            SmtpClientSimulator.StaticSendRaw("test@test.com", "test@test.com", message);
+
+            var defaultLog = LogHandler.ReadCurrentDefaultLog();
+            
+            StringAssert.DoesNotContain("There was a communication error with SpamAssassin.", defaultLog);
+            
+            LogHandler.DeleteCurrentDefaultLog();
+
+            Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+
+            Console.WriteLine("{0} / 100000", i);
          }
       }
 
@@ -95,7 +116,7 @@ namespace StressTest
       {
          for (int message = 0; message < _threadedMessageCount; message++)
          {
-             SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
+             SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "test", "test");
          }
       }
 

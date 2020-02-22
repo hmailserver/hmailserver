@@ -35,7 +35,7 @@ namespace HM
 {
    BackupExecuter::BackupExecuter()
    {
-      m_iBackupMode = 0;
+      backup_mode_ = 0;
    }
 
    BackupExecuter::~BackupExecuter(void)
@@ -44,13 +44,13 @@ namespace HM
    }
 
    void 
-   BackupExecuter::_LoadSettings()
+   BackupExecuter::LoadSettings_()
    {
-      m_sDestination = Configuration::Instance()->GetBackupDestination();
-      if (m_sDestination.Right(1) == _T("\\"))
-         m_sDestination = m_sDestination.Left(m_sDestination.GetLength() - 1);
+      destination_ = Configuration::Instance()->GetBackupDestination();
+      if (destination_.Right(1) == _T("\\"))
+         destination_ = destination_.Left(destination_.GetLength() - 1);
 
-      m_iBackupMode = Configuration::Instance()->GetBackupOptions();
+      backup_mode_ = Configuration::Instance()->GetBackupOptions();
    }
 
    bool 
@@ -58,37 +58,24 @@ namespace HM
    {
       Logger::Instance()->LogBackup("Loading backup settings....");         
 
-      _LoadSettings();
+      LoadSettings_();
 
       // Special temp setting to skip files during backup/restore while still storing/restoring db file/message info.
       bool bMessagesDBOnly = IniFileSettings::Instance()->GetBackupMessagesDBOnly();
 
 
-      if (m_iBackupMode & Backup::BOMessages)
+      if (backup_mode_ & Backup::BOMessages)
       {
          if (!PersistentMessage::GetAllMessageFilesAreInDataFolder())
          {
             Application::Instance()->GetBackupManager()->OnBackupFailed("All messages are not located in the data folder.");
             return false;
          }
-
-         // Check size of data directory and LOG it.
-         if (PersistentMessage::GetTotalMessageSize() > 1500)
-         {
-            Logger::Instance()->LogBackup("The size of the data directory exceeds the maximum RECOMMENDED size for the built in backup (1.5GB) so LOGGING. Please consult the backup documentation");
-
-            // Check size of data directory and STOP it.
-            if (PersistentMessage::GetTotalMessageSize() > 15000)
-            {
-               Application::Instance()->GetBackupManager()->OnBackupFailed("The size of the data directory exceeds the maximum size for the built in backup (15GB) so ABORTING. Please consult the backup documentation.");
-               return false;
-            }
-         }
       }
 
-      if (!FileUtilities::Exists(m_sDestination))
+      if (!FileUtilities::Exists(destination_))
       {
-         Application::Instance()->GetBackupManager()->OnBackupFailed("The specified backup directory is not accessible: " + m_sDestination);
+         Application::Instance()->GetBackupManager()->OnBackupFailed("The specified backup directory is not accessible: " + destination_);
          return false;
       }
 
@@ -99,14 +86,14 @@ namespace HM
       // Generate name for zip file. We always create zip
       // file
       String sZipFile;
-      sZipFile.Format(_T("%s\\HMBackup %s.7z"), m_sDestination, sTime);
+      sZipFile.Format(_T("%s\\HMBackup %s.7z"), destination_.c_str(), sTime.c_str());
 
       String sXMLFile;
-      sXMLFile.Format(_T("%s\\hMailServerBackup.xml"), m_sDestination);
+      sXMLFile.Format(_T("%s\\hMailServerBackup.xml"), destination_.c_str());
 
       // The name of the backup directory that
       // contains all the data files.
-      String sDataBackupDir = m_sDestination + "\\DataBackup";
+      String sDataBackupDir = destination_ + "\\DataBackup";
 
       // Backup all properties.
       XDoc oDoc; 
@@ -115,25 +102,25 @@ namespace HM
       XNode *pBackupInfoNode = pBackupNode->AppendChild(_T("BackupInformation"));
 
       // Store backup mode
-      pBackupInfoNode->AppendAttr(_T("Mode"), StringParser::IntToString(m_iBackupMode));
-      pBackupInfoNode->AppendAttr(_T("Version"), Application::Instance()->GetVersion());
+      pBackupInfoNode->AppendAttr(_T("Mode"), StringParser::IntToString(backup_mode_));
+      pBackupInfoNode->AppendAttr(_T("Version"), Application::Instance()->GetVersionNumber());
 
       // Backup business objects
-      if (m_iBackupMode & Backup::BODomains)
+      if (backup_mode_ & Backup::BODomains)
       {
          Logger::Instance()->LogBackup("Backing up domains...");
 
-         if (!_BackupDomains(pBackupNode))
+         if (!BackupDomains_(pBackupNode))
          {
             Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup domains.");
             return false;
          }
          
          // Backup message files
-         if (m_iBackupMode & Backup::BOMessages && !bMessagesDBOnly)
+         if (backup_mode_ & Backup::BOMessages && !bMessagesDBOnly)
          {
             Logger::Instance()->LogBackup("Backing up data directory...");
-            if (!_BackupDataDirectory(sDataBackupDir))
+            if (!BackupDataDirectory_(sDataBackupDir))
             {
                Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup data directory.");
                return false;
@@ -144,11 +131,11 @@ namespace HM
       }
 
       // Save information in the XML file where messages can be found.
-      if (m_iBackupMode & Backup::BOMessages)
+      if (backup_mode_ & Backup::BOMessages)
       {
          XNode *pMessageFile = pBackupInfoNode->AppendChild(_T("DataFiles"));
 
-         if (m_iBackupMode & Backup::BOCompression)
+         if (backup_mode_ & Backup::BOCompression)
          {
             pMessageFile->AppendAttr(_T("Format"), _T("7z"));
             pMessageFile->AppendAttr(_T("Size"), StringParser::IntToString(FileUtilities::FileSize(sZipFile)));
@@ -160,7 +147,7 @@ namespace HM
          }
       }
 
-      if (m_iBackupMode & Backup::BOSettings)
+      if (backup_mode_ & Backup::BOSettings)
       {
          Logger::Instance()->LogBackup("Backing up settings...");
          Configuration::Instance()->XMLStore(pBackupNode);
@@ -183,17 +170,17 @@ namespace HM
       FileUtilities::DeleteFile(sXMLFile);
 
       // Should we compress the message files?
-      if (m_iBackupMode & Backup::BOMessages && 
-          m_iBackupMode & Backup::BOCompression && !bMessagesDBOnly)
+      if (backup_mode_ & Backup::BOMessages && 
+          backup_mode_ & Backup::BOCompression && !bMessagesDBOnly)
       {
          Logger::Instance()->LogBackup("Compressing message files...");
          
-         if (m_iBackupMode & Backup::BOMessages)
+         if (backup_mode_ & Backup::BOMessages)
             oComp.AddDirectory(sZipFile, sDataBackupDir + "\\");
 
          // Since the files are now compressed, we can deleted
          // the data backup directory
-         if (!FileUtilities::DeleteDirectory(sDataBackupDir))
+         if (!FileUtilities::DeleteDirectory(sDataBackupDir, true))
          {
             Application::Instance()->GetBackupManager()->OnBackupFailed("Could not delete files from the destination directory.");
             return false;
@@ -206,7 +193,7 @@ namespace HM
    }
 
    bool 
-   BackupExecuter::_BackupDataDirectory(const String &sDataBackupDir)
+   BackupExecuter::BackupDataDirectory_(const String &sDataBackupDir)
    {
       String sDataDir = IniFileSettings::Instance()->GetDataDirectory();
 
@@ -230,17 +217,17 @@ namespace HM
    }
 
    bool 
-   BackupExecuter::_BackupDomains(XNode *pBackupNode)
+   BackupExecuter::BackupDomains_(XNode *pBackupNode)
    {
-      shared_ptr<Domains> pDomains = shared_ptr<Domains>(new Domains);
+      std::shared_ptr<Domains> pDomains = std::shared_ptr<Domains>(new Domains);
       pDomains->Refresh();
-      pDomains->XMLStore(pBackupNode, m_iBackupMode);
+      pDomains->XMLStore(pBackupNode, backup_mode_);
 
       return true;
    }
 
    bool
-   BackupExecuter::StartRestore(shared_ptr<Backup> pBackup)
+   BackupExecuter::StartRestore(std::shared_ptr<Backup> pBackup)
    {
       bool bMessagesDBOnly = IniFileSettings::Instance()->GetBackupMessagesDBOnly();
 
@@ -291,7 +278,7 @@ namespace HM
          // drop the domain folders from the data directory. If we do this
          // in the wrong order, we'll hence first restore the data directory
          // and then drop it.
-         shared_ptr<Domains> pDomains = shared_ptr<Domains>(new Domains);
+         std::shared_ptr<Domains> pDomains = std::shared_ptr<Domains>(new Domains);
 
          pDomains->Refresh();
          if (!bMessagesDBOnly) 
@@ -305,7 +292,7 @@ namespace HM
          if (iRestoreOptions & Backup::BOMessages && !bMessagesDBOnly)
          {
             Logger::Instance()->LogBackup("Restoring data directory...");
-            _RestoreDataDirectory(pBackup, pBackupNode);
+            RestoreDataDirectory_(pBackup, pBackupNode);
          }
 
          Logger::Instance()->LogBackup("Restoring domains...");
@@ -349,7 +336,7 @@ namespace HM
    }
 
    void
-   BackupExecuter::_RestoreDataDirectory(shared_ptr<Backup> pBackup, XNode *pBackupNode)
+   BackupExecuter::RestoreDataDirectory_(std::shared_ptr<Backup> pBackup, XNode *pBackupNode)
    {
       XNode *pBackupInfoNode = pBackupNode->GetChild(_T("BackupInformation"));
       
@@ -386,9 +373,8 @@ namespace HM
       // so that we're sure that we're doing a clean restore
       String sDataDirectory = IniFileSettings::Instance()->GetDataDirectory();
       
-      std::set<String> vecExcludes;
       FileUtilities::DeleteFilesInDirectory(sDataDirectory);
-      FileUtilities::DeleteDirectoriesInDirectory(sDataDirectory, vecExcludes);
+      FileUtilities::DeleteDirectoriesInDirectory(sDataDirectory);
 
       String errorMessage;
       FileUtilities::CopyDirectory(sDirContainingDataFiles, sDataDirectory, errorMessage);
@@ -397,7 +383,7 @@ namespace HM
       {
          // The temporary directory we created while
          // unzipping should be deleted now.
-         FileUtilities::DeleteDirectory(sExtractedFilesDirectory);
+         FileUtilities::DeleteDirectory(sExtractedFilesDirectory, true);
       }
    }
 }

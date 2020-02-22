@@ -17,7 +17,7 @@ COMError::~COMError(void)
 HRESULT
 COMError::GenerateGenericMessage()
 {
-   return GenerateError("An error occured processing the request.");
+   return GenerateError("An error occurred processing the request.");
 }
 
 HRESULT

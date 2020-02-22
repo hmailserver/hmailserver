@@ -13,33 +13,16 @@
 
 namespace HM
 {
-   Logger* Logger::pInstanceApp = NULL;
-
-   void
-   Logger::CreateInstance()
-   {
-      pInstanceApp = new Logger();
-   }
-
-   void
-   Logger::DeleteInstance()
-   {
-      delete pInstanceApp;
-      pInstanceApp = 0;
-   }
-
-   Logger* 
-   Logger::Instance()
-   {
-      return pInstanceApp;
-   }
-
+   
    Logger::Logger()
    {
-      m_iLogMask = 0;
-      m_bEnableLiveLog = false;
+      log_mask_ = 0;
+      enable_live_log_ = false;
 
-      m_sLogDir = IniFileSettings::GetLogDirectory();
+      auto ini_file_settings = IniFileSettings::Instance();
+
+      log_dir_ = ini_file_settings->GetLogDirectory();
+      sep_svc_logs_ = ini_file_settings->GetSepSvcLogs();
    }
 
    Logger::~Logger(void)
@@ -50,15 +33,15 @@ namespace HM
    Logger::SetLogMask(int iMask)
    {
       if (iMask & LSEnabled)
-         m_iLogMask = iMask;
+         log_mask_ = iMask;
       else
-         m_iLogMask = 0;
+         log_mask_ = 0;
    }
 
    bool 
    Logger::GetLoggingEnabled() const
    {
-      if (m_iLogMask & LSEnabled)
+      if (log_mask_ & LSEnabled)
          return true;
       else
          return false;
@@ -67,64 +50,65 @@ namespace HM
    void 
    Logger::LogSMTPConversation(int iSessionID, const String &sRemoteHost, const String &sMessage, bool bClient)
    {
-      if (!(m_iLogMask & LSSMTP))
+      if (!(log_mask_ & LSSMTP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
+
       if (bClient)
-         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"SMTPC\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
       else
-         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"SMTPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      _WriteData(sData, SMTP);
+      WriteData_(sData, SMTP);
    
    }
 
    void 
    Logger::LogPOP3Conversation(int iSessionID, const String &sRemoteHost, const String &sMessage, bool bClient)
    {
-      if (!(m_iLogMask & LSPOP3))
+      if (!(log_mask_ & LSPOP3))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
       // Seems this was never done so now external account activity logs as client
       if (bClient)
-         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"POP3C\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost, CleanLogMessage_(sMessage).c_str());
       else
-         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime, sRemoteHost, sMessage);
+         sData.Format(_T("\"POP3D\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost, CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      _WriteData(sData, POP3);
+      WriteData_(sData, POP3);
    
    }
 
    void 
    Logger::LogIMAPConversation(int iSessionID, const String &sRemoteHost, const String &sMessage)
    {
-      if (!(m_iLogMask & LSIMAP))
+      if (!(log_mask_ & LSIMAP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID,sTime, sRemoteHost, sMessage);
+      sData.Format(_T("\"IMAPD\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\r\n"), lThread, iSessionID, sTime.c_str(), sRemoteHost.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      _WriteData(sData, IMAP);
+      WriteData_(sData, IMAP);
    
    }
 
@@ -138,44 +122,44 @@ namespace HM
    Logger::LogApplication(const String &sMessage, bool isError)
    {
 #ifndef _DEBUG
-      if (!(m_iLogMask & LSApplication))
+      if (!(log_mask_ & LSApplication))
          return; // not intressted in this...   
 #endif
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"APPLICATION\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
 #ifdef _DEBUG
       OutputDebugString(sData);
 #endif
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      if (m_iLogMask & LSApplication)
-         _WriteData(sData);
+      if (log_mask_ & LSApplication)
+         WriteData_(sData);
    }
 
    void 
    Logger::LogDebug(const String &sMessage)
    {
-      if (!(m_iLogMask & LSDebug))
+      if (!(log_mask_ & LSDebug))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"DEBUG\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
 
-      _WriteData(sData);
+      WriteData_(sData);
    
    }
 
@@ -183,97 +167,101 @@ namespace HM
    void 
    Logger::LogError(const String &sMessage)
    {
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"ERROR\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      _WriteData(sData, Error);
+      WriteData_(sData, Error);
 
       // Also log this in the application log if some other logging is enabled.
       if (GetLoggingEnabled())
-         _WriteData(sData, Normal);
+         WriteData_(sData, Normal);
    }
 
 
    void 
    Logger::LogTCPIP(const String &sMessage)
    {
-      if (!(m_iLogMask & LSTCPIP))
+      if (!(log_mask_ & LSTCPIP))
          return; // not intressted in this...   
 
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
-
       String sData;
-      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("\"TCPIP\"\t%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      if (m_bEnableLiveLog)
-         _LogLive(sData);
+      if (enable_live_log_)
+         LogLive_(sData);
 
-      _WriteData(sData);
+      WriteData_(sData);
    }
 
    void 
    Logger::LogEvent(const String &sMessage)
    {
-      long lThread = _GetThreadID();
+      long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
 
       String sData;
-      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime, sMessage);
+      sData.Format(_T("%d\t\"%s\"\t\"%s\"\r\n"), lThread, sTime.c_str(), CleanLogMessage_(sMessage).c_str());
 
-      _WriteData(sData, Events);
+      WriteData_(sData, Events);
+   }
+
+   String 
+   Logger::CleanLogMessage_(const String &message)
+   {
+      String result = message;
+      result.Replace(_T("\r\n"), _T("[nl]"));
+      return result;
    }
 
    String 
    Logger::GetCurrentLogFileName(LogType lt) 
    {
       String sFilename;
-
       String theTime = Time::GetCurrentDate();
-
-      m_bSepSvcLogs = IniFileSettings::Instance()->GetSepSvcLogs();
 
       switch (lt)
       {
       case Normal:
-         sFilename.Format(_T("%s\\hmailserver_%s.log"), m_sLogDir, theTime );
+         sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case Error:
-         sFilename.Format(_T("%s\\ERROR_hmailserver_%s.log"), m_sLogDir, theTime );
+         sFilename.Format(_T("%s\\ERROR_hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case AWStats:
-         sFilename.Format(_T("%s\\hmailserver_awstats.log"), m_sLogDir );
+         sFilename.Format(_T("%s\\hmailserver_awstats.log"), log_dir_.c_str());
          break;
       case Backup:
-         sFilename.Format(_T("%s\\hmailserver_backup.log"), m_sLogDir );
+         sFilename.Format(_T("%s\\hmailserver_backup.log"), log_dir_.c_str());
          break;
       case Events:
-         sFilename.Format(_T("%s\\hmailserver_events.log"), m_sLogDir );
+         sFilename.Format(_T("%s\\hmailserver_events.log"), log_dir_.c_str());
          break;
       case IMAP:
-         if (m_bSepSvcLogs) 
-            sFilename.Format(_T("%s\\hmailserver_IMAP_%s.log"), m_sLogDir, theTime );
+         if (sep_svc_logs_) 
+            sFilename.Format(_T("%s\\hmailserver_IMAP_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), m_sLogDir, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case POP3:
-         if (m_bSepSvcLogs) 
-            sFilename.Format(_T("%s\\hmailserver_POP3_%s.log"), m_sLogDir, theTime );
+         if (sep_svc_logs_) 
+            sFilename.Format(_T("%s\\hmailserver_POP3_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), m_sLogDir, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       case SMTP:
-         if (m_bSepSvcLogs) 
-            sFilename.Format(_T("%s\\hmailserver_SMTP_%s.log"), m_sLogDir, theTime );
+         if (sep_svc_logs_) 
+            sFilename.Format(_T("%s\\hmailserver_SMTP_%s.log"), log_dir_.c_str(), theTime.c_str());
          else
-            sFilename.Format(_T("%s\\hmailserver_%s.log"), m_sLogDir, theTime );
+            sFilename.Format(_T("%s\\hmailserver_%s.log"), log_dir_.c_str(), theTime.c_str());
          break;
       }
 
@@ -281,10 +269,10 @@ namespace HM
    }
 
    File*
-   Logger::_GetCurrentLogFile(LogType lt)
+   Logger::GetCurrentLogFile_(LogType lt)
    {
       String fileName = GetCurrentLogFileName(lt);
-      m_bSepSvcLogs = IniFileSettings::Instance()->GetSepSvcLogs();
+      sep_svc_logs_ = IniFileSettings::Instance()->GetSepSvcLogs();
 
       bool writeUnicode = false;
 
@@ -292,49 +280,60 @@ namespace HM
       switch (lt)
       {
       case Normal:
-         file = &_normalLogFile;
+         file = &normal_log_file_;
          writeUnicode = false;
          break;
       case Error:
-         file = &_errorLogFile;
+         file = &error_log_file_;
          writeUnicode = false;
          break;
       case AWStats:
-         file = &_awstatsLogFile;
+         file = &awstats_log_file_;
          writeUnicode = false;
          break;
       case Backup:
-         file = &_backupLogFile;
+         file = &backup_log_file_;
          writeUnicode = true;
          break;
       case Events:
-         file = &_eventsLogFile;
+         file = &events_log_file_;
          writeUnicode = true;
          break;
       case IMAP:
-         if (m_bSepSvcLogs) 
-            file = &_IMAPLogFile;
+         if (sep_svc_logs_) 
+            file = &imaplog_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       case POP3:
-         if (m_bSepSvcLogs) 
-            file = &_POP3LogFile;
+         if (sep_svc_logs_) 
+            file = &pop3log_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       case SMTP:
-         if (m_bSepSvcLogs) 
-            file = &_SMTPLogFile;
+         if (sep_svc_logs_) 
+            file = &smtplog_file_;
          else
-            file = &_normalLogFile;
+            file = &normal_log_file_;
          writeUnicode = false;
          break;
       }
 
-      bool fileExists = FileUtilities::Exists(fileName);
+      bool fileExists = false;
+
+      try
+      {
+         bool fileExists = FileUtilities::Exists(fileName);
+      }
+      catch (boost::system::system_error&)
+      {
+         // If the log is not accessible for some reason, such as error code 5 - access is denied, 
+         // then we can't open the log file. This will result in nothing being logged.
+         return nullptr;
+      }
 
       if (file->IsOpen())
       {
@@ -346,7 +345,8 @@ namespace HM
       
       if (!file->IsOpen())
       {
-         file->Open(fileName, File::OTAppend);
+         if (!file->Open(fileName, File::OTAppend))
+            return nullptr;
 
          if (!fileExists && writeUnicode)
          {
@@ -357,15 +357,17 @@ namespace HM
       return file;
    }
 
-   bool
-   Logger::_WriteData(const String &sData, LogType lt)
+   void
+   Logger::WriteData_(const String &sData, LogType lt)
    {
-      CriticalSectionScope scope(m_oCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_);
 
-      File *file = _GetCurrentLogFile(lt);
+      File *file = GetCurrentLogFile_(lt);
+      if (file == nullptr)
+         return;
 
       bool writeUnicode = false;
-      bool keepFileOpen = (m_iLogMask & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
+      bool keepFileOpen = (log_mask_ & LSKeepFilesOpen) && (lt == Normal || lt == SMTP || lt == POP3 || lt == IMAP);
 
       switch (lt)
       {
@@ -395,13 +397,13 @@ namespace HM
          // Only do it if long enough default is 500 by set by MaxLogLineLen
          
          int iDataLenTmp = sData.GetLength();
-         m_iLogLevel = IniFileSettings::Instance()->GetLogLevel();
-         m_iMaxLogLineLen = IniFileSettings::Instance()->GetMaxLogLineLen();
+         log_level_ = IniFileSettings::Instance()->GetLogLevel();
+         max_log_line_len_ = IniFileSettings::Instance()->GetMaxLogLineLen();
 
-         if ((Logger::Instance()->GetLogDebug()) || (m_iLogLevel > 2) || (iDataLenTmp < m_iMaxLogLineLen ))
+         if ((Logger::Instance()->GetLogDebug()) || (log_level_ > 2) || (iDataLenTmp < max_log_line_len_ ))
             sAnsiString = sData;
          else
-            sAnsiString = sData.Mid(0, m_iMaxLogLineLen - 30) + " ... " + sData.Mid(iDataLenTmp - 25);
+            sAnsiString = sData.Mid(0, max_log_line_len_ - 30) + " ... " + sData.Mid(iDataLenTmp - 25);
             // We keep 25 of end which includes crlf but need to account for middle ... too
 
          file->Write(sAnsiString);
@@ -409,8 +411,6 @@ namespace HM
 
       if (!keepFileOpen)
          file->Close();
-
-      return true;
    }
 
 
@@ -422,14 +422,14 @@ namespace HM
    }
 
    int 
-   Logger::_GetProcessID()
+   Logger::GetProcessID_()
    {
       DWORD dwProcessID = GetCurrentProcessId();
       return dwProcessID;
    }
 
    int 
-   Logger::_GetThreadID()
+   Logger::GetThreadID_()
    {
       DWORD dwThreadID = GetCurrentThreadId();
       return dwThreadID;
@@ -437,67 +437,67 @@ namespace HM
    }
 
    void
-   Logger::_LogLive(String &sMessage)
+   Logger::LogLive_(String &sMessage)
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
 
       // Check if we are still enabled. It could be that 
       // we have just disabled ourselves.
-      if (!m_bEnableLiveLog)
+      if (!enable_live_log_)
          return;
 
-      m_sLiveLog += sMessage;
+      live_log_ += sMessage;
 
       // Check if the live log listeners has stopped listening without telling us.
-      if (m_sLiveLog.GetLength() > LiveLogMaxSize)
+      if (live_log_.GetLength() > LiveLogMaxSize)
       {
-         m_sLiveLog.Empty();
-         m_bEnableLiveLog = false;
+         live_log_.Empty();
+         enable_live_log_ = false;
       }
    }
 
    void 
    Logger::EnableLiveLogging(bool bEnable)
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
-      m_sLiveLog.Empty();
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
+      live_log_.Empty();
 
-      m_bEnableLiveLog = bEnable;
+      enable_live_log_ = bEnable;
    }
 
    bool 
    Logger::GetLogDebug() const
    {
-      return (m_iLogMask  & LSDebug) > 0; 
+      return (log_mask_  & LSDebug) > 0; 
    }
 
    bool 
    Logger::GetLogApplication() const
    {
-      return (m_iLogMask  & LSApplication) > 0; 
+      return (log_mask_  & LSApplication) > 0; 
    }
 
    bool 
    Logger::GetLogTCPIP() const
    {
-      return (m_iLogMask  & LSTCPIP) > 0; 
+      return (log_mask_  & LSTCPIP) > 0; 
    }
 
    bool 
    Logger::GetLiveLogEnabled() const
    {
-      return m_bEnableLiveLog; 
+      return enable_live_log_; 
    }
    
    String 
    Logger::GetLiveLog()
    {
-      CriticalSectionScope scope(m_oCritSecLiveLog);
+      boost::lock_guard<boost::recursive_mutex> guard(mtx_LiveLog);
 
       String sResult;
-      sResult = m_sLiveLog;
+      sResult = live_log_;
       
-      m_sLiveLog.Empty();
+      live_log_.Empty();
 
       return sResult;
    }
@@ -505,7 +505,7 @@ namespace HM
    void
    Logger::LogAWStats(const String &sData)
    {
-      _WriteData(sData, AWStats);
+      WriteData_(sData, AWStats);
    }
 
    void
@@ -514,7 +514,7 @@ namespace HM
       String sTime = GetCurrentTime();
       String sLogMessage;
 
-      sLogMessage.Format(_T("%s\t%s\r\n"), sTime, sData);
-      _WriteData(sLogMessage, Backup);
+      sLogMessage.Format(_T("%s\t%s\r\n"), sTime.c_str(), sData.c_str());
+      WriteData_(sLogMessage, Backup);
    }
 }

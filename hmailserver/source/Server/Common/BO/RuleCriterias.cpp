@@ -15,7 +15,7 @@
 namespace HM
 {
    RuleCriterias::RuleCriterias(__int64 iRuleID) :
-      m_iRuleID(iRuleID)
+      rule_id_(iRuleID)
    {
    }
 
@@ -28,16 +28,16 @@ namespace HM
    RuleCriterias::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_rule_criterias where criteriaruleid = %I64d order by criteriaid asc"), m_iRuleID);
+      sSQL.Format(_T("select * from hm_rule_criterias where criteriaruleid = %I64d order by criteriaid asc"), rule_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 
    bool
-   RuleCriterias::PreSaveObject(shared_ptr<RuleCriteria> pRuleCriteria, XNode *node)
+   RuleCriterias::PreSaveObject(std::shared_ptr<RuleCriteria> pRuleCriteria, XNode *node)
    {
-      pRuleCriteria->SetRuleID(m_iRuleID);
+      pRuleCriteria->SetRuleID(rule_id_);
       return true;
    }   
 }

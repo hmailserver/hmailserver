@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+ï»¿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -17,16 +17,16 @@
 namespace HM
 {
    SQLStatement::SQLStatement() :
-      m_Type(STUndefined),
-      _topRows(-1)
+      type_(STUndefined),
+      top_rows_(-1)
    {
 
    }
 
    SQLStatement::SQLStatement(eStatementType iType, const String &tableName) :
-      m_Type(iType),
-      _topRows(-1),
-      m_sTable(tableName)
+      type_(iType),
+      top_rows_(-1),
+      table_(tableName)
    {
 
    }
@@ -163,16 +163,16 @@ namespace HM
       SQLCommand command;
 
       int parameterValue = 1;
-      if (m_Type == SQLStatement::STInsert)
+      if (type_ == SQLStatement::STInsert)
       {
          sSQL.append(_T("INSERT INTO "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
          sSQL.append(_T(" "));
 
          // First add columns
          sSQL.append(_T("("));
          bool first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL.append(_T(", "));
@@ -185,7 +185,7 @@ namespace HM
 
          // Now append values
          first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL += ", ";
@@ -213,21 +213,21 @@ namespace HM
 
          sSQL.append(_T(")"));
 
-         if (dbType == DatabaseSettings::TypePGServer && !m_sIdentityColumn.IsEmpty())
+         if (dbType == DatabaseSettings::TypePGServer && !identity_column_.IsEmpty())
          {
-            sSQL += " RETURNING " + m_sIdentityColumn;
+            sSQL += " RETURNING " + identity_column_;
          }
 
       }
-      else if (m_Type == SQLStatement::STUpdate)
+      else if (type_ == SQLStatement::STUpdate)
       {
          sSQL.append(_T("UPDATE "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
          sSQL.append(_T(" SET "));
 
          // First add columns
          bool first = true;
-         boost_foreach(Column c, vecColumns)
+         for(Column c : vecColumns)
          {
             if (!first)
                sSQL.append(_T(", "));
@@ -256,16 +256,16 @@ namespace HM
             }
          }
       }
-      else if (m_Type == SQLStatement::STDelete)
+      else if (type_ == SQLStatement::STDelete)
       {
          sSQL = "DELETE FROM ";
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
       }
-      else if (m_Type == SQLStatement::STSelect)
+      else if (type_ == SQLStatement::STSelect)
       {
          sSQL = "SELECT ";
 
-         if (_topRows > -1)
+         if (top_rows_ > -1)
          {
             String value;
 
@@ -273,12 +273,12 @@ namespace HM
             {
             case DatabaseSettings::TypeMSSQLServer:
                // SQL Server 2000 does not support ( and ) around the value.
-               value.Format(_T(" TOP %d "), _topRows);
+               value.Format(_T(" TOP %d "), top_rows_);
                sSQL.append(value);
                break;
             case DatabaseSettings::TypeMSSQLCompactEdition:
                // SQL Server Compact Edition 3.5 requires () around the value.
-               value.Format(_T(" TOP (%d) "), _topRows);
+               value.Format(_T(" TOP (%d) "), top_rows_);
                sSQL.append(value);
                break;
             }
@@ -295,7 +295,7 @@ namespace HM
 
             bool first = true;
 
-            boost_foreach(Column c, vecColumns)
+            for(Column c : vecColumns)
             {
                if (!first)
                   sSQL.append(_T(", "));
@@ -307,17 +307,17 @@ namespace HM
          }
 
          sSQL.append(_T(" FROM "));
-         sSQL.append(m_sTable);
+         sSQL.append(table_);
 
-         if (!m_sAdditionalSQL.IsEmpty())
-            sSQL.append(_T(" ") + m_sAdditionalSQL);
+         if (!additional_sql_.IsEmpty())
+            sSQL.append(_T(" ") + additional_sql_);
       }
 
-      if (m_vecWhereClauseColumns.size() != 0)
+      if (where_clause_columns_.size() != 0)
       {
          sSQL.append(_T(" WHERE "));
          bool first = true;
-         boost_foreach(Column col, m_vecWhereClauseColumns)
+         for(Column col : where_clause_columns_)
          {
             if (!first)
                sSQL.append(_T(" AND "));
@@ -354,26 +354,26 @@ namespace HM
             }
          }
       }
-      else if (!m_sWhere.IsEmpty())
+      else if (!where_.IsEmpty())
       {
          sSQL.append(_T(" WHERE "));
-         sSQL.append(m_sWhere);
+         sSQL.append(where_);
       }
 
-      if (m_Type == SQLStatement::STSelect)
+      if (type_ == SQLStatement::STSelect)
       {
-         if (_topRows > -1)
+         if (top_rows_ > -1)
          {
             HM::DatabaseSettings::SQLDBType DBType = IniFileSettings::Instance()->GetDatabaseType();
             String value;
             switch (DBType)
             {
             case DatabaseSettings::TypePGServer:
-               value.Format(_T(" LIMIT %d "), _topRows);
+               value.Format(_T(" LIMIT %d "), top_rows_);
                sSQL.append(value);
                break;
             case DatabaseSettings::TypeMYSQLServer:
-               value.Format(_T(" LIMIT 0, %d "), _topRows);
+               value.Format(_T(" LIMIT 0, %d "), top_rows_);
                sSQL.append(value);
                break;
             }
@@ -392,30 +392,30 @@ namespace HM
       col.sName = sName;
       col.sString = sValue;
 
-      m_vecWhereClauseColumns.push_back(col);
+      where_clause_columns_.push_back(col);
    }
 
    void
    SQLStatement::SetTopRows(int rowCount)
    {
-      _topRows = rowCount;
+      top_rows_ = rowCount;
    }
 
    String 
-   SQLStatement::GetCreateDatabase(shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName)
+   SQLStatement::GetCreateDatabase(std::shared_ptr<DatabaseSettings> pSettings, const String &sDatabaseName)
    {
       HM::DatabaseSettings::SQLDBType DBType = pSettings->GetType();
       String sSQL;
       switch (DBType)
       {
       case DatabaseSettings::TypeMSSQLServer:
-         sSQL.Format(_T("create database %s"), sDatabaseName);
+         sSQL.Format(_T("create database %s"), sDatabaseName.c_str());
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sSQL.Format(_T("create database %s character set 'utf8'"), sDatabaseName);
+         sSQL.Format(_T("create database %s character set 'utf8'"), sDatabaseName.c_str());
          break;
       case DatabaseSettings::TypePGServer:
-         sSQL.Format(_T("create database \"%s\" ENCODING = 'UTF8'"), sDatabaseName);
+         sSQL.Format(_T("create database \"%s\" ENCODING = 'UTF8'"), sDatabaseName.c_str());
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetCreateDatabase()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -467,13 +467,13 @@ namespace HM
             Use SUBSTRING instead of the normal LEFT. LEFT doesn't work
             with MSSQL Compact Edition while SUBSTRING works with both.
          */
-         sRetVal.Format(_T("SUBSTRING(%s, 1, %d)"), sParamName, iLength);
+         sRetVal.Format(_T("SUBSTRING(%s, 1, %d)"), sParamName.c_str(), iLength);
          break;
       case DatabaseSettings::TypePGServer:
-         sRetVal.Format(_T("SUBSTRING(%s FROM 1 FOR %d)"), sParamName, iLength);
+         sRetVal.Format(_T("SUBSTRING(%s FROM 1 FOR %d)"), sParamName.c_str(), iLength);
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sRetVal.Format(_T("LEFT(%s, %d)"), sParamName, iLength);
+         sRetVal.Format(_T("LEFT(%s, %d)"), sParamName.c_str(), iLength);
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetLeftFunction()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -497,13 +497,13 @@ namespace HM
          Use SUBSTRING instead of the normal LEFT. LEFT doesn't work
          with MSSQL Compact Edition while SUBSTRING works with both.
          */
-         sRetVal.Format(_T("SELECT TOP %d FROM %s"), rows, tableName);
+         sRetVal.Format(_T("SELECT TOP %d FROM %s"), rows, tableName.c_str());
          break;
       case DatabaseSettings::TypePGServer:
-         sRetVal.Format(_T("SELECT * FROM %s LIMIT %d"), tableName, rows);
+         sRetVal.Format(_T("SELECT * FROM %s LIMIT %d"), tableName.c_str(), rows);
          break;
       case DatabaseSettings::TypeMYSQLServer:
-         sRetVal.Format(_T("SELECT * FROM %s LIMIT 0, %d"), tableName, rows);
+         sRetVal.Format(_T("SELECT * FROM %s LIMIT 0, %d"), tableName.c_str(), rows);
          break;
       default:
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5407, "SQLStatement::GetTopRows()", Formatter::Format("Unknown database type: {0}", DBType));
@@ -561,7 +561,7 @@ namespace HM
    {
       String queryString = command.GetQueryString();
 
-      boost_foreach(SQLParameter parameter, command.GetParameters())
+      for(SQLParameter parameter : command.GetParameters())
       {
          String paramName = parameter.GetName();
 
@@ -602,12 +602,12 @@ namespace HM
    SQLStatement::ConvertLikeToWildcard(String input)
    {
       input.Replace(_T("//"), _T("/"));
-      input.Replace(_T("/%"), _T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"));
-      input.Replace(_T("/_"), _T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"));
+      input.Replace(_T("/%"), _T("Â¤Â¤Â¤ESCAPEDÂ¤Â¤Â¤PERCENTAGEÂ¤Â¤Â¤"));
+      input.Replace(_T("/_"), _T("Â¤Â¤Â¤ESCAPEDÂ¤Â¤Â¤UNDERSCOREÂ¤Â¤Â¤"));
       input.Replace(_T("_"), _T("?"));
       input.Replace(_T("%"), _T("*"));
-      input.Replace(_T("¤¤¤ESCAPED¤¤¤PERCENTAGE¤¤¤"), _T("%"));
-      input.Replace(_T("¤¤¤ESCAPED¤¤¤UNDERSCORE¤¤¤"), _T("_"));
+      input.Replace(_T("Â¤Â¤Â¤ESCAPEDÂ¤Â¤Â¤PERCENTAGEÂ¤Â¤Â¤"), _T("%"));
+      input.Replace(_T("Â¤Â¤Â¤ESCAPEDÂ¤Â¤Â¤UNDERSCOREÂ¤Â¤Â¤"), _T("_"));
 
       return input;
    }

@@ -35,18 +35,16 @@ namespace HM
    }
 
    bool
-   PersistentGroupMember::DeleteObject(shared_ptr<GroupMember> pObject)
+   PersistentGroupMember::DeleteObject(std::shared_ptr<GroupMember> pObject)
    {
       SQLCommand command("delete from hm_group_members where memberid = @MEMBERID");
       command.AddParameter("@MEMBERID", pObject->GetID());
      
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject->GetGroupID());
-
       return Application::Instance()->GetDBManager()->Execute(command);
    }
 
    bool 
-   PersistentGroupMember::ReadObject(shared_ptr<GroupMember> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentGroupMember::ReadObject(std::shared_ptr<GroupMember> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID(pRS->GetInt64Value("memberid"));
       pObject->SetGroupID(pRS->GetInt64Value("membergroupid"));
@@ -56,14 +54,14 @@ namespace HM
    }
 
    bool 
-   PersistentGroupMember::SaveObject(shared_ptr<GroupMember> pObject, String &errorMessage)
+   PersistentGroupMember::SaveObject(std::shared_ptr<GroupMember> pObject, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pObject);
    }
 
    bool 
-   PersistentGroupMember::SaveObject(shared_ptr<GroupMember> pObject)
+   PersistentGroupMember::SaveObject(std::shared_ptr<GroupMember> pObject)
    {
       SQLStatement oStatement;
 
@@ -96,8 +94,6 @@ namespace HM
       bool bRetVal = Application::Instance()->GetDBManager()->Execute(oStatement, bNewObject ? &iDBID : 0);
       if (bRetVal && bNewObject)
          pObject->SetID((long) iDBID);
-
-      Cache<Group, PersistentGroup>::Instance()->RemoveObject(pObject->GetGroupID());
 
       return bRetVal;     
    }

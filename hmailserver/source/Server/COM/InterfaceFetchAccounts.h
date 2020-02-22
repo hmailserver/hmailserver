@@ -42,7 +42,7 @@ END_COM_MAP()
 	{
 	}
 
-   void Attach(shared_ptr<HM::FetchAccounts> pFetchAccounts);
+   void Attach(std::shared_ptr<HM::FetchAccounts> pFetchAccounts);
 
 public:
 
@@ -58,7 +58,7 @@ public:
 
 private:
 
-   shared_ptr<HM::FetchAccounts> m_pFetchAccounts;
+   std::shared_ptr<HM::FetchAccounts> fetch_accounts_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(FetchAccounts), InterfaceFetchAccounts)

@@ -9,9 +9,11 @@
 #include "..\Common\BO\SecurityRange.h"
 #include "../common/Util/Event.h"
 #include "../Common/Util/Utilities.h"
-#include "../Common/TCPIP/IOCPServer.h"
+#include "../Common/TCPIP/IOService.h"
+#include "../Common/TCPIP/DNSResolver.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../common/TCPIP/TCPConnection.h"
+#include "../common/TCPIP/SslContextInitializer.h"
 #include "POP3ClientConnection.h"
 
 
@@ -33,46 +35,48 @@ namespace HM
    }
 
    void 
-   ExternalFetch::Start(shared_ptr<FetchAccount> pFA)
+   ExternalFetch::Start(std::shared_ptr<FetchAccount> pFA)
    {  
-      LOG_DEBUG("ExternalFetch::Start");
+      LOG_DEBUG(Formatter::Format("Retrieving messages from external account {0}", pFA->GetName()));
       
-      shared_ptr<IOCPServer> pIOCPServer = Application::Instance()->GetIOCPServer();
+      std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
-      boost::asio::ssl::context ctx(pIOCPServer->GetIOService(), boost::asio::ssl::context::sslv23);
+      std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event()) ;
+      std::shared_ptr<POP3ClientConnection> pClientConnection = std::shared_ptr<POP3ClientConnection> 
+         (new POP3ClientConnection(pFA, 
+                                   pFA->GetConnectionSecurity(), 
+                                   pIOService->GetIOService(), 
+                                   pIOService->GetClientContext(), 
+                                   disconnectEvent,
+                                   pFA->GetServerAddress()));
 
-      shared_ptr<TCPConnection> pClientConnection;
+      DNSResolver resolver;
 
-      if (pFA->GetUseSSL())
-         pClientConnection = pIOCPServer->CreateConnection(ctx);
+      std::vector<String> ip_addresses;
+      resolver.GetIpAddresses(pFA->GetServerAddress(), ip_addresses, true);
+
+      String ip_address;
+      if (ip_addresses.size())
+      {
+         ip_address = *(ip_addresses.begin());
+      }
       else
-         pClientConnection = pIOCPServer->CreateConnection();
-
-      shared_ptr<POP3ClientConnection> pProtocolParser = shared_ptr<POP3ClientConnection>(new POP3ClientConnection(pFA));
-
-      try
       {
-         // Copy the event so that we know when we've disconnected.
-         Event disconnectEvent(pClientConnection->GetConnectionTerminationEvent());
-
-         pClientConnection->Start(pProtocolParser);
-
-         if (pClientConnection->Connect(pFA->GetServerAddress(), pFA->GetPort(), IPAddress()))
-         {
-            // Make sure we keep no references to the TCP connection so that it
-            // can be terminated whenever. We're longer own the connection.
-            pClientConnection.reset();
-
-            disconnectEvent.Wait();
-         }
-         
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5077, "ExternalFetch::Start", "Start() threw an unhandled exception.");
+         String error_message = Formatter::Format("The IP address for external account {0} could not be resolved. Aborting fetch.", pFA->GetName());
+         LOG_APPLICATION(error_message);
+         return;
       }
 
-      LOG_DEBUG("ExternalFetch::~Start");
+      if (pClientConnection->Connect(ip_address, pFA->GetPort(), IPAddress()))
+      {
+         // Make sure we keep no references to the TCP connection so that it
+         // can be terminated whenever. We're longer own the connection.
+         pClientConnection.reset();
+
+         disconnectEvent->Wait();
+      }
+
+      LOG_DEBUG("Completed retrieval of messages from external account.");
    }
 
 

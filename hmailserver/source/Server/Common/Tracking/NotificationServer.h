@@ -14,24 +14,24 @@ namespace HM
    public:
       NotificationServer();
 
-      void SendNotification(shared_ptr<ChangeNotification> pChangeNotification);
-      void SendNotification(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification);
+      void SendNotification(std::shared_ptr<ChangeNotification> pChangeNotification);
+      void SendNotification(std::shared_ptr<NotificationClient> source, std::shared_ptr<ChangeNotification> pChangeNotification);
 
-      __int64 SubscribeMessageChanges(__int64 accountID, __int64 folderID, shared_ptr<NotificationClient> pChangeClient);
+      __int64 SubscribeMessageChanges(__int64 accountID, __int64 folderID, std::shared_ptr<NotificationClient> pChangeClient);
       void UnsubscribeMessageChanges(__int64 accountID, __int64 folderID, __int64 subscriptionKey);
 
-      __int64 SubscribeFolderListChanges(__int64 accountID, shared_ptr<NotificationClient> pChangeClient);
+      __int64 SubscribeFolderListChanges(__int64 accountID, std::shared_ptr<NotificationClient> pChangeClient);
       void UnsubscribeFolderListChanges(__int64 accountID, __int64 subscriptionKey);
 
    private:
 
-      set<shared_ptr<NotificationClient> > _GetClientsToNotify(shared_ptr<NotificationClient> source, shared_ptr<ChangeNotification> pChangeNotification);
+      std::set<std::shared_ptr<NotificationClient> > GetClientsToNotify_(std::shared_ptr<NotificationClient> source, std::shared_ptr<ChangeNotification> pChangeNotification);
 
-      std::multimap<std::pair<__int64, __int64>, shared_ptr<NotificationClientSubscription> > _messageChangeSubscribers;
-      std::multimap<__int64, shared_ptr<NotificationClientSubscription> > _folderListChangeSubscribers;
+      std::multimap<std::pair<__int64, __int64>, std::shared_ptr<NotificationClientSubscription> > message_change_subscribers_;
+      std::multimap<__int64, std::shared_ptr<NotificationClientSubscription> > folder_list_change_subscribers_;
 
-      CriticalSection _criticalSection;
+      boost::recursive_mutex mutex_;
 
-      __int64 _subscriptionCounter;
+      __int64 subscription_counter_;
    };
 }

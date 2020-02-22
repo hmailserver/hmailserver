@@ -15,16 +15,16 @@ namespace HM
    
 
    VirusScanningResult::VirusScanningResult(ScanningResult result, const String &details) :
-      m_scanningResult(result),
-      m_details(details)
+      result_(result),
+      details_(details)
    {
       
    }
 
    VirusScanningResult::VirusScanningResult(const String &errorMessageSource, const String &errorMessage) :
-      m_scanningResult(ErrorOccurred),
-      m_details(errorMessage),
-      m_errorMessageSource(errorMessageSource)
+      result_(ErrorOccurred),
+      details_(errorMessage),
+      message_source_(errorMessageSource)
    {
 
    }

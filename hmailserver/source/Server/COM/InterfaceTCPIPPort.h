@@ -78,6 +78,9 @@ public:
    STDMETHOD(get_SSLCertificateID)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_SSLCertificateID)(/*[in]*/ long newVal);
 
+   STDMETHOD(get_ConnectionSecurity)(/*[out, retval]*/ eConnectionSecurity *pVal);
+   STDMETHOD(put_ConnectionSecurity)(/*[in]*/ eConnectionSecurity newVal);
+
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(TCPIPPort), InterfaceTCPIPPort)

@@ -39,21 +39,21 @@ namespace HM
    }
 
 
-   set<shared_ptr<SpamTestResult> >
-   SpamTestMXRecords::RunTest(shared_ptr<SpamTestData> pTestData)
+   std::set<std::shared_ptr<SpamTestResult> >
+   SpamTestMXRecords::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      set<shared_ptr<SpamTestResult> > setSpamTestResults;
+      std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
 
       String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
 
-      if (!sEnvelopeFrom.IsEmpty() && !_HasAnyMXRecords(sEnvelopeFrom))
+      if (!sEnvelopeFrom.IsEmpty() && !HasAnyMXRecords_(sEnvelopeFrom))
       {
          // Blocked by SPF.
          String sMessage = _T("Sender domain does not have any MX records.");
          int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseMXChecksScore();;
 
-         shared_ptr<SpamTestResult> pResult = shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
 
       }
@@ -62,7 +62,7 @@ namespace HM
    }
 
    bool 
-   SpamTestMXRecords::_HasAnyMXRecords(const String &sSenderEMail)
+   SpamTestMXRecords::HasAnyMXRecords_(const String &sSenderEMail)
    {
       const String sHostName = StringParser::ExtractDomain(sSenderEMail);
 

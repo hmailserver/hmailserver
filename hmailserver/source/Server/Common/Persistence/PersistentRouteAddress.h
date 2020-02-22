@@ -6,6 +6,7 @@
 namespace HM
 {
    class RouteAddress;
+   enum PersistenceMode;
 
    class PersistentRouteAddress
    {
@@ -13,13 +14,13 @@ namespace HM
 	   PersistentRouteAddress();
 	   virtual ~PersistentRouteAddress();
 
-      static bool SaveObject(shared_ptr<RouteAddress> pRA);
-      static bool SaveObject(shared_ptr<RouteAddress> pRA, String &errorMessage);
-      static bool DeleteObject(shared_ptr<RouteAddress> pRA);
+      static bool SaveObject(std::shared_ptr<RouteAddress> pRA);
+      static bool SaveObject(std::shared_ptr<RouteAddress> pRA, String &errorMessage, PersistenceMode mode);
+      static bool DeleteObject(std::shared_ptr<RouteAddress> pRA);
       static bool DeleteByRoute(__int64 RouteID);
 
-      static bool ReadObject(shared_ptr<RouteAddress> pRA, long lID);
-      static bool ReadObject(shared_ptr<RouteAddress> pRA, shared_ptr<DALRecordset> pRS);
+      static bool ReadObject(std::shared_ptr<RouteAddress> pRA, long lID);
+      static bool ReadObject(std::shared_ptr<RouteAddress> pRA, std::shared_ptr<DALRecordset> pRS);
 
 
    };

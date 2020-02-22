@@ -17,7 +17,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          _settings.Scripting.Language = "JScript";
          // First set up a script
          string script =
@@ -29,17 +28,17 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -48,8 +47,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          string eventLogFile = _settings.Logging.CurrentEventLog;
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
@@ -66,17 +63,17 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -107,7 +104,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -116,15 +113,13 @@ namespace RegressionTests.API
          back.TestWithMessages();
 
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("Backup process completed"));
       }
 
       [Test]
       public void TestOnBackupCompletedVBScript()
       {
-         
-
          // First set up a script
          string script =
             @"Sub OnBackupCompleted()
@@ -133,7 +128,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -142,14 +137,13 @@ namespace RegressionTests.API
          back.TestWithMessages();
 
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("Backup process completed"));
       }
 
       [Test]
       public void TestOnBackupFailedJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -162,7 +156,7 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -171,16 +165,14 @@ namespace RegressionTests.API
          back.SetBackupDir(@"C:\some-non-existant-directory");
          Assert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError();
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         CustomAsserts.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
 
       [Test]
       public void TestOnBackupFailedVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          // First set up a script
          string script =
             @"Sub OnBackupFailed(reason)
@@ -189,7 +181,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -198,8 +190,8 @@ namespace RegressionTests.API
          back.SetBackupDir(@"C:\some-non-existant-directory");
          Assert.IsFalse(back.Execute());
 
-         TestSetup.AssertReportedError();
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         CustomAsserts.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("The specified backup directory is not accessible"));
       }
 
@@ -227,8 +219,8 @@ namespace RegressionTests.API
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
 
-         var socket = new TcpSocket();
-         Assert.IsTrue(socket.CanConnect(25));
+         var socket = new TcpConnection();
+         Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);
@@ -260,8 +252,8 @@ namespace RegressionTests.API
          if (File.Exists(eventLogFile))
             File.Delete(eventLogFile);
 
-         var socket = new TcpSocket();
-         Assert.IsTrue(socket.CanConnect(25));
+         var socket = new TcpConnection();
+         Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
          string message = TestSetup.ReadExistingTextFile(eventLogFile);
@@ -275,7 +267,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliverMessageJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
          // First set up a script
@@ -288,17 +279,17 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SMTPClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
@@ -307,7 +298,6 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliveryFailedJScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -320,28 +310,26 @@ namespace RegressionTests.API
 
 
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "), eventLogText);
-         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"), eventLogText);
          Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
       }
 
       [Test]
       public void TestOnDeliveryFailedVBScript()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          // First set up a script
          string script = "Sub OnDeliveryFailed(oMessage, sRecipient, sErrorMessage)" + Environment.NewLine +
                          " EventLog.Write(\"File: \" & oMessage.FileName) " + Environment.NewLine +
@@ -351,20 +339,20 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
          // Add an account and send a message to it.
          Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(oAccount1.Address, "user@some-non-existant-domain.abc", "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
-         string eventLogText = TestSetup.ReadExistingTextFile(TestSetup.GetEventLogFileName());
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "));
-         Assert.IsTrue(eventLogText.Contains("Recipient: user@some-non-existant-domain.abc"));
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"));
          Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
       }
 
@@ -384,10 +372,10 @@ namespace RegressionTests.API
          scripting.Reload();
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
          // Wait for the message to be delivered.
-         POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Delivering message"));
@@ -416,14 +404,14 @@ namespace RegressionTests.API
 
 
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
-         TestSetup.AssertFolderMessageCount(inbox, 1);
+         CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
-         string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
@@ -452,14 +440,14 @@ namespace RegressionTests.API
 
 
          string deletedMessageText = app.Settings.ServerMessages.get_ItemByName("MESSAGE_FILE_MISSING").Text;
-         SMTPClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
 
-         TestSetup.AssertFolderMessageCount(inbox, 1);
+         CustomAsserts.AssertFolderMessageCount(inbox, 1);
          hMailServer.Message message = inbox.Messages[0];
          File.Delete(message.Filename);
-         string text = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+         string text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
          Assert.IsTrue(text.Contains(deletedMessageText.Replace("%MACRO_FILE%", message.Filename)));
-         TestSetup.AssertReportedError();
+         CustomAsserts.AssertReportedError("Message retrieval failed because message file");
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Description: Message retrieval failed"));
@@ -468,7 +456,7 @@ namespace RegressionTests.API
       [Test]
       public void TestOnExternalAccountDownload()
       {
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
 
 
          var messages = new List<string>();
@@ -511,7 +499,7 @@ namespace RegressionTests.API
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
-         TestSetup.WriteFile(file, script);
+         File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
 
@@ -520,7 +508,7 @@ namespace RegressionTests.API
          FetchAccount fa;
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -551,7 +539,7 @@ namespace RegressionTests.API
             Assert.IsTrue(logContents.Contains("From: Martin@example2.com"));
             Assert.IsTrue(logContents.Contains("From: Martin@example3.com"));
 
-            string appLogContent = TestSetup.ReadCurrentDefaultLog();
+            string appLogContent = LogHandler.ReadCurrentDefaultLog();
 
             Assert.IsTrue(pop3Server.DeletedMessages.Contains(1));
             Assert.IsFalse(pop3Server.DeletedMessages.Contains(2));
@@ -561,12 +549,12 @@ namespace RegressionTests.API
             Assert.IsTrue(pop3Server.RetrievedMessages.Contains(2));
             Assert.IsTrue(pop3Server.RetrievedMessages.Contains(3));
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
             
          }
 
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -579,8 +567,195 @@ namespace RegressionTests.API
             Assert.AreEqual(0, pop3Server.DeletedMessages.Count);
             Assert.AreEqual(0, pop3Server.RetrievedMessages.Count);
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
          }
       }
+
+      [Test]
+      public void TestOnClientLogon_POP3()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-POP3\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-POP3"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      [Test]
+      public void TestOnClientLogon_IMAP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-IMAP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-IMAP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      [Test]
+      public void TestOnClientLogon_SMTP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-SMTP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+
+         string base64Username = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test@test.com"));
+         string base64Password = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test"));
+
+         var clientSimulator = new SmtpClientSimulator();
+         string errMsg;
+         clientSimulator.ConnectAndLogon(base64Username, base64Password, out errMsg);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-SMTP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      [Test]
+      public void TestOnHelo_WithHelo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("HELO WORLD\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD"));
+      }
+
+      [Test]
+      public void TestOnHelo_WithEhlo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("EHLO WORLD2\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD2"));
+      }
+
    }
 }

@@ -20,7 +20,7 @@ namespace HM
    }
 
    ColumnPositions::ColumnPositions(std::vector<AnsiString> columns):
-      _columns(columns)
+      columns_(columns)
    {
 
    }
@@ -28,9 +28,9 @@ namespace HM
    int 
    ColumnPositions::GetColumnIndex(const AnsiString &columnName)
    {
-      for (unsigned int i = 0; i < _columns.size(); i++)
+      for (unsigned int i = 0; i < columns_.size(); i++)
       {
-         if (_columns[i] == columnName)
+         if (columns_[i] == columnName)
             return i;
       }
 
@@ -43,7 +43,7 @@ namespace HM
    }
 
 
-   shared_ptr<ColumnPositions> 
+   std::shared_ptr<ColumnPositions> 
    ColumnPositionCache::GetPositions(const AnsiString &sqlStatement, DALRecordset *pRecordset)
    {
       // Extract a select statement identifier.
@@ -57,13 +57,13 @@ namespace HM
       else
          selectIdentifier = sql;
 
-      shared_ptr<ColumnPositions> positions;
+      std::shared_ptr<ColumnPositions> positions;
 
-      std::map<AnsiString, shared_ptr<ColumnPositions> >::iterator iter = _mapTableColumns.find(selectIdentifier);
-      if (iter == _mapTableColumns.end())
+      auto iter = map_table_columns_.find(selectIdentifier);
+      if (iter == map_table_columns_.end())
       {
-         positions = shared_ptr<ColumnPositions>(new ColumnPositions(pRecordset->GetColumnNames()));
-         _mapTableColumns[selectIdentifier] = positions;
+         positions = std::shared_ptr<ColumnPositions>(new ColumnPositions(pRecordset->GetColumnNames()));
+         map_table_columns_[selectIdentifier] = positions;
       }
       else
       {

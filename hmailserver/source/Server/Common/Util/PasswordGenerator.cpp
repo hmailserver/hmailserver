@@ -66,7 +66,7 @@ namespace HM
       // If the password is 6 characters or less, it should contain a number or special char
       if (sPassword.GetLength() <= 6)
       {
-         if (sPassword.FindOneOf(_T("01234567890!\"#¤%&/()=?^*_:;><,.-'¨´+")) < 0)
+         if (sPassword.FindOneOf(_T("01234567890!\"#ï¿½%&/()=?^*_:;><,.-'ï¿½ï¿½+")) < 0)
             return false;
       }
 

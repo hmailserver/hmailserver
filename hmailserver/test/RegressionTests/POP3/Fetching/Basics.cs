@@ -1,13 +1,17 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.SMTP;
 using RegressionTests.Shared;
 using hMailServer;
 using System.Text;
+using RegressionTests.SSL;
 
 namespace RegressionTests.POP3.Fetching
 {
@@ -48,7 +52,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(messageText);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -61,7 +65,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
             Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
             Assert.IsFalse(message.get_Flag(eMessageFlag.eMFVirusScan));
@@ -82,7 +86,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(messageText);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -95,7 +99,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
             Message message = account.IMAPFolders.get_ItemByName("INBOX").Messages[0];
             Assert.IsTrue(message.get_Flag(eMessageFlag.eMFVirusScan));
@@ -117,7 +121,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -141,87 +145,42 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
             Assert.IsTrue(downloadedMessage.Contains(message));
          }
       }
 
-      
       [Test]
-      [Description("Tests to connect to a normal non-SSL POP3 server using SSL. An error should be reported and hMailServer should disconnect correctly.")]
-      public void TestBasicExternalAccountSSLEvenThoughNotSupported()
+      public void TestFetchFromInvalidHostName()
       {
-         var messages = new List<string>();
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+         FetchAccount fa = account.FetchAccounts.Add();
 
-         string message = "From: Martin@example.com\r\n" +
-                          "To: Martin@example.com\r\n" +
-                          "Subject: Test\r\n" +
-                          "\r\n" +
-                          "Hello!";
+         fa.Enabled = true;
+         fa.MinutesBetweenFetch = 10;
+         fa.Name = "Test";
+         fa.Username = "test@example.com";
+         fa.Password = "test";
+         fa.UseSSL = false;
+         fa.ServerAddress = "nonexistant.example.com";
+         fa.Port = 110;
+         fa.ProcessMIMERecipients = false;
+         fa.Save();
 
-         messages.Add(message);
+         fa.DownloadNow();
 
-         int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(2, port, messages))
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
          {
-            pop3Server.DisconnectImmediate = true;
-            pop3Server.StartListen();
+            var
+               log = LogHandler.ReadCurrentDefaultLog();
+            Assert.IsTrue(
+               log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."));
+         });
 
-            TestSetup.DeleteCurrentDefaultLog();
-
-            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
-            FetchAccount fa = account.FetchAccounts.Add();
-
-            fa.Enabled = true;
-            fa.MinutesBetweenFetch = 10;
-            fa.Name = "Test";
-            fa.Username = "test@example.com";
-            fa.Password = "test";
-            fa.UseSSL = true;
-            fa.ServerAddress = "localhost";
-            fa.Port = port;
-            fa.ProcessMIMERecipients = false;
-            fa.Save();
-
-            fa.DownloadNow();
-            string contentSoFar = "";
-            for (int i = 0; i <= 10; i++)
-            {
-               if (i == 5)
-                  Assert.Fail("No connection: " + contentSoFar);
-
-               contentSoFar = TestSetup.ReadCurrentDefaultLog();
-               if (contentSoFar.Contains("SSL handshake with client failed."))
-                  break;
-
-               Thread.Sleep(1000);
-            }
-
-            TestSetup.DeleteCurrentDefaultLog();
-
-            // try again.
-            fa.DownloadNow();
-
-            contentSoFar = "";
-
-            for (int i = 0; i <= 10; i++)
-            {
-               if (i == 5)
-                  Assert.Fail("No connection: " + contentSoFar);
-
-               contentSoFar = TestSetup.ReadCurrentDefaultLog();
-               if (contentSoFar.Contains("SSL handshake with client failed."))
-                  break;
-
-               Thread.Sleep(1000);
-            }
-
-            pop3Server.WaitForCompletion();
-
-            fa.Delete();
-         }
+      fa.Delete();
       }
+
 
       [Test]
       public void TestDelete()
@@ -237,7 +196,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -263,13 +222,12 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
             Assert.IsTrue(downloadedMessage.Contains(message));
             Assert.AreEqual(1, pop3Server.DeletedMessages.Count);
          }
       }
-
 
       [Test]
       public void TestDeleteMutliple()
@@ -287,7 +245,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -313,7 +271,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
 
             Assert.AreEqual(3, pop3Server.DeletedMessages.Count);
          }
@@ -334,7 +292,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -368,12 +326,12 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
-            POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
+            string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
+            Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
             Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
-            POP3Simulator.AssertMessageCount(account2.Address, "test", 0);
-            POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
+            Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 0);
+            Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
          }
       }
 
@@ -392,7 +350,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -400,13 +358,13 @@ namespace RegressionTests.POP3.Fetching
             deliveryResults["external@dummy-example.com"] = 250;
 
             int smtpServerPort = TestSetup.GetNextFreePort();
-            using (var smtpServer = new SMTPServerSimulator(1, smtpServerPort))
+            using (var smtpServer = new SmtpServerSimulator(1, smtpServerPort))
             {
                smtpServer.AddRecipientResult(deliveryResults);
                smtpServer.StartListen();
 
                // Add a route so we can connect to localhost.
-               Route route = SMTPClientTests.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
+               Route route = TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false);
                route.TreatSecurityAsLocalDomain = true;
                route.Save();
 
@@ -438,9 +396,9 @@ namespace RegressionTests.POP3.Fetching
 
                fa.Delete();
 
-               string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
-               POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
-               POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
+               string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
+               Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
+               Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
                Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
                // Make sure the exernal recipient has received his copy.
@@ -448,7 +406,7 @@ namespace RegressionTests.POP3.Fetching
                string messageData = smtpServer.MessageData;
                Assert.IsTrue(messageData.Contains(messageData), messageData);
 
-               TestSetup.AssertRecipientsInDeliveryQueue(0, false);
+               CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
             }
          }
       }
@@ -470,7 +428,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -508,10 +466,10 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(recipientAccount1.Address, "test");
+            string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(recipientAccount1.Address, "test");
             Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0, false);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
          }
       }
 
@@ -529,7 +487,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -562,10 +520,10 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage1 = POP3Simulator.AssertGetFirstMessageText(account2.Address, "test");
-            string downloadedMessage2 = POP3Simulator.AssertGetFirstMessageText(account3.Address, "test");
-            POP3Simulator.AssertMessageCount(account1.Address, "test", 0);
-            POP3Simulator.AssertMessageCount(catchallAccount.Address, "test", 0);
+            string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
+            string downloadedMessage2 = Pop3ClientSimulator.AssertGetFirstMessageText(account3.Address, "test");
+            Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
+            Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
 
             Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
             Assert.IsTrue(downloadedMessage2.Contains(message), downloadedMessage2);
@@ -588,7 +546,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.SupportsUIDL = false;
             pop3Server.StartListen();
@@ -612,9 +570,12 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string error = TestSetup.ReadAndDeleteErrorLog();
-
-            Assert.IsTrue(error.Contains("-ERR unhandled command"));
+            RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+            {
+               string error = LogHandler.ReadCurrentDefaultLog();
+               Assert.IsTrue(error.Contains("-ERR unhandled command"));
+               Assert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
+            });
          }
       }
 
@@ -643,7 +604,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -669,7 +630,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
             Assert.IsFalse(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
          }
@@ -679,7 +640,7 @@ namespace RegressionTests.POP3.Fetching
       [Description("Issue 249: POP3 download may fail on spam message")]
       public void TestSpamProtectionNoTagging()
       {
-         TestSetup.AssertSpamAssassinIsRunning();
+         CustomAsserts.AssertSpamAssassinIsRunning();
 
          _application.Settings.AntiSpam.SpamMarkThreshold = 5;
          _application.Settings.AntiSpam.SpamDeleteThreshold = 9999;
@@ -707,7 +668,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -733,7 +694,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
          }
       }
 
@@ -765,7 +726,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -791,7 +752,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
             Assert.IsTrue(downloadedMessage.Contains("X-hMailServer-Spam: YES"));
          }
@@ -823,7 +784,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -849,7 +810,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 0);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
          }
       }
 
@@ -879,7 +840,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -905,7 +866,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
          }
       }
 
@@ -943,7 +904,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -969,7 +930,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
          }
       }
 
@@ -998,7 +959,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -1024,7 +985,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 0);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
          }
       }
 
@@ -1053,7 +1014,7 @@ namespace RegressionTests.POP3.Fetching
          messages.Add(message);
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
             pop3Server.StartListen();
 
@@ -1079,7 +1040,7 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
          }
       }
 
@@ -1110,9 +1071,9 @@ namespace RegressionTests.POP3.Fetching
          }
 
          int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new POP3Server(1, port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
          {
-            pop3Server.SendBufferMode = POP3Server.BufferMode.SingleBuffer;
+            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
             pop3Server.StartListen();
 
             Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -1137,8 +1098,8 @@ namespace RegressionTests.POP3.Fetching
 
             fa.Delete();
 
-            POP3Simulator.AssertMessageCount(account.Address, "test", 5);
-            string downloadedMessage = POP3Simulator.AssertGetFirstMessageText(account.Address, "test");
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
+            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
 
 
@@ -1149,6 +1110,104 @@ namespace RegressionTests.POP3.Fetching
             }
 
             Assert.Fail("Downloaded messages did not match uploaded messages.");
+         }
+      }
+
+      [Test]
+      [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
+      public void TestFetchMessageWithValidFromAddress()
+      {
+
+         string message = string.Format("From: A@example.com\r\n" +
+                                        "To: someone@example.com\r\n" +
+                                        "Subject: Test\r\n" +
+                                        "\r\n" +
+                                        "Hello!");
+
+         var messages = new List<string>() { message };
+
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            LockHelper.WaitForUnlock(fa);
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+            var log = LogHandler.ReadCurrentDefaultLog();
+            Assert.IsTrue(log.Contains("Delivering message from A@example.com to user@test.com."));
+         }
+      }
+
+      [Test]
+      [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
+      public void TestFetchMessageWithInvalidFromAddress()
+      {
+
+         string message = string.Format("From: A\r\n" + 
+                                        "To: someone@example.com\r\n" +
+                                        "Subject: Test\r\n" +
+                                        "\r\n" +
+                                        "Hello!");
+
+         var messages = new List<string>() {message};
+
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            LockHelper.WaitForUnlock(fa);
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+            var log = LogHandler.ReadCurrentDefaultLog();
+            Assert.IsTrue(log.Contains("Delivering message from <Empty> to user@test.com."));
          }
       }
 

@@ -29,9 +29,9 @@ InterfaceIMAPFolders::InterfaceSupportsErrorInfo(REFIID riid)
 }
 
 void
-InterfaceIMAPFolders::Attach(shared_ptr<HM::IMAPFolders> pFolders)
+InterfaceIMAPFolders::Attach(std::shared_ptr<HM::IMAPFolders> pFolders)
 {
-   m_pObject = pFolders;
+   object_ = pFolders;
 }
 
 STDMETHODIMP 
@@ -39,10 +39,10 @@ InterfaceIMAPFolders::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetCount();
+      *pVal = object_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -56,19 +56,19 @@ InterfaceIMAPFolders::get_Item(long Index, IInterfaceIMAPFolder **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
-      pIMAPFolderInt->SetAuthentication(m_pAuthentication);
+      pIMAPFolderInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = m_pObject->GetItem(Index);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItem(Index);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;  
    
       pIMAPFolderInt->Attach(pIMAPFolder);
-      pIMAPFolderInt->AttachParent(m_pObject, true);
+      pIMAPFolderInt->AttachParent(object_, true);
       pIMAPFolderInt->AddRef();
       *pVal = pIMAPFolderInt;
    
@@ -85,19 +85,19 @@ InterfaceIMAPFolders::get_ItemByDBID(long DBID, IInterfaceIMAPFolder **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
-      pIMAPFolderInt->SetAuthentication(m_pAuthentication);
+      pIMAPFolderInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = m_pObject->GetItemByDBID(DBID);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetItemByDBID(DBID);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;  
    
       pIMAPFolderInt->Attach(pIMAPFolder);
-      pIMAPFolderInt->AttachParent(m_pObject, true);
+      pIMAPFolderInt->AttachParent(object_, true);
       pIMAPFolderInt->AddRef();
       *pVal = pIMAPFolderInt;
    
@@ -114,22 +114,22 @@ InterfaceIMAPFolders::get_ItemByName(BSTR sName, IInterfaceIMAPFolder **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
-      pIMAPFolderInt->SetAuthentication(m_pAuthentication);
+      pIMAPFolderInt->SetAuthentication(authentication_);
    
       HM::String sUnicode (sName);
       HM::AnsiString sFolderName = HM::ModifiedUTF7::Encode(sUnicode);
    
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = m_pObject->GetFolderByName(sFolderName);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
    
       if (!pIMAPFolder)
          return DISP_E_BADINDEX;
    
       pIMAPFolderInt->Attach(pIMAPFolder);
-      pIMAPFolderInt->AttachParent(m_pObject, true);
+      pIMAPFolderInt->AttachParent(object_, true);
       pIMAPFolderInt->AddRef();
       *pVal = pIMAPFolderInt;
    
@@ -146,11 +146,11 @@ InterfaceIMAPFolders::DeleteByDBID(long lDBID)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // Check that it does not exist.
-      if (!m_pObject->DeleteItemByDBID(lDBID))
+      if (!object_->DeleteItemByDBID(lDBID))
          return DISP_E_BADINDEX;
       
       return S_OK;
@@ -166,7 +166,7 @@ InterfaceIMAPFolders::Add(BSTR sName, IInterfaceIMAPFolder **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // Convert the modified UTF7 string into unicode.
@@ -176,19 +176,19 @@ InterfaceIMAPFolders::Add(BSTR sName, IInterfaceIMAPFolder **pVal)
       HM::AnsiString sFolderName = HM::ModifiedUTF7::Encode(sUnicode);
    
       CComObject<InterfaceIMAPFolder>* pIMAPFolderInt = new CComObject<InterfaceIMAPFolder>();
-      pIMAPFolderInt->SetAuthentication(m_pAuthentication);
+      pIMAPFolderInt->SetAuthentication(authentication_);
    
       // Check that it does not exist.
-      shared_ptr<HM::IMAPFolder> pIMAPFolder = m_pObject->GetFolderByName(sFolderName);
+      std::shared_ptr<HM::IMAPFolder> pIMAPFolder = object_->GetFolderByName(sFolderName);
    
       if (pIMAPFolder)
          return COMError::GenerateError("Folder with specified name already exists");
    
-      pIMAPFolder = shared_ptr<HM::IMAPFolder>(new HM::IMAPFolder(m_pObject->GetAccountID(), m_pObject->GetParentID()));
+      pIMAPFolder = std::shared_ptr<HM::IMAPFolder>(new HM::IMAPFolder(object_->GetAccountID(), object_->GetParentID()));
       pIMAPFolder->SetFolderName(sFolderName);
    
       // We auto-subscribe to public folders.
-      if (m_pObject->GetAccountID() == 0)
+      if (object_->GetAccountID() == 0)
          pIMAPFolder->SetIsSubscribed(true);
    
       if (!HM::PersistentIMAPFolder::SaveObject(pIMAPFolder))
@@ -197,9 +197,9 @@ InterfaceIMAPFolders::Add(BSTR sName, IInterfaceIMAPFolder **pVal)
       }
    
       // Add the folder ot the collection.
-      m_pObject->AddItem(pIMAPFolder);
+      object_->AddItem(pIMAPFolder);
    
-      pIMAPFolderInt->AttachParent(m_pObject, true);
+      pIMAPFolderInt->AttachParent(object_, true);
       pIMAPFolderInt->Attach(pIMAPFolder);
       pIMAPFolderInt->AddRef();
    

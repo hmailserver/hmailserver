@@ -17,7 +17,7 @@ namespace HM
       void Release();
 
    private:
-      HANDLE m_hMutex;
+      HANDLE mutex_;
    };
 
 }

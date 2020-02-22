@@ -52,9 +52,9 @@ public:
    STDMETHOD(get_ExecutionDetails)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(get_Result)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 
-   void AttachResult(HM::DiagnosticResult result) {_result = result; }
+   void AttachResult(HM::DiagnosticResult result) {result_ = result; }
 
-   HM::DiagnosticResult _result;
+   HM::DiagnosticResult result_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DiagnosticResult), InterfaceDiagnosticResult)

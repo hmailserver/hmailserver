@@ -30,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_domains order by domainname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void 
@@ -43,7 +43,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_domains where domainid = %I64d"), iDomainID);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 
@@ -51,13 +51,13 @@ namespace HM
    {
       bool first = true;
       String result;
-      boost_foreach(shared_ptr<Domain> domain, vecObjects)
+      for(std::shared_ptr<Domain> domain : vecObjects)
       {
          if (first)
             first = false;
 
          String append;
-         append.Format(_T("%I64d\t%s\t%d\r\n"), domain->GetID(), domain->GetName(), domain->GetIsActive() ? 1 :0);
+         append.Format(_T("%I64d\t%s\t%d\r\n"), domain->GetID(), domain->GetName().c_str(), domain->GetIsActive() ? 1 : 0);
 
          result += append;
       }

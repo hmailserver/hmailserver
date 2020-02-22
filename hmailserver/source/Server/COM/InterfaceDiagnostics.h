@@ -58,7 +58,7 @@ public:
    STDMETHOD(get_TestDomainName)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(put_TestDomainName)(/*[in]*/ BSTR newVal);
 
-   HM::Diagnostic _diagnostics;
+   HM::Diagnostic diagnostics_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Diagnostics), InterfaceDiagnostics)

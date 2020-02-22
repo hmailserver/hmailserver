@@ -13,16 +13,16 @@
 
 namespace HM
 {
-   IOOperation::IOOperation(OperationType type, shared_ptr<ByteBuffer> buffer) :
-      _type(type),
-      _buffer(buffer)
+   IOOperation::IOOperation(OperationType type, std::shared_ptr<ByteBuffer> buffer) :
+      type_(type),
+      buffer_(buffer)
    {
       
    }
 
    IOOperation::IOOperation(OperationType type, const AnsiString &string) :
-      _type(type),
-      _string(string)
+      type_(type),
+      string_(string)
    {
       
    }

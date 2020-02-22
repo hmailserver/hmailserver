@@ -14,7 +14,7 @@ $obTCPIPPOrts  = $obSettings->TCPIPPorts;
 
 $protocol    = 1;
 $portnumber = "";
-$UseSSL = 0;
+$ConnectionSecurity = 0;
 $SSLCertificateID = 0;
 $Address = "";
 
@@ -23,7 +23,7 @@ if ($action == "edit")
    $obTCPIPPort     = $obTCPIPPOrts->ItemByDBID($tcpipportid);
    $portnumber      = $obTCPIPPort->PortNumber;
    $protocol        = $obTCPIPPort->Protocol;
-   $UseSSL          = $obTCPIPPort->UseSSL;
+   $ConnectionSecurity  = $obTCPIPPort->ConnectionSecurity;
    $SSLCertificateID = $obTCPIPPort->SSLCertificateID;
    $Address          = $obTCPIPPort->Address;
 }
@@ -35,6 +35,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_tcpipport_save");
       PrintHidden("action", "$action");
       PrintHidden("tcpipportid", "$tcpipportid");
@@ -65,10 +66,18 @@ if ($action == "edit")
             				<input type="text" name="portnumber" value="<?php echo PreprocessOutput($portnumber)?>" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("TCP/IP port")?>">
                   	</td>			
          		</tr>
-               <?php
-                  PrintCheckboxRow("UseSSL", "Use SSL", $UseSSL);
-               ?>
-               
+				
+				
+				<tr>
+					<td><?php EchoTranslation("Connection security")?></td>
+					<td><select name="ConnectionSecurity">
+						<option value="<?php echo CONNECTION_SECURITY_NONE?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_NONE) echo "selected";?> ><?php EchoTranslation("None")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSOPTIONAL?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSOPTIONAL) echo "selected";?> ><?php EchoTranslation("STARTTLS (Optional)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSREQUIRED?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSREQUIRED) echo "selected";?> ><?php EchoTranslation("STARTTLS (Required)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_TLS?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_TLS) echo "selected";?> ><?php EchoTranslation("SSL/TLS")?></a>
+					</select></td>
+				</tr>
+				
                <tr>
          			<td><?php EchoTranslation("SSL Certificate")?></td>
          			<td>
@@ -82,7 +91,7 @@ if ($action == "edit")
                               $SSLCertificate = $SSLCertificates[$i];
                               
                               $id = $SSLCertificate->ID;
-                              $name = $SSLCertificate->Name;
+                              $name = PreprocessOutput($SSLCertificate->Name);
                            
                               ?>
                               <option value="<?php echo $id?>" <?php if ($id == "$SSLCertificateID") echo "selected";?> ><?php echo $name?></a>

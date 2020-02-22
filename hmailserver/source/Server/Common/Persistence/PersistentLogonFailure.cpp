@@ -30,12 +30,12 @@ namespace HM
 
       String sql;
       sql.Format(_T("select count(*) as c from hm_logon_failures where ipaddress1 %s and ipaddress2 %s"), 
-         String(helper.GetAddress1Equals(ipaddress)),
-         String(helper.GetAddress2Equals(ipaddress)));
+         String(helper.GetAddress1Equals(ipaddress)).c_str(),
+         String(helper.GetAddress2Equals(ipaddress)).c_str());
 
       SQLCommand command(sql);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return 0;
 
@@ -66,8 +66,8 @@ namespace HM
 
       String whereClause;
       whereClause.Format(_T("ipaddress1 %s and ipaddress2 %s"), 
-         String(helper.GetAddress1Equals(ipaddress)),
-         String(helper.GetAddress2Equals(ipaddress)));
+         String(helper.GetAddress1Equals(ipaddress)).c_str(),
+         String(helper.GetAddress2Equals(ipaddress)).c_str());
 
       SQLStatement statement;
       statement.SetStatementType(SQLStatement::STDelete);
@@ -81,7 +81,7 @@ namespace HM
    PersistentLogonFailure::ClearOldFailures(int olderThanMinutes)
    {
       String whereClause;
-      whereClause.Format(_T("failuretime < %s"), SQLStatement::GetCurrentTimestampPlusMinutes(-olderThanMinutes));
+      whereClause.Format(_T("failuretime < %s"), SQLStatement::GetCurrentTimestampPlusMinutes(-olderThanMinutes).c_str());
 
       SQLStatement statement;
       statement.SetStatementType(SQLStatement::STDelete);

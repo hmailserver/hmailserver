@@ -57,17 +57,17 @@ namespace HM
 
    IPAddress::IPAddress(boost::asio::ip::address address)
    {
-      _address = address;
+      address_ = address;
    }
 
    IPAddress::IPAddress(__int64 address1)
    {
-      _SetIPV4Address(address1);
+      SetIPV4Address_(address1);
    }
 
    IPAddress::IPAddress(__int64 address1, __int64 address2)
    {
-      _SetIPV6Address(address1, address2);
+      SetIPV6Address_(address1, address2);
    }
 
    bool
@@ -82,7 +82,7 @@ namespace HM
       boost::system::error_code error;
 
       if (addressString.Find(":") >= 0)
-         _address = boost::asio::ip::address_v6::from_string(addressString, error);
+         address_ = boost::asio::ip::address_v6::from_string(addressString, error);
       else
       {
          // Windows 2000 Workaround:
@@ -95,9 +95,9 @@ namespace HM
          // So we just do a hack to get around it.
          // 
          if (addressString == "255.255.255.255")
-            _SetIPV4Address(0xFFFFFFFF);
+            SetIPV4Address_(0xFFFFFFFF);
          else
-            _address = boost::asio::ip::address_v4::from_string(addressString, error);         
+            address_ = boost::asio::ip::address_v4::from_string(addressString, error);         
 
       }
 
@@ -107,7 +107,7 @@ namespace HM
          {
             // Parsing of the TCP/IP address failed. Report error to debug log.
             String formattedMessage;
-            formattedMessage.Format(_T("Unable to parse TCP/IP address. Address: %s, Error code: %d, Error message: %s"), String(addressString), error.value(), String(error.message()));
+            formattedMessage.Format(_T("Unable to parse TCP/IP address. Address: %s, Error code: %d, Error message: %s"), String(addressString).c_str(), error.value(), String(error.message()).c_str());
             LOG_DEBUG(formattedMessage);
          }
 
@@ -118,7 +118,7 @@ namespace HM
    }
 
    void 
-   IPAddress::_SetIPV4Address(__int64 address1)
+   IPAddress::SetIPV4Address_(__int64 address1)
    {
       int i1 = (address1 >> 24) & 0xFF;
       int i2 = (address1 >> 16) & 0xFF;
@@ -127,11 +127,11 @@ namespace HM
 
       boost::asio::ip::address_v4::bytes_type bytes_value = { { i1, i2, i3, i4 } };
 
-      _address = boost::asio::ip::address_v4(bytes_value);
+      address_ = boost::asio::ip::address_v4(bytes_value);
    }
 
    void 
-   IPAddress::_SetIPV6Address(__int64 address1, __int64 address2)
+   IPAddress::SetIPV6Address_(__int64 address1, __int64 address2)
    {
       int i1 = (address1 >> 56) & 0xFF;
       int i2 = (address1 >> 48) & 0xFF;
@@ -153,16 +153,16 @@ namespace HM
 
       boost::asio::ip::address_v6::bytes_type bytes_value = { { i1, i2, i3, i4, i5, i6, i7, i8, b1, b2, b3, b4, b5, b6, b7, b8 } };
 
-      _address = boost::asio::ip::address_v6(bytes_value);
+      address_ = boost::asio::ip::address_v6(bytes_value);
 
    }
 
    IPAddress::Type 
    IPAddress::GetType() const
    {
-      if (_address.is_v4())
+      if (address_.is_v4())
          return IPAddress::IPV4;
-      else if (_address.is_v6())
+      else if (address_.is_v6())
          return IPAddress::IPV6;
       else
       {
@@ -175,7 +175,7 @@ namespace HM
    IPAddress::ToString() const
    {
       boost::system::error_code error;
-      AnsiString result = _address.to_string(error);
+      AnsiString result = address_.to_string(error);
       
       if (error)
          return "";
@@ -183,20 +183,59 @@ namespace HM
          return result;
    }
 
+   AnsiString
+   IPAddress::ToLongString() const
+   {
+      if (GetType() == IPV4)
+         return ToString();
+
+      const int buffer_length = 40;
+
+      AnsiString result;
+      char *buffer = result.GetBuffer(40);
+
+      int pos = 0;
+
+      std::array<unsigned char, 16U> bytes = address_.to_v6().to_bytes();
+
+      for (unsigned int source_position = 1; source_position <= bytes.size(); source_position++)
+      {
+         auto byte = bytes[source_position-1];
+
+         char* position = buffer + pos;
+         int remaining = buffer_length - pos;
+
+         _snprintf_s(position, remaining, _TRUNCATE, "%02x", byte);
+         pos += 2;
+
+         if (source_position % 2 == 0 && source_position < bytes.size())
+         {
+            position = buffer + pos;
+            remaining = buffer_length - pos;
+
+            _snprintf_s(position, remaining, _TRUNCATE, ":");
+            pos++;
+         }
+      }
+
+      result.ReleaseBuffer();
+      return result;
+   }
+
    unsigned __int64 
    IPAddress::GetAddress1() const
    {
-      if (_address.is_v4())
+      if (address_.is_v4())
       {
-         boost::asio::ip::address_v4::bytes_type bytes_value = _address.to_v4().to_bytes();
+         boost::asio::ip::address_v4::bytes_type bytes_value = address_.to_v4().to_bytes();
 
          __int64 ret = 0xFFFFFFFF & ((bytes_value[0] << 24) | (bytes_value[1] << 16) | (bytes_value[2] << 8) | bytes_value[3]);
 
          return ret;
       }
-      else if (_address.is_v6())
+      else if (address_.is_v6())
       {
-         boost::asio::ip::address_v6::bytes_type bytes_value = _address.to_v6().to_bytes();
+         boost::asio::ip::address_v6::bytes_type bytes_value = address_.to_v6().to_bytes();
          
          unsigned __int64 ret = 0xFFFFFFFFFFFFFFFF & (__int64) bytes_value[0] << 56;
          ret |=  (__int64) bytes_value[1] << 48;
@@ -216,11 +255,11 @@ namespace HM
    unsigned __int64 
    IPAddress::GetAddress2() const
    {
-      if (_address.is_v4())
+      if (address_.is_v4())
          return 0;
-      else if (_address.is_v6())
+      else if (address_.is_v6())
       {
-         boost::asio::ip::address_v6::bytes_type bytes_value = _address.to_v6().to_bytes();
+         boost::asio::ip::address_v6::bytes_type bytes_value = address_.to_v6().to_bytes();
 
          unsigned __int64 ret = 0xFFFFFFFFFFFFFFFF & (__int64) bytes_value[8] << 56;
          ret |=  (__int64) bytes_value[9] << 48;
@@ -240,16 +279,16 @@ namespace HM
    bool 
    IPAddress::IsAny() const
    {
-      if (_address.is_v4())
+      if (address_.is_v4())
       {
-         if (_address.to_v4().to_bytes() == boost::asio::ip::address_v4::any().to_bytes())
+         if (address_.to_v4().to_bytes() == boost::asio::ip::address_v4::any().to_bytes())
          {
             return true;
          }
       }
-      else if (_address.is_v6())
+      else if (address_.is_v6())
       {
-         if (_address.to_v6().to_bytes() == boost::asio::ip::address_v6::any().to_bytes())
+         if (address_.to_v6().to_bytes() == boost::asio::ip::address_v6::any().to_bytes())
          {
             return true;
          }
@@ -271,12 +310,12 @@ namespace HM
       unsigned __int64 addressToCheck2 = GetAddress2();
       
       // If it's an IPv4 address, we don't need to compare the second part.
-      if (_address.is_v4())
+      if (address_.is_v4())
       {
          if (addressToCheck1 >= lower.GetAddress1() && addressToCheck1 <= upper.GetAddress1())
             return true;
       }
-      else if (_address.is_v6())
+      else if (address_.is_v6())
       {
          // Check that it's same or higher as the lower bound.
          if (addressToCheck1 >  lower.GetAddress1() || 

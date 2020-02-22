@@ -41,7 +41,7 @@ namespace HM
    if (Logger::Instance()->GetLogMask() & Logger::LSIMAP)      \
       Logger::Instance()->LogIMAPConversation(iSession,sIP, sMsg);      \
 
-   class Logger
+   class Logger : public Singleton<Logger>
    {
    public:
       Logger();
@@ -100,58 +100,52 @@ namespace HM
       bool GetLogApplication() const; 
       bool GetLogTCPIP() const;
       bool GetLoggingEnabled() const;
-	  bool GetLiveLogEnabled() const;
-
-      static void CreateInstance();
-      static void DeleteInstance();
-      static Logger* Instance();
+ 	   bool GetLiveLogEnabled() const;
 
       void EnableLiveLogging(bool bEnable);   
       String GetLiveLog();
 
       int GetLogMask() 
       {
-         return m_iLogMask;
+         return log_mask_;
       }
 
       String GetCurrentLogFileName(LogType lt) ;
 
    private:
 
-      File* _GetCurrentLogFile(LogType lt);
+      String CleanLogMessage_(const String &message);
+      File* GetCurrentLogFile_(LogType lt);
 
-      void _LogLive(String &sMessage);
-      bool _WriteData(const String &sData, LogType = Normal);
+      void LogLive_(String &sMessage);
+      void WriteData_(const String &sData, LogType = Normal);
    
-      static Logger *pInstanceApp;   
-     
-      String m_sLogDir;
+      String log_dir_;
       String GetCurrentTime();
 
-      int _GetProcessID();
-      int _GetThreadID();
+      int GetProcessID_();
+      int GetThreadID_();
 
 
-      bool m_bEnableLiveLog;
-      bool m_bSepSvcLogs;      
-      int  m_iLogLevel;      
-      int  m_iMaxLogLineLen;      
+      bool enable_live_log_;
+      bool sep_svc_logs_;      
+      int  log_level_;      
+      int  max_log_line_len_;      
 
-      CriticalSection m_oCritSec;
-      CriticalSection m_oCritSecLiveLog;
+      String live_log_;
+      int log_mask_;
 
-      String m_sLiveLog;
-      int m_iLogMask;
+      File normal_log_file_;
+      File error_log_file_;
+      File awstats_log_file_;
+      File backup_log_file_;
+      File events_log_file_;
+      File imaplog_file_;
+      File pop3log_file_;
+      File smtplog_file_;
 
-      File _normalLogFile;
-      File _errorLogFile;
-      File _awstatsLogFile;
-      File _backupLogFile;
-      File _eventsLogFile;
-      File _IMAPLogFile;
-      File _POP3LogFile;
-      File _SMTPLogFile;
-      
+      boost::recursive_mutex mtx_;
+      boost::recursive_mutex mtx_LiveLog;
    };
 
 }

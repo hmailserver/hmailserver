@@ -14,7 +14,7 @@ namespace HM
       ~RemoveExpiredRecords(void);
 
       virtual void DoWork();
-      virtual void StopWork();
+
    private:
    };
 }

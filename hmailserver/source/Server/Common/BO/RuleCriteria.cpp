@@ -12,10 +12,10 @@
 namespace HM
 {
    RuleCriteria::RuleCriteria(void) :
-      m_eFieldType(FTFrom),
-      m_eMatchType(Equals),
-      m_iRuleID(0),
-      m_bUsePredefinedField(true)
+      field_type_(FTFrom),
+      match_type_(Equals),
+      rule_id_(0),
+      use_predefined_field_(true)
    {
    }
 
@@ -28,11 +28,11 @@ namespace HM
    {
       XNode *pNode = pRuleNode->AppendChild(_T("Criteria"));
 
-      pNode->AppendAttr(_T("MatchString"), m_sMatchString);
-      pNode->AppendAttr(_T("FieldType"), StringParser::IntToString(m_eFieldType));
-      pNode->AppendAttr(_T("MatchType"), StringParser::IntToString(m_eMatchType));
-      pNode->AppendAttr(_T("HeaderField"), m_sHeaderField);
-      pNode->AppendAttr(_T("UsePredefinedField"), m_bUsePredefinedField ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("MatchString"), match_string_);
+      pNode->AppendAttr(_T("FieldType"), StringParser::IntToString(field_type_));
+      pNode->AppendAttr(_T("MatchType"), StringParser::IntToString(match_type_));
+      pNode->AppendAttr(_T("HeaderField"), header_field_);
+      pNode->AppendAttr(_T("UsePredefinedField"), use_predefined_field_ ? _T("1") : _T("0"));
 
       return true;
    }
@@ -40,11 +40,11 @@ namespace HM
    bool
    RuleCriteria::XMLLoad(XNode *pNode, int iOptions)
    {
-      m_sMatchString = pNode->GetAttrValue(_T("MatchString"));
-      m_eFieldType = (PredefinedField) _ttoi(pNode->GetAttrValue(_T("FieldType")));
-      m_eMatchType = (MatchType) _ttoi(pNode->GetAttrValue(_T("MatchType")));
-      m_sHeaderField = pNode->GetAttrValue(_T("HeaderField"));
-      m_bUsePredefinedField = (pNode->GetAttrValue(_T("UsePredefinedField")) == _T("1"));
+      match_string_ = pNode->GetAttrValue(_T("MatchString"));
+      field_type_ = (PredefinedField) _ttoi(pNode->GetAttrValue(_T("FieldType")));
+      match_type_ = (MatchType) _ttoi(pNode->GetAttrValue(_T("MatchType")));
+      header_field_ = pNode->GetAttrValue(_T("HeaderField"));
+      use_predefined_field_ = (pNode->GetAttrValue(_T("UsePredefinedField")) == _T("1"));
 
       return true;
    }

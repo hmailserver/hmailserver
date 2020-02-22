@@ -14,14 +14,13 @@ namespace HM
       ~BackupTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
 
-      void SetBackupToRestore(shared_ptr<Backup> pBackup);
+      void SetBackupToRestore(std::shared_ptr<Backup> pBackup);
 
    private:
 
-      bool m_bDoBackup;
+      bool do_backup_;
       
-      shared_ptr<Backup> m_pBackup;
+      std::shared_ptr<Backup> backup_;
    };
 }

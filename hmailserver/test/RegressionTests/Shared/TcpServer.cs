@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
 {
-   internal class TcpServer : IDisposable
+   public class TcpServer : IDisposable
    {
       private readonly ManualResetEvent _listenThreadStarted = new ManualResetEvent(false);
       private readonly ManualResetEvent _clientCompleted = new ManualResetEvent(false);
@@ -26,23 +28,33 @@ namespace RegressionTests.Shared
       private Thread _serverThread;
       private TcpListener _tcpListener;
       private Exception _workerThreadException;
-      private TcpSocket _socket;
+      protected TcpConnection _tcpConnection;
+
+      protected eConnectionSecurity _connectionSecurity;
 
       private string _conversation;
 
-      public TcpServer(int maxNumberOfConnections, int port)
+      private X509Certificate2 _localCertificate;
+
+      public TcpServer(int maxNumberOfConnections, int port, eConnectionSecurity connectionSecurity)
       {
          _maxNumberOfConnections = maxNumberOfConnections;
          _port = port;
+         _connectionSecurity = connectionSecurity;
 
          SecondsToWaitBeforeTerminate = 15;
+      }
+
+      public void SetCertificate(X509Certificate2 certificate)
+      {
+         _localCertificate = certificate;
       }
 
       public int SecondsToWaitBeforeTerminate { get; set; }
 
       public void StartListen()
       {
-         Trace.WriteLine("Starting listen...");
+         Console.WriteLine("Starting listen...");
 
          _listenThreadStarted.Reset();
                  
@@ -117,15 +129,20 @@ namespace RegressionTests.Shared
       {
          try
          {
-            _socket = null;
+            _tcpConnection = null;
 
             try
             {
-               _socket = new TcpSocket(_tcpListener.EndAcceptSocket(asyncResult));
+               _tcpConnection = new TcpConnection(_tcpListener.EndAcceptTcpClient(asyncResult));
             }
             catch (ObjectDisposedException)
             {
                return;
+            }
+
+            if (_connectionSecurity == eConnectionSecurity.eCSTLS)
+            {
+               _tcpConnection.HandshakeAsServer(_localCertificate);
             }
 
             _numberOfConnectedClients++;
@@ -142,10 +159,10 @@ namespace RegressionTests.Shared
 
       private void DisposeSocket()
       {
-         if (_socket != null)
+         if (_tcpConnection != null)
          {
-            _socket.Dispose();
-            _socket = null;
+            _tcpConnection.Dispose();
+            _tcpConnection = null;
          }   
       }
 
@@ -167,18 +184,18 @@ namespace RegressionTests.Shared
             }
          }
 
-         string log = TestSetup.ReadCurrentDefaultLog();
+         string log = LogHandler.ReadCurrentDefaultLog();
 
          if (_numberOfConnectedClients < _maxNumberOfConnections)
             Assert.Fail(
                string.Format(
-                  "Client did not connect to simulated server. Expected connection count: {0}, Actual: {1}\r\nLog:\r\n{2}",
-                  _maxNumberOfConnections, _numberOfConnectedClients, log));
+                  "At {0} - Client did not connect to simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
+                  DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
          else
             Assert.Fail(
                string.Format(
-                  "Client did not disconnect from simulated server. Expected connection count: {0}, Actual: {1}\r\nLog:\r\n{2}",
-                  _maxNumberOfConnections, _numberOfConnectedClients, log));
+                  "At {0} - Client did not disconnect from simulated server. Expected connection count: {1}, Actual: {2}\r\nLog:\r\n{3}",
+                  DateTime.Now, _maxNumberOfConnections, _numberOfConnectedClients, log));
       }
 
       public void Dispose()
@@ -195,32 +212,32 @@ namespace RegressionTests.Shared
 
       public void Disconnect()
       {
-         _socket.Disconnect();
+         _tcpConnection.Disconnect();
       }
 
       public void Send(string s)
       {
          _conversation += s;
-         _socket.Send(s);
+         _tcpConnection.Send(s);
       }
       
       public string Receive()
       {
-         string data = _socket.Receive();
+         string data = _tcpConnection.Receive();
          _conversation += data;
          return data;
       }
 
       public string ReadUntil(string text)
       {
-         string data = _socket.ReadUntil(text);
+         string data = _tcpConnection.ReadUntil(text);
          _conversation += data;
          return data;
       }
 
       public string ReadUntil(List<string> possibleReplies)
       {
-         string data =_socket.ReadUntil(possibleReplies);
+         string data =_tcpConnection.ReadUntil(possibleReplies);
          _conversation += data;
          return data;
       }

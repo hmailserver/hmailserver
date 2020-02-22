@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Dialogs;
 using hMailServer.Administrator.Utilities;
@@ -59,22 +56,38 @@ namespace hMailServer.Administrator
 
       private bool ValidateFolderName()
       {
+         
          TreeNode currentNode = treeFolders.SelectedNode;
-         hMailServer.IMAPFolder folder = currentNode.Tag as hMailServer.IMAPFolder;
+         var parentNode = currentNode.Parent;
 
-         TreeNode nodeIterator = currentNode.FirstNode;
-         while (nodeIterator != null)
+         List<TreeNode> nodesToCheck = new List<TreeNode>();
+
+         if (parentNode == null)
          {
-            if (nodeIterator != currentNode)
+            foreach (TreeNode node in treeFolders.Nodes)
+               nodesToCheck.Add(node);
+         }
+         else
+         {
+            foreach (TreeNode node in parentNode.Nodes)
+               nodesToCheck.Add(node);
+         }
+
+         for (int i = 0; i < nodesToCheck.Count; i++)
+         {
+            var node = nodesToCheck[i];
+            if (node != currentNode)
             {
-               if (nodeIterator.Text == currentNode.Text)
+               if (node.Text == currentNode.Text)
                {
-                  MessageBox.Show(Strings.Localize("There is already an folder with this name."), EnumStrings.hMailServerAdministrator);
+                  MessageBox.Show(Strings.Localize("There is already an folder with this name."),
+                     EnumStrings.hMailServerAdministrator);
+
+                  textName.Focus();
+
                   return false;
                }
             }
-
-            nodeIterator = nodeIterator.NextNode;
          }
 
          if (textName.Text.Length > 255)
@@ -220,9 +233,15 @@ namespace hMailServer.Administrator
          if (selectedNode == null)
             return;
 
-         hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
+         if (MessageBox.Show(Strings.Localize("Are you sure you want to delete all messages in the folder?"),
+            EnumStrings.hMailServerAdministrator,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
+         {
+            hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
 
-         folder.Messages.Clear();
+            folder.Messages.Clear();
+         }
       }
 
       private void deleteFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -231,13 +250,19 @@ namespace hMailServer.Administrator
          if (selectedNode == null)
             return;
 
-         hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
-         
-         folder.Delete();
+         if (MessageBox.Show(Strings.Localize("Are you sure you want to delete the folder?"),
+            EnumStrings.hMailServerAdministrator,
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
+         {
+            hMailServer.IMAPFolder folder = selectedNode.Tag as IMAPFolder;
 
-         treeFolders.Nodes.Remove(selectedNode);
+            folder.Delete();
 
-         ShowCurrentFolder();
+            treeFolders.Nodes.Remove(selectedNode);
+
+            ShowCurrentFolder();
+         }
       }
 
       private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
@@ -298,7 +323,10 @@ namespace hMailServer.Administrator
 
       private void treeFolders_BeforeSelect(object sender, TreeViewCancelEventArgs e)
       {
-         SaveCurrentFolder();
+         if (!SaveCurrentFolder())
+         {
+            e.Cancel = true;
+         }
       }
 
       private void treeFolders_MouseUp(object sender, MouseEventArgs e)

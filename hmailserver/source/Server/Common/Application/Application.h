@@ -14,7 +14,7 @@ namespace HM
    class DatabaseConnectionManager;
    class Scheduler;
    class WorkQueue;
-   class IOCPServer;
+   class IOService;
    class ServerMessages;
    class NotificationServer;
    class FolderManager;
@@ -29,83 +29,81 @@ namespace HM
       static String GetExecutableName();
 
       // --- global 
-      shared_ptr<DatabaseConnectionManager> GetDBManager() { return m_pDBManager; }
+      std::shared_ptr<DatabaseConnectionManager> GetDBManager() { return db_manager_; }
 
       // --- overridables
       virtual bool InitInstance(String &sErrorMessage);
       virtual bool ExitInstance();
 
-      String GetVersion() const;
-      String GetVersionNumber() const {return m_sVersion;}
+      String GetVersionNumber() const;
+      String GetVersionArchitecture() const;
+      
 
-      String GetStartTime() const {return m_sStartTime; }
+      String GetStartTime() const {return start_time_; }
 
       bool OpenDatabase(String &sErrorMessage);
       void CloseDatabase();
 
       
-      String GetLastErrorMessage() {return m_sLastConnectErrorMessage; }; 
+      String GetLastErrorMessage() {return last_connect_error_message_; }; 
 
       bool StartServers();
       void StopServers();
       void SubmitPendingEmail();
 
-      shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return m_pSMTPDeliveryManager;} 
-      shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return m_pExternalFetchManager;} 
+      std::shared_ptr<SMTPDeliveryManager> GetSMTPDeliveryManager() {return smtp_delivery_manager_;} 
+      std::shared_ptr<ExternalFetchManager> GetExternalFetchManager() {return external_fetch_manager_;} 
 
-      shared_ptr<BackupManager> GetBackupManager() {return m_pBackupManager; }
+      std::shared_ptr<BackupManager> GetBackupManager() {return backup_manager_; }
 
-      shared_ptr<WorkQueue> GetRandomWorkQueue();
-      shared_ptr<WorkQueue> GetAsyncWorkQueue();
-      shared_ptr<IOCPServer> GetIOCPServer() {return m_pIOCPServer; }
+      std::shared_ptr<WorkQueue> GetMaintenanceWorkQueue();
+      std::shared_ptr<WorkQueue> GetAsyncWorkQueue();
+      std::shared_ptr<IOService> GetIOService() {return io_service_; }
       // The random work queue can run any task.
 
-      shared_ptr<NotificationServer> GetNotificationServer();
-      shared_ptr<FolderManager> GetFolderManager();
+      std::shared_ptr<NotificationServer> GetNotificationServer();
+      std::shared_ptr<FolderManager> GetFolderManager();
 
       String Reinitialize();
 
       int GetUniqueID();
 
-      void SetServerStartedEvent();
-
-      void OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       bool OnDatabaseConnected(String &sErrorMessage);
 
+      boost::signals2::signal<void()> OnServerStopped;
+
    private:
 
-      void _RegisterSessionTypes();
-      void _CreateScheduledTasks();
+      void RegisterSessionTypes_();
+      void CreateScheduledTasks_();
 
-      String m_sProdName;
-      String m_sVersion;
-      String m_sStartTime;
+      String version_;
+      String start_time_;
       
-      String m_sLastConnectErrorMessage;
+      String last_connect_error_message_;
 
-      shared_ptr<DatabaseConnectionManager> m_pDBManager;
+      std::shared_ptr<DatabaseConnectionManager> db_manager_;
    
       // the servers
-      shared_ptr<SMTPDeliveryManager> m_pSMTPDeliveryManager;
+      std::shared_ptr<SMTPDeliveryManager> smtp_delivery_manager_;
 
-      shared_ptr<ExternalFetchManager> m_pExternalFetchManager;
-      shared_ptr<BackupManager> m_pBackupManager;
-      shared_ptr<Scheduler> m_pScheduler;
-      shared_ptr<NotificationServer> m_pNotificationServer;
-      shared_ptr<IOCPServer> m_pIOCPServer;
-      shared_ptr<FolderManager> _folderManager;
+      std::shared_ptr<ExternalFetchManager> external_fetch_manager_;
+      std::shared_ptr<BackupManager> backup_manager_;
+      std::shared_ptr<Scheduler> scheduler_;
+      std::shared_ptr<NotificationServer> notification_server_;
+      std::shared_ptr<IOService> io_service_;
+      std::shared_ptr<FolderManager> folder_manager_;
 
-      const String m_sRandomWorkQueue;
+      const String maintenance_queue_;
       // The random work queue can run any type of task.
 
-      const String m_sServerWorkQueue;
+      const String server_work_queue_;
       // The main server queue, that contains one task per server.
 
-      const String m_sAsynchronousTasksQueue;
+      const String asynchronous_tasks_queue_;
 
-      long m_iUniqueID;
-
-      Event _serverStartEvent;
+      long unique_id_;
    };
 }

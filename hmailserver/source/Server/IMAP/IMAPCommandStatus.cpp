@@ -21,13 +21,13 @@ namespace HM
 {
    
    IMAPResult
-   IMAPCommandSTATUS::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandSTATUS::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
 
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
 
@@ -37,7 +37,7 @@ namespace HM
       String sFolderName = pParser->GetParamValue(pArgument, 0);
       String sFlags = pParser->GetParamValue(pArgument, 1);
 
-      shared_ptr<IMAPFolder> pTheFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pTheFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pTheFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
@@ -49,7 +49,7 @@ namespace HM
       if (!pConnection->CheckPermission(pTheFolder, ACLPermission::PermissionRead))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied.");
 
-      shared_ptr<Messages> pMessages = pTheFolder->GetMessages();
+      std::shared_ptr<Messages> pMessages = pTheFolder->GetMessages();
       
       String sResponse = "";
 
@@ -92,7 +92,7 @@ namespace HM
       if (sFlags.FindNoCase(_T("RECENT")) >= 0)
       {
          String sTemp;
-         long lNoOfRecent = pMessages->GetNoOfRecent();
+         long lNoOfRecent = (int) pConnection->GetRecentMessages().size();
          sTemp.Format(_T("RECENT %d"), lNoOfRecent);
 
          if (bAddSpace)

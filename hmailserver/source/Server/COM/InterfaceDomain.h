@@ -42,7 +42,7 @@ public:
 #endif
    }
 
-   void SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication);
+   void SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEDOMAIN)
 
@@ -155,7 +155,7 @@ END_COM_MAP()
    // dkim end.
 private:
    
-   shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   std::shared_ptr<HM::COMAuthentication> authentication_;
 
 #ifdef _DEBUG
    static long counter;

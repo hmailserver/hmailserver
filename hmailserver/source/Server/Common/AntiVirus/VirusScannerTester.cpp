@@ -26,7 +26,7 @@ namespace HM
    {
       ClamAVVirusScanner scanner;
       
-      String testFile = _GeneratePlainTestFile();
+      String testFile = GeneratePlainTestFile_();
       VirusScanningResult result = scanner.Scan(hostName, port, testFile);
       FileUtilities::DeleteFile(testFile);
 
@@ -36,7 +36,7 @@ namespace HM
          return false;
       }
       
-      testFile = _GenerateVirusTestFile();
+      testFile = GenerateVirusTestFile_();
       result = scanner.Scan(hostName, port, testFile);
       FileUtilities::DeleteFile(testFile);
       message = result.GetDetails();
@@ -49,7 +49,7 @@ namespace HM
    {
       CustomVirusScanner scanner;
 
-      String testFile = _GeneratePlainTestFile();
+      String testFile = GeneratePlainTestFile_();
       VirusScanningResult result = scanner.Scan(executable, returnValue, testFile);
       FileUtilities::DeleteFile(testFile);
 
@@ -59,7 +59,7 @@ namespace HM
          return false;
       }
 
-      testFile = _GenerateVirusTestFile();
+      testFile = GenerateVirusTestFile_();
       result = scanner.Scan(executable, returnValue, testFile);
       FileUtilities::DeleteFile(testFile);
       message = result.GetDetails();
@@ -71,7 +71,7 @@ namespace HM
    {
       ClamWinVirusScanner scanner;
 
-      String testFile = _GeneratePlainTestFile();
+      String testFile = GeneratePlainTestFile_();
       VirusScanningResult result = scanner.Scan(executable, databasePath, testFile);
       FileUtilities::DeleteFile(testFile);
 
@@ -82,7 +82,7 @@ namespace HM
       }
 
 
-      testFile = _GenerateVirusTestFile();
+      testFile = GenerateVirusTestFile_();
       result = scanner.Scan(executable, databasePath, testFile);
       FileUtilities::DeleteFile(testFile);
       message = result.GetDetails();
@@ -90,7 +90,7 @@ namespace HM
    }
 
    String
-   VirusScannerTester::_GenerateVirusTestFile()
+   VirusScannerTester::GenerateVirusTestFile_()
    {
       // Store the test virus in reversed form so we don't trigger any virus scanner...
       String eicarTestString = " *H+H$!ELIF-TSET-SURIVITNA-DRADNATS-RACIE$}7)CC7)^P(45XZP\\4[PA@%P!O5X";      
@@ -108,7 +108,7 @@ namespace HM
    }
 
    String
-   VirusScannerTester::_GeneratePlainTestFile()
+   VirusScannerTester::GeneratePlainTestFile_()
    {
       // Store the test virus in reversed form so we don't trigger any virus scanner...
       String testString = "Test";

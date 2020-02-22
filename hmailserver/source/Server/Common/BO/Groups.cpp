@@ -32,6 +32,6 @@ namespace HM
    {
       String sSQL = "select * from hm_groups order by groupname asc";
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 }

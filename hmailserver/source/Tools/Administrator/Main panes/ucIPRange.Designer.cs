@@ -56,6 +56,7 @@ namespace hMailServer.Administrator
            this.textName = new hMailServer.Shared.ucText();
            this.textLowerIPAddress = new hMailServer.Administrator.Controls.ucIPAddress();
            this.textUpperIPAddress = new hMailServer.Administrator.Controls.ucIPAddress();
+           this.checkRequireSSLTLSForAuth = new hMailServer.Administrator.Controls.ucCheckbox();
            this.SuspendLayout();
            // 
            // labelGeneral
@@ -329,6 +330,7 @@ namespace hMailServer.Administrator
            this.textPriority.Location = new System.Drawing.Point(279, 48);
            this.textPriority.Name = "textPriority";
            this.textPriority.Number = 0;
+           this.textPriority.Number64 = ((long)(0));
            this.textPriority.Numeric = true;
            this.textPriority.Size = new System.Drawing.Size(90, 20);
            this.textPriority.TabIndex = 14;
@@ -338,6 +340,7 @@ namespace hMailServer.Administrator
            this.textName.Location = new System.Drawing.Point(32, 48);
            this.textName.Name = "textName";
            this.textName.Number = 0;
+           this.textName.Number64 = ((long)(0));
            this.textName.Numeric = false;
            this.textName.Size = new System.Drawing.Size(129, 20);
            this.textName.TabIndex = 11;
@@ -356,10 +359,23 @@ namespace hMailServer.Administrator
            this.textUpperIPAddress.Size = new System.Drawing.Size(239, 20);
            this.textUpperIPAddress.TabIndex = 61;
            // 
+           // checkRequireSSLTLSForAuth
+           // 
+           this.checkRequireSSLTLSForAuth.AutoSize = true;
+           this.checkRequireSSLTLSForAuth.Checked = true;
+           this.checkRequireSSLTLSForAuth.CheckState = System.Windows.Forms.CheckState.Checked;
+           this.checkRequireSSLTLSForAuth.Location = new System.Drawing.Point(293, 253);
+           this.checkRequireSSLTLSForAuth.Name = "checkRequireSSLTLSForAuth";
+           this.checkRequireSSLTLSForAuth.Size = new System.Drawing.Size(196, 17);
+           this.checkRequireSSLTLSForAuth.TabIndex = 62;
+           this.checkRequireSSLTLSForAuth.Text = "Require SSL/TLS for authentication";
+           this.checkRequireSSLTLSForAuth.UseVisualStyleBackColor = true;
+           // 
            // ucIPRange
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+           this.Controls.Add(this.checkRequireSSLTLSForAuth);
            this.Controls.Add(this.textUpperIPAddress);
            this.Controls.Add(this.textLowerIPAddress);
            this.Controls.Add(this.checkRequireSMTPAuthLocalToExternal);
@@ -425,5 +441,6 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucCheckbox checkRequireSMTPAuthLocalToLocal;
        private hMailServer.Administrator.Controls.ucIPAddress textLowerIPAddress;
        private hMailServer.Administrator.Controls.ucIPAddress textUpperIPAddress;
+       private hMailServer.Administrator.Controls.ucCheckbox checkRequireSSLTLSForAuth;
     }
 }

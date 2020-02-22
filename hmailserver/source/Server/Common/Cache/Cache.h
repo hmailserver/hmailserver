@@ -1,21 +1,40 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+
+using boost::multi_index_container;
+using namespace boost::multi_index;
+
+#include "../Util/VariantDateTime.h"
+
+#include "CachedObject.h"
+
+#pragma once
+
 namespace HM
 {
-   template <class T, class P>
-   class Cache : public Singleton<Cache<T,P>>
+
+   struct id {};
+   struct name {};
+   struct timestamp {};
+
+   template <typename T>
+   class Cache : public Singleton<Cache<T>>
    {
    public:
       Cache();
 
-      shared_ptr<const T> GetObject(const String &sName);
+      std::shared_ptr<T> GetObject(const String &sName);
       // Retrieves an object using the object name.
 
-      shared_ptr<const T> GetObject(__int64 iID);
+      std::shared_ptr<T> GetObject(__int64 iID);
       // Retrieves an object using the ID
 
-      void RemoveObject(shared_ptr<T> pObject);
+      void RemoveObject(std::shared_ptr<T> pObject);
       void RemoveObject(const String &sName);
       void RemoveObject(__int64 iID);
 
@@ -24,217 +43,235 @@ namespace HM
       void SetEnabled(bool bEnabled);
       void Clear();
 
+      void AdjustEstimatedSize(bool increase, size_t size_change);
+
+      void SetMaxSize(size_t max_size);
+      size_t GetMaxSize();
+      size_t GetSize();
+
+      void Add(std::shared_ptr<T> pObject);
+
    private:
 
-      bool _GetObjectIsWithinTTL(shared_ptr<T> pObject);
-      void _AddToCache(shared_ptr<T> pObject);
-
-      int m_iNoOfMisses;
-      int m_iNoOfHits;
-      int m_iTTL;
-      bool m_bEnabled;
+      void ResetEstimatedSizeIfEmpty_();
 
 
-      // Properties used to determine how long objects 
-      // should be stored and the current statistics
+      template<typename Tag, typename MultiIndexContainer, typename TagValue>
+      std::shared_ptr<T> GetItemBy_(const MultiIndexContainer& s, TagValue value)
+      {
+         typedef index<container_type, Tag>::type items_by_tag;
+         items_by_tag& items = get<Tag>(objects_);
+         auto item = items.find(value);
 
-      CriticalSection m_oAccessCritSec;
-      // All access to the container is restricted by
-      // a critical section
+         if (item != items.end())
+         {
+            CachedObject<T> cached_object = (*item);
+            if (GetObjectIsWithinTTL_(cached_object))
+            {
+               return cached_object.object_;
+            }
+
+            items.erase(item);
+         }
+
+         std::shared_ptr<T> empty;
+         return empty;
+      }
       
-      std::map<String, shared_ptr<T> > m_mapObjects;
-      // All the objects in the cache
+      template<typename Tag, typename MultiIndexContainer, typename TagValue>
+      void RemoveBy_(const MultiIndexContainer& s, TagValue value)
+      {
+         typedef index<container_type, Tag>::type items_by_tag;
+         items_by_tag& items = get<Tag>(objects_);
+
+         auto item_iter = items.find(value);
+
+         if (item_iter != items.end())
+         {
+            auto item = (*item_iter);
+
+            if (current_estimated_size_ >= item.GetEstimatedSize())
+               current_estimated_size_ -= item.GetEstimatedSize();
+            
+            items.erase(item_iter);
+         }
+
+         ResetEstimatedSizeIfEmpty_();
+
+      }
+      
+      bool GetObjectIsWithinTTL_(CachedObject<T> pObject);
+      
+
+      boost::recursive_mutex _mutex;
+      
+      typedef multi_index_container<
+         CachedObject<typename T>,
+         indexed_by<
+            hashed_unique<
+            tag<id>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, __int64, id_)>,
+            hashed_non_unique<
+            tag<name>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, std::wstring, name_)>,
+            ordered_non_unique<
+            tag<timestamp>, BOOST_MULTI_INDEX_MEMBER(CachedObject<typename T>, int, creation_time_)> >
+      > container_type;
+
+      container_type objects_;
+
+      int no_of_misses_;
+      int no_of_hits_;
+      int ttl_;
+      bool enabled_;
+      size_t max_size_;
+      size_t current_estimated_size_;
    };
 
-   template <class T, class P> 
-   Cache<T,P>::Cache()
+   template <class T> 
+   Cache<T>::Cache() :
+      max_size_(0),
+      current_estimated_size_(0),
+      no_of_misses_(0),
+      no_of_hits_(0),
+      ttl_(0),
+      enabled_(false)
    {
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
-      m_iTTL = 0;
-      m_bEnabled = false;
+      
+      
    }
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::Clear()
+   Cache<T>::Clear()
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      m_mapObjects.clear();
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
+      objects_.clear();
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::SetTTL(int iNewVal)
+   Cache<T>::SetTTL(int iNewVal)
    {
-      m_iTTL = iNewVal;
+      ttl_ = iNewVal;
 
-      m_iNoOfMisses = 0;
-      m_iNoOfHits = 0;
+      no_of_misses_ = 0;
+      no_of_hits_ = 0;
    }
 
 
-   template <class T, class P> 
+   template <class T> 
    void
-   Cache<T,P>::SetEnabled(bool bEnabled)
+   Cache<T>::SetEnabled(bool bEnabled)
    {
-      m_bEnabled = bEnabled;
+      enabled_ = bEnabled;
 
-      if (!m_bEnabled)
+      if (!enabled_)
          Clear();
    }
 
-
-   template <class T, class P> 
-   int
-   Cache<T,P>::GetHitRate()
+   template <class T>
+   void
+   Cache<T>::SetMaxSize(size_t max_size)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      max_size_ = max_size;
+   }
 
-      if (m_iNoOfHits == 0)
+   template <class T>
+   size_t
+   Cache<T>::GetMaxSize()
+   {
+      return max_size_;
+   }
+
+
+   template <class T>
+   size_t
+   Cache<T>::GetSize()
+   {
+      return current_estimated_size_;
+   }
+
+
+   template <class T> 
+   int
+   Cache<T>::GetHitRate()
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      if (no_of_hits_ == 0)
          return 0;
 
-      int iHitRate = (int) (((float) m_iNoOfHits / (float) (m_iNoOfHits + m_iNoOfMisses)) * 100);
+      int iHitRate = (int) (((float) no_of_hits_ / (float) (no_of_hits_ + no_of_misses_)) * 100);
 
       return iHitRate;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(shared_ptr<T> pObject)
+   Cache<T>::RemoveObject(std::shared_ptr<T> pObject)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(pObject->GetName());
-   
-      if (iterObject != m_mapObjects.end())
-         m_mapObjects.erase(iterObject);
-
+      RemoveBy_<name>(objects_, pObject->GetName());
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(const String &sName)
+   Cache<T>::RemoveObject(const String &sName)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(sName);
+      RemoveBy_<name>(objects_, sName);
 
-      if (iterObject != m_mapObjects.end())
-         m_mapObjects.erase(iterObject);
 
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::RemoveObject(__int64 iID)
+   Cache<T>::RemoveObject(__int64 iID)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      // Find the domain using the ID
-      std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.begin();
-      std::map<String, shared_ptr<T> >::iterator iterEnd = m_mapObjects.end();
-
-      for (; iterObject != iterEnd; iterObject++)
-      {
-         shared_ptr<T> pObject = (*iterObject).second;
-
-         if (pObject->GetID() == iID)
-         {
-            m_mapObjects.erase(iterObject);
-            return;
-         }
-
-      }
+      RemoveBy_<id>(objects_, iID);
    }
 
-   template <class T, class P> 
-   shared_ptr<const T> 
-   Cache<T,P>::GetObject(const String &sName)
+   template <class T> 
+   std::shared_ptr<T> 
+   Cache<T>::GetObject(const String &sName)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_bEnabled)
+      if (enabled_)
       {
-         std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.find(sName);
-
-         if (iterObject != m_mapObjects.end())
-         {
-            shared_ptr<T> pObject = (*iterObject).second;
-
-            if (_GetObjectIsWithinTTL(pObject))
-               return pObject;
-         
-            // Object has passed TTL
-            m_mapObjects.erase(iterObject);
-         }
+         return GetItemBy_<name>(objects_, sName);
       }
-
-      // Load the object
-      shared_ptr<T> pRetObject = shared_ptr<T>(new T);
-      
-      if (!P::ReadObject(pRetObject, sName))
-      {
-         shared_ptr<T> pEmpty;
-         return pEmpty;
-      }
-
-      if (m_bEnabled)
-         _AddToCache(pRetObject);
-
-      return pRetObject;
+      return nullptr;
    }
 
-   template <class T, class P> 
-   shared_ptr<const T> 
-   Cache<T,P>::GetObject(__int64 iID)
+   template <class T> 
+   std::shared_ptr<T> 
+   Cache<T>::GetObject(__int64 iID)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      if (m_bEnabled)
+      if (enabled_)
       {
-         // Find the domain using the ID
-         std::map<String, shared_ptr<T> >::iterator iterObject = m_mapObjects.begin();
-         std::map<String, shared_ptr<T> >::iterator iterEnd = m_mapObjects.end();
-
-         for (; iterObject != iterEnd; iterObject++)
-         {
-            shared_ptr<T> pObject = (*iterObject).second;
-
-            if (pObject->GetID() == iID)
-            {
-               if (_GetObjectIsWithinTTL(pObject))
-                  return pObject;
-
-               m_mapObjects.erase(iterObject);
-
-               break;
-            }
-         }
+         return GetItemBy_<id>(objects_, iID);
       }
 
-      // Load the object
-      shared_ptr<T> pRetObject = shared_ptr<T>(new T);
-      if (!P::ReadObject(pRetObject, iID))
-      {
-         shared_ptr<T> pEmpty;
-         return pEmpty;
-      }
-
-      if (m_bEnabled)
-         _AddToCache(pRetObject);
-   
-      return pRetObject;
+      return nullptr;
    }
 
-   template <class T, class P> 
+   template <class T> 
    void 
-   Cache<T,P>::_AddToCache(shared_ptr<T> pObject)
+   Cache<T>::Add(std::shared_ptr<T> pObject)
    {
-      CriticalSectionScope scope(m_oAccessCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      if (!enabled_)
+         return;
 
       // Object must be saved before it can be cached.
 #ifdef DEBUG
@@ -244,24 +281,79 @@ namespace HM
       }
 #endif
 
-      m_iNoOfMisses++;
-      m_mapObjects[pObject->GetName()] = pObject;
+      typedef index<container_type, timestamp>::type items_by_timestamp;
+      items_by_timestamp& items = get<timestamp>(objects_);
+
+      CachedObject<T> object(pObject);
+
+      if (max_size_ > 0 && current_estimated_size_ + object.GetEstimatedSize() > max_size_)
+      {
+         // We've reached the cache max size. Remove items until we're 10% free.
+         size_t target_size = (size_t) (max_size_ * 0.9);
+
+         while (current_estimated_size_ > target_size)
+         {
+            auto item_iter = items.begin();
+            if (item_iter == items.end())
+               break;
+
+            auto item = (*item_iter);
+            
+            if (current_estimated_size_ >= item.GetEstimatedSize())
+               current_estimated_size_ -= item.GetEstimatedSize();
+
+            items.erase(item_iter);
+         }
+
+         ResetEstimatedSizeIfEmpty_();
+      }
+
+      no_of_misses_++;
+      current_estimated_size_ += object.GetEstimatedSize();
+      items.insert(object);
    }
 
-   template <class T, class P> 
+   template <class T> 
    bool 
-   Cache<T,P>::_GetObjectIsWithinTTL(shared_ptr<T> pObject)
+   Cache<T>::GetObjectIsWithinTTL_(CachedObject<T> pObject)
    {
-      if (pObject)
+      if (pObject.SecondsOld() < ttl_)
       {
-         if (pObject->Seconds() < m_iTTL)
-         {
-            // A fresh object was found in the cache.
-            m_iNoOfHits++;
-            return true;
-         }
+         // A fresh object was found in the cache.
+         no_of_hits_++;
+         return true;
       }
 
       return false;
+   }
+
+
+   template <class T>
+   void
+   Cache<T>::ResetEstimatedSizeIfEmpty_()
+   {
+      if (objects_.size() == 0)
+      {
+         current_estimated_size_ = 0;
+      }
+
+   }
+
+   template <class T>
+   void
+   Cache<T>::AdjustEstimatedSize(bool increase, size_t size_change)
+   {
+      if (increase)
+      {
+         current_estimated_size_ += size_change;
+      }
+      else
+      {
+         if (size_change > current_estimated_size_)
+            current_estimated_size_ -= size_change;
+         else
+            current_estimated_size_ = 0;
+      }
+
    }
 }

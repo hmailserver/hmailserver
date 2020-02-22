@@ -200,7 +200,7 @@ create table hm_settings
 (
 	settingid bigserial not null primary key,
 	settingname varchar (30) not null unique,
-	settingstring varchar (255) not null ,
+	settingstring varchar (4000) not null ,
 	settinginteger int not null
 );
 
@@ -271,7 +271,7 @@ create table hm_routes
   routeauthenticationusername varchar(255) NOT NULL,
   routeauthenticationpassword varchar(255) NOT NULL,
   routetreatsecurityaslocal smallint NOT NULL,
-  routeusessl smallint not null,
+  routeconnectionsecurity smallint not null,
   routetreatsenderaslocaldomain smallint NOT NULL
 );
 
@@ -324,10 +324,10 @@ create table hm_fetchaccounts
 	falocked smallint not null,
 	faprocessmimerecipients smallint not null,
 	faprocessmimedate smallint not null,
-	fausessl smallint not null,
-   fauseantispam smallint not null,
-   fauseantivirus smallint not null,
-   faenablerouterecipients smallint not null
+	faconnectionsecurity smallint not null,
+    fauseantispam smallint not null,
+    fauseantivirus smallint not null,
+    faenablerouterecipients smallint not null
 );
 
 create table hm_fetchaccounts_uids
@@ -439,8 +439,8 @@ create table hm_tcpipports
 	portprotocol smallint not null,
 	portnumber int not null,
 	portaddress1 bigint not null,
-   portaddress2 bigint null,
-	portusessl smallint not null,
+    portaddress2 bigint null,
+	portconnectionsecurity smallint not null,
 	portsslcertificateid bigint not null
 );
 
@@ -511,7 +511,7 @@ CREATE INDEX idx_hm_logon_failures_failuretime ON hm_logon_failures (failuretime
 
 insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (10, 0, NULL, 4294967295, NULL, 96203, 'Internet', 0, '2001-01-01');
 
-insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (15, 2130706433, NULL, 2130706433, NULL, 71627, 'My computer', 0, '2001-01-01');
+insert into hm_securityranges (rangepriorityid, rangelowerip1, rangelowerip2, rangeupperip1, rangeupperip2, rangeoptions, rangename, rangeexpires, rangeexpirestime) values (30, 2130706433, NULL, 2130706433, NULL, 71627, 'My computer', 0, '2001-01-01');
 
 insert into hm_servermessages (smname, smtext) values ('VIRUS_FOUND', 'Virus found');
 
@@ -533,6 +533,7 @@ insert into hm_dnsbl (sblactive, sbldnshost, sblresult, sblrejectmessage, sblsco
 
 insert into hm_surblservers (surblactive, surblhost, surblrejectmessage, surblscore) values (0, 'multi.surbl.org', 'Rejected by SURBL.', 3);
 
+
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.bat', 'Batch processing file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.cmd', 'Command file for Windows NT');
@@ -552,6 +553,8 @@ insert into hm_blocked_attachments (bawildcard, badescription) values ('*.lnk', 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msi', 'Windows Installer file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.msp', 'Windows Installer patch');
+
+insert into hm_blocked_attachments (bawildcard, badescription) values ('*.pif', 'Program Information file');
 
 insert into hm_blocked_attachments (bawildcard, badescription) values ('*.reg', 'Registration key');
 
@@ -703,7 +706,7 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('al
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('distributionlistcachettl', '', 60);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('smtprelayerusessl', '', 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('smtprelayerconnectionsecurity', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('adddeliveredtoheader', '', 0);
 
@@ -765,10 +768,28 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Cl
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ClamAVPort', '', 3310);
 
-insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portusessl, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SmtpDeliveryConnectionSecurity', '', 2);
 
-insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portusessl, portsslcertificateid) values (3, 110, 0, NULL, 0, 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('VerifyRemoteSslCertificate', '', 1);
 
-insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portusessl, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SslCipherList', 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK;', 0);
 
-insert into hm_dbversion values (5400);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SslVersions', '', 14);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ImapMasterUser', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ImapAuthAllowPlainText', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('EnableImapSASLPlain', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('EnableImapSASLInitialResponse', '', 0);
+
+insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
+
+insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 587, 0, NULL, 0, 0);
+
+insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (3, 110, 0, NULL, 0, 0);
+
+insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
+
+insert into hm_dbversion values (5700);

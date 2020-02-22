@@ -17,19 +17,16 @@ namespace HM
       virtual ~Scheduler();
 
 
-      void ScheduleTask(shared_ptr<ScheduledTask> pTask);
+      void ScheduleTask(std::shared_ptr<ScheduledTask> pTask);
 
       void DoWork();
-      void StopWork();
 
    private:
 
-      void _RunTasks();
+      void RunTasks_();
 
-      Event m_hStopTask;      
-
-      CriticalSection m_oVecCritSec;
-      vector<shared_ptr<ScheduledTask >> m_vecScheduledTasks;
+      boost::recursive_mutex mutex_;
+      std::vector<std::shared_ptr<ScheduledTask >> scheduled_tasks_;
 
    };
 

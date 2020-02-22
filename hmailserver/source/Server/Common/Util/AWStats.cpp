@@ -15,7 +15,7 @@
 
 namespace HM
 {
-   bool AWStats::m_bEnabled = false;
+   bool AWStats::enabled_ = false;
 
    AWStats::AWStats(void)
    {
@@ -28,32 +28,32 @@ namespace HM
    void 
    AWStats::LogDeliveryFailure(const String &senderIP, const String &sFromAddress, const String &sToAddress, int iErrorCode)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       LOG_DEBUG(_T("AWStats::LogDeliveryFailure"));
 
       // Since we were unable to deliver the message, we log that the recipient IP address was 127.0.0.1
       // Not really clear what the 'correct' thing to log here is.
-      _Log(senderIP, "127.0.0.1", sFromAddress, sToAddress, iErrorCode, 0);
+      Log_(senderIP, "127.0.0.1", sFromAddress, sToAddress, iErrorCode, 0);
    }
 
 
    void
-   AWStats::LogDeliverySuccess(const String &senderIP, const String &recipientIP, shared_ptr<Message> pMessage, const String &sRecipient)
+   AWStats::LogDeliverySuccess(const String &senderIP, const String &recipientIP, std::shared_ptr<Message> pMessage, const String &sRecipient)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       LOG_DEBUG(_T("AWStats::LogDeliverySuccess"));
 
-      _Log(senderIP, recipientIP, pMessage->GetFromAddress(), sRecipient, 250, pMessage->GetSize());
+      Log_(senderIP, recipientIP, pMessage->GetFromAddress(), sRecipient, 250, pMessage->GetSize());
    }
 
    void 
-   AWStats::_Log(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived)
+   AWStats::Log_(const String &senderIP, const String &recipientIP, const String &senderAddress, const String &recipientAddress, int iErrorCode, int iBytesReceived)
    {
-      if (!m_bEnabled)
+      if (!enabled_)
          return;
 
       // Following format is used:
@@ -75,7 +75,7 @@ namespace HM
 
       String sLogLine;
       sLogLine.Format(_T("%s\t%s\t%s\t%s\t%s\tSMTP\t?\t%d\t%d\r\n"), 
-                        sTime, sModifiedSender, sModifiedRecipient, senderIP, recipientIP, iErrorCode, iBytesReceived );
+         sTime.c_str(), sModifiedSender.c_str(), sModifiedRecipient.c_str(), senderIP.c_str(), recipientIP.c_str(), iErrorCode, iBytesReceived);
 
       Logger::Instance()->LogAWStats(sLogLine);
    }
@@ -83,7 +83,7 @@ namespace HM
    void 
    AWStats::SetEnabled(bool bNewVal)
    {
-      m_bEnabled = bNewVal;
+      enabled_ = bNewVal;
    }
 
    bool 
@@ -93,6 +93,6 @@ namespace HM
    // Returns true if the awstats log is enabled. false otherwise.
    //---------------------------------------------------------------------------()
    {
-      return m_bEnabled;
+      return enabled_;
    }
 }

@@ -16,7 +16,6 @@
 #include "../Common/Util/ClassTester.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/SystemInformation.h"
-#include "../Common/Application/SingletonCreator.h"
 
 // #define VLD_START_DISABLED
 // #include "C:\Temp\vld-10\vldapi.h"
@@ -67,7 +66,7 @@ namespace HM
       // __super to quit.
       //---------------------------------------------------------------------------//
       {
-         if (m_bRunAsService)
+         if (run_as_service_)
          {
             // Start the server threads now.
             StartServiceInitialization(0);
@@ -80,7 +79,6 @@ namespace HM
       void
       RegisterObjects()
       {
-
          HRESULT hr = CoInitializeSecurity(0, -1, 0, 0, RPC_C_AUTHN_LEVEL_CONNECT , RPC_C_IMP_LEVEL_IMPERSONATE, 0,0,0);
 
          if (FAILED(hr))
@@ -130,7 +128,7 @@ namespace HM
       // as service, we should never die using this mechanism, hence the return 1.
       //---------------------------------------------------------------------------//
       {
-         if (m_bRunAsService)
+         if (run_as_service_)
             return 1;
          else
             return __super::Unlock();
@@ -165,7 +163,7 @@ namespace HM
          return S_OK;
       }
 
-      bool m_bRunAsService;
+      bool run_as_service_;
    };
 
    
@@ -177,11 +175,6 @@ HM::ChMailServerModule _AtlModule;
 extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, 
                                 LPTSTR lpCmdLine, int nShowCmd)
 {
-   // Create the logger object. This needs to be done 
-   // immediately so that we can log errors that occurs.
-   Logger::CreateInstance();
-
-
    // Initailize some service variables.
    ServiceStatus.dwServiceType = SERVICE_WIN32; 
    ServiceStatus.dwWin32ExitCode = 0;
@@ -191,11 +184,13 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
 
    // Parse the command line.
    HM::String sCommandLine = GetCommandLine();
-   vector<String> vecParams = StringParser::SplitString(sCommandLine, " ");
+   std::vector<String> vecParams = StringParser::SplitString(sCommandLine, " ");
 
    String sLastParam;
    if (!vecParams.empty())
       sLastParam = vecParams[vecParams.size() - 1];
+
+   _AtlModule.InitializeCom();
 
    // Register app id so that client can create instances
    // of us even when running as a service under the local
@@ -211,7 +206,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       HM::ServiceManager hSCM;
       if (!hSCM.RegisterService("hMailServer", "hMailServer"))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: RegisterService failed.");
+         return -1;         
       }
    }
 
@@ -219,14 +214,11 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    {
       if (FAILED(_AtlModule.RegisterAppId()))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: _AtlModule.RegisterAppId() failed.");
-         return 0;
+         return -1;
       }
-
       if (FAILED(_AtlModule.RegisterServer(TRUE)))
       {
-         Logger::Instance()->LogError("Source: (PreInit) hMailServer::_tWinMain, Description: _AtlModule.RegisterServer failed.");
-         return 0;
+         return -1;
       }
 
       return 0;
@@ -266,8 +258,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       //     This is a bit ugly but should work fine
       //     for debugging purposes.
       DEBUG_MODE = true;
-
-	   SingletonCreator::Create();
 	
 	   String sErrorMessage;
       if (HM::Application::Instance()->InitInstance(sErrorMessage))
@@ -284,8 +274,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
       HM::Application::Instance()->StopServers();
 
       HM::Application::Instance()->ExitInstance();
-      SingletonCreator::Delete();
-      Logger::DeleteInstance();
    }
    else if (sLastParam.CompareNoCase(_T("/Debug")) == 0)
    {
@@ -306,15 +294,21 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
    }
    else if (sLastParam.CompareNoCase(_T("RunAsService")) == 0)
    {
-      _AtlModule.m_bRunAsService = true;
+      _AtlModule.run_as_service_ = true;
 
 	  iRet = _AtlModule.WinMain(nShowCmd);
+     
+     if (iRet != 0)
+     {
+        ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5601, "_tWinMain", Formatter::Format("_AtlModule.WinMain returned {0}", iRet));
+     }
    }
 
 	//_CrtDumpMemoryLeaks();
    
    return iRet;
 }
+
 
 DWORD WINAPI StartServiceInitialization(LPVOID vd)
 {
@@ -355,7 +349,7 @@ ServiceMain(DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/)
    // Then it immediately calls the SetServiceStatus function to notify the 
    // service control manager that its status is SERVICE_START_PENDING. 
    // Tell SCM that we have started.
-   ReportServiceStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP);
+   ReportServiceStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
 
    // In Windows 2000/XP, we need to register objects directly
    // after service start. Otherwise it won't work. In later
@@ -368,7 +362,6 @@ ServiceMain(DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/)
    // We need to do this AFTER we have registered the COM objects
    // Otherwise it won't work properly "on all" Win2k3 machines.
    InitializeApplication();
-
 
    
    // Inform the OLE SCM that it can now create objects.
@@ -396,8 +389,6 @@ TerminateServer()
       ReportServiceStatus(SERVICE_STOPPED, 0);
    }
    
-   // De-allocate all singletons.
-   HM::SingletonCreator::Delete();
 
 }
 
@@ -418,7 +409,12 @@ ServiceController (DWORD Opcode)
    case SERVICE_CONTROL_CONTINUE: 
       ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
       break; 
+   case SERVICE_CONTROL_SHUTDOWN:
+      LOG_DEBUG("Received shutdown-request from Windows.");
+      TerminateServer();
+      break;
    case SERVICE_CONTROL_STOP: 
+      LOG_DEBUG("Received stop-request from Windows.");
       TerminateServer();
       // --- Send message to the main thread to quit.
       return; 
@@ -444,9 +440,7 @@ void InitializeApplication()
    // servers.
 
    // First allocate all singletons.
-   SingletonCreator::Create();
-
-      String sErrorMessage;
+   String sErrorMessage;
    if (HM::Application::Instance()->InitInstance(sErrorMessage))
    {
       // We were able to connect to the database server

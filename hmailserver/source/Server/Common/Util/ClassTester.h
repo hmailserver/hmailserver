@@ -15,11 +15,11 @@ namespace HM
 
    private:
 
-      void _LoadSettings();
+      void LoadSettings_();
 
-      void _TestBackup();
+      void TestBackup_();
 
-      String m_sMimeDataPath;
+      String mime_data_path_;
    };
 
 }

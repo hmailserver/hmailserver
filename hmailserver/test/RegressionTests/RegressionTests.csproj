@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,7 +13,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>http://localhost/UnitTest/</PublishUrl>
@@ -29,62 +30,83 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x64\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="nunit.framework, Version=2.5.3.9345, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\libraries\nunit-2.5.3\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\libraries\nunit-2.6.3\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Messages.cs" />
+    <Compile Include="IMAP\ConcurrentConnections.cs" />
     <Compile Include="Infrastructure\AccountProperties.cs" />
     <Compile Include="Infrastructure\AccountServices.cs" />
     <Compile Include="AntiSpam\Combinations.cs" />
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
     <Compile Include="API\Basics.cs" />
-    <Compile Include="Shared\TcpSocket.cs" />
+    <Compile Include="Infrastructure\Cache.cs" />
+    <Compile Include="Infrastructure\CustomAsserts.cs" />
+    <Compile Include="Infrastructure\LogHandler.cs" />
+    <Compile Include="Infrastructure\Persistence\AccountNameValidation.cs" />
+    <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
+    <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
+    <Compile Include="Shared\DeliveryFailedException.cs" />
+    <Compile Include="Shared\ServiceRestartDetector.cs" />
+    <Compile Include="Shared\SslVersions.cs" />
+    <Compile Include="Shared\StringExtensions.cs" />
+    <Compile Include="Shared\TcpConnection.cs" />
     <Compile Include="Infrastructure\Delivery.cs" />
     <Compile Include="Infrastructure\DomainServices.cs" />
     <Compile Include="IMAP\Basics.cs" />
-    <Compile Include="Shared\IMAPSimulator.cs" />
+    <Compile Include="Shared\ImapClientSimulator.cs" />
     <Compile Include="Infrastructure\IPRanges.cs" />
     <Compile Include="Infrastructure\MainOperations.cs" />
     <Compile Include="Infrastructure\Persistence\Basics.cs" />
     <Compile Include="POP3\Basics.cs" />
-    <Compile Include="Shared\POP3Simulator.cs" />
+    <Compile Include="Shared\Pop3ClientSimulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rules\Rules.cs" />
     <Compile Include="Shared\SingletonProvider.cs" />
     <Compile Include="SMTP\Basics.cs" />
-    <Compile Include="SSL\Basics.cs" />
+    <Compile Include="SMTP\ESmtpTests.cs" />
+    <Compile Include="SMTP\RcptToParsing.cs" />
+    <Compile Include="SMTP\MailFromParsing.cs" />
+    <Compile Include="SSL\SslTlsVersionTests.cs" />
+    <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />
+    <Compile Include="TestResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="hMailServer">
@@ -130,13 +152,12 @@
   <ItemGroup>
     <Compile Include="AntiSpam\DKIM\Signing.cs" />
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
-    <Compile Include="AntiVirus\Basics.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="API\Links.cs" />
     <Compile Include="Stress\ContentStressTest.cs" />
     <Compile Include="IMAP\Sort.cs" />
     <Compile Include="POP3\Fetching\Basics.cs" />
-    <Compile Include="Shared\POP3Server.cs" />
+    <Compile Include="Shared\Pop3ServerSimulator.cs" />
     <Compile Include="Security\AutoBan.cs" />
     <Compile Include="Security\SMTPAuthentication.cs" />
     <Compile Include="SMTP\Signatures.cs" />
@@ -171,20 +192,29 @@
     <Compile Include="IMAP\Append.cs" />
     <Compile Include="IMAP\Examine.cs" />
     <Compile Include="IMAP\Fetch.cs" />
+    <Compile Include="Infrastructure\ExceptionHandlerTests.cs" />
+    <Compile Include="Infrastructure\Persistence\TCPIPPortTests.cs" />
+    <Compile Include="Infrastructure\RetryHelper.cs" />
+    <Compile Include="Infrastructure\SessionLimitingTests.cs" />
     <Compile Include="MIME\MessageParsing.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
+    <Compile Include="POP3\Fetching\ExternalAccountSslTests.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
-    <Compile Include="Shared\SMTPClientSimulator.cs" />
+    <Compile Include="Shared\SmtpClientSimulator.cs" />
+    <Compile Include="Shared\TestTracer.cs" />
+    <Compile Include="SMTP\BlockedAttachmentTests.cs" />
+    <Compile Include="SMTP\ReceivedHeaders.cs" />
     <Compile Include="SMTP\DistributionLists.cs" />
     <Compile Include="SMTP\Routes.cs" />
+    <Compile Include="SMTP\SMTPClientStartTLSTests.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
-    <Compile Include="Shared\SMTPServerSimulator.cs" />
-    <Compile Include="TestResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TestResources.resx</DependentUpon>
-    </Compile>
+    <Compile Include="Shared\SmtpServerSimulator.cs" />
+    <Compile Include="SSL\SmtpDeliverySslTests.cs" />
+    <Compile Include="SSL\SslSetup.cs" />
+    <Compile Include="SSL\StartTls\ImapServerTests.cs" />
+    <Compile Include="SSL\StartTls\Pop3ServerTests.cs" />
+    <Compile Include="SSL\StartTls\SmtpServerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Messages\MultipartMessageWithNoMainBodyText.txt" />
@@ -194,7 +224,23 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody-TextPlainContentType.txt" />
     <None Include="Resources\SecuniaBody1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextPlainAttachment.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody-NoContentType.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextHtmlBody-TextHtmlContentType.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextHtmlAttachment.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

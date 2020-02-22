@@ -11,7 +11,7 @@ namespace HM
    public:
       
       virtual int GetDatabaseVersion() = 0;
-      virtual bool Ensure(shared_ptr<DALConnection> connection, String &sErrorMessage) = 0;
+      virtual bool Ensure(std::shared_ptr<DALConnection> connection, String &sErrorMessage) = 0;
 
    private:
 

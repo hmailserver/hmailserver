@@ -18,35 +18,34 @@
 namespace HM
 {
 
-   IMAPCommandIdle::IMAPCommandIdle(shared_ptr<IMAPConnection> pConnection) :
-      _connection(pConnection)
+   IMAPCommandIdle::IMAPCommandIdle(std::shared_ptr<IMAPConnection> pConnection) :
+      connection_(pConnection)
    {
 
    }
 
    IMAPCommandIdle::~IMAPCommandIdle()
    {
-      shared_ptr<IMAPConnection> safeConnection = _connection.lock ();
-      if (!safeConnection)
-         return;
-
       try
       {
+         std::shared_ptr<IMAPConnection> safeConnection = connection_.lock();
+         if (!safeConnection)
+            return;
+
          if (safeConnection->GetIsIdling())
-         {     
+         {
             Finish(false);
          }
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4301, "IMAPCommandIdle::~IMAPCommandIdle", "An unknown error has occurred.");
-         
-         throw;
+
       }
+
    }
 
    IMAPResult
-   IMAPCommandIdle::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandIdle::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Handles an IMAP idle command from the client. Switches to IDLE mode by
@@ -59,19 +58,10 @@ namespace HM
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultBad, "Command requires authentication.");
 
-      try
-      {
-         pConnection->SetIsIdling(true);
-         pConnection->SendAsciiData("+ idling\r\n");
+      pConnection->SetIsIdling(true);
+      pConnection->SendAsciiData("+ idling\r\n");
 
-         m_sTag = pArgument->Tag();
-      }
-      catch (...)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4302, "IMAPCommandIdle::ExecuteCommand", "An unknown error has occurred.");
-
-         throw;
-      }
+      tag_ = pArgument->Tag();
 
       return IMAPResult();
    }
@@ -83,25 +73,16 @@ namespace HM
    // Switches out of IDLE mode.
    //---------------------------------------------------------------------------()
    {  
-      shared_ptr<IMAPConnection> safeConnection = _connection.lock ();
+      std::shared_ptr<IMAPConnection> safeConnection = connection_.lock ();
       if (!safeConnection)
          return;
 
-      try
-      {
-         safeConnection->SetIsIdling(false);
+      safeConnection->SetIsIdling(false);
 
-         if (sendNotificationToClient)
-         {
-            String sResponse = m_sTag + " OK IDLE terminated\r\n";
-            safeConnection->SendAsciiData(sResponse);
-         }
-      }
-      catch (...)
+      if (sendNotificationToClient)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4303, "IMAPCommandIdle::Finish", "An unknown error has occurred.");
-
-         throw;
+         String sResponse = tag_ + " OK IDLE terminated\r\n";
+         safeConnection->SendAsciiData(sResponse);
       }
    }
 

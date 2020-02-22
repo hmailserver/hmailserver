@@ -6,7 +6,7 @@
 #include "GroupMembers.h"
 
 #include "../BO/Account.h"
-#include "../Cache/Cache.h"
+#include "../Cache/CacheContainer.h"
 #include "../Persistence/PersistentGroupMember.h"
 #include "../Persistence/PersistentAccount.h"
 
@@ -18,7 +18,7 @@
 namespace HM
 {
    GroupMembers::GroupMembers(__int64 iGroupID) :
-      m_iGroupID(iGroupID)
+      group_id_(iGroupID)
    {
 
    }
@@ -35,20 +35,20 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_group_members where membergroupid = %I64d order by memberid asc"), m_iGroupID);
+      sSQL.Format(_T("select * from hm_group_members where membergroupid = %I64d order by memberid asc"), group_id_);
 
-      _DBLoad(sSQL);      
+      DBLoad_(sSQL);      
    }
 
    bool 
    GroupMembers::UserIsMember(__int64 iAccountID)
    {
-      vector<shared_ptr<GroupMember> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<GroupMember> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<GroupMember> pMember = (*iter);
+         std::shared_ptr<GroupMember> pMember = (*iter);
 
          if (pMember->GetAccountID() == iAccountID)
             return true;
@@ -58,9 +58,9 @@ namespace HM
    }
 
    void 
-   GroupMembers::PostStoreObject(shared_ptr<GroupMember> pGroupMember, XNode *pChildNode)
+   GroupMembers::PostStoreObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pChildNode)
    {
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(pGroupMember->GetAccountID());
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pGroupMember->GetAccountID());
       if (!pAccount)
          return;
 
@@ -70,10 +70,10 @@ namespace HM
    }
 
    bool
-   GroupMembers::PreSaveObject(shared_ptr<GroupMember> pGroupMember, XNode *pNode)
+   GroupMembers::PreSaveObject(std::shared_ptr<GroupMember> pGroupMember, XNode *pNode)
    {
       String sAddress = pNode->GetAttrValue(_T("Name"));
-      shared_ptr<const Account> pAccount = Cache<Account, PersistentAccount>::Instance()->GetObject(sAddress);
+      std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sAddress);
 
       if (!pAccount)
       {
@@ -81,7 +81,7 @@ namespace HM
          return false;
       }
 
-      pGroupMember->SetGroupID(m_iGroupID);
+      pGroupMember->SetGroupID(group_id_);
       pGroupMember->SetAccountID(pAccount->GetID());
 
       return true;

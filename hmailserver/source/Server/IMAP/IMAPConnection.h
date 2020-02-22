@@ -4,9 +4,8 @@
 #pragma once
 
 
-#include "../Common/TCPIP/ProtocolParser.h"
-
 #include "IMAPNotificationClient.h"
+#include "../common/TCPIP/TCPConnection.h"
 
 
 using namespace std;
@@ -33,11 +32,12 @@ namespace HM
       std::vector<String> vecLiteralData;
    };
 
-   class IMAPConnection : public ProtocolParser, 
-                          public boost::enable_shared_from_this<IMAPConnection>
+   class IMAPConnection : public TCPConnection
    {
    public:
-	   IMAPConnection();
+      IMAPConnection(ConnectionSecurity connection_security,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~IMAPConnection();
       void Initialize();
 
@@ -77,108 +77,113 @@ namespace HM
          IMAP_GETACL = 131,
          IMAP_SETACL = 132,
          IMAP_DELETEACL = 133,
-         IMAP_LISTRIGHTS = 134
+         IMAP_LISTRIGHTS = 134,
+         IMAP_STARTTLS = 135
       };
 
       void ParseData(const AnsiString &Request);
-      void ParseData(shared_ptr<ByteBuffer> pByteBuffer);
-      bool SendAsciiData(const AnsiString & sData);
+      void ParseData(std::shared_ptr<ByteBuffer> pByteBuffer);
+      void SendAsciiData(const AnsiString & sData);
       
-      shared_ptr<const Account> GetAccount() { return _account; }
+      std::shared_ptr<const Account> GetAccount() { return account_; }
       
       void RefreshIMAPFolders();
-      void NotifyFolderChange();
+      void NotifyFolderChange(eIMAPCommandType active_command);
       
-      shared_ptr<IMAPFolders> GetAccountFolders() const { return m_pIMAPFolders;}
-      shared_ptr<IMAPFolders> GetPublicFolders() const { return m_pPublicIMAPFolders;}
+      std::shared_ptr<IMAPFolders> GetAccountFolders() const { return imap_folders_;}
+      std::shared_ptr<IMAPFolders> GetPublicFolders() const { return public_imap_folders_;}
       
-      shared_ptr<IMAPFolder> GetFolderByFullPath(const String &sFolderName);
-      shared_ptr<IMAPFolder> GetFolderByFullPath(std::vector<String> &vecFolderPath);
+      std::shared_ptr<IMAPFolder> GetFolderByFullPath(const String &sFolderName);
+      std::shared_ptr<IMAPFolder> GetFolderByFullPath(std::vector<String> &vecFolderPath);
 
-      shared_ptr<IMAPFolder> GetCurrentFolder() { return m_pCurrentFolder; }
+      std::shared_ptr<IMAPFolder> GetCurrentFolder() { return current_folder_; }
 
-      bool CheckPermission(shared_ptr<IMAPFolder> pFolder, int iPermission);
-      void CheckFolderPermissions(shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess);
+      bool CheckPermission(std::shared_ptr<IMAPFolder> pFolder, int iPermission);
+      void CheckFolderPermissions(std::shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess);
 
       void CloseCurrentFolder();
-      void SetCurrentFolder(shared_ptr<IMAPFolder> pFolder, bool readOnly);
+      void SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly);
    
       void SendResponseString(const String &sTag, const String &sResponse, const String &sMessage);
 
       bool GetIsIdling() const;
       void SetIsIdling(bool bNewVal);
 
-      void SetDelayedChangeNotification(shared_ptr<ChangeNotification> pNotification);
+      void SetDelayedChangeNotification(std::shared_ptr<ChangeNotification> pNotification);
 
-      void Login(shared_ptr<const Account> account);
+      void Login(std::shared_ptr<const Account> account);
       void Logout(const String &goodbyeMessage);
-
-      void SetReceiveBinary(bool binary);
-   
+  
       bool IsAuthenticated();
-      bool GetCurrentFolderReadOnly() {return _currentFolderReadOnly; }
+      bool GetCurrentFolderReadOnly() {return current_folder_read_only_; }
 
-      IPAddress GetIPAddress()
-      {
-         return ProtocolParser::GetIPAddress();
-      }
+      std::shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
-      shared_ptr<IMAPNotificationClient> GetNotificationClient() {return _notificationClient;}
+      void StartHandshake();
+	 
+	  void SetRecentMessages(const std::set<__int64> &messages);
+      std::set<__int64>& GetRecentMessages();
+
+
+      void SetCommandBuffer(const String &sval);
+
 
    protected:
 
       virtual void OnConnected();
+      virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed() {};
       virtual AnsiString GetCommandSeparator() const;
 
-      void _LogClientCommand(const String &sClientData) const;
+      void LogClientCommand_(const String &sClientData);
       
       virtual void OnExcessiveDataReceived();
       virtual void OnConnectionTimeout();
             
       eIMAPCommandType GetCommandType(String & sCommand);
 
-      std::vector<shared_ptr<IMAPClientCommand> > vecIncoming;
-      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> > mapCommandHandlers;
-      std::map<eIMAPCommandType, shared_ptr<IMAPCommand> > mapStaticHandlers;
+      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> > mapCommandHandlers;
+      std::map<eIMAPCommandType, std::shared_ptr<IMAPCommand> > mapStaticHandlers;
 
    private:
 
-      void _SetAccount(shared_ptr<const Account> account) { _account = account; }
+      std::set<__int64> recent_messages_;
 
-      void _Disconnect();
-      bool _IsReceivingLiteralDataForLoginCommand() const;
+      bool InternalParseData(const AnsiString &Request);
+      void SendBanner_();
+      void SetAccount_(std::shared_ptr<const Account> account) { account_ = account; }
 
-      void InternalParseData(const String &Request);
+      void Disconnect_();
+      bool IsReceivingLiteralDataForLoginCommand_() const;
 
-      bool _AskForLiteralData(const String &sInput);
+      bool AskForLiteralData_(const String &sInput);
 
-      void _EndIdleMode();
-      int _GetLiteralSize(const String &sCommand);
+      void EndIdleMode_();
+      int GetLiteralSize_(const String &sCommand);
 
-      void AnswerCommand();
-      shared_ptr<const Account> _account;
+      bool AnswerCommand(std::shared_ptr<IMAPClientCommand> command);
+      std::shared_ptr<const Account> account_;
 
-      shared_ptr<IMAPFolders> m_pIMAPFolders;
-      shared_ptr<IMAPFolders> m_pPublicIMAPFolders;
+      std::shared_ptr<IMAPFolders> imap_folders_;
+      std::shared_ptr<IMAPFolders> public_imap_folders_;
 
-      shared_ptr<ChangeNotification> m_pDelayedChangeNotification;
+      std::shared_ptr<ChangeNotification> delayed_change_notification_;
 
       // Folder info
-      shared_ptr<IMAPFolder> m_pCurrentFolder;
-      bool _currentFolderReadOnly;
+      std::shared_ptr<IMAPFolder> current_folder_;
+      bool current_folder_read_only_;
 
-      String m_sCommandBuffer;
-      bool m_bIsIdling;
+      String command_buffer_;
+      bool is_idling_;
 
-      int m_iLiteralDataToReceive;
-      String m_sLiteralBuffer;
+      int literal_data_to_receive_;
+      String literal_buffer_;
 
-      bool m_bPendingDisconnect;
+      bool pending_disconnect_;
 
-      shared_ptr<IMAPNotificationClient> _notificationClient;
+      std::shared_ptr<IMAPNotificationClient> notification_client_;
 
-      int  m_iLogLevel;      
-
+      int log_level_;
    };
    
 }

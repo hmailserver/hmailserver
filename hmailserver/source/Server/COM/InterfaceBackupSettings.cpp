@@ -7,14 +7,21 @@
 
 #include "../common/Application/IniFileSettings.h"
 
+InterfaceBackupSettings::InterfaceBackupSettings() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
+{
+
+}
+
 bool 
 InterfaceBackupSettings::LoadSettings()
 {
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
-   m_pIniFileSettings = HM::IniFileSettings::Instance();
+   config_ = HM::Configuration::Instance();
+   ini_file_settings_ = HM::IniFileSettings::Instance();
 
    return true;
 }
@@ -23,10 +30,10 @@ STDMETHODIMP InterfaceBackupSettings::get_Destination(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetBackupDestination().AllocSysString();
+      *pVal = config_->GetBackupDestination().AllocSysString();
    
       return S_OK;
    }
@@ -40,10 +47,10 @@ STDMETHODIMP InterfaceBackupSettings::put_Destination(BSTR newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetBackupDestination(newVal);
+      config_->SetBackupDestination(newVal);
    
       return S_OK;
    }
@@ -57,10 +64,10 @@ STDMETHODIMP InterfaceBackupSettings::get_LogFile(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      HM::String sLogDir = m_pIniFileSettings->GetLogDirectory();
+      HM::String sLogDir = ini_file_settings_->GetLogDirectory();
       if (sLogDir.Right(1) != _T("\\"))
          sLogDir += "\\";
    
@@ -81,10 +88,10 @@ InterfaceBackupSettings::get_BackupSettings(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetBackupOption(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetBackupOption(HM::Backup::BOSettings) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -98,10 +105,10 @@ InterfaceBackupSettings::put_BackupSettings(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetBackupOption(HM::Backup::BOSettings, newVal == VARIANT_TRUE);
+      config_->SetBackupOption(HM::Backup::BOSettings, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -115,10 +122,10 @@ InterfaceBackupSettings::get_BackupDomains(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetBackupOption(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetBackupOption(HM::Backup::BODomains) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -132,10 +139,10 @@ InterfaceBackupSettings::put_BackupDomains(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetBackupOption(HM::Backup::BODomains, newVal == VARIANT_TRUE);
+      config_->SetBackupOption(HM::Backup::BODomains, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -149,10 +156,10 @@ InterfaceBackupSettings::get_BackupMessages(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetBackupOption(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetBackupOption(HM::Backup::BOMessages) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -166,10 +173,10 @@ InterfaceBackupSettings::put_BackupMessages(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetBackupOption(HM::Backup::BOMessages, newVal == VARIANT_TRUE);
+      config_->SetBackupOption(HM::Backup::BOMessages, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)
@@ -183,10 +190,10 @@ InterfaceBackupSettings::get_CompressDestinationFiles(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetBackupOption(HM::Backup::BOCompression) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetBackupOption(HM::Backup::BOCompression) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -200,10 +207,10 @@ InterfaceBackupSettings::put_CompressDestinationFiles(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetBackupOption(HM::Backup::BOCompression, newVal == VARIANT_TRUE);
+      config_->SetBackupOption(HM::Backup::BOCompression, newVal == VARIANT_TRUE);
       return S_OK;
    }
    catch (...)

@@ -2,11 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using hMailServer.Shared;
@@ -34,6 +30,9 @@ namespace hMailServer.Administrator.Dialogs
          DirtyChecker.SubscribeToChange(this, OnContentChanged);
          
          buttonDownloadNow.Enabled = false;
+         
+         comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get(false));
+         comboConnectionSecurity.SelectedIndex = 0;
 
          EnableDisable();
       }
@@ -64,7 +63,8 @@ namespace hMailServer.Administrator.Dialogs
          textServer.Text = fetchAccount.ServerAddress;
          textPort.Number = fetchAccount.Port;
          textUsername.Text = fetchAccount.Username;
-         checkUseSSL.Checked = fetchAccount.UseSSL;
+         comboConnectionSecurity.SelectedValue = fetchAccount.ConnectionSecurity;
+         
 
          checkProcessMIMERecipients.Checked = fetchAccount.ProcessMIMERecipients;
          checkProcessMIMEDate.Checked = fetchAccount.ProcessMIMEDate;
@@ -103,7 +103,7 @@ namespace hMailServer.Administrator.Dialogs
          fetchAccount.ServerAddress = textServer.Text;
          fetchAccount.ServerType = (int) comboServerType.SelectedValue;
          fetchAccount.Username = textUsername.Text;
-         fetchAccount.UseSSL = checkUseSSL.Checked;
+         fetchAccount.ConnectionSecurity = (eConnectionSecurity) comboConnectionSecurity.SelectedValue;
          fetchAccount.UseAntiSpam = checkUseAntiSpam.Checked;
          fetchAccount.UseAntiVirus = checkUseAntiVirus.Checked;
          fetchAccount.EnableRouteRecipients = checkEnableRouteRecipients.Checked;
@@ -158,35 +158,31 @@ namespace hMailServer.Administrator.Dialogs
          EnableDisable();
       }
 
-      private void checkUseSSL_CheckedChanged(object sender, EventArgs e)
+
+
+      private void comboConnectionSecurity_SelectedIndexChanged(object sender, EventArgs e)
       {
-         if (_isLoading)
-            return;
+          if (_isLoading)
+              return;
 
-         if (checkUseSSL.Checked)
-            textPort.Number = 995;
-         else
-            textPort.Number = 110;
-         
-         textPort.Font = new Font(this.Font, FontStyle.Bold);
+          if ((eConnectionSecurity)comboConnectionSecurity.SelectedValue == eConnectionSecurity.eCSTLS)
+              textPort.Number = 995;
+          else
+              textPort.Number = 110;
 
-         if (_timer != null)
-            _timer.Stop();
+          textPort.Font = new Font(this.Font, FontStyle.Bold);
 
-         _timer = new Timer();
-         _timer.Interval = 3000;
-         _timer.Tick += (s, ev) =>
-            {
-               textPort.Font = new Font(this.Font, FontStyle.Regular);
-               _timer.Stop();
-            };
-         _timer.Start();
+          if (_timer != null)
+              _timer.Stop();
 
-      }
-
-      void _timer_Tick(object sender, EventArgs e)
-      {
-         throw new NotImplementedException();
+          _timer = new Timer();
+          _timer.Interval = 3000;
+          _timer.Tick += (s, ev) =>
+          {
+              textPort.Font = new Font(this.Font, FontStyle.Regular);
+              _timer.Stop();
+          };
+          _timer.Start();
       }
    }
 }

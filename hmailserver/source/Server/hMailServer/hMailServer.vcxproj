@@ -1,0 +1,1376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2679BEE5-8D11-4F4B-BC1A-49EEA96A3423}</ProjectGuid>
+    <RootNamespace>hMailServer</RootNamespace>
+    <Keyword>AtlProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Command>NET STOP hMailServer
+EXIT 0
+</Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(IntDir)hMailServer.tlb</TypeLibraryName>
+      <HeaderFileName>hMailServer.h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>hMailServer_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>hMailServer_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1d\out64\include;..\..\..\..\Libraries\libpq-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;libcrypto.lib;libssl.lib;crypt32.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1d\out64\lib;..\..\..\..\Libraries\libpq-9.4\64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <SubSystem>Windows</SubSystem>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <ImportLibrary>$(OutDir)hMailServer.lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Message>Performing registration</Message>
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1d\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1d\out64\bin\libssl-1_1-x64.dll $(OutDir)
+"$(TargetPath)" /Register
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Command>NET STOP hMailServer
+EXIT 0
+</Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(IntDir)hMailServer.tlb</TypeLibraryName>
+      <HeaderFileName>hMailServer.h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>hMailServer_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>hMailServer_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1d\out64\include;..\..\..\..\Libraries\libpq-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>libcrypto.lib;libssl.lib;Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;crypt32.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1d\out64\lib;..\..\..\..\Libraries\libpq-9.4\64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(OutDir)hMailServer.lib</ImportLibrary>
+      <FixedBaseAddress>false</FixedBaseAddress>
+    </Link>
+    <PostBuildEvent>
+      <Message>Performing registration</Message>
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1d\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1d\out64\bin\libssl-1_1-x64.dll $(OutDir)
+"$(TargetPath)" /Register
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\AntiSpam\AntiSpamConfiguration.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DKIM\Canonicalization.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DKIM\DKIM.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DKIM\DKIMParameters.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DKIM\DKIMSigner.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DKIM\SpamTestDKIM.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamProtection.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTest.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestData.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestDNSBlackLists.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestHeloHost.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestMXRecords.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestResult.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestRunner.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestSpamAssassin.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestSPF.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestSURBL.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SURBL.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\WhiteListCache.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\AntiVirusConfiguration.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\ClamAVVirusScanner.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\ClamWinVirusScanner.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\CustomVirusScanner.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\VirusScanner.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\VirusScannerTester.cpp" />
+    <ClCompile Include="..\Common\AntiVirus\VirusScanningResult.cpp" />
+    <ClCompile Include="..\Common\Application\ACLManager.cpp" />
+    <ClCompile Include="..\Common\Application\Application.cpp" />
+    <ClCompile Include="..\Common\Application\Backup.cpp" />
+    <ClCompile Include="..\Common\Application\BackupExecuter.cpp" />
+    <ClCompile Include="..\Common\Application\BackupManager.cpp" />
+    <ClCompile Include="..\Common\Application\BackupTask.cpp" />
+    <ClCompile Include="..\Common\Application\Configuration.cpp" />
+    <ClCompile Include="..\Common\Application\DefaultDomain.cpp" />
+    <ClCompile Include="..\Common\Application\Dictionary.cpp" />
+    <ClCompile Include="..\Common\Application\ErrorManager.cpp" />
+    <ClCompile Include="..\Common\Application\ExceptionHandler.cpp" />
+    <ClCompile Include="..\Common\Application\FolderManager.cpp" />
+    <ClCompile Include="..\Common\Application\IniFileSettings.cpp" />
+    <ClCompile Include="..\Common\Application\Logger.cpp" />
+    <ClCompile Include="..\Common\Application\MessageIndexer.cpp" />
+    <ClCompile Include="..\Common\Application\ObjectCache.cpp" />
+    <ClCompile Include="..\Common\Application\OutOfMemoryHandler.cpp" />
+    <ClCompile Include="..\Common\Application\Property.cpp" />
+    <ClCompile Include="..\Common\Application\PropertySet.cpp" />
+    <ClCompile Include="..\Common\Application\Reinitializator.cpp" />
+    <ClCompile Include="..\Common\Application\RemoveExpiredRecords.cpp" />
+    <ClCompile Include="..\Common\Application\Scheduler.cpp" />
+    <ClCompile Include="..\Common\Application\SessionManager.cpp" />
+    <ClCompile Include="..\Common\Application\TimeoutCalculator.cpp" />
+    <ClCompile Include="..\Common\Bo\Account.cpp" />
+    <ClCompile Include="..\Common\Bo\Accounts.cpp" />
+    <ClCompile Include="..\Common\BO\ACLPermission.cpp" />
+    <ClCompile Include="..\Common\BO\ACLPermissions.cpp" />
+    <ClCompile Include="..\Common\Bo\Alias.cpp" />
+    <ClCompile Include="..\Common\Bo\Aliases.cpp" />
+    <ClCompile Include="..\Common\Bo\Attachment.cpp" />
+    <ClCompile Include="..\Common\Bo\Attachments.cpp" />
+    <ClCompile Include="..\Common\BO\BlockedAttachment.cpp" />
+    <ClCompile Include="..\Common\BO\BlockedAttachments.cpp" />
+    <ClCompile Include="..\Common\Bo\DistributionList.cpp" />
+    <ClCompile Include="..\Common\Bo\DistributionListRecipient.cpp" />
+    <ClCompile Include="..\Common\Bo\DistributionListRecipients.cpp" />
+    <ClCompile Include="..\Common\Bo\DistributionLists.cpp" />
+    <ClCompile Include="..\Common\Bo\DNSBlackList.cpp" />
+    <ClCompile Include="..\Common\Bo\DNSBlackLists.cpp" />
+    <ClCompile Include="..\Common\Bo\Domain.cpp" />
+    <ClCompile Include="..\Common\Bo\DomainAlias.cpp" />
+    <ClCompile Include="..\Common\Bo\DomainAliases.cpp" />
+    <ClCompile Include="..\Common\Bo\Domains.cpp" />
+    <ClCompile Include="..\Common\Bo\FetchAccount.cpp" />
+    <ClCompile Include="..\Common\Bo\FetchAccounts.cpp" />
+    <ClCompile Include="..\Common\Bo\FetchAccountUID.cpp" />
+    <ClCompile Include="..\Common\Bo\FetchAccountUIDs.cpp" />
+    <ClCompile Include="..\Common\BO\GreyListingWhiteAddress.cpp" />
+    <ClCompile Include="..\Common\BO\GreyListingWhiteAddresses.cpp" />
+    <ClCompile Include="..\Common\BO\GreyListTriplet.cpp" />
+    <ClCompile Include="..\Common\BO\Group.cpp" />
+    <ClCompile Include="..\Common\BO\GroupMember.cpp" />
+    <ClCompile Include="..\Common\BO\GroupMembers.cpp" />
+    <ClCompile Include="..\Common\BO\Groups.cpp" />
+    <ClCompile Include="..\Common\Bo\IMAPFolder.cpp" />
+    <ClCompile Include="..\Common\Bo\IMAPFolders.cpp" />
+    <ClCompile Include="..\Common\BO\IncomingRelay.cpp" />
+    <ClCompile Include="..\Common\BO\IncomingRelays.cpp" />
+    <ClCompile Include="..\Common\Bo\Message.cpp" />
+    <ClCompile Include="..\Common\Bo\MessageData.cpp" />
+    <ClCompile Include="..\Common\BO\MessageMetaData.cpp" />
+    <ClCompile Include="..\Common\Bo\MessageRecipient.cpp" />
+    <ClCompile Include="..\Common\Bo\MessageRecipients.cpp" />
+    <ClCompile Include="..\Common\Bo\Messages.cpp" />
+    <ClCompile Include="..\Common\Bo\Route.cpp" />
+    <ClCompile Include="..\Common\Bo\RouteAddress.cpp" />
+    <ClCompile Include="..\Common\Bo\RouteAddresses.cpp" />
+    <ClCompile Include="..\Common\Bo\Routes.cpp" />
+    <ClCompile Include="..\Common\Bo\Rule.cpp" />
+    <ClCompile Include="..\Common\Bo\RuleAction.cpp" />
+    <ClCompile Include="..\Common\Bo\RuleActions.cpp" />
+    <ClCompile Include="..\Common\Bo\RuleCriteria.cpp" />
+    <ClCompile Include="..\Common\Bo\RuleCriterias.cpp" />
+    <ClCompile Include="..\Common\Bo\Rules.cpp" />
+    <ClCompile Include="..\Common\BO\ScheduledTask.cpp" />
+    <ClCompile Include="..\Common\Bo\SecurityRange.cpp" />
+    <ClCompile Include="..\Common\Bo\SecurityRanges.cpp" />
+    <ClCompile Include="..\Common\BO\ServerMessage.cpp" />
+    <ClCompile Include="..\Common\BO\ServerMessages.cpp" />
+    <ClCompile Include="..\Common\BO\SSLCertificate.cpp" />
+    <ClCompile Include="..\Common\BO\SSLCertificates.cpp" />
+    <ClCompile Include="..\Common\BO\SURBLServer.cpp" />
+    <ClCompile Include="..\Common\BO\SURBLServers.cpp" />
+    <ClCompile Include="..\Common\BO\TCPIPPort.cpp" />
+    <ClCompile Include="..\Common\BO\TCPIPPorts.cpp" />
+    <ClCompile Include="..\Common\BO\WhiteListAddress.cpp" />
+    <ClCompile Include="..\Common\BO\WhiteListAddresses.cpp" />
+    <ClCompile Include="..\Common\Cache\AccountSizeCache.cpp" />
+    <ClCompile Include="..\Common\Cache\CacheConfiguration.cpp" />
+    <ClCompile Include="..\Common\Cache\CacheContainer.cpp" />
+    <ClCompile Include="..\Common\Cache\InboxIDCache.cpp" />
+    <ClCompile Include="..\Common\Cache\MessageCache.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\Diagnostic.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\DiagnosticResult.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestBackupDirectory.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestConnect.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestConnection.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestConnectToSelf.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestDataDirectory.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestErrorLogs.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestInformationGatherer.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestIPRanges.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestIPv6.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestMXRecords.cpp" />
+    <ClCompile Include="..\Common\Diagnostics\TestOutboundPort.cpp" />
+    <ClCompile Include="..\Common\Mime\CodePages.cpp" />
+    <ClCompile Include="..\Common\Mime\Mime.cpp" />
+    <ClCompile Include="..\Common\Mime\MimeChar.cpp" />
+    <ClCompile Include="..\Common\Mime\MimeCode.cpp" />
+    <ClCompile Include="..\Common\Mime\MimeTester.cpp" />
+    <ClCompile Include="..\Common\Mime\MimeType.cpp" />
+    <ClCompile Include="..\Common\Persistence\Maintenance\Maintenance.cpp" />
+    <ClCompile Include="..\Common\Persistence\NameChanger.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentAccount.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentACLPermission.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentAlias.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentBlockedAttachment.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentDistributionList.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentDistributionListRecipient.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentDNSBlacklist.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentDomain.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentDomainAlias.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentFetchAccount.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentFetchAccountUID.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentGreyList.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentGreyListingWhiteAddress.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentGroup.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentGroupMember.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentIMAPFolder.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentIncomingRelay.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentLogonFailure.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentMessage.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentMessageMetaData.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentMessageRecipient.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentRoute.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentRouteAddress.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentRule.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentRuleAction.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentRuleCriteria.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentSecurityRange.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentServerMessage.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentSSLCertificate.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentSURBLServer.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentTCPIPPort.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentWhiteListAddress.cpp" />
+    <ClCompile Include="..\Common\Persistence\PreSaveLimitationsCheck.cpp" />
+    <ClCompile Include="..\Common\Scripting\ClientInfo.cpp" />
+    <ClCompile Include="..\Common\Scripting\Events.cpp" />
+    <ClCompile Include="..\Common\Scripting\Result.cpp" />
+    <ClCompile Include="..\Common\Scripting\ScriptObjectContainer.cpp" />
+    <ClCompile Include="..\Common\Scripting\ScriptServer.cpp" />
+    <ClCompile Include="..\Common\Sql\ADOConnection.cpp" />
+    <ClCompile Include="..\Common\SQL\ADOInt64Helper.cpp" />
+    <ClCompile Include="..\Common\Sql\ADORecordset.cpp" />
+    <ClCompile Include="..\Common\SQL\ColumnPositionCache.cpp" />
+    <ClCompile Include="..\Common\Sql\DALConnection.cpp" />
+    <ClCompile Include="..\Common\Sql\DALConnectionFactory.cpp" />
+    <ClCompile Include="..\Common\Sql\DALRecordset.cpp" />
+    <ClCompile Include="..\Common\Sql\DALRecordsetFactory.cpp" />
+    <ClCompile Include="..\Common\Sql\DatabaseConnectionManager.cpp" />
+    <ClCompile Include="..\Common\SQL\DatabaseSettings.cpp" />
+    <ClCompile Include="..\Common\SQL\IPAddressSQLHelper.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\Macro.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\MacroParser.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\MSSQLMacroExpander.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\MySQLMacroExpander.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\PGSQLMacroExpander.cpp" />
+    <ClCompile Include="..\Common\SQL\Macros\SQLCEMacroExpander.cpp" />
+    <ClCompile Include="..\Common\Sql\MySQLConnection.cpp" />
+    <ClCompile Include="..\Common\SQL\MySQLInterface.cpp" />
+    <ClCompile Include="..\Common\Sql\MySQLRecordset.cpp" />
+    <ClCompile Include="..\Common\SQL\PGConnection.cpp" />
+    <ClCompile Include="..\Common\SQL\PGRecordset.cpp" />
+    <ClCompile Include="..\Common\SQL\Prerequisites\PreReqNoDuplicateFolders.cpp" />
+    <ClCompile Include="..\Common\SQL\Prerequisites\PrerequisiteList.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLCEConnection.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLCERecordset.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLCommand.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLParameter.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLScriptParser.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLScriptRunner.cpp" />
+    <ClCompile Include="..\Common\Sql\SQLStatement.cpp" />
+    <ClCompile Include="..\Common\TCPIP\CertificateVerifier.cpp" />
+    <ClCompile Include="..\Common\TCPIP\DNSRecord.cpp" />
+    <ClCompile Include="..\Common\Tcpip\DNSResolver.cpp" />
+    <ClCompile Include="..\Common\TCPIP\DNSResolverWinApi.cpp" />
+    <ClCompile Include="..\Common\TCPIP\HostNameAndIpAddress.cpp" />
+    <ClCompile Include="..\Common\TCPIP\IOOperation.cpp" />
+    <ClCompile Include="..\Common\TCPIP\IOOperationQueue.cpp" />
+    <ClCompile Include="..\Common\TCPIP\IOQueueWorkerTask.cpp" />
+    <ClCompile Include="..\Common\TCPIP\IOService.cpp" />
+    <ClCompile Include="..\Common\TCPIP\IPAddress.cpp" />
+    <ClCompile Include="..\Common\Tcpip\LocalIPAddresses.cpp" />
+    <ClCompile Include="..\Common\TCPIP\SslContextInitializer.cpp" />
+    <ClCompile Include="..\Common\TCPIP\SynchronousConnection.cpp" />
+    <ClCompile Include="..\Common\TCPIP\TCPConnection.cpp" />
+    <ClCompile Include="..\Common\TCPIP\TCPConnectionFactory.cpp" />
+    <ClCompile Include="..\Common\TCPIP\TCPServer.cpp" />
+    <ClCompile Include="..\Common\Threading\Task.cpp" />
+    <ClCompile Include="..\Common\Threading\WorkQueue.cpp" />
+    <ClCompile Include="..\Common\Threading\WorkQueueManager.cpp" />
+    <ClCompile Include="..\Common\Tracking\ChangeNotification.cpp" />
+    <ClCompile Include="..\Common\Tracking\NotificationClient.cpp" />
+    <ClCompile Include="..\Common\Tracking\NotificationClientSubscription.cpp" />
+    <ClCompile Include="..\Common\Tracking\NotificationServer.cpp" />
+    <ClCompile Include="..\Common\Util\AccountLogon.cpp" />
+    <ClCompile Include="..\Common\Util\Assert.cpp" />
+    <ClCompile Include="..\Common\Util\AWStats.cpp" />
+    <ClCompile Include="..\Common\Util\BlowFish.cpp" />
+    <ClCompile Include="..\Common\Util\ByteBuffer.cpp" />
+    <ClCompile Include="..\Common\Util\Charset.cpp" />
+    <ClCompile Include="..\Common\Util\ClassTester.cpp" />
+    <ClCompile Include="..\Common\Util\Compression.cpp" />
+    <ClCompile Include="..\Common\Util\CrashSimulation.cpp" />
+    <ClCompile Include="..\Common\Util\Crypt.cpp" />
+    <ClCompile Include="..\Common\Util\EmailAllUsers.cpp" />
+    <ClCompile Include="..\Common\Util\Encoding\Base64.cpp" />
+    <ClCompile Include="..\Common\Util\Encoding\ModifiedUTF7.cpp" />
+    <ClCompile Include="..\Common\Util\Event.cpp" />
+    <ClCompile Include="..\Common\Util\EventTester.cpp" />
+    <ClCompile Include="..\Common\Util\ExceptionLogger.cpp" />
+    <ClCompile Include="..\Common\Util\File.cpp" />
+    <ClCompile Include="..\Common\Util\FileInfo.cpp" />
+    <ClCompile Include="..\Common\Util\FileUtilities.cpp" />
+    <ClCompile Include="..\Common\Util\FolderManipulationLock.cpp" />
+    <ClCompile Include="..\Common\Util\GUIDCreator.cpp" />
+    <ClCompile Include="..\Common\Util\Hashing\HashCreator.cpp" />
+    <ClCompile Include="..\Common\Util\HeapChecker.cpp" />
+    <ClCompile Include="..\Common\Util\HTTPClient.cpp" />
+    <ClCompile Include="..\Common\Util\Language.cpp" />
+    <ClCompile Include="..\Common\Util\Languages.cpp" />
+    <ClCompile Include="..\Common\Util\MailerDaemonAddressDeterminer.cpp" />
+    <ClCompile Include="..\Common\Util\MailImporter.cpp" />
+    <ClCompile Include="..\Common\Util\Math.cpp" />
+    <ClCompile Include="..\Common\Util\MessageAttachmentStripper.cpp" />
+    <ClCompile Include="..\Common\Util\MessageUtilities.cpp" />
+    <ClCompile Include="..\Common\Util\MiniDumpInput.cpp" />
+    <ClCompile Include="..\Common\Util\Parsing\AddresslistParser.cpp" />
+    <ClCompile Include="..\Common\Util\Parsing\StringParser.cpp" />
+    <ClCompile Include="..\Common\Util\Parsing\StringTreeParser.cpp" />
+    <ClCompile Include="..\Common\Util\PasswordGenerator.cpp" />
+    <ClCompile Include="..\Common\Util\PasswordRemover.cpp" />
+    <ClCompile Include="..\Common\Util\PasswordValidator.cpp" />
+    <ClCompile Include="..\Common\Util\ProcessLauncher.cpp" />
+    <ClCompile Include="..\Common\Util\Registry.cpp" />
+    <ClCompile Include="..\Common\Util\RegularExpression.cpp" />
+    <ClCompile Include="..\Common\Util\ServerInfo.cpp" />
+    <ClCompile Include="..\Common\Util\ServerStatus.cpp" />
+    <ClCompile Include="..\Common\Util\ServiceManager.cpp" />
+    <ClCompile Include="..\Common\Util\SignatureAdder.cpp" />
+    <ClCompile Include="..\Common\Util\SSPIValidation.cpp" />
+    <ClCompile Include="..\Common\Util\Strings\FormatArgument.cpp" />
+    <ClCompile Include="..\Common\Util\Strings\Formatter.cpp" />
+    <ClCompile Include="..\Common\Util\SystemInformation.cpp" />
+    <ClCompile Include="..\Common\Util\Time.cpp" />
+    <ClCompile Include="..\Common\Util\TLD.cpp" />
+    <ClCompile Include="..\Common\Util\TraceHeaderWriter.cpp" />
+    <ClCompile Include="..\Common\Util\TransparentTransmissionBuffer.cpp" />
+    <ClCompile Include="..\Common\Util\Unicode.cpp" />
+    <ClCompile Include="..\Common\Util\Utilities.cpp" />
+    <ClCompile Include="..\Common\Util\VariantDateTime.cpp" />
+    <ClCompile Include="..\Common\Util\XMLite.cpp" />
+    <ClCompile Include="..\COM\COMAuthentication.cpp" />
+    <ClCompile Include="..\COM\COMError.cpp" />
+    <ClCompile Include="..\COM\InterfaceAccount.cpp" />
+    <ClCompile Include="..\COM\InterfaceAccounts.cpp" />
+    <ClCompile Include="..\COM\InterfaceAlias.cpp" />
+    <ClCompile Include="..\COM\InterfaceAliases.cpp" />
+    <ClCompile Include="..\COM\InterfaceAntiSpam.cpp" />
+    <ClCompile Include="..\COM\InterfaceAntiVirus.cpp" />
+    <ClCompile Include="..\COM\InterfaceApplication.cpp" />
+    <ClCompile Include="..\COM\InterfaceAttachment.cpp" />
+    <ClCompile Include="..\COM\InterfaceAttachments.cpp" />
+    <ClCompile Include="..\COM\InterfaceBackup.cpp" />
+    <ClCompile Include="..\COM\InterfaceBackupManager.cpp" />
+    <ClCompile Include="..\COM\InterfaceBackupSettings.cpp" />
+    <ClCompile Include="..\COM\InterfaceBlockedAttachment.cpp" />
+    <ClCompile Include="..\COM\InterfaceBlockedAttachments.cpp" />
+    <ClCompile Include="..\COM\InterfaceCache.cpp" />
+    <ClCompile Include="..\Com\InterfaceClient.cpp" />
+    <ClCompile Include="..\COM\InterfaceDatabase.cpp" />
+    <ClCompile Include="..\COM\InterfaceDeliveryQueue.cpp" />
+    <ClCompile Include="..\COM\InterfaceDiagnosticResult.cpp" />
+    <ClCompile Include="..\COM\InterfaceDiagnosticResults.cpp" />
+    <ClCompile Include="..\COM\InterfaceDiagnostics.cpp" />
+    <ClCompile Include="..\COM\InterfaceDirectories.cpp" />
+    <ClCompile Include="..\COM\InterfaceDistributionList.cpp" />
+    <ClCompile Include="..\COM\InterfaceDistributionListRecipient.cpp" />
+    <ClCompile Include="..\COM\InterfaceDistributionListRecipients.cpp" />
+    <ClCompile Include="..\COM\InterfaceDistributionLists.cpp" />
+    <ClCompile Include="..\COM\InterfaceDNSBlackList.cpp" />
+    <ClCompile Include="..\COM\InterfaceDNSBlackLists.cpp" />
+    <ClCompile Include="..\COM\InterfaceDomain.cpp" />
+    <ClCompile Include="..\COM\InterfaceDomainAlias.cpp" />
+    <ClCompile Include="..\COM\InterfaceDomainAliases.cpp" />
+    <ClCompile Include="..\COM\InterfaceDomains.cpp" />
+    <ClCompile Include="..\Com\InterfaceEventLog.cpp" />
+    <ClCompile Include="..\COM\InterfaceFetchAccount.cpp" />
+    <ClCompile Include="..\COM\InterfaceFetchAccounts.cpp" />
+    <ClCompile Include="..\COM\InterfaceGlobalObjects.cpp" />
+    <ClCompile Include="..\COM\InterfaceGreyListingWhiteAddress.cpp" />
+    <ClCompile Include="..\COM\InterfaceGreyListingWhiteAddresses.cpp" />
+    <ClCompile Include="..\COM\InterfaceGroup.cpp" />
+    <ClCompile Include="..\COM\InterfaceGroupMember.cpp" />
+    <ClCompile Include="..\COM\InterfaceGroupMembers.cpp" />
+    <ClCompile Include="..\COM\InterfaceGroups.cpp" />
+    <ClCompile Include="..\Com\InterfaceIMAPFolder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\COM\InterfaceIMAPFolderPermission.cpp" />
+    <ClCompile Include="..\COM\InterfaceIMAPFolderPermissions.cpp" />
+    <ClCompile Include="..\Com\InterfaceIMAPFolders.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\COM\InterfaceIncomingRelay.cpp" />
+    <ClCompile Include="..\COM\InterfaceIncomingRelays.cpp" />
+    <ClCompile Include="..\COM\InterfaceLanguage.cpp" />
+    <ClCompile Include="..\COM\InterfaceLanguages.cpp" />
+    <ClCompile Include="..\COM\InterfaceLinks.cpp" />
+    <ClCompile Include="..\COM\InterfaceLogging.cpp" />
+    <ClCompile Include="..\COM\InterfaceMessage.cpp" />
+    <ClCompile Include="..\COM\InterfaceMessageHeader.cpp" />
+    <ClCompile Include="..\COM\InterfaceMessageHeaders.cpp" />
+    <ClCompile Include="..\COM\InterfaceMessageIndexing.cpp" />
+    <ClCompile Include="..\COM\InterfaceMessages.cpp" />
+    <ClCompile Include="..\COM\InterfaceRecipient.cpp" />
+    <ClCompile Include="..\COM\InterfaceRecipients.cpp" />
+    <ClCompile Include="..\Com\InterfaceResult.cpp" />
+    <ClCompile Include="..\COM\InterfaceRoute.cpp" />
+    <ClCompile Include="..\COM\InterfaceRouteAddress.cpp" />
+    <ClCompile Include="..\COM\InterfaceRouteAddresses.cpp" />
+    <ClCompile Include="..\COM\InterfaceRoutes.cpp" />
+    <ClCompile Include="..\COM\InterfaceRule.cpp" />
+    <ClCompile Include="..\COM\InterfaceRuleAction.cpp" />
+    <ClCompile Include="..\COM\InterfaceRuleActions.cpp" />
+    <ClCompile Include="..\COM\InterfaceRuleCriteria.cpp" />
+    <ClCompile Include="..\COM\InterfaceRuleCriterias.cpp" />
+    <ClCompile Include="..\COM\InterfaceRules.cpp" />
+    <ClCompile Include="..\Com\InterfaceScripting.cpp" />
+    <ClCompile Include="..\COM\InterfaceSecurityRange.cpp" />
+    <ClCompile Include="..\COM\InterfaceSecurityRanges.cpp" />
+    <ClCompile Include="..\COM\InterfaceServerMessage.cpp" />
+    <ClCompile Include="..\COM\InterfaceServerMessages.cpp" />
+    <ClCompile Include="..\COM\InterfaceSettings.cpp" />
+    <ClCompile Include="..\COM\InterfaceSSLCertificate.cpp" />
+    <ClCompile Include="..\COM\InterfaceSSLCertificates.cpp" />
+    <ClCompile Include="..\COM\InterfaceStatus.cpp" />
+    <ClCompile Include="..\COM\InterfaceSURBLServer.cpp" />
+    <ClCompile Include="..\COM\InterfaceSURBLServers.cpp" />
+    <ClCompile Include="..\COM\InterfaceTCPIPPort.cpp" />
+    <ClCompile Include="..\COM\InterfaceTCPIPPorts.cpp" />
+    <ClCompile Include="..\COM\InterfaceUtilities.cpp" />
+    <ClCompile Include="..\COM\InterfaceWhiteListAddress.cpp" />
+    <ClCompile Include="..\COM\InterfaceWhiteListAddresses.cpp" />
+    <ClCompile Include="..\ExternalFetcher\ExternalFetch.cpp" />
+    <ClCompile Include="..\ExternalFetcher\ExternalFetchManager.cpp" />
+    <ClCompile Include="..\ExternalFetcher\ExternalFetchTask.cpp" />
+    <ClCompile Include="..\ExternalFetcher\FetchAccountUIDList.cpp" />
+    <ClCompile Include="..\ExternalFetcher\POP3ClientConnection.cpp" />
+    <ClCompile Include="..\IMAP\FolderListCreator.cpp" />
+    <ClCompile Include="..\IMAP\IMAPACLHelper.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommand.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandAppend.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandAuthenticate.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandCapability.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandCheck.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandClose.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandCopy.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandCreate.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandDelete.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandDeleteAcl.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandExamine.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandExpunge.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandFetch.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandGetAcl.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandGetQuota.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandGetQuotaRoot.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandIdle.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandList.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandListRights.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandLogin.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandLogout.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandLSUB.CPP" />
+    <ClCompile Include="..\IMAP\IMAPCommandMyRights.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandNamespace.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandRangeAction.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandRename.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandSearch.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandSelect.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandSetAcl.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandStartTls.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandStatus.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandStore.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandSubscribe.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandUID.cpp" />
+    <ClCompile Include="..\Imap\IMAPCommandUnsubscribe.cpp" />
+    <ClCompile Include="..\Imap\IMAPConfiguration.cpp" />
+    <ClCompile Include="..\Imap\IMAPConnection.cpp" />
+    <ClCompile Include="..\Imap\IMAPCopy.cpp" />
+    <ClCompile Include="..\Imap\IMAPFetch.cpp" />
+    <ClCompile Include="..\Imap\IMAPFetchParser.cpp" />
+    <ClCompile Include="..\IMAP\IMAPFolderContainer.cpp" />
+    <ClCompile Include="..\IMAP\IMAPFolderUtilities.cpp" />
+    <ClCompile Include="..\IMAP\IMAPListLookup.cpp" />
+    <ClCompile Include="..\IMAP\IMAPNotificationClient.cpp" />
+    <ClCompile Include="..\IMAP\IMAPResult.cpp" />
+    <ClCompile Include="..\Imap\IMAPSearchParser.cpp" />
+    <ClCompile Include="..\Imap\IMAPSimpleCommandParser.cpp" />
+    <ClCompile Include="..\Imap\IMAPSort.cpp" />
+    <ClCompile Include="..\Imap\IMAPSortParser.cpp" />
+    <ClCompile Include="..\Imap\IMAPStore.cpp" />
+    <ClCompile Include="..\IMAP\MessagesContainer.cpp" />
+    <ClCompile Include="..\Imap\StaticIMAPCommandHandlers.cpp" />
+    <ClCompile Include="..\Pop3\POP3Configuration.cpp" />
+    <ClCompile Include="..\Pop3\POP3Connection.cpp" />
+    <ClCompile Include="..\Pop3\POP3Sessions.cpp" />
+    <ClCompile Include="..\Smtp\BLCheck.cpp" />
+    <ClCompile Include="..\Smtp\DeliveryQueue.cpp" />
+    <ClCompile Include="..\Smtp\DeliveryTask.cpp" />
+    <ClCompile Include="..\SMTP\ExternalDelivery.cpp" />
+    <ClCompile Include="..\SMTP\GreyListCleanerTask.cpp" />
+    <ClCompile Include="..\SMTP\GreyListing.cpp" />
+    <ClCompile Include="..\SMTP\LocalDelivery.cpp" />
+    <ClCompile Include="..\SMTP\MirrorMessage.cpp" />
+    <ClCompile Include="..\SMTP\PlusAddressing.cpp" />
+    <ClCompile Include="..\Smtp\RecipientParser.cpp" />
+    <ClCompile Include="..\Smtp\RuleApplier.cpp" />
+    <ClCompile Include="..\SMTP\RuleResult.cpp" />
+    <ClCompile Include="..\SMTP\ServerTargetResolver.cpp" />
+    <ClCompile Include="..\Smtp\SMTPClientConnection.cpp" />
+    <ClCompile Include="..\Smtp\SMTPConfiguration.cpp" />
+    <ClCompile Include="..\Smtp\SMTPConnection.cpp" />
+    <ClCompile Include="..\Smtp\SMTPDeliverer.cpp" />
+    <ClCompile Include="..\Smtp\SMTPDeliveryManager.cpp" />
+    <ClCompile Include="..\SMTP\SMTPForwarding.cpp" />
+    <ClCompile Include="..\SMTP\SMTPMessageHeaderCreator.cpp" />
+    <ClCompile Include="..\Smtp\SMTPVacationMessageCreator.cpp" />
+    <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
+    <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
+    <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
+    <ClCompile Include="..\Smtp\StatisticsSender.cpp" />
+    <ClCompile Include="hMailServer.cpp" />
+    <ClCompile Include="hMailServer_i.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="hMailServer.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\AntiSpam\AntiSpamConfiguration.h" />
+    <ClInclude Include="..\Common\AntiSpam\DKIM\Canonicalization.h" />
+    <ClInclude Include="..\Common\AntiSpam\DKIM\DKIM.h" />
+    <ClInclude Include="..\Common\AntiSpam\DKIM\DKIMParameters.h" />
+    <ClInclude Include="..\Common\AntiSpam\DKIM\DKIMSigner.h" />
+    <ClInclude Include="..\Common\AntiSpam\DKIM\SpamTestDKIM.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamProtection.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTest.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestData.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestDNSBlackLists.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestHeloHost.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestMXRecords.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestResult.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestRunner.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestSpamAssassin.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestSPF.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestSURBL.h" />
+    <ClInclude Include="..\Common\AntiSpam\SURBL.h" />
+    <ClInclude Include="..\Common\AntiSpam\WhiteListCache.h" />
+    <ClInclude Include="..\Common\AntiVirus\AntiVirusConfiguration.h" />
+    <ClInclude Include="..\Common\AntiVirus\ClamAVVirusScanner.h" />
+    <ClInclude Include="..\Common\AntiVirus\ClamWinVirusScanner.h" />
+    <ClInclude Include="..\Common\AntiVirus\CustomVirusScanner.h" />
+    <ClInclude Include="..\Common\AntiVirus\VirusScanner.h" />
+    <ClInclude Include="..\Common\AntiVirus\VirusScannerTester.h" />
+    <ClInclude Include="..\Common\AntiVirus\VirusScanningResult.h" />
+    <ClInclude Include="..\Common\Application\ACLManager.h" />
+    <ClInclude Include="..\Common\Application\Application.h" />
+    <ClInclude Include="..\Common\Application\Backup.h" />
+    <ClInclude Include="..\Common\Application\BackupExecuter.h" />
+    <ClInclude Include="..\Common\Application\BackupManager.h" />
+    <ClInclude Include="..\Common\Application\BackupTask.h" />
+    <ClInclude Include="..\Common\Application\Configuration.h" />
+    <ClInclude Include="..\Common\Application\Constants.h" />
+    <ClInclude Include="..\Common\Application\DefaultDomain.h" />
+    <ClInclude Include="..\Common\Application\Dictionary.h" />
+    <ClInclude Include="..\Common\Application\ErrorManager.h" />
+    <ClInclude Include="..\Common\Application\ExceptionHandler.h" />
+    <ClInclude Include="..\Common\Application\FolderManager.h" />
+    <ClInclude Include="..\Common\Application\IniFileSettings.h" />
+    <ClInclude Include="..\Common\Application\Logger.h" />
+    <ClInclude Include="..\Common\Application\MessageIndexer.h" />
+    <ClInclude Include="..\Common\Application\ObjectCache.h" />
+    <ClInclude Include="..\Common\Application\OutOfMemoryHandler.h" />
+    <ClInclude Include="..\Common\Application\Property.h" />
+    <ClInclude Include="..\Common\Application\PropertySet.h" />
+    <ClInclude Include="..\Common\Application\Reinitializator.h" />
+    <ClInclude Include="..\Common\Application\RemoveExpiredRecords.h" />
+    <ClInclude Include="..\Common\Application\Scheduler.h" />
+    <ClInclude Include="..\Common\Application\SessionManager.h" />
+    <ClInclude Include="..\Common\Application\TimeoutCalculator.h" />
+    <ClInclude Include="..\Common\Application\Version.h" />
+    <ClInclude Include="..\Common\Bo\Account.h" />
+    <ClInclude Include="..\Common\Bo\Accounts.h" />
+    <ClInclude Include="..\Common\BO\ACLPermission.h" />
+    <ClInclude Include="..\Common\BO\ACLPermissions.h" />
+    <ClInclude Include="..\Common\Bo\Alias.h" />
+    <ClInclude Include="..\Common\Bo\Aliases.h" />
+    <ClInclude Include="..\Common\Bo\Attachment.h" />
+    <ClInclude Include="..\Common\Bo\Attachments.h" />
+    <ClInclude Include="..\Common\BO\BlockedAttachment.h" />
+    <ClInclude Include="..\Common\BO\BlockedAttachments.h" />
+    <ClInclude Include="..\Common\BO\BusinessObject.h" />
+    <ClInclude Include="..\Common\Bo\Collection.h" />
+    <ClInclude Include="..\Common\Bo\DistributionList.h" />
+    <ClInclude Include="..\Common\Bo\DistributionListRecipient.h" />
+    <ClInclude Include="..\Common\Bo\DistributionListRecipients.h" />
+    <ClInclude Include="..\Common\Bo\DistributionLists.h" />
+    <ClInclude Include="..\Common\Bo\DNSBlackList.h" />
+    <ClInclude Include="..\Common\Bo\DNSBlackLists.h" />
+    <ClInclude Include="..\Common\Bo\Domain.h" />
+    <ClInclude Include="..\Common\Bo\DomainAlias.h" />
+    <ClInclude Include="..\Common\Bo\DomainAliases.h" />
+    <ClInclude Include="..\Common\Bo\Domains.h" />
+    <ClInclude Include="..\Common\Bo\FetchAccount.h" />
+    <ClInclude Include="..\Common\Bo\FetchAccounts.h" />
+    <ClInclude Include="..\Common\Bo\FetchAccountUID.h" />
+    <ClInclude Include="..\Common\Bo\FetchAccountUIDs.h" />
+    <ClInclude Include="..\Common\BO\GreyListingWhiteAddress.h" />
+    <ClInclude Include="..\Common\BO\GreyListingWhiteAddresses.h" />
+    <ClInclude Include="..\Common\BO\GreyListTriplet.h" />
+    <ClInclude Include="..\Common\BO\Group.h" />
+    <ClInclude Include="..\Common\BO\GroupMember.h" />
+    <ClInclude Include="..\Common\BO\GroupMembers.h" />
+    <ClInclude Include="..\Common\BO\Groups.h" />
+    <ClInclude Include="..\Common\Bo\IMAPFolder.h" />
+    <ClInclude Include="..\Common\Bo\IMAPFolders.h" />
+    <ClInclude Include="..\Common\BO\IncomingRelay.h" />
+    <ClInclude Include="..\Common\BO\IncomingRelays.h" />
+    <ClInclude Include="..\Common\Bo\Message.h" />
+    <ClInclude Include="..\Common\Bo\MessageData.h" />
+    <ClInclude Include="..\Common\BO\MessageMetaData.h" />
+    <ClInclude Include="..\Common\Bo\MessageRecipient.h" />
+    <ClInclude Include="..\Common\Bo\MessageRecipients.h" />
+    <ClInclude Include="..\Common\Bo\Messages.h" />
+    <ClInclude Include="..\Common\Bo\Route.h" />
+    <ClInclude Include="..\Common\Bo\RouteAddress.h" />
+    <ClInclude Include="..\Common\Bo\RouteAddresses.h" />
+    <ClInclude Include="..\Common\Bo\Routes.h" />
+    <ClInclude Include="..\Common\Bo\Rule.h" />
+    <ClInclude Include="..\Common\Bo\RuleAction.h" />
+    <ClInclude Include="..\Common\Bo\RuleActions.h" />
+    <ClInclude Include="..\Common\Bo\RuleCriteria.h" />
+    <ClInclude Include="..\Common\Bo\RuleCriterias.h" />
+    <ClInclude Include="..\Common\Bo\Rules.h" />
+    <ClInclude Include="..\Common\BO\ScheduledTask.h" />
+    <ClInclude Include="..\Common\Bo\SecurityRange.h" />
+    <ClInclude Include="..\Common\Bo\SecurityRanges.h" />
+    <ClInclude Include="..\Common\BO\ServerMessage.h" />
+    <ClInclude Include="..\Common\BO\ServerMessages.h" />
+    <ClInclude Include="..\Common\BO\SSLCertificate.h" />
+    <ClInclude Include="..\Common\BO\SSLCertificates.h" />
+    <ClInclude Include="..\Common\BO\SURBLServer.h" />
+    <ClInclude Include="..\Common\BO\SURBLServers.h" />
+    <ClInclude Include="..\Common\BO\TCPIPPort.h" />
+    <ClInclude Include="..\Common\BO\TCPIPPorts.h" />
+    <ClInclude Include="..\Common\BO\WhiteListAddress.h" />
+    <ClInclude Include="..\Common\BO\WhiteListAddresses.h" />
+    <ClInclude Include="..\Common\Cache\AccountSizeCache.h" />
+    <ClInclude Include="..\Common\Cache\Cache.h" />
+    <ClInclude Include="..\Common\Cache\CacheConfiguration.h" />
+    <ClInclude Include="..\Common\Cache\CacheContainer.h" />
+    <ClInclude Include="..\Common\Cache\CachedMessages.h" />
+    <ClInclude Include="..\Common\Cache\CachedObject.h" />
+    <ClInclude Include="..\Common\Cache\CacheReaderWithDbFallback.h" />
+    <ClInclude Include="..\Common\Cache\InboxIDCache.h" />
+    <ClInclude Include="..\Common\Cache\MessageCache.h" />
+    <ClInclude Include="..\Common\Diagnostics\Diagnostic.h" />
+    <ClInclude Include="..\Common\Diagnostics\DiagnosticResult.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestBackupDirectory.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnect.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnection.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnectionResult.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestConnectToSelf.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestDataDirectory.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestErrorLogs.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestInformationGatherer.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestIPRanges.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestIPv6.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestMXRecords.h" />
+    <ClInclude Include="..\Common\Diagnostics\TestOutboundPort.h" />
+    <ClInclude Include="..\Common\Mime\CodePages.h" />
+    <ClInclude Include="..\Common\Mime\Mime.h" />
+    <ClInclude Include="..\Common\Mime\MimeChar.h" />
+    <ClInclude Include="..\Common\Mime\MimeCode.h" />
+    <ClInclude Include="..\Common\Mime\MimeTester.h" />
+    <ClInclude Include="..\Common\Persistence\Maintenance\Maintenance.h" />
+    <ClInclude Include="..\Common\Persistence\NameChanger.h" />
+    <ClInclude Include="..\Common\Persistence\PersistenceMode.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentAccount.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentACLPermission.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentAlias.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentBlockedAttachment.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentDistributionList.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentDistributionListRecipient.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentDNSBlacklist.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentDomain.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentDomainAlias.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentFetchAccount.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentFetchAccountUID.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentGreyList.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentGreyListingWhiteAddress.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentGroup.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentGroupMember.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentIMAPFolder.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentIncomingRelay.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentLogonFailure.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentMessage.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentMessageMetaData.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentMessageRecipient.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentRoute.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentRouteAddress.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentRule.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentRuleAction.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentRuleCriteria.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentSecurityRange.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentServerMessage.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentSSLCertificate.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentSURBLServer.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentTCPIPPort.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentWhiteListAddress.h" />
+    <ClInclude Include="..\Common\Persistence\PreSaveLimitationsCheck.h" />
+    <ClInclude Include="..\Common\Scripting\ClientInfo.h" />
+    <ClInclude Include="..\Common\Scripting\Events.h" />
+    <ClInclude Include="..\Common\Scripting\Result.h" />
+    <ClInclude Include="..\Common\Scripting\ScriptObjectContainer.h" />
+    <ClInclude Include="..\Common\Scripting\ScriptServer.h" />
+    <ClInclude Include="..\Common\Scripting\ScriptSite.h" />
+    <ClInclude Include="..\Common\Sql\ADOConnection.h" />
+    <ClInclude Include="..\Common\SQL\ADOInt64Helper.h" />
+    <ClInclude Include="..\Common\Sql\ADORecordset.h" />
+    <ClInclude Include="..\Common\SQL\ColumnPositionCache.h" />
+    <ClInclude Include="..\Common\Sql\DALConnection.h" />
+    <ClInclude Include="..\Common\Sql\DALConnectionFactory.h" />
+    <ClInclude Include="..\Common\Sql\DALRecordset.h" />
+    <ClInclude Include="..\Common\Sql\DALRecordsetFactory.h" />
+    <ClInclude Include="..\Common\Sql\DatabaseConnectionManager.h" />
+    <ClInclude Include="..\Common\SQL\DatabaseSettings.h" />
+    <ClInclude Include="..\Common\SQL\IPAddressSQLHelper.h" />
+    <ClInclude Include="..\Common\SQL\Macros\IMacroExpander.h" />
+    <ClInclude Include="..\Common\SQL\Macros\Macro.h" />
+    <ClInclude Include="..\Common\SQL\Macros\MacroParser.h" />
+    <ClInclude Include="..\Common\SQL\Macros\MSSQLMacroExpander.h" />
+    <ClInclude Include="..\Common\SQL\Macros\MySQLMacroExpander.h" />
+    <ClInclude Include="..\Common\SQL\Macros\PGSQLMacroExpander.h" />
+    <ClInclude Include="..\Common\SQL\Macros\SQLCEMacroExpander.h" />
+    <ClInclude Include="..\Common\Sql\MySQLConnection.h" />
+    <ClInclude Include="..\Common\SQL\MySQLInterface.h" />
+    <ClInclude Include="..\Common\Sql\MySQLRecordset.h" />
+    <ClInclude Include="..\Common\SQL\PGConnection.h" />
+    <ClInclude Include="..\Common\SQL\PGRecordset.h" />
+    <ClInclude Include="..\Common\SQL\Prerequisites\IPrerequisite.h" />
+    <ClInclude Include="..\Common\SQL\Prerequisites\PreReqNoDuplicateFolders.h" />
+    <ClInclude Include="..\Common\SQL\Prerequisites\PrerequisiteList.h" />
+    <ClInclude Include="..\Common\SQL\SQLCEConnection.h" />
+    <ClInclude Include="..\Common\SQL\SQLCERecordset.h" />
+    <ClInclude Include="..\Common\SQL\SQLCommand.h" />
+    <ClInclude Include="..\Common\SQL\SQLParameter.h" />
+    <ClInclude Include="..\Common\SQL\SQLScriptParser.h" />
+    <ClInclude Include="..\Common\SQL\SQLScriptRunner.h" />
+    <ClInclude Include="..\Common\Sql\SQLStatement.h" />
+    <ClInclude Include="..\Common\TCPIP\CertificateVerifier.h" />
+    <ClInclude Include="..\Common\TCPIP\CipherInfo.h" />
+    <ClInclude Include="..\Common\TCPIP\DNSRecord.h" />
+    <ClInclude Include="..\Common\Tcpip\DNSResolver.h" />
+    <ClInclude Include="..\Common\TCPIP\DNSResolverWinApi.h" />
+    <ClInclude Include="..\Common\TCPIP\HostNameAndIpAddress.h" />
+    <ClInclude Include="..\Common\TCPIP\IOOperation.h" />
+    <ClInclude Include="..\Common\TCPIP\IOOperationQueue.h" />
+    <ClInclude Include="..\Common\TCPIP\IOQueueWorkerTask.h" />
+    <ClInclude Include="..\Common\TCPIP\IOService.h" />
+    <ClInclude Include="..\Common\TCPIP\IPAddress.h" />
+    <ClInclude Include="..\Common\Tcpip\LocalIPAddresses.h" />
+    <ClInclude Include="..\Common\Tcpip\SocketConstants.h" />
+    <ClInclude Include="..\Common\TCPIP\SslContextInitializer.h" />
+    <ClInclude Include="..\Common\TCPIP\SynchronousConnection.h" />
+    <ClInclude Include="..\Common\TCPIP\TCPConnection.h" />
+    <ClInclude Include="..\Common\TCPIP\TCPConnectionFactory.h" />
+    <ClInclude Include="..\Common\TCPIP\TCPServer.h" />
+    <ClInclude Include="..\Common\Threading\AsynchronousTask.h" />
+    <ClInclude Include="..\Common\Threading\Task.h" />
+    <ClInclude Include="..\Common\Threading\WorkQueue.h" />
+    <ClInclude Include="..\Common\Threading\WorkQueueManager.h" />
+    <ClInclude Include="..\Common\Tracking\ChangeNotification.h" />
+    <ClInclude Include="..\Common\Tracking\NotificationClient.h" />
+    <ClInclude Include="..\Common\Tracking\NotificationClientSubscription.h" />
+    <ClInclude Include="..\Common\Tracking\NotificationServer.h" />
+    <ClInclude Include="..\Common\Util\AccountLogon.h" />
+    <ClInclude Include="..\Common\Util\Assert.h" />
+    <ClInclude Include="..\Common\Util\AWStats.h" />
+    <ClInclude Include="..\Common\Util\BlowFish.h" />
+    <ClInclude Include="..\Common\Util\ByteBuffer.h" />
+    <ClInclude Include="..\Common\Util\Charset.h" />
+    <ClInclude Include="..\Common\Util\ClassTester.h" />
+    <ClInclude Include="..\Common\Util\Compression.h" />
+    <ClInclude Include="..\Common\Util\CrashSimulation.h" />
+    <ClInclude Include="..\Common\Util\Crypt.h" />
+    <ClInclude Include="..\Common\Util\EmailAllUsers.h" />
+    <ClInclude Include="..\Common\Util\Encoding\Base64.h" />
+    <ClInclude Include="..\Common\Util\Encoding\ModifiedUTF7.h" />
+    <ClInclude Include="..\Common\Util\Event.h" />
+    <ClInclude Include="..\Common\Util\EventTester.h" />
+    <ClInclude Include="..\Common\Util\ExceptionLogger.h" />
+    <ClInclude Include="..\Common\Util\File.h" />
+    <ClInclude Include="..\Common\Util\FileInfo.h" />
+    <ClInclude Include="..\Common\Util\FileUtilities.h" />
+    <ClInclude Include="..\Common\Util\FolderManipulationLock.h" />
+    <ClInclude Include="..\Common\Util\GUIDCreator.h" />
+    <ClInclude Include="..\Common\Util\Hashing\HashCreator.h" />
+    <ClInclude Include="..\Common\Util\HeapChecker.h" />
+    <ClInclude Include="..\Common\Util\HTTPClient.h" />
+    <ClInclude Include="..\Common\Util\Language.h" />
+    <ClInclude Include="..\Common\Util\Languages.h" />
+    <ClInclude Include="..\Common\Util\MailerDaemonAddressDeterminer.h" />
+    <ClInclude Include="..\Common\Util\MailImporter.h" />
+    <ClInclude Include="..\Common\Util\Math.h" />
+    <ClInclude Include="..\Common\Util\MessageAttachmentStripper.h" />
+    <ClInclude Include="..\Common\Util\MessageUtilities.h" />
+    <ClInclude Include="..\Common\Util\MiniDumpInput.h" />
+    <ClInclude Include="..\Common\Util\Parsing\AddresslistParser.h" />
+    <ClInclude Include="..\Common\Util\Parsing\StringParser.h" />
+    <ClInclude Include="..\Common\Util\Parsing\StringTreeParser.h" />
+    <ClInclude Include="..\Common\Util\PasswordGenerator.h" />
+    <ClInclude Include="..\Common\Util\PasswordRemover.h" />
+    <ClInclude Include="..\Common\Util\PasswordValidator.h" />
+    <ClInclude Include="..\Common\Util\ProcessLauncher.h" />
+    <ClInclude Include="..\Common\Util\Registry.h" />
+    <ClInclude Include="..\Common\Util\RegularExpression.h" />
+    <ClInclude Include="..\Common\Util\ServerInfo.h" />
+    <ClInclude Include="..\Common\Util\ServerStatus.h" />
+    <ClInclude Include="..\Common\Util\ServiceManager.h" />
+    <ClInclude Include="..\Common\Util\SignatureAdder.h" />
+    <ClInclude Include="..\Common\Util\Singleton.h" />
+    <ClInclude Include="..\Common\Util\SSPIValidation.h" />
+    <ClInclude Include="..\Common\Util\StdString.h" />
+    <ClInclude Include="..\Common\Util\Strings\FormatArgument.h" />
+    <ClInclude Include="..\Common\Util\Strings\Formatter.h" />
+    <ClInclude Include="..\Common\Util\SystemInformation.h" />
+    <ClInclude Include="..\Common\Util\Time.h" />
+    <ClInclude Include="..\Common\Util\TLD.h" />
+    <ClInclude Include="..\Common\Util\TraceHeaderWriter.h" />
+    <ClInclude Include="..\Common\Util\TransparentTransmissionBuffer.h" />
+    <ClInclude Include="..\Common\Util\Unicode.h" />
+    <ClInclude Include="..\Common\Util\Utilities.h" />
+    <ClInclude Include="..\Common\Util\VariantDateTime.h" />
+    <ClInclude Include="..\Common\Util\XMLite.h" />
+    <ClInclude Include="..\COM\COMAuthentication.h" />
+    <ClInclude Include="..\COM\COMAuthenticator.h" />
+    <ClInclude Include="..\Com\COMCollection.h" />
+    <ClInclude Include="..\COM\COMError.h" />
+    <ClInclude Include="..\COM\InterfaceAccount.h" />
+    <ClInclude Include="..\COM\InterfaceAccounts.h" />
+    <ClInclude Include="..\COM\InterfaceAlias.h" />
+    <ClInclude Include="..\COM\InterfaceAliases.h" />
+    <ClInclude Include="..\COM\InterfaceAntiSpam.h" />
+    <ClInclude Include="..\COM\InterfaceAntiVirus.h" />
+    <ClInclude Include="..\COM\InterfaceApplication.h" />
+    <ClInclude Include="..\COM\InterfaceAttachment.h" />
+    <ClInclude Include="..\COM\InterfaceAttachments.h" />
+    <ClInclude Include="..\COM\InterfaceBackup.h" />
+    <ClInclude Include="..\COM\InterfaceBackupManager.h" />
+    <ClInclude Include="..\COM\InterfaceBackupSettings.h" />
+    <ClInclude Include="..\COM\InterfaceBlockedAttachment.h" />
+    <ClInclude Include="..\COM\InterfaceBlockedAttachments.h" />
+    <ClInclude Include="..\COM\InterfaceCache.h" />
+    <ClInclude Include="..\Com\InterfaceClient.h" />
+    <ClInclude Include="..\COM\InterfaceDatabase.h" />
+    <ClInclude Include="..\COM\InterfaceDeliveryQueue.h" />
+    <ClInclude Include="..\COM\InterfaceDiagnosticResult.h" />
+    <ClInclude Include="..\COM\InterfaceDiagnosticResults.h" />
+    <ClInclude Include="..\COM\InterfaceDiagnostics.h" />
+    <ClInclude Include="..\COM\InterfaceDirectories.h" />
+    <ClInclude Include="..\COM\InterfaceDistributionList.h" />
+    <ClInclude Include="..\COM\InterfaceDistributionListRecipient.h" />
+    <ClInclude Include="..\COM\InterfaceDistributionListRecipients.h" />
+    <ClInclude Include="..\COM\InterfaceDistributionLists.h" />
+    <ClInclude Include="..\COM\InterfaceDNSBlackList.h" />
+    <ClInclude Include="..\COM\InterfaceDNSBlackLists.h" />
+    <ClInclude Include="..\COM\InterfaceDomain.h" />
+    <ClInclude Include="..\COM\InterfaceDomainAlias.h" />
+    <ClInclude Include="..\COM\InterfaceDomainAliases.h" />
+    <ClInclude Include="..\COM\InterfaceDomains.h" />
+    <ClInclude Include="..\Com\InterfaceEventLog.h" />
+    <ClInclude Include="..\Com\InterfaceFetchAccount.h" />
+    <ClInclude Include="..\Com\InterfaceFetchAccounts.h" />
+    <ClInclude Include="..\COM\InterfaceGlobalObjects.h" />
+    <ClInclude Include="..\COM\InterfaceGreyListingWhiteAddress.h" />
+    <ClInclude Include="..\COM\InterfaceGreyListingWhiteAddresses.h" />
+    <ClInclude Include="..\COM\InterfaceGroup.h" />
+    <ClInclude Include="..\COM\InterfaceGroupMember.h" />
+    <ClInclude Include="..\COM\InterfaceGroupMembers.h" />
+    <ClInclude Include="..\COM\InterfaceGroups.h" />
+    <ClInclude Include="..\Com\InterfaceIMAPFolder.h" />
+    <ClInclude Include="..\COM\InterfaceIMAPFolderPermission.h" />
+    <ClInclude Include="..\COM\InterfaceIMAPFolderPermissions.h" />
+    <ClInclude Include="..\Com\InterfaceIMAPFolders.h" />
+    <ClInclude Include="..\COM\InterfaceIncomingRelay.h" />
+    <ClInclude Include="..\COM\InterfaceIncomingRelays.h" />
+    <ClInclude Include="..\COM\InterfaceLanguage.h" />
+    <ClInclude Include="..\COM\InterfaceLanguages.h" />
+    <ClInclude Include="..\COM\InterfaceLinks.h" />
+    <ClInclude Include="..\COM\InterfaceLogging.h" />
+    <ClInclude Include="..\COM\InterfaceMessage.h" />
+    <ClInclude Include="..\COM\InterfaceMessageHeader.h" />
+    <ClInclude Include="..\COM\InterfaceMessageHeaders.h" />
+    <ClInclude Include="..\COM\InterfaceMessageIndexing.h" />
+    <ClInclude Include="..\COM\InterfaceMessages.h" />
+    <ClInclude Include="..\COM\InterfaceRecipient.h" />
+    <ClInclude Include="..\COM\InterfaceRecipients.h" />
+    <ClInclude Include="..\Com\InterfaceResult.h" />
+    <ClInclude Include="..\COM\InterfaceRoute.h" />
+    <ClInclude Include="..\COM\InterfaceRouteAddress.h" />
+    <ClInclude Include="..\COM\InterfaceRouteAddresses.h" />
+    <ClInclude Include="..\COM\InterfaceRoutes.h" />
+    <ClInclude Include="..\COM\InterfaceRule.h" />
+    <ClInclude Include="..\COM\InterfaceRuleAction.h" />
+    <ClInclude Include="..\COM\InterfaceRuleActions.h" />
+    <ClInclude Include="..\COM\InterfaceRuleCriteria.h" />
+    <ClInclude Include="..\COM\InterfaceRuleCriterias.h" />
+    <ClInclude Include="..\COM\InterfaceRules.h" />
+    <ClInclude Include="..\Com\InterfaceScripting.h" />
+    <ClInclude Include="..\COM\InterfaceSecurityRange.h" />
+    <ClInclude Include="..\COM\InterfaceSecurityRanges.h" />
+    <ClInclude Include="..\COM\InterfaceServerMessage.h" />
+    <ClInclude Include="..\COM\InterfaceServerMessages.h" />
+    <ClInclude Include="..\COM\InterfaceSettings.h" />
+    <ClInclude Include="..\COM\InterfaceSSLCertificate.h" />
+    <ClInclude Include="..\COM\InterfaceSSLCertificates.h" />
+    <ClInclude Include="..\COM\InterfaceStatus.h" />
+    <ClInclude Include="..\COM\InterfaceSURBLServer.h" />
+    <ClInclude Include="..\COM\InterfaceSURBLServers.h" />
+    <ClInclude Include="..\COM\InterfaceTCPIPPort.h" />
+    <ClInclude Include="..\COM\InterfaceTCPIPPorts.h" />
+    <ClInclude Include="..\COM\InterfaceUtilities.h" />
+    <ClInclude Include="..\COM\InterfaceWhiteListAddress.h" />
+    <ClInclude Include="..\COM\InterfaceWhiteListAddresses.h" />
+    <ClInclude Include="..\ExternalFetcher\ExternalFetch.h" />
+    <ClInclude Include="..\ExternalFetcher\ExternalFetchManager.h" />
+    <ClInclude Include="..\ExternalFetcher\ExternalFetchTask.h" />
+    <ClInclude Include="..\ExternalFetcher\FetchAccountUIDList.h" />
+    <ClInclude Include="..\ExternalFetcher\POP3ClientConnection.h" />
+    <ClInclude Include="..\IMAP\FolderListCreator.h" />
+    <ClInclude Include="..\IMAP\IMAPACLHelper.h" />
+    <ClInclude Include="..\Imap\IMAPCommand.h" />
+    <ClInclude Include="..\Imap\IMAPCommandAppend.h" />
+    <ClInclude Include="..\Imap\IMAPCommandAuthenticate.h" />
+    <ClInclude Include="..\Imap\IMAPCommandCapability.h" />
+    <ClInclude Include="..\Imap\IMAPCommandCheck.h" />
+    <ClInclude Include="..\Imap\IMAPCommandClose.h" />
+    <ClInclude Include="..\Imap\IMAPCommandCopy.h" />
+    <ClInclude Include="..\Imap\IMAPCommandCreate.h" />
+    <ClInclude Include="..\Imap\IMAPCommandDelete.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandDeleteAcl.h" />
+    <ClInclude Include="..\Imap\IMAPCommandExamine.h" />
+    <ClInclude Include="..\Imap\IMAPCommandExpunge.h" />
+    <ClInclude Include="..\Imap\IMAPCommandFetch.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandGetAcl.h" />
+    <ClInclude Include="..\Imap\IMAPCommandGetQuota.h" />
+    <ClInclude Include="..\Imap\IMAPCommandGetQuotaRoot.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandIdle.h" />
+    <ClInclude Include="..\Imap\IMAPCommandList.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandListRights.h" />
+    <ClInclude Include="..\Imap\IMAPCommandLogin.h" />
+    <ClInclude Include="..\Imap\IMAPCommandLogout.h" />
+    <ClInclude Include="..\Imap\IMAPCommandLSUB.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandMyRights.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandNamespace.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandRangeAction.h" />
+    <ClInclude Include="..\Imap\IMAPCommandRename.h" />
+    <ClInclude Include="..\Imap\IMAPCommandSearch.h" />
+    <ClInclude Include="..\Imap\IMAPCommandSelect.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandSetAcl.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandStartTls.h" />
+    <ClInclude Include="..\Imap\IMAPCommandStatus.h" />
+    <ClInclude Include="..\Imap\IMAPCommandStore.h" />
+    <ClInclude Include="..\Imap\IMAPCommandSubscribe.h" />
+    <ClInclude Include="..\Imap\IMAPCommandUID.h" />
+    <ClInclude Include="..\Imap\IMAPCommandUnsubscribe.h" />
+    <ClInclude Include="..\Imap\IMAPConfiguration.h" />
+    <ClInclude Include="..\Imap\IMAPConnection.h" />
+    <ClInclude Include="..\Imap\IMAPCopy.h" />
+    <ClInclude Include="..\Imap\IMAPFetch.h" />
+    <ClInclude Include="..\Imap\IMAPFetchParser.h" />
+    <ClInclude Include="..\IMAP\IMAPFolderContainer.h" />
+    <ClInclude Include="..\IMAP\IMAPFolderUtilities.h" />
+    <ClInclude Include="..\IMAP\IMAPListLookup.h" />
+    <ClInclude Include="..\IMAP\IMAPNotificationClient.h" />
+    <ClInclude Include="..\IMAP\IMAPResult.h" />
+    <ClInclude Include="..\Imap\IMAPSearchParser.h" />
+    <ClInclude Include="..\Imap\IMAPSimpleCommandParser.h" />
+    <ClInclude Include="..\Imap\IMAPSort.h" />
+    <ClInclude Include="..\Imap\IMAPSortParser.h" />
+    <ClInclude Include="..\Imap\IMAPStore.h" />
+    <ClInclude Include="..\IMAP\MessagesContainer.h" />
+    <ClInclude Include="..\Imap\StaticIMAPCommandHandlers.h" />
+    <ClInclude Include="..\Pop3\POP3Configuration.h" />
+    <ClInclude Include="..\Pop3\POP3Connection.h" />
+    <ClInclude Include="..\Pop3\POP3Sessions.h" />
+    <ClInclude Include="..\Smtp\BLCheck.h" />
+    <ClInclude Include="..\Smtp\DeliveryQueue.h" />
+    <ClInclude Include="..\Smtp\DeliveryTask.h" />
+    <ClInclude Include="..\SMTP\ExternalDelivery.h" />
+    <ClInclude Include="..\SMTP\ExternalDeliveryServerResult.h" />
+    <ClInclude Include="..\SMTP\GreyListCleanerTask.h" />
+    <ClInclude Include="..\SMTP\GreyListing.h" />
+    <ClInclude Include="..\SMTP\LocalDelivery.h" />
+    <ClInclude Include="..\SMTP\MirrorMessage.h" />
+    <ClInclude Include="..\SMTP\PlusAddressing.h" />
+    <ClInclude Include="..\Smtp\RecipientParser.h" />
+    <ClInclude Include="..\Smtp\RuleApplier.h" />
+    <ClInclude Include="..\SMTP\RuleResult.h" />
+    <ClInclude Include="..\SMTP\ServerTargetResolver.h" />
+    <ClInclude Include="..\Smtp\SMTPClientConnection.h" />
+    <ClInclude Include="..\Smtp\SMTPConfiguration.h" />
+    <ClInclude Include="..\Smtp\SMTPConnection.h" />
+    <ClInclude Include="..\Smtp\SMTPDeliverer.h" />
+    <ClInclude Include="..\Smtp\SMTPDeliveryManager.h" />
+    <ClInclude Include="..\SMTP\SMTPForwarding.h" />
+    <ClInclude Include="..\SMTP\SMTPMessageHeaderCreator.h" />
+    <ClInclude Include="..\Smtp\SMTPVacationMessageCreator.h" />
+    <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
+    <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
+    <ClInclude Include="..\Smtp\Spf\SPF.h" />
+    <ClInclude Include="..\Smtp\StatisticsSender.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\DBScripts\CreateTablesMSSQL.sql" />
+    <None Include="..\..\DBScripts\CreateTablesMYSQL.sql" />
+    <None Include="..\..\DBScripts\CreateTablesPGSQL.sql" />
+    <None Include="..\..\DBScripts\ScriptPrerequisitesMSSQL.sql" />
+    <None Include="..\..\DBScripts\ScriptPrerequisitesPGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade0to1100MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade0to1100MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1100to1200MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1100to1200MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1200to1400MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1200to1400MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1400to1410MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1400to1410MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1410to1500MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1410to1500MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1500to1600MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1500to1600MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1600to1700MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1600to1700MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1700to2000MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade1700to2000MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade2000to3000MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade2000to3000MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3000to3001MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3000to3001MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3001to3100MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3001to3100MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3100to3200MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3100to3200MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3200to3300MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3200to3300MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3300to3301MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3300to3301MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3301to3400MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3301to3400MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3400to3401MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3400to3401MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3401to3402MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3401to3402MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3402to4000MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade3402to4000MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4000to4100MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4000to4100MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4100to4200MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4100to4200MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4200to4300MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4200to4300MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4300to4301MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4300to4301MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4301to4400MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4301to4400MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4400to4401MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4400to4401MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4401to4402MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4401to4402MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4402to5000MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade4402to5000MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5000to5001MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5000to5001MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5001to5002MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5001to5002MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5001to5002MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5001to5002PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5002to5003MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5002to5003MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5002to5003MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5002to5003PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5003to5004MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5003to5004MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5003to5004MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5003to5004PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5004to5005MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5004to5005MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5004to5005MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5004to5005PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5005to5006MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5005to5006MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5005to5006MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5005to5006PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5006to5100MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5006to5100MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5006to5100MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5006to5100PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5100to5110MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5100to5110MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5100to5110MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5100to5110PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5110to5200MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5110to5200MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5110to5200MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5110to5200PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5200to5201MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5200to5201MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5200to5201MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5200to5201PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5201to5300MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5201to5300MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5201to5300MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5201to5300PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5300to5310MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5300to5310MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5300to5310MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5300to5310PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5310to5320MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5310to5320MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5310to5320MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5310to5320PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5320to5400MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5320to5400MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5320to5400MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5320to5400PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5400to5500MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5400to5500MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5400to5500MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5400to5500PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5500to5501MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5500to5501MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5500to5501MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5500to5501PGSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5501to5502MSSQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5501to5502MSSQLCE.sql" />
+    <None Include="..\..\DBScripts\Upgrade5501to5502MySQL.sql" />
+    <None Include="..\..\DBScripts\Upgrade5501to5502PGSQL.sql" />
+    <None Include="..\COM\BackupManager.rgs" />
+    <None Include="..\COM\InterfaceAccount.rgs" />
+    <None Include="..\COM\InterfaceAccounts.rgs" />
+    <None Include="..\COM\InterfaceAlias.rgs" />
+    <None Include="..\COM\InterfaceAliases.rgs" />
+    <None Include="..\COM\InterfaceAntiSpam.rgs" />
+    <None Include="..\COM\InterfaceAntiVirus.rgs" />
+    <None Include="..\COM\InterfaceApplication.rgs" />
+    <None Include="..\COM\InterfaceAttachment.rgs" />
+    <None Include="..\COM\InterfaceAttachments.rgs" />
+    <None Include="..\COM\InterfaceBackup.rgs" />
+    <None Include="..\COM\InterfaceBackupManager.rgs" />
+    <None Include="..\COM\InterfaceBackupSettings.rgs" />
+    <None Include="..\COM\InterfaceBlockedAttachment.rgs" />
+    <None Include="..\COM\InterfaceBlockedAttachments.rgs" />
+    <None Include="..\COM\InterfaceCache.rgs" />
+    <None Include="..\Com\InterfaceClient.rgs" />
+    <None Include="..\COM\InterfaceDatabase.rgs" />
+    <None Include="..\COM\InterfaceDeliveryQueue.rgs" />
+    <None Include="..\COM\InterfaceDiagnosticResult.rgs" />
+    <None Include="..\COM\InterfaceDiagnosticResults.rgs" />
+    <None Include="..\COM\InterfaceDiagnostics.rgs" />
+    <None Include="..\COM\InterfaceDirectories.rgs" />
+    <None Include="..\COM\InterfaceDistributionList.rgs" />
+    <None Include="..\COM\InterfaceDistributionListRecipient.rgs" />
+    <None Include="..\COM\InterfaceDistributionListRecipients.rgs" />
+    <None Include="..\COM\InterfaceDistributionLists.rgs" />
+    <None Include="..\COM\InterfaceDNSBlackList.rgs" />
+    <None Include="..\COM\InterfaceDNSBlackLists.rgs" />
+    <None Include="..\COM\InterfaceDomain.rgs" />
+    <None Include="..\COM\InterfaceDomainAlias.rgs" />
+    <None Include="..\COM\InterfaceDomainAliases.rgs" />
+    <None Include="..\COM\InterfaceDomains.rgs" />
+    <None Include="..\COM\InterfaceEventLog.rgs" />
+    <None Include="..\COM\InterfaceFetchAccount.rgs" />
+    <None Include="..\COM\InterfaceFetchAccounts.rgs" />
+    <None Include="..\COM\InterfaceGlobalObjects.rgs" />
+    <None Include="..\COM\InterfaceGreyListingWhiteAddress.rgs" />
+    <None Include="..\COM\InterfaceGreyListingWhiteAddresses.rgs" />
+    <None Include="..\COM\InterfaceIMAPFolder.rgs" />
+    <None Include="..\COM\InterfaceIMAPFolders.rgs" />
+    <None Include="..\COM\InterfaceIncomingRelay.rgs" />
+    <None Include="..\COM\InterfaceIncomingRelays.rgs" />
+    <None Include="..\COM\InterfaceLanguage.rgs" />
+    <None Include="..\COM\InterfaceLanguages.rgs" />
+    <None Include="..\COM\InterfaceLinks.rgs" />
+    <None Include="..\COM\InterfaceLogging.rgs" />
+    <None Include="..\COM\InterfaceMessage.rgs" />
+    <None Include="..\COM\InterfaceMessageHeader.rgs" />
+    <None Include="..\COM\InterfaceMessageHeaders.rgs" />
+    <None Include="..\COM\InterfaceMessageIndexing.rgs" />
+    <None Include="..\COM\InterfaceMessages.rgs" />
+    <None Include="..\COM\InterfaceRecipient.rgs" />
+    <None Include="..\COM\InterfaceRecipients.rgs" />
+    <None Include="..\Com\InterfaceResult.rgs" />
+    <None Include="..\COM\InterfaceRoute.rgs" />
+    <None Include="..\COM\InterfaceRouteAddress.rgs" />
+    <None Include="..\COM\InterfaceRouteAddresses.rgs" />
+    <None Include="..\COM\InterfaceRoutes.rgs" />
+    <None Include="..\COM\InterfaceRule.rgs" />
+    <None Include="..\COM\InterfaceRuleAction.rgs" />
+    <None Include="..\COM\InterfaceRuleActions.rgs" />
+    <None Include="..\COM\InterfaceRuleCriteria.rgs" />
+    <None Include="..\COM\InterfaceRuleCriterias.rgs" />
+    <None Include="..\COM\InterfaceRules.rgs" />
+    <None Include="..\COM\InterfaceScripting.rgs" />
+    <None Include="..\COM\InterfaceSecurityRange.rgs" />
+    <None Include="..\COM\InterfaceSecurityRanges.rgs" />
+    <None Include="..\COM\InterfaceServerMessage.rgs" />
+    <None Include="..\COM\InterfaceServerMessages.rgs" />
+    <None Include="..\COM\InterfaceSettings.rgs" />
+    <None Include="..\COM\InterfaceStatus.rgs" />
+    <None Include="..\COM\InterfaceSURBLServer.rgs" />
+    <None Include="..\COM\InterfaceSURBLServers.rgs" />
+    <None Include="..\COM\InterfaceTCPIPPort.rgs" />
+    <None Include="..\COM\InterfaceTCPIPPorts.rgs" />
+    <None Include="..\COM\InterfaceUtilities.rgs" />
+    <None Include="..\COM\InterfaceWhiteListAddress.rgs" />
+    <None Include="..\COM\InterfaceWhiteListAddresses.rgs" />
+    <None Include="hMailServer.rgs" />
+    <None Include="InterfaceAntiSpam.rgs" />
+    <None Include="InterfaceBlockedAttachment.rgs" />
+    <None Include="InterfaceBlockedAttachments.rgs" />
+    <None Include="InterfaceClient.rgs" />
+    <None Include="InterfaceGreyListingWhiteAddress.rgs" />
+    <None Include="InterfaceGreyListingWhiteAddresses.rgs" />
+    <None Include="InterfaceIMAPFolder.rgs" />
+    <None Include="InterfaceIMAPFolders.rgs" />
+    <None Include="InterfaceMessageHeader.rgs" />
+    <None Include="InterfaceServerMessage.rgs" />
+    <None Include="InterfaceServerMessages.rgs" />
+    <None Include="InterfaceTCPIPPort.rgs" />
+    <None Include="InterfaceTCPIPPorts.rgs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="hMailServer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Common\Application\Errors.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="hMailServer.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

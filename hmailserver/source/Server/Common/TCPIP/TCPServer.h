@@ -11,6 +11,8 @@
 #include "../BO/SSLCertificates.h"
 #include "../BO/SSLCertificate.h"
 
+#include "TCPConnectionFactory.h"
+
 using boost::asio::ip::tcp;
 
 namespace HM
@@ -20,32 +22,33 @@ namespace HM
    class TCPServer
    {
    public:
-      TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, shared_ptr<SSLCertificate> certificate);
+      TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security);
       ~TCPServer(void);
 
       void Run();
       void StopAccept();
 
-      static bool HasIPV6();
-
    private:
       
       std::string GetPassword() const;
 
-      bool InitSSL();
-
       bool InitAcceptor();
       void StartAccept();
-      void HandleAccept(shared_ptr<TCPConnection> pConnection, const boost::system::error_code& error);
+      void HandleAccept(std::shared_ptr<TCPConnection> connection, const boost::system::error_code& error);
 
       bool FireOnAcceptEvent(const IPAddress &remoteAddress, int port);
+      
+      std::shared_ptr<TCPConnectionFactory> connectionFactory_;
 
-      boost::asio::ip::tcp::acceptor _acceptor;
-      boost::asio::ssl::context _context;
-      SessionType _sessionType;
-      shared_ptr<SSLCertificate> _certificate;
+      boost::asio::ip::tcp::acceptor acceptor_;
+      boost::asio::ssl::context context_;
+      boost::asio::io_service& io_service_;
+      SessionType sessionType_;
+      std::shared_ptr<SSLCertificate> certificate_;
 
-      IPAddress _ipaddress;
-      int _port;
+      IPAddress ipaddress_;
+      int port_;
+
+      ConnectionSecurity connection_security_;
    };
 }

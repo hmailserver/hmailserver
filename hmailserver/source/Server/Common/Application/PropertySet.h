@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class DALRecordset;
    class Property;
       
-   class PropertySet : public Cacheable
+   class PropertySet
    {
    public:
       PropertySet(void);
@@ -32,11 +30,11 @@ namespace HM
 
    private:
 
-      void _OnPropertyChanged(shared_ptr<Property> pProperty);
+      void OnPropertyChanged_(std::shared_ptr<Property> pProperty);
 
-      shared_ptr<Property> _GetProperty(const String &sPropertyName);
+      std::shared_ptr<Property> GetProperty_(const String &sPropertyName);
 
-      bool _IsCryptedProperty(const String &sPropertyName);
-      std::map<String, shared_ptr<Property> > m_mapItems;
+      bool IsCryptedProperty_(const String &sPropertyName);
+      std::map<String, std::shared_ptr<Property> > items_;
    };
 }

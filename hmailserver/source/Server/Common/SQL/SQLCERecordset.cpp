@@ -18,22 +18,29 @@ namespace HM
          assert(0);
       }
 */
-      m_iCurRow = 0;
+      cur_row_ = 0;
    }
 
    SQLCERecordset::~SQLCERecordset()
    {
-      _Close();
+      try
+      {
+         Close_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    DALConnection::ExecutionResult
-   SQLCERecordset::TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
+   SQLCERecordset::TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage)
    {  
-      m_iCurRow = 0;
+      cur_row_ = 0;
 
       String sSQL = command.GetQueryString();
 
-      shared_ptr<SQLCEConnection> pConn = static_pointer_cast<SQLCEConnection>(pDALConn);
+      std::shared_ptr<SQLCEConnection> pConn = std::static_pointer_cast<SQLCEConnection>(pDALConn);
 
       _ConnectionPtr pADOConnection = pConn->GetConnection();
 
@@ -91,7 +98,7 @@ namespace HM
    }
 
    bool
-   SQLCERecordset::_Close()
+   SQLCERecordset::Close_()
    {
       try
       {
@@ -123,7 +130,7 @@ namespace HM
    bool
    SQLCERecordset::MoveNext()
    {
-      m_iCurRow++;
+      cur_row_++;
       cSQLCERecordset->MoveNext();
       return true;
    }
@@ -134,7 +141,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return "";
       }
 
@@ -183,7 +190,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -213,7 +220,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -249,7 +256,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return 0;
       }
 
@@ -271,10 +278,10 @@ namespace HM
       return vaField.dblVal;
    }
 
-   vector<AnsiString> 
+   std::vector<AnsiString> 
    SQLCERecordset::GetColumnNames() const
    {
-      vector<AnsiString> result;
+      std::vector<AnsiString> result;
 
       FieldsPtr      pFields;
       FieldPtr       pField;
@@ -309,7 +316,7 @@ namespace HM
    {
       if (IsEOF())
       {
-         _ReportEOFError(FieldName);
+         ReportEOFError_(FieldName);
          return false;
       }
 

@@ -26,14 +26,14 @@ namespace HM
    }
 
    void 
-   DKIMSigner::Sign(shared_ptr<Message> message)
+   DKIMSigner::Sign(std::shared_ptr<Message> message)
    {
      
       AnsiString senderAddress = message->GetFromAddress();
       AnsiString senderDomain = StringParser::ExtractDomain(senderAddress);
 
       // Check if signing is enabled for this domain.
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(senderDomain);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(senderDomain);
 
       if (!pDomain || !pDomain->GetDKIMEnabled())
          return;

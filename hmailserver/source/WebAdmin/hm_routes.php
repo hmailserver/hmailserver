@@ -27,7 +27,7 @@ for ($i = 0; $i < $Count; $i++)
    
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=80><a href=\"?page=route&action=edit&routeid=$routeid&\">$routename</a></td>";
-	echo "<td width=20><a href=\"?page=background_route_save&action=delete&routeid=$routeid&\">$str_delete</a></td>";
+	echo "<td width=20><a href=\"?page=background_route_save&action=delete&csrftoken=$csrftoken&routeid=$routeid&\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

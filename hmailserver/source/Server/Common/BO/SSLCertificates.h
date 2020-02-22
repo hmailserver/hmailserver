@@ -8,8 +8,6 @@
 
 #include "../Persistence/PersistentSSLCertificate.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class SSLCertificates : public Collection<SSLCertificate, PersistentSSLCertificate>

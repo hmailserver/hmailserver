@@ -16,7 +16,7 @@
 namespace HM
 {
    bool
-   PGSQLMacroExpander::ProcessMacro(shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
+   PGSQLMacroExpander::ProcessMacro(std::shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
    {
       switch (macro.GetType())
       {
@@ -37,7 +37,7 @@ namespace HM
             String constraintName = rec.GetStringValue("CONSTRAINT_NAME");
 
             String sqlUpdate;
-            sqlUpdate.Format(_T("ALTER TABLE %s DROP %s"), macro.GetTableName(), constraintName);
+            sqlUpdate.Format(_T("ALTER TABLE %s DROP %s"), macro.GetTableName().c_str(), constraintName.c_str());
 
             DALConnection::ExecutionResult execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
 

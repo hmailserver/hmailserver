@@ -22,9 +22,9 @@ namespace HM
 
    }
    bool 
-   IMAPListLookup::IsItemInList(vector<String> vecItems, int item)
+   IMAPListLookup::IsItemInList(std::vector<String> vecItems, int item)
    {
-      boost_foreach(String sCur, vecItems)
+      for(String sCur : vecItems)
       {
          int lColonPos = sCur.Find(_T(":"));
 

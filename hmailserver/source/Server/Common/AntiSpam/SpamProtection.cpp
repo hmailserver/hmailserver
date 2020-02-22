@@ -23,6 +23,9 @@
 
 #include "../Util/MessageUtilities.h"
 #include "../TCPIP/DNSResolver.h"
+#include "../TCPIP/HostNameAndIpAddress.h"
+
+#include "../Util/FileUtilities.h"
 
 #include "../../SMTP/BLCheck.h"
 #include "../../SMTP/GreyListing.h"
@@ -56,20 +59,20 @@ namespace HM
    void
    SpamProtection::Load()
    {
-      m_pSpamTestRunner = shared_ptr<SpamTestRunner>(new SpamTestRunner);
-      m_pSpamTestRunner->LoadSpamTests();
+      spam_test_runner_ = std::shared_ptr<SpamTestRunner>(new SpamTestRunner);
+      spam_test_runner_->LoadSpamTests();
 
       DKIM::Initialize();
    }
 
-   set<shared_ptr<SpamTestResult> >
+   std::set<std::shared_ptr<SpamTestResult> >
    SpamProtection::RunPreTransmissionTests(const String &sFromAddress, 
                                            const IPAddress &iOriginatingIP,
                                            const IPAddress &iConnectingIP,
                                            const String &sHeloHost)
    {
 
-      shared_ptr<SpamTestData> pTestData = shared_ptr<SpamTestData>(new SpamTestData);
+      std::shared_ptr<SpamTestData> pTestData = std::shared_ptr<SpamTestData>(new SpamTestData);
       
       pTestData->SetEnvelopeFrom(sFromAddress);
       pTestData->SetHeloHost(sHeloHost);
@@ -77,18 +80,18 @@ namespace HM
       pTestData->SetConnectingIP(iConnectingIP);
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
-      int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
+      int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
-      set<shared_ptr<SpamTestResult> > setResult = m_pSpamTestRunner->RunSpamTest(pTestData, SpamTest::PreTransmission, maxScore);
+      std::set<std::shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PreTransmission, maxScore);
 
       return setResult;
    }
 
-   set<shared_ptr<SpamTestResult> >
+   std::set<std::shared_ptr<SpamTestResult> >
    SpamProtection::RunPostTransmissionTests(const String &sFromAddress, 
                                             const IPAddress & iOriginatingIP,
                                             const IPAddress & iConnectingIP,
-                                            shared_ptr<Message> pMessage)
+                                            std::shared_ptr<Message> pMessage)
    {
 
       const String fileName = PersistentMessage::GetFileName(pMessage);
@@ -102,18 +105,18 @@ namespace HM
       int maxSizeToScanKB = 1024 * 5;
 
       if (config.GetAntiSpamMaxSizeKB() > 0)
-         maxSizeToScanKB = min(config.GetAntiSpamMaxSizeKB(), maxSizeToScanKB);
+         maxSizeToScanKB = std::min(config.GetAntiSpamMaxSizeKB(), maxSizeToScanKB);
 
       int messageSizeKB = FileUtilities::FileSize(fileName) / 1024;
       if (messageSizeKB > maxSizeToScanKB)
       {
          // The message is larger than the max message size to scan, so we'll skip scanning it.
-         set<shared_ptr<SpamTestResult> > emptySet;
+         std::set<std::shared_ptr<SpamTestResult> > emptySet;
          return emptySet;
       }
 
-      shared_ptr<SpamTestData> pTestData = shared_ptr<SpamTestData>(new SpamTestData);      
-      shared_ptr<MessageData> pMessageData = shared_ptr<MessageData>(new MessageData);
+      std::shared_ptr<SpamTestData> pTestData = std::shared_ptr<SpamTestData>(new SpamTestData);      
+      std::shared_ptr<MessageData> pMessageData = std::shared_ptr<MessageData>(new MessageData);
       
       pMessageData->LoadFromMessage(fileName, pMessage);
 
@@ -122,15 +125,15 @@ namespace HM
       pTestData->SetConnectingIP(iConnectingIP);
       pTestData->SetMessageData(pMessageData);
 
-      int maxScore = max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
+      int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 
-      set<shared_ptr<SpamTestResult> > setResult = m_pSpamTestRunner->RunSpamTest(pTestData, SpamTest::PostTransmission, maxScore);
+      std::set<std::shared_ptr<SpamTestResult> > setResult = spam_test_runner_->RunSpamTest(pTestData, SpamTest::PostTransmission, maxScore);
 
       return setResult;
    }
 
    bool
-   SpamProtection::PerformGreyListing(shared_ptr<Message> message, const set<shared_ptr<SpamTestResult> > &spamTestResults, const String &toAddress, const IPAddress &ipaddress)
+   SpamProtection::PerformGreyListing(std::shared_ptr<Message> message, const std::set<std::shared_ptr<SpamTestResult> > &spamTestResults, const String &toAddress, const IPAddress &ipaddress)
    {
       if (!Configuration::Instance()->GetAntiSpamConfiguration().GetUseGreyListing())
       {
@@ -141,7 +144,7 @@ namespace HM
 
       // Check if we should use grey listing for the recipient domain.
       String sRecipientDomain = StringParser::ExtractDomain(toAddress);
-      shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(sRecipientDomain);         
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(sRecipientDomain);         
 
       if (pDomain && !pDomain->GetASUseGreyListing())
       {
@@ -153,7 +156,7 @@ namespace HM
       // Check if the SPF test has succeeded. If so, maybe we should not do
       if (Configuration::Instance()->GetAntiSpamConfiguration().GetBypassGreyListingOnSPFSuccess())
       {
-         boost_foreach(shared_ptr<SpamTestResult> testResult, spamTestResults)
+         for(std::shared_ptr<SpamTestResult> testResult : spamTestResults)
          {
             if (testResult->GetTestName() == SpamTestSPF::GetTestName())
             {
@@ -174,16 +177,21 @@ namespace HM
          
          if (senderDomain.GetLength() > 0)
          {
-            std::vector<String> foundAddresses;
+            std::vector<String> found_ip_addresses;
                
             DNSResolver resolver;
-            resolver.GetARecords(senderDomain, foundAddresses);
-            resolver.GetEmailServers(senderDomain, foundAddresses);
+            resolver.GetIpAddresses(senderDomain, found_ip_addresses, false);
+
+            std::vector<HostNameAndIpAddress> host_name_with_addresses;
+            resolver.GetEmailServers(senderDomain, host_name_with_addresses);
+
+            for(HostNameAndIpAddress host_and_ip : host_name_with_addresses)
+               found_ip_addresses.push_back(host_and_ip.GetIpAddress());
 
             String actualFromAddress = ipaddress.ToString();
-            boost_foreach(String foundAddress, foundAddresses)
+            for(String found_ip_address : found_ip_addresses)
             {
-               if (foundAddress.CompareNoCase(actualFromAddress) == 0)
+               if (found_ip_address.CompareNoCase(actualFromAddress) == 0)
                {
                   // The message is coming from either an A record or a MX record. Skip greylisting.
                   LOG_DEBUG("Mail coming from A or MX record. Skipping grey listing.");
@@ -200,10 +208,10 @@ namespace HM
       return true; 
    }
 
-   shared_ptr<MessageData>
-   SpamProtection::TagMessageAsSpam(shared_ptr<Message> pMessage, set<shared_ptr<SpamTestResult> > setResult)
+   std::shared_ptr<MessageData>
+   SpamProtection::AddSpamScoreHeaders(std::shared_ptr<Message> pMessage, std::set<std::shared_ptr<SpamTestResult> > setResult, bool classifiedAsSpam)
    {
-      shared_ptr<MessageData> pMessageData;
+      std::shared_ptr<MessageData> pMessageData;
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
 
@@ -218,23 +226,41 @@ namespace HM
       if (!pMessage)
          return pMessageData;
 
-      pMessageData = shared_ptr<MessageData>(new MessageData);
+      pMessageData = std::shared_ptr<MessageData>(new MessageData);
       if (!pMessageData->LoadFromMessage(PersistentMessage::GetFileName(pMessage), pMessage))
          return pMessageData;
 
-      if (config.GetAddHeaderSpam())
-         pMessageData->SetFieldValue("X-hMailServer-Spam", "YES");
+      if (classifiedAsSpam)
+      {
+         if (config.GetAddHeaderSpam())
+         {
+            pMessageData->SetFieldValue("X-hMailServer-Spam", "YES");
+         }
+
+         if (config.GetPrependSubject())
+         {
+            // Add subject
+            String sSubject = pMessageData->GetFieldValue("Subject");
+
+            // Check if subject is already prepended. If so, don't do it again.
+            if (sSubject.Find(config.GetPrependSubjectText()) != 0)
+            {
+               sSubject = config.GetPrependSubjectText() + " " + sSubject;
+               pMessageData->SetFieldValue("Subject", sSubject);
+            }
+         }
+      }
 
       if (config.GetAddHeaderReason())
       {
-         set<shared_ptr<SpamTestResult> >::iterator iter = setResult.begin();
-         set<shared_ptr<SpamTestResult> >::iterator iterEnd = setResult.end();
+         auto iter = setResult.begin();
+         auto iterEnd = setResult.end();
 
          int iFieldIdx = 1;
          int iTotalScore = 0;
          for (; iter != iterEnd; iter++, iFieldIdx++)
          {
-            shared_ptr<SpamTestResult> pResult = (*iter);
+            std::shared_ptr<SpamTestResult> pResult = (*iter);
 
             // Only if the test has failed should we add a header for it. If the test
             // is neutral or pass, we shouldn't mention it in the headers.
@@ -244,28 +270,13 @@ namespace HM
             iTotalScore += pResult->GetSpamScore();
 
             String sHeaderValue;
-            sHeaderValue.Format(_T("%s - (Score: %d)"), pResult->GetMessage(), pResult->GetSpamScore());
+            sHeaderValue.Format(_T("%s - (Score: %d)"), pResult->GetMessage().c_str(), pResult->GetSpamScore());
 
             pMessageData->SetFieldValue("X-hMailServer-Reason-" + StringParser::IntToString(iFieldIdx), sHeaderValue);
          }
 
          pMessageData->SetFieldValue("X-hMailServer-Reason-Score", StringParser::IntToString(iTotalScore));
-         
       }
-
-      if (config.GetPrependSubject())
-      {
-         // Add subject
-         String sSubject = pMessageData->GetFieldValue("Subject");
-            
-         // Check if subject is already prepended. If so, don't do it again.
-         if (sSubject.Find(config.GetPrependSubjectText()) != 0)
-         {
-            sSubject = config.GetPrependSubjectText() + " " + sSubject;
-            pMessageData->SetFieldValue("Subject", sSubject);
-         }
-      }
-
 
       return pMessageData;
       
@@ -294,16 +305,16 @@ namespace HM
    }
 
    int 
-   SpamProtection::CalculateTotalSpamScore(set<shared_ptr<SpamTestResult> > result)
+   SpamProtection::CalculateTotalSpamScore(std::set<std::shared_ptr<SpamTestResult> > result)
    {
       int iTotalSpamScore = 0;
 
-      set<shared_ptr<SpamTestResult> >::iterator iter = result.begin();
-      set<shared_ptr<SpamTestResult> >::iterator iterEnd = result.end();
+      auto iter = result.begin();
+      auto iterEnd = result.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<SpamTestResult> pResult = (*iter);
+         std::shared_ptr<SpamTestResult> pResult = (*iter);
          iTotalSpamScore += pResult->GetSpamScore();
 
       }

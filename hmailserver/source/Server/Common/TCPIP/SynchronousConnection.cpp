@@ -17,29 +17,36 @@ using namespace boost::system;
 
 namespace HM
 {
-   void set_result(optional<boost::system::error_code>* a, boost::system::error_code b) 
+   void set_result(boost::optional<boost::system::error_code>* a, boost::system::error_code b) 
    { 
       a->reset(b); 
    } 
 
    SynchronousConnection::SynchronousConnection(int timeoutSeconds) :
-      m_socket(m_ioservice),
-      m_timeoutSeconds(timeoutSeconds)
+      socket_(ioservice_),
+      seconds_(timeoutSeconds)
    {
       
    }
 
    SynchronousConnection::~SynchronousConnection()
    {
-      boost::system::error_code err;
-      m_socket.shutdown(tcp::socket::shutdown_both, err);
-      m_socket.close(err);
+      try
+      {
+         boost::system::error_code err;
+         socket_.shutdown(tcp::socket::shutdown_both, err);
+         socket_.close(err);
+      }
+      catch (...)
+      {
+
+      }
    }
    
    bool 
    SynchronousConnection::Connect(const AnsiString &hostName, int port)
    {
-      tcp::resolver resolver(m_ioservice);
+      tcp::resolver resolver(ioservice_);
       tcp::resolver::query query(hostName, 
             AnsiString(StringParser::IntToString(port)), 
             tcp::resolver::query::numeric_service);
@@ -49,8 +56,8 @@ namespace HM
       boost::system::error_code error = boost::asio::error::host_not_found;
       while (error && endpoint_iterator != end)
       {
-         m_socket.close();
-         m_socket.connect(*endpoint_iterator++, error);
+         socket_.close();
+         socket_.connect(*endpoint_iterator++, error);
       }
       
       if (error)
@@ -62,36 +69,36 @@ namespace HM
    bool
    SynchronousConnection::Write(const AnsiString &data)
    {
-      return _Write((const unsigned char*) data.data(), data.GetLength());
+      return Write_((const unsigned char*) data.data(), data.GetLength());
 
    }
 
    bool
    SynchronousConnection::Write(const ByteBuffer &data)
    {
-      return _Write(data.GetBuffer(), data.GetSize());
+      return Write_(data.GetBuffer(), data.GetSize());
    }
 
    bool 
-   SynchronousConnection::_Write(const unsigned char *buf, int bufSize)
+   SynchronousConnection::Write_(const unsigned char *buf, size_t bufSize)
    {
       try
       {
-         optional<error_code> timer_result; 
+         boost::optional<error_code> timer_result; 
 
          // Create the timeout timer.
-         boost::asio::deadline_timer timer(m_ioservice); 
-         timer.expires_from_now(boost::posix_time::seconds(m_timeoutSeconds)); 
-         timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
+         boost::asio::deadline_timer timer(ioservice_); 
+         timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
+         timer.async_wait(std::bind(set_result, &timer_result, std::placeholders::_1)); 
 
          // Start an asynchronous write.
          boost::asio::streambuf readBuffer;
-         optional<error_code> write_result; 
-         async_write(m_socket, boost::asio::buffer(buf, bufSize), boost::bind(set_result, &write_result, _1)); 
-         m_ioservice.reset(); 
+         boost::optional<error_code> write_result; 
+         async_write(socket_, boost::asio::buffer(buf, bufSize), std::bind(set_result, &write_result, std::placeholders::_1));
+         ioservice_.reset(); 
 
          // Wait for data to be written. 
-         while (m_ioservice.run_one()) 
+         while (ioservice_.run_one()) 
          { 
             if (write_result) 
                timer.cancel(); 
@@ -116,21 +123,21 @@ namespace HM
 
       try
       {
-         optional<error_code> timer_result; 
+         boost::optional<error_code> timer_result; 
          
          // Create the timeout timer.
-         boost::asio::deadline_timer timer(m_ioservice); 
-         timer.expires_from_now(boost::posix_time::seconds(m_timeoutSeconds)); 
-         timer.async_wait(boost::bind(set_result, &timer_result, _1)); 
+         boost::asio::deadline_timer timer(ioservice_); 
+         timer.expires_from_now(boost::posix_time::seconds(seconds_)); 
+         timer.async_wait(std::bind(set_result, &timer_result, std::placeholders::_1));
 
          // Start an asynchronous read.
          boost::asio::streambuf readBuffer;
-         optional<error_code> read_result; 
-         async_read_until(m_socket, readBuffer, delimiter, boost::bind(set_result, &read_result, _1)); 
-         m_ioservice.reset(); 
+         boost::optional<error_code> read_result; 
+         async_read_until(socket_, readBuffer, delimiter, std::bind(set_result, &read_result, std::placeholders::_1));
+         ioservice_.reset(); 
 
          // Wait for input. 
-         while (m_ioservice.run_one()) 
+         while (ioservice_.run_one()) 
          { 
             if (read_result) 
                timer.cancel(); 
@@ -142,7 +149,7 @@ namespace HM
 
          std::istream is(&readBuffer);
 
-         readData.append((istreambuf_iterator<char>(is)), istreambuf_iterator<char>());
+         readData.append((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 
          return true;
       }
@@ -156,7 +163,7 @@ namespace HM
    SynchronousConnection::Close()
    {
       boost::system::error_code err;
-      m_socket.close(err);
+      socket_.close(err);
    }
 
 

@@ -14,9 +14,9 @@ namespace HM
       ~MessageRecipients(void);
 
       void Clear();
-      void Add(shared_ptr<MessageRecipient> pRecipient);
-      std::vector<shared_ptr<MessageRecipient> > & GetVector() {return _recipients; }
-      int GetCount() {return (int) _recipients.size(); }
+      void Add(std::shared_ptr<MessageRecipient> pRecipient);
+      std::vector<std::shared_ptr<MessageRecipient> > & GetVector() {return recipients_; }
+      int GetCount() {return (int) recipients_.size(); }
       String GetCommaSeperatedRecipientList();
 
       void RemoveNonLocalAccounts();
@@ -24,7 +24,7 @@ namespace HM
 
    private:
 
-      std::vector<shared_ptr<MessageRecipient> > _recipients;
+      std::vector<std::shared_ptr<MessageRecipient> > recipients_;
 
    };
 }

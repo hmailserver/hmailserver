@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using hMailServer.Administrator.Nodes;
+using hMailServer.Shared;
 using Microsoft.Win32;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -89,6 +90,22 @@ namespace hMailServer.Administrator
             return true;
          else
             return false;
+      }
+
+      static internal void AskRestartServer()
+      {
+         if (MessageBox.Show(Strings.Localize("hMailServer needs to be restarted for the changes to take effect.") + Environment.NewLine +
+                    Strings.Localize("Do you want to restart hMailServer now?"), EnumStrings.hMailServerAdministrator, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+         {
+            using (new WaitCursor())
+            {
+               hMailServer.Application application = APICreator.Application;
+               application.Stop();
+               application.Start();
+
+               MessageBox.Show(Strings.Localize("The hMailServer server has been restarted."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+         }
       }
    }
 }

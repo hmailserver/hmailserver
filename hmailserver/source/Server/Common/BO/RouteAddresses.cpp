@@ -12,7 +12,7 @@
 namespace HM
 {
    RouteAddresses::RouteAddresses(__int64 iRouteID) :
-      m_iRouteID(iRouteID)
+      route_id_(iRouteID)
    {
       
    }
@@ -26,19 +26,19 @@ namespace HM
    RouteAddresses::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_routeaddresses where routeaddressrouteid = %I64d"), m_iRouteID);;
+      sSQL.Format(_T("select * from hm_routeaddresses where routeaddressrouteid = %I64d"), route_id_);;
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void
    RouteAddresses::DeleteByAddress(const String &sAddress)
    {
-      std::vector<shared_ptr<RouteAddress> >::iterator iterRoute = vecObjects.begin();
+      auto iterRoute = vecObjects.begin();
 
       while (iterRoute != vecObjects.end())
       {  
-         shared_ptr<RouteAddress> pRoute = (*iterRoute);
+         std::shared_ptr<RouteAddress> pRoute = (*iterRoute);
 
          if (pRoute->GetAddress().CompareNoCase(sAddress) == 0)
          {
@@ -52,9 +52,9 @@ namespace HM
    }
 
    bool
-   RouteAddresses::PreSaveObject(shared_ptr<RouteAddress> routeAddress, XNode *node)
+   RouteAddresses::PreSaveObject(std::shared_ptr<RouteAddress> routeAddress, XNode *node)
    {
-      routeAddress->SetRouteID(m_iRouteID);
+      routeAddress->SetRouteID(route_id_);
 
       return true;
    }

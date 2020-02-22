@@ -32,7 +32,7 @@ namespace RegressionTests.Infrastructure
       public void InitializeBackupSettings()
       {
          _application = SingletonProvider<TestSetup>.Instance.GetApp();
-         SetBackupDir(Path.Combine(Path.GetTempPath(), TestSetup.RandomString()));
+         SetBackupDir(Path.Combine(Path.GetTempPath(), TestSetup.UniqueString()));
 
          var dirInfo = new DirectoryInfo(_backupDir);
          dirInfo.Create();
@@ -48,7 +48,7 @@ namespace RegressionTests.Infrastructure
 
       internal bool Execute()
       {
-         TestSetup.AssertDeleteFile(_application.Settings.Backup.LogFile);
+         CustomAsserts.AssertDeleteFile(_application.Settings.Backup.LogFile);
 
          SetupEnvironment();
          if (!BackupEnvironment())
@@ -437,19 +437,20 @@ namespace RegressionTests.Infrastructure
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
          // Make sure the inbox contains two messages which should be backed up.
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
-                                                      "Message 1 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 1);
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject",
+            "Message 1 Body");
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
-                                                      "Message 2 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 2);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
-                                                      "Message 3 Body"));
-         POP3Simulator.AssertMessageCount(account.Address, "test", 3);
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 2 Subject",
+                                                      "Message 2 Body");
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 2);
 
-         var sim = new IMAPSimulator();
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 3 Subject",
+                                                      "Message 3 Body");
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
+
+         var sim = new ImapClientSimulator();
          Assert.IsTrue(sim.ConnectAndLogon(account.Address, "test"));
          Assert.IsTrue(sim.SelectFolder("Inbox"));
          Assert.IsTrue(sim.SetDeletedFlag(2));
@@ -535,15 +536,15 @@ namespace RegressionTests.Infrastructure
          messages.Add("Subject: Message 2\r\n");
          messages.Add("Subject: Message 3\r\n");
 
-         using (var pop3Server = new POP3Server(1, fa.Port, messages))
+         using (var pop3Server = new Pop3ServerSimulator(1, fa.Port, messages))
          {
             pop3Server.StartListen();
             fa.DownloadNow();
             pop3Server.WaitForCompletion();
          }
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
-         POP3Simulator.AssertMessageCount(account.Address, "test", 5);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
       }
 
       private bool BackupEnvironment()

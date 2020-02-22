@@ -14,13 +14,13 @@
 namespace HM
 {
    ACLPermissions::ACLPermissions() :
-      m_iFolderID(0)
+      folder_id_(0)
    {
 
    }
 
       ACLPermissions::ACLPermissions(__int64 iFolderID) :
-      m_iFolderID(iFolderID)
+      folder_id_(iFolderID)
    {
 
    }
@@ -37,54 +37,54 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_acl where aclsharefolderid = %I64d"), m_iFolderID);
+      sSQL.Format(_T("select * from hm_acl where aclsharefolderid = %I64d"), folder_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
-   shared_ptr<ACLPermission> 
+   std::shared_ptr<ACLPermission> 
    ACLPermissions::GetPermissionForAccount(__int64 iAccountID)
    {
-      std::vector<shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
          if (pPermission->GetPermissionType() == 0 && pPermission->GetPermissionAccountID() == iAccountID)
          {
             return pPermission;
          }
       }
 
-      shared_ptr<ACLPermission> pEmpty;
+      std::shared_ptr<ACLPermission> pEmpty;
       return pEmpty;
    }
 
-   shared_ptr<ACLPermission> 
+   std::shared_ptr<ACLPermission> 
    ACLPermissions::GetPermissionForGroup(__int64 iGroupID)
    {
-      std::vector<shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
-      std::vector<shared_ptr<ACLPermission> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
          if (pPermission->GetPermissionType() == ACLPermission::PTGroup && pPermission->GetPermissionGroupID() == iGroupID)
          {
             return pPermission;
          }
       }
 
-      shared_ptr<ACLPermission> pEmpty;
+      std::shared_ptr<ACLPermission> pEmpty;
       return pEmpty;
    }
 
    // Called before save in DB
    bool
-   ACLPermissions::PreSaveObject(shared_ptr<ACLPermission> pPermission, XNode *pNode)
+   ACLPermissions::PreSaveObject(std::shared_ptr<ACLPermission> pPermission, XNode *pNode)
    {
-      pPermission->SetShareFolderID(m_iFolderID);
+      pPermission->SetShareFolderID(folder_id_);
 
       return true;
    }
@@ -92,11 +92,11 @@ namespace HM
    bool 
    ACLPermissions::DeletePermissionsForAccount(__int64 iAccountID)
    {
-      std::vector<shared_ptr<ACLPermission> >::iterator iter = vecObjects.begin();
+      auto iter = vecObjects.begin();
 
       while (iter != vecObjects.end())
       {
-         shared_ptr<ACLPermission> pPermission = (*iter);
+         std::shared_ptr<ACLPermission> pPermission = (*iter);
          if (pPermission->GetPermissionType() == 0 && pPermission->GetPermissionAccountID() == iAccountID)
          {
             if (!PersistentACLPermission::DeleteObject(pPermission))

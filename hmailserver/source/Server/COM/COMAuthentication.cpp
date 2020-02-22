@@ -27,11 +27,11 @@ namespace HM
 
    }
 
-   shared_ptr<const Account>
+   std::shared_ptr<const Account>
    COMAuthentication::Authenticate(const String &sUsername, const String &sPassword)
    {
       // Try to fetch this account
-      m_pAccount.reset();
+      account_.reset();
 
       if (sUsername.CompareNoCase(_T("administrator")) == 0)
       {
@@ -56,7 +56,7 @@ namespace HM
             // Create a dummy account since the administrator
             // does not have a real email account.
 
-            m_pAccount = shared_ptr<Account> 
+            account_ = std::shared_ptr<Account> 
                (
                   new Account("Administrator", Account::ServerAdmin)
                );
@@ -65,10 +65,10 @@ namespace HM
       }
       else
       {
-         m_pAccount = HM::PasswordValidator::ValidatePassword(sUsername, sPassword);
+         account_ = HM::PasswordValidator::ValidatePassword(sUsername, sPassword);
       }
 
-      return m_pAccount;
+      return account_;
    }
 
    void 
@@ -81,26 +81,26 @@ namespace HM
          // Create a dummy account since the administrator
          // does not have a real email account.
 
-         m_pAccount = shared_ptr<Account> (new Account("Administrator", Account::ServerAdmin));
+         account_ = std::shared_ptr<Account> (new Account("Administrator", Account::ServerAdmin));
       }
    }
 
    bool 
    COMAuthentication::GetIsAuthenticated() const
    {
-      return m_pAccount != 0;
+      return account_ != 0;
    }
 
    __int64 
    COMAuthentication::GetAccountID() const
    {
-      return m_pAccount->GetID();
+      return account_->GetID();
    }
 
    __int64 
    COMAuthentication::GetDomainID() const
    {
-      return m_pAccount->GetDomainID();
+      return account_->GetDomainID();
    }
 
    bool 
@@ -109,14 +109,14 @@ namespace HM
       if (GetIsServerAdmin())
          return true;
 
-      return m_pAccount && 
-             m_pAccount->GetAdminLevel() == Account::DomainAdmin;
+      return account_ && 
+             account_->GetAdminLevel() == Account::DomainAdmin;
    }
 
    bool 
    COMAuthentication::GetIsServerAdmin() const
    {
-      return (m_pAccount && m_pAccount->GetAdminLevel() == Account::ServerAdmin);
+      return (account_ && account_->GetAdminLevel() == Account::ServerAdmin);
    }
 
    int 

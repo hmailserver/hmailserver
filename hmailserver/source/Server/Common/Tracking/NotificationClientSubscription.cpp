@@ -11,9 +11,9 @@
 
 namespace HM
 {
-   NotificationClientSubscription::NotificationClientSubscription(__int64 subscriptionKey, weak_ptr<NotificationClient> client) :
-      _subscriptionKey(subscriptionKey),
-      _client(client)
+   NotificationClientSubscription::NotificationClientSubscription(__int64 subscriptionKey, std::weak_ptr<NotificationClient> client) :
+      subscription_key_(subscriptionKey),
+      client_(client)
    {
 
    }
@@ -26,13 +26,13 @@ namespace HM
    __int64 
    NotificationClientSubscription::GetSubscriptionKey()
    {
-      return _subscriptionKey;
+      return subscription_key_;
    }
 
-   weak_ptr<NotificationClient> 
+   std::weak_ptr<NotificationClient> 
    NotificationClientSubscription::GetSubscribedClient()
    {
-      return _client;
+      return client_;
    }
 
 }

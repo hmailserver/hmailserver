@@ -11,13 +11,13 @@ namespace HM
 	   RouteAddress();
 	   virtual ~RouteAddress();
 
-      String GetName() const {return m_sAddress; }
+      String GetName() const {return address_; }
 
-      __int64 GetRouteID() const {return m_iRouteID;}
-      void SetRouteID(__int64 iNewVal) {m_iRouteID = iNewVal; }
+      __int64 GetRouteID() const {return route_id_;}
+      void SetRouteID(__int64 iNewVal) {route_id_ = iNewVal; }
 
-      String GetAddress() const {return m_sAddress; }
-      void SetAddress(const String &sAddress) {m_sAddress = sAddress; } 
+      String GetAddress() const {return address_; }
+      void SetAddress(const String &sAddress) {address_ = sAddress; } 
    
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -25,8 +25,8 @@ namespace HM
 
    protected:
 
-      __int64 m_iRouteID;
-      String m_sAddress;
+      __int64 route_id_;
+      String address_;
       
 
    };

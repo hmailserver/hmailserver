@@ -12,55 +12,48 @@
 namespace HM
 {
    Event::Event(void) :
-      _closeWhenWaited(true)
+      is_set_(false)
    {
-      m_hEvent = CreateEvent(0, TRUE, FALSE, 0);
-   }
 
-   // Copy constructor. Don't close the even when we're done waiting
-   Event::Event(const Event& p)
-   {
-      _closeWhenWaited = false;
-      m_hEvent = p.GetHandle();
    }
 
    Event::~Event(void)
    {
-      if (_closeWhenWaited)
-         CloseHandle(m_hEvent);
+      
    }
 
    void 
    Event::Wait()
    {
-      WaitForSingleObject(m_hEvent, INFINITE);
+      boost::mutex::scoped_lock lock(mutex_);
+
+      if (!is_set_)
+         set_condition_.wait(lock);
+
+      is_set_ = false;
    }
 
-   bool 
-   Event::IsSet()
+   void 
+   Event::WaitFor(boost::chrono::milliseconds milliseconds)
    {
-      if (WaitForSingleObject(m_hEvent, 1) == WAIT_OBJECT_0)
-         return true;
-      else
-         return false;
+      boost::mutex::scoped_lock lock(mutex_);
+
+      if (!is_set_)
+      {
+         // result will be false if there's a timeout.
+         set_condition_.wait_for(lock, milliseconds);
+      }
+     
+      is_set_ = false;
    }
 
    void 
    Event::Set()
    {  
-      SetEvent(m_hEvent);
+      boost::mutex::scoped_lock lock(mutex_);
+      is_set_ = true;
+      set_condition_.notify_one();
    }
 
-   void
-   Event::Reset()
-   {     
-      ResetEvent(m_hEvent);
-   }
-
-   HANDLE 
-   Event::GetHandle() const
-   {
-      return m_hEvent;
-   }
 
 }

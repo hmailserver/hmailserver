@@ -39,94 +39,94 @@ namespace HM
          BodyPart();
 
          
-         int m_iOctetStart;
-         int m_iOctetCount;
+         int octet_start_;
+         int octet_count_;
 
-         const String &GetName() const {return m_sName; }
-         void SetName(const String &sName) {m_sName = sName; }
+         const String &GetName() const {return name_; }
+         void SetName(const String &sName) {name_ = sName; }
 
-         bool GetShowBodyHeaderFields() { return m_bShowBodyHeaderFields; }
-         bool GetShowBodyHeaderFieldsNOT() { return m_bShowBodyHeaderFieldsNOT; }
-         bool GetShowBodyHeader() { return m_bShowBodyHeader; }
-         bool GetShowBodyText() { return m_bShowBodyText; }
-         bool GetShowBodyFull() { return m_bShowBodyFull; }
+         bool GetShowBodyHeaderFields() { return show_body_header_fields_; }
+         bool GetShowBodyHeaderFieldsNOT() { return show_body_header_fields_NOT; }
+         bool GetShowBodyHeader() { return show_body_header_; }
+         bool GetShowBodyText() { return show_body_text_; }
+         bool GetShowBodyFull() { return show_body_full_; }
 
-         void SetShowBodyHeaderFields(bool bValue) {m_bShowBodyHeaderFields = bValue; }
-         void SetShowBodyHeaderFieldsNOT(bool bValue) {m_bShowBodyHeaderFieldsNOT = bValue; }
-         void SetShowBodyHeader(bool bValue) {m_bShowBodyHeader = bValue; }
-         void SetShowBodyText(bool bValue) {m_bShowBodyText = bValue; }
-         void SetShowBodyFull(bool bValue) {m_bShowBodyFull = bValue; }
+         void SetShowBodyHeaderFields(bool bValue) {show_body_header_fields_ = bValue; }
+         void SetShowBodyHeaderFieldsNOT(bool bValue) {show_body_header_fields_NOT = bValue; }
+         void SetShowBodyHeader(bool bValue) {show_body_header_ = bValue; }
+         void SetShowBodyText(bool bValue) {show_body_text_ = bValue; }
+         void SetShowBodyFull(bool bValue) {show_body_full_ = bValue; }
          
-         std::vector<String> &GetHeaderFields() { return m_vecHeaderFields; }
-         std::vector<String> &GetHeaderFieldsNOT() { return m_vecHeaderFieldsNOT; }
+         std::vector<String> &GetHeaderFields() { return header_fields_; }
+         std::vector<String> &GetHeaderFieldsNOT() { return header_fields_NOT; }
 
-         void SetDescription(const String &sDescription ) {m_sDescription = sDescription; }
-         String &GetDescription() {return m_sDescription; }
+         void SetDescription(const String &sDescription ) {description_ = sDescription; }
+         String &GetDescription() {return description_; }
 
          bool GetBodyTextNeeded()
          {
             // Returns true if we need to load the entire body part, false otherwise.
-            return m_bShowBodyText || m_bShowBodyFull;
+            return show_body_text_ || show_body_full_;
          }
 
       private:
 
-         String m_sName;
+         String name_;
 
-         bool m_bShowBodyHeaderFields;
-         bool m_bShowBodyHeaderFieldsNOT;
-         bool m_bShowBodyHeader;
-         bool m_bShowBodyText;
-         bool m_bShowBodyFull;
+         bool show_body_header_fields_;
+         bool show_body_header_fields_NOT;
+         bool show_body_header_;
+         bool show_body_text_;
+         bool show_body_full_;
 
-         std::vector<String> m_vecHeaderFields;
-         std::vector<String> m_vecHeaderFieldsNOT;
+         std::vector<String> header_fields_;
+         std::vector<String> header_fields_NOT;
 
-         String m_sDescription;
+         String description_;
 
       };
 
       IMAPResult ParseCommand(const String &sCommand);
 
-      bool GetShowEnvelope() { return m_bShowEnvelope; }
-      bool GetShowRFCSize() { return m_bShowRFCSize; }
-      bool GetShowUID() { return m_bShowUID; }
-      bool GetShowFlags() { return m_bShowFlags; }
-      bool GetShowInternalDate() { return m_bShowInternalDate; }
+      bool GetShowEnvelope() { return show_envelope_; }
+      bool GetShowRFCSize() { return show_rfcsize_; }
+      bool GetShowUID() { return show_uid_; }
+      bool GetShowFlags() { return show_flags_; }
+      bool GetShowInternalDate() { return show_internal_date_; }
       
-      bool GetShowBodyStructure() { return m_bShowBodyStructure; }
-      bool GetShowBodyStructureNonExtensible() { return m_bShowBodyStructureNonExtensible; }
+      bool GetShowBodyStructure() { return show_body_structure_; }
+      bool GetShowBodyStructureNonExtensible() { return show_body_structure_NonExtensible; }
       
 
-      bool GetSetSeenFlag() { return m_bSetSeen; }
+      bool GetSetSeenFlag() { return set_seen_; }
 
-      std::vector<BodyPart> GetPartsToLookAt() { return m_vecPartsToLookAt; }
+      std::vector<BodyPart> GetPartsToLookAt() { return parts_to_look_at_; }
       
    private:
 
-      ePartType _GetPartType(const String &sPart);
-      bool _IsPartSpecifier(const String &sString);
+      ePartType GetPartType_(const String &sPart);
+      bool IsPartSpecifier_(const String &sString);
       
-      void _CleanFetchString(String &sString);
-      std::vector<String> _ParseString(String &sString);
-      IMAPResult _ValidateSyntax(const String &sString);
+      void CleanFetchString_(String &sString);
+      std::vector<String> ParseString_(String &sString);
+      IMAPResult ValidateSyntax_(const String &sString);
       
       // Additional parsing of commands that create more complex 
       // structure than just single words.
-      BodyPart _ParseBODY(const String &sString);
-      BodyPart _ParseBODYPEEK(const String &sString);
+      BodyPart ParseBODY_(const String &sString);
+      BodyPart ParseBODY_PEEK(const String &sString);
 
-      bool m_bShowEnvelope;
-      bool m_bShowRFCSize;
-      bool m_bShowUID;
-      bool m_bShowFlags;
-      bool m_bShowInternalDate;
-      bool m_bShowBodyStructure;
-      bool m_bShowBodyStructureNonExtensible;
+      bool show_envelope_;
+      bool show_rfcsize_;
+      bool show_uid_;
+      bool show_flags_;
+      bool show_internal_date_;
+      bool show_body_structure_;
+      bool show_body_structure_NonExtensible;
 
-      bool m_bSetSeen;
+      bool set_seen_;
       
-      std::vector<BodyPart> m_vecPartsToLookAt;
+      std::vector<BodyPart> parts_to_look_at_;
    };
 
 }

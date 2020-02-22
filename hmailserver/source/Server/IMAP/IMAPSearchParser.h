@@ -58,55 +58,55 @@ namespace HM
       };
 
       IMAPSearchCriteria() : 
-         m_lUIDLower(-1),
-         m_lUIDUpper(-1),
-         m_bPositive(true),
-         m_bIsOr(false),
-         m_Type(CTUnknown) {};
+         uidlower_(-1),
+         uidupper_(-1),
+         positive_(true),
+         is_or_(false),
+         type_(CTUnknown) {};
 
-      long GetUIDLower() {return m_lUIDLower; }
-      void SetUIDLower(long lNewVal) {m_lUIDLower = lNewVal; }
+      long GetUIDLower() {return uidlower_; }
+      void SetUIDLower(long lNewVal) {uidlower_ = lNewVal; }
 
-      long GetUIDUpper() {return m_lUIDUpper; }
-      void SetUIDUpper(long lNewVal) {m_lUIDUpper = lNewVal; }
+      long GetUIDUpper() {return uidupper_; }
+      void SetUIDUpper(long lNewVal) {uidupper_ = lNewVal; }
 
-      String GetText() {return m_sText; }
-      void SetText(const String &sText) {m_sText = sText; }
+      String GetText() {return text_; }
+      void SetText(const String &sText) {text_ = sText; }
 
-      bool GetPositive() {return m_bPositive; }
-      void SetPositive(bool bNewVal) {m_bPositive = bNewVal; }
+      bool GetPositive() {return positive_; }
+      void SetPositive(bool bNewVal) {positive_ = bNewVal; }
 
-      bool GetIsOR() {return m_bIsOr; }
-      void SetIsOR(bool bNewVal) {m_bIsOr = bNewVal; }
+      bool GetIsOR() {return is_or_; }
+      void SetIsOR(bool bNewVal) {is_or_ = bNewVal; }
 
-      void SetHeaderField(const String &sField) {m_sHeaderField = sField;}
-      String GetHeaderField() {return m_sHeaderField;}
+      void SetHeaderField(const String &sField) {header_field_ = sField;}
+      String GetHeaderField() {return header_field_;}
 
-      CriteriaType GetType() {return m_Type;}
-      void SetType(CriteriaType newVal) {m_Type = newVal; }
+      CriteriaType GetType() {return type_;}
+      void SetType(CriteriaType newVal) {type_ = newVal; }
 
       static CriteriaType GetCriteriaTypeByName(const String &sName);
 
-      vector<shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return m_vecSubCriterias;}
+      std::vector<std::shared_ptr<IMAPSearchCriteria> > &GetSubCriterias() {return sub_criterias_;}
 
-      void SetSequenceSet(vector<String> newVal) {_sequenceSet = newVal;}
-      vector<String> &GetSequenceSet() {return _sequenceSet;}
+      void SetSequenceSet(std::vector<String> newVal) {sequence_set_ = newVal;}
+      std::vector<String> &GetSequenceSet() {return sequence_set_;}
 
    private:
 
-      static bool _IsSequenceSet(const String &item);
+      static bool IsSequenceSet_(const String &item);
 
-      long m_lUIDLower;
-      long m_lUIDUpper;
-      String m_sText;
-      bool m_bPositive;
-      CriteriaType m_Type;
+      long uidlower_;
+      long uidupper_;
+      String text_;
+      bool positive_;
+      CriteriaType type_;
 
-      String m_sHeaderField;
-      vector<shared_ptr<IMAPSearchCriteria> > m_vecSubCriterias;
-      vector<String> _sequenceSet;
+      String header_field_;
+      std::vector<std::shared_ptr<IMAPSearchCriteria> > sub_criterias_;
+      std::vector<String> sequence_set_;
 
-      bool m_bIsOr;
+      bool is_or_;
    };
 
 
@@ -116,30 +116,30 @@ namespace HM
 	   IMAPSearchParser();
 	   virtual ~IMAPSearchParser();
 
-      IMAPResult ParseCommand(shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort);
+      IMAPResult ParseCommand(std::shared_ptr<IMAPCommandArgument> pArgument, bool bIsSort);
 
-      shared_ptr<IMAPSearchCriteria>  GetCriteria() {return m_pResultCriteria;}
-      shared_ptr<IMAPSortParser> GetSortParser() {return m_pSortParser; }
+      std::shared_ptr<IMAPSearchCriteria>  GetCriteria() {return result_criteria_;}
+      std::shared_ptr<IMAPSortParser> GetSortParser() {return sort_parser_; }
 
       String GetCharsetName() 
       {
-         return _charsetName; 
+         return charset_name_; 
       }
 
    private:
 
-      bool _IsValidCharset(const String &charsetName);
-      bool _NeedsDecoding(IMAPSearchCriteria::CriteriaType criteriaType);
-      String _DecodeWordAccordingToCharset(const String &inputValue);
+      bool IsValidCharset_(const String &charsetName);
+      bool NeedsDecoding_(IMAPSearchCriteria::CriteriaType criteriaType);
+      String DecodeWordAccordingToCharset_(const String &inputValue);
       
-      IMAPResult _ParseSegment(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
+      IMAPResult ParseSegment_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, int &currentWord, std::shared_ptr<IMAPSearchCriteria> pCriteria, int iRecursion);
 
-      IMAPResult _ParseWord(shared_ptr<IMAPSimpleCommandParser> pSimpleParser, shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
+      IMAPResult ParseWord_(std::shared_ptr<IMAPSimpleCommandParser> pSimpleParser, std::shared_ptr<IMAPSearchCriteria> pNewCriteria, int &iCurrentWord);
 
-      shared_ptr<IMAPSortParser> m_pSortParser;
-      shared_ptr<IMAPSearchCriteria> m_pResultCriteria;
+      std::shared_ptr<IMAPSortParser> sort_parser_;
+      std::shared_ptr<IMAPSearchCriteria> result_criteria_;
 
-      String _charsetName;
+      String charset_name_;
    };
 
 }

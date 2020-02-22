@@ -13,7 +13,7 @@
 namespace HM
 {
    RuleActions::RuleActions(__int64 iRuleID) :
-      m_iRuleID(iRuleID)
+      rule_id_(iRuleID)
    {
    }
 
@@ -25,33 +25,33 @@ namespace HM
    RuleActions::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_rule_actions where actionruleid = %I64d order by actionsortorder asc"), m_iRuleID);
+      sSQL.Format(_T("select * from hm_rule_actions where actionruleid = %I64d order by actionsortorder asc"), rule_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
 
 
    bool
-   RuleActions::PreSaveObject(shared_ptr<RuleAction> pRuleAction, XNode *node)
+   RuleActions::PreSaveObject(std::shared_ptr<RuleAction> pRuleAction, XNode *node)
    {
-      pRuleAction->SetRuleID(m_iRuleID);
+      pRuleAction->SetRuleID(rule_id_);
       return true;
    }   
 
    void
-   RuleActions::MoveUp(shared_ptr<RuleAction> pRuleToMove)
+   RuleActions::MoveUp(std::shared_ptr<RuleAction> pRuleToMove)
    {
-      vector<shared_ptr<RuleAction> >::iterator iter = _GetRuleActionIterator(pRuleToMove);
-      vector<shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleActionIterator_(pRuleToMove);
+      auto iterEnd = vecObjects.end();
 
       if (iter == iterEnd || iter == vecObjects.begin())
          return;
 
-      vector<shared_ptr<RuleAction> >::iterator iterPrevious = iter - 1;
+      auto iterPrevious = iter - 1;
 
       // Move the rule to the previous position in the vector.
-      shared_ptr<RuleAction> pRuleAction = (*iter);
+      std::shared_ptr<RuleAction> pRuleAction = (*iter);
 
       // Delete it from the current position
       vecObjects.erase(iter);
@@ -60,22 +60,22 @@ namespace HM
       vecObjects.insert(iterPrevious, pRuleAction);
 
       // Check that sort order is correct.
-      _UpdateSortOrder();
+      UpdateSortOrder_();
    }
 
    void
-   RuleActions::MoveDown(shared_ptr<RuleAction> pRuleAction)
+   RuleActions::MoveDown(std::shared_ptr<RuleAction> pRuleAction)
    {
-      vector<shared_ptr<RuleAction> >::iterator iter = _GetRuleActionIterator(pRuleAction);
-      vector<shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = GetRuleActionIterator_(pRuleAction);
+      auto iterEnd = vecObjects.end();
 
-      vector<shared_ptr<RuleAction> >::iterator iterNext = iter +1;
+      auto iterNext = iter +1;
 
       if (iter == iterEnd || iterNext == vecObjects.end())
          return;
 
       // Move the rule to the next position in the vector.
-      shared_ptr<RuleAction> pNextRuleAction = (*iterNext);
+      std::shared_ptr<RuleAction> pNextRuleAction = (*iterNext);
 
       // Delete the next rule from the current position.
       vecObjects.erase(iterNext);
@@ -84,20 +84,20 @@ namespace HM
       vecObjects.insert(iter, pNextRuleAction);
 
       // Check that sort order is correct.
-      _UpdateSortOrder();
+      UpdateSortOrder_();
    }
 
    void 
-   RuleActions::_UpdateSortOrder()
+   RuleActions::UpdateSortOrder_()
    {
-      vector<shared_ptr<RuleAction> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iSortOrder = 1;
 
       for (; iter != iterEnd; iter++, iSortOrder ++)
       {
-         shared_ptr<RuleAction> pRuleAction = (*iter);
+         std::shared_ptr<RuleAction> pRuleAction = (*iter);
 
          if (pRuleAction->GetSortOrder() != iSortOrder)
          {
@@ -113,17 +113,17 @@ namespace HM
       }
    }
 
-   vector<shared_ptr<RuleAction> >::iterator 
-   RuleActions::_GetRuleActionIterator(shared_ptr<RuleAction> pRuleAction)
+   std::vector<std::shared_ptr<RuleAction> >::iterator 
+   RuleActions::GetRuleActionIterator_(std::shared_ptr<RuleAction> pRuleAction)
    {
-      vector<shared_ptr<RuleAction> >::iterator iter = vecObjects.begin();
-      vector<shared_ptr<RuleAction> >::iterator iterEnd = vecObjects.end();
+      auto iter = vecObjects.begin();
+      auto iterEnd = vecObjects.end();
 
       int iCurrentSortOrder = -1;
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<RuleAction> pCurRuleAction = (*iter);
+         std::shared_ptr<RuleAction> pCurRuleAction = (*iter);
 
          if (pCurRuleAction == pRuleAction)
          {

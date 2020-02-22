@@ -5,6 +5,8 @@
 #include "IMAPCommandClose.h"
 #include "IMAPConnection.h"
 
+#include "MessagesContainer.h"
+
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolder.h"
 #ifdef _DEBUG
@@ -15,13 +17,13 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandCLOSE::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandCLOSE::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
       
       // Iterate through mail boxes and delete messages marked for deletion.
-      shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
+      std::shared_ptr<IMAPFolder> pCurFolder = pConnection->GetCurrentFolder();   
 
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultBad, "No folder selected.");
@@ -30,7 +32,13 @@ namespace HM
       if (!pConnection->GetCurrentFolderReadOnly() &&
           pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionExpunge))
       {
-         pCurFolder->Expunge();
+         std::function<bool(int, std::shared_ptr<Message>)> filter = [](int index, std::shared_ptr<Message> message)
+            {
+               return message->GetFlagDeleted();
+            };
+
+         auto messages = MessagesContainer::Instance()->GetMessages(pCurFolder->GetAccountID(), pCurFolder->GetID());
+         messages->DeleteMessages(filter);
       }
       
       pConnection->CloseCurrentFolder();

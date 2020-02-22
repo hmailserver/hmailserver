@@ -32,14 +32,14 @@ namespace RegressionTests.Infrastructure
          // Add aliases
          SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "alias1@test.com", "test2@test.com");
          SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "alias2@test.com", "test2@test.com");
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
 
          // Spam folder
-         oSMTP.Send("test@test.com", "test2@test.com", "Mail 1", "Mail 1");
-         oSMTP.Send("test@test.com", "alias1@test.com", "Mail 2", "Mail 2");
-         oSMTP.Send("test@test.com", "alias2@test.com", "Mail 3", "Mail 3");
+         smtpClientSimulator.Send("test@test.com", "test2@test.com", "Mail 1", "Mail 1");
+         smtpClientSimulator.Send("test@test.com", "alias1@test.com", "Mail 2", "Mail 2");
+         smtpClientSimulator.Send("test@test.com", "alias2@test.com", "Mail 3", "Mail 3");
 
-         IMAPSimulator.AssertMessageCount("test2@test.com", "test", "Inbox", 3);
+         ImapClientSimulator.AssertMessageCount("test2@test.com", "test", "Inbox", 3);
       }
 
       [Test]
@@ -54,14 +54,14 @@ namespace RegressionTests.Infrastructure
          _settings.AddDeliveredToHeader = true;
 
          // Send 5 messages to this account.
-         var oSMTP = new SMTPClientSimulator();
+         var smtpClientSimulator = new SmtpClientSimulator();
          for (int i = 0; i < 5; i++)
-            oSMTP.Send("test@test.com", "mirror@test.com", "INBOX", "Mirror test message");
+            smtpClientSimulator.Send("test@test.com", "mirror@test.com", "INBOX", "Mirror test message");
 
          // Check using POP3 that 5 messages exists.
-         POP3Simulator.AssertMessageCount("mirror-test@test.com", "test", 5);
+         Pop3ClientSimulator.AssertMessageCount("mirror-test@test.com", "test", 5);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
 
          Assert.IsTrue(message.Contains("Delivered-To: mirror@test.com"));
       }
@@ -83,17 +83,17 @@ namespace RegressionTests.Infrastructure
          _settings.AddDeliveredToHeader = true;
 
          // Send 5 messages to this account.
-         var oSMTP = new SMTPClientSimulator();
-         oSMTP.Send("test@test.com", new List<string> {oAccount1.Address, oAccount2.Address, oAccount3.Address},
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("test@test.com", new List<string> {oAccount1.Address, oAccount2.Address, oAccount3.Address},
                     "INBOX", "Mirror test message");
 
-         POP3Simulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
          Assert.IsTrue(message.Contains("Delivered-To: mirror1@test.com,mirror2@test.com,mirror3@test.com"));
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
       }
 
       [Test]
@@ -116,19 +116,34 @@ namespace RegressionTests.Infrastructure
          _settings.MirrorEMailAddress = "mirror-test@test.com";
          _settings.AddDeliveredToHeader = true;
 
-         // Send 5 messages to this account.
-         var oSMTP = new SMTPClientSimulator();
-         oSMTP.Send("test@test.com", recipients, "INBOX", "Mirror test message");
+         // Send 1 messages to this account.
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("test@test.com", recipients, "INBOX", "Mirror test message");
 
-         POP3Simulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(mirrorAccount.Address, "test", 1);
 
-         string message = POP3Simulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(mirrorAccount.Address, "test");
 
          Assert.IsTrue(
             message.Contains(
                "Delivered-To: mirror0@test.com,mirror1@test.com,mirror2@test.com,mirror3@test.com,mirror4@test.com,mirror5@test.com,mirror6@test.com,mirror7@test.com,mirror8@test.com,mirror9@test.com,mirror10@test.com,mirror11@test.com,mirror12@test.com,mirror13@test.com,mirror14@test\r\n"));
 
-         TestSetup.AssertRecipientsInDeliveryQueue(0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+      }
+
+      [Test]
+      public void DeliveryShouldSucceedAfterClearingDeliveryQueue()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         _application.GlobalObjects.DeliveryQueue.Clear();
+
+         Assert.IsTrue(LogHandler.DefaultLogContains("Delivery queue cleared."));
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("test@test.com", "test@test.com", "INBOX", "Mirror test message");
+
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
       }
    }
 }

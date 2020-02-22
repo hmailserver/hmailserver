@@ -82,6 +82,7 @@ switch($serverstate)
          <form action="index.php" method="post" onSubmit="return formCheck(this);">
          
          <?php
+		PrintHiddenCsrfToken();
             PrintHidden("page", "status");
             PrintHidden("action", "control");
          ?>

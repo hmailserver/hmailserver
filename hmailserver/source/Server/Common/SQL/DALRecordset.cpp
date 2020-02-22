@@ -24,7 +24,7 @@ namespace HM
 
 
    bool
-   DALRecordset::Open(shared_ptr<DALConnection> pConn, const SQLCommand &command)
+   DALRecordset::Open(std::shared_ptr<DALConnection> pConn, const SQLCommand &command)
    {
       String sErrMsg;
 
@@ -64,11 +64,11 @@ namespace HM
    /// Should be called if a client is trying to access a record set value
    /// when we are EOF the record set. Will report an error to the error log
    void 
-   DALRecordset::_ReportEOFError(const AnsiString &FieldName) const
+   DALRecordset::ReportEOFError_(const AnsiString &FieldName) const
    {
       String message;
-      message.Format(_T("Trying to access data in recordset which was EOF. Column: %s."), String(FieldName));
+      message.Format(_T("Trying to access data in recordset which was EOF. Column: %s."), String(FieldName).c_str());
 
-      ErrorManager::Instance()->ReportError(ErrorManager::High, 4207, "DALRecordset::_ReportEOFError", message);
+      ErrorManager::Instance()->ReportError(ErrorManager::High, 4207, "DALRecordset::ReportEOFError_", message);
    }
 }

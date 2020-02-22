@@ -25,8 +25,8 @@
 namespace HM
 {
    IMAPCommandSEARCH::IMAPCommandSEARCH(bool bIsSort) :
-      m_bIsSort(bIsSort),
-      m_bIsUID(false)
+      is_sort_(bIsSort),
+      is_uid_(false)
    {
 
    }
@@ -37,9 +37,9 @@ namespace HM
    }
 
    IMAPResult
-   IMAPCommandSEARCH::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandSEARCH::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      if (m_bIsSort && !Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPSort())
+      if (is_sort_ && !Configuration::Instance()->GetIMAPConfiguration()->GetUseIMAPSort())
          return IMAPResult(IMAPResult::ResultNo, "IMAP SORT is not enabled.");
 
       if (!pConnection->IsAuthenticated())
@@ -59,7 +59,7 @@ namespace HM
 
          int iCommandStartPos;
          
-         if (m_bIsUID)
+         if (is_uid_)
             iCommandStartPos = sCommand.Find(_T(" "), 4) + 1;
          else
             iCommandStartPos = sCommand.Find(_T(" ")) + 1;
@@ -69,56 +69,56 @@ namespace HM
          pArgument->Command(sCommand);
       }
 
-      shared_ptr<IMAPSearchParser> pParser = shared_ptr<IMAPSearchParser>(new IMAPSearchParser());
-      IMAPResult result = pParser->ParseCommand(pArgument, m_bIsSort);
+      std::shared_ptr<IMAPSearchParser> pParser = std::shared_ptr<IMAPSearchParser>(new IMAPSearchParser());
+      IMAPResult result = pParser->ParseCommand(pArgument, is_sort_);
       if (result.GetResult() != IMAPResult::ResultOK)
          return result;
 
-      if (m_bIsSort && !pParser->GetSortParser())
+      if (is_sort_ && !pParser->GetSortParser())
          return IMAPResult(IMAPResult::ResultBad, "Incorrect search commands.");
 
       // Mails in current box
-      shared_ptr<IMAPFolder> pCurFolder =  pConnection->GetCurrentFolder();
+      std::shared_ptr<IMAPFolder> pCurFolder =  pConnection->GetCurrentFolder();
 
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultBad, "No selected folder");
 
-      vector<shared_ptr<Message>> messages = pCurFolder->GetMessages()->GetCopy();
+      std::vector<std::shared_ptr<Message>> messages = pCurFolder->GetMessages()->GetCopy();
 
       std::vector<String> sMatchingVec;
       if (messages.size() > 0)
       {
          // Iterate through the messages and see which ones match.
-         vector<pair<int, shared_ptr<Message> > > vecMatchingMessages;
+         std::vector<std::pair<int, std::shared_ptr<Message> > > vecMatchingMessages;
 
          int index = 0;
-         boost_foreach(shared_ptr<Message> pMessage, messages)
+         for(std::shared_ptr<Message> pMessage : messages)
          {
             const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
 
             index++;
-            if (pMessage && _DoesMessageMatch(pParser->GetCriteria(), fileName, pMessage, index))
+            if (pMessage && DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
             {
                // Yup we got a match.
                vecMatchingMessages.push_back(make_pair(index, pMessage));
             }
          }
 
-         if (m_bIsSort)
+         if (is_sort_)
          {
             IMAPSort oSorter;
-            oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetSortParser());
+            oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetCharsetName(), pParser->GetSortParser());
             // Sort the message vector
          }
 
-         typedef pair<int, shared_ptr<Message> > MessagePair;
-         boost_foreach(MessagePair messagePair, vecMatchingMessages)
+         typedef std::pair<int, std::shared_ptr<Message> > MessagePair;
+         for(MessagePair messagePair : vecMatchingMessages)
          {
             int index = messagePair.first;
-            shared_ptr<Message> pMessage = messagePair.second;
+            std::shared_ptr<Message> pMessage = messagePair.second;
 
             String sID;
-            if (m_bIsUID)
+            if (is_uid_)
                sID.Format(_T("%u"), pMessage->GetUID());
             else
                sID.Format(_T("%d"), index);
@@ -138,12 +138,12 @@ namespace HM
       }
       
       String sResponse;
-      if (m_bIsSort)
+      if (is_sort_)
          sResponse = "* SORT" + sMatching + "\r\n";
       else
          sResponse = "* SEARCH" + sMatching + "\r\n";
 
-      if (!m_bIsUID) 
+      if (!is_uid_) 
          // if this is a UID command, IMAPCommandUID takes care of the below line.
          sResponse += pArgument->Tag() + " OK Search completed\r\n";
 
@@ -153,27 +153,27 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_DoesMessageMatch(shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, shared_ptr<Message> pMessage, int index)
+   IMAPCommandSEARCH::DoesMessageMatch_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPSearchCriteria> pParentCriteria, const String &fileName, std::shared_ptr<Message> pMessage, int index)
    {
-      m_pMessageData.reset();
-      m_pMimeHeader.reset();
+      message_data_.reset();
+      mime_header_.reset();
 
       bool bIsOrCriteria = pParentCriteria->GetIsOR();
 
       // Loop over the criterias in the command.
-      vector<shared_ptr<IMAPSearchCriteria> > &vecCriterias = pParentCriteria->GetSubCriterias();
-      vector<shared_ptr<IMAPSearchCriteria> >::iterator iterCriteria = vecCriterias.begin();
+      std::vector<std::shared_ptr<IMAPSearchCriteria> > &vecCriterias = pParentCriteria->GetSubCriterias();
+      auto iterCriteria = vecCriterias.begin();
 
       bool bMessageIsMatchingCriteria = true;
       while (iterCriteria != vecCriterias.end())
       {
          bMessageIsMatchingCriteria = true;
 
-         shared_ptr<IMAPSearchCriteria> pCriteria = (*iterCriteria);
+         std::shared_ptr<IMAPSearchCriteria> pCriteria = (*iterCriteria);
 
          if (pCriteria->GetType() == IMAPSearchCriteria::CTSubCriteria)
          {
-            if (!_DoesMessageMatch(pCriteria, fileName, pMessage, index))
+            if (!DoesMessageMatch_(pConnection, pCriteria, fileName, pMessage, index))
                bMessageIsMatchingCriteria = false;
          }
 
@@ -226,8 +226,10 @@ namespace HM
             }
          case IMAPSearchCriteria::CTRecent:
             {
-               if (pCriteria->GetPositive() && !pMessage->GetFlagRecent() ||
-                   !pCriteria->GetPositive() && pMessage->GetFlagRecent())
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+
+               if (pCriteria->GetPositive() && !is_recent ||
+                  !pCriteria->GetPositive() && is_recent)
                {
                   bMessageIsMatchingCriteria = false;
                }
@@ -235,90 +237,90 @@ namespace HM
             }
          case IMAPSearchCriteria::CTHeader:
             {
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
 
                break;
             }
          case IMAPSearchCriteria::CTUID:
             {
-               if (!_MatchesUIDCriteria(pMessage, pCriteria))
+               if (!MatchesUIDCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSequenceSet:
             {
-               if (!_MatchesSequenceSetCriteria(pMessage, pCriteria, index))
+               if (!MatchesSequenceSetCriteria_(pMessage, pCriteria, index))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTText:
             {
-               if (!_MatchesTEXTCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesTEXTCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTBody:
             {
-               if (!_MatchesBODYCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesBODYCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSubject:
             {
                pCriteria->SetHeaderField("Subject");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTFrom:
             {
                pCriteria->SetHeaderField("From");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTTo:
             {
                pCriteria->SetHeaderField("To");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTCC:
             {
                pCriteria->SetHeaderField("CC");
-               if (!_MatchesHeaderCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesHeaderCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTOn:
             {
-               if (!_MatchesONCriteria(pMessage, pCriteria))
+               if (!MatchesONCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentOn:
             {
-               if (!_MatchesSENTONCriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTONCriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentBefore:
             {
-               if (!_MatchesSENTBEFORECriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTBEFORECriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSentSince:
             {
-               if (!_MatchesSENTSINCECriteria(fileName, pMessage, pCriteria))
+               if (!MatchesSENTSINCECriteria_(fileName, pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSince:
             {
-               if (!_MatchesSINCECriteria(pMessage, pCriteria))
+               if (!MatchesSINCECriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
@@ -351,7 +353,9 @@ namespace HM
             }
          case IMAPSearchCriteria::CTNew:
             {
-               bool bSet = pMessage->GetFlagRecent() && !pMessage->GetFlagSeen();
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+
+               bool bSet = is_recent && !pMessage->GetFlagSeen();
                if (pCriteria->GetPositive() && !bSet ||
                   !pCriteria->GetPositive() && bSet)
                {
@@ -361,7 +365,9 @@ namespace HM
             }
          case IMAPSearchCriteria::CTOld:
             {
-               bool bSet = !pMessage->GetFlagRecent();
+               bool is_recent = IsMessageRecent_(pConnection, pMessage->GetID());
+               bool bSet = !is_recent;
+
                if (pCriteria->GetPositive() && !bSet ||
                   !pCriteria->GetPositive() && bSet)
                {
@@ -398,19 +404,19 @@ namespace HM
             }
          case IMAPSearchCriteria::CTBefore:
             {
-               if (!_MatchesBEFORECriteria(pMessage, pCriteria))
+               if (!MatchesBEFORECriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTLarger:
             {
-               if (!_MatchesLARGERCriteria(pMessage, pCriteria))
+               if (!MatchesLARGERCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
          case IMAPSearchCriteria::CTSmaller:
             {
-               if (!_MatchesSMALLERCriteria(pMessage, pCriteria))
+               if (!MatchesSMALLERCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
@@ -437,16 +443,16 @@ namespace HM
     }
 
    bool
-   IMAPCommandSEARCH::_MatchesBODYCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesBODYCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      if (!m_pMessageData)
+      if (!message_data_)
       {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+         message_data_ = std::shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
       }
 
-      String sBody = m_pMessageData->GetBody();
-      String sHTMLBody = m_pMessageData->GetHTMLBody();
+      String sBody = message_data_->GetBody();
+      String sHTMLBody = message_data_->GetHTMLBody();
 
       String sTextToSearchIn = sBody + sHTMLBody;
       String sTextToFind = pCriteria->GetText();
@@ -458,7 +464,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesONCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesONCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       String sCreationDate = pMessage->GetCreateTime();
 
@@ -480,9 +486,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTONCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTONCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
       sDateHeader = Time::GetIMAPDateFromMimeHeader(sDateHeader);
 
       if (sDateHeader == pCriteria->GetText())
@@ -492,9 +498,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTBEFORECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTBEFORECriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
 
       DateTime dtSentDate = Time::GetDateFromMimeHeader(sDateHeader);
       DateTime dtCriteria = Time::GetDateFromIMAP(pCriteria->GetText());
@@ -506,9 +512,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSENTSINCECriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSENTSINCECriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      String sDateHeader = _GetHeaderValue(fileName, pMessage, "Date");
+      String sDateHeader = GetHeaderValue_(fileName, pMessage, "Date");
 
       DateTime dtSentDate = Time::GetDateFromMimeHeader(sDateHeader);
       DateTime dtCriteria = Time::GetDateFromIMAP(pCriteria->GetText());
@@ -520,7 +526,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSINCECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSINCECriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose internal date is within or later
@@ -537,7 +543,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesBEFORECriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesBEFORECriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose internal date is before the specified date
@@ -553,7 +559,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesLARGERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesLARGERCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose size is larger than the size specified in critera.
@@ -569,7 +575,7 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSMALLERCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesSMALLERCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Messages whose size is smaller than the size specified in critera.
@@ -585,29 +591,32 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesTEXTCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesTEXTCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      if (!m_pMessageData)
+      if (!message_data_)
       {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+         message_data_ = std::shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
       }
 
-      String sHeader = m_pMessageData->GetHeader();
-      String sBody = m_pMessageData->GetBody();
+      String sHeader = message_data_->GetHeader();
+      String sBody = message_data_->GetBody();
+      String sHTMLBody = message_data_->GetHTMLBody();
 
       String sTextToFind = pCriteria->GetText();
 
       if (pCriteria->GetPositive())
       {
          if (!sHeader.ContainsNoCase(sTextToFind) && 
-             !sBody.ContainsNoCase(sTextToFind))
+             !sBody.ContainsNoCase(sTextToFind) &&
+             !sHTMLBody.ContainsNoCase(sTextToFind))
              return false;
       }
       else
       {
          if (sHeader.ContainsNoCase(sTextToFind) ||
-             sBody.ContainsNoCase(sTextToFind))
+             sBody.ContainsNoCase(sTextToFind) ||
+             sHTMLBody.ContainsNoCase(sTextToFind))
              return false;
       }
 
@@ -617,9 +626,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesUIDCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesUIDCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      vector<String> split = pCriteria->GetSequenceSet();
+      std::vector<String> split = pCriteria->GetSequenceSet();
 
       bool found = IMAPListLookup::IsItemInList(split, (int) pMessage->GetUID());
       
@@ -630,9 +639,9 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::_MatchesSequenceSetCriteria(shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria, int index)
+   IMAPCommandSEARCH::MatchesSequenceSetCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria, int index)
    {
-      vector<String> split = pCriteria->GetSequenceSet();
+      std::vector<String> split = pCriteria->GetSequenceSet();
 
       bool found = IMAPListLookup::IsItemInList(split, index);
 
@@ -644,12 +653,12 @@ namespace HM
 
 
    bool
-   IMAPCommandSEARCH::_MatchesHeaderCriteria(const String &fileName, shared_ptr<Message> pMessage, shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesHeaderCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
       String sHeaderField = pCriteria->GetHeaderField();
       String sTextToFind = pCriteria->GetText();
       
-      String sHeaderFieldValue = _GetHeaderValue(fileName, pMessage, sHeaderField);
+      String sHeaderFieldValue = GetHeaderValue_(fileName, pMessage, sHeaderField);
 
       if (sHeaderFieldValue.ContainsNoCase(sTextToFind))
          return pCriteria->GetPositive();
@@ -657,28 +666,37 @@ namespace HM
          return !pCriteria->GetPositive();
    }
 
-   String
-   IMAPCommandSEARCH::_GetHeaderValue(const String &fileName, shared_ptr<Message> pMessage, const String &sHeaderField)
+   bool 
+   IMAPCommandSEARCH::IsMessageRecent_(std::shared_ptr<IMAPConnection> pConnection, __int64 message_uid)
    {
-      if (m_pMessageData)
-      {
-         m_pMessageData = shared_ptr<MessageData>(new MessageData());
-         m_pMessageData->LoadFromMessage(fileName, pMessage);
+      auto& recent_messages = pConnection->GetRecentMessages();
 
-         return m_pMessageData->GetFieldValue(sHeaderField);
+      auto recent_messages_iter = recent_messages.find(message_uid);
+      return recent_messages_iter != recent_messages.end();
+   }
+
+   String
+   IMAPCommandSEARCH::GetHeaderValue_(const String &fileName, std::shared_ptr<Message> pMessage, const String &sHeaderField)
+   {
+      if (message_data_)
+      {
+         message_data_ = std::shared_ptr<MessageData>(new MessageData());
+         message_data_->LoadFromMessage(fileName, pMessage);
+
+         return message_data_->GetFieldValue(sHeaderField);
       }
       
-      if (!m_pMimeHeader)
+      if (!mime_header_)
       {
          // Load header
          AnsiString sHeader = PersistentMessage::LoadHeader(fileName);
 
-         m_pMimeHeader = shared_ptr<MimeHeader>(new MimeHeader);
-         m_pMimeHeader->Load(sHeader, sHeader.GetLength(), true);
+         mime_header_ = std::shared_ptr<MimeHeader>(new MimeHeader);
+         mime_header_->Load(sHeader, sHeader.GetLength(), true);
       }
 
       AnsiString sHeaderFieldStr = sHeaderField;
-      return m_pMimeHeader->GetUnicodeFieldValue(sHeaderFieldStr);
+      return mime_header_->GetUnicodeFieldValue(sHeaderFieldStr);
 
    }
 

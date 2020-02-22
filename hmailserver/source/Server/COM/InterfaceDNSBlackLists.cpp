@@ -15,7 +15,7 @@ InterfaceDNSBlackLists::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pBlackLists = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
+   black_lists_ = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
 
    return true;
 }
@@ -26,13 +26,13 @@ InterfaceDNSBlackLists::Refresh()
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return S_FALSE;
    
-      m_pBlackLists->Refresh();
+      black_lists_->Refresh();
       
       return S_OK;
    }
@@ -46,10 +46,10 @@ STDMETHODIMP InterfaceDNSBlackLists::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
-      *pVal = m_pBlackLists->GetCount();
+      *pVal = black_lists_->GetCount();
    
       return S_OK;
    }
@@ -64,19 +64,19 @@ InterfaceDNSBlackLists::get_Item(long Index, IInterfaceDNSBlackList **pVal)
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
-      pInterfaceDNSBlackList->SetAuthentication(m_pAuthentication);
+      pInterfaceDNSBlackList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DNSBlackList> pDNSBlackList = m_pBlackLists->GetItem(Index);
+      std::shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItem(Index);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
    
       pInterfaceDNSBlackList->AttachItem(pDNSBlackList);
-      pInterfaceDNSBlackList->AttachParent(m_pBlackLists, true);
+      pInterfaceDNSBlackList->AttachParent(black_lists_, true);
       pInterfaceDNSBlackList->AddRef();
       *pVal = pInterfaceDNSBlackList;
    
@@ -93,10 +93,10 @@ InterfaceDNSBlackLists::DeleteByDBID(long DBID)
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
-      m_pBlackLists->DeleteItemByDBID(DBID);
+      black_lists_->DeleteItemByDBID(DBID);
       return S_OK;
    }
    catch (...)
@@ -110,18 +110,18 @@ InterfaceDNSBlackLists::get_ItemByDBID(long lDBID, IInterfaceDNSBlackList **pVal
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
-      pInterfaceDNSBlackList->SetAuthentication(m_pAuthentication);
-      shared_ptr<HM::DNSBlackList> pDNSBlackList = m_pBlackLists->GetItemByDBID(lDBID);
+      pInterfaceDNSBlackList->SetAuthentication(authentication_);
+      std::shared_ptr<HM::DNSBlackList> pDNSBlackList = black_lists_->GetItemByDBID(lDBID);
    
       if (!pDNSBlackList)
          return DISP_E_BADINDEX;
    
       pInterfaceDNSBlackList->AttachItem(pDNSBlackList);
-      pInterfaceDNSBlackList->AttachParent(m_pBlackLists, true);
+      pInterfaceDNSBlackList->AttachParent(black_lists_, true);
       pInterfaceDNSBlackList->AddRef();
    
       *pVal = pInterfaceDNSBlackList;
@@ -139,18 +139,18 @@ InterfaceDNSBlackLists::Add(IInterfaceDNSBlackList **pVal)
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
-      if (!m_pBlackLists)
-         return m_pAuthentication->GetAccessDenied();
+      if (!black_lists_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
-      pInterfaceDNSBlackList->SetAuthentication(m_pAuthentication);
-      shared_ptr<HM::DNSBlackList> pDNSBL = shared_ptr<HM::DNSBlackList>(new HM::DNSBlackList);
+      pInterfaceDNSBlackList->SetAuthentication(authentication_);
+      std::shared_ptr<HM::DNSBlackList> pDNSBL = std::shared_ptr<HM::DNSBlackList>(new HM::DNSBlackList);
    
       pInterfaceDNSBlackList->AttachItem(pDNSBL);
-      pInterfaceDNSBlackList->AttachParent(m_pBlackLists, false);
+      pInterfaceDNSBlackList->AttachParent(black_lists_, false);
    
       pInterfaceDNSBlackList->AddRef();
    
@@ -169,18 +169,18 @@ InterfaceDNSBlackLists::get_ItemByDNSHost(BSTR ItemName, IInterfaceDNSBlackList 
 {
    try
    {
-      if (!m_pBlackLists)
+      if (!black_lists_)
          return GetAccessDenied();
 
       CComObject<InterfaceDNSBlackList>* pInterfaceDNSBlackList = new CComObject<InterfaceDNSBlackList>();
-      pInterfaceDNSBlackList->SetAuthentication(m_pAuthentication);
+      pInterfaceDNSBlackList->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DNSBlackList> pDNSBL = m_pBlackLists->GetItemByName(ItemName);
+      std::shared_ptr<HM::DNSBlackList> pDNSBL = black_lists_->GetItemByName(ItemName);
       if (!pDNSBL)
          return S_FALSE;
    
       pInterfaceDNSBlackList->AttachItem(pDNSBL);
-      pInterfaceDNSBlackList->AttachParent(m_pBlackLists, true);
+      pInterfaceDNSBlackList->AttachParent(black_lists_, true);
       pInterfaceDNSBlackList->AddRef();
    
       *pVal = pInterfaceDNSBlackList;

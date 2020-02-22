@@ -34,10 +34,11 @@ namespace hMailServer.Administrator
            this.labelSSLCertificate = new System.Windows.Forms.Label();
            this.labelRestartInfo = new System.Windows.Forms.Label();
            this.textIPAddress = new hMailServer.Administrator.Controls.ucIPAddress();
-           this.checkEnableSSL = new hMailServer.Administrator.Controls.ucCheckbox();
            this.comboSSLCertificate = new hMailServer.Administrator.Controls.ucComboBox();
            this.textTCPIPPort = new hMailServer.Shared.ucText();
            this.comboProtocol = new hMailServer.Administrator.Controls.ucComboBox();
+           this.labelConnectionSecurity = new System.Windows.Forms.Label();
+           this.comboConnectionSecurity = new hMailServer.Administrator.Controls.ucComboBox();
            this.SuspendLayout();
            // 
            // labelProtocol
@@ -70,7 +71,7 @@ namespace hMailServer.Administrator
            // labelSSLCertificate
            // 
            this.labelSSLCertificate.AutoSize = true;
-           this.labelSSLCertificate.Location = new System.Drawing.Point(27, 174);
+           this.labelSSLCertificate.Location = new System.Drawing.Point(28, 200);
            this.labelSSLCertificate.Name = "labelSSLCertificate";
            this.labelSSLCertificate.Size = new System.Drawing.Size(77, 13);
            this.labelSSLCertificate.TabIndex = 31;
@@ -79,7 +80,7 @@ namespace hMailServer.Administrator
            // labelRestartInfo
            // 
            this.labelRestartInfo.AutoSize = true;
-           this.labelRestartInfo.Location = new System.Drawing.Point(3, 237);
+           this.labelRestartInfo.Location = new System.Drawing.Point(5, 250);
            this.labelRestartInfo.Name = "labelRestartInfo";
            this.labelRestartInfo.Size = new System.Drawing.Size(451, 13);
            this.labelRestartInfo.TabIndex = 34;
@@ -93,22 +94,11 @@ namespace hMailServer.Administrator
            this.textIPAddress.Size = new System.Drawing.Size(239, 20);
            this.textIPAddress.TabIndex = 35;
            // 
-           // checkEnableSSL
-           // 
-           this.checkEnableSSL.AutoSize = true;
-           this.checkEnableSSL.Location = new System.Drawing.Point(6, 150);
-           this.checkEnableSSL.Name = "checkEnableSSL";
-           this.checkEnableSSL.Size = new System.Drawing.Size(68, 17);
-           this.checkEnableSSL.TabIndex = 33;
-           this.checkEnableSSL.Text = "Use SSL";
-           this.checkEnableSSL.UseVisualStyleBackColor = true;
-           this.checkEnableSSL.CheckedChanged += new System.EventHandler(this.checkEnableSSL_CheckedChanged);
-           // 
            // comboSSLCertificate
            // 
            this.comboSSLCertificate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
            this.comboSSLCertificate.FormattingEnabled = true;
-           this.comboSSLCertificate.Location = new System.Drawing.Point(30, 190);
+           this.comboSSLCertificate.Location = new System.Drawing.Point(31, 216);
            this.comboSSLCertificate.Name = "comboSSLCertificate";
            this.comboSSLCertificate.Size = new System.Drawing.Size(171, 21);
            this.comboSSLCertificate.TabIndex = 30;
@@ -118,6 +108,7 @@ namespace hMailServer.Administrator
            this.textTCPIPPort.Location = new System.Drawing.Point(8, 120);
            this.textTCPIPPort.Name = "textTCPIPPort";
            this.textTCPIPPort.Number = 0;
+           this.textTCPIPPort.Number64 = ((long)(0));
            this.textTCPIPPort.Numeric = true;
            this.textTCPIPPort.Size = new System.Drawing.Size(46, 20);
            this.textTCPIPPort.TabIndex = 29;
@@ -132,13 +123,33 @@ namespace hMailServer.Administrator
            this.comboProtocol.Size = new System.Drawing.Size(171, 21);
            this.comboProtocol.TabIndex = 0;
            // 
+           // labelConnectionSecurity
+           // 
+           this.labelConnectionSecurity.AutoSize = true;
+           this.labelConnectionSecurity.Location = new System.Drawing.Point(5, 148);
+           this.labelConnectionSecurity.Name = "labelConnectionSecurity";
+           this.labelConnectionSecurity.Size = new System.Drawing.Size(100, 13);
+           this.labelConnectionSecurity.TabIndex = 37;
+           this.labelConnectionSecurity.Text = "Connection security";
+           // 
+           // comboConnectionSecurity
+           // 
+           this.comboConnectionSecurity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+           this.comboConnectionSecurity.FormattingEnabled = true;
+           this.comboConnectionSecurity.Location = new System.Drawing.Point(8, 164);
+           this.comboConnectionSecurity.Name = "comboConnectionSecurity";
+           this.comboConnectionSecurity.Size = new System.Drawing.Size(171, 21);
+           this.comboConnectionSecurity.TabIndex = 36;
+           this.comboConnectionSecurity.SelectedIndexChanged += new System.EventHandler(this.comboConnectionSecurity_SelectedIndexChanged);
+           // 
            // ucTCPIPPort
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+           this.Controls.Add(this.labelConnectionSecurity);
+           this.Controls.Add(this.comboConnectionSecurity);
            this.Controls.Add(this.textIPAddress);
            this.Controls.Add(this.labelRestartInfo);
-           this.Controls.Add(this.checkEnableSSL);
            this.Controls.Add(this.labelSSLCertificate);
            this.Controls.Add(this.comboSSLCertificate);
            this.Controls.Add(this.textTCPIPPort);
@@ -147,7 +158,7 @@ namespace hMailServer.Administrator
            this.Controls.Add(this.labelProtocol);
            this.Controls.Add(this.comboProtocol);
            this.Name = "ucTCPIPPort";
-           this.Size = new System.Drawing.Size(494, 280);
+           this.Size = new System.Drawing.Size(494, 380);
            this.ResumeLayout(false);
            this.PerformLayout();
 
@@ -162,8 +173,9 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelTCPIPPort;
        private System.Windows.Forms.Label labelSSLCertificate;
        private hMailServer.Administrator.Controls.ucComboBox comboSSLCertificate;
-       private hMailServer.Administrator.Controls.ucCheckbox checkEnableSSL;
        private System.Windows.Forms.Label labelRestartInfo;
        private hMailServer.Administrator.Controls.ucIPAddress textIPAddress;
+       private System.Windows.Forms.Label labelConnectionSecurity;
+       private hMailServer.Administrator.Controls.ucComboBox comboConnectionSecurity;
     }
 }

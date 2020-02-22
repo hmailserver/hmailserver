@@ -10,6 +10,11 @@
 
 #include "../Common/Application/MessageIndexer.h"
 
+InterfaceMessageIndexing::InterfaceMessageIndexing() :
+   config_(nullptr)
+{
+
+}
 
 bool 
 InterfaceMessageIndexing::LoadSettings()
@@ -17,7 +22,7 @@ InterfaceMessageIndexing::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pConfig = HM::Configuration::Instance();
+   config_ = HM::Configuration::Instance();
 
    return true;
 }
@@ -26,10 +31,10 @@ STDMETHODIMP InterfaceMessageIndexing::get_Enabled(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pConfig->GetMessageIndexing() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetMessageIndexing() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -43,10 +48,10 @@ STDMETHODIMP InterfaceMessageIndexing::put_Enabled(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      m_pConfig->SetMessageIndexing(newVal == VARIANT_TRUE);
+      config_->SetMessageIndexing(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -60,7 +65,7 @@ STDMETHODIMP InterfaceMessageIndexing::get_TotalMessageCount(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -120,7 +125,7 @@ STDMETHODIMP InterfaceMessageIndexing::Index()
       if (!GetIsServerAdmin())
          return false;
    
-      HM::MessageIndexer::IndexNow();
+      HM::MessageIndexer::Instance()->IndexNow();
    
       return S_OK;
    }

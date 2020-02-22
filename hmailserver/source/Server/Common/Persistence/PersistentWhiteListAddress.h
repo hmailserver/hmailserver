@@ -6,6 +6,7 @@
 namespace HM
 {
    class WhiteListAddress;
+   enum PersistenceMode;
 
    class PersistentWhiteListAddress
    {
@@ -13,9 +14,9 @@ namespace HM
       PersistentWhiteListAddress(void);
       ~PersistentWhiteListAddress(void);
       
-      static bool DeleteObject(shared_ptr<WhiteListAddress> pObject);
-      static bool SaveObject(shared_ptr<WhiteListAddress> pObject, String &errorMessage);
-      static bool SaveObject(shared_ptr<WhiteListAddress> pObject);
-      static bool ReadObject(shared_ptr<WhiteListAddress> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<WhiteListAddress> pObject);
+      static bool SaveObject(std::shared_ptr<WhiteListAddress> pObject, String &errorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<WhiteListAddress> pObject);
+      static bool ReadObject(std::shared_ptr<WhiteListAddress> pObject, std::shared_ptr<DALRecordset> pRS);
    };
 }

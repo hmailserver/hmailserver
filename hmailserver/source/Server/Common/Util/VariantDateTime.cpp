@@ -57,7 +57,7 @@ namespace HM
    // DateTime class
    DateTime::DateTime()
    {
-       m_dt=0;
+       dt_=0;
        SetStatus(invalid);
    }
 
@@ -68,8 +68,8 @@ namespace HM
 
    DateTime::DateTime(const DateTime& dateSrc)
    {
-       m_status=dateSrc.m_status;
-       m_dt=dateSrc.m_dt;
+       status_=dateSrc.status_;
+       dt_=dateSrc.dt_;
    }
 
    DateTime::DateTime(const VARIANT& varSrc)
@@ -79,38 +79,39 @@ namespace HM
            String inputDate = varSrc.bstrVal;
            DateTime copy = Time::GetDateFromSystemDate(varSrc.bstrVal);
 
-             m_dt = copy.m_dt;
-             m_status = copy.m_status;
+             dt_ = copy.dt_;
+             status_ = copy.status_;
        }
        else
        {
-             m_dt = varSrc.date;
+             dt_ = varSrc.date;
              SetStatus(valid);
        }
    }
 
    DateTime::DateTime(DATE dtSrc)
    {
-       m_dt = dtSrc;
+       dt_ = dtSrc;
        SetStatus(valid);
    }
 
    DateTime::DateTime(time_t& timeSrc)
    {
        // Convert time_t to struct tm
-       tm *ptm = localtime(&timeSrc);
+       struct tm ptm;
+       int result = localtime_s(&ptm, &timeSrc);
     
-       if (ptm != NULL)
+       if (result == 0)
        {
-             m_status = OleDateFromTm((WORD)(ptm->tm_year + 1900),
-                  (WORD)(ptm->tm_mon + 1), (WORD)ptm->tm_mday,
-                  (WORD)ptm->tm_hour, (WORD)ptm->tm_min,
-                  (WORD)ptm->tm_sec, m_dt) ? valid : invalid;
+             status_ = OleDateFromTm((WORD)(ptm.tm_year + 1900),
+                  (WORD)(ptm.tm_mon + 1), (WORD)ptm.tm_mday,
+                  (WORD)ptm.tm_hour, (WORD)ptm.tm_min,
+                  (WORD)ptm.tm_sec, dt_) ? valid : invalid;
        }
        else
        {
              // Local time must have failed (timsSrc before 1/1/70 12am)
-             m_dt=0;
+             dt_=0;
              SetStatus(invalid);
        }
     
@@ -119,9 +120,9 @@ namespace HM
 
    DateTime::DateTime(const SYSTEMTIME& systimeSrc)
    {
-       m_status = OleDateFromTm(systimeSrc.wYear, systimeSrc.wMonth,
+       status_ = OleDateFromTm(systimeSrc.wYear, systimeSrc.wMonth,
              systimeSrc.wDay, systimeSrc.wHour, systimeSrc.wMinute,
-             systimeSrc.wSecond, m_dt) ? valid : invalid;
+             systimeSrc.wSecond, dt_) ? valid : invalid;
     
     
    }
@@ -132,20 +133,20 @@ namespace HM
        FILETIME filetimeLocal;
        if (!FileTimeToLocalFileTime( &filetimeSrc, &filetimeLocal))
        {
-             m_status = invalid;
+             status_ = invalid;
        }
        else
        {
              // Take advantage of SYSTEMTIME -> FILETIME conversion
              SYSTEMTIME systime;
-             m_status = FileTimeToSystemTime(&filetimeLocal, &systime) ? valid : invalid;
+             status_ = FileTimeToSystemTime(&filetimeLocal, &systime) ? valid : invalid;
         
              // At this point systime should always be valid, but...
              if (GetStatus() == valid)
              {
-                  m_status = OleDateFromTm(systime.wYear, systime.wMonth,
+                  status_ = OleDateFromTm(systime.wYear, systime.wMonth,
                        systime.wDay, systime.wHour, systime.wMinute,
-                       systime.wSecond, m_dt) ? valid : invalid;
+                       systime.wSecond, dt_) ? valid : invalid;
              }
        }
     
@@ -154,7 +155,7 @@ namespace HM
 
    DateTime DateTime::operator+(const DateTimeSpan& dateSpan) const
    {
-      DateTime dateResult;    // Initializes m_status to valid
+      DateTime dateResult;    // Initializes status_ to valid
 
       // If either operand NULL, result NULL
       if (GetStatus() == null || dateSpan.GetStatus() == null)
@@ -171,7 +172,7 @@ namespace HM
       }
 
       // Compute the actual date difference by adding underlying dates
-      dateResult = DateFromDouble(DoubleFromDate(m_dt) + dateSpan.m_span);
+      dateResult = DateFromDouble(DoubleFromDate(dt_) + dateSpan.span_);
 
       // Validate within range
       dateResult.CheckRange();
@@ -181,7 +182,7 @@ namespace HM
 
    DateTime DateTime::operator-(const DateTimeSpan& dateSpan) const
    {
-      DateTime dateResult;    // Initializes m_status to valid
+      DateTime dateResult;    // Initializes status_ to valid
 
       // If either operand NULL, result NULL
       if (GetStatus() == null || dateSpan.GetStatus() == null)
@@ -198,7 +199,7 @@ namespace HM
       }
 
       // Compute the actual date difference by subtracting underlying dates
-      dateResult = DateFromDouble(DoubleFromDate(m_dt) - dateSpan.m_span);
+      dateResult = DateFromDouble(DoubleFromDate(dt_) - dateSpan.span_);
 
       // Validate within range
       dateResult.CheckRange();
@@ -225,7 +226,7 @@ namespace HM
       }
 
       // Return result (span can't be invalid, so don't check range)
-      return DoubleFromDate(m_dt) - DoubleFromDate(date.m_dt);
+      return DoubleFromDate(dt_) - DoubleFromDate(date.dt_);
    }
 
 
@@ -242,7 +243,7 @@ namespace HM
    {
       struct tm tmTemp;
 
-      if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+      if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
       {
          tmTemp.tm_year -= 1900;
          tmTemp.tm_mon -= 1;
@@ -267,7 +268,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_year;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -277,7 +278,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_mon;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -287,7 +288,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_mday;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -297,7 +298,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_hour;
     
        else
@@ -308,7 +309,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_min;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -318,7 +319,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_sec;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -328,7 +329,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_wday;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -338,7 +339,7 @@ namespace HM
    {
        struct tm tmTemp;
     
-       if (GetStatus() == valid && TmFromOleDate(m_dt, tmTemp))
+       if (GetStatus() == valid && TmFromOleDate(dt_, tmTemp))
              return tmTemp.tm_yday;
        else
              return AFX_OLE_DATETIME_ERROR;
@@ -349,7 +350,7 @@ namespace HM
    {
       _variant_t vt;
       vt.ChangeType(VT_DATE);
-      vt.date = m_dt;
+      vt.date = dt_;
 
       return vt;
    }
@@ -361,11 +362,11 @@ namespace HM
         
              _variant_t varTemp(varSrc);
              varTemp.ChangeType(VT_DATE);
-             m_dt = varTemp.date;
+             dt_ = varTemp.date;
        }
        else
        {
-             m_dt = varSrc.date;
+             dt_ = varSrc.date;
              SetStatus(valid);
        }
     
@@ -374,7 +375,7 @@ namespace HM
 
    const DateTime& DateTime::operator=(DATE dtSrc)
    {
-       m_dt = dtSrc;
+       dt_ = dtSrc;
        SetStatus(valid);
     
        return *this;
@@ -383,14 +384,15 @@ namespace HM
    const DateTime& DateTime::operator=(const time_t& timeSrc)
    {
        // Convert time_t to struct tm
-       tm *ptm = localtime(&timeSrc);
+       struct tm ptm;
+       int result = localtime_s(&ptm, &timeSrc);
     
-       if (ptm != NULL)
+       if (result == 0)
        {
-             m_status = OleDateFromTm((WORD)(ptm->tm_year + 1900),
-                  (WORD)(ptm->tm_mon + 1), (WORD)ptm->tm_mday,
-                  (WORD)ptm->tm_hour, (WORD)ptm->tm_min,
-                  (WORD)ptm->tm_sec, m_dt) ? valid : invalid;
+             status_ = OleDateFromTm((WORD)(ptm.tm_year + 1900),
+                  (WORD)(ptm.tm_mon + 1), (WORD)ptm.tm_mday,
+                  (WORD)ptm.tm_hour, (WORD)ptm.tm_min,
+                  (WORD)ptm.tm_sec, dt_) ? valid : invalid;
        }
        else
        {
@@ -402,17 +404,17 @@ namespace HM
 
    const DateTime& DateTime::operator=(const SYSTEMTIME& systimeSrc)
    {
-       m_status = OleDateFromTm(systimeSrc.wYear, systimeSrc.wMonth,
+       status_ = OleDateFromTm(systimeSrc.wYear, systimeSrc.wMonth,
              systimeSrc.wDay, systimeSrc.wHour, systimeSrc.wMinute,
-             systimeSrc.wSecond, m_dt) ? valid : invalid;
+             systimeSrc.wSecond, dt_) ? valid : invalid;
     
        return *this;
    }
 
    const DateTime& DateTime::operator=(const DateTime& dateSrc)
    {
-      m_dt = dateSrc.m_dt;
-      m_status = dateSrc.m_status;
+      dt_ = dateSrc.dt_;
+      status_ = dateSrc.status_;
 
       return *this;
    }
@@ -423,20 +425,20 @@ namespace HM
        FILETIME filetimeLocal;
        if (!FileTimeToLocalFileTime( &filetimeSrc, &filetimeLocal))
        {
-             m_status = invalid;
+             status_ = invalid;
        }
        else
        {
              // Take advantage of SYSTEMTIME -> FILETIME conversion
              SYSTEMTIME systime;
-             m_status = FileTimeToSystemTime(&filetimeLocal, &systime) ? valid : invalid;
+             status_ = FileTimeToSystemTime(&filetimeLocal, &systime) ? valid : invalid;
         
              // At this point systime should always be valid, but...
              if (GetStatus() == valid)
              {
-                  m_status = OleDateFromTm(systime.wYear, systime.wMonth,
+                  status_ = OleDateFromTm(systime.wYear, systime.wMonth,
                        systime.wDay, systime.wHour, systime.wMinute,
-                       systime.wSecond, m_dt) ? valid : invalid;
+                       systime.wSecond, dt_) ? valid : invalid;
              }
        }
     
@@ -446,21 +448,21 @@ namespace HM
    int DateTime::SetDateTime(int nYear, int nMonth, int nDay,
                                        int nHour, int nMin, int nSec)
    {
-       return m_status = OleDateFromTm((WORD)nYear, (WORD)nMonth,
-             (WORD)nDay, (WORD)nHour, (WORD)nMin, (WORD)nSec, m_dt) ?
+       return status_ = OleDateFromTm((WORD)nYear, (WORD)nMonth,
+             (WORD)nDay, (WORD)nHour, (WORD)nMin, (WORD)nSec, dt_) ?
          valid : invalid;
    }
 
    int DateTime::SetDate(int nYear, int nMonth, int nDay)
    {
-       return m_status = OleDateFromTm((WORD)nYear, (WORD)nMonth,
-             (WORD)nDay, (WORD)0, (WORD)0, (WORD)0, m_dt) ?
+       return status_ = OleDateFromTm((WORD)nYear, (WORD)nMonth,
+             (WORD)nDay, (WORD)0, (WORD)0, (WORD)0, dt_) ?
          valid : invalid;
    }
 
    void DateTime::CheckRange()
    {
-      if (m_dt > MAX_DATE || m_dt < MIN_DATE) // about year 100 to about 9999
+      if (dt_ > MAX_DATE || dt_ < MIN_DATE) // about year 100 to about 9999
 
          SetStatus(invalid);
    }
@@ -472,19 +474,19 @@ namespace HM
     
        SCODE sc;
        if (FAILED(sc = VarDateFromStr((LPOLESTR)T2COLE(lpszDate), lcid,
-             dwFlags, &m_dt)))
+             dwFlags, &dt_)))
        {
              if (sc == DISP_E_TYPEMISMATCH)
              {
                   // Can't convert string to date, set 0 and invalidate
-                  m_dt = 0;
+                  dt_ = 0;
                   SetStatus(invalid);
                   return FALSE;
              }
              else if (sc == DISP_E_OVERFLOW)
              {
                   // Can't convert string to date, set -1 and invalidate
-                  m_dt = -1;
+                  dt_ = -1;
                   SetStatus(invalid);
                   return FALSE;
              }
@@ -495,7 +497,7 @@ namespace HM
                   //  AfxThrowMemoryException();
                   // else
                   //  AfxThrowOleException(sc);
-                  m_dt=0;
+                  dt_=0;
                   SetStatus(invalid);
                   return FALSE;
              }
@@ -693,7 +695,7 @@ namespace HM
       //ASSERT(date.GetStatus() == valid);
        
       // Handle negative dates
-      return DoubleFromDate(m_dt) < DoubleFromDate(date.m_dt);
+      return DoubleFromDate(dt_) < DoubleFromDate(date.dt_);
    }
 
    BOOL DateTime::operator>(const DateTime& date) const
@@ -701,7 +703,7 @@ namespace HM
       //ASSERT(date.GetStatus() == valid);
        
       // Handle negative dates
-      return DoubleFromDate(m_dt) > DoubleFromDate(date.m_dt);
+      return DoubleFromDate(dt_) > DoubleFromDate(date.dt_);
    }
 
    BOOL DateTime::operator<=(const DateTime& date) const
@@ -710,7 +712,7 @@ namespace HM
       //ASSERT(date.GetStatus() == valid);
        
       // Handle negative dates
-      return DoubleFromDate(m_dt) <= DoubleFromDate(date.m_dt);
+      return DoubleFromDate(dt_) <= DoubleFromDate(date.dt_);
    }
 
 
@@ -720,7 +722,7 @@ namespace HM
       //ASSERT(date.GetStatus() == valid);
        
       // Handle negative dates
-      return DoubleFromDate(m_dt) >= DoubleFromDate(date.m_dt);
+      return DoubleFromDate(dt_) >= DoubleFromDate(date.dt_);
    }
 
    double DoubleFromDate(DATE dt)
@@ -747,27 +749,27 @@ namespace HM
 
    DateTimeSpan::DateTimeSpan()
    {
-      m_span=0;
+      span_=0;
       SetStatus(invalid);
    }
 
    DateTimeSpan::DateTimeSpan(double dblSpanSrc)
    {
-      m_span = dblSpanSrc;
+      span_ = dblSpanSrc;
       SetStatus(valid);
    }
 
    DateTimeSpan::DateTimeSpan(const DateTimeSpan& dateSpanSrc)
    {
-      m_span = dateSpanSrc.m_span;
-      m_status = dateSpanSrc.m_status;
+      span_ = dateSpanSrc.span_;
+      status_ = dateSpanSrc.status_;
    }
 
 
    double DateTimeSpan::GetNumberOfDays() const
    {
-      if (m_status == valid)
-         return m_span;
+      if (status_ == valid)
+         return span_;
       else
          return 0;
    }
@@ -775,8 +777,17 @@ namespace HM
    double 
    DateTimeSpan::GetNumberOfSeconds() const
    {
-      if (m_status == valid)
-         return m_span / 24 / 3600;
+      if (status_ == valid)
+         return span_ * 24 * 3600;
+      else
+         return 0;
+   }
+
+   double 
+   DateTimeSpan::GetNumberOfHours() const
+   {
+      if (status_ == valid)
+         return span_ * 24;
       else
          return 0;
    }
@@ -784,7 +795,7 @@ namespace HM
 
    const DateTimeSpan& DateTimeSpan::operator=(double dblSpanSrc)
    {
-      m_span = dblSpanSrc;
+      span_ = dblSpanSrc;
       SetStatus(valid);
       return *this;
    }
@@ -792,8 +803,8 @@ namespace HM
    const DateTimeSpan& DateTimeSpan::operator=(const DateTimeSpan&
       dateSpanSrc)
    {
-      m_span = dateSpanSrc.m_span;
-      m_status = dateSpanSrc.m_status;
+      span_ = dateSpanSrc.span_;
+      status_ = dateSpanSrc.status_;
       return *this;
    }
 
@@ -818,7 +829,7 @@ namespace HM
       }
 
       // Add spans and validate within legal range
-      dateSpanTemp.m_span = m_span + dateSpan.m_span;
+      dateSpanTemp.span_ = span_ + dateSpan.span_;
       dateSpanTemp.CheckRange();
 
       return dateSpanTemp;
@@ -844,7 +855,7 @@ namespace HM
       }
 
       // Subtract spans and validate within legal range
-      dateSpanTemp.m_span = m_span - dateSpan.m_span;
+      dateSpanTemp.span_ = span_ - dateSpan.span_;
       dateSpanTemp.CheckRange();
 
       return dateSpanTemp;
@@ -855,7 +866,7 @@ namespace HM
    {
       // Set date span by breaking into fractional days (all input ranges valid)
       
-      m_span = lDays + ((double)nHours)/24 + ((double)nMins)/(24*60) +
+      span_ = lDays + ((double)nHours)/24 + ((double)nMins)/(24*60) +
          ((double)nSecs)/(24*60*60);
 
       SetStatus(valid);
@@ -871,7 +882,7 @@ namespace HM
          return strSpan;
 
       // If invalid, return DateTimeSpan resource string
-      if (GetStatus() == invalid || !TmFromOleDate(m_span, tmTemp))
+      if (GetStatus() == invalid || !TmFromOleDate(span_, tmTemp))
       {
          //VERIFY(strSpan.LoadString(AFX_IDS_INVALID_DATETIMESPAN));
          return strSpan;
@@ -913,7 +924,7 @@ namespace HM
 
    void DateTimeSpan::CheckRange()
    {
-      if(m_span < -MAX_DAYS_IN_SPAN || m_span > MAX_DAYS_IN_SPAN)
+      if(span_ < -MAX_DAYS_IN_SPAN || span_ > MAX_DAYS_IN_SPAN)
          SetStatus(invalid);
    }
 

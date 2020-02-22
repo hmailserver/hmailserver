@@ -12,13 +12,13 @@ STDMETHODIMP InterfaceDiagnosticResults::get_Count(long* count)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      *count =  (int) _results.size();
+      *count =  (int) results_.size();
    
       return S_OK;
    }
@@ -32,18 +32,18 @@ STDMETHODIMP InterfaceDiagnosticResults::get_Item(long Index, IInterfaceDiagnost
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (Index >= (long) _results.size())
+      if (Index >= (long) results_.size())
          return DISP_E_BADINDEX;
    
       CComObject<InterfaceDiagnosticResult>* pResult = new CComObject<InterfaceDiagnosticResult>();
-      pResult->SetAuthentication(m_pAuthentication);
-      pResult->AttachResult(_results[Index]);
+      pResult->SetAuthentication(authentication_);
+      pResult->AttachResult(results_[Index]);
       pResult->AddRef();
       *pVal = pResult;
    

@@ -354,6 +354,21 @@ typedef
 } eSessionType;
 
 typedef
+[uuid(122C5B58-9A23-40f5-83C0-7B683D156522),
+	helpstring("Connection security")] 
+	enum 
+{
+	[helpstring("None.")] 
+	eCSNone = 0,
+	[helpstring("SSL")] 
+	eCSTLS = 1,
+	[helpstring("STARTTLS (Optional).")] 
+	eCSSTARTTLSOptional = 2,
+   [helpstring("STARTTLS (Required).")] 
+	eCSSTARTTLSRequired = 3,
+} eConnectionSecurity;
+
+typedef
 [uuid(90745436-4C3F-11D9-AD17-A0BCEA20CD08),
 	helpstring("Signature method")] 
 	enum 
@@ -633,7 +648,41 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(89), helpstring("Gets an object containing settings related to message indexing.")] HRESULT MessageIndexing([out, retval] IInterfaceMessageIndexing **pVal);
    [propget, id(90), helpstring("Gets or sets the maximum number of hosts hMailServer should perform SMTP-delivery to.")] HRESULT MaxNumberOfMXHosts([out, retval] long *pVal);
    [propput, id(90), helpstring("Gets or sets the maximum number of hosts hMailServer should perform SMTP-delivery to.")] HRESULT MaxNumberOfMXHosts([in] long newVal);
+   [propget, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(91), helpstring("Connection security for the SMTP relayer.")] HRESULT SMTPRelayerConnectionSecurity([in] eConnectionSecurity newVal);
+   [propget, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(92), helpstring("Connection security to use when delivering after a MX lookup")] HRESULT SMTPConnectionSecurity([in] eConnectionSecurity newVal);
+   [propget, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteSslCertificate([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(93), helpstring("Verify the SSL/TLS server certificate.")] HRESULT VerifyRemoteSslCertificate([in] VARIANT_BOOL newVal);
 
+   [propget, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([out, retval] BSTR *pVal);
+   [propput, id(94), helpstring("List of SSL/TLS ciphers which should be permitted (OpenSSL format).")] HRESULT SslCipherList([in] BSTR newVal);
+
+   [propget, id(96), helpstring("Enable TLS version 1.0.")] HRESULT TlsVersion10Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(96), helpstring("Enable TLS version 1.0")] HRESULT TlsVersion10Enabled([in] VARIANT_BOOL newVal);
+   [propget, id(97), helpstring("Enable TLS version 1.1.")] HRESULT TlsVersion11Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(97), helpstring("Enable TLS version 1.1")] HRESULT TlsVersion11Enabled([in] VARIANT_BOOL newVal);
+   [propget, id(98), helpstring("Enable TLS version 1.2.")] HRESULT TlsVersion12Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(98), helpstring("Enable TLS version 1.2")] HRESULT TlsVersion12Enabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([out, retval] long *pVal);
+   [propput, id(99), helpstring("Crash simulation mode")] HRESULT CrashSimulationMode([in] long newVal);
+
+   [propget, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([out, retval] BSTR *pVal);
+   [propput, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([in] BSTR newVal);
+
+   [propget, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([in] VARIANT_BOOL newVal);
+
+
+   [propget, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([in] VARIANT_BOOL newVal);
+   
+   [propget, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
 
 };
 
@@ -865,13 +914,13 @@ interface IInterfaceDatabase : IDispatch
 interface IInterfaceMessage : IDispatch
 {
 	[propget, id(1), helpstring("The unique database identifier for the e-mail.")] HRESULT ID([out, retval] hyper *pVal);
-	[propget, id(2), helpstring("The filename in witch the message is stored.")] HRESULT Filename([out, retval] BSTR *pVal);
+	[propget, id(2), helpstring("The name of the file in witch the message is stored.")] HRESULT Filename([out, retval] BSTR *pVal);
 	[propget, id(3), helpstring("The subject of the e-mail.")] HRESULT Subject([out, retval] BSTR *pVal);
 	[propput, id(3), helpstring("The subject of the e-mail.")] HRESULT Subject([in] BSTR newVal);
-	[propget, id(4), helpstring("The sender of the e-mail.")] HRESULT From([out, retval] BSTR *pVal);
-	[propput, id(4), helpstring("The sender of the e-mail.")] HRESULT From([in] BSTR newVal);
-	[propget, id(5), helpstring("The date header of the e-mail message.")] HRESULT Date([out, retval] BSTR *pVal);
-   [propput, id(5), helpstring("The date header of the e-mail message")] HRESULT Date([in] BSTR newVal);
+	[propget, id(4), helpstring("The contents of the From message header.")] HRESULT From([out, retval] BSTR *pVal);
+	[propput, id(4), helpstring("The contents of the From message header.")] HRESULT From([in] BSTR newVal);
+	[propget, id(5), helpstring("The contents of the Date message header.")] HRESULT Date([out, retval] BSTR *pVal);
+   [propput, id(5), helpstring("The contents of the Date message header.")] HRESULT Date([in] BSTR newVal);
 	[propget, id(6), helpstring("The plain text contents of the e-mail.")] HRESULT Body([out, retval] BSTR *pVal);
 	[propput, id(6), helpstring("The plain text contents of the e-mail.")] HRESULT Body([in] BSTR newVal);
 	[propget, id(7), helpstring("The HTML contents of the e-mail.")] HRESULT HTMLBody([out, retval] BSTR *pVal);
@@ -880,8 +929,8 @@ interface IInterfaceMessage : IDispatch
 	[id(9), helpstring("Saves the email. If this is a new email, it will be delivered after save.")] HRESULT Save();
 	[propget, id(10), helpstring("The To-header of the email.")] HRESULT To([out, retval] BSTR *pVal);
 	[id(11), helpstring("Adds a recipient to the e-mail.")] HRESULT AddRecipient([in]BSTR sName, [in]BSTR sAddress);
-	[propget, id(12), helpstring("The sender address of the message.")] HRESULT FromAddress([out, retval] BSTR *pVal);
-	[propput, id(12), helpstring("The sender address of the message.")] HRESULT FromAddress([in] BSTR newVal);
+	[propget, id(12), helpstring("The From address specified in the message envelope.")] HRESULT FromAddress([out, retval] BSTR *pVal);
+	[propput, id(12), helpstring("The From address specified in the message envelope.")] HRESULT FromAddress([in] BSTR newVal);
 	[propget, id(13), helpstring("The state of the message.")] HRESULT State([out, retval] long *pVal);
    [propget, id(14), helpstring("The size of the message, counted in kilobytes.")] HRESULT Size([out, retval] long *pVal);
    [id(15), helpstring("Clears the recipient of the email (including the MIME-headers).")] HRESULT ClearRecipients();
@@ -1112,9 +1161,9 @@ interface IInterfaceDistributionList : IDispatch
    [propget, id(1), helpstring("The unique database identifier for the distribution list.")] HRESULT ID([out, retval] long* pVal);
    [id(2), helpstring("Deletes the distribution list from the database.")] HRESULT Delete();
    [id(4), helpstring("Saves the distribution list in the database.")] HRESULT Save();
-   [propget, id(5), helpstring("The name of the distribution list.")] HRESULT Active([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(5), helpstring("The name of the distribution list.")] HRESULT Active([in] VARIANT_BOOL newVal);
-   [propget, id(6), helpstring("The recipients of the distribution list.")] HRESULT Recipients([out, retval] IInterfaceDistributionListRecipients **pVal);
+   [propget, id(5), helpstring("True if the distribution list is active, false otherwise")] HRESULT Active([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(5), helpstring("True if the distribution list is active, false otherwise")] HRESULT Active([in] VARIANT_BOOL newVal);
+   [propget, id(6), helpstring("The recipients in the distribution list.")] HRESULT Recipients([out, retval] IInterfaceDistributionListRecipients **pVal);
    [propget, id(7), helpstring("The address of the distribution list.")] HRESULT Address([out, retval] BSTR  * pVal);
    [propput, id(7), helpstring("The address of the distribution list.")] HRESULT Address([in] BSTR newVal);
    [propget, id(8), helpstring("Sets wether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([out, retval] VARIANT_BOOL* pVal);
@@ -1228,6 +1277,9 @@ interface IInterfaceSecurityRange : IDispatch{
 		[propput, id(27), helpstring("Require SMTP authentication for deliveries from external to local")] HRESULT RequireSMTPAuthExternalToLocal([in] VARIANT_BOOL newVal);
       [propget, id(28), helpstring("Require SMTP authentication for deliveries from external to external.")] HRESULT RequireSMTPAuthExternalToExternal([out, retval] VARIANT_BOOL *pVal);
 		[propput, id(28), helpstring("Require SMTP authentication for deliveries from external to external")] HRESULT RequireSMTPAuthExternalToExternal([in] VARIANT_BOOL newVal);
+
+      [propget, id(29), helpstring("Require users to use SSL/TLS when authenticating.")] HRESULT RequireSSLTLSForAuth([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(29), helpstring("Require users to use SSL/TLS when authenticating.")] HRESULT RequireSSLTLSForAuth([in] VARIANT_BOOL newVal);
 };
 
 [
@@ -1352,6 +1404,9 @@ interface IInterfaceRoute : IDispatch
    [propget, id(18), helpstring("When email is sent to the route domain name, treat recipient domain as a local domain.")] HRESULT TreatRecipientAsLocalDomain([out, retval] VARIANT_BOOL *pVal);
 	[propput, id(18), helpstring("When email is sent to the route domain name, treat recipient domain as a local domain.")] HRESULT TreatRecipientAsLocalDomain([in] VARIANT_BOOL newVal);
 
+   [propget, id(19), helpstring("Connection security for the route.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(19), helpstring("Connection security for the route.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
+
 };
 
 
@@ -1416,6 +1471,7 @@ interface IInterfaceApplication : IDispatch{
    [id(8), helpstring("Submits pending email messages. May be triggered if an email has been manually inserted into the database.")] HRESULT SubmitEMail();
    [propget, id(9), helpstring("Returns the Status object.")] HRESULT Status([out, retval] IInterfaceStatus** pVal);
    [propget, id(10), helpstring("Gets the current hMailServer version")] HRESULT Version([out, retval] BSTR *pVal);
+   
    [id(11), helpstring("Opens a connection to the hMailServer database.")] HRESULT Connect();
    [propget, id(12), helpstring("The initialization file currently in use.")] HRESULT InitializationFile([out, retval] BSTR *pVal);
    [id(13), helpstring("Reloads all the server settinsg")] HRESULT Reinitialize();
@@ -1425,6 +1481,8 @@ interface IInterfaceApplication : IDispatch{
    [id(17), helpstring("Authenticate the client.")] HRESULT Authenticate([in] BSTR Username, [in] BSTR Password, [out, retval] IInterfaceAccount** pAccount);
    [propget, id(18), helpstring("Quick links to access objects")] HRESULT Links([out, retval] IInterfaceLinks **pVal);
    [propget, id(19), helpstring("Gets a diagnostics object.")] HRESULT Diagnostics([out, retval] IInterfaceDiagnostics **pVal);
+
+   [propget, id(20), helpstring("Gets the current hMailServer architecture (x86/x64)")] HRESULT VersionArchitecture([out, retval] BSTR *pVal);
 };
 
 [
@@ -1534,6 +1592,7 @@ interface IInterfaceClient : IDispatch{
    [propget, id(2), helpstring("The TCP/IP address the client is connected to.")] HRESULT IPAddress([out, retval] BSTR* pVal);
    [propget, id(3), helpstring("The username of the client.")] HRESULT Username([out, retval] BSTR* pVal);
    [propget, id(4), helpstring("The HELO sent by client.")] HRESULT HELO([out, retval] BSTR* pVal);
+   [propget, id(5), helpstring("The logon status of the client.")] HRESULT Authenticated([out, retval] VARIANT_BOOL* pVal);
 };
 [
 	object,
@@ -1582,6 +1641,8 @@ interface IInterfaceFetchAccount : IDispatch{
    [propget, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([out, retval] VARIANT_BOOL *pVal);
 	[propput, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([in] VARIANT_BOOL newVal);
 	[propget, id(22), helpstring("Gets whether the fetch account is currently locked")] HRESULT IsLocked([out, retval] VARIANT_BOOL* pVal);
+   [propget, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
 
 };
 [
@@ -1855,8 +1916,8 @@ interface IInterfaceRecipient : IDispatch
 	pointer_default(unique)
 ]
 interface IInterfaceCache : IDispatch{
-	[propget, id(1), helpstring("Cache is enabled.")] HRESULT Enabled([out, retval] VARIANT_BOOL *pVal);
-	[propput, id(1), helpstring("Cache is enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
+   [propget, id(1), helpstring("Cache is enabled.")] HRESULT Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(1), helpstring("Cache is enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
 
    [propget, id(2), helpstring("Domain cache time (seconds).")] HRESULT DomainCacheTTL([out, retval] long *pVal);
    [propput, id(2), helpstring("Domain cache time (seconds)")] HRESULT DomainCacheTTL([in] long newVal);
@@ -1875,6 +1936,26 @@ interface IInterfaceCache : IDispatch{
    [propget, id(11), helpstring("Distribution list cache time (seconds).")] HRESULT DistributionListCacheTTL([out, retval] long *pVal);
    [propput, id(11), helpstring("Distribution list cache time (seconds)")] HRESULT DistributionListCacheTTL([in] long newVal);
    [propget, id(12), helpstring("Distribution list hit rate.")] HRESULT DistributionListHitRate([out, retval] long *pVal);
+
+   [propget, id(13), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DomainCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(13), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DomainCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(14), helpstring("Current size of cache (in kilobytes)")] HRESULT DomainCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(15), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AccountCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(15), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AccountCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(16), helpstring("Current size of cache (in kilobytes)")] HRESULT AccountCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(17), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AliasCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(17), helpstring("Maximum size of cache (in kilobytes)")] HRESULT AliasCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(18), helpstring("Current size of cache (in kilobytes)")] HRESULT AliasCacheSizeKb([out, retval] long *pVal);
+
+   [propget, id(19), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DistributionListCacheMaxSizeKb([out, retval] long *pVal);
+   [propput, id(19), helpstring("Maximum size of cache (in kilobytes)")] HRESULT DistributionListCacheMaxSizeKb([in] long pVal);
+
+   [propget, id(20), helpstring("Current size of cache (in kilobytes)")] HRESULT DistributionListCacheSizeKb([out, retval] long *pVal);
 
 };
 
@@ -2317,6 +2398,8 @@ interface IInterfaceTCPIPPort : IDispatch
    [propget, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([out, retval] long *pVal);
    [propput, id(7), helpstring("The id of the SSL certificate to use.")] HRESULT SSLCertificateID([in] long newVal);
    [id(8), helpstring("Deletes the object from the database.")] HRESULT Delete();
+   [propget, id(9), helpstring("Connection security for this TCP/IP port.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+   [propput, id(9), helpstring("Connection security for this TCP/IP port.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
 };
 
 

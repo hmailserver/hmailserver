@@ -46,7 +46,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::DeleteObject(shared_ptr<Message> pMessage)
+   PersistentMessage::DeleteObject(std::shared_ptr<Message> pMessage)
    {
       LOG_DEBUG("Deleting message");
       __int64 iMessageID = pMessage->GetID();
@@ -91,7 +91,7 @@ namespace HM
          // Reset the message ID.
          pMessage->SetID(0);
 
-         shared_ptr<const Account> account;
+         std::shared_ptr<const Account> account;
          
          if (pMessage->GetAccountID() > 0)
          {
@@ -121,7 +121,7 @@ namespace HM
          SQLCommand command("select messageid from hm_messages where messagefilename = @FILENAME");
          command.AddParameter("@FILENAME", partialFileName);
 
-         shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+         std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
          if (!pRS)
             return false;
 
@@ -137,7 +137,7 @@ namespace HM
       SQLCommand command("select messageid from hm_messages where messagefilename = @FILENAME");
       command.AddParameter("@FILENAME", fileName);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -152,7 +152,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::DeleteFile(shared_ptr<const Account> account, shared_ptr<Message> pMessage)
+   PersistentMessage::DeleteFile(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage)
    {
       if (pMessage->GetPartialFileName().IsEmpty())
          return true;
@@ -171,7 +171,7 @@ namespace HM
          // A message with this ID already exists. Disallow deletion and log to 
          // the event logger.
          String sErrorMessage;
-         sErrorMessage.Format(_T("Tried to delete the file %s even though the message was not deleted."), messageFile);
+         sErrorMessage.Format(_T("Tried to delete the file %s even though the message was not deleted."), messageFile.c_str());
 
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5025, "PersistentAccount::DeleteFile", sErrorMessage);
          return false;
@@ -191,7 +191,7 @@ namespace HM
    }
 
    bool 
-   PersistentMessage::ReadObject(shared_ptr<DALRecordset> pRS, shared_ptr<Message> pMessage, bool bReadRecipients)
+   PersistentMessage::ReadObject(std::shared_ptr<DALRecordset> pRS, std::shared_ptr<Message> pMessage, bool bReadRecipients)
    {
       pMessage->SetID(pRS->GetInt64Value("messageid"));
       pMessage->SetAccountID(pRS->GetLongValue("messageaccountid"));
@@ -210,7 +210,7 @@ namespace HM
       if (bReadRecipients)
       {
          // The message recipients has been parsed.
-         _ReadRecipients(pMessage);
+         ReadRecipients_(pMessage);
       }
 
 
@@ -228,22 +228,22 @@ namespace HM
    }
 
    bool
-   PersistentMessage::_ReadRecipients(shared_ptr<Message> pMessage)
+   PersistentMessage::ReadRecipients_(std::shared_ptr<Message> pMessage)
    {
    
-      shared_ptr<MessageRecipients> pRecipients = pMessage->GetRecipients();
+      std::shared_ptr<MessageRecipients> pRecipients = pMessage->GetRecipients();
 
       SQLCommand command("select * from hm_messagerecipients where recipientmessageid = @MESSAGEID");
       command.AddParameter("@MESSAGEID", pMessage->GetID());
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
       while (pRS->IsEOF() == false)
       {
      
-         shared_ptr<MessageRecipient> pRecipient = shared_ptr<MessageRecipient>(new MessageRecipient());
+         std::shared_ptr<MessageRecipient> pRecipient = std::shared_ptr<MessageRecipient>(new MessageRecipient());
 
          pRecipient->SetAddress(pRS->GetStringValue("recipientaddress"));
          pRecipient->SetLocalAccountID(pRS->GetLongValue("recipientlocalaccountid"));
@@ -255,7 +255,7 @@ namespace HM
          if (!MailerDaemonAddressDeterminer::IsMailerDaemonAddress(sAddress))
          {
             if (sAddress.IsEmpty())
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4201, "PersistentAccount::_ReadRecipients", "Read recipient from database without an address.");
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4201, "PersistentAccount::ReadRecipients_", "Read recipient from database without an address.");
             else
                pRecipients->Add(pRecipient);
          }
@@ -268,9 +268,9 @@ namespace HM
    }
 
    bool 
-   PersistentMessage::ReadObject(shared_ptr<Message> pMessage, const SQLCommand &command)
+   PersistentMessage::ReadObject(std::shared_ptr<Message> pMessage, const SQLCommand &command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
 
       if (!pRS || pRS->IsEOF())
          return false;
@@ -281,7 +281,7 @@ namespace HM
    }
 
    bool 
-   PersistentMessage::ReadObject(shared_ptr<Message> pMessage, __int64 ObjectID)
+   PersistentMessage::ReadObject(std::shared_ptr<Message> pMessage, __int64 ObjectID)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Reads an object from the database.
@@ -296,19 +296,19 @@ namespace HM
    }
 
    bool
-   PersistentMessage::_SaveRecipients(shared_ptr<Message> pMessage)
+   PersistentMessage::SaveRecipients_(std::shared_ptr<Message> pMessage)
    {
-      std::vector<shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
-      std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+      std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
+      auto iterRecipient = vecRecipients.begin();
 
       while (iterRecipient != vecRecipients.end())
       {
-         shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
+         std::shared_ptr<MessageRecipient> pRecipient = (*iterRecipient);
 
          // Check that the recipient address is really specified
          if (pRecipient->GetAddress().IsEmpty() && pRecipient->GetLocalAccountID() == 0)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4224, "PersistentMessage::_SaveRecipients", "Tried to save recipient without an address.");
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4224, "PersistentMessage::SaveRecipients_", "Tried to save recipient without an address.");
 
             iterRecipient++;
             continue;
@@ -357,7 +357,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::LockObject(shared_ptr<Message> pMessage)
+   PersistentMessage::LockObject(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Locks the message in the database.
@@ -367,7 +367,7 @@ namespace HM
    }  
 
    bool
-   PersistentMessage::UnlockObject(shared_ptr<Message> pMessage)
+   PersistentMessage::UnlockObject(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Unlocks the object in the database.
@@ -381,10 +381,10 @@ namespace HM
       return Application::Instance()->GetDBManager()->Execute(command);
    }
 
-   shared_ptr<Message>
-   PersistentMessage::CopyToQueue(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage)
+   std::shared_ptr<Message>
+   PersistentMessage::CopyToQueue(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage)
    {
-      shared_ptr<Message> newMessage = _CreateCopy(sourceMessage, 0);
+      std::shared_ptr<Message> newMessage = CreateCopy_(sourceMessage, 0);
       newMessage->SetState(Message::Delivering);
 
       // Copy the message file.
@@ -393,17 +393,17 @@ namespace HM
 
       if (!FileUtilities::Copy(sourceFile, destinationFile, true))
       {
-         shared_ptr<Message> pEmpty;
+         std::shared_ptr<Message> pEmpty;
          return pEmpty;
       }
 
       return newMessage;
    }
 
-   shared_ptr<Message>
-   PersistentMessage::CopyToIMAPFolder(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage, shared_ptr<IMAPFolder> destinationFolder)
+   std::shared_ptr<Message>
+   PersistentMessage::CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder)
    {
-      shared_ptr<Message> messageCopy = _CreateCopy(sourceMessage, (int) destinationFolder->GetAccountID());
+      std::shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationFolder->GetAccountID());
       messageCopy->SetState(Message::Delivered);
       messageCopy->SetFolderID(destinationFolder->GetID());
 
@@ -422,24 +422,24 @@ namespace HM
 
       if (!FileUtilities::Copy(sourceFile, destinationFile, true))
       {
-         shared_ptr<Message> pEmpty;
+         std::shared_ptr<Message> pEmpty;
          return pEmpty;
       }
 
       return messageCopy;
    }
 
-   shared_ptr<Message>
-   PersistentMessage::CopyFromQueueToInbox(shared_ptr<Message> sourceMessage, shared_ptr<const Account> destinationAccount)
+   std::shared_ptr<Message>
+   PersistentMessage::CopyFromQueueToInbox(std::shared_ptr<Message> sourceMessage, std::shared_ptr<const Account> destinationAccount)
    {
-      shared_ptr<Message> messageCopy = _CreateCopy(sourceMessage, (int) destinationAccount->GetID());
+      std::shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationAccount->GetID());
       messageCopy->SetState(Message::Delivered);
 
       // Locate the inbox ID
       __int64  inboxID = CacheContainer::Instance()->GetInboxIDCache().GetUserInboxFolder(destinationAccount->GetID());
       if (inboxID == 0)
       {
-         shared_ptr<Message> empty;
+         std::shared_ptr<Message> empty;
          return empty;
       }
 
@@ -451,20 +451,20 @@ namespace HM
 
       if (!FileUtilities::Copy(sourceFile, destinationFile, true))
       {
-         shared_ptr<Message> pEmpty;
+         std::shared_ptr<Message> pEmpty;
          return pEmpty;
       }
 
       return messageCopy;
    }
 
-   shared_ptr<Message>
-   PersistentMessage::_CreateCopy(shared_ptr<Message> sourceMessage, int destinationAccountID)
+   std::shared_ptr<Message>
+   PersistentMessage::CreateCopy_(std::shared_ptr<Message> sourceMessage, int destinationAccountID)
    {
       LOG_DEBUG("Copying mail contents");
-      shared_ptr<Message> pTo = shared_ptr<Message>(new Message(true));
+      std::shared_ptr<Message> pTo = std::shared_ptr<Message>(new Message(true));
 
-      shared_ptr<MessageRecipients> pToRecipients = pTo->GetRecipients();
+      std::shared_ptr<MessageRecipients> pToRecipients = pTo->GetRecipients();
       pToRecipients->Clear();
 
       pTo->SetAccountID(destinationAccountID);
@@ -478,7 +478,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::SaveObject(shared_ptr<Message> pMessage, String &errorMessage)
+   PersistentMessage::SaveObject(std::shared_ptr<Message> pMessage, String &errorMessage, PersistenceMode mode)
    {
       // errorMessage - not supported yet.
       return SaveObject(pMessage);
@@ -486,7 +486,7 @@ namespace HM
 
 
    bool
-   PersistentMessage::SaveObject(shared_ptr<Message> pMessage)
+   PersistentMessage::SaveObject(std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Saves the object in the database. If the message already exist, it is
@@ -520,7 +520,7 @@ namespace HM
       if (bNewMessage && pMessage->GetRecipients()->GetCount())
       {
          // If there are any recipients, save them in the database.
-         if (!_SaveRecipients(pMessage))
+         if (!SaveRecipients_(pMessage))
             return false;
 
          // Message is now completely saved so we may unlock it so that
@@ -539,7 +539,7 @@ namespace HM
    }
 
    bool 
-   PersistentMessage::AddObject(const shared_ptr<Message> pMessage)
+   PersistentMessage::AddObject(const std::shared_ptr<Message> pMessage)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Adds an object to the database. If the message already exists, 
@@ -698,7 +698,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::MoveFileToPublicFolder(const String &sourceLocation, shared_ptr<Message> pMessage)
+   PersistentMessage::MoveFileToPublicFolder(const String &sourceLocation, std::shared_ptr<Message> pMessage)
    {
       String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
       String publicFolder = FileUtilities::Combine(dataDirectory, IMAPConfiguration::GetPublicFolderDiskName());
@@ -710,7 +710,7 @@ namespace HM
       // We start by checking if it already exists. If not, attempt to create. We used
       // to create each folder before. Checking first will save some disk access.
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       // Move the old file to the new path.
       if (!FileUtilities::Move(sourceLocation, destinationFileName))
@@ -720,7 +720,7 @@ namespace HM
    }
 
    bool
-   PersistentMessage::MoveFileToUserFolder(const String &sourceLocation, shared_ptr<Message> pMessage, shared_ptr<const Account> destinationAccount)
+   PersistentMessage::MoveFileToUserFolder(const String &sourceLocation, std::shared_ptr<Message> pMessage, std::shared_ptr<const Account> destinationAccount)
    {
       String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
 
@@ -734,7 +734,7 @@ namespace HM
       // We start by checking if it already exists. If not, attempt to create. We used
       // to create each folder before. Checking first will save some disk access.
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       // Move the old file to the new path.
       if (!FileUtilities::Move(sourceLocation, destinationFileName))
@@ -744,7 +744,7 @@ namespace HM
    }
 
    void
-   PersistentMessage::EnsureFileExistance(shared_ptr<const Account> account, shared_ptr<Message> pMessage)
+   PersistentMessage::EnsureFileExistance(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage)
    {
       String sFileName = GetFileName(account, pMessage);
       if (FileUtilities::Exists(sFileName))
@@ -755,7 +755,7 @@ namespace HM
       // in which the message should be put. If the dir doesn't exist, we'll
       // have slight problems creating a file in it.
       String sPath = FileUtilities::GetFilePath(sFileName);
-      FileUtilities::CreateDirectoryRecursive(sPath);
+      FileUtilities::CreateDirectory(sPath);
 
 
       // The file does not exists. May have been deleted
@@ -773,10 +773,10 @@ namespace HM
                            _T("\r\n")
                            _T("%s")
                            _T("\r\n"),
-                           sMessageUndeliverable,
-                           Time::GetCurrentMimeDate(),
-                           sMessageBody,
-                           sFileName);
+                           sMessageUndeliverable.c_str(),
+                           Time::GetCurrentMimeDate().c_str(),
+                           sMessageBody.c_str(),
+                           sFileName.c_str());
 
       
 
@@ -789,7 +789,7 @@ namespace HM
       SaveObject(pMessage);
 
       // Log the error.
-      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "PersistentMessage::_WriteDataToMessageFile", "Message retrieval failed because message file " + sFileName + " did not exist.");
+      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "PersistentMessage::EnsureFileExistance", "Message retrieval failed because message file " + sFileName + " did not exist.");
    }
 
    bool
@@ -807,7 +807,7 @@ namespace HM
       command.AddParameter("@DATADIR", sDataDir);
       command.AddParameter("@BRACE", "{");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -832,7 +832,7 @@ namespace HM
       SQLCommand command(Formatter::Format("select count(*) as msgcount from hm_messages where {0} <> @BRACE", leftFilenameFirstChar));
       command.AddParameter("@BRACE", "{");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -844,53 +844,13 @@ namespace HM
          return false;
    }
 
-   __int64
-   PersistentMessage::GetTotalMessageSize()
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Returns the total size of all messages, calculated in megabytes.
-   //---------------------------------------------------------------------------()
-   {
-      SQLCommand command("select sum(messagesize) / 1024 / 1024 as mailboxsize from hm_messages");
-      
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
-      if (!pRS)
-         return false;
-
-      // Different data types on MySQL and MSSQL...
-
-      __int64 iSize = 0;
-      switch (IniFileSettings::Instance()->GetDatabaseType())
-      {
-      case DatabaseSettings::TypeMYSQLServer:
-         iSize = (__int64) pRS->GetDoubleValue("mailboxsize");;
-         break;
-      case DatabaseSettings::TypeMSSQLServer:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-      case DatabaseSettings::TypePGServer:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-
-	  // Untested fix: 1.5GB backup limit was being ignored for MSSQL CE
-	  // Believed quotes & size reported in admin were wrong due to this missing too
-	  case DatabaseSettings::TypeMSSQLCompactEdition:
-         iSize = (__int64) pRS->GetInt64Value("mailboxsize");;
-         break;
-
-      case DatabaseSettings::TypeUnknown:
-         assert(0);
-      }
-
-      return iSize;
-   }
 
    int
    PersistentMessage::GetTotalMessageCount()
    {
       SQLCommand command("select count(*) as c from hm_messages");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -904,7 +864,7 @@ namespace HM
    {
       SQLCommand command("select max(messageid) as m from hm_messages");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -919,7 +879,7 @@ namespace HM
       SQLCommand command ("select count(*) as c from hm_messages where messagetype = @MESSAGETYPE");
       command.AddParameter("@MESSAGETYPE", Message::Delivered);
       
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -935,7 +895,7 @@ namespace HM
       SQLCommand selectCommand ("select messagefilename from hm_messages where messageaccountid = @ACCOUNTID");
       selectCommand.AddParameter("@ACCOUNTID", iAccountID);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
       if (!pRS)
          return false;
 
@@ -953,7 +913,7 @@ namespace HM
          if (!FileUtilities::DeleteFile(sFileName))
          {
             String sErrorMessage;
-            sErrorMessage.Format(_T("Failed to delete file %s while deleting messages in account %I64d"), sFileName, iAccountID);
+            sErrorMessage.Format(_T("Failed to delete file %s while deleting messages in account %I64d"), sFileName.c_str(), iAccountID);
 
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5024, "PersistentAccount::DeleteMessages", sErrorMessage);
          }
@@ -1127,21 +1087,21 @@ namespace HM
    }
 
    String 
-   PersistentMessage::GetFileName(shared_ptr<const Message> message)
+   PersistentMessage::GetFileName(std::shared_ptr<const Message> message)
    {
-      shared_ptr<Account> account;
+      std::shared_ptr<Account> account;
 
       return GetFileName(account, message);
    }
 
    String 
-   PersistentMessage::GetFileName(shared_ptr<const Message> message, FileLocation location)
+   PersistentMessage::GetFileName(std::shared_ptr<const Message> message, FileLocation location)
    {
       return GetFileName("", message, location);
    }
 
    String 
-   PersistentMessage::GetFileName(shared_ptr<const Account> account, shared_ptr<const Message> message)
+   PersistentMessage::GetFileName(std::shared_ptr<const Account> account, std::shared_ptr<const Message> message)
    {
       String accountAddress = account ? account->GetAddress() : "";
 
@@ -1149,7 +1109,7 @@ namespace HM
    }
 
    String 
-   PersistentMessage::GetFileName(shared_ptr<const Account> account, shared_ptr<const Message> message, FileLocation location)
+   PersistentMessage::GetFileName(std::shared_ptr<const Account> account, std::shared_ptr<const Message> message, FileLocation location)
    {
       String accountAddress = account ? account->GetAddress() : "";
 
@@ -1157,7 +1117,7 @@ namespace HM
    }
 
    String 
-   PersistentMessage::GetFileName(const String &accountAddress, shared_ptr<const Message> message)
+   PersistentMessage::GetFileName(const String &accountAddress, std::shared_ptr<const Message> message)
    {
       FileLocation location;
 
@@ -1178,7 +1138,7 @@ namespace HM
    }
 
    String 
-   PersistentMessage::GetFileName(const String &accountAddress, shared_ptr<const Message> message, FileLocation location)
+   PersistentMessage::GetFileName(const String &accountAddress, std::shared_ptr<const Message> message, FileLocation location)
    {
       String partialFileName = message->GetPartialFileName();
 
@@ -1298,7 +1258,7 @@ namespace HM
    }
 
    bool 
-   PersistentMessage::SaveFlags(shared_ptr<Message> message)
+   PersistentMessage::SaveFlags(std::shared_ptr<Message> message)
    {
       // Create a statement object.
       String statement = "UPDATE hm_messages SET messageflags = @FLAGS WHERE messageid = @MESSAGEID";

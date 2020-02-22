@@ -31,14 +31,14 @@ namespace HM
       
    private:
       
-      void _ResetValues();
+      void ResetValues_();
 
-      String _columnName;
-      int _int32Value;
-      __int64 _int64Value;
-      String _stringValue;
-      Type _type;
-      unsigned int _unsignedInt32Value;
+      String column_name_;
+      int int_32value_;
+      __int64 int_64value_;
+      String string_value_;
+      Type type_;
+      unsigned int unsigned_int_32value_;
      
    };
 }

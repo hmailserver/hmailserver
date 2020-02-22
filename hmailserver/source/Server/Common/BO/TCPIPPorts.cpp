@@ -30,7 +30,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_tcpipports order by portaddress1 asc, portaddress2 asc, portnumber asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    void 
@@ -57,34 +57,36 @@ namespace HM
       // Delete all existing ports and then add new ones.
       DeleteAll();
 
-      shared_ptr<TCPIPPort> pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
+      String error_message;
+
+      std::shared_ptr<TCPIPPort> pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(25);
       pTCPIPPort->SetProtocol(STSMTP);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
-      pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
+      pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(110);
       pTCPIPPort->SetProtocol(STPOP3);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
-      pTCPIPPort = shared_ptr<TCPIPPort>(new TCPIPPort);
+      pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(143);
       pTCPIPPort->SetProtocol(STIMAP);
-      PersistentTCPIPPort::SaveObject(pTCPIPPort);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       Refresh();
    }
 
-   shared_ptr<TCPIPPort> 
+   std::shared_ptr<TCPIPPort> 
    TCPIPPorts::GetPort(const IPAddress &iIPAddress, int iPort)
    {
-      vector<shared_ptr<TCPIPPort> >::iterator iter = vecObjects.begin();   
-      vector<shared_ptr<TCPIPPort> >::iterator iterEnd = vecObjects.end();   
+      auto iter = vecObjects.begin();   
+      auto iterEnd = vecObjects.end();   
 
       std::vector<int> vecResult;
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<TCPIPPort> pTCPIPPort = (*iter);
+         std::shared_ptr<TCPIPPort> pTCPIPPort = (*iter);
          if (pTCPIPPort->GetPortNumber() == iPort && 
             (pTCPIPPort->GetAddress() == iIPAddress || pTCPIPPort->GetAddress().IsAny()))
          {
@@ -92,7 +94,7 @@ namespace HM
          }
       }
 
-      shared_ptr<TCPIPPort> pEmpty;
+      std::shared_ptr<TCPIPPort> pEmpty;
       return pEmpty;
    }
 

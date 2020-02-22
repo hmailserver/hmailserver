@@ -9,6 +9,7 @@
 #include "DatabaseSettings.h"
 #include "Macros/MSSQLMacroExpander.h"
 #include "ADOInt64Helper.h"
+#include "../Util/Registry.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ using namespace std;
 
 namespace HM
 {
-   ADOConnection::ADOConnection(shared_ptr<DatabaseSettings> pSettings) :
+   ADOConnection::ADOConnection(std::shared_ptr<DatabaseSettings> pSettings) :
       DALConnection(pSettings)
    {
       HRESULT hr =cADOConnection.CreateInstance(__uuidof(Connection));
@@ -78,16 +79,32 @@ namespace HM
    DALConnection::ConnectionResult
    ADOConnection::Connect(String &sErrorMessage)
    {
-      String sUsername = m_pDatabaseSettings->GetUsername();
-      String sPassword = m_pDatabaseSettings->GetPassword();
-      String sServer = m_pDatabaseSettings->GetServer();
-      String sDatabase = m_pDatabaseSettings->GetDatabaseName();
-      String sServerFailoverPartner = m_pDatabaseSettings->GetDatabaseServerFailoverPartner();
+      String sUsername = database_settings_->GetUsername();
+      String sPassword = database_settings_->GetPassword();
+      String sServer = database_settings_->GetServer();
+      String sDatabase = database_settings_->GetDatabaseName();
+      String sServerFailoverPartner = database_settings_->GetDatabaseServerFailoverPartner();
 
-      String sProvider = "sqloledb";
-      if (!sServerFailoverPartner.IsEmpty())
+      String sProvider = database_settings_->GetProvider();
+
+      if (sProvider.IsEmpty())
       {
-         sProvider = "SQLNCLI";
+         if (sServerFailoverPartner.IsEmpty())
+         {
+            // If MSOLEDBSQL v18 or later is installed, prefer that one. It supports TLS 1.2.
+            if (IsMSOLEDBSQL18OrLaterInstalled_())
+            {
+               sProvider = "MSOLEDBSQL";
+            }
+            else
+            {
+               sProvider = "sqloledb";
+            }
+         }
+         else
+         {
+            sProvider = "SQLNCLI";
+         }
       }
 
       if (bConnected)
@@ -135,8 +152,6 @@ namespace HM
       }
       catch ( _com_error &err )
       {
-         assert(0);
-
          _bstr_t bstrSource( err.Source() );
          _bstr_t bstrDescription( err.Description() );
      
@@ -247,7 +262,7 @@ namespace HM
 
          if (iInsertID)
          {
-            *iInsertID = _GetIdentityFromRS(pIdentityRS);
+            *iInsertID = GetIdentityFromRS_(pIdentityRS);
             ::SysFreeString( bsIdentity );
          }
       }
@@ -297,7 +312,7 @@ namespace HM
    };
 
    __int64 
-   ADOConnection::_GetIdentityFromRS(_RecordsetPtr pRS) const
+   ADOConnection::GetIdentityFromRS_(_RecordsetPtr pRS) const
    {
       try
       {
@@ -336,7 +351,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5030, "ADOConnection::_GetIdentityFromRS", "Error while determening @@IDENTITY");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5030, "ADOConnection::GetIdentityFromRS_", "Error while determening @@IDENTITY");
       }
 
       return 0;
@@ -391,7 +406,7 @@ namespace HM
    bool 
    ADOConnection::CheckServerVersion(String &errorMessage)
    {
-      shared_ptr<ADOConnection> connection = shared_from_this();
+      std::shared_ptr<ADOConnection> connection = shared_from_this();
 
       ADORecordset recordset;
       if (recordset.TryOpen(connection, SQLCommand("SELECT SERVERPROPERTY('productversion') as ProductVersion"), errorMessage) != DALConnection::DALSuccess)
@@ -399,7 +414,7 @@ namespace HM
 
       String version = recordset.GetStringValue("ProductVersion");
 
-      vector<String> versionVector = StringParser::SplitString(version, ".");
+      std::vector<String> versionVector = StringParser::SplitString(version, ".");
       int majorVersion = _ttoi(versionVector[0]);
       
       if (majorVersion < RequiredVersion)
@@ -411,10 +426,10 @@ namespace HM
       return true;
    }
 
-   shared_ptr<DALRecordset> 
+   std::shared_ptr<DALRecordset> 
    ADOConnection::CreateRecordset()
    {
-      shared_ptr<ADORecordset> recordset = shared_ptr<ADORecordset>(new ADORecordset());
+      std::shared_ptr<ADORecordset> recordset = std::shared_ptr<ADORecordset>(new ADORecordset());
       return recordset;
    }
 
@@ -424,17 +439,17 @@ namespace HM
       sInput.Replace(_T("'"), _T("''"));
    }
 
-   shared_ptr<IMacroExpander> 
+   std::shared_ptr<IMacroExpander> 
    ADOConnection::CreateMacroExpander()
    {
-      shared_ptr<MSSQLMacroExpander> expander = shared_ptr<MSSQLMacroExpander>(new MSSQLMacroExpander());
+      std::shared_ptr<MSSQLMacroExpander> expander = std::shared_ptr<MSSQLMacroExpander>(new MSSQLMacroExpander());
       return expander;
    }
 
    void
    ADOConnection::InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const
    {
-      boost_foreach(const SQLParameter &parameter, sqlCommand.GetParameters())
+      for(const SQLParameter &parameter : sqlCommand.GetParameters())
       {
          String parameterName = parameter.GetName();
 
@@ -482,6 +497,40 @@ namespace HM
 
          queryString.Replace(parameterName, _T("?"));
       }
+   }
+
+   bool 
+   ADOConnection::IsMSOLEDBSQL18OrLaterInstalled_() const
+   {
+      Registry registry;
+      String value;
+      if (!registry.GetStringValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\MSOLEDBSQL", "InstalledVersion", value))
+         return false;
+
+      auto versionInfo = StringParser::SplitString(value, ".");
+
+      if (versionInfo.size() != 4)
+      {
+         // Unsupported format
+         return false;
+      }
+
+      auto majorVersionStr = versionInfo[0];
+      if (!StringParser::IsNumeric(majorVersionStr))
+      {
+         // Unsupported format
+         return false;
+      }
+
+      int majorVersion = 0;
+      AnsiString str = majorVersionStr;
+      if (!StringParser::TryParseInt(str, majorVersion))
+      {
+         // Unsupported format
+         return false;
+      }
+
+      return majorVersion >= 18;
    }
 }
 

@@ -83,9 +83,9 @@ namespace HM
 	   {
          OutputDebugString("Loading file " + sFilename +"\n");
 
-		   shared_ptr<Message> pMessage = shared_ptr<Message>(new Message(false));
+		   std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message(false));
 
-		   shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+		   std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
 		   pMsgData->LoadFromMessage(sFilename, pMessage);
 	   }
 	   catch (...)
@@ -101,9 +101,9 @@ namespace HM
    {
       try
       {
-         shared_ptr<Message> pMessage = shared_ptr<Message>(new Message(false));
+         std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message(false));
          
-         shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+         std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
          pMsgData->LoadFromMessage(sFilename, pMessage);
 
          String sOutput = "hMailServer: [MimeTester] --> "; 
@@ -116,8 +116,8 @@ namespace HM
          pMsgData->SetFieldValue("X-MyHeader", "ValueOfMyHeader");
 
          // New message
-         shared_ptr<Message> pNewMessage = shared_ptr<Message>(new Message());
-         shared_ptr<Account> account;
+         std::shared_ptr<Message> pNewMessage = std::shared_ptr<Message>(new Message());
+         std::shared_ptr<Account> account;
          String newFileName = PersistentMessage::GetFileName(account, pNewMessage);
 
          pMsgData->Write(newFileName);

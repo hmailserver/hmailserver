@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "InterfaceUtilities.h"
 #include "../Common/TCPIP/DNSResolver.h"
+#include "../Common/TCPIP/HostNameAndIpAddress.h"
 #include "../Common/util/ServiceManager.h"
 #include "../Common/util/Crypt.h"
 #include "../Common/util/MailImporter.h"
@@ -16,8 +17,7 @@
 #include "../SMTP/DeliveryQueue.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/Persistence/Maintenance/Maintenance.h"
-
-
+#include "../Common/Util/Parsing/StringParser.h"
 #include "COMError.h"
 
 STDMETHODIMP InterfaceUtilities::InterfaceSupportsErrorInfo(REFIID riid)
@@ -52,17 +52,19 @@ STDMETHODIMP InterfaceUtilities::GetMailServer(BSTR EMailAddress, BSTR *MailServ
       sDomainName = HM::StringParser::ExtractDomain (EMailAddress);
    
       std::vector<HM::String> saDomainNames;
+
+      std::vector<HM::HostNameAndIpAddress> hostname_and_ipaddresses;
    
       HM::DNSResolver oDNSResolver;
-      oDNSResolver.GetEmailServers(sDomainName, saDomainNames);
+      oDNSResolver.GetEmailServers(sDomainName, hostname_and_ipaddresses);
    
       HM::String sMailServer = "";
-      for (unsigned int i = 0; i < saDomainNames.size(); i++)
+      for (unsigned int i = 0; i < hostname_and_ipaddresses.size(); i++)
       {
          if (!sMailServer.IsEmpty())
             sMailServer += ",";
    
-         sMailServer += saDomainNames[i];
+         sMailServer += hostname_and_ipaddresses[i].GetIpAddress();
       }
    
       *MailServer = sMailServer.AllocSysString();
@@ -267,8 +269,8 @@ STDMETHODIMP InterfaceUtilities::MakeDependent(BSTR sOtherService)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::ServiceManager oManager; 
       oManager.MakeDependentOn(sOtherService);
@@ -284,8 +286,8 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFile(BSTR sFilename, long iAcc
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *bIsSuccessful = HM::MailImporter::Import(sFilename, iAccountID, "") ? VARIANT_TRUE : VARIANT_FALSE;
    
@@ -301,8 +303,8 @@ STDMETHODIMP InterfaceUtilities::RetrieveMessageID(BSTR sFilename, hyper *messag
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       __int64 id = 0;
       bool partialFileName;
@@ -325,8 +327,8 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToIMAPFolder(BSTR sFilenam
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       *bIsSuccessful = HM::MailImporter::Import(sFilename, iAccountID, sIMAPFolder) ? VARIANT_TRUE : VARIANT_FALSE;
    
@@ -343,8 +345,8 @@ InterfaceUtilities::EmailAllAccounts(BSTR sRecipientWildcard, BSTR sFromAddress,
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::EmailAllUsers oEmailAllUsers;
       *bIsSuccessful = oEmailAllUsers.Start(sRecipientWildcard, sFromAddress, sFromName, sSubject, sBody) ? VARIANT_TRUE : VARIANT_FALSE;
@@ -361,8 +363,8 @@ STDMETHODIMP InterfaceUtilities::RunTestSuite(BSTR sTestPassword)
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String sCorrectPassword = _T("I know what I am doing.");
       HM::String sPassword = sTestPassword;
@@ -385,8 +387,8 @@ STDMETHODIMP InterfaceUtilities::PerformMaintenance(eMaintenanceOperation operat
 {
    try
    {
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::Maintenance maintenance;
    

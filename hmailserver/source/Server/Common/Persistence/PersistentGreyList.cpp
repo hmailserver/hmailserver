@@ -26,27 +26,27 @@ namespace HM
 
    }
 
-   shared_ptr<GreyListTriplet> 
+   std::shared_ptr<GreyListTriplet> 
    PersistentGreyList::GetRecord(const String &sSenderAddress, const String &sRecipientAddress, const IPAddress & remoteIP)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a grey list triple based on sender, recipient and IP address.
    //---------------------------------------------------------------------------()
    {
-      shared_ptr<GreyListTriplet> pTriplet;
+      std::shared_ptr<GreyListTriplet> pTriplet;
 
       IPAddressSQLHelper helper;
 
       String sSQL;
       sSQL.Format(_T("select * from hm_greylisting_triplets where glipaddress1 %s and glipaddress2 %s and glsenderaddress = @SENDERADDRESS and glrecipientaddress = @RECIPIENTADDRESS"), 
-            String(helper.GetAddress1Equals(remoteIP)),
-            String(helper.GetAddress2Equals(remoteIP)));
+         String(helper.GetAddress1Equals(remoteIP).c_str()),
+         String(helper.GetAddress2Equals(remoteIP).c_str()));
 
       SQLCommand command(sSQL);
       command.AddParameter("@SENDERADDRESS", sSenderAddress);
       command.AddParameter("@RECIPIENTADDRESS", sRecipientAddress);
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS || pRS->IsEOF())
       {
          // Not found
@@ -54,7 +54,7 @@ namespace HM
       }
 
       // Read the record.
-      pTriplet = shared_ptr<GreyListTriplet>(new GreyListTriplet);
+      pTriplet = std::shared_ptr<GreyListTriplet>(new GreyListTriplet);
       pTriplet->SetID(pRS->GetInt64Value("glid"));
       pTriplet->SetCreateTime(pRS->GetStringValue("glcreatetime"));
       pTriplet->SetBlockEndTime(pRS->GetStringValue("glblockendtime"));
@@ -71,7 +71,7 @@ namespace HM
    }
 
    bool 
-   PersistentGreyList::AddObject(shared_ptr<GreyListTriplet> pTriplet)
+   PersistentGreyList::AddObject(std::shared_ptr<GreyListTriplet> pTriplet)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Adds a new greylist triple into the database.
@@ -106,7 +106,7 @@ namespace HM
    }
 
    bool 
-   PersistentGreyList::ResetDeletionTime(shared_ptr<GreyListTriplet> pTriplet)
+   PersistentGreyList::ResetDeletionTime(std::shared_ptr<GreyListTriplet> pTriplet)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Resets the deletion time for a triple.

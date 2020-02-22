@@ -16,7 +16,7 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "batch@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
 
@@ -51,7 +51,7 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "batch@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(account.Address, "test");
 

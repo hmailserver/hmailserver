@@ -13,22 +13,22 @@ namespace HM
 
       void Load();
       String GetString(const String &sEnglishString);
-      String GetName() const {return m_sName; }
+      String GetName() const {return name_; }
 
-      bool GetIsDownloded() {return _isDownloaded; }
+      bool GetIsDownloded() {return is_downloaded_; }
       static void LoadEnglish();
 
       bool Download();
 
    private:
       
-      String m_sName;
-      bool m_bIsLoaded;
-      bool _isDownloaded;
+      String name_;
+      bool is_loaded_;
+      bool is_downloaded_;
 
-      static std::pair<int, String> _GetString(const String &sLine);
-      static void _CleanString(String &sText);
-      std::map<String, String> m_mapStrings;
+      static std::pair<int, String> GetString_(const String &sLine);
+      static void CleanString_(String &sText);
+      std::map<String, String> strings_;
       
       static std::map<int, String> mapEnglishContent;
    };

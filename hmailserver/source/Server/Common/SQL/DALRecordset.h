@@ -13,9 +13,9 @@ namespace HM
       DALRecordset();
       virtual ~DALRecordset();
 
-      bool Open(shared_ptr<DALConnection> pConn, const SQLCommand &command);
+      bool Open(std::shared_ptr<DALConnection> pConn, const SQLCommand &command);
 
-      virtual DALConnection::ExecutionResult TryOpen(shared_ptr<DALConnection> pConn, const SQLCommand &command, String &sErrorMessage) = 0;
+      virtual DALConnection::ExecutionResult TryOpen(std::shared_ptr<DALConnection> pConn, const SQLCommand &command, String &sErrorMessage) = 0;
 
       virtual long RecordCount() const = 0;
       virtual bool MoveNext() = 0;
@@ -29,12 +29,12 @@ namespace HM
       virtual double GetDoubleValue(const AnsiString &FieldName) const = 0;
 
       virtual bool GetIsNull(const AnsiString &FieldName) const = 0;
-      virtual vector<AnsiString> GetColumnNames() const = 0;
+      virtual std::vector<AnsiString> GetColumnNames() const = 0;
 
 
 
    protected:
-      void _ReportEOFError(const AnsiString &FieldName) const;
+      void ReportEOFError_(const AnsiString &FieldName) const;
 
    private:
 

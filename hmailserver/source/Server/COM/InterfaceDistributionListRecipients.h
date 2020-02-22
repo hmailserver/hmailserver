@@ -51,14 +51,14 @@ public:
    STDMETHOD(DeleteByDBID)(/*[in]*/ long DBID);
    STDMETHOD(Refresh)();
 
-   void Attach(shared_ptr<HM::DistributionListRecipients> pRecipients);
-   void SetListID(__int64 lListID) {m_lListID = lListID; }
+   void Attach(std::shared_ptr<HM::DistributionListRecipients> pRecipients);
+   void SetListID(__int64 lListID) {list_id_ = lListID; }
 
 private:
 
 
-   shared_ptr<HM::DistributionListRecipients> m_pRecipients;
-   __int64 m_lListID;
+   std::shared_ptr<HM::DistributionListRecipients> recipients_;
+   __int64 list_id_;
 
 };
 

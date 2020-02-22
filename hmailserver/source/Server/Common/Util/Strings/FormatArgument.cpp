@@ -12,88 +12,88 @@
 namespace HM
 {
    FormatArgument::FormatArgument(const String &value) :
-      _type(TypeUnicodeString),
-      _unicodeStringValue(value),
-      _numericValue(0),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeUnicodeString),
+      unicode_string_value_(value),
+      numeric_value_(0),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
       
    }
 
    FormatArgument::FormatArgument(const AnsiString &value) :
-      _type(TypeAnsiString),
-      _ansiStringValue(value),
-      _numericValue(0),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeAnsiString),
+      ansi_string_value_(value),
+      numeric_value_(0),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
 
    }
 
    FormatArgument::FormatArgument(const char *value) :
-      _type(TypeAnsiString),
-      _ansiStringValue(value),
-      _numericValue(0),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeAnsiString),
+      ansi_string_value_(value),
+      numeric_value_(0),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
 
    }
 
    FormatArgument::FormatArgument(const wchar_t *value) :
-      _type(TypeUnicodeString),
-      _unicodeStringValue(value),
-      _numericValue(0),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeUnicodeString),
+      unicode_string_value_(value),
+      numeric_value_(0),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
 
    }
 
    FormatArgument::FormatArgument(const int &value) :
-      _type(TypeNumber),
-      _numericValue(value),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeNumber),
+      numeric_value_(value),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
 
    }
 
 
    FormatArgument::FormatArgument(const unsigned int &value) :
-      _type(TypeUnsignedNumber),
-      _numericValue(0),
-      _unsignedNumericValue(value),
-      _boolValue(false)
+      type_(TypeUnsignedNumber),
+      numeric_value_(0),
+      unsigned_numeric_value_(value),
+      bool_value_(false)
    {
 
    }
 
 
    FormatArgument::FormatArgument(const __int64 &value) :
-      _type(TypeNumber),
-      _numericValue(value),
-      _unsignedNumericValue(0),
-      _boolValue(false)
+      type_(TypeNumber),
+      numeric_value_(value),
+      unsigned_numeric_value_(0),
+      bool_value_(false)
    {
 
    }
 
    FormatArgument::FormatArgument(const unsigned __int64 &value) :
-      _type(TypeUnsignedNumber),
-      _numericValue(0),
-      _unsignedNumericValue(value),
-      _boolValue(false)
+      type_(TypeUnsignedNumber),
+      numeric_value_(0),
+      unsigned_numeric_value_(value),
+      bool_value_(false)
    {
 
    }
  
    FormatArgument::FormatArgument(const bool &value) :
-      _type(TypeBoolean),
-      _numericValue(0),
-      _unsignedNumericValue(0),
-      _boolValue(value)
+      type_(TypeBoolean),
+      numeric_value_(0),
+      unsigned_numeric_value_(0),
+      bool_value_(value)
    {
 
    }
@@ -103,22 +103,22 @@ namespace HM
    {
       String result;
 
-      switch (_type)
+      switch (type_)
       {
       case TypeUnicodeString:
-         result = _unicodeStringValue;
+         result = unicode_string_value_;
          break;
       case TypeAnsiString:
-         result = String(_ansiStringValue);
+         result = String(ansi_string_value_);
          break;
       case TypeNumber:
-         result.Format(_T("%I64d"), _numericValue);
+         result.Format(_T("%I64d"), numeric_value_);
          break;
       case TypeUnsignedNumber:
-         result.Format(_T("%I64u"), _unsignedNumericValue);
+         result.Format(_T("%I64u"), unsigned_numeric_value_);
          break;
       case TypeBoolean:
-         if (_boolValue)
+         if (bool_value_)
             result = "True";
          else
             result = "False";

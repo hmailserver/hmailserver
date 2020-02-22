@@ -6,6 +6,7 @@
 #include "InterfaceMessages.h"
 #include "InterfaceMessage.h"
 
+#include "../IMAP/MessagesContainer.h"
 #include "../Common/BO/Message.h"
 #include "../Common/Persistence/PersistentMessage.h"
 
@@ -16,10 +17,10 @@ STDMETHODIMP InterfaceMessages::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
-      *pVal = m_pMessages->GetCount();
+      *pVal = messages_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -28,24 +29,24 @@ STDMETHODIMP InterfaceMessages::get_Count(long *pVal)
    }
 }
 
-void 
-InterfaceMessages::Attach(shared_ptr<HM::Messages> pMessages) 
+void
+InterfaceMessages::Attach(std::shared_ptr<HM::Messages> pMessages)
 {
-   m_pMessages = pMessages; 
+   messages_ = pMessages;
 }
 
 STDMETHODIMP InterfaceMessages::get_Item(long Index, IInterfaceMessage **pVal)
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
       CComObject<InterfaceMessage>* pInterfaceMessage = new CComObject<InterfaceMessage>();
-      pInterfaceMessage->SetAuthentication(m_pAuthentication);
-   
-      shared_ptr<HM::Message> pMsg = m_pMessages->GetItem(Index);
-   
+      pInterfaceMessage->SetAuthentication(authentication_);
+
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItem(Index);
+
       if (pMsg)
       {
          pInterfaceMessage->AttachItem(pMsg);
@@ -54,9 +55,9 @@ STDMETHODIMP InterfaceMessages::get_Item(long Index, IInterfaceMessage **pVal)
       }
       else
       {
-         return DISP_E_BADINDEX;  
-      }	
-   
+         return DISP_E_BADINDEX;
+      }
+
       return S_OK;
    }
    catch (...)
@@ -69,16 +70,16 @@ STDMETHODIMP InterfaceMessages::get_ItemByDBID(hyper DBID, IInterfaceMessage **p
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
       //	
-   
+
       CComObject<InterfaceMessage>* pInterfaceMessage = new CComObject<InterfaceMessage>();
-      pInterfaceMessage->SetAuthentication(m_pAuthentication);
-   
-      shared_ptr<HM::Message> pMsg = m_pMessages->GetItemByDBID(DBID);
-   
+      pInterfaceMessage->SetAuthentication(authentication_);
+
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(DBID);
+
       if (pMsg)
       {
          pInterfaceMessage->AttachItem(pMsg);
@@ -87,9 +88,9 @@ STDMETHODIMP InterfaceMessages::get_ItemByDBID(hyper DBID, IInterfaceMessage **p
       }
       else
       {
-         return DISP_E_BADINDEX;  
+         return DISP_E_BADINDEX;
       }
-   
+
       return S_OK;
    }
    catch (...)
@@ -102,32 +103,32 @@ STDMETHODIMP InterfaceMessages::Add(IInterfaceMessage **pVal)
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
-      __int64 iAccountID = m_pMessages->GetAccountID();  
-      __int64 iFolderID = m_pMessages->GetFolderID();  
-      
+      __int64 iAccountID = messages_->GetAccountID();
+      __int64 iFolderID = messages_->GetFolderID();
+
       if (iFolderID == -1)
       {
          // We can't add a new message when we're not browsing the
          // message cache.
          return DISP_E_BADINDEX;
       }
-      
-      shared_ptr<HM::Message> pNewMsg = shared_ptr<HM::Message>(new HM::Message);
+
+      std::shared_ptr<HM::Message> pNewMsg = std::shared_ptr<HM::Message>(new HM::Message);
       pNewMsg->SetAccountID(iAccountID);
       pNewMsg->SetFolderID(iFolderID);
       pNewMsg->SetState(HM::Message::Created);
-   
+
       CComObject<InterfaceMessage>* pInterfaceMessage = new CComObject<InterfaceMessage>();
-      
-      pInterfaceMessage->AttachParent(m_pMessages, false);
-      pInterfaceMessage->SetAuthentication(m_pAuthentication);
+
+      pInterfaceMessage->AttachParent(messages_, false);
+      pInterfaceMessage->SetAuthentication(authentication_);
       pInterfaceMessage->AttachItem(pNewMsg);
       pInterfaceMessage->AddRef();
       *pVal = pInterfaceMessage;
-    
+
       return S_OK;
    }
    catch (...)
@@ -140,25 +141,31 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
-      shared_ptr<HM::Message> pMsg = m_pMessages->GetItemByDBID(lDBID);	
-      
+      std::shared_ptr<HM::Message> pMsg = messages_->GetItemByDBID(lDBID);
+
       if (!pMsg)
       {
          // No such message exists
          return DISP_E_BADINDEX;
       }
-   
-      // Mark the message for deletion.
-      if (!m_pMessages->DeleteMessageByDBID(lDBID))
-         return DISP_E_BADINDEX;
-   
+
       // Expunge the mailbox. Will cause the message to be
       // deleted from disk and database.
-      m_pMessages->Expunge();
-   
+      std::function<bool(int, std::shared_ptr<HM::Message>)> filter = [lDBID](int index, std::shared_ptr<HM::Message> message)
+      {
+         if (message->GetID() == lDBID)
+         {
+            return true;
+         }
+
+         return false;
+      };
+
+      messages_->DeleteMessages(filter);
+
       // If we're aren't browsing in the message cache already, 
       // we need to delete the message from the cache now. This
       // is needed if the messages are accessed using the
@@ -166,24 +173,24 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
       // via Account.IMAPFolders, we access the message cache
       // directly, and when we don't need to remove message here.
       // (Since it was done like 10 lines up).
-   
-      __int64 iFolderID = m_pMessages->GetFolderID();
+
+      __int64 iFolderID = messages_->GetFolderID();
       if (iFolderID == -1)
       {
          // We're not browsing the message cache.
-         __int64 iAccountID = m_pMessages->GetAccountID();
-   
-   
+         __int64 iAccountID = messages_->GetAccountID();
+
+
          std::vector<__int64> affectedMessages;
          affectedMessages.push_back(lDBID);
-   
+
          // Notify clients that the message has been dropped.
-         shared_ptr<HM::ChangeNotification> notification = 
-            shared_ptr<HM::ChangeNotification>(new HM::ChangeNotification(m_pMessages->GetAccountID(), m_pMessages->GetFolderID(), HM::ChangeNotification::NotificationMessageDeleted, affectedMessages));
-   
+         std::shared_ptr<HM::ChangeNotification> notification =
+            std::shared_ptr<HM::ChangeNotification>(new HM::ChangeNotification(messages_->GetAccountID(), messages_->GetFolderID(), HM::ChangeNotification::NotificationMessageDeleted, affectedMessages));
+
          HM::Application::Instance()->GetNotificationServer()->SendNotification(notification);
       }
-   
+
       return S_OK;
    }
    catch (...)
@@ -192,15 +199,15 @@ STDMETHODIMP InterfaceMessages::DeleteByDBID(hyper lDBID)
    }
 }
 
-STDMETHODIMP 
+STDMETHODIMP
 InterfaceMessages::Clear()
 {
    try
    {
-      if (!m_pMessages)
+      if (!messages_)
          return GetAccessDenied();
 
-      m_pMessages->DeleteAll();
+      messages_->DeleteAll();
       return S_OK;
    }
    catch (...)

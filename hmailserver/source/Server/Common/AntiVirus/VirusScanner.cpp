@@ -38,12 +38,12 @@
 
 namespace HM
 {
-   long VirusScanner::_runningScanners = 0;
+   long VirusScanner::running_scanners_ = 0;
 
    void 
    VirusScanner::ResetCounter()
    {
-      InterlockedExchange(&_runningScanners, 0);
+      InterlockedExchange(&running_scanners_, 0);
    }
 
    bool
@@ -67,13 +67,13 @@ namespace HM
 
    */
    void
-   VirusScanner::_WaitForFreeScanner()
+   VirusScanner::WaitForFreeScanner_()
    {
       int waitTime = 0;
 
       for (int failedCount = 0; failedCount < 10; failedCount++)
       {
-         int currentCount = _runningScanners;
+         int currentCount = running_scanners_;
 
          while (currentCount >= MaxRunningScanners)
          {
@@ -91,14 +91,14 @@ namespace HM
                return;
             }
 
-            currentCount = _runningScanners;
+            currentCount = running_scanners_;
          }
 
          // make sure that no other thread is changing the value at the same time.
          // if that happens, we need to continue waiting for a new thread. unless
          // a compare was used here, this function could first wait and then call
          // InterlockedIncrement twice even though only one was allowed.
-         int result = InterlockedCompareExchange(&_runningScanners, _runningScanners+1, currentCount);
+         int result = InterlockedCompareExchange(&running_scanners_, running_scanners_+1, currentCount);
          if (result == currentCount)
          {
             // woho.
@@ -112,11 +112,11 @@ namespace HM
    void
    VirusScanner::DecreaseCounter()
    {
-      InterlockedDecrement(&_runningScanners);
+      InterlockedDecrement(&running_scanners_);
    }
 
    bool
-   VirusScanner::Scan(shared_ptr<Message> pMessage, String &virusName)
+   VirusScanner::Scan(std::shared_ptr<Message> pMessage, String &virusName)
    {
       AntiVirusConfiguration &antiVirusConfig = Configuration::Instance()->GetAntiVirusConfiguration();
 
@@ -130,13 +130,13 @@ namespace HM
       }
 
       // Prevent too many scanners from running at once.
-      _WaitForFreeScanner();
+      WaitForFreeScanner_();
       VirusScannerAutoCount autoCounter;
 
       // First scan the entire file.
       String sLongFilename = PersistentMessage::GetFileName(pMessage);
 
-      VirusScanningResult result = _ScanFile(sLongFilename);
+      VirusScanningResult result = ScanFile_(sLongFilename);
       if (result.GetVirusFound())
       {
          virusName = result.GetDetails();
@@ -145,23 +145,23 @@ namespace HM
 
 
       // Read message, extract attachments, 
-      shared_ptr<MimeBody> pMimeBody = shared_ptr<MimeBody>(new MimeBody);
+      std::shared_ptr<MimeBody> pMimeBody = std::shared_ptr<MimeBody>(new MimeBody);
       pMimeBody->LoadFromFile(sLongFilename);
 
-      list<shared_ptr<MimeBody> > oList;
+      std::list<std::shared_ptr<MimeBody> > oList;
       pMimeBody->GetAttachmentList(pMimeBody, oList);
 
-      list<shared_ptr<MimeBody> >::iterator iter = oList.begin();
+      auto iter = oList.begin();
 
       while (iter != oList.end())
       {
-         shared_ptr<MimeBody> pBody = (*iter);
+         std::shared_ptr<MimeBody> pBody = (*iter);
          
          // Create a temporary filename.
-         sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory(), GUIDCreator::GetGUID() );
+         sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory().c_str(), GUIDCreator::GetGUID().c_str());
          pBody->WriteToFile(sLongFilename);
 
-         VirusScanningResult result = _ScanFile(sLongFilename);
+         VirusScanningResult result = ScanFile_(sLongFilename);
          if (result.GetVirusFound())
          {
             virusName = result.GetDetails();
@@ -177,82 +177,74 @@ namespace HM
    }
 
    void
-   VirusScanner::ReportVirusFound(shared_ptr<Message> pMessage)
+   VirusScanner::ReportVirusFound(std::shared_ptr<Message> pMessage)
    {
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData> (new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData> (new MessageData());
       pMsgData->LoadFromMessage(fileName, pMessage);
 
       String sMessage;
-      sMessage.Format(_T("Virus found in message from %s. Taking actions"), pMsgData->GetFrom());
+      sMessage.Format(_T("Virus found in message from %s. Taking actions"), pMsgData->GetFrom().c_str());
 
       Logger::Instance()->LogApplication(sMessage);
    }
 
    void
-   VirusScanner::BlockAttachments(shared_ptr<Message> pMessage)
+   VirusScanner::BlockAttachments(std::shared_ptr<Message> message)
    {
-      shared_ptr<BlockedAttachments> pBlockedAttachments = HM::Configuration::Instance()->GetBlockedAttachments();
+      std::shared_ptr<BlockedAttachments> blocked_attachments_config = HM::Configuration::Instance()->GetBlockedAttachments();
+      std::vector<std::shared_ptr<BlockedAttachment> > blocked_attachment_wildcards = blocked_attachments_config->GetVector();
 
-      vector<shared_ptr<BlockedAttachment> > vecBlockedAttachments = pBlockedAttachments->GetVector();
-      vector<shared_ptr<BlockedAttachment> >::iterator iterBA;
+      const String file_name = PersistentMessage::GetFileName(message);
 
-      const String fileName = PersistentMessage::GetFileName(pMessage);
+      std::shared_ptr<MessageData> message_data = std::shared_ptr<MessageData>(new MessageData());
+      message_data->LoadFromMessage(file_name, message);
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
-      pMsgData->LoadFromMessage(fileName, pMessage);
+      std::shared_ptr<Attachments> pAttachments = message_data->GetAttachments();
 
-      shared_ptr<Attachments> pAttachments = pMsgData->GetAttachments();
+      bool changes_made = false;
 
-      bool bChangesMade = false;
-
-      for (unsigned int i = 0; i < pAttachments->GetCount(); i++)
+      for (auto attachment : pAttachments->GetVector())
       {
-         shared_ptr<Attachment> pAttachment = pAttachments->GetItem(i);
-
          // Check if attachment matches blocked file.
-         for (iterBA = vecBlockedAttachments.begin(); iterBA < vecBlockedAttachments.end(); iterBA++)
-         {
-            String sWildcard = (*iterBA)->GetWildcard();
-
-            if (StringParser::WildcardMatchNoCase(sWildcard, pAttachment->GetFileName()))
+         auto matching_wildcard = std::find_if(blocked_attachment_wildcards.begin(), blocked_attachment_wildcards.end(), [&attachment](std::shared_ptr<BlockedAttachment> blocked_attachment)
             {
-               // Match. Remove the attachment and add a new dummy.
-               bChangesMade = true;
-               pAttachment->Delete();
+               String wildcard_text = blocked_attachment->GetWildcard();
 
-               String sBody = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
+               return StringParser::WildcardMatchNoCase(wildcard_text, attachment->GetFileName());
+            });
 
-               // Replace macros.
-               sBody.Replace(_T("%MACRO_FILE%"), pAttachment->GetFileName());
+         if (matching_wildcard != blocked_attachment_wildcards.end())
+         {
+            // Attachment should be blocked.
+            String updated_message_body = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
 
-               // Add the new
-               shared_ptr<MimeBody> pBody = pMsgData->CreatePart(_T("application/octet-stream"));
-               pBody->SetRawText(sBody);
+            // Replace macros.
+            updated_message_body.Replace(_T("%MACRO_FILE%"), attachment->GetFileName());
 
-               // Create an content-disposition header.
-               pBody->SetRawFieldValue(CMimeConst::ContentDisposition(), CMimeConst::Inline(), "");
-               pBody->SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), pAttachment->GetFileName() + ".txt");
+            // Add the new
+            attachment->SetFileName(attachment->GetFileName() + ".txt");
+            attachment->SetContent(updated_message_body);
 
-               break;
-            }
-
+            changes_made = true;
          }
+
       }
 
-      if (bChangesMade)
+      if (changes_made)
       {
-         pMsgData->Write(fileName);
-         
+         message_data->Write(file_name);
+            
          // Update the size of the message.
-         pMessage->SetSize(FileUtilities::FileSize(fileName));
+         message->SetSize(FileUtilities::FileSize(file_name));
       }
+
 
    }
 
    VirusScanningResult
-   VirusScanner::_ScanFile(const String &fileName)
+   VirusScanner::ScanFile_(const String &fileName)
    {
       AntiVirusConfiguration &antiVirusConfig = Configuration::Instance()->GetAntiVirusConfiguration();
 
@@ -263,7 +255,7 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       if (antiVirusConfig.GetCustomScannerEnabled())
@@ -273,7 +265,7 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       if (antiVirusConfig.GetClamAVEnabled())
@@ -283,14 +275,14 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
-            _ReportScanningError(result);
+            ReportScanningError_(result);
       }
 
       return VirusScanningResult(VirusScanningResult::NoVirusFound, "");
    }
 
    void 
-   VirusScanner::_ReportScanningError(const VirusScanningResult &scanningResult)
+   VirusScanner::ReportScanningError_(const VirusScanningResult &scanningResult)
    {
       ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5406, scanningResult.GetErrorMessageSource(), scanningResult.GetDetails());
    }

@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -9,8 +11,9 @@ namespace RegressionTests.POP3.Fetching
    {
       public static void WaitForUnlock(FetchAccount fetchAccount)
       {
-         // 10 seconds
-         for (int i = 0; i < 100; i++)
+         var timeoutTime = DateTime.Now.Add(TimeSpan.FromSeconds(30));
+
+         while (DateTime.Now < timeoutTime)
          {
             if (!fetchAccount.IsLocked)
                return;
@@ -18,8 +21,8 @@ namespace RegressionTests.POP3.Fetching
             Thread.Sleep(100);
          }
 
-         string defaultLog = TestSetup.ReadCurrentDefaultLog();
-         Assert.Fail("Fetch account was not unlocked. Log follows:\r\n" + defaultLog);
+         string defaultLog = LogHandler.ReadCurrentDefaultLog();
+         Assert.Fail(string.Format("At {0}, fetch account was not unlocked.", DateTime.Now));
       }
    }
 }

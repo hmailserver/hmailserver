@@ -15,7 +15,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder4@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -32,7 +32,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder6@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
@@ -50,7 +50,7 @@ namespace RegressionTests.IMAP
 
          const string folderName = "ABC\"123";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -66,7 +66,7 @@ namespace RegressionTests.IMAP
 
          const string folderName = "ABC\\123";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -80,7 +80,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder9@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -109,7 +109,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder5@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -126,7 +126,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder7@test.com", "test");
 
-         var simulator = new IMAPSimulator();
+         var simulator = new ImapClientSimulator();
 
          simulator.Connect();
          simulator.LogonWithLiteral(oAccount.Address, "test");
@@ -148,7 +148,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "ABC.def.GHI";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -167,7 +167,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "ABC.def.GHI";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -190,7 +190,7 @@ namespace RegressionTests.IMAP
 
          const string folderName = "ABC.def.GHI";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -211,7 +211,7 @@ namespace RegressionTests.IMAP
 
          const string folderName = "Test*";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -226,7 +226,7 @@ namespace RegressionTests.IMAP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
          _settings.IMAPHierarchyDelimiter = "\\";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(account.Address, "test");
@@ -249,7 +249,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          string response = oSimulator.List("");
@@ -258,7 +258,7 @@ namespace RegressionTests.IMAP
 
          _settings.IMAPHierarchyDelimiter = "/";
 
-         oSimulator = new IMAPSimulator();
+         oSimulator = new ImapClientSimulator();
          sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          response = oSimulator.List("");
@@ -267,7 +267,7 @@ namespace RegressionTests.IMAP
 
          _settings.IMAPHierarchyDelimiter = "\\";
 
-         oSimulator = new IMAPSimulator();
+         oSimulator = new ImapClientSimulator();
          sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          response = oSimulator.List("", false);
@@ -282,7 +282,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(oAccount.Address, "test");
          oSimulator.CreateFolder("Main.Sub1.Sub2.Sub3");
          oSimulator.CreateFolder("SomeOtherFolder");
@@ -328,7 +328,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          oSimulator.ConnectAndLogon(oAccount.Address, "test");
          oSimulator.CreateFolder("INBOX.MyApp.SubFolder1");
          oSimulator.CreateFolder("INBOX.MyApp.SubFolder2");
@@ -354,7 +354,7 @@ namespace RegressionTests.IMAP
 
          string folderName = "Folder1";
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.Logon(oAccount.Address, "test");
          Assert.IsTrue(oSimulator.CreateFolder(folderName));
@@ -370,7 +370,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder8@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -387,7 +387,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder2@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -428,7 +428,7 @@ namespace RegressionTests.IMAP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "shared@test.com", "test");
 
-         var simulator1 = new IMAPSimulator();
+         var simulator1 = new ImapClientSimulator();
          simulator1.ConnectAndLogon(account.Address, "test");
          Assert.IsTrue(simulator1.SelectFolder("#Public.ShareA"));
          Assert.IsTrue(simulator1.SelectFolder("#Public.ShareB"));
@@ -444,7 +444,7 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
          Assert.IsTrue(oSimulator.CreateFolder("A.B"));
 
@@ -463,7 +463,7 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
          Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
          Assert.IsTrue(oSimulator.CreateFolder("Folder1"));
          Assert.IsTrue(oSimulator.SelectFolder("Folder1"));
@@ -485,7 +485,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder3@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -502,7 +502,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -522,7 +522,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
@@ -545,7 +545,7 @@ namespace RegressionTests.IMAP
       {
          Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new IMAPSimulator();
+         var oSimulator = new ImapClientSimulator();
 
          oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");

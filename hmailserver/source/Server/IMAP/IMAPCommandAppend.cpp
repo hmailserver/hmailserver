@@ -21,6 +21,7 @@
 #include "../SMTP/SMTPConfiguration.h"
 
 #include "IMAPSimpleCommandParser.h"
+#include "MessagesContainer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -30,38 +31,46 @@
 namespace HM
 {
 
-   IMAPCommandAppend::IMAPCommandAppend()
+   IMAPCommandAppend::IMAPCommandAppend() :
+      bytes_left_to_receive_(0)
    {
    }
 
    IMAPCommandAppend::~IMAPCommandAppend()
    {
-      _KillCurrentMessage();
+      try
+      {
+         KillCurrentMessage_();
+      }
+      catch (...)
+      {
+
+      }
    }
 
    void 
-   IMAPCommandAppend::_KillCurrentMessage()
+   IMAPCommandAppend::KillCurrentMessage_()
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return;
 
-      if (FileUtilities::Exists(m_sMessageFileName))
-         FileUtilities::DeleteFile(m_sMessageFileName);
+      if (FileUtilities::Exists(message_file_name_))
+         FileUtilities::DeleteFile(message_file_name_);
    }
 
    IMAPResult
-   IMAPCommandAppend::ExecuteCommand(shared_ptr<IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandAppend::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pConnection->IsAuthenticated())
          return IMAPResult(IMAPResult::ResultNo, "Authenticate first");
       
-      m_sCurrentTag = pArgument->Tag();
+      current_tag_ = pArgument->Tag();
       
       // Reset these two so we don't re-use old values.
-      m_sFlagsToSet = "";
-      m_sCreateTimeToSet = "";
+      flags_to_set_ = "";
+      create_time_to_set_ = "";
 
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
 
@@ -74,32 +83,32 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
      
       if (pParser->ParantheziedWord())
-         m_sFlagsToSet = pParser->ParantheziedWord()->Value();
+         flags_to_set_ = pParser->ParantheziedWord()->Value();
 
       // last word.
-      shared_ptr<IMAPSimpleWord> pWord = pParser->Word(pParser->WordCount()-1);
+      std::shared_ptr<IMAPSimpleWord> pWord = pParser->Word(pParser->WordCount()-1);
 
       if (!pWord || !pWord->Clammerized())
          return IMAPResult(IMAPResult::ResultBad, "Missing literal");
 
       AnsiString literalSize = pWord->Value();
        
-      m_lBytesLeftToReceive = atoi(literalSize);
-      if (m_lBytesLeftToReceive == 0)
+      bytes_left_to_receive_ = atoi(literalSize);
+      if (bytes_left_to_receive_ == 0)
          return IMAPResult(IMAPResult::ResultBad, "Empty message not permitted.");
       
       // Add an extra two bytes since we expect a <newline> in the end.
-      m_lBytesLeftToReceive += 2;
+      bytes_left_to_receive_ += 2;
 
-      shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
-      int maxMessageSizeKB = _GetMaxMessageSize(domain);
+      std::shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
+      size_t maxMessageSizeKB = GetMaxMessageSize_(domain);
 
       if (maxMessageSizeKB > 0 && 
-          m_lBytesLeftToReceive / 1024 > maxMessageSizeKB)
+          bytes_left_to_receive_ / 1024 > maxMessageSizeKB)
       {
          String sMessage;
          sMessage.Format(_T("Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
-            m_lBytesLeftToReceive / 1024, maxMessageSizeKB);
+            bytes_left_to_receive_ / 1024, maxMessageSizeKB);
 
          return IMAPResult(IMAPResult::ResultNo, sMessage);
       }
@@ -108,56 +117,56 @@ namespace HM
       // Can't use pParser->QuotedWord() since there may
       // be many quoted words in the command.
       
-      for (int i = 2; i < pParser->WordCount(); i++)
+      for (size_t i = 2; i < pParser->WordCount(); i++)
       {
-         shared_ptr<IMAPSimpleWord> pWord = pParser->Word(i);
+         std::shared_ptr<IMAPSimpleWord> pWord = pParser->Word(i);
 
          if (pWord->Quoted())
          {
-            m_sCreateTimeToSet = pWord->Value();
+            create_time_to_set_ = pWord->Value();
 
             // date-day-fixed  = (SP DIGIT) / 2DIGIT
             //   ; Fixed-format version of date-day
             // If the date given starts with <space>number, we need
             // to Trim. Doesn't hurt to always do this.
-            m_sCreateTimeToSet.TrimLeft();
+            create_time_to_set_.TrimLeft();
          }
       }
 
-      m_pDestinationFolder = pConnection->GetFolderByFullPath(sFolderName);
-      if (!m_pDestinationFolder)
-         return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
+      destination_folder_ = pConnection->GetFolderByFullPath(sFolderName);
+      if (!destination_folder_)
+         return IMAPResult(IMAPResult::ResultNo, "[TRYCREATE] Folder could not be found.");
 
-      if (!m_pDestinationFolder->IsPublicFolder())
+      if (!destination_folder_->IsPublicFolder())
       {
          // Make sure that this message fits in the mailbox.
-         shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
+         std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(pConnection->GetAccount()->GetID());
          
          if (!pAccount)
             return IMAPResult(IMAPResult::ResultNo, "Account could not be fetched.");
 
-         if (!pAccount->SpaceAvailable(m_lBytesLeftToReceive))
+         if (!pAccount->SpaceAvailable(bytes_left_to_receive_))
             return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
       }
 
-      if (!pConnection->CheckPermission(m_pDestinationFolder, ACLPermission::PermissionInsert))
+      if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for APPEND command).");
 
 
 
-      __int64 lFolderID = m_pDestinationFolder->GetID();
+      __int64 lFolderID = destination_folder_->GetID();
 
-      m_pCurrentMessage = shared_ptr<Message>(new Message);
-      m_pCurrentMessage->SetAccountID(m_pDestinationFolder->GetAccountID());
-      m_pCurrentMessage->SetFolderID(lFolderID);
+      current_message_ = std::shared_ptr<Message>(new Message);
+      current_message_->SetAccountID(destination_folder_->GetAccountID());
+      current_message_->SetFolderID(lFolderID);
 
       // Construct a file name which we'll write the message to.
       // Should we connect this message to an account? Yes, if this is not a public folder.
-      shared_ptr<const Account> pMessageOwner;
-      if (!m_pDestinationFolder->IsPublicFolder())
+      std::shared_ptr<const Account> pMessageOwner;
+      if (!destination_folder_->IsPublicFolder())
          pMessageOwner = pConnection->GetAccount();
 
-      m_sMessageFileName = PersistentMessage::GetFileName(pMessageOwner, m_pCurrentMessage);
+      message_file_name_ = PersistentMessage::GetFileName(pMessageOwner, current_message_);
 
       String sResponse = "+ Ready for literal data\r\n";
       pConnection->SetReceiveBinary(true);
@@ -167,59 +176,66 @@ namespace HM
    }
 
    void
-   IMAPCommandAppend::ParseBinary(shared_ptr<IMAPConnection> pConnection, shared_ptr<ByteBuffer> pBuf)
+   IMAPCommandAppend::ParseBinary(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<ByteBuffer> pBuf)
    {
-      _appendBuffer.Add(pBuf);
+      append_buffer_.Add(pBuf);
    
-      if (_appendBuffer.GetSize() >= m_lBytesLeftToReceive)
+      if (append_buffer_.GetSize() >= bytes_left_to_receive_)
       {
-         _WriteData(pConnection, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
+         WriteData_(pConnection, append_buffer_.GetBuffer(), append_buffer_.GetSize());
 
          pConnection->SetReceiveBinary(false);
    
-         _appendBuffer.Empty();
+         append_buffer_.Empty();
 
-         _Finish(pConnection);
+         Finish_(pConnection);
 
-         pConnection->PostReceive();
+         pConnection->EnqueueRead();
       }
       else
       {
-         _TruncateBuffer(pConnection);
+         TruncateBuffer_(pConnection);
 
-         pConnection->PostBufferReceive();
+         pConnection->EnqueueRead("");
       }
 
    }
    
    bool
-   IMAPCommandAppend::_WriteData(const shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, int WriteLen)
+   IMAPCommandAppend::WriteData_(const std::shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, size_t WriteLen)
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return false;
 
-      String destinationPath = FileUtilities::GetFilePath(m_sMessageFileName);
+      String destinationPath = FileUtilities::GetFilePath(message_file_name_);
       if (!FileUtilities::Exists(destinationPath))
-         FileUtilities::CreateDirectoryRecursive(destinationPath);
+         FileUtilities::CreateDirectory(destinationPath);
 
       File oFile;
-      if (!oFile.Open(m_sMessageFileName, File::OTAppend))
+      
+      try
+      {
+         oFile.Open(message_file_name_, File::OTAppend);
+
+
+         oFile.Write(pBuf, WriteLen);
+      }
+      catch (...)
+      {
          return false;
-   
-      DWORD dwNoOfBytesWritten = 0;
-      oFile.Write(pBuf, WriteLen, dwNoOfBytesWritten);
+      }
 
       return true;
    }
 
    bool
-   IMAPCommandAppend::_TruncateBuffer(const shared_ptr<IMAPConnection> pConn)
+   IMAPCommandAppend::TruncateBuffer_(const std::shared_ptr<IMAPConnection> pConn)
    {
-      if (_appendBuffer.GetSize() >= 20000)
+      if (append_buffer_.GetSize() >= 20000)
       {
-         _WriteData(pConn, _appendBuffer.GetBuffer(), _appendBuffer.GetSize());
-         m_lBytesLeftToReceive -= _appendBuffer.GetSize();
-         _appendBuffer.Empty();
+         WriteData_(pConn, append_buffer_.GetBuffer(), append_buffer_.GetSize());
+         bytes_left_to_receive_ -= append_buffer_.GetSize();
+         append_buffer_.Empty();
       }
 
       return true;
@@ -227,75 +243,79 @@ namespace HM
    }
 
    void
-   IMAPCommandAppend::_Finish(shared_ptr<IMAPConnection> pConnection)
+   IMAPCommandAppend::Finish_(std::shared_ptr<IMAPConnection> pConnection)
    {
-      if (!m_pCurrentMessage)
+      if (!current_message_)
          return;
 
       // Add this message to the folder.
-      m_pCurrentMessage->SetSize(FileUtilities::FileSize(m_sMessageFileName));
-      m_pCurrentMessage->SetState(Message::Delivered);
+      current_message_->SetSize(FileUtilities::FileSize(message_file_name_));
+      current_message_->SetState(Message::Delivered);
 
       // Set message flags.
-      bool bSeen = (m_sFlagsToSet.FindNoCase(_T("\\Seen")) >= 0);
-      bool bDeleted = (m_sFlagsToSet.FindNoCase(_T("\\Deleted")) >= 0);
-      bool bDraft = (m_sFlagsToSet.FindNoCase(_T("\\Draft")) >= 0);
-      bool bAnswered = (m_sFlagsToSet.FindNoCase(_T("\\Answered")) >= 0);
-      bool bFlagged = (m_sFlagsToSet.FindNoCase(_T("\\Flagged")) >= 0);
+      bool bSeen = (flags_to_set_.FindNoCase(_T("\\Seen")) >= 0);
+      bool bDeleted = (flags_to_set_.FindNoCase(_T("\\Deleted")) >= 0);
+      bool bDraft = (flags_to_set_.FindNoCase(_T("\\Draft")) >= 0);
+      bool bAnswered = (flags_to_set_.FindNoCase(_T("\\Answered")) >= 0);
+      bool bFlagged = (flags_to_set_.FindNoCase(_T("\\Flagged")) >= 0);
       
       if (bSeen)
       {
          // ACL: If user tries to set the Seen flag, check that he has permission to do so.
-         if (!pConnection->CheckPermission(m_pDestinationFolder, ACLPermission::PermissionWriteSeen))
+         if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteSeen))
          {
             // User does not have permission to set the Seen flag. 
             bSeen = false;
          }
       }
 
-      m_pCurrentMessage->SetFlagDeleted(bDeleted);
-      m_pCurrentMessage->SetFlagSeen(bSeen);
-      m_pCurrentMessage->SetFlagDraft(bDraft);
-      m_pCurrentMessage->SetFlagAnswered(bAnswered);
-      m_pCurrentMessage->SetFlagFlagged(bFlagged);
-
-      m_pCurrentMessage->SetFlagRecent(true);
+      current_message_->SetFlagDeleted(bDeleted);
+      current_message_->SetFlagSeen(bSeen);
+      current_message_->SetFlagDraft(bDraft);
+      current_message_->SetFlagAnswered(bAnswered);
+      current_message_->SetFlagFlagged(bFlagged);
+    
          
       // Set the create time
-      if (!m_sCreateTimeToSet.IsEmpty())
+      if (!create_time_to_set_.IsEmpty())
       {
          // Convert to internal format
-         m_sCreateTimeToSet = Time::GetInternalDateFromIMAPInternalDate(m_sCreateTimeToSet);
-         m_pCurrentMessage->SetCreateTime(m_sCreateTimeToSet);
+         create_time_to_set_ = Time::GetInternalDateFromIMAPInternalDate(create_time_to_set_);
+         current_message_->SetCreateTime(create_time_to_set_);
       }
 
-      PersistentMessage::SaveObject(m_pCurrentMessage);
-      m_pDestinationFolder->SetFolderNeedsRefresh();
+      PersistentMessage::SaveObject(current_message_);
+
+      pConnection->GetRecentMessages().insert(current_message_->GetID());
+
+      MessagesContainer::Instance()->SetFolderNeedsRefresh(destination_folder_->GetID());
+
+
 
       String sResponse;
       if (pConnection->GetCurrentFolder() &&
-          pConnection->GetCurrentFolder()->GetID() == m_pDestinationFolder->GetID())
+          pConnection->GetCurrentFolder()->GetID() == destination_folder_->GetID())
       {
-         shared_ptr<Messages> messages = m_pDestinationFolder->GetMessages();
+         std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
-         sResponse += IMAPNotificationClient::GenerateRecentString(messages->GetNoOfRecent());
+         sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessages().size());
       }
 
       // Send the OK response to the client.
-      sResponse += m_sCurrentTag + " OK APPEND completed\r\n";
+      sResponse += current_tag_ + " OK APPEND completed\r\n";
       pConnection->SendAsciiData(sResponse);
 
       // Notify the mailbox notifier that the mailbox contents have changed. 
-      shared_ptr<ChangeNotification> pNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(m_pDestinationFolder->GetAccountID(), m_pDestinationFolder->GetID(), ChangeNotification::NotificationMessageAdded));
+      std::shared_ptr<ChangeNotification> pNotification = 
+         std::shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageAdded));
       Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
 
-      m_pDestinationFolder.reset();
-      m_pCurrentMessage.reset();
+      destination_folder_.reset();
+      current_message_.reset();
    }
 
    int 
-   IMAPCommandAppend::_GetMaxMessageSize(shared_ptr<const Domain> pDomain)
+   IMAPCommandAppend::GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain)
    {
       int iMaxMessageSizeKB = Configuration::Instance()->GetSMTPConfiguration()->GetMaxMessageSize();
 

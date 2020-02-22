@@ -22,9 +22,7 @@ class ATL_NO_VTABLE InterfaceMessageIndexing :
    public HM::COMAuthenticator
 {
 public:
-	InterfaceMessageIndexing()
-	{
-	}
+   InterfaceMessageIndexing();
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEMESSAGEINDEXING)
 
@@ -61,7 +59,7 @@ public:
    STDMETHOD(Index)();
 private:
 
-   HM::Configuration* m_pConfig;
+   HM::Configuration* config_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(MessageIndexing), InterfaceMessageIndexing)

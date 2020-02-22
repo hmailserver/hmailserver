@@ -13,9 +13,9 @@
 
 namespace HM
 {
-   SQLScriptParser::SQLScriptParser(shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
-      m_pSettings(pSettings),
-      m_sFile(sFile)
+   SQLScriptParser::SQLScriptParser(std::shared_ptr<DatabaseSettings> pSettings, const String &sFile) :
+      settings_(pSettings),
+      file_(sFile)
    {
 
    }
@@ -28,17 +28,17 @@ namespace HM
    bool 
    SQLScriptParser::Parse(String &sErrorMessage)
    {
-      String sContents = FileUtilities::ReadCompleteTextFile(m_sFile);
+      String sContents = FileUtilities::ReadCompleteTextFile(file_);
       
 
       if (sContents.GetLength() == 0)
       {
-         sErrorMessage = "Unable to read from file " + m_sFile;
+         sErrorMessage = "Unable to read from file " + file_;
          return false;
       }
    
       String sCommandSeparator;
-      switch (m_pSettings->GetType())
+      switch (settings_->GetType())
       {
       case HM::DatabaseSettings::TypeMSSQLCompactEdition:
       case HM::DatabaseSettings::TypeMSSQLServer:
@@ -52,17 +52,17 @@ namespace HM
          break;
       }
 
-      vector<String> vecCommands = StringParser::SplitString(sContents, sCommandSeparator);
-      vector<String>::iterator iter = vecCommands.begin();
-      vector<String>::iterator iterEnd = vecCommands.end();
+      std::vector<String> vecCommands = StringParser::SplitString(sContents, sCommandSeparator);
+      auto iter = vecCommands.begin();
+      auto iterEnd = vecCommands.end();
 
       for (; iter != iterEnd; iter++)
       {
          String sCommand = (*iter);
 
-         if (_PreprocessLine(sCommand))
+         if (PreprocessLine_(sCommand))
          {
-            m_vecCommands.push_back(sCommand);
+            commands_.push_back(sCommand);
          }
       }
       
@@ -71,7 +71,7 @@ namespace HM
    }
 
    bool 
-   SQLScriptParser::_PreprocessLine(String &sLine)
+   SQLScriptParser::PreprocessLine_(String &sLine)
    {
       // Do some basic preprocessing...
       while (sLine.Left(2).Compare(_T("\r\n")) == 0)
@@ -86,7 +86,7 @@ namespace HM
 
       String sTempLine = sLine;
 
-      if (m_pSettings->GetType() == HM::DatabaseSettings::TypeMSSQLCompactEdition)
+      if (settings_->GetType() == HM::DatabaseSettings::TypeMSSQLCompactEdition)
       {
          if (sTempLine.ToLower().Left(3).Compare(_T("if ")) == 0)
          {

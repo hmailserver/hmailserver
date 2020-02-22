@@ -10,7 +10,7 @@ namespace HM
    {
    public:
 
-      bool PerformTest(const String &localAddressStr, const String &server, int port, String &result);
+      bool PerformTest(ConnectionSecurity connection_security, const String &localAddressStr, const String &server, int port, String &result);
 
    };
 

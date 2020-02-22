@@ -14,7 +14,6 @@ namespace HM
       ~GreyListCleanerTask(void);
 
       virtual void DoWork();
-      virtual void StopWork();
    private:
    };
 }

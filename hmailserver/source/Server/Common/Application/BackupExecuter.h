@@ -20,21 +20,21 @@ namespace HM
       ~BackupExecuter(void);
 
       bool StartBackup();
-      bool StartRestore(shared_ptr<Backup> pBackup);
+      bool StartRestore(std::shared_ptr<Backup> pBackup);
 
    private:
 
-      void _LoadSettings();
+      void LoadSettings_();
 
-      bool _BackupDomains(XNode *pNode);
-      bool _BackupDataDirectory(const String &sDataBackupDir);
+      bool BackupDomains_(XNode *pNode);
+      bool BackupDataDirectory_(const String &sDataBackupDir);
 
-      void _RestoreDataDirectory(shared_ptr<Backup> pBackup, XNode *pBackupNode);
+      void RestoreDataDirectory_(std::shared_ptr<Backup> pBackup, XNode *pBackupNode);
       
-      int m_iBackupMode;
+      int backup_mode_;
       
       // Backup properties
-      String m_sDestination;
-      String m_sXMLFile;
+      String destination_;
+      String xmlfile_;
    };
 }

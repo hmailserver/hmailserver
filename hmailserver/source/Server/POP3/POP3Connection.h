@@ -5,23 +5,24 @@
 
 #include "../common/Util/File.h"
 #include "../common/Util/TransparentTransmissionBuffer.h"
-#include "../Common/TCPIP/ProtocolParser.h"
-
+#include "../Common/TCPIP/TCPConnection.h"
 
 namespace HM
 {
    class Messages;
    class ByteBuffer;
 
-   class POP3Connection : public ProtocolParser
+   class POP3Connection : public TCPConnection
    {
    public:
 
-	   POP3Connection();
+      POP3Connection(ConnectionSecurity connection_security,
+         boost::asio::io_service& io_service, 
+         boost::asio::ssl::context& context);
 	   virtual ~POP3Connection();
 
       virtual void ParseData(const AnsiString &Request);
-      virtual void ParseData(shared_ptr<ByteBuffer> pBuffer) { };
+      virtual void ParseData(std::shared_ptr<ByteBuffer> pBuffer) { };
 
       virtual void OnDataSent();
 
@@ -30,12 +31,13 @@ namespace HM
       virtual void OnConnected();
       virtual AnsiString GetCommandSeparator() const;
 
-      virtual void _SendData(const String &sData) ;
-      virtual void _SendDataDebugOnly(const String &sData) ;
+      virtual void EnqueueWrite_(const String &sData) ;
 
       virtual void OnDisconnect();
       virtual void OnConnectionTimeout();
       virtual void OnExcessiveDataReceived();
+      virtual void OnHandshakeCompleted();
+      virtual void OnHandshakeFailed() {};
 
    private:
 
@@ -44,7 +46,8 @@ namespace HM
       {
          ResultNormalResponse = 0,
          ResultStartSendMessage = 1,
-         ResultDisconnect = 2
+         ResultDisconnect = 2,
+         ResultStartTls = 3
       };
 
       enum POP3Command
@@ -62,12 +65,13 @@ namespace HM
          RSET = 10,
          DELE = 11,
          UIDL = 12,
-         CAPA = 13
+         CAPA = 13,
+         STLS = 14
       };
 
       enum ConnectionState
       {
-         AUTHENTICATION = 1,
+         AUTHORIZATION = 1,
          TRANSACTION = 2,
          UPDATE = 3,
       };
@@ -76,43 +80,44 @@ namespace HM
 
       POP3Command GetCommand(ConnectionState currentState, String command);
 
-      void _LogClientCommand(const String &sClientData) const;
-      void _GetMailboxContents(int &iNoOfMessages, __int64 &iTotalBytes);
+      void LogClientCommand_(const String &sClientData);
+      void GetMailboxContents_(int &iNoOfMessages, __int64 &iTotalBytes);
 
-      ParseResult _ProtocolRETR(const String &Parameter);
-      bool _ProtocolLIST(const String &sParameter);
-      bool _ProtocolDELE(const String &Parameter);
-      void _ProtocolUSER(const String &Parameter);
-      ParseResult _ProtocolPASS(const String &Parameter);
-      bool _ProtocolTOP(const String &Parameter);
-      bool _ProtocolUIDL(const String &Parameter);
-      bool _ProtocolSTAT(const String &sParameter);
-      void _ProtocolRSET();
-      void _ProtocolQUIT();
-      
+      void SendBanner_();
+      ParseResult ProtocolRETR_(const String &Parameter);
+      bool ProtocolLIST_(const String &sParameter);
+      bool ProtocolDELE_(const String &Parameter);
+      void ProtocolUSER_(const String &Parameter);
+      ParseResult ProtocolPASS_(const String &Parameter);
+      bool ProtocolTOP_(const String &Parameter);
+      bool ProtocolUIDL_(const String &Parameter);
+      bool ProtocolSTAT_(const String &sParameter);
+      void ProtocolRSET_();
+      void ProtocolQUIT_();
+      bool ProtocolSTLS_();
+      void ProtocolCAPA_();
 
-      bool _SendFileHeader(const String &sFilename, int iNoOfLines = 0);
-      bool _ReadLine(HANDLE hFile, const String &sLine);
+      bool SendFileHeader_(const String &sFilename, int iNoOfLines = 0);
 
-      void _SaveMailboxChanges();
-      void _UnlockMailbox();
+      void SaveMailboxChanges_();
+      void UnlockMailbox_();
 
-      void _StartSendFile(shared_ptr<Message> message);
-	  void _ReadAndSend();
-      void _ResetMailbox();
-      shared_ptr<Message> _GetMessage(unsigned int index);
+      void StartSendFile_(std::shared_ptr<Message> message);
+	  void ReadAndSend_();
+      void ResetMailbox_();
+      std::shared_ptr<Message> GetMessage_(unsigned int index);
 
-      String m_Username;
-      String m_Password;
+      String username_;
+      String password_;
 
-      shared_ptr<const Account> _account;
+      std::shared_ptr<const Account> account_;
 
-      ConnectionState m_CurrentState;
+      ConnectionState current_state_;
 
-      std::vector<shared_ptr<Message>> _messages;
-      TransparentTransmissionBuffer m_oTransmissionBuffer;
+      std::vector<std::shared_ptr<Message>> messages_;
+      TransparentTransmissionBuffer transmission_buffer_;
 
-      bool m_bPendingDisconnect;
-      File _currentFile;
+      bool pending_disconnect_;
+      File current_file_;
    };
 }

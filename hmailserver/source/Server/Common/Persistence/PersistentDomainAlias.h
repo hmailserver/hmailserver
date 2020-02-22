@@ -6,6 +6,7 @@
 namespace HM
 {
    class DomainAlias;
+   enum PersistenceMode;
 
    class PersistentDomainAlias
    {
@@ -13,10 +14,10 @@ namespace HM
       PersistentDomainAlias(void);
       ~PersistentDomainAlias(void);
 
-      static bool ReadObject(shared_ptr<DomainAlias> oFA, const SQLCommand & sSQL);
-      static bool ReadObject(shared_ptr<DomainAlias> oFA, shared_ptr<DALRecordset> pRS);
-      static bool SaveObject(shared_ptr<DomainAlias> oFA);
-      static bool SaveObject(shared_ptr<DomainAlias> oFA, String &sErrorMessage);
-      static bool DeleteObject(shared_ptr<DomainAlias> pDA);
+      static bool ReadObject(std::shared_ptr<DomainAlias> oFA, const SQLCommand & sSQL);
+      static bool ReadObject(std::shared_ptr<DomainAlias> oFA, std::shared_ptr<DALRecordset> pRS);
+      static bool SaveObject(std::shared_ptr<DomainAlias> oFA);
+      static bool SaveObject(std::shared_ptr<DomainAlias> oFA, String &sErrorMessage, PersistenceMode mode);
+      static bool DeleteObject(std::shared_ptr<DomainAlias> pDA);
    };
 }

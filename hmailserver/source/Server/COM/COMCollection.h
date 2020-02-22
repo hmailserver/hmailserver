@@ -8,32 +8,32 @@ class COMCollectionItem
 {
 public:
 
-   void AttachItem(shared_ptr<T> pObject)
+   void AttachItem(std::shared_ptr<T> pObject)
    {
-      m_pObject = pObject;
+      object_ = pObject;
    }
 
-   void AttachParent(shared_ptr<P> pParentColl, bool bObjectIsInParent)
+   void AttachParent(std::shared_ptr<P> pParentColl, bool bObjectIsInParent)
    {
-      m_pParentCollection = pParentColl;
-      m_bObjectIsInCollection = bObjectIsInParent;
+      parent_collection_ = pParentColl;
+      object_is_in_collection_ = bObjectIsInParent;
    }
 
    void AddToParentCollection()
    {
-      if (m_bObjectIsInCollection || !m_pParentCollection)
+      if (object_is_in_collection_ || !parent_collection_)
          return; 
 
-      m_pParentCollection->AddItem(m_pObject);
-      m_bObjectIsInCollection = true;
+      parent_collection_->AddItem(object_);
+      object_is_in_collection_ = true;
    }
 
-   shared_ptr<P> m_pParentCollection;
-   shared_ptr<T> m_pObject;
+   std::shared_ptr<P> parent_collection_;
+   std::shared_ptr<T> object_;
 
 
 private:
 
-   bool m_bObjectIsInCollection;
+   bool object_is_in_collection_;
 };
 

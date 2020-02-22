@@ -2,11 +2,6 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using System.Runtime.InteropServices;
@@ -23,6 +18,8 @@ namespace hMailServer.Administrator
             DirtyChecker.SubscribeToChange(this, OnContentChanged);
 
             new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
+
+            comboConnectionSecurity.AddItems(ConnectionSecurityTypes.Get(true));
         }
 
         public void OnLeavePage()
@@ -59,12 +56,15 @@ namespace hMailServer.Administrator
 
             textNoOfRetries.Number = settings.SMTPNoOfTries;
             textMinutesBetween.Number = settings.SMTPMinutesBetweenTry;
+            chkSmtpDeliveryConnectionSecurity.Checked = settings.SMTPConnectionSecurity ==
+                                                       eConnectionSecurity.eCSSTARTTLSOptional;
+
             textHostName.Text = settings.HostName;
             textSMTPRelayer.Text = settings.SMTPRelayer;
             textSMTPRelayerPort.Number = settings.SMTPRelayerPort;
             chkSMTPRelayerRequiresAuth.Checked = settings.SMTPRelayerRequiresAuthentication;
             textSMTPRelayerUsername.Text = settings.SMTPRelayerUsername;
-            checkUseSSL.Checked = settings.SMTPRelayerUseSSL;
+            comboConnectionSecurity.SelectedValue = settings.SMTPRelayerConnectionSecurity;
 
             checkSendStatistics.Checked = settings.SendStatistics;
 
@@ -96,12 +96,14 @@ namespace hMailServer.Administrator
 
             settings.SMTPNoOfTries = textNoOfRetries.Number;
             settings.SMTPMinutesBetweenTry = textMinutesBetween.Number;
+            settings.SMTPConnectionSecurity =  chkSmtpDeliveryConnectionSecurity.Checked ? eConnectionSecurity.eCSSTARTTLSOptional : eConnectionSecurity.eCSNone;
+           
             settings.HostName = textHostName.Text;
             settings.SMTPRelayer = textSMTPRelayer.Text;
             settings.SMTPRelayerPort = textSMTPRelayerPort.Number;
             settings.SMTPRelayerRequiresAuthentication = chkSMTPRelayerRequiresAuth.Checked;
             settings.SMTPRelayerUsername = textSMTPRelayerUsername.Text;
-            settings.SMTPRelayerUseSSL = checkUseSSL.Checked;
+            settings.SMTPRelayerConnectionSecurity = (eConnectionSecurity)comboConnectionSecurity.SelectedValue;
 
             if (textSMTPRelayerPassword.Dirty)
                 settings.SetSMTPRelayerPassword(textSMTPRelayerPassword.Password);

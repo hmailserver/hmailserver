@@ -27,13 +27,13 @@ namespace HM
    }
 
    String
-   MailerDaemonAddressDeterminer::GetMailerDaemonAddress(const shared_ptr<Message> pOrigMessage)
+   MailerDaemonAddressDeterminer::GetMailerDaemonAddress(const std::shared_ptr<Message> pOrigMessage)
    {
       String sOriginalSender = pOrigMessage->GetFromAddress();
       String sOriginialRecipient;
 
-      shared_ptr<MessageRecipients> pRecipients = pOrigMessage->GetRecipients();
-      std::vector<shared_ptr<MessageRecipient> > & recipients = pRecipients->GetVector();
+      std::shared_ptr<MessageRecipients> pRecipients = pOrigMessage->GetRecipients();
+      std::vector<std::shared_ptr<MessageRecipient> > & recipients = pRecipients->GetVector();
       if (recipients.size() > 0)
          sOriginialRecipient = (*recipients.begin())->GetAddress();
 
@@ -69,8 +69,13 @@ namespace HM
          sHostName = Utilities::ComputerName();
       }
 
+      if (!IniFileSettings::Instance()->GetDaemonAddressDomain().IsEmpty())
+      {
+         sHostName = IniFileSettings::Instance()->GetDaemonAddressDomain();
+      }
+
       String sRetVal;
-      sRetVal.Format(_T("mailer-daemon@%s"), sHostName);
+      sRetVal.Format(_T("mailer-daemon@%s"), sHostName.c_str());
 
       return sRetVal;
 

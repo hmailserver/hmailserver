@@ -16,6 +16,7 @@
 #include "..\..\SMTP\RecipientParser.h"
 #include "..\..\IMAP\IMAPConfiguration.h"
 #include "..\..\IMAP\IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 
 #include "MessageUtilities.h"
 
@@ -65,10 +66,12 @@ namespace HM
             return true;
          else
          {
-            bool result = _ReplaceMessagePath(messageID, originalFullPath);
+            bool result = ReplaceMessagePath_(messageID, originalFullPath);
             
             if (iAccountID > 0 && result)
-               IMAPFolderContainer::Instance()->UncacheAccount(iAccountID);
+            {
+               MessagesContainer::Instance()->UncacheAccount(iAccountID);
+            }
 
             return result;
 
@@ -83,7 +86,7 @@ namespace HM
       {
          // It was not possible to construct a partial file name from the full path.
          String movedFile;
-         if (!_MoveToNamedSubdirectory(originalFullPath, partialFileName, newFullPath))
+         if (!MoveToNamedSubdirectory_(originalFullPath, partialFileName, newFullPath))
             return false;
       }
 
@@ -112,24 +115,24 @@ namespace HM
          }
       }
 
-      shared_ptr<Message> pMessage = shared_ptr<Message> (new Message);
+      std::shared_ptr<Message> pMessage = std::shared_ptr<Message> (new Message);
       pMessage->SetPartialFileName(partialFileName);
 
       // Set message size
       pMessage->SetSize(FileUtilities::FileSize(newFullPath));
 
-      shared_ptr<MessageData> pMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
       if (!pMsgData->LoadFromMessage(newFullPath, pMessage))
          return false;
 
       // Check what we should set the internal date to.
-      String sReceivedHeader = _GetInternalDate(pMsgData);
+      String sReceivedHeader = GetInternalDate_(pMsgData);
       pMessage->SetCreateTime(sReceivedHeader);
    
       // Parse out the From-address
-      shared_ptr<AddresslistParser> pFromParser = shared_ptr<AddresslistParser>(new AddresslistParser());
-      std::vector<shared_ptr<Address> > vecAddresses = pFromParser->ParseList(pMsgData->GetFrom());
-      std::vector<shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+      std::shared_ptr<AddresslistParser> pFromParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
+      std::vector<std::shared_ptr<Address> > vecAddresses = pFromParser->ParseList(pMsgData->GetFrom());
+      auto iterElement = vecAddresses.begin();
 
       if (iterElement != vecAddresses.end())
       {
@@ -141,9 +144,9 @@ namespace HM
       {
          // Since this message is supposed to be delivered, we need
          // to parse the sender and recipients
-         shared_ptr<AddresslistParser> pToParser = shared_ptr<AddresslistParser>(new AddresslistParser());
-         std::vector<shared_ptr<Address> > vecAddresses = pToParser->ParseList(pMsgData->GetTo());
-         std::vector<shared_ptr<Address> >::iterator iterElement = vecAddresses.begin();
+         std::shared_ptr<AddresslistParser> pToParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
+         std::vector<std::shared_ptr<Address> > vecAddresses = pToParser->ParseList(pMsgData->GetTo());
+         auto iterElement = vecAddresses.begin();
 
          RecipientParser recipientParser;
          while (iterElement != vecAddresses.end())
@@ -156,7 +159,7 @@ namespace HM
 
          // Since this message is supposed to be delivered, we need
          // to parse the sender and recipients
-         pToParser = shared_ptr<AddresslistParser>(new AddresslistParser());
+         pToParser = std::shared_ptr<AddresslistParser>(new AddresslistParser());
          vecAddresses = pToParser->ParseList(pMsgData->GetCC());
          iterElement = vecAddresses.begin();
 
@@ -206,7 +209,7 @@ namespace HM
    }
 
    bool 
-   MailImporter::_ReplaceMessagePath(__int64 messageID, const String &messagePath)
+   MailImporter::ReplaceMessagePath_(__int64 messageID, const String &messagePath)
    {
       String newFullPath = messagePath;
 
@@ -216,12 +219,12 @@ namespace HM
       {
          // It was not possible to construct a partial file name from the full path.
          String movedFile;
-         if (!_MoveToNamedSubdirectory(messagePath, partialFileName, newFullPath))
+         if (!MoveToNamedSubdirectory_(messagePath, partialFileName, newFullPath))
             return false;
       }
       
       // We have a partial file name. Update the database with it.
-      shared_ptr<Message> message = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> message = std::shared_ptr<Message>(new Message());
       if (!PersistentMessage::ReadObject(message, messageID))
          return false;
 
@@ -233,7 +236,7 @@ namespace HM
    }
 
    bool 
-   MailImporter::_MoveToNamedSubdirectory(const String &sourceFile, String &resultFile, String &newFullPath)
+   MailImporter::MoveToNamedSubdirectory_(const String &sourceFile, String &resultFile, String &newFullPath)
    {
       // The file must be located in the data directory. Make sure this is the case.
       const String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
@@ -251,12 +254,12 @@ namespace HM
       // move the message into the correct location.
       
       String currentCorrectDirectory; 
-      if (!_GetRootLevelDirectory(sourceFile, currentCorrectDirectory))
+      if (!GetRootLevelDirectory_(sourceFile, currentCorrectDirectory))
          return false;
 
       String destinationDirectory = FileUtilities::Combine(currentCorrectDirectory, guidFolder);
       if (!FileUtilities::Exists(destinationDirectory))
-         FileUtilities::CreateDirectoryRecursive(destinationDirectory);
+         FileUtilities::CreateDirectory(destinationDirectory);
 
       String destinationFile = FileUtilities::Combine(destinationDirectory, resultFile);
 
@@ -271,7 +274,7 @@ namespace HM
 
 
    bool
-   MailImporter::_GetRootLevelDirectory(const String &fullPath, String &rootLevel)
+   MailImporter::GetRootLevelDirectory_(const String &fullPath, String &rootLevel)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Takes an input parameter such as C:\DataDir\Account\Sub1\Sub2\Test.eml and
@@ -315,7 +318,7 @@ namespace HM
    }
 
    String 
-   MailImporter::_GetInternalDate(shared_ptr<MessageData> pMsgData)
+   MailImporter::GetInternalDate_(std::shared_ptr<MessageData> pMsgData)
    {
 
       String sReceivedHeader = pMsgData->GetFieldValue("Received");
@@ -325,7 +328,7 @@ namespace HM
          
          if (dtTime.GetYear() > 1980 && dtTime.GetYear() < 2040)
          {
-            return _GetInternalDateDatePlusTimeZone(dtTime);
+            return GetInternalDate_DatePlusTimeZone(dtTime);
          }
       }        
 
@@ -338,7 +341,7 @@ namespace HM
          
          if (dtTime.GetYear() > 1980 && dtTime.GetYear() < 2040)
          {
-            return _GetInternalDateDatePlusTimeZone(dtTime);
+            return GetInternalDate_DatePlusTimeZone(dtTime);
          }
       }
 
@@ -349,7 +352,7 @@ namespace HM
    }
 
    String 
-   MailImporter::_GetInternalDateDatePlusTimeZone(DateTime dtTime)
+   MailImporter::GetInternalDate_DatePlusTimeZone(DateTime dtTime)
    {
       long minutes = Time::GetUTCRelationMinutes();
 

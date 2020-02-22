@@ -10,7 +10,7 @@ namespace HM
 	   SQLCERecordset();
 	   virtual ~SQLCERecordset();
 
-      virtual DALConnection::ExecutionResult TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage);
+      virtual DALConnection::ExecutionResult TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage);
       
       virtual bool MoveNext();
       virtual bool IsEOF() const;
@@ -22,17 +22,17 @@ namespace HM
       virtual __int64 GetInt64Value(const AnsiString &FieldName) const;
       virtual double GetDoubleValue(const AnsiString &FieldName) const;
 
-      virtual vector<AnsiString> GetColumnNames() const;
+      virtual std::vector<AnsiString> GetColumnNames() const;
 
       virtual bool GetIsNull(const AnsiString &FieldName) const;
    private:
 
-      bool _Close();
+      bool Close_();
       
 
       _RecordsetPtr cSQLCERecordset;
 
-      long m_iCurRow;
+      long cur_row_;
 
    };
 

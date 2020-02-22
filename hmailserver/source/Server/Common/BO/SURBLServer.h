@@ -12,30 +12,30 @@ namespace HM
       ~SURBLServer(void);
 
       // All objects should have an GetName()
-      String GetName() const {return m_sDNSHost; }
+      String GetName() const {return dnshost_; }
 
-      bool GetIsActive() const  {return m_bActive; }
-      void SetIsActive(bool bNewVal) {m_bActive = bNewVal;}
+      bool GetIsActive() const  {return active_; }
+      void SetIsActive(bool bNewVal) {active_ = bNewVal;}
    
-      int GetScore() {return m_iScore; }
-      void SetScore(int iNewVal) {m_iScore = iNewVal; }
+      int GetScore() {return score_; }
+      void SetScore(int iNewVal) {score_ = iNewVal; }
 
-      String GetRejectMessage() const  {return m_sRejectMessage; }
-      void SetRejectMessage(const String &sNewVal) {m_sRejectMessage = sNewVal;}
+      String GetRejectMessage() const  {return reject_message_; }
+      void SetRejectMessage(const String &sNewVal) {reject_message_ = sNewVal;}
 
-      String GetDNSHost() const  {return m_sDNSHost; }
-      void SetDNSHost(const String &sNewVal) {m_sDNSHost = sNewVal;}
+      String GetDNSHost() const  {return dnshost_; }
+      void SetDNSHost(const String &sNewVal) {dnshost_ = sNewVal;}
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
       bool XMLLoadSubItems (XNode *pNode, int iOptions) {return true;};
 
    private:
-      bool m_bActive;
+      bool active_;
       
-      String m_sDNSHost;
-      String m_sRejectMessage;
+      String dnshost_;
+      String reject_message_;
 
-      int m_iScore;
+      int score_;
    };
 }

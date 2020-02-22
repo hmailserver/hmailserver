@@ -30,22 +30,22 @@ namespace HM
       TransparentTransmissionBuffer(bool bSending);
       ~TransparentTransmissionBuffer(void);
 
-      void Append(const BYTE *pBuffer, int iBufferSize);
+      void Append(const BYTE *pBuffer, size_t iBufferSize);
       bool Flush(bool bForce = false);
       
-      bool Initialize(ProtocolParser *pProtocolParser);
+      bool Initialize(std::weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
 
-      void SetMaxSizeKB(int maxSize);
+      void SetMaxSizeKB(size_t maxSize);
       
-      shared_ptr<ByteBuffer> GetBuffer() 
+      std::shared_ptr<ByteBuffer> GetBuffer() 
       {
-         return m_pBuffer; 
+         return buffer_; 
       }
 
       bool GetTransmissionEnded()
       {
-         return m_bTransmissionEnded;
+         return transmission_ended_;
       }
 
       bool GetRequiresFlush();
@@ -54,41 +54,41 @@ namespace HM
 
       bool GetLastSendEndedWithNewline()
       {
-         return m_bLastSendEndedWithNewline;
+         return last_send_ended_with_newline_;
       }
 
-      bool _SaveToFile(shared_ptr<ByteBuffer> pBuffer);
+      bool SaveToFile_(std::shared_ptr<ByteBuffer> pBuffer);
       // Flushes the supplied buffer to file.
 
-      int GetSize();
+      size_t GetSize();
 
-      bool GetCancelTransmission() {return _cancelTransmission;}
-      String GetCancelMessage() {return _cancelMessage;}
+      bool GetCancelTransmission() {return cancel_transmission_;}
+      String GetCancelMessage() {return cancel_message_;}
    private:
 
-      void _InsertTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
-      void _RemoveTransmissionPeriod(shared_ptr<ByteBuffer> pIn);
+      void InsertTransmissionPeriod_(std::shared_ptr<ByteBuffer> pIn);
+      void RemoveTransmissionPeriod_(std::shared_ptr<ByteBuffer> pIn);
 
-      shared_ptr<ByteBuffer> m_pBuffer;
+      std::shared_ptr<ByteBuffer> buffer_;
       // The buffer containing the data to send/receive.
       
-      bool m_bTransmissionEnded;
+      bool transmission_ended_;
       // Have we found the end-of-transsmision sequence?
       
-      bool m_bIsSending;
+      bool is_sending_;
       // Are we sending data, or are we receiving data?
 
-      bool m_bLastSendEndedWithNewline;
+      bool last_send_ended_with_newline_;
       
       // Output types
-      File m_oFile;
-      ProtocolParser *m_pProtocolParser;
+      File file_;
+      std::weak_ptr<TCPConnection> tcp_connection_;
 
-      unsigned    int m_iDataSent;
-      unsigned int m_iMaxSizeKB;
+      size_t data_sent_;
+      size_t max_size_kb_;
 
-      bool _cancelTransmission;
-      String _cancelMessage;
+      bool cancel_transmission_;
+      String cancel_message_;
 
 
       enum Limits

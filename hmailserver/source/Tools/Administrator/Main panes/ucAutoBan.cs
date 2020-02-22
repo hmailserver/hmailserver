@@ -2,13 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using hMailServer.Administrator.Utilities;
 using hMailServer.Shared;

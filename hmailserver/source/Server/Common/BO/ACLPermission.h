@@ -15,7 +15,7 @@ namespace HM
       String GetName() const
       {
          String sName;
-         sName.Format(_T("ACLPermission-%I64d"), m_iID);
+         sName.Format(_T("ACLPermission-%I64d"), id_);
 
          return sName;
       }
@@ -98,15 +98,15 @@ namespace HM
 
    private:
 
-      String _GetPermissionHolderName(ACLPermission *pPermission) const;
+      String GetPermissionHolderName_(ACLPermission *pPermission) const;
 
-      __int64 m_iShareFolderID;
+      __int64 share_folder_id_;
 
-      ePermissionType m_iPermissionType;
+      ePermissionType permission_type_;
 
-      __int64 m_iPermissionGroupID;
-      __int64 m_iPermissionAccountID;
+      __int64 permission_group_id_;
+      __int64 permission_account_id_;
       
-      __int64 m_iValue;
+      __int64 value_;
    };
 }

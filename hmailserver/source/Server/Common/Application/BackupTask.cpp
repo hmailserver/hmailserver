@@ -14,7 +14,8 @@
 namespace HM
 {
    BackupTask::BackupTask(bool bDoBackup) :
-      m_bDoBackup(bDoBackup)
+      Task("BackupTask"),
+      do_backup_(bDoBackup)
    {
    }
 
@@ -26,28 +27,22 @@ namespace HM
    BackupTask::DoWork()
    {
       BackupExecuter oBE;
-      if (m_bDoBackup)
+      if (do_backup_)
       {
          oBE.StartBackup();
       }
       else
       {
-         oBE.StartRestore(m_pBackup);
+         oBE.StartRestore(backup_);
       }
 
       Application::Instance()->GetBackupManager()->OnThreadStopped();
    }
 
-   void 
-   BackupTask::StopWork()
-   {
-      
-      
-   }
 
    void 
-   BackupTask::SetBackupToRestore(shared_ptr<Backup> pBackup)
+   BackupTask::SetBackupToRestore(std::shared_ptr<Backup> pBackup)
    {
-      m_pBackup = pBackup;
+      backup_ = pBackup;
    }
 }

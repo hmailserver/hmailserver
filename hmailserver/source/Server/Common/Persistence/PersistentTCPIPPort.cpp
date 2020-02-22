@@ -8,6 +8,8 @@
 #include "..\SQL\SQLStatement.h"
 #include "../SQL/IPAddressSQLHelper.h"
 
+#include "../Persistence/PersistenceMode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -24,7 +26,7 @@ namespace HM
    }
 
    bool
-   PersistentTCPIPPort::DeleteObject(shared_ptr<TCPIPPort> pObject)
+   PersistentTCPIPPort::DeleteObject(std::shared_ptr<TCPIPPort> pObject)
    {
       SQLCommand command("delete from hm_tcpipports where portid = @PORTID");
       command.AddParameter("@PORTID", pObject->GetID());
@@ -33,14 +35,14 @@ namespace HM
    }
 
    bool 
-   PersistentTCPIPPort::ReadObject(shared_ptr<TCPIPPort> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentTCPIPPort::ReadObject(std::shared_ptr<TCPIPPort> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       IPAddressSQLHelper helper;
 
       pObject->SetID (pRS->GetLongValue("portid"));
       pObject->SetProtocol((SessionType) pRS->GetLongValue("portprotocol"));
       pObject->SetPortNumber(pRS->GetLongValue("portnumber"));
-      pObject->SetUseSSL(pRS->GetLongValue("portusessl") ? true : false);
+      pObject->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("portconnectionsecurity"));
       pObject->SetAddress(helper.Construct(pRS, "portaddress1", "portaddress2"));
       pObject->SetSSLCertificateID(pRS->GetLongValue("portsslcertificateid"));
       
@@ -48,19 +50,21 @@ namespace HM
    }
 
    bool 
-   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject, String &errorMessage)
+   PersistentTCPIPPort::SaveObject(std::shared_ptr<TCPIPPort> pObject, String &errorMessage, PersistenceMode mode)
    {
-      // errorMessage - not supported yet.
+      if (mode == PersistenceModeNormal)
+      {
+         if (pObject->GetSSLCertificateID() == 0 &&
+             (pObject->GetConnectionSecurity() == CSSSL || pObject->GetConnectionSecurity() == CSSTARTTLSOptional || pObject->GetConnectionSecurity() == CSSTARTTLSRequired))
+         {
+            errorMessage = "Certificate must be specified.";
+            return false;
+         }
+      }
 
-      return SaveObject(pObject);
-   }
-
-   bool 
-   PersistentTCPIPPort::SaveObject(shared_ptr<TCPIPPort> pObject)
-   {
       SQLStatement oStatement;
       oStatement.SetTable("hm_tcpipports");
-      
+
       if (pObject->GetID() == 0)
       {
          oStatement.SetStatementType(SQLStatement::STInsert);
@@ -84,7 +88,7 @@ namespace HM
       oStatement.AddColumn("portnumber", pObject->GetPortNumber());
       oStatement.AddColumnInt64("portsslcertificateid", pObject->GetSSLCertificateID());
       helper.AppendStatement(oStatement, pObject->GetAddress(), "portaddress1", "portaddress2");
-      oStatement.AddColumn("portusessl", pObject->GetUseSSL());
+      oStatement.AddColumn("portconnectionsecurity", pObject->GetConnectionSecurity());
       
       bool bNewObject = pObject->GetID() == 0;
 

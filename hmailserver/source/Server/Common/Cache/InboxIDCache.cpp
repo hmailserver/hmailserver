@@ -15,7 +15,7 @@
 namespace HM
 {
    InboxIDCache::InboxIDCache() :
-      _enabled (true)
+      enabled_ (true)
    {
 
    }
@@ -27,23 +27,23 @@ namespace HM
    void 
    InboxIDCache::Clear()
    {
-      if (!_enabled)
+      if (!enabled_)
          return;
    
-      CriticalSectionScope scope (_criticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      _inboxID.clear();
+      inbox_id_.clear();
    }
 
    __int64
    InboxIDCache::GetUserInboxFolder(__int64 accountID)
    {
-      if (_enabled)
+      if (enabled_)
       {
-         CriticalSectionScope scope(_criticalSection);
-         std::map<__int64, __int64>::iterator iter = _inboxID.find(accountID);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+         auto iter = inbox_id_.find(accountID);
 
-         if (iter != _inboxID.end())
+         if (iter != inbox_id_.end())
          {
             __int64 result = (*iter).second;
             return result;
@@ -52,10 +52,10 @@ namespace HM
 
       __int64 inboxID = PersistentIMAPFolder::GetUserInboxFolder(accountID);
 
-      if (_enabled)
+      if (enabled_)
       {
-         CriticalSectionScope scope(_criticalSection);
-         _inboxID[accountID] = inboxID;
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+         inbox_id_[accountID] = inboxID;
       }
 
       return inboxID;

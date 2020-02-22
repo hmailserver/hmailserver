@@ -51,38 +51,38 @@ namespace RegressionTests.Infrastructure
       [Test]
       public void TestConnections()
       {
-         var oSocket = new TcpSocket();
+         var oSocket = new TcpConnection();
 
          // Make sure an IP range exists.
          RemoveIPRanges();
          if (_ipRanges.Count == 0)
             AddIPRange();
 
-         if (!oSocket.CanConnect(25))
+         if (!oSocket.IsPortOpen(25))
             throw new Exception("ERROR: Cannot connect to port 25");
-         if (!oSocket.CanConnect(110))
+         if (!oSocket.IsPortOpen(110))
             throw new Exception("ERROR: Cannot connect to port 110");
-         if (!oSocket.CanConnect(143))
+         if (!oSocket.IsPortOpen(143))
             throw new Exception("ERROR: Cannot connect to port 143");
 
          RemoveIPRanges();
 
          // Now it shouldn't be possible to connect.
 
-         if (oSocket.CanConnect(25))
+         if (oSocket.IsPortOpen(25))
             throw new Exception("ERROR: Cannot connect to port 25");
-         if (oSocket.CanConnect(110))
+         if (oSocket.IsPortOpen(110))
             throw new Exception("ERROR: Cannot connect to port 110");
-         if (oSocket.CanConnect(143))
+         if (oSocket.IsPortOpen(143))
             throw new Exception("ERROR: Cannot connect to port 143");
 
          AddIPRange();
          // Now it should be possible to connect again.
-         if (!oSocket.CanConnect(25))
+         if (!oSocket.IsPortOpen(25))
             throw new Exception("ERROR: Cannot connect to port 25");
-         if (!oSocket.CanConnect(110))
+         if (!oSocket.IsPortOpen(110))
             throw new Exception("ERROR: Cannot connect to port 110");
-         if (!oSocket.CanConnect(143))
+         if (!oSocket.IsPortOpen(143))
             throw new Exception("ERROR: Cannot connect to port 143");
       }
    }

@@ -16,12 +16,12 @@ namespace HM
       ACLManager(void);
       ~ACLManager(void);
       
-      shared_ptr<ACLPermission> GetPermissionForFolder(__int64 iAccountID, shared_ptr<IMAPFolder> pFolder);
+      std::shared_ptr<ACLPermission> GetPermissionForFolder(__int64 iAccountID, std::shared_ptr<IMAPFolder> pFolder);
 
-      bool SetACL(shared_ptr<IMAPFolder> pFolder, const String& sIdentifier, const String &sPermissions);
+      bool SetACL(std::shared_ptr<IMAPFolder> pFolder, const String& sIdentifier, const String &sPermissions);
 
 	private:
 
-      shared_ptr<ACLPermission> _GetPermissionForAccount(shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID);
+      std::shared_ptr<ACLPermission> GetPermissionForAccount_(std::shared_ptr<ACLPermissions> pPermissions, __int64 iAccountID);
    };
 }

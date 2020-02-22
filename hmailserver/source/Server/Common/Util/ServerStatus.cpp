@@ -16,10 +16,10 @@ namespace HM
 {
    ServerStatus::ServerStatus()
    {
-      m_iProcessedMessages = 0;
-      m_iNumberOfSpamMessagesDetected = 0;
-      m_iNumberOfVirusesRemoved = 0;
-      m_eState = StateUnknown ;
+      processed_messages_ = 0;
+      number_of_spam_messages_detected_ = 0;
+      number_of_viruses_removed_ = 0;
+      state_ = StateUnknown ;
 
    }
 
@@ -35,7 +35,7 @@ namespace HM
       SQLCommand command("select messageid, messagecurnooftries, messagecreatetime, messagefrom, messagenexttrytime, messagefilename, messagelocked from hm_messages "
                          " where messagetype = 1 OR messagetype = 3 order by messageid asc");
 
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return "";
 
@@ -65,7 +65,7 @@ namespace HM
          SQLCommand selectCommand("select recipientaddress from hm_messagerecipients where recipientmessageid = @MESSAGEID");
          selectCommand.AddParameter("@MESSAGEID", lMessageID);
 
-         shared_ptr<DALRecordset> pRecipientsRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
+         std::shared_ptr<DALRecordset> pRecipientsRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
          if (!pRecipientsRS)
             return "";
 
@@ -79,7 +79,7 @@ namespace HM
             pRecipientsRS->MoveNext();
          }
 
-         sLine.Format(_T("%I64d\t%s\t%s\t%s\t%s\t%s\t%d\t%d"), lMessageID, sCreateTime, sFrom, sTo, sNextTryTime, sFileName, bLocked, lNoOfTries);
+         sLine.Format(_T("%I64d\t%s\t%s\t%s\t%s\t%s\t%d\t%d"), lMessageID, sCreateTime.c_str(), sFrom.c_str(), sTo.c_str(), sNextTryTime.c_str(), sFileName.c_str(), bLocked, lNoOfTries);
          
          if (!sRetVal.IsEmpty())
             sRetVal += "\r\n";
@@ -95,7 +95,7 @@ namespace HM
    int 
    ServerStatus::GetNumberOfProcessedMessages() const
    {
-      return m_iProcessedMessages;
+      return processed_messages_;
    }
 
    void
@@ -105,13 +105,13 @@ namespace HM
       // single threaded, so no synchronization
       // is needed.
 
-      m_iProcessedMessages++;
+      processed_messages_++;
    }
 
    int 
    ServerStatus::GetNumberOfDetectedSpamMessages() const
    {
-      return m_iNumberOfSpamMessagesDetected;
+      return number_of_spam_messages_detected_;
    }
 
    void
@@ -120,37 +120,36 @@ namespace HM
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
 
-      CriticalSectionScope scope(m_oCSSpamMessgeDropped);
-      m_iNumberOfSpamMessagesDetected++;
+      boost::lock_guard<boost::recursive_mutex> guard(spam_message_dropped_mutex_);
+      number_of_spam_messages_detected_++;
    }
 
    int 
    ServerStatus::GetNumberOfRemovedViruses() const
    {
-      return m_iNumberOfVirusesRemoved;
+      return number_of_viruses_removed_;
    }
 
    void
    ServerStatus::OnVirusRemoved()
    {
-
       // This requires thread synchronization since
       // it's called by the SMTPConnection.
-      CriticalSectionScope scope(m_oCSVirusesRemoved);
+      boost::lock_guard<boost::recursive_mutex> guard(virus_removed_mutex_);
 
-      m_iNumberOfVirusesRemoved++;
+      number_of_viruses_removed_++;
    }
    
    int
    ServerStatus::GetState() const
    {
-      return m_eState;
+      return state_;
    }
 
    void
    ServerStatus::SetState(ServerState i)
    {
-      m_eState = i; 
+      state_ = i; 
    }
 
    int 

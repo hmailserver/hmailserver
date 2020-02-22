@@ -14,7 +14,7 @@ namespace HM
 	   virtual ~DALConnectionFactory();
 
 
-      static shared_ptr<DALConnection> CreateConnection(shared_ptr<DatabaseSettings> pSettings);
+      static std::shared_ptr<DALConnection> CreateConnection(std::shared_ptr<DatabaseSettings> pSettings);
 
    };
 }

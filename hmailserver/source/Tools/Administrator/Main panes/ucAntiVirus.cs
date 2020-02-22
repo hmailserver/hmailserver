@@ -3,16 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using hMailServer.Administrator.Dialogs;
 using System.Runtime.InteropServices;
 using hMailServer.Shared;
-using System.IO;
 
 namespace hMailServer.Administrator
 {

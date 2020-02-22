@@ -8,8 +8,6 @@
 #include "GreyListingWhiteAddress.h"
 #include "../Persistence/PersistentGreyListingWhiteAddress.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class GreyListingWhiteAddresses : public Collection<GreyListingWhiteAddress, PersistentGreyListingWhiteAddress>
@@ -20,8 +18,6 @@ namespace HM
 
       // Refreshes this collection from the database.
       void Refresh();
-
-      bool GetIPExistsInWhiteList(const String &sCheckIP);
 
    protected:
       virtual String GetCollectionName() const {return "GreyListingWhiteAddresses"; }

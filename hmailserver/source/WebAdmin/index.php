@@ -1,14 +1,22 @@
 <?php
 
    error_reporting(E_ALL);
-
+   
    if (!file_exists("config.php"))
    {
-   	echo "Please rename config-dist.php to config.php. The file is found in the PHPWebAdmin root folder.";
-   	die;
+		echo "Please rename config-dist.php to config.php. The file is found in the PHPWebAdmin root folder.";
+		die;
    }
+   
+   
+   header('Content-Type: text/html; charset=utf-8');
+   header('X-Content-Type-Options: nosniff');
+   header('X-Frame-Options: DENY');
+   header('Content-Security-Policy: default-src \'none\'; script-src \'self\' \'unsafe-inline\'; connect-src \'self\'; img-src \'self\'; style-src \'self\' \'unsafe-inline\';');
+   header('X-XSS-Protection: 1; mode=block');
 
    define('IN_WEBADMIN', true);
+   define('CSRF_ENABLED', true);
    
    require_once("config.php");
    require_once("include/initialization_test.php");
@@ -29,8 +37,6 @@
    else
       $page = "hm_$page.php";
       
-
-      
    // Check that the page really exists.
    $page = stripslashes($page);
    $page = basename($page, ".php");
@@ -38,6 +44,11 @@
    if (!file_exists('./' . $page . '.php'))
       hmailHackingAttemp();
 
+   if ($_SERVER['REQUEST_METHOD'] == 'POST' || $isbackground)	
+   {
+      validate_csrf_token_supplied();
+   }	
+   
    // If it's a background page, run here.
    if ($isbackground)
    {
@@ -46,43 +57,40 @@
       // Page is run, die now.
       die;
    }
-
+   
+   $csrftoken = get_csrf_session_token();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
-		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-8859-1">
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
 		<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 		<META HTTP-EQUIV="Expires" CONTENT="0">
-		
+
 		<TITLE>WebAdmin</TITLE>
 
 		<link href="style.css" type="text/css" rel="stylesheet">
-      <link href="include/tabber/tabber.css" type="text/css" rel="stylesheet">
+		<link href="include/tabber/tabber.css" type="text/css" rel="stylesheet">
 
-      <script type="text/javascript">
-         document.write('<style type="text/css">.tabber{display:none;}<\/style>');
-      </script>      
-		
 		<script type="text/javascript" src="include/formcheck.js"></script>
-      <script type="text/javascript" src="include/dtree.js"></script>
-      <script type="text/javascript" src="include/tabber/tabber.js"></script>
-      <script type="text/javascript" src="include/ajax.js"></script>
-
-      <script type="text/javascript">
-      function ConfirmDelete(name, url)
-      {
-         confirm_delete = "<?php echo GetConfirmDelete();?>"
-         confirm_delete = confirm_delete.replace("%s", name);
-         
-         if (confirm(confirm_delete))
-            document.location = url;
-      }
-      </script>       
-      
+		<script type="text/javascript" src="include/dtree.js"></script>
+		<script type="text/javascript" src="include/tabber/tabber.js"></script>
+		<script type="text/javascript" src="include/functions.js"></script>
+		
+		<script type="text/javascript">
+		function ConfirmDelete(name, url)
+		{
+			confirm_delete = "<?php echo GetConfirmDelete();?>"
+			confirm_delete = confirm_delete.replace("%s", name);
+		 
+			if (confirm(confirm_delete))
+				document.location = url;
+		}
+		</script>
 </head>
 <body>
+
   <br/>
   
   <table width="90%" border="0" cellpadding="0" cellspacing="0" align="center">
@@ -106,19 +114,21 @@
          {
          ?>
             <td valign="top" width="240">
-            <?php
-               include "include_treemenu.php";
+				<div class="dtree" id="dtree">
+		
+				<?php
+				   include "include_treemenu.php";
 
-               echo "<div class=\"dtree\" id=\"dtree\">
-                  <script type=\"text/javascript\">
-                  //<!--
-                  d = new dTree('d','images/');
-                  $dtree
-                  //-->
-                  </script>
-               ";
-            ?>
-               <div align="right">
+				   echo "<div class=\"dtree\" id=\"dtree\">
+					  <script type=\"text/javascript\">
+					  //<!--
+					  d = new dTree('d','images/');
+					  $dtree
+					  //-->
+					  </script>
+				   ";
+				?>
+                <div align="right">
 
                </div>
             </td>

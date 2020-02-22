@@ -27,9 +27,9 @@ namespace HM
    void 
    TLD::Initialize()
    {
-      m_ccTLD.clear();
+      tld_.clear();
 
-      String sTLDSFile = Utilities::GetExecutableDirectory();
+      String sTLDSFile = Utilities::GetBinDirectory();
       if (sTLDSFile.Right(1) != _T("\\"))
          sTLDSFile += "\\";
       sTLDSFile += "tlds.txt";
@@ -51,16 +51,15 @@ namespace HM
       {
          // Failed to load file containing TLD's. Report an error.
          String sErrorMessage;
-         sErrorMessage.Format(_T("Failed to load file with TLD's %s."), sTLDSFile);
+         sErrorMessage.Format(_T("Failed to load file with TLD's %s."), sTLDSFile.c_str());
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4335, "TLD::_LoadCCTLD", sErrorMessage);
 
          return;
       }
 
       std::vector<String> vecTLDs = StringParser::SplitString(sContents, "\r\n");
-      std::vector<String>::iterator iter;
-      for (iter = vecTLDs.begin(); iter != vecTLDs.end(); iter++)
-         m_ccTLD.insert(*iter);
+      for (auto iter = vecTLDs.begin(); iter != vecTLDs.end(); iter++)
+         tld_.insert(*iter);
 
    }
 
@@ -71,7 +70,7 @@ namespace HM
 
       sTmp.ToLower();
 
-      if (m_ccTLD.find(sName) != m_ccTLD.end())
+      if (tld_.find(sName) != tld_.end())
          return true;
       else
          return false;
@@ -85,7 +84,7 @@ namespace HM
       // Start at the end.
       std::vector<String> vecParts = StringParser::SplitString(sHost, ".");
 
-      int iParts = vecParts.size();
+      size_t iParts = vecParts.size();
 
       if (iParts < 2)
          return false;

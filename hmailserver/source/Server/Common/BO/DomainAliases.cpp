@@ -19,7 +19,7 @@
 namespace HM
 {
    DomainAliases::DomainAliases(__int64 iDomainID) :
-      m_iDomainID(iDomainID)
+      domain_id_(iDomainID)
    {
    }
 
@@ -32,12 +32,12 @@ namespace HM
    {
       String sSQL;
 
-      if (m_iDomainID)
-         sSQL.Format(_T("select * from hm_domain_aliases where dadomainid = %I64d order by daid asc"), m_iDomainID);
+      if (domain_id_)
+         sSQL.Format(_T("select * from hm_domain_aliases where dadomainid = %I64d order by daid asc"), domain_id_);
       else
-         sSQL.Format(_T("select * from hm_domain_aliases order by daid asc"), m_iDomainID);
+         sSQL.Format(_T("select * from hm_domain_aliases order by daid asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 
@@ -47,16 +47,16 @@ namespace HM
       const String sMailbox = StringParser::ExtractAddress(sAddress);
 
       // Iterate over the domains to find a match.
-      vector<shared_ptr<DomainAlias> >::iterator iterAccount = vecObjects.begin();
+      auto iterAccount = vecObjects.begin();
       
-      boost_foreach(shared_ptr<DomainAlias> pFA, vecObjects)
+      for(std::shared_ptr<DomainAlias> pFA : vecObjects)
       {
          if (pFA->GetAlias().CompareNoCase(sDomainName) == 0)
          {
             // We found the domain ID
             __int64 iDomainID = pFA->GetDomainID();
          
-            shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
+            std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
             
             if (!pDomain)
                return sAddress;
@@ -71,9 +71,9 @@ namespace HM
    }
 
    bool
-   DomainAliases::PreSaveObject(shared_ptr<DomainAlias> pDA, XNode *node)
+   DomainAliases::PreSaveObject(std::shared_ptr<DomainAlias> pDA, XNode *node)
    {
-      pDA->SetDomainID(m_iDomainID);
+      pDA->SetDomainID(domain_id_);
       return true;
    }
 }

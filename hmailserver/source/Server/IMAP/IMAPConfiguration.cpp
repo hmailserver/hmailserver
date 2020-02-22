@@ -34,18 +34,18 @@ namespace HM
    IMAPConfiguration::Load()
    {
       // Shared public have their AccountID set to zero.
-      m_pPublicFolders = shared_ptr<IMAPFolders>(new IMAPFolders(0, -1));
-      m_pPublicFolders->Refresh();
+      public_folders_ = std::shared_ptr<IMAPFolders>(new IMAPFolders(0, -1));
+      public_folders_->Refresh();
 
       // Shared public have their AccountID set to zero.
-      m_pGroups = shared_ptr<Groups>(new Groups());
-      m_pGroups->Refresh();
+      groups_ = std::shared_ptr<Groups>(new Groups());
+      groups_->Refresh();
 
       return true;
    }
 
-   shared_ptr<PropertySet>
-   IMAPConfiguration::_GetSettings() const
+   std::shared_ptr<PropertySet>
+   IMAPConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -53,85 +53,134 @@ namespace HM
    String 
    IMAPConfiguration::GetWelcomeMessage() const
    {
-      return _GetSettings()->GetString(PROPERTY_WELCOMEIMAP);
+      return GetSettings_()->GetString(PROPERTY_WELCOMEIMAP);
    }
    
    void 
    IMAPConfiguration::SetWelcomeMessage(const String &sMessage)
    {
-      _GetSettings()->SetString(PROPERTY_WELCOMEIMAP, sMessage);
+      GetSettings_()->SetString(PROPERTY_WELCOMEIMAP, sMessage);
    }
 
    bool
    IMAPConfiguration::GetUseIMAPQuota() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPQUOTA);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPQUOTA);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPQuota(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPQUOTA, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPQUOTA, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPIdle() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPIDLE);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPIDLE);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPIdle(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPIDLE, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPIDLE, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPACL() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPACL);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPACL);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPACL(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPACL, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPACL, bValue);
    }
 
    bool 
    IMAPConfiguration::GetUseIMAPSort() const
    {
-      return _GetSettings()->GetBool(PROPERTY_ENABLEIMAPSORT);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSORT);
    }
 
    void 
    IMAPConfiguration::SetUseIMAPSort(bool bValue)
    {
-      _GetSettings()->SetBool(PROPERTY_ENABLEIMAPSORT, bValue);
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSORT, bValue);
    }
 
    void
    IMAPConfiguration::SetMaxIMAPConnections(int newVal)
    {
-      _GetSettings()->SetLong(PROPERTY_MAXIMAPCONNECTIONS, newVal);
+      GetSettings_()->SetLong(PROPERTY_MAXIMAPCONNECTIONS, newVal);
    }
 
    long
    IMAPConfiguration::GetMaxIMAPConnections() const
    {
-      return _GetSettings()->GetLong(PROPERTY_MAXIMAPCONNECTIONS);
+      return GetSettings_()->GetLong(PROPERTY_MAXIMAPCONNECTIONS);
    }
 
    void
    IMAPConfiguration::SetIMAPPublicFolderName(const String& newVal)
    {
-      _GetSettings()->SetString(PROPERTY_IMAPPUBLICFOLDERNAME, newVal);
+      GetSettings_()->SetString(PROPERTY_IMAPPUBLICFOLDERNAME, newVal);
    }
 
    String
    IMAPConfiguration::GetIMAPPublicFolderName() const
    {
-      return _GetSettings()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
+      return GetSettings_()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
+   }
+
+
+   void
+      IMAPConfiguration::SetIMAPAuthAllowPlainText(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT, newVal);
+   }
+
+   String
+   IMAPConfiguration::GetIMAPMasterUser() const
+   {
+      return GetSettings_()->GetString(PROPERTY_IMAPMASTERUSER);
+   }
+
+   void
+   IMAPConfiguration::SetIMAPMasterUser(const String &newVal)
+   {
+      GetSettings_()->SetString(PROPERTY_IMAPMASTERUSER, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetIMAPAuthAllowPlainText() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT);
+   }
+
+   void
+   IMAPConfiguration::SetUseIMAPSASLPlain(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSASLPLAIN, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetUseIMAPSASLPlain() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLPLAIN);
+   }
+
+   void
+   IMAPConfiguration::SetUseIMAPSASLInitialResponse(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE, newVal);
+   }
+
+   bool
+   IMAPConfiguration::GetUseIMAPSASLInitialResponse() const
+   {
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE);
    }
 
    bool
@@ -152,7 +201,7 @@ namespace HM
       if (!PersistentRuleAction::UpdateHierarchyDelimiter(GetHierarchyDelimiter(), newVal))
          return false;
 
-      _GetSettings()->SetString(PROPERTY_IMAP_HIERARCHY_DELIMITER, newVal);
+      GetSettings_()->SetString(PROPERTY_IMAP_HIERARCHY_DELIMITER, newVal);
 
       ObjectCache::Instance()->ClearRuleCaches();
 
@@ -162,7 +211,7 @@ namespace HM
    String
    IMAPConfiguration::GetHierarchyDelimiter()
    {
-      return _GetSettings()->GetString(PROPERTY_IMAP_HIERARCHY_DELIMITER);
+      return GetSettings_()->GetString(PROPERTY_IMAP_HIERARCHY_DELIMITER);
    }
 
    String 
@@ -171,24 +220,25 @@ namespace HM
       return "#Public";
    }
 
-   shared_ptr<IMAPFolders> 
+   std::shared_ptr<IMAPFolders> 
    IMAPConfiguration::GetPublicFolders()
    {
-      return m_pPublicFolders;
+      return public_folders_;
    }
 
 
-   shared_ptr<Groups> 
+   std::shared_ptr<Groups> 
    IMAPConfiguration::GetGroups()
    {
-      return m_pGroups;
+      return groups_;
    }
+
 
    bool 
    IMAPConfiguration::XMLStore(XNode *pBackupNode, int iOptions)
    {
       // Public folders
-      shared_ptr<IMAPFolders> pIMAPFolders = GetPublicFolders();
+      std::shared_ptr<IMAPFolders> pIMAPFolders = GetPublicFolders();
       pIMAPFolders->XMLStore(pBackupNode, iOptions);
 
       if (!GetGroups()->XMLStore(pBackupNode, iOptions))

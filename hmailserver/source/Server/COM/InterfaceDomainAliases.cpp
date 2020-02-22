@@ -11,27 +11,27 @@
 #include "../Common/BO/DomainAlias.h"
 
 void 
-InterfaceDomainAliases::Attach(shared_ptr<HM::DomainAliases> pDomainAliases)
+InterfaceDomainAliases::Attach(std::shared_ptr<HM::DomainAliases> pDomainAliases)
 {
-   m_pDomainAliases = pDomainAliases;
+   domain_aliases_ = pDomainAliases;
 }
 
 STDMETHODIMP InterfaceDomainAliases::get_ItemByDBID(long lDBID, IInterfaceDomainAlias** pVal)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
       CComObject<InterfaceDomainAlias>* pInterfaceDA = new CComObject<InterfaceDomainAlias>();
-      pInterfaceDA->SetAuthentication(m_pAuthentication);
+      pInterfaceDA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDomainAlias = m_pDomainAliases->GetItemByDBID(lDBID);
+      std::shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItemByDBID(lDBID);
       if (!pDomainAlias)
          return DISP_E_BADINDEX;
    
       pInterfaceDA->AttachItem(pDomainAlias);
-      pInterfaceDA->AttachParent(m_pDomainAliases, true);
+      pInterfaceDA->AttachParent(domain_aliases_, true);
       pInterfaceDA->AddRef();
       *pVal = pInterfaceDA;   
    
@@ -47,18 +47,18 @@ STDMETHODIMP InterfaceDomainAliases::get_Item(long lIndex, IInterfaceDomainAlias
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
       CComObject<InterfaceDomainAlias>* pInterfaceAccount = new CComObject<InterfaceDomainAlias>();
-      pInterfaceAccount->SetAuthentication(m_pAuthentication);
+      pInterfaceAccount->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDomainAlias = m_pDomainAliases->GetItem(lIndex);
+      std::shared_ptr<HM::DomainAlias> pDomainAlias = domain_aliases_->GetItem(lIndex);
       if (!pDomainAlias)
          return DISP_E_BADINDEX;
    
       pInterfaceAccount->AttachItem(pDomainAlias);
-      pInterfaceAccount->AttachParent(m_pDomainAliases, true);
+      pInterfaceAccount->AttachParent(domain_aliases_, true);
       pInterfaceAccount->AddRef();
       *pVal = pInterfaceAccount;   
    
@@ -74,21 +74,21 @@ STDMETHODIMP InterfaceDomainAliases::Add(IInterfaceDomainAlias **pVal)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
-      if (!m_pDomainAliases)
-         return m_pAuthentication->GetAccessDenied();
+      if (!domain_aliases_)
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDomainAlias>* pIntDA = new CComObject<InterfaceDomainAlias>();
-      pIntDA->SetAuthentication(m_pAuthentication);
+      pIntDA->SetAuthentication(authentication_);
    
-      shared_ptr<HM::DomainAlias> pDA = shared_ptr<HM::DomainAlias>(new HM::DomainAlias);
+      std::shared_ptr<HM::DomainAlias> pDA = std::shared_ptr<HM::DomainAlias>(new HM::DomainAlias);
    
-      pDA->SetDomainID(m_pDomainAliases->GetDomainID());
+      pDA->SetDomainID(domain_aliases_->GetDomainID());
    
       pIntDA->AttachItem(pDA);
-      pIntDA->AttachParent(m_pDomainAliases, false);
+      pIntDA->AttachParent(domain_aliases_, false);
    
       pIntDA->AddRef();
    
@@ -106,10 +106,10 @@ STDMETHODIMP InterfaceDomainAliases::Refresh(void)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
-      m_pDomainAliases->Refresh();
+      domain_aliases_->Refresh();
    
       return S_OK;
    }
@@ -123,10 +123,10 @@ STDMETHODIMP InterfaceDomainAliases::Delete(LONG Index)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
-      m_pDomainAliases->DeleteItem(Index);
+      domain_aliases_->DeleteItem(Index);
    
       return S_OK;
    }
@@ -140,10 +140,10 @@ STDMETHODIMP InterfaceDomainAliases::DeleteByDBID(LONG DBID)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
-      m_pDomainAliases->DeleteItemByDBID(DBID);
+      domain_aliases_->DeleteItemByDBID(DBID);
    
       return S_OK;
    }
@@ -157,10 +157,10 @@ STDMETHODIMP InterfaceDomainAliases::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pDomainAliases)
+      if (!domain_aliases_)
          return GetAccessDenied();
 
-      *pVal = m_pDomainAliases->GetCount();
+      *pVal = domain_aliases_->GetCount();
    
       return S_OK;
    }

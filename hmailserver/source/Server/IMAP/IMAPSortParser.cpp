@@ -26,7 +26,7 @@ namespace HM
    IMAPSortParser::Parse(const String &sExpression)
    {
       std::vector<String> vecSortCriterias = StringParser::SplitString(sExpression, " ");
-      std::vector<String>::iterator iter = vecSortCriterias.begin();
+      auto iter = vecSortCriterias.begin();
       while (iter != vecSortCriterias.end())
       {
          String sPart = (*iter);
@@ -39,12 +39,12 @@ namespace HM
             if (iter != vecSortCriterias.end())
             {
                sPart = (*iter);
-               m_vecSortTypes.push_back(std::make_pair(false, sPart));
+               sort_types_.push_back(std::make_pair(false, sPart));
             }
          }
          else
          {
-            m_vecSortTypes.push_back(std::make_pair(true, sPart));
+            sort_types_.push_back(std::make_pair(true, sPart));
          }
 
          if (iter != vecSortCriterias.end())

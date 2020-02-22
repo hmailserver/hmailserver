@@ -14,7 +14,7 @@
 namespace HM
 {
    _PNH OutOfMemoryHandler::pOriginalNewHandler = 0;
-   CriticalSection m_gcCritSecFree;
+   boost::recursive_mutex _outOfMemoryHandlerMutex;
    
    BYTE * pMemoryChunk;
 
@@ -29,7 +29,7 @@ namespace HM
    int OnOutOfMemory( size_t )
    {
 	  // Hopefully the scope is smaller then the buffer we've attempted to allocate
-	  CriticalSectionScope scope(m_gcCritSecFree);
+     boost::lock_guard<boost::recursive_mutex> guard(_outOfMemoryHandlerMutex);
 
 	  // Start of by deleting the chunk of memory
 	  // to ensure that we got something to work with.

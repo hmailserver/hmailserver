@@ -13,7 +13,7 @@
 namespace HM
 {
    Aliases::Aliases(__int64 iDomainID) :
-      m_iDomainID(iDomainID)
+      domain_id_(iDomainID)
    {
 
    }
@@ -26,15 +26,15 @@ namespace HM
    Aliases::Refresh()
    {
       String sSQL;
-      sSQL.Format(_T("select * from hm_aliases where aliasdomainid = %I64d order by aliasname asc"), m_iDomainID);
+      sSQL.Format(_T("select * from hm_aliases where aliasdomainid = %I64d order by aliasname asc"), domain_id_);
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    bool
-   Aliases::PreSaveObject(shared_ptr<Alias> pAlias, XNode *node)
+   Aliases::PreSaveObject(std::shared_ptr<Alias> pAlias, XNode *node)
    {
-      pAlias->SetDomainID(m_iDomainID);
+      pAlias->SetDomainID(domain_id_);
 
       return true;
    }

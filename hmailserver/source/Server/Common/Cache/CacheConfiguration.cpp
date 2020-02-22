@@ -23,8 +23,8 @@ namespace HM
    
    }
 
-   shared_ptr<PropertySet> 
-   CacheConfiguration::_GetSettings() const
+   std::shared_ptr<PropertySet> 
+   CacheConfiguration::GetSettings_() const
    {
       return Configuration::Instance()->GetSettings();
    }
@@ -32,63 +32,63 @@ namespace HM
    bool
    CacheConfiguration::GetUseCache() const
    {
-      return (_GetSettings()->GetBool(PROPERTY_USECACHE));
+      return (GetSettings_()->GetBool(PROPERTY_USECACHE));
    }
 
    void
    CacheConfiguration::SetUseCache(bool bEnabled)
    {
-      _GetSettings()->SetBool(PROPERTY_USECACHE, bEnabled);
+      GetSettings_()->SetBool(PROPERTY_USECACHE, bEnabled);
    }
 
 
    int
    CacheConfiguration::GetDomainCacheTTL() const
    {
-      return (_GetSettings()->GetLong(PROPERTY_DOMAINCACHETTL));
+      return (GetSettings_()->GetLong(PROPERTY_DOMAINCACHETTL));
    }
 
    void
    CacheConfiguration::SetDomainCacheTTL(int iNewVal)
    {
-      _GetSettings()->SetLong(PROPERTY_DOMAINCACHETTL, iNewVal);
+      GetSettings_()->SetLong(PROPERTY_DOMAINCACHETTL, iNewVal);
    }
 
 
    int
    CacheConfiguration::GetAccountCacheTTL() const
    {
-      return (_GetSettings()->GetLong(PROPERTY_ACCOUNTCACHETTL));
+      return (GetSettings_()->GetLong(PROPERTY_ACCOUNTCACHETTL));
    }
 
    void
    CacheConfiguration::SetAccountCacheTTL(int iNewVal)
    {
-      _GetSettings()->SetLong(PROPERTY_ACCOUNTCACHETTL, iNewVal);
+      GetSettings_()->SetLong(PROPERTY_ACCOUNTCACHETTL, iNewVal);
    }
 
    int
    CacheConfiguration::GetAliasCacheTTL() const
    {
-      return (_GetSettings()->GetLong(PROPERTY_ALIASCACHETTL));
+      return (GetSettings_()->GetLong(PROPERTY_ALIASCACHETTL));
    }
 
    void
    CacheConfiguration::SetAliasCacheTTL(int iNewVal)
    {
-      _GetSettings()->SetLong(PROPERTY_ALIASCACHETTL, iNewVal);
+      GetSettings_()->SetLong(PROPERTY_ALIASCACHETTL, iNewVal);
    }
 
    int
    CacheConfiguration::GetDistributionListCacheTTL() const
    {
-      return (_GetSettings()->GetLong(PROPERTY_DISTRIBUTIONLISTCACHETTL));
+      return (GetSettings_()->GetLong(PROPERTY_DISTRIBUTIONLISTCACHETTL));
    }
 
    void
    CacheConfiguration::SetDistributionListCacheTTL(int iNewVal)
    {
-      _GetSettings()->SetLong(PROPERTY_DISTRIBUTIONLISTCACHETTL, iNewVal);
+      GetSettings_()->SetLong(PROPERTY_DISTRIBUTIONLISTCACHETTL, iNewVal);
    }
 
    bool 

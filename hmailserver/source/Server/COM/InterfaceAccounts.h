@@ -27,7 +27,7 @@ public:
       InterlockedIncrement(&counter);
 
 #endif
-      m_iDomainID = 0;
+      domain_id_ = 0;
    }
 
    ~InterfaceAccounts()
@@ -37,7 +37,7 @@ public:
 #endif
    }
 
-   // void SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication);
+   // void SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEACCOUNTS)
 
@@ -68,15 +68,15 @@ END_COM_MAP()
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceAccount** pVal);
    STDMETHOD(get_Count)(/*[out, retval]*/ long *pVal);
 
-   void Attach(shared_ptr<HM::Accounts> pAccounts);
-   void SetDomain(__int64 Domain) { m_iDomainID = Domain; }
+   void Attach(std::shared_ptr<HM::Accounts> pAccounts);
+   void SetDomain(__int64 Domain) { domain_id_ = Domain; }
 
 private:
 
-   shared_ptr<HM::Accounts> m_pAccounts;
-   //shared_ptr<HM::COMAuthentication> m_pAuthentication;
+   std::shared_ptr<HM::Accounts> accounts_;
+   //std::shared_ptr<HM::COMAuthentication> authentication_;
 
-   __int64 m_iDomainID;
+   __int64 domain_id_;
 
 #ifdef _DEBUG
    static long counter;

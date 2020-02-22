@@ -9,6 +9,7 @@ namespace HM
    class Domain;
    class Account;
    class IMAPFolder;
+   enum PersistenceMode;
 
    class PersistentMessage 
                      
@@ -24,30 +25,30 @@ namespace HM
          AccountFolder = 3
       };
 
-      static shared_ptr<Message> CopyToQueue(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage);
-      static shared_ptr<Message> CopyToIMAPFolder(shared_ptr<const Account> sourceAccount, shared_ptr<Message> sourceMessage, shared_ptr<IMAPFolder> destinationFolder);
-      static shared_ptr<Message> CopyFromQueueToInbox(shared_ptr<Message> sourceMessage, shared_ptr<const Account> destinationAccount);
+      static std::shared_ptr<Message> CopyToQueue(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage);
+      static std::shared_ptr<Message> CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder);
+      static std::shared_ptr<Message> CopyFromQueueToInbox(std::shared_ptr<Message> sourceMessage, std::shared_ptr<const Account> destinationAccount);
 
-      static bool DeleteObject(shared_ptr<Message> pMessage);
-      static bool SaveObject(shared_ptr<Message> pMessage);
-      static bool SaveObject(shared_ptr<Message> pMessage, String &errorMessage);
-      static bool AddObject(const shared_ptr<Message> pMessage);
+      static bool DeleteObject(std::shared_ptr<Message> pMessage);
+      static bool SaveObject(std::shared_ptr<Message> pMessage);
+      static bool SaveObject(std::shared_ptr<Message> pMessage, String &errorMessage, PersistenceMode mode);
+      static bool AddObject(const std::shared_ptr<Message> pMessage);
       static bool LockObject(__int64 ObjectID);
-      static bool LockObject(shared_ptr<Message> pMessage );
-      static bool UnlockObject(shared_ptr<Message> pMessage);
+      static bool LockObject(std::shared_ptr<Message> pMessage );
+      static bool UnlockObject(std::shared_ptr<Message> pMessage);
       static bool UnlockAll();
-      static bool DeleteFile(shared_ptr<const Account> account, shared_ptr<Message> pMessage);
+      static bool DeleteFile(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage);
 
       static bool GetMessageID(const String &fileName, __int64 &messageID, bool &isPartialFilename);
-      static bool ReadObject(shared_ptr<DALRecordset> pRS, shared_ptr<Message> pMessage, bool bReadRecipients = true);
-      static bool ReadObject(shared_ptr<Message> pMessage, __int64 ObjectID);
-      static bool ReadObject(shared_ptr<Message> pMessage, const SQLCommand &command);
+      static bool ReadObject(std::shared_ptr<DALRecordset> pRS, std::shared_ptr<Message> pMessage, bool bReadRecipients = true);
+      static bool ReadObject(std::shared_ptr<Message> pMessage, __int64 ObjectID);
+      static bool ReadObject(std::shared_ptr<Message> pMessage, const SQLCommand &command);
 
       static bool SetNextTryTime(__int64 iMessageID, bool bUpdateNoOfTries, long lNoOfMinutes);
-      static void EnsureFileExistance(shared_ptr<const Account> account, shared_ptr<Message> pMessage);
+      static void EnsureFileExistance(std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage);
       
-      static bool MoveFileToPublicFolder(const String &sourceLocation, shared_ptr<Message> pMessage);
-      static bool MoveFileToUserFolder(const String &sourceLocation, shared_ptr<Message>, shared_ptr<const Account> destinationAccount);
+      static bool MoveFileToPublicFolder(const String &sourceLocation, std::shared_ptr<Message> pMessage);
+      static bool MoveFileToUserFolder(const String &sourceLocation, std::shared_ptr<Message>, std::shared_ptr<const Account> destinationAccount);
 
       static bool GetAllMessageFilesAreInDataFolder();
       static bool GetAllMessageFilesArePartialNames();
@@ -55,40 +56,35 @@ namespace HM
       static int GetTotalMessageCount();
       static int GetTotalMessageCountDelivered();
       
-      static __int64 GetTotalMessageSize();
-      // Returns the total size of all messages, calculated in megabytes
-
       static bool DeleteByAccountID(__int64 iAccountID);
 
       static AnsiString LoadHeader(const String &fileName);
       static AnsiString LoadHeader(const String &fileName, bool reportError);
       static AnsiString LoadBody(const String &fileName);
 
-      static String GetFileName(shared_ptr<const Message> message);
-      static String GetFileName(shared_ptr<const Message> message, FileLocation location);
-      static String GetFileName(shared_ptr<const Account> account, shared_ptr<const Message> message);
-      static String GetFileName(shared_ptr<const Account> account, shared_ptr<const Message> message, FileLocation location);
-      static String GetFileName(const String &accountAddress, shared_ptr<const Message> message);
-      static String GetFileName(const String &accountAddress, shared_ptr<const Message> message, FileLocation location);
+      static String GetFileName(std::shared_ptr<const Message> message);
+      static String GetFileName(std::shared_ptr<const Message> message, FileLocation location);
+      static String GetFileName(std::shared_ptr<const Account> account, std::shared_ptr<const Message> message);
+      static String GetFileName(std::shared_ptr<const Account> account, std::shared_ptr<const Message> message, FileLocation location);
+      static String GetFileName(const String &accountAddress, std::shared_ptr<const Message> message);
+      static String GetFileName(const String &accountAddress, std::shared_ptr<const Message> message, FileLocation location);
 
       static bool GetPartialFilename(const String &fullPath, String &partialPath);
 
-      static bool SaveFlags(shared_ptr<Message> message);
+      static bool SaveFlags(std::shared_ptr<Message> message);
 
       static bool IsPartialPath(const String &path);
       int GetLatestMessageId();
 
    private:
       
-      static shared_ptr<Message> _CreateCopy(shared_ptr<Message> sourceMessage, int destinationAccountID);
-
-      static bool _MoveMessageFileToFolder(const String &sourceLocation, shared_ptr<Message> pMessage, shared_ptr<const Account> destinationAccount);
+      static std::shared_ptr<Message> CreateCopy_(std::shared_ptr<Message> sourceMessage, int destinationAccountID);
 
       // Recipient functions begin
-      static bool _ReadRecipients(shared_ptr<Message> pMessage);
-      static bool _SaveRecipients(shared_ptr<Message> pMessage);
+      static bool ReadRecipients_(std::shared_ptr<Message> pMessage);
+      static bool SaveRecipients_(std::shared_ptr<Message> pMessage);
       // Recipient functions end
    };
 
-   typedef shared_ptr<Message> MessageSP;
+   typedef std::shared_ptr<Message> MessageSP;
 }

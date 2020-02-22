@@ -15,27 +15,27 @@ namespace HM
       virtual ~IMAPSimpleWord();
 
       bool Quoted();
-      void Quoted(bool bNewVal) {m_bIsQuoted = bNewVal; }
+      void Quoted(bool bNewVal) {is_quoted_ = bNewVal; }
 
       bool Paranthezied();
-      void Paranthezied(bool bNewVal) {m_bIsParanthezied = bNewVal; }
+      void Paranthezied(bool bNewVal) {is_paranthezied_ = bNewVal; }
 
       bool Clammerized ();
-      void Clammerized(bool bNewVal) {m_bIsClammerized = bNewVal; }
+      void Clammerized(bool bNewVal) {is_clammerized_ = bNewVal; }
 
       String Value();
       void Value(const String &sNewVal);
 
-      String LiteralData() {return m_sLiteralData;}
-      void LiteralData(const String &sNewVal) {m_sLiteralData = sNewVal; }
+      String LiteralData() {return literal_data_;}
+      void LiteralData(const String &sNewVal) {literal_data_ = sNewVal; }
 
    private:
-      String m_sWord;
-      String m_sLiteralData;
+      String word_;
+      String literal_data_;
 
-      bool m_bIsQuoted;
-      bool m_bIsParanthezied;
-      bool m_bIsClammerized;
+      bool is_quoted_;
+      bool is_paranthezied_;
+      bool is_clammerized_;
 
    };
 
@@ -45,19 +45,19 @@ namespace HM
 	   IMAPSimpleCommandParser();
 	   virtual ~IMAPSimpleCommandParser();
 
-      void Parse(shared_ptr<IMAPCommandArgument> pArgument);
-      int WordCount() {return m_vecParsedWords.size(); }
-      int ParamCount() {return m_vecParsedWords.size() - 1; }
+      void Parse(std::shared_ptr<IMAPCommandArgument> pArgument);
+      size_t WordCount() {return parsed_words_.size(); }
+      size_t ParamCount() { return parsed_words_.size() - 1; }
       
-      String GetParamValue(shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
+      String GetParamValue(std::shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
 
-      shared_ptr<IMAPSimpleWord> Word(int iIndex) {return m_vecParsedWords[iIndex]; }
+      std::shared_ptr<IMAPSimpleWord> Word(size_t iIndex) {return parsed_words_[iIndex]; }
 
-      shared_ptr<IMAPSimpleWord> QuotedWord();
-      shared_ptr<IMAPSimpleWord> ParantheziedWord();
-      shared_ptr<IMAPSimpleWord> ClammerizedWord();
+      std::shared_ptr<IMAPSimpleWord> QuotedWord();
+      std::shared_ptr<IMAPSimpleWord> ParantheziedWord();
+      std::shared_ptr<IMAPSimpleWord> ClammerizedWord();
 
-      void AddWord(shared_ptr<IMAPSimpleWord> pWord) {m_vecParsedWords.push_back(pWord); }
+      void AddWord(std::shared_ptr<IMAPSimpleWord> pWord) {parsed_words_.push_back(pWord); }
 
       void RemoveWord(int iWordIdx);
 
@@ -66,10 +66,10 @@ namespace HM
    private:
 
 
-      int _FindEndOfQuotedString(const String &sInputString, int iWordStartPos);
-      std::vector<shared_ptr<IMAPSimpleWord> > m_vecParsedWords;
+      int FindEndOfQuotedString_(const String &sInputString, int iWordStartPos);
+      std::vector<std::shared_ptr<IMAPSimpleWord> > parsed_words_;
 
-      bool _Validate(const String &command);
+      bool Validate_(const String &command);
 
    };
 

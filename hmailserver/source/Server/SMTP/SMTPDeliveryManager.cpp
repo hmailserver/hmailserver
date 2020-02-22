@@ -29,28 +29,33 @@
 namespace HM
 {
    SMTPDeliveryManager::SMTPDeliveryManager() :
-      m_sQueueName("SMTP delivery queue"),
-      m_bUncachePendingMessages(false)
+      Task("SMTPDeliveryManager"),
+      queue_name_("SMTP delivery queue"),
+      uncache_pending_messages_(false)
    {
-      m_evtTimer = CreateWaitableTimer(NULL, FALSE, _T(""));
-
-      m_lCurNumberOfSent = 0;
+      cur_number_of_sent_ = 0;
 
       int iMaxNumberOfThreads = Configuration::Instance()->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
-      m_iQueueID = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, m_sQueueName, WorkQueue::eQTPreLoad);
+      queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, queue_name_);
+
    }  
 
    SMTPDeliveryManager::~SMTPDeliveryManager()
    {
-      CloseHandle(m_evtTimer);
+      try
+      {
+         WorkQueueManager::Instance()->RemoveQueue(queue_name_);
+      }
+      catch (...)
+      {
 
-      WorkQueueManager::Instance()->RemoveQueue(m_sQueueName);
+      }
    }
 
    void 
    SMTPDeliveryManager::SetDeliverMessage()
    {
-      m_evtDeliverMessage.Set();
+      deliver_messages_.Set();
    }
 
    const String &
@@ -60,7 +65,7 @@ namespace HM
    // Return the name of the delivery queue.
    //---------------------------------------------------------------------------
    {
-      return m_sQueueName;
+      return queue_name_;
    }
 
    void
@@ -72,16 +77,20 @@ namespace HM
    {
       LOG_DEBUG("SMTPDeliveryManager::Start()");
 
+      SetIsStarted();
+
       // Unlock all messages
       PersistentMessage::UnlockAll();
 
-      shared_ptr<WorkQueue> pQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+      std::shared_ptr<WorkQueue> pQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+
+      boost::mutex deliver_mutex;
 
       while (1)
       {
          // Deliver all pending messages
-         shared_ptr<Message> pMessage;
-         while (pMessage = _GetNextMessage())
+         std::shared_ptr<Message> pMessage;
+         while (pMessage = GetNextMessage_())
          {
             // Lock this message
             if (!PersistentMessage::LockObject(pMessage))
@@ -91,79 +100,51 @@ namespace HM
                continue;
             }
 
-            shared_ptr<DeliveryTask> pDeliveryTask = shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
-            WorkQueueManager::Instance()->AddTask(m_iQueueID, pDeliveryTask);
-            
-            m_lCurNumberOfSent++;
+            std::shared_ptr<DeliveryTask> pDeliveryTask = std::shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
+            WorkQueueManager::Instance()->AddTask(queue_id_, pDeliveryTask);
 
-            _SendStatistics();
+            cur_number_of_sent_++;
+
+            SendStatistics_();
 
             ServerStatus::Instance()->OnMessageProcessed();
          }
 
-         _StartTimer();
-
-         const int iSize = 3;
-         HANDLE handles[iSize];
-
-         handles[0] = m_hStopRequest.GetHandle();
-         handles[1] = m_evtDeliverMessage.GetHandle();
-         handles[2] = m_evtTimer;
-      
-         DWORD dwWaitResult = WaitForMultipleObjects(iSize, handles, FALSE, INFINITE);
-
-         int iEvent = dwWaitResult - WAIT_OBJECT_0;
-      
-         switch (iEvent)
-         {
-         case 0:
-            // We should stop now
-            _SendStatistics(true);
-            return;
-         case 1:
-            // --- Reset the event to give someone else the chance to 
-            //     sending emails.
-            m_evtDeliverMessage.Reset();
-            break;
-         }
-
+         deliver_messages_.WaitFor(boost::chrono::minutes(1));
       }
-
-      _SendStatistics(true);
-      
       
       return;
    }
 
    void
-   SMTPDeliveryManager::_SendStatistics(bool bIgnoreMessageCount)
+   SMTPDeliveryManager::SendStatistics_(bool bIgnoreMessageCount)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Sends statistics to hMailServer.com
    //---------------------------------------------------------------------------
    {
-      if (m_lCurNumberOfSent > 1000 || (bIgnoreMessageCount && m_lCurNumberOfSent > 5))
+      if (cur_number_of_sent_ > 1000 || (bIgnoreMessageCount && cur_number_of_sent_ > 5))
       {
          if (Configuration::Instance()->GetSendStatistics())
          {
             // Send statistics to server.
             StatisticsSender Sender;
             
-            Sender.SendStatistics(m_lCurNumberOfSent);
+            Sender.SendStatistics(cur_number_of_sent_);
 
             // Always reset the number. If the statistics sender can't connect
             // to hMailServer for some reason, we should not try immediately again
             // and instead just give up.
-            m_lCurNumberOfSent = 0;
+            cur_number_of_sent_ = 0;
          }
          else
-            m_lCurNumberOfSent = 0;
+            cur_number_of_sent_ = 0;
       }
 
    }
 
    void
-   SMTPDeliveryManager::_LoadPendingMessageList()
+   SMTPDeliveryManager::LoadPendingMessageList_()
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Loads a list of messages that should be delivered from the database
@@ -179,11 +160,11 @@ namespace HM
       // String sql = Formatter::Format("select * from hm_messages where messagetype = 1 and messagelocked = 0 and messagenexttrytime <= {0} order by messageid asc", SQLStatement::GetCurrentTimestamp());
       SQLCommand command(sql);
 
-      m_pPendingMessages = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      pending_messages_ = Application::Instance()->GetDBManager()->OpenRecordset(command);
    }
 
-   shared_ptr<Message>
-   SMTPDeliveryManager::_GetNextMessage()
+   std::shared_ptr<Message>
+   SMTPDeliveryManager::GetNextMessage_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Retrives the first unlcoked message from the database and tries to lock it.
@@ -191,19 +172,19 @@ namespace HM
    // 0 is returned if no messages exists.
    //---------------------------------------------------------------------------()
    {
-      if (!m_pPendingMessages || m_pPendingMessages->IsEOF() || m_bUncachePendingMessages)
+      if (!pending_messages_ || pending_messages_->IsEOF() || uncache_pending_messages_)
       {
-         m_bUncachePendingMessages = false;
+         uncache_pending_messages_ = false;
 
-         _LoadPendingMessageList();
+         LoadPendingMessageList_();
       }
 
-      shared_ptr<Message> pRetMessage;
-      if (!m_pPendingMessages || m_pPendingMessages->IsEOF())
+      std::shared_ptr<Message> pRetMessage;
+      if (!pending_messages_ || pending_messages_->IsEOF())
          return pRetMessage;
       
       // Fetch the ID of the first message
-      __int64 iMessageID = m_pPendingMessages->GetInt64Value("messageid");
+      __int64 iMessageID = pending_messages_->GetInt64Value("messageid");
 
       // Try to read this message from the message cache. Might fail.
       pRetMessage = MessageCache::Instance()->GetMessage(iMessageID);
@@ -213,46 +194,14 @@ namespace HM
          // Message was not found in cache. Read from database. Will
          // require 1 extra statement towards the database, since we
          // need to read recipients 
-         pRetMessage = shared_ptr<Message> (new Message(false));
-         PersistentMessage::ReadObject(m_pPendingMessages, pRetMessage);
+         pRetMessage = std::shared_ptr<Message> (new Message(false));
+         PersistentMessage::ReadObject(pending_messages_, pRetMessage);
       }
 
       // Move to the next message in the cache.
-      m_pPendingMessages->MoveNext();
+      pending_messages_->MoveNext();
 
       return pRetMessage;
-   }
-
-
-   void
-   SMTPDeliveryManager::_StartTimer() 
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Create a timer that sets the event in one minut.
-   //---------------------------------------------------------------------------
-   {
-
-      LARGE_INTEGER liDueTime;
-      liDueTime.QuadPart=-600000000; // every minute!
-
-      // Set the timer.
-      BOOL bResult = SetWaitableTimer(m_evtTimer, &liDueTime, NULL, NULL, NULL, FALSE);
-
-      if (bResult == 0)
-      {
-         assert(0); // error
-      }
-   }
-  
-   void 
-   SMTPDeliveryManager::StopWork()
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // The thread should be stopped.
-   //---------------------------------------------------------------------------
-   {
-      // We should exit DoWork
-      m_hStopRequest.Set();
    }
 
    void 
@@ -263,17 +212,17 @@ namespace HM
    // normally only required if the delivery queue should be clear
    //---------------------------------------------------------------------------
    {
-      m_bUncachePendingMessages = true;
+      uncache_pending_messages_ = true;
    }
 
    void
-   SMTPDeliveryManager::OnPropertyChanged(shared_ptr<Property> pProperty)
+   SMTPDeliveryManager::OnPropertyChanged(std::shared_ptr<Property> pProperty)
    {
       String sPropertyName = pProperty->GetName();
       
       if (sPropertyName == PROPERTY_MAXDELIVERYTHREADS)
       {
-         shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
+         std::shared_ptr<WorkQueue> pWorkQueue = WorkQueueManager::Instance()->GetQueue(GetQueueName());
          
          if (!pWorkQueue)
             return;

@@ -74,7 +74,7 @@ namespace HM
       readData.TrimRight("\n");
 
       // Determine port.
-      string portString = readData.Mid(5);
+      std::string portString = readData.Mid(5);
       
       if (!StringParser::TryParseInt(portString, streamPort))
          return VirusScanningResult("ClamAVVirusScanner::Scan", Formatter::Format("Protocol error. Unexpected response: {0} (Unable to parse port).", readData));
@@ -96,9 +96,9 @@ namespace HM
       const int maxIterations = 100000;
       for (int i = 0; i < maxIterations; i++)
       {
-         shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(STREAM_BLOCK_SIZE);
+         std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(STREAM_BLOCK_SIZE);
 
-         if (!pBuf)
+         if (pBuf->GetSize() == 0)
             break;
 
          // Send the request.

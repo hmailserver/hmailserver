@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+ï»¿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -160,7 +160,7 @@ namespace HM
 
       // Format encording string according to RFC (above)
       String sEncodedWord;
-      sEncodedWord.Format(_T("=?%s?%s?%s?="), _T("iso-8859-1"), _T("B"), sB64Encoded);
+      sEncodedWord.Format(_T("=?%s?%s?%s?="), _T("iso-8859-1"), _T("B"), sB64Encoded.c_str());
 
       return sEncodedWord; 
    }
@@ -223,8 +223,8 @@ namespace HM
       setDoesNotNeedEncoding.push_back("=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>");
       setDoesNotNeedEncoding.push_back("Nathaniel Borenstein <nsb@thumper.bellcore.com> (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)");
 
-      std::vector<String>::iterator iter = setDoesNotNeedEncoding.begin();
-      std::vector<String>::iterator iterEnd = setDoesNotNeedEncoding.end();
+      auto iter = setDoesNotNeedEncoding.begin();
+      auto iterEnd = setDoesNotNeedEncoding.end();
 
       for (; iter != iterEnd; iter++)
       {
@@ -237,9 +237,9 @@ namespace HM
 
       std::vector<String> setNeedsEncoding;
       setNeedsEncoding.push_back("=?iso-8859-1?q?this is some text?=");
-      setNeedsEncoding.push_back("åäö");
-      setNeedsEncoding.push_back("ÅÄÖ");
-      setDoesNotNeedEncoding.push_back("Re: =?ISO-8859-1?Q?Reuni=E3o?= =?ISO-8859-1?Q?Reuni=E3o?=ÖABCD =?ISO-8859-1?Q?Reuni=E3o?= ABCD");
+      setNeedsEncoding.push_back("Ã¥Ã¤Ã¶");
+      setNeedsEncoding.push_back("Ã…Ã„Ã–");
+      setDoesNotNeedEncoding.push_back("Re: =?ISO-8859-1?Q?Reuni=E3o?= =?ISO-8859-1?Q?Reuni=E3o?=Ã–ABCD =?ISO-8859-1?Q?Reuni=E3o?= ABCD");
 
       iter = setNeedsEncoding.begin();
       iterEnd = setNeedsEncoding.end();

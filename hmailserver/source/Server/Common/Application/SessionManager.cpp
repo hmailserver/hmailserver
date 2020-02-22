@@ -25,10 +25,13 @@
 
 namespace HM
 {
+   /*
+      We pre-create one connection per protocol, so we set the counters to -1 here.
+   */
    SessionManager::SessionManager(void) :
-      m_iNoOfIMAPConnections(0),
-      m_iNoOfSMTPConnections(0),
-      m_iNoOfPOP3Connections(0)
+      no_of_imapconnections_(0),
+      no_of_smtpconnections_(0),
+      no_of_pop3connections_(0)
    {
 
    }
@@ -37,141 +40,151 @@ namespace HM
    {
    }
 
+   bool 
+   SessionManager::CreateSession(SessionType session_type, std::shared_ptr<SecurityRange> security_range)
+   {
+      switch (session_type)
+      {
+      case STSMTP:
+         if (security_range == nullptr || !security_range->GetAllowSMTP())
+            return false;
+         break;
+      case STPOP3:
+         if (security_range == nullptr || !security_range->GetAllowPOP3())
+            return false;
+         break;
+      case STIMAP:
+         if (security_range == nullptr || !security_range->GetAllowIMAP())
+            return false;
+         break;
+      }
+     
+      // Check max per protocol
+      int max_connections = 0;
+      switch (session_type)
+      {
+      case STSMTP:
+         {
+            int connection_count = no_of_smtpconnections_.fetch_add(1) + 1;
+
+            max_connections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_smtpconnections_--;
+               return false;
+            }
+
+            break;
+         }
+      case STPOP3:
+         {
+            int connection_count = no_of_pop3connections_.fetch_add(1) + 1;
+
+            max_connections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_pop3connections_--;
+               return false;
+            }
+
+            break;
+         }
+      case STIMAP:
+         {
+            int connection_count = no_of_imapconnections_.fetch_add(1) + 1;
+
+            max_connections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
+            if (max_connections > 0 && connection_count > max_connections)
+            {
+               no_of_imapconnections_--;
+               return false;
+            }
+
+            break;
+         }
+      }
+
+      return true;
+   }
+
    void 
-   SessionManager::OnDisconnect(SessionType st)
+   SessionManager::OnSessionEnded(SessionType st)
    {
       switch (st)
       {
       case STSMTP:
-         InterlockedDecrement(&m_iNoOfSMTPConnections);
+         no_of_smtpconnections_--;
          break;
       case STPOP3:
-         InterlockedDecrement(&m_iNoOfPOP3Connections);
+         no_of_pop3connections_--;
          break;
       case STIMAP:
-         InterlockedDecrement(&m_iNoOfIMAPConnections);
+         no_of_imapconnections_--;
          break;
       }
-   }
 
-   shared_ptr<ProtocolParser>
-   SessionManager::CreateConnection(SessionType t, shared_ptr<SecurityRange> securityRange)
-   {
-      shared_ptr<ProtocolParser> pParser;
-
-      // Check max per protocol
-      int iMaxConnections = 0;
-      switch (t)
+#ifdef DEBUG
+      switch (st)
       {
       case STSMTP:
-         {
-            iMaxConnections = Configuration::Instance()->GetSMTPConfiguration()->GetMaxSMTPConnections();
-            if (iMaxConnections > 0 && m_iNoOfSMTPConnections >= iMaxConnections)
-               return pParser;
-
-            break;
-         }
+         if (no_of_smtpconnections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
       case STPOP3:
-         {
-            iMaxConnections = Configuration::Instance()->GetPOP3Configuration()->GetMaxPOP3Connections();
-            if (iMaxConnections > 0 && m_iNoOfPOP3Connections >= iMaxConnections)
-               return pParser;
-
-            break;
-         }
+         if (no_of_pop3connections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
       case STIMAP:
-         {
-            iMaxConnections = Configuration::Instance()->GetIMAPConfiguration()->GetMaxIMAPConnections();
-            if (iMaxConnections > 0 && m_iNoOfIMAPConnections >= iMaxConnections)
-               return pParser;
-            break;
-         }
+         if (no_of_imapconnections_ < 0)
+            throw std::logic_error("Negative session count.");
+         break;
       }
+#endif
 
-
-      // Check that client isn't blocked by IP range.
-      bool bConnectionAllowed = false;
-      switch (t)
-      {
-         case STSMTP:
-            if (!securityRange->GetAllowSMTP())
-               return pParser;
-            break;
-         case STPOP3:
-            if (!securityRange->GetAllowPOP3())
-               return pParser;
-            break;
-         case STIMAP:
-            if (!securityRange->GetAllowIMAP())
-               return pParser;
-            break;
-      }
-
-
-      switch (t)
-      {
-      case STSMTP:
-         {
-            InterlockedIncrement(&m_iNoOfSMTPConnections);
-            pParser = shared_ptr<SMTPConnection>(new SMTPConnection());
-            break;
-         }
-      case STPOP3:
-         {
-            InterlockedIncrement(&m_iNoOfPOP3Connections);
-            pParser = shared_ptr<POP3Connection>(new POP3Connection());
-            break;
-         }
-      case STIMAP:
-         {
-            InterlockedIncrement(&m_iNoOfIMAPConnections);
-            pParser = shared_ptr<IMAPConnection>(new IMAPConnection());
-            break;
-         }
-      }
-
-      return pParser;
    }
 
-   long
+
+   int
    SessionManager::GetNumberOfConnections(SessionType st)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the number of connections for a specific connection timeout
    //---------------------------------------------------------------------------()
    {
+      int result = 0;
+
       switch (st)
       {
       case STSMTP:
-         return m_iNoOfSMTPConnections;
+         result = no_of_smtpconnections_;
          break;
       case STPOP3:
-         return m_iNoOfPOP3Connections;
+         result = no_of_pop3connections_;
          break;
       case STIMAP:
-         return m_iNoOfIMAPConnections;
+         result = no_of_imapconnections_;
          break;
       }
 
-      return -1;
+      if (result < 0)
+      {
+         // During start-up, the counter may not be initialized yet. (Defualt = -1)
+         result = 0;
+      }
+
+      return result;
    }
 
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns the total number of connections.
    //---------------------------------------------------------------------------()
-   unsigned long
+   int
    SessionManager::GetNumberOfConnections()
    {
-      long smtpConnectins = 0;
-      long pop3Connections = 0;
-      long imapConnections = 0;
-
-      InterlockedExchange(&smtpConnectins, m_iNoOfSMTPConnections);
-      InterlockedExchange(&pop3Connections, m_iNoOfPOP3Connections);
-      InterlockedExchange(&imapConnections, m_iNoOfIMAPConnections);
-
-      return smtpConnectins + pop3Connections + imapConnections;
+      return GetNumberOfConnections(STSMTP) + 
+             GetNumberOfConnections(STPOP3) +
+             GetNumberOfConnections(STIMAP);
    }
 
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -30,7 +31,7 @@ namespace RegressionTests.AntiSpam.DKIM
       private string GetPrivateKeyFile()
       {
          string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\SSL examples";
+         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\..\\SSL examples";
          string sslPath = Environment.CurrentDirectory;
          Environment.CurrentDirectory = originalPath;
 
@@ -50,8 +51,9 @@ namespace RegressionTests.AntiSpam.DKIM
          deliveryResults["test@example.com"] = 250;
 
          int port = TestSetup.GetNextFreePort();
-         using (var server = new SMTPServerSimulator(1, port))
+         using (var server = new SmtpServerSimulator(1, port))
          {
+            server.SecondsToWaitBeforeTerminate = 60;
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
@@ -59,16 +61,16 @@ namespace RegressionTests.AntiSpam.DKIM
             AddRoutePointingAtLocalhost(5, port);
 
             // Send message to this route.
-            var smtp = new SMTPClientSimulator();
+            var smtp = new SmtpClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@example.com");
-            Assert.IsTrue(smtp.Send("test@test.com", recipients, "Test", body));
+            smtp.Send("test@test.com", recipients, "Test", body);
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
             string messageData = server.MessageData;
 
-            TestSetup.AssertRecipientsInDeliveryQueue(0);
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             return messageData;
          }
@@ -262,7 +264,7 @@ namespace RegressionTests.AntiSpam.DKIM
          string result = SendMessage();
          Assert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError();
+         CustomAsserts.AssertReportedError("Either the selector or private key file was not specified.");
       }
 
       [Test]
@@ -276,7 +278,7 @@ namespace RegressionTests.AntiSpam.DKIM
          string result = SendMessage();
          Assert.IsFalse(result.ToLower().Contains("dkim-signature"), result);
 
-         TestSetup.AssertReportedError();
+         CustomAsserts.AssertReportedError("Either the selector or private key file was not specified.");
       }
    }
 }

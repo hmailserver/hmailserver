@@ -13,7 +13,7 @@
 namespace HM
 {
    MacroParser::MacroParser(const String &macroString) :
-      _macroString(macroString)
+      macro_string_(macroString)
    {
       
    }
@@ -27,11 +27,11 @@ namespace HM
    Macro 
    MacroParser::Parse()
    {
-      if (_macroString.StartsWith(_T("HM_DROP_COLUMN_OBJECTS")))
+      if (macro_string_.StartsWith(_T("HM_DROP_COLUMN_OBJECTS")))
       {
-         int pos = _macroString.Find(_T(" "));
+         int pos = macro_string_.Find(_T(" "));
 
-         String columnSpecifier = _macroString.Mid(pos);
+         String columnSpecifier = macro_string_.Mid(pos);
 
          int separator = columnSpecifier.Find(_T("."));
 
@@ -48,26 +48,26 @@ namespace HM
 
          return macro;
       }
-      else if (_macroString == _T("UPDATE_MESSAGES_SET_FOLDER_INBOX"))
+      else if (macro_string_ == _T("UPDATE_MESSAGES_SET_FOLDER_INBOX"))
       {
          Macro macro;
          macro.SetType(Macro::SQLCEUPDATE_MESSAGES_SET_FOLDER_INBOX);
          return macro;
       }
-      else if (_macroString == _T("UPDATE_FOLDERS_SET_CURRENT_UID"))
+      else if (macro_string_ == _T("UPDATE_FOLDERS_SET_CURRENT_UID"))
       {
          Macro macro;
          macro.SetType(Macro::SQLCEUPDATE_FOLDERS_SET_CURRENT_UID);
          return macro;
       }
-      else if (_macroString == _T("UPDATE_FOLDERS_SET_NEW_PARENTFOLDERID_WHERE_ZERO"))
+      else if (macro_string_ == _T("UPDATE_FOLDERS_SET_NEW_PARENTFOLDERID_WHERE_ZERO"))
       {
          Macro macro;
          macro.SetType(Macro::SQLCEUPDATE_FOLDERS_SET_NEW_PARENTFOLDERID_WHERE_ZERO);
          
          return macro;
       }
-      else if (_macroString == _T("SQLCE_UPDATE_IMAP_HIERARCHY_DELIMITER"))
+      else if (macro_string_ == _T("SQLCE_UPDATE_IMAP_HIERARCHY_DELIMITER"))
       {
          Macro macro;
          macro.SetType(Macro::SQLCE_UPDATE_IMAP_HIERARCHY_DELIMITER);

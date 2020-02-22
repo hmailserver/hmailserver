@@ -26,23 +26,23 @@ InterfaceGlobalObjects::InterfaceSupportsErrorInfo(REFIID riid)
 }
 
 void
-InterfaceGlobalObjects::SetAuthentication(shared_ptr<HM::COMAuthentication> pAuthentication)
+InterfaceGlobalObjects::SetAuthentication(std::shared_ptr<HM::COMAuthentication> pAuthentication)
 {
-   m_pAuthentication = pAuthentication;
+   authentication_ = pAuthentication;
 }
 
 STDMETHODIMP InterfaceGlobalObjects::get_DeliveryQueue(IInterfaceDeliveryQueue **pVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       CComObject<InterfaceDeliveryQueue>* pInterfaceDeliveryQueue = new CComObject<InterfaceDeliveryQueue>;
-      pInterfaceDeliveryQueue->SetAuthentication(m_pAuthentication);
+      pInterfaceDeliveryQueue->SetAuthentication(authentication_);
    
       pInterfaceDeliveryQueue->AddRef();
       *pVal = pInterfaceDeliveryQueue;
@@ -59,7 +59,7 @@ STDMETHODIMP InterfaceGlobalObjects::get_Languages(IInterfaceLanguages **pVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
       CComObject<InterfaceLanguages>* pLanguageInt = new CComObject<InterfaceLanguages>();

@@ -19,20 +19,17 @@ namespace HM
       ~ExternalFetchManager(void);
 
       void DoWork();
-      void StopWork();
       
       void SetCheckNow();
-
    private:
 
-      bool _FetchIsAllowed(shared_ptr<FetchAccount> pFA);
+      bool FetchIsAllowed_(std::shared_ptr<FetchAccount> pFA);
 
-      shared_ptr<FetchAccounts> m_pFetchAccounts;
+      std::shared_ptr<FetchAccounts> fetch_accounts_;
 
-      Event m_hStopTask;
-      Event m_hCheckNow;
+      size_t queue_id_;
+      const String queue_name_;
 
-      int m_iQueueID;
-      const String m_sQueueName;
+      Event check_now_;
    };
 }

@@ -6,6 +6,7 @@
 namespace HM
 {
    class SURBLServer;
+   enum PersistenceMode;
 
    class PersistentSURBLServer
    {
@@ -13,10 +14,10 @@ namespace HM
       PersistentSURBLServer(void);
       ~PersistentSURBLServer(void);
       
-      static bool DeleteObject(shared_ptr<SURBLServer> pObject);
-      static bool SaveObject(shared_ptr<SURBLServer> pObject);
-      static bool SaveObject(shared_ptr<SURBLServer> pObject, String &errorMessage);
-      static bool ReadObject(shared_ptr<SURBLServer> pObject, shared_ptr<DALRecordset> pRS);
+      static bool DeleteObject(std::shared_ptr<SURBLServer> pObject);
+      static bool SaveObject(std::shared_ptr<SURBLServer> pObject);
+      static bool SaveObject(std::shared_ptr<SURBLServer> pObject, String &errorMessage, PersistenceMode mode);
+      static bool ReadObject(std::shared_ptr<SURBLServer> pObject, std::shared_ptr<DALRecordset> pRS);
 
    };
 }

@@ -25,11 +25,26 @@ namespace HM
                                              const FormatArgument &argument3,
                                              const FormatArgument &argument4,
                                              const FormatArgument &argument5);
+
+      static AnsiString FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1);
+      static AnsiString FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2);
+      static AnsiString FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, 
+         const FormatArgument &argument2,
+         const FormatArgument &argument3);
+      static AnsiString FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, 
+         const FormatArgument &argument2,
+         const FormatArgument &argument3,
+         const FormatArgument &argument4);
+      static AnsiString FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, 
+         const FormatArgument &argument2,
+         const FormatArgument &argument3,
+         const FormatArgument &argument4,
+         const FormatArgument &argument5);
    private:
 
-      static set<int> GetPlaceholders(const String &fmt);
+      static std::set<int> GetPlaceholders(const String &fmt);
 
-      static String Format(const String &fmt, const list<FormatArgument> &arguments);
+      static String Format(const String &fmt, const std::list<FormatArgument> &arguments);
    };
 
    class FormatterTester

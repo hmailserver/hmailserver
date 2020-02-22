@@ -16,7 +16,7 @@
 namespace HM
 {
    bool
-   MySQLMacroExpander::ProcessMacro(shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
+   MySQLMacroExpander::ProcessMacro(std::shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
    {
       switch (macro.GetType())
       {
@@ -24,7 +24,7 @@ namespace HM
          // MySQL4 doesn't support WHERE clauses in SHOW INDEX so
          // we must manually sort the result below.
          String sql;
-         sql.Format(_T("SHOW INDEX IN %s"), macro.GetTableName());
+         sql.Format(_T("SHOW INDEX IN %s"), macro.GetTableName().c_str());
 
          MySQLRecordset rec;
          if (!rec.Open(connection, SQLCommand(sql)))
@@ -47,7 +47,7 @@ namespace HM
             String constraintName = rec.GetStringValue("Key_name");
 
             String sqlUpdate;
-            sqlUpdate.Format(_T("ALTER TABLE %s DROP INDEX %s"), macro.GetTableName(), constraintName);
+            sqlUpdate.Format(_T("ALTER TABLE %s DROP INDEX %s"), macro.GetTableName().c_str(), constraintName.c_str());
 
             DALConnection::ExecutionResult execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
 

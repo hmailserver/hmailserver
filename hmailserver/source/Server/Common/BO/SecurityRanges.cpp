@@ -32,7 +32,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_securityranges order by rangeexpires asc, rangepriorityid desc, rangename asc"));
 
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
 
       return;
    }
@@ -48,15 +48,15 @@ namespace HM
       // Delete all existing ports and then add new ones.
       DeleteAll();
 
-      shared_ptr<SecurityRange> pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
+      std::shared_ptr<SecurityRange> pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName("My computer");
-      pSecurityRange->SetPriority(15);
+      pSecurityRange->SetPriority(30);
       pSecurityRange->SetLowerIPString("127.0.0.1");
       pSecurityRange->SetUpperIPString("127.0.0.1");
       pSecurityRange->SetOptions(71627);
       PersistentSecurityRange::SaveObject(pSecurityRange);
 
-      pSecurityRange = shared_ptr<SecurityRange>(new SecurityRange);
+      pSecurityRange = std::shared_ptr<SecurityRange>(new SecurityRange);
       pSecurityRange->SetName("Internet");
       pSecurityRange->SetPriority(10);
       pSecurityRange->SetLowerIPString("0.0.0.0");

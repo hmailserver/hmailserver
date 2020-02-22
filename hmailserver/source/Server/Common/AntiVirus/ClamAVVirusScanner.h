@@ -17,10 +17,6 @@ namespace HM
 
       static VirusScanningResult Scan(const String &sFilename);
       static VirusScanningResult Scan(const String &hostName, int primaryPort, const String &sFilename);
-
-   private:
-
-      static void _Connect(boost::asio::io_service &io_service, const String &hostName, int port, tcp::socket &socket);
    };
 
 }

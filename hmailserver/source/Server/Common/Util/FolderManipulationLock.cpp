@@ -12,21 +12,29 @@
 
 namespace HM
 {
-   std::set<std::pair<int, int> > FolderManipulationLock::m_setFolders;
-   CriticalSection FolderManipulationLock::m_CriticalSection;
+   std::set<std::pair<int, int> > FolderManipulationLock::folders_;
+   boost::recursive_mutex FolderManipulationLock::mutex_;
 
    FolderManipulationLock::FolderManipulationLock(int iAccountID, int iFolderID) :
-      _hasLock(false)
+      has_lock_(false)
    {
-      _lockPair = std::make_pair(iAccountID, iFolderID);
+      lock_pair_ = std::make_pair(iAccountID, iFolderID);
    }
 
    FolderManipulationLock::~FolderManipulationLock(void)
    {
-      if (_hasLock)
+      try
       {
-         Release(_lockPair);
+         if (has_lock_)
+         {
+            Release(lock_pair_);
+         }
       }
+      catch (...)
+      {
+
+      }
+
    }
 
    void
@@ -34,9 +42,9 @@ namespace HM
    {
       try
       {
-         _hasLock = true;
+         has_lock_ = true;
 
-         Acquire(_lockPair);
+         Acquire(lock_pair_);
       }
       catch (...)
       {
@@ -56,11 +64,11 @@ namespace HM
          // between each attempt, but we don't want to lock the critical
          // section meanwhile. Hence the inner scope here:
          {
-            CriticalSectionScope scope(m_CriticalSection);
+            boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-            if (m_setFolders.find(lockPair) == m_setFolders.end())
+            if (folders_.find(lockPair) == folders_.end())
             {
-               m_setFolders.insert(lockPair);
+               folders_.insert(lockPair);
                return;
             }
          }
@@ -73,14 +81,14 @@ namespace HM
    void
    FolderManipulationLock::Release(std::pair<int, int> lockPair)
    {
-      CriticalSectionScope scope(m_CriticalSection);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::set<std::pair<int, int>>::iterator iterPos = m_setFolders.find(lockPair);
-      if (iterPos != m_setFolders.end())
+      auto iterPos = folders_.find(lockPair);
+      if (iterPos != folders_.end())
       {
          try
          {
-            m_setFolders.erase(iterPos);
+            folders_.erase(iterPos);
          }
          catch (...)
          {

@@ -12,7 +12,8 @@
 
 namespace HM
 {
-   StringTreeParser::StringTreeParser(void)
+   StringTreeParser::StringTreeParser(void) :
+      c_iCurState(0)
    {
    }
 
@@ -22,7 +23,7 @@ namespace HM
    }
    
  void 
-   StringTreeParser::Parse(const String &sCommand, vector<shared_ptr<StringNode> > & vecNodes)
+   StringTreeParser::Parse(const String &sCommand, std::vector<std::shared_ptr<StringNode> > & vecNodes)
    {
 
       StringNode oNode;

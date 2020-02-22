@@ -3,9 +3,9 @@
 if (!defined('IN_WEBADMIN'))
    exit();
 
-$domainid	= hmailGetVar("domainid",0);
-$accountid	= hmailGetVar("accountid",0);
-$faid 		= hmailGetVar("faid",0);
+$domainid	= hmailGetVar("domainid",0,true);
+$accountid	= hmailGetVar("accountid",0,true);
+$faid 		= hmailGetVar("faid",0, true);
 $action	   = hmailGetVar("action","");
 
 if (hmailGetAdminLevel() == 0 && ($accountid != hmailGetAccountID() || $domainid != hmailGetDomainID()))
@@ -34,7 +34,7 @@ if ($action == "edit")
    $UseAntiSpam           = $obFetchAccount->UseAntiSpam;
    $UseAntiVirus          = $obFetchAccount->UseAntiVirus;
    $EnableRouteRecipients = $obFetchAccount->EnableRouteRecipients;
-   $UseSSL				  = $obFetchAccount->UseSSL;
+   $ConnectionSecurity    = $obFetchAccount->ConnectionSecurity;
 }
 else 
 {
@@ -51,7 +51,7 @@ else
    $UseAntiSpam = 0;
    $UseAntiVirus = 0;
    $EnableRouteRecipients = 0;
-   $UseSSL = 0;
+   $ConnectionSecurity = 0;
 }
 
 $EnabledChecked = hmailCheckedIf1($Enabled);
@@ -68,6 +68,7 @@ if ($DaysToKeepMessages > 0)
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 	
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_account_externalaccount_save");
       PrintHidden("action", $action);
       PrintHidden("faid", $faid);
@@ -119,9 +120,15 @@ if ($DaysToKeepMessages > 0)
          				</table>
          			</td>
          		</tr>	
-				<?php
-					PrintCheckboxRow("UseSSL", "Use SSL", $UseSSL);
-				?>
+				<tr>
+					<td><?php EchoTranslation("Connection security")?></td>
+					<td><select name="ConnectionSecurity">
+						<option value="<?php echo CONNECTION_SECURITY_NONE?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_NONE) echo "selected";?> ><?php EchoTranslation("None")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_STARTTLSREQUIRED?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_STARTTLSREQUIRED) echo "selected";?> ><?php EchoTranslation("STARTTLS (Required)")?></a>
+						<option value="<?php echo CONNECTION_SECURITY_TLS?>" <?php if ($ConnectionSecurity == CONNECTION_SECURITY_TLS) echo "selected";?> ><?php EchoTranslation("SSL/TLS")?></a>
+					</select></td>
+				</tr>
+				
          		<tr>
          			<td colspan="2">
          				<table width="350">
@@ -131,7 +138,7 @@ if ($DaysToKeepMessages > 0)
          					</tr>
          					<tr>
          						<td><input type="text" name="Username" value="<?php echo PreprocessOutput($Username)?>" size="25" checkallownull="false" checkmessage="<?php EchoTranslation("User name")?>"></td>
-         						<td><input type="password" name="Password" value=""  size="25"></td>
+         						<td><input type="password" name="Password" value=""  size="25" autocomplete="off"></td>
          					</tr>					
          				</table>
          			</td>

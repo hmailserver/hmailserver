@@ -28,7 +28,7 @@ namespace HM
       // Returns true if this spam protection mechanism is enabled. False otherwise.
       
       virtual SpamTestType GetTestType() = 0;
-      virtual set<shared_ptr<SpamTestResult> > RunTest(shared_ptr<SpamTestData> pTestData) = 0;
+      virtual std::set<std::shared_ptr<SpamTestResult> > RunTest(std::shared_ptr<SpamTestData> pTestData) = 0;
          
    private:
 

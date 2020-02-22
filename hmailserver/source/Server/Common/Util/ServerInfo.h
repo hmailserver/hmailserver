@@ -3,32 +3,41 @@
 
 #pragma once
 
+#include "../TCPIP/SocketConstants.h"
+
 namespace HM
 {
    class ServerInfo
    {
    public:
-	   ServerInfo(bool fixed, const String &hostName, int port, const String&userName, const String &passWord, bool useSSL);
+	   ServerInfo(bool fixed, const String &host_name, const String &ip_address, int port, const String&userName, const String &passWord, ConnectionSecurity connection_security);
 	   virtual ~ServerInfo();
 
       bool GetFixed();
       String GetHostName();
+      String GetIpAddress();
       int GetPort ();
       String GetUsername();
       String GetPassword();
-      bool GetUseSSL();
+      ConnectionSecurity GetConnectionSecurity();
+      
       void SetHostName(const String &hostName);
+      void SetIpAddress(const String &ip_address);
+
+      void DisableConnectionSecurity();
          
       bool operator== (const ServerInfo &other) const;
 
    private:
 
-      bool _fixed;
-      String _hostName;
-      int _port;
-      String _userName;
-      String _passWord;
-      bool _useSSL;
+      bool fixed_;
+      String host_name_;
+      String ip_address_;
+      int port_;
+      String userName_;
+      String passWord_;
+      ConnectionSecurity connection_security_;
+
 
    };
 }

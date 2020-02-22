@@ -1,0 +1,27 @@
+From: "Test" <test@test.com>
+To: <test@test.com>
+Subject: test
+Date: Thu, 9 Oct 2014 15:53:22 +0200
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_005E_01CFE3D9.283B7F70"
+X-Mailer: Microsoft Outlook 15.0
+Thread-Index: Ac/jyGMJFw9QC1reRDu6jDDRYEKIEw==
+Content-Language: sv
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_005E_01CFE3D9.283B7F70
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+PlainTextBody
+
+------=_NextPart_000_005E_01CFE3D9.283B7F70
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<b>HtmlBody</b>
+
+------=_NextPart_000_005E_01CFE3D9.283B7F70--

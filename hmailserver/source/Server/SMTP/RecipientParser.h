@@ -23,13 +23,13 @@ namespace HM
       };
 
       DeliveryPossibility CheckDeliveryPossibility(bool bSenderIsAuthed, String sSender, const String &sOriginalRecipient, String &sErrMsg, bool &bTreatSecurityAsLocal, int iRecursionLevel);
-      void CreateMessageRecipientList(const String &sRecipientAddress, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
+      void CreateMessageRecipientList(const String &sRecipientAddress, std::shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
       
    private:
 
-      void _CreateMessageRecipientList(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
-      void _AddRecipient(shared_ptr<MessageRecipients> pRecipients, shared_ptr<MessageRecipient> pRecipient);
-      DeliveryPossibility _UserCanSendToList(const String &sSender, bool bSenderIsAuthenticated, shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel);
+      void CreateMessageRecipientList_(const String &recipientAddress, const String &sOriginalAddress, long lRecurse, std::shared_ptr<MessageRecipients> pRecipients, bool &recipientOK);
+      void AddRecipient_(std::shared_ptr<MessageRecipients> pRecipients, std::shared_ptr<MessageRecipient> pRecipient);
+      DeliveryPossibility UserCanSendToList_(const String &sSender, bool bSenderIsAuthenticated, std::shared_ptr<const DistributionList> pList, String &sErrMsg, int iRecursionLevel);
 
   };
 }

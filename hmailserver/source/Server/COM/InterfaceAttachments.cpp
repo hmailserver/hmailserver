@@ -32,19 +32,19 @@ STDMETHODIMP InterfaceAttachments::InterfaceSupportsErrorInfo(REFIID riid)
 }   
    
 void
-InterfaceAttachments::Attach(shared_ptr<HM::Attachments> pAttachments)
+InterfaceAttachments::Attach(std::shared_ptr<HM::Attachments> pAttachments)
 {
-   m_pAttachments = pAttachments;
+   attachments_ = pAttachments;
 }
 
 STDMETHODIMP InterfaceAttachments::get_Count(long *pVal)
 {
    try
    {
-      if (!m_pAttachments)
+      if (!attachments_)
          return GetAccessDenied();
 
-      *pVal = (int) m_pAttachments->GetCount();
+      *pVal = (int) attachments_->GetCount();
       return S_OK;
    }
    catch (...)
@@ -57,13 +57,13 @@ STDMETHODIMP InterfaceAttachments::get_Item(long Index, IInterfaceAttachment **p
 {
    try
    {
-      if (!m_pAttachments)
+      if (!attachments_)
          return GetAccessDenied();
 
       CComObject<InterfaceAttachment>* pInterfaceAttachment = new CComObject<InterfaceAttachment>();
-      pInterfaceAttachment->SetAuthentication(m_pAuthentication);
+      pInterfaceAttachment->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Attachment> pAttachment = m_pAttachments->GetItem(Index);
+      std::shared_ptr<HM::Attachment> pAttachment = attachments_->GetItem(Index);
    
       if (!pAttachment)
          return DISP_E_BADINDEX;  
@@ -85,10 +85,10 @@ InterfaceAttachments::Clear()
 {
    try
    {
-      if (!m_pAttachments)
+      if (!attachments_)
          return GetAccessDenied();
 
-      m_pAttachments->Clear();
+      attachments_->Clear();
       return S_OK;
    }
    catch (...)
@@ -102,10 +102,10 @@ InterfaceAttachments::Add(BSTR sFilename)
 {
    try
    {
-      if (!m_pAttachments)
+      if (!attachments_)
          return GetAccessDenied();
 
-      if (!m_pAttachments->Add(sFilename))
+      if (!attachments_->Add(sFilename))
       {
          return COMError::GenerateError("Failed to attach file.");
       }

@@ -13,13 +13,13 @@ InterfaceSURBLServer::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (HM::PersistentSURBLServer::SaveObject(m_pObject))
+      if (HM::PersistentSURBLServer::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -39,10 +39,10 @@ STDMETHODIMP InterfaceSURBLServer::get_Active(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetIsActive() ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -55,10 +55,10 @@ STDMETHODIMP InterfaceSURBLServer::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetIsActive(newVal == VARIANT_TRUE);
+      object_->SetIsActive(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -72,10 +72,10 @@ STDMETHODIMP InterfaceSURBLServer::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
    
       return S_OK;
    }
@@ -89,10 +89,10 @@ STDMETHODIMP InterfaceSURBLServer::put_DNSHost(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetDNSHost(newVal);
+      object_->SetDNSHost(newVal);
       return S_OK;
    }
    catch (...)
@@ -105,10 +105,10 @@ STDMETHODIMP InterfaceSURBLServer::get_DNSHost(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetDNSHost().AllocSysString();
+      *pVal = object_->GetDNSHost().AllocSysString();
    
       return S_OK;
    }
@@ -122,10 +122,10 @@ STDMETHODIMP InterfaceSURBLServer::put_RejectMessage(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetRejectMessage(newVal);
+      object_->SetRejectMessage(newVal);
       return S_OK;
    }
    catch (...)
@@ -138,10 +138,10 @@ STDMETHODIMP InterfaceSURBLServer::get_RejectMessage(BSTR *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetRejectMessage().AllocSysString();
+      *pVal = object_->GetRejectMessage().AllocSysString();
    
       return S_OK;
    }
@@ -155,10 +155,10 @@ STDMETHODIMP InterfaceSURBLServer::put_Score(long newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetScore(newVal);
+      object_->SetScore(newVal);
       return S_OK;
    }
    catch (...)
@@ -171,10 +171,10 @@ STDMETHODIMP InterfaceSURBLServer::get_Score(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetScore();
+      *pVal = object_->GetScore();
    
       return S_OK;
    }
@@ -188,16 +188,16 @@ STDMETHODIMP InterfaceSURBLServer::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      if (!m_pParentCollection)
-         return HM::PersistentSURBLServer::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentSURBLServer::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

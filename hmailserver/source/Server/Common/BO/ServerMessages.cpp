@@ -32,13 +32,13 @@ namespace HM
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_servermessages order by smname asc";
-      _DBLoad(sSQL);
+      DBLoad_(sSQL);
    }
 
    String 
    ServerMessages::GetMessage(const String &sName) const
    {
-      shared_ptr<ServerMessage> pSM = GetItemByName(sName);
+      std::shared_ptr<ServerMessage> pSM = GetItemByName(sName);
 
       if (!pSM)
       {

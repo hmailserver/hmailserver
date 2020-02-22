@@ -47,6 +47,7 @@ namespace hMailServer.Administrator
            this.buttonAddRecipient = new System.Windows.Forms.Button();
            this.listRecipients = new hMailServer.Administrator.ucListView();
            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+           this.buttonImport = new System.Windows.Forms.Button();
            this.tabControl.SuspendLayout();
            this.tabPage1.SuspendLayout();
            this.tabPage2.SuspendLayout();
@@ -186,6 +187,7 @@ namespace hMailServer.Administrator
            // 
            // tabPage2
            // 
+           this.tabPage2.Controls.Add(this.buttonImport);
            this.tabPage2.Controls.Add(this.buttonEdit);
            this.tabPage2.Controls.Add(this.buttonSelectRecipients);
            this.tabPage2.Controls.Add(this.buttonDeleteRecipient);
@@ -203,7 +205,7 @@ namespace hMailServer.Administrator
            // 
            this.buttonEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
            this.buttonEdit.DialogResult = System.Windows.Forms.DialogResult.OK;
-           this.buttonEdit.Location = new System.Drawing.Point(520, 72);
+           this.buttonEdit.Location = new System.Drawing.Point(520, 101);
            this.buttonEdit.Name = "buttonEdit";
            this.buttonEdit.Size = new System.Drawing.Size(100, 25);
            this.buttonEdit.TabIndex = 43;
@@ -227,7 +229,7 @@ namespace hMailServer.Administrator
            // 
            this.buttonDeleteRecipient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
            this.buttonDeleteRecipient.DialogResult = System.Windows.Forms.DialogResult.OK;
-           this.buttonDeleteRecipient.Location = new System.Drawing.Point(520, 104);
+           this.buttonDeleteRecipient.Location = new System.Drawing.Point(520, 133);
            this.buttonDeleteRecipient.Name = "buttonDeleteRecipient";
            this.buttonDeleteRecipient.Size = new System.Drawing.Size(100, 25);
            this.buttonDeleteRecipient.TabIndex = 41;
@@ -269,6 +271,18 @@ namespace hMailServer.Administrator
            this.columnHeader1.Text = "Address";
            this.columnHeader1.Width = 250;
            // 
+           // buttonImport
+           // 
+           this.buttonImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+           this.buttonImport.DialogResult = System.Windows.Forms.DialogResult.OK;
+           this.buttonImport.Location = new System.Drawing.Point(520, 71);
+           this.buttonImport.Name = "buttonImport";
+           this.buttonImport.Size = new System.Drawing.Size(100, 25);
+           this.buttonImport.TabIndex = 44;
+           this.buttonImport.Text = "&Import...";
+           this.buttonImport.UseVisualStyleBackColor = true;
+           this.buttonImport.Click += new System.EventHandler(this.buttonImport_Click);
+           // 
            // ucDistributionList
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -305,6 +319,7 @@ namespace hMailServer.Administrator
        private ucListView listRecipients;
        private System.Windows.Forms.ColumnHeader columnHeader1;
        private System.Windows.Forms.Button buttonEdit;
+       private System.Windows.Forms.Button buttonImport;
 
      }
 }

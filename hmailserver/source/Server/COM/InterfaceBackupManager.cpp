@@ -15,8 +15,8 @@ InterfaceBackupManager::LoadSettings()
    if (!GetIsServerAdmin())
       return false;
 
-   m_pBackupManager = HM::Application::Instance()->GetBackupManager();
-   if (!m_pBackupManager)
+   backup_manager_ = HM::Application::Instance()->GetBackupManager();
+   if (!backup_manager_)
       return false;
 
    return true;
@@ -28,10 +28,10 @@ InterfaceBackupManager::StartBackup()
 {
    try
    {
-      if (!m_pBackupManager)
+      if (!backup_manager_)
          return GetAccessDenied();
 
-      m_pBackupManager->StartBackup();
+      backup_manager_->StartBackup();
       return S_OK;
    }
    catch (...)
@@ -45,13 +45,13 @@ InterfaceBackupManager::LoadBackup(BSTR sXMLFile, IInterfaceBackup **pVal)
 {
    try
    {
-      if (!m_pBackupManager)
+      if (!backup_manager_)
          return GetAccessDenied();
 
       CComObject<InterfaceBackup>* pBackupInt = new CComObject<InterfaceBackup>();
-      pBackupInt->SetAuthentication(m_pAuthentication);
+      pBackupInt->SetAuthentication(authentication_);
    
-      shared_ptr<HM::Backup> pBackup = m_pBackupManager->LoadBackup(sXMLFile);
+      std::shared_ptr<HM::Backup> pBackup = backup_manager_->LoadBackup(sXMLFile);
    
       if (!pBackup)
          return DISP_E_BADINDEX;

@@ -14,33 +14,7 @@ namespace RegressionTests.Infrastructure.Persistence
    [TestFixture]
    public class Limitations : TestFixtureBase
    {
-      [Test]
-      public void TestAccountContainingBackwardSlash()
-      {
-         try
-         {
-            SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "\\@test.com", "secret2");
-         }
-         catch (Exception)
-         {
-            return;
-         }
-         Assert.Fail("Account containing forward slash was permitted");
-      }
 
-      [Test]
-      public void TestAccountContainingForwardSlash()
-      {
-         try
-         {
-            SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "\\@test.com", "secret2");
-         }
-         catch (Exception)
-         {
-            return;
-         }
-         Assert.Fail("Account containing forward slash was permitted");
-      }
 
       [Test]
       public void TestDomainAliasRenameToSameNameAsDomain()
@@ -213,13 +187,13 @@ namespace RegressionTests.Infrastructure.Persistence
             message.Append("ABCDEFGH");
          }
 
-         Assert.IsTrue(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
-                                                      message.ToString()));
-         POP3Simulator.AssertMessageCount("test@test.com", "secret1", 1);
+         SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+                                                      message.ToString());
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "secret1", 1);
          _domain.MaxMessageSize = 50;
          _domain.Save();
 
-         Assert.IsFalse(SMTPClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
+         CustomAsserts.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "TestSubject",
                                                        message.ToString()));
       }
 
@@ -282,7 +256,7 @@ namespace RegressionTests.Infrastructure.Persistence
          Assert.Fail("Duplicate domain name was permitted.");
       }
 
-
+      
       [Test]
       public void TestDomainNameDuplicateDomainRename()
       {

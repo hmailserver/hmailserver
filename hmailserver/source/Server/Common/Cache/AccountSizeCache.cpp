@@ -26,10 +26,10 @@ namespace HM
    void
    AccountSizeCache::ModifySize(__int64 accountID, __int64 iSize, bool bIncrease)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
-      if (iter == _accountSizes.end())
+      auto iter = account_sizes_.find(accountID);
+      if (iter == account_sizes_.end())
          return;
 
       __int64 currentSize = (*iter).second;
@@ -39,32 +39,32 @@ namespace HM
       else
          currentSize -= iSize;
 
-      _accountSizes[accountID] = currentSize;
+      account_sizes_[accountID] = currentSize;
    }
    
    void
    AccountSizeCache::Reset(__int64 accountID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
-      if (iter == _accountSizes.end())
+      auto iter = account_sizes_.find(accountID);
+      if (iter == account_sizes_.end())
          return;
 
-      _accountSizes.erase(iter);
+      account_sizes_.erase(iter);
    }
 
 
    __int64
    AccountSizeCache::GetSize(__int64 accountID)
    {
-      CriticalSectionScope scope(_lock);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, __int64>::iterator iter = _accountSizes.find(accountID);
-      if (iter == _accountSizes.end())
+      auto iter = account_sizes_.find(accountID);
+      if (iter == account_sizes_.end())
       {
          __int64 size = PersistentAccount::GetMessageBoxSize(accountID);
-         _accountSizes[accountID] = size;
+         account_sizes_[accountID] = size;
          return size;
       }
 

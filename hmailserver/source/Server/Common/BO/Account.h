@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
 
@@ -12,7 +10,7 @@ namespace HM
    class IMAPFolders;
    class Messages;
 
-   class Account  : public Cacheable, public BusinessObject<Account>
+   class Account  : public BusinessObject<Account>
    {
    public:
       enum AdminLevel
@@ -32,57 +30,57 @@ namespace HM
 
       void Initialize();
 
-      String GetName() const {return m_sAddress; }
+      String GetName() const {return address_; }
 
-      void SetDomainID(__int64 newVal) { m_iDomainID = newVal; };
-      __int64 GetDomainID() const { return m_iDomainID; }
+      void SetDomainID(__int64 newVal) { domain_id_ = newVal; };
+      __int64 GetDomainID() const { return domain_id_; }
 
-      void SetAddress(const String & newVal) { m_sAddress = newVal; };
-      String GetAddress() const { return m_sAddress; }
+      void SetAddress(const String & newVal) { address_ = newVal; };
+      String GetAddress() const { return address_; }
 
       void SetPassword(const String & newVal);
-      String GetPassword() const { return m_sPassword; }
+      String GetPassword() const { return password_; }
 
-      void SetADDomain(const String & newVal) { m_sADDomain = newVal; };
-      String GetADDomain() const { return m_sADDomain; }
+      void SetADDomain(const String & newVal) { addomain_ = newVal; };
+      String GetADDomain() const { return addomain_; }
 
-      void SetADUsername(const String & newVal) { m_sADUsername = newVal; };
-      String GetADUsername() const { return m_sADUsername; }
+      void SetADUsername(const String & newVal) { adusername_ = newVal; };
+      String GetADUsername() const { return adusername_; }
 
-      void SetActive(bool newVal) { m_bActive = newVal; };
-      bool GetActive() const { return m_bActive; }
+      void SetActive(bool newVal) { active_ = newVal; };
+      bool GetActive() const { return active_; }
 
-      void SetIsAD(bool newVal) { m_bIsAD = newVal; };
-      bool GetIsAD() const { return m_bIsAD; }
+      void SetIsAD(bool newVal) { is_ad_ = newVal; };
+      bool GetIsAD() const { return is_ad_; }
 
-      void SetAccountMaxSize(long newVal) {m_iAccountMaxSize = newVal; }
-      long GetAccountMaxSize() const {return m_iAccountMaxSize;}
+      void SetAccountMaxSize(long newVal) {account_max_size_ = newVal; }
+      long GetAccountMaxSize() const {return account_max_size_;}
 
       bool GetVacationMessageIsOn() const; 
       void SetVacationMessageIsOn(bool bNewVal);
 
-      String GetVacationMessage() const {return m_sVacationMessage; }
-      void SetVacationMessage(const String &sNewVal) {m_sVacationMessage = sNewVal;}
+      String GetVacationMessage() const {return vacation_message_; }
+      void SetVacationMessage(const String &sNewVal) {vacation_message_ = sNewVal;}
 
-      String GetVacationSubject() const{return m_sVacationSubject; }
-      void SetVacationSubject(const String &sNewVal) {m_sVacationSubject = sNewVal;}
+      String GetVacationSubject() const{return vacation_subject_; }
+      void SetVacationSubject(const String &sNewVal) {vacation_subject_ = sNewVal;}
 
-      bool GetVacationExpires() const {return m_bVacationExpires; }
-      void SetVacationExpires(bool bNewVal) {m_bVacationExpires = bNewVal ; }
+      bool GetVacationExpires() const {return vacation_expires_; }
+      void SetVacationExpires(bool bNewVal) {vacation_expires_ = bNewVal ; }
 
-      String GetVacationExpiresDate() const{return m_sVacationExpiresDate; }
-      void SetVacationExpiresDate(const String &sNewVal) {m_sVacationExpiresDate = sNewVal;}
+      String GetVacationExpiresDate() const{return vacation_expires_date_; }
+      void SetVacationExpiresDate(const String &sNewVal) {vacation_expires_date_ = sNewVal;}
 
 
-      AdminLevel GetAdminLevel() const{return m_iAdminLevel;}
-      void SetAdminLevel(AdminLevel iNewVal) {m_iAdminLevel = iNewVal; }
+      AdminLevel GetAdminLevel() const{return admin_level_;}
+      void SetAdminLevel(AdminLevel iNewVal) {admin_level_ = iNewVal; }
 
-      void SetPasswordEncryption(int iNewVal) {m_iPasswordEncryption = iNewVal; }
-      long GetPasswordEncryption() const {return m_iPasswordEncryption; }
+      void SetPasswordEncryption(int iNewVal) {password_encryption_ = iNewVal; }
+      long GetPasswordEncryption() const {return password_encryption_; }
 
-      shared_ptr<Messages> GetMessages();
-      shared_ptr<Rules> GetRules(); 
-      shared_ptr<IMAPFolders> GetFolders(); 
+      std::shared_ptr<Messages> GetMessages();
+      std::shared_ptr<Rules> GetRules(); 
+      std::shared_ptr<IMAPFolders> GetFolders(); 
 
       bool SpaceAvailable(__int64 iBytes) const;
       // Returns true if a message with iBytes bytes can fit inside the account
@@ -91,8 +89,8 @@ namespace HM
       bool XMLLoad(XNode *pAccountNode, int iRestoreOptions);
       bool XMLLoadSubItems(XNode *pAccountNode, int iRestoreOptions);
 
-      String GetForwardAddress() const {return m_sForwardAddress;}
-      void SetForwardAddress(const String &sNewVal) { m_sForwardAddress = sNewVal; }
+      String GetForwardAddress() const {return forward_address_;}
+      void SetForwardAddress(const String &sNewVal) { forward_address_ = sNewVal; }
 
       bool GetForwardEnabled() const;
       void SetForwardEnabled(bool bEnabled);
@@ -118,45 +116,47 @@ namespace HM
       String GetPersonLastName() const;
       void SetPersonLastName(const String &sNewVal);
 
+      size_t GetEstimatedCachingSize();
+
    protected:
-      __int64 m_iDomainID;
+      __int64 domain_id_;
       
-      unsigned int m_iAccountMaxSize;
+      unsigned int account_max_size_;
       // Maximum account size. MB
 
-      long m_iPasswordEncryption;
+      long password_encryption_;
 
-      AnsiString m_sAddress;
-      AnsiString m_sPassword;
-      String m_sADDomain;
-      String m_sADUsername;
+      AnsiString address_;
+      AnsiString password_;
+      String addomain_;
+      String adusername_;
 
-      String m_sPersonFirstName;
-      String m_sPersonLastName;
+      String person_first_name_;
+      String person_last_name_;
 
-      String m_sVacationMessage;
-      String m_sVacationSubject;
-      bool m_bVacationExpires;
-      String m_sVacationExpiresDate;
+      String vacation_message_;
+      String vacation_subject_;
+      bool vacation_expires_;
+      String vacation_expires_date_;
       
-      String m_sSignaturePlainText;
-      String m_sSignatureHTML;
+      String signature_plain_text_;
+      String signature_html_;
 
-      AnsiString m_sForwardAddress;
-      bool m_bForwardEnabled;
-      bool m_bForwardKeepOriginal;
-      bool m_bActive;
-      bool m_bIsAD;
-      bool m_bVacationMessageIsOn;
-      bool m_bEnableSignature;
+      AnsiString forward_address_;
+      bool forward_enabled_;
+      bool forward_keep_original_;
+      bool active_;
+      bool is_ad_;
+      bool vacation_message_is_on_;
+      bool enable_signature_;
 
-      shared_ptr<Messages> m_oMessages;
-      shared_ptr<Rules> m_pRules;
-      shared_ptr<IMAPFolders> m_pFolders;
+      std::shared_ptr<Messages> messages_;
+      std::shared_ptr<Rules> rules_;
+      std::shared_ptr<IMAPFolders> folders_;
       
-      AdminLevel m_iAdminLevel;
+      AdminLevel admin_level_;
 
-      AnsiString m_sLastLogonTime;
+      AnsiString last_logon_time_;
    };
 
 }

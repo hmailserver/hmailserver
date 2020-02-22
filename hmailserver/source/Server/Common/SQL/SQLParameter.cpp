@@ -12,80 +12,80 @@
 namespace HM
 {
    SQLParameter::SQLParameter(const String& name, const int &value) :
-      _columnName(name),
-      _type(ParamTypeInt32)
+      column_name_(name),
+      type_(ParamTypeInt32)
    {
-      _ResetValues();
-      _int32Value = value;
+      ResetValues_();
+      int_32value_ = value;
    }
 
    SQLParameter::SQLParameter(const String& name, const __int64 &value) :
-      _columnName(name),
-      _type(ParamTypeInt64)
+      column_name_(name),
+      type_(ParamTypeInt64)
    {
-      _ResetValues();
-      _int64Value = value;
+      ResetValues_();
+      int_64value_ = value;
    }
 
    SQLParameter::SQLParameter(const String& name, const String &value) :
-      _columnName(name),
-      _type(ParamTypeString)
+      column_name_(name),
+      type_(ParamTypeString)
    {
-      _ResetValues();
-      _stringValue = value;
+      ResetValues_();
+      string_value_ = value;
    }
 
 
    SQLParameter::SQLParameter(const String& name, unsigned int value) :
-      _columnName(name),
-      _type(ParamTypeUnsignedInt32)
+      column_name_(name),
+      type_(ParamTypeUnsignedInt32)
    {
-      _ResetValues();
-      _unsignedInt32Value = value;
+      ResetValues_();
+      unsigned_int_32value_ = value;
    }
 
    void 
-   SQLParameter::_ResetValues()
+   SQLParameter::ResetValues_()
    {
-      _int32Value = 0;
-      _int64Value = 0;
-      _stringValue = "";
-      _unsignedInt32Value = 0;
+      int_32value_ = 0;
+      int_64value_ = 0;
+      string_value_ = "";
+      unsigned_int_32value_ = 0;
    }
 
    int 
    SQLParameter::GetType() const
    {
-      return _type;
+      return type_;
    }
 
    String
    SQLParameter::GetName() const
    {
-      return _columnName;
+      return column_name_;
    }
 
    int 
    SQLParameter::GetInt32Value() const
    {
-      return _int32Value;
+      return int_32value_;
    }
 
    unsigned int 
    SQLParameter::GetUnsignedInt32Value() const
    {
-      return _unsignedInt32Value;
+      return unsigned_int_32value_;
    }
 
    __int64 
    SQLParameter::GetInt64Value() const
    {
-      return _int64Value;
+      return int_64value_;
    }
 
    String 
    SQLParameter::GetStringValue() const
    {
-      return _stringValue;
+      return string_value_;
    }
 }

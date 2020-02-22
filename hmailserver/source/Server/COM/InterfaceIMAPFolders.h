@@ -54,10 +54,10 @@ END_COM_MAP()
    STDMETHOD(Add)(/*[in]*/ BSTR sName, /*[out, retval]*/ IInterfaceIMAPFolder **pVal);
    STDMETHOD(DeleteByDBID)(/*[in]*/ long lDBID);
 
-   void Attach(shared_ptr<HM::IMAPFolders> pFolders);
+   void Attach(std::shared_ptr<HM::IMAPFolders> pFolders);
 public:
    
-   shared_ptr<HM::IMAPFolders> m_pObject;
+   std::shared_ptr<HM::IMAPFolders> object_;
 
 };
 

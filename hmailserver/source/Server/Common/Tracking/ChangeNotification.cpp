@@ -13,33 +13,33 @@ namespace HM
 {
 
    ChangeNotification::ChangeNotification(NotificationType type) :
-      _type(type)
+      type_(type)
    {
 
    }
 
    ChangeNotification::ChangeNotification(__int64 accountID, __int64 folderID, NotificationType type) :
-      _accountID(accountID),
-      _folderID(folderID),
-      _type(type)
+      account_id_(accountID),
+      folder_id_(folderID),
+      type_(type)
    {
 
    }
 
    ChangeNotification::ChangeNotification(__int64 accountID, __int64 folderID, NotificationType type, const std::vector<__int64>& affectedMessages) :
-      _accountID(accountID),
-      _folderID(folderID),
-      _type(type),
-      _affectedMessages(affectedMessages)
+      account_id_(accountID),
+      folder_id_(folderID),
+      type_(type),
+      affected_messages_(affectedMessages)
    {
 
    }
 
    ChangeNotification::ChangeNotification(__int64 accountID, __int64 folderID, NotificationType type, __int64 data) :
-      _accountID(accountID),
-      _folderID(folderID),
-      _type(type),
-      _data(data)
+      account_id_(accountID),
+      folder_id_(folderID),
+      type_(type),
+      data_(data)
    {
 
    }
@@ -52,31 +52,31 @@ namespace HM
    __int64
    ChangeNotification::GetFolderID() const
    {
-      return _folderID;
+      return folder_id_;
    }
 
    __int64
    ChangeNotification::GetAccountID() const
    {
-      return _accountID;
+      return account_id_;
    }
 
    __int64
    ChangeNotification::GetData() const
    {
-      return _data;
+      return data_;
    }
 
    ChangeNotification::NotificationType
    ChangeNotification::GetType() const
    {
-      return _type;
+      return type_;
    }
 
    const std::vector<__int64>&
    ChangeNotification::GetAffectedMessages() const
    {
-      return _affectedMessages;
+      return affected_messages_;
    }
 
 }

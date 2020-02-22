@@ -29,21 +29,21 @@ namespace HM
 
 
       static bool GetVirusScanningEnabled();
-      static bool Scan(shared_ptr<Message> pMessage, String &virusName);
-      static void BlockAttachments(shared_ptr<Message> pMessage);
+      static bool Scan(std::shared_ptr<Message> pMessage, String &virusName);
+      static void BlockAttachments(std::shared_ptr<Message> message);
 
       static void ResetCounter();
       static void DecreaseCounter();
       
    private:
 
-      static long _runningScanners;
+      static long running_scanners_;
 
-      static void _WaitForFreeScanner();
-      static void ReportVirusFound(shared_ptr<Message> pMessage);
-      static VirusScanningResult _ScanFile(const String &fileName);
+      static void WaitForFreeScanner_();
+      static void ReportVirusFound(std::shared_ptr<Message> pMessage);
+      static VirusScanningResult ScanFile_(const String &fileName);
 
-      static void _ReportScanningError(const VirusScanningResult &scanningResult);
+      static void ReportScanningError_(const VirusScanningResult &scanningResult);
    };
 
 }

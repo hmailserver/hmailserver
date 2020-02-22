@@ -41,7 +41,7 @@ END_COM_MAP()
 
 public:
    
-   void Attach(shared_ptr<HM::Message> pMessage);
+   void Attach(std::shared_ptr<HM::Message> pMessage);
 
    STDMETHOD(get_Item)(/*[in]*/ long Index, /*[out, retval]*/ IInterfaceRecipient **pVal);
    STDMETHOD(get_Count)(/*[out, retval]*/ long *pVal);
@@ -49,7 +49,7 @@ public:
 
 private:
 
-   shared_ptr<HM::Message> m_pMessage;
+   std::shared_ptr<HM::Message> message_;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Recipients), InterfaceRecipients)

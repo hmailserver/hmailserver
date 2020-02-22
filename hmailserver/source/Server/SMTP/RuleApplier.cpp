@@ -20,6 +20,7 @@
 #include "../Common/Util/Time.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/RegularExpression.h"
+#include "../common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "../Common/Persistence/PersistentMessage.h"
 
@@ -27,10 +28,9 @@
 
 #include "SMTPConfiguration.h"
 
-// Scripting includes
-#include "../Common/Application/ScriptingHost/ScriptServer.h"
-#include "../Common/Application/ScriptingHost/ScriptObjectContainer.h"
-#include "../Common/Application/ScriptingHost/Result.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+#include "../Common/Scripting/Result.h"
 
 #include "../Common/BO/MessageRecipient.h"
 
@@ -42,7 +42,8 @@
 
 namespace HM
 {
-   RuleApplier::RuleApplier(void)
+   RuleApplier::RuleApplier(void) :
+      rule_account_id_(0)
    {
    }
 
@@ -51,7 +52,7 @@ namespace HM
    }
 
    void
-   RuleApplier::ApplyRules(shared_ptr<Rules> pRules, shared_ptr<const Account> account, shared_ptr<Message> pMessage, RuleResult &ruleResult)
+   RuleApplier::ApplyRules(std::shared_ptr<Rules> pRules, std::shared_ptr<const Account> account, std::shared_ptr<Message> pMessage, RuleResult &ruleResult)
    {
       LOG_DEBUG(_T("Applying rules"));
 
@@ -60,19 +61,19 @@ namespace HM
          return;
       }
 
-      shared_ptr<MessageData> pMessageData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pMessageData = std::shared_ptr<MessageData>(new MessageData());
       pMessageData->LoadFromMessage(account, pMessage);
       
-      m_iRuleAccountID = pRules->GetAccountID();
+      rule_account_id_ = pRules->GetAccountID();
 
       for (int i = 0; i < pRules->GetCount(); i++)
       {
-         shared_ptr<Rule> pRule = pRules->GetItem(i);
+         std::shared_ptr<Rule> pRule = pRules->GetItem(i);
 
          if (pRule && pRule->GetActive())
          {
             bool bContinueRuleProcessing = true;
-            if (_ApplyRule(pRule, account, pMessageData, bContinueRuleProcessing, ruleResult))
+            if (ApplyRule_(pRule, account, pMessageData, bContinueRuleProcessing, ruleResult))
             {
                // The rule matched. We should return here.
                return;
@@ -87,7 +88,7 @@ namespace HM
    }
 
    bool
-   RuleApplier::_ApplyRule(shared_ptr<Rule> pRule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
+   RuleApplier::ApplyRule_(std::shared_ptr<Rule> pRule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
    {
 		if (Logger::Instance()->GetLogDebug())
 			LOG_DEBUG(_T("Applying rule " + pRule->GetName()));
@@ -95,15 +96,15 @@ namespace HM
       bool bAllRequired = pRule->GetUseAND();
       bool bDoActions = false;
 
-      shared_ptr<RuleCriterias> pCriterias = pRule->GetCriterias();
+      std::shared_ptr<RuleCriterias> pCriterias = pRule->GetCriterias();
       for (int i = 0; i < pCriterias->GetCount(); i++)
       {
-         shared_ptr<RuleCriteria> pCriteria = pCriterias->GetItem(i);
+         std::shared_ptr<RuleCriteria> pCriteria = pCriterias->GetItem(i);
 
          if (!pCriteria)
             continue;
 
-         bool bMatch = _MessageMatchesCriteria(pCriteria, pMsgData);
+         bool bMatch = MessageMatchesCriteria_(pCriteria, pMsgData);
          
          if (bAllRequired)
          {
@@ -126,30 +127,30 @@ namespace HM
 
       if (bDoActions)
       {
-         _ApplyActions(pRule, account, pMsgData, bContinueRuleProcessing, ruleResult);
+         ApplyActions_(pRule, account, pMsgData, bContinueRuleProcessing, ruleResult);
       }
 
       return false;
    }
 
    void
-   RuleApplier::_ApplyActions(shared_ptr<Rule> pRule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
+   RuleApplier::ApplyActions_(std::shared_ptr<Rule> pRule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
    {  
-      shared_ptr<RuleActions> pActions = pRule->GetActions();
+      std::shared_ptr<RuleActions> pActions = pRule->GetActions();
 
       for (int i = 0; i < pActions->GetCount(); i++)
       {
-         shared_ptr<RuleAction> pAction = pActions->GetItem(i);
+         std::shared_ptr<RuleAction> pAction = pActions->GetItem(i);
 
          if (pAction)
          {
-            _ApplyAction(pRule, pAction, account, pMsgData, bContinueRuleProcessing, ruleResult);
+            ApplyAction_(pRule, pAction, account, pMsgData, bContinueRuleProcessing, ruleResult);
          }
       }
    }
 
    void
-   RuleApplier::_ApplyAction(shared_ptr<Rule> pRule, shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
+   RuleApplier::ApplyAction_(std::shared_ptr<Rule> pRule, std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
    {  
       Logger::Instance()->LogDebug(_T("Performing rule action"));
       switch (pAction->GetType())
@@ -159,7 +160,7 @@ namespace HM
             ruleResult.SetDeleteEmail(true);
 
             String sDeleteRuleName;
-            sDeleteRuleName.Format(_T("Rule name: %s, ID: %d"), pRule->GetName(), pRule->GetID());
+            sDeleteRuleName.Format(_T("Rule name: %s, ID: %d"), pRule->GetName().c_str(), pRule->GetID());
 
             ruleResult.SetDeleteRuleName(sDeleteRuleName);
             break;
@@ -171,22 +172,22 @@ namespace HM
          }
       case RuleAction::Forward:  
          {
-            _ApplyActionForward(pAction, account, pMsgData);
+            ApplyAction_Forward(pAction, account, pMsgData);
             break;
          }
       case RuleAction::Reply:
          {
-            _ApplyActionReply(pAction, pMsgData);
+            ApplyAction_Reply(pAction, account, pMsgData);
             break;
          }
       case RuleAction::ScriptFunction:
          {
-            _ApplyActionScriptFunction(pAction, account, pMsgData);
+            ApplyAction_ScriptFunction(pAction, account, pMsgData);
             break;
          }
       case RuleAction::SetHeaderValue:
          {
-            _ApplyActionSetHeader(pAction, account, pMsgData);
+            ApplyAction_SetHeader(pAction, account, pMsgData);
             break;
          }
       case RuleAction::StopRuleProcessing:
@@ -201,7 +202,7 @@ namespace HM
          }
       case RuleAction::CreateCopy:  
          {
-            _ApplyActionCopy(pRule, account, pMsgData);
+            ApplyAction_Copy(pRule, account, pMsgData);
             break;
          }
       case RuleAction::BindToAddress:
@@ -213,42 +214,45 @@ namespace HM
    }
 
    void 
-   RuleApplier::_ApplyActionForward(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::ApplyAction_Forward(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const
    {
       // false = check only loop counter not AutoSubmitted header because forward
       if (!IsGeneratedResponseAllowed(pMsgData, false))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5064, "RuleApplier::_ApplyActionForward", "Could not forward message. Maximum rule loop count reached.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5064, "RuleApplier::ApplyAction_Forward", "Could not forward message. Maximum rule loop count reached.");
          return;
       }
 
       if (pAction->GetTo().IsEmpty())
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4225, "RuleApplier::_ApplyActionForward", "Could not forward message; empty recipient address.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4225, "RuleApplier::ApplyAction_Forward", "Could not forward message; empty recipient address.");
          return;
       }
 
-      shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(account, pMsgData->GetMessage());
+      std::shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(account, pMsgData->GetMessage());
 
       if (!pMsg)
          return;
 
       pMsg->SetState(Message::Delivering);
 
-      shared_ptr<Account> emptyAccount;
+      std::shared_ptr<Account> emptyAccount;
 
       // Increase the number of rule-deliveries made.
       String newFileName = PersistentMessage::GetFileName(emptyAccount, pMsg);
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(emptyAccount, pMsg);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
       
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
-      shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(m_iRuleAccountID);
-      if (pAccount)
+      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
+      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pMsg);
+      if (pMsg->GetFromAddress().IsEmpty())
+         pMsg->SetFromAddress(sMailerDaemonAddress);
+      else if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
          pMsg->SetFromAddress(pAccount->GetAddress());
       
       // Add new recipients
@@ -262,7 +266,7 @@ namespace HM
          // Delete the file since the message cannot be delivered.
          FileUtilities::DeleteFile(newFileName);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4235, "RuleApplier::_ApplyActionForward", "Could not forward message; no recipients.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4235, "RuleApplier::ApplyAction_Forward", "Could not forward message; no recipients.");
          return;
       }
 
@@ -270,16 +274,16 @@ namespace HM
    }
 
    void 
-   RuleApplier::_ApplyActionCopy(shared_ptr<Rule> rule, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::ApplyAction_Copy(std::shared_ptr<Rule> rule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const
    {
       // false = check only loop counter not AutoSubmitted header because forwarding copy
       if (!IsGeneratedResponseAllowed(pMsgData, false))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5201, "RuleApplier::_ApplyActionCopy", "Could not copy message. Maximum rule loop count reached.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5201, "RuleApplier::ApplyAction_Copy", "Could not copy message. Maximum rule loop count reached.");
          return;
       }
 
-      shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(account, pMsgData->GetMessage());
+      std::shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(account, pMsgData->GetMessage());
       
       if (!pMsg)
          return;
@@ -291,7 +295,7 @@ namespace HM
       if (pMsgData->GetMessage()->GetAccountID() > 0)
       {
          // What account is it in?
-         shared_ptr<const Account> recipientAccount = CacheContainer::Instance()->GetAccount(pMsgData->GetMessage()->GetAccountID());
+         std::shared_ptr<const Account> recipientAccount = CacheContainer::Instance()->GetAccount(pMsgData->GetMessage()->GetAccountID());
 
          if (recipientAccount)
          {
@@ -304,11 +308,11 @@ namespace HM
       else
       {
          // Copy the old reciopients.
-         std::vector<shared_ptr<MessageRecipient> >  &oldRecipients = pMsgData->GetMessage()->GetRecipients()->GetVector();
+         std::vector<std::shared_ptr<MessageRecipient> >  &oldRecipients = pMsgData->GetMessage()->GetRecipients()->GetVector();
 
-         boost_foreach(shared_ptr<MessageRecipient> recipient, oldRecipients)
+         for(std::shared_ptr<MessageRecipient> recipient : oldRecipients)
          {
-            shared_ptr<MessageRecipient> newRecipient = shared_ptr<MessageRecipient >(new MessageRecipient());
+            std::shared_ptr<MessageRecipient> newRecipient = std::shared_ptr<MessageRecipient >(new MessageRecipient());
             newRecipient->CopyFrom(recipient);
             newRecipient->SetMessageID(0);
 
@@ -321,7 +325,7 @@ namespace HM
       // Increase the number of rule-deliveries made.
       String newMessageFileName = PersistentMessage::GetFileName(pMsg);
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->SetFieldValue("X-CopyRule", rule->GetName());
@@ -333,7 +337,7 @@ namespace HM
          // Delete the file since the message cannot be delivered.
          FileUtilities::DeleteFile(newMessageFileName);
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5201, "RuleApplier::_ApplyActionCopy", "Could not copy message; no recipients.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5201, "RuleApplier::ApplyAction_Copy", "Could not copy message; no recipients.");
          return;
       }
 
@@ -341,13 +345,13 @@ namespace HM
    }
 
    void 
-   RuleApplier::_ApplyActionScriptFunction(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::ApplyAction_ScriptFunction(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const
    {
       // Run a custom function
       String sFunctionName = pAction->GetScriptFunction();
 
-      shared_ptr<ScriptObjectContainer> pContainer = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-      shared_ptr<Result> pResult = shared_ptr<Result>(new Result);
+      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
       pContainer->AddObject("HMAILSERVER_MESSAGE", pMsgData->GetMessage(), ScriptObject::OTMessage);
       pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
       
@@ -361,7 +365,7 @@ namespace HM
    }
 
    void 
-   RuleApplier::_ApplyActionSetHeader(shared_ptr<RuleAction> pAction, shared_ptr<const Account> account, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::ApplyAction_SetHeader(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const
    {
       // Run a custom function
       String sHeader = pAction->GetHeaderName();
@@ -375,35 +379,39 @@ namespace HM
    }
 
    void 
-   RuleApplier::_ApplyActionReply(shared_ptr<RuleAction> pAction, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::ApplyAction_Reply(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const
    {
       // true = check AutoSubmitted header and do not respond if set
       if (!IsGeneratedResponseAllowed(pMsgData, true))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5065, "RuleApplier::_ApplyActionReply", "Could not reply message. Maximum rule loop count reached or Auto-Submitted header.");
-         return;
+	      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5065, "RuleApplier::ApplyAction_Reply", "Could not reply message. Maximum rule loop count reached or Auto-Submitted header.");
+	      return;
       }
 
-      String sReplyRecipientAddress  = pMsgData->GetMessage()->GetFromAddress();
+      String sReplyRecipientAddress = pMsgData->GetMessage()->GetFromAddress();
 
       if (sReplyRecipientAddress.IsEmpty())
       {
-         // We need a recipient address to be able to
-         // send the message..
-         return;
+	      // We need a recipient address to be able to
+	      // send the message..
+	      return;
       }
 
-      shared_ptr<Account> emptyAccount;
+      std::shared_ptr<Account> emptyAccount;
 
-      // Sen d a copy of this email.
-      shared_ptr<Message> pMsg = shared_ptr<Message>(new Message());
+      // Send a copy of this email.
+      std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
       pMsg->SetState(Message::Delivering);
-      
+
       String newMessageFileName = PersistentMessage::GetFileName(pMsg);
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      // check if this us a user-level account rule or global rule.
+      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
+
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
-      pNewMsgData->SetReturnPath("");
+      if (!pAccount)
+         pNewMsgData->SetReturnPath("");
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetTo(sReplyRecipientAddress);
       pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
@@ -411,9 +419,13 @@ namespace HM
       pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
       pNewMsgData->SetAutoReplied();
-	  pNewMsgData->IncreaseRuleLoopCount();
+      pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newMessageFileName);
-	  
+
+      // We need to update the SMTP envelope from address, if this
+      // message is replied to by a user-level account.
+      if (pAccount)
+	      pMsg->SetFromAddress(pAccount->GetAddress());
 
       // Add recipients.
       bool recipientOK = false;
@@ -425,7 +437,7 @@ namespace HM
    }
 
    bool
-   RuleApplier::_MessageMatchesCriteria(shared_ptr<RuleCriteria> pCriteria, shared_ptr<MessageData> pMsgData) const
+   RuleApplier::MessageMatchesCriteria_(std::shared_ptr<RuleCriteria> pCriteria, std::shared_ptr<MessageData> pMsgData) const
    {
       String sFieldValue;
       if (pCriteria->GetUsePredefined())
@@ -455,9 +467,9 @@ namespace HM
             break;
          case RuleCriteria::FTRecipientList:
             {
-               shared_ptr<Message> pMessage = pMsgData->GetMessage();
-               std::vector<shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
-               std::vector<shared_ptr<MessageRecipient> >::iterator iterRecipient = vecRecipients.begin();
+               std::shared_ptr<Message> pMessage = pMsgData->GetMessage();
+               std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
+               auto iterRecipient = vecRecipients.begin();
 
                while (iterRecipient != vecRecipients.end())
                {
@@ -571,7 +583,7 @@ namespace HM
    }
 
    bool
-   RuleApplier::IsGeneratedResponseAllowed(shared_ptr<MessageData> pMsgData, bool bChkAutoSubmit)
+   RuleApplier::IsGeneratedResponseAllowed(std::shared_ptr<MessageData> pMsgData, bool bChkAutoSubmit)
    {
       int iCurrProcessCount = pMsgData->GetRuleLoopCount();
       int iMaxAllowed = Configuration::Instance()->GetSMTPConfiguration()->GetRuleLoopLimit();

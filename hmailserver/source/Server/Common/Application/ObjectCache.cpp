@@ -17,8 +17,8 @@ namespace HM
 
    ObjectCache::ObjectCache(void)
    {
-      m_bDomainAliasesNeedsReload = true;
-      m_bGlobalRulesNeedsReload = true;
+      domain_aliases_needs_reload_ = true;
+      global_rules_needs_reload_ = true;
    }
 
    ObjectCache::~ObjectCache(void)
@@ -29,90 +29,90 @@ namespace HM
    void 
    ObjectCache::SetDomainAliasesNeedsReload()
    {
-      CriticalSectionScope scope(m_oDACritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(domain_aliases_mutex_);
 
-      m_bDomainAliasesNeedsReload = true;
+      domain_aliases_needs_reload_ = true;
    }
 
-   shared_ptr<DomainAliases> 
+   std::shared_ptr<DomainAliases> 
    ObjectCache::GetDomainAliases()
    {
-      CriticalSectionScope scope(m_oDACritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(domain_aliases_mutex_);
 
-      if (!m_pDomainAliases || m_bDomainAliasesNeedsReload)
+      if (!domain_aliases_ || domain_aliases_needs_reload_)
       {
-         m_pDomainAliases = shared_ptr<DomainAliases>(new DomainAliases(0));
-         m_pDomainAliases->Refresh();
+         domain_aliases_ = std::shared_ptr<DomainAliases>(new DomainAliases(0));
+         domain_aliases_->Refresh();
 
-         m_bDomainAliasesNeedsReload = false;
+         domain_aliases_needs_reload_ = false;
       }
 
-      return m_pDomainAliases;
+      return domain_aliases_;
    }
 
    void 
    ObjectCache::SetGlobalRulesNeedsReload()
    {
-      CriticalSectionScope scope(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(global_rules_mutex_);
 
-      m_bGlobalRulesNeedsReload = true;
+      global_rules_needs_reload_ = true;
    }
 
 
-   shared_ptr<Rules> 
+   std::shared_ptr<Rules> 
    ObjectCache::GetGlobalRules()
    {
-      CriticalSectionScope scope(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(global_rules_mutex_);
 
-      if (!m_pGlobalRules || m_bGlobalRulesNeedsReload)
+      if (!global_rules_ || global_rules_needs_reload_)
       {
-         m_pGlobalRules = shared_ptr<Rules>(new Rules(0));
-         m_pGlobalRules->Refresh();
+         global_rules_ = std::shared_ptr<Rules>(new Rules(0));
+         global_rules_->Refresh();
 
-         m_bGlobalRulesNeedsReload = false;
+         global_rules_needs_reload_ = false;
       }
 
-      return m_pGlobalRules;
+      return global_rules_;
    }
 
    void 
    ObjectCache::SetAccountRulesNeedsReload(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_oARCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
-      set<__int64>::iterator iterRefresh = m_setAccountRulesToRefresh.find(iAccountID);      
-      if (iterRefresh == m_setAccountRulesToRefresh.end())
-         m_setAccountRulesToRefresh.insert(iAccountID);
+      auto iterRefresh = account_rules_to_refresh_.find(iAccountID);      
+      if (iterRefresh == account_rules_to_refresh_.end())
+         account_rules_to_refresh_.insert(iAccountID);
    }
 
-   shared_ptr<Rules> 
+   std::shared_ptr<Rules> 
    ObjectCache::GetAccountRules(__int64 iAccountID)
    {
-      CriticalSectionScope scope(m_oARCritSec);
+      boost::lock_guard<boost::recursive_mutex> guard(account_rules_mutex_);
 
       // First find the rules.
-      map<__int64, shared_ptr<Rules> >::iterator iterRules = m_mapAccountRules.find(iAccountID);
-      shared_ptr<Rules> pRules;
+      auto iterRules = account_rules_.find(iAccountID);
+      std::shared_ptr<Rules> pRules;
 
-      if (iterRules == m_mapAccountRules.end())
+      if (iterRules == account_rules_.end())
       {
-         pRules = shared_ptr<Rules>(new Rules(iAccountID));
-         m_mapAccountRules[iAccountID] = pRules;
+         pRules = std::shared_ptr<Rules>(new Rules(iAccountID));
+         account_rules_[iAccountID] = pRules;
       
          // We need to refresh this one.
-         m_setAccountRulesToRefresh.insert(iAccountID);
+         account_rules_to_refresh_.insert(iAccountID);
       }
       else
       {
          pRules = (*iterRules).second;
       }
 
-      set<__int64>::iterator iterRefresh = m_setAccountRulesToRefresh.find(iAccountID);
-      if (iterRefresh != m_setAccountRulesToRefresh.end())
+      auto iterRefresh = account_rules_to_refresh_.find(iAccountID);
+      if (iterRefresh != account_rules_to_refresh_.end())
       {
          pRules->Refresh();
 
-         m_setAccountRulesToRefresh.erase(iterRefresh);
+         account_rules_to_refresh_.erase(iterRefresh);
       }
 
       return pRules;
@@ -121,10 +121,10 @@ namespace HM
    void 
    ObjectCache::ClearRuleCaches()
    {
-      CriticalSectionScope scopeAccountRules(m_oARCritSec);
-      CriticalSectionScope scopeGlobalRules(m_oGRCritSec);
+      boost::lock_guard<boost::recursive_mutex> globalRulesGuard(global_rules_mutex_);
+      boost::lock_guard<boost::recursive_mutex> accontRulesGuard(account_rules_mutex_);
 
-      m_pGlobalRules.reset();
-      m_mapAccountRules.clear();
+      global_rules_.reset();
+      account_rules_.clear();
    }
 }

@@ -22,30 +22,30 @@ namespace HM
       bool Execute(const SQLStatement &statement, __int64 *iInsertID = 0, int iIgnoreErrors = 0, String &sErrorMessage = String(_T("")));
       bool Execute(const SQLCommand &command, __int64 *iInsertID = 0, int iIgnoreErrors = 0, String &sErrorMessage = String(_T("")));
       
-      shared_ptr<DALRecordset> OpenRecordset(const SQLStatement &statement);
-      shared_ptr<DALRecordset> OpenRecordset(const SQLCommand &command);
+      std::shared_ptr<DALRecordset> OpenRecordset(const SQLStatement &statement);
+      std::shared_ptr<DALRecordset> OpenRecordset(const SQLCommand &command);
 
       int GetCurrentDatabaseVersion();
 
       bool GetIsConnected();
 
-      shared_ptr<DALConnection> BeginTransaction(String &sErrorMessage);
-      bool CommitTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage);
-      bool RollbackTransaction(shared_ptr<DALConnection> pConnection, String &sErrorMessage);
+      std::shared_ptr<DALConnection> BeginTransaction(String &sErrorMessage);
+      bool CommitTransaction(std::shared_ptr<DALConnection> pConnection, String &sErrorMessage);
+      bool RollbackTransaction(std::shared_ptr<DALConnection> pConnection, String &sErrorMessage);
       bool ExecuteScript(const String &sFile, String &sErrorMessage);
 
       bool EnsuresPrerequisites(long DBVersion, String &sErrorMessage);
    private:
 
-      DALConnection::ConnectionResult _Connect(String &sErrorMessage);
+      DALConnection::ConnectionResult Connect_(String &sErrorMessage);
 
-      shared_ptr<DALConnection> _GetConnection();
-      void _ReleaseConnection(shared_ptr<DALConnection> pConn);
-     
-      CriticalSection m_oCritSec;
+      std::shared_ptr<DALConnection> GetConnection_();
+      void ReleaseConnection_(std::shared_ptr<DALConnection> pConn);
+ 
+      boost::recursive_mutex mutex_;
       
-      std::set<shared_ptr<DALConnection> > m_setBusyConnections;
-      std::set<shared_ptr<DALConnection> > m_setAvailableConnections;
+      std::set<std::shared_ptr<DALConnection> > busy_connections_;
+      std::set<std::shared_ptr<DALConnection> > available_connections_;
       
 
    };

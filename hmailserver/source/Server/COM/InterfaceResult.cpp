@@ -9,16 +9,16 @@
 // InterfaceResult
 
 void 
-InterfaceResult::AttachItem(shared_ptr<HM::Result> pResult)
+InterfaceResult::AttachItem(std::shared_ptr<HM::Result> pResult)
 {
-   m_pResult = pResult;
+   result_ = pResult;
 }
 
 STDMETHODIMP InterfaceResult::get_Value(long *pVal)
 {
    try
    {
-      *pVal = m_pResult->GetValue();
+      *pVal = result_->GetValue();
       return S_OK;
    }
    catch (...)
@@ -31,7 +31,7 @@ STDMETHODIMP InterfaceResult::put_Value(long newVal)
 {
    try
    {
-      m_pResult->SetValue(newVal);
+      result_->SetValue(newVal);
       return S_OK;
    }
    catch (...)
@@ -44,7 +44,7 @@ STDMETHODIMP InterfaceResult::get_Parameter(long *pVal)
 {
    try
    {
-      *pVal = m_pResult->GetParameter();
+      *pVal = result_->GetParameter();
       return S_OK;
    }
    catch (...)
@@ -57,7 +57,7 @@ STDMETHODIMP InterfaceResult::put_Parameter(long newVal)
 {
    try
    {
-      m_pResult->SetParameter(newVal);
+      result_->SetParameter(newVal);
       return S_OK;
    }
    catch (...)
@@ -70,7 +70,7 @@ STDMETHODIMP InterfaceResult::get_Message(BSTR *pVal)
 {
    try
    {
-      *pVal = m_pResult->GetMessage().AllocSysString();
+      *pVal = result_->GetMessage().AllocSysString();
       return S_OK;
    }
    catch (...)
@@ -83,7 +83,7 @@ STDMETHODIMP InterfaceResult::put_Message(BSTR newVal)
 {
    try
    {
-      m_pResult->SetMessage(newVal);
+      result_->SetMessage(newVal);
       return S_OK;
    }
    catch (...)

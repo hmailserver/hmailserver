@@ -18,7 +18,7 @@ namespace HM
    }
 
    SQLCommand::SQLCommand(const String &queryString) :
-      _queryString(queryString)
+      query_string_(queryString)
    {
       
    }
@@ -28,7 +28,7 @@ namespace HM
    {
       SQLParameter parameter(name, value);
 
-      _parameters.push_back(parameter);
+      parameters_.push_back(parameter);
    }
 
    void
@@ -36,7 +36,7 @@ namespace HM
    {
       SQLParameter parameter(name, value);
 
-      _parameters.push_back(parameter);
+      parameters_.push_back(parameter);
    }
 
 
@@ -45,7 +45,7 @@ namespace HM
    {
       SQLParameter parameter(name, value);
 
-      _parameters.push_back(parameter);
+      parameters_.push_back(parameter);
    }
 
    void
@@ -53,32 +53,32 @@ namespace HM
    {
       SQLParameter parameter(name, value);
 
-      _parameters.push_back(parameter);
+      parameters_.push_back(parameter);
    }
 
 
    String 
    SQLCommand::GetQueryString() const
    {
-      return _queryString;
+      return query_string_;
    }
 
    void
    SQLCommand::SetQueryString(const String &value)
    {
-      _queryString = value;
+      query_string_ = value;
    }
 
 
-   const list<SQLParameter> &
+   const std::list<SQLParameter> &
    SQLCommand::GetParameters() const
    {
-      return _parameters;
+      return parameters_;
    }
 
    void 
    SQLCommand::ClearParameters()
    {
-      _parameters.clear();
+      parameters_.clear();
    }
 }

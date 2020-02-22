@@ -32,7 +32,7 @@ namespace HM
       String sSQL;
       sSQL.Format(_T("select * from hm_incoming_relays order by relayname asc"));
 
-      return _DBLoad(sSQL);
+      return DBLoad_(sSQL);
    }
 
    bool
@@ -44,7 +44,7 @@ namespace HM
          return false;
       }
 
-      boost_foreach(shared_ptr<IncomingRelay> relay, vecObjects)
+      for(std::shared_ptr<IncomingRelay> relay : vecObjects)
       {
          if (relay->IPIsWithinRange(address))
          {

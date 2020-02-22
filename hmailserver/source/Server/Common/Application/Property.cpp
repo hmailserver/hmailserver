@@ -14,18 +14,18 @@ namespace HM
 {
    Property::Property(void)
    {
-      m_lValue = 0;
-      m_sValue = "";
-      m_bSaveCrypted = false;
+      long_value_ = 0;
+      string_value_ = "";
+      save_crypted_ = false;
    }
 
    Property::Property(const String & sName, long lValue, const String & sValue, bool SaveCrypted)
    {
-      m_sName = sName;
-      m_lValue = lValue;
-      m_sValue = sValue;
+      name_ = sName;
+      long_value_ = lValue;
+      string_value_ = sValue;
       
-      m_bSaveCrypted = SaveCrypted;
+      save_crypted_ = SaveCrypted;
    }
 
    Property::~Property(void)
@@ -36,62 +36,62 @@ namespace HM
    void
    Property::SetLongValue(long NewVal)
    {
-      m_lValue = NewVal;
-      _WriteLongSetting(NewVal);
+      long_value_ = NewVal;
+      WriteLongSetting_(NewVal);
    }
 
    void
    Property::SetStringValue(const String &NewVal)
    {
-      m_sValue = NewVal;
-      _WriteStringSetting(NewVal);
+      string_value_ = NewVal;
+      WriteStringSetting_(NewVal);
    }
 
    void
    Property::SetBoolValue(bool NewVal)
    {
-      m_lValue = NewVal ? 1 : 0;
-      _WriteLongSetting(m_lValue);
+      long_value_ = NewVal ? 1 : 0;
+      WriteLongSetting_(long_value_);
    }
 
    bool
-   Property::_WriteBoolSetting(bool bValue)
+   Property::WriteBoolSetting_(bool bValue)
    {
       int iValue = bValue ? 1 : 0;
 
       SQLCommand command("update hm_settings set settinginteger = @SETTINGINTEGER where settingname = @SETTINGNAME");
       command.AddParameter("@SETTINGINTEGER", iValue);
-      command.AddParameter("@SETTINGNAME", m_sName);
+      command.AddParameter("@SETTINGNAME", name_);
 
       return Application::Instance()->GetDBManager()->Execute(command);
    }
 
 
    bool
-   Property::_WriteLongSetting(long lValue)
+   Property::WriteLongSetting_(long lValue)
    {
       SQLCommand command("update hm_settings set settinginteger = @SETTINGINTEGER where settingname = @SETTINGNAME");
       command.AddParameter("@SETTINGINTEGER", lValue);
-      command.AddParameter("@SETTINGNAME", m_sName);
+      command.AddParameter("@SETTINGNAME", name_);
 
       return Application::Instance()->GetDBManager()->Execute(command);
    }
 
    bool
-   Property::_WriteStringSetting(const String & sValue)
+   Property::WriteStringSetting_(const String & sValue)
    {
       String sSQL;
 
 
       String sTemp;
-      if (m_bSaveCrypted)
+      if (save_crypted_)
          sTemp = Crypt::Instance()->EnCrypt(sValue, Crypt::ETBlowFish);
       else
          sTemp = sValue;
 
       SQLStatement statement(SQLStatement::STUpdate, "hm_settings");
       statement.AddColumn("settingstring", sTemp);
-      statement.SetWhereClause(Formatter::Format("settingname = '{0}'", m_sName));
+      statement.SetWhereClause(Formatter::Format("settingname = '{0}'", name_));
 
       return Application::Instance()->GetDBManager()->Execute(statement);
    }

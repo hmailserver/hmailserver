@@ -6,7 +6,6 @@
 #include ".\transparenttransmissionbuffer.h"
 
 #include "ByteBuffer.h"
-#include "../TCPIP/ProtocolParser.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -16,14 +15,14 @@
 namespace HM
 {
    TransparentTransmissionBuffer::TransparentTransmissionBuffer(bool bSending) : 
-      m_bIsSending(bSending),
-      m_bTransmissionEnded(false),
-      m_bLastSendEndedWithNewline(false),
-      m_iDataSent(0),
-      m_iMaxSizeKB(0),
-      _cancelTransmission(false)
+      is_sending_(bSending),
+      transmission_ended_(false),
+      last_send_ended_with_newline_(false),
+      data_sent_(0),
+      max_size_kb_(0),
+      cancel_transmission_(false)
    {
-      m_pBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
+      buffer_ = std::shared_ptr<ByteBuffer>(new ByteBuffer);
    }
 
    TransparentTransmissionBuffer::~TransparentTransmissionBuffer(void)
@@ -32,12 +31,11 @@ namespace HM
    }
 
    bool
-   TransparentTransmissionBuffer::Initialize(ProtocolParser *pProtocolParser)
+   TransparentTransmissionBuffer::Initialize(std::weak_ptr<TCPConnection> pTCPConnection)
    {
-      m_pProtocolParser = pProtocolParser;
+      tcp_connection_ = pTCPConnection;
 
-
-      m_iDataSent = 0;
+      data_sent_ = 0;
 
       return true;
    }
@@ -45,32 +43,32 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::Initialize(const String &sFilename)
    {
-      if (!m_oFile.Open(sFilename, File::OTAppend))
+      if (!file_.Open(sFilename, File::OTAppend))
       {
          // This is not good. We failed to get a handle to the file.
          // Log to event log and notify the sender of this error.
 
          String sErrorMessage;
-         sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename);
+         sErrorMessage.Format(_T("Failed to write to the file %s. Data from sender rejected."), sFilename.c_str());
 
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::_SaveToFile", sErrorMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5075, "TransparentTransmissionBuffer::SaveToFile_", sErrorMessage);
 
          return false;
       } 
 
-      m_iDataSent = 0;
+      data_sent_ = 0;
 
       return true;
    }
 
    void 
-   TransparentTransmissionBuffer::SetMaxSizeKB(int maxSize)
+   TransparentTransmissionBuffer::SetMaxSizeKB(size_t maxSize)
    {
-      m_iMaxSizeKB = maxSize;
+      max_size_kb_ = maxSize;
    }
 
    void 
-   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, int iBufferSize)
+   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, size_t iBufferSize)
    {
       if (iBufferSize == 0)
       {
@@ -84,61 +82,41 @@ namespace HM
          throw;
       }
 
-      if (m_pBuffer == 0)
+      if (buffer_ == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "m_pBuffer is NULL");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5412, "TransparentTransmissionBuffer::Append", "buffer_ is NULL");
          throw;
       }
 
-      m_iDataSent+= iBufferSize;
+      data_sent_+= iBufferSize;
 
       // Add the new data to the buffer.
-      try
-      {
-         // Add the new data to the buffer.
-         m_pBuffer->Add(pBuffer, iBufferSize);
-      }
-      catch (...)
-      {
-         String message;
-         message.Format(_T("Error when appending buffer. Buffer: %d, pBuffer: %d, Size: %d"), &m_pBuffer, &pBuffer, iBufferSize);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5413, "TransparentTransmissionBuffer::Append", message);
-         throw;
-      }
+      buffer_->Add(pBuffer, iBufferSize);
 
       // Check if we have received the entire buffer.
-      if (m_pBuffer->GetSize() >= 3 && !m_bIsSending)
+      if (buffer_->GetSize() >= 3 && !is_sending_)
       {
-         try
+         // If receiving, we should check for end-of-data
+         size_t iSize = buffer_->GetSize();
+         const char *pCharBuffer = buffer_->GetCharBuffer();
+
+         // Check if the buffer only contains a dot on an empty line.
+         bool bDotCRLFOnEmptyLine = (pCharBuffer[0] == '.' && pCharBuffer[1] == '\r' && pCharBuffer[2] == '\n');
+
+         // Look for \r\n.\r\n. 
+         bool bLineBeginnningWithDotCRLF = buffer_->GetSize() >= 5 &&
+            (pCharBuffer[iSize -5] == '\r' && 
+            pCharBuffer[iSize -4] == '\n' && 
+            pCharBuffer[iSize -3] == '.' && 
+            pCharBuffer[iSize -2] == '\r' && 
+            pCharBuffer[iSize -1] == '\n');
+
+         if (bDotCRLFOnEmptyLine || bLineBeginnningWithDotCRLF)
          {
-            // If receiving, we should check for end-of-data
-            int iSize = m_pBuffer->GetSize();
-            const char *pCharBuffer = m_pBuffer->GetCharBuffer();
+            // Remove the transmission-end characters. (the 3 last)
+            buffer_->DecreaseSize(3);
 
-            // Check if the buffer only contains a dot on an empty line.
-            bool bDotCRLFOnEmptyLine = (pCharBuffer[0] == '.' && pCharBuffer[1] == '\r' && pCharBuffer[2] == '\n');
-
-            // Look for \r\n.\r\n. 
-            bool bLineBeginnningWithDotCRLF = m_pBuffer->GetSize() >= 5 &&
-               (pCharBuffer[iSize -5] == '\r' && 
-               pCharBuffer[iSize -4] == '\n' && 
-               pCharBuffer[iSize -3] == '.' && 
-               pCharBuffer[iSize -2] == '\r' && 
-               pCharBuffer[iSize -1] == '\n');
-
-            if (bDotCRLFOnEmptyLine || bLineBeginnningWithDotCRLF)
-            {
-               // Remove the transmission-end characters. (the 3 last)
-               m_pBuffer->DecreaseSize(3);
-
-               m_bTransmissionEnded = true;
-            }
-         }
-         catch (...)
-         {
-            ErrorManager::Instance()->ReportError(ErrorManager::High, 5339, "TransparentTransmissionBuffer::Append", "Error when checking for linebreaks.");
-            throw;
+            transmission_ended_ = true;
          }
       }
    }
@@ -146,16 +124,16 @@ namespace HM
    bool 
    TransparentTransmissionBuffer::GetRequiresFlush()
    {
-      if (m_pBuffer->GetSize() > 40000 || m_bTransmissionEnded)
+      if (buffer_->GetSize() > 40000 || transmission_ended_)
          return true;
       else
          return false;
    }
 
-   int 
+   size_t
    TransparentTransmissionBuffer::GetSize()
    {  
-      return m_iDataSent;
+      return data_sent_;
    }
 
    bool
@@ -166,20 +144,20 @@ namespace HM
       if (!GetRequiresFlush() && !bForce)
          return dataProcessed;
 
-      if (m_pBuffer->GetSize() > MAX_LINE_LENGTH)
+      if (buffer_->GetSize() > MAX_LINE_LENGTH)
       {
          // Something fishy is going on. We've received over MAX_LINE_LENGTH
          // characters on a single line with no new line character. This should
          // never happen in normal email communication so let's assume someone
          // is trying to attack us.
-         _cancelTransmission = true;
-         _cancelMessage = "Too long line was received. Transmission aborted.";
+         cancel_transmission_ = true;
+         cancel_message_ = "Too long line was received. Transmission aborted.";
          bForce = true;
       }
 
       // Locate last \n
-      const char *pBuffer = m_pBuffer->GetCharBuffer();
-      int bufferSize = m_pBuffer->GetSize();
+      const char *pBuffer = buffer_->GetCharBuffer();
+      size_t bufferSize = buffer_->GetSize();
       
       /*
          RFC rfc2821
@@ -190,13 +168,22 @@ namespace HM
             Service Extensions.
       */
 
-      int maxLineLength = MAX_LINE_LENGTH;
+      size_t maxLineLength = MAX_LINE_LENGTH;
 
       // Start in the end and move 'back' MAX_LINE_LENGTH characters.
-      int searchEndPos = max(bufferSize - maxLineLength, 0);
-      for (int i = bufferSize - 1; i >= searchEndPos; i--)
+      size_t searchEndPos = 0;
+      
+      if (bufferSize == 0)
+         return dataProcessed;
+
+      if (bufferSize > maxLineLength)
+         searchEndPos = bufferSize - maxLineLength;
+      else
+         searchEndPos = 0;
+
+      for (size_t current_position = bufferSize; current_position > searchEndPos; current_position--)
       {
-         char s = pBuffer[i];
+         char s = pBuffer[current_position-1];
 
          // If we found a newline, send anything up until that.
          // If we're forcing a send, send all we got
@@ -205,33 +192,36 @@ namespace HM
 
          if (s == '\n' || bForce)
          {
-            m_bLastSendEndedWithNewline = s == '\n';
+            last_send_ended_with_newline_ = s == '\n';
 
             // Copy the data up including this position
-            int iCopySize = i+1;
+            size_t bytes_to_copy = current_position;
 
-            shared_ptr<ByteBuffer> pOutBuffer = shared_ptr<ByteBuffer>(new ByteBuffer);
-            pOutBuffer->Add(m_pBuffer->GetBuffer(), iCopySize);
+            std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
+            pOutBuffer->Add(buffer_->GetBuffer(), bytes_to_copy);
 
             // Remove it from the old buffer
-            int iRemaining = m_pBuffer->GetSize() - iCopySize;
-            m_pBuffer->Empty(iRemaining);
+            size_t remaining_bytes = buffer_->GetSize() - bytes_to_copy;
+            buffer_->Empty(remaining_bytes);
 
             // Parse this buffer and add it to file/socket
-            if (m_bIsSending)
-               _InsertTransmissionPeriod(pOutBuffer);
+            if (is_sending_)
+               InsertTransmissionPeriod_(pOutBuffer);
             else
-               _RemoveTransmissionPeriod(pOutBuffer);
+               RemoveTransmissionPeriod_(pOutBuffer);
 
             // The parsed buffer can now be sent.
-            if (m_bIsSending)
+            if (is_sending_)
             {
-               if (!m_pProtocolParser->SendData(pOutBuffer))
-                  return false;
+               if (std::shared_ptr<TCPConnection> connection = tcp_connection_.lock())
+               {
+                  connection->EnqueueWrite(pOutBuffer);
+               }
+
             }
-            else 
+            else
             {
-               _SaveToFile(pOutBuffer);
+               SaveToFile_(pOutBuffer);
             }
 
             dataProcessed = true;
@@ -240,34 +230,34 @@ namespace HM
          }
       }
 
-      if (m_bTransmissionEnded && m_oFile.IsOpen())
+      if (transmission_ended_ && file_.IsOpen())
       {
-         m_oFile.Close();
+         file_.Close();
       }
 
       return dataProcessed;
    }
 
    bool 
-   TransparentTransmissionBuffer::_SaveToFile(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::SaveToFile_(std::shared_ptr<ByteBuffer> pBuffer)
    {
-      if (m_iMaxSizeKB > 0 && (m_iDataSent / 1024) > m_iMaxSizeKB)
+      if (max_size_kb_ > 0 && (data_sent_ / 1024) > max_size_kb_)
       {
          // we've reached the max size. don't save more data.
          return false;
       }
 
-      if (!_cancelTransmission)
+      if (!cancel_transmission_)
       {
-         DWORD dwNoOfBytesWritten = 0;
-         bool bResult = m_oFile.Write(pBuffer, dwNoOfBytesWritten);
+         size_t noOfBytesWritten = 0;
+         bool bResult = file_.Write(pBuffer, noOfBytesWritten);
       }
  
       return true;
    }
 
    void 
-   TransparentTransmissionBuffer::_InsertTransmissionPeriod(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::InsertTransmissionPeriod_(std::shared_ptr<ByteBuffer> pBuffer)
    {
       // All . which are placed as the first character on a new
       // line should be replaced with ..
@@ -278,9 +268,9 @@ namespace HM
       char *pOutBuffer = new char[pBuffer->GetSize() * 2];
       char *pOutBufferStart = pOutBuffer;
 
-      int iInBufferSize = pBuffer->GetSize();
+      size_t iInBufferSize = pBuffer->GetSize();
      
-      for (int i = 0; i < iInBufferSize; i++)
+      for (size_t i = 0; i < iInBufferSize; i++)
       {
          char c = pInBuffer[i];
          if (c == '.')
@@ -303,7 +293,7 @@ namespace HM
       }
 
       // Clear the buffer and insert the new data
-      int iOutBufferLen = pOutBuffer - pOutBufferStart;
+      size_t iOutBufferLen = pOutBuffer - pOutBufferStart;
       pBuffer->Empty();
       pBuffer->Add((BYTE*) pOutBufferStart, iOutBufferLen);
 
@@ -312,7 +302,7 @@ namespace HM
    }
 
    void
-   TransparentTransmissionBuffer::_RemoveTransmissionPeriod(shared_ptr<ByteBuffer> pBuffer)
+   TransparentTransmissionBuffer::RemoveTransmissionPeriod_(std::shared_ptr<ByteBuffer> pBuffer)
    {
       // Allocate maximum required length for the out buffer.
       char *pInBuffer = (char*) pBuffer->GetCharBuffer();
@@ -320,9 +310,9 @@ namespace HM
       char *pOutBuffer = new char[pBuffer->GetSize()];
       char *pOutBufferStart = pOutBuffer;
 
-      int iInBufferSize = pBuffer->GetSize();
+      size_t iInBufferSize = pBuffer->GetSize();
 
-      for (int i = 0; i < iInBufferSize; i++)
+      for (size_t i = 0; i < iInBufferSize; i++)
       {
          char c = pInBuffer[i];
          if (c == '.')
@@ -340,7 +330,7 @@ namespace HM
       }
 
       // Clear the buffer and insert the new data
-      int iOutBufferLen = pOutBuffer - pOutBufferStart;
+      size_t iOutBufferLen = pOutBuffer - pOutBufferStart;
       pBuffer->Empty();
       pBuffer->Add((BYTE*) pOutBufferStart, iOutBufferLen);
 

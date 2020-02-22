@@ -5,6 +5,7 @@
 #define PROPERTY_MAXSMTPCONNECTIONS             _T("maxsmtpconnections")
 #define PROPERTY_MIRROREMAILADDRESS             _T("mirroremailaddress")
 #define PROPERTY_AUTHALLOWPLAINTEXT             _T("authallowplaintext")
+#define PROPERTY_IMAPAUTHALLOWPLAINTEXT         _T("ImapAuthAllowPlainText")
 #define PROPERTY_ALLOWMAILFROMNULL              _T("allowmailfromnull")
 #define PROPERTY_LOGDEVICE                      _T("logdevice")
 #define PROPERTY_LOGGING                        _T("logging")
@@ -88,7 +89,7 @@
 #define PROPERTY_SMTPDISCONNECTINVALIDCLIENTS   _T("disconnectinvalidclients")
 #define PROPERTY_SMTPMAXINCORRECTCOMMANDS       _T("maximumincorrectcommands")
 
-#define PROPERTY_SMTPRELAYERUSESSL              _T("smtprelayerusessl")
+#define PROPERTY_SMTPRELAYERCONNECTIONSECURITY  _T("smtprelayerconnectionsecurity")
 
 #define PROPERTY_ADDDELIVEREDTOHEADER           _T("adddeliveredtoheader")
 
@@ -117,10 +118,18 @@
 #define PROPERTY_BYPASS_GREYLISTING_ON_MAILFROMMX  _T("BypassGreylistingOnMailFromMX")
 
 #define PROPERTY_MAX_NUMBER_OF_MXHOSTS          _T("MaxNumberOfMXHosts")
+#define PROPERTY_SMTPCONNECTIONSECURITY         _T("SmtpDeliveryConnectionSecurity")
+#define PROPERTY_VERIFYREMOTESSLCERTIFICATE     _T("VerifyRemoteSslCertificate")
+
+#define PROPERTY_SSLCIPHERLIST _T("SslCipherList")
+#define PROPERTY_SSLVERSIONS _T("SslVersions")
 
 #define PROPERTY_CLAMAV_ENABLED              _T("ClamAVEnabled")
 #define PROPERTY_CLAMAV_HOST                 _T("ClamAVHost")
 #define PROPERTY_CLAMAV_PORT                 _T("ClamAVPort")
 
+#define PROPERTY_IMAPMASTERUSER                _T("ImapMasterUser")
+#define PROPERTY_ENABLEIMAPSASLPLAIN           _T("EnableImapSASLPlain")
+#define PROPERTY_ENABLEIMAPSASLINTIALRESPONSE  _T("EnableImapSASLInitialResponse")
 
-#define REQUIRED_DB_VERSION            5400
+#define REQUIRED_DB_VERSION            5700

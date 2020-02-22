@@ -20,20 +20,20 @@ namespace HM
          SQLCE_UPDATE_IMAP_HIERARCHY_DELIMITER,
       };
 
-      MacroType GetType () const {return _type;}
-      void SetType (MacroType type) {_type = type;}
+      MacroType GetType () const {return type_;}
+      void SetType (MacroType type) {type_ = type;}
 
-      String GetTableName () const {return _tableName;}
-      void SetTableName (String tableName) {_tableName = tableName;}
+      String GetTableName () const {return table_name_;}
+      void SetTableName (String tableName) {table_name_ = tableName;}
 
-      String GetColumnName() const {return _columnName;}
-      void SetColumnName(String columnName) {_columnName = columnName;}
+      String GetColumnName() const {return column_name_;}
+      void SetColumnName(String columnName) {column_name_ = columnName;}
 
    private:
 
-      MacroType _type;
+      MacroType type_;
 
-      String _tableName;
-      String _columnName;
+      String table_name_;
+      String column_name_;
    };
 }

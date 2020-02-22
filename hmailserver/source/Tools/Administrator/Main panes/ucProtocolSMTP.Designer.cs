@@ -31,17 +31,13 @@ namespace hMailServer.Administrator
            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ucProtocolSMTP));
            this.tabControl = new System.Windows.Forms.TabControl();
            this.tabPage1 = new System.Windows.Forms.TabPage();
-           this.textMaxMessageSize = new hMailServer.Shared.ucText();
            this.labelMaxMessageSize = new System.Windows.Forms.Label();
-           this.textWelcomeMessage = new hMailServer.Shared.ucText();
            this.labelWelcome = new System.Windows.Forms.Label();
            this.labelOther = new System.Windows.Forms.Label();
-           this.textMaxSMTPConnections = new hMailServer.Shared.ucText();
            this.labelMaxPOP3Connections = new System.Windows.Forms.Label();
            this.labelConnections = new System.Windows.Forms.Label();
            this.tabPage2 = new System.Windows.Forms.TabPage();
-           this.textSMTPRelayerPassword = new hMailServer.Administrator.Controls.ucPassword();
-           this.checkUseSSL = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.labelConnectionSecurity = new System.Windows.Forms.Label();
            this.labelPassword = new System.Windows.Forms.Label();
            this.labelUsername = new System.Windows.Forms.Label();
            this.labelRemotePort = new System.Windows.Forms.Label();
@@ -51,6 +47,22 @@ namespace hMailServer.Administrator
            this.labelMinutesOfRetries = new System.Windows.Forms.Label();
            this.labelNumberOfRetries = new System.Windows.Forms.Label();
            this.labelDeliveryOfEmail = new System.Windows.Forms.Label();
+           this.tabPage3 = new System.Windows.Forms.TabPage();
+           this.label1 = new System.Windows.Forms.Label();
+           this.tabPage4 = new System.Windows.Forms.TabPage();
+           this.labelMaximumNumberOfInvalidCommands = new System.Windows.Forms.Label();
+           this.tabPage5 = new System.Windows.Forms.TabPage();
+           this.labelMaxNumberOfMXHosts = new System.Windows.Forms.Label();
+           this.labelRuleLoopLimit = new System.Windows.Forms.Label();
+           this.lableOther2 = new System.Windows.Forms.Label();
+           this.lblMaxRecipientsInBatch = new System.Windows.Forms.Label();
+           this.labelBindToLocalIP = new System.Windows.Forms.Label();
+           this.labelDeliveryOfMail2 = new System.Windows.Forms.Label();
+           this.textMaxMessageSize = new hMailServer.Shared.ucText();
+           this.textWelcomeMessage = new hMailServer.Shared.ucText();
+           this.textMaxSMTPConnections = new hMailServer.Shared.ucText();
+           this.comboConnectionSecurity = new hMailServer.Administrator.Controls.ucComboBox();
+           this.textSMTPRelayerPassword = new hMailServer.Administrator.Controls.ucPassword();
            this.textSMTPRelayerUsername = new hMailServer.Shared.ucText();
            this.chkSMTPRelayerRequiresAuth = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textSMTPRelayerPort = new hMailServer.Shared.ucText();
@@ -58,28 +70,18 @@ namespace hMailServer.Administrator
            this.textHostName = new hMailServer.Shared.ucText();
            this.textMinutesBetween = new hMailServer.Shared.ucText();
            this.textNoOfRetries = new hMailServer.Shared.ucText();
-           this.tabPage3 = new System.Windows.Forms.TabPage();
-           this.label1 = new System.Windows.Forms.Label();
            this.checkSendStatistics = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.tabPage4 = new System.Windows.Forms.TabPage();
            this.textMaxNumberOfInvalidCommands = new hMailServer.Shared.ucText();
-           this.labelMaximumNumberOfInvalidCommands = new System.Windows.Forms.Label();
            this.checkDisconnectInvalidClients = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkAllowIncorrectLineEndings = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkAllowMailFromNull = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkAllowPlainTextAuthentication = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.tabPage5 = new System.Windows.Forms.TabPage();
+           this.textMaxNumberOfMXHosts = new hMailServer.Shared.ucText();
            this.textRuleLoopLimit = new hMailServer.Shared.ucText();
-           this.labelRuleLoopLimit = new System.Windows.Forms.Label();
-           this.lableOther2 = new System.Windows.Forms.Label();
-           this.lblMaxRecipientsInBatch = new System.Windows.Forms.Label();
-           this.labelBindToLocalIP = new System.Windows.Forms.Label();
-           this.labelDeliveryOfMail2 = new System.Windows.Forms.Label();
            this.checkAddDeliveredToHeader = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textMaxSMTPRecipientsInBatch = new hMailServer.Shared.ucText();
            this.textBindToLocalIP = new hMailServer.Shared.ucText();
-           this.textMaxNumberOfMXHosts = new hMailServer.Shared.ucText();
-           this.labelMaxNumberOfMXHosts = new System.Windows.Forms.Label();
+           this.chkSmtpDeliveryConnectionSecurity = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabControl.SuspendLayout();
            this.tabPage1.SuspendLayout();
            this.tabPage2.SuspendLayout();
@@ -99,7 +101,7 @@ namespace hMailServer.Administrator
            this.tabControl.Location = new System.Drawing.Point(0, 0);
            this.tabControl.Name = "tabControl";
            this.tabControl.SelectedIndex = 0;
-           this.tabControl.Size = new System.Drawing.Size(540, 397);
+           this.tabControl.Size = new System.Drawing.Size(534, 435);
            this.tabControl.TabIndex = 0;
            // 
            // tabPage1
@@ -115,19 +117,10 @@ namespace hMailServer.Administrator
            this.tabPage1.Location = new System.Drawing.Point(4, 22);
            this.tabPage1.Name = "tabPage1";
            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-           this.tabPage1.Size = new System.Drawing.Size(532, 371);
+           this.tabPage1.Size = new System.Drawing.Size(526, 409);
            this.tabPage1.TabIndex = 0;
            this.tabPage1.Text = "General";
            this.tabPage1.UseVisualStyleBackColor = true;
-           // 
-           // textMaxMessageSize
-           // 
-           this.textMaxMessageSize.Location = new System.Drawing.Point(28, 173);
-           this.textMaxMessageSize.Name = "textMaxMessageSize";
-           this.textMaxMessageSize.Number = 0;
-           this.textMaxMessageSize.Numeric = true;
-           this.textMaxMessageSize.Size = new System.Drawing.Size(117, 20);
-           this.textMaxMessageSize.TabIndex = 18;
            // 
            // labelMaxMessageSize
            // 
@@ -137,15 +130,6 @@ namespace hMailServer.Administrator
            this.labelMaxMessageSize.Size = new System.Drawing.Size(116, 13);
            this.labelMaxMessageSize.TabIndex = 17;
            this.labelMaxMessageSize.Text = "Max message size (KB)";
-           // 
-           // textWelcomeMessage
-           // 
-           this.textWelcomeMessage.Location = new System.Drawing.Point(27, 128);
-           this.textWelcomeMessage.Name = "textWelcomeMessage";
-           this.textWelcomeMessage.Number = 0;
-           this.textWelcomeMessage.Numeric = false;
-           this.textWelcomeMessage.Size = new System.Drawing.Size(178, 20);
-           this.textWelcomeMessage.TabIndex = 16;
            // 
            // labelWelcome
            // 
@@ -165,15 +149,6 @@ namespace hMailServer.Administrator
            this.labelOther.Size = new System.Drawing.Size(38, 13);
            this.labelOther.TabIndex = 14;
            this.labelOther.Text = "Other";
-           // 
-           // textMaxSMTPConnections
-           // 
-           this.textMaxSMTPConnections.Location = new System.Drawing.Point(26, 53);
-           this.textMaxSMTPConnections.Name = "textMaxSMTPConnections";
-           this.textMaxSMTPConnections.Number = 0;
-           this.textMaxSMTPConnections.Numeric = true;
-           this.textMaxSMTPConnections.Size = new System.Drawing.Size(117, 20);
-           this.textMaxSMTPConnections.TabIndex = 13;
            // 
            // labelMaxPOP3Connections
            // 
@@ -196,8 +171,7 @@ namespace hMailServer.Administrator
            // 
            // tabPage2
            // 
-           this.tabPage2.Controls.Add(this.textSMTPRelayerPassword);
-           this.tabPage2.Controls.Add(this.checkUseSSL);
+           this.tabPage2.Controls.Add(this.labelConnectionSecurity);
            this.tabPage2.Controls.Add(this.labelPassword);
            this.tabPage2.Controls.Add(this.labelUsername);
            this.tabPage2.Controls.Add(this.labelRemotePort);
@@ -207,6 +181,8 @@ namespace hMailServer.Administrator
            this.tabPage2.Controls.Add(this.labelMinutesOfRetries);
            this.tabPage2.Controls.Add(this.labelNumberOfRetries);
            this.tabPage2.Controls.Add(this.labelDeliveryOfEmail);
+           this.tabPage2.Controls.Add(this.comboConnectionSecurity);
+           this.tabPage2.Controls.Add(this.textSMTPRelayerPassword);
            this.tabPage2.Controls.Add(this.textSMTPRelayerUsername);
            this.tabPage2.Controls.Add(this.chkSMTPRelayerRequiresAuth);
            this.tabPage2.Controls.Add(this.textSMTPRelayerPort);
@@ -217,33 +193,24 @@ namespace hMailServer.Administrator
            this.tabPage2.Location = new System.Drawing.Point(4, 22);
            this.tabPage2.Name = "tabPage2";
            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-           this.tabPage2.Size = new System.Drawing.Size(532, 371);
+           this.tabPage2.Size = new System.Drawing.Size(526, 409);
            this.tabPage2.TabIndex = 1;
            this.tabPage2.Text = "Delivery of e-mail";
            this.tabPage2.UseVisualStyleBackColor = true;
            // 
-           // textSMTPRelayerPassword
+           // labelConnectionSecurity
            // 
-           this.textSMTPRelayerPassword.Location = new System.Drawing.Point(64, 288);
-           this.textSMTPRelayerPassword.Name = "textSMTPRelayerPassword";
-           this.textSMTPRelayerPassword.Size = new System.Drawing.Size(120, 20);
-           this.textSMTPRelayerPassword.TabIndex = 31;
-           this.textSMTPRelayerPassword.Text = "<< Encrypted >>";
-           // 
-           // checkUseSSL
-           // 
-           this.checkUseSSL.AutoSize = true;
-           this.checkUseSSL.Location = new System.Drawing.Point(36, 315);
-           this.checkUseSSL.Name = "checkUseSSL";
-           this.checkUseSSL.Size = new System.Drawing.Size(68, 17);
-           this.checkUseSSL.TabIndex = 30;
-           this.checkUseSSL.Text = "Use SSL";
-           this.checkUseSSL.UseVisualStyleBackColor = true;
+           this.labelConnectionSecurity.AutoSize = true;
+           this.labelConnectionSecurity.Location = new System.Drawing.Point(32, 323);
+           this.labelConnectionSecurity.Name = "labelConnectionSecurity";
+           this.labelConnectionSecurity.Size = new System.Drawing.Size(100, 13);
+           this.labelConnectionSecurity.TabIndex = 39;
+           this.labelConnectionSecurity.Text = "Connection security";
            // 
            // labelPassword
            // 
            this.labelPassword.AutoSize = true;
-           this.labelPassword.Location = new System.Drawing.Point(62, 273);
+           this.labelPassword.Location = new System.Drawing.Point(61, 278);
            this.labelPassword.Name = "labelPassword";
            this.labelPassword.Size = new System.Drawing.Size(53, 13);
            this.labelPassword.TabIndex = 28;
@@ -252,7 +219,7 @@ namespace hMailServer.Administrator
            // labelUsername
            // 
            this.labelUsername.AutoSize = true;
-           this.labelUsername.Location = new System.Drawing.Point(61, 229);
+           this.labelUsername.Location = new System.Drawing.Point(60, 234);
            this.labelUsername.Name = "labelUsername";
            this.labelUsername.Size = new System.Drawing.Size(58, 13);
            this.labelUsername.TabIndex = 26;
@@ -261,7 +228,7 @@ namespace hMailServer.Administrator
            // labelRemotePort
            // 
            this.labelRemotePort.AutoSize = true;
-           this.labelRemotePort.Location = new System.Drawing.Point(187, 160);
+           this.labelRemotePort.Location = new System.Drawing.Point(186, 165);
            this.labelRemotePort.Name = "labelRemotePort";
            this.labelRemotePort.Size = new System.Drawing.Size(104, 13);
            this.labelRemotePort.TabIndex = 23;
@@ -270,7 +237,7 @@ namespace hMailServer.Administrator
            // labelRemoteHostName
            // 
            this.labelRemoteHostName.AutoSize = true;
-           this.labelRemoteHostName.Location = new System.Drawing.Point(32, 160);
+           this.labelRemoteHostName.Location = new System.Drawing.Point(31, 165);
            this.labelRemoteHostName.Name = "labelRemoteHostName";
            this.labelRemoteHostName.Size = new System.Drawing.Size(96, 13);
            this.labelRemoteHostName.TabIndex = 21;
@@ -280,7 +247,7 @@ namespace hMailServer.Administrator
            // 
            this.labelSMTPRelayer.AutoSize = true;
            this.labelSMTPRelayer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-           this.labelSMTPRelayer.Location = new System.Drawing.Point(16, 137);
+           this.labelSMTPRelayer.Location = new System.Drawing.Point(15, 142);
            this.labelSMTPRelayer.Name = "labelSMTPRelayer";
            this.labelSMTPRelayer.Size = new System.Drawing.Size(88, 13);
            this.labelSMTPRelayer.TabIndex = 20;
@@ -323,78 +290,13 @@ namespace hMailServer.Administrator
            this.labelDeliveryOfEmail.TabIndex = 12;
            this.labelDeliveryOfEmail.Text = "Delivery of e-mail";
            // 
-           // textSMTPRelayerUsername
-           // 
-           this.textSMTPRelayerUsername.Location = new System.Drawing.Point(63, 245);
-           this.textSMTPRelayerUsername.Name = "textSMTPRelayerUsername";
-           this.textSMTPRelayerUsername.Number = 0;
-           this.textSMTPRelayerUsername.Numeric = false;
-           this.textSMTPRelayerUsername.Size = new System.Drawing.Size(121, 20);
-           this.textSMTPRelayerUsername.TabIndex = 27;
-           // 
-           // chkSMTPRelayerRequiresAuth
-           // 
-           this.chkSMTPRelayerRequiresAuth.AutoSize = true;
-           this.chkSMTPRelayerRequiresAuth.Location = new System.Drawing.Point(34, 205);
-           this.chkSMTPRelayerRequiresAuth.Name = "chkSMTPRelayerRequiresAuth";
-           this.chkSMTPRelayerRequiresAuth.Size = new System.Drawing.Size(167, 17);
-           this.chkSMTPRelayerRequiresAuth.TabIndex = 25;
-           this.chkSMTPRelayerRequiresAuth.Text = "Server requires authentication";
-           this.chkSMTPRelayerRequiresAuth.UseVisualStyleBackColor = true;
-           this.chkSMTPRelayerRequiresAuth.CheckedChanged += new System.EventHandler(this.chkSMTPRelayerRequiresAuth_CheckedChanged);
-           // 
-           // textSMTPRelayerPort
-           // 
-           this.textSMTPRelayerPort.Location = new System.Drawing.Point(189, 179);
-           this.textSMTPRelayerPort.Name = "textSMTPRelayerPort";
-           this.textSMTPRelayerPort.Number = 0;
-           this.textSMTPRelayerPort.Numeric = true;
-           this.textSMTPRelayerPort.Size = new System.Drawing.Size(84, 20);
-           this.textSMTPRelayerPort.TabIndex = 24;
-           // 
-           // textSMTPRelayer
-           // 
-           this.textSMTPRelayer.Location = new System.Drawing.Point(34, 179);
-           this.textSMTPRelayer.Name = "textSMTPRelayer";
-           this.textSMTPRelayer.Number = 0;
-           this.textSMTPRelayer.Numeric = false;
-           this.textSMTPRelayer.Size = new System.Drawing.Size(146, 20);
-           this.textSMTPRelayer.TabIndex = 22;
-           // 
-           // textHostName
-           // 
-           this.textHostName.Location = new System.Drawing.Point(35, 101);
-           this.textHostName.Name = "textHostName";
-           this.textHostName.Number = 0;
-           this.textHostName.Numeric = false;
-           this.textHostName.Size = new System.Drawing.Size(145, 20);
-           this.textHostName.TabIndex = 19;
-           // 
-           // textMinutesBetween
-           // 
-           this.textMinutesBetween.Location = new System.Drawing.Point(188, 53);
-           this.textMinutesBetween.Name = "textMinutesBetween";
-           this.textMinutesBetween.Number = 0;
-           this.textMinutesBetween.Numeric = true;
-           this.textMinutesBetween.Size = new System.Drawing.Size(109, 20);
-           this.textMinutesBetween.TabIndex = 17;
-           // 
-           // textNoOfRetries
-           // 
-           this.textNoOfRetries.Location = new System.Drawing.Point(34, 53);
-           this.textNoOfRetries.Name = "textNoOfRetries";
-           this.textNoOfRetries.Number = 0;
-           this.textNoOfRetries.Numeric = true;
-           this.textNoOfRetries.Size = new System.Drawing.Size(109, 20);
-           this.textNoOfRetries.TabIndex = 15;
-           // 
            // tabPage3
            // 
            this.tabPage3.Controls.Add(this.label1);
            this.tabPage3.Controls.Add(this.checkSendStatistics);
            this.tabPage3.Location = new System.Drawing.Point(4, 22);
            this.tabPage3.Name = "tabPage3";
-           this.tabPage3.Size = new System.Drawing.Size(532, 371);
+           this.tabPage3.Size = new System.Drawing.Size(526, 409);
            this.tabPage3.TabIndex = 2;
            this.tabPage3.Text = "Statistics";
            this.tabPage3.UseVisualStyleBackColor = true;
@@ -407,16 +309,6 @@ namespace hMailServer.Administrator
            this.label1.TabIndex = 32;
            this.label1.Text = resources.GetString("label1.Text");
            // 
-           // checkSendStatistics
-           // 
-           this.checkSendStatistics.AutoSize = true;
-           this.checkSendStatistics.Location = new System.Drawing.Point(15, 14);
-           this.checkSendStatistics.Name = "checkSendStatistics";
-           this.checkSendStatistics.Size = new System.Drawing.Size(188, 17);
-           this.checkSendStatistics.TabIndex = 31;
-           this.checkSendStatistics.Text = "Send statistics to hMailServer.com";
-           this.checkSendStatistics.UseVisualStyleBackColor = true;
-           // 
            // tabPage4
            // 
            this.tabPage4.Controls.Add(this.textMaxNumberOfInvalidCommands);
@@ -427,19 +319,10 @@ namespace hMailServer.Administrator
            this.tabPage4.Controls.Add(this.checkAllowPlainTextAuthentication);
            this.tabPage4.Location = new System.Drawing.Point(4, 22);
            this.tabPage4.Name = "tabPage4";
-           this.tabPage4.Size = new System.Drawing.Size(532, 371);
+           this.tabPage4.Size = new System.Drawing.Size(526, 409);
            this.tabPage4.TabIndex = 3;
            this.tabPage4.Text = "RFC compliance";
            this.tabPage4.UseVisualStyleBackColor = true;
-           // 
-           // textMaxNumberOfInvalidCommands
-           // 
-           this.textMaxNumberOfInvalidCommands.Location = new System.Drawing.Point(37, 126);
-           this.textMaxNumberOfInvalidCommands.Name = "textMaxNumberOfInvalidCommands";
-           this.textMaxNumberOfInvalidCommands.Number = 0;
-           this.textMaxNumberOfInvalidCommands.Numeric = true;
-           this.textMaxNumberOfInvalidCommands.Size = new System.Drawing.Size(72, 20);
-           this.textMaxNumberOfInvalidCommands.TabIndex = 14;
            // 
            // labelMaximumNumberOfInvalidCommands
            // 
@@ -449,6 +332,221 @@ namespace hMailServer.Administrator
            this.labelMaximumNumberOfInvalidCommands.Size = new System.Drawing.Size(188, 13);
            this.labelMaximumNumberOfInvalidCommands.TabIndex = 13;
            this.labelMaximumNumberOfInvalidCommands.Text = "Maximum number of invalid commands";
+           // 
+           // tabPage5
+           // 
+           this.tabPage5.Controls.Add(this.chkSmtpDeliveryConnectionSecurity);
+           this.tabPage5.Controls.Add(this.textMaxNumberOfMXHosts);
+           this.tabPage5.Controls.Add(this.labelMaxNumberOfMXHosts);
+           this.tabPage5.Controls.Add(this.labelRuleLoopLimit);
+           this.tabPage5.Controls.Add(this.lableOther2);
+           this.tabPage5.Controls.Add(this.lblMaxRecipientsInBatch);
+           this.tabPage5.Controls.Add(this.labelBindToLocalIP);
+           this.tabPage5.Controls.Add(this.labelDeliveryOfMail2);
+           this.tabPage5.Controls.Add(this.textRuleLoopLimit);
+           this.tabPage5.Controls.Add(this.checkAddDeliveredToHeader);
+           this.tabPage5.Controls.Add(this.textMaxSMTPRecipientsInBatch);
+           this.tabPage5.Controls.Add(this.textBindToLocalIP);
+           this.tabPage5.Location = new System.Drawing.Point(4, 22);
+           this.tabPage5.Name = "tabPage5";
+           this.tabPage5.Size = new System.Drawing.Size(526, 409);
+           this.tabPage5.TabIndex = 4;
+           this.tabPage5.Text = "Advanced";
+           this.tabPage5.UseVisualStyleBackColor = true;
+           // 
+           // labelMaxNumberOfMXHosts
+           // 
+           this.labelMaxNumberOfMXHosts.AutoSize = true;
+           this.labelMaxNumberOfMXHosts.Location = new System.Drawing.Point(31, 269);
+           this.labelMaxNumberOfMXHosts.Name = "labelMaxNumberOfMXHosts";
+           this.labelMaxNumberOfMXHosts.Size = new System.Drawing.Size(172, 13);
+           this.labelMaxNumberOfMXHosts.TabIndex = 35;
+           this.labelMaxNumberOfMXHosts.Text = "Maximum number of recipient hosts";
+           // 
+           // labelRuleLoopLimit
+           // 
+           this.labelRuleLoopLimit.AutoSize = true;
+           this.labelRuleLoopLimit.Location = new System.Drawing.Point(31, 219);
+           this.labelRuleLoopLimit.Name = "labelRuleLoopLimit";
+           this.labelRuleLoopLimit.Size = new System.Drawing.Size(80, 13);
+           this.labelRuleLoopLimit.TabIndex = 33;
+           this.labelRuleLoopLimit.Text = "Rule Loop Limit";
+           // 
+           // lableOther2
+           // 
+           this.lableOther2.AutoSize = true;
+           this.lableOther2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+           this.lableOther2.Location = new System.Drawing.Point(12, 168);
+           this.lableOther2.Name = "lableOther2";
+           this.lableOther2.Size = new System.Drawing.Size(38, 13);
+           this.lableOther2.TabIndex = 20;
+           this.lableOther2.Text = "Other";
+           // 
+           // lblMaxRecipientsInBatch
+           // 
+           this.lblMaxRecipientsInBatch.AutoSize = true;
+           this.lblMaxRecipientsInBatch.Location = new System.Drawing.Point(31, 86);
+           this.lblMaxRecipientsInBatch.Name = "lblMaxRecipientsInBatch";
+           this.lblMaxRecipientsInBatch.Size = new System.Drawing.Size(190, 13);
+           this.lblMaxRecipientsInBatch.TabIndex = 18;
+           this.lblMaxRecipientsInBatch.Text = "Maximum number of recipients in batch";
+           // 
+           // labelBindToLocalIP
+           // 
+           this.labelBindToLocalIP.AutoSize = true;
+           this.labelBindToLocalIP.Location = new System.Drawing.Point(31, 35);
+           this.labelBindToLocalIP.Name = "labelBindToLocalIP";
+           this.labelBindToLocalIP.Size = new System.Drawing.Size(118, 13);
+           this.labelBindToLocalIP.TabIndex = 16;
+           this.labelBindToLocalIP.Text = "Bind to local IP address";
+           // 
+           // labelDeliveryOfMail2
+           // 
+           this.labelDeliveryOfMail2.AutoSize = true;
+           this.labelDeliveryOfMail2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+           this.labelDeliveryOfMail2.Location = new System.Drawing.Point(12, 12);
+           this.labelDeliveryOfMail2.Name = "labelDeliveryOfMail2";
+           this.labelDeliveryOfMail2.Size = new System.Drawing.Size(105, 13);
+           this.labelDeliveryOfMail2.TabIndex = 13;
+           this.labelDeliveryOfMail2.Text = "Delivery of e-mail";
+           // 
+           // textMaxMessageSize
+           // 
+           this.textMaxMessageSize.Location = new System.Drawing.Point(28, 173);
+           this.textMaxMessageSize.Name = "textMaxMessageSize";
+           this.textMaxMessageSize.Number = 0;
+           this.textMaxMessageSize.Number64 = ((long)(0));
+           this.textMaxMessageSize.Numeric = true;
+           this.textMaxMessageSize.Size = new System.Drawing.Size(117, 20);
+           this.textMaxMessageSize.TabIndex = 18;
+           // 
+           // textWelcomeMessage
+           // 
+           this.textWelcomeMessage.Location = new System.Drawing.Point(27, 128);
+           this.textWelcomeMessage.Name = "textWelcomeMessage";
+           this.textWelcomeMessage.Number = 0;
+           this.textWelcomeMessage.Number64 = ((long)(0));
+           this.textWelcomeMessage.Numeric = false;
+           this.textWelcomeMessage.Size = new System.Drawing.Size(178, 20);
+           this.textWelcomeMessage.TabIndex = 16;
+           // 
+           // textMaxSMTPConnections
+           // 
+           this.textMaxSMTPConnections.Location = new System.Drawing.Point(26, 53);
+           this.textMaxSMTPConnections.Name = "textMaxSMTPConnections";
+           this.textMaxSMTPConnections.Number = 0;
+           this.textMaxSMTPConnections.Number64 = ((long)(0));
+           this.textMaxSMTPConnections.Numeric = true;
+           this.textMaxSMTPConnections.Size = new System.Drawing.Size(117, 20);
+           this.textMaxSMTPConnections.TabIndex = 13;
+           // 
+           // comboConnectionSecurity
+           // 
+           this.comboConnectionSecurity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+           this.comboConnectionSecurity.FormattingEnabled = true;
+           this.comboConnectionSecurity.Location = new System.Drawing.Point(35, 339);
+           this.comboConnectionSecurity.Name = "comboConnectionSecurity";
+           this.comboConnectionSecurity.Size = new System.Drawing.Size(171, 21);
+           this.comboConnectionSecurity.TabIndex = 38;
+           // 
+           // textSMTPRelayerPassword
+           // 
+           this.textSMTPRelayerPassword.Location = new System.Drawing.Point(63, 293);
+           this.textSMTPRelayerPassword.Name = "textSMTPRelayerPassword";
+           this.textSMTPRelayerPassword.Size = new System.Drawing.Size(120, 20);
+           this.textSMTPRelayerPassword.TabIndex = 31;
+           this.textSMTPRelayerPassword.Text = "<< Encrypted >>";
+           // 
+           // textSMTPRelayerUsername
+           // 
+           this.textSMTPRelayerUsername.Location = new System.Drawing.Point(62, 250);
+           this.textSMTPRelayerUsername.Name = "textSMTPRelayerUsername";
+           this.textSMTPRelayerUsername.Number = 0;
+           this.textSMTPRelayerUsername.Number64 = ((long)(0));
+           this.textSMTPRelayerUsername.Numeric = false;
+           this.textSMTPRelayerUsername.Size = new System.Drawing.Size(121, 20);
+           this.textSMTPRelayerUsername.TabIndex = 27;
+           // 
+           // chkSMTPRelayerRequiresAuth
+           // 
+           this.chkSMTPRelayerRequiresAuth.AutoSize = true;
+           this.chkSMTPRelayerRequiresAuth.Location = new System.Drawing.Point(33, 210);
+           this.chkSMTPRelayerRequiresAuth.Name = "chkSMTPRelayerRequiresAuth";
+           this.chkSMTPRelayerRequiresAuth.Size = new System.Drawing.Size(167, 17);
+           this.chkSMTPRelayerRequiresAuth.TabIndex = 25;
+           this.chkSMTPRelayerRequiresAuth.Text = "Server requires authentication";
+           this.chkSMTPRelayerRequiresAuth.UseVisualStyleBackColor = true;
+           this.chkSMTPRelayerRequiresAuth.CheckedChanged += new System.EventHandler(this.chkSMTPRelayerRequiresAuth_CheckedChanged);
+           // 
+           // textSMTPRelayerPort
+           // 
+           this.textSMTPRelayerPort.Location = new System.Drawing.Point(188, 184);
+           this.textSMTPRelayerPort.Name = "textSMTPRelayerPort";
+           this.textSMTPRelayerPort.Number = 0;
+           this.textSMTPRelayerPort.Number64 = ((long)(0));
+           this.textSMTPRelayerPort.Numeric = true;
+           this.textSMTPRelayerPort.Size = new System.Drawing.Size(84, 20);
+           this.textSMTPRelayerPort.TabIndex = 24;
+           // 
+           // textSMTPRelayer
+           // 
+           this.textSMTPRelayer.Location = new System.Drawing.Point(33, 184);
+           this.textSMTPRelayer.Name = "textSMTPRelayer";
+           this.textSMTPRelayer.Number = 0;
+           this.textSMTPRelayer.Number64 = ((long)(0));
+           this.textSMTPRelayer.Numeric = false;
+           this.textSMTPRelayer.Size = new System.Drawing.Size(146, 20);
+           this.textSMTPRelayer.TabIndex = 22;
+           // 
+           // textHostName
+           // 
+           this.textHostName.Location = new System.Drawing.Point(35, 101);
+           this.textHostName.Name = "textHostName";
+           this.textHostName.Number = 0;
+           this.textHostName.Number64 = ((long)(0));
+           this.textHostName.Numeric = false;
+           this.textHostName.Size = new System.Drawing.Size(145, 20);
+           this.textHostName.TabIndex = 19;
+           // 
+           // textMinutesBetween
+           // 
+           this.textMinutesBetween.Location = new System.Drawing.Point(188, 53);
+           this.textMinutesBetween.Name = "textMinutesBetween";
+           this.textMinutesBetween.Number = 0;
+           this.textMinutesBetween.Number64 = ((long)(0));
+           this.textMinutesBetween.Numeric = true;
+           this.textMinutesBetween.Size = new System.Drawing.Size(109, 20);
+           this.textMinutesBetween.TabIndex = 17;
+           // 
+           // textNoOfRetries
+           // 
+           this.textNoOfRetries.Location = new System.Drawing.Point(34, 53);
+           this.textNoOfRetries.Name = "textNoOfRetries";
+           this.textNoOfRetries.Number = 0;
+           this.textNoOfRetries.Number64 = ((long)(0));
+           this.textNoOfRetries.Numeric = true;
+           this.textNoOfRetries.Size = new System.Drawing.Size(109, 20);
+           this.textNoOfRetries.TabIndex = 15;
+           // 
+           // checkSendStatistics
+           // 
+           this.checkSendStatistics.AutoSize = true;
+           this.checkSendStatistics.Location = new System.Drawing.Point(15, 14);
+           this.checkSendStatistics.Name = "checkSendStatistics";
+           this.checkSendStatistics.Size = new System.Drawing.Size(188, 17);
+           this.checkSendStatistics.TabIndex = 31;
+           this.checkSendStatistics.Text = "Send statistics to hMailServer.com";
+           this.checkSendStatistics.UseVisualStyleBackColor = true;
+           // 
+           // textMaxNumberOfInvalidCommands
+           // 
+           this.textMaxNumberOfInvalidCommands.Location = new System.Drawing.Point(37, 126);
+           this.textMaxNumberOfInvalidCommands.Name = "textMaxNumberOfInvalidCommands";
+           this.textMaxNumberOfInvalidCommands.Number = 0;
+           this.textMaxNumberOfInvalidCommands.Number64 = ((long)(0));
+           this.textMaxNumberOfInvalidCommands.Numeric = true;
+           this.textMaxNumberOfInvalidCommands.Size = new System.Drawing.Size(72, 20);
+           this.textMaxNumberOfInvalidCommands.TabIndex = 14;
            // 
            // checkDisconnectInvalidClients
            // 
@@ -491,86 +589,30 @@ namespace hMailServer.Administrator
            this.checkAllowPlainTextAuthentication.Text = "Allow plain text authentication";
            this.checkAllowPlainTextAuthentication.UseVisualStyleBackColor = true;
            // 
-           // tabPage5
+           // textMaxNumberOfMXHosts
            // 
-           this.tabPage5.Controls.Add(this.textMaxNumberOfMXHosts);
-           this.tabPage5.Controls.Add(this.labelMaxNumberOfMXHosts);
-           this.tabPage5.Controls.Add(this.textRuleLoopLimit);
-           this.tabPage5.Controls.Add(this.labelRuleLoopLimit);
-           this.tabPage5.Controls.Add(this.lableOther2);
-           this.tabPage5.Controls.Add(this.lblMaxRecipientsInBatch);
-           this.tabPage5.Controls.Add(this.labelBindToLocalIP);
-           this.tabPage5.Controls.Add(this.labelDeliveryOfMail2);
-           this.tabPage5.Controls.Add(this.checkAddDeliveredToHeader);
-           this.tabPage5.Controls.Add(this.textMaxSMTPRecipientsInBatch);
-           this.tabPage5.Controls.Add(this.textBindToLocalIP);
-           this.tabPage5.Location = new System.Drawing.Point(4, 22);
-           this.tabPage5.Name = "tabPage5";
-           this.tabPage5.Size = new System.Drawing.Size(532, 371);
-           this.tabPage5.TabIndex = 4;
-           this.tabPage5.Text = "Advanced";
-           this.tabPage5.UseVisualStyleBackColor = true;
+           this.textMaxNumberOfMXHosts.Location = new System.Drawing.Point(33, 285);
+           this.textMaxNumberOfMXHosts.Name = "textMaxNumberOfMXHosts";
+           this.textMaxNumberOfMXHosts.Number = 0;
+           this.textMaxNumberOfMXHosts.Number64 = ((long)(0));
+           this.textMaxNumberOfMXHosts.Numeric = true;
+           this.textMaxNumberOfMXHosts.Size = new System.Drawing.Size(109, 20);
+           this.textMaxNumberOfMXHosts.TabIndex = 36;
            // 
            // textRuleLoopLimit
            // 
-           this.textRuleLoopLimit.Location = new System.Drawing.Point(33, 208);
+           this.textRuleLoopLimit.Location = new System.Drawing.Point(33, 238);
            this.textRuleLoopLimit.Name = "textRuleLoopLimit";
            this.textRuleLoopLimit.Number = 0;
+           this.textRuleLoopLimit.Number64 = ((long)(0));
            this.textRuleLoopLimit.Numeric = true;
            this.textRuleLoopLimit.Size = new System.Drawing.Size(109, 20);
            this.textRuleLoopLimit.TabIndex = 34;
            // 
-           // labelRuleLoopLimit
-           // 
-           this.labelRuleLoopLimit.AutoSize = true;
-           this.labelRuleLoopLimit.Location = new System.Drawing.Point(31, 189);
-           this.labelRuleLoopLimit.Name = "labelRuleLoopLimit";
-           this.labelRuleLoopLimit.Size = new System.Drawing.Size(80, 13);
-           this.labelRuleLoopLimit.TabIndex = 33;
-           this.labelRuleLoopLimit.Text = "Rule Loop Limit";
-           // 
-           // lableOther2
-           // 
-           this.lableOther2.AutoSize = true;
-           this.lableOther2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-           this.lableOther2.Location = new System.Drawing.Point(12, 138);
-           this.lableOther2.Name = "lableOther2";
-           this.lableOther2.Size = new System.Drawing.Size(38, 13);
-           this.lableOther2.TabIndex = 20;
-           this.lableOther2.Text = "Other";
-           // 
-           // lblMaxRecipientsInBatch
-           // 
-           this.lblMaxRecipientsInBatch.AutoSize = true;
-           this.lblMaxRecipientsInBatch.Location = new System.Drawing.Point(31, 86);
-           this.lblMaxRecipientsInBatch.Name = "lblMaxRecipientsInBatch";
-           this.lblMaxRecipientsInBatch.Size = new System.Drawing.Size(190, 13);
-           this.lblMaxRecipientsInBatch.TabIndex = 18;
-           this.lblMaxRecipientsInBatch.Text = "Maximum number of recipients in batch";
-           // 
-           // labelBindToLocalIP
-           // 
-           this.labelBindToLocalIP.AutoSize = true;
-           this.labelBindToLocalIP.Location = new System.Drawing.Point(31, 35);
-           this.labelBindToLocalIP.Name = "labelBindToLocalIP";
-           this.labelBindToLocalIP.Size = new System.Drawing.Size(118, 13);
-           this.labelBindToLocalIP.TabIndex = 16;
-           this.labelBindToLocalIP.Text = "Bind to local IP address";
-           // 
-           // labelDeliveryOfMail2
-           // 
-           this.labelDeliveryOfMail2.AutoSize = true;
-           this.labelDeliveryOfMail2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-           this.labelDeliveryOfMail2.Location = new System.Drawing.Point(12, 12);
-           this.labelDeliveryOfMail2.Name = "labelDeliveryOfMail2";
-           this.labelDeliveryOfMail2.Size = new System.Drawing.Size(105, 13);
-           this.labelDeliveryOfMail2.TabIndex = 13;
-           this.labelDeliveryOfMail2.Text = "Delivery of e-mail";
-           // 
            // checkAddDeliveredToHeader
            // 
            this.checkAddDeliveredToHeader.AutoSize = true;
-           this.checkAddDeliveredToHeader.Location = new System.Drawing.Point(33, 166);
+           this.checkAddDeliveredToHeader.Location = new System.Drawing.Point(33, 196);
            this.checkAddDeliveredToHeader.Name = "checkAddDeliveredToHeader";
            this.checkAddDeliveredToHeader.Size = new System.Drawing.Size(145, 17);
            this.checkAddDeliveredToHeader.TabIndex = 32;
@@ -582,6 +624,7 @@ namespace hMailServer.Administrator
            this.textMaxSMTPRecipientsInBatch.Location = new System.Drawing.Point(33, 102);
            this.textMaxSMTPRecipientsInBatch.Name = "textMaxSMTPRecipientsInBatch";
            this.textMaxSMTPRecipientsInBatch.Number = 0;
+           this.textMaxSMTPRecipientsInBatch.Number64 = ((long)(0));
            this.textMaxSMTPRecipientsInBatch.Numeric = true;
            this.textMaxSMTPRecipientsInBatch.Size = new System.Drawing.Size(109, 20);
            this.textMaxSMTPRecipientsInBatch.TabIndex = 19;
@@ -591,27 +634,20 @@ namespace hMailServer.Administrator
            this.textBindToLocalIP.Location = new System.Drawing.Point(33, 54);
            this.textBindToLocalIP.Name = "textBindToLocalIP";
            this.textBindToLocalIP.Number = 0;
+           this.textBindToLocalIP.Number64 = ((long)(0));
            this.textBindToLocalIP.Numeric = false;
            this.textBindToLocalIP.Size = new System.Drawing.Size(259, 20);
            this.textBindToLocalIP.TabIndex = 17;
            // 
-           // textMaxNumberOfMXHosts
+           // chkSmtpDeliveryConnectionSecurity
            // 
-           this.textMaxNumberOfMXHosts.Location = new System.Drawing.Point(33, 255);
-           this.textMaxNumberOfMXHosts.Name = "textMaxNumberOfMXHosts";
-           this.textMaxNumberOfMXHosts.Number = 0;
-           this.textMaxNumberOfMXHosts.Numeric = true;
-           this.textMaxNumberOfMXHosts.Size = new System.Drawing.Size(109, 20);
-           this.textMaxNumberOfMXHosts.TabIndex = 36;
-           // 
-           // labelMaxNumberOfMXHosts
-           // 
-           this.labelMaxNumberOfMXHosts.AutoSize = true;
-           this.labelMaxNumberOfMXHosts.Location = new System.Drawing.Point(31, 239);
-           this.labelMaxNumberOfMXHosts.Name = "labelMaxNumberOfMXHosts";
-           this.labelMaxNumberOfMXHosts.Size = new System.Drawing.Size(172, 13);
-           this.labelMaxNumberOfMXHosts.TabIndex = 35;
-           this.labelMaxNumberOfMXHosts.Text = "Maximum number of recipient hosts";
+           this.chkSmtpDeliveryConnectionSecurity.AutoSize = true;
+           this.chkSmtpDeliveryConnectionSecurity.Location = new System.Drawing.Point(33, 138);
+           this.chkSmtpDeliveryConnectionSecurity.Name = "chkSmtpDeliveryConnectionSecurity";
+           this.chkSmtpDeliveryConnectionSecurity.Size = new System.Drawing.Size(157, 17);
+           this.chkSmtpDeliveryConnectionSecurity.TabIndex = 41;
+           this.chkSmtpDeliveryConnectionSecurity.Text = "Use STARTTLS if available";
+           this.chkSmtpDeliveryConnectionSecurity.UseVisualStyleBackColor = true;
            // 
            // ucProtocolSMTP
            // 
@@ -619,7 +655,7 @@ namespace hMailServer.Administrator
            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
            this.Controls.Add(this.tabControl);
            this.Name = "ucProtocolSMTP";
-           this.Size = new System.Drawing.Size(540, 397);
+           this.Size = new System.Drawing.Size(534, 435);
            this.tabControl.ResumeLayout(false);
            this.tabPage1.ResumeLayout(false);
            this.tabPage1.PerformLayout();
@@ -664,7 +700,6 @@ namespace hMailServer.Administrator
        private hMailServer.Shared.ucText textSMTPRelayer;
        private System.Windows.Forms.Label labelRemoteHostName;
        private hMailServer.Administrator.Controls.ucCheckbox chkSMTPRelayerRequiresAuth;
-       private hMailServer.Administrator.Controls.ucCheckbox checkUseSSL;
        private System.Windows.Forms.Label labelPassword;
        private hMailServer.Shared.ucText textSMTPRelayerUsername;
        private System.Windows.Forms.Label labelUsername;
@@ -688,5 +723,8 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucPassword textSMTPRelayerPassword;
        private hMailServer.Shared.ucText textMaxNumberOfMXHosts;
        private System.Windows.Forms.Label labelMaxNumberOfMXHosts;
+       private System.Windows.Forms.Label labelConnectionSecurity;
+       private hMailServer.Administrator.Controls.ucComboBox comboConnectionSecurity;
+       private hMailServer.Administrator.Controls.ucCheckbox chkSmtpDeliveryConnectionSecurity;
     }
 }

@@ -24,14 +24,14 @@ namespace HM
 
 
    bool 
-   PersistentServerMessage::DeleteObject(shared_ptr<ServerMessage> pObject)
+   PersistentServerMessage::DeleteObject(std::shared_ptr<ServerMessage> pObject)
    {
       return false;
    }
 
 
    bool 
-   PersistentServerMessage::ReadObject(shared_ptr<ServerMessage> pObject, shared_ptr<DALRecordset> pRS)
+   PersistentServerMessage::ReadObject(std::shared_ptr<ServerMessage> pObject, std::shared_ptr<DALRecordset> pRS)
    {
       pObject->SetID (pRS->GetLongValue("smid"));
       pObject->SetName(pRS->GetStringValue("smname"));
@@ -41,7 +41,7 @@ namespace HM
    }
 
    bool 
-   PersistentServerMessage::SaveObject(shared_ptr<ServerMessage> pObject)
+   PersistentServerMessage::SaveObject(std::shared_ptr<ServerMessage> pObject)
    {
       SQLStatement oStatement;
       oStatement.SetTable("hm_servermessages");

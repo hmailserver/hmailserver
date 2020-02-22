@@ -6,7 +6,6 @@
 
 #include "WorkQueueManager.h"
 
-
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -22,8 +21,8 @@ namespace HM
    {
    }
 
-   int 
-   WorkQueueManager::CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName, WorkQueue::QueueType qtType)
+   size_t 
+   WorkQueueManager::CreateWorkQueue(int iMaxSimultaneous, const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Creates a new work queue and adds it to the list of queues. Returns the ID
@@ -31,36 +30,36 @@ namespace HM
    //---------------------------------------------------------------------------
    {
       // Create the work queue
-      shared_ptr<WorkQueue> pWorkQueue = shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, qtType, sQueueName));
+      std::shared_ptr<WorkQueue> pWorkQueue = std::shared_ptr<WorkQueue>(new WorkQueue(iMaxSimultaneous, sQueueName));
       pWorkQueue->Start();
 
-      CriticalSectionScope scope(m_csWorkQueues);
-      int iQueueID = m_mapWorkQueues.size() + 1;
-      m_mapWorkQueues[iQueueID] = pWorkQueue;
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+      size_t iQueueID = work_queues_.size() + 1;
+      work_queues_[iQueueID] = pWorkQueue;
 
       return iQueueID;
    }
 
    void 
-   WorkQueueManager::AddTask(int iQueueID, shared_ptr<Task> pTask)
+   WorkQueueManager::AddTask(size_t iQueueID, std::shared_ptr<Task> pTask)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Adds a task to a worker queue.
    //---------------------------------------------------------------------------
    {
       // Add the task to the work queue
-      CriticalSectionScope scope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = m_mapWorkQueues.find(iQueueID);
+      auto iterQueue = work_queues_.find(iQueueID);
 
-      if (iterQueue == m_mapWorkQueues.end())
+      if (iterQueue == work_queues_.end())
       {
          // Someone is trying to add a task to a
          // queue that does not exist.
          assert(0);  
       }
 
-      shared_ptr<WorkQueue> pWorkQueue = (*iterQueue).second;
+      std::shared_ptr<WorkQueue> pWorkQueue = (*iterQueue).second;
 
       pWorkQueue->AddTask(pTask);
    }
@@ -72,99 +71,82 @@ namespace HM
    // Stops and removes a queue
    //---------------------------------------------------------------------------
    {
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - {0}", sQueueName));
+
       // Locate the work queue
-      shared_ptr<WorkQueue> pQueue;
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue;
+      std::shared_ptr<WorkQueue> pQueue;
+      std::map<size_t, std::shared_ptr<WorkQueue> >::iterator iterQueue;
 
       {
-         CriticalSectionScope scope(m_csWorkQueues);
+         boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-         iterQueue = _GetQueueIterator(sQueueName);
-         if (iterQueue == m_mapWorkQueues.end())
-            return;
-
-         pQueue = (*iterQueue).second;
-         if (!pQueue)
-            return;
-      }
-
-      // This queue should be stopped
-      int iNumberOfStopAttempts = 10;
-      for (int i = 0; i < iNumberOfStopAttempts; i++)
-      {
-         // If it's the last stop attempt, it's no longer
-         // a warning and we should just terminate the thread.
-         bool bPreKillWarning = true;
-         if (i == iNumberOfStopAttempts-1)
-            bPreKillWarning = false;
-
-         // Issue the warning or the termination.
-         pQueue->Stop(bPreKillWarning);
-
-         if (!pQueue->GetRunningThreadsExists())      
+         iterQueue = GetQueueIterator_(sQueueName);
+         if (iterQueue == work_queues_.end())
          {
-            // Wait for the queue to be stopped.
-            WaitForSingleObject(pQueue->GetQueueThreadHandle(), 3000);
-
-            CriticalSectionScope scope(m_csWorkQueues);
-            m_mapWorkQueues.erase(iterQueue);
-
+            LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
             return;
          }
 
-         // The queue hasn't stoped just yet. 
-         // Wait a few more seconds.
-         Sleep(250);
-
+         pQueue = (*iterQueue).second;
+         if (!pQueue)
+         {
+            LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Work quue not found {0}", sQueueName));
+            return;
+         }
       }
 
+      pQueue->Stop();
+
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Stopped {0}", sQueueName));
       
-      CriticalSectionScope workQueueScope(m_csWorkQueues);
-      m_mapWorkQueues.erase(iterQueue);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+      work_queues_.erase(iterQueue);
+
+      LOG_DEBUG(Formatter::Format("WorkQueueManager::RemoveQueue - Erased {0}", sQueueName));
 
    }
 
-   shared_ptr<WorkQueue> 
+   std::shared_ptr<WorkQueue> 
    WorkQueueManager::GetQueue(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Returns the queue with a specific name. 
    //---------------------------------------------------------------------------
    {
-      CriticalSectionScope scope(m_csWorkQueues);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = _GetQueueIterator(sQueueName);
-      if (iterQueue != m_mapWorkQueues.end())
+      auto iterQueue = GetQueueIterator_(sQueueName);
+      if (iterQueue != work_queues_.end())
       {
-         shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
+         std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
             return pQueue;
 
          iterQueue++;
       }
 
-      shared_ptr<WorkQueue> pEmpty;
+      std::shared_ptr<WorkQueue> pEmpty;
       return pEmpty;
          
    }
 
-   std::map<int, shared_ptr<WorkQueue> >::iterator 
-   WorkQueueManager::_GetQueueIterator(const String &sQueueName)
+   std::map<size_t, std::shared_ptr<WorkQueue> >::iterator
+   WorkQueueManager::GetQueueIterator_(const String &sQueueName)
    //---------------------------------------------------------------------------
    // DESCRIPTION:
    // Returns a iterator to a queue with the specified name.
    //---------------------------------------------------------------------------
    {
-      std::map<int, shared_ptr<WorkQueue> >::iterator iterQueue = m_mapWorkQueues.begin();
-      while (iterQueue != m_mapWorkQueues.end())
+      auto iterQueue = work_queues_.begin();
+      while (iterQueue != work_queues_.end())
       {
-         shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
+         std::shared_ptr<WorkQueue> pQueue = (*iterQueue).second;
          if (pQueue->GetName().CompareNoCase(sQueueName) == 0)
             return iterQueue;
 
          iterQueue++;
       }
 
-      return m_mapWorkQueues.end();
+      return work_queues_.end();
    }
 }

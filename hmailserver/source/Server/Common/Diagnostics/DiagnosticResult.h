@@ -13,37 +13,37 @@ namespace HM
       DiagnosticResult(String name, String description, bool Success, String Details);
       DiagnosticResult();
 
-      void SetName(const String &name) {_name = name;}
-      void SetDescription(const String &description) {_description = description;}
-      void SetDetails(const String &details) {_details = details;}
-      void SetSuccess(bool success) {_success = success;}
+      void SetName(const String &name) {name_ = name;}
+      void SetDescription(const String &description) {description_ = description;}
+      void SetDetails(const String &details) {details_ = details;}
+      void SetSuccess(bool success) {success_ = success;}
 
       String GetName() const 
       {
-         return _name;
+         return name_;
       }
 
       String GetDescription() const
       {
-         return _description;
+         return description_;
       }
 
       String GetDetails() const
       {
-         return _details;
+         return details_;
       }
 
       bool GetSuccess() const
       {
-         return _success;
+         return success_;
       }
 
    private:
       
-      String _name;
-      String _description;
-      bool _success;
-      String _details;
+      String name_;
+      String description_;
+      bool success_;
+      String details_;
 
    };
 

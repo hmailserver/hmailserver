@@ -15,9 +15,9 @@ namespace HM
 {
 
    SecurityRange::SecurityRange() :
-      _expires(false),
-      m_lOptions(0),
-      m_lPriority(0)
+      expires_(false),
+      options_(0),
+      priority_(0)
    {
 
    }
@@ -30,74 +30,74 @@ namespace HM
    String 
    SecurityRange::GetLowerIPString() const 
    {
-	   return m_lLowerIP.ToString();
+	   return lower_ip_.ToString();
    }
 
    bool
    SecurityRange::SetLowerIPString(const String & sValue)
    {
-      return m_lLowerIP.TryParse(sValue);
+      return lower_ip_.TryParse(sValue);
    }
 
    String 
    SecurityRange::GetUpperIPString() const 
    {
-      return m_lUpperIP.ToString();
+      return upper_ip_.ToString();
    }
 
 
    bool
    SecurityRange::SetUpperIPString(const String & sValue)
    {
-      return m_lUpperIP.TryParse(sValue);
+      return upper_ip_.TryParse(sValue);
    }
 
 
    bool
    SecurityRange::GetAllowSMTP() const
    {
-	   return (m_lOptions & IPRANGE_ALLOW_SMTP) ? true : false;
+	   return (options_ & IPRANGE_ALLOW_SMTP) ? true : false;
    }
 
    void
    SecurityRange::SetAllowSMTP(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_ALLOW_SMTP;
+         options_ = options_ | IPRANGE_ALLOW_SMTP;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_ALLOW_SMTP;
+         options_ = options_ & ~IPRANGE_ALLOW_SMTP;
 	   
    }
 
    bool
    SecurityRange::GetAllowIMAP() const
    {
-	   return (m_lOptions & IPRANGE_ALLOW_IMAP) ? true : false;
+	   return (options_ & IPRANGE_ALLOW_IMAP) ? true : false;
    }
 
    void
    SecurityRange::SetAllowIMAP(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_ALLOW_IMAP;
+         options_ = options_ | IPRANGE_ALLOW_IMAP;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_ALLOW_IMAP;
+         options_ = options_ & ~IPRANGE_ALLOW_IMAP;
 	   
    }
 
    bool
    SecurityRange::GetAllowPOP3() const
    {
-	   return (m_lOptions & IPRANGE_ALLOW_POP3) ? true : false;
+	   return (options_ & IPRANGE_ALLOW_POP3) ? true : false;
    }
 
    void
    SecurityRange::SetAllowPOP3(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_ALLOW_POP3;
+         options_ = options_ | IPRANGE_ALLOW_POP3;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_ALLOW_POP3;
+         options_ = options_ & ~IPRANGE_ALLOW_POP3;
 	   
    }
 
@@ -150,135 +150,147 @@ namespace HM
    }
 
    bool
+   SecurityRange::GetRequireTLSForAuth() const
+   {
+      return GetAllowOption(IPRANGE_REQUIRE_TLS_FOR_AUTH);
+   }
+
+   void
+   SecurityRange::SetRequireTLSForAuth(bool bAllow)
+   {
+      SetAllowOption(IPRANGE_REQUIRE_TLS_FOR_AUTH, bAllow);
+   }
+
+   bool
    SecurityRange::GetAllowRelayL2L() const
    {
-	   return (m_lOptions & IPRANGE_RELAY_LOCAL_TO_LOCAL) ? true : false;
+	   return (options_ & IPRANGE_RELAY_LOCAL_TO_LOCAL) ? true : false;
    }
 
    void
    SecurityRange::SetAllowRelayL2L(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_RELAY_LOCAL_TO_LOCAL;
+         options_ = options_ | IPRANGE_RELAY_LOCAL_TO_LOCAL;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_RELAY_LOCAL_TO_LOCAL;
+         options_ = options_ & ~IPRANGE_RELAY_LOCAL_TO_LOCAL;
 	   
    }
 
    bool
    SecurityRange::GetAllowRelayL2R() const
    {
-	   return (m_lOptions & IPRANGE_RELAY_LOCAL_TO_REMOTE) ? true : false;
+	   return (options_ & IPRANGE_RELAY_LOCAL_TO_REMOTE) ? true : false;
    }
 
    void
    SecurityRange::SetAllowRelayL2R(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_RELAY_LOCAL_TO_REMOTE;
+         options_ = options_ | IPRANGE_RELAY_LOCAL_TO_REMOTE;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_RELAY_LOCAL_TO_REMOTE;
+         options_ = options_ & ~IPRANGE_RELAY_LOCAL_TO_REMOTE;
 	   
    }
 
    bool
    SecurityRange::GetAllowRelayR2L() const
    {
-	   return (m_lOptions & IPRANGE_RELAY_REMOTE_TO_LOCAL) ? true : false;
+	   return (options_ & IPRANGE_RELAY_REMOTE_TO_LOCAL) ? true : false;
    }
 
    void
    SecurityRange::SetAllowRelayR2L(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_RELAY_REMOTE_TO_LOCAL;
+         options_ = options_ | IPRANGE_RELAY_REMOTE_TO_LOCAL;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_RELAY_REMOTE_TO_LOCAL;
+         options_ = options_ & ~IPRANGE_RELAY_REMOTE_TO_LOCAL;
 	   
    }
 
    bool
    SecurityRange::GetAllowRelayR2R() const
    {
-	   return (m_lOptions & IPRANGE_RELAY_REMOTE_TO_REMOTE) ? true : false;
+	   return (options_ & IPRANGE_RELAY_REMOTE_TO_REMOTE) ? true : false;
    }
 
    void
    SecurityRange::SetAllowRelayR2R(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_RELAY_REMOTE_TO_REMOTE;
+         options_ = options_ | IPRANGE_RELAY_REMOTE_TO_REMOTE;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_RELAY_REMOTE_TO_REMOTE;
+         options_ = options_ & ~IPRANGE_RELAY_REMOTE_TO_REMOTE;
    }
 
    bool
    SecurityRange::GetSpamProtection() const
    {
-      return (m_lOptions & IPRANGE_SPAM_PROTECTION) ? true : false;
+      return (options_ & IPRANGE_SPAM_PROTECTION) ? true : false;
    }
 
    void
    SecurityRange::SetSpamProtection(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_SPAM_PROTECTION;
+         options_ = options_ | IPRANGE_SPAM_PROTECTION;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_SPAM_PROTECTION;
+         options_ = options_ & ~IPRANGE_SPAM_PROTECTION;
    }
 
    bool
    SecurityRange::GetVirusProtection() const
    {
-      return (m_lOptions & IPRANGE_VIRUS_PROTECTION) ? true : false;
+      return (options_ & IPRANGE_VIRUS_PROTECTION) ? true : false;
    }
 
    void
    SecurityRange::SetVirusProtection(bool bAllow)
    {
       if (bAllow)
-         m_lOptions = m_lOptions | IPRANGE_VIRUS_PROTECTION;
+         options_ = options_ | IPRANGE_VIRUS_PROTECTION;
       else
-         m_lOptions = m_lOptions & ~IPRANGE_VIRUS_PROTECTION;
+         options_ = options_ & ~IPRANGE_VIRUS_PROTECTION;
    }
 
    bool
    SecurityRange::GetAllowOption(__int64 lOption) const
    {
-      return (m_lOptions & lOption) ? true : false;
+      return (options_ & lOption) ? true : false;
    }
 
    void 
    SecurityRange::SetAllowOption(int option, bool allow)
    {
       if (allow)
-         m_lOptions = m_lOptions | option;
+         options_ = options_ | option;
       else
-         m_lOptions = m_lOptions & ~option;
+         options_ = options_ & ~option;
    }
 
    bool
    SecurityRange::GetExpires() const
    {
-      return _expires;
+      return expires_;
    }
 
    void 
    SecurityRange::SetExpires(bool expires)
    {
-      _expires = expires;
+      expires_ = expires;
    }
 
    DateTime
    SecurityRange::GetExpiresTime() const
    {
-      return _expiresTime;
+      return expires_Time;
    }
 
    void
    SecurityRange::SetExpiresTime(const DateTime &expiresTime)
    {
-      _expiresTime = expiresTime;
+      expires_Time = expiresTime;
    }
 
    bool 
@@ -286,14 +298,14 @@ namespace HM
    {
       XNode *pNode = pParentNode->AppendChild(_T("SecurityRange"));
 
-      pNode->AppendAttr(_T("Name"), m_sName);
-      pNode->AppendAttr(_T("LowerIP"), String(m_lLowerIP.ToString()));
-      pNode->AppendAttr(_T("UpperIP"), String(m_lUpperIP.ToString()));
-      pNode->AppendAttr(_T("Priority"), StringParser::IntToString(m_lPriority));
-      pNode->AppendAttr(_T("Options"), StringParser::IntToString(m_lOptions));
+      pNode->AppendAttr(_T("Name"), name_);
+      pNode->AppendAttr(_T("LowerIP"), String(lower_ip_.ToString()));
+      pNode->AppendAttr(_T("UpperIP"), String(upper_ip_.ToString()));
+      pNode->AppendAttr(_T("Priority"), StringParser::IntToString(priority_));
+      pNode->AppendAttr(_T("Options"), StringParser::IntToString(options_));
 
-      pNode->AppendAttr(_T("ExpiresTime"), Time::GetTimeStampFromDateTime(_expiresTime));
-      pNode->AppendAttr(_T("Expires"), _expires ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ExpiresTime"), Time::GetTimeStampFromDateTime(expires_Time));
+      pNode->AppendAttr(_T("Expires"), expires_ ? _T("1") : _T("0"));
 
       return true;
    }
@@ -301,14 +313,14 @@ namespace HM
    bool 
    SecurityRange::XMLLoad(XNode *pSecurityRangeNode, int iOptions)
    {
-      m_sName = pSecurityRangeNode->GetAttrValue(_T("Name"));
-      m_lLowerIP.TryParse(pSecurityRangeNode->GetAttrValue(_T("LowerIP")));
-      m_lUpperIP.TryParse(pSecurityRangeNode->GetAttrValue(_T("UpperIP")));
-      m_lPriority = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Priority")));
-      m_lOptions = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Options")));
+      name_ = pSecurityRangeNode->GetAttrValue(_T("Name"));
+      lower_ip_.TryParse(pSecurityRangeNode->GetAttrValue(_T("LowerIP")));
+      upper_ip_.TryParse(pSecurityRangeNode->GetAttrValue(_T("UpperIP")));
+      priority_ = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Priority")));
+      options_ = _ttoi(pSecurityRangeNode->GetAttrValue(_T("Options")));
    
-      _expiresTime = Time::GetDateFromSystemDate(pSecurityRangeNode->GetAttrValue(_T("ExpiresTime")));
-      _expires = pSecurityRangeNode->GetAttrValue(_T("Expires")) == _T("1");
+      expires_Time = Time::GetDateFromSystemDate(pSecurityRangeNode->GetAttrValue(_T("ExpiresTime")));
+      expires_ = pSecurityRangeNode->GetAttrValue(_T("Expires")) == _T("1");
 
       return true;
    }

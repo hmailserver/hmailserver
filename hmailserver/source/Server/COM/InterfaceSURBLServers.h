@@ -57,7 +57,7 @@ public:
 
 public:
 
-   shared_ptr<HM::SURBLServers> m_pSURBLServers;
+   std::shared_ptr<HM::SURBLServers> surbl_servers_;
 
 };
 

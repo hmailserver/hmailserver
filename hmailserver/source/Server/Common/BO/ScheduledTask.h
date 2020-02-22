@@ -31,9 +31,9 @@ namespace HM
 
    private:
 
-      Reoccurance m_eReoccurance;
-      DateTime m_dtNextRunTime;
-      int m_iMinutesBetweenRun;
+      Reoccurance reoccurance_;
+      DateTime next_run_time_;
+      int minutes_between_run_;
 
    };
 }

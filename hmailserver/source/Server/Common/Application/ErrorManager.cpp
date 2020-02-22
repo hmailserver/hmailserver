@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "ErrorManager.h"
 
+
 #include <oledb.h>
 
 
@@ -14,8 +15,8 @@
 
 
 #ifndef _ERROR_LOGGING_IN_MESSAGE_BOXES
-   #include "ScriptingHost/ScriptServer.h"
-   #include "ScriptingHost/ScriptObjectContainer.h"
+   #include "../Scripting/ScriptServer.h"
+   #include "../Scripting/ScriptObjectContainer.h"
 #endif
 
 namespace HM
@@ -101,17 +102,64 @@ namespace HM
    }
 
    void 
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::system_error &error)
+   {
+      String formatted_message 
+         = Formatter::Format(_T("{0}, Error code: {1}, Message: {2}"), sDescription, error.code().value(), error.what());
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
+   void
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::error_code &error)
+   {
+      String formatted_message
+         = Formatter::Format(_T("{0}, Error code: {1}, Message: {2}"), sDescription, error.value(), error.message().c_str());
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
+   void 
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
+   {
+      String formatted_message
+         = Formatter::Format(_T("{0}, Message: {1}"), sDescription, error.what());
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
+
+   String 
+   ErrorManager::GetWindowsErrorText(int windows_error_code)
+   {
+      LPTSTR message_buf = 0;
+
+      FormatMessage(
+         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+         FORMAT_MESSAGE_FROM_SYSTEM |
+         FORMAT_MESSAGE_IGNORE_INSERTS,
+         NULL,
+         windows_error_code,
+         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+         (LPTSTR) &message_buf,
+         0, NULL );
+
+      String windows_error_message = message_buf;
+      windows_error_message.TrimRight(_T("\r\n "));
+
+      /*
+          http://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx
+          The caller should use the LocalFree function to free the buffer when it is no longer needed.
+      */
+
+      LocalFree(message_buf);
+
+      return windows_error_message;
+   }
+
+   void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription)
    {
-#ifdef _ERROR_LOGGING_IN_MESSAGE_BOXES
-      
-      String sErrorToLog;
-      sErrorToLog.Format(_T("%s"), 
-                             sDescription);
-
-      MessageBoxW(0, sErrorToLog, _T("hMailServer"), 0);
-
-#else
       String sSeverityStr = GetSeverity(iSeverity);
 
       String sTempDesc = sDescription;
@@ -119,7 +167,7 @@ namespace HM
 
       String sErrorToLog;
       sErrorToLog.Format(_T("Severity: %d (%s), Code: HM%d, Source: %s, Description: %s"), 
-                            iSeverity, sSeverityStr, iErrorID, sSource, sTempDesc);
+                            iSeverity, sSeverityStr.c_str(), iErrorID, sSource.c_str(), sTempDesc);
 
       Logger::Instance()->LogError(sErrorToLog); 
 
@@ -144,7 +192,7 @@ namespace HM
             tempDescription.Replace(_T("\""), _T("\"\""));
 
             sEventCaller.Format(_T("OnError(%d, %d, \"%s\", \"%s\")"), 
-                                    iSeverity, iErrorID, tempSource, tempDescription);
+               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
          }
          else if (sScriptLanguage == _T("JScript"))
          {
@@ -155,15 +203,14 @@ namespace HM
             tempDescription.Replace(_T("'"), _T("\\'"));
 
             sEventCaller.Format(_T("OnError(%d, %d, '%s', '%s')"), 
-                                    iSeverity, iErrorID, tempSource, tempDescription);
+               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
          }
 
-         shared_ptr<ScriptObjectContainer> pContainer  = shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnError, sEventCaller, pContainer);
 
       }
-#endif
    }
 
 

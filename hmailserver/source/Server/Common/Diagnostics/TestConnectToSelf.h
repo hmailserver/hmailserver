@@ -18,7 +18,7 @@ namespace HM
 
    private:
 
-      String _localDomainName;
+      String local_domain_name_;
    };
 
 

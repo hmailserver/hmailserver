@@ -8,8 +8,6 @@
 
 #include "../Persistence/PersistentTCPIPPort.h"
 
-#include "../Cache/Cacheable.h"
-
 namespace HM
 {
    class TCPIPPorts : public Collection<TCPIPPort, PersistentTCPIPPort>
@@ -18,7 +16,7 @@ namespace HM
       TCPIPPorts();
       ~TCPIPPorts(void);
 
-      shared_ptr<TCPIPPort> GetPort(const IPAddress &iIPAddress, int iPort);
+      std::shared_ptr<TCPIPPort> GetPort(const IPAddress &iIPAddress, int iPort);
 
       void Refresh();
       // Refreshes this collection from the database.
@@ -29,8 +27,5 @@ namespace HM
    protected:
       virtual String GetCollectionName() const {return "TCPIPPorts"; }
 
-   private:
-      shared_ptr<TCPIPPort> _GetPrimaryPort(SessionType st);
-     
    };
 }

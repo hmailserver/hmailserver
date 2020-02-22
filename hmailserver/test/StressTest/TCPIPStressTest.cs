@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
-using RegressionTests;
-using System.Threading;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 
 namespace StressTest
@@ -19,25 +18,44 @@ namespace StressTest
       [Test]
       public void TestManyTCPIPConnections()
       {
-         TestSetup.DeleteCurrentDefaultLog();
+         LogHandler.DeleteCurrentDefaultLog();
 
          const int count = 1000;
 
-         List<TcpSocket> sockets = new List<TcpSocket>();
-         for (int i = 0; i < count; i++)
+         List<TcpConnection> sockets = new List<TcpConnection>();
+
+         for (int i = 1; i <= count; i++)
          {
-            TcpSocket socket = new TcpSocket();
+            TcpConnection socket = new TcpConnection();
             Assert.IsTrue(socket.Connect(25));
+
+            if ((i % 10) == 0)
+            {
+               TestTracer.WriteTraceInfo("{0}/{1}", i, 1000);
+            }
 
             sockets.Add(socket);
          }
 
-         foreach (TcpSocket socket in sockets)
+         foreach (TcpConnection socket in sockets)
          {
             socket.Disconnect();
          }
 
-         string log = TestSetup.ReadCurrentDefaultLog();
+         RetryHelper.TryAction(() =>
+            {
+               string log = LogHandler.ReadCurrentDefaultLog();
+
+               string connectionCreated = "TCP - 127.0.0.1 connected to 127.0.0.1:25.";
+               string connectionEnded = "Ending session ";
+
+               var created = Regex.Matches(log, connectionCreated);
+               var ended = Regex.Matches(log, connectionEnded);
+
+               Assert.AreEqual(count, created.Count);
+               Assert.AreEqual(count, ended.Count);
+
+            }, TimeSpan.FromSeconds(1),TimeSpan.FromSeconds(30));
       }
    }
 }

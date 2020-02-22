@@ -23,9 +23,9 @@ namespace HM
    }
 
    void 
-   MessageCache::AddMessage(shared_ptr<Message> pMessage)
+   MessageCache::AddMessage(std::shared_ptr<Message> pMessage)
    {
-      CriticalSectionScope scope(m_csMessage);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       /*
          The message cache may grow if there's many deliveries
@@ -38,25 +38,25 @@ namespace HM
          once in a while.
       */
 
-      if (m_mapMessage.size() > 500)
-         m_mapMessage.clear();
+      if (message_.size() > 500)
+         message_.clear();
 
-      if (m_mapMessage.find(pMessage->GetID()) != m_mapMessage.end())
+      if (message_.find(pMessage->GetID()) != message_.end())
          return;
 
-      m_mapMessage[pMessage->GetID()] = pMessage;
+      message_[pMessage->GetID()] = pMessage;
 
    }
 
-   shared_ptr<Message> 
+   std::shared_ptr<Message> 
    MessageCache::GetMessage(__int64 iMessageID)
    {
-      CriticalSectionScope scope(m_csMessage);
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
-      std::map<__int64, shared_ptr<Message> >::iterator iterMessage = m_mapMessage.find(iMessageID);
+      auto iterMessage = message_.find(iMessageID);
 
-      shared_ptr<Message> pMessage;
-      if (iterMessage == m_mapMessage.end())
+      std::shared_ptr<Message> pMessage;
+      if (iterMessage == message_.end())
       {
          // Message not found in cache.
          return pMessage;
@@ -66,7 +66,7 @@ namespace HM
       pMessage = (*iterMessage).second;
 
       // Delete the message from cache.
-      m_mapMessage.erase(iterMessage);
+      message_.erase(iterMessage);
 
       return pMessage;
    }

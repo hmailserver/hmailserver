@@ -37,7 +37,7 @@ namespace HM
    }
 
    void 
-   SMTPVirusNotifier::CreateMessageDeletedNotification(const shared_ptr<Message> pOriginalMessage, const String &sRecipient)
+   SMTPVirusNotifier::CreateMessageDeletedNotification(const std::shared_ptr<Message> pOriginalMessage, const String &sRecipient)
    {
       LOG_DEBUG("SMTPVirusNotifier::CreateMessageDeletedNotification");
 
@@ -69,14 +69,14 @@ namespace HM
       sErrMsg.Replace(_T("%MACRO_SUBJECT%"), sOriginalSubject);
 
       // Send a copy of this email.
-      shared_ptr<Message> pMsg = shared_ptr<Message>(new Message());
+      std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
 
       pMsg->SetState(Message::Delivering);
       pMsg->SetFromAddress("");
 
-      shared_ptr<Account> account;
+      std::shared_ptr<Account> account;
 
-      shared_ptr<MessageData> pNewMsgData = shared_ptr<MessageData>(new MessageData());
+      std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(account, pMsg);
 
       // Required headers

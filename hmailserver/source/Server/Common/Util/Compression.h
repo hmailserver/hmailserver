@@ -19,8 +19,8 @@ namespace HM
 
    private:
  
-      bool _LaunchCommand(const String &commandLine);
-      String _GetExecutableFullPath();
+      bool LaunchCommand_(const String &commandLine);
+      String GetExecutableFullPath_();
 
    };
 }

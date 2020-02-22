@@ -6,20 +6,20 @@
 #include "InterfaceAttachment.h"
 
 void 
-InterfaceAttachment::Attach(shared_ptr<HM::Attachment> pAttachment) 
+InterfaceAttachment::Attach(std::shared_ptr<HM::Attachment> pAttachment) 
 { 
 
-   m_pAttachment = pAttachment; 
+   attachment_ = pAttachment; 
 }
 
 STDMETHODIMP InterfaceAttachment::get_Filename(BSTR *pVal)
 {
    try
    {
-      if (!m_pAttachment)
+      if (!attachment_)
          return GetAccessDenied();
 
-      *pVal = m_pAttachment->GetFileName().AllocSysString();
+      *pVal = attachment_->GetFileName().AllocSysString();
    
       return S_OK;
    }
@@ -33,10 +33,10 @@ STDMETHODIMP InterfaceAttachment::get_Size(long *pVal)
 {
    try
    {
-      if (!m_pAttachment)
+      if (!attachment_)
          return GetAccessDenied();
 
-      *pVal = m_pAttachment->GetSize();
+      *pVal = attachment_->GetSize();
       return S_OK;
    }
    catch (...)
@@ -49,10 +49,10 @@ STDMETHODIMP InterfaceAttachment::SaveAs(BSTR sName)
 {
    try
    {
-      if (!m_pAttachment)
+      if (!attachment_)
          return GetAccessDenied();
 
-      m_pAttachment->SaveAs(sName);
+      attachment_->SaveAs(sName);
       return S_OK;
    }
    catch (...)
@@ -66,10 +66,10 @@ InterfaceAttachment::Delete()
 {
    try
    {
-      if (!m_pAttachment)
+      if (!attachment_)
          return GetAccessDenied();
 
-      m_pAttachment->Delete();
+      attachment_->Delete();
       return S_OK;
    }
    catch (...)

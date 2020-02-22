@@ -40,7 +40,7 @@ namespace HM
       {
          wchar_t sCurrentChar = sUnicodeString[iCurrentPos];
 
-         if (_IsSpecialCharacter(sCurrentChar) == false)
+         if (IsSpecialCharacter_(sCurrentChar) == false)
          {
             // This isn't a special character, so we can append it without
             // doing any encoding.
@@ -61,7 +61,7 @@ namespace HM
          for (; iCurrentPos < sUnicodeString.GetLength(); iCurrentPos++)
          {
             sCurrentChar = sUnicodeString[iCurrentPos];
-            if (!_IsSpecialCharacter(sCurrentChar))
+            if (!IsSpecialCharacter_(sCurrentChar))
                break;
          } 
          
@@ -106,7 +106,7 @@ namespace HM
       {
          char sCurrentChar = s[iPos];
 
-         if ( _IsSpecialCharacter(sCurrentChar) )
+         if ( IsSpecialCharacter_(sCurrentChar) )
          {
             // We should not have a special character here.
             return "";
@@ -153,7 +153,7 @@ namespace HM
 
 
    bool
-   ModifiedUTF7::_IsSpecialCharacter(wchar_t c)
+   ModifiedUTF7::IsSpecialCharacter_(wchar_t c)
    {
       return c < 32 || c >= 127;
    }

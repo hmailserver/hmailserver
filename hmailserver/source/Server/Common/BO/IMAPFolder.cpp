@@ -10,6 +10,8 @@
 #include "../BO/ACLPermissions.h"
 #include "../Util/Time.h"
 
+#include "../../IMAP/MessagesContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -20,22 +22,21 @@ namespace HM
 
 
    IMAPFolder::IMAPFolder(__int64 iAccountID, __int64 iParentFolderID) :
-      m_iAccountID(iAccountID), 
-      m_iDBID(0),
-      _currentUID(0),
-      m_bFolderIsSubscribed(false),
-      m_bFolderNeedsRefresh(true),
-      m_iParentFolderID(iParentFolderID)
+      account_id_(iAccountID), 
+      dbid_(0),
+      current_uid_(0),
+      folder_is_subscribed_(false),
+      parent_folder_id_(iParentFolderID)
    {
       
    }
 
    IMAPFolder::IMAPFolder() :
-      m_iAccountID(0), 
-      m_iDBID(0),
-      m_bFolderIsSubscribed(false),
-      m_bFolderNeedsRefresh(true),
-      m_iParentFolderID(-1)
+      account_id_(0), 
+      dbid_(0),
+      current_uid_(0),
+      folder_is_subscribed_(false),
+      parent_folder_id_(-1)
    {
 
    }
@@ -48,57 +49,31 @@ namespace HM
    __int64
    IMAPFolder::GetParentFolderID() const
    {
-      return m_iParentFolderID;
+      return parent_folder_id_;
    }
 
-   shared_ptr<Messages>
-   IMAPFolder::GetMessages(bool bReloadIfNeeded)
+   std::shared_ptr<Messages>
+   IMAPFolder::GetMessages()
    {
-      if (m_oMessages.get() == NULL)
-      {
-         m_oMessages = shared_ptr<Messages>(new Messages(m_iAccountID, m_iDBID));
-         m_bFolderNeedsRefresh = true;      
-      }
-
-      if (m_bFolderNeedsRefresh && bReloadIfNeeded)
-      {
-         m_bFolderNeedsRefresh = false;
-         m_oMessages->Refresh();
-      }
-
-      return m_oMessages;
+      return MessagesContainer::Instance()->GetMessages(account_id_, dbid_);
    }
 
-   std::vector<shared_ptr<Message>>
-   IMAPFolder::GetMessagesCopy(bool bReloadIfNeeded)
-   {
-      shared_ptr<Messages> messages = GetMessages(bReloadIfNeeded);
-      
-      return messages->GetCopy();
-   }
-
-   void
-   IMAPFolder::SetFolderNeedsRefresh()
-   {
-      m_bFolderNeedsRefresh = true; 
-   }
-
-   shared_ptr<IMAPFolders>
+   std::shared_ptr<IMAPFolders>
    IMAPFolder::GetSubFolders()
    {
-      if (m_oSubFolders.get() == NULL)
-         m_oSubFolders = shared_ptr<IMAPFolders>(new IMAPFolders(m_iAccountID, m_iDBID));
+      if (sub_folders_.get() == NULL)
+         sub_folders_ = std::shared_ptr<IMAPFolders>(new IMAPFolders(account_id_, dbid_));
 
-      return m_oSubFolders;
+      return sub_folders_;
    }
 
 
-   shared_ptr<ACLPermissions>
+   std::shared_ptr<ACLPermissions>
    IMAPFolder::GetPermissions()
    {
       // Always return a new one. Hopefully we don't have so many public folders
 	  // that this will become a performance issue.
-      shared_ptr<ACLPermissions> pPermissions = shared_ptr<ACLPermissions>(new ACLPermissions(m_iDBID));
+      std::shared_ptr<ACLPermissions> pPermissions = std::shared_ptr<ACLPermissions>(new ACLPermissions(dbid_));
       
 	  // No point in loading list of permissions for account level folder. 
 	  // (since account level folders never have permissions set)
@@ -145,28 +120,14 @@ namespace HM
       sFolderString = sOut;
    }
 
-
-   std::vector<int> 
-   IMAPFolder::Expunge()
-   {
-      return GetMessages()->Expunge();
-   }
-
-   std::vector<int> 
-   IMAPFolder::Expunge(const std::set<int> &uids, const boost::function<void()> &func)
-   {
-      return GetMessages()->Expunge(false, uids, func);
-   }
-
-
    bool 
    IMAPFolder::XMLStore(XNode *pParentNode, int iBackupOptions)
    {
       XNode *pNode = pParentNode->AppendChild(_T("Folder"));
-      pNode->AppendAttr(_T("Name"), String(m_sFolderName));
-      pNode->AppendAttr(_T("Subscribed"), m_bFolderIsSubscribed ? _T("1") : _T("0"));
-      pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(_createTime)));
-      pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(_currentUID));
+      pNode->AppendAttr(_T("Name"), String(folder_name_));
+      pNode->AppendAttr(_T("Subscribed"), folder_is_subscribed_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(create_time_)));
+      pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(current_uid_));
 
       if (!GetMessages()->XMLStore(pNode, iBackupOptions))
          return false;
@@ -188,10 +149,10 @@ namespace HM
    bool 
    IMAPFolder::XMLLoad(XNode *pFolderNode, int iRestoreOptions)
    {
-      m_sFolderName = pFolderNode->GetAttrValue(_T("Name"));
-      m_bFolderIsSubscribed = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
-      _createTime = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
-      _currentUID = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
+      folder_name_ = pFolderNode->GetAttrValue(_T("Name"));
+      folder_is_subscribed_ = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
+      create_time_ = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
+      current_uid_ = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
 
       return true;
    }
@@ -254,7 +215,7 @@ namespace HM
 
       if (iRecursion > 100)
       {
-         String sMessage = Formatter::Format("Excessive folder recursion. Giving up. Account: {0}, Folder: {1}", m_iAccountID, m_sFolderName);
+         String sMessage = Formatter::Format("Excessive folder recursion. Giving up. Account: {0}, Folder: {1}", account_id_, folder_name_);
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5019, "IMAPFolder::GetFolderDepth", sMessage);
 
          return 0;
@@ -262,15 +223,15 @@ namespace HM
 
       int iDepth = 1;
       
-      shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
-      vector<shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
-      vector<shared_ptr<IMAPFolder> >::iterator iterCurFolder = vecSubFolders.begin();
+      std::shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
+      std::vector<std::shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
+      auto iterCurFolder = vecSubFolders.begin();
 
       int iSubDepth = 0;
       int iMaxSubDepth = 0;
       while (iterCurFolder != vecSubFolders.end())
       {
-         shared_ptr<IMAPFolder> pFolder = (*iterCurFolder);
+         std::shared_ptr<IMAPFolder> pFolder = (*iterCurFolder);
 
          iSubDepth = pFolder->GetFolderDepth(iRecursion);
 
@@ -290,7 +251,7 @@ namespace HM
    bool 
    IMAPFolder::IsPublicFolder()
    {
-      return m_iAccountID == 0;
+      return account_id_ == 0;
    }
 
 }

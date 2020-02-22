@@ -7,6 +7,7 @@
 #include "..\Application\ObjectCache.h"
 
 #include "PreSaveLimitationsCheck.h"
+#include "PersistenceMode.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -24,9 +25,9 @@ namespace HM
    }
 
    bool
-   PersistentDomainAlias::ReadObject(shared_ptr<DomainAlias> oDA, const SQLCommand & command)
+   PersistentDomainAlias::ReadObject(std::shared_ptr<DomainAlias> oDA, const SQLCommand & command)
    {
-      shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
          return false;
 
@@ -40,7 +41,7 @@ namespace HM
    }
 
    bool
-   PersistentDomainAlias::ReadObject(shared_ptr<DomainAlias> oDA, shared_ptr<DALRecordset> pRS)
+   PersistentDomainAlias::ReadObject(std::shared_ptr<DomainAlias> oDA, std::shared_ptr<DALRecordset> pRS)
    {
 
       if (pRS->IsEOF())
@@ -54,7 +55,7 @@ namespace HM
    }
 
    bool
-   PersistentDomainAlias::DeleteObject(shared_ptr<DomainAlias> pDA)
+   PersistentDomainAlias::DeleteObject(std::shared_ptr<DomainAlias> pDA)
    {
       SQLCommand command("delete from hm_domain_aliases where daid = @DAID");
       command.AddParameter("@DAID", pDA->GetID());
@@ -71,17 +72,17 @@ namespace HM
 
 
    bool 
-   PersistentDomainAlias::SaveObject(shared_ptr<DomainAlias> oDA)
+   PersistentDomainAlias::SaveObject(std::shared_ptr<DomainAlias> oDA)
    {
       String sErrorMessage;
-      return SaveObject(oDA, sErrorMessage);
+      return SaveObject(oDA, sErrorMessage, PersistenceModeNormal);
    }
 
 
    bool 
-   PersistentDomainAlias::SaveObject(shared_ptr<DomainAlias> oDA, String &sErrorMessage)
+   PersistentDomainAlias::SaveObject(std::shared_ptr<DomainAlias> oDA, String &sErrorMessage, PersistenceMode mode)
    {
-      if (!PreSaveLimitationsCheck::CheckLimitations(oDA, sErrorMessage))
+      if (!PreSaveLimitationsCheck::CheckLimitations(mode, oDA, sErrorMessage))
          return false;
 
       SQLStatement oStatement;

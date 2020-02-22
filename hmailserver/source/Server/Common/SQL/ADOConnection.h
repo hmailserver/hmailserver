@@ -7,7 +7,7 @@
 
 namespace HM
 {
-   class ADOConnection : public DALConnection, public boost::enable_shared_from_this<ADOConnection>
+   class ADOConnection : public DALConnection, public std::enable_shared_from_this<ADOConnection>
    {
    public:
       enum ServerInfo
@@ -15,7 +15,7 @@ namespace HM
          RequiredVersion = 8
       };
 
-	   ADOConnection(shared_ptr<DatabaseSettings> pSettings);
+	   ADOConnection(std::shared_ptr<DatabaseSettings> pSettings);
 	   virtual ~ADOConnection();
 
       ConnectionResult Connect(String &sErrorMessage);
@@ -35,15 +35,17 @@ namespace HM
 
       static DALConnection::ExecutionResult GetErrorType(int iErrorCode);
       virtual bool CheckServerVersion(String &errorMessage);
-      virtual shared_ptr<DALRecordset> CreateRecordset();
+      virtual std::shared_ptr<DALRecordset> CreateRecordset();
       virtual void EscapeString(String &sInput);
-      virtual shared_ptr<IMacroExpander> CreateMacroExpander();
+      virtual std::shared_ptr<IMacroExpander> CreateMacroExpander();
 
       void InitializeCommandParameters(_CommandPtr &adoCommand, const SQLCommand &sqlCommand, String &queryString) const;
 
    private:
 
-      __int64 _GetIdentityFromRS(_RecordsetPtr pRS) const;
+      __int64 GetIdentityFromRS_(_RecordsetPtr pRS) const;
+
+      bool IsMSOLEDBSQL18OrLaterInstalled_() const;
 
       _ConnectionPtr cADOConnection;  
       bool bConnected;

@@ -19,7 +19,7 @@ namespace HM
    HeapChecker::HeapChecker(void)
    {
 #ifdef _DEBUG
-      _CrtMemCheckpoint( &m_stateStart );
+      _CrtMemCheckpoint( &start_ );
 #endif
    }
 
@@ -46,7 +46,7 @@ namespace HM
    HeapChecker::Reset()
    {
 #ifdef _DEBUG
-       _CrtMemCheckpoint( &m_stateStart );
+       _CrtMemCheckpoint( &start_ );
 #endif
    }
 
@@ -54,15 +54,15 @@ namespace HM
    HeapChecker::Report()
    {
 #ifdef _DEBUG
-      _CrtMemState m_stateNow;
-      _CrtMemCheckpoint( &m_stateNow );
+      _CrtMemState now_;
+      _CrtMemCheckpoint( &now_ );
 
-      _CrtMemState m_stateDiff;
-      if (_CrtMemDifference(&m_stateDiff, &m_stateStart, &m_stateNow))
+      _CrtMemState diff_;
+      if (_CrtMemDifference(&diff_, &start_, &now_))
       {
          // Memory leaks was found. Report them now.
-         _CrtMemDumpAllObjectsSince(&m_stateStart);
-         _CrtMemDumpStatistics(&m_stateDiff);
+         _CrtMemDumpAllObjectsSince(&start_);
+         _CrtMemDumpStatistics(&diff_);
 
          throw 0; // memory leak
 

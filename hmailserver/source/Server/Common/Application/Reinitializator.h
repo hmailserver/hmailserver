@@ -2,6 +2,8 @@
 
 #include "../Util/Event.h"
 
+#include <boost/thread/thread.hpp>
+
 namespace HM
 {
    class Reinitializator : public Singleton<Reinitializator>
@@ -10,14 +12,15 @@ namespace HM
       Reinitializator(void);
       ~Reinitializator(void);
 
-      void ThreadFunc();
+     
       void ReInitialize();
 
    private:
 
-      HANDLE m_hThreadHandle;
+      void WorkerFunc();
 
-      Event m_evtReinitRequest;
-      Event m_evtStopRequest;
+      boost::thread worker_thread_;
+
+      bool is_running_;
    };
 }

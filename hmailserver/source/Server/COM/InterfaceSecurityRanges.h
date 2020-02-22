@@ -52,11 +52,11 @@ END_COM_MAP()
    STDMETHOD(SetDefault)();
    STDMETHOD(Add)(/*[out, retval]*/ IInterfaceSecurityRange** pVal);
 
-   void Attach(shared_ptr<HM::SecurityRanges> pRanges);
+   void Attach(std::shared_ptr<HM::SecurityRanges> pRanges);
 private:
 
 
-   shared_ptr<HM::SecurityRanges> m_pSecurityRanges;
+   std::shared_ptr<HM::SecurityRanges> security_ranges_;
 
 };
 

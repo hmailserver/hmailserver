@@ -14,6 +14,7 @@
 #include "../../MIME/Mime.h"
 #include "../../TCPIP/DNSResolver.h"
 #include "../../Util/TraceHeaderWriter.h"
+#include "../../Util/FileUtilities.h"
 #include "../../Persistence/PersistentMessage.h"
 
 #include <openssl/rsa.h>
@@ -30,7 +31,7 @@
 
 namespace HM
 {
-   vector<AnsiString> DKIM::_recommendedHeaderFields;
+   std::vector<AnsiString> DKIM::recommendedHeaderFields_;
 
    DKIM::DKIM()
    {
@@ -44,38 +45,38 @@ namespace HM
       ERR_load_crypto_strings();
       ERR_load_EVP_strings();
 
-      _recommendedHeaderFields.push_back("From");
-      _recommendedHeaderFields.push_back("Sender");
-      _recommendedHeaderFields.push_back("Reply-To");
-      _recommendedHeaderFields.push_back("Subject");
-      _recommendedHeaderFields.push_back("Date");
-      _recommendedHeaderFields.push_back("Message-ID");
-      _recommendedHeaderFields.push_back("To");
-      _recommendedHeaderFields.push_back("CC");
-      _recommendedHeaderFields.push_back("MIME-Version");
+      recommendedHeaderFields_.push_back("From");
+      recommendedHeaderFields_.push_back("Sender");
+      recommendedHeaderFields_.push_back("Reply-To");
+      recommendedHeaderFields_.push_back("Subject");
+      recommendedHeaderFields_.push_back("Date");
+      recommendedHeaderFields_.push_back("Message-ID");
+      recommendedHeaderFields_.push_back("To");
+      recommendedHeaderFields_.push_back("CC");
+      recommendedHeaderFields_.push_back("MIME-Version");
 
-      _recommendedHeaderFields.push_back("Content-Type");
-      _recommendedHeaderFields.push_back("Content-Transfer-Encoding");
-      _recommendedHeaderFields.push_back("Content-ID");
-      _recommendedHeaderFields.push_back("Content-Description");
+      recommendedHeaderFields_.push_back("Content-Type");
+      recommendedHeaderFields_.push_back("Content-Transfer-Encoding");
+      recommendedHeaderFields_.push_back("Content-ID");
+      recommendedHeaderFields_.push_back("Content-Description");
 
-      _recommendedHeaderFields.push_back("Resent-Date");
-      _recommendedHeaderFields.push_back("Resent-From");
-      _recommendedHeaderFields.push_back("Resent-Sender");
-      _recommendedHeaderFields.push_back("Resent-To");
-      _recommendedHeaderFields.push_back("Resent-Cc");
-      _recommendedHeaderFields.push_back("Resent-Message-ID");
+      recommendedHeaderFields_.push_back("Resent-Date");
+      recommendedHeaderFields_.push_back("Resent-From");
+      recommendedHeaderFields_.push_back("Resent-Sender");
+      recommendedHeaderFields_.push_back("Resent-To");
+      recommendedHeaderFields_.push_back("Resent-Cc");
+      recommendedHeaderFields_.push_back("Resent-Message-ID");
 
-      _recommendedHeaderFields.push_back("In-Reply-To");
-      _recommendedHeaderFields.push_back("References");
+      recommendedHeaderFields_.push_back("In-Reply-To");
+      recommendedHeaderFields_.push_back("References");
 
-      _recommendedHeaderFields.push_back("List-Id");
-      _recommendedHeaderFields.push_back("List-Help");
-      _recommendedHeaderFields.push_back("List-Unsubscribe");
-      _recommendedHeaderFields.push_back("List-Subscribe");
-      _recommendedHeaderFields.push_back("List-Post");
-      _recommendedHeaderFields.push_back("List-Owner");
-      _recommendedHeaderFields.push_back("List-Archive");
+      recommendedHeaderFields_.push_back("List-Id");
+      recommendedHeaderFields_.push_back("List-Help");
+      recommendedHeaderFields_.push_back("List-Unsubscribe");
+      recommendedHeaderFields_.push_back("List-Subscribe");
+      recommendedHeaderFields_.push_back("List-Post");
+      recommendedHeaderFields_.push_back("List-Owner");
+      recommendedHeaderFields_.push_back("List-Archive");
    }
 
    // helper.
@@ -92,7 +93,7 @@ namespace HM
    }
 
    bool 
-   DKIM::Sign(shared_ptr<Message> message,
+   DKIM::Sign(std::shared_ptr<Message> message,
               const AnsiString &domain,
               const AnsiString &selector,
               const String &privateKey,
@@ -101,8 +102,8 @@ namespace HM
               Canonicalization::CanonicalizeMethod bodyMethod)
    {
 
-      shared_ptr<Canonicalization> bodyCanonicalization = _CreateCanonicalization(bodyMethod);
-      shared_ptr<Canonicalization> headerCanonicalization = _CreateCanonicalization(headerMethod);
+      std::shared_ptr<Canonicalization> bodyCanonicalization = CreateCanonicalization_(bodyMethod);
+      std::shared_ptr<Canonicalization> headerCanonicalization = CreateCanonicalization_(headerMethod);
 
       if (!bodyCanonicalization || !headerCanonicalization)
       {
@@ -125,10 +126,10 @@ namespace HM
 
       AnsiString header = PersistentMessage::LoadHeader(fileName);
 
-      pair<AnsiString, AnsiString> dummySignatureField;
+      std::pair<AnsiString, AnsiString> dummySignatureField;
 
       AnsiString fieldList;
-      AnsiString canonicalizedHeader = headerCanonicalization->CanonicalizeHeader(header, dummySignatureField, _recommendedHeaderFields, fieldList);
+      AnsiString canonicalizedHeader = headerCanonicalization->CanonicalizeHeader(header, dummySignatureField, recommendedHeaderFields_, fieldList);
    
       String tagV = "1";
       String tagA = algorithm == HashCreator::SHA1 ? "rsa-sha1" : "rsa-sha256";
@@ -139,23 +140,23 @@ namespace HM
       String tagDomain = domain;
       String tagSelector = selector;
 
-      String headerValue = _BuildSignatureHeader(tagA, tagDomain, tagSelector, tagC, tagQ, fieldList, bodyHash, "");
+      String headerValue = BuildSignatureHeader_(tagA, tagDomain, tagSelector, tagC, tagQ, fieldList, bodyHash, "");
       
       canonicalizedHeader += headerCanonicalization->CanonicalizeHeaderLine("dkim-signature", headerValue);
 
       AnsiString privateKeyContent = FileUtilities::ReadCompleteTextFile(String(privateKey));
 
-      AnsiString signatureString = _SignHash(privateKeyContent, canonicalizedHeader, algorithm);
+      AnsiString signatureString = SignHash_(privateKeyContent, canonicalizedHeader, algorithm);
       if (signatureString == "")
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5308, "DKIM::Sign", "Failed to create siganture.");
          return false;
       }
       
-      headerValue = _BuildSignatureHeader(tagA, tagDomain, tagSelector, tagC, tagQ, fieldList, bodyHash, signatureString);
+      headerValue = BuildSignatureHeader_(tagA, tagDomain, tagSelector, tagC, tagQ, fieldList, bodyHash, signatureString);
 
       // output to file.
-      std::vector<pair<AnsiString, AnsiString> > fieldsToWrite;
+      std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
       fieldsToWrite.push_back(std::make_pair("dkim-signature", headerValue));
 
       TraceHeaderWriter writer;
@@ -179,13 +180,13 @@ namespace HM
    }
 
    AnsiString 
-   DKIM::_SignHash(AnsiString &privateKey, AnsiString &canonicalizedHeader, HashCreator::HashType hashType)
+   DKIM::SignHash_(AnsiString &privateKey, AnsiString &canonicalizedHeader, HashCreator::HashType hashType)
    {
       // Sign the hash.
       BIO *private_bio = BIO_new_mem_buf(privateKey.GetBuffer(), -1);
       if(private_bio == NULL) 
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5309, "DKIM::_SignHash", "Unable to read the private key file into memory.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5309, "DKIM::SignHash_", "Unable to read the private key file into memory.");
          return "";
       }
 
@@ -193,7 +194,7 @@ namespace HM
       if(private_key == NULL) 
       {
          BIO_free(private_bio);
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5310, "DKIM::_SignHash", "Unable to parse the private key file.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5310, "DKIM::SignHash_", "Unable to parse the private key file.");
          return "";
       }
       BIO_free(private_bio);
@@ -201,29 +202,29 @@ namespace HM
       unsigned int siglen = EVP_PKEY_size(private_key);
       unsigned char *sig = (unsigned char*) OPENSSL_malloc(siglen);
       
-      EVP_MD_CTX headerSigningContext;
-      EVP_SignInit( &headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
+	  EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_create();
+      EVP_SignInit( headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
       
       String result;
 
-      if (EVP_SignUpdate( &headerSigningContext, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
+      if (EVP_SignUpdate( headerSigningContext, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
       {
-         if (EVP_SignFinal( &headerSigningContext, sig, &siglen, private_key) == 1)
+         if (EVP_SignFinal( headerSigningContext, sig, &siglen, private_key) == 1)
          {
             result = Base64::Encode((const char*) sig, siglen);
          }
          else
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5311, "DKIM::_SignHash", "Call to EVP_SignFinal failed.");
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5311, "DKIM::SignHash_", "Call to EVP_SignFinal failed.");
          }
       }
       else
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5312, "DKIM::_SignHash", "Call to EVP_SignUpdate failed.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5312, "DKIM::SignHash_", "Call to EVP_SignUpdate failed.");
       }
 
       EVP_PKEY_free(private_key);
-      EVP_MD_CTX_cleanup( &headerSigningContext );
+	  EVP_MD_CTX_destroy(headerSigningContext);
       OPENSSL_free(sig);
 
       return result;
@@ -247,7 +248,7 @@ namespace HM
       MimeHeader mimeHeader;
       mimeHeader.Load(messageHeader.GetBuffer(), messageHeader.GetLength(), false);
 
-      vector<pair<AnsiString, AnsiString> > signatureFields = GetSignatureFields(mimeHeader);
+      std::vector<std::pair<AnsiString, AnsiString> > signatureFields = GetSignatureFields(mimeHeader);
 
       if (signatureFields.size() == 0)
       {
@@ -257,10 +258,10 @@ namespace HM
 
       Result result = Neutral;
 
-      typedef pair<AnsiString, AnsiString> HeaderField;
-      boost_foreach (HeaderField signatureField, signatureFields)
+      typedef std::pair<AnsiString, AnsiString> HeaderField;
+      for (HeaderField signatureField : signatureFields)
       {
-         result = _VerifySignature(fileName, messageHeader, signatureField);
+         result = VerifySignature_(fileName, messageHeader, signatureField);
          if (result == Pass)
             return Pass;
       };
@@ -271,7 +272,7 @@ namespace HM
    }
 
    DKIM::Result 
-   DKIM::_VerifySignature(const String &fileName, const AnsiString &messageHeader, pair<AnsiString, AnsiString> signatureField)
+   DKIM::VerifySignature_(const String &fileName, const AnsiString &messageHeader, std::pair<AnsiString, AnsiString> signatureField)
    {
       AnsiString headerValue = signatureField.second;
 
@@ -282,14 +283,14 @@ namespace HM
       DKIMParameters signatureParams;
       signatureParams.Load (headerValue);
 
-      if (!_ValidateHeaderContents(signatureParams))
+      if (!ValidateHeaderContents_(signatureParams))
       {
          // Skip this header.
          return Neutral;
       }
 
-      shared_ptr<Canonicalization> headerCanonicalization;
-      shared_ptr<Canonicalization> bodyCanonicalization;
+      std::shared_ptr<Canonicalization> headerCanonicalization;
+      std::shared_ptr<Canonicalization> bodyCanonicalization;
 
       AnsiString method = signatureParams.GetValue("c");
       AnsiString headerMethod;
@@ -304,7 +305,7 @@ namespace HM
       {
          if (method.Find("/") > 0)
          {
-            vector<AnsiString> vec = StringParser::SplitString(method, "/");    
+            std::vector<AnsiString> vec = StringParser::SplitString(method, "/");    
 
             headerMethod = vec[0];
             bodyMethod = vec[1];
@@ -317,18 +318,18 @@ namespace HM
       }
 
       if (headerMethod == "simple")
-         headerCanonicalization = shared_ptr<SimpleCanonicalization>(new SimpleCanonicalization) ;
+         headerCanonicalization = std::shared_ptr<SimpleCanonicalization>(new SimpleCanonicalization) ;
       else
-         headerCanonicalization = shared_ptr<RelaxedCanonicalization>(new RelaxedCanonicalization) ;
+         headerCanonicalization = std::shared_ptr<RelaxedCanonicalization>(new RelaxedCanonicalization) ;
 
       if (bodyMethod == "simple")
-         bodyCanonicalization = shared_ptr<SimpleCanonicalization>(new SimpleCanonicalization) ;
+         bodyCanonicalization = std::shared_ptr<SimpleCanonicalization>(new SimpleCanonicalization) ;
       else
-         bodyCanonicalization = shared_ptr<RelaxedCanonicalization>(new RelaxedCanonicalization) ;
+         bodyCanonicalization = std::shared_ptr<RelaxedCanonicalization>(new RelaxedCanonicalization) ;
 
       AnsiString publicKeyString;
       AnsiString flags;
-      Result res = _RetrievePublicKey(signatureParams, publicKeyString, flags);
+      Result res = RetrievePublicKey_(signatureParams, publicKeyString, flags);
       if (res != Pass)
       {
          LOG_DEBUG("DKIM: Retrieval of public key failed.");
@@ -342,7 +343,7 @@ namespace HM
          LOG_DEBUG("DKIM: Domain is in test mode. Results of this signature test won't have any effect.");
       }
 
-      if (!_ValidateBodyHash(fileName, signatureParams, bodyCanonicalization))
+      if (!ValidateBodyHash_(fileName, signatureParams, bodyCanonicalization))
       {
          LOG_DEBUG("DKIM: Validation of body hash failed.");
          return testMode ? Pass : PermFail;
@@ -368,13 +369,13 @@ namespace HM
       AnsiString tagB = signatureParams.GetValue("b");
       
 
-      Result result = _VerifyHeaderHash(canonicalizedHeader, tagA, tagB, publicKeyString);
+      Result result = VerifyHeaderHash_(canonicalizedHeader, tagA, tagB, publicKeyString);
 
       return testMode ? Pass : result;
    }
 
    DKIM::Result
-   DKIM::_VerifyHeaderHash(AnsiString canonicalizedHeader, const AnsiString &tagA, AnsiString &tagB, const AnsiString &publicKeyString)
+   DKIM::VerifyHeaderHash_(AnsiString canonicalizedHeader, const AnsiString &tagA, AnsiString &tagB, const AnsiString &publicKeyString)
    {
       Result result = PermFail;
 
@@ -387,15 +388,15 @@ namespace HM
          return result;
       }
 
-      EVP_MD_CTX m_Hdr_ctx;
-      EVP_MD_CTX_init( &m_Hdr_ctx );
+	  EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_create();
+      EVP_MD_CTX_init( hdr__ctx );
 
       if (tagA == "rsa-sha256")
-         EVP_VerifyInit( &m_Hdr_ctx, EVP_sha256() );
+         EVP_VerifyInit( hdr__ctx, EVP_sha256() );
       else
-         EVP_VerifyInit( &m_Hdr_ctx, EVP_sha1() );
+         EVP_VerifyInit( hdr__ctx, EVP_sha1() );
 
-      if (EVP_VerifyUpdate( &m_Hdr_ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
+      if (EVP_VerifyUpdate( hdr__ctx, canonicalizedHeader.GetBuffer(), canonicalizedHeader.GetLength() ) == 1)
       {
          // base64 decode the signature. we're working with binary
          // data here so we can't store it in a normal string. 
@@ -405,7 +406,7 @@ namespace HM
          AnsiString signature;
          encoder.GetOutput(signature);
 
-         if (EVP_VerifyFinal( &m_Hdr_ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
+         if (EVP_VerifyFinal( hdr__ctx, (unsigned char *) signature.GetBuffer(), signature.GetLength(), publicKey) == 1)
          {
             LOG_DEBUG("DKIM: Message passed validation.");
             result = Pass;
@@ -416,14 +417,14 @@ namespace HM
          }
       }
 
-      EVP_MD_CTX_cleanup( &m_Hdr_ctx );
+      EVP_MD_CTX_destroy( hdr__ctx );
       EVP_PKEY_free(publicKey);
 
       return result;
    }
 
    bool 
-   DKIM::_ValidateBodyHash(const String &fileName, const DKIMParameters &signatureParams, shared_ptr<Canonicalization> canonicalization)
+   DKIM::ValidateBodyHash_(const String &fileName, const DKIMParameters &signatureParams, std::shared_ptr<Canonicalization> canonicalization)
    {
       AnsiString tagA = signatureParams.GetValue("a");
       AnsiString tagBH = signatureParams.GetValue("bh");
@@ -457,7 +458,7 @@ namespace HM
    }
 
    bool
-   DKIM::_ValidateHeaderContents(const DKIMParameters &signatureParams)
+   DKIM::ValidateHeaderContents_(const DKIMParameters &signatureParams)
    {
       AnsiString tagH = signatureParams.GetValue("h");
       /*
@@ -517,7 +518,7 @@ namespace HM
          if (tagIDomain.CompareNoCase(tagD) != 0 && !tagIDomain.EndsWith("." + tagD))
          {
             String sMessage;
-            sMessage.Format(_T("DKIM: Header in message incomplete. Tag I mismatch (%s - %s). Aborting DKIM test."), String(tagD), String(tagIDomain));
+            sMessage.Format(_T("DKIM: Header in message incomplete. Tag I mismatch (%s - %s). Aborting DKIM test."), String(tagD).c_str(), String(tagIDomain).c_str());
             LOG_DEBUG(sMessage);
 
             return false;
@@ -531,8 +532,8 @@ namespace HM
       */
 
       bool found = false;
-      vector<AnsiString> headerFields = StringParser::SplitString(tagH,":");
-      boost_foreach(AnsiString headerField, headerFields)
+      std::vector<AnsiString> headerFields = StringParser::SplitString(tagH,":");
+      for (AnsiString headerField : headerFields)
       {
          headerField.Trim();
          headerField.ToLower();
@@ -553,14 +554,14 @@ namespace HM
    }
 
    DKIM::Result
-   DKIM::_RetrievePublicKey(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags)
+   DKIM::RetrievePublicKey_(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags)
    {
       // 6.1.2.  Get the Public Key
       AnsiString tagDomain = signatureParams.GetValue("d");
       AnsiString tagSelector = signatureParams.GetValue("s");
       AnsiString keyName = tagSelector + "._domainkey." + tagDomain;
 
-      vector<String> results;
+      std::vector<String> results;
       DNSResolver resolver;
       if (!resolver.GetTXTRecords(keyName, results))
       {
@@ -592,7 +593,7 @@ namespace HM
       DKIMParameters dnsKeyParams;
       dnsKeyParams.Load(result);
 
-      if (!_ValidateDNSEntry(dnsKeyParams, signatureParams))
+      if (!ValidateDNSEntry_(dnsKeyParams, signatureParams))
       {
          LOG_DEBUG("DKIM: Error when retrieving public key. Validation of DNS entry failed.");
          return PermFail;
@@ -628,7 +629,7 @@ namespace HM
             {
                
                String sMessage;
-               sMessage.Format(_T("DKIM: Header in message incomplete. Tag I mismatch (%s - %s). Aborting."), String(tagD), String(tagIDomain));
+               sMessage.Format(_T("DKIM: Header in message incomplete. Tag I mismatch (%s - %s). Aborting."), String(tagD).c_str(), String(tagIDomain).c_str());
                LOG_DEBUG(sMessage);
 
                return PermFail;
@@ -654,7 +655,7 @@ namespace HM
    }
 
    bool 
-   DKIM::_ValidateDNSEntry(const DKIMParameters &entryParams, const DKIMParameters &headerParams)
+   DKIM::ValidateDNSEntry_(const DKIMParameters &entryParams, const DKIMParameters &headerParams)
    {
       if (entryParams.GetParamCount() == 0)
          return false;
@@ -718,23 +719,23 @@ namespace HM
       return true;
    }
 
-   shared_ptr<Canonicalization> 
-   DKIM::_CreateCanonicalization(Canonicalization::CanonicalizeMethod method)
+   std::shared_ptr<Canonicalization> 
+   DKIM::CreateCanonicalization_(Canonicalization::CanonicalizeMethod method)
    {
       switch (method)
       {
       case Canonicalization::Simple:
-         return shared_ptr<Canonicalization>(new SimpleCanonicalization);
+         return std::shared_ptr<Canonicalization>(new SimpleCanonicalization);
       case Canonicalization::Relaxed:
-         return shared_ptr<Canonicalization>(new RelaxedCanonicalization);
+         return std::shared_ptr<Canonicalization>(new RelaxedCanonicalization);
       }
 
-      shared_ptr<Canonicalization> pEmpty;
+      std::shared_ptr<Canonicalization> pEmpty;
       return pEmpty;
    }
 
    String 
-   DKIM::_BuildSignatureHeader(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString)
+   DKIM::BuildSignatureHeader_(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString)
    {
       String headerValue;
 
@@ -743,7 +744,7 @@ namespace HM
          headerValue.Format(_T("v=1; a=%s; d=%s; s=%s;\r\n")
             _T("\tc=%s; q=%s; h=%s;\r\n")
             _T("\tbh=%s;\r\n")
-            _T("\tb="), tagA, tagD, tagS, tagC, tagQ, String(fieldList), bodyHash);
+            _T("\tb="), tagA.c_str(), tagD.c_str(), tagS.c_str(), tagC.c_str(), tagQ.c_str(), String(fieldList).c_str(), bodyHash.c_str());
       }
       else
       {
@@ -760,19 +761,19 @@ namespace HM
          headerValue.Format(_T("v=1; a=%s; d=%s; s=%s;\r\n")
             _T("\tc=%s; q=%s; h=%s;\r\n")
             _T("\tbh=%s;\r\n")
-            _T("\tb=%s"), tagA, tagD, tagS, tagC, tagQ, String(fieldList), bodyHash, splitSignatureString);
+            _T("\tb=%s"), tagA.c_str(), tagD.c_str(), tagS.c_str(), tagC.c_str(), tagQ.c_str(), String(fieldList).c_str(), bodyHash.c_str(), splitSignatureString.c_str());
       }
 
       return headerValue;
    }
 
-   vector<pair<AnsiString, AnsiString> > 
+   std::vector<std::pair<AnsiString, AnsiString> > 
    DKIM::GetSignatureFields(MimeHeader &mimeHeader)
    {
-      vector<pair<AnsiString, AnsiString>> result;
-      vector<MimeField> &fields = mimeHeader.Fields();
+      std::vector<std::pair<AnsiString, AnsiString>> result;
+      std::vector<MimeField> &fields = mimeHeader.Fields();
 
-      boost_foreach(MimeField f, fields)
+      for(MimeField f : fields)
       {
          AnsiString name = f.GetName();
          if (name.CompareNoCase("DKIM-Signature") == 0)

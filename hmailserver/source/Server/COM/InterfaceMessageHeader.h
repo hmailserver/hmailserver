@@ -24,11 +24,9 @@ class ATL_NO_VTABLE InterfaceMessageHeader :
 	public IDispatchImpl<IInterfaceMessageHeader, &IID_IInterfaceMessageHeader, &LIBID_hMailServer, /*wMajor =*/ 1, /*wMinor =*/ 0>
 {
 public:
-	InterfaceMessageHeader()
-	{
-	}
-
-   void AttachItem (shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField);
+   InterfaceMessageHeader();
+	
+   void AttachItem (std::shared_ptr<HM::MimeHeader> pHeader, HM::MimeField *pField);
 
 DECLARE_REGISTRY_RESOURCEID(IDR_INTERFACEMESSAGEHEADER)
 
@@ -61,8 +59,8 @@ public:
 
 private:
 
-   shared_ptr<HM::MimeHeader> m_pHeader;
-   HM::MimeField *m_pObject;
+   std::shared_ptr<HM::MimeHeader> header_;
+   HM::MimeField *object_;
 
 };
 

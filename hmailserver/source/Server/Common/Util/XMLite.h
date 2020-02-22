@@ -54,7 +54,7 @@ typedef struct _tagXmlEntity
 	int ref_len;					// entity reference length
 }XENTITY,*LPXENTITY;
 
-typedef struct _tagXMLEntitys : public std::vector<XENTITY>
+typedef struct tagXMLEntitys_ : public std::vector<XENTITY>
 {
 	LPXENTITY GetEntity( int entity );
 	LPXENTITY GetEntity( LPTSTR entity );	
@@ -64,8 +64,8 @@ typedef struct _tagXMLEntitys : public std::vector<XENTITY>
 	HM::String Ref2Entity( LPCTSTR estr );
 	HM::String Entity2Ref( LPCTSTR str );	
 
-	_tagXMLEntitys(){};
-	_tagXMLEntitys( LPXENTITY entities, int count );
+	tagXMLEntitys_(){};
+	tagXMLEntitys_( LPXENTITY entities, int count );
 }XENTITYS,*LPXENTITYS;
 extern XENTITYS entityDefault;
 HM::String XRef2Entity( LPCTSTR estr );
@@ -96,7 +96,21 @@ typedef struct _tagParseInfo
 	HM::String		error_string;		// [get] error string
 
 	LPXDoc		doc;
-	_tagParseInfo() { trim_value = false; entity_value = true; force_parse = false; entitys = &entityDefault; xml = NULL; erorr_occur = false; error_pointer = NULL; error_code = PIE_PARSE_WELFORMED; escape_value = 0; }
+
+	_tagParseInfo() 
+      { 
+         doc = NULL;
+         trim_value = false; 
+         entity_value = true; 
+         force_parse = false; 
+         entitys = &entityDefault; 
+         xml = NULL; 
+         erorr_occur = false; 
+         error_pointer = NULL; 
+         error_code = PIE_PARSE_WELFORMED; 
+         escape_value = 0; 
+         
+   }
 }PARSEINFO,*LPPARSEINFO;
 extern PARSEINFO piDefault;
 
@@ -190,7 +204,7 @@ typedef struct _tagXMLNode
 	// node/branch copy
 	void	CopyNode( LPXNode node );
 	void	CopyBranch( LPXNode branch );
-	void	_CopyBranch( LPXNode node );
+	void	CopyBranch_( LPXNode node );
 	LPXNode	AppendChildBranch( LPXNode node );
 
 	// modify attribute

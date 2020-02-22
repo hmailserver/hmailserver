@@ -13,8 +13,8 @@ namespace HM
       bool TestClamWinVirusScanner(const String &executable, const String &databasePath, String &message);
 
    private:
-      String _GenerateVirusTestFile();
-      String _GeneratePlainTestFile();
+      String GenerateVirusTestFile_();
+      String GeneratePlainTestFile_();
    };
 
 }

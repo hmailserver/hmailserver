@@ -13,18 +13,18 @@ STDMETHODIMP InterfaceDiagnostics::PerformTests(IInterfaceDiagnosticResults **pV
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String str;
       
-      vector<HM::DiagnosticResult> results = _diagnostics.PerformTests();
+      std::vector<HM::DiagnosticResult> results = diagnostics_.PerformTests();
       
       CComObject<InterfaceDiagnosticResults>* pResult = new CComObject<InterfaceDiagnosticResults>();
-      pResult->SetAuthentication(m_pAuthentication);
+      pResult->SetAuthentication(authentication_);
       pResult->AttachResults(results);
       pResult->AddRef();
       *pVal = pResult;
@@ -41,13 +41,13 @@ STDMETHODIMP InterfaceDiagnostics::get_LocalDomainName(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = _diagnostics.GetLocalDomain().AllocSysString();
+      *pVal = diagnostics_.GetLocalDomain().AllocSysString();
    
       return S_OK;
    }
@@ -61,14 +61,14 @@ STDMETHODIMP InterfaceDiagnostics::put_LocalDomainName(BSTR newVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String localDomainName = newVal;
-      _diagnostics.SetLocalDomain(localDomainName);
+      diagnostics_.SetLocalDomain(localDomainName);
    
       return S_OK;
    }
@@ -82,13 +82,13 @@ STDMETHODIMP InterfaceDiagnostics::get_TestDomainName(BSTR *pVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
-      *pVal = _diagnostics.GetTestDomain().AllocSysString();
+      *pVal = diagnostics_.GetTestDomain().AllocSysString();
    
       return S_OK;
    }
@@ -102,14 +102,14 @@ STDMETHODIMP InterfaceDiagnostics::put_TestDomainName(BSTR newVal)
 {
    try
    {
-      if (!m_pAuthentication)
+      if (!authentication_)
          return GetAccessDenied();
 
-      if (!m_pAuthentication->GetIsServerAdmin())
-         return m_pAuthentication->GetAccessDenied();
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
    
       HM::String TestDomainName = newVal;
-      _diagnostics.SetTestDomain(TestDomainName);
+      diagnostics_.SetTestDomain(TestDomainName);
    
       return S_OK;
    }

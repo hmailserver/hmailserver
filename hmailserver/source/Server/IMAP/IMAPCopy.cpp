@@ -15,6 +15,8 @@
 #include "../Common/Tracking/ChangeNotification.h"
 
 
+#include "MessagesContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -29,12 +31,12 @@ namespace HM
 
 
    IMAPResult
-   IMAPCopy::DoAction(shared_ptr<IMAPConnection> pConnection, int messageIndex, shared_ptr<Message> pOldMessage, const shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pArgument || !pOldMessage)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
       
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
       
@@ -50,11 +52,11 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
 
-      shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "The folder could not be found.");
 
-      shared_ptr<const Account> pAccount = pConnection->GetAccount();
+      std::shared_ptr<const Account> pAccount = pConnection->GetAccount();
 
       if (!pFolder->IsPublicFolder())
       {
@@ -66,7 +68,7 @@ namespace HM
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionInsert))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for COPY command).");
 
-      shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
+      std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
 
       if (!pNewMessage)
          return IMAPResult(IMAPResult::ResultBad, "Failed to copy message");
@@ -78,12 +80,12 @@ namespace HM
       if (!PersistentMessage::SaveObject(pNewMessage))
          return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
 
-      pFolder->SetFolderNeedsRefresh();
+      MessagesContainer::Instance()->SetFolderNeedsRefresh(pFolder->GetID());
 
       // Set a delayed notification so that the any IMAP idle client is notified when this
       // command has been finished.
-      shared_ptr<ChangeNotification> pNotification = 
-         shared_ptr<ChangeNotification>(new ChangeNotification(pFolder->GetAccountID(), pFolder->GetID(), ChangeNotification::NotificationMessageAdded));
+      std::shared_ptr<ChangeNotification> pNotification = 
+         std::shared_ptr<ChangeNotification>(new ChangeNotification(pFolder->GetAccountID(), pFolder->GetID(), ChangeNotification::NotificationMessageAdded));
 
       pConnection->SetDelayedChangeNotification(pNotification);
 

@@ -29,6 +29,7 @@ if ($action == "edit")
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 
    <?php
+      PrintHiddenCsrfToken();
       PrintHidden("page", "background_blocked_attachment_save");
       PrintHidden("action", $action);
       PrintHidden("id", $id);

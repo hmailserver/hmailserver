@@ -6,6 +6,7 @@
 namespace HM
 {
    class Rule;
+   enum PersistenceMode;
 
    class PersistentRule
    {
@@ -13,17 +14,17 @@ namespace HM
       PersistentRule(void);
       ~PersistentRule(void);
 
-      static bool ReadObject(shared_ptr<Rule> pRule, const SQLCommand& sSQL);
-      static bool ReadObject(shared_ptr<Rule> pRule, shared_ptr<DALRecordset> pRS);
+      static bool ReadObject(std::shared_ptr<Rule> pRule, const SQLCommand& sSQL);
+      static bool ReadObject(std::shared_ptr<Rule> pRule, std::shared_ptr<DALRecordset> pRS);
 
-      static bool SaveObject(shared_ptr<Rule> pRule, String &errorMessage);
-      static bool SaveObject(shared_ptr<Rule> pRule);
-      static bool DeleteObject(shared_ptr<Rule> pRule);
+      static bool SaveObject(std::shared_ptr<Rule> pRule, String &errorMessage, PersistenceMode mode);
+      static bool SaveObject(std::shared_ptr<Rule> pRule);
+      static bool DeleteObject(std::shared_ptr<Rule> pRule);
 
       static void DeleteByAccountID(__int64 ID);
 
    private:
 
-      static void _NotifyReload(shared_ptr<Rule> pRule);
+      static void NotifyReload_(std::shared_ptr<Rule> pRule);
    };
 }

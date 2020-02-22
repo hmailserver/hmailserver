@@ -29,7 +29,7 @@ for ($i = 0; $i < $Count; $i++)
    
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td width=\"80%\"><a href=\"?page=incomingrelay&action=edit&relayid=$relayid&\">$relayname</a></td>";
-	echo "<td width=\"20%\"><a href=\"?page=background_incomingrelay_save&action=delete&relayid=$relayid\">$str_delete</a></td>";
+	echo "<td width=\"20%\"><a href=\"?page=background_incomingrelay_save&csrftoken=$csrftoken&action=delete&relayid=$relayid\">$str_delete</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

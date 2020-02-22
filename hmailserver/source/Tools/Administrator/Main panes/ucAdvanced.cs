@@ -2,11 +2,6 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using System.Runtime.InteropServices;
@@ -53,6 +48,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             textDefaultDomain.Text = settings.DefaultDomain;
+                                                
 
             Marshal.ReleaseComObject(settings);
 
@@ -63,7 +59,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             settings.DefaultDomain = textDefaultDomain.Text;
-
+            
             if (textAdministratorPassword.Dirty)
             {
                 string newPassword = textAdministratorPassword.Text;

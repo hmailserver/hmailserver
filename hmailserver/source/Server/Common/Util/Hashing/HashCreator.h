@@ -32,16 +32,16 @@ namespace HM
 
    private:
    
-      AnsiString _GetSalt(const AnsiString &inputString);
-      AnsiString _GetHash(const AnsiString &sInputString, RequestedEncoding encoding);
-      AnsiString _GetHashRaw(const unsigned char *input, int inputLength, RequestedEncoding encoding);
+      AnsiString GetSalt_(const AnsiString &inputString);
+      AnsiString GetHash_(const AnsiString &sInputString, RequestedEncoding encoding);
+      AnsiString GetHash_Raw(const unsigned char *input, int inputLength, RequestedEncoding encoding);
 
       enum Sizes
       {
          SALT_LENGTH = 6
       };
 
-      HashType _hashType;
+      HashType hash_type_;
    };
 
    class HashCreatorTester

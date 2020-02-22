@@ -66,7 +66,7 @@
 //			- Jim Cline
 //			- Jeff Kohn
 //			- Todd Heckel
-//			- Ullrich Pollähne
+//			- Ullrich Pollï¿½hne
 //			- Joe Vitaterna
 //			- Joe Woodbury
 //			- Aaron (no last name)
@@ -220,7 +220,7 @@
 //	  2000-APR-17 - Thanks to Joe Vitaterna for pointing out that ReverseFind
 //					is supposed to be a const function.
 //
-//	  2000-MAR-07 - Thanks to Ullrich Pollähne for catching a range bug in one
+//	  2000-MAR-07 - Thanks to Ullrich Pollï¿½hne for catching a range bug in one
 //					of the overloads of assign.
 //
 //    2000-FEB-01 - You can now use CStdString on the Mac with CodeWarrior!
@@ -1595,120 +1595,15 @@ inline void ssupr(CT* pT, size_t nLen, const std::locale& loc=std::locale())
 // Borland's headers put some ANSI "C" functions in the 'std' namespace. 
 // Promote them to the global namespace so we can use them here.
 
-#if defined(__BORLANDC__)
-    using std::vsprintf;
-    using std::vswprintf;
-#endif
-
-	// GNU is supposed to have vsnprintf and vsnwprintf.  But only the newer
-	// distributions do.
-
-#if defined(__GNUC__)
-
 	inline int ssvsprintf(PSTR pA, size_t nCount, PCSTR pFmtA, va_list vl)
-	{ 
-		return vsnprintf(pA, nCount, pFmtA, vl);
-	}
-	inline int ssvsprintf(PWSTR pW, size_t nCount, PCWSTR pFmtW, va_list vl)
 	{
-		return vswprintf(pW, nCount, pFmtW, vl);
-	}
-
-	// Microsofties can use
-#elif defined(_MSC_VER) && !defined(SS_ANSI)
-
-	inline int	ssnprintf(PSTR pA, size_t nCount, PCSTR pFmtA, va_list vl)
-	{ 
-		return _vsnprintf(pA, nCount, pFmtA, vl);
-	}
-	inline int	ssnprintf(PWSTR pW, size_t nCount, PCWSTR pFmtW, va_list vl)
-	{
-		return _vsnwprintf(pW, nCount, pFmtW, vl);
-	}
-
-#elif !defined (SS_DANGEROUS_FORMAT)
-
-	// GOT COMPILER PROBLEMS HERE?
-	// ---------------------------
-	// Does your compiler choke on one or more of the following 2 functions?  It
-	// probably means that you don't have have either vsnprintf or vsnwprintf in
-	// your version of the CRT.  This is understandable since neither is an ANSI
-	// "C" function.  However it still leaves you in a dilemma.  In order to make
-	// this code build, you're going to have to to use some non-length-checked
-	// formatting functions that every CRT has:  vsprintf and vswprintf.  
-	//
-	// This is very dangerous.  With the proper erroneous (or malicious) code, it
-	// can lead to buffer overlows and crashing your PC.  Use at your own risk
-	// In order to use them, just #define SS_DANGEROUS_FORMAT at the top of
-	// this file.
-	//
-	// Even THEN you might not be all the way home due to some non-conforming
-	// distributions.  More on this in the comments below.
-
-	inline int	ssnprintf(PSTR pA, size_t nCount, PCSTR pFmtA, va_list vl)
-	{ 
-		return vsnprintf(pA, nCount, pFmtA, vl);
-	}
-	inline int	ssnprintf(PWSTR pW, size_t nCount, PCWSTR pFmtW, va_list vl)
-	{
-		return vsnwprintf(pW, nCount, pFmtW, vl);
-	}
-
-#else
-
-	inline int ssvsprintf(PSTR pA, size_t /*nCount*/, PCSTR pFmtA, va_list vl)
-	{
-		return vsprintf(pA, pFmtA, vl);
+      return vsprintf_s(pA, nCount, pFmtA, vl);
 	}
 
 	inline int ssvsprintf(PWSTR pW, size_t nCount, PCWSTR pFmtW, va_list vl)
 	{
-		// JMO: Some distributions of the "C" have a version of vswprintf that
-        // takes 3 arguments (e.g. Microsoft, Borland, GNU).  Others have a 
-        // version which takes 4 arguments (an extra "count" argument in the
-        // second position.  The best stab I can take at this so far is that if
-        // you are NOT running with MS, Borland, or GNU, then I'll assume you
-        // have the version that takes 4 arguments.
-        //
-        // I'm sure that these checks don't catch every platform correctly so if
-        // you get compiler errors on one of the lines immediately below, it's
-        // probably because your implemntation takes a different number of
-        // arguments.  You can comment out the offending line (and use the
-        // alternate version) or you can figure out what compiler flag to check
-        // and add that preprocessor check in.  Regardless, if you get an error
-        // on these lines, I'd sure like to hear from you about it.
-        //
-        // Thanks to Ronny Schulz for the SGI-specific checks here.
-
-//	#if !defined(__MWERKS__) && !defined(__SUNPRO_CC_COMPAT) && !defined(__SUNPRO_CC)
-    #if    !defined(_MSC_VER) \
-        && !defined (__BORLANDC__) \
-        && !defined(__GNUC__) \
-        && !defined(__sgi)
-
-        return vswprintf(pW, nCount, pFmtW, vl);
-
-    // suddenly with the current SGI 7.3 compiler there is no such function as
-    // vswprintf and the substitute needs explicit casts to compile
-
-    #elif defined(__sgi)
-
-        nCount;
-        return vsprintf( (char *)pW, (char *)pFmtW, vl);
-
-    #else
-
-        nCount;
-        return _vstprintf(pW, pFmtW, vl);
-
-        //return _vswprintf(pW, nCount, pFmtW, vl);
-        // return vsprintf((char*) pW, (char*) pFmtW, vl);
-
-    #endif
-
+      return _vstprintf(pW, nCount, pFmtW, vl);
 	}
-
-#endif
 
 
 
@@ -2193,7 +2088,7 @@ public:
 			// <nChars> or the NULL terminator, whichever comes first.  Since we
 			// are about to call a less forgiving overload (in which <nChars>
 			// must be a valid length), we must adjust the length here to a safe
-			// value.  Thanks to Ullrich Pollähne for catching this bug
+			// value.  Thanks to Ullrich Pollï¿½hne for catching this bug
 
 			nChars		= SSMIN(nChars, str.length() - nStart);
 			MYTYPE strTemp(str.c_str()+nStart, nChars);
@@ -2214,7 +2109,7 @@ public:
 			// <nChars> or the NULL terminator, whichever comes first.  Since we
 			// are about to call a less forgiving overload (in which <nChars>
 			// must be a valid length), we must adjust the length here to a safe
-			// value. Thanks to Ullrich Pollähne for catching this bug
+			// value. Thanks to Ullrich Pollï¿½hne for catching this bug
 
 			nChars		= SSMIN(nChars, str.length() - nStart);
 
@@ -2397,7 +2292,7 @@ public:
 		return this->empty() ? const_cast<CT*>(this->data()) : &(this->at(0));
 	}
 
-	CT* SetBuf(int nLen)
+	CT* SetBuf(MYSIZE nLen)
 	{
 		nLen = ( nLen > 0 ? nLen : 0 );
 		if ( this->capacity() < 1 && nLen == 0 )
@@ -2824,7 +2719,9 @@ public:
     template<class A1>
     void Format(const CT* szFmt, const A1& v)
     {
-        Fmt(szFmt, FmtArg<A1>(v)());
+       A1 a = FmtArg<A1>(v)();
+
+        Fmt(szFmt, a);
     }
     template<class A1, class A2>
     void Format(const CT* szFmt, const A1& v1, const A2& v2)
@@ -3048,12 +2945,10 @@ public:
 	void AppendFormatV(const CT* szFmt, va_list argList)
 	{
 		CT szBuf[STD_BUF_SIZE];
-	#ifdef SS_ANSI
-		int nLen = ssvsprintf(szBuf, STD_BUF_SIZE-1, szFmt, argList);
-	#else
-		int nLen = ssnprintf(szBuf, STD_BUF_SIZE-1, szFmt, argList);
-	#endif
-		if ( 0 < nLen )
+
+		int nLen = ssvsprintf(szBuf, STD_BUF_SIZE, szFmt, argList);
+
+      if ( 0 < nLen )
 			this->append(szBuf, nLen);
 	}
 
@@ -3081,62 +2976,22 @@ public:
             
             This function will cause heap corruption if we
             give it a ANSI format string, or a Unicode format
-            string with ANSI parameters.
+            string with ANSI parameters. In debug, this will cause an assert.
       */
 
-	#ifdef SS_ANSI
-
-      // int nLen	= _vscprintf((const char*)szFormat, argList);
+      // returns the number of characters, minus null separator
       int nLen	= _vsctprintf((const wchar_t *) szFormat, argList);
 
-		ssvsprintf(GetBuffer(nLen), nLen-1, szFormat, argList);
+		ssvsprintf(GetBuffer(nLen), nLen+1, szFormat, argList);
 		ReleaseBuffer();
-
-	#else
-
-		CT* pBuf			= NULL;
-		int nChars			= 1;
-		int nUsed			= 0;
-		size_type nActual	= 0;
-		int nTry			= 0;
-
-		do	
-		{
-			// Grow more than linearly (e.g. 512, 1536, 3072, etc)
-
-			nChars			+= ((nTry+1) * FMT_BLOCK_SIZE);
-			pBuf			= reinterpret_cast<CT*>(_alloca(sizeof(CT)*nChars));
-			nUsed			= ssnprintf(pBuf, nChars-1, szFormat, argList);
-
-			// Ensure proper NULL termination.
-
-			nActual			= nUsed == -1 ? nChars-1 : SSMIN(nUsed, nChars-1);
-			pBuf[nActual]= '\0';
-
-
-		} while ( nUsed < 0 && nTry++ < MAX_FMT_TRIES );
-
-		// assign whatever we managed to format
-
-		this->assign(pBuf, nActual);
-
-	#endif
 	}
 
-	// -------------------------------------------------------------------------
-	// CString Facade Functions:
-	//
-	// The following methods are intended to allow you to use this class as a
-	// near drop-in replacement for CString.
-	// -------------------------------------------------------------------------
-	#ifdef SS_WIN32
-		BSTR AllocSysString() const
-		{
-			ostring os;
-			ssasn(os, *this);
-			return ::SysAllocString(os.c_str());
-		}
-	#endif
+	BSTR AllocSysString() const
+	{
+		ostring os;
+		ssasn(os, *this);
+		return ::SysAllocString(os.c_str());
+	}
 
 	int Collate(PCMYSTR szThat) const
 	{
@@ -3206,7 +3061,7 @@ public:
 		return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
 	}
 
-	int Find(CT ch, int nStart) const
+	int Find(CT ch, MYSIZE nStart) const
 	{
 		// CString::Find docs say add 1 to nStart when it's not zero
 		// CString::Find code doesn't do that however.  We'll stick
@@ -3216,7 +3071,7 @@ public:
 		return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
 	}
 
-	int Find(PCMYSTR szSub, int nStart) const
+	int Find(PCMYSTR szSub, MYSIZE nStart) const
 	{
 		// CString::Find docs say add 1 to nStart when it's not zero
 		// CString::Find code doesn't do that however.  We'll stick
@@ -3238,7 +3093,7 @@ public:
       return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
    }
 
-   int FindNoCase(PCMYSTR szSub, int nStart) const
+   int FindNoCase(PCMYSTR szSub, MYSIZE nStart) const
    {
       MYTYPE sFindIn = this->c_str();
       MYTYPE sLookFor = szSub;
@@ -3300,44 +3155,6 @@ public:
 
       return totalCount;
    }
-
-#ifndef SS_ANSI
-	void FormatMessage(PCMYSTR szFormat, ...) throw(std::exception)
-	{
-		va_list argList;
-		va_start(argList, szFormat);
-		PMYSTR szTemp;
-		if ( ssfmtmsg(FORMAT_MESSAGE_FROM_STRING|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-					   szFormat, 0, 0,
-					   reinterpret_cast<PMYSTR>(&szTemp), 0, &argList) == 0 ||
-			 szTemp == 0 )
-		{
-			throw std::runtime_error("out of memory");
-		}
-		*this = szTemp;
-		LocalFree(szTemp);
-		va_end(argList);
-	}
-
-	void FormatMessage(UINT nFormatId, ...) throw(std::exception)
-	{
-		MYTYPE sFormat;
-		VERIFY(sFormat.LoadString(nFormatId));
-		va_list argList;
-		va_start(argList, nFormatId);
-		PMYSTR szTemp;
-		if ( ssfmtmsg(FORMAT_MESSAGE_FROM_STRING|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-					   sFormat, 0, 0,
-					   reinterpret_cast<PMYSTR>(&szTemp), 0, &argList) == 0 ||
-			szTemp == 0)
-		{
-			throw std::runtime_error("out of memory");
-		}
-		*this = szTemp;
-		LocalFree(szTemp);
-		va_end(argList);
-	}
-#endif
 
 	// GetAllocLength -- an MSVC7 function but it costs us nothing to add it.
 
@@ -3556,7 +3373,7 @@ public:
          MYSIZE nNewLen		= sslen(szNew);
          if ( nNewLen > nOldLen )
          {
-            int nFound			= 0;
+            size_t nFound			= 0;
             while ( nIdx < this->length() &&
                (nIdx=this->FindNoCase(szOld, nIdx)) != MYBASE::npos )
             {
@@ -3612,19 +3429,6 @@ public:
 		this->at(static_cast<MYSIZE>(nIndex))		= ch;
 	}
 
-#ifndef SS_ANSI
-	BSTR SetSysString(BSTR* pbstr) const
-	{
-		ostring os;
-		ssasn(os, *this);
-		if ( !::SysReAllocStringLen(pbstr, os.c_str(), os.length()) )
-			throw std::runtime_error("out of memory");
-
-		ASSERT(*pbstr != 0);
-		return *pbstr;
-	}
-#endif
-
 	MYTYPE SpanExcluding(PCMYSTR szCharSet) const
 	{
         MYSIZE pos = this->find_first_of(szCharSet);
@@ -3636,42 +3440,6 @@ public:
         MYSIZE pos = this->find_first_not_of(szCharSet);
         return pos == MYBASE::npos ? *this : Left(pos);
 	}
-
-#if defined SS_WIN32 && !defined(UNICODE) && !defined(SS_ANSI)
-
-	// CString's OemToAnsi and AnsiToOem functions are available only in
-	// Unicode builds.  However since we're a template we also need a
-	// runtime check of CT and a reinterpret_cast to account for the fact
-	// that CStdStringW gets instantiated even in non-Unicode builds.
-
-	void AnsiToOem()
-	{
-		if ( sizeof(CT) == sizeof(char) && !empty() )
-		{
-			::CharToOem(reinterpret_cast<PCSTR>(this->c_str()),
-						reinterpret_cast<PSTR>(GetBuf()));
-		}
-		else
-		{
-			ASSERT(false);
-		}
-	}
-
-	void OemToAnsi()
-	{
-		if ( sizeof(CT) == sizeof(char) && !empty() )
-		{
-			::OemToChar(reinterpret_cast<PCSTR>(this->c_str()),
-						reinterpret_cast<PSTR>(GetBuf()));
-		}
-		else
-		{
-			ASSERT(false);
-		}
-	}
-
-#endif
-	
 
 	// -------------------------------------------------------------------------
 	// Trim and its variants
@@ -3906,36 +3674,6 @@ public:
 	}
 #endif // #ifdef SS_INC_COMDEF
 
-#ifndef SS_ANSI
-
-	// SetResourceHandle/GetResourceHandle.  In MFC builds, these map directly
-	// to AfxSetResourceHandle and AfxGetResourceHandle.  In non-MFC builds they
-	// point to a single static HINST so that those who call the member
-	// functions that take resource IDs can provide an alternate HINST of a DLL
-	// to search.  This is not exactly the list of HMODULES that MFC provides
-	// but it's better than nothing.
-
-	#ifdef _MFC_VER
-		static void SetResourceHandle(HMODULE hNew)
-		{
-			AfxSetResourceHandle(hNew);
-		}
-		static HMODULE GetResourceHandle()
-		{
-			return AfxGetResourceHandle();
-		}
-	#else
-		static void SetResourceHandle(HMODULE hNew)
-		{
-			SSResourceHandle() = hNew;
-		}
-		static HMODULE GetResourceHandle()
-		{
-			return SSResourceHandle();
-		}
-	#endif
-
-#endif
 };
 
 // -----------------------------------------------------------------------------
@@ -4045,7 +3783,6 @@ inline CStdStringA operator+(const CStdStringA& s1, PCWSTR pW)
 	return s1 + CStdStringA(pW);
 }
 
-#ifdef UNICODE
 	inline CStdStringW operator+(PCWSTR pW, const CStdStringA& sA)
 	{
 		return CStdStringW(pW) + CStdStringW(SSREF(sA));
@@ -4054,16 +3791,6 @@ inline CStdStringA operator+(const CStdStringA& s1, PCWSTR pW)
 	{
 		return CStdStringW(pA) + sW;
 	}
-#else
-	inline CStdStringA operator+(PCWSTR pW, const CStdStringA& sA)
-	{
-		return CStdStringA(pW) + sA;
-	}
-	inline CStdStringA operator+(PCSTR pA, const CStdStringW& sW)
-	{
-		return pA + CStdStringA(sW);
-	}
-#endif
 
 // ...Now the wide string versions.
 inline CStdStringW operator+(const CStdStringW& s1, CStdStringW::value_type t)
@@ -4144,51 +3871,6 @@ private:
 };
 #endif // #ifdef SS_SAFEFORMAT
 
-#ifndef SS_ANSI
-	// SSResourceHandle: our MFC-like resource handle
-	inline HMODULE& SSResourceHandle()
-	{
-		static HMODULE hModuleSS	= GetModuleHandle(0);
-		return hModuleSS;
-	}
-#endif
-
-
-// In MFC builds, define some global serialization operators
-// Special operators that allow us to serialize CStdStrings to CArchives.
-// Note that we use an intermediate CString object in order to ensure that
-// we use the exact same format.
-
-#ifdef _MFC_VER
-	inline CArchive& AFXAPI operator<<(CArchive& ar, const CStdStringA& strA)
-	{
-		CString strTemp	= strA;
-		return ar << strTemp;
-	}
-	inline CArchive& AFXAPI operator<<(CArchive& ar, const CStdStringW& strW)
-	{
-		CString strTemp	= strW;
-		return ar << strTemp;
-	}
-
-	inline CArchive& AFXAPI operator>>(CArchive& ar, CStdStringA& strA)
-	{
-		CString strTemp;
-		ar >> strTemp;
-		strA = strTemp;
-		return ar;
-	}
-	inline CArchive& AFXAPI operator>>(CArchive& ar, CStdStringW& strW)
-	{
-		CString strTemp;
-		ar >> strTemp;
-		strW = strTemp;
-		return ar;
-	}
-#endif	// #ifdef _MFC_VER -- (i.e. is this MFC?)
-
-
-
 // -----------------------------------------------------------------------------
 // GLOBAL FUNCTION:  WUFormat
 //		CStdStringA WUFormat(UINT nId, ...);
@@ -4217,95 +3899,11 @@ inline CStdStringW WUFormatW(PCWSTR szwFormat, ...)
 	va_end(argList);
 	return strOut;
 }
-#ifdef SS_ANSI
-#else
-	inline CStdStringA WUFormatA(UINT nId, ...)
-	{
-		va_list argList;
-		va_start(argList, nId);
-
-		CStdStringA strFmt;
-		CStdStringA strOut;
-		if ( strFmt.Load(nId) )
-			strOut.FormatV(strFmt, argList);
-
-		va_end(argList);
-		return strOut;
-	}
-
-	inline CStdStringW WUFormatW(UINT nId, ...)
-	{
-		va_list argList;
-		va_start(argList, nId);
-
-		CStdStringW strFmt;
-		CStdStringW strOut;
-		if ( strFmt.Load(nId) )
-			strOut.FormatV(strFmt, argList);
-
-		va_end(argList);
-		return strOut;
-	}
-#endif // #ifdef SS_ANSI
-
-
-
-#if defined(SS_WIN32) && !defined (SS_ANSI)
-	// -------------------------------------------------------------------------
-	// FUNCTION: WUSysMessage
-	//	 CStdStringA WUSysMessageA(DWORD dwError, DWORD dwLangId=SS_DEFLANGID);
-	//	 CStdStringW WUSysMessageW(DWORD dwError, DWORD dwLangId=SS_DEFLANGID);
-	//           
-	// DESCRIPTION:
-	//	 This function simplifies the process of obtaining a string equivalent
-	//	 of a system error code returned from GetLastError().  You simply
-	//	 supply the value returned by GetLastError() to this function and the
-	//	 corresponding system string is returned in the form of a CStdStringA.
-	//
-	// PARAMETERS: 
-	//	 dwError - a DWORD value representing the error code to be translated
-	//	 dwLangId - the language id to use.  defaults to english.
-	//
-	// RETURN VALUE: 
-	//	 a CStdStringA equivalent of the error code.  Currently, this function
-	//	 only returns either English of the system default language strings.  
-	// -------------------------------------------------------------------------
-	#define SS_DEFLANGID MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT)
-	inline CStdStringA WUSysMessageA(DWORD dwError, DWORD dwLangId=SS_DEFLANGID)
-	{
-		CHAR szBuf[512];
-
-		if ( 0 != ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwError,
-								   dwLangId, szBuf, 511, NULL) )
-			return WUFormatA("%s (0x%X)", szBuf, dwError);
-		else
- 			return WUFormatA("Unknown error (0x%X)", dwError);
-	}
-	inline CStdStringW WUSysMessageW(DWORD dwError, DWORD dwLangId=SS_DEFLANGID)
-	{
-		WCHAR szBuf[512];
-
-		if ( 0 != ::FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwError,
-								   dwLangId, szBuf, 511, NULL) )
-			return WUFormatW(L"%s (0x%X)", szBuf, dwError);
-		else
- 			return WUFormatW(L"Unknown error (0x%X)", dwError);
-	}
-#endif
-
 // Define TCHAR based friendly names for some of these functions
 
-#ifdef UNICODE
-	//#define CStdString				CStdStringW
-	typedef CStdStringW				CStdString;
-	#define WUSysMessage			WUSysMessageW
-	#define WUFormat				WUFormatW
-#else
-	//#define CStdString				CStdStringA
-	typedef CStdStringA				CStdString;
-	#define WUSysMessage			WUSysMessageA
-	#define WUFormat				WUFormatA
-#endif
+typedef CStdStringW				CStdString;
+#define WUSysMessage			WUSysMessageW
+#define WUFormat				WUFormatW
 
 // ...and some shorter names for the space-efficient
 

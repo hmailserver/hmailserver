@@ -32,6 +32,15 @@ namespace HM
 
       bool GetUseIMAPACL() const;
       void SetUseIMAPACL(bool bValue);
+      
+      bool GetIMAPAuthAllowPlainText() const;
+      void SetIMAPAuthAllowPlainText(bool bValue);
+
+      bool GetUseIMAPSASLPlain() const;
+      void SetUseIMAPSASLPlain(bool bValue);
+
+      bool GetUseIMAPSASLInitialResponse() const;
+      void SetUseIMAPSASLInitialResponse(bool bValue);
 
       long GetMaxIMAPConnections() const;
       void SetMaxIMAPConnections(int newVal);
@@ -39,9 +48,12 @@ namespace HM
       String GetIMAPPublicFolderName() const;
       void SetIMAPPublicFolderName(const String &newVal);
 
+      String GetIMAPMasterUser() const;
+      void SetIMAPMasterUser(const String &newVal);
+
       static String GetPublicFolderDiskName();
-      shared_ptr<IMAPFolders> GetPublicFolders();
-      shared_ptr<Groups> GetGroups();
+      std::shared_ptr<IMAPFolders> GetPublicFolders();
+      std::shared_ptr<Groups> GetGroups();
 
       bool XMLStore(XNode *pBackupNode, int Options);
       bool XMLLoad(XNode *pBackupNode, int iRestoreOptions);
@@ -49,13 +61,11 @@ namespace HM
       String GetHierarchyDelimiter();
       bool SetHierarchyDelimiter(const String &newVal);
 
-      
-
    private:
-      shared_ptr<PropertySet> _GetSettings() const;
+      std::shared_ptr<PropertySet> GetSettings_() const;
 
-      shared_ptr<IMAPFolders> m_pPublicFolders;
-      shared_ptr<Groups> m_pGroups;
+      std::shared_ptr<IMAPFolders> public_folders_;
+      std::shared_ptr<Groups> groups_;
    };
 
 }

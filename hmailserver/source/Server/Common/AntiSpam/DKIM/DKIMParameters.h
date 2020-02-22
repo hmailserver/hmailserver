@@ -17,13 +17,13 @@ namespace HM
 
       
 
-      unsigned int GetParamCount() const;
+      size_t GetParamCount() const;
 
    private:
 
-      map<AnsiString, AnsiString> _parameters;
+      std::map<AnsiString, AnsiString> parameters_;
 
-      AnsiString  _DKIMQPDecode(AnsiString input) const;
+      AnsiString  DKIMQPDecode_(AnsiString input) const;
    };
 
 }

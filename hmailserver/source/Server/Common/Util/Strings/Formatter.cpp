@@ -5,6 +5,8 @@
 #include "Formatter.h"
 #include "FormatArgument.h"
 
+#include "../Unicode.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -15,7 +17,7 @@ namespace HM
    String 
    Formatter::Format(const AnsiString &fmt, const FormatArgument &argument1)
    {
-      list<FormatArgument> arguments;
+      std::list<FormatArgument> arguments;
       arguments.push_back(argument1);
 
       return Format(fmt, arguments);
@@ -24,7 +26,7 @@ namespace HM
    String 
    Formatter::Format(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2)
    {
-      list<FormatArgument> arguments;
+      std::list<FormatArgument> arguments;
       arguments.push_back(argument1);
       arguments.push_back(argument2);
 
@@ -35,7 +37,7 @@ namespace HM
    String 
    Formatter::Format(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2, const FormatArgument &argument3)
    {
-      list<FormatArgument> arguments;
+      std::list<FormatArgument> arguments;
       arguments.push_back(argument1);
       arguments.push_back(argument2);
       arguments.push_back(argument3);
@@ -48,7 +50,7 @@ namespace HM
    String 
    Formatter::Format(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4)
    {
-      list<FormatArgument> arguments;
+      std::list<FormatArgument> arguments;
       arguments.push_back(argument1);
       arguments.push_back(argument2);
       arguments.push_back(argument3);
@@ -60,7 +62,7 @@ namespace HM
    String 
    Formatter::Format(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4, const FormatArgument &argument5)
    {
-      list<FormatArgument> arguments;
+      std::list<FormatArgument> arguments;
       arguments.push_back(argument1);
       arguments.push_back(argument2);
       arguments.push_back(argument3);
@@ -70,9 +72,52 @@ namespace HM
       return Format(fmt, arguments);
    }
 
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1)
+   {
+       String value = Format(fmt, argument1);
+
+       return Unicode::ToANSI(value);
+   }
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2)
+   {
+      String value = Format(fmt, argument1, argument2);
+
+      return Unicode::ToANSI(value);
+   }
+
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2, const FormatArgument &argument3)
+   {
+      String value = Format(fmt, argument1, argument2, argument3);
+
+      return Unicode::ToANSI(value);
+   }
+
+
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4)
+   {
+      String value = Format(fmt, argument1, argument2, argument3, argument4);
+
+      return Unicode::ToANSI(value);
+   }
+
+   AnsiString 
+   Formatter::FormatAsAnsi(const AnsiString &fmt, const FormatArgument &argument1, const FormatArgument &argument2,const FormatArgument &argument3, const FormatArgument &argument4, const FormatArgument &argument5)
+   {
+      String value = Format(fmt, argument1, argument2, argument5);
+
+      return Unicode::ToANSI(value);
+   }
+
 
    String 
-   Formatter::Format(const String &fmt, const list<FormatArgument> &arguments)
+   Formatter::Format(const String &fmt, const std::list<FormatArgument> &arguments)
    {
       String result = fmt;
 
@@ -83,7 +128,7 @@ namespace HM
             the number of arguments.
          */
 
-         set<int> placeholders = GetPlaceholders(fmt);
+         std::set<int> placeholders = GetPlaceholders(fmt);
 
          if (arguments.size() != placeholders.size())
          {
@@ -92,12 +137,11 @@ namespace HM
 #endif
 
      int placeholderIndex = 0;
-     boost_foreach(FormatArgument argument, arguments)
+     for(FormatArgument argument : arguments)
      {
-        // Irony:
         String s;
         s.Format(_T("{%d}"), placeholderIndex);
-
+        
         result.Replace(s, argument.GetValue());
 
         placeholderIndex++;
@@ -107,10 +151,10 @@ namespace HM
    }
    
 
-   set<int>
+   std::set<int>
    Formatter::GetPlaceholders(const String &format)
    {
-      set<int> result;
+      std::set<int> result;
 
       int length = format.GetLength();
       int placeholderStartPos = -1;
@@ -125,7 +169,7 @@ namespace HM
          {
             if (placeholderStartPos == -1)
             {
-               set<int> emptyResult;
+               std::set<int> emptyResult;
                return emptyResult;
             }
 
@@ -144,7 +188,7 @@ namespace HM
 
       if (placeholderStartPos != -1)
       {
-         set<int> emptyResult;
+         std::set<int> emptyResult;
          return emptyResult;
       }
 

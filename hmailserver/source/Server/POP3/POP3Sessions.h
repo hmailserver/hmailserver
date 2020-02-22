@@ -20,9 +20,9 @@ namespace HM
    
    private:
 
-      std::set<__int64> m_vecLockedAccounts;
+      std::set<__int64> locked_accounts_;
 
-      CriticalSection m_oCritSec;
+      boost::recursive_mutex mutex_;
    };
 
 }

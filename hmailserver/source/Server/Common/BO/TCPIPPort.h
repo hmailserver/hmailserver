@@ -15,22 +15,22 @@ namespace HM
 
       String GetName() const;
 
-      SessionType GetProtocol() const  {return m_iPortProtocol; }
-      void SetProtocol(SessionType iProtcol) {m_iPortProtocol = iProtcol;}
+      SessionType GetProtocol() const  {return port_protocol_; }
+      void SetProtocol(SessionType iProtcol) {port_protocol_ = iProtcol;}
 
-      int GetPortNumber() const  {return m_iPortNumber; }
-      void SetPortNumber(int iPortNumber) {m_iPortNumber = iPortNumber;}
+      int GetPortNumber() const  {return port_number_; }
+      void SetPortNumber(int iPortNumber) {port_number_ = iPortNumber;}
 
       bool SetAddress(const String &address);
       void SetAddress(const IPAddress &address);
       String GetAddressString() const;
       IPAddress GetAddress() const;
 
-      __int64 GetSSLCertificateID() const  {return m_iSSLCertificateID; }
-      void SetSSLCertificateID(int iSSLCertificateID) {m_iSSLCertificateID = iSSLCertificateID;}
+      __int64 GetSSLCertificateID() const  {return sslcertificate_id_; }
+      void SetSSLCertificateID(int iSSLCertificateID) {sslcertificate_id_ = iSSLCertificateID;}
 
-      bool GetUseSSL() const  {return m_bUseSSL; }
-      void SetUseSSL(bool bNewVal) {m_bUseSSL = bNewVal;}
+      ConnectionSecurity GetConnectionSecurity() const  {return connection_security_; }
+      void SetConnectionSecurity(ConnectionSecurity connection_security) {connection_security_ = connection_security;}
 
       bool XMLStore(XNode *pNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
@@ -38,15 +38,15 @@ namespace HM
 
    private:
 
-      int _GetSSLCertificateID(const String &sSSLCertificateName);
-      String _GetSSLCertificateName(__int64 iCertificateID);
+      int GetSSLCertificateID_(const String &sSSLCertificateName);
+      String GetSSLCertificateName_(__int64 iCertificateID);
 
-      SessionType m_iPortProtocol;
-      int m_iPortNumber;
-      bool m_bUseSSL;
+      SessionType port_protocol_;
+      int port_number_;
+      int sslcertificate_id_;
 
-      int m_iSSLCertificateID;
+      ConnectionSecurity connection_security_;
 
-      IPAddress _address;
+      IPAddress address_;
    };
 }

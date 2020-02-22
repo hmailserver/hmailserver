@@ -19,6 +19,6 @@ namespace HM
 
    private:
 
-      std::set<String> m_ccTLD;
+      std::set<String> tld_;
    };
 }

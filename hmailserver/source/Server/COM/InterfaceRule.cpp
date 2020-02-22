@@ -17,10 +17,10 @@ STDMETHODIMP InterfaceRule::get_ID(long *pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetID();
+      *pVal = (long) object_->GetID();
       return S_OK;
    }
    catch (...)
@@ -33,10 +33,10 @@ STDMETHODIMP InterfaceRule::get_AccountID(LONG* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = (long) m_pObject->GetAccountID();
+      *pVal = (long) object_->GetAccountID();
    
       return S_OK;
    }
@@ -50,10 +50,10 @@ STDMETHODIMP InterfaceRule::put_AccountID(LONG newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetAccountID(newVal);
+      object_->SetAccountID(newVal);
    
       return S_OK;
    }
@@ -67,10 +67,10 @@ STDMETHODIMP InterfaceRule::get_Name(BSTR* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetName().AllocSysString();
+      *pVal = object_->GetName().AllocSysString();
    
       return S_OK;
    }
@@ -84,10 +84,10 @@ STDMETHODIMP InterfaceRule::put_Name(BSTR newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetName(newVal);
+      object_->SetName(newVal);
    
       return S_OK;
    }
@@ -101,10 +101,10 @@ STDMETHODIMP InterfaceRule::get_Active(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetActive() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetActive() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -118,10 +118,10 @@ STDMETHODIMP InterfaceRule::put_Active(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetActive(newVal == VARIANT_TRUE);
+      object_->SetActive(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -135,10 +135,10 @@ STDMETHODIMP InterfaceRule::get_UseAND(VARIANT_BOOL* pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      *pVal = m_pObject->GetUseAND() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = object_->GetUseAND() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -152,10 +152,10 @@ STDMETHODIMP InterfaceRule::put_UseAND(VARIANT_BOOL newVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      m_pObject->SetUseAND(newVal == VARIANT_TRUE);
+      object_->SetUseAND(newVal == VARIANT_TRUE);
    
       return S_OK;
    }
@@ -169,13 +169,13 @@ STDMETHODIMP InterfaceRule::get_Criterias(IInterfaceRuleCriterias **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleCriterias>* pItem = new CComObject<InterfaceRuleCriterias >();
-      pItem->SetAuthentication(m_pAuthentication);
+      pItem->SetAuthentication(authentication_);
    
-      shared_ptr<HM::RuleCriterias> pRuleCriterias = m_pObject->GetCriterias();
+      std::shared_ptr<HM::RuleCriterias> pRuleCriterias = object_->GetCriterias();
    
       if (pRuleCriterias)
       {
@@ -196,12 +196,12 @@ STDMETHODIMP InterfaceRule::get_Actions(IInterfaceRuleActions **pVal)
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       CComObject<InterfaceRuleActions>* pItem = new CComObject<InterfaceRuleActions >();
    
-      shared_ptr<HM::RuleActions> pRuleActions = m_pObject->GetActions();
+      std::shared_ptr<HM::RuleActions> pRuleActions = object_->GetActions();
    
       if (pRuleActions)
       {
@@ -222,13 +222,13 @@ STDMETHODIMP InterfaceRule::MoveUp()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (m_pObject->GetID() <= 0)
+      if (object_->GetID() <= 0)
          return COMError::GenerateError("Object not yet saved.");
    
-      m_pParentCollection->MoveUp(m_pObject->GetID());
+      parent_collection_->MoveUp(object_->GetID());
       return S_OK;
    
    }
@@ -242,13 +242,13 @@ STDMETHODIMP InterfaceRule::MoveDown()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (m_pObject->GetID() <= 0)
+      if (object_->GetID() <= 0)
          return COMError::GenerateError("Object not yet saved.");
          
-      m_pParentCollection->MoveDown(m_pObject->GetID());
+      parent_collection_->MoveDown(object_->GetID());
       return S_OK;
    }
    catch (...)
@@ -261,25 +261,25 @@ STDMETHODIMP InterfaceRule::Save()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
       // Set the sort order of the rule.
-      if (m_pObject->GetID() == 0 && m_pObject->GetSortOrder() == 0)
+      if (object_->GetID() == 0 && object_->GetSortOrder() == 0)
       {
-         std::vector<shared_ptr<HM::Rule> > vecExistingRules = m_pParentCollection->GetVector();
+         std::vector<std::shared_ptr<HM::Rule> > vecExistingRules = parent_collection_->GetVector();
    
          // Determine the highest SortOrder.
          if (vecExistingRules.size() == 0)
-            m_pObject->SetSortOrder(1);
+            object_->SetSortOrder(1);
          else
          {
-            shared_ptr<HM::Rule> pLastRule = vecExistingRules[vecExistingRules.size() -1];
-            m_pObject->SetSortOrder(pLastRule->GetSortOrder() +1);
+            std::shared_ptr<HM::Rule> pLastRule = vecExistingRules[vecExistingRules.size() -1];
+            object_->SetSortOrder(pLastRule->GetSortOrder() +1);
          }
       }
    
-      if (HM::PersistentRule::SaveObject(m_pObject))
+      if (HM::PersistentRule::SaveObject(object_))
       {
          // Add to parent collection
          AddToParentCollection();
@@ -299,13 +299,13 @@ STDMETHODIMP InterfaceRule::Delete()
 {
    try
    {
-      if (!m_pObject)
+      if (!object_)
          return GetAccessDenied();
 
-      if (!m_pParentCollection)
-         return HM::PersistentRule::DeleteObject(m_pObject) ? S_OK : S_FALSE;
+      if (!parent_collection_)
+         return HM::PersistentRule::DeleteObject(object_) ? S_OK : S_FALSE;
    
-      m_pParentCollection->DeleteItemByDBID(m_pObject->GetID());
+      parent_collection_->DeleteItemByDBID(object_->GetID());
    
       return S_OK;
    }

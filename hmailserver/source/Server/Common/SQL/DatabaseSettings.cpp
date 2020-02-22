@@ -12,16 +12,17 @@
 
 namespace HM
 {
-   DatabaseSettings::DatabaseSettings(const String &sDatabaseServer, const String &sDatabaseName, const String &sUsername, const String &sPassword,
-                                     const String &sDatabaseDirectory, const String &sDatabaseServerFailoverPartner, HM::DatabaseSettings::SQLDBType dbType, long lDBPort) :
-      m_sDatabaseServer(sDatabaseServer),
-      m_sDatabaseName(sDatabaseName),
-      m_sUsername(sUsername),
-      m_sPassword(sPassword),
-      m_sDatabaseDirectory(sDatabaseDirectory),
-      m_eSQLDBType(dbType),
-      m_DatabaseServerFailoverPartner(sDatabaseServerFailoverPartner),
-      m_lDBPort(lDBPort)
+   DatabaseSettings::DatabaseSettings(const String &sDatabaseProvider, const String &sDatabaseServer, const String &sDatabaseName, const String &sUsername, const String &sPassword,
+                                      const String &sDatabaseDirectory, const String &sDatabaseServerFailoverPartner, HM::DatabaseSettings::SQLDBType dbType, long lDBPort) :
+      database_server_(sDatabaseServer),
+      database_name_(sDatabaseName),
+      username_(sUsername),
+      password_(sPassword),
+      database_directory_(sDatabaseDirectory),
+      sqldbtype_(dbType),
+      database_server_failover_partner_(sDatabaseServerFailoverPartner),
+      dbport_(lDBPort),
+      database_provider_(sDatabaseProvider)
    {
 
    }
@@ -37,7 +38,7 @@ namespace HM
       String sFolder = IniFileSettings::Instance()->GetDBScriptDirectory();
       
       String sFile;
-      switch (m_eSQLDBType)
+      switch (sqldbtype_)
       {
       case TypeMSSQLServer:
       case TypeMSSQLCompactEdition:

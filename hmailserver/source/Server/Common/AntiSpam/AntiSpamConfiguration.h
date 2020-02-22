@@ -108,19 +108,19 @@ namespace HM
       bool XMLStore(XNode *pBackupNode, int Options);
       bool XMLLoad(XNode *pBackupNode, int iRestoreOptions);
 
-      shared_ptr<GreyListingWhiteAddresses> GetGreyListingWhiteAddresses();
-      shared_ptr<WhiteListAddresses> GetWhiteListAddresses();
-      shared_ptr<DNSBlackLists> GetDNSBlackLists() {return _dnsBlackLists;}
-      shared_ptr<SURBLServers> GetSURBLServers() {return _surblServers;}
+      std::shared_ptr<GreyListingWhiteAddresses> GetGreyListingWhiteAddresses();
+      std::shared_ptr<WhiteListAddresses> GetWhiteListAddresses();
+      std::shared_ptr<DNSBlackLists> GetDNSBlackLists() {return dnsBlackLists_;}
+      std::shared_ptr<SURBLServers> GetSURBLServers() {return surblServers_;}
 
    private:
       
-      shared_ptr<PropertySet> _GetSettings();
+      std::shared_ptr<PropertySet> GetSettings_();
 
-      bool m_bGreylistingTemporarilyDisabled;
+      bool greylisting_temporarily_disabled_;
 
-      shared_ptr<DNSBlackLists> _dnsBlackLists;
-      shared_ptr<SURBLServers> _surblServers;
+      std::shared_ptr<DNSBlackLists> dnsBlackLists_;
+      std::shared_ptr<SURBLServers> surblServers_;
 
    };
 }

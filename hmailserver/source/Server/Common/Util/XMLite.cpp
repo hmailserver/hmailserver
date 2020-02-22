@@ -266,7 +266,7 @@ LPTSTR _tcsenistr( LPCTSTR psz, LPCTSTR str, int len, int escape )
 //========================================================
 LPTSTR _tcseistr( LPCTSTR psz, LPCTSTR str, int escape )
 {
-	int len = _tcslen( str );
+   int len = (int) _tcslen(str);
 	return _tcsenistr( psz, str, len, escape );
 }
 
@@ -287,7 +287,7 @@ void _SetString( LPTSTR psz, LPTSTR end, HM::String* ps, bool trim = FALSE, int 
 		while( psz && psz < end && _istspace(*psz) ) psz++;
 		while( (end-1) && psz < (end-1) && _istspace(*(end-1)) ) end--;
 	}
-	int len = end - psz;
+	int len = (int) (end - psz);
 	if( len <= 0 ) return;
 	if( escape )
 	{
@@ -298,7 +298,7 @@ void _SetString( LPTSTR psz, LPTSTR end, HM::String* ps, bool trim = FALSE, int 
 	}
 	else
 	{
-      //varför öka på strängens längd med ett här?!
+      //varfï¿½r ï¿½ka pï¿½ strï¿½ngens lï¿½ngd med ett hï¿½r?!
       LPTSTR pss = ps->GetBufferSetLength( (len + 1) * sizeof(TCHAR)) ;
 		memcpy( pss, psz, len * sizeof(TCHAR) );
       ps->ReleaseBuffer();
@@ -368,7 +368,7 @@ LPTSTR _tagXMLNode::LoadAttributes( LPCTSTR pszAttrs , LPPARSEINFO pi /*= &piDef
 					pi->erorr_occur = true;
 					pi->error_pointer = xml;
 					pi->error_code = PIE_ATTR_NO_VALUE;
-					pi->error_string.Format( _T("<%s> attribute has error "), name );
+               pi->error_string.Format(_T("<%s> attribute has error "), name.c_str());
 				}
 				return NULL;
 			}
@@ -461,7 +461,7 @@ LPTSTR _tagXMLNode::LoadAttributes( LPCTSTR pszAttrs, LPCTSTR pszEnd, LPPARSEINF
 					pi->erorr_occur = true;
 					pi->error_pointer = xml;
 					pi->error_code = PIE_ATTR_NO_VALUE;
-					pi->error_string.Format( _T("<%s> attribute has error "), name );
+               pi->error_string.Format(_T("<%s> attribute has error "), name.c_str());
 				}
 				return NULL;
 			}
@@ -814,7 +814,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 						pi->erorr_occur = true;
 						pi->error_pointer = xml;
 						pi->error_code = PIE_NOT_CLOSED;
-						pi->error_string.Format(_T("%s must be closed with </%s>"), name );
+                  pi->error_string.Format(_T("%s must be closed with </%s>"), name.c_str(), name.c_str());
 					}
 					// error cos not exist CloseTag </TAG>
 					return NULL;
@@ -869,7 +869,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 								pi->erorr_occur = true;
 								pi->error_pointer = xml;
 								pi->error_code = PIE_NOT_CLOSED;
-								pi->error_string.Format(_T("it must be closed with </%s>"), name );
+								pi->error_string.Format(_T("it must be closed with </%s>"), name.c_str() );
 							}
 							// error
 							return NULL;
@@ -895,7 +895,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 									pi->erorr_occur = true;
 									pi->error_pointer = xml;
 									pi->error_code = PIE_NOT_NESTED;
-									pi->error_string.Format(_T("'<%s> ... </%s>' is not wel-formed."), name, closename );
+									pi->error_string.Format(_T("'<%s> ... </%s>' is not wel-formed."), name.c_str(), closename.c_str() );
 								}
 								return NULL;
 							}
@@ -903,7 +903,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 					}
 				}
 				else	// Alone child Tag Loaded
-						// else ÇØ¾ßÇÏ´ÂÁö ¸»¾Æ¾ßÇÏ´ÂÁö ÀÇ½É°£´Ù.
+						// else ï¿½Ø¾ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½Ç½É°ï¿½ï¿½ï¿½.
 				{
 					
 					//if( xml && this->value.IsEmpty() && *xml !=chXMLTagOpen )
@@ -919,7 +919,7 @@ LPTSTR _tagXMLNode::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= &piDefault*/ )
 								pi->erorr_occur = true;
 								pi->error_pointer = xml;
 								pi->error_code = PIE_NOT_CLOSED;
-								pi->error_string.Format(_T("it must be closed with </%s>"), name );
+								pi->error_string.Format(_T("it must be closed with </%s>"), name.c_str() );
 							}
 							return NULL;
 						}
@@ -977,7 +977,7 @@ LPTSTR _tagXMLDocument::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= NULL*/ )
       {
          // This error should be logged.
          HM::String sErrorMessage;
-         sErrorMessage.Format(_T("The XML data stream contains formatting errors. Code: %d, Error: %s"), pi->error_code, pi->error_string); 
+         sErrorMessage.Format(_T("The XML data stream contains formatting errors. Code: %d, Error: %s"), pi->error_code, pi->error_string.c_str());
          
          HM::ErrorManager::Instance()->ReportError(HM::ErrorManager::Medium, 4229, "_tagXMLDocument::Load", sErrorMessage);
       }
@@ -999,7 +999,7 @@ LPTSTR _tagXMLDocument::Load( LPCTSTR pszXml, LPPARSEINFO pi /*= NULL*/ )
 
 LPXNode	_tagXMLDocument::GetRoot()
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end() ; ++(it) )
 	{
 		LPXNode node = *it;
@@ -1049,9 +1049,9 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 	// tab
 	if( opt && opt->newline )
 	{
-		if( opt && opt->newline )
-         sRetVal += "\r\n";
-		for( int i = 0 ; i < opt->tab_base ; i++)
+      sRetVal += "\r\n";
+
+      for( int i = 0 ; i < opt->tab_base ; i++)
 			sRetVal += '\t';
 	}
 
@@ -1131,14 +1131,15 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 		// Text Value
 		if( value != _T("") )
 		{
-			if( opt && opt->newline && !childs.empty() )
+			if( opt->newline && !childs.empty() )
 			{
-				if( opt && opt->newline )
-					sRetVal += "\r\n";
-				for( int i = 0 ; i < opt->tab_base ; i++)
+				sRetVal += "\r\n";
+
+            for( int i = 0 ; i < opt->tab_base ; i++)
 					sRetVal += '\t';
 			}
-			sRetVal += (opt->reference_value&&opt->entitys?opt->entitys->Entity2Ref(value):value);
+
+         sRetVal += (opt->reference_value&&opt->entitys?opt->entitys->Entity2Ref(value):value);
 		}
 
 		// </TAG> CloseTag
@@ -1163,13 +1164,13 @@ HM::String _tagXMLNode::GetXML( LPDISP_OPT opt /*= &optDefault*/ )
 }
 
 //========================================================
-// ÇÔ¼ö¸í : GetText
-// ¼³  ¸í : ³ëµå ÇÏ³ª¸¦ ÅØ½ºÆ® ¹®ÀÚ¿­·Î ¹ÝÈ¯
-// ÀÎ  ÀÚ :
-// ¸®ÅÏ°ª : º¯È¯µÈ ¹®ÀÚ¿­
+// ï¿½Ô¼ï¿½ï¿½ï¿½ : GetText
+// ï¿½ï¿½  ï¿½ï¿½ : ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+// ï¿½ï¿½  ï¿½ï¿½ :
+// ï¿½ï¿½ï¿½Ï°ï¿½ : ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½
 //--------------------------------------------------------
-// ÀÛ¼ºÀÚ   ÀÛ¼ºÀÏ                 ÀÛ¼ºÀÌÀ¯
-// Á¶°æ¹Î   2004-06-15
+// ï¿½Û¼ï¿½ï¿½ï¿½   ï¿½Û¼ï¿½ï¿½ï¿½                 ï¿½Û¼ï¿½ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½   2004-06-15
 //========================================================
 HM::String _tagXMLNode::GetText( LPDISP_OPT opt /*= &optDefault*/ )
 {
@@ -1334,7 +1335,7 @@ LPXNode _tagXMLNode::GetChild( unsigned int i )
 //========================================================
 int	_tagXMLNode::GetChildCount()
 {
-	return childs.size();
+	return (int) childs.size();
 }
 
 //========================================================
@@ -1404,14 +1405,14 @@ LPCTSTR _tagXMLNode::GetChildAttrValue( LPCTSTR name, LPCTSTR attrname )
 //========================================================
 LPXNode	_tagXMLNode::Find( LPCTSTR name )
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end(); ++(it))
 	{
 		LPXNode child = *it;
 		if( child->name == name )
 			return child;
 
-		XNodes::iterator it = child->childs.begin();
+		auto it = child->childs.begin();
 		for( ; it != child->childs.end(); ++(it))
 		{
 			LPXNode find = child->Find( name );
@@ -1434,7 +1435,7 @@ LPXNode	_tagXMLNode::Find( LPCTSTR name )
 //========================================================
 XNodes::iterator _tagXMLNode::GetChildIterator( LPXNode node )
 {
-	XNodes::iterator it = childs.begin();
+	auto it = childs.begin();
 	for( ; it != childs.end() ; ++(it) )
 	{
 		if( *it == node )
@@ -1485,7 +1486,7 @@ LPXNode _tagXMLNode::AppendChild( LPXNode node )
 //========================================================
 bool _tagXMLNode::RemoveChild( LPXNode node )
 {
-	XNodes::iterator it = GetChildIterator( node );
+	auto it = GetChildIterator( node );
 	if( it != childs.end())
 	{
 		delete *it;
@@ -1522,7 +1523,7 @@ LPXAttr _tagXMLNode::GetAttr( unsigned int i )
 //========================================================
 XAttrs::iterator _tagXMLNode::GetAttrIterator( LPXAttr attr )
 {
-	XAttrs::iterator it = attrs.begin();
+	auto it = attrs.begin();
 	for( ; it != attrs.end() ; ++(it) )
 	{
 		if( *it == attr )
@@ -1558,7 +1559,7 @@ LPXAttr _tagXMLNode::AppendAttr( LPXAttr attr )
 //========================================================
 bool _tagXMLNode::RemoveAttr( LPXAttr attr )
 {
-	XAttrs::iterator it = GetAttrIterator( attr );
+	auto it = GetAttrIterator( attr );
 	if( it != attrs.end())
 	{
 		delete *it;
@@ -1627,7 +1628,7 @@ LPXAttr _tagXMLNode::AppendAttr( LPCTSTR name /*= NULL*/, LPCTSTR value /*= NULL
 //========================================================
 LPXNode _tagXMLNode::DetachChild( LPXNode node )
 {
-	XNodes::iterator it = GetChildIterator( node );
+	auto it = GetChildIterator( node );
 	if( it != childs.end())
 	{
 		childs.erase( it );
@@ -1647,7 +1648,7 @@ LPXNode _tagXMLNode::DetachChild( LPXNode node )
 //========================================================
 LPXAttr _tagXMLNode::DetachAttr( LPXAttr attr )
 {
-	XAttrs::iterator it = GetAttrIterator( attr );
+	auto it = GetAttrIterator( attr );
 	if( it != attrs.end())
 	{
 		attrs.erase( it );
@@ -1685,7 +1686,7 @@ void _tagXMLNode::CopyNode( LPXNode node )
 }
 
 //========================================================
-// Name   : _CopyBranch
+// Name   : CopyBranch_
 // Desc   : recursive internal copy branch 
 // Param  :
 // Return : 
@@ -1693,7 +1694,7 @@ void _tagXMLNode::CopyNode( LPXNode node )
 // Coder    Date                      Desc
 // bro      2002-10-29
 //========================================================
-void _tagXMLNode::_CopyBranch( LPXNode node )
+void _tagXMLNode::CopyBranch_( LPXNode node )
 {
 	CopyNode( node );
 
@@ -1706,7 +1707,7 @@ void _tagXMLNode::_CopyBranch( LPXNode node )
 			mychild->CopyNode( child );
 			AppendChild( mychild );
 
-			mychild->_CopyBranch( child );
+			mychild->CopyBranch_( child );
 		}
 	}
 }
@@ -1741,17 +1742,17 @@ void _tagXMLNode::CopyBranch( LPXNode branch )
 {
 	Close();
 	
-	_CopyBranch( branch );
+	CopyBranch_( branch );
 }
 
 
-_tagXMLEntitys::_tagXMLEntitys( LPXENTITY entities, int count )
+tagXMLEntitys_::tagXMLEntitys_( LPXENTITY entities, int count )
 {
 	for( int i = 0; i < count; i++)
 		push_back( entities[i] );
 }
 
-LPXENTITY _tagXMLEntitys::GetEntity( int entity )
+LPXENTITY tagXMLEntitys_::GetEntity( int entity )
 {
 	for( unsigned int i = 0 ; i < size(); i ++ )
 	{
@@ -1761,7 +1762,7 @@ LPXENTITY _tagXMLEntitys::GetEntity( int entity )
 	return NULL;
 }
 
-LPXENTITY _tagXMLEntitys::GetEntity( LPTSTR entity )
+LPXENTITY tagXMLEntitys_::GetEntity( LPTSTR entity )
 {
 	for( unsigned int i = 0 ; i < size(); i ++ )
 	{
@@ -1776,7 +1777,7 @@ LPXENTITY _tagXMLEntitys::GetEntity( LPTSTR entity )
 	return NULL;
 }
 
-int _tagXMLEntitys::GetEntityCount( LPCTSTR str )
+int tagXMLEntitys_::GetEntityCount( LPCTSTR str )
 {
 	int nCount = 0;
 	LPTSTR ps = (LPTSTR)str;
@@ -1785,7 +1786,7 @@ int _tagXMLEntitys::GetEntityCount( LPCTSTR str )
 	return nCount;
 }
 
-int _tagXMLEntitys::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
+int tagXMLEntitys_::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
 {
 	LPTSTR pes = (LPTSTR)estr;
 	LPTSTR ps = str;
@@ -1806,10 +1807,10 @@ int _tagXMLEntitys::Ref2Entity( LPCTSTR estr, LPTSTR str, int strlen )
 	*ps = '\0';
 	
 	// total copied characters
-	return ps-str;	
+	return (int) (ps-str);	
 }
 
-int _tagXMLEntitys::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
+int tagXMLEntitys_::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
 {
 	LPTSTR ps = (LPTSTR)str;
 	LPTSTR pes = (LPTSTR)estr;
@@ -1831,15 +1832,15 @@ int _tagXMLEntitys::Entity2Ref( LPCTSTR str, LPTSTR estr, int estrlen )
 	*pes = '\0';
 	
 	// total copied characters
-	return pes-estr;
+	return (int) (pes-estr);
 }
 
-HM::String _tagXMLEntitys::Ref2Entity( LPCTSTR estr )
+HM::String tagXMLEntitys_::Ref2Entity( LPCTSTR estr )
 {
 	HM::String es;
 	if( estr )
 	{
-		int len = _tcslen(estr);
+		int len = (int) _tcslen(estr);
 		LPTSTR esbuf = es.GetBufferSetLength( len +1);
 		if( esbuf )
 			Ref2Entity( estr, esbuf, len );
@@ -1849,7 +1850,7 @@ HM::String _tagXMLEntitys::Ref2Entity( LPCTSTR estr )
 	return es;
 }
 
-HM::String _tagXMLEntitys::Entity2Ref( LPCTSTR str )
+HM::String tagXMLEntitys_::Entity2Ref( LPCTSTR str )
 {
 	HM::String s;
 	if( str )
@@ -1857,7 +1858,7 @@ HM::String _tagXMLEntitys::Entity2Ref( LPCTSTR str )
 		int nEntityCount = GetEntityCount(str);
 		if( nEntityCount == 0 )
 			return HM::String(str);
-		int len = _tcslen(str) + nEntityCount*10 ;
+		int len = (int) (_tcslen(str) + nEntityCount*10);
 		LPTSTR sbuf = s.GetBufferSetLength( len + 1 );
 		if( sbuf )
 			Entity2Ref( str, sbuf, len );

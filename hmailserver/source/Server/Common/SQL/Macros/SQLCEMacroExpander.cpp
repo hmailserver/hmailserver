@@ -16,7 +16,7 @@
 namespace HM
 {
    bool
-   SQLCEMacroExpander::ProcessMacro(shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
+   SQLCEMacroExpander::ProcessMacro(std::shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage)
    {
       switch (macro.GetType())
       {
@@ -40,7 +40,7 @@ namespace HM
                String constraintName = rec.GetStringValue("CONSTRAINT_NAME");
 
                String sqlUpdate;
-               sqlUpdate.Format(_T("ALTER TABLE %s DROP %s"), macro.GetTableName(), constraintName);
+               sqlUpdate.Format(_T("ALTER TABLE %s DROP %s"), macro.GetTableName().c_str(), constraintName.c_str());
 
                DALConnection::ExecutionResult execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
 
@@ -67,7 +67,7 @@ namespace HM
                String indexName = indexRecordset.GetStringValue("INDEX_NAME");
 
                String sqlUpdate;
-               sqlUpdate.Format(_T("DROP INDEX %s.%s"), macro.GetTableName(), indexName);
+               sqlUpdate.Format(_T("DROP INDEX %s.%s"), macro.GetTableName().c_str(), indexName.c_str());
 
                DALConnection::ExecutionResult execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
 
@@ -225,17 +225,17 @@ namespace HM
             String delimiter = rec.GetStringValue("settingstring");
 
             String sqlUpdate;
-            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '\', '%s')"), delimiter);
+            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '\', '%s')"), delimiter.c_str());
             DALConnection::ExecutionResult execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
             if (execResult != DALConnection::DALSuccess)
                return false;
 
-            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '/', '%s')"), delimiter);
+            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '/', '%s')"), delimiter.c_str());
             execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
             if (execResult != DALConnection::DALSuccess)
                return false;
 
-            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '.', '%s')"), delimiter);
+            sqlUpdate.Format(_T("update hm_rule_actions set actionimapfolder = REPLACE(actionimapfolder, '.', '%s')"), delimiter.c_str());
             execResult = connection->TryExecute(SQLCommand(sqlUpdate), sErrorMessage, 0, 0);
             if (execResult != DALConnection::DALSuccess)
                return false;

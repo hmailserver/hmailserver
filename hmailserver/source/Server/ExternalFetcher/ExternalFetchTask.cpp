@@ -15,8 +15,9 @@
 
 namespace HM
 {
-   ExternalFetchTask::ExternalFetchTask(shared_ptr<FetchAccount> pFA) : 
-      m_pFA(pFA)
+   ExternalFetchTask::ExternalFetchTask(std::shared_ptr<FetchAccount> pFA) : 
+      Task("ExternalFetchTask"),
+      fetch_account_(pFA)
    {
    }
 
@@ -27,35 +28,15 @@ namespace HM
    void 
    ExternalFetchTask::DoWork()
    {
-      try
-      {
-         // Do the actual delivery of the message.
-         ExternalFetch oFetcher;
-         oFetcher.Start(m_pFA);
-      }
-      catch (boost::system::system_error error)
-      {
-         String sErrorMessage;
-         sErrorMessage.Format(_T("An error occurred while download messages from external account. Error number: %d, Description: %s"), error.code().value(), String(error.what()));
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5316, "DeliveryTask::DoWork", sErrorMessage);
-      }
-      catch (...)
-      {
-         String sErrorMessage = _T("An error occurred while download messages from external account.");
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5317, "DeliveryTask::DoWork", sErrorMessage);
-      }
+      // Do the actual delivery of the message.
+      ExternalFetch oFetcher;
+      oFetcher.Start(fetch_account_);
 
       // Set next fetch time 
-      PersistentFetchAccount::SetNextTryTime(m_pFA);
+      PersistentFetchAccount::SetNextTryTime(fetch_account_);
 
       // Unlock the account
-      PersistentFetchAccount::Unlock(m_pFA->GetID());
-   }
-
-   void 
-   ExternalFetchTask::StopWork()
-   {
-      
+      PersistentFetchAccount::Unlock(fetch_account_->GetID());
    }
 
 }

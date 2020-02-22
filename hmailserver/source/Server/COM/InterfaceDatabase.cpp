@@ -15,7 +15,7 @@
 #include "../Common/SQL/Prerequisites/PrerequisiteList.h"
 
 #include "../Common/Util/PasswordGenerator.h"
-
+#include "../Common/SQL/SQLCommand.h"
 
 STDMETHODIMP 
 InterfaceDatabase::InterfaceSupportsErrorInfo(REFIID riid)
@@ -33,25 +33,34 @@ InterfaceDatabase::InterfaceSupportsErrorInfo(REFIID riid)
    return S_FALSE;   
 }
 
-InterfaceDatabase::InterfaceDatabase()
+InterfaceDatabase::InterfaceDatabase() :
+   config_(nullptr),
+   ini_file_settings_(nullptr)
 {
 
 }
 
 InterfaceDatabase::~InterfaceDatabase()
 {
-   if (m_pConn)
+   try
    {
-      RollbackTransaction();
+      if (conn_)
+      {
+         RollbackTransaction();
+      }
+   }
+   catch (...)
+   {
+
    }
 }
    
 bool 
 InterfaceDatabase::LoadSettings()
 {
-   m_pConfig = HM::Configuration::Instance();
-   m_pDBManager = HM::Application::Instance()->GetDBManager();
-   m_pIniFileSettings = HM::IniFileSettings::Instance();
+   config_ = HM::Configuration::Instance();
+   db_manager_ = HM::Application::Instance()->GetDBManager();
+   ini_file_settings_ = HM::IniFileSettings::Instance();
    return true;
 }
 
@@ -59,14 +68,14 @@ STDMETHODIMP InterfaceDatabase::get_RequiresUpgrade(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
       
-      bool bUpgradeRequired = m_pConfig->GetRequiredDBVersion() > m_pDBManager->GetCurrentDatabaseVersion();
+      bool bUpgradeRequired = config_->GetRequiredDBVersion() > db_manager_->GetCurrentDatabaseVersion();
    
       *pVal = bUpgradeRequired ? VARIANT_TRUE : VARIANT_FALSE;
    
@@ -82,12 +91,12 @@ STDMETHODIMP InterfaceDatabase::get_IsConnected(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      shared_ptr<HM::DatabaseConnectionManager> pDBManager = HM::Application::Instance()->GetDBManager();
+      std::shared_ptr<HM::DatabaseConnectionManager> pDBManager = HM::Application::Instance()->GetDBManager();
       if (pDBManager)
-         *pVal = m_pDBManager->GetIsConnected() ? VARIANT_TRUE : VARIANT_FALSE;
+         *pVal = db_manager_->GetIsConnected() ? VARIANT_TRUE : VARIANT_FALSE;
       else
          *pVal = VARIANT_FALSE;
    
@@ -104,10 +113,10 @@ STDMETHODIMP InterfaceDatabase::get_DatabaseExists(VARIANT_BOOL *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
-      *pVal = m_pIniFileSettings->GetDatabaseSettingsExists() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = ini_file_settings_->GetDatabaseSettingsExists() ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }
@@ -121,7 +130,7 @@ STDMETHODIMP InterfaceDatabase::get_RequiredVersion(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       /*
@@ -131,7 +140,7 @@ STDMETHODIMP InterfaceDatabase::get_RequiredVersion(long *pVal)
          unless there's changes in the database.
       */
    
-      *pVal = m_pConfig->GetRequiredDBVersion();
+      *pVal = config_->GetRequiredDBVersion();
       return S_OK;
    }
    catch (...)
@@ -144,7 +153,7 @@ STDMETHODIMP InterfaceDatabase::get_CurrentVersion(long *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       /*
@@ -154,11 +163,11 @@ STDMETHODIMP InterfaceDatabase::get_CurrentVersion(long *pVal)
          unless there's changes in the database.
       */
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
-      *pVal = m_pDBManager->GetCurrentDatabaseVersion();
+      *pVal = db_manager_->GetCurrentDatabaseVersion();
       return S_OK;
    }
    catch (...)
@@ -171,13 +180,13 @@ STDMETHODIMP InterfaceDatabase::get_DatabaseType(eDBtype *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HM::DatabaseSettings::SQLDBType DBType = m_pIniFileSettings->GetDatabaseType();
+      HM::DatabaseSettings::SQLDBType DBType = ini_file_settings_->GetDatabaseType();
       *pVal = (eDBtype) DBType;
    
       return S_OK;
@@ -192,13 +201,13 @@ STDMETHODIMP InterfaceDatabase::get_ServerName(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HM::String sServerName = m_pIniFileSettings->GetDatabaseServer();
+      HM::String sServerName = ini_file_settings_->GetDatabaseServer();
    
       *pVal = sServerName.AllocSysString();
    
@@ -214,13 +223,13 @@ STDMETHODIMP InterfaceDatabase::get_DatabaseName(BSTR *pVal)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HM::String sServerName = m_pIniFileSettings->GetDatabaseName();
+      HM::String sServerName = ini_file_settings_->GetDatabaseName();
    
       *pVal = sServerName.AllocSysString();
    
@@ -236,20 +245,20 @@ STDMETHODIMP InterfaceDatabase::BeginTransaction()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
       HM::String sErrorMessage;
-      m_pConn = m_pDBManager->BeginTransaction(sErrorMessage);
+      conn_ = db_manager_->BeginTransaction(sErrorMessage);
    
-      if (!m_pConn)
+      if (!conn_)
       {
          return COMError::GenerateError(sErrorMessage);
       }
@@ -266,20 +275,20 @@ STDMETHODIMP InterfaceDatabase::CommitTransaction()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      if (!m_pConn)
+      if (!conn_)
          return COMError::GenerateError("No transaction started");
    
-      shared_ptr<HM::DALConnection> pTempConn = m_pConn;
-      m_pConn.reset();
+      std::shared_ptr<HM::DALConnection> pTempConn = conn_;
+      conn_.reset();
    
       HM::String sErrorMessage;
-      if (!m_pDBManager->CommitTransaction(pTempConn, sErrorMessage))
+      if (!db_manager_->CommitTransaction(pTempConn, sErrorMessage))
       {
          return COMError::GenerateError(sErrorMessage);
       }
@@ -296,20 +305,20 @@ STDMETHODIMP InterfaceDatabase::RollbackTransaction()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      if (!m_pConn)
+      if (!conn_)
          return COMError::GenerateError("No transaction started");
    
-      shared_ptr<HM::DALConnection> pTempConn = m_pConn;
-      m_pConn.reset();
+      std::shared_ptr<HM::DALConnection> pTempConn = conn_;
+      conn_.reset();
    
       HM::String sErrorMessage;
-      if (!m_pDBManager->RollbackTransaction(pTempConn, sErrorMessage))
+      if (!db_manager_->RollbackTransaction(pTempConn, sErrorMessage))
       {
          return COMError::GenerateError(sErrorMessage);
       }
@@ -326,7 +335,7 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQL(BSTR sSQLStatement)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       return ExecuteSQLWithReturn(sSQLStatement, 0);
@@ -341,7 +350,7 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLWithReturn(BSTR sSQLStatement, long *u
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -350,18 +359,18 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLWithReturn(BSTR sSQLStatement, long *u
       if (uniqueID)
          *uniqueID = 0;
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
       HM::String sStatement = sSQLStatement;
    
       HM::String sErrorMessage;
-      if (m_pConn)
+      if (conn_)
       {
          // Execute in the transaction we've started.
          __int64 value = 0;
-         if (m_pConn->TryExecute(HM::SQLCommand(sStatement), sErrorMessage, &value, 0) == HM::DALConnection::DALSuccess)
+         if (conn_->TryExecute(HM::SQLCommand(sStatement), sErrorMessage, &value, 0) == HM::DALConnection::DALSuccess)
          {
             if (uniqueID)
                *uniqueID = (long) value;
@@ -373,7 +382,7 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLWithReturn(BSTR sSQLStatement, long *u
       {
          __int64 value = 0;
    
-         if (m_pDBManager->Execute(HM::SQLCommand(sStatement), &value, 0, sErrorMessage))
+         if (db_manager_->Execute(HM::SQLCommand(sStatement), &value, 0, sErrorMessage))
          {
             if (uniqueID)
                *uniqueID = (long) value;
@@ -395,28 +404,28 @@ STDMETHODIMP InterfaceDatabase::ExecuteSQLScript(BSTR sFilename)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
       HM::String sErrorMessage;
-      if (m_pConn)
+      if (conn_)
       {
          HM::SQLScriptRunner scriptRunner;
-         if (!scriptRunner.ExecuteScript(m_pConn, sFilename, sErrorMessage))
+         if (!scriptRunner.ExecuteScript(conn_, sFilename, sErrorMessage))
          {
             return COMError::GenerateError("Execution of SQL statements failed. Error: " + sErrorMessage);
          }
       }
       else
       {
-         if (!m_pDBManager->ExecuteScript(sFilename, sErrorMessage))
+         if (!db_manager_->ExecuteScript(sFilename, sErrorMessage))
          {
             return COMError::GenerateError("Execution of SQL statements failed. Error: " + sErrorMessage);
          }
@@ -437,14 +446,14 @@ STDMETHODIMP InterfaceDatabase::UtilGetFileNameByMessageID(hyper lMessageID, BST
       if (!GetIsServerAdmin())
          return GetAccessDenied();
    
-      HRESULT hRes = _EnsureDatabaseConnectivity();
+      HRESULT hRes = EnsureDatabaseConnectivity_();
       if (hRes != S_OK)
          return hRes;
    
       HM::String sSQL;
       sSQL.Format(_T("select messagefilename from hm_messages where messageid = %d"), lMessageID);
    
-      shared_ptr<HM::DALRecordset> pRS = m_pDBManager->OpenRecordset(HM::SQLCommand(sSQL));
+      std::shared_ptr<HM::DALRecordset> pRS = db_manager_->OpenRecordset(HM::SQLCommand(sSQL));
       if (!pRS)
          return S_OK;
    
@@ -467,16 +476,16 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
    	if (!GetIsServerAdmin())
          return GetAccessDenied();
    
       // Make sure we have the latest settings.
-      m_pIniFileSettings->LoadSettings();
+      ini_file_settings_->LoadSettings();
    
-      HM::String sDirectory = m_pIniFileSettings->GetDatabaseDirectory();
+      HM::String sDirectory = ini_file_settings_->GetDatabaseDirectory();
       HM::String sDatabaseName = "hMailServer";
       HM::String sPassword = HM::PasswordGenerator::Generate();
    
@@ -487,11 +496,11 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
       HM::String sEmpty;
    
       // Create a settings object which we use to connect to the server.
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sEmpty, sDatabaseName, sEmpty, sPassword, sDirectory, sEmpty, HM::DatabaseSettings::TypeMSSQLCompactEdition, 0));
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
+         new HM::DatabaseSettings(sEmpty, sEmpty, sDatabaseName, sEmpty, sPassword, sDirectory, sEmpty, HM::DatabaseSettings::TypeMSSQLCompactEdition, 0));
    
       // Connect to the new database
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
       {
@@ -505,16 +514,29 @@ STDMETHODIMP InterfaceDatabase::CreateInternalDatabase()
          return COMError::GenerateError(sErrorMessage);
       }
    
-      m_pIniFileSettings->SetDatabaseDirectory(sDirectory);
-      m_pIniFileSettings->SetDatabaseType(HM::DatabaseSettings::TypeMSSQLCompactEdition);
-      m_pIniFileSettings->SetUsername("");
-      m_pIniFileSettings->SetPassword(sPassword);
-      m_pIniFileSettings->SetDatabasePort(0);
-      m_pIniFileSettings->SetDatabaseServer("");
-      m_pIniFileSettings->SetDatabaseName(sDatabaseName);
-      m_pIniFileSettings->SetIsInternalDatabase(true);
+      ini_file_settings_->SetDatabaseDirectory(sDirectory);
+      ini_file_settings_->SetDatabaseType(HM::DatabaseSettings::TypeMSSQLCompactEdition);
+      ini_file_settings_->SetUsername("");
+      ini_file_settings_->SetPassword(sPassword);
+      ini_file_settings_->SetDatabasePort(0);
+      ini_file_settings_->SetDatabaseServer("");
+      ini_file_settings_->SetDatabaseName(sDatabaseName);
+      ini_file_settings_->SetIsInternalDatabase(true);
    
       return S_OK;   
+   }
+   catch (_com_error &err)
+   {
+      _bstr_t bstrSource(err.Source());
+      _bstr_t bstrDescription(err.Description());
+
+      LPCSTR lpcSource = bstrSource;
+      HM::String sErrSource = lpcSource;
+
+      LPCSTR lpcDesc = bstrDescription;
+      HM::String sErrDesc = lpcDesc;
+
+      return COMError::GenerateGenericMessage();
    }
    catch (...)
    {
@@ -526,7 +548,7 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -537,16 +559,17 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       const HM::String sDatabaseName = DatabaseName;
       const HM::String sUsername = Username;
       const HM::String sPassword = Password;
-   
+      const HM::String sProvider = ini_file_settings_->GetDatabaseProvider();
+
       if (sDatabaseName.Find(_T(" ")) >= 0)
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
+         new HM::DatabaseSettings(sProvider, sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database serve   
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       HM::String sErrorMessage;
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
@@ -562,8 +585,8 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       pConn->Disconnect();
    
       // Create a new settings object where we specify the database name as well.
-      pSettings = shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sDatabaseName, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+      pSettings = std::shared_ptr<HM::DatabaseSettings>(
+         new HM::DatabaseSettings(sProvider, sServerName, sDatabaseName, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Reconnect to the new database.
       pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
@@ -574,16 +597,16 @@ STDMETHODIMP InterfaceDatabase::CreateExternalDatabase(eDBtype ServerType, BSTR 
       HM::SQLScriptRunner scriptRunner;
       if (!scriptRunner.ExecuteScript(pConn, pSettings->GetDefaultScript(), sErrorMessage))
          return COMError::GenerateError(sErrorMessage);
-   
-      m_pIniFileSettings->SetDatabaseDirectory("");
-      m_pIniFileSettings->SetDatabaseType((HM::DatabaseSettings::SQLDBType) ServerType);
-      m_pIniFileSettings->SetUsername(sUsername);
-      m_pIniFileSettings->SetPassword(sPassword);
-      m_pIniFileSettings->SetDatabasePort(lPort);
-      m_pIniFileSettings->SetDatabaseServer(sServerName);
-      m_pIniFileSettings->SetDatabaseName(sDatabaseName);
-      m_pIniFileSettings->SetIsInternalDatabase(false);
-   
+
+      ini_file_settings_->SetDatabaseDirectory("");
+      ini_file_settings_->SetDatabaseType((HM::DatabaseSettings::SQLDBType) ServerType);
+      ini_file_settings_->SetUsername(sUsername);
+      ini_file_settings_->SetPassword(sPassword);
+      ini_file_settings_->SetDatabasePort(lPort);
+      ini_file_settings_->SetDatabaseServer(sServerName);
+      ini_file_settings_->SetDatabaseName(sDatabaseName);
+      ini_file_settings_->SetIsInternalDatabase(false);
+	
       return S_OK;   
    }
    catch (...)
@@ -609,11 +632,13 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
          return COMError::GenerateError("The database name may not contain spaces.");
    
       // Create a settings object for the connection ...
-      shared_ptr<HM::DatabaseSettings> pSettings = shared_ptr<HM::DatabaseSettings>(
-         new HM::DatabaseSettings(sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty,(HM::DatabaseSettings::SQLDBType) ServerType, lPort));
+      HM::String sProvider = ini_file_settings_->GetDatabaseProvider();
+
+      std::shared_ptr<HM::DatabaseSettings> pSettings = std::shared_ptr<HM::DatabaseSettings>(
+         new HM::DatabaseSettings(sProvider, sServerName, sEmpty, sUsername, sPassword, sEmpty, sEmpty, (HM::DatabaseSettings::SQLDBType) ServerType, lPort));
    
       // Connect to the database server.
-      shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
+      std::shared_ptr<HM::DALConnection> pConn = HM::DALConnectionFactory::CreateConnection(pSettings);
    
       HM::String sErrorMessage;
       if (pConn->Connect(sErrorMessage) != HM::DALConnection::Connected)
@@ -622,15 +647,15 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
       // Disconnect again.
       pConn->Disconnect();
    
-      m_pIniFileSettings->SetDatabaseDirectory("");
-      m_pIniFileSettings->SetDatabaseType((HM::DatabaseSettings::SQLDBType) ServerType);
-      m_pIniFileSettings->SetUsername(sUsername);
-      m_pIniFileSettings->SetPassword(sPassword);
-      m_pIniFileSettings->SetDatabasePort(lPort);
-      m_pIniFileSettings->SetDatabaseServer(sServerName);
-      m_pIniFileSettings->SetDatabaseName(sDatabaseName);
-      m_pIniFileSettings->SetIsInternalDatabase(ServerType == hDBTypeMSSQLCE);
-   
+      ini_file_settings_->SetDatabaseDirectory("");
+      ini_file_settings_->SetDatabaseType((HM::DatabaseSettings::SQLDBType) ServerType);
+      ini_file_settings_->SetUsername(sUsername);
+      ini_file_settings_->SetPassword(sPassword);
+      ini_file_settings_->SetDatabasePort(lPort);
+      ini_file_settings_->SetDatabaseServer(sServerName);
+      ini_file_settings_->SetDatabaseName(sDatabaseName);
+      ini_file_settings_->SetIsInternalDatabase(ServerType == hDBTypeMSSQLCE);
+      
       return S_OK;   
    }
    catch (...)
@@ -640,18 +665,18 @@ STDMETHODIMP InterfaceDatabase::SetDefaultDatabase(eDBtype ServerType, BSTR Serv
 }   
    
 HRESULT
-InterfaceDatabase::_EnsureDatabaseConnectivity()
+InterfaceDatabase::EnsureDatabaseConnectivity_()
 {
-   m_pDBManager = HM::Application::Instance()->GetDBManager();
-   if (!m_pDBManager)
+   db_manager_ = HM::Application::Instance()->GetDBManager();
+   if (!db_manager_)
    {
       return COMError::GenerateError("The connection to the database is not available. Please check the hMailServer error log for details.");
    }
 
-   if (!m_pDBManager->GetIsConnected())
+   if (!db_manager_->GetIsConnected())
    {
       HM::String sError;
-      sError.Format(_T("The connection to the database is not available.\r\n%s"), HM::Application::Instance()->GetLastErrorMessage());
+      sError.Format(_T("The connection to the database is not available.\r\n%s"), HM::Application::Instance()->GetLastErrorMessage().c_str());
 
       return COMError::GenerateError(sError);
    }
@@ -663,7 +688,7 @@ STDMETHODIMP InterfaceDatabase::EnsurePrerequisites(long DBVersion)
 {
    try
    {
-      if (!m_pConfig)
+      if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
@@ -671,17 +696,17 @@ STDMETHODIMP InterfaceDatabase::EnsurePrerequisites(long DBVersion)
    
       HM::String sErrorMessage;
    
-      if (m_pConn)
+      if (conn_)
       {
          HM::PrerequisiteList prerequisites;
-         if (!prerequisites.Ensure(m_pConn, DBVersion, sErrorMessage))
+         if (!prerequisites.Ensure(conn_, DBVersion, sErrorMessage))
          {
             return COMError::GenerateError("Execution of SQL statements failed. Error: " + sErrorMessage);
          }
       }
       else
       {
-         if (!m_pDBManager->EnsuresPrerequisites(DBVersion, sErrorMessage))
+         if (!db_manager_->EnsuresPrerequisites(DBVersion, sErrorMessage))
          {
             return COMError::GenerateError("Execution of SQL statements failed. Error: " + sErrorMessage);
          }

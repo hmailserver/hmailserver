@@ -11,10 +11,10 @@
 
 namespace HM
 {
-   boost::shared_mutex _whitelistAccessMutex;
+   boost::shared_mutex whitelistAccessMutex_;
 
-   std::vector<shared_ptr<WhiteListAddress>> WhiteListCache::_whitelistItems;
-   bool WhiteListCache::_needRefresh = true;
+   std::vector<std::shared_ptr<WhiteListAddress>> WhiteListCache::whitelistItems_;
+   bool WhiteListCache::needRefresh_ = true;
 
    WhiteListCache::WhiteListCache(void)
    {
@@ -24,7 +24,7 @@ namespace HM
    void
    WhiteListCache::SetNeedRefresh()
    {
-      _needRefresh = true;
+      needRefresh_ = true;
    }
 
 
@@ -32,9 +32,9 @@ namespace HM
    WhiteListCache::IsWhitelisted(const String &fromAddress, const IPAddress &address)
    {
       // Create a lock for shared operations
-      boost::upgrade_lock< boost::shared_mutex > lock(_whitelistAccessMutex);
+      boost::upgrade_lock< boost::shared_mutex > lock(whitelistAccessMutex_);
 
-      if (_needRefresh)
+      if (needRefresh_)
       {
          // We need exclusive access to be able to upade the cache
          boost::upgrade_to_unique_lock< boost::shared_mutex > uniqueLock(lock);
@@ -42,12 +42,12 @@ namespace HM
          Refresh();
       }
 
-      vector<shared_ptr<WhiteListAddress> >::iterator iter = _whitelistItems.begin();
-      vector<shared_ptr<WhiteListAddress> >::iterator iterEnd = _whitelistItems.end();
+      auto iter = whitelistItems_.begin();
+      auto iterEnd = whitelistItems_.end();
 
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<WhiteListAddress> pWhiteAddress = (*iter);
+         std::shared_ptr<WhiteListAddress> pWhiteAddress = (*iter);
 
          IPAddress iLowerIP = pWhiteAddress->GetLowerIPAddress();
          IPAddress iUpperIP = pWhiteAddress->GetUpperIPAddress();
@@ -83,19 +83,19 @@ namespace HM
       WhiteListAddresses addresses;
       addresses.Refresh();
 
-      vector<shared_ptr<WhiteListAddress> > vec = addresses.GetConstVector();
+      std::vector<std::shared_ptr<WhiteListAddress> > vec = addresses.GetConstVector();
 
-      vector<shared_ptr<WhiteListAddress> >::iterator iter = vec.begin();
-      vector<shared_ptr<WhiteListAddress> >::iterator iterEnd = vec.end();
+      auto iter = vec.begin();
+      auto iterEnd = vec.end();
 
-      std::vector<shared_ptr<WhiteListAddress>> items;
+      std::vector<std::shared_ptr<WhiteListAddress>> items;
       for (; iter != iterEnd; iter++)
       {
-         shared_ptr<WhiteListAddress> whiteAddress = (*iter);
+         std::shared_ptr<WhiteListAddress> whiteAddress = (*iter);
 
          items.push_back(whiteAddress);
       }
 
-      _whitelistItems = items;
+      whitelistItems_ = items;
    }
 }

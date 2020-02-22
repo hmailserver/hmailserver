@@ -13,7 +13,7 @@ namespace HM
    {
    public:
 
-      bool ProcessMacro(shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage);
+      bool ProcessMacro(std::shared_ptr<DALConnection> connection, const Macro &macro, String &sErrorMessage);
 
    private:
    };

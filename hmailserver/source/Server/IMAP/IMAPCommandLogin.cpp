@@ -8,6 +8,11 @@
 
 #include "../common/Util/AccountLogon.h"
 #include "../common/BO/Account.h"
+#include "../common/BO/SecurityRange.h"
+
+#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -17,9 +22,22 @@
 namespace HM
 {
    IMAPResult
-   IMAPCommandLOGIN::ExecuteCommand(shared_ptr<HM::IMAPConnection> pConnection, shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCommandLOGIN::ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      shared_ptr<IMAPSimpleCommandParser> pParser = shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      if (pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
+      {
+         if (!pConnection->IsSSLConnection())
+         {
+            return IMAPResult(IMAPResult::ResultBad, "STARTTLS is required.");
+         }
+      }
+
+      if (pConnection->GetSecurityRange()->GetRequireTLSForAuth() && !pConnection->IsSSLConnection())
+      {
+         return IMAPResult(IMAPResult::ResultBad, "A SSL/TLS-connection is required for authentication.");
+      }
+
+      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       
       pParser->Parse(pArgument);
       
@@ -28,13 +46,13 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "Command requires 2 parameters");
       }
 
-      // The folder wildcard could be sent in a seperate buffer.
+      // The folder wildcard could be sent in a separate buffer.
       String sUsername = pParser->GetParamValue(pArgument, 0);
       String sPassword = pParser->GetParamValue(pArgument, 1);
 
       AccountLogon accountLogon;
       bool disconnect = false;
-      shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetIPAddress(), sUsername, sPassword, disconnect);
+      std::shared_ptr<const Account> pAccount = accountLogon.Logon(pConnection->GetRemoteEndpointAddress(), sUsername, sPassword, disconnect);
 
       if (disconnect)
       {
@@ -42,8 +60,26 @@ namespace HM
          sResponse += pArgument->Tag() + " BAD Goodbye\r\n";
          pConnection->Logout(sResponse);   
 
-         return IMAPResult();
+         return IMAPResult(IMAPResult::ResultOKSupressRead, "");
       } 
+
+      const bool isAuthenticated = pAccount != nullptr;
+
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetUsername(sUsername);
+         pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
+         pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
+         pClientInfo->SetIsAuthenticated(isAuthenticated);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+         String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
+      }
 
       if (!pAccount)
       {
@@ -52,7 +88,7 @@ namespace HM
          else
             return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
       }
-      
+
       // Load mail boxes
       pConnection->Login(pAccount);
 

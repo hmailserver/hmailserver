@@ -2,7 +2,9 @@
 // http://www.hmailserver.com
 
 using System;
+using System.IO;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using hMailServer;
 
@@ -15,10 +17,7 @@ namespace RegressionTests.SSL
       [Description("Test that loading a private key with password does not hang")]
       public void SetupSSLCertificateWithPassword()
       {
-         string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\SSL examples\\WithPassword";
-         string sslPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = originalPath;
+         string sslPath = Path.Combine(SslSetup.GetSslCertPath(), "WithPassword");
 
          SSLCertificate sslCertificate = _application.Settings.SSLCertificates.Add();
          sslCertificate.Name = "Example";
@@ -37,7 +36,10 @@ namespace RegressionTests.SSL
          _application.Stop();
          _application.Start();
 
-         TestSetup.AssertReportedError();
+         CustomAsserts.AssertReportedError("The private key file has a password. hMailServer does not support this.",
+                                       "Failed to load private key file.");
+
+         SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
       }
    }
 }

@@ -16,7 +16,7 @@ namespace HM
 	   PGRecordset();
 	   virtual ~PGRecordset();
 
-      virtual DALConnection::ExecutionResult TryOpen(shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage);
+      virtual DALConnection::ExecutionResult TryOpen(std::shared_ptr<DALConnection> pDALConn, const SQLCommand &command, String &sErrorMessage);
       
       virtual bool MoveNext();
       virtual bool IsEOF() const;
@@ -27,21 +27,21 @@ namespace HM
       virtual __int64 GetInt64Value(const AnsiString &FieldName) const;
       virtual double GetDoubleValue(const AnsiString &FieldName) const;
 
-      vector<AnsiString> GetColumnNames() const;
+      std::vector<AnsiString> GetColumnNames() const;
 
       virtual bool GetIsNull(const AnsiString &FieldName) const;
 
 
    private:
 
-      int _GetColumnIndex(const AnsiString &sColumnName) const;
+      int GetColumnIndex_(const AnsiString &sColumnName) const;
 
-      bool _Close();
+      bool Close_();
 
-      PGresult *m_pResult;
-      // PG_ROW m_rowCurrent;
+      PGresult *result_;
+      // PG_ROW current_;
 
-      unsigned int m_iCurRowNum;
-      unsigned int m_iRowCount;
+      unsigned int cur_row_num_;
+      unsigned int row_count_;
    };
 }

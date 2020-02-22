@@ -21,11 +21,11 @@ namespace HM
       void Refresh();
             
    protected:
-      virtual bool PreSaveObject(shared_ptr<Alias> pAlias, XNode *node);
+      virtual bool PreSaveObject(std::shared_ptr<Alias> pAlias, XNode *node);
       virtual String GetCollectionName() const {return "Aliases"; }
    private:
 
-      __int64 m_iDomainID;
+      __int64 domain_id_;
 
    };
 }
