@@ -469,7 +469,6 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
-         pClientInfo->SetHELO("");
          pClientInfo->SetIsAuthenticated(isAuthenticated);
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
