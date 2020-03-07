@@ -116,6 +116,20 @@ namespace HM
 
       bool result = resolver.Query(sDomain, DNS_TYPE_TEXT, foundRecords);
 
+      if (foundRecords.size() == 0)
+      {
+         // The queries for TXT didn't return any records. Attempt to look up via CNAME
+         std::vector<DNSRecord> foundCNames;
+         bool cnameQueryResult = resolver.Query(sDomain, DNS_TYPE_CNAME, foundCNames);
+
+         // A CNAME should only point at a single host name.
+         if (cnameQueryResult && foundCNames.size() == 1)
+         {
+            auto cnameHostName = foundCNames[0].GetValue();
+            return GetTXTRecords(cnameHostName, foundResult);
+         }
+      }
+
       foundResult = GetDnsRecordsValues_(foundRecords);
 
       return result;
