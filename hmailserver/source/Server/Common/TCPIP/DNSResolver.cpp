@@ -74,7 +74,7 @@ namespace HM
 
       if (recursionLevel > 10)
       {
-         String sMessage = Formatter::Format("Too many recursions during IP adress lookup. Query: {0}", hostName);
+         String sMessage = Formatter::Format("Too many recursions during IP address lookup. Query: {0}", hostName);
          ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::GetIpAddressesRecursive_", sMessage);
 
          return false;
@@ -110,6 +110,26 @@ namespace HM
    bool 
    DNSResolver::GetTXTRecords(const String &sDomain, std::vector<String> &foundResult)
    {
+      return GetTXTRecordsRecursive_(sDomain, foundResult, 0);
+   }
+
+   bool
+   DNSResolver::GetTXTRecordsRecursive_(const String &sDomain, std::vector<String> &foundResult, int recursionLevel)
+   {
+      if (sDomain.IsEmpty())
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetTXTRecordsRecursive", "Attempted DNS lookup for empty host name.");
+         return false;
+      }
+
+      if (recursionLevel > 10)
+      {
+         String sMessage = Formatter::Format("Too many recursions during TXT record lookup. Query: {0}", sDomain);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4402, "DNSResolver::GetTXTRecordsRecursive", sMessage);
+
+         return false;
+      }
+      
       DNSResolverWinApi resolver;
 
       std::vector<DNSRecord> foundRecords;
@@ -126,7 +146,7 @@ namespace HM
          if (cnameQueryResult && foundCNames.size() == 1)
          {
             auto cnameHostName = foundCNames[0].GetValue();
-            return GetTXTRecords(cnameHostName, foundResult);
+            return GetTXTRecordsRecursive_(cnameHostName, foundResult, recursionLevel + 1);
          }
       }
 
