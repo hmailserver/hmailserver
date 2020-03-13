@@ -12,6 +12,7 @@
 
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/IPAddress.h"
+#include "../TCPIP/LocalIPAddresses.h"
 #include "../Util/TLD.h"
 
 #ifdef _DEBUG
@@ -47,6 +48,12 @@ namespace HM
       if (sHeloHost.IsEmpty())
       {
          // Not possible to run this test without a host.
+         return setSpamTestResults;
+      }
+
+      if (LocalIPAddresses::Instance()->IsLocalIPAddress(iIPAdress))
+      {
+         // Ignore this test if send thru localhost.
          return setSpamTestResults;
       }
 
