@@ -4062,6 +4062,8 @@ const char** explain)
       *(const uchar**)&ipaddr += 12;
       // fall thru
    case AF_INET:
+      if (addrequal(ipaddr, localhost4, 8))
+         return SPF_Pass;
       spfdata.spf_ipv6 = false;
       break;
    default:
