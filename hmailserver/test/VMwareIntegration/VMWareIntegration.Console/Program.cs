@@ -46,8 +46,7 @@ namespace VMwareIntegration.Console
          TestEnvironments.AddAll(listEnvironments);
 
          int testIndex = 0;
-
-         var f = TaskScheduler.Default;
+         int failedTests = 0;
 
          var options = new ParallelOptions()
             {
@@ -95,12 +94,20 @@ namespace VMwareIntegration.Console
                {
                   LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
                   LogText(ex.ToString());
+
+                  lock (_lockCounterTest)
+                  {
+                     failedTests++;
+                  }
                }
             }
 
          });
          
-         System.Console.WriteLine("All tests completed. Press Enter to exit.");
+         if (failedTests == 0)
+            System.Console.WriteLine("All tests suites completed succesfully. Press Enter to exit.");
+         else
+            System.Console.WriteLine(string.Format("{0} tests suites failed. Press Enter to exit.", failedTests));
 
          System.Console.ReadLine();
          return 0;
