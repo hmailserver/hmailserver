@@ -493,7 +493,7 @@ begin
 	end;
 
 	if not IsNetFrameworkInstalled() then begin
-        MsgBox('hMailServer require .NET Framework 4.5'#13#13
+        MsgBox('hMailServer requires .NET Framework 4.5'#13#13
             'Please install this version and then re-run the hMailServer setup program.', mbInformation, MB_OK);
         result := false;
 		Exit;
