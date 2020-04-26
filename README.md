@@ -23,26 +23,24 @@ Environment set up
 Required software:
 
    * An installed version of hMailServer 5.7 (configured with a database)
-   * Visual Studio 2013 Update 3
-   * InnoSetup (to build installation program)
+   * Visual Studio 2019 Community edition
+   * InnoSetup 5.5.4a (non-unicode version)
    * [Perl ActiveState ActivePerl Community Edition 32 bit works fine](https://www.activestate.com/activeperl/downloads)
    
 **NOTE**
 
 You should not be compiling hMailServer on a computer which already runs a production version of hMailServer. When compiling hMailServer, the compilation will stop any already running version of hMailServer, and will register the compiled version as the hMailServer version on the machine (configuring the Windows service). This means that if you are running a production version of hMailServer on the machine, this version will stop running if you compile hMailServer. If this happens, the easiest path is to reinstall the production version.
 
-Configuring Visual Studio 2013 Express Edition
+Installing Visual Studio 2019 Community edition
 ----------------------------------------------
 
-These steps are only required if you are using Visual Studio 2013 Express Edition. The steps are required because Express Edition does not include Active Template Library which hMailServer relies on. ATL therefore needs to be installed separately:
-
-1. Download the (Windows Driver Kit 7.1 ISO)(http://www.microsoft.com/download/en/details.aspx?id=11800)
-2. Mount the ISO and run the installation. You only need to install "Build Environments"
-4. Open the solution hmailserver\source\Server\hMailServer\hMailServer.sln
-5. In the Solution Explorer, right click on hMailServer and select Properties
-6. Select Configuraton Properties -> VC++ Directories
-7. Add "{PATH-TO-WDK}\inc\atl71;" to the list of Include Directories. (Replace {PATH-TO-WDK} with the location whre you installed it.
-8. Add "{PATH-TO-WDK\lib\ATL\i386" to the list of Library Directories.  (Replace {PATH-TO-WDK} with the location whre you installed it.
+1. Downlod [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) and launch the installation.
+2. Select the following _Workloads_
+  * .NET desktop development
+  * Desktop development with C++
+3. Select the following _Individual components_
+  * C++ ATL for latest v142 build tools (x86 & x64)
+  * Windows 10 SDK (10.0.18362.0)
 
 3rd party libraries
 -------------------
@@ -60,8 +58,8 @@ Building OpenSSL
 3. Run the following commands:
 
    <pre>
-   nmake clean
-   Perl Configure no-asm VC-WIN64A --prefix=%cd%\out64 --openssldir=%cd%\out64 -D_WIN32_WINNT=0x501
+   Perl Configure no-asm VC-WIN64A --prefix=%cd%\out64 --openssldir=%cd%\out64 -D_WIN32_WINNT=0x600
+   nmake clean   
    nmake install_sw
    </pre>
 
@@ -76,15 +74,14 @@ Building Boost
    NOTE: Change the -j parameter from 4 to the number of cores on your computer. The parameter specifies the number of parallel compilations will be done.
 
    <pre>
-   bootstrap.bat vc12
-   bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=64 --build-dir=out64 -j 4
+   bootstrap
+   b2 debug release threading=multi --build-type=complete --toolset=msvc address-model=64 stage --build-dir=out64 -j 4
    </pre>
-
 
 Building hMailServer
 --------------------
 
-Visual Studio 2013 must be started with Run as Administrator.
+Visual Studio 2019 must be started with _Run as Administrator_.
 
 1. Download the source code from this Git repository.
 2. Compile the solution hmailserver\source\Server\hMailServer\hMailServer.sln.
