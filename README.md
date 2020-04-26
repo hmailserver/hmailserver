@@ -20,7 +20,7 @@ Branches
 Environment set up
 ---------------------
 
-Required software:
+**Required software**
 
    * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2019 Community edition
@@ -53,7 +53,7 @@ Building OpenSSL
 ----------------
 1. Download OpenSSL 1.1.1* from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
    You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.1.1s
-2. Start a VS2013 x64 Native Tools Command Prompt
+2. Start a x86 Native Tools Command Prompt for VS2019.
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 3. Run the following commands:
 
@@ -67,7 +67,7 @@ Building Boost
 --------------
 1. Download Boost 1.70.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
    You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_63_0
-2. Start a VS2013 x64 Native Tools Command Prompt
+2. Start a x86 Native Tools Command Prompt for VS2019.
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
 4. Run the following commands:
  
