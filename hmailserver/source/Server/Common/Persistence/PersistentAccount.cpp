@@ -2,6 +2,11 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
+
+
+#include "../Cache/Cache.h"
+
+
 #include "PersistentAccount.h"
 #include "PersistentACLPermission.h"
 #include "PersistentFetchAccount.h"
@@ -21,7 +26,6 @@
 
 #include "NameChanger.h"
 
-#include "../Cache/Cache.h"
 #include "../Cache/AccountSizeCache.h"
 
 #include "../../IMAP/IMAPFolderContainer.h"

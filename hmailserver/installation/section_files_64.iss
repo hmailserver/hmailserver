@@ -23,3 +23,6 @@ Source: "..\source\Tools\Shared\Bin\x64\Release\*.dll"; DestDir: "{app}\Addons\D
 ; OpenSSL
 Source: "{#HMAILSERVERLIBS}\openssl-1.1.1g\out64\bin\libcrypto-1_1-x64.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "{#HMAILSERVERLIBS}\openssl-1.1.1g\out64\bin\libssl-1_1-x64.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+
+; PQSQL (PostgreSQL client)
+Source: "..\..\libraries\libpq-12.2\x64\*.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;

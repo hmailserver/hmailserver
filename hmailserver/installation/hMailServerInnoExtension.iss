@@ -10,14 +10,6 @@ var
   rdoUseInternal : TRadioButton;
   rdoUseExternal : TRadioButton;
 
-  // BEGIN .NET INSTALLER
-  mdacPath, dotnet20Path: string;
-  downloadNeeded: boolean;
-  neededDependenciesDownloadMemo: string;
-  neededDependenciesInstallMemo: string;
-  neededDependenciesDownloadMsg: string;
-  // END .NET INSTALLER
-
 // The NT-service specific parts of the scrit below is taken
 // from the innosetup extension knowledgebase.
 // Author: Silvio Iaccarino silvio.iaccarino(at)de.adp.com
@@ -275,6 +267,32 @@ begin
 	Result := sKey;
 end;
 
+function IsNetFrameworkInstalled() : boolean;
+	var release: cardinal;
+begin
+	Result := True;
+	if (not RegKeyExists(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full')) then begin
+		// No 4.x-version is installed.
+		Result := false;
+		Exit;
+	end;
+	
+	// Check for at least 4.5:
+	if (not RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', release)) then begin
+		// Unable to determine 4.5-version
+		Result := false;
+		Exit;
+	end;
+	
+	// https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed
+	// 378389 = .NET Framework 4.5
+	if (release < 378389) then begin
+		// Only .NET 4.0 installed
+		Result := false;
+		Exit;
+	end;
+	
+end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
@@ -451,7 +469,36 @@ function InitializeSetup(): Boolean;
     WindowsVersion: TWindowsVersion;		
 begin
 	Result := true;
+			
+	// hMailServer require at least:
+	// - Windows 7 with Service Pack 1
+	// - Windows Server 2008 R2 with Service Pack 1
+	// (or later)
+    GetWindowsVersionEx(WindowsVersion);
+  
+	if (WindowsVersion.NTPlatform = False) then
+	begin;
+		MsgBox('hMailServer requires an NT-based operating system.',mbInformation, MB_OK);	
+		Result := false;
+		Exit;
+	end;
 
+	if ((WindowsVersion.Major < 6) or
+		((WindowsVersion.Major = 6) and (WindowsVersion.Minor < 1)) or
+		((WindowsVersion.Major = 6) and (WindowsVersion.Minor = 1) and (WindowsVersion.Build < 7600))) then
+	begin
+		MsgBox('hMailServer requires Windows Server 2008 R2, Windows 7 or later.',mbInformation, MB_OK);	
+		Result := false;
+		exit;
+	end;
+
+	if not IsNetFrameworkInstalled() then begin
+        MsgBox('hMailServer require .NET Framework 4.5'#13#13
+            'Please install this version and then re-run the hMailServer setup program.', mbInformation, MB_OK);
+        result := false;
+		Exit;
+	end;
+	
 	if (FindWindowByWindowName('hMailServer Administrator') > 0) then
 	begin
 		MsgBox('hMailServer Administrator is started. You must close down this application before starting the installation.',mbInformation, MB_OK);	
@@ -465,7 +512,7 @@ begin
 		begin
 			MsgBox('hMailServer Database Setup is started. You must close down this application before starting the installation.',mbInformation, MB_OK);	
 			Result := false;
-      Exit;
+			Exit;
 		end;	
 	end;
 	
@@ -475,7 +522,7 @@ begin
 		begin
 			MsgBox('hMailServer Database Upgrader is started. You must close down this application before starting the installation.',mbInformation, MB_OK);	
 			Result := false;
-      Exit;			
+			Exit;			
 		end;	
 	end;	
 	
@@ -485,7 +532,7 @@ begin
 		begin
 			MsgBox('hMailServer DBSetup is started. You must close down this application before starting the installation.',mbInformation, MB_OK);	
 			Result := false;
-      Exit;			
+			Exit;			
 		end;	
 	end;	
 	
@@ -503,65 +550,7 @@ begin
 		end;
 	end;	
 
-
-  GetWindowsVersionEx(WindowsVersion);
-  Result := true;
-
-  // Check for Windows 2000 SP3
-  if WindowsVersion.NTPlatform and
-     (WindowsVersion.Major = 5) and
-     (WindowsVersion.Minor = 0) and
-     (WindowsVersion.ServicePackMajor < 3) then
-  begin
-    MsgBox(CustomMessage('Win2000Sp3Msg'), mbError, MB_OK);
-    Result := false;
-    exit;
-  end;
-
-  // Check for Windows XP SP2
-  if WindowsVersion.NTPlatform and
-     (WindowsVersion.Major = 5) and
-     (WindowsVersion.Minor = 1) and
-     (WindowsVersion.ServicePackMajor < 2) then
-  begin
-    MsgBox(CustomMessage('WinXPSp2Msg'), mbError, MB_OK);
-    Result := false;
-    exit;
-  end;
-
-  // Check for required MDAC installation
-  SoftwareVersion := '';
-  RegQueryStringValue(HKLM, 'Software\Microsoft\DataAccess', 'FullInstallVer', SoftwareVersion);
-  if (SoftwareVersion < '2.7') then begin
-    neededDependenciesInstallMemo := neededDependenciesInstallMemo + '      ' + CustomMessage('MDACTitle') + #13;
-    mdacPath := ExpandConstant('{src}') + '\' + CustomMessage('DependenciesDir') + '\MDAC_TYP.EXE';
-    if not FileExists(mdacPath) then begin
-      mdacPath := ExpandConstant('{tmp}\MDAC_TYP.EXE');
-      if not FileExists(mdacPath) then begin
-        neededDependenciesDownloadMemo := neededDependenciesDownloadMemo + '      ' + CustomMessage('MDACTitle') + #13;
-        neededDependenciesDownloadMsg := neededDependenciesDownloadMsg + CustomMessage('MDACTitle') + ' (' + CustomMessage('MDACDownloadSize') + ')' + #13;
-        isxdl_AddFile(mdacURL, mdacPath);
-        downloadNeeded := true;
-      end;
-    end;
-    SetIniString('install', 'mdac', mdacPath, ExpandConstant('{tmp}\dep.ini'));
-  end;
-
-  // Check for required dotnetfx 2.0 installation
-  if (not RegKeyExists(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v2.0.50727')) then begin
-    neededDependenciesInstallMemo := neededDependenciesInstallMemo + '      ' + CustomMessage('DOTNET20Title') + #13;
-    dotnet20Path := ExpandConstant('{src}') + '\' + CustomMessage('DependenciesDir') + '\dotnetfx.exe';
-    if not FileExists(dotnet20Path) then begin
-      dotnet20Path := ExpandConstant('{tmp}\dotnetfx.exe');
-      if not FileExists(dotnet20Path) then begin
-        neededDependenciesDownloadMemo := neededDependenciesDownloadMemo + '      ' + CustomMessage('DOTNET20Title') + #13;
-        neededDependenciesDownloadMsg := neededDependenciesDownloadMsg + CustomMessage('DOTNET20Title') + ' (' + CustomMessage('DOTNET20DownloadSize') + ')' + #13;
-        isxdl_AddFile(dotnet20URL, dotnet20Path);
-        downloadNeeded := true;
-      end;
-    end;
-    SetIniString('install', 'dotnet20', dotnet20Path, ExpandConstant('{tmp}\dep.ini'));
-  end;
+	Result := true;
 
 end;
 
@@ -818,25 +807,24 @@ end;
 function NextButtonClick(CurPage : Integer): boolean;
 var
    hWnd: Integer;
-   bInstallNet: boolean;
    szIniFile : String;
 
 begin
 	// We default to true.
 	Result := true;
 
-  if (CurPage = wpSelectDir) then
-  begin
+	if (CurPage = wpSelectDir) then
+	begin
+		szIniFile := GetIniFile();
 
-    szIniFile := GetIniFile();
-
-    // Check if this folder contains an old MySQL installation, or if
-    // the old MySQL installation has been uninstalled.
-    if CheckIsOldMySQLInstallation(szIniFile) = true then begin
-        Result := false;
-    end;
-  end
-  else if CurPage = wpReady then
+		// Check if this folder contains an old MySQL installation, or if
+		// the old MySQL installation has been uninstalled.
+		if CheckIsOldMySQLInstallation(szIniFile) = true then 
+		begin
+			Result := false;
+		end;
+	end
+	else if CurPage = wpReady then
 	begin
 		// Start hMailServer and MySQL, if they are running.
 		if IsServiceRunning('hMailServer') = true then
@@ -847,68 +835,25 @@ begin
 		   begin
 		      Sleep(250);
 		   end;
+		end;
     end;
 	
     hWnd := StrToInt(ExpandConstant('{wizardhwnd}'));
 
-    bInstallNet := false;
-
-    if downloadNeeded then
-    begin
-       // If we're running in silent mode, just install .NET
-       // automatically.
-       if WizardSilent() = true then
-       begin
-          bInstallNet := true;
-       end
-       else
-       begin
-          // Ask the user if we should install .NET
-          if MsgBox(CustomMessage('DownloadMsg1') + #13 + neededDependenciesDownloadMsg + #13 + CustomMessage('DownloadMsg2'), mbConfirmation, MB_YESNO) = IDYES then
-          begin
-             bInstallNet := true;
-          end;
-       end;
-
-       if bInstallNet then
-       begin
-          if isxdl_DownloadFiles(hWnd) = 0 then
-          begin
-             // Installation of .NET failed.
-             Result := false;
-          end;
-       end
-       else
-       begin
-         // .NET is required but the user has selected not to install it.
-         Result := false;
-       end;
-
-       // end downloadNeeded
-    end;
-	end;
-
-	
 	if WizardSilent() = false then
 	begin
-  	if CurPage = g_pageAccessKey.ID then
-	 begin
-  		// Check that passwords matches.
-	 	  if (Length(g_pageAccessKey.Values[0]) < 5) or (g_pageAccessKey.Values[0] <> g_pageAccessKey.Values[1]) then
-  	 	begin
-	 	  	 MsgBox('The two passwords must match and be at least 5 characters long.', mbError, MB_OK)
-  	 		 Result := false;
-     	end;
-     	
-     	g_szAdminPassword := g_pageAccessKey.Values[0];
-   	end;
-  end;
+		if CurPage = g_pageAccessKey.ID then
+		begin
+			// Check that passwords matches.
+			if (Length(g_pageAccessKey.Values[0]) < 5) or (g_pageAccessKey.Values[0] <> g_pageAccessKey.Values[1]) then
+			begin
+				MsgBox('The two passwords must match and be at least 5 characters long.', mbError, MB_OK)
+				Result := false;
+			end;
 
-end;
-
-procedure CurPageChanged(CurPageID: Integer);
-begin
-
+			g_szAdminPassword := g_pageAccessKey.Values[0];
+		end;
+	end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -948,23 +893,6 @@ begin
 
 	end;
 
-end;
-
-
-
-
-function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
-var
-  s: string;
-
-begin
-  if neededDependenciesDownloadMemo <> '' then s := s + CustomMessage('DependenciesDownloadTitle') + ':' + NewLine + neededDependenciesDownloadMemo + NewLine;
-  if neededDependenciesInstallMemo <> '' then s := s + CustomMessage('DependenciesInstallTitle') + ':' + NewLine + neededDependenciesInstallMemo + NewLine;
-
-  s := s + MemoDirInfo + NewLine + NewLine + MemoGroupInfo
-  if MemoTasksInfo <> '' then  s := s + NewLine + NewLine + MemoTasksInfo;
-
-  Result := s
 end;
 
 
