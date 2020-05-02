@@ -89,6 +89,7 @@ namespace ConfigureInstallation
          string versionWithBuild = string.Format("{0}.{1}", version, build);
 
          Ini.Write(installationFile, "Setup", "AppVersion", versionWithBuild);
+         Ini.Write(installationFile, "Setup", "VersionInfoVersion", versionWithBuild);
 
          return true;
       }
