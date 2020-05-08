@@ -492,6 +492,14 @@ begin
 		exit;
 	end;
 
+	// Checks if Update KB2919442 and KB2919355 is installed or Exit if not.
+	if (Is_Win81_or_Win2012_R2()) and (IsKBInstalled('KB2919355') = false) then 	 
+	begin
+		MsgBox('ERROR: hMailServer requires the following Windows Updates:        '+
+		'Windows8.1-KB2919442-x64.msu AND Windows8.1-KB2919355-x64.msu.', mbError, MB_OK);
+		ExitProcess(0);
+	end;
+
 	if not IsNetFrameworkInstalled() then begin
         MsgBox('hMailServer requires .NET Framework 4.5'#13#13
             'Please install this version and then re-run the hMailServer setup program.', mbInformation, MB_OK);

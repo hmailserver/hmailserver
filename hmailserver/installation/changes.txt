@@ -1,0 +1,95 @@
+Installer changes 
+
+Date: 05/08/2020
+File added: "changes.iss"
+Purpose: List any changes to hMailServers Innosetup Installer
+
+Date: 05/08/2020
+File added: "ucrtinstall.iss"
+Purpose: Checks/Installs or demands manual Windows Updates, required by Visual Studio 2019 Redist DLL'
+Fixes Error: The program can't start because... api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Date: 05/08/2020
+File added: "libraries\libmysql-5.7.x\x64\libmysql.dll"
+Purpose: This DLL is part of a self compiled MySQL-Server v5.7.30 x64 Project with Visual Studio 2019,
+because the official Release is built with Visual Studio 2013 which causes a DLL Not found Error durning 
+on the MySQL Configuration Step while running DBSetup.exe
+Fixes Error: MSVCP110.dll (and other VC 2013 Redist DLL Errors) not found
+
+Date: 05/08/2020
+File modified: "hMailServer64.iss"
+Action: File included "ucrtinstall.iss"
+Purpose: Contains routines to handle the Universal C Runtime problems.
+Fixes Error: api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Date: 05/08/2020
+File added: Microsoft.VC142.CRT\Windows6.1-KB2999226-x64.msu 
+Its Installed to: hMailServer\Temp\Windows6.1-KB2999226-x64.msu
+Purpose: Required Update to met Win7 x64 SP1 and Windows Server 2008 R2 x64 VC142 dependencies
+Fixes Error: api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Date: 05/08/2020
+File added: Microsoft.VC142.CRT\Windows8-RT-KB2999226-x64.msu 
+Its Installed to: hMailServer\Temp\Windows6.1-KB2999226-x64.msu
+Purpose: Required Update to met Win8 x64 and Windows Server 2012 x64 VC142 dependencies
+Fixes Error: api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Date: 05/08/2020
+File added: Microsoft.VC142.CRT\Windows8.1-KB2999226-x64.msu 
+Its Installed to: hMailServer\Temp\Windows8.1-KB2999226-x64.msu
+Purpose: Required Update to met Win8.1 x64 and Windows Server 2012 R2 x64 VC142 dependencies
+Fixes Error: api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Hint: 
+If Innosetup or someone is manually trying to Install the required Windows8.1-KB2999226-x64.msu
+on a freshly installed Win 8.1 x64 or Windows Server 2012 x64 R2 OS, it will always fail with a 
+"Unspecified Error" or "Its not Applicable" Error. To met the prequesites to Install this Update 
+1) Windows8.1-KB2919442-x64.msu (10 MBytes) and Windows8.1-KB2919355-x64.msu (707 MBytes) must be 
+installed first.
+
+See Article:
+https://support.microsoft.com/en-us/help/2999226/update-for-universal-c-runtime-in-windows
+
+
+Download links for (Win8.1 and Win 2012_R2)
+1)
+https://download.microsoft.com/download/C/F/8/CF821C31-38C7-4C5C-89BB-B283059269AF/Windows8.1-KB2919442-x64.msu
+
+2)
+https://download.microsoft.com/download/D/B/1/DB1F29FC-316D-481E-B435-1654BA185DCF/Windows8.1-KB2919355-x64.msu
+
+Date: 05/08/2020
+File modified "hMailServerInnoExtension.iss"
+Line: 495
+Purpose: Checking if a KB2999226 Update is present on Win7/2008_R2/8/8.1/2012/2012_R2 or not.
+If its not found, a MessageBox with Instructions is shown with a OK button. Setup cancels before anything was installed.
+Fixes Error: The program can't start because... api-ms-win-crt-runtime-l1-1-0.dll is missing
+
+Date: 05/08/2020
+File modified "section_files_64.iss"
+Line: 10, 11 and 36
+Purpose: Installing required UCrt Update packages to hMailServer\Temp and lbmysql.dll to hMailServer\bin
+and triggering 3x AfterInstall Events to silently Install the Windows MSU Update packages, if required.
+
+Hint:
+Windows Server 2016 x64 / 2019 x64 and all Windows 10 x64 are not affected.
+
+Date: 05/08/2020
+File modified "section_setup_64.iss"
+Line: 1
+Purpose: Inserting Uninstall Icon, Versioninfo and Minver to "6.1.7061"
+
+Date: 05/08/2020
+File modified "shared.iss"
+Line: 1
+Purpose: Inserting Versioninfo and Minver to "6.1.7061"
+
+Summary:
+The modifications are tested in various Virtual Machines:
+*Windows 7 x64 SP1 (Minimal Required for UCrt Updated and .NET 4.5 Installer)
+*Windows 2008 R2 x64 SP1 (Minimal Required for UCrt Updated and .NET 4.5 Installer)
+*Windows 8 x64 and Windows Server 2012 x64
+*Windows 8.1 x64 and Windows Server 2012 R2 x64
+*Windows 10 x64 / Windows 2016 and Windows Server 2019  x64
+
+

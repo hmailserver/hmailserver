@@ -1,4 +1,4 @@
-// #define HMAILSERVERLIBS "C:\Dev\hMailLibs\VS2013+x64"
+#define HMAILSERVERLIBS "C:\Dev\hMailLibs"
 
 #include "section_setup.iss"
 #include "section_setup_64.iss"
@@ -19,6 +19,6 @@
 #include "section_uninstallrun.iss"
 
 #include "section_icons.iss"
-
+#include "ucrtinstall.iss"
 #include "hMailServerInnoExtension.iss"
 

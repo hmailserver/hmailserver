@@ -1,7 +1,7 @@
 [Setup]
 AppName=hMailServer
 AppVerName=hMailServer 5.4-B1929
-AppCopyright=Copyright (C) 2008
+AppCopyright=Copyright (C) 2020
 DefaultDirName={pf}\hMailServer
 DefaultGroupName=hMailServer
 PrivilegesRequired=admin
@@ -13,7 +13,7 @@ AllowNoIcons=yes
 Uninstallable=true
 DirExistsWarning=no
 CreateAppDir=true
-MinVersion=0,5.1sp3
+MinVersion=6.1.7601
 
 [CustomMessages]
 ;configurations
