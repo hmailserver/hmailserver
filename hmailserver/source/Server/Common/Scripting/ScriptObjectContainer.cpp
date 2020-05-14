@@ -10,6 +10,7 @@
 #include "../../COM/InterfaceClient.h"
 #include "../../COM/InterfaceEventLog.h"
 #include "../../COM/InterfaceFetchAccount.h"
+#include "../../COM/InterfaceAccount.h"
 
 //#include "IScriptObject.h"
 #include "ScriptObjectContainer.h"
@@ -100,6 +101,15 @@ namespace HM
          {
             CComObject<InterfaceFetchAccount> *pInterface = new CComObject<InterfaceFetchAccount>();
             std::shared_ptr<FetchAccount> pObject = std::static_pointer_cast<FetchAccount>(pObj->pObject);
+            pInterface->AttachItem(pObject);
+            pInterface->QueryInterface(ppunkItem);
+
+            return true;
+         }
+      case ScriptObject::OTAccount:
+         {
+            CComObject<InterfaceAccount> *pInterface = new CComObject<InterfaceAccount>();
+            std::shared_ptr<Account> pObject = std::static_pointer_cast<Account>(pObj->pObject);
             pInterface->AttachItem(pObject);
             pInterface->QueryInterface(ppunkItem);
 
