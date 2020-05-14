@@ -229,6 +229,17 @@ public:
       USES_CONVERSION;
       HR(engine_.CoCreateInstance(T2COLE(pszLanguage)));
 
+      if (lstrcmp(pszLanguage, _T("JScript")) == 0)
+      {
+         // Set the JScript version to use - see https://docs.microsoft.com/en-us/scripting/winscript/reference/iactivescriptproperty-setproperty
+         CComPtr<IActiveScriptProperty> pScriptProperty;
+         HR(engine_->QueryInterface(IID_IActiveScriptProperty, reinterpret_cast<void**>(&pScriptProperty)));
+         VARIANT engineVersion;
+         engineVersion.vt = VT_I4;
+         engineVersion.llVal = SCRIPTLANGUAGEVERSION_5_8;
+         HR(pScriptProperty->SetProperty(SCRIPTPROP_INVOKEVERSIONING, 0, &engineVersion));
+      }
+
       // Attach to site
       HR(engine_->SetScriptSite(static_cast<IActiveScriptSite*>(this)));
 
