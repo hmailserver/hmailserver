@@ -186,7 +186,7 @@ namespace HM
       }
       else if (sScriptLanguage == _T("JScript"))
       {
-         sRemoteUIDCopy.Replace(_T("'"), _T("\'"));
+         sRemoteUIDCopy.Replace(_T("'"), _T("\\'"));
 
          if (pMessage)
             sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, '%s')"), sRemoteUIDCopy.c_str());
