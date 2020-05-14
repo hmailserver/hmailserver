@@ -29,7 +29,8 @@ namespace HM
          EventOnExternalAccountDownload = 1011,
          EventOnSMTPData = 1012,
          EventOnHELO = 1013,
-         EventOnClientLogon = 1014
+         EventOnClientLogon = 1014,
+         EventOnClientValidatePassword = 1015
       };
 
       ScriptServer(void);
@@ -68,6 +69,7 @@ namespace HM
       bool has_on_smtpdata_;
       bool has_on_helo_;
       bool has_on_client_logon_;
+      bool has_on_client_validate_password_;
 
       String script_contents_;
       String script_extension_;
