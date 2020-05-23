@@ -2,7 +2,9 @@ name: CI
 env:
  OPENSSL_VERSION: 1.1.1g
  BOOST_VERSION: 1_72_0
-
+ HMAILSERVER_VERSION: 5.7.0
+ HMAILSERVER_BUILD_NUMBER_BASE: 2521
+ 
 on:
   push:
     branches: [ master ]
@@ -60,11 +62,13 @@ jobs:
 
     - name: Configure installation
       run: |
-        $version = "${{ github.run_number }}" -as [int]
-        $build = $version + 1000;
-        Write-Host "github.run_number: $version"
-        Write-Host "Build number: $build"
-        hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe "." "5.7.0" $build
+        $run_number = "${{ github.run_number }}" -as [int]
+        $buildNumberBase = "${{ env.HMAILSERVER_BUILD_NUMBER_BASE }}" -as [int]
+        $buildNumber = $run_number + $buildNumberBase;
+        Write-Host "github.run_number: $run_number"
+        Write-Host "Build number base: $buildNumberBase"
+        Write-Host "Build number: $buildNumber"
+        hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe "." "${{ env.HMAILSERVER_VERSION }}" "$buildNumber"
 
     - name: Build installation
       run: ISCC.exe /DOPENSSL_LIBS_PATH="..\..\dependencies\openssl\openssl-${{env.OPENSSL_VERSION}}\out64\bin" hmailserver\installation\hMailServer64.iss
