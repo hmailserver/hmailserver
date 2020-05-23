@@ -76,4 +76,5 @@ jobs:
     - name: Upload installation artifact
       uses: actions/upload-artifact@v2
       with:
+          name: hmailserver-installation
           path: hmailserver/installation/output/*.exe
