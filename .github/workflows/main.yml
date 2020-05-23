@@ -1,0 +1,76 @@
+name: CI
+env:
+ OPENSSL_VERSION: 1.1.1g
+ BOOST_VERSION: 1_72_0
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+    - name: Checkout main repo
+      uses: actions/checkout@v2
+     
+    - name: Checkout OpenSSL dependency
+      uses: actions/checkout@v2
+      with:
+         repository: martinknafve/hmailserver-dep-openssl-${{env.OPENSSL_VERSION}}
+         ref: refs/heads/master
+         path: dependencies\openssl
+         
+    - name: Uncompress OpenSSL dependency
+      run:  Expand-Archive -Path .\dependencies\openssl\openssl-${{env.OPENSSL_VERSION}}.zip -DestinationPath .\dependencies\openssl\
+
+    - name: Add MSBuild to path
+      uses: microsoft/setup-msbuild@v1
+      with:
+        vs-version: 16.5
+
+    - name: Build hMailServer.sln
+      run: |
+        $BoostDirectoryVariableName = "BOOST_ROOT_$env:BOOST_VERSION"
+        $BoostDirectory = [System.Environment]::GetEnvironmentVariable($BoostDirectoryVariableName,'Process')
+        $OpenSSLDirectory = "..\..\..\..\dependencies\openssl\openssl-$env:OPENSSL_VERSION"
+        Write-Host "BoostDirectory: $BoostDirectory"
+        Write-Host "OpenSSLDirectory: $OpenSSLDirectory"
+        $env:BOOST_LIBS_PATH = "$BoostDirectory\lib"
+        $env:BOOST_INCLUDE_PATH = "$BoostDirectory\include"
+        $env:OPENSSL_LIBS_PATH = "$OpenSSLDirectory\out64\lib"
+        $env:OPENSSL_INCLUDE_PATH = "$OpenSSLDirectory\out64\include"
+        Write-Host "BOOST_LIBS_PATH: $env:BOOST_LIBS_PATH"
+        Write-Host "BOOST_INCLUDE_PATH: $env:BOOST_INCLUDE_PATH"
+        Write-Host "OPENSSL_LIBS_PATH: $env:OPENSSL_LIBS_PATH"
+        Write-Host "OPENSSL_INCLUDE_PATH: $env:OPENSSL_INCLUDE_PATH"
+        msbuild hmailserver/source/Server/hMailServer/hMailServer.sln /p:Configuration=Release /p:Platform="x64"
+
+    - name: Build DevTools.sln
+      run: msbuild hmailserver/tools/DevTools.sln /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Build hMailServer Tools.sln
+      run: msbuild "hmailserver/source/Tools/hMailServer Tools.sln" /p:Configuration=Release /p:Platform="x64"
+
+    - name: Extract translations
+      run: hmailserver\tools\TranslationExtractor\bin\Release\TranslationExtractor.exe "hmailserver\source\Translations"
+
+    - name: Configure installation
+      run: |
+        $version = "${{ github.run_number }}" -as [int]
+        $build = $version + 1000;
+        Write-Host "github.run_number: $version"
+        Write-Host "Build number: $build"
+        hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe "." "5.7.0" $build
+
+    - name: Build installation
+      run: ISCC.exe /DOPENSSL_LIBS_PATH="..\..\dependencies\openssl\openssl-${{env.OPENSSL_VERSION}}\out64\bin" hmailserver\installation\hMailServer64.iss
+
+    - name: Upload installation artifact
+      uses: actions/upload-artifact@v2
+      with:
+          name: hmailserver-installation
+          path: hmailserver/installation/output/*.exe

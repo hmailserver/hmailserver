@@ -1,4 +1,11 @@
-// #define HMAILSERVERLIBS "C:\Dev\hMailLibs\VS2013+x64"
+#define HMAILSERVERLIBS "C:\Dev\hMailLibs\Shared\"
+
+; OPENSSL_LIBS_PATH is initialized from main.yml when running under GitHub Actions
+#ifndef OPENSSL_LIBS_PATH
+	#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "openssl-1.1.1g\out64\bin"
+#endif
+
+
 
 #include "section_setup.iss"
 #include "section_setup_64.iss"

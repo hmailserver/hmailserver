@@ -70,10 +70,10 @@ external 'ControlService@advapi32.dll stdcall';
 function CloseServiceHandle(hSCObject :HANDLE): boolean;
 external 'CloseServiceHandle@advapi32.dll stdcall';
 
-function OpenService(hSCManager :HANDLE;lpServiceName: string; dwDesiredAccess :cardinal): HANDLE;
+function OpenService(hSCManager :HANDLE;lpServiceName: AnsiString; dwDesiredAccess :cardinal): HANDLE;
 external 'OpenServiceA@advapi32.dll stdcall';
 
-function OpenSCManager(lpMachineName, lpDatabaseName: string; dwDesiredAccess :cardinal): HANDLE;
+function OpenSCManager(lpMachineName, lpDatabaseName: AnsiString; dwDesiredAccess :cardinal): HANDLE;
 external 'OpenSCManagerA@advapi32.dll stdcall';
 
 function QueryServiceStatus(hService :HANDLE;var ServiceStatus :SERVICE_STATUS) : boolean;
@@ -83,13 +83,13 @@ function CheckPorts(): Integer;
 external 'CheckPorts@files:ISC.DLL stdcall';
 
 
-function isxdl_Download(hWnd: Integer; URL, Filename: PChar): Integer;
+function isxdl_Download(hWnd: Integer; URL, Filename: PAnsiChar): Integer;
 external 'isxdl_Download@files:isxdl.dll stdcall';
 
-procedure isxdl_AddFile(URL, Filename: PChar);
+procedure isxdl_AddFile(URL, Filename: PAnsiChar);
 external 'isxdl_AddFile@files:isxdl.dll stdcall';
 
-procedure isxdl_AddFileSize(URL, Filename: PChar; Size: Cardinal);
+procedure isxdl_AddFileSize(URL, Filename: PAnsiChar; Size: Cardinal);
 external 'isxdl_AddFileSize@files:isxdl.dll stdcall';
 
 function isxdl_DownloadFiles(hWnd: Integer): Integer;
@@ -101,10 +101,10 @@ external 'isxdl_ClearFiles@files:isxdl.dll stdcall';
 function isxdl_IsConnected: Integer;
 external 'isxdl_IsConnected@files:isxdl.dll stdcall';
 
-function isxdl_SetOption(Option, Value: PChar): Integer;
+function isxdl_SetOption(Option, Value: PAnsiChar): Integer;
 external 'isxdl_SetOption@files:isxdl.dll stdcall';
 
-function isxdl_GetFileName(URL: PChar): PChar;
+function isxdl_GetFileName(URL: PAnsiChar): PAnsiChar;
 external 'isxdl_GetFileName@files:isxdl.dll stdcall';
 
 // get Windows Installer version
@@ -128,7 +128,7 @@ begin
 	end
 end;
 
-function IsServiceInstalled(ServiceName: string) : boolean;
+function IsServiceInstalled(ServiceName: AnsiString) : boolean;
 var
 	hSCM	: HANDLE;
 	hService: HANDLE;
@@ -145,7 +145,7 @@ begin
 	end
 end;
 
-function StopService(ServiceName: string) : boolean;
+function StopService(ServiceName: AnsiString) : boolean;
 var
 	hSCM	: HANDLE;
 	hService: HANDLE;
@@ -163,7 +163,7 @@ begin
 	end;
 end;
 
-function IsServiceRunning(ServiceName: string) : boolean;
+function IsServiceRunning(ServiceName: AnsiString) : boolean;
 var
 	hSCM	: HANDLE;
 	hService: HANDLE;
@@ -183,7 +183,7 @@ begin
 	end
 end;
 
-function IsServiceStopped(ServiceName: string) : boolean;
+function IsServiceStopped(ServiceName: AnsiString) : boolean;
 var
 	hSCM	: HANDLE;
 	hService: HANDLE;
@@ -203,7 +203,7 @@ begin
 	end
 end;
 
-function GetInifile() : String;
+function GetInifile() : AnsiString;
 var
    szInifile : String;
 begin
@@ -236,15 +236,15 @@ begin
 
 end;
 
-function GetHashedPassword(Param: String): String;
+function GetHashedPassword(Param: String) : String;
 begin
   Result := GetMD5OfString(g_szAdminPassword);
 end;
 
-function GetCurrentDatabaseType() : String;
+function GetCurrentDatabaseType() : AnsiString;
 var
-   szInifile : String;
-   szDatabaseType : String;
+   szInifile : AnsiString;
+   szDatabaseType : AnsiString;
 begin
 
    // Locate the ini file.
@@ -256,9 +256,9 @@ begin
 end;
 
 
-function GetAdministratorPassword() : string;
-	var szIniFile : String;
-	var sKey : String;
+function GetAdministratorPassword() : AnsiString;
+	var szIniFile : AnsiString;
+	var sKey : AnsiString;
 begin
 	szIniFile := GetInifile();
 	
@@ -464,8 +464,8 @@ end;
 
 function InitializeSetup(): Boolean;
 	var
-		sMessage : String;
-    SoftwareVersion: string;
+		sMessage : AnsiString;
+    SoftwareVersion: AnsiString;
     WindowsVersion: TWindowsVersion;		
 begin
 	Result := true;
@@ -581,11 +581,11 @@ end;
 function InstallSQLCE() : boolean;
 var
    ResultCode: Integer;
-   szInstallApp: String;
-   szParams: String;
+   szInstallApp: AnsiString;
+   szParams: AnsiString;
 
-   szIniFile : String;
-   szDatabaseType : String;
+   szIniFile : AnsiString;
+   szDatabaseType : AnsiString;
 
    bNewInstallationWithSQLCE : Boolean;
    bUpgradeWithSQLCE : Boolean;
@@ -635,7 +635,7 @@ function RunPostInstallTasks() : Boolean;
    var
       ResultCode: Integer;
       ProgressPage : TOutputProgressWizardPage;
-      szParameters: String;
+      szParameters: AnsiString;
 begin
    try
 
@@ -702,8 +702,8 @@ begin
 end;
 
 function MoveIni() : Boolean;
-  var sOldFile : String;
-  var sNewFile : String;
+  var sOldFile : AnsiString;
+  var sNewFile : AnsiString;
 begin
 
    CreateDir(ExpandConstant('{app}\Bin'));
@@ -728,16 +728,16 @@ begin
 
 end;
 
-function CheckIsOldMySQLInstallation(szIniFile: String) : boolean;
+function CheckIsOldMySQLInstallation(szIniFile: AnsiString) : boolean;
 var
-   szDatabasePort : String;
-   szProgramFolder: String;
-   szMySQLExecutable : String;
+   szDatabasePort : AnsiString;
+   szProgramFolder: AnsiString;
+   szMySQLExecutable : AnsiString;
    iFileSize: Integer;
-   szMessage : String;
-   szDatabase : String;
-   szDatabaseHost : String;
-   szDatabaseUsername : String;
+   szMessage : AnsiString;
+   szDatabase : AnsiString;
+   szDatabaseHost : AnsiString;
+   szDatabaseUsername : AnsiString;
 begin
 
   szDatabasePort := GetIniString('Database', 'Port', '', szIniFile);
@@ -807,7 +807,7 @@ end;
 function NextButtonClick(CurPage : Integer): boolean;
 var
    hWnd: Integer;
-   szIniFile : String;
+   szIniFile : AnsiString;
 
 begin
 	// We default to true.
@@ -858,7 +858,7 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  szIniFile  : String;
+  szIniFile  : AnsiString;
 begin
 
 	if CurStep = ssInstall then
