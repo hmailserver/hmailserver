@@ -160,7 +160,11 @@ namespace RegressionTests.Infrastructure
          // Now we should be able to create another.
          TriggerCrashSimulationError();
 
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () => Assert.IsFalse(File.Exists(testminidump)));
+         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
+         {
+            if (File.Exists(testminidump))
+               throw new Exception($"File {testminidump} still exists.");
+         });
 
 
          AssertMinidumpsGeneratedAndErrorsLogged(10, true);
@@ -182,19 +186,26 @@ namespace RegressionTests.Infrastructure
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
          {
             var minidumps = GetMinidumps();
-            Assert.AreEqual(count, minidumps.Length);
+            if (count != minidumps.Length)
+               throw new Exception($"Unexpected number of minidums. Expected: {count}, Actual: {minidumps.Length}");
 
             if (count > 0 || expectedLoggedErrors.Length > 0)
             {
                string errorLog = LogHandler.ReadErrorLog();
                foreach (var minidump in minidumps)
                {
-                  Assert.IsTrue(errorLog.Contains(minidump));
+                  if (!errorLog.Contains(minidump))
+                  {
+                     throw new Exception($"Error log contains no reference to {minidump}.");
+                  }
                }
 
                foreach (var expectedLoggedError in expectedLoggedErrors)
                {
-                  Assert.IsTrue(errorLog.Contains(expectedLoggedError));
+                  if (!errorLog.Contains(expectedLoggedError))
+                  {
+                     throw new Exception($"Error log does not contain '{expectedLoggedError}'");
+                  }
                }
             }
 

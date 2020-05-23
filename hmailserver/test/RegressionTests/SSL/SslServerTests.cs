@@ -14,7 +14,7 @@ namespace RegressionTests.SSL
    [TestFixture]
    public class Basic : TestFixtureBase
    {
-      [TestFixtureSetUp]
+      [OneTimeSetUp]
       public new void TestFixtureSetUp()
       {
          SslSetup.SetupSSLPorts(_application);
@@ -158,7 +158,8 @@ namespace RegressionTests.SSL
                {
                   var countWhileConnected = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
 
-                  Assert.AreEqual(1, countWhileConnected);
+                  if (countWhileConnected != 1)
+                     throw new ArgumentException($"Connection count not decreased. Expected: 1, Actual: {countWhileConnected}");
                });
 
             }
@@ -168,7 +169,8 @@ namespace RegressionTests.SSL
          {
             var countAfter = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
 
-            Assert.GreaterOrEqual(countBefore, countAfter);
+            if (countBefore != countAfter)
+               throw new ArgumentException($"Connection count not decreased. Expected: countBefore, Actual: {countAfter}");
          });
       }
    }

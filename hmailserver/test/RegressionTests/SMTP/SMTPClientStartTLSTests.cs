@@ -44,7 +44,7 @@ namespace RegressionTests.SMTP
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsNotNullOrEmpty(server.MessageData);
+            Assert.That(server.MessageData, Is.Not.Null.Or.Empty);
 
             Assert.IsTrue(LogHandler.DefaultLogContains("220 Ready to start TLS"));
          }
@@ -74,7 +74,7 @@ namespace RegressionTests.SMTP
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsNotNullOrEmpty(server.MessageData);
+            Assert.That(server.MessageData, Is.Not.Null.Or.Empty);
 
             Assert.IsFalse(LogHandler.DefaultLogContains("220 Ready to start TLS"));
          }
@@ -105,7 +105,7 @@ namespace RegressionTests.SMTP
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsNotNullOrEmpty(server.MessageData);
+            Assert.That(server.MessageData, Is.Not.Null.Or.Empty);
 
             Assert.IsFalse(LogHandler.DefaultLogContains("220 Ready to start TLS"));
          }
@@ -135,7 +135,7 @@ namespace RegressionTests.SMTP
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
 
-            Assert.IsNotNullOrEmpty(server.MessageData);
+            Assert.That(server.MessageData, Is.Not.Null.Or.Empty);
 
             Assert.IsFalse(LogHandler.DefaultLogContains("220 Ready to start TLS"));
          }

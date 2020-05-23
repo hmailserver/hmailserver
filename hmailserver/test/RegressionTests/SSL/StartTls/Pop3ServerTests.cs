@@ -13,7 +13,7 @@ namespace RegressionTests.SSL.StartTls
    {
       private hMailServer.Account _account;
 
-      [TestFixtureSetUp]
+      [OneTimeSetUp]
       public new void TestFixtureSetUp()
       {
          SslSetup.SetupSSLPorts(_application);

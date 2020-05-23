@@ -288,7 +288,7 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2001 ON 28-May-2001 ALL"));
-         Assert.IsNullOrEmpty(oSimulator.Search("OR SINCE 28-May-2020 ON 28-May-2012 ALL"));
+         Assert.That(oSimulator.Search("OR SINCE 28-May-2020 ON 28-May-2012 ALL"), Is.Null.Or.Empty);
 
          string formattedToday = DateTime.Now.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture).ToUpper();
          Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2017 ON " + formattedToday + " ALL"));

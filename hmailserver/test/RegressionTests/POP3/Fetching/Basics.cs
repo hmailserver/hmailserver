@@ -174,11 +174,12 @@ namespace RegressionTests.POP3.Fetching
          {
             var
                log = LogHandler.ReadCurrentDefaultLog();
-            Assert.IsTrue(
-               log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."));
+            
+            if (!log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."))
+               throw new Exception("Expected message not appearing in log.");
          });
 
-      fa.Delete();
+         fa.Delete();
       }
 
 
@@ -1044,75 +1045,7 @@ namespace RegressionTests.POP3.Fetching
          }
       }
 
-      [Test]
-      [Ignore]
-      public void TestFetchMessagesWithVeryLongHeader()
-      {
-          var messages = new List<string>();
-
-          var toHeaderBuilder = new StringBuilder();
-          for (int i = 0; i < 10000; i++)
-          {
-             if (i > 0)
-                toHeaderBuilder.Append("; ");
-
-             toHeaderBuilder.AppendFormat("to-{0}@example.com", i);
-          }
-
-         for (int i = 0; i < 5; i++)
-         {
-            string message = string.Format("To: {1}\r\n" +
-                                           "X-Dummy: {0}\r\n" +
-                                           "Subject: Test\r\n" +
-                                           "\r\n" +
-                                           "Hello!", i, toHeaderBuilder);
-
-            messages.Add(message);
-         }
-
-         int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
-         {
-            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
-            pop3Server.StartListen();
-
-            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
-            FetchAccount fa = account.FetchAccounts.Add();
-
-            fa.Enabled = true;
-            fa.MinutesBetweenFetch = 10;
-            fa.Name = "Test";
-            fa.Username = "test@example.com";
-            fa.Password = "test";
-            fa.UseSSL = false;
-            fa.ServerAddress = "localhost";
-            fa.Port = port;
-            fa.ProcessMIMERecipients = false;
-            fa.Save();
-
-            fa.DownloadNow();
-
-            pop3Server.WaitForCompletion();
-
-            LockHelper.WaitForUnlock(fa);
-
-            fa.Delete();
-
-            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
-            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-
-
-
-            for (int i = 0; i < 5; i++)
-            {
-               if (downloadedMessage.Contains(messages[i]))
-                  return;
-            }
-
-            Assert.Fail("Downloaded messages did not match uploaded messages.");
-         }
-      }
-
+      
       [Test]
       [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
       public void TestFetchMessageWithValidFromAddress()

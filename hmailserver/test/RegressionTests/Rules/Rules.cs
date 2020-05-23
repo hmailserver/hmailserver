@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Remoting;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -407,17 +408,10 @@ namespace RegressionTests.Rules
          CustomAsserts.AssertFolderMessageCount(folder, 1);
 
          // Make sure we can't access it.
-         bool ok = false;
-         try
-         {
-            ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 0);
-         }
-         catch (Exception)
-         {
-            ok = true;
-         }
-         Assert.IsTrue(ok);
+         var oIMAP = new ImapClientSimulator();
+         Assert.IsTrue(oIMAP.ConnectAndLogon("ruletest@test.com", "test"));
 
+         Assert.Throws<ArgumentException>(() =>  oIMAP.GetMessageCount("#public.MyFolder"));
 
          // Set permissions on this folder.
          IMAPFolderPermission permission = folder.Permissions.Add();
@@ -428,9 +422,8 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionExpunge, true);
          permission.Save();
 
-
          // Make sure we can access it now.
-         ImapClientSimulator.AssertMessageCount("ruletest@test.com", "test", "#public.MyFolder", 1);
+         oIMAP.GetMessageCount("#public.MyFolder");
       }
 
       [Test]

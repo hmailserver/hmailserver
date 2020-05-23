@@ -57,10 +57,7 @@ namespace RegressionTests.SSL
 
       public static string GetSslCertPath()
       {
-         string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\..\\SSL examples";
-         string sslPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = originalPath;
+         string sslPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "..\\..\\..\\..\\SSL examples");
 
          return sslPath;
       }

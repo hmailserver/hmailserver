@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using RegressionTests.Shared;
 using hMailServer;
@@ -9,8 +10,6 @@ namespace RegressionTests.API
    {
       [Test]
       [Description("Issue 303, Domain administrators should not have permission to add new domains.")]
-      [ExpectedException(typeof (COMException), MatchType = MessageMatch.Contains,
-         ExpectedMessage = "You do not have access to this property / method.")]
       public void DomainAdminShouldNotBeAbleToAddDomain()
       {
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
@@ -25,13 +24,12 @@ namespace RegressionTests.API
          Assert.IsNotNull(authenticated);
 
          // This should throw an exception.
-         Domain newDomain = newApp.Domains.Add();
+         var ex = Assert.Throws<COMException>(() => newApp.Domains.Add());
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
       [Description("Issue 303, Normal users should not have permission to add new domains.")]
-      [ExpectedException(typeof (COMException), MatchType = MessageMatch.Contains,
-         ExpectedMessage = "You do not have access to this property / method.")]
       public void NormalUserShouldNotBeAbleToAddDomain()
       {
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
@@ -44,7 +42,8 @@ namespace RegressionTests.API
          Assert.IsNotNull(authenticated);
 
          // This should throw an exception.
-         Domain newDomain = newApp.Domains.Add();
+         var ex = Assert.Throws<COMException>(() => newApp.Domains.Add());
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
@@ -88,8 +87,6 @@ namespace RegressionTests.API
       }
 
       [Test]
-      [ExpectedException(typeof (COMException), MatchType = MessageMatch.Contains,
-         ExpectedMessage = "You do not have access to this property / method.")]
       public void UserShouldNotBeAbleToSaveDomain()
       {
          Domain domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
@@ -107,7 +104,8 @@ namespace RegressionTests.API
 
          // Retrieve our domain.
          Domain newDomain = newApp.Domains[0];
-         newDomain.Save();
+         var ex = Assert.Throws<COMException>(() => newDomain.Save());
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
    }
 }

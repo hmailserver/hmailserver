@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.VisualBasic;
 using NUnit.Framework;
@@ -489,11 +490,11 @@ namespace RegressionTests.API
 
       [Test]
       [Description("Issue 368, Routes.ItemByName returns invalid object")]
-      [ExpectedException(ExpectedMessage = "Invalid index.", MatchType = MessageMatch.Contains)]
       public void TestRetrieveNonexistantRoute()
       {
          Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         settings.Routes.get_ItemByName("whatever.com");
+         var ex = Assert.Throws<COMException>(() => settings.Routes.get_ItemByName("whatever.com"));
+         StringAssert.Contains("Invalid index.", ex.Message);
       }
 
       [Test]

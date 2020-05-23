@@ -544,7 +544,7 @@ namespace RegressionTests.Shared
 
          if (!sData.Contains("A33 OK"))
          {
-            Assert.Fail("The folder " + sFolder + " was not selectable. Result: " + sData);
+            throw new ArgumentException("The folder " + sFolder + " was not selectable. Result: " + sData);
             return 0;
          }
 

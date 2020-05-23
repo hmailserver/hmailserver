@@ -898,43 +898,6 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(bounce.Contains("Remote server replied: 542 test@dummy-example.com"));
       }
 
-      [Test]
-      [Description("Tests that the SMTP client times out after 10 minutes.")]
-      [Ignore]
-      public void TestSMTPClientTimeout()
-      {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
-
-         // No valid recipients...
-         var deliveryResults = new Dictionary<string, int>();
-         deliveryResults["test@dummy-example.com"] = 250;
-
-         int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SmtpServerSimulator(1, smtpServerPort))
-         {
-            server.AddRecipientResult(deliveryResults);
-            server.SimulatedError = SimulatedErrorType.Sleep15MinutesAfterSessionStart;
-            server.SecondsToWaitBeforeTerminate = 20*60;
-            server.StartListen();
-
-            // Add a route so we can connect to localhost.
-            Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
-            route.RelayerRequiresAuth = true;
-            route.RelayerAuthUsername = "user@example.com";
-            route.SetRelayerAuthPassword("MySecretPassword");
-
-            // Send message to this route.
-            var smtp = new SmtpClientSimulator();
-            var recipients = new List<string>();
-            recipients.Add("test@dummy-example.com");
-            smtp.Send("test@test.com", recipients, "Test", "Test message");
-
-            // Wait for the client to disconnect.
-            server.WaitForCompletion();
-         }
-
-         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-      }
 
       [Test]
       public void TestTemporaryFailure()
