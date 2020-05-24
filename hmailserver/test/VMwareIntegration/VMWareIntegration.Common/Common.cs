@@ -19,7 +19,7 @@ namespace VMwareIntegration.Common
       public static string GetFixturePath()
       {
          string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         string fixturePath = Path.Combine(currentDir, @"..\..\..\..\RegressionTests");
+         string fixturePath = Path.Combine(currentDir, @"..\..\..\..\..\RegressionTests");
 
          DirectoryInfo dir = new DirectoryInfo(fixturePath);
          FileInfo[] files = dir.GetFiles("RegressionTests.sln");
@@ -38,7 +38,7 @@ namespace VMwareIntegration.Common
       public static string GetTestFolder()
       {
          string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         string fixturePath = Path.Combine(currentDir, @"..\..\..\..\");
+         string fixturePath = Path.Combine(currentDir, @"..\..\..\..\..\");
 
          return Path.GetFullPath(fixturePath);
       }

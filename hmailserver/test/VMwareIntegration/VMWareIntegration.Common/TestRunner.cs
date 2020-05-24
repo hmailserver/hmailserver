@@ -12,14 +12,18 @@ namespace VMwareIntegration.Common
 {
    public class TestRunner
    {
-      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.6.3";
-      
+      private const string NuGetPackagesRelativePath = @"..\..\..\..\..\packages\";
+      private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.11.1\tools";
+      private const string NUnitPackagePath = @"NUnit.3.12.0\lib\net45";
+
+      private string _nUnitPath;
+      private string _nUnitConsolePath;
+
       private TestEnvironment _environment;
       private bool _stopOnError;
       private bool _embedded;
-      public delegate void TestCompletedDelegate(int testIndex, bool result, string message, string failureText);
 
-      private string _softwareUnderTest;
+      private readonly string _softwareUnderTest;
 
       public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
       {
@@ -27,6 +31,19 @@ namespace VMwareIntegration.Common
          _stopOnError = stopOnError;
          _embedded = embedded;
          _softwareUnderTest = softwareUnderTest;
+
+
+         var packagePath = Path.Combine(Environment.CurrentDirectory, NuGetPackagesRelativePath);
+
+         _nUnitConsolePath = Path.Combine(packagePath, NUnitConsoleRunnerPackagePath);
+
+         if (!Directory.Exists(_nUnitConsolePath))
+            throw new InvalidOperationException($"NUnit console not found in {_nUnitConsolePath}");
+
+         _nUnitPath = Path.Combine(packagePath, NUnitPackagePath);
+
+         if (!Directory.Exists(_nUnitPath))
+            throw new InvalidOperationException($"NUnit not found in {_nUnitPath}");
       }
 
       public void RunThread()
@@ -43,11 +60,8 @@ namespace VMwareIntegration.Common
       {
          VMware vm = new VMware();
 
-          if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
-             throw new Exception("Incorrect path to NUnit.");
-
         string fixtureSourcePath = TestSettings.GetFixturePath();
-        string fixturePath = fixtureSourcePath + @"\bin\Release";
+        string fixturePath = fixtureSourcePath + @"\bin\x64\Release";
          // Check that the test fixture is available.
          var testAssemblies = Directory.GetFiles(fixturePath, "*.dll");
          if (!testAssemblies.Any())
@@ -55,7 +69,7 @@ namespace VMwareIntegration.Common
 
         string runTestsScriptName = "RunTestsInVmware.bat";
         string runTestScripts = fixtureSourcePath + @"\" + runTestsScriptName;
-        string guestTestPath = @"C:\Nunit";
+        const string guestTestPath = @"C:\Nunit";
 
         string softwareUnderTestFullPath = _softwareUnderTest;
         string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
@@ -71,7 +85,7 @@ namespace VMwareIntegration.Common
          try
          {
             vm.RevertToSnapshot(_environment.SnapshotName);
-            vm.LoginInGuest("VMware", "vmware");
+            vm.LoginInGuest("Administrator", "Secret12");
 
             // Make sure we have an IP address.
             EnsureNetworkAccess(vm);
@@ -90,13 +104,14 @@ namespace VMwareIntegration.Common
             foreach (PostInstallCommand command in _environment.PostInstallCommands)
                vm.RunProgramInGuest(command.Executable, command.Parameters);
 
-            // Configure Nunit
-            vm.CopyFolderToGuest(ExpandVariables(NUnitPath), guestTestPath);
-            vm.CopyFolderToGuest(Path.Combine(ExpandVariables(NUnitPath), "lib"), Path.Combine(guestTestPath, "lib"));
+            // Copy NUnit and NUNit console runner to VM
+            vm.CopyFolderToGuest(_nUnitConsolePath, guestTestPath);
+            vm.CopyFolderToGuest(_nUnitPath, guestTestPath);
+            // vm.CopyFolderToGuest(Path.Combine(ExpandVariables(NUnitPath), "lib"), Path.Combine(guestTestPath, "lib"));
             vm.CopyFolderToGuest(fixturePath, guestTestPath);
             vm.CopyFileToGuest(runTestScripts, guestTestPath + "\\" + runTestsScriptName);
 
-            // Other required stuff.
+            // Other files required by tests.
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
@@ -120,10 +135,9 @@ namespace VMwareIntegration.Common
             XmlDocument doc = new XmlDocument();
             doc.Load(localResultFile);
 
-            int failureCount = Convert.ToInt32(doc.LastChild.Attributes["failures"].Value);
-            int errorCount = Convert.ToInt32(doc.LastChild.Attributes["errors"].Value);
+            int failedCount = Convert.ToInt32(doc.LastChild.Attributes["failed"].Value);
 
-            if (failureCount == 0 && errorCount == 0)
+            if (failedCount == 0)
                return;
 
             string resultContent = File.ReadAllText(localResultFile);
