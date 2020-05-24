@@ -11,4 +11,4 @@ AllowNoIcons=yes
 Uninstallable=true
 DirExistsWarning=no
 CreateAppDir=true
-MinVersion=6.1
+MinVersion=6.0.6001
