@@ -91,6 +91,13 @@ Visual Studio 2019 must be started with _Run as Administrator_.
 4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
+Continous Integration
+=====================
+
+Production builds can be downloaded via [hMailServer.com](https://www.hmailserver.com), but if you want to pick up a build based on the latest commit you can download artifacts from [GitHub Actions](https://github.com/hmailserver/hmailserver/actions).
+
+![CI](https://github.com/hmailserver/hmailserver/workflows/CI/badge.svg)
+
 Running in Debug
 ----------------
 
