@@ -465,33 +465,10 @@ end;
 function InitializeSetup(): Boolean;
 	var
 		sMessage : AnsiString;
-    SoftwareVersion: AnsiString;
-    WindowsVersion: TWindowsVersion;		
+		SoftwareVersion: AnsiString;
 begin
 	Result := true;
 			
-	// hMailServer require at least:
-	// - Windows 7 with Service Pack 1
-	// - Windows Server 2008 R2 with Service Pack 1
-	// (or later)
-    GetWindowsVersionEx(WindowsVersion);
-  
-	if (WindowsVersion.NTPlatform = False) then
-	begin;
-		MsgBox('hMailServer requires an NT-based operating system.',mbInformation, MB_OK);	
-		Result := false;
-		Exit;
-	end;
-
-	if ((WindowsVersion.Major < 6) or
-		((WindowsVersion.Major = 6) and (WindowsVersion.Minor < 1)) or
-		((WindowsVersion.Major = 6) and (WindowsVersion.Minor = 1) and (WindowsVersion.Build < 7600))) then
-	begin
-		MsgBox('hMailServer requires Windows Server 2008 R2, Windows 7 or later.',mbInformation, MB_OK);	
-		Result := false;
-		exit;
-	end;
-
 	if not IsNetFrameworkInstalled() then begin
         MsgBox('hMailServer requires .NET Framework 4.5'#13#13
             'Please install this version and then re-run the hMailServer setup program.', mbInformation, MB_OK);
