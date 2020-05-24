@@ -34,6 +34,19 @@ jobs:
       with:
         vs-version: 16.5
 
+    - name: Build DevTools.sln
+      run: msbuild hmailserver/tools/DevTools.sln /p:Configuration=Release /p:Platform="Any CPU"
+      
+    - name: Configure installation
+      run: |
+        $run_number = "${{ github.run_number }}" -as [int]
+        $buildNumberBase = "${{ env.HMAILSERVER_BUILD_NUMBER_BASE }}" -as [int]
+        $buildNumber = $run_number + $buildNumberBase;
+        Write-Host "github.run_number: $run_number"
+        Write-Host "Build number base: $buildNumberBase"
+        Write-Host "Build number: $buildNumber"
+        hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe "." "${{ env.HMAILSERVER_VERSION }}" "$buildNumber"
+
     - name: Build hMailServer.sln
       run: |
         $BoostDirectoryVariableName = "BOOST_ROOT_$env:BOOST_VERSION"
@@ -51,24 +64,11 @@ jobs:
         Write-Host "OPENSSL_INCLUDE_PATH: $env:OPENSSL_INCLUDE_PATH"
         msbuild hmailserver/source/Server/hMailServer/hMailServer.sln /p:Configuration=Release /p:Platform="x64"
 
-    - name: Build DevTools.sln
-      run: msbuild hmailserver/tools/DevTools.sln /p:Configuration=Release /p:Platform="Any CPU"
-
     - name: Build hMailServer Tools.sln
       run: msbuild "hmailserver/source/Tools/hMailServer Tools.sln" /p:Configuration=Release /p:Platform="x64"
 
     - name: Extract translations
       run: hmailserver\tools\TranslationExtractor\bin\Release\TranslationExtractor.exe "hmailserver\source\Translations"
-
-    - name: Configure installation
-      run: |
-        $run_number = "${{ github.run_number }}" -as [int]
-        $buildNumberBase = "${{ env.HMAILSERVER_BUILD_NUMBER_BASE }}" -as [int]
-        $buildNumber = $run_number + $buildNumberBase;
-        Write-Host "github.run_number: $run_number"
-        Write-Host "Build number base: $buildNumberBase"
-        Write-Host "Build number: $buildNumber"
-        hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe "." "${{ env.HMAILSERVER_VERSION }}" "$buildNumber"
 
     - name: Build installation
       run: ISCC.exe /DOPENSSL_LIBS_PATH="..\..\dependencies\openssl\openssl-${{env.OPENSSL_VERSION}}\out64\bin" hmailserver\installation\hMailServer64.iss
