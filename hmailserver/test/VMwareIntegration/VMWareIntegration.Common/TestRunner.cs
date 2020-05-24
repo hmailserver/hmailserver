@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Threading;
@@ -160,14 +161,18 @@ namespace VMwareIntegration.Common
 
       private void CopyLocalVersion(VMware vm)
       {
-         const string localPath =
-            @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
+         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+         var localExecutable = Path.Combine(currentDir,
+            @"..\..\..\..\..\..\source\Server\hMailServer\x64\Release\hMailServer.exe");
+
+         if (!File.Exists(localExecutable))
+         {
+            throw new Exception($"The executable {localExecutable} could not be found.");
+         }
 
          RunScriptInGuest(vm, "NET STOP HMAILSERVER");
-         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
-         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
-         vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
-         vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+         vm.CopyFileToGuest(localExecutable, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
          RunScriptInGuest(vm, "NET START HMAILSERVER");
       }
 
