@@ -1498,7 +1498,7 @@ namespace HM
          }
       }
 
-      if (GetAuthIsEnabled_())
+      if (GetAuthIsEnabled_() && (IsSSLConnection() || GetConnectionSecurity() != CSSTARTTLSRequired))
       {
          String sAuth = "\r\n250-AUTH LOGIN";
 
