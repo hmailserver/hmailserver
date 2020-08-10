@@ -31,7 +31,8 @@ namespace HM
       has_on_external_account_download_(false),
       has_on_smtpdata_(false),
       has_on_helo_(false),
-      has_on_client_logon_(false)
+      has_on_client_logon_(false),
+      has_on_client_validate_password_(false)
    {
       
    }
