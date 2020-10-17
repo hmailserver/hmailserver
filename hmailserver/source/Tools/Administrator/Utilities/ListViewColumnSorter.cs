@@ -91,7 +91,9 @@ public class ListViewColumnSorter : IComparer
 	/// </summary>
 	private CaseInsensitiveComparer ObjectCompare;
 
-   private bool _numericSort;
+	private bool _numericSort;
+
+	private bool _datetimeSort;
 
 	/// <summary>
 	/// Class constructor.  Initializes various elements
@@ -123,46 +125,58 @@ public class ListViewColumnSorter : IComparer
 		listviewX = (ListViewItem)x;
 		listviewY = (ListViewItem)y;
 
-        ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
-        ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
 
-        if (subItemX == null || subItemY == null)
-            return 0;
+		if (subItemX == null || subItemY == null)
+			return 0;
 
-        if (_numericSort)
-        {
-           try
-           {
-              Int64 val1 = Convert.ToInt64(subItemX.Text);
-              Int64 val2 = Convert.ToInt64(subItemY.Text);
+		if (_numericSort)
+		{
+			try
+			{
+				Int64 val1 = Convert.ToInt64(subItemX.Text);
+				Int64 val2 = Convert.ToInt64(subItemY.Text);
 
-              if (val1 < val2)
-                 compareResult = -1;
-              else if (val1 > val2)
-                 compareResult = 1;
+				if (val1 < val2)
+					compareResult = -1;
+				else if (val1 > val2)
+					compareResult = 1;
 
-              if (OrderOfSort == SortOrder.Descending)
-                 compareResult = -compareResult;
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
 
-              return compareResult;
-           }
-           catch (Exception)
-           {
+				return compareResult;
+			}
+			catch (Exception)
+			{
 
-           }
-        }
+			}
+		}
+
+		if (_datetimeSort)
+		{
+			try
+			{
+				DateTime dateX;
+				DateTime dateY;
+
+				if (DateTime.TryParse(subItemX.Text, out dateX) && DateTime.TryParse(subItemY.Text, out dateY))
+					compareResult = ObjectCompare.Compare(dateX, dateY);
+
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
+
+				return compareResult;
+			}
+			catch (Exception) 
+			{ 
+
+			}
+		}
 
 		// Compare the two items
-		DateTime dateX;
-		DateTime dateY;
-		if (DateTime.TryParse(subItemX.Text, out dateX) && DateTime.TryParse(subItemY.Text, out dateY))
-		{
-			compareResult = ObjectCompare.Compare(dateX, dateY);
-		}
-		else
-		{
-			compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
-		}
+		compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
 
 		// Calculate correct return value based on object comparison
 		if (OrderOfSort == SortOrder.Ascending)
@@ -189,7 +203,8 @@ public class ListViewColumnSorter : IComparer
 	{
 		set
 		{
-         NumericSort = false;
+         	NumericSort = false;
+			DateTimeSort = false;
 			ColumnToSort = value;
 		}
 		get
@@ -209,6 +224,18 @@ public class ListViewColumnSorter : IComparer
          return _numericSort;
       }
    }
+
+	public bool DateTimeSort
+	{
+		set
+		{
+			_datetimeSort = value;
+		}
+		get
+		{
+			return _datetimeSort;
+		}
+	}
 
 	/// <summary>
 	/// Gets or sets the order of sorting to apply (for example, 'Ascending' or 'Descending').
