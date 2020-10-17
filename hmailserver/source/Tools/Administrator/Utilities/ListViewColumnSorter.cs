@@ -69,7 +69,7 @@
 // operating system product.
 
 
-using System.Collections;	
+using System.Collections;
 using System.Windows.Forms;
 using System;
 
@@ -169,8 +169,8 @@ public class ListViewColumnSorter : IComparer
 
 				return compareResult;
 			}
-			catch (Exception) 
-			{ 
+			catch (Exception)
+			{
 
 			}
 		}
@@ -195,7 +195,7 @@ public class ListViewColumnSorter : IComparer
 			return 0;
 		}
 	}
-    
+
 	/// <summary>
 	/// Gets or sets the number of the column to which to apply the sorting operation (Defaults to '0').
 	/// </summary>
@@ -203,27 +203,27 @@ public class ListViewColumnSorter : IComparer
 	{
 		set
 		{
-         	NumericSort = false;
+			NumericSort = false;
 			DateTimeSort = false;
 			ColumnToSort = value;
 		}
 		get
- 		{
-		   return ColumnToSort;
+		{
+			return ColumnToSort;
 		}
 	}
 
-   public bool NumericSort
-   {
-      set
-      {
-         _numericSort = value;
-      }
-      get
-      {
-         return _numericSort;
-      }
-   }
+	public bool NumericSort
+	{
+		set
+		{
+			_numericSort = value;
+		}
+		get
+		{
+			return _numericSort;
+		}
+	}
 
 	public bool DateTimeSort
 	{
@@ -251,6 +251,5 @@ public class ListViewColumnSorter : IComparer
 			return OrderOfSort;
 		}
 	}
-    
+
 }
-			
