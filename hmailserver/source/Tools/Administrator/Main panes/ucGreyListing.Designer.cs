@@ -225,6 +225,7 @@ namespace hMailServer.Administrator
            // columnHeader1
            // 
            this.columnHeader1.Text = "IP address";
+           this.columnHeader1.Tag = "IPAddress";
            this.columnHeader1.Width = 100;
            // 
            // columnHeader2

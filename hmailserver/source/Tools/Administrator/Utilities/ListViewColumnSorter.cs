@@ -69,9 +69,10 @@
 // operating system product.
 
 
-using System.Collections;	
+using System.Collections;
 using System.Windows.Forms;
 using System;
+using System.Net;
 
 /// <summary>
 /// This class is an implementation of the 'IComparer' interface.
@@ -91,7 +92,11 @@ public class ListViewColumnSorter : IComparer
 	/// </summary>
 	private CaseInsensitiveComparer ObjectCompare;
 
-   private bool _numericSort;
+	private bool _numericSort;
+
+	private bool _datetimeSort;
+
+	private bool _ipaddressSort;
 
 	/// <summary>
 	/// Class constructor.  Initializes various elements
@@ -123,38 +128,95 @@ public class ListViewColumnSorter : IComparer
 		listviewX = (ListViewItem)x;
 		listviewY = (ListViewItem)y;
 
-        ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
-        ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
 
-        if (subItemX == null || subItemY == null)
-            return 0;
+		if (subItemX == null || subItemY == null)
+			return 0;
 
-        if (_numericSort)
-        {
-           try
-           {
-              Int64 val1 = Convert.ToInt64(subItemX.Text);
-              Int64 val2 = Convert.ToInt64(subItemY.Text);
+		if (_numericSort)
+		{
+			try
+			{
+				Int64 val1 = Convert.ToInt64(subItemX.Text);
+				Int64 val2 = Convert.ToInt64(subItemY.Text);
 
-              if (val1 < val2)
-                 compareResult = -1;
-              else if (val1 > val2)
-                 compareResult = 1;
+				if (val1 < val2)
+					compareResult = -1;
+				else if (val1 > val2)
+					compareResult = 1;
 
-              if (OrderOfSort == SortOrder.Descending)
-                 compareResult = -compareResult;
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
 
-              return compareResult;
-           }
-           catch (Exception)
-           {
+				return compareResult;
+			}
+			catch (Exception)
+			{
 
-           }
-        }
+			}
+		}
+
+		if (_datetimeSort)
+		{
+			try
+			{
+				DateTime dateX;
+				DateTime dateY;
+
+				if (DateTime.TryParse(subItemX.Text, out dateX) && DateTime.TryParse(subItemY.Text, out dateY))
+					compareResult = ObjectCompare.Compare(dateX, dateY);
+
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
+
+				return compareResult;
+			}
+			catch (Exception)
+			{
+
+			}
+		}
+
+		if (_ipaddressSort)
+		{
+			try
+			{
+				IPAddress ipaddressX;
+				IPAddress ipaddressY;
+
+				if (IPAddress.TryParse(subItemX.Text, out ipaddressX) && IPAddress.TryParse(subItemY.Text, out ipaddressY))
+				{
+					compareResult = ipaddressX.AddressFamily.CompareTo(ipaddressY.AddressFamily);
+					if (compareResult != 0)
+						return compareResult;
+
+					var xBytes = ipaddressX.GetAddressBytes();
+					var yBytes = ipaddressY.GetAddressBytes();
+
+					var octets = Math.Min(xBytes.Length, yBytes.Length);
+					for (var i = 0; i < octets; i++)
+					{
+						compareResult = xBytes[i].CompareTo(yBytes[i]);
+						if (compareResult != 0)
+
+						if (OrderOfSort == SortOrder.Descending)
+							compareResult = -compareResult;
+
+						return compareResult;
+					}
+					return compareResult;
+				}
+			}
+			catch (Exception)
+			{
+
+			}
+		}
 
 		// Compare the two items
-        compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
-			
+		compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
+
 		// Calculate correct return value based on object comparison
 		if (OrderOfSort == SortOrder.Ascending)
 		{
@@ -172,7 +234,7 @@ public class ListViewColumnSorter : IComparer
 			return 0;
 		}
 	}
-    
+
 	/// <summary>
 	/// Gets or sets the number of the column to which to apply the sorting operation (Defaults to '0').
 	/// </summary>
@@ -180,26 +242,52 @@ public class ListViewColumnSorter : IComparer
 	{
 		set
 		{
-         NumericSort = false;
+			NumericSort = false;
+			DateTimeSort = false;
+			IPAddressSort = false;
 			ColumnToSort = value;
 		}
 		get
- 		{
-		   return ColumnToSort;
+		{
+			return ColumnToSort;
 		}
 	}
 
-   public bool NumericSort
-   {
-      set
-      {
-         _numericSort = value;
-      }
-      get
-      {
-         return _numericSort;
-      }
-   }
+	public bool NumericSort
+	{
+		set
+		{
+			_numericSort = value;
+		}
+		get
+		{
+			return _numericSort;
+		}
+	}
+
+	public bool DateTimeSort
+	{
+		set
+		{
+			_datetimeSort = value;
+		}
+		get
+		{
+			return _datetimeSort;
+		}
+	}
+
+	public bool IPAddressSort
+	{
+		set
+		{
+			_ipaddressSort = value;
+		}
+		get
+		{
+			return _ipaddressSort;
+		}
+	}
 
 	/// <summary>
 	/// Gets or sets the order of sorting to apply (for example, 'Ascending' or 'Descending').
@@ -215,6 +303,5 @@ public class ListViewColumnSorter : IComparer
 			return OrderOfSort;
 		}
 	}
-    
+
 }
-			
