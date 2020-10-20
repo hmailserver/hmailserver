@@ -54,7 +54,7 @@ namespace HM
          return setSpamTestResults;
 
       String sExplanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), sExplanation);
+      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), pTestData->GetHeloHost(), sExplanation);
       
       if (result == SPF::Fail)
       {
