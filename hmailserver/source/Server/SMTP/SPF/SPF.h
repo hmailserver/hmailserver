@@ -18,7 +18,7 @@ namespace HM
          Pass = 2
       };
 
-      Result Test(const String &sSenderIP, const String &sSenderEmail, String &sExplanation);
+      Result Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation);  
 
    private:
       
