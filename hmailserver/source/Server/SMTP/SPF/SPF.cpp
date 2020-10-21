@@ -45,7 +45,7 @@ namespace HM
          return Neutral;
 
       const char* explain;
-      int result = SPFQuery(family, BinaryIP, T2A(sSenderEmail), NULL, T2A(sHeloHost), NULL, &explain);
+      int result=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
 
       if (explain != NULL)
       {
