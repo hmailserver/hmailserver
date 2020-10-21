@@ -6,24 +6,24 @@
 //
 // MICROSOFT LIMITED PUBLIC LICENSE
 // 
-// This license governs use of code marked as ìsampleî available on this 
+// This license governs use of code marked as ‚Äúsample‚Äù available on this 
 // Web Site without a License Agreement , as provided under the Section above
-// titled ì NOTICE SPECIFIC TO SOFTWARE AVAILABLE ON THIS WEB SITE î. If you
-// use such code (the ìsoftwareî), you accept this license. If you do not
+// titled ‚Äú NOTICE SPECIFIC TO SOFTWARE AVAILABLE ON THIS WEB SITE ‚Äù. If you
+// use such code (the ‚Äúsoftware‚Äù), you accept this license. If you do not
 // accept the license, do not use the software.
 // 
 // 1. Definitions
 // 
-// The terms ìreproduce,î ìreproduction,î ìderivative works,î and ìdistributionî
+// The terms ‚Äúreproduce,‚Äù ‚Äúreproduction,‚Äù ‚Äúderivative works,‚Äù and ‚Äúdistribution‚Äù
 // have the same meaning here as under U.S. copyright law.
 // 
-// A ìcontributionî is the original software, or any additions or changes to the 
+// A ‚Äúcontribution‚Äù is the original software, or any additions or changes to the 
 // software.
 // 
-// A ìcontributorî is any person that distributes its contribution under 
+// A ‚Äúcontributor‚Äù is any person that distributes its contribution under 
 // this license.
 // 
-// ìLicensed patentsî are a contributorís patent claims that read directly
+// ‚ÄúLicensed patents‚Äù are a contributor‚Äôs patent claims that read directly
 // on its contribution.
 // 
 // 2. Grant of Rights
@@ -44,7 +44,7 @@
 // 3. Conditions and Limitations
 // 
 // (A) No Trademark License- This license does not grant you rights to use any 
-// contributorsí name, logo, or trademarks.
+// contributors‚Äô name, logo, or trademarks.
 // 
 // (B) If you bring a patent claim against any contributor over patents that you 
 // claim are infringed by the software, your patent license from such contributor
@@ -58,7 +58,7 @@
 // your distribution. If you distribute any portion of the software in compiled or 
 // object code form, you may only do so under a license that complies with this license.
 // 
-// (E) The software is licensed ìas-is.î You bear the risk of using it. The contributors
+// (E) The software is licensed ‚Äúas-is.‚Äù You bear the risk of using it. The contributors
 // give no express warranties, guarantees or conditions. You may have additional
 // consumer rights under your local laws which this license cannot change. To the extent 
 // permitted under your local laws, the contributors exclude the implied warranties of 
