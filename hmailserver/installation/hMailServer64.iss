@@ -2,7 +2,7 @@
 
 ; OPENSSL_LIBS_PATH is initialized from main.yml when running under GitHub Actions
 #ifndef OPENSSL_LIBS_PATH
-	#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "openssl-1.1.1g\out64\bin"
+	#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "openssl-1.1.1i\out64\bin"
 #endif
 
 
