@@ -22,7 +22,7 @@ jobs:
     - name: Checkout OpenSSL dependency
       uses: actions/checkout@v2
       with:
-         repository: martinknafve/hmailserver-dep-openssl-${{env.OPENSSL_VERSION}}
+         repository: hmailserver/hmailserver-dep-openssl-${{env.OPENSSL_VERSION}}
          ref: refs/heads/master
          path: dependencies\openssl
          
