@@ -20,27 +20,27 @@ namespace RegressionTests.Rules
    {
       private void CreatePrintRecipientCountRule(hMailServer.Rules rules)
       {
-         Rule oRule = rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRARunScriptFunction;
-         oRuleAction.ScriptFunction = "PrintRecipientCount";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRARunScriptFunction;
+         ruleAction.ScriptFunction = "PrintRecipientCount";
+         ruleAction.Save();
 
-         oRule.Save();
+         rule.Save();
 
          File.WriteAllText(_settings.Scripting.CurrentScriptFile,
-                           "Sub PrintRecipientCount(oMessage)" + Environment.NewLine +
-                           " Call EventLog.Write(oMessage.Recipients.Count)" + Environment.NewLine +
+                           "Sub PrintRecipientCount(message)" + Environment.NewLine +
+                           " Call EventLog.Write(message.Recipients.Count)" + Environment.NewLine +
                            "End Sub");
 
          _settings.Scripting.Reload();
@@ -65,25 +65,25 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionExpunge, true);
          permission.Save();
 
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.Share1";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.Share1";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -114,25 +114,25 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionLookup, true);
          permission.Save();
 
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.Share1.Sub";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.Share1.Sub";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -152,25 +152,25 @@ namespace RegressionTests.Rules
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
          IMAPFolders publicFolders = _settings.PublicFolders;
 
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.Share1";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.Share1";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -186,25 +186,25 @@ namespace RegressionTests.Rules
       public void ActionBindToAddress()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
-         oRule.Name = "Global rule test";
-         oRule.Active = true;
+         Rule rule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
+         rule.Name = "Global rule test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRABindToAddress;
-         oRuleAction.Value = "255.254.253.252";
-         oRuleAction.Save();
-         oRule.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRABindToAddress;
+         ruleAction.Value = "255.254.253.252";
+         ruleAction.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -224,26 +224,26 @@ namespace RegressionTests.Rules
       public void ActionDelete()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "TestString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRADeleteEmail;
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRADeleteEmail;
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -284,29 +284,29 @@ namespace RegressionTests.Rules
       public void ActionGlobalMoveToIMAPFolder()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
                                                                              "ActionGlobalMoveToIMAPFolder@test.com",
                                                                              "test");
 
-         Rule oRule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
-         oRule.Name = "Global rule test";
-         oRule.Active = true;
+         Rule rule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
+         rule.Name = "Global rule test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.GlobalBox";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.GlobalBox";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -341,25 +341,25 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionExpunge, true);
          permission.Save();
 
-         Rule oRule = application.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = application.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.Share1";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.Share1";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -375,25 +375,25 @@ namespace RegressionTests.Rules
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = application.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = application.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.MyFolder";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.MyFolder";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -408,10 +408,10 @@ namespace RegressionTests.Rules
          CustomAsserts.AssertFolderMessageCount(folder, 1);
 
          // Make sure we can't access it.
-         var oIMAP = new ImapClientSimulator();
-         Assert.IsTrue(oIMAP.ConnectAndLogon("ruletest@test.com", "test"));
+         var imap = new ImapClientSimulator();
+         Assert.IsTrue(imap.ConnectAndLogon("ruletest@test.com", "test"));
 
-         Assert.Throws<ArgumentException>(() =>  oIMAP.GetMessageCount("#public.MyFolder"));
+         Assert.Throws<ArgumentException>(() =>  imap.GetMessageCount("#public.MyFolder"));
 
          // Set permissions on this folder.
          IMAPFolderPermission permission = folder.Permissions.Add();
@@ -423,34 +423,34 @@ namespace RegressionTests.Rules
          permission.Save();
 
          // Make sure we can access it now.
-         oIMAP.GetMessageCount("#public.MyFolder");
+         imap.GetMessageCount("#public.MyFolder");
       }
 
       [Test]
       public void ActionMoveToIMAPFolder()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.NotEquals";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.NotEquals";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -470,44 +470,44 @@ namespace RegressionTests.Rules
       public void ActionOverrideMoveToIMAPFolder()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
-         oRule.Name = "Global rule test";
-         oRule.Active = true;
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         Rule rule = SingletonProvider<TestSetup>.Instance.GetApp().Rules.Add();
+         rule.Name = "Global rule test";
+         rule.Active = true;
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.GlobalBox";
-         oRuleAction.Save();
-         oRule.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.GlobalBox";
+         ruleAction.Save();
+         rule.Save();
 
          // Account-level rule
-         Rule oAccountRule = oAccount.Rules.Add();
-         oAccountRule.Name = "Criteria test";
-         oAccountRule.Active = true;
+         Rule accountRule = account.Rules.Add();
+         accountRule.Name = "Criteria test";
+         accountRule.Active = true;
 
-         oRuleCriteria = oAccountRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         ruleCriteria = accountRule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
 
          // Add action
-         oRuleAction = oAccountRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Overriden.Test";
-         oRuleAction.Save();
+         ruleAction = accountRule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Overriden.Test";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oAccountRule.Save();
+         accountRule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -535,24 +535,24 @@ namespace RegressionTests.Rules
          Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
          // Add a global send-using-route rule
-         Rule oRule = _application.Rules.Add();
-         oRule.Name = "Send using route";
-         oRule.Active = true;
+         Rule rule = _application.Rules.Add();
+         rule.Name = "Send using route";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "TestString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRASendUsingRoute;
-         oRuleAction.RouteID = route.ID;
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRASendUsingRoute;
+         ruleAction.RouteID = route.ID;
+         ruleAction.Save();
 
-         oRule.Save();
+         rule.Save();
 
          // Send message and confirm that the route does not affect it.
          var smtp = new SmtpClientSimulator();
@@ -596,28 +596,28 @@ namespace RegressionTests.Rules
       public void ActionSetHeaderContents()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "TestString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRASetHeaderValue;
-         oRuleAction.HeaderName = "SomeHeader";
-         oRuleAction.Value = "SomeValue";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRASetHeaderValue;
+         ruleAction.HeaderName = "SomeHeader";
+         ruleAction.Value = "SomeValue";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -637,27 +637,27 @@ namespace RegressionTests.Rules
          watch.Start();
 
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "TestString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -682,25 +682,25 @@ namespace RegressionTests.Rules
          // Add an account
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = account.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTBody;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "MyHTMLBody";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTBody;
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "MyHTMLBody";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -721,27 +721,27 @@ namespace RegressionTests.Rules
       public void CriteriaEquals()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "TestString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTEquals;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -763,27 +763,27 @@ namespace RegressionTests.Rules
       public void CriteriaGreaterThan()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "2";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "2";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.GreaterThan";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.GreaterThan";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -802,27 +802,27 @@ namespace RegressionTests.Rules
       public void CriteriaLessThan()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTLessThan;
-         oRuleCriteria.MatchValue = "2";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTLessThan;
+         ruleCriteria.MatchValue = "2";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.LessThan";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.LessThan";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -840,27 +840,27 @@ namespace RegressionTests.Rules
       public void CriteriaNotEquals()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
-         oRuleCriteria.MatchValue = "SomeString";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTNotEquals;
+         ruleCriteria.MatchValue = "SomeString";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.NotEquals";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.NotEquals";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -880,27 +880,27 @@ namespace RegressionTests.Rules
       public void CriteriaRegEx()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTRegExMatch;
-         oRuleCriteria.MatchValue = "[a-f]*";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTRegExMatch;
+         ruleCriteria.MatchValue = "[a-f]*";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.RegEx";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.RegEx";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -920,27 +920,27 @@ namespace RegressionTests.Rules
       public void CriteriaWildcardExactMatch()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTWildcard;
-         oRuleCriteria.MatchValue = "Exact wildcard";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTWildcard;
+         ruleCriteria.MatchValue = "Exact wildcard";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -957,29 +957,29 @@ namespace RegressionTests.Rules
       public void CriteriaWildcardNoCase()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
                                                                              "CriteriaWildcardNoCase@test.com",
                                                                              "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTWildcard;
-         oRuleCriteria.MatchValue = "Exact*Match";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTWildcard;
+         ruleCriteria.MatchValue = "Exact*Match";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -994,27 +994,27 @@ namespace RegressionTests.Rules
       public void CriteriaWildcardPartialMatch()
       {
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTWildcard;
-         oRuleCriteria.MatchValue = "Exact*Match";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTWildcard;
+         ruleCriteria.MatchValue = "Exact*Match";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Wildcard";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Wildcard";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1049,25 +1049,25 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionExpunge, true);
          permission.Save();
 
-         Rule oRule = application.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = application.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "Public.Share1";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "Public.Share1";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1083,12 +1083,12 @@ namespace RegressionTests.Rules
          // Fetch the default domain
 
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
 
          // Add a rule to this account.
-         AddSpamRule(oAccount);
-         AddCorporateRule(oAccount);
-         AddExactMatchRule(oAccount);
+         AddSpamRule(account);
+         AddCorporateRule(account);
+         AddExactMatchRule(account);
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1116,22 +1116,22 @@ namespace RegressionTests.Rules
 
          // Test move to imap with mail with multiple recipients.
 
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m1@test.com", "test");
-         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m2@test.com", "test");
-         AddSpamRule(oAccount1);
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m1@test.com", "test");
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest-m2@test.com", "test");
+         AddSpamRule(account1);
 
          // Send email to both recipients
          var lstRecipients = new List<string> {"ruletest-m1@test.com", "ruletest-m2@test.com"};
 
          const string sBody = "Test of sending same email to multiple accounts.";
 
-         smtpClientSimulator.Send(oAccount1.Address, lstRecipients, "**SPAM** INBOX->SPAM", sBody);
+         smtpClientSimulator.Send(account1.Address, lstRecipients, "**SPAM** INBOX->SPAM", sBody);
 
-         ImapClientSimulator.AssertMessageCount(oAccount1.Address, "test", "Inbox.Spam", 1);
-         ImapClientSimulator.AssertMessageCount(oAccount2.Address, "test", "Inbox", 1);
+         ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox.Spam", 1);
+         ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
 
          var sim = new ImapClientSimulator();
-         sim.ConnectAndLogon(oAccount2.Address, "test");
+         sim.ConnectAndLogon(account2.Address, "test");
          Assert.IsFalse(sim.SelectFolder("Inbox.Spam"));
       }
 
@@ -1145,34 +1145,34 @@ namespace RegressionTests.Rules
          Account account3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest3@test.com", "test");
 
          // Set up a rule to forward from account1 to 2 and 3.
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
-         oRule.UseAND = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
+         rule.UseAND = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Only send one copy.
-         oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "X-hMailServer-LoopCount";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTLessThan;
-         oRuleCriteria.MatchValue = "1";
-         oRuleCriteria.Save();
+         ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "X-hMailServer-LoopCount";
+         ruleCriteria.MatchType = eRuleMatchType.eMTLessThan;
+         ruleCriteria.MatchValue = "1";
+         ruleCriteria.Save();
 
          // Set up the actions to forward.
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRACreateCopy;
-         oRuleAction.To = "ruletest2@test.com";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRACreateCopy;
+         ruleAction.To = "ruletest2@test.com";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1216,33 +1216,33 @@ namespace RegressionTests.Rules
          Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@test.com", "test");
 
          // Set up a rule to forward from account1 to 2 and 3.
-         Rule oRule = _application.Rules.Add();
-         oRule.Name = "CriteriaTest";
-         oRule.Active = true;
-         oRule.UseAND = true;
+         Rule rule = _application.Rules.Add();
+         rule.Name = "CriteriaTest";
+         rule.Active = true;
+         rule.UseAND = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Only send one copy.
-         oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "X-hMailServer-LoopCount";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTLessThan;
-         oRuleCriteria.MatchValue = "1";
-         oRuleCriteria.Save();
+         ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "X-hMailServer-LoopCount";
+         ruleCriteria.MatchType = eRuleMatchType.eMTLessThan;
+         ruleCriteria.MatchValue = "1";
+         ruleCriteria.Save();
 
          // Set up the actions to create a copy
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRACreateCopy;
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRACreateCopy;
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1295,31 +1295,31 @@ namespace RegressionTests.Rules
          Account adminAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "admin@test.com", "test");
 
          // Set up a rule to forward from account1 to 2 and 3.
-         Rule oRule = _application.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
-         oRule.UseAND = true;
+         Rule rule = _application.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
+         rule.UseAND = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTDeliveryAttempts;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "2";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTDeliveryAttempts;
+         ruleCriteria.MatchType = eRuleMatchType.eMTEquals;
+         ruleCriteria.MatchValue = "2";
+         ruleCriteria.Save();
 
          // The second time we try to deliver an email, forward a copy to the admin!
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAForwardEmail;
-         oRuleAction.To = adminAccount.Address;
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAForwardEmail;
+         ruleAction.To = adminAccount.Address;
+         ruleAction.Save();
 
          // And then delete it.
-         oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRADeleteEmail;
-         oRuleAction.Save();
+         ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRADeleteEmail;
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
 
          var deliveryResults = new Dictionary<string, int>();
@@ -1361,30 +1361,30 @@ namespace RegressionTests.Rules
          Account account3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest3@test.com", "test");
 
          // Set up a rule to forward from account1 to 2 and 3.
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Set up the actions to forward.
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAForwardEmail;
-         oRuleAction.To = "ruletest2@test.com";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAForwardEmail;
+         ruleAction.To = "ruletest2@test.com";
+         ruleAction.Save();
 
-         RuleAction oRuleAction2 = oRule.Actions.Add();
-         oRuleAction2.Type = eRuleActionType.eRAForwardEmail;
-         oRuleAction2.To = "ruletest3@test.com";
-         oRuleAction2.Save();
+         RuleAction ruleAction2 = rule.Actions.Add();
+         ruleAction2.Type = eRuleActionType.eRAForwardEmail;
+         ruleAction2.To = "ruletest3@test.com";
+         ruleAction2.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1417,25 +1417,25 @@ namespace RegressionTests.Rules
          permission.set_Permission(eACLPermission.ePermissionExpunge, true);
          permission.Save();
 
-         Rule oRule = account1.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account1.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "#public.Share1.Sub";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "#public.Share1.Sub";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1461,7 +1461,7 @@ namespace RegressionTests.Rules
          SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
                                         "Detta ska inte hamna i mappen Inbox.Overriden.Test");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-         // This should print a single recipient.
+         // This should print a single list.
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
@@ -1471,7 +1471,7 @@ namespace RegressionTests.Rules
                                         "SomeString", "Detta ska inte hamna i mappen Inbox.Overriden.Test");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-         // This should print a single recipient.
+         // This should print a single list.
          eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("\"1\""), eventLogText);
@@ -1492,7 +1492,7 @@ namespace RegressionTests.Rules
          SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
                                         "Detta ska inte hamna i mappen Inbox.Overriden.Test");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-         // This should print a single recipient.
+         // This should print a single list.
          
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          CustomAsserts.AssertDeleteFile(LogHandler.GetEventLogFileName());
@@ -1518,27 +1518,27 @@ namespace RegressionTests.Rules
          Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@test.com", "test");
 
          // Set up a rule to reply to any message sent to account2.
-         Rule oRule = account2.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account2.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
          // Set up the actions to forward.
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAReply;
-         oRuleAction.FromAddress = account2.Address;
-         oRuleAction.FromName = "Rule Test 2";
-         oRuleAction.Subject = "Autoreply";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAReply;
+         ruleAction.FromAddress = account2.Address;
+         ruleAction.FromName = "Rule Test 2";
+         ruleAction.Subject = "Autoreply";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
@@ -1554,73 +1554,73 @@ namespace RegressionTests.Rules
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
       }
 
-      private void AddExactMatchRule(Account oAccount)
+      private void AddExactMatchRule(Account account)
       {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 3";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "TestRule 3";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTEquals;
-         oRuleCriteria.MatchValue = "CORPORATE EXACT MATCH";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTEquals;
+         ruleCriteria.MatchValue = "CORPORATE EXACT MATCH";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Corporate";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
       }
 
-      public void AddCorporateRule(Account oAccount)
+      public void AddCorporateRule(Account account)
       {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 2";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "TestRule 2";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**CORPORATE**";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "**CORPORATE**";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Corporate";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Corporate";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
       }
 
-      public void AddSpamRule(Account oAccount)
+      public void AddSpamRule(Account account)
       {
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "TestRule 1";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "TestRule 1";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "**SPAM**";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "**SPAM**";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = "INBOX.Spam";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = "INBOX.Spam";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
       }
 
    }

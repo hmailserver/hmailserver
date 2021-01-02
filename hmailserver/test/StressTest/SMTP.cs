@@ -38,7 +38,7 @@ namespace StressTest
          for (int i = 0; i < 1000; i++)
          {
             hMailServer.Account account =
-                SingletonProvider<TestSetup>.Instance.AddAccount(accounts, string.Format("recipient{0}@test.com", i), "test");
+                SingletonProvider<TestSetup>.Instance.AddAccount(accounts, string.Format("list{0}@test.com", i), "test");
 
             recipients.Add(account.Address);
 
@@ -90,7 +90,7 @@ namespace StressTest
          for (int i = 0; i < 1000; i++)
          {
             hMailServer.Account account =
-                SingletonProvider<TestSetup>.Instance.AddAccount(accounts, string.Format("recipient{0}@test.com", i), "test");
+                SingletonProvider<TestSetup>.Instance.AddAccount(accounts, string.Format("list{0}@test.com", i), "test");
 
             recipients.Add(account.Address);
 

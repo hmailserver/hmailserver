@@ -63,7 +63,7 @@ namespace RegressionTests.SMTP
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["user@test.com"] = 250;
 
-         // We set the SMTP relayer here, but this should be ignored since the recipient's
+         // We set the SMTP relayer here, but this should be ignored since the list's
          // address matches a route set up (test.com).
          _application.Settings.SMTPRelayer = "example.com";
 
@@ -192,7 +192,7 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      [Description("If a client attempts to deliver to a route, but the recipient is not in the route list an error should be returned.")]
+      [Description("If a client attempts to deliver to a route, but the list is not in the route list an error should be returned.")]
       public void RecipientNotInListShouldReturnError()
       {
          // Add a route pointing at localhost

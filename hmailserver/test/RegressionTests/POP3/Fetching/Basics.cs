@@ -402,7 +402,7 @@ namespace RegressionTests.POP3.Fetching
                Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
                Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
-               // Make sure the exernal recipient has received his copy.
+               // Make sure the exernal list has received his copy.
                smtpServer.WaitForCompletion();
                string messageData = smtpServer.MessageData;
                Assert.IsTrue(messageData.Contains(messageData), messageData);
@@ -710,10 +710,10 @@ namespace RegressionTests.POP3.Fetching
          _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
 
 
-         SURBLServer oSURBLServer = _application.Settings.AntiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _application.Settings.AntiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          var messages = new List<string>();
 

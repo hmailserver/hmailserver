@@ -448,9 +448,9 @@ namespace RegressionTests.POP3
       {
          SingletonProvider<TestSetup>.Instance.GetApp().Settings.WelcomePOP3 = "HOWDYHO POP3";
 
-         var oSimulator = new Pop3ClientSimulator();
+         var simulator = new Pop3ClientSimulator();
 
-         string sWelcomeMessage = oSimulator.GetWelcomeMessage();
+         string sWelcomeMessage = simulator.GetWelcomeMessage();
 
          if (sWelcomeMessage != "+OK HOWDYHO POP3\r\n")
             throw new Exception("ERROR - Wrong welcome message.");

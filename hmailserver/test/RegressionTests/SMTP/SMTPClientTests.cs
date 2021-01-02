@@ -105,18 +105,18 @@ namespace RegressionTests.SMTP
       [Description("Issue 227, Restarting server doesn't refresh local address list")]
       public void TestDeliverToMyselfOnLocalPortAfterChangedLocalPort()
       {
-         TCPIPPorts oPorts = _application.Settings.TCPIPPorts;
-         for (int i = 0; i < oPorts.Count; i++)
+         TCPIPPorts ports = _application.Settings.TCPIPPorts;
+         for (int i = 0; i < ports.Count; i++)
          {
-            TCPIPPort oTestPort = oPorts[i];
-            if (oTestPort.Protocol == eSessionType.eSTIMAP)
-               oTestPort.PortNumber = 14300;
-            else if (oTestPort.Protocol == eSessionType.eSTSMTP)
-               oTestPort.PortNumber = 11000;
-            else if (oTestPort.Protocol == eSessionType.eSTPOP3)
-               oTestPort.PortNumber = 2500;
+            TCPIPPort testPort = ports[i];
+            if (testPort.Protocol == eSessionType.eSTIMAP)
+               testPort.PortNumber = 14300;
+            else if (testPort.Protocol == eSessionType.eSTSMTP)
+               testPort.PortNumber = 11000;
+            else if (testPort.Protocol == eSessionType.eSTPOP3)
+               testPort.PortNumber = 2500;
 
-            oTestPort.Save();
+            testPort.Save();
          }
 
          _application.Stop();
@@ -148,7 +148,7 @@ namespace RegressionTests.SMTP
             Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
 
-         oPorts.SetDefault();
+         ports.SetDefault();
          _application.Stop();
          _application.Start();
       }

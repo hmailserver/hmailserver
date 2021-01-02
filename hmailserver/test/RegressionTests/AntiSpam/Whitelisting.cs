@@ -53,10 +53,10 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Enable SURBL.
-         var oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         var surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
          SmtpClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
@@ -107,10 +107,10 @@ namespace RegressionTests.AntiSpam
          _antiSpam.CheckHostInHeloScore = 125;
 
          // Enable SURBL.
-         var oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         var surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
          var smtpClientSimulator = new SmtpClientSimulator();
@@ -141,10 +141,10 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
 
@@ -176,10 +176,10 @@ namespace RegressionTests.AntiSpam
 
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
          SmtpClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
@@ -208,10 +208,10 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
          SmtpClientSimulator.StaticSend("white'list@example.com", "whitelist@test.com",
@@ -237,10 +237,10 @@ namespace RegressionTests.AntiSpam
          obAddress.Save();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Send a messages to this account.
          SmtpClientSimulator.StaticSend("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
@@ -297,10 +297,10 @@ namespace RegressionTests.AntiSpam
          _application.Start();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Make sure we are now blacklisted.
          var smtpClient = new SmtpClientSimulator(false, 25, IPAddress.Parse(firstAddress));
@@ -363,10 +363,10 @@ namespace RegressionTests.AntiSpam
          _application.Start();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Make sure we are now blacklisted.
          var smtpClient = new SmtpClientSimulator(false, 25, IPAddress.Parse(firstAddress));
@@ -391,10 +391,10 @@ namespace RegressionTests.AntiSpam
          var firstAddress = addresses[0];
 
          // Enable SURBL.
-         var oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         var surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Make sure we are now blacklisted.
          var smtpClient = new SmtpClientSimulator(false, 25, IPAddress.Parse(firstAddress));
@@ -421,10 +421,10 @@ namespace RegressionTests.AntiSpam
       public void TestWhitelistOutOfRangeAddress()
       {
          // Enable SURBL.
-         var oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         var surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Make sure we are now blacklisted.
          var smtpClient = new SmtpClientSimulator(false, 25);
@@ -482,10 +482,10 @@ namespace RegressionTests.AntiSpam
          _application.Start();
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = _antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          // Make sure we are now blacklisted.
          var smtpClient = new SmtpClientSimulator(false, 25, IPAddress.Parse(firstAddress));

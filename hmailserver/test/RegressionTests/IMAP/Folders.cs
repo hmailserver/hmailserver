@@ -13,123 +13,123 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestCreateDeepFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder4@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder4@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
          string result =
-            oSimulator.Send("A01 CREATE 1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20.21.22.23.24.25.26");
+            simulator.Send("A01 CREATE 1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20.21.22.23.24.25.26");
          Assert.IsTrue(result.Contains("A01 NO"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
 
       [Test]
       public void TestCreateFolderWithHash()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder6@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder6@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsFalse(oSimulator.CreateFolder("#Test"));
-         Assert.IsTrue(oSimulator.CreateFolder("Test.#Testar"));
-         oSimulator.Disconnect();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsFalse(simulator.CreateFolder("#Test"));
+         Assert.IsTrue(simulator.CreateFolder("Test.#Testar"));
+         simulator.Disconnect();
       }
 
 
       [Test]
       public void TestCreateFolderWithQuote()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
 
          const string folderName = "ABC\"123";
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.List().Contains(folderName));
-         Assert.IsTrue(oSimulator.SelectFolder(folderName));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.List().Contains(folderName));
+         Assert.IsTrue(simulator.SelectFolder(folderName));
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestCreateFolderWithSlash()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          const string folderName = "ABC\\123";
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.List().Contains(folderName));
-         Assert.IsTrue(oSimulator.SelectFolder(folderName));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.List().Contains(folderName));
+         Assert.IsTrue(simulator.SelectFolder(folderName));
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestCreateLongFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder9@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder9@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
 
          string folderName = "";
          for (int i = 0; i < 255; i++)
             folderName = folderName + "A";
 
-         string result = oSimulator.Send("A01 CREATE " + folderName);
+         string result = simulator.Send("A01 CREATE " + folderName);
          Assert.IsTrue(result.Contains("A01 OK"));
-         Assert.IsTrue(oSimulator.SelectFolder(folderName));
+         Assert.IsTrue(simulator.SelectFolder(folderName));
 
          folderName = "";
          for (int i = 0; i < 256; i++)
             folderName = folderName + "A";
 
-         result = oSimulator.Send("A01 CREATE " + folderName);
+         result = simulator.Send("A01 CREATE " + folderName);
          Assert.IsTrue(result.Contains("A01 NO"));
-         Assert.IsFalse(oSimulator.SelectFolder(folderName));
+         Assert.IsFalse(simulator.SelectFolder(folderName));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestCreateParallelFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder5@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder5@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         string result = oSimulator.Send("A01 CREATE 1.2.3");
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         string result = simulator.Send("A01 CREATE 1.2.3");
          Assert.IsTrue(result.Contains("A01 OK"));
-         result = oSimulator.Send("A01 CREATE 1.2.4");
+         result = simulator.Send("A01 CREATE 1.2.4");
          Assert.IsTrue(result.Contains("A01 OK"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestCreateUnnamedSubFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder7@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder7@test.com", "test");
 
          var simulator = new ImapClientSimulator();
 
          simulator.Connect();
-         simulator.LogonWithLiteral(oAccount.Address, "test");
+         simulator.LogonWithLiteral(account.Address, "test");
          string result = simulator.Send("A01 CREATE 1..3");
          Assert.IsTrue(result.Contains("A01 NO"));
          result = simulator.Send("A01 CREATE 1....3");
@@ -144,40 +144,40 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestFolderCaseInLIST()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          string folderName = "ABC.def.GHI";
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsFalse(oSimulator.List("ABC.DEF.*").Contains("ABC.def.GHI"));
-         Assert.IsTrue(oSimulator.List("ABC.DEF.*").Contains("ABC.DEF.GHI"));
-         Assert.IsFalse(oSimulator.List("ABC.def.*").Contains("ABC.DEF"));
-         Assert.IsTrue(oSimulator.List("ABC.def.*").Contains("ABC.def.GHI"));
-         Assert.IsTrue(oSimulator.SelectFolder(folderName));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsFalse(simulator.List("ABC.DEF.*").Contains("ABC.def.GHI"));
+         Assert.IsTrue(simulator.List("ABC.DEF.*").Contains("ABC.DEF.GHI"));
+         Assert.IsFalse(simulator.List("ABC.def.*").Contains("ABC.DEF"));
+         Assert.IsTrue(simulator.List("ABC.def.*").Contains("ABC.def.GHI"));
+         Assert.IsTrue(simulator.SelectFolder(folderName));
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestFolderCaseInLSUB()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          string folderName = "ABC.def.GHI";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.Subscribe(folderName));
-         Assert.IsFalse(oSimulator.LSUB("ABC.DEF.*").Contains("ABC.def.GHI"));
-         Assert.IsTrue(oSimulator.LSUB("ABC.DEF.*").Contains("ABC.DEF.GHI"));
-         Assert.IsFalse(oSimulator.LSUB("ABC.def.*").Contains("ABC.DEF"));
-         Assert.IsTrue(oSimulator.LSUB("ABC.def.*").Contains("ABC.def.GHI"));
-         Assert.IsTrue(oSimulator.SelectFolder(folderName));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.Subscribe(folderName));
+         Assert.IsFalse(simulator.LSUB("ABC.DEF.*").Contains("ABC.def.GHI"));
+         Assert.IsTrue(simulator.LSUB("ABC.DEF.*").Contains("ABC.DEF.GHI"));
+         Assert.IsFalse(simulator.LSUB("ABC.def.*").Contains("ABC.DEF"));
+         Assert.IsTrue(simulator.LSUB("ABC.def.*").Contains("ABC.def.GHI"));
+         Assert.IsTrue(simulator.SelectFolder(folderName));
+         simulator.Disconnect();
       }
 
       /// <summary>
@@ -186,16 +186,16 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestFolderLSUBUnsubscribedFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          const string folderName = "ABC.def.GHI";
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsFalse(oSimulator.LSUB().Contains("\r\n\r\n"));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsFalse(simulator.LSUB().Contains("\r\n\r\n"));
+         simulator.Disconnect();
       }
 
 
@@ -207,17 +207,17 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestFolderQuote()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          const string folderName = "Test*";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.Subscribe(folderName));
-         Assert.IsTrue(oSimulator.LSUB().Contains("\"" + folderName + "\""));
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.Subscribe(folderName));
+         Assert.IsTrue(simulator.LSUB().Contains("\"" + folderName + "\""));
+         simulator.Disconnect();
       }
 
       [Test]
@@ -226,19 +226,19 @@ namespace RegressionTests.IMAP
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
          _settings.IMAPHierarchyDelimiter = "\\";
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(account.Address, "test");
-         oSimulator.CreateFolder("Test\\HelloWorld\\Test2");
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         simulator.CreateFolder("Test\\HelloWorld\\Test2");
 
-         string response = oSimulator.List("%");
+         string response = simulator.List("%");
          Assert.IsTrue(response.Contains("\"Test\""), response);
 
-         response = oSimulator.List("%\\%");
+         response = simulator.List("%\\%");
          Assert.IsTrue(response.Contains("\"Test\\HelloWorld\""), response);
 
-         response = oSimulator.List("%\\%\\%%");
+         response = simulator.List("%\\%\\%%");
          Assert.IsTrue(response.Contains("\"Test\\HelloWorld\\Test2\""), response);
       }
 
@@ -247,101 +247,101 @@ namespace RegressionTests.IMAP
       [Description("Test that the namespace is included in an empty list response.")]
       public void TestListSpecial()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         string response = oSimulator.List("");
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         string response = simulator.List("");
          Assert.IsTrue(response.StartsWith("* LIST (\\Noselect) \".\" \"\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
 
          _settings.IMAPHierarchyDelimiter = "/";
 
-         oSimulator = new ImapClientSimulator();
-         sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         response = oSimulator.List("");
+         simulator = new ImapClientSimulator();
+         sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         response = simulator.List("");
          Assert.IsTrue(response.StartsWith("* LIST (\\Noselect) \"/\" \"\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
 
          _settings.IMAPHierarchyDelimiter = "\\";
 
-         oSimulator = new ImapClientSimulator();
-         sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         response = oSimulator.List("", false);
+         simulator = new ImapClientSimulator();
+         sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         response = simulator.List("", false);
          string expectedResponse = "* LIST (\\Noselect) \"\\\\\" \"\"";
          Assert.IsTrue(response.StartsWith(expectedResponse));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       [Description("Test to include reference in LIST command (issue 163).")]
       public void TestListWithReference()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(oAccount.Address, "test");
-         oSimulator.CreateFolder("Main.Sub1.Sub2.Sub3");
-         oSimulator.CreateFolder("SomeOtherFolder");
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
+         simulator.CreateFolder("Main.Sub1.Sub2.Sub3");
+         simulator.CreateFolder("SomeOtherFolder");
 
-         oSimulator.Subscribe("Main");
-         oSimulator.Subscribe("Main.Sub1");
-         oSimulator.Subscribe("Main.Sub1.Sub2");
-         oSimulator.Subscribe("Main.Sub1.Sub2.Sub3");
-         oSimulator.Subscribe("SomeOtherFolder");
+         simulator.Subscribe("Main");
+         simulator.Subscribe("Main.Sub1");
+         simulator.Subscribe("Main.Sub1.Sub2");
+         simulator.Subscribe("Main.Sub1.Sub2.Sub3");
+         simulator.Subscribe("SomeOtherFolder");
 
-         string response = oSimulator.List("Main", "*", true);
+         string response = simulator.List("Main", "*", true);
          Assert.IsFalse(response.Contains("INBOX"));
          Assert.IsFalse(response.Contains("SomeOtherFolder"));
          Assert.IsTrue(response.Contains("* LIST (\\HasChildren) \".\" \"Main.Sub1\""));
          Assert.IsTrue(response.Contains("* LIST (\\HasChildren) \".\" \"Main.Sub1.Sub2\""));
          Assert.IsTrue(response.Contains("* LIST (\\HasNoChildren) \".\" \"Main.Sub1.Sub2.Sub3\""));
 
-         response = oSimulator.List("Main.Sub1", "*", true);
+         response = simulator.List("Main.Sub1", "*", true);
          Assert.IsFalse(response.Contains("INBOX"));
          Assert.IsFalse(response.Contains("SomeOtherFolder"));
          Assert.IsTrue(response.Contains("* LIST (\\HasChildren) \".\" \"Main.Sub1.Sub2\""));
          Assert.IsTrue(response.Contains("* LIST (\\HasNoChildren) \".\" \"Main.Sub1.Sub2.Sub3\""));
 
-         response = oSimulator.LSUB("Main", "*");
+         response = simulator.LSUB("Main", "*");
          Assert.IsFalse(response.Contains("INBOX"));
          Assert.IsFalse(response.Contains("SomeOtherFolder"));
          Assert.IsTrue(response.Contains("* LSUB (\\HasChildren) \".\" \"Main.Sub1\""));
          Assert.IsTrue(response.Contains("* LSUB (\\HasChildren) \".\" \"Main.Sub1.Sub2\""));
          Assert.IsTrue(response.Contains("* LSUB (\\HasNoChildren) \".\" \"Main.Sub1.Sub2.Sub3\""));
 
-         response = oSimulator.LSUB("Main.Sub1", "*");
+         response = simulator.LSUB("Main.Sub1", "*");
          Assert.IsFalse(response.Contains("INBOX"));
          Assert.IsFalse(response.Contains("SomeOtherFolder"));
          Assert.IsTrue(response.Contains("* LSUB (\\HasChildren) \".\" \"Main.Sub1.Sub2\""));
          Assert.IsTrue(response.Contains("* LSUB (\\HasNoChildren) \".\" \"Main.Sub1.Sub2.Sub3\""));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       [Description("Test to include reference in LIST command (test case from issue 165).")]
       public void TestListWithReferenceTestCase2()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(oAccount.Address, "test");
-         oSimulator.CreateFolder("INBOX.MyApp.SubFolder1");
-         oSimulator.CreateFolder("INBOX.MyApp.SubFolder2");
-         oSimulator.CreateFolder("INBOX.SomeOtherFolder");
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
+         simulator.CreateFolder("INBOX.MyApp.SubFolder1");
+         simulator.CreateFolder("INBOX.MyApp.SubFolder2");
+         simulator.CreateFolder("INBOX.SomeOtherFolder");
 
 
-         string response = oSimulator.List("INBOX.MyApp", "%.%", true);
+         string response = simulator.List("INBOX.MyApp", "%.%", true);
          Assert.IsFalse(response.Contains("\"INBOX.MyApp\""));
          Assert.IsFalse(response.Contains("\"INBOX.SomeOtherFolder\""));
          Assert.IsTrue(response.Contains("* LIST (\\HasNoChildren) \".\" \"INBOX.MyApp.SubFolder1\""));
          Assert.IsTrue(response.Contains("* LIST (\\HasNoChildren) \".\" \"INBOX.MyApp.SubFolder2\""));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       /// <summary>
@@ -350,56 +350,56 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestLsubInclusion()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
          string folderName = "Folder1";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsFalse(oSimulator.LSUB().Contains(folderName));
-         Assert.IsTrue(oSimulator.Subscribe(folderName));
-         Assert.IsTrue(oSimulator.LSUB().Contains(folderName));
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsFalse(simulator.LSUB().Contains(folderName));
+         Assert.IsTrue(simulator.Subscribe(folderName));
+         Assert.IsTrue(simulator.LSUB().Contains(folderName));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestRenameIncorrectParameters()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder8@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder8@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         string result = oSimulator.Send("A01 CREATE A");
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         string result = simulator.Send("A01 CREATE A");
 
-         result = oSimulator.Send("A02 RENAME A B C");
+         result = simulator.Send("A02 RENAME A B C");
          Assert.IsTrue(result.Contains("A02 BAD"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestRenameLongFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder2@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder2@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20.21.22.23.24.25"));
-         Assert.IsTrue(oSimulator.CreateFolder("A"));
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20.21.22.23.24.25"));
+         Assert.IsTrue(simulator.CreateFolder("A"));
 
-         Assert.IsFalse(oSimulator.RenameFolder("1", "A.1"));
-         Assert.IsTrue(oSimulator.RenameFolder("1.2.3", "A.1"));
-         Assert.IsTrue(oSimulator.SelectFolder("A.1.4"));
+         Assert.IsFalse(simulator.RenameFolder("1", "A.1"));
+         Assert.IsTrue(simulator.RenameFolder("1.2.3", "A.1"));
+         Assert.IsTrue(simulator.SelectFolder("A.1.4"));
 
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -444,17 +444,17 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         Assert.IsTrue(oSimulator.CreateFolder("A.B"));
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(simulator.CreateFolder("A.B"));
 
          string result;
-         Assert.IsFalse(oSimulator.RenameFolder("A.B", "A.B.C", out result));
+         Assert.IsFalse(simulator.RenameFolder("A.B", "A.B.C", out result));
          Assert.IsTrue(result.Contains("A folder cannot be moved into one of its subfolders."));
 
-         Assert.IsTrue(oSimulator.SelectFolder("A.B"));
+         Assert.IsTrue(simulator.SelectFolder("A.B"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -463,114 +463,114 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         Assert.IsTrue(oSimulator.ConnectAndLogon(account.Address, "test"));
-         Assert.IsTrue(oSimulator.CreateFolder("Folder1"));
-         Assert.IsTrue(oSimulator.SelectFolder("Folder1"));
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+         Assert.IsTrue(simulator.CreateFolder("Folder1"));
+         Assert.IsTrue(simulator.SelectFolder("Folder1"));
 
          string result = string.Empty;
-         Assert.IsFalse(oSimulator.RenameFolder("Folder1", "Folder1.Sub1", out result));
+         Assert.IsFalse(simulator.RenameFolder("Folder1", "Folder1.Sub1", out result));
          Assert.IsTrue(result.Contains("A folder cannot be moved into one of its subfolders."));
-         Assert.IsTrue(oSimulator.SelectFolder("Folder1"));
+         Assert.IsTrue(simulator.SelectFolder("Folder1"));
 
          result = string.Empty;
-         Assert.IsTrue(oSimulator.RenameFolder("Folder1", "Folder1Test", out result));
-         Assert.IsTrue(oSimulator.SelectFolder("Folder1Test"));
+         Assert.IsTrue(simulator.RenameFolder("Folder1", "Folder1Test", out result));
+         Assert.IsTrue(simulator.SelectFolder("Folder1Test"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestRenameToAndFromINBOX()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder3@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder3@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         oSimulator.Send("A01 CREATE A\r\n");
-         Assert.IsFalse(oSimulator.RenameFolder("A", "INBOX"));
-         Assert.IsFalse(oSimulator.RenameFolder("INBOX", "B"));
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         simulator.Send("A01 CREATE A\r\n");
+         Assert.IsFalse(simulator.RenameFolder("A", "INBOX"));
+         Assert.IsFalse(simulator.RenameFolder("INBOX", "B"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       [Description("Test renaming sub folder to a new sub folder where the new parent does not exist.")]
       public void TestRenameToParallelFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder("Main.Sub"));
-         Assert.IsTrue(oSimulator.RenameFolder("Main.Sub", "Second.Sub"));
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder("Main.Sub"));
+         Assert.IsTrue(simulator.RenameFolder("Main.Sub", "Second.Sub"));
 
-         string listResponse = oSimulator.List();
+         string listResponse = simulator.List();
          Assert.IsFalse(listResponse.Contains("Main.Sub"));
          Assert.IsTrue(listResponse.Contains("Second.Sub"));
 
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestRenameToSubFolder()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder("1.2.3.4.5"));
-         Assert.IsTrue(oSimulator.CreateFolder("A"));
-         Assert.IsTrue(oSimulator.RenameFolder("1", "A.1"));
-         Assert.IsTrue(oSimulator.SelectFolder("A.1"));
-         Assert.IsTrue(oSimulator.SelectFolder("A.1.2.3.4.5"));
-         Assert.IsTrue(oSimulator.RenameFolder("A.1", "1"));
-         Assert.IsFalse(oSimulator.SelectFolder("A.1"));
-         Assert.IsFalse(oSimulator.SelectFolder("A.1.2.3.4.5"));
-         Assert.IsTrue(oSimulator.SelectFolder("1"));
-         Assert.IsTrue(oSimulator.SelectFolder("1.2.3.4.5"));
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder("1.2.3.4.5"));
+         Assert.IsTrue(simulator.CreateFolder("A"));
+         Assert.IsTrue(simulator.RenameFolder("1", "A.1"));
+         Assert.IsTrue(simulator.SelectFolder("A.1"));
+         Assert.IsTrue(simulator.SelectFolder("A.1.2.3.4.5"));
+         Assert.IsTrue(simulator.RenameFolder("A.1", "1"));
+         Assert.IsFalse(simulator.SelectFolder("A.1"));
+         Assert.IsFalse(simulator.SelectFolder("A.1.2.3.4.5"));
+         Assert.IsTrue(simulator.SelectFolder("1"));
+         Assert.IsTrue(simulator.SelectFolder("1.2.3.4.5"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
       public void TestTryCreateInvalidStructure()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "folder1@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder("1.2.3"));
-         Assert.IsTrue(oSimulator.CreateFolder("1.2.3.4"));
+         simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder("1.2.3"));
+         Assert.IsTrue(simulator.CreateFolder("1.2.3.4"));
 
          // Should fail because name taken.
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3.4", "1.2.3"));
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3.4", "1.2"));
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3.4", "1"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3.4", "1.2.3"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3.4", "1.2"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3.4", "1"));
 
          // Should fail because invalid destination name.
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3.4", ""));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3.4", ""));
 
          // Should fail because destination name taken.
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3", "1.2.3.4"));
-         Assert.IsFalse(oSimulator.RenameFolder("1.2", "1.2.3.4"));
-         Assert.IsFalse(oSimulator.RenameFolder("1", "1.2.3.4"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3", "1.2.3.4"));
+         Assert.IsFalse(simulator.RenameFolder("1.2", "1.2.3.4"));
+         Assert.IsFalse(simulator.RenameFolder("1", "1.2.3.4"));
 
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3", "1.2"));
-         Assert.IsFalse(oSimulator.RenameFolder("1.2.3", "1"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3", "1.2"));
+         Assert.IsFalse(simulator.RenameFolder("1.2.3", "1"));
 
-         Assert.IsTrue(oSimulator.RenameFolder("1.2.3", "A"));
+         Assert.IsTrue(simulator.RenameFolder("1.2.3", "A"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
    }
 }

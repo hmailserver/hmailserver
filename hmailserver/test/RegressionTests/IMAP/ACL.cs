@@ -121,13 +121,13 @@ namespace RegressionTests.IMAP
          permission.set_Permission(eACLPermission.ePermissionPost, true);
          permission.Save();
 
-         var oSimulator = new ImapClientSimulator();
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral(account.Address, "test");
-         oSimulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share1 {4}", "ABCD");
-         Assert.AreEqual(1, oSimulator.GetMessageCount("#Public.Share1"));
-         oSimulator.Disconnect();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral(account.Address, "test");
+         simulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share1 {4}", "ABCD");
+         Assert.AreEqual(1, simulator.GetMessageCount("#Public.Share1"));
+         simulator.Disconnect();
       }
 
       [Test]

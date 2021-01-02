@@ -27,7 +27,7 @@ namespace RegressionTests.Infrastructure
          // Fetch default domain
 
          // Create another account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test2@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test2@test.com", "test");
 
          // Add aliases
          SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "alias1@test.com", "test2@test.com");
@@ -47,8 +47,8 @@ namespace RegressionTests.Infrastructure
       {
          // Create a test account
          // Fetch the default domain
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror@test.com", "test");
-         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror-test@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror@test.com", "test");
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror-test@test.com", "test");
 
          _settings.MirrorEMailAddress = "mirror-test@test.com";
          _settings.AddDeliveredToHeader = true;
@@ -61,7 +61,7 @@ namespace RegressionTests.Infrastructure
          // Check using POP3 that 5 messages exists.
          Pop3ClientSimulator.AssertMessageCount("mirror-test@test.com", "test", 5);
 
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount2.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
 
          Assert.IsTrue(message.Contains("Delivered-To: mirror@test.com"));
       }
@@ -72,9 +72,9 @@ namespace RegressionTests.Infrastructure
       {
          // Create a test account
          // Fetch the default domain
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror1@test.com", "test");
-         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror2@test.com", "test");
-         Account oAccount3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror3@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror1@test.com", "test");
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror2@test.com", "test");
+         Account account3 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror3@test.com", "test");
 
          Account mirrorAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mirror-test@test.com",
                                                                                   "test");
@@ -84,7 +84,7 @@ namespace RegressionTests.Infrastructure
 
          // Send 5 messages to this account.
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send("test@test.com", new List<string> {oAccount1.Address, oAccount2.Address, oAccount3.Address},
+         smtpClientSimulator.Send("test@test.com", new List<string> {account1.Address, account2.Address, account3.Address},
                     "INBOX", "Mirror test message");
 
          Pop3ClientSimulator.AssertMessageCount(mirrorAccount.Address, "test", 1);

@@ -20,10 +20,10 @@ namespace RegressionTests.API
          _settings.Scripting.Language = "JScript";
          // First set up a script
          string script =
-            @"function OnAcceptMessage(oClient, oMessage)
+            @"function OnAcceptMessage(oClient, message)
                            {
-                              oMessage.HeaderValue('X-SpamResult') = 'TEST';
-                              oMessage.Save();
+                              message.HeaderValue('X-SpamResult') = 'TEST';
+                              message.Save();
                            }";
 
          Scripting scripting = _settings.Scripting;
@@ -33,12 +33,12 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -53,9 +53,9 @@ namespace RegressionTests.API
 
          // First set up a script
          string script =
-            @"Sub OnAcceptMessage(oClient, oMessage)
-                               oMessage.HeaderValue(""X-SpamResult"") = ""TEST""
-                               oMessage.Save()
+            @"Sub OnAcceptMessage(oClient, message)
+                               message.HeaderValue(""X-SpamResult"") = ""TEST""
+                               message.Save()
                                EventLog.Write(""Port: "" & oClient.Port)
                                EventLog.Write(""Address: "" & oClient.IPAddress)
                                EventLog.Write(""Username: "" & oClient.Username)
@@ -68,12 +68,12 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
@@ -271,10 +271,10 @@ namespace RegressionTests.API
          scripting.Language = "JScript";
          // First set up a script
          string script =
-            @"function OnDeliverMessage(oMessage)
+            @"function OnDeliverMessage(message)
                            {
-                               oMessage.HeaderValue('X-SpamResult') = 'TEST2';
-                               oMessage.Save();
+                               message.HeaderValue('X-SpamResult') = 'TEST2';
+                               message.Save();
                            }";
 
 
@@ -284,12 +284,12 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "Test", "SampleBody");
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
@@ -302,8 +302,8 @@ namespace RegressionTests.API
          scripting.Language = "JScript";
 
          // First set up a script
-         string script = "function OnDeliveryFailed(oMessage, sRecipient, sErrorMessage) {" + Environment.NewLine +
-                         " EventLog.Write('File: ' + oMessage.FileName); " + Environment.NewLine +
+         string script = "function OnDeliveryFailed(message, sRecipient, sErrorMessage) {" + Environment.NewLine +
+                         " EventLog.Write('File: ' + message.FileName); " + Environment.NewLine +
                          " EventLog.Write('Recipient: ' + sRecipient); " + Environment.NewLine +
                          " EventLog.Write('Error: ' + sErrorMessage); " + Environment.NewLine +
                          "}";
@@ -315,8 +315,8 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         SmtpClientSimulator.StaticSend(account1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -331,8 +331,8 @@ namespace RegressionTests.API
       public void TestOnDeliveryFailedVBScript()
       {
          // First set up a script
-         string script = "Sub OnDeliveryFailed(oMessage, sRecipient, sErrorMessage)" + Environment.NewLine +
-                         " EventLog.Write(\"File: \" & oMessage.FileName) " + Environment.NewLine +
+         string script = "Sub OnDeliveryFailed(message, sRecipient, sErrorMessage)" + Environment.NewLine +
+                         " EventLog.Write(\"File: \" & message.FileName) " + Environment.NewLine +
                          " EventLog.Write(\"Recipient: \" & sRecipient) " + Environment.NewLine +
                          " EventLog.Write(\"Error: \" & sErrorMessage) " + Environment.NewLine +
                          " End Sub";
@@ -344,8 +344,8 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-         SmtpClientSimulator.StaticSend(oAccount1.Address, "user@dummy.example.com", "Test", "SampleBody");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         SmtpClientSimulator.StaticSend(account1.Address, "user@dummy.example.com", "Test", "SampleBody");
 
          // Make sure that the message is deliverd and bounced.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -362,8 +362,8 @@ namespace RegressionTests.API
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
-         string script = "Sub OnDeliveryStart(oMessage) " + Environment.NewLine +
-                         " EventLog.Write(\"Delivering message: \" & oMessage.FileName) " + Environment.NewLine +
+         string script = "Sub OnDeliveryStart(message) " + Environment.NewLine +
+                         " EventLog.Write(\"Delivering message: \" & message.FileName) " + Environment.NewLine +
                          "End Sub" + Environment.NewLine + Environment.NewLine;
 
          File.WriteAllText(scripting.CurrentScriptFile, script);
@@ -481,12 +481,12 @@ namespace RegressionTests.API
 
 
          // The second message should be deleted after 5 days.
-         string script = "Sub OnExternalAccountDownload(oFetchAccount, oMessage, sRemoteUID)" + Environment.NewLine +
+         string script = "Sub OnExternalAccountDownload(oFetchAccount, message, sRemoteUID)" + Environment.NewLine +
                          " EventLog.Write(\"UID: \" & sRemoteUID) " + Environment.NewLine +
                          " EventLog.Write(\"FetchAccount: \" & oFetchAccount.Name) " + Environment.NewLine +
-                         " If Not oMessage Is Nothing Then " + Environment.NewLine +
-                         "   EventLog.Write(\"From: \" & oMessage.FromAddress) " + Environment.NewLine +
-                         "   EventLog.Write(\"Filename: \" & oMessage.FileName) " + Environment.NewLine +
+                         " If Not message Is Nothing Then " + Environment.NewLine +
+                         "   EventLog.Write(\"From: \" & message.FromAddress) " + Environment.NewLine +
+                         "   EventLog.Write(\"Filename: \" & message.FileName) " + Environment.NewLine +
                          " Else " + Environment.NewLine +
                          "   EventLog.Write(\"Message details missing\") " + Environment.NewLine +
                          " End If" + Environment.NewLine +

@@ -646,24 +646,24 @@ namespace RegressionTests.Shared
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          }
 
-         var oIMAP = new ImapClientSimulator();
-         Assert.IsTrue(oIMAP.ConnectAndLogon(accountName, accountPassword));
+         var imap = new ImapClientSimulator();
+         Assert.IsTrue(imap.ConnectAndLogon(accountName, accountPassword));
 
          if (expectedCount != 0)
-            oIMAP.AssertFolderExists(folderName);
+            imap.AssertFolderExists(folderName);
 
          int currentCount = 0;
          int timeout = 1000; // 1000 * 25 = 25 seconds.
          while (timeout > 0)
          {
-            currentCount = oIMAP.GetMessageCount(folderName);
+            currentCount = imap.GetMessageCount(folderName);
 
             if (currentCount > expectedCount)
                break;
 
             if (currentCount == expectedCount)
             {
-               oIMAP.Disconnect();
+               imap.Disconnect();
                return;
             }
 
@@ -671,7 +671,7 @@ namespace RegressionTests.Shared
             Thread.Sleep(25);
          }
 
-         oIMAP.Disconnect();
+         imap.Disconnect();
 
          string error = "Wrong number of messages in mailbox " + folderName + " in account " + accountName +
                         " Actual: " + currentCount.ToString() + " Expected: " + expectedCount.ToString();

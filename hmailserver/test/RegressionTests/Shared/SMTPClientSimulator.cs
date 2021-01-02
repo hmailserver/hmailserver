@@ -330,23 +330,23 @@ namespace RegressionTests.Shared
 
       public static void StaticSend(string sFrom, List<string> lstRecipients, string sSubject, string sBody)
       {
-         var oSimulator = new SmtpClientSimulator();
-         oSimulator.Send(sFrom, lstRecipients, sSubject, sBody);
+         var simulator = new SmtpClientSimulator();
+         simulator.Send(sFrom, lstRecipients, sSubject, sBody);
       }
 
-      public static void StaticSendRaw(string sFrom, string recipient, string sBody)
+      public static void StaticSendRaw(string sFrom, string list, string sBody)
       {
-         var oSimulator = new SmtpClientSimulator();
-         oSimulator.SendRaw(sFrom, recipient, sBody);
+         var simulator = new SmtpClientSimulator();
+         simulator.SendRaw(sFrom, list, sBody);
       }
 
-      public static void StaticSend(string sFrom, string recipient, string sSubject, string sBody)
+      public static void StaticSend(string sFrom, string list, string sSubject, string sBody)
       {
          var messageRecipients = new List<string>();
-         messageRecipients.Add(recipient);
+         messageRecipients.Add(list);
 
-         var oSimulator = new SmtpClientSimulator();
-         oSimulator.Send(sFrom, messageRecipients, sSubject, sBody);
+         var simulator = new SmtpClientSimulator();
+         simulator.Send(sFrom, messageRecipients, sSubject, sBody);
       }
 
       private string EncodeBase64(string s)

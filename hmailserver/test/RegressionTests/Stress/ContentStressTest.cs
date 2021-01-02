@@ -242,28 +242,28 @@ namespace RegressionTests.Stress
 
 
          // Add an account
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "mimetest@test.com", "test");
 
-         Rule oRule = oAccount.Rules.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = false;
-         oRuleCriteria.HeaderField = "Subject";
-         oRuleCriteria.MatchType = eRuleMatchType.eMTContains;
-         oRuleCriteria.MatchValue = "rtest";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "rtest";
+         ruleCriteria.Save();
 
          // Add action
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRASetHeaderValue;
-         oRuleAction.HeaderName = "SomeHeader";
-         oRuleAction.Value = "SomeValue";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRASetHeaderValue;
+         ruleAction.HeaderName = "SomeHeader";
+         ruleAction.Value = "SomeValue";
+         ruleAction.Save();
 
          // Save the rule in the database
-         oRule.Save();
+         rule.Save();
 
          var smtpClientSimulator = new SmtpClientSimulator();
 

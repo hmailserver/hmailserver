@@ -512,13 +512,13 @@ namespace RegressionTests.Shared
 
       public Alias AddAlias(Domain domain, string sName, string sValue)
       {
-         Alias oAlias = domain.Aliases.Add();
-         oAlias.Name = sName;
-         oAlias.Value = sValue;
-         oAlias.Active = true;
-         oAlias.Save();
+         Alias alias = domain.Aliases.Add();
+         alias.Name = sName;
+         alias.Value = sValue;
+         alias.Active = true;
+         alias.Save();
 
-         return oAlias;
+         return alias;
       }
 
       public Group AddGroup(string sName)
@@ -539,33 +539,33 @@ namespace RegressionTests.Shared
       }
 
 
-      public Account AddAccount(Domain oDomain, string sAddress, string sPassword)
+      public Account AddAccount(Domain domain, string sAddress, string sPassword)
       {
-         return AddAccount(oDomain.Accounts, sAddress, sPassword);
+         return AddAccount(domain.Accounts, sAddress, sPassword);
       }
 
       public Account AddAccount(Accounts accounts, string sAddress, string sPassword)
       {
-         Account oAccount = accounts.Add();
-         oAccount.Address = sAddress;
-         oAccount.Password = sPassword;
-         oAccount.Active = true;
-         oAccount.Save();
+         Account account = accounts.Add();
+         account.Address = sAddress;
+         account.Password = sPassword;
+         account.Active = true;
+         account.Save();
 
-         return oAccount;
+         return account;
       }
 
-      public Account AddAccount(Domain oDomain, string sAddress, string sPassword, int maxSize)
+      public Account AddAccount(Domain domain, string sAddress, string sPassword, int maxSize)
       {
-         Account oAccount = oDomain.Accounts.Add();
-         oAccount.Address = sAddress;
-         oAccount.Password = sPassword;
-         oAccount.Active = true;
-         oAccount.MaxSize = maxSize;
-         oAccount.Save();
+         Account account = domain.Accounts.Add();
+         account.Address = sAddress;
+         account.Password = sPassword;
+         account.Active = true;
+         account.MaxSize = maxSize;
+         account.Save();
 
 
-         return oAccount;
+         return account;
       }
 
       public Domain AddDomain(string name)
@@ -574,34 +574,34 @@ namespace RegressionTests.Shared
          return AddDomain(domains, name);
       }
 
-      public Domain AddDomain(Domains oDomains, string sName)
+      public Domain AddDomain(Domains domains, string sName)
       {
-         Domain oDomain = oDomains.Add();
-         oDomain.Name = sName;
-         oDomain.Active = true;
-         oDomain.Save();
+         Domain domain = domains.Add();
+         domain.Name = sName;
+         domain.Active = true;
+         domain.Save();
 
-         return oDomain;
+         return domain;
       }
 
-      public DistributionList AddDistributionList(Domain oDomain, string sAddress, List<string> recipients)
+      public DistributionList AddDistributionList(Domain domain, string sAddress, List<string> recipients)
       {
-         DistributionList oList = oDomain.DistributionLists.Add();
-         oList.Active = true;
-         oList.Address = sAddress;
-         oList.Save();
+         DistributionList list = domain.DistributionLists.Add();
+         list.Active = true;
+         list.Address = sAddress;
+         list.Save();
 
          // Add recipients
-         foreach (string recipient in recipients)
+         foreach (string recipientAddress in recipients)
          {
-            DistributionListRecipient oRecipient = oList.Recipients.Add();
-            oRecipient.RecipientAddress = recipient;
-            oRecipient.Save();
+            DistributionListRecipient recipient = list.Recipients.Add();
+            recipient.RecipientAddress = recipientAddress;
+            recipient.Save();
 
-            Marshal.ReleaseComObject(oRecipient);
+            Marshal.ReleaseComObject(recipient);
          }
 
-         return oList;
+         return list;
       }
 
       public static string UniqueString()
@@ -718,9 +718,9 @@ namespace RegressionTests.Shared
       internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
       {
          // Add a route pointing at localhost
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
 
-         Route route = oSettings.Routes.Add();
+         Route route = settings.Routes.Add();
          route.DomainName = "dummy-example.com";
          route.TargetSMTPHost = "localhost";
          route.TargetSMTPPort = port;

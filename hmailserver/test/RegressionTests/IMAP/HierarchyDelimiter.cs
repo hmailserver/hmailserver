@@ -22,14 +22,14 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test.Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         string listResponse = oSimulator.List();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         string listResponse = simulator.List();
          Assert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
          Assert.IsTrue(!listResponse.Contains("\"Test\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -44,18 +44,18 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         string listResponse = oSimulator.List();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         string listResponse = simulator.List();
          Assert.IsTrue(listResponse.Contains("\"Test\\Test\""));
          Assert.IsTrue(listResponse.Contains("\"Test\""));
-         Assert.IsTrue(oSimulator.DeleteFolder("Test\\Test"));
-         listResponse = oSimulator.List();
+         Assert.IsTrue(simulator.DeleteFolder("Test\\Test"));
+         listResponse = simulator.List();
          Assert.IsFalse(listResponse.Contains("Test\\Test"));
          Assert.IsTrue(listResponse.Contains("Test"));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -70,14 +70,14 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         string listResponse = oSimulator.List();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         string listResponse = simulator.List();
          Assert.IsTrue(listResponse.Contains("\"Test\\Test\""));
          Assert.IsTrue(listResponse.Contains("\"Test\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -92,16 +92,16 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test/Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.Subscribe("Test"));
-         Assert.IsTrue(oSimulator.Subscribe("Test/Test"));
-         string lsubResponse = oSimulator.LSUB();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.Subscribe("Test"));
+         Assert.IsTrue(simulator.Subscribe("Test/Test"));
+         string lsubResponse = simulator.LSUB();
          Assert.IsTrue(lsubResponse.Contains("\"Test/Test\""));
          Assert.IsTrue(lsubResponse.Contains("\"Test\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -115,33 +115,33 @@ namespace RegressionTests.IMAP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quote@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(account.Address, "test");
-         string result = oSimulator.Send("A01 NAMESPACE");
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
+         string result = simulator.Send("A01 NAMESPACE");
          string correctNamespaceSetting = "* NAMESPACE ((\"\" \"\\\\\")) NIL ((\"" + publicFolderName +
                                           "\" \"\\\\\"))";
          Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
-         oSimulator.Disconnect();
+         simulator.Disconnect();
 
          settings.IMAPHierarchyDelimiter = ".";
 
-         oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(account.Address, "test");
+         simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
 
-         result = oSimulator.Send("A01 NAMESPACE");
+         result = simulator.Send("A01 NAMESPACE");
          correctNamespaceSetting = "* NAMESPACE ((\"\" \".\")) NIL ((\"" + publicFolderName + "\" \".\"))";
          Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
-         oSimulator.Disconnect();
+         simulator.Disconnect();
 
          settings.IMAPHierarchyDelimiter = "/";
 
-         oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(account.Address, "test");
+         simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
 
-         result = oSimulator.Send("A01 NAMESPACE");
+         result = simulator.Send("A01 NAMESPACE");
          correctNamespaceSetting = "* NAMESPACE ((\"\" \"/\")) NIL ((\"" + publicFolderName + "\" \"/\"))";
          Assert.IsTrue(result.Contains(correctNamespaceSetting), result);
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -157,18 +157,18 @@ namespace RegressionTests.IMAP
          string folderName = "Test/Test";
          string newFolderName = "Apa/Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         string listResponse = oSimulator.List();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         string listResponse = simulator.List();
          Assert.IsTrue(listResponse.Contains("\"" + folderName + "\""));
          Assert.IsTrue(listResponse.Contains("\"Test\""));
-         Assert.IsTrue(oSimulator.RenameFolder("Test", "Apa"));
-         listResponse = oSimulator.List();
+         Assert.IsTrue(simulator.RenameFolder("Test", "Apa"));
+         listResponse = simulator.List();
          Assert.IsTrue(listResponse.Contains("\"" + newFolderName + "\""));
          Assert.IsTrue(listResponse.Contains("\"Apa\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -183,16 +183,16 @@ namespace RegressionTests.IMAP
 
          string folderName = "Test\\Test";
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         Assert.IsTrue(oSimulator.CreateFolder(folderName));
-         Assert.IsTrue(oSimulator.Subscribe("Test"));
-         Assert.IsTrue(oSimulator.Subscribe("Test\\Test"));
-         string lsubResponse = oSimulator.LSUB();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         Assert.IsTrue(simulator.CreateFolder(folderName));
+         Assert.IsTrue(simulator.Subscribe("Test"));
+         Assert.IsTrue(simulator.Subscribe("Test\\Test"));
+         string lsubResponse = simulator.LSUB();
          Assert.IsTrue(lsubResponse.Contains("\"Test\\Test\""));
          Assert.IsTrue(lsubResponse.Contains("\"Test\""));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
    }
 }

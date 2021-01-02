@@ -257,7 +257,7 @@ namespace RegressionTests.API
 
          // First set up a script
          string script =
-            @"Sub OnAcceptMessage(oClient, oMessage)
+            @"Sub OnAcceptMessage(oClient, message)
                                EventLog.Write(""HOWDY"")
                               End Sub";
 
@@ -273,11 +273,11 @@ namespace RegressionTests.API
          LogHandler.DeleteEventLog();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          SendMessageToTest();
 
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          CustomAsserts.AssertFileExists(eventLogFile, false);
 
@@ -370,9 +370,9 @@ namespace RegressionTests.API
          scripting.Language = "JScript";
          // First set up a script
          string script =
-            @"function OnDeliverMessage(oMessage)
+            @"function OnDeliverMessage(message)
                            {
-                               EventLog.Write(oMessage.InternalDate);
+                               EventLog.Write(message.InternalDate);
                            }";
 
 
@@ -382,11 +382,11 @@ namespace RegressionTests.API
          scripting.Reload();
 
          // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "Test", "SampleBody");
 
-         Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
          string text = TestSetup.ReadExistingTextFile(_settings.Logging.CurrentEventLog);
 
          string[] columns = text.Split('\t');
@@ -502,31 +502,31 @@ namespace RegressionTests.API
       {
          Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
 
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Check that the message does not exist
-         Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 0);
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
 
          // Send a message to the account.
-         IMAPFolder folder = oAccount1.IMAPFolders.get_ItemByName("INBOX");
+         IMAPFolder folder = account1.IMAPFolders.get_ItemByName("INBOX");
 
-         hMailServer.Message oMessage = folder.Messages.Add();
+         hMailServer.Message message = folder.Messages.Add();
 
-         Assert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, message.State);
 
-         oMessage.Body = "Välkommen till verkligheten";
-         oMessage.Subject = "Hej";
-         oMessage.Save();
+         message.Body = "Välkommen till verkligheten";
+         message.Subject = "Hej";
+         message.Save();
 
-         Assert.AreEqual(2, oMessage.State);
-         Assert.IsFalse(oMessage.Filename.Contains(settings.PublicFolderDiskName));
-         Assert.IsTrue(oMessage.Filename.Contains(_domain.Name));
+         Assert.AreEqual(2, message.State);
+         Assert.IsFalse(message.Filename.Contains(settings.PublicFolderDiskName));
+         Assert.IsTrue(message.Filename.Contains(_domain.Name));
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string firstMessageText = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
-         Assert.IsNotEmpty(message);
-         Assert.Less(0, message.IndexOf("Hej"));
+         Assert.IsNotEmpty(firstMessageText);
+         Assert.Less(0, firstMessageText.IndexOf("Hej"));
       }
 
       [Test]
@@ -539,41 +539,41 @@ namespace RegressionTests.API
          testFolder.Save();
 
          // Send a message to the account.
-         hMailServer.Message oMessage = testFolder.Messages.Add();
+         hMailServer.Message message = testFolder.Messages.Add();
 
-         Assert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, message.State);
 
-         oMessage.Body = "Välkommen till verkligheten";
-         oMessage.Subject = "Hej";
-         oMessage.Save();
+         message.Body = "Välkommen till verkligheten";
+         message.Subject = "Hej";
+         message.Save();
 
-         Assert.AreEqual(2, oMessage.State);
-         Assert.IsTrue(oMessage.Filename.Contains(settings.PublicFolderDiskName));
-         Assert.IsFalse(oMessage.Filename.Contains(_domain.Name));
+         Assert.AreEqual(2, message.State);
+         Assert.IsTrue(message.Filename.Contains(settings.PublicFolderDiskName));
+         Assert.IsFalse(message.Filename.Contains(_domain.Name));
       }
 
       [Test]
       public void TestSendMessage()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Send a message to the account.
-         var oMessage = new hMailServer.Message();
+         var message = new hMailServer.Message();
 
-         Assert.AreEqual(0, oMessage.State);
+         Assert.AreEqual(0, message.State);
 
-         oMessage.AddRecipient("Martin", oAccount1.Address);
-         oMessage.Body = "Välkommen till verkligheten";
-         oMessage.Subject = "Hej";
-         oMessage.Save();
+         message.AddRecipient("Martin", account1.Address);
+         message.Body = "Välkommen till verkligheten";
+         message.Subject = "Hej";
+         message.Save();
 
-         Assert.AreEqual(1, oMessage.State);
+         Assert.AreEqual(1, message.State);
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string firstMessageText = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
-         Assert.IsNotEmpty(message);
-         Assert.Less(0, message.IndexOf("Hej"));
+         Assert.IsNotEmpty(firstMessageText);
+         Assert.Less(0, firstMessageText.IndexOf("Hej"));
       }
    }
 }
