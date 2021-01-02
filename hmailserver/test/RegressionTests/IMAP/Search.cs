@@ -274,6 +274,8 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestSearchOR()
       {
+         
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "search@test.com", "test");
 
          // Send a message to this account.
@@ -288,7 +290,10 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(oSimulator.SelectFolder("INBOX"));
 
          Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2001 ON 28-May-2001 ALL"));
-         Assert.IsNullOrEmpty(oSimulator.Search("OR SINCE 28-May-2020 ON 28-May-2012 ALL"));
+         
+         // Searching for mail sent a year from now or a specific date 2012 should not return any matches.
+         var nextYear = DateTime.UtcNow.Year+1;
+         Assert.IsNullOrEmpty(oSimulator.Search(string.Format("OR SINCE 28-May-{0} ON 28-May-2012 ALL", nextYear)));
 
          string formattedToday = DateTime.Now.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture).ToUpper();
          Assert.AreEqual("1", oSimulator.Search("OR SINCE 28-May-2017 ON " + formattedToday + " ALL"));
