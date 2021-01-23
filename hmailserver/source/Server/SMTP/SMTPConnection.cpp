@@ -605,7 +605,7 @@ namespace HM
 
       if (!current_message_) 
       {
-         EnqueueWrite_("503 must have sender first."); 
+         EnqueueWrite_("503 Must have sender first."); 
          return;
       }
 
