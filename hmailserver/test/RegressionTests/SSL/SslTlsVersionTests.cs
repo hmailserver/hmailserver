@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.ComponentModel;
 using System.Net;
 using System.Security.Authentication;
 using System.Threading;
@@ -44,7 +45,8 @@ namespace RegressionTests.SSL
          try
          {
             string errorMessage;
-            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test",
+               "test",
                out errorMessage);
 
             Assert.Fail("Was able to establish SSLv3 connection");
@@ -53,16 +55,14 @@ namespace RegressionTests.SSL
          {
             // on windows 10
          }
+         catch (Win32Exception)
+         {
+            // on newer windows 10
+         }
          catch (System.IO.IOException)
          {
             // on windows xp
          }
-
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
-            {
-               var defaultLog = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(defaultLog.Contains("Message: version too low"));
-            });
       }
 
       [Test]
