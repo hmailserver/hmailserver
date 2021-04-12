@@ -164,10 +164,7 @@ namespace HM
          return false;
       }
 
-      if (AWStats::GetEnabled())
-      {
-         sendersIP = MessageUtilities::GetSendersIP(pMessage);
-      }
+      sendersIP = MessageUtilities::GetSendersIP(pMessage);
 
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
@@ -197,14 +194,16 @@ namespace HM
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         //LogAwstatsMessageRejected_ moved to HandleInfectedMessage_()
+         //LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
          return false;
       }
 
       // Apply rules on this message.
       if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         //LogAwstatsMessageRejected_ moved to RunGlobalRules_()
+         //LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
          return false;
       }
 
@@ -337,6 +336,8 @@ namespace HM
       if (antiVirusConfig.AVAction() == AntiVirusConfiguration::ActionDelete)
       {
          // The message should be deleted.
+         String sendersIP = MessageUtilities::GetSendersIP(pMessage);
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
 
          // Should we notify the recipient?
          if (antiVirusConfig.AVNotifyReceiver())
@@ -436,6 +437,9 @@ namespace HM
 
       if (ruleResult.GetDeleteEmail())
       {
+         String sendersIP = MessageUtilities::GetSendersIP(pMessage);
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+
          String sDeleteRuleName = ruleResult.GetDeleteRuleName();
 
          String sMessage;
@@ -463,8 +467,8 @@ namespace HM
    // client to the server.
    //---------------------------------------------------------------------------()
    {
-      // Check that message exists, and that the awstats log is enabled.
-      if (!pMessage || !AWStats::GetEnabled())
+      // Check that message exists
+      if (!pMessage)
          return;
 
       // Go through the recipients and log one row for each of them.
