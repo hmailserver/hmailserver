@@ -111,8 +111,6 @@ namespace HM
    // several times for a single message.
    //---------------------------------------------------------------------------()
    {
-      AWStats::LogDeliveryFailure(sSendersIP, pMessage->GetFromAddress(), sRecipient,  550);
-
       // Send an event
       if (Configuration::Instance()->GetUseScriptServer())
       {
