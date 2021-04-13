@@ -84,7 +84,7 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-         case 1:
+            case 1:
             {
                String sMessage;
                sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
@@ -93,7 +93,8 @@ namespace HM
 
                LOG_APPLICATION(sMessage);
 
-               PersistentMessage::DeleteObject(pMessage);             
+               //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
+               //PersistentMessage::DeleteObject(pMessage);                   
 
                return false;
             }

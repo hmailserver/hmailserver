@@ -194,23 +194,27 @@ namespace HM
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
-         //LogAwstatsMessageRejected_ moved to HandleInfectedMessage_()
-         //LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         //PersistentMessage::DeleteObject(pMessage) moved from HandleInfectedMessage_() to here
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Apply rules on this message.
       if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         //LogAwstatsMessageRejected_ moved to RunGlobalRules_()
-         //LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         //PersistentMessage::DeleteObject(pMessage) moved from RunGlobalRules_() to here
+         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
+         //PersistentMessage::DeleteObject(pMessage) moved from FireOnDeliverMessage() event to here
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
+         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
@@ -336,8 +340,6 @@ namespace HM
       if (antiVirusConfig.AVAction() == AntiVirusConfiguration::ActionDelete)
       {
          // The message should be deleted.
-         String sendersIP = MessageUtilities::GetSendersIP(pMessage);
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
 
          // Should we notify the recipient?
          if (antiVirusConfig.AVNotifyReceiver())
@@ -362,7 +364,8 @@ namespace HM
 
          LOG_APPLICATION(logMessage);
 
-         PersistentMessage::DeleteObject(pMessage);
+         //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
+         //PersistentMessage::DeleteObject(pMessage);
          
          return false; // do not continue delivery
 
@@ -450,7 +453,8 @@ namespace HM
 
          LOG_APPLICATION(sMessage);
 
-         PersistentMessage::DeleteObject(pMessage);
+         //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
+         //PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
