@@ -25,6 +25,7 @@ namespace HM
 
       bool GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords);
       bool GetTXTRecordsRecursive_(const String &sDomain, std::vector<String> &foundResult, int recursionLevel);
+      bool GetMXRecordsRecursive_(const String &sDomain, std::vector<String> &vecFoundNames, int recursionLevel);
 
       std::vector<String> GetDnsRecordsValues_(std::vector<DNSRecord> records);
    };

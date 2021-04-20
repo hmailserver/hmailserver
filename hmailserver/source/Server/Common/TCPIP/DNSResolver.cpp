@@ -68,7 +68,7 @@ namespace HM
    {
       if (hostName.IsEmpty())
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetIpAddressesRecursive", "Attempted DNS lookup for empty host name.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetIpAddressesRecursive_", "Attempted DNS lookup for empty host name.");
          return false;
       }
 
@@ -118,14 +118,14 @@ namespace HM
    {
       if (sDomain.IsEmpty())
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetTXTRecordsRecursive", "Attempted DNS lookup for empty host name.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetTXTRecordsRecursive_", "Attempted DNS lookup for empty host name.");
          return false;
       }
 
       if (recursionLevel > 10)
       {
          String sMessage = Formatter::Format("Too many recursions during TXT record lookup. Query: {0}", sDomain);
-         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4402, "DNSResolver::GetTXTRecordsRecursive", sMessage);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4402, "DNSResolver::GetTXTRecordsRecursive_", sMessage);
 
          return false;
       }
@@ -185,7 +185,7 @@ namespace HM
          */
 
          std::vector<String> a_records;
-         if (!GetIpAddresses(sDomainName, a_records, false))
+         if (!GetIpAddresses(sDomainName, a_records, true))
          {
             String logMessage;
                logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
@@ -208,6 +208,13 @@ namespace HM
          bool dnsQueryFailure = false;
          for (DNSRecord dnsRecord : foundMxRecords)
          {
+            // Null MX
+            if (dnsRecord.GetValue() == ".")
+            {
+               dnsQueryFailure = true;
+               continue;
+            }
+
             // Resolve to domain name to IP address and put it in the list.
             std::vector<String> a_records;
 
@@ -221,7 +228,7 @@ namespace HM
             }
             else
             {
-               if (!GetIpAddresses(hostName, a_records, false))
+               if (!GetIpAddresses(hostName, a_records, true))
                {
                   dnsQueryFailure = true;
                   continue;
@@ -280,14 +287,48 @@ namespace HM
       return true;
    }
 
-   bool 
+   bool
    DNSResolver::GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames)
    {
+      return GetMXRecordsRecursive_(sDomain, vecFoundNames, 0);
+   }
+
+   bool
+   DNSResolver::GetMXRecordsRecursive_(const String &sDomain, std::vector<String> &vecFoundNames, int recursionLevel)
+   {
+      if (sDomain.IsEmpty())
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetMXRecordsRecursive_", "Attempted DNS lookup for empty host name.");
+         return false;
+      }
+
+      if (recursionLevel > 10)
+      {
+         String sMessage = Formatter::Format("Too many recursions during MX record lookup. Query: {0}", sDomain);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4403, "DNSResolver::GetMXRecordsRecursive_", sMessage);
+
+         return false;
+      }
+      
       DNSResolverWinApi resolver;
       std::vector<DNSRecord> foundMxRecords;
 
       bool result = resolver.Query(sDomain, DNS_TYPE_MX, foundMxRecords);
-      
+
+      if (foundMxRecords.size() == 0)
+      {
+         // The queries for MX didn't return any records. Attempt to look up via CNAME
+         std::vector<DNSRecord> foundCNames;
+         bool cnameQueryResult = resolver.Query(sDomain, DNS_TYPE_CNAME, foundCNames);
+
+         // A CNAME should only point at a single host name.
+         if (cnameQueryResult && foundCNames.size() == 1)
+         {
+            auto cnameHostName = foundCNames[0].GetValue();
+            return GetMXRecordsRecursive_(cnameHostName, vecFoundNames, recursionLevel + 1);
+         }
+      }
+
       vecFoundNames = GetDnsRecordsValues_(foundMxRecords);
 
       return result;
