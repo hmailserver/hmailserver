@@ -208,8 +208,9 @@ namespace HM
          bool dnsQueryFailure = false;
          for (DNSRecord dnsRecord : foundMxRecords)
          {
-            // Null MX
-            if (dnsRecord.GetValue() == ".")
+            // Null MX, see: rfc7505 
+            // https://tools.ietf.org/html/rfc7505
+            if (dnsRecord.GetValue() == "." && dnsRecord.GetPreference() == 0)
             {
                dnsQueryFailure = true;
                continue;
