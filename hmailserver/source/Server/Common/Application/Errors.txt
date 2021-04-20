@@ -1,5 +1,6 @@
 4401, Too many recursions during IP address lookup. Query: {0}
 4402, Too many recursions during TXT record lookup. Query: {0}
+4403, Too many recursions during MX record lookup. Query: {0}
 5121, PersistentACLPermission::SaveObject, ACL item of type PTAnyone not initialized correctly.
 5122, SQLCEConnection::_UpgradeDatabase(), Failed to create instance of SQL CE Engine.
 5123, SQLCEConnection::_UpgradeDatabase(), Failed to upgrade SQL CE database. HRESULT:
