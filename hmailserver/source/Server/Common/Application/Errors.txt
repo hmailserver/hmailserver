@@ -47,7 +47,7 @@
 5305, DKIMSigner::Sign, Either the selector or private key file was not specified.
 5306, DKIMSigner::Sign, Message signing using DKIM failed.
 5307, DKIM::Sign, Creation of canonicalization method failed.
-5308, DKIM::Sign, Failed to create siganture.
+5308, DKIM::Sign, Failed to create signature.
 5309, DKIM::_SignHash, Unable to read the private key file into memory.
 5310, DKIM::_SignHash, Unable to parse the private key file.
 5311, DKIM::_SignHash, Call to EVP_SignFinal failed.

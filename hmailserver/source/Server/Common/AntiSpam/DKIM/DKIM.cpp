@@ -149,7 +149,7 @@ namespace HM
       AnsiString signatureString = SignHash_(privateKeyContent, canonicalizedHeader, algorithm);
       if (signatureString == "")
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5308, "DKIM::Sign", "Failed to create siganture.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5308, "DKIM::Sign", "Failed to create signature.");
          return false;
       }
       
