@@ -212,7 +212,6 @@ namespace HM
             // https://tools.ietf.org/html/rfc7505
             if (dnsRecord.GetValue() == "." && dnsRecord.GetPreference() == 0)
             {
-               dnsQueryFailure = true;
                continue;
             }
 
