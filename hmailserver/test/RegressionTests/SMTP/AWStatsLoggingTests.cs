@@ -21,7 +21,11 @@ namespace RegressionTests.SMTP
 
          _logging.AWStatsEnabled = true;
          _logging.Enabled = true;
+      }
 
+      [SetUp]
+      public void SetUp()
+      {
          if (File.Exists(_logging.CurrentAwstatsLog))
             File.Delete(_logging.CurrentAwstatsLog);
       }
