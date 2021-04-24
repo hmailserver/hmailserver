@@ -184,43 +184,7 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(message.get_Flag(eMessageFlag.eMFVirusScan));
       }
 
-      [Test]
-      [Category("SMTP")]
-      [Description("Confirm that deliveries are logged in the awstats log.")]
-      public void TestAwstatsLog()
-      {
-         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-
-         Logging logging = settings.Logging;
-         logging.AWStatsEnabled = true;
-         logging.Enabled = true;
-
-         if (File.Exists(logging.CurrentAwstatsLog))
-            File.Delete(logging.CurrentAwstatsLog);
-
-         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
-
-         IPAddress localAddress = TestSetup.GetLocalIpAddress();
-         var smtpClientSimulator = new SmtpClientSimulator(false, 25, localAddress);
-
-         // Delivery from external to local.
-         smtpClientSimulator.Send("test@external.com", "test@test.com", "Mail 1", "Mail 1");
-         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
-         string contents = TestSetup.ReadExistingTextFile(logging.CurrentAwstatsLog);
-         CustomAsserts.AssertDeleteFile(logging.CurrentAwstatsLog);
-         string expectedString = string.Format("\ttest@external.com\ttest@test.com\t{0}\t127.0.0.1\tSMTP\t?\t250\t",
-                                               localAddress);
-         Assert.IsTrue(contents.Contains(expectedString), contents);
-
-         // Failed delivery from local to local.
-         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@test.com", "test@test.com", "Mail 1", "Mail 1"));
-         contents = TestSetup.ReadExistingTextFile(logging.CurrentAwstatsLog);
-         CustomAsserts.AssertDeleteFile(logging.CurrentAwstatsLog);
-         expectedString = string.Format("\ttest@test.com\ttest@test.com\t{0}\t127.0.0.1\tSMTP\t?\t530\t",
-                                        localAddress);
-         Assert.IsTrue(contents.Contains(expectedString), contents);
-      }
-
+      
       [Test]
       [Description("Issue 291, Sloppy non-delivery report generated")]
       public void TestBounceMessageSyntax()
