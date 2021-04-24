@@ -76,6 +76,7 @@
     <Compile Include="API\Basics.cs" />
     <Compile Include="Infrastructure\Cache.cs" />
     <Compile Include="Infrastructure\CustomAsserts.cs" />
+    <Compile Include="Infrastructure\DnsResolution.cs" />
     <Compile Include="Infrastructure\LogHandler.cs" />
     <Compile Include="Infrastructure\Persistence\AccountNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
