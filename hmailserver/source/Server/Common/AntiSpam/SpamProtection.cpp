@@ -98,11 +98,11 @@ namespace HM
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
 
-      // If the user has configured a maximum message size to scan, use that size.
-      // If not, limit scanning to messages smaller than 5 MB. Messages larger than
+      // If the user has configured a maximum message size to scan, use that size if it is below 256 MB.
+      // If not, limit scanning to messages smaller than 256 MB. Messages larger than
       // this is very unlikely to be spam.
 
-      int maxSizeToScanKB = 1024 * 5;
+      int maxSizeToScanKB = 1024 * 256;
 
       if (config.GetAntiSpamMaxSizeKB() > 0)
          maxSizeToScanKB = std::min(config.GetAntiSpamMaxSizeKB(), maxSizeToScanKB);
