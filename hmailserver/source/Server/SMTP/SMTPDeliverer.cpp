@@ -180,6 +180,7 @@ namespace HM
       if (!Events::FireOnDeliveryStart(pMessage))
       {
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
+         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
