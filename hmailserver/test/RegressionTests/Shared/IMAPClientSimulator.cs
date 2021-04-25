@@ -44,6 +44,12 @@ namespace RegressionTests.Shared
          return bRetVal;
       }
 
+      public static bool ValidatePassword(string username, string password)
+      {
+         var client = new ImapClientSimulator();
+         return client.ConnectAndLogon(username, password);
+      }
+
       public string Connect()
       {
          _tcpConnection.Connect(_port);

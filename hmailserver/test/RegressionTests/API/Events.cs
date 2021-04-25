@@ -757,5 +757,45 @@ namespace RegressionTests.API
          Assert.IsTrue(message.Contains("HeloHost: WORLD2"));
       }
 
+      [Test]
+      public void TestOnClientValidatePasswordVBScript_ValidPassword()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // First verify log on works with proper password ("test") but fails with incorrect ("MySecretPassword")
+         Assert.IsTrue(ImapClientSimulator.ValidatePassword("test@test.com", "test"));
+         Assert.IsFalse(ImapClientSimulator.ValidatePassword("test@test.com", "MySecretPassword"));
+
+         // Create a script which override password validation to allow MySecretPassword as valid password
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script =
+            @"Sub OnClientValidatePassword(account, password)  
+                 EventLog.Write(""Account: "" & account.Address)
+                 EventLog.Write(""Password: "" & password)
+                 If password = ""MySecretPassword"" Then
+                   Result.Value = 0
+                 Else
+                   Result.Value = 1
+                 End If
+              End Sub";
+
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Now verify we can log on using the new password
+         Assert.IsTrue(ImapClientSimulator.ValidatePassword("test@test.com", "MySecretPassword"));
+         Assert.IsFalse(ImapClientSimulator.ValidatePassword("test@test.com", "test"));
+
+         string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         Assert.IsTrue(eventLogText.Contains("Account: test@test.com"));
+         Assert.IsTrue(eventLogText.Contains("Password: MySecretPassword"));
+      }
+
+    
    }
 }
