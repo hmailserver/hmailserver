@@ -103,11 +103,12 @@ namespace HM
       }
 
       auto sSendersIP = MessageUtilities::GetSendersIP(pMessage);
-
+      String preprocessingFailureReason;
       RuleResult globalRuleResult;
-      if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
+      if (!PreprocessMessage_(pMessage, globalRuleResult, preprocessingFailureReason))
       {
-         // Message delivery was aborted during preprocessing. 
+         // Message delivery was aborted during preprocessing.
+         LogAwstatsMessageRejected_(sSendersIP, pMessage, preprocessingFailureReason);
          PersistentMessage::DeleteObject(pMessage);
          return;
       }
@@ -163,8 +164,10 @@ namespace HM
    // Returns true if delivery should continue. False if it should be aborted.
    //---------------------------------------------------------------------------()
    bool
-   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, const String &sendersIP, RuleResult &globalRuleResult)
+   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, RuleResult &globalRuleResult, String &preprocessingFailureReason)
    {
+      preprocessingFailureReason = "";
+
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
 
@@ -179,28 +182,28 @@ namespace HM
       // Run the first event in the delivery chain
       if (!Events::FireOnDeliveryStart(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
+         preprocessingFailureReason = "Delivery cancelled by OnDeliveryStart-event";
          return false;
       }
 
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         preprocessingFailureReason = "Message delivery cancelled during virus scanning";
          return false;
       }
 
       // Apply rules on this message.
       if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         preprocessingFailureReason = "Message delivery cancelled during global rules";
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
+         preprocessingFailureReason = "Message delivery cancelled during OnDeliverMessage-event";
          return false;
       }
 
