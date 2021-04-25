@@ -73,7 +73,7 @@ EXIT 0
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -130,7 +130,7 @@ EXIT 0
       <ProxyFileName>hMailServer_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
