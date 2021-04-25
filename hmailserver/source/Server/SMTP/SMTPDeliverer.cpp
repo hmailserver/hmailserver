@@ -107,8 +107,8 @@ namespace HM
       RuleResult globalRuleResult;
       if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
       {
-         // Message delivery was aborted during preprocessing.
-
+         // Message delivery was aborted during preprocessing. 
+         PersistentMessage::DeleteObject(pMessage);
          return;
       }
 
@@ -180,7 +180,6 @@ namespace HM
       if (!Events::FireOnDeliveryStart(pMessage))
       {
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
@@ -188,34 +187,27 @@ namespace HM
       {
          std::vector<String> saErrorMessages;
          SubmitErrorLog_(pMessage, saErrorMessages);
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
-         //PersistentMessage::DeleteObject(pMessage) moved from HandleInfectedMessage_() to here
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Apply rules on this message.
       if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         //PersistentMessage::DeleteObject(pMessage) moved from RunGlobalRules_() to here
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
-         //PersistentMessage::DeleteObject(pMessage) moved from FireOnDeliverMessage() event to here
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
