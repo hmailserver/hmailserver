@@ -35,7 +35,7 @@ namespace HM
    }
 
    std::shared_ptr<Result>
-   Events::FireOnClientValidatePassword(std::shared_ptr<const Account> pAccount, const String& sPassword)
+   Events::FireOnClientValidatePassword(std::shared_ptr<const Account> pAccount, const String &sPassword)
    {
       if (!Configuration::Instance()->GetUseScriptServer())
          return nullptr;
