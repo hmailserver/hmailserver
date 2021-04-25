@@ -194,14 +194,14 @@ namespace HM
             return false;
          }
 		 
-			for(String record : a_records)         
-			{
-				HostNameAndIpAddress hostAndAddress;
-				hostAndAddress.SetHostName(sDomainName);
-				hostAndAddress.SetIpAddress(record);
+         for(String record : a_records)         
+         {
+            HostNameAndIpAddress hostAndAddress;
+            hostAndAddress.SetHostName(sDomainName);
+            hostAndAddress.SetIpAddress(record);
 
-				saFoundNames.push_back(hostAndAddress);
-			}
+            saFoundNames.push_back(hostAndAddress);
+         }
       }
       else
       {
