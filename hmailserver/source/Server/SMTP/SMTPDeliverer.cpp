@@ -352,9 +352,6 @@ namespace HM
             pMessage->GetID(), virusName);
 
          LOG_APPLICATION(logMessage);
-
-         //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
-         //PersistentMessage::DeleteObject(pMessage);
          
          return false; // do not continue delivery
 
