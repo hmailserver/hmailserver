@@ -183,13 +183,6 @@ namespace HM
          return false;
       }
 
-      if (pMessage->GetRecipients()->GetCount() == 0)
-      {
-         std::vector<String> saErrorMessages;
-         SubmitErrorLog_(pMessage, saErrorMessages);
-         return false;
-      }
-
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
