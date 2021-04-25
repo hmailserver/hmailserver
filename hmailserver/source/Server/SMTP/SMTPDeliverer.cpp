@@ -82,11 +82,33 @@ namespace HM
       // Fetch the message ID before we delete the message and it's reset.
       __int64 messageID = pMessage->GetID();
 
-      String sSendersIP;
+      // Before we do anything else, check that the message file exists. If the file
+      // does not exist, there is nothing to deliver. So if the file does not exist,
+      // delete pMessage from the database and report in the application log.
+      const String messageFileName = PersistentMessage::GetFileName(pMessage);
+      if (!FileUtilities::Exists(messageFileName))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5006, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered since the data file does not exist.");
+         PersistentMessage::DeleteObject(pMessage);
+         return;
+      }
+
+      if (pMessage->GetRecipients()->GetCount() == 0)
+      {
+         // No remaining recipients.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5007, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered. No remaining recipients. File: " + messageFileName);
+
+         PersistentMessage::DeleteObject(pMessage);
+         return;
+      }
+
+      auto sSendersIP = MessageUtilities::GetSendersIP(pMessage);
+
       RuleResult globalRuleResult;
       if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
       {
          // Message delivery was aborted during preprocessing.
+
          return;
       }
 
@@ -141,36 +163,14 @@ namespace HM
    // Returns true if delivery should continue. False if it should be aborted.
    //---------------------------------------------------------------------------()
    bool
-   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
+   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, const String &sendersIP, RuleResult &globalRuleResult)
    {
-      // Before we do anything else, check that the message file exists. If the file
-      // does not exist, there is nothing to deliver. So if the file does not exist,
-      // delete pMessage from the database and report in the application log.
-      const String messageFileName = PersistentMessage::GetFileName(pMessage);
-      if (!FileUtilities::Exists(messageFileName))
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5006, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered since the data file does not exist.");
-         PersistentMessage::DeleteObject(pMessage);
-
-         return false;
-      }
-
-      if (pMessage->GetRecipients()->GetCount() == 0)
-      {
-         // No remaining recipients.
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5007, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered. No remaining recipients. File: " + messageFileName);
-
-         PersistentMessage::DeleteObject(pMessage);
-         return false;
-      }
-
-      sendersIP = MessageUtilities::GetSendersIP(pMessage);
-
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
 
       String log_from_address = pMessage->GetFromAddress().IsEmpty() ? "<Empty>" : pMessage->GetFromAddress();
 
+      auto messageFileName = PersistentMessage::GetFileName(pMessage);
       String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: Delivering message from {1} to {2}. File: {3}",
                                                 pMessage->GetID(), log_from_address, sRecipientList, messageFileName);
 
