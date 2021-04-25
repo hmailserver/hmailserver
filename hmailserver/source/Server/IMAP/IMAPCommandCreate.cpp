@@ -12,9 +12,6 @@
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/ACLPermission.h"
 
-#include "../Common/Tracking/ChangeNotification.h"
-#include "../Common/Tracking/NotificationServer.h"
-
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW

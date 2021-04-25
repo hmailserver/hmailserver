@@ -6,6 +6,7 @@
 #include "FetchAccountUIDList.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/Persistence/PersistentFetchAccount.h"
+#include "../Common/Persistence/PersistentFetchAccountUID.h"
 #include "../Common/Util/Time.h"
 
 

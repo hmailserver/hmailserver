@@ -9,7 +9,6 @@
 
 #include "..\Common\Persistence\PersistentMessageMetaData.h"
 #include "..\Common\BO\Message.h"
-#include "..\Common\BO\MessageMetaData.h"
 #include "..\Common\MIME\Mime.h"
 #include "..\Common\Util\Time.h"
 #include "..\Common\Util\VariantDateTime.h"

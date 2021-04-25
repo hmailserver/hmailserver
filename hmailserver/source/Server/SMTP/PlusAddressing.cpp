@@ -4,7 +4,6 @@
 #include "StdAfx.h"
 #include "PlusAddressing.h"
 #include "../Common/BO/Domain.h"
-#include "../Common/Cache/CacheContainer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

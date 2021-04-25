@@ -6,10 +6,7 @@
 #include "IMAPConnection.h"
 #include "IMAPConfiguration.h"
 #include "IMAPSimpleCommandParser.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/Account.h"
-#include "../Common/Persistence/PersistentAccount.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/Cache/AccountSizeCache.h"
 

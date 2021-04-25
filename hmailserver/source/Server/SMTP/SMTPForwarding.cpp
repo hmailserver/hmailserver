@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "SMTPForwarding.h"
-#include "SMTPConfiguration.h"
 #include "RuleApplier.h"
 
 #include "../Common/BO/Account.h"

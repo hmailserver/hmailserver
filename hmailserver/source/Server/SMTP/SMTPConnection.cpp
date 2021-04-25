@@ -6,29 +6,24 @@
 
 #include <Boost/Regex.hpp>
 
-#include "../common/bo/Messages.h"
 #include "../common/bo/MessageData.h"
 
 #include "../common/Cache/CacheContainer.h"
 #include "../common/Util/PasswordValidator.h"
 #include "../common/Util/AccountLogon.h"
 #include "../common/persistence/PersistentMessage.h"
-#include "../common/persistence/PersistentAccount.h"
 #include "../common/BO/Message.h"
 #include "../common/BO/SecurityRange.h"
-#include "../common/Mime/MimeCode.h"
 #include "../common/Mime/Mime.h"
 #include "../common/util/MessageUtilities.h"
 #include "../common/util/Utilities.h"
 #include "../common/util/File.h"
-#include "../common/util/Time.h"
 #include "../common/Scripting/ClientInfo.h"
 #include "../common/AntiSpam/SpamTestResult.h"
 #include "../Common/UTil/Math.h"
 #include "../Common/UTil/SignatureAdder.h"
 #include "../common/BO/Routes.h"
 #include "../common/BO/RouteAddresses.h"
-#include "../common/BO/SecurityRange.h"
 #include "../common/BO/MessageRecipient.h"
 #include "../common/BO/MessageRecipients.h"
 #include "../Common/Util/ByteBuffer.h"
@@ -41,11 +36,9 @@
 #include "../Common/Cache/MessageCache.h"
 #include "../Common/BO/DomainAliases.h"
 #include "../Common/BO/Account.h"
-#include "../Common/BO/Domains.h"
 #include "../Common/BO/Domain.h"
 
 #include "../Common/BO/Collection.h"
-#include "../common/persistence/PersistentDomain.h"
 
 #include "../common/Threading/AsynchronousTask.h"
 #include "../common/Threading/WorkQueue.h"
@@ -64,7 +57,6 @@
 
 #include "SMTPConnection.h"
 #include "SMTPConfiguration.h"
-#include "SMTPDeliveryManager.h"
 #include "SMTPMessageHeaderCreator.h"
 
 

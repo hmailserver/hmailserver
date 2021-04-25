@@ -13,7 +13,6 @@
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/IPAddress.h"
 #include "../TCPIP/LocalIPAddresses.h"
-#include "../Util/TLD.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

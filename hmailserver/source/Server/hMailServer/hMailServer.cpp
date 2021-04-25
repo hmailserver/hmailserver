@@ -14,7 +14,6 @@
 
 #include "../Common/Util/ServiceManager.h"
 #include "../Common/Util/ClassTester.h"
-#include "../Common/Util/Utilities.h"
 #include "../Common/Util/SystemInformation.h"
 
 // #define VLD_START_DISABLED

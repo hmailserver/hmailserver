@@ -6,8 +6,6 @@
 
 #include "../hMailServer/hMailServer.h"
 
-#include "../Common/BO/Domain.h"
-
 namespace HM
 {
    class Domains;

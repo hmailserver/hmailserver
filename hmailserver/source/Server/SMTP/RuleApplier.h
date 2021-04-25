@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../Common/BO/RuleCriteria.h"
-#include "RuleResult.h"
 
 namespace HM
 {

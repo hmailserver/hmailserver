@@ -18,7 +18,6 @@
 #include "../Common/BO/MessageRecipients.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/Util/Time.h"
-#include "../Common/Util/Utilities.h"
 #include "../Common/Util/RegularExpression.h"
 #include "../common/Util/MailerDaemonAddressDeterminer.h"
 

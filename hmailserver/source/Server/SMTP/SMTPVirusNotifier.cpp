@@ -5,10 +5,8 @@
 #include "SMTPVirusNotifier.h"
 
 #include "../Common/BO/Message.h"
-#include "../Common/BO/MessageRecipient.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/Util/Time.h"
-#include "../Common/Util/Utilities.h"
 #include "../common/Util/MailerDaemonAddressDeterminer.h"
 #include "../Common/BO/MessageRecipients.h"
 #include "../Common/BO/MessageData.h"

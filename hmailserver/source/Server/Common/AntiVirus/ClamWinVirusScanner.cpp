@@ -4,8 +4,6 @@
 #include "stdafx.h"
 #include "ClamWinVirusScanner.h"
 
-#include "../../SMTP/SMTPConfiguration.h"
-#include "../Util/Utilities.h"
 #include "../Util/ProcessLauncher.h"
 
 #ifdef _DEBUG

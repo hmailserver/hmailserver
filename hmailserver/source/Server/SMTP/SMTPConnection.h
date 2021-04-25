@@ -8,8 +8,6 @@
 #include "../common/TCPIP/TCPConnection.h"
 
 #include "RecipientParser.h"
-#include "../Common/BO/Collection.h"
-#include "../common/persistence/PersistentDomain.h"
 
 namespace HM
 {

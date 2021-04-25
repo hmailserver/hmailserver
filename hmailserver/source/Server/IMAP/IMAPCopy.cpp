@@ -4,14 +4,12 @@
 #include "stdafx.h"
 #include "IMAPCopy.h"
 #include "IMAPConnection.h"
-#include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/Account.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "IMAPSimpleCommandParser.h"
 #include "../Common/BO/ACLPermission.h"
-#include "../Common/Cache/CacheContainer.h"
 #include "../Common/Tracking/ChangeNotification.h"
 
 

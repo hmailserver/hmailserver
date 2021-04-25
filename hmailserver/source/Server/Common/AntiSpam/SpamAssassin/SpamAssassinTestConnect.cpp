@@ -8,7 +8,6 @@
 
 #include "../../TCPIP/IOService.h"
 #include "../../TCPIP/TCPConnection.h"
-#include "../../TCPIP/SslContextInitializer.h"
 #include "../../TCPIP/DNSResolver.h"
 #include "../../Util/FileUtilities.h"
 

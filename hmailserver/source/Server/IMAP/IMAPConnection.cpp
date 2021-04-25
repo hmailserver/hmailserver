@@ -17,11 +17,9 @@
 #include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/ACLPermission.h"
-#include "../Common/Persistence/PersistentMessage.h"
 
 // IMAP Utilities
 #include "IMAPFolderUtilities.h"
-#include "IMAPSimpleCommandParser.h"
 
 // Common utilities
 #include "../Common/Util/ByteBuffer.h"

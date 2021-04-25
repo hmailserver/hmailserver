@@ -8,7 +8,6 @@
 
 #include "../../Util/Hashing/HashCreator.h"
 #include "../../Util/Encoding/Base64.h"
-#include "../../BO/MessageData.h"
 #include "../../BO/Message.h"
 #include "../../MIME/MimeCode.h"
 #include "../../MIME/Mime.h"
@@ -17,8 +16,6 @@
 #include "../../Util/FileUtilities.h"
 #include "../../Persistence/PersistentMessage.h"
 
-#include <openssl/rsa.h>
-#include <openssl/obj_mac.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>

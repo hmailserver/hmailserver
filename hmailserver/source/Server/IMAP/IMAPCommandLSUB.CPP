@@ -7,7 +7,6 @@
 #include "IMAPSimpleCommandParser.h"
 #include "../Common/BO/Account.h"
 #include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 
 #include "IMAPConfiguration.h"
 #include "FolderListCreator.h"

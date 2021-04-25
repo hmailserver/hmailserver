@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "../SpamTest.h"
-
 namespace HM
 {
    class DKIMParameters

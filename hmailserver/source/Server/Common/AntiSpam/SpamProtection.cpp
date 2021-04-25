@@ -15,19 +15,16 @@
 #include "../BO/Message.h"
 #include "../BO/Domain.h"
 #include "../BO/MessageData.h"
-#include "../BO/WhiteListAddresses.h"
 
 #include "../Cache/CacheContainer.h"
 
 #include "../Persistence/PersistentMessage.h"
 
-#include "../Util/MessageUtilities.h"
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/HostNameAndIpAddress.h"
 
 #include "../Util/FileUtilities.h"
 
-#include "../../SMTP/BLCheck.h"
 #include "../../SMTP/GreyListing.h"
 
 #include "DKIM/DKIM.h"

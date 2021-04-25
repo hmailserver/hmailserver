@@ -9,7 +9,6 @@
 
 #include "../BO/DNSBlackLists.h"
 
-#include "../../SMTP/SPF/SPF.h"
 #include "../../SMTP/BLCheck.h"
 
 #ifdef _DEBUG

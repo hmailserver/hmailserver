@@ -6,25 +6,16 @@
 #include "../common/BO/Account.h"
 #include "../common/BO/SecurityRange.h"
 #include "../common/BO/Message.h"
-#include "../common/BO/Messages.h"
 #include "../common/util/file.h"
 #include "../common/Util/AccountLogon.h"
 #include "../common/util/ByteBuffer.h"
 #include "../Common/Application/TimeoutCalculator.h"
-
-#include "../IMAP/IMAPFolderUtilities.h"
-#include "../IMAP/IMAPFolderContainer.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 
 #include "../Common/Application/FolderManager.h"
 #include "../Common/Application/ObjectCache.h"
 #include "../Common/Application/SessionManager.h"
 #include "../Common/BO/DomainAliases.h"
 #include "../Common/Persistence/PersistentMessage.h"
-
-#include "../Common/Tracking/ChangeNotification.h"
-#include "../Common/Tracking/NotificationServer.h"
 
 #include "POP3Sessions.h"
 #include "POP3Connection.h"

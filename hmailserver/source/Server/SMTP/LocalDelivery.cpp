@@ -8,7 +8,6 @@
 #include "../common/Application/ObjectCache.h"
 
 #include "../common/BO/Account.h"
-#include "../common/BO/Domain.h"
 #include "../common/BO/Message.h"
 #include "../common/BO/MessageRecipient.h"
 #include "../common/BO/MessageRecipients.h"
@@ -27,7 +26,6 @@
 #include "../common/Util/TraceHeaderWriter.h"
 #include "../common/Util/MessageUtilities.h"
 
-#include "../IMAP/IMAPFolderContainer.h"
 #include "../IMAP/MessagesContainer.h"
 
 #include "SMTPConfiguration.h"
