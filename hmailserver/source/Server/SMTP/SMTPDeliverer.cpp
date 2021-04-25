@@ -441,9 +441,6 @@ namespace HM
 
       if (ruleResult.GetDeleteEmail())
       {
-         String sendersIP = MessageUtilities::GetSendersIP(pMessage);
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
-
          String sDeleteRuleName = ruleResult.GetDeleteRuleName();
 
          String sMessage;

@@ -24,7 +24,7 @@ namespace RegressionTests.SMTP
       }
 
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          if (File.Exists(_logging.CurrentAwstatsLog))
             File.Delete(_logging.CurrentAwstatsLog);
