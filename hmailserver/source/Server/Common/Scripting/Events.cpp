@@ -16,6 +16,7 @@
 #include "ScriptServer.h"
 #include "ScriptObjectContainer.h"
 #include "Result.h"
+#include "../Persistence/PersistentAccount.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -31,6 +32,50 @@ namespace HM
 
    Events::~Events(void)
    {
+   }
+
+   std::shared_ptr<Result>
+   Events::FireOnClientValidatePassword(std::shared_ptr<const Account> pAccount, const String& sPassword)
+   {
+      if (!Configuration::Instance()->GetUseScriptServer())
+         return nullptr;
+
+      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
+
+      // We cannot use the provided pAccount directly, since it might come from cache.
+      // (that's why it's a const Account)
+      // So, we use it to load from the PersistentAccount.
+      std::shared_ptr<Account> pPersistentAccount = std::shared_ptr<Account>(new Account);
+      PersistentAccount::ReadObject(pPersistentAccount, pAccount->GetAddress());
+
+      pContainer->AddObject("HMAILSERVER_ACCOUNT", pPersistentAccount, ScriptObject::OTAccount);
+      pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+
+      // By default, pass through.
+      pResult->SetValue(2);
+
+      String sEventCaller;
+
+      String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
+      if (sScriptLanguage == _T("VBScript"))
+      {
+         String sEscapedPassword = sPassword;
+         sEscapedPassword.Replace(_T("\""), _T("\"\""));
+
+         sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, \"%s\")"), sEscapedPassword.c_str());
+      }
+      else if (sScriptLanguage == _T("JScript"))
+      {
+         String sEscapedPassword = sPassword;
+         sEscapedPassword.Replace(_T("'"), _T("\\'"));
+
+         sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, '%s')"), sEscapedPassword.c_str());
+      }
+
+      ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientValidatePassword, sEventCaller, pContainer);
+      return pResult;
+
    }
 
    bool 

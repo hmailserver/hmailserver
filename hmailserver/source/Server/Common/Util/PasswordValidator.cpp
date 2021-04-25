@@ -12,12 +12,8 @@
 #include "../BO/DomainAliases.h"
 #include "../Util/SSPIValidation.h"
 #include "../Util/Crypt.h"
-#include "../Persistence/PersistentDomain.h"
-#include "../Persistence/PersistentAccount.h"
-#include "../Scripting/ClientInfo.h"
-#include "../Scripting/ScriptServer.h"
-#include "../Scripting/ScriptObjectContainer.h"
 #include "../Scripting/Result.h"
+#include "../Scripting/Events.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -112,55 +108,22 @@ namespace HM
    bool 
    PasswordValidator::ValidatePassword(std::shared_ptr<const Account> pAccount, const String &sPassword)
    {
-      if (Configuration::Instance()->GetUseScriptServer())
+      // Let a script override the password validation
+      auto eventResult = Events::FireOnClientValidatePassword(pAccount, sPassword);
+
+      if (eventResult != nullptr)
       {
-         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
-
-         // We cannot use the provided pAccount directly, since it might come from cache.
-         // (that's why it's a const Account)
-         // So, we use it to load from the PersistentAccount.
-         std::shared_ptr<Account> pPersistentAccount = std::shared_ptr<Account>(new Account);
-         PersistentAccount::ReadObject(pPersistentAccount, pAccount->GetAddress());
-
-         pContainer->AddObject("HMAILSERVER_ACCOUNT", pPersistentAccount, ScriptObject::OTAccount);
-         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
-
-         // By default, pass through.
-         pResult->SetValue(2);
-
-         String sEventCaller;
-
-         String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
-         if (sScriptLanguage == _T("VBScript"))
-         {
-            String sEscapedPassword = sPassword;
-            sEscapedPassword.Replace(_T("\""), _T("\"\""));
-
-            sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, \"%s\")"), sEscapedPassword.c_str());
-         }
-         else if (sScriptLanguage == _T("JScript"))
-         {
-            String sEscapedPassword = sPassword;
-            sEscapedPassword.Replace(_T("'"), _T("\\'"));
-
-            sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, '%s')"), sEscapedPassword.c_str());
-         }
-
-         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientValidatePassword, sEventCaller, pContainer);
-
-         if (pResult->GetValue() == 0)
+         if (eventResult->GetValue() == 0)
          {
             // The script said to let the user through.
             return true;
          }
-         else if (pResult->GetValue() == 1)
+
+         if (eventResult->GetValue() == 1)
          {
             // The script said the password wasn't correct.
             return false;
          }
-
-         // The script gave us a different value, which means we should continue normally.
       }
 
       if (sPassword.GetLength() == 0)
