@@ -293,7 +293,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
       			if ($admin_rights)
       			   echo "<input type=\"text\" name=\"domainmaxmessagesize\" value=\"$domainmaxmessagesize\" size=\"8\" checkallownull=\"false\" checkmessage=\"$str_warning\">";
       			else
-      				echo $domainmaxsize;
+      				echo $domainmaxmessagesize;
       			?>			
       			</td>
       		</tr>		
