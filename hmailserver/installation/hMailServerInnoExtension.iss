@@ -848,7 +848,7 @@ begin
 	begin
    // Create a registry key that tell
 	  // other apps where we're installed.
-	  RegWriteStringValue(HKLM32, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
+	  RegWriteStringValue(HKLM64, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
    	
 	  // Write db location to hMailServer.ini.
 	  szIniFile := ExpandConstant('{app}\Bin\hMailServer.ini');
