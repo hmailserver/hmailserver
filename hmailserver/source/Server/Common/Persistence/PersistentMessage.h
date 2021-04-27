@@ -72,6 +72,7 @@ namespace HM
       static bool GetPartialFilename(const String &fullPath, String &partialPath);
 
       static bool SaveFlags(std::shared_ptr<Message> message);
+	  static bool SaveFlagsPublic(std::shared_ptr<Message> message, int uss);
 
       static bool IsPartialPath(const String &path);
       int GetLatestMessageId();

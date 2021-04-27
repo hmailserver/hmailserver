@@ -12,6 +12,8 @@ drop table if exists hm_domain_aliases;
 
 drop table if exists hm_messages;
 
+drop table if exists hm_flags;
+
 drop table if exists hm_message_metadata;
 
 drop table if exists hm_dbversion;
@@ -164,6 +166,15 @@ create table hm_messages
 CREATE INDEX idx_hm_messages ON hm_messages (messageaccountid, messagefolderid);
 
 CREATE INDEX idx_hm_messages_type ON hm_messages (messagetype);
+
+create table hm_flags 
+(
+	
+	MsgID int not null ,
+	UsrID in not null ,
+	Flag int,
+	primary key (MsgID,UsrID)
+) DEFAULT CHARSET=utf8;
 
 create table hm_message_metadata 
 (

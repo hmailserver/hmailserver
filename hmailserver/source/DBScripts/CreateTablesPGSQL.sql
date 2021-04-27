@@ -23,6 +23,8 @@ select hm_drop_table('hm_domain_aliases');
 
 select hm_drop_table('hm_messages');
 
+select hm_drop_table('hm_flags');
+
 select hm_drop_table('hm_message_metadata');
 
 select hm_drop_table('hm_dbversion');
@@ -178,6 +180,15 @@ create table hm_messages
 CREATE INDEX idx_hm_messages ON hm_messages (messageaccountid, messagefolderid);
 
 CREATE INDEX idx_hm_messages_type ON hm_messages (messagetype);
+
+create table hm_flags
+(
+	
+	MsgID int not null,
+	UsrID int not null,
+	Flag int,
+	primary key (MsgID,UsrID)
+);
 
 create table hm_message_metadata 
 (

@@ -53,12 +53,21 @@ namespace HM
 
       if (iMessageID > 0)
       {
-         SQLCommand command(_T("delete from hm_messages where messageid = @MESSAGEID"));
+		 SQLCommand command;
+		 SQLCommand command1;
+		 command.SetQueryString(_T("delete from hm_messages where messageid = @MESSAGEID"));
          command.AddParameter("@MESSAGEID", iMessageID);
          
+		 if (pMessage->GetAccountID() == 0)
+		 {
+			 command1.SetQueryString(_T("delete from hm_flags where MsgID = @MESSAGEID"));
+			 command1.AddParameter("@MESSAGEID", iMessageID);
+
+		 }
          if (!Application::Instance()->GetDBManager()->Execute(command))
             return false;
-
+		 if (!Application::Instance()->GetDBManager()->Execute(command1))
+			 return false;
          // If the message is placed into an account, there won't be any recipients
          // connected to it. If the message is still in the queue, we must delete the
          // recipients as well.
@@ -204,7 +213,24 @@ namespace HM
       pMessage->SetNoOfRetries((unsigned short) pRS->GetLongValue("messagecurnooftries"));
       pMessage->SetFolderID(pRS->GetLongValue("messagefolderid"));
 
-      pMessage->SetFlags((short) pRS->GetLongValue("messageflags"));
+	  if (pRS->GetLongValue("messageaccountid") == 0)
+	  {
+		  SQLCommand command2("select * from hm_flags where MsgID = @MSGID ");
+
+		  command2.AddParameter("@MSGID", pMessage->GetID());
+		  std::shared_ptr<DALRecordset> pRS2 = Application::Instance()->GetDBManager()->OpenRecordset(command2);
+
+		  while (!pRS2->IsEOF())
+		  {
+			  int userID = pRS2->GetLongValue("UsrID");
+			  pMessage->SetFlagsByUsr(userID, (short)pRS2->GetLongValue("Flag"), pMessage->GetID());
+			  pRS2->MoveNext();
+		  }
+	  }
+	  else
+	  {
+		  pMessage->SetFlags((short)pRS->GetLongValue("messageflags"));
+	  }
       pMessage->SetUID((unsigned int) pRS->GetLongValue("messageuid"));
 
       if (bReadRecipients)
@@ -1268,6 +1294,17 @@ namespace HM
       sqlCommand.AddParameter("@MESSAGEID", message->GetID());
 
       return Application::Instance()->GetDBManager()->Execute(sqlCommand);
+   }
+   bool
+	   PersistentMessage::SaveFlagsPublic(std::shared_ptr<Message> message, int uss)
+   {
+	   String statement = "UPDATE hm_flags SET Flag = @FLAGS WHERE MsgID = @MESSAGEID";
+
+	   SQLCommand sqlCommand(statement);
+	   sqlCommand.AddParameter("@FLAGS", message->GetFlagsByUsr(uss, message->GetID()));
+	   sqlCommand.AddParameter("@MESSAGEID", message->GetID());
+
+	   return Application::Instance()->GetDBManager()->Execute(sqlCommand);
    }
 
    bool 

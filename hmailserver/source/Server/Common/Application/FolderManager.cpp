@@ -107,7 +107,7 @@ namespace HM
    }
 
    bool 
-   FolderManager::UpdateMessageFlags(int accountID, int folderID, __int64 messageID, int flags)
+	   FolderManager::UpdateMessageFlags(int accountID, int folderID, __int64 messageID, int flags, int user)
    {
       std::shared_ptr<IMAPFolders> folders;
       if (accountID > 0)
@@ -127,8 +127,16 @@ namespace HM
       if (!message)
          return false;
 
-      message->SetFlags(flags);
-      return PersistentMessage::SaveFlags(message);
+	  if (message->GetAccountID() == 0)
+	  {
+		  message->SetFlagsByUsr(user, flags, message->GetID());
+		  return PersistentMessage::SaveFlagsPublic(message, user);
+	  }
+	  else
+	  {
+		  message->SetFlags(flags);
+		  return PersistentMessage::SaveFlags(message);
+	  }
    }
 
 
