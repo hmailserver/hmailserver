@@ -124,6 +124,8 @@
 
 #define PROPERTY_SSLVERSIONS _T("SslVersions")
 
+#define PROPERTY_TLSOPTIONS _T("TlsOptions")
+
 #define PROPERTY_CLAMAV_ENABLED              _T("ClamAVEnabled")
 #define PROPERTY_CLAMAV_HOST                 _T("ClamAVHost")
 #define PROPERTY_CLAMAV_PORT                 _T("ClamAVPort")

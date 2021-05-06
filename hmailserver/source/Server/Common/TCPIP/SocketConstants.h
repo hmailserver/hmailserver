@@ -41,4 +41,9 @@ namespace HM
       TlsVersion12 = 8,
       TlsVersion13 = 16
    };
+
+   enum TlsOption
+   {
+	   TlsOptionPreferServerCiphers = 2
+   };
 }

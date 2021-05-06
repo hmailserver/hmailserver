@@ -648,6 +648,25 @@ namespace HM
       GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
    }
 
+   bool
+	   Configuration::GetTlsOptionEnabled(TlsOption option) const
+   {
+	   return (GetSettings()->GetLong(PROPERTY_TLSOPTIONS) & option) ? true : false;
+   }
+
+   void
+	   Configuration::SetTlsOptionEnabled(TlsOption option, bool enabled)
+   {
+	   int options = GetSettings()->GetLong(PROPERTY_TLSOPTIONS);
+
+	   if (enabled)
+		   options = options | option;
+	   else
+		   options = options &~option;
+
+	   GetSettings()->SetLong(PROPERTY_TLSOPTIONS, options);
+   }
+
    int
    Configuration::GetCrashSimulationMode() const
    {

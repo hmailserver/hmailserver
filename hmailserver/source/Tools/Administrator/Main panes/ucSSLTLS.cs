@@ -50,6 +50,7 @@ namespace hMailServer.Administrator
            checkTlsVersion11.Checked = settings.TlsVersion11Enabled;
            checkTlsVersion12.Checked = settings.TlsVersion12Enabled;
            checkTlsVersion13.Checked = settings.TlsVersion13Enabled;
+           checkTlsOptionPreferServerCiphers.Checked = settings.TlsOptionPreferServerCiphersEnabled;
 
            Marshal.ReleaseComObject(settings);
         }
@@ -60,7 +61,7 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           bool restartRequired = textSslCipherList.Dirty || checkTlsVersion10.Dirty || checkTlsVersion11.Dirty || checkTlsVersion12.Dirty || checkTlsVersion13.Dirty;
+           bool restartRequired = textSslCipherList.Dirty || checkTlsVersion10.Dirty || checkTlsVersion11.Dirty || checkTlsVersion12.Dirty || checkTlsVersion13.Dirty || checkTlsOptionPreferServerCiphers.Dirty;
 
            settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
@@ -69,6 +70,8 @@ namespace hMailServer.Administrator
            settings.TlsVersion11Enabled = checkTlsVersion11.Checked;
            settings.TlsVersion12Enabled = checkTlsVersion12.Checked;
            settings.TlsVersion13Enabled = checkTlsVersion13.Checked;
+
+           settings.TlsOptionPreferServerCiphersEnabled = checkTlsOptionPreferServerCiphers.Checked;
 
            Marshal.ReleaseComObject(settings);
 
