@@ -44,6 +44,7 @@ namespace HM
 
    enum TlsOption
    {
-	   TlsOptionPreferServerCiphers = 2
+      TlsOptionPreferServerCiphers = 2,
+      TlsOptionPrioritizeChaCha = 4
    };
 }

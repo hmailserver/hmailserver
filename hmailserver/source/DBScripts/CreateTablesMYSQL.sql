@@ -760,7 +760,7 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Ss
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SslVersions', '', 14);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('TlsOptions', '', 2);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('TlsOptions', '', 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 

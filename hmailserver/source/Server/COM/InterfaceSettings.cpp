@@ -2487,3 +2487,37 @@ STDMETHODIMP InterfaceSettings::get_TlsOptionPreferServerCiphersEnabled(VARIANT_
       return COMError::GenerateGenericMessage();
    }
 }
+
+
+STDMETHODIMP InterfaceSettings::put_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetTlsOptionEnabled(HM::TlsOptionPrioritizeChaCha, newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP InterfaceSettings::get_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetTlsOptionEnabled(HM::TlsOptionPrioritizeChaCha) ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
