@@ -104,6 +104,7 @@ namespace hMailServer.Administrator
            Instances.MainForm.OnContentChanged();
 
            checkTlsOptionPrioritizeChaCha.Enabled = (checkTlsVersion12.Checked || checkTlsVersion13.Checked) && checkTlsOptionPreferServerCiphers.Checked;
+           checkTlsOptionPrioritizeChaCha.Checked = checkTlsOptionPrioritizeChaCha.Enabled && checkTlsOptionPrioritizeChaCha.Checked;
         }
 
         private void OnContentChanged(object sender, EventArgs e)

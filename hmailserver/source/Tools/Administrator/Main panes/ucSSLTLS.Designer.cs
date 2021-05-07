@@ -36,7 +36,7 @@ namespace hMailServer.Administrator
             this.checkTlsVersion11 = new hMailServer.Administrator.Controls.ucCheckbox();
             this.checkTlsVersion12 = new hMailServer.Administrator.Controls.ucCheckbox();
             this.checkTlsVersion13 = new hMailServer.Administrator.Controls.ucCheckbox();
-            this.labelOptions = new System.Windows.Forms.Label();
+            this.labelCipherPriority = new System.Windows.Forms.Label();
             this.checkTlsOptionPreferServerCiphers = new hMailServer.Administrator.Controls.ucCheckbox();
             this.checkTlsOptionPrioritizeChaCha = new hMailServer.Administrator.Controls.ucCheckbox();
             this.SuspendLayout();
@@ -131,14 +131,14 @@ namespace hMailServer.Administrator
             this.checkTlsVersion13.Text = "TLS v1.3";
             this.checkTlsVersion13.UseVisualStyleBackColor = true;
             // 
-            // labelOptions
+            // labelCipherPriority
             // 
-            this.labelOptions.AutoSize = true;
-            this.labelOptions.Location = new System.Drawing.Point(7, 348);
-            this.labelOptions.Name = "labelOptions";
-            this.labelOptions.Size = new System.Drawing.Size(43, 13);
-            this.labelOptions.TabIndex = 25;
-            this.labelOptions.Text = "Options";
+            this.labelCipherPriority.AutoSize = true;
+            this.labelCipherPriority.Location = new System.Drawing.Point(7, 348);
+            this.labelCipherPriority.Name = "labelCipherPriority";
+            this.labelCipherPriority.Size = new System.Drawing.Size(70, 13);
+            this.labelCipherPriority.TabIndex = 25;
+            this.labelCipherPriority.Text = "Cipher priority";
             // 
             // checkTlsOptionPreferServerCiphers
             // 
@@ -161,7 +161,7 @@ namespace hMailServer.Administrator
             this.checkTlsOptionPrioritizeChaCha.Name = "checkTlsOptionPrioritizeChaCha";
             this.checkTlsOptionPrioritizeChaCha.Size = new System.Drawing.Size(397, 17);
             this.checkTlsOptionPrioritizeChaCha.TabIndex = 27;
-            this.checkTlsOptionPrioritizeChaCha.Text = "Prioritize ChaCha20Poly1305 when client does (requires TLS v1.2 or TLS v1.3)";
+            this.checkTlsOptionPrioritizeChaCha.Text = "Prioritize ChaCha20-Poly1305 when client does (requires TLS v1.2 or TLS v1.3)";
             this.checkTlsOptionPrioritizeChaCha.UseVisualStyleBackColor = true;
             // 
             // ucSSLTLS
@@ -169,7 +169,7 @@ namespace hMailServer.Administrator
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.checkTlsOptionPrioritizeChaCha);
-            this.Controls.Add(this.labelOptions);
+            this.Controls.Add(this.labelCipherPriority);
             this.Controls.Add(this.checkTlsOptionPreferServerCiphers);
             this.Controls.Add(this.checkTlsVersion13);
             this.Controls.Add(this.checkTlsVersion12);
@@ -196,7 +196,7 @@ namespace hMailServer.Administrator
         private Controls.ucCheckbox checkTlsVersion11;
         private Controls.ucCheckbox checkTlsVersion12;
         private Controls.ucCheckbox checkTlsVersion13;
-        private System.Windows.Forms.Label labelOptions;
+        private System.Windows.Forms.Label labelCipherPriority;
         private Controls.ucCheckbox checkTlsOptionPreferServerCiphers;
         private Controls.ucCheckbox checkTlsOptionPrioritizeChaCha;
 
