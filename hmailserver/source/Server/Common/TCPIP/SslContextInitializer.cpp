@@ -180,6 +180,8 @@ namespace HM
       bool tlsv11 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion11);
       bool tlsv12 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion12);
       bool tlsv13 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion13);
+      bool tlsPreferServerCiphers = Configuration::Instance()->GetTlsOptionEnabled(TlsOptionPreferServerCiphers);
+      bool tlsPrioritizeChaCha = Configuration::Instance()->GetTlsOptionEnabled(TlsOptionPrioritizeChaCha);
 
       int options = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_SINGLE_ECDH_USE;
 
@@ -191,6 +193,12 @@ namespace HM
          options = options | SSL_OP_NO_TLSv1_2;
       if (!tlsv13)
          options = options | SSL_OP_NO_TLSv1_3;
+
+      if (tlsPreferServerCiphers)
+         options = options | SSL_OP_CIPHER_SERVER_PREFERENCE;
+
+      if (tlsPrioritizeChaCha && tlsPreferServerCiphers && (tlsv12 || tlsv13))
+         options = options | SSL_OP_PRIORITIZE_CHACHA;
 
       SSL_CTX* ssl = context.native_handle();
       SSL_CTX_set_options(ssl, options);

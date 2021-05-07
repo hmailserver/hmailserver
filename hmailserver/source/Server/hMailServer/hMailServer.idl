@@ -670,6 +670,11 @@ interface IInterfaceSettings : IDispatch{
 
    [propget, id(100), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(100), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(101), helpstring("Prefer SSL/TLS server ciphers over client ciphers.")] HRESULT TlsOptionPreferServerCiphersEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(101), helpstring("Prefer SSL/TLS server ciphers over client ciphers.")] HRESULT TlsOptionPreferServerCiphersEnabled([in] VARIANT_BOOL newVal);
+   [propget, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([in] VARIANT_BOOL newVal);
 };
 
 
