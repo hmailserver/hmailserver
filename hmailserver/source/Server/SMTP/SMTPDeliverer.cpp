@@ -348,7 +348,7 @@ namespace HM
          if (antiVirusConfig.AVNotifySender())
             SMTPVirusNotifier::CreateMessageDeletedNotification(pMessage, pMessage->GetFromAddress());
 
-         String logMessage = Formatter::Format("SMTPDeliverer - Message {0}: Message deleted (contained virus {1}).", 
+         String logMessage = Formatter::Format("SMTPDeliverer - Message {0}: Message will be deleted (contained virus {1}).", 
             pMessage->GetID(), virusName);
 
          LOG_APPLICATION(logMessage);
@@ -430,14 +430,12 @@ namespace HM
 
          String sMessage;
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-            _T("Message deleted. Action was taken by a global rule (%s). "),
+            _T("Message will be deleted. Action was taken by a global rule (%s). "),
             pMessage->GetID(), 
             sDeleteRuleName.c_str());
 
          LOG_APPLICATION(sMessage);
 
-         //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
-         //PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
