@@ -35,7 +35,7 @@ namespace HM
       AnsiString senderAddress = message->GetFromAddress();
       std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       // try to get mailbox from the alias (if it is an alias actually)
-      String sSender = pDA->ApplyAliasesOnAddress(sSender);
+      String sSender = pDA->ApplyAliasesOnAddress(senderAddress);
       AnsiString senderDomain = StringParser::ExtractDomain(senderAddress);
       AnsiString mbDomain = StringParser::ExtractDomain(sSender);
 
