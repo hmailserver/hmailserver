@@ -26,6 +26,7 @@ namespace HM
          ASDKIMSimpleHeader = 4,
          ASDKIMSimpleBody = 8,
          ASDKIMSHA1 = 16,
+         ASDKIMSignAliases = 32,
       };
 
       enum DomainSignatureMethod
@@ -117,6 +118,10 @@ namespace HM
       */
       bool GetDKIMEnabled() const;
       void SetDKIMEnabled(bool newVal);
+
+      bool GetDKIMAliasesEnabled() const;
+      void SetDKIMAliasesEnabled(bool newVal);
+
 
       AnsiString GetDKIMSelector() const;
       void SetDKIMSelector(const String &newValue);

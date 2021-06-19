@@ -87,6 +87,7 @@ namespace hMailServer.Administrator
            this.labelDKIMPrivateKeyFile = new System.Windows.Forms.Label();
            this.textDKIMPrivateKeyFile = new hMailServer.Shared.ucText();
            this.checkDKIMSignEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkDKIMSignAliasesEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabPageAdvanced = new System.Windows.Forms.TabPage();
            this.textCatchAllAddress = new hMailServer.Administrator.Controls.ucEmailEdit();
            this.labelCatchAll = new System.Windows.Forms.Label();
@@ -557,6 +558,7 @@ namespace hMailServer.Administrator
            this.tabPageDKIM.Controls.Add(this.labelDKIMPrivateKeyFile);
            this.tabPageDKIM.Controls.Add(this.textDKIMPrivateKeyFile);
            this.tabPageDKIM.Controls.Add(this.checkDKIMSignEnabled);
+           this.tabPageDKIM.Controls.Add(this.checkDKIMSignAliasesEnabled);
            this.tabPageDKIM.Location = new System.Drawing.Point(4, 22);
            this.tabPageDKIM.Name = "tabPageDKIM";
            this.tabPageDKIM.Size = new System.Drawing.Size(554, 354);
@@ -701,7 +703,7 @@ namespace hMailServer.Administrator
            this.labelDKIMSelector.Location = new System.Drawing.Point(11, 89);
            this.labelDKIMSelector.Name = "labelDKIMSelector";
            this.labelDKIMSelector.Size = new System.Drawing.Size(46, 13);
-           this.labelDKIMSelector.TabIndex = 19;
+           this.labelDKIMSelector.TabIndex = 20;
            this.labelDKIMSelector.Text = "Selector";
            // 
            // textDKIMSelector
@@ -711,7 +713,7 @@ namespace hMailServer.Administrator
            this.textDKIMSelector.Number = 0;
            this.textDKIMSelector.Numeric = false;
            this.textDKIMSelector.Size = new System.Drawing.Size(161, 20);
-           this.textDKIMSelector.TabIndex = 18;
+           this.textDKIMSelector.TabIndex = 19;
            // 
            // labelDKIMPrivateKeyFile
            // 
@@ -719,7 +721,7 @@ namespace hMailServer.Administrator
            this.labelDKIMPrivateKeyFile.Location = new System.Drawing.Point(11, 43);
            this.labelDKIMPrivateKeyFile.Name = "labelDKIMPrivateKeyFile";
            this.labelDKIMPrivateKeyFile.Size = new System.Drawing.Size(76, 13);
-           this.labelDKIMPrivateKeyFile.TabIndex = 17;
+           this.labelDKIMPrivateKeyFile.TabIndex = 18;
            this.labelDKIMPrivateKeyFile.Text = "Private key file";
            // 
            // textDKIMPrivateKeyFile
@@ -729,7 +731,7 @@ namespace hMailServer.Administrator
            this.textDKIMPrivateKeyFile.Number = 0;
            this.textDKIMPrivateKeyFile.Numeric = false;
            this.textDKIMPrivateKeyFile.Size = new System.Drawing.Size(205, 20);
-           this.textDKIMPrivateKeyFile.TabIndex = 16;
+           this.textDKIMPrivateKeyFile.TabIndex = 17;
            // 
            // checkDKIMSignEnabled
            // 
@@ -740,10 +742,20 @@ namespace hMailServer.Administrator
            this.checkDKIMSignEnabled.TabIndex = 15;
            this.checkDKIMSignEnabled.Text = "Enabled";
            this.checkDKIMSignEnabled.UseVisualStyleBackColor = true;
-           // 
-           // tabPageAdvanced
-           // 
-           this.tabPageAdvanced.Controls.Add(this.textCatchAllAddress);
+            // 
+            // checkDKIMSignAliasesEnabled
+            // 
+            this.checkDKIMSignAliasesEnabled.AutoSize = true;
+            this.checkDKIMSignAliasesEnabled.Location = new System.Drawing.Point(90, 14);
+            this.checkDKIMSignAliasesEnabled.Name = "checkDKIMSignAliasesEnabled";
+            this.checkDKIMSignAliasesEnabled.Size = new System.Drawing.Size(90, 17);
+            this.checkDKIMSignAliasesEnabled.TabIndex = 16;
+            this.checkDKIMSignAliasesEnabled.Text = "Sign Aliases";
+            this.checkDKIMSignAliasesEnabled.UseVisualStyleBackColor = true;
+         // 
+         // tabPageAdvanced
+         // 
+         this.tabPageAdvanced.Controls.Add(this.textCatchAllAddress);
            this.tabPageAdvanced.Controls.Add(this.labelCatchAll);
            this.tabPageAdvanced.Controls.Add(this.comboPlusAddressingCharacter);
            this.tabPageAdvanced.Controls.Add(this.checkGreyListingEnabled);
@@ -926,6 +938,7 @@ namespace hMailServer.Administrator
         private System.Windows.Forms.Label labelDKIMPrivateKeyFile;
         private hMailServer.Shared.ucText textDKIMPrivateKeyFile;
         private hMailServer.Administrator.Controls.ucCheckbox checkDKIMSignEnabled;
+        private hMailServer.Administrator.Controls.ucCheckbox checkDKIMSignAliasesEnabled;
         private System.Windows.Forms.Label labelDKIMSigningAlgorithm;
         private System.Windows.Forms.Label labelDKIMBodyCanonicalizationMethod;
         private System.Windows.Forms.Label labelDKIMHeaderCanonicalizationMethod;

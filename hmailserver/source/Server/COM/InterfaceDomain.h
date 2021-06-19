@@ -151,6 +151,8 @@ END_COM_MAP()
    STDMETHOD(put_DKIMBodyCanonicalizationMethod)(/*[in]*/ eDKIMCanonicalizationMethod newVal);
    STDMETHOD(get_DKIMSigningAlgorithm)(/*[out, retval]*/ eDKIMAlgorithm *pVal);
    STDMETHOD(put_DKIMSigningAlgorithm)(/*[in]*/ eDKIMAlgorithm newVal);
+   STDMETHOD(get_DKIMSignAliasesEnabled)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+   STDMETHOD(put_DKIMSignAliasesEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
    // dkim end.
 private:
