@@ -105,6 +105,7 @@ namespace hMailServer.Administrator
             checkGreyListingEnabled.Checked = _domain.AntiSpamEnableGreylisting;
 
             checkDKIMSignEnabled.Checked = _domain.DKIMSignEnabled;
+            checkDKIMSignAliasesEnabled.Checked = _domain.DKIMSignAliasesEnabled;
             textDKIMPrivateKeyFile.Text = _domain.DKIMPrivateKeyFile;
             textDKIMSelector.Text = _domain.DKIMSelector;
 
@@ -183,6 +184,7 @@ namespace hMailServer.Administrator
             _domain.AntiSpamEnableGreylisting = checkGreyListingEnabled.Checked;
 
             _domain.DKIMSignEnabled = checkDKIMSignEnabled.Checked;
+            _domain.DKIMSignAliasesEnabled = checkDKIMSignAliasesEnabled.Checked;
             _domain.DKIMPrivateKeyFile = textDKIMPrivateKeyFile.Text;
             _domain.DKIMSelector = textDKIMSelector.Text;
 

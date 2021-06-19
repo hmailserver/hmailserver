@@ -420,7 +420,19 @@ namespace HM
       anti_spam_options_ = newValue ? anti_spam_options_ | ASDKIMSign : anti_spam_options_ & ~ASDKIMSign;
    }
 
-   AnsiString 
+   bool
+      Domain::GetDKIMAliasesEnabled() const
+   {
+      return (anti_spam_options_ & ASDKIMSignAliases) ? true : false;
+   }
+
+   void
+      Domain::SetDKIMAliasesEnabled(bool newValue)
+   {
+      anti_spam_options_ = newValue ? anti_spam_options_ | ASDKIMSignAliases : anti_spam_options_ & ~ASDKIMSignAliases;
+   }
+
+   AnsiString
    Domain::GetDKIMSelector() const
    {
       return dkim_selector_;

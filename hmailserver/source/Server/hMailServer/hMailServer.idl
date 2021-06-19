@@ -770,6 +770,9 @@ interface IInterfaceDomain : IDispatch
 	   [propput, id(38), helpstring("Gets or sets the body canonicalization method.")] HRESULT DKIMBodyCanonicalizationMethod([in] eDKIMCanonicalizationMethod newVal);
 	   [propget, id(39), helpstring("Gets or sets the signing algorithm.")] HRESULT DKIMSigningAlgorithm([out, retval] eDKIMAlgorithm *pVal);
 	   [propput, id(39), helpstring("Gets or sets the signing algorithm.")] HRESULT DKIMSigningAlgorithm([in] eDKIMAlgorithm newVal);
+	   [propget, id(40), helpstring("Enable DKIM signing for aliases.")] HRESULT DKIMSignAliasesEnabled([out, retval] VARIANT_BOOL* pVal);
+	   [propput, id(40), helpstring("Enable DKIM signing for aliases.")] HRESULT DKIMSignAliasesEnabled([in] VARIANT_BOOL pVal);
+
 
 };
 [
