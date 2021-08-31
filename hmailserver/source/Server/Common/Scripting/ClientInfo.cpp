@@ -13,7 +13,9 @@ namespace HM
 {
    ClientInfo::ClientInfo() :
       port_(0),
-      is_authenticated_(false)
+      is_authenticated_(false),
+      is_encryptedconnection_(false),
+      cipher_bits_(0)
    {
 
    }

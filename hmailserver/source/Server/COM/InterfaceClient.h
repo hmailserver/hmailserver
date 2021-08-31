@@ -53,6 +53,10 @@ public:
    STDMETHOD(get_Username)(BSTR* pVal);
    STDMETHOD(get_HELO)(BSTR* pVal);
    STDMETHOD(get_Authenticated)(VARIANT_BOOL* pVal);
+   STDMETHOD(get_EncryptedConnection)(VARIANT_BOOL* pVal);
+   STDMETHOD(get_CipherVersion)(BSTR* pVal);
+   STDMETHOD(get_CipherName)(BSTR* pVal);
+   STDMETHOD(get_CipherBits)(LONG* pVal);
 
 private:
 

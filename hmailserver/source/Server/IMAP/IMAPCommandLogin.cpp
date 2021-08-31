@@ -14,6 +14,8 @@
 #include "../Common/Scripting/ScriptServer.h"
 #include "../Common/Scripting/ScriptObjectContainer.h"
 
+#include "../Common/TCPIP/CipherInfo.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -74,6 +76,14 @@ namespace HM
          pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
          pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
          pClientInfo->SetIsAuthenticated(isAuthenticated);
+         pClientInfo->SetIsEncryptedConnection(pConnection->IsSSLConnection());
+         if (pConnection->IsSSLConnection())
+         {
+            auto cipher_info = pConnection->GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
 
