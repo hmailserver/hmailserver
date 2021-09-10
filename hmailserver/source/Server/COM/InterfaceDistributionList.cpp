@@ -323,6 +323,9 @@ STDMETHODIMP InterfaceDistributionList::get_Mode(eDistributionListMode *pVal)
       case HM::DistributionList::LMAnnouncement:
          *pVal = eLMAnnouncement;
          break;
+      case HM::DistributionList::LMDomainMembers:
+         *pVal = eLMDomainMembers;
+         break;
       default:
          *pVal = eLMPublic;
          break;
@@ -355,6 +358,9 @@ STDMETHODIMP InterfaceDistributionList::put_Mode(eDistributionListMode newVal)
          break;
       case eLMAnnouncement:
          iMode = HM::DistributionList::LMAnnouncement;
+         break;
+      case eLMDomainMembers:
+         iMode = HM::DistributionList::LMDomainMembers;
          break;
       }
    

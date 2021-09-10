@@ -35,6 +35,7 @@ namespace hMailServer.Administrator
            this.textRequireAddress = new hMailServer.Administrator.Controls.ucEmailEdit();
            this.optModeAnnouncements = new hMailServer.Administrator.Controls.ucRadioButton();
            this.radioModeMembership = new hMailServer.Administrator.Controls.ucRadioButton();
+         this.radioModeDomainMembers = new hMailServer.Administrator.Controls.ucRadioButton();
            this.radioModePublic = new hMailServer.Administrator.Controls.ucRadioButton();
            this.labelMode = new System.Windows.Forms.Label();
            this.checkEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
@@ -70,6 +71,7 @@ namespace hMailServer.Administrator
            this.tabPage1.Controls.Add(this.labelSecurity);
            this.tabPage1.Controls.Add(this.textRequireAddress);
            this.tabPage1.Controls.Add(this.optModeAnnouncements);
+         this.tabPage1.Controls.Add(this.radioModeDomainMembers);
            this.tabPage1.Controls.Add(this.radioModeMembership);
            this.tabPage1.Controls.Add(this.radioModePublic);
            this.tabPage1.Controls.Add(this.labelMode);
@@ -87,7 +89,7 @@ namespace hMailServer.Administrator
            // checkRequireSMTPAuthentication
            // 
            this.checkRequireSMTPAuthentication.AutoSize = true;
-           this.checkRequireSMTPAuthentication.Location = new System.Drawing.Point(44, 242);
+         this.checkRequireSMTPAuthentication.Location = new System.Drawing.Point(44, 265);
            this.checkRequireSMTPAuthentication.Name = "checkRequireSMTPAuthentication";
            this.checkRequireSMTPAuthentication.Size = new System.Drawing.Size(167, 17);
            this.checkRequireSMTPAuthentication.TabIndex = 20;
@@ -98,7 +100,7 @@ namespace hMailServer.Administrator
            // 
            this.labelSecurity.AutoSize = true;
            this.labelSecurity.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-           this.labelSecurity.Location = new System.Drawing.Point(13, 215);
+         this.labelSecurity.Location = new System.Drawing.Point(13, 238);
            this.labelSecurity.Name = "labelSecurity";
            this.labelSecurity.Size = new System.Drawing.Size(53, 13);
            this.labelSecurity.TabIndex = 19;
@@ -106,7 +108,7 @@ namespace hMailServer.Administrator
            // 
            // textRequireAddress
            // 
-           this.textRequireAddress.Location = new System.Drawing.Point(61, 180);
+         this.textRequireAddress.Location = new System.Drawing.Point(61, 203);
            this.textRequireAddress.Name = "textRequireAddress";
            this.textRequireAddress.ReadOnlyHost = false;
            this.textRequireAddress.Size = new System.Drawing.Size(282, 25);
@@ -115,15 +117,26 @@ namespace hMailServer.Administrator
            // optModeAnnouncements
            // 
            this.optModeAnnouncements.AutoSize = true;
-           this.optModeAnnouncements.Location = new System.Drawing.Point(44, 157);
+         this.optModeAnnouncements.Location = new System.Drawing.Point(44, 180);
            this.optModeAnnouncements.Name = "optModeAnnouncements";
            this.optModeAnnouncements.Size = new System.Drawing.Size(337, 17);
-           this.optModeAnnouncements.TabIndex = 16;
+         this.optModeAnnouncements.TabIndex = 17;
            this.optModeAnnouncements.TabStop = true;
            this.optModeAnnouncements.Text = "Announcements - Only allow messages from the following address:";
            this.optModeAnnouncements.UseVisualStyleBackColor = true;
            this.optModeAnnouncements.CheckedChanged += new System.EventHandler(this.optModeAnnouncements_CheckedChanged);
            // 
+         // radioModeDomainMembers
+         // 
+         this.radioModeDomainMembers.AutoSize = true;
+         this.radioModeDomainMembers.Location = new System.Drawing.Point(44, 157);
+         this.radioModeDomainMembers.Name = "radioModeDomainMembers";
+         this.radioModeDomainMembers.Size = new System.Drawing.Size(307, 17);
+         this.radioModeDomainMembers.TabIndex = 16;
+         this.radioModeDomainMembers.TabStop = true;
+         this.radioModeDomainMembers.Text = "Domain - Anyone in the domain can send to the list";
+         this.radioModeDomainMembers.UseVisualStyleBackColor = true;
+         // 
            // radioModeMembership
            // 
            this.radioModeMembership.AutoSize = true;
@@ -309,6 +322,7 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelMode;
        private hMailServer.Administrator.Controls.ucRadioButton radioModeMembership;
        private hMailServer.Administrator.Controls.ucRadioButton radioModePublic;
+      private hMailServer.Administrator.Controls.ucRadioButton radioModeDomainMembers;
        private hMailServer.Administrator.Controls.ucCheckbox checkRequireSMTPAuthentication;
        private System.Windows.Forms.Label labelSecurity;
        private hMailServer.Administrator.Controls.ucEmailEdit textRequireAddress;
