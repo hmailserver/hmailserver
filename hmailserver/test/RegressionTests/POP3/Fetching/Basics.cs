@@ -1004,8 +1004,8 @@ namespace RegressionTests.POP3.Fetching
 
          var messages = new List<string>();
 
-         string message = "Received: from readsoft.com (readsoft.com [195.84.201.250]) by mail.host.edu\r\n" +
-                          "From: example@readsoft.com\r\n" +
+         string message = "Received: from example.com (example.com [1.2.3]) by mail.example.com\r\n" +
+                          "From: example@example.com\r\n" +
                           "To: Martin@example.com\r\n" +
                           "Subject: Test\r\n" +
                           "\r\n" +
