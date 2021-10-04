@@ -65,7 +65,51 @@ namespace HM
    {
       PDNS_RECORD pDnsRecord = NULL;
       
-      DNS_STATUS nDnsStatus = DnsQuery(query, resourceType, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);
+      PIP4_ARRAY pSrvList = NULL;
+
+      DWORD fOptions;
+      fOptions = DNS_QUERY_STANDARD;
+
+      if (!IniFileSettings::Instance()->GetUseDNSCache())
+      {
+         fOptions += DNS_QUERY_BYPASS_CACHE;
+      }
+
+      AnsiString sCustomDNS;
+      sCustomDNS = IniFileSettings::Instance()->GetDNSServer().Trim();
+      if (!sCustomDNS.IsEmpty())
+      {
+         pSrvList = (PIP4_ARRAY)malloc(sizeof(IP4_ARRAY));
+         if (!pSrvList) {
+
+            String sMessage;
+            sMessage.Format(_T("Unable to allocate memory for DNS server list. Query: %s, Type: %d."), query, resourceType);
+            ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::_Resolve", sMessage);
+
+            return false;
+         }
+
+         // Custom DNSServer IPv4 address
+         pSrvList->AddrCount = 1;
+         pSrvList->AddrArray[0] = inet_addr(sCustomDNS.c_str()); //Custom DNS server IP address
+         if (pSrvList->AddrArray[0] == INADDR_NONE) {
+
+            String sMessage;
+            sMessage.Format(_T("Invalid DNSServer IP address. DNSServer IP: %hs."), sCustomDNS.c_str());
+            ErrorManager::Instance()->ReportError(ErrorManager::Low, 4401, "DNSResolver::_Resolve", sMessage);
+
+            // fallback to the system dns servers
+            pSrvList = NULL;
+         }
+         else
+         {
+            // We need this if not using system dns servers
+            if (fOptions != DNS_QUERY_BYPASS_CACHE)
+               fOptions += DNS_QUERY_BYPASS_CACHE;
+         }
+      }
+
+      DNS_STATUS nDnsStatus = DnsQuery(query, resourceType, fOptions, pSrvList, &pDnsRecord, NULL);
 
       PDNS_RECORD pDnsRecordsToDelete = pDnsRecord;
 
@@ -185,6 +229,9 @@ namespace HM
       
       _FreeDNSRecord(pDnsRecordsToDelete);
       pDnsRecordsToDelete = 0;
+
+      if (pSrvList != NULL)
+         free(pSrvList);
 
       std::sort(foundRecords.begin(), foundRecords.end(), SortDnsRecordsByPreference);
 
