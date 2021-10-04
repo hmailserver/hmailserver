@@ -1145,10 +1145,12 @@ namespace HM
 
       bool classifiedAsSpam = iTotalSpamScore >= iSpamMarkThreshold;
 
-      pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
+      if (classifiedAsSpam) {
+         pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
 
-      if (classifiedAsSpam)
+         // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
+      }
 
       SetMessageSignature_(pMsgData);
 
