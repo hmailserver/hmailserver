@@ -2372,6 +2372,7 @@ char** bufp, spfbool fordomain)
          // get max number of parts
          num = 0;
          while (ISDIGIT(*cp))
+         {
             if (num > (INT_MAX - (*cp - '0')) / 10)
                 return SPF_PermError;
 
