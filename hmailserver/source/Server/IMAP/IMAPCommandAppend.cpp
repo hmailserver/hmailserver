@@ -300,8 +300,25 @@ namespace HM
          sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessages().size());
       }
 
+      // Append APPENDUID response, but only if the user has access to read the target folder.
+      // From RFC 4315:
+      //   The COPYUID and APPENDUID response codes return information about the
+      //   mailbox, which may be considered sensitive if the mailbox has
+      //   permissions set that permit the client to COPY or APPEND to the
+      //   mailbox, but not SELECT or EXAMINE it.
+      String sCommandOkString;
+      if (pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionRead))
+      {
+         sCommandOkString.Format(_T("%s OK [APPENDUID %d %u] APPEND completed\r\n"),
+            current_tag_.c_str(), destination_folder_->GetCreationTime().ToInt(), current_message_->GetUID());
+      }
+      else
+      {
+         sCommandOkString.Format(_T("%s OK APPEND completed\r\n"),current_tag_.c_str());
+      }
+
       // Send the OK response to the client.
-      sResponse += current_tag_ + " OK APPEND completed\r\n";
+      sResponse += sCommandOkString;
       pConnection->SendAsciiData(sResponse);
 
       // Notify the mailbox notifier that the mailbox contents have changed. 

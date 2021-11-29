@@ -42,7 +42,7 @@ namespace HM
       if (pConfig->GetUseIMAPSASLInitialResponse())
 	      sResponse += " SASL-IR";
 
-      sResponse += " NAMESPACE RIGHTS=texk";
+      sResponse += " NAMESPACE RIGHTS=texk UIDPLUS";
 
       sResponse += "\r\n";
       sResponse += pArgument->Tag() + " OK CAPABILITY completed\r\n";

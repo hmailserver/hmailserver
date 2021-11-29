@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -306,8 +307,16 @@ namespace RegressionTests.Shared
 
       public bool Copy(int messageIndex, string destinationFolder)
       {
-         string sData = SendSingleCommand("A18 COPY 1 \"" + destinationFolder + "\"");
-         return sData.StartsWith("A18 OK");
+         return Copy(messageIndex, destinationFolder, out string response);
+      }
+
+      public bool Copy(int messageIndex, string destinationFolder, out string response)
+      {
+         response = SendSingleCommand("A18 COPY 1 \"" + destinationFolder + "\"");
+
+         var okRegex = new Regex("^A18 OK (\\[.*\\] )?COPY completed\r\n$");
+
+         return okRegex.IsMatch(response);
       }
 
       public bool RenameFolder(string from, string to)

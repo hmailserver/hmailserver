@@ -32,8 +32,8 @@ namespace HM
       static std::vector<AnsiString> SplitString(const AnsiString &sInput, const AnsiString &sSeperators);
       // Splits a string into a vector
    
-      static String JoinVector(const std::vector<String> &sVector, const String &sSeperators);
-      // Joins a vector into a long string
+      static String JoinVector(const std::vector<String> &sVector, const String &sSeperator);
+      static String JoinVector(const std::vector<unsigned int>& sVector, const String& sSeperator);
 
       static void Base64Encode(const String &sInput, String &sOutput);
       static void Base64Decode(const String &sInput, String &sOutput);

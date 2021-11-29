@@ -133,8 +133,6 @@ namespace RegressionTests.IMAP
       [Test]
       public void TestCopyMessageToPublicFolder()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
-
          Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account7@test.com", "test");
 
          IMAPFolders publicFolders = _settings.PublicFolders;
@@ -165,8 +163,9 @@ namespace RegressionTests.IMAP
          // Give permission...
          permission.set_Permission(eACLPermission.ePermissionInsert, true);
          permission.Save();
-         Assert.IsTrue(imapClientSimulator.Copy(1, folderName));
 
+         Assert.IsTrue(imapClientSimulator.Copy(1, folderName));
+         
          imapClientSimulator.Disconnect();
 
          CustomAsserts.AssertFolderMessageCount(folder, 1);

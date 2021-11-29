@@ -26,12 +26,16 @@ namespace HM
 
       const Result& GetResult() const {return result_;}
       const AnsiString& GetMessage() const {return message_;}
-      
+
+      //const std::vector<IMAPResult>& GetChildResults() const { return childResults_;  }
+      //void AddChildResult(IMAPResult result) { childResults_.push_back(result); }
+
    private:
 
       Result result_;
       AnsiString message_;
 
+      //      std::vector<IMAPResult> childResults_;
    };
 
 }

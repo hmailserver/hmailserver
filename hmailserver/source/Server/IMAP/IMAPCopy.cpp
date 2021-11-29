@@ -4,6 +4,12 @@
 #include "stdafx.h"
 #include "IMAPCopy.h"
 #include "IMAPConnection.h"
+#include "IMAPCopyResult.h"
+#include "IMAPRange.h"
+#include "IMAPRangeParser.h"
+#include "IMAPRangeMessageLocator.h"
+#include "IMAPMessageInRange.h"
+#include "IMAPCommand.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/Account.h"
 #include "../Common/BO/IMAPFolder.h"
@@ -27,32 +33,74 @@ namespace HM
       
    }
 
-
    IMAPResult
-   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCopy::DoForMails(bool isUid, std::shared_ptr<IMAPConnection> pConnection, const String& sTag, const String& sMailNos, const String& sTargetFolder)
    {
-      if (!pArgument || !pOldMessage)
-         return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
-      
-      std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
+      // We should check if the folder exists.
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sTargetFolder);
 
-      pParser->Parse(pArgument);
-      
-      if (pParser->WordCount() <= 0)
-         return IMAPResult(IMAPResult::ResultNo, "The command requires parameters.");
-
-      String sFolderName;
-      if (pParser->Word(0)->Clammerized())
-         sFolderName = pArgument->Literal(0);
-      else
-      {
-         sFolderName = pParser->Word(0)->Value();
-         IMAPFolder::UnescapeFolderString(sFolderName);
-      }
-
-      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "The folder could not be found.");
+      
+      // Locate messages to copy
+      IMAPRangeParser rangeParser;
+      auto ranges = rangeParser.Parse(sMailNos);
+      auto messages = pConnection->GetCurrentFolder()->GetMessages();
+
+      IMAPRangeMessageLocator rangeMessageLocator;
+      auto messagesInRange = rangeMessageLocator.GetMessageInRanges(messages, isUid, ranges);
+
+      std::vector<unsigned int> sourceUids;
+      std::vector<unsigned int> targetUids;
+
+      for (auto messageInRange : messagesInRange)
+      {
+         auto oldMessage = messageInRange.GetMessage();
+
+         unsigned int targetUid;
+         IMAPResult result = CopyEmail_(pConnection, oldMessage, pFolder, targetUid);
+         if (result.GetResult() != IMAPResult::ResultOK)
+            return result;
+
+         sourceUids.push_back(oldMessage->GetUID());
+         targetUids.push_back(targetUid);
+      }
+
+      String sourceUidsStr = StringParser::JoinVector(sourceUids, ",");
+      String targetUidsStr = StringParser::JoinVector(targetUids, ",");
+
+      // Append COPYUID response, but only if the user has vaccess to read the target folder.
+      // From RFC 4315:
+      //   The COPYUID and APPENDUID response codes return information about the
+      //   mailbox, which may be considered sensitive if the mailbox has
+      //   permissions set that permit the client to COPY or APPEND to the
+      //   mailbox, but not SELECT or EXAMINE it.
+      auto hasReadPermissions = pConnection->CheckPermission(pFolder, ACLPermission::PermissionRead);
+
+      String sCommandOkString;
+
+      if (!sourceUids.empty() && hasReadPermissions)
+      {
+         sCommandOkString.Format(_T("%s OK [COPYUID %d %s %s] COPY completed\r\n"), sTag.c_str(), pFolder->GetCreationTime().ToInt(), sourceUidsStr.c_str(), targetUidsStr.c_str());
+      }
+      else
+      {
+         sCommandOkString.Format(_T("%s OK COPY completed\r\n"), sTag.c_str());
+      }
+
+      pConnection->SendAsciiData(sCommandOkString);
+
+      return IMAPResult();
+   }
+
+   IMAPResult
+   IMAPCopy::CopyEmail_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPFolder> pFolder, unsigned int &targetUid)
+   {
+      targetUid = 0;
+
+      if (!pOldMessage)
+         return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
+      
 
       std::shared_ptr<const Account> pAccount = pConnection->GetAccount();
 
@@ -87,6 +135,27 @@ namespace HM
 
       pConnection->SetDelayedChangeNotification(pNotification);
 
+      targetUid = pNewMessage->GetUID();
+
       return IMAPResult();
+   }
+
+   shared_ptr<IMAPFolder>
+   IMAPCopy::GetTargetFolder_(bool isUid, std::shared_ptr<IMAPSimpleCommandParser> pParser, std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
+   {
+      auto wordIndex = isUid ? 1 : 0;
+
+      String sFolderName;
+      if (pParser->Word(wordIndex)->Clammerized())
+         sFolderName = pArgument->Literal(0);
+      else
+      {
+         sFolderName = pParser->Word(wordIndex)->Value();
+         IMAPFolder::UnescapeFolderString(sFolderName);
+      }
+
+      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
+
+      return pFolder;
    }
 }

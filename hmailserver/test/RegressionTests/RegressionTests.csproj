@@ -67,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\Messages.cs" />
+    <Compile Include="IMAP\Commands\Capability.cs" />
+    <Compile Include="IMAP\Commands\Copy.cs" />
+    <Compile Include="IMAP\Commands\Expunge.cs" />
     <Compile Include="IMAP\ConcurrentConnections.cs" />
     <Compile Include="Infrastructure\AccountProperties.cs" />
     <Compile Include="Infrastructure\AccountServices.cs" />
@@ -196,7 +199,7 @@
     <Compile Include="API\Security.cs" />
     <Compile Include="API\Utilities.cs" />
     <Compile Include="API\Permissions.cs" />
-    <Compile Include="IMAP\Append.cs" />
+    <Compile Include="IMAP\Commands\Append.cs" />
     <Compile Include="IMAP\Examine.cs" />
     <Compile Include="IMAP\Fetch.cs" />
     <Compile Include="Infrastructure\ExceptionHandlerTests.cs" />

@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Text;
+using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using hMailServer;
 
-namespace RegressionTests.IMAP
+namespace RegressionTests.IMAP.Commands
 {
    [TestFixture]
    public class Append : TestFixtureBase
@@ -88,9 +88,11 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = simulator.Connect();
          simulator.LogonWithLiteral("check@test.com", "test");
-         simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
+         var response = simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
          Assert.AreEqual(1, simulator.GetMessageCount("INBOX"));
          simulator.Disconnect();
+
+         StringAssert.IsMatch("^A01 OK \\[APPENDUID .* 1\\] APPEND completed\r\n$", response);
       }
 
       [Test]
@@ -179,6 +181,45 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(result.StartsWith("A01 NO Message size exceeds fixed maximum message size."));
       }
 
+      [Test]
+      public void TestAppendMessageToPublicFolder_APPENDUIDNotIncludedUnlessReadAccess()
+      {
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account7@test.com", "test");
+
+         IMAPFolders publicFolders = _settings.PublicFolders;
+         IMAPFolder folder = publicFolders.Add("Share1");
+         folder.Save();
+
+         IMAPFolderPermission permission = folder.Permissions.Add();
+         permission.PermissionAccountID = account1.ID;
+         permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         permission.set_Permission(eACLPermission.ePermissionCreate, true);
+         permission.Save();
+
+         string folderName = "#Public.Share1";
+
+         var imapClientSimulator = new ImapClientSimulator();
+         imapClientSimulator.Connect();
+         imapClientSimulator.Logon(account1.Address, "test");
+         imapClientSimulator.SelectFolder("INBOX");
+         
+
+         // Give write-permission...
+         permission.set_Permission(eACLPermission.ePermissionInsert, true);
+         permission.Save();
+
+         string response1 = imapClientSimulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share1 {3}", "123");
+         StringAssert.IsMatch("A01 OK APPEND completed\r\n$", response1);
+
+         // Give read-permission...
+         permission.set_Permission(eACLPermission.ePermissionRead | eACLPermission.ePermissionInsert, true);
+         permission.Save();
+
+         string response2 = imapClientSimulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share1 {3}", "123");
+         StringAssert.IsMatch("^A01 OK \\[APPENDUID \\d{0,50} 2\\] APPEND completed\r\n$", response2);
+
+         imapClientSimulator.Disconnect();
+      }
 
       private string GetPublicDirectory()
       {

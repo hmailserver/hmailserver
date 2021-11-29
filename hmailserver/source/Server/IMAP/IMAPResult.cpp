@@ -16,7 +16,14 @@ namespace HM
       result_(result),
       message_(message)
    {
-      
+#ifdef _DEBUG
+      if (message.EndsWith(_T("\r\n")))
+      {
+         // The message passed to IMAPResult should not have a trailing newline. This will be appended.
+         // before the message is sent to the client.
+         assert(0);
+      }
+#endif
    }
 
    IMAPResult::IMAPResult() :

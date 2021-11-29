@@ -5,6 +5,8 @@
 #include "IMAPCommandCopy.h"
 #include "IMAPCopy.h"
 #include "IMAPConnection.h"
+#include "IMAPRange.h"
+#include "IMAPRangeParser.h"
 
 #include "../Common/BO/IMAPFolder.h"
 
@@ -38,33 +40,18 @@ namespace HM
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
       std::shared_ptr<IMAPCopy> pCopy = std::shared_ptr<IMAPCopy>(new IMAPCopy());
-      pCopy->SetIsUID(false);
 
       String sResponse; 
 
       std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
       pParser->Parse(pArgument);
       if (pParser->ParamCount() != 2)
-         return IMAPResult(IMAPResult::ResultBad, "Command requires 2 parameters.\r\n");
+         return IMAPResult(IMAPResult::ResultBad, "Command requires 2 parameters.");
 
       String sMailNo = pParser->GetParamValue(pArgument, 0);
       String sFolderName = pParser->GetParamValue(pArgument, 1);
 
-      pArgument->Command("\"" + sFolderName + "\"");
-
-      // We should check if the folder exists. If not, notify user with trycreate
-      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
-
-      if (!pFolder)
-      {
-         // Nope, doesn't exist.
-         return IMAPResult(IMAPResult::ResultNo, "Can't find mailbox with that name.\r\n");
-      }
-
-      IMAPResult result = pCopy->DoForMails(pConnection, sMailNo, pArgument);
-
-      if (result.GetResult() == IMAPResult::ResultOK)
-          pConnection->SendAsciiData(pArgument->Tag() + " OK COPY completed\r\n");
+      IMAPResult result = pCopy->DoForMails(false, pConnection, pArgument->Tag(), sMailNo, sFolderName);
 
       return result;
    }

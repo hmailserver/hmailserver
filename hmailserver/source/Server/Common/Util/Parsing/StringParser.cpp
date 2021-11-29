@@ -200,6 +200,27 @@ namespace HM
 
    }
 
+   String
+   StringParser::JoinVector(const std::vector<unsigned int>& sVector, const String& sSeperator)
+   {
+      auto iterVec = sVector.begin();
+      auto iterEnd = sVector.end();
+
+      String result;
+
+      for (; iterVec != iterEnd; iterVec++)
+      {
+         result.AppendFormat(_T("%u"), *iterVec);
+
+         if (iterVec + 1 != iterEnd)
+            result += sSeperator;
+      }
+
+      return result;
+
+
+   }
+
 
    std::vector<String>
    StringParser::GetAllButFirst(std::vector<String> sInput)

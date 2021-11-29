@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "IMAPCommandUID.h"
+
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
 
@@ -11,6 +12,7 @@
 #include "IMAPCopy.h"
 #include "IMAPStore.h"
 #include "IMAPCommandSearch.h"
+#include "IMAPCommandUIDExpunge.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -64,7 +66,13 @@ namespace HM
          if (pParser->WordCount() < 4)
             return IMAPResult(IMAPResult::ResultBad, "Command requires at least 3 parameters.");
 
-         command_ = std::shared_ptr<IMAPCopy>(new IMAPCopy());
+         String sMailNo = pParser->GetParamValue(pArgument, 1);
+         String sFolderName = pParser->GetParamValue(pArgument, 2);
+
+         std::shared_ptr<IMAPCopy> pCommand = std::shared_ptr<IMAPCopy>(new IMAPCopy());
+         IMAPResult result = pCommand->DoForMails(true, pConnection, pArgument->Tag(), sMailNo, sFolderName);
+
+         return result;
       }
       else if (sTypeOfUID.CompareNoCase(_T("STORE")) == 0)
       {
@@ -90,6 +98,16 @@ namespace HM
          pCommand->SetIsUID();
          IMAPResult result = pCommand->ExecuteCommand(pConnection, pArgument);
          
+         if (result.GetResult() == IMAPResult::ResultOK)
+            pConnection->SendAsciiData(sTag + " OK UID completed\r\n");
+
+         return result;
+      }
+      else if (sTypeOfUID.CompareNoCase(_T("EXPUNGE")) == 0)
+      {
+         std::shared_ptr<IMAPCommandUIDEXPUNGE> pCommand = std::shared_ptr<IMAPCommandUIDEXPUNGE>(new IMAPCommandUIDEXPUNGE());
+         IMAPResult result = pCommand->ExecuteCommand(pConnection, pArgument);
+
          if (result.GetResult() == IMAPResult::ResultOK)
             pConnection->SendAsciiData(sTag + " OK UID completed\r\n");
 
