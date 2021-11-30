@@ -842,13 +842,18 @@ namespace HM
       
       bool classifiedAsSpam = iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
       
-      std::shared_ptr<MessageData> messageData = SpamProtection::AddSpamScoreHeaders(current_message_, setSpamTestResults, classifiedAsSpam);
+      std::shared_ptr<MessageData> messageData; 
+
+      if (classifiedAsSpam)
+      {
+         messageData = SpamProtection::AddSpamScoreHeaders(current_message_, setSpamTestResults, classifiedAsSpam);
+         
+         // Increase the spam-counter
+         ServerStatus::Instance()->OnSpamMessageDetected();
+      }
 
       if (messageData)
          messageData->Write(fileName);
-
-      if (classifiedAsSpam)
-         ServerStatus::Instance()->OnSpamMessageDetected();
 
       return true;
    }
