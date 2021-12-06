@@ -73,6 +73,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
          pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
+         pClientInfo->SetSessionID(pConnection->GetSessionID());
          pClientInfo->SetIsAuthenticated(isAuthenticated);
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);

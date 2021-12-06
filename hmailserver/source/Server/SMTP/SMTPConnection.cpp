@@ -1223,6 +1223,7 @@ namespace HM
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
 
@@ -1552,6 +1553,7 @@ namespace HM
 
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1615,6 +1617,7 @@ namespace HM
 
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1696,6 +1699,7 @@ namespace HM
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
 
@@ -2028,6 +2032,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
 
