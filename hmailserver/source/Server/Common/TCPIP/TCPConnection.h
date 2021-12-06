@@ -70,10 +70,11 @@ namespace HM
 
       void SetAllowConnectToSelf(bool allow)  { allow_connect_to_self_ = allow; }
 
+      int GetSessionID();
+
    protected:
 
       ConnectionState GetConnectionState() { return connection_state_;  }
-      int GetSessionID();
 
       int GetBufferSize() {return BufferSize; }
 

@@ -157,4 +157,11 @@ namespace HM
    {
       return SessionManager::Instance()->GetNumberOfConnections((SessionType) iSessionType);
    }
+
+   int
+   ServerStatus::GetThreadID() const
+   {
+      DWORD dwThreadID = GetCurrentThreadId();
+      return dwThreadID;
+   }
 }

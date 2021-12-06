@@ -49,6 +49,7 @@ public:
    STDMETHOD(get_RemovedViruses)(/*[out, retval]*/ long *pVal);
    STDMETHOD(get_RemovedSpamMessages)(/*[out, retval]*/ long *pVal);
    STDMETHOD(get_SessionCount)(eSessionType iType, long *pVal);
+   STDMETHOD(get_ThreadID)(/*[out, retval]*/ long* pVal);
 
 private:
 

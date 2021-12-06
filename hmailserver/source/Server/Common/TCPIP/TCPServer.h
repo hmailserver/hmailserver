@@ -34,9 +34,9 @@ namespace HM
 
       bool InitAcceptor();
       void StartAccept();
-      void HandleAccept(std::shared_ptr<TCPConnection> connection, const boost::system::error_code& error);
+      void HandleAccept(std::shared_ptr<TCPConnection> connection, const boost::system::error_code &error);
 
-      bool FireOnAcceptEvent(const IPAddress &remoteAddress, int port);
+      bool FireOnAcceptEvent(std::shared_ptr<TCPConnection> connection, const IPAddress &remoteAddress, int port);
       
       std::shared_ptr<TCPConnectionFactory> connectionFactory_;
 

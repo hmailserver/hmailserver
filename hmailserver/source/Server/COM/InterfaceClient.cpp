@@ -79,3 +79,16 @@ STDMETHODIMP InterfaceClient::get_Authenticated(VARIANT_BOOL *pVal)
       return COMError::GenerateGenericMessage();
    }
 }
+
+STDMETHODIMP InterfaceClient::get_SessionID(long* pVal)
+{
+   try
+   {
+      *pVal = client_info_->GetSessionID();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
