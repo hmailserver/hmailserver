@@ -59,6 +59,7 @@ namespace RegressionTests.API
                                EventLog.Write(""Port: "" & oClient.Port)
                                EventLog.Write(""Address: "" & oClient.IPAddress)
                                EventLog.Write(""Username: "" & oClient.Username)
+                               EventLog.Write(""SessionId: "" & oClient.SessionID)
                               End Sub";
 
          Scripting scripting = _settings.Scripting;
@@ -86,6 +87,8 @@ namespace RegressionTests.API
          Assert.IsTrue(message.Contains("Port: 25"));
          Assert.IsTrue(message.Contains("Address: 127"));
          Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         StringAssert.IsMatch(".*\"SessionId: \\d+\"", message);
+
       }
 
 
