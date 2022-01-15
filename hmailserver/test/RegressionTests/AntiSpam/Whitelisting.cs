@@ -506,7 +506,7 @@ namespace RegressionTests.AntiSpam
       }
 
       [Test]
-      public void TestSpamScoreHeadersAreCreatedEvenIfNoSpamMatch()
+      public void TestSpamScoreHeadersAreNotCreatedIfNoSpamMatch()
       {
          // Send a messages to this account.
          var smtpClientSimulator = new SmtpClientSimulator();
@@ -515,7 +515,7 @@ namespace RegressionTests.AntiSpam
                                   "Message body");
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText("whitelist@test.com", "test");
-         Assert.IsTrue(message.Contains("X-hMailServer-Reason-Score: 0"));
+         Assert.IsFalse(message.Contains("X-hMailServer-Reason-Score"));
       }
 
 
