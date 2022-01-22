@@ -27,6 +27,12 @@ namespace HM
       int GetCheckHostInHeloScore();
       void SetCheckHostInHeloScore(int bNewVal);
 
+      bool GetCheckPTR();
+      void SetCheckPTR(bool bNewVal);
+
+      int GetCheckPTRScore();
+      void SetCheckPTRScore(int bNewVal);
+
       bool GetUseGreyListing();
       void SetUseGreyListing(bool bNewVal);
 

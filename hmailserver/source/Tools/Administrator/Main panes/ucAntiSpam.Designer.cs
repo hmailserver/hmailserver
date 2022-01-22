@@ -44,11 +44,13 @@ namespace hMailServer.Administrator
            this.textDKIMVerificationFailureScore = new hMailServer.Shared.ucText();
            this.checkDKIMVerificationEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textCheckHostInHeloScore = new hMailServer.Shared.ucText();
+           this.textCheckPTRScore = new hMailServer.Shared.ucText();
            this.textUseMXChecksScore = new hMailServer.Shared.ucText();
            this.textUseSPFScore = new hMailServer.Shared.ucText();
            this.labelScore = new System.Windows.Forms.Label();
            this.chkUseMXChecks = new hMailServer.Administrator.Controls.ucCheckbox();
            this.chkCheckHostInHelo = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.chkCheckPTR = new hMailServer.Administrator.Controls.ucCheckbox();
            this.chkUseSPF = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabPage3 = new System.Windows.Forms.TabPage();
            this.buttonTest = new System.Windows.Forms.Button();
@@ -202,10 +204,12 @@ namespace hMailServer.Administrator
            this.tabPage2.Controls.Add(this.checkDKIMVerificationEnabled);
            this.tabPage2.Controls.Add(this.textCheckHostInHeloScore);
            this.tabPage2.Controls.Add(this.textUseMXChecksScore);
+           this.tabPage2.Controls.Add(this.textCheckPTRScore);
            this.tabPage2.Controls.Add(this.textUseSPFScore);
            this.tabPage2.Controls.Add(this.labelScore);
            this.tabPage2.Controls.Add(this.chkUseMXChecks);
            this.tabPage2.Controls.Add(this.chkCheckHostInHelo);
+           this.tabPage2.Controls.Add(this.chkCheckPTR);
            this.tabPage2.Controls.Add(this.chkUseSPF);
            this.tabPage2.Location = new System.Drawing.Point(4, 22);
            this.tabPage2.Name = "tabPage2";
@@ -215,30 +219,51 @@ namespace hMailServer.Administrator
            this.tabPage2.Text = "Spam tests";
            this.tabPage2.UseVisualStyleBackColor = true;
            this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
+
+           // 
+           // textCheckPTRScore
+           // 
+           this.textCheckPTRScore.Location = new System.Drawing.Point(316, 122);
+           this.textCheckPTRScore.Name = "textCheckPTRScore";
+           this.textCheckPTRScore.Number = 0;
+           this.textCheckPTRScore.Numeric = true;
+           this.textCheckPTRScore.Size = new System.Drawing.Size(64, 20);
+           this.textCheckPTRScore.TabIndex = 23;
+           // 
+           // chkCheckPTR
+           // 
+           this.chkCheckPTR.AutoSize = true;
+           this.chkCheckPTR.Location = new System.Drawing.Point(15, 122);
+           this.chkCheckPTR.Name = "chkCheckPTR";
+           this.chkCheckPTR.Size = new System.Drawing.Size(190, 17);
+           this.chkCheckPTR.TabIndex = 22;
+           this.chkCheckPTR.Text = "Check rDNS/PTR";
+           this.chkCheckPTR.UseVisualStyleBackColor = true;
+           this.chkCheckPTR.CheckedChanged += new System.EventHandler(this.chkCheckPTR_CheckedChanged);
            // 
            // textDKIMVerificationFailureScore
            // 
-           this.textDKIMVerificationFailureScore.Location = new System.Drawing.Point(316, 117);
+           this.textDKIMVerificationFailureScore.Location = new System.Drawing.Point(316, 152);
            this.textDKIMVerificationFailureScore.Name = "textDKIMVerificationFailureScore";
            this.textDKIMVerificationFailureScore.Number = 0;
            this.textDKIMVerificationFailureScore.Numeric = true;
            this.textDKIMVerificationFailureScore.Size = new System.Drawing.Size(64, 20);
-           this.textDKIMVerificationFailureScore.TabIndex = 23;
+           this.textDKIMVerificationFailureScore.TabIndex = 25;
            // 
            // checkDKIMVerificationEnabled
            // 
            this.checkDKIMVerificationEnabled.AutoSize = true;
-           this.checkDKIMVerificationEnabled.Location = new System.Drawing.Point(15, 120);
+           this.checkDKIMVerificationEnabled.Location = new System.Drawing.Point(15, 152);
            this.checkDKIMVerificationEnabled.Name = "checkDKIMVerificationEnabled";
            this.checkDKIMVerificationEnabled.Size = new System.Drawing.Size(166, 17);
-           this.checkDKIMVerificationEnabled.TabIndex = 22;
+           this.checkDKIMVerificationEnabled.TabIndex = 24;
            this.checkDKIMVerificationEnabled.Text = "Verify DKIM-Signature header";
            this.checkDKIMVerificationEnabled.UseVisualStyleBackColor = true;
            this.checkDKIMVerificationEnabled.CheckedChanged += new System.EventHandler(this.checkDKIMVerificationEnabled_CheckedChanged);
            // 
            // textCheckHostInHeloScore
            // 
-           this.textCheckHostInHeloScore.Location = new System.Drawing.Point(316, 61);
+           this.textCheckHostInHeloScore.Location = new System.Drawing.Point(316, 62);
            this.textCheckHostInHeloScore.Name = "textCheckHostInHeloScore";
            this.textCheckHostInHeloScore.Number = 0;
            this.textCheckHostInHeloScore.Numeric = true;
@@ -247,7 +272,7 @@ namespace hMailServer.Administrator
            // 
            // textUseMXChecksScore
            // 
-           this.textUseMXChecksScore.Location = new System.Drawing.Point(316, 89);
+           this.textUseMXChecksScore.Location = new System.Drawing.Point(316, 92);
            this.textUseMXChecksScore.Name = "textUseMXChecksScore";
            this.textUseMXChecksScore.Number = 0;
            this.textUseMXChecksScore.Numeric = true;
@@ -275,7 +300,7 @@ namespace hMailServer.Administrator
            // chkUseMXChecks
            // 
            this.chkUseMXChecks.AutoSize = true;
-           this.chkUseMXChecks.Location = new System.Drawing.Point(15, 91);
+           this.chkUseMXChecks.Location = new System.Drawing.Point(15, 92);
            this.chkUseMXChecks.Name = "chkUseMXChecks";
            this.chkUseMXChecks.Size = new System.Drawing.Size(216, 17);
            this.chkUseMXChecks.TabIndex = 17;
@@ -487,11 +512,13 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox4;
        private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox5;
        private hMailServer.Shared.ucText textCheckHostInHeloScore;
+       private hMailServer.Shared.ucText textCheckPTRScore;
        private hMailServer.Shared.ucText textUseMXChecksScore;
        private hMailServer.Shared.ucText textUseSPFScore;
        private System.Windows.Forms.Label labelScore;
        private hMailServer.Administrator.Controls.ucCheckbox chkUseMXChecks;
        private hMailServer.Administrator.Controls.ucCheckbox chkCheckHostInHelo;
+       private hMailServer.Administrator.Controls.ucCheckbox chkCheckPTR;
        private hMailServer.Administrator.Controls.ucCheckbox chkUseSPF;
        private hMailServer.Shared.ucText textSpamAssassinHost;
        private System.Windows.Forms.Label labelHostname;

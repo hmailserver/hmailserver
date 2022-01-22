@@ -55,6 +55,8 @@
 #define PROPERTY_USEMXCHECKSCORE                _T("usemxchecksscore")
 #define PROPERTY_AS_CHECKHOSTINHELO             _T("ascheckhostinhelo")
 #define PROPERTY_AS_CHECKHOSTINHELOSCORE        _T("ascheckhostinheloscore")
+#define PROPERTY_AS_CHECKPTR                    _T("ascheckptr")
+#define PROPERTY_AS_CHECKPTRSCORE               _T("ascheckptrscore")
 
 #define PROPERTY_BACKUPOPTIONS                  _T("backupoptions")
 #define PROPERTY_BACKUPDESTINATION              _T("backupdestination")
@@ -132,4 +134,4 @@
 #define PROPERTY_ENABLEIMAPSASLPLAIN           _T("EnableImapSASLPlain")
 #define PROPERTY_ENABLEIMAPSASLINTIALRESPONSE  _T("EnableImapSASLInitialResponse")
 
-#define REQUIRED_DB_VERSION            5700
+#define REQUIRED_DB_VERSION            5702
