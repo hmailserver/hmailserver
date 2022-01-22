@@ -86,10 +86,10 @@ namespace HM
          {
             if (ipresult[0] == _sIPAddress)
             {
-                     return true;
-                  }
-               }
+               return true;
             }
+         }
+      }
 
       // No (matching) PTR record. Assume it's spam.
       return false;
