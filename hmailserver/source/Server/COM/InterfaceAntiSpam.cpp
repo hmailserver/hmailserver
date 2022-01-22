@@ -126,6 +126,74 @@ STDMETHODIMP InterfaceAntiSpam::put_CheckHostInHeloScore(long newVal)
    }
 }
 
+STDMETHODIMP InterfaceAntiSpam::get_CheckPTR(VARIANT_BOOL* pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetAntiSpamConfiguration().GetCheckHostInHelo() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::put_CheckPTR(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetAntiSpamConfiguration().SetCheckPTR(newVal == VARIANT_TRUE ? true : false);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::get_CheckPTRScore(long* pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetAntiSpamConfiguration().GetCheckPTRScore();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::put_CheckPTRScore(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetAntiSpamConfiguration().SetCheckPTRScore(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceAntiSpam::get_SpamMarkThreshold(long *pVal)
 {
    try
