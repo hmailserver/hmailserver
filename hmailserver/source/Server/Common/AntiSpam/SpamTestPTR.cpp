@@ -90,7 +90,7 @@ namespace HM
                return true;
             }
             // IPv6 AAAA
-            else if (ipresult.size() > 1 && ipresult[1] == _sIPAddress)
+            else if (Configuration::Instance()->IsIPv6Available() && ipresult.size() > 1 && ipresult[1] == _sIPAddress)
             {
                return true;
             }
