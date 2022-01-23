@@ -60,7 +60,7 @@ namespace HM
       {
          // Incorrect host in helo
          String sMessage = "The host name specified in HELO does not match IP address.";
-         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckHostInHeloScore();;
+         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckHostInHeloScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
