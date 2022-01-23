@@ -53,7 +53,7 @@ namespace HM
       {
          // Incorrect rDNS/PTR record
          String sMessage = "No valid rDNS/PTR record found.";
-         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckPTRScore();;
+         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckPTRScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
@@ -84,7 +84,13 @@ namespace HM
          std::vector<String> ipresult;
          if (dns_resolver.GetIpAddresses(ptrresult[0], ipresult, false) && ipresult.size() > 0)
          {
+            // IPv4 A
             if (ipresult[0] == _sIPAddress)
+            {
+               return true;
+            }
+            // IPv6 AAAA
+            else if (ipresult.size() > 1 && ipresult[1] == _sIPAddress)
             {
                return true;
             }
