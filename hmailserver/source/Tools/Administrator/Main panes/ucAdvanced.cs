@@ -6,6 +6,9 @@ using System.Windows.Forms;
 using hMailServer.Administrator.Utilities;
 using System.Runtime.InteropServices;
 using hMailServer.Shared;
+using System.Net.Sockets;
+using System.Net.NetworkInformation;
+using System.Linq;
 
 namespace hMailServer.Administrator
 {
@@ -49,7 +52,7 @@ namespace hMailServer.Administrator
 
             textDefaultDomain.Text = settings.DefaultDomain;
                                                 
-
+            IsSupportIpv6();
             Marshal.ReleaseComObject(settings);
 
         }
@@ -72,6 +75,13 @@ namespace hMailServer.Administrator
             Marshal.ReleaseComObject(settings);
 
             return true;
+        }
+
+        private void IsSupportIpv6()
+        {
+            var nic = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(i => i.NetworkInterfaceType != NetworkInterfaceType.Loopback && i.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
+            bool interfaceSupportsIPv6 = nic.Supports(NetworkInterfaceComponent.IPv6);
+            checkIPv6Preferred.Enabled = Socket.OSSupportsIPv6 && interfaceSupportsIPv6;
         }
 
         public void LoadResources()

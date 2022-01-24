@@ -132,4 +132,6 @@
 #define PROPERTY_ENABLEIMAPSASLPLAIN           _T("EnableImapSASLPlain")
 #define PROPERTY_ENABLEIMAPSASLINTIALRESPONSE  _T("EnableImapSASLInitialResponse")
 
-#define REQUIRED_DB_VERSION            5700
+#define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
+
+#define REQUIRED_DB_VERSION            5701

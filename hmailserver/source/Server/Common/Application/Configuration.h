@@ -161,6 +161,9 @@ namespace HM
       bool GetSslVersionEnabled(SslTlsVersion version) const;
       void SetSslVersionEnabled(SslTlsVersion version, bool enabled);
 
+      bool GetIPv6Preferred();
+      void SetIPv6Preferred(bool enabled);
+
       int GetCrashSimulationMode() const;
       void SetCrashSimulationMode(int mode);
 

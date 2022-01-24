@@ -34,6 +34,7 @@ namespace hMailServer.Administrator
            this.labelPleaseRemember = new System.Windows.Forms.Label();
            this.textAdministratorPassword = new hMailServer.Shared.ucText();
            this.textDefaultDomain = new hMailServer.Shared.ucText();
+           this.checkIPv6Preferred = new hMailServer.Administrator.Controls.ucCheckbox();
            this.SuspendLayout();
            // 
            // labelDefaultDomain
@@ -94,6 +95,16 @@ namespace hMailServer.Administrator
            this.textDefaultDomain.Size = new System.Drawing.Size(178, 20);
            this.textDefaultDomain.TabIndex = 7;
            // 
+           // checkIPv6Preferred
+           // 
+           this.checkIPv6Preferred.AutoSize = true;
+           this.checkIPv6Preferred.Location = new System.Drawing.Point(32, 180);
+           this.checkIPv6Preferred.Name = "checkIPv6Preferred";
+           this.checkIPv6Preferred.Size = new System.Drawing.Size(194, 17);
+           this.checkIPv6Preferred.TabIndex = 11;
+           this.checkIPv6Preferred.Text = "Prefer IPv6 over IPv4";
+           this.checkIPv6Preferred.UseVisualStyleBackColor = true;
+           // 
            // ucAdvanced
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -101,6 +112,7 @@ namespace hMailServer.Administrator
            this.Controls.Add(this.labelPleaseRemember);
            this.Controls.Add(this.textAdministratorPassword);
            this.Controls.Add(this.labelAdministrationPassword);
+           this.Controls.Add(this.checkIPv6Preferred);
            this.Controls.Add(this.textDefaultDomain);
            this.Controls.Add(this.labelDefaultDomain);
            this.Controls.Add(this.labelGeneral);
@@ -119,5 +131,6 @@ namespace hMailServer.Administrator
        private hMailServer.Shared.ucText textAdministratorPassword;
        private System.Windows.Forms.Label labelAdministrationPassword;
        private System.Windows.Forms.Label labelPleaseRemember;
+       private hMailServer.Administrator.Controls.ucCheckbox checkIPv6Preferred;
     }
 }

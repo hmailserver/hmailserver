@@ -650,6 +650,18 @@ namespace HM
       GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
    }
 
+   void
+   Configuration::SetIPv6Preferred(bool newVal)
+   {
+      GetSettings()->SetBool(PROPERTY_IPV6_PREFERRED, newVal);
+   }
+
+   bool
+   Configuration::GetIPv6Preferred()
+   {
+      return GetSettings()->GetBool(PROPERTY_IPV6_PREFERRED);
+   }
+
    int
    Configuration::GetCrashSimulationMode() const
    {

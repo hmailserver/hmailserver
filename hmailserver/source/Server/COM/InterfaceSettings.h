@@ -241,6 +241,9 @@ END_COM_MAP()
    STDMETHOD(get_IMAPSASLInitialResponseEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_IMAPSASLInitialResponseEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_IPv6PreferredEnabled)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+   STDMETHOD(put_IPv6PreferredEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
    bool LoadSettings();
 
 private:

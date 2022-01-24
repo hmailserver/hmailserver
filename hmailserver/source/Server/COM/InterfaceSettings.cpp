@@ -2590,3 +2590,37 @@ STDMETHODIMP InterfaceSettings::get_IMAPSASLInitialResponseEnabled(VARIANT_BOOL 
       return COMError::GenerateGenericMessage();
    }
 }
+
+STDMETHODIMP InterfaceSettings::get_IPv6PreferredEnabled(VARIANT_BOOL* pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetIPv6Preferred() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_IPv6PreferredEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetIPv6Preferred(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
