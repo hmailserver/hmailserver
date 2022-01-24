@@ -51,6 +51,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             textDefaultDomain.Text = settings.DefaultDomain;
+            checkIPv6Preferred.Checked = settings.IPv6PreferredEnabled;              
                                                 
             IsSupportIpv6();
             Marshal.ReleaseComObject(settings);
@@ -62,6 +63,7 @@ namespace hMailServer.Administrator
             hMailServer.Settings settings = APICreator.Application.Settings;
 
             settings.DefaultDomain = textDefaultDomain.Text;
+            settings.IPv6PreferredEnabled = checkIPv6Preferred.Checked;
             
             if (textAdministratorPassword.Dirty)
             {
