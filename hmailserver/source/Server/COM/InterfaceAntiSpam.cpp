@@ -126,14 +126,14 @@ STDMETHODIMP InterfaceAntiSpam::put_CheckHostInHeloScore(long newVal)
    }
 }
 
-STDMETHODIMP InterfaceAntiSpam::get_CheckPTR(VARIANT_BOOL* pVal)
+STDMETHODIMP InterfaceAntiSpam::get_CheckPTR(VARIANT_BOOL *pVal)
 {
    try
    {
       if (!config_)
          return GetAccessDenied();
 
-      *pVal = config_->GetAntiSpamConfiguration().GetCheckHostInHelo() ? VARIANT_TRUE : VARIANT_FALSE;
+      *pVal = config_->GetAntiSpamConfiguration().GetCheckPTR() ? VARIANT_TRUE : VARIANT_FALSE;
 
       return S_OK;
    }
@@ -160,7 +160,7 @@ STDMETHODIMP InterfaceAntiSpam::put_CheckPTR(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceAntiSpam::get_CheckPTRScore(long* pVal)
+STDMETHODIMP InterfaceAntiSpam::get_CheckPTRScore(long *pVal)
 {
    try
    {
