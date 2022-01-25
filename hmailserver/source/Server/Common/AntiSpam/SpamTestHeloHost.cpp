@@ -107,7 +107,8 @@ namespace HM
          // Check that the IP address is one of these A records.
          for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
-            if ((*iter) == sIPAddress)
+            // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+            if (boost::iequals((*iter), sIPAddress))
             {
                return true;
             }
