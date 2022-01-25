@@ -2591,7 +2591,7 @@ STDMETHODIMP InterfaceSettings::get_IMAPSASLInitialResponseEnabled(VARIANT_BOOL 
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_IPv6PreferredEnabled(VARIANT_BOOL* pVal)
+STDMETHODIMP InterfaceSettings::get_IPv6PreferredEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
