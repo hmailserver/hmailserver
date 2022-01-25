@@ -82,7 +82,7 @@ namespace hMailServer.Administrator
         private void IsSupportIpv6()
         {
             var nic = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(i => i.NetworkInterfaceType != NetworkInterfaceType.Loopback && i.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
-            bool interfaceSupportsIPv6 = nic.Supports(NetworkInterfaceComponent.IPv6);
+            bool interfaceSupportsIPv6 = nic != null && nic.Supports(NetworkInterfaceComponent.IPv6);
             checkIPv6Preferred.Enabled = Socket.OSSupportsIPv6 && interfaceSupportsIPv6;
         }
 
