@@ -13,6 +13,7 @@
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/IPAddress.h"
 #include "../TCPIP/LocalIPAddresses.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -63,7 +64,7 @@ namespace HM
       return setSpamTestResults;
    }
 
-   bool 
+   bool
    SpamTestPTR::CheckPTR_(const IPAddress &ipaddress)
    {
       String _sIPAddress = ipaddress.ToString();
@@ -79,20 +80,16 @@ namespace HM
 
       if (ptrresult.size() > 0)
       {
-         // Check that the host name given in PTR actually matches
-         // the senders IP address.
-         std::vector<String> ipresult;
-         if (dns_resolver.GetIpAddresses(ptrresult[0], ipresult, false) && ipresult.size() > 0)
+         std::vector<String> ipresults;
+         if (dns_resolver.GetIpAddresses(ptrresult[0], ipresults, false) && ipresults.size() > 0)
          {
-            // IPv4 A
-            if (ipresult[0] == _sIPAddress)
+            // Check that the IP address is one of these A or AAAA records.
+            // Might be A or AAAA or multiple, so we loop through them and find a match
+            for (auto iter = ipresults.begin(); iter < ipresults.end(); iter++)
             {
-               return true;
-            }
-            // IPv6 AAAA
-            else if (Configuration::Instance()->IsIPv6Available() && ipresult.size() > 1 && ipresult[1] == _sIPAddress)
-            {
-               return true;
+               // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+               if (boost::iequals((*iter), _sIPAddress))
+                  return true;               
             }
          }
       }
