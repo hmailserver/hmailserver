@@ -42,13 +42,7 @@ namespace HM
    {
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
-      const IPAddress& iIPAddress = pTestData->GetOriginatingIP();
-
-      if (LocalIPAddresses::Instance()->IsLocalIPAddress(iIPAddress))
-      {
-         // Ignore this test if send thru localhost.
-         return setSpamTestResults;
-      }
+      const IPAddress &iIPAddress = pTestData->GetOriginatingIP();
 
       if (!CheckPTR_(iIPAddress))
       {
