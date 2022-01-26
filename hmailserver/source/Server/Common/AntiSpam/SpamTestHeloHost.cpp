@@ -51,7 +51,7 @@ namespace HM
          return setSpamTestResults;
       }
 
-      if (LocalIPAddresses::Instance()->IsLocalIPAddress(iIPAdress))
+      if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(iIPAdress))
       {
          // Ignore this test if send thru localhost.
          return setSpamTestResults;
@@ -104,7 +104,7 @@ namespace HM
             return true;
          }
 
-         // Check that the IP address is one of these A records.
+         // Check that the IP address is one of these A or AAAA records.
          for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
             // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
