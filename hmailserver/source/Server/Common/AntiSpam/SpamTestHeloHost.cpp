@@ -13,6 +13,7 @@
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/IPAddress.h"
 #include "../TCPIP/LocalIPAddresses.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -50,7 +51,7 @@ namespace HM
          return setSpamTestResults;
       }
 
-      if (LocalIPAddresses::Instance()->IsLocalIPAddress(iIPAdress))
+      if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(iIPAdress))
       {
          // Ignore this test if send thru localhost.
          return setSpamTestResults;
@@ -76,15 +77,17 @@ namespace HM
    {
       String sIPAddress = address.ToString();
 
-      bool bMatch = false;
-
       if (sHeloHost.Left(1) == _T("["))
       {
          String sTempHost = sHeloHost;
          sTempHost.TrimLeft(_T("["));
+         // IPv6 
+         if (sTempHost.Left(5) == _T("IPv6:"))
+            sTempHost.TrimLeft(_T("IPv6:"));
          sTempHost.TrimRight(_T("]"));
 
-         if (sTempHost == sIPAddress)
+         // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+         if (boost::iequals(sTempHost, sIPAddress))
          {
             return true;
          }
@@ -101,10 +104,11 @@ namespace HM
             return true;
          }
 
-         // Check that the IP address is one of these A records.
+         // Check that the IP address is one of these A or AAAA records.
          for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
-            if ((*iter) == sIPAddress)
+            // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+            if (boost::iequals((*iter), sIPAddress))
             {
                return true;
             }
