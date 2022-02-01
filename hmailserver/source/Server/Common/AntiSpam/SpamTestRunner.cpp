@@ -10,6 +10,7 @@
 
 #include "SpamTestDNSBlackLists.h"
 #include "SpamTestHeloHost.h"
+#include "SpamTestPTR.h"
 #include "SpamTestMXRecords.h"
 #include "SpamTestSPF.h"
 #include "SpamTestSURBL.h"
@@ -38,6 +39,7 @@ namespace HM
    {
       spam_tests_.push_back(std::shared_ptr<SpamTestDNSBlackLists> (new SpamTestDNSBlackLists));
       spam_tests_.push_back(std::shared_ptr<SpamTestHeloHost> (new SpamTestHeloHost));
+      spam_tests_.push_back(std::shared_ptr<SpamTestPTR> (new SpamTestPTR));
       spam_tests_.push_back(std::shared_ptr<SpamTestMXRecords> (new SpamTestMXRecords));
       spam_tests_.push_back(std::shared_ptr<SpamTestSPF> (new SpamTestSPF));
       spam_tests_.push_back(std::shared_ptr<SpamTestSURBL> (new SpamTestSURBL));

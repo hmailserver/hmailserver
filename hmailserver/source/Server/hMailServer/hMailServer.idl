@@ -2247,6 +2247,11 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(35), helpstring("Bypass grey listing if mail comes from domain A or MX record.")] HRESULT BypassGreylistingOnMailFromMX([in] VARIANT_BOOL newVal);
 
    [id(36), helpstring("Tests to connect to SpamAssassin")] HRESULT TestSpamAssassinConnection([in] BSTR Hostname, long Port, [out] BSTR *ResultText, [out, retval] VARIANT_BOOL *pResult);
+   
+   [propget, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([in] VARIANT_BOOL newVal);
+   [propget, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([out, retval] long* pVal);
+   [propput, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([in] long newVal);
 };
 
 
