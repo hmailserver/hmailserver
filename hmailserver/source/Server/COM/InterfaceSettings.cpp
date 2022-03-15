@@ -2320,39 +2320,6 @@ STDMETHODIMP InterfaceSettings::put_SslCipherList(BSTR newVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_SslVersion30Enabled(VARIANT_BOOL newVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      config_->SetSslVersionEnabled(HM::SslVersion30, newVal == VARIANT_TRUE);
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
-
-STDMETHODIMP InterfaceSettings::get_SslVersion30Enabled(VARIANT_BOOL *pVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      *pVal = config_->GetSslVersionEnabled(HM::SslVersion30) ? VARIANT_TRUE : VARIANT_FALSE;
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
 STDMETHODIMP InterfaceSettings::put_TlsVersion10Enabled(VARIANT_BOOL newVal)
 {
    try
@@ -2445,6 +2412,40 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion12Enabled(VARIANT_BOOL *pVal)
          return GetAccessDenied();
 
       *pVal = config_->GetSslVersionEnabled(HM::TlsVersion12) ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP InterfaceSettings::put_TlsVersion13Enabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetSslVersionEnabled(HM::TlsVersion13, newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+
+STDMETHODIMP InterfaceSettings::get_TlsVersion13Enabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSslVersionEnabled(HM::TlsVersion13) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)

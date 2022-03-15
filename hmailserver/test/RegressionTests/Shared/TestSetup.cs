@@ -153,12 +153,6 @@ namespace RegressionTests.Shared
          if (_settings.MaxPOP3Connections > 0)
             _settings.MaxPOP3Connections = 0;
 
-         if (!_settings.SslVersion30Enabled)
-         {
-            _settings.SslVersion30Enabled = true;
-            restartRequired = true;
-         }
-
          if (!_settings.TlsVersion10Enabled)
          {
             _settings.TlsVersion10Enabled = true;
@@ -175,6 +169,12 @@ namespace RegressionTests.Shared
          {
             _settings.TlsVersion12Enabled = true;
             restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion13Enabled)
+         {
+             _settings.TlsVersion13Enabled = true;
+             restartRequired = true;
          }
 
 
@@ -213,16 +213,8 @@ namespace RegressionTests.Shared
 
       private string GetCipherList()
       {
-         var osVersion = Environment.OSVersion.Version;
-         bool isWinXp = osVersion.Major == 5 && osVersion.Minor == 1;
-         bool isWindows2003 = osVersion.Major == 5 && osVersion.Minor == 2;
-
-         // Windows XP and Windows Server 2003 only supports RC4-MD5. OpenSSL 1.0.2 and later 
-         // has it disabled by default, so we need to enable it explicitly.
-         if (isWinXp || isWindows2003)
-            return "RC4-MD5";
-         
-         return "";
+         return
+            "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK;";
       }
 
       private void SetupBlockedAttachments()

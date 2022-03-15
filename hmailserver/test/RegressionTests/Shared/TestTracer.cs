@@ -12,7 +12,7 @@ namespace RegressionTests.Shared
          string data = string.Format(format, args);
          string completeMessage = string.Format("{0} - {1}", DateTime.Now, data);
 
-         Trace.WriteLine(completeMessage);
+         Console.WriteLine(completeMessage);
       }
    }
 }

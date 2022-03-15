@@ -47,6 +47,7 @@ namespace StressTest
             foreach (string file in files)
             {
                 DeleteCurrentLog();
+                Console.WriteLine(string.Format("Testing file {0}...", file));
                 hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
                 Assert.AreEqual(hMailServer.eDKIMResult.eDKPass, result, file);
                 Assert.IsTrue(VerifyLoadSuccess());

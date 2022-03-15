@@ -475,7 +475,7 @@ namespace RegressionTests.Infrastructure
          account.SignaturePlainText = "PLAIN";
          account.VacationMessage = "VAC";
          account.VacationMessageExpires = true;
-         account.VacationMessageExpiresDate = "2020-01-01";
+         account.VacationMessageExpiresDate = "2040-01-01";
          account.VacationMessageIsOn = true;
          account.VacationSubject = "SUBJ";
          account.Password = "test";
@@ -831,7 +831,7 @@ namespace RegressionTests.Infrastructure
          Assert.AreEqual("PLAIN", account.SignaturePlainText);
          Assert.AreEqual("VAC", account.VacationMessage);
          Assert.IsTrue(account.VacationMessageExpires);
-         Assert.AreEqual("2020-01-01", account.VacationMessageExpiresDate.Substring(0, 10));
+         Assert.AreEqual("2040-01-01", account.VacationMessageExpiresDate.Substring(0, 10));
          Assert.IsTrue(account.VacationMessageIsOn);
          Assert.AreEqual("SUBJ", account.VacationSubject);
 

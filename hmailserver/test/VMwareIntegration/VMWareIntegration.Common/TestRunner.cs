@@ -43,7 +43,7 @@ namespace VMwareIntegration.Common
       {
          VMware vm = new VMware();
 
-         if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
+          if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
              throw new Exception("Incorrect path to NUnit.");
 
         string fixtureSourcePath = TestSettings.GetFixturePath();

@@ -98,6 +98,8 @@ namespace hMailServer.Administrator.Dialogs
 
         private void SaveProperties()
         {
+            var ruleActionType = (eRuleActionType) comboAction.SelectedValue;
+
             _ruleAction.To = textForwardTo.Text;
             _ruleAction.IMAPFolder = textIMAPFolder.Text;
 
@@ -110,14 +112,19 @@ namespace hMailServer.Administrator.Dialogs
 
             _ruleAction.HeaderName = textHeaderName.Text;
 
-            if (_ruleAction.Type == eRuleActionType.eRASetHeaderValue)
-               _ruleAction.Value = textHeaderValue.Text;
-            else if (_ruleAction.Type == eRuleActionType.eRABindToAddress)
-               _ruleAction.Value = textBindToAddress.Text;
+            switch (ruleActionType)
+            {
+                case eRuleActionType.eRASetHeaderValue:
+                    _ruleAction.Value = textHeaderValue.Text;
+                    break;
+                case eRuleActionType.eRABindToAddress:
+                    _ruleAction.Value = textBindToAddress.Text;
+                    break;
+            }
 
             _ruleAction.RouteID = (int)comboRouteName.SelectedValue;
 
-            _ruleAction.Type = (eRuleActionType)comboAction.SelectedValue;
+            _ruleAction.Type = ruleActionType;
 
         }
 

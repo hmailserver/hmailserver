@@ -29,10 +29,7 @@ function hmailGetVar($p_varname, $p_defaultvalue = null, $p_isnumeric = false)
 	{
 		$retval	= $_REQUEST[$p_varname];
 	}
-	
-	if (get_magic_quotes_gpc())
-	   $retval = stripslashes($retval);
-   
+ 
 	if ($p_isnumeric) 
 	{
 		$retval = intval($retval);

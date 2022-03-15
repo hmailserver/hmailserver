@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigureInstallation", "ConfigureInstallation\ConfigureInstallation.csproj", "{D1C089F5-C3DB-4B4E-A5F8-705AB5BEB8DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseUnicodeConversion", "DatabaseUnicodeConversion\DatabaseUnicodeConversion.csproj", "{2905662F-F33B-406D-9FF0-06C5C10C6E31}"

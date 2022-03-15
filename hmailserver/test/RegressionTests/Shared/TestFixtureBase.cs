@@ -26,6 +26,8 @@ namespace RegressionTests.Shared
       [SetUp]
       public void SetUp()
       {
+         ServiceRestartDetector.ValidateProcessId();
+
          _domain = SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
 
          LogHandler.DeleteCurrentDefaultLog();

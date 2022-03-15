@@ -42,22 +42,32 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
-1. Download OpenSSL 1.0.2* from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>. Replace 1.0.2* with the latest 1.0.2-version available (1.0.2j at the time of this writing)
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.0.2j
+1. Download OpenSSL 1.1.1* from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
+   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.1.1s
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
-4. Run Perl Configure no-asm VC-WIN32
-5. Run ms\do_ms
-6. Run nmake -f ms\ntdll.mak
+3. Run the following commands:
+
+   <pre>
+   Perl Configure no-asm VC-WIN32 --prefix=%cd%\out32 --openssldir=%cd%\out32 -D_WIN32_WINNT=0x501 enable-weak-ssl-ciphers
+   nmake install_sw
+   </pre>
 
 Building Boost
 --------------
-1. Download Boost 1.63.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
+1. Download Boost 1.70.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.  
    You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_63_0
-2. Open a Command prompt
+2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<Boost-Version>.
-4. Run bootstrap.bat
-5. Run bjam.exe --toolset=msvc-12.0 --build-type=complete
+4. Run the following commands:
+ 
+   NOTE: Change the -j parameter from 4 to the number of cores on your computer. The parameter specifies the number of parallel compilations will be done.
+
+   <pre>
+   bootstrap.bat vc12
+   bjam.exe --toolset=msvc-12.0 --build-type=complete address-model=32 --build-dir=out32 -j 4
+   </pre>
+
 
 
 Building hMailServer
