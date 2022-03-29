@@ -1646,9 +1646,10 @@ interface IInterfaceFetchAccount : IDispatch{
    [propget, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([out, retval] VARIANT_BOOL *pVal);
 	[propput, id(21), helpstring("Gets or sets whether hMailServer should deliver to recipients in routes.")] HRESULT EnableRouteRecipients([in] VARIANT_BOOL newVal);
 	[propget, id(22), helpstring("Gets whether the fetch account is currently locked")] HRESULT IsLocked([out, retval] VARIANT_BOOL* pVal);
-   [propget, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
-   [propput, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
-
+	[propget, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([out, retval] eConnectionSecurity *pVal);
+	[propput, id(23), helpstring("Connection security for this fetch account.")] HRESULT ConnectionSecurity([in] eConnectionSecurity newVal);
+	[propget, id(24), helpstring("Read message recipients from these MIME headers.")] HRESULT MIMERecipientHeaders([out, retval] BSTR* pVal);
+	[propput, id(24), helpstring("Read message recipients from these MIME headers.")] HRESULT MIMERecipientHeaders([in] BSTR newVal);
 };
 [
 	object,

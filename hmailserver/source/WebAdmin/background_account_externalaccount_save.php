@@ -42,14 +42,21 @@
    $obFA->Name                  = hmailGetVar("Name",0);
    $obFA->MinutesBetweenFetch   = hmailGetVar("MinutesBetweenFetch",0);
    $obFA->Port                  = hmailGetVar("Port",0);
-   $obFA->ProcessMIMERecipients = hmailGetVar("ProcessMIMERecipients",0);
+   $obFA->MIMERecipientHeaders  = hmailGetVar("MIMERecipientHeaders","To,CC,X-RCPT-To,X-Envelope-To");
+   if (strlen($obFA->MIMERecipientHeaders) > 0)
+      $obFA->ProcessMIMERecipients = hmailGetVar("ProcessMIMERecipients",0);
+   else
+      $obFA->ProcessMIMERecipients = 0;
    $obFA->ProcessMIMEDate       = hmailGetVar("ProcessMIMEDate",0);
    $obFA->ServerAddress         = hmailGetVar("ServerAddress",0);
    $obFA->ServerType            = hmailGetVar("ServerType",0);
    $obFA->Username              = hmailGetVar("Username",0);
    $obFA->UseAntiVirus          = hmailGetVar("UseAntiVirus",0);
    $obFA->UseAntiSpam           = hmailGetVar("UseAntiSpam",0);
-   $obFA->EnableRouteRecipients = hmailGetVar("EnableRouteRecipients",0);
+   if ($obFA->ProcessMIMERecipients != 0)
+      $obFA->EnableRouteRecipients = hmailGetVar("EnableRouteRecipients",0);
+   else
+      $obFA->EnableRouteRecipients = 0;
    $obFA->ConnectionSecurity 	= hmailGetVar("ConnectionSecurity",0);
    
    if (strlen($DaysToKeepMessages) > 0 && $DaysToKeepMessages <= 0)

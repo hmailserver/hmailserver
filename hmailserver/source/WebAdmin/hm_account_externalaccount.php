@@ -26,6 +26,7 @@ if ($action == "edit")
    $DaysToKeepMessages    = $obFetchAccount->DaysToKeepMessages;
    $MinutesBetweenFetch   = $obFetchAccount->MinutesBetweenFetch;
    $Port  				  = $obFetchAccount->Port;
+   $MIMERecipientHeaders = $obFetchAccount->MIMERecipientHeaders;
    $ProcessMIMERecipients = $obFetchAccount->ProcessMIMERecipients;
    $ProcessMIMEDate       = $obFetchAccount->ProcessMIMEDate;
    $ServerAddress  		  = $obFetchAccount->ServerAddress;
@@ -43,6 +44,7 @@ else
    $DaysToKeepMessages = 0;
    $MinutesBetweenFetch = 30;
    $Port = 110;
+   $MIMERecipientHeaders = "To,CC,X-RCPT-To,X-Envelope-To";
    $ProcessMIMERecipients = 0;
    $ProcessMIMEDate = 0;
    $ServerAddress = "";
@@ -151,7 +153,13 @@ if ($DaysToKeepMessages > 0)
          			<td>
             				<input type="text" name="MinutesBetweenFetch" value="<?php echo PreprocessOutput($MinutesBetweenFetch)?>" checktype="number" checkallownull="false" checkmessage="<?php EchoTranslation("Minutes between download")?>">
                   	</td>			
-         		</tr>			
+         		</tr>		
+         		<tr>
+         			<td><?php EchoTranslation("MIME recipient headers")?></td>
+         			<td>
+            				<input type="text" name="MIMERecipientHeaders" maxlength="255" size="100" value="<?php echo PreprocessOutput($MIMERecipientHeaders)?>" checkallownull="false" checkmessage="<?php EchoTranslation("MIME recipient headers")?>">
+                  	</td>			
+         		</tr>	
          		<tr>
          			<td><?php EchoTranslation("Deliver to recipients in MIME headers")?></td>
          			<td>

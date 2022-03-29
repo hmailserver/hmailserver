@@ -35,6 +35,8 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
 
+#include <boost/algorithm/string.hpp>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -978,7 +980,7 @@ namespace HM
    void 
    POP3ClientConnection::CreateRecipentList_(std::shared_ptr<MimeHeader> pHeader)
    {
-      if (account_->GetProcessMIMERecipients())
+      if (account_->GetProcessMIMERecipients() && !account_->GetMIMERecipientHeaders().IsEmpty())
       {  
          ProcessMIMERecipients_(pHeader);
       }  
@@ -1010,12 +1012,28 @@ namespace HM
    // to the message
    //---------------------------------------------------------------------------()
    {
+      /*
       String sTo = pHeader->GetRawFieldValue("To");
       String sCC = pHeader->GetRawFieldValue("CC");
       String sXRCPTTo = pHeader->GetRawFieldValue("X-RCPT-TO");
       String sXEnvelopeTo = pHeader->GetRawFieldValue("X-Envelope-To");
 
       String sAllRecipients = sTo + "," + sCC + "," + sXRCPTTo + "," + sXEnvelopeTo;
+      */
+
+      AnsiString sMimeRecipientHeaders = account_->GetMIMERecipientHeaders();
+      std::vector<std::string> sMimeRecipientHeader;
+      std::vector<std::string> sMimeRecipientsList;
+      boost::split(sMimeRecipientHeader, sMimeRecipientHeaders, boost::is_any_of(";, "), boost::token_compress_on);
+      for (std::vector<std::string>::iterator it = sMimeRecipientHeader.begin(); it != sMimeRecipientHeader.end(); ++it)
+      {
+         auto value = pHeader->GetRawFieldValue(*it);
+         if (value)
+         {
+            sMimeRecipientsList.push_back(value);
+         }
+      }
+      String sAllRecipients = boost::join(sMimeRecipientsList, ",");
 
       // Parse this list.
       AddresslistParser oListParser;

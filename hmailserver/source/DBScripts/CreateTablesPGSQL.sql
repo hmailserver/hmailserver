@@ -327,7 +327,8 @@ create table hm_fetchaccounts
 	faconnectionsecurity smallint not null,
     fauseantispam smallint not null,
     fauseantivirus smallint not null,
-    faenablerouterecipients smallint not null
+    faenablerouterecipients smallint not null,
+	famimerecipientheaders varchar(255) not null DEFAULT 'To,CC,X-RCPT-TO,X-Envelope-To'
 );
 
 create table hm_fetchaccounts_uids
@@ -798,4 +799,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5703);
+insert into hm_dbversion values (5704);
