@@ -53,11 +53,11 @@ namespace HM
       bool GetActive() const {return is_active_; }
       void SetActive(bool bActive) {is_active_ = bActive; }
 
-      bool GetProcessMIMERecipients() const {return process_mimerecipients_; }
-      void SetProcessMIMERecipients(bool bNewVal) {process_mimerecipients_ = bNewVal; }
-
       void SetMIMERecipientHeaders(const String &sNewVal) { mime_recipient_headers_ = sNewVal; }
       String GetMIMERecipientHeaders() const { return mime_recipient_headers_; }
+
+      bool GetProcessMIMERecipients() const {return process_mimerecipients_; }
+      void SetProcessMIMERecipients(bool bNewVal) {process_mimerecipients_ = bNewVal; }
 
       bool GetProcessMIMEDate() const {return process_mimedate_; }
       void SetProcessMIMEDate(bool bNewVal) {process_mimedate_ = bNewVal; }
@@ -99,8 +99,8 @@ namespace HM
       bool is_active_;
       std::shared_ptr<FetchAccountUIDs> uids_;
 
-      bool process_mimerecipients_;
       String mime_recipient_headers_;
+      bool process_mimerecipients_;
       bool process_mimedate_;
 
       bool use_anti_spam_;

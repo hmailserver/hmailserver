@@ -70,10 +70,10 @@ public:
    STDMETHOD(put_Enabled)(VARIANT_BOOL newVal);
    STDMETHOD(Save)(void);
    STDMETHOD(DownloadNow)(void);
-   STDMETHOD(get_ProcessMIMERecipients)(VARIANT_BOOL* pVal);
-   STDMETHOD(put_ProcessMIMERecipients)(VARIANT_BOOL newVal);
    STDMETHOD(get_MIMERecipientHeaders)(BSTR* pVal);
    STDMETHOD(put_MIMERecipientHeaders)(BSTR newVal);
+   STDMETHOD(get_ProcessMIMERecipients)(VARIANT_BOOL* pVal);
+   STDMETHOD(put_ProcessMIMERecipients)(VARIANT_BOOL newVal);
    STDMETHOD(get_ProcessMIMEDate)(VARIANT_BOOL* pVal);
    STDMETHOD(put_ProcessMIMEDate)(VARIANT_BOOL newVal);
    STDMETHOD(get_UseSSL)(/*[out, retval]*/ VARIANT_BOOL *pVal);

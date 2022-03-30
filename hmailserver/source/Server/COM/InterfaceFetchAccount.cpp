@@ -398,40 +398,6 @@ STDMETHODIMP InterfaceFetchAccount::put_Enabled(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceFetchAccount::get_ProcessMIMERecipients(VARIANT_BOOL* pVal)
-{
-   try
-   {
-      if (!object_)
-         return GetAccessDenied();
-
-      *pVal = object_->GetProcessMIMERecipients() ? VARIANT_TRUE : VARIANT_FALSE;
-   
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
-STDMETHODIMP InterfaceFetchAccount::put_ProcessMIMERecipients(VARIANT_BOOL newVal)
-{
-   try
-   {
-      if (!object_)
-         return GetAccessDenied();
-
-      object_->SetProcessMIMERecipients(newVal == VARIANT_TRUE);
-   
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
 STDMETHODIMP InterfaceFetchAccount::get_MIMERecipientHeaders(BSTR* pVal)
 {
    try
@@ -458,6 +424,40 @@ STDMETHODIMP InterfaceFetchAccount::put_MIMERecipientHeaders(BSTR newVal)
 
       object_->SetMIMERecipientHeaders(newVal);
 
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceFetchAccount::get_ProcessMIMERecipients(VARIANT_BOOL* pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetProcessMIMERecipients() ? VARIANT_TRUE : VARIANT_FALSE;
+   
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceFetchAccount::put_ProcessMIMERecipients(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetProcessMIMERecipients(newVal == VARIANT_TRUE);
+   
       return S_OK;
    }
    catch (...)

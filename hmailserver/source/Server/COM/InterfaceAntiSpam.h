@@ -63,10 +63,10 @@ public:
    STDMETHOD(get_CheckHostInHeloScore)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_CheckHostInHeloScore)(/*[in]*/ long newVal);	
 
-   STDMETHOD(get_CheckPTR)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+   STDMETHOD(get_CheckPTR)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_CheckPTR)(/*[in]*/ VARIANT_BOOL newVal);
 
-   STDMETHOD(get_CheckPTRScore)(/*[out, retval]*/ long* pVal);
+   STDMETHOD(get_CheckPTRScore)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_CheckPTRScore)(/*[in]*/ long newVal);
 
    STDMETHOD(get_SpamMarkThreshold)(/*[out, retval]*/ long *pVal);

@@ -100,8 +100,8 @@ namespace HM
       oFA->SetPassword(Crypt::Instance()->DeCrypt(pRS->GetStringValue("fapassword"), Crypt::ETBlowFish));
       oFA->SetMinutesBetweenTry(pRS->GetLongValue("faminutes"));
       oFA->SetDaysToKeep(pRS->GetLongValue("fadaystokeep"));
-      oFA->SetProcessMIMERecipients(pRS->GetLongValue("faprocessmimerecipients") == 1);
       oFA->SetMIMERecipientHeaders(pRS->GetStringValue("famimerecipientheaders"));
+      oFA->SetProcessMIMERecipients(pRS->GetLongValue("faprocessmimerecipients") == 1);
       oFA->SetProcessMIMEDate(pRS->GetLongValue("faprocessmimedate") == 1);
       oFA->SetConnectionSecurity((ConnectionSecurity) pRS->GetLongValue("faconnectionsecurity"));
       oFA->SetNextTry(pRS->GetStringValue("fanexttry"));
@@ -166,8 +166,8 @@ namespace HM
       oStatement.AddColumn("faminutes", pFA->GetMinutesBetweenTry());
       oStatement.AddColumn("fadaystokeep", pFA->GetDaysToKeep());
       oStatement.AddColumn("fanexttry", Time::GetCurrentDateTime());
-      oStatement.AddColumn("faprocessmimerecipients", pFA->GetProcessMIMERecipients());
       oStatement.AddColumn("famimerecipientheaders", pFA->GetMIMERecipientHeaders());
+      oStatement.AddColumn("faprocessmimerecipients", pFA->GetProcessMIMERecipients());
       oStatement.AddColumn("faprocessmimedate", pFA->GetProcessMIMEDate());
       oStatement.AddColumn("faconnectionsecurity", pFA->GetConnectionSecurity());
       oStatement.AddColumn("fauseantispam", pFA->GetUseAntiSpam());
