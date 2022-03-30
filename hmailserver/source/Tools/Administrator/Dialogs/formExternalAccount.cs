@@ -68,8 +68,8 @@ namespace hMailServer.Administrator.Dialogs
          comboConnectionSecurity.SelectedValue = fetchAccount.ConnectionSecurity;
 
          textMIMERecipientHeaders.Text = !string.IsNullOrEmpty(fetchAccount.MIMERecipientHeaders) ? fetchAccount.MIMERecipientHeaders : "To,CC,X-RCPT-TO,X-Envelope-To";
-         checkProcessMIMERecipients.Checked = fetchAccount.ProcessMIMERecipients;
-         checkProcessMIMEDate.Checked = fetchAccount.ProcessMIMEDate && !string.IsNullOrEmpty(fetchAccount.MIMERecipientHeaders);
+         checkProcessMIMERecipients.Checked = fetchAccount.ProcessMIMERecipients && !string.IsNullOrEmpty(fetchAccount.MIMERecipientHeaders);
+         checkProcessMIMEDate.Checked = fetchAccount.ProcessMIMEDate;
 
          checkUseAntiSpam.Checked = fetchAccount.UseAntiSpam;
          checkUseAntiVirus.Checked = fetchAccount.UseAntiVirus;
@@ -104,9 +104,9 @@ namespace hMailServer.Administrator.Dialogs
          fetchAccount.ProcessMIMEDate = checkProcessMIMEDate.Checked;
          fetchAccount.ProcessMIMERecipients = checkProcessMIMERecipients.Checked && checkProcessMIMERecipients.Enabled;
          fetchAccount.ServerAddress = textServer.Text;
-         fetchAccount.ServerType = (int)comboServerType.SelectedValue;
+         fetchAccount.ServerType = (int) comboServerType.SelectedValue;
          fetchAccount.Username = textUsername.Text;
-         fetchAccount.ConnectionSecurity = (eConnectionSecurity)comboConnectionSecurity.SelectedValue;
+         fetchAccount.ConnectionSecurity = (eConnectionSecurity) comboConnectionSecurity.SelectedValue;
          fetchAccount.UseAntiSpam = checkUseAntiSpam.Checked;
          fetchAccount.UseAntiVirus = checkUseAntiVirus.Checked;
          fetchAccount.EnableRouteRecipients = checkEnableRouteRecipients.Checked && checkEnableRouteRecipients.Enabled;
@@ -135,15 +135,15 @@ namespace hMailServer.Administrator.Dialogs
 
       private void buttonDownloadNow_Click(object sender, EventArgs e)
       {
-         // save properties prior to downloading, so we have
-         // the latest settings.
-         if (_fetchAccount != null)
-         {
-            SaveAccountProperties(_fetchAccount);
-            _fetchAccount.Save();
-            _fetchAccount.DownloadNow();
-            this.Close();
-         }
+          // save properties prior to downloading, so we have
+          // the latest settings.
+          if (_fetchAccount != null)
+          {
+              SaveAccountProperties(_fetchAccount);
+              _fetchAccount.Save();
+              _fetchAccount.DownloadNow();
+              this.Close();
+          }
       }
 
       private void checkProcessMIMEDate_CheckedChanged(object sender, EventArgs e)
@@ -168,27 +168,27 @@ namespace hMailServer.Administrator.Dialogs
 
       private void comboConnectionSecurity_SelectedIndexChanged(object sender, EventArgs e)
       {
-         if (_isLoading)
-            return;
+          if (_isLoading)
+              return;
 
-         if ((eConnectionSecurity)comboConnectionSecurity.SelectedValue == eConnectionSecurity.eCSTLS)
-            textPort.Number = 995;
-         else
-            textPort.Number = 110;
+          if ((eConnectionSecurity)comboConnectionSecurity.SelectedValue == eConnectionSecurity.eCSTLS)
+              textPort.Number = 995;
+          else
+              textPort.Number = 110;
 
-         textPort.Font = new Font(this.Font, FontStyle.Bold);
+          textPort.Font = new Font(this.Font, FontStyle.Bold);
 
-         if (_timer != null)
-            _timer.Stop();
+          if (_timer != null)
+              _timer.Stop();
 
-         _timer = new Timer();
-         _timer.Interval = 3000;
-         _timer.Tick += (s, ev) =>
-         {
-            textPort.Font = new Font(this.Font, FontStyle.Regular);
-            _timer.Stop();
-         };
-         _timer.Start();
+          _timer = new Timer();
+          _timer.Interval = 3000;
+          _timer.Tick += (s, ev) =>
+          {
+              textPort.Font = new Font(this.Font, FontStyle.Regular);
+              _timer.Stop();
+          };
+          _timer.Start();
       }
    }
 }
