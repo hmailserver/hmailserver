@@ -53,8 +53,8 @@ namespace HM
       bool GetActive() const {return is_active_; }
       void SetActive(bool bActive) {is_active_ = bActive; }
 
-      void SetMIMERecipientHeaders(const String &sNewVal) { mime_recipient_headers_ = sNewVal; }
       String GetMIMERecipientHeaders() const { return mime_recipient_headers_; }
+      void SetMIMERecipientHeaders(const String &sNewVal) { mime_recipient_headers_ = sNewVal; }
 
       bool GetProcessMIMERecipients() const {return process_mimerecipients_; }
       void SetProcessMIMERecipients(bool bNewVal) {process_mimerecipients_ = bNewVal; }
