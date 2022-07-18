@@ -224,6 +224,7 @@
   <ItemGroup>
     <None Include="Resources\EmailWith-TextPlainBody-TextPlainContentType.txt" />
     <None Include="Resources\SecuniaBody1.txt" />
+    <None Include="RunTestsInVmware.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextPlainAttachment.txt" />

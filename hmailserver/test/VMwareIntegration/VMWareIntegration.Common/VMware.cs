@@ -126,7 +126,7 @@ namespace VMwareIntegration.Common
 
       public void CopyFileToHost(string source, string destination)
       {
-
+         Console.WriteLine(string.Format("Copying file {0} to VM: {1}...", source, destination));
          VixCOM.IJob job = _virtualMachine.CopyFileFromGuestToHost(source, destination, 0, null, null);
          UInt64 err = job.WaitWithoutResults();
 

@@ -13,6 +13,9 @@ namespace VMwareIntegration.Common
    public class TestRunner
    {
       private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.6.3";
+
+      private const string Username = "vmware";
+      private const string Password = "Secret123";
       
       private TestEnvironment _environment;
       private bool _stopOnError;
@@ -71,7 +74,7 @@ namespace VMwareIntegration.Common
          try
          {
             vm.RevertToSnapshot(_environment.SnapshotName);
-            vm.LoginInGuest("VMware", "vmware");
+            vm.LoginInGuest(Username, Password);
 
             // Make sure we have an IP address.
             EnsureNetworkAccess(vm);
