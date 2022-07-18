@@ -839,7 +839,6 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestTooManyInvalidCommandsAUTH()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Settings settings = _settings;
 
          settings.DisconnectInvalidClients = true;
@@ -848,35 +847,36 @@ namespace RegressionTests.SMTP
          var sim = new TcpConnection();
          sim.Connect(25);
          sim.Send("EHLO test.com\r\n");
+         sim.ReadUntil("250 HELP\r\n");
 
-         for (int i = 1; i <= 6; i++)
+         for (int i = 1; i <= 5; i++)
          {
-            try
+            sim.Send("AUTH LOGIN\r\n");
+
+            // Send invalid username/password
+            string usernamePrompt = sim.Receive();
+
+            if (i == 5)
             {
-               sim.Send("AUTH LOGIN\r\n");
-
-               string result = sim.Receive();
-
-               if (result.Contains("Too many invalid commands"))
-                  return;
-
-               if (i > 5)
-                  break;
-
-               sim.Send("YWNhZGVtaWE=\r\n");
-               sim.Receive();
-               sim.Send("abc\r\n");
-               sim.Receive();
-            }
-            catch (Exception)
-            {
-               if (i < 5)
-               {
-                  Assert.Fail("Was disconnected prematurely.");
-               }
-
+               StringAssert.Contains("Too many invalid commands", usernamePrompt);
                return;
             }
+            else
+            {
+               StringAssert.Contains("334 VXNlcm5hbWU6", usernamePrompt); // Base64 encoded "Username" prompt
+            }
+
+
+            // Send a invalid username
+            sim.Send("YWNhZGVtaWE=\r\n");
+            string passwordPrompt = sim.Receive();
+            StringAssert.Contains("334 UGFzc3dvcmQ6", passwordPrompt); // Base64 encoded "Password" prompt
+
+            // Send a invalid password
+            sim.Send("abc\r\n");
+            var loginResult = sim.Receive();
+            
+            StringAssert.Contains("535 Authentication failed. Restarting authentication process.", loginResult);
          }
 
          Assert.Fail("Wasn't disconnected");

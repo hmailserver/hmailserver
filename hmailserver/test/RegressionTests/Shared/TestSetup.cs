@@ -705,7 +705,7 @@ namespace RegressionTests.Shared
 
          Route route = oSettings.Routes.Add();
          route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPHost = "127.0.0.1";
          route.TargetSMTPPort = port;
          route.NumberOfTries = numberOfTries;
          route.MinutesBetweenTry = 5;
@@ -727,7 +727,7 @@ namespace RegressionTests.Shared
          // Add a route pointing at localhost
          Route route = AddRoutePointingAtLocalhost(numberOfTries, port, false);
          route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost|localhost";
+         route.TargetSMTPHost = "127.0.0.1|127.0.0.1";
          route.TargetSMTPPort = port;
          route.NumberOfTries = numberOfTries;
          route.MinutesBetweenTry = 5;

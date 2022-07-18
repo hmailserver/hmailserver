@@ -68,13 +68,20 @@ namespace RegressionTests.SSL
       private static string GetCertificatePfx()
       {
          var sslPath = GetSslCertPath();
-         return Path.Combine(sslPath, "example.pfx");
+         return Path.Combine(sslPath, "localhost.pfx");
       }
 
       public static X509Certificate2 GetCertificate()
       {
          var pfxPath = GetCertificatePfx();
+
+         Console.WriteLine("Using certificate: " + pfxPath);
          var x509 = new X509Certificate2(pfxPath, "Secret1");
+
+         if (!x509.HasPrivateKey)
+         {
+            throw new Exception("Private key could not be accessed for test certificate.");
+         }
 
          return x509;
       }

@@ -295,7 +295,7 @@ namespace RegressionTests.Infrastructure
       {
          if (File.Exists(LogHandler.GetErrorLogFileName()))
          {
-            string contents = File.ReadAllText(LogHandler.GetErrorLogFileName());
+            string contents = LogHandler.ReadErrorLog();
             Assert.Fail(contents);
          }
 
@@ -314,7 +314,9 @@ namespace RegressionTests.Infrastructure
                string errorLog = LogHandler.ReadErrorLog();
 
                foreach (var content in allExpectedContent)
-                  Assert.IsTrue(errorLog.Contains(content), errorLog);
+               {
+                  StringAssert.Contains(content, errorLog);
+               }
             });
          }
          finally

@@ -182,19 +182,19 @@ namespace RegressionTests.Infrastructure
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
          {
             var minidumps = GetMinidumps();
-            Assert.AreEqual(count, minidumps.Length);
+            Assert.AreEqual(count, minidumps.Length, "Unexpected minidump count");
 
             if (count > 0 || expectedLoggedErrors.Length > 0)
             {
                string errorLog = LogHandler.ReadErrorLog();
                foreach (var minidump in minidumps)
                {
-                  Assert.IsTrue(errorLog.Contains(minidump));
+                  StringAssert.Contains(minidump, errorLog);
                }
 
                foreach (var expectedLoggedError in expectedLoggedErrors)
                {
-                  Assert.IsTrue(errorLog.Contains(expectedLoggedError));
+                  StringAssert.Contains(expectedLoggedError, errorLog);
                }
             }
 
