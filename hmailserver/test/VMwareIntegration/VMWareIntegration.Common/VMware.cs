@@ -126,7 +126,7 @@ namespace VMwareIntegration.Common
 
       public void CopyFileToHost(string source, string destination)
       {
-
+         // Console.WriteLine(string.Format("Copying file {0} to host...", source));
          VixCOM.IJob job = _virtualMachine.CopyFileFromGuestToHost(source, destination, 0, null, null);
          UInt64 err = job.WaitWithoutResults();
 
@@ -160,6 +160,8 @@ namespace VMwareIntegration.Common
 
       public void CopyFileToGuest(string source, string destination)
       {
+         //Console.WriteLine(string.Format("Copying file {0} to guest...", source));
+
          if (!File.Exists(source))
             throw new Exception("CopyFileToGuest: The source file " + source + " does not exist.");
 

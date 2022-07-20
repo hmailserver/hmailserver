@@ -13,43 +13,21 @@ namespace VMwareIntegration.Common
 {
    public class TestRunner
    {
-      private const string NuGetPackagesRelativePath = @"..\..\..\..\..\packages\";
-      private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.11.1\tools";
-      private const string NUnitPackagePath = @"NUnit.3.12.0\lib\net45";
+      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.6.3";
 
-      private string _nUnitPath;
-      private string _nUnitConsolePath;
+      private const string Username = "vmware";
+      private const string Password = "Secret123";
+
+      private const string RunTestScriptName = "RunTestsInVmware.bat";
 
       private TestEnvironment _environment;
-      private bool _stopOnError;
-      private bool _embedded;
 
-      private readonly string _softwareUnderTest;
+      private string _softwareUnderTest;
 
-      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
+      public TestRunner(TestEnvironment environment, string softwareUnderTest)
       {
          _environment = environment;
-         _stopOnError = stopOnError;
-         _embedded = embedded;
          _softwareUnderTest = softwareUnderTest;
-
-
-         var packagePath = Path.Combine(Environment.CurrentDirectory, NuGetPackagesRelativePath);
-
-         _nUnitConsolePath = Path.Combine(packagePath, NUnitConsoleRunnerPackagePath);
-
-         if (!Directory.Exists(_nUnitConsolePath))
-            throw new InvalidOperationException($"NUnit console not found in {_nUnitConsolePath}");
-
-         _nUnitPath = Path.Combine(packagePath, NUnitPackagePath);
-
-         if (!Directory.Exists(_nUnitPath))
-            throw new InvalidOperationException($"NUnit not found in {_nUnitPath}");
-      }
-
-      public void RunThread()
-      {
-         Run();
       }
 
       public void Run()
@@ -61,32 +39,34 @@ namespace VMwareIntegration.Common
       {
          VMware vm = new VMware();
 
-        string fixtureSourcePath = TestSettings.GetFixturePath();
-        string fixturePath = fixtureSourcePath + @"\bin\x64\Release";
-         // Check that the test fixture is available.
-         var testAssemblies = Directory.GetFiles(fixturePath, "*.dll");
-         if (!testAssemblies.Any())
-            throw new Exception("Test assembly not found.");
+         if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
+            throw new Exception("Incorrect path to NUnit.");
 
-        string runTestsScriptName = "RunTestsInVmware.bat";
-        string runTestScripts = fixtureSourcePath + @"\" + runTestsScriptName;
-        const string guestTestPath = @"C:\Nunit";
+         var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        string softwareUnderTestFullPath = _softwareUnderTest;
-        string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
+         var testAssemblyNames = new string[]
+            {
+               "RegressionTests.dll",
+               "Interop.hMailServer.dll"
+            };
 
-        string softwareUnderTestSilentParmas = "/SILENT";
+         string guestTestPath = @"C:\Nunit";
 
-        string sslFolder = Path.Combine(TestSettings.GetTestFolder(), "SSL examples");
+         string softwareUnderTestFullPath = _softwareUnderTest;
+         string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
 
-        vm.Connect();
-        
-        vm.OpenVM(_environment.VMwarePath);
+         string softwareUnderTestSilentParmas = "/SILENT";
+
+         string sslFolder = Path.Combine(TestSettings.GetTestFolder(), "SSL examples");
+
+         vm.Connect();
+
+         vm.OpenVM(_environment.VMwarePath);
 
          try
          {
             vm.RevertToSnapshot(_environment.SnapshotName);
-            vm.LoginInGuest("Administrator", "Secret12");
+            vm.LoginInGuest(Username, Password);
 
             // Make sure we have an IP address.
             EnsureNetworkAccess(vm);
@@ -105,14 +85,16 @@ namespace VMwareIntegration.Common
             foreach (PostInstallCommand command in _environment.PostInstallCommands)
                vm.RunProgramInGuest(command.Executable, command.Parameters);
 
-            // Copy NUnit and NUNit console runner to VM
-            vm.CopyFolderToGuest(_nUnitConsolePath, guestTestPath);
-            vm.CopyFolderToGuest(_nUnitPath, guestTestPath);
-            // vm.CopyFolderToGuest(Path.Combine(ExpandVariables(NUnitPath), "lib"), Path.Combine(guestTestPath, "lib"));
-            vm.CopyFolderToGuest(fixturePath, guestTestPath);
-            vm.CopyFileToGuest(runTestScripts, guestTestPath + "\\" + runTestsScriptName);
+            // Configure Nunit
+            vm.CopyFolderToGuest(ExpandVariables(NUnitPath), guestTestPath);
+            vm.CopyFolderToGuest(Path.Combine(ExpandVariables(NUnitPath), "lib"), Path.Combine(guestTestPath, "lib"));
 
-            // Other files required by tests.
+            foreach (var testAssemblyName in testAssemblyNames)
+               vm.CopyFileToGuest(Path.Combine(currentDirectory, testAssemblyName), guestTestPath + "\\" + testAssemblyName);
+
+            vm.CopyFileToGuest(Path.Combine(currentDirectory, RunTestScriptName), guestTestPath + "\\" + RunTestScriptName);
+
+            // Other required stuff.
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
             vm.CopyFolderToGuest(Path.Combine(sslFolder, "WithPassword"), @"C:\SSL examples\WithPassword");
 
@@ -125,7 +107,7 @@ namespace VMwareIntegration.Common
 
 
             // Run NUnit
-            vm.RunProgramInGuest(guestTestPath + "\\" + runTestsScriptName, "");
+            vm.RunProgramInGuest(guestTestPath + "\\" + RunTestScriptName, "");
 
             // Collect results.
             string localResultFile = Path.GetTempFileName() + ".xml";
@@ -136,9 +118,10 @@ namespace VMwareIntegration.Common
             XmlDocument doc = new XmlDocument();
             doc.Load(localResultFile);
 
-            int failedCount = Convert.ToInt32(doc.LastChild.Attributes["failed"].Value);
+            int failureCount = Convert.ToInt32(doc.LastChild.Attributes["failures"].Value);
+            int errorCount = Convert.ToInt32(doc.LastChild.Attributes["errors"].Value);
 
-            if (failedCount == 0)
+            if (failureCount == 0 && errorCount == 0)
                return;
 
             string resultContent = File.ReadAllText(localResultFile);
@@ -151,28 +134,24 @@ namespace VMwareIntegration.Common
             {
                vm.PowerOff();
             }
-            catch 
+            catch
             {
                Console.WriteLine("Unable to power off VM. Maybe it's not powered on?");
             }
-            
+
          }
       }
 
       private void CopyLocalVersion(VMware vm)
       {
-         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-         var localExecutable = Path.Combine(currentDir,
-            @"..\..\..\..\..\..\source\Server\hMailServer\x64\Release\hMailServer.exe");
-
-         if (!File.Exists(localExecutable))
-         {
-            throw new Exception($"The executable {localExecutable} could not be found.");
-         }
+         const string localPath =
+            @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
 
          RunScriptInGuest(vm, "NET STOP HMAILSERVER");
-         vm.CopyFileToGuest(localExecutable, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
+         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
+         vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
+         vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
          RunScriptInGuest(vm, "NET START HMAILSERVER");
       }
 
@@ -227,20 +206,20 @@ namespace VMwareIntegration.Common
 
       static string ProgramFilesx86()
       {
-          if (8 == IntPtr.Size
-              || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
-          {
-              return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-          }
+         if (8 == IntPtr.Size
+             || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
+         {
+            return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+         }
 
-          return Environment.GetEnvironmentVariable("ProgramFiles");
+         return Environment.GetEnvironmentVariable("ProgramFiles");
       }
 
       static string ExpandVariables(string input)
       {
-          input = input.Replace("%PROGRAM_FILES%", ProgramFilesx86());
+         input = input.Replace("%PROGRAM_FILES%", ProgramFilesx86());
 
-          return input;
+         return input;
       }
 
    }
