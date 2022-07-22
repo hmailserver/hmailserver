@@ -31,7 +31,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -83,6 +83,7 @@
     <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />
+    <Compile Include="Shared\RetryableAssert.cs" />
     <Compile Include="Shared\ServiceRestartDetector.cs" />
     <Compile Include="Shared\SslVersions.cs" />
     <Compile Include="Shared\StringExtensions.cs" />

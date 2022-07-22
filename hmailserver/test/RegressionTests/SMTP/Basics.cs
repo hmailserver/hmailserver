@@ -875,17 +875,6 @@ namespace RegressionTests.SMTP
             // Send invalid username/password
             string usernamePrompt = sim.Receive();
 
-            if (i == 5)
-            {
-               StringAssert.Contains("Too many invalid commands", usernamePrompt);
-               return;
-            }
-            else
-            {
-               StringAssert.Contains("334 VXNlcm5hbWU6", usernamePrompt); // Base64 encoded "Username" prompt
-            }
-
-
             // Send a invalid username
             sim.Send("YWNhZGVtaWE=\r\n");
             string passwordPrompt = sim.Receive();
@@ -894,8 +883,17 @@ namespace RegressionTests.SMTP
             // Send a invalid password
             sim.Send("abc\r\n");
             var loginResult = sim.Receive();
-            
-            StringAssert.Contains("535 Authentication failed. Restarting authentication process.", loginResult);
+
+
+            if (i == 4)
+            {
+               StringAssert.Contains("Too many invalid commands", loginResult);
+               return;
+            }
+            else
+            {
+               StringAssert.Contains("535 Authentication failed. Restarting authentication process.", loginResult);
+            }
          }
 
          Assert.Fail("Wasn't disconnected");

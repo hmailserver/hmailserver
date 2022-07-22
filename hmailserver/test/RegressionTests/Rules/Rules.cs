@@ -268,7 +268,7 @@ namespace RegressionTests.Rules
                   fileCount += files.Length;
                }
 
-               Assert.AreEqual(2, fileCount);
+               RetryableAssert.AreEqual(2, fileCount);
             });
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), delegate
@@ -276,7 +276,7 @@ namespace RegressionTests.Rules
                var logContent = LogHandler.ReadCurrentDefaultLog();
                int loggedDeletionCount = new Regex(Regex.Escape("Delivery to this account was canceled by an account rule")).Matches(logContent).Count;
 
-               Assert.AreEqual(2, loggedDeletionCount);
+               RetryableAssert.AreEqual(2, loggedDeletionCount);
             });
       }
 

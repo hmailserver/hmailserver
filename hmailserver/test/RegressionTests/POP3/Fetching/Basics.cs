@@ -574,8 +574,9 @@ namespace RegressionTests.POP3.Fetching
             RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
                string error = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(error.Contains("-ERR unhandled command"));
-               Assert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
+
+               RetryableAssert.IsTrue(error.Contains("-ERR unhandled command"));
+               RetryableAssert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
             });
          }
       }

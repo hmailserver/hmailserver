@@ -32,7 +32,7 @@ namespace RegressionTests.Infrastructure
             if (count != expectedCount)
                return;
 
-            Assert.AreEqual(expectedCount, count);
+            RetryableAssert.AreEqual(expectedCount, count);
 
          });
 
@@ -314,7 +314,7 @@ namespace RegressionTests.Infrastructure
 
                foreach (var content in allExpectedContent)
                {
-                  StringAssert.Contains(content, errorLog);
+                  RetryableAssert.StringContains(content, errorLog);
                }
             });
          }

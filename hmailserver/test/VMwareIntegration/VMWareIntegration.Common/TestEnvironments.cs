@@ -50,48 +50,52 @@ namespace VMwareIntegration.Common
             new TestEnvironment("Windows 10", "New installation", "Internal (SQL Compact)",  Windows10Path, "Booted"),
             new TestEnvironment("Windows 10", "New installation", "PostgreSQL 9.6.24",  Windows10_PostgreSQL_9_6_24, "Booted")
             {
-               PostInstallCommands = { new PostInstallCommand(@"C:\Program Files (x86)\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123") }
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123") }
             },
             new TestEnvironment("Windows 10", "New installation9", "SQL Server 2019",  Windows10_SQL_Server_2019, "Booted")
             {
-               PostInstallCommands = { new PostInstallCommand(@"C:\Program Files (x86)\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:.\\SQLEXPRESS DatabaseName:hMailServer Authentication:SServer CreateNew:Yes Username:sa Password:Secret123") }
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:.\\SQLEXPRESS DatabaseName:hMailServer Authentication:SServer CreateNew:Yes Username:sa Password:Secret123") }
             },
-            new TestEnvironment("Windows 10", "New installation9", "MySQL 8.0.29",  Windows10_MySQL_8_0_29, "Booted")
+            new TestEnvironment("Windows 10", "New installation", "MySQL 8.0.29",  Windows10_MySQL_8_0_29, "Booted")
             {
-               PostInstallCommands = { new PostInstallCommand(@"C:\Program Files (x86)\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123") },
-               PostInstallFileCopy = { new PostInstallFileCopy(Path.Combine(GetMySQLLib()), @"C:\Program Files (x86)\hMailServer\Bin\libmySQL.dll") }
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123") },
+               PostInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll") }
             }
          });
 
          // Upgrade tests
          listEnvironments.AddRange(new List<TestEnvironment>()
          {
-            new TestEnvironment("Windows 10", "Upgrade, 4.1.1", "Internal",  Windows10_4_4_4_InternalMySQL, "Booted"),
+            new TestEnvironment("Windows 10", "Upgrade, 4.1.1", "Internal",  Windows10_4_4_4_InternalMySQL, "Booted")
+            {
+               PreInstallCommands = { new InstallCommand(@"C:\Windows\System32\net.exe", "stop hMailServer") },
+               PreInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files (x86)\hMailServer\Bin\libmySQL.dll") }
+            },
             new TestEnvironment("Windows 10", "Upgrade, 5.0.0", "Internal",  Windows10_5_0_0_InternalSQLCompact, "Booted"),
             new TestEnvironment("Windows 10", "Upgrade, 4.4.4", "SQL Server 2019",  Windows10_4_4_4_SQL_Server_2019, "Booted"),
             new TestEnvironment("Windows 10", "Upgrade, 5.0.0", "PostgreSQL 9.6.24", Windows10_5_0_0_PostgreSQL_9_6_24, "Booted"),
             new TestEnvironment("Windows 10", "Upgrade, 4.4.4", "MySQL 8.0.29", Windows10_4_4_4_MySQL_8_0_29, "Booted")
+            {
+               PreInstallCommands = { new InstallCommand(@"C:\Windows\System32\net.exe", "stop hMailServer") },
+               PreInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files (x86)\hMailServer\Bin\libmySQL.dll") }
+            }
          });
       }
-
-      private static string GetTestDataDir()
-      {
-          string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-          string testDataDir = Path.Combine(currentDir, @"..\..\..\..\TestData");
-          string shortendName = Path.GetFullPath(testDataDir);
-          return shortendName;
-      }
-
+      
       private static string GetMySQLLib()
       {
-          string name = Path.Combine(GetTestDataDir(), "MySQLLib\\libmySQL.dll");
+         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+         var librariesDir = Path.Combine(currentDir, @"..\..\..\..\..\..\..\libraries");
+         var libMySqlDir = Path.Combine(librariesDir, "libmysql-5.7.38");
 
-          if (!File.Exists(name))
-          {
-              throw new Exception("The file " + name + " could not be found.");
-          }
+         string name = Path.Combine(libMySqlDir, "libmySQL.dll");
 
-          return name;
+         if (!File.Exists(name))
+         {
+            throw new Exception("The file " + name + " could not be found.");
+         }
+
+         return name;
       }
    }
 }
