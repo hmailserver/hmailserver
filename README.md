@@ -96,13 +96,6 @@ Running in Debug
 
 If you want to run hMailServer in debug mode in Visual Studio, add the command argument /debug. You find this setting in the Project properties, under Configuration Properties -> Debugging.
 
-Continous Integration
----------------------
-
-Production builds can be downloaded via [hMailServer.com](https://www.hmailserver.com), but if you want to pick up a build based on the latest commit you can download artifacts from [GitHub Actions](https://github.com/hmailserver/hmailserver/actions).
-
-![CI](https://github.com/hmailserver/hmailserver/workflows/CI/badge.svg)
-
 Releasing hMailServer
 =====================
 
