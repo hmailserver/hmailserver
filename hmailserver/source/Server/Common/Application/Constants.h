@@ -27,7 +27,6 @@
 #define PROPERTY_AV_NOTIFY_RECEIVER             _T("avnotifyreceiver")
 #define PROPERTY_AV_DELETE_INFC_EMAIL           _T("avdeleteinfectedemail")
 #define PROPERTY_AV_ACTION                      _T("avaction")
-#define PROPERTY_SENDSTATISTICS                 _T("sendstatistics")  
 #define PROPERTY_HOSTNAME                       _T("hostname")
 #define PROPERTY_SMTPRELAYER_USERNAME           _T("smtprelayerusername")
 #define PROPERTY_SMTPRELAYER_PASSWORD           _T("smtprelayerpassword")

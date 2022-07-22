@@ -639,7 +639,6 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
-    <ClCompile Include="..\Smtp\StatisticsSender.cpp" />
     <ClCompile Include="hMailServer.cpp" />
     <ClCompile Include="hMailServer_i.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -1142,7 +1141,6 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
-    <ClInclude Include="..\Smtp\StatisticsSender.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
