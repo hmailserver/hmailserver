@@ -1848,6 +1848,14 @@ namespace HM
          SendErrorResponse_(530, "A SSL/TLS-connection is required for authentication.");
          return;
       }
+	  
+      // rfc4954 restrictions, After a successful AUTH command completes, 
+      // a server MUST reject any further AUTH commands with a 503 reply.
+      if (isAuthenticated_) 
+      {
+         SendErrorResponse_(503, "Already authenticated.");
+         return;
+      }
 
       requestedAuthenticationType_ = AUTH_NONE;
 
