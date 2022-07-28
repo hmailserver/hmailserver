@@ -238,22 +238,54 @@ namespace HM
 
          String sLogData = sClientData;
 
-         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         String sRegex = "^(?>AUTH PLAIN )((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
+         boost::wregex expression(sRegex, boost::wregex::icase);
+         boost::wsmatch matches;
+         // AUTH PLAIN command and both user name and password in line. 
+         if (boost::regex_match(sLogData, matches, expression) && current_state_ == HEADER)
          {
-            // Both user name and password in line. 
-            sLogData = "***";
+            if (matches.size() > 0)
+            {
+               // Both user name and password in line.
+               String sAuthentication;
+               String sBase64Encoded = matches[1];
+               StringParser::Base64Decode(sBase64Encoded, sAuthentication);
 
+               // Extract the username from the decoded string.
+               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
+               if (iSecondTab > 0)
+               {
+                  String username = sAuthentication.Mid(1, iSecondTab - 1);
+                  //sLogData = "AUTH PLAIN " + username + " ***";
+                  String usernameBase64Encoded;
+                  StringParser::Base64Encode(username, usernameBase64Encoded);
+                  sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
+               }
+               else
+               {
+                  sLogData = "AUTH PLAIN ***";
+               }
+            }
+         }
+         else if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         {
+            // Both user name and password in line.
             String sAuthentication;
             StringParser::Base64Decode(sClientData, sAuthentication);
 
-            // Extract the username and password from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"),1);
+            // Extract the username from the decoded string.
+            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
             if (iSecondTab > 0)
             {
-               String username = sAuthentication.Mid(0, iSecondTab);
-
-
-               sLogData = username + " ***";
+               String username = sAuthentication.Mid(1, iSecondTab - 1);
+               //sLogData = username + " ***";
+               String usernameBase64Encoded;
+               StringParser::Base64Encode(username, usernameBase64Encoded);
+               sLogData = usernameBase64Encoded + " ***";
+            }
+            else 
+            {
+               sLogData = "***";
             }
          }
          else if (current_state_ == SMTPUPASSWORD)
