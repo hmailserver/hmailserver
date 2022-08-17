@@ -474,23 +474,19 @@ namespace HM
       else
       {
          if (delimitor.GetLength() == 0)
-         {
             boost::asio::async_read(socket_, receive_buffer_, boost::asio::transfer_at_least(1), AsyncReadCompletedFunction);
-         }
          else
-         {
             boost::asio::async_read_until(socket_, receive_buffer_, delimitor, AsyncReadCompletedFunction);
-         }
       }
 
    }
 
    void 
-   TCPConnection::AsyncReadCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
+   TCPConnection::AsyncReadCompleted(const boost::system::error_code& error, size_t bytes_transferred)
    {
       UpdateAutoLogoutTimer();
 
-      if (error.value() != 0)
+      if (error.value() != 0 && error.value() != boost::asio::error::eof)
       {
          if (connection_state_ != StateConnected)
          {
@@ -517,11 +513,11 @@ namespace HM
       {
          if (receive_binary_)
          {
-               std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
+            std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
             pBuffer->Allocate(receive_buffer_.size());
 
             std::istream is(&receive_buffer_);
-            is.read((char*) pBuffer->GetBuffer(), receive_buffer_.size());
+            is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
 
             try
             {
@@ -555,23 +551,43 @@ namespace HM
             sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s).c_str());
             OutputDebugString(sDebugOutput);
       #endif
+            if (error.value() == 0)
+            {
+               try
+               {
+                  ParseData(s);
+               }
+               catch (DisconnectedException&)
+               {
+                  throw;
+               }
+               catch (...)
+               {
+                  String message;
+                  message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
 
-            try
-            {
-               ParseData(s);
+                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+                  throw;
+               }
             }
-            catch (DisconnectedException&)
+            else 
             {
-               throw;
-            }
-            catch (...)
-            {
+               // display boost::asio::error::eof for SMTP, IMAP, POP
+               if (connection_state_ != StateConnected)
+               {
+                  // The read failed, but we've already started the disconnection. So we should not log the failure
+                  // or enqueue a new disconnect.
+                  return;
+               }
+
+               OnReadError(error.value());
+
                String message;
-               message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
+               message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
+               ReportDebugMessage(message, error);
 
-               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
-
-               throw;
+               EnqueueDisconnect();
             }
          }
       }
@@ -591,7 +607,7 @@ namespace HM
 
 #ifdef _DEBUG
       String sDebugOutput;
-         sDebugOutput.Format(_T("SENT: %s"), String(sTemp).c_str());
+      sDebugOutput.Format(_T("SENT: %s"), String(sTemp).c_str());
       OutputDebugString(sDebugOutput);
 #endif
 
