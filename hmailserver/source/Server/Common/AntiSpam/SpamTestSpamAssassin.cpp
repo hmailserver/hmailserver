@@ -95,7 +95,7 @@ namespace HM
       else
       {
          String message = "The IP address for SpamAssassin could not be resolved. Aborting tests.";
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamAssassinTestConnect::TestConnect", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamTestSpamAssassin::RunTest", message);
          return setSpamTestResults;  
       }
 
@@ -111,7 +111,7 @@ namespace HM
       
       if (!testCompleted)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5508, "SpamAssassinTestConnect::TestConnect", 
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5508, "SpamTestSpamAssassin::RunTest", 
             "The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.");
 
          return setSpamTestResults;  
