@@ -43,7 +43,7 @@ namespace HM
       Refresh();
 
       // check if the settings are already default.
-      if (vecObjects.size() == 3)
+      if (vecObjects.size() == 4)
       {
          if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP &&
             vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
