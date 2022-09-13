@@ -166,11 +166,15 @@ namespace HM
    {
 
       String sWelcome = Configuration::Instance()->GetSMTPConfiguration()->GetWelcomeMessage();
+      
+      String sESMTP = " ESMTP";
 
       String sData = "220 ";
 
       if (sWelcome.IsEmpty())
-         sData += Utilities::ComputerName() + " ESMTP";
+         sData += Utilities::ComputerName() + sESMTP;
+      else if (!sWelcome.EndsWith(sESMTP))
+         sData += sWelcome + sESMTP;
       else
          sData += sWelcome;
 
