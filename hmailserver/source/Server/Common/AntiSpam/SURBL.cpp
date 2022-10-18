@@ -9,7 +9,7 @@
 #include "../../Common/TCPIP/DNSResolver.h"
 
 #include "../../Common/Util/TLD.h"
-#include <boost/regex/v4/regex.hpp>
+#include <boost/regex.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
