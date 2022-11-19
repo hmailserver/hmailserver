@@ -120,8 +120,8 @@ namespace HM
 
       void AsyncConnectCompleted(const boost::system::error_code& err);
       void AsyncHandshakeCompleted(const boost::system::error_code& error);
-      void AsyncReadCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
-      void AsyncWriteCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
+      void AsyncReadCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
+      void AsyncWriteCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
