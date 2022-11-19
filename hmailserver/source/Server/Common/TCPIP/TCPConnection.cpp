@@ -822,13 +822,13 @@ namespace HM
    void
    TCPConnection::OnTimeout(std::weak_ptr<TCPConnection> connection, boost::system::error_code const& err)
    {
-         std::shared_ptr<TCPConnection> conn = connection.lock();
+      std::shared_ptr<TCPConnection> conn = connection.lock();
       if (!conn)
       {
          return;
       }
 
-         if (err == boost::asio::error::operation_aborted) 
+      if (err == boost::asio::error::operation_aborted) 
       {
          // the timeout operation was cancelled.
          return;
