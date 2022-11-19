@@ -198,7 +198,7 @@ namespace HM
       }
 
       // Pick out the next item to process...
-         std::shared_ptr<IOOperation> operation = operation_queue_.Front();
+      std::shared_ptr<IOOperation> operation = operation_queue_.Front();
 
       if (!operation)
       {
@@ -215,7 +215,7 @@ namespace HM
         }
       case IOOperation::BCTWrite:
          {
-               std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
+            std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
             AsyncWrite(pBuf);
             break;
          }
@@ -262,8 +262,8 @@ namespace HM
 
       connection_state_ = StatePendingDisconnect;
 
-         std::shared_ptr<ByteBuffer> pBuf;
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
+      std::shared_ptr<ByteBuffer> pBuf;
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -296,8 +296,8 @@ namespace HM
    {
       ThrowIfNotConnected_();
 
-         std::shared_ptr<ByteBuffer> pBuf;
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
+      std::shared_ptr<ByteBuffer> pBuf;
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -448,7 +448,7 @@ namespace HM
    {
       ThrowIfNotConnected_();
 
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -486,7 +486,41 @@ namespace HM
    {
       UpdateAutoLogoutTimer();
 
-      if (error.value() != 0 && error.value() != boost::asio::error::eof)
+      auto saEnabled = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamAssassinEnabled();
+      auto saPort = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamAssassinPort();
+      // Catch SpamAssassin WinSock error code is 2 (boost boost::asio::error::eof)
+      if ((error.value() == 0 || error.value() == boost::asio::error::eof) && receive_binary_ && saEnabled && remote_port_ == saPort)
+      {
+         // https://www.boost.org/doc/libs/1_72_0/doc/html/boost_asio/overview/core/streams.html
+         // Why EOF is an Error
+         // The end of a stream can cause read, async_read, read_until or async_read_until functions to violate their contract.E.g.a read of N bytes may finish early due to EOF.
+         // An EOF error may be used to distinguish the end of a stream from a successful read of size 0.
+
+         std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
+         pBuffer->Allocate(receive_buffer_.size());
+
+         std::istream is(&receive_buffer_);
+         is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
+
+         try
+         {
+            ParseData(pBuffer);
+         }
+         catch (DisconnectedException&)
+         {
+            throw;
+         }
+         catch (...)
+         {
+            String message;
+            message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
+
+            ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+            throw;
+         }
+      }
+      else if (error.value() != 0)
       {
          if (connection_state_ != StateConnected)
          {
@@ -551,43 +585,23 @@ namespace HM
             sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s).c_str());
             OutputDebugString(sDebugOutput);
       #endif
-            if (error.value() == 0)
+
+            try
             {
-               try
-               {
-                  ParseData(s);
-               }
-               catch (DisconnectedException&)
-               {
-                  throw;
-               }
-               catch (...)
-               {
-                  String message;
-                  message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
-
-                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
-
-                  throw;
-               }
+               ParseData(s);
             }
-            else 
+            catch (DisconnectedException&)
             {
-               // display boost::asio::error::eof for SMTP, IMAP, POP
-               if (connection_state_ != StateConnected)
-               {
-                  // The read failed, but we've already started the disconnection. So we should not log the failure
-                  // or enqueue a new disconnect.
-                  return;
-               }
-
-               OnReadError(error.value());
-
+               throw;
+            }
+            catch (...)
+            {
                String message;
-               message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
-               ReportDebugMessage(message, error);
+               message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
 
-               EnqueueDisconnect();
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+               throw;
             }
          }
       }
@@ -602,7 +616,7 @@ namespace HM
       AnsiString sTemp = sData;
       char *pBuf = sTemp.GetBuffer();
 
-         std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
+      std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
       pBuffer->Add((BYTE*) pBuf, sData.GetLength());
 
 #ifdef _DEBUG
@@ -620,7 +634,7 @@ namespace HM
    {
       ThrowIfNotConnected_();
 
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
 
       operation_queue_.Push(operation);
       ProcessOperationQueue_(0);
@@ -647,7 +661,7 @@ namespace HM
    }
 
    void 
-   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error,  size_t bytes_transferred)
+   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error, size_t bytes_transferred)
    {
       UpdateAutoLogoutTimer();
 
@@ -873,7 +887,7 @@ namespace HM
 	void
 	TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error)
 	{
-		String formattedMessage;
+      String formattedMessage;
       formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage, error);
 	}
@@ -885,6 +899,7 @@ namespace HM
       formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
    }
+
    void 
    TCPConnection::ReportDebugMessage(const String &message, const boost::system::error_code &error)
    {
