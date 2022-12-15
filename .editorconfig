@@ -1,0 +1,7 @@
+# top-most EditorConfig file
+root = true
+
+[*.{h,cpp,cs}]
+indent_style = space
+indent_size = 3
+

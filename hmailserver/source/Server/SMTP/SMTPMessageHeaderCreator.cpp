@@ -10,7 +10,6 @@
 
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/Time.h"
-#include "../Common/Util/ByteBuffer.h"
 #include "../Common/Mime/Mime.h"
 
 #ifdef _DEBUG

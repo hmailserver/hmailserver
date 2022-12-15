@@ -3,7 +3,8 @@
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.tlb"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.Minidump.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
-Source: "Microsoft.VC120.CRT.x64\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "Microsoft.VC142.CRT\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+Source: "Microsoft.UCRT.WindowsSDK10240\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 
 Source: "SQLCE\SSCERuntime_x64-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
 
@@ -21,5 +22,8 @@ Source: "..\source\tools\Administrator\bin\x64\Release\Interop.hMailServer.dll";
 Source: "..\source\Tools\Shared\Bin\x64\Release\*.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
 
 ; OpenSSL
-Source: "{#HMAILSERVERLIBS}\openssl-1.0.2n\out64\libeay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
-Source: "{#HMAILSERVERLIBS}\openssl-1.0.2n\out64\ssleay32.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+Source: "{#OPENSSL_LIBS_PATH}\libcrypto-1_1-x64.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+Source: "{#OPENSSL_LIBS_PATH}\libssl-1_1-x64.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+
+; PQSQL (PostgreSQL client)
+Source: "..\..\libraries\libpq-12.2\x64\*.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;

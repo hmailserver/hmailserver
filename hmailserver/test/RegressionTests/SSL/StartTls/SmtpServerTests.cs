@@ -14,7 +14,7 @@ namespace RegressionTests.SSL.StartTls
    [TestFixture]
    public class SmtpServerTests : TestFixtureBase
    {
-      [TestFixtureSetUp]
+      [OneTimeSetUp]
       public new void TestFixtureSetUp()
       {
          SslSetup.SetupSSLPorts(_application);

@@ -12,7 +12,6 @@
 #include "../common/BO/MessageRecipients.h"
 #include "../Common/BO/Route.h"
 #include "../Common/BO/Routes.h"
-#include "../Common/BO/RouteAddress.h"
 #include "../Common/BO/RouteAddresses.h"
 #include "../common/Cache/CacheContainer.h"
 #include "../common/Persistence/PersistentMessage.h"

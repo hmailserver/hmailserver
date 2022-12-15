@@ -54,12 +54,15 @@ namespace HM
          return setSpamTestResults;
 
       String sExplanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), sExplanation);
+      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), pTestData->GetHeloHost(), sExplanation);
       
       if (result == SPF::Fail)
       {
          // Blocked by SPF.s
-         sMessage.Format(_T("Blocked by SPF (%s)"), sExplanation.c_str());
+         if (!sExplanation.IsEmpty())
+            sMessage.Format(_T("Blocked by SPF. (%s)"), sExplanation.c_str());
+         else
+            sMessage = "Blocked by SPF.";
          iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseSPFScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));

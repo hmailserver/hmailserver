@@ -68,10 +68,13 @@ namespace HM
 
       CipherInfo GetCipherInfo();
 
+      void SetAllowConnectToSelf(bool allow)  { allow_connect_to_self_ = allow; }
+
+      int GetSessionID();
+
    protected:
 
       ConnectionState GetConnectionState() { return connection_state_;  }
-      int GetSessionID();
 
       int GetBufferSize() {return BufferSize; }
 
@@ -122,6 +125,7 @@ namespace HM
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
+      void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
 
       boost::asio::ip::tcp::socket socket_;
@@ -149,6 +153,7 @@ namespace HM
       bool is_ssl_;
       bool is_client_;
       bool handshake_in_progress_;
+      bool allow_connect_to_self_;
 
       boost::atomic<ConnectionState> connection_state_;
       boost::mutex autologout_timer_;

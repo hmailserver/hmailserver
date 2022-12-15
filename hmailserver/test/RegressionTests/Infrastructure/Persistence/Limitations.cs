@@ -298,7 +298,6 @@ namespace RegressionTests.Infrastructure.Persistence
 
       [Test]
       [Description("Issue 195, Creating two SMTP routes allowed for same domain.")]
-      [ExpectedException(typeof (COMException), ExpectedMessage = "Another route with this name already exists.")]
       public void TestDuplicateRoutes()
       {
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
@@ -311,7 +310,8 @@ namespace RegressionTests.Infrastructure.Persistence
          Route route2 = routes.Add();
          route2.DomainName = "test.com";
 
-         route2.Save();
+         var ex = Assert.Throws<COMException>(() => route2.Save());
+         StringAssert.Contains("Another route with this name already exists.", ex.Message);
       }
 
       [Test]
@@ -381,8 +381,6 @@ namespace RegressionTests.Infrastructure.Persistence
       }
 
       [Test]
-      [ExpectedException(typeof (COMException),
-         ExpectedMessage = "The lower IP address must be lower or the same as the upper IP address.")]
       public void TestSaveInvalidIPRange()
       {
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
@@ -391,7 +389,9 @@ namespace RegressionTests.Infrastructure.Persistence
          range.Name = "Test";
          range.LowerIP = "1.1.1.1";
          range.UpperIP = "0.0.0.0";
-         range.Save();
+         var ex = Assert.Throws<COMException>(() => range.Save());
+         StringAssert.Contains("The lower IP address must be lower or the same as the upper IP address.", ex.Message);
+
       }
 
 

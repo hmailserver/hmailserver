@@ -27,12 +27,8 @@ namespace HM
 
    private:
       
-      void SendStatistics_(bool bIgnoreMessageCount = false);
-
       void LoadPendingMessageList_();
       std::shared_ptr<Message> GetNextMessage_();
-
-      long cur_number_of_sent_;
 
       std::shared_ptr<DALRecordset> pending_messages_;
       

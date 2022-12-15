@@ -129,6 +129,9 @@ namespace RegressionTests.Shared
          if (_settings.MaxSMTPRecipientsInBatch != 100)
             _settings.MaxSMTPRecipientsInBatch = 100;
 
+         if (_settings.SMTPDeliveryBindToIP != "")
+            _settings.SMTPDeliveryBindToIP = "";
+
          if (_settings.IMAPHierarchyDelimiter != ".")
             _settings.IMAPHierarchyDelimiter = ".";
 
@@ -166,12 +169,6 @@ namespace RegressionTests.Shared
          if (_settings.MaxPOP3Connections > 0)
             _settings.MaxPOP3Connections = 0;
 
-         if (!_settings.SslVersion30Enabled)
-         {
-            _settings.SslVersion30Enabled = true;
-            restartRequired = true;
-         }
-
          if (!_settings.TlsVersion10Enabled)
          {
             _settings.TlsVersion10Enabled = true;
@@ -188,6 +185,12 @@ namespace RegressionTests.Shared
          {
             _settings.TlsVersion12Enabled = true;
             restartRequired = true;
+         }
+
+         if (!_settings.TlsVersion13Enabled)
+         {
+             _settings.TlsVersion13Enabled = true;
+             restartRequired = true;
          }
 
 
@@ -223,6 +226,13 @@ namespace RegressionTests.Shared
 
          return domain;
       }
+	  
+      private string GetCipherList()
+      {
+         return
+            "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK;";
+      }
+
 
       private void SetupBlockedAttachments()
       {
@@ -502,13 +512,13 @@ namespace RegressionTests.Shared
 
       public Alias AddAlias(Domain domain, string sName, string sValue)
       {
-         Alias oAlias = domain.Aliases.Add();
-         oAlias.Name = sName;
-         oAlias.Value = sValue;
-         oAlias.Active = true;
-         oAlias.Save();
+         Alias alias = domain.Aliases.Add();
+         alias.Name = sName;
+         alias.Value = sValue;
+         alias.Active = true;
+         alias.Save();
 
-         return oAlias;
+         return alias;
       }
 
       public Group AddGroup(string sName)
@@ -529,33 +539,33 @@ namespace RegressionTests.Shared
       }
 
 
-      public Account AddAccount(Domain oDomain, string sAddress, string sPassword)
+      public Account AddAccount(Domain domain, string sAddress, string sPassword)
       {
-         return AddAccount(oDomain.Accounts, sAddress, sPassword);
+         return AddAccount(domain.Accounts, sAddress, sPassword);
       }
 
       public Account AddAccount(Accounts accounts, string sAddress, string sPassword)
       {
-         Account oAccount = accounts.Add();
-         oAccount.Address = sAddress;
-         oAccount.Password = sPassword;
-         oAccount.Active = true;
-         oAccount.Save();
+         Account account = accounts.Add();
+         account.Address = sAddress;
+         account.Password = sPassword;
+         account.Active = true;
+         account.Save();
 
-         return oAccount;
+         return account;
       }
 
-      public Account AddAccount(Domain oDomain, string sAddress, string sPassword, int maxSize)
+      public Account AddAccount(Domain domain, string sAddress, string sPassword, int maxSize)
       {
-         Account oAccount = oDomain.Accounts.Add();
-         oAccount.Address = sAddress;
-         oAccount.Password = sPassword;
-         oAccount.Active = true;
-         oAccount.MaxSize = maxSize;
-         oAccount.Save();
+         Account account = domain.Accounts.Add();
+         account.Address = sAddress;
+         account.Password = sPassword;
+         account.Active = true;
+         account.MaxSize = maxSize;
+         account.Save();
 
 
-         return oAccount;
+         return account;
       }
 
       public Domain AddDomain(string name)
@@ -564,34 +574,34 @@ namespace RegressionTests.Shared
          return AddDomain(domains, name);
       }
 
-      public Domain AddDomain(Domains oDomains, string sName)
+      public Domain AddDomain(Domains domains, string sName)
       {
-         Domain oDomain = oDomains.Add();
-         oDomain.Name = sName;
-         oDomain.Active = true;
-         oDomain.Save();
+         Domain domain = domains.Add();
+         domain.Name = sName;
+         domain.Active = true;
+         domain.Save();
 
-         return oDomain;
+         return domain;
       }
 
-      public DistributionList AddDistributionList(Domain oDomain, string sAddress, List<string> recipients)
+      public DistributionList AddDistributionList(Domain domain, string sAddress, List<string> recipients)
       {
-         DistributionList oList = oDomain.DistributionLists.Add();
-         oList.Active = true;
-         oList.Address = sAddress;
-         oList.Save();
+         DistributionList list = domain.DistributionLists.Add();
+         list.Active = true;
+         list.Address = sAddress;
+         list.Save();
 
          // Add recipients
-         foreach (string recipient in recipients)
+         foreach (string recipientAddress in recipients)
          {
-            DistributionListRecipient oRecipient = oList.Recipients.Add();
-            oRecipient.RecipientAddress = recipient;
-            oRecipient.Save();
+            DistributionListRecipient recipient = list.Recipients.Add();
+            recipient.RecipientAddress = recipientAddress;
+            recipient.Save();
 
-            Marshal.ReleaseComObject(oRecipient);
+            Marshal.ReleaseComObject(recipient);
          }
 
-         return oList;
+         return list;
       }
 
       public static string UniqueString()
@@ -708,11 +718,11 @@ namespace RegressionTests.Shared
       internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port, bool treatSecurityAsLocal, eConnectionSecurity connectionSecurity)
       {
          // Add a route pointing at localhost
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
 
-         Route route = oSettings.Routes.Add();
+         Route route = settings.Routes.Add();
          route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost";
+         route.TargetSMTPHost = "127.0.0.1";
          route.TargetSMTPPort = port;
          route.NumberOfTries = numberOfTries;
          route.MinutesBetweenTry = 5;
@@ -734,7 +744,7 @@ namespace RegressionTests.Shared
          // Add a route pointing at localhost
          Route route = AddRoutePointingAtLocalhost(numberOfTries, port, false);
          route.DomainName = "dummy-example.com";
-         route.TargetSMTPHost = "localhost|localhost";
+         route.TargetSMTPHost = "127.0.0.1|127.0.0.1";
          route.TargetSMTPPort = port;
          route.NumberOfTries = numberOfTries;
          route.MinutesBetweenTry = 5;

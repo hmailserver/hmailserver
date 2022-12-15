@@ -16,9 +16,9 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "batch@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
 
          string commandSequence = "";
          for (int i = 0; i < 200; i++)
@@ -27,13 +27,13 @@ namespace RegressionTests.IMAP
          }
          commandSequence = commandSequence.TrimEnd("\r\n".ToCharArray());
 
-         string result = oSimulator.Send(commandSequence);
+         string result = simulator.Send(commandSequence);
          Assert.IsFalse(result.StartsWith("* BYE"));
 
-         oSimulator.Disconnect();
+         simulator.Disconnect();
 
-         sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
+         sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
          commandSequence = "";
          for (int i = 0; i < 500; i++)
          {
@@ -41,9 +41,9 @@ namespace RegressionTests.IMAP
          }
          commandSequence = commandSequence.TrimEnd("\r\n".ToCharArray());
 
-         result = oSimulator.Send(commandSequence);
+         result = simulator.Send(commandSequence);
          Assert.IsFalse(result.StartsWith("* BYE Excessive number of buffered commands"));
-         oSimulator.Disconnect();
+         simulator.Disconnect();
       }
 
       [Test]
@@ -51,9 +51,9 @@ namespace RegressionTests.IMAP
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "batch@test.com", "test");
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
 
          var sb = new StringBuilder();
 
@@ -62,7 +62,7 @@ namespace RegressionTests.IMAP
             sb.Append("A");
          }
 
-         string result = oSimulator.Send("A01 " + sb);
+         string result = simulator.Send("A01 " + sb);
          Assert.IsTrue(result.Length == 0 || result.StartsWith("A01"));
       }
    }

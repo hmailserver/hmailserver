@@ -5,7 +5,6 @@
 #include "IMAPCommandUnsubscribe.h"
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
-#include "../Common/BO/IMAPFolders.h"
 #include "../Common/Persistence/PersistentIMAPFolder.h"
 #include "../Common/BO/IMAPFolder.h"
 

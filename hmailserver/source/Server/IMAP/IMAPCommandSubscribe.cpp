@@ -8,7 +8,6 @@
 #include "IMAPConfiguration.h"
 
 #include "../Common/BO/ACLPermission.h"
-#include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
 
 #include "../Common/Persistence/PersistentIMAPFolder.h"

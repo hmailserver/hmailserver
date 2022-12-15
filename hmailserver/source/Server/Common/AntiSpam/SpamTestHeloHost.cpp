@@ -12,7 +12,8 @@
 
 #include "../TCPIP/DNSResolver.h"
 #include "../TCPIP/IPAddress.h"
-#include "../Util/TLD.h"
+#include "../TCPIP/LocalIPAddresses.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -50,11 +51,17 @@ namespace HM
          return setSpamTestResults;
       }
 
+      if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(iIPAdress))
+      {
+         // Ignore this test if send thru localhost.
+         return setSpamTestResults;
+      }
+
       if (!CheckHostInHelo_(sHeloHost, iIPAdress))
       {
          // Incorrect host in helo
          String sMessage = "The host name specified in HELO does not match IP address.";
-         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckHostInHeloScore();;
+         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetCheckHostInHeloScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   
@@ -70,15 +77,17 @@ namespace HM
    {
       String sIPAddress = address.ToString();
 
-      bool bMatch = false;
-
       if (sHeloHost.Left(1) == _T("["))
       {
          String sTempHost = sHeloHost;
          sTempHost.TrimLeft(_T("["));
+         // IPv6 
+         if (sTempHost.Left(5) == _T("IPv6:"))
+            sTempHost.TrimLeft(_T("IPv6:"));
          sTempHost.TrimRight(_T("]"));
 
-         if (sTempHost == sIPAddress)
+         // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+         if (boost::iequals(sTempHost, sIPAddress))
          {
             return true;
          }
@@ -89,16 +98,17 @@ namespace HM
          // the senders IP address.
          std::vector<String> saFoundNames;
          DNSResolver resolver;
-         if (!resolver.GetIpAddresses(sHeloHost, saFoundNames))
+         if (!resolver.GetIpAddresses(sHeloHost, saFoundNames, true))
          {
             // DNS failure. Assume it's not spam.
             return true;
          }
 
-         // Check that the IP address is one of these A records.
+         // Check that the IP address is one of these A or AAAA records.
          for (auto iter = saFoundNames.begin(); iter < saFoundNames.end(); iter++)
          {
-            if ((*iter) == sIPAddress)
+            // IPv6 is alphanumeric therefore uppercase and lowercase characters are equivalent
+            if (boost::iequals((*iter), sIPAddress))
             {
                return true;
             }

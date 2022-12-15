@@ -105,18 +105,18 @@ namespace RegressionTests.SMTP
       [Description("Issue 227, Restarting server doesn't refresh local address list")]
       public void TestDeliverToMyselfOnLocalPortAfterChangedLocalPort()
       {
-         TCPIPPorts oPorts = _application.Settings.TCPIPPorts;
-         for (int i = 0; i < oPorts.Count; i++)
+         TCPIPPorts ports = _application.Settings.TCPIPPorts;
+         for (int i = 0; i < ports.Count; i++)
          {
-            TCPIPPort oTestPort = oPorts[i];
-            if (oTestPort.Protocol == eSessionType.eSTIMAP)
-               oTestPort.PortNumber = 14300;
-            else if (oTestPort.Protocol == eSessionType.eSTSMTP)
-               oTestPort.PortNumber = 11000;
-            else if (oTestPort.Protocol == eSessionType.eSTPOP3)
-               oTestPort.PortNumber = 2500;
+            TCPIPPort testPort = ports[i];
+            if (testPort.Protocol == eSessionType.eSTIMAP)
+               testPort.PortNumber = 14300;
+            else if (testPort.Protocol == eSessionType.eSTSMTP)
+               testPort.PortNumber = 11000;
+            else if (testPort.Protocol == eSessionType.eSTPOP3)
+               testPort.PortNumber = 2500;
 
-            oTestPort.Save();
+            testPort.Save();
          }
 
          _application.Stop();
@@ -148,7 +148,7 @@ namespace RegressionTests.SMTP
             Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
 
-         oPorts.SetDefault();
+         ports.SetDefault();
          _application.Stop();
          _application.Start();
       }
@@ -898,43 +898,6 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(bounce.Contains("Remote server replied: 542 test@dummy-example.com"));
       }
 
-      [Test]
-      [Description("Tests that the SMTP client times out after 10 minutes.")]
-      [Ignore]
-      public void TestSMTPClientTimeout()
-      {
-         Assert.AreEqual(0, _status.UndeliveredMessages.Length);
-
-         // No valid recipients...
-         var deliveryResults = new Dictionary<string, int>();
-         deliveryResults["test@dummy-example.com"] = 250;
-
-         int smtpServerPort = TestSetup.GetNextFreePort();
-         using (var server = new SmtpServerSimulator(1, smtpServerPort))
-         {
-            server.AddRecipientResult(deliveryResults);
-            server.SimulatedError = SimulatedErrorType.Sleep15MinutesAfterSessionStart;
-            server.SecondsToWaitBeforeTerminate = 20*60;
-            server.StartListen();
-
-            // Add a route so we can connect to localhost.
-            Route route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
-            route.RelayerRequiresAuth = true;
-            route.RelayerAuthUsername = "user@example.com";
-            route.SetRelayerAuthPassword("MySecretPassword");
-
-            // Send message to this route.
-            var smtp = new SmtpClientSimulator();
-            var recipients = new List<string>();
-            recipients.Add("test@dummy-example.com");
-            smtp.Send("test@test.com", recipients, "Test", "Test message");
-
-            // Wait for the client to disconnect.
-            server.WaitForCompletion();
-         }
-
-         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-      }
 
       [Test]
       public void TestTemporaryFailure()

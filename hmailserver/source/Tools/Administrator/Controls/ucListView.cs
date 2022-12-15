@@ -21,6 +21,12 @@ namespace hMailServer.Administrator
       List<int> _numericSortOrders = new List<int>();
       private bool _numericalColumnsLoaded = false;
 
+      List<int> _datetimeSortOrders = new List<int>();
+      private bool _datetimeColumnsLoaded = false;
+
+      List<int> _ipaddressSortOrders = new List<int>();
+      private bool _ipaddressColumnsLoaded = false;
+
       public ucListView()
       {
          _columnSorter = new ListViewColumnSorter();
@@ -43,6 +49,32 @@ namespace hMailServer.Administrator
          }
       }
       
+      private void LoadDateTimeColumns()
+      {
+         foreach (ColumnHeader column in Columns)
+         {
+            var tag = column.Tag as string;
+            if (string.IsNullOrEmpty(tag))
+               continue;
+
+            if (string.Compare(tag, "DateTime", true, CultureInfo.InvariantCulture) == 0)
+               _datetimeSortOrders.Add(column.Index);
+         }
+      }
+
+      private void LoadIPAddressColumns()
+      {
+         foreach (ColumnHeader column in Columns)
+         {
+            var tag = column.Tag as string;
+            if (string.IsNullOrEmpty(tag))
+               continue;
+
+            if (string.Compare(tag, "IPAddress", true, CultureInfo.InvariantCulture) == 0)
+               _ipaddressSortOrders.Add(column.Index);
+         }
+      }
+
       protected override void OnSelectedIndexChanged(EventArgs e)
       {
          base.OnSelectedIndexChanged(e);
@@ -93,6 +125,17 @@ namespace hMailServer.Administrator
             _numericalColumnsLoaded = true;
          }
 
+         if (!_datetimeColumnsLoaded)
+         {
+            LoadDateTimeColumns();
+            _datetimeColumnsLoaded = true;
+         }
+
+         if (!_ipaddressColumnsLoaded)
+         {
+            LoadIPAddressColumns();
+            _ipaddressColumnsLoaded = true;
+         }
 
          // Determine if clicked column is already the column that is being sorted.
          if (e.Column == _columnSorter.SortColumn)
@@ -116,6 +159,12 @@ namespace hMailServer.Administrator
 
          if (_numericSortOrders.Contains(e.Column))
             _columnSorter.NumericSort = true;
+
+         if (_datetimeSortOrders.Contains(e.Column))
+            _columnSorter.DateTimeSort = true;
+
+         if (_ipaddressSortOrders.Contains(e.Column))
+            _columnSorter.IPAddressSort = true;
 
          // Perform the sort with these new sort options.
          this.Sort();

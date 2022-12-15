@@ -101,11 +101,13 @@ namespace hMailServer.Administrator
            // columnHeader2
            // 
            this.columnHeader2.Text = "Lower IP";
+           this.columnHeader2.Tag = "IPAddress";
            this.columnHeader2.Width = 100;
            // 
            // columnHeader3
            // 
            this.columnHeader3.Text = "Upper IP";
+           this.columnHeader3.Tag = "IPAddress";
            this.columnHeader3.Width = 100;
            // 
            // columnHeader4

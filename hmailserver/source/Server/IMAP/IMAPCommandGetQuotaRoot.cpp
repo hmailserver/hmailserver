@@ -7,12 +7,9 @@
 #include "IMAPConnection.h"
 #include "IMAPConfiguration.h"
 #include "IMAPSimpleCommandParser.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/Account.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/Cache/AccountSizeCache.h"
-#include "../Common/Persistence/PersistentAccount.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

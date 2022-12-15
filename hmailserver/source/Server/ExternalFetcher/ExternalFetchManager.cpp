@@ -8,7 +8,6 @@
 #include "../Common/BO/FetchAccount.h"
 #include "../Common/Persistence/PersistentFetchAccount.h"
 
-#include "ExternalFetch.h"
 #include "ExternalFetchTask.h"
 
 #include "../COmmon/Threading/WorkQueueManager.h"
@@ -16,9 +15,6 @@
 #include "../COmmon/BO/Account.h"
 
 #include "../COmmon/BO/Domain.h"
-
-#include "../COmmon/Persistence/PersistentDomain.h"
-#include "../COmmon/Persistence/PersistentAccount.h"
 
 #include "../COmmon/Cache/CacheContainer.h"
 

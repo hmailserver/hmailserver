@@ -41,12 +41,13 @@ namespace StressTest
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
             string folderGood = Path.GetFullPath("../../../TestData/DKIM/Good");
-            string path = Path.Combine(Environment.CurrentDirectory, folderGood);
+            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folderGood);
             string[] files = Directory.GetFiles(folderGood);
 
             foreach (string file in files)
             {
                 DeleteCurrentLog();
+                Console.WriteLine(string.Format("Testing file {0}...", file));
                 hMailServer.eDKIMResult result = antiSpam.DKIMVerify(file);
                 Assert.AreEqual(hMailServer.eDKIMResult.eDKPass, result, file);
                 Assert.IsTrue(VerifyLoadSuccess());
@@ -60,7 +61,7 @@ namespace StressTest
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
             string folderMissingBH = Path.GetFullPath("../../../TestData/DKIM/Neutral - Missing bodyhash");
-            string path = Path.Combine(Environment.CurrentDirectory, folderMissingBH);
+            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folderMissingBH);
             string[] files = Directory.GetFiles(path);
 
             foreach (string file in files)
@@ -76,7 +77,7 @@ namespace StressTest
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
             string folder = Path.GetFullPath("../../../TestData/DKIM/Unsupported");
-            string path = Path.Combine(Environment.CurrentDirectory, folder);
+            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folder);
             string[] files = Directory.GetFiles(path);
 
             foreach (string file in files)
@@ -95,7 +96,7 @@ namespace StressTest
            
 
            string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
-           string path = Path.Combine(Environment.CurrentDirectory, folder);
+           string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folder);
            string[] files = Directory.GetFiles(path);
 
            foreach (string file in files)

@@ -668,7 +668,8 @@ namespace HM
       char buf[80];
       if (!pszBoundary)				// generate a new boundary delimeter
       {
-         ::srand(((unsigned)::time(NULL)) ^ (unsigned)this);
+         unsigned __int64 value = (unsigned __int64)::time(NULL) ^ (unsigned __int64)this;
+         ::srand((unsigned int) value);
          ::sprintf_s(buf, 80, "__=_Part_Boundary_%03d_%06d.%06d", ++s_nPartNumber, rand(), rand());
          if (s_nPartNumber >= 9)
             s_nPartNumber = 0;

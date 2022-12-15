@@ -7,7 +7,6 @@
 #include "IMAPConnection.h"
 
 #include "../Common/BO/IMAPFolder.h"
-#include "../Common/BO/IMAPFolders.h"
 
 #include "IMAPSimpleCommandParser.h"
 

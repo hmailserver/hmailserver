@@ -36,6 +36,8 @@ namespace HM
 
       int GetNumberOfSessions(int iSessionType);
 
+      int GetThreadID() const;
+
    private:
 
       int processed_messages_;

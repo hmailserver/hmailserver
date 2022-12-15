@@ -29,7 +29,10 @@ namespace HM
       has_on_error_(false),
       has_on_delivery_failed_(false),
       has_on_external_account_download_(false),
-      has_on_smtpdata_(false)
+      has_on_smtpdata_(false),
+      has_on_helo_(false),
+      has_on_client_logon_(false),
+      has_on_client_validate_password_(false)
    {
       
    }
@@ -97,7 +100,9 @@ namespace HM
          has_on_delivery_failed_ = DoesFunctionExist_("OnDeliveryFailed");
          has_on_external_account_download_ = DoesFunctionExist_("OnExternalAccountDownload");
          has_on_smtpdata_ = DoesFunctionExist_("OnSMTPData");
-
+         has_on_helo_ = DoesFunctionExist_("OnHELO");
+         has_on_client_logon_ = DoesFunctionExist_("OnClientLogon");
+         has_on_client_validate_password_ = DoesFunctionExist_("OnClientValidatePassword");
       }
       catch (...)
       {
@@ -249,6 +254,21 @@ namespace HM
          if (!has_on_smtpdata_)
             return;
          event_name = _T("OnSMTPData");
+         break;
+      case EventOnHELO:
+         if (!has_on_helo_)
+            return;
+         event_name = _T("OnHELO");
+         break;
+      case EventOnClientLogon:
+         if (!has_on_client_logon_)
+            return;
+         event_name = _T("OnClientLogon");
+         break;
+      case EventOnClientValidatePassword:
+         if (!has_on_client_validate_password_)
+            return;
+         event_name = _T("OnClientValidatePassword");
          break;
       case EventCustom:
          break;

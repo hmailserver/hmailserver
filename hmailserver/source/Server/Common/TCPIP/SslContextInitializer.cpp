@@ -176,21 +176,21 @@ namespace HM
    void
    SslContextInitializer::SetContextOptions_(boost::asio::ssl::context& context)
    {
-      bool sslv30 = Configuration::Instance()->GetSslVersionEnabled(SslVersion30);
       bool tlsv10 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion10);
       bool tlsv11 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion11);
       bool tlsv12 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion12);
+      bool tlsv13 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion13);
 
-      int options = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_ECDH_USE;
+      int options = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_SINGLE_ECDH_USE;
 
-      if (!sslv30)
-         options = options | SSL_OP_NO_SSLv3;
       if (!tlsv10)
          options = options | SSL_OP_NO_TLSv1;
       if (!tlsv11)
          options = options | SSL_OP_NO_TLSv1_1;
       if (!tlsv12)
          options = options | SSL_OP_NO_TLSv1_2;
+      if (!tlsv13)
+         options = options | SSL_OP_NO_TLSv1_3;
 
       SSL_CTX* ssl = context.native_handle();
       SSL_CTX_set_options(ssl, options);

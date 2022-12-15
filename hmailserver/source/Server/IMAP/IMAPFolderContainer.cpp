@@ -4,12 +4,9 @@
 #include "stdafx.h"
 #include "IMAPFolderContainer.h"
 
-#include "../Common/Application/ACLManager.h"
 #include "../IMAP/IMAPConfiguration.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/ACLPermission.h"
-#include "../Common/BO/ACLPermissions.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

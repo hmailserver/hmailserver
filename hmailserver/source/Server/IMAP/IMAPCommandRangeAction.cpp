@@ -7,7 +7,6 @@
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/IMAPFolder.h"
-#include "../Common/Persistence/PersistentMessage.h"
 
 
 #ifdef _DEBUG

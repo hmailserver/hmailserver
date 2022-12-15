@@ -12,8 +12,6 @@ namespace RegressionTests.API
    public class Security : TestFixtureBase
    {
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestDomainAdminAccessBackupManager()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -22,12 +20,15 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         BackupManager backupManager = newApplication.BackupManager;
+         var ex = Assert.Throws<COMException>(() =>
+         {
+            var v = newApplication.BackupManager;
+         });
+
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestDomainAdminAccessDatabase()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -37,7 +38,8 @@ namespace RegressionTests.API
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
          Database database = newApplication.Database;
-         database.ExecuteSQL("select");
+         var ex = Assert.Throws<COMException>(() => database.ExecuteSQL("select"));
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
@@ -68,8 +70,6 @@ namespace RegressionTests.API
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestDomainAdminAccessSettings()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -78,12 +78,16 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         Settings settings = newApplication.Settings;
+         var ex = Assert.Throws<COMException>(() =>
+            {
+               var settings = newApplication.Settings;
+            });
+
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
+
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestNormalUserAccessBackupManager()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -92,12 +96,14 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         BackupManager backupManager = newApplication.BackupManager;
+         var ex = Assert.Throws<COMException>(() =>
+            {
+               BackupManager backupManager = newApplication.BackupManager;
+            });
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestNormalUserAccessDatabase()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -107,7 +113,9 @@ namespace RegressionTests.API
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
          Database database = newApplication.Database;
-         database.ExecuteSQL("select");
+
+         var ex = Assert.Throws<COMException>(() => database.ExecuteSQL("select"));
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
       }
 
       [Test]
@@ -171,8 +179,6 @@ namespace RegressionTests.API
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "You do not have access to this property / method.",
-         MatchType = MessageMatch.Contains)]
       public void TestNormalUserAccessSettings()
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
@@ -181,7 +187,12 @@ namespace RegressionTests.API
 
          var newApplication = new Application();
          newApplication.Authenticate("user@test.com", "test");
-         Settings settings = newApplication.Settings;
+         var ex = Assert.Throws<COMException>(() =>
+         {
+            Settings settings = newApplication.Settings;
+         });
+         StringAssert.Contains("You do not have access to this property / method.", ex.Message);
+
       }
    }
 }

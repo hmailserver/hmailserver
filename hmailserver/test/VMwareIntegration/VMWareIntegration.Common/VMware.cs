@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using hMailServer.Test.Infrastructure;
 using VixCOM;
 
 namespace VMwareIntegration.Common
@@ -15,6 +16,8 @@ namespace VMwareIntegration.Common
       VixCOM.VixLibClass lib;
       VixCOM.IVM _virtualMachine;
       VixCOM.IHost _vmwareHost;
+
+      private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
       public VMware()
       {
@@ -126,7 +129,7 @@ namespace VMwareIntegration.Common
 
       public void CopyFileToHost(string source, string destination)
       {
-
+         Logger.Debug(string.Format("Copying file {0} to host...", source));
          VixCOM.IJob job = _virtualMachine.CopyFileFromGuestToHost(source, destination, 0, null, null);
          UInt64 err = job.WaitWithoutResults();
 
@@ -160,20 +163,26 @@ namespace VMwareIntegration.Common
 
       public void CopyFileToGuest(string source, string destination)
       {
-         if (!File.Exists(source))
-            throw new Exception("CopyFileToGuest: The source file " + source + " does not exist.");
+         Logger.Debug(string.Format("Copying file {0} to guest ({1})", source, destination));
 
-         VixCOM.IJob job = _virtualMachine.CopyFileFromHostToGuest(source, destination, 0, null, null);
-         UInt64 err = job.WaitWithoutResults();
-
-         if (lib.ErrorIndicatesFailure(err))
+         RetryHelper.TryAction(() =>
          {
-            short errCode = lib.ErrorCode(err);
-            string errMsg;
-            errMsg = lib.GetErrorText(err, null);
+            if (!File.Exists(source))
+               throw new Exception("CopyFileToGuest: The source file " + source + " does not exist.");
 
-            throw new Exception("CopyFileToGuest: " + errMsg);
-         }
+            VixCOM.IJob job = _virtualMachine.CopyFileFromHostToGuest(source, destination, 0, null, null);
+            UInt64 err = job.WaitWithoutResults();
+
+            if (lib.ErrorIndicatesFailure(err))
+            {
+               short errCode = lib.ErrorCode(err);
+               string errMsg;
+               errMsg = lib.GetErrorText(err, null);
+
+               throw new Exception("CopyFileToGuest: " + errMsg);
+            }
+         }, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
+
       }
 
       public void CopyFolderToGuest(string source, string destination)
@@ -208,6 +217,7 @@ namespace VMwareIntegration.Common
 
       public void RunProgramInGuest(string fullPath, string param)
       {
+         Logger.Debug($"Executing {fullPath} {param}...");
          VixCOM.IJob job = _virtualMachine.RunProgramInGuest(fullPath, param, 0, null, null);
          UInt64 err = job.WaitWithoutResults();
          

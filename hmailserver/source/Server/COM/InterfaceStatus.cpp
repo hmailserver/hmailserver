@@ -133,4 +133,20 @@ InterfaceStatus::get_SessionCount(eSessionType iType, long *pVal)
    }
 }
 
+STDMETHODIMP
+InterfaceStatus::get_ThreadID(long* pVal)
+{
+   try
+   {
+      if (!status_)
+         return GetAccessDenied();
+
+      *pVal = status_->GetThreadID();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
 

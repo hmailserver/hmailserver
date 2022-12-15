@@ -746,7 +746,8 @@ inline const Type& SSMAX(const Type& arg1, const Type& arg2)
 
 	#elif defined(_MSC_VER )
 
-		#define SS_USE_FACET(loc, fac) std::_USE(loc, fac)
+		//#define SS_USE_FACET(loc, fac) std::_USE(loc, fac)
+		#define SS_USE_FACET(loc, fac) std::use_facet<fac >(loc)
 
 	// ...and
 	#elif defined(_RWSTD_NO_TEMPLATE_ON_RETURN_TYPE)
@@ -1478,7 +1479,7 @@ inline void	ssadd(std::wstring& sDst, const std::string& sSrc)
 
 		sDst.resize(nDst + nSrc + 1);
 		PCWSTR szCvt = StdCodeCvt(const_cast<SW_PTRTYPE>(sDst.data()+nDst), 
-			nSrc, sSrc.c_str(), nSrc+1);
+			nSrc + 1, sSrc.c_str(), nSrc);
 
 #ifdef SS_MBCS
 		sDst.resize(nDst + sslen(szCvt));
@@ -1498,7 +1499,7 @@ inline void	ssadd(std::wstring& sDst, PCSTR pA)
 
 		sDst.resize(nDst + nSrc + 1);
 		PCWSTR szCvt = StdCodeCvt(const_cast<SW_PTRTYPE>(sDst.data()+nDst),
-			nSrc, pA, nSrc+1);
+			nSrc + 1, pA, nSrc);
 
 #ifdef SS_MBCS
 		sDst.resize(nDst + sslen(szCvt));

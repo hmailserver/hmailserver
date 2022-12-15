@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
@@ -11,7 +12,6 @@ namespace RegressionTests.Infrastructure.Persistence
    public class TCPIPPortTests : TestFixtureBase
    {
       [Test]
-      [ExpectedException(ExpectedMessage = "Certificate must be specified.")]
       public void CertificateIsRequiredForSSL()
       {
          var settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
@@ -22,11 +22,12 @@ namespace RegressionTests.Infrastructure.Persistence
 
          port.ConnectionSecurity = eConnectionSecurity.eCSTLS;
 
-         port.Save();
+         var ex = Assert.Throws<COMException>(() => port.Save());
+         StringAssert.Contains("Certificate must be specified.", ex.Message);
+
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "Certificate must be specified.")]
       public void CertificateIsRequiredForStartTLSOptional()
       {
          var settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
@@ -37,11 +38,11 @@ namespace RegressionTests.Infrastructure.Persistence
 
          port.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSOptional;
 
-         port.Save();
+         var ex = Assert.Throws<COMException>(() => port.Save());
+         StringAssert.Contains("Certificate must be specified.", ex.Message);
       }
 
       [Test]
-      [ExpectedException(ExpectedMessage = "Certificate must be specified.")]
       public void CertificateIsRequiredForStartTLSRequired()
       {
          var settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
@@ -52,7 +53,8 @@ namespace RegressionTests.Infrastructure.Persistence
 
          port.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSRequired;
 
-         port.Save();
+         var ex = Assert.Throws<COMException>(() => port.Save());
+         StringAssert.Contains("Certificate must be specified.", ex.Message);
       }
    }
 }

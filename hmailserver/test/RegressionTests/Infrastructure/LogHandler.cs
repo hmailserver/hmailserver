@@ -40,8 +40,14 @@ namespace RegressionTests.Infrastructure
          string file = GetErrorLogFileName();
          CustomAsserts.AssertFileExists(file, false);
 
-         return File.ReadAllText(file);
-
+         // Read the file without taking a lock.
+         // If a lock is taken, hMailServer will not be able to write to the file, while 
+         // this code is reading from it.
+         using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+         using (var textReader = new StreamReader(fileStream))
+         {
+            return textReader.ReadToEnd();
+         }
       }
 
 

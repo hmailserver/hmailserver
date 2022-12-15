@@ -12,8 +12,6 @@
 
 #include "../BO/SURBLServers.h"
 
-#include "../../SMTP/SPF/SPF.h"
-#include "../../SMTP/BLCheck.h"
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW

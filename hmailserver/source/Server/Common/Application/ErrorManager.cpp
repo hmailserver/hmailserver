@@ -110,6 +110,15 @@ namespace HM
       ReportError(iSeverity, iErrorID, sSource, formatted_message);
    }
 
+   void
+   ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const boost::system::error_code &error)
+   {
+      String formatted_message
+         = Formatter::Format(_T("{0}, Error code: {1}, Message: {2}"), sDescription, error.value(), error.message().c_str());
+
+      ReportError(iSeverity, iErrorID, sSource, formatted_message);
+   }
+
    void 
    ErrorManager::ReportError(eSeverity iSeverity, int iErrorID, const String &sSource, const String &sDescription, const std::exception &error)
    {

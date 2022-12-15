@@ -4,9 +4,6 @@
 #include "stdafx.h"
 #include "IMAPCommandLogout.h"
 #include "IMAPConnection.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
-#include "../Common/BO/Messages.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

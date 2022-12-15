@@ -59,11 +59,13 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "Lower IP";
+            this.columnHeader1.Tag = "IPAddress";
             this.columnHeader1.Width = 100;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Upper IP";
+            this.columnHeader2.Tag = "IPAddress";
             this.columnHeader2.Width = 100;
             // 
             // ucIncomingRelays

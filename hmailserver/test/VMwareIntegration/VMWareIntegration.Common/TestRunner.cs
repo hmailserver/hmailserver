@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Threading;
@@ -12,26 +13,39 @@ namespace VMwareIntegration.Common
 {
    public class TestRunner
    {
-      private const string NUnitPath = @"..\..\..\..\..\..\libraries\nunit-2.6.3";
-      
+      private const string NuGetPackagesRelativePath = @"..\..\..\..\..\packages\";
+      private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.11.1\tools";
+      private const string NUnitPackagePath = @"NUnit.3.12.0\lib\net45";
+      private string _nUnitPath;
+      private string _nUnitConsolePath;
+
+      private const string Username = "vmware";
+      private const string Password = "Secret123";
+
+      private const string RunTestScriptName = "RunTestsInVmware.bat";
+
       private TestEnvironment _environment;
-      private bool _stopOnError;
-      private bool _embedded;
-      public delegate void TestCompletedDelegate(int testIndex, bool result, string message, string failureText);
 
       private string _softwareUnderTest;
 
-      public TestRunner(bool embedded, TestEnvironment environment, bool stopOnError, string softwareUnderTest)
+      private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+      public TestRunner(TestEnvironment environment, string softwareUnderTest)
       {
          _environment = environment;
-         _stopOnError = stopOnError;
-         _embedded = embedded;
          _softwareUnderTest = softwareUnderTest;
-      }
 
-      public void RunThread()
-      {
-         Run();
+         var packagePath = Path.Combine(Environment.CurrentDirectory, NuGetPackagesRelativePath);
+
+         _nUnitConsolePath = Path.Combine(packagePath, NUnitConsoleRunnerPackagePath);
+
+         if (!Directory.Exists(_nUnitConsolePath))
+            throw new InvalidOperationException($"NUnit console not found in {_nUnitConsolePath}");
+
+         _nUnitPath = Path.Combine(packagePath, NUnitPackagePath);
+
+         if (!Directory.Exists(_nUnitPath))
+            throw new InvalidOperationException($"NUnit not found in {_nUnitPath}");
       }
 
       public void Run()
@@ -43,35 +57,31 @@ namespace VMwareIntegration.Common
       {
          VMware vm = new VMware();
 
-         if (!File.Exists(ExpandVariables(NUnitPath) + "\\nunit-console.exe"))
-             throw new Exception("Incorrect path to NUnit.");
+         var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        string fixtureSourcePath = TestSettings.GetFixturePath();
-        string fixturePath = fixtureSourcePath + @"\bin\Release";
-         // Check that the test fixture is available.
-         var testAssemblies = Directory.GetFiles(fixturePath, "*.dll");
-         if (!testAssemblies.Any())
-            throw new Exception("Test assembly not found.");
+         var testAssemblyNames = new string[]
+            {
+               "RegressionTests.dll",
+               "Interop.hMailServer.dll"
+            };
 
-        string runTestsScriptName = "RunTestsInVmware.bat";
-        string runTestScripts = fixtureSourcePath + @"\" + runTestsScriptName;
-        string guestTestPath = @"C:\Nunit";
+         string guestTestPath = @"C:\Nunit";
 
-        string softwareUnderTestFullPath = _softwareUnderTest;
-        string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
+         string softwareUnderTestFullPath = _softwareUnderTest;
+         string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
 
-        string softwareUnderTestSilentParmas = "/SILENT";
+         string softwareUnderTestSilentParmas = "/SILENT";
 
-        string sslFolder = Path.Combine(TestSettings.GetTestFolder(), "SSL examples");
+         string sslFolder = Path.Combine(TestSettings.GetTestFolder(), "SSL examples");
 
-        vm.Connect();
-        
-        vm.OpenVM(_environment.VMwarePath);
+         vm.Connect();
+
+         vm.OpenVM(_environment.VMwarePath);
 
          try
          {
             vm.RevertToSnapshot(_environment.SnapshotName);
-            vm.LoginInGuest("VMware", "vmware");
+            vm.LoginInGuest(Username, Password);
 
             // Make sure we have an IP address.
             EnsureNetworkAccess(vm);
@@ -80,21 +90,29 @@ namespace VMwareIntegration.Common
             vm.CreateDirectory(guestTestPath);
             vm.CreateDirectory(@"C:\Temp");
 
+            foreach (var command in _environment.PreInstallCommands)
+               vm.RunProgramInGuest(command.Executable, command.Parameters);
+
+            foreach (var copyOperation in _environment.PreInstallFileCopy)
+               vm.CopyFileToGuest(copyOperation.From, copyOperation.To);
+
             // Install
             vm.CopyFileToGuest(softwareUnderTestFullPath, guestTestPath + "\\" + softwareUnderTestName);
             vm.RunProgramInGuest(guestTestPath + "\\" + softwareUnderTestName, softwareUnderTestSilentParmas);
 
-            foreach (PostInstallFileCopy copyOperation in _environment.PostInstallFileCopy)
+            foreach (var copyOperation in _environment.PostInstallFileCopy)
                vm.CopyFileToGuest(copyOperation.From, copyOperation.To);
 
-            foreach (PostInstallCommand command in _environment.PostInstallCommands)
+            foreach (var command in _environment.PostInstallCommands)
                vm.RunProgramInGuest(command.Executable, command.Parameters);
 
-            // Configure Nunit
-            vm.CopyFolderToGuest(ExpandVariables(NUnitPath), guestTestPath);
-            vm.CopyFolderToGuest(Path.Combine(ExpandVariables(NUnitPath), "lib"), Path.Combine(guestTestPath, "lib"));
-            vm.CopyFolderToGuest(fixturePath, guestTestPath);
-            vm.CopyFileToGuest(runTestScripts, guestTestPath + "\\" + runTestsScriptName);
+            vm.CopyFolderToGuest(_nUnitConsolePath, guestTestPath);
+            vm.CopyFolderToGuest(_nUnitPath, guestTestPath);
+
+            foreach (var testAssemblyName in testAssemblyNames)
+               vm.CopyFileToGuest(Path.Combine(currentDirectory, testAssemblyName), guestTestPath + "\\" + testAssemblyName);
+
+            vm.CopyFileToGuest(Path.Combine(currentDirectory, RunTestScriptName), guestTestPath + "\\" + RunTestScriptName);
 
             // Other required stuff.
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
@@ -109,7 +127,7 @@ namespace VMwareIntegration.Common
 
 
             // Run NUnit
-            vm.RunProgramInGuest(guestTestPath + "\\" + runTestsScriptName, "");
+            vm.RunProgramInGuest(guestTestPath + "\\" + RunTestScriptName, "");
 
             // Collect results.
             string localResultFile = Path.GetTempFileName() + ".xml";
@@ -120,10 +138,9 @@ namespace VMwareIntegration.Common
             XmlDocument doc = new XmlDocument();
             doc.Load(localResultFile);
 
-            int failureCount = Convert.ToInt32(doc.LastChild.Attributes["failures"].Value);
-            int errorCount = Convert.ToInt32(doc.LastChild.Attributes["errors"].Value);
+            int failedCount = Convert.ToInt32(doc.LastChild.Attributes["failed"].Value);
 
-            if (failureCount == 0 && errorCount == 0)
+            if (failedCount == 0)
                return;
 
             string resultContent = File.ReadAllText(localResultFile);
@@ -136,24 +153,28 @@ namespace VMwareIntegration.Common
             {
                vm.PowerOff();
             }
-            catch 
+            catch
             {
-               Console.WriteLine("Unable to power off VM. Maybe it's not powered on?");
+               Logger.Error("Unable to power off VM. Maybe it's not powered on?");
             }
-            
+
          }
       }
 
       private void CopyLocalVersion(VMware vm)
       {
-         const string localPath =
-            @"C:\dev\hmailserver\hmailserver\source\Server\hMailServer\Release\hMailServer.exe";
+         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+         var localExecutable = Path.Combine(currentDir,
+            @"..\..\..\..\..\..\source\Server\hMailServer\x64\Release\hMailServer.exe");
+
+         if (!File.Exists(localExecutable))
+         {
+            throw new Exception($"The executable {localExecutable} could not be found.");
+         }
 
          RunScriptInGuest(vm, "NET STOP HMAILSERVER");
-         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files (x86)\hMailServer\Bin\");
-         RunScriptInGuest(vm, @"MKDIR ""C:\Program Files\hMailServer\Bin\");
-         vm.CopyFileToGuest(localPath, @"C:\Program Files (x86)\hMailServer\Bin\hMailServer.exe");
-         vm.CopyFileToGuest(localPath, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+         vm.CopyFileToGuest(localExecutable, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
          RunScriptInGuest(vm, "NET START HMAILSERVER");
       }
 
@@ -208,20 +229,20 @@ namespace VMwareIntegration.Common
 
       static string ProgramFilesx86()
       {
-          if (8 == IntPtr.Size
-              || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
-          {
-              return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-          }
+         if (8 == IntPtr.Size
+             || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
+         {
+            return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+         }
 
-          return Environment.GetEnvironmentVariable("ProgramFiles");
+         return Environment.GetEnvironmentVariable("ProgramFiles");
       }
 
       static string ExpandVariables(string input)
       {
-          input = input.Replace("%PROGRAM_FILES%", ProgramFilesx86());
+         input = input.Replace("%PROGRAM_FILES%", ProgramFilesx86());
 
-          return input;
+         return input;
       }
 
    }

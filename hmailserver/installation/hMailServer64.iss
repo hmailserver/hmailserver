@@ -1,4 +1,6 @@
-// #define HMAILSERVERLIBS "C:\Dev\hMailLibs\VS2013+x64"
+#define HMAILSERVERLIBS = GetEnv("hMailServerLibs")
+#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "\openssl-1.1.1q\out64\bin"
+
 
 #include "section_setup.iss"
 #include "section_setup_64.iss"

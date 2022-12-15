@@ -335,6 +335,13 @@ namespace HM
          resultDescription = "A domain alias with this name already exists.";
          return false;
       }
+
+      // If plus addressing is enabled, a plus addressing character must be selected.
+      if (domain->GetUsePlusAddressing() && domain->GetPlusAddressingChar() == _T(""))
+      {
+         resultDescription = "A plus addressing character must be selected when enabling plus addressing.";
+         return false;
+      }
    
       return true;
    }

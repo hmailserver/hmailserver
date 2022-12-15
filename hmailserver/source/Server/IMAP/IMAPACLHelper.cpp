@@ -5,8 +5,6 @@
 
 #include "IMAPACLHelper.h"
 
-#include "../Common/Application/ACLManager.h"
-
 #include "../Common/BO/Account.h"
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/ACLPermissions.h"

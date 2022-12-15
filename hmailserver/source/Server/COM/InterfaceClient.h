@@ -52,6 +52,8 @@ public:
    STDMETHOD(get_IPAddress)(BSTR* pVal);
    STDMETHOD(get_Username)(BSTR* pVal);
    STDMETHOD(get_HELO)(BSTR* pVal);
+   STDMETHOD(get_Authenticated)(VARIANT_BOOL* pVal);
+   STDMETHOD(get_SessionID)(LONG* pVal);
 
 private:
 

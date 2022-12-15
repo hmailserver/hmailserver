@@ -2,7 +2,6 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "../common/Util/Encoding/Base64.h"
 #include "IMAPCommandAuthenticate.h"
 #include "IMAPConnection.h"
 #include "IMAPConfiguration.h"

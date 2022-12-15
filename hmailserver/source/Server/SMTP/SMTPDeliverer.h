@@ -22,7 +22,7 @@ namespace HM
 
    private:
 
-      static bool PreprocessMessage_(std::shared_ptr<Message> pMessage, String &sendersIP, RuleResult &ruleResult);
+      static bool PreprocessMessage_(std::shared_ptr<Message> pMessage, RuleResult& globalRuleResult, String& preprocessingFailureReason);
 
       static bool RunVirusProtection_(std::shared_ptr<Message> pMessage);
       static bool RunGlobalRules_(std::shared_ptr<Message> pMessage, RuleResult &ruleResult);

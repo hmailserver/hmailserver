@@ -48,22 +48,22 @@ namespace RegressionTests.API
       [Test]
       public void TestAddTextDuringSending()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Send a message to the account.
-         var oMessage = new hMailServer.Message();
-         Assert.AreEqual(0, oMessage.State);
+         var message = new hMailServer.Message();
+         Assert.AreEqual(0, message.State);
 
          Scripting scripting = SingletonProvider<TestSetup>.Instance.GetApp().Settings.Scripting;
 
          string signature = "MySignature";
 
-         string script = "Sub OnAcceptMessage(oClient, oMessage) " + Environment.NewLine +
-                         " Call EventLog.Write(\"Subject:\" +oMessage.Subject)" + Environment.NewLine +
-                         " Call EventLog.Write(\"Date:\" +oMessage.Date)" + Environment.NewLine +
-                         " Call EventLog.Write(\"Body:\" +oMessage.Body)" + Environment.NewLine +
-                         " oMessage.Body = oMessage.Body & \"" + signature + "\" " + Environment.NewLine +
-                         " oMessage.Save() " + Environment.NewLine +
+         string script = "Sub OnAcceptMessage(oClient, message) " + Environment.NewLine +
+                         " Call EventLog.Write(\"Subject:\" +message.Subject)" + Environment.NewLine +
+                         " Call EventLog.Write(\"Date:\" +message.Date)" + Environment.NewLine +
+                         " Call EventLog.Write(\"Body:\" +message.Body)" + Environment.NewLine +
+                         " message.Body = message.Body & \"" + signature + "\" " + Environment.NewLine +
+                         " message.Save() " + Environment.NewLine +
                          "End Sub" + Environment.NewLine + Environment.NewLine;
 
          File.WriteAllText(scripting.CurrentScriptFile, script);
@@ -77,29 +77,29 @@ namespace RegressionTests.API
          SmtpClientSimulator.StaticSend("test@test.com", recipients, "Hej", "Välkommen till verkligheten");
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string firstMessageText = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains(signature));
-         Assert.Less(0, message.IndexOf("Hej"));
+         Assert.IsNotEmpty(firstMessageText);
+         Assert.IsTrue(firstMessageText.Contains(signature));
+         Assert.Less(0, firstMessageText.IndexOf("Hej"));
       }
 
       [Test]
       public void TestAddTextDuringSendingAttachment()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Send a message to the account.
-         var oMessage = new hMailServer.Message();
-         Assert.AreEqual(0, oMessage.State);
+         var message = new hMailServer.Message();
+         Assert.AreEqual(0, message.State);
 
          Scripting scripting = SingletonProvider<TestSetup>.Instance.GetApp().Settings.Scripting;
 
          string signature = "MySignature";
 
-         string script = "Sub OnAcceptMessage(oClient, oMessage) " + Environment.NewLine +
-                         " oMessage.Body = oMessage.Body & \"" + signature + "\" " + Environment.NewLine +
-                         " oMessage.Save() " + Environment.NewLine +
+         string script = "Sub OnAcceptMessage(oClient, message) " + Environment.NewLine +
+                         " message.Body = message.Body & \"" + signature + "\" " + Environment.NewLine +
+                         " message.Save() " + Environment.NewLine +
                          "End Sub" + Environment.NewLine + Environment.NewLine;
 
          File.WriteAllText(scripting.CurrentScriptFile, script);
@@ -120,29 +120,29 @@ namespace RegressionTests.API
          oClient.Send(mail);
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string firstMessageText = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
-         Assert.IsNotEmpty(message, message);
-         Assert.IsTrue(message.Contains(signature), message);
+         Assert.IsNotEmpty(firstMessageText, firstMessageText);
+         Assert.IsTrue(firstMessageText.Contains(signature), firstMessageText);
       }
 
       [Test]
       [Description("Add text to an empty body during sending of attachments")]
       public void TestAddTextToEmptyBody()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // Send a message to the account.
-         var oMessage = new hMailServer.Message();
-         Assert.AreEqual(0, oMessage.State);
+         var message = new hMailServer.Message();
+         Assert.AreEqual(0, message.State);
 
          Scripting scripting = SingletonProvider<TestSetup>.Instance.GetApp().Settings.Scripting;
 
          string signature = "MySignature";
 
-         string script = "Sub OnAcceptMessage(oClient, oMessage) " + Environment.NewLine +
-                         " oMessage.Body = oMessage.Body & \"" + signature + "\" " + Environment.NewLine +
-                         " oMessage.Save() " + Environment.NewLine +
+         string script = "Sub OnAcceptMessage(oClient, message) " + Environment.NewLine +
+                         " message.Body = message.Body & \"" + signature + "\" " + Environment.NewLine +
+                         " message.Save() " + Environment.NewLine +
                          "End Sub" + Environment.NewLine + Environment.NewLine;
 
          File.WriteAllText(scripting.CurrentScriptFile, script);
@@ -163,10 +163,10 @@ namespace RegressionTests.API
          oClient.Send(mail);
 
          // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         string firstMessageText = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
-         Assert.IsNotEmpty(message, message);
-         Assert.IsTrue(message.Contains(signature), message);
+         Assert.IsNotEmpty(firstMessageText, firstMessageText);
+         Assert.IsTrue(firstMessageText.Contains(signature), firstMessageText);
       }
 
       [Test]
@@ -312,9 +312,9 @@ namespace RegressionTests.API
       {
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "encode@test.com", "test");
 
-         string script = "Sub OnAcceptMessage(oClient, oMessage) " + Environment.NewLine +
-                         " oMessage.Subject = \"[ov]\" + oMessage.Subject " + Environment.NewLine +
-                         " oMessage.Save() " + Environment.NewLine +
+         string script = "Sub OnAcceptMessage(oClient, message) " + Environment.NewLine +
+                         " message.Subject = \"[ov]\" + message.Subject " + Environment.NewLine +
+                         " message.Save() " + Environment.NewLine +
                          "End Sub" + Environment.NewLine + Environment.NewLine;
 
          Scripting scripting = _settings.Scripting;

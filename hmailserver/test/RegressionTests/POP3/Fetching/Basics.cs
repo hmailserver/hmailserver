@@ -174,11 +174,12 @@ namespace RegressionTests.POP3.Fetching
          {
             var
                log = LogHandler.ReadCurrentDefaultLog();
-            Assert.IsTrue(
-               log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."));
+            
+            if (!log.Contains("The IP address for external account Test could not be resolved. Aborting fetch."))
+               throw new Exception("Expected message not appearing in log.");
          });
 
-      fa.Delete();
+         fa.Delete();
       }
 
 
@@ -401,7 +402,7 @@ namespace RegressionTests.POP3.Fetching
                Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
                Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
 
-               // Make sure the exernal recipient has received his copy.
+               // Make sure the exernal list has received his copy.
                smtpServer.WaitForCompletion();
                string messageData = smtpServer.MessageData;
                Assert.IsTrue(messageData.Contains(messageData), messageData);
@@ -573,8 +574,9 @@ namespace RegressionTests.POP3.Fetching
             RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
                string error = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(error.Contains("-ERR unhandled command"));
-               Assert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
+
+               RetryableAssert.IsTrue(error.Contains("-ERR unhandled command"));
+               RetryableAssert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
             });
          }
       }
@@ -709,10 +711,10 @@ namespace RegressionTests.POP3.Fetching
          _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
 
 
-         SURBLServer oSURBLServer = _application.Settings.AntiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         SURBLServer surblServer = _application.Settings.AntiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
          var messages = new List<string>();
 
@@ -1004,8 +1006,8 @@ namespace RegressionTests.POP3.Fetching
 
          var messages = new List<string>();
 
-         string message = "Received: from readsoft.com (readsoft.com [195.84.201.250]) by mail.host.edu\r\n" +
-                          "From: example@readsoft.com\r\n" +
+         string message = "Received: from example.com (example.com [1.2.3]) by mail.example.com\r\n" +
+                          "From: example@example.com\r\n" +
                           "To: Martin@example.com\r\n" +
                           "Subject: Test\r\n" +
                           "\r\n" +
@@ -1044,75 +1046,7 @@ namespace RegressionTests.POP3.Fetching
          }
       }
 
-      [Test]
-      [Ignore]
-      public void TestFetchMessagesWithVeryLongHeader()
-      {
-          var messages = new List<string>();
-
-          var toHeaderBuilder = new StringBuilder();
-          for (int i = 0; i < 10000; i++)
-          {
-             if (i > 0)
-                toHeaderBuilder.Append("; ");
-
-             toHeaderBuilder.AppendFormat("to-{0}@example.com", i);
-          }
-
-         for (int i = 0; i < 5; i++)
-         {
-            string message = string.Format("To: {1}\r\n" +
-                                           "X-Dummy: {0}\r\n" +
-                                           "Subject: Test\r\n" +
-                                           "\r\n" +
-                                           "Hello!", i, toHeaderBuilder);
-
-            messages.Add(message);
-         }
-
-         int port = TestSetup.GetNextFreePort();
-         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
-         {
-            pop3Server.SendBufferMode = Pop3ServerSimulator.BufferMode.SingleBuffer;
-            pop3Server.StartListen();
-
-            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
-            FetchAccount fa = account.FetchAccounts.Add();
-
-            fa.Enabled = true;
-            fa.MinutesBetweenFetch = 10;
-            fa.Name = "Test";
-            fa.Username = "test@example.com";
-            fa.Password = "test";
-            fa.UseSSL = false;
-            fa.ServerAddress = "localhost";
-            fa.Port = port;
-            fa.ProcessMIMERecipients = false;
-            fa.Save();
-
-            fa.DownloadNow();
-
-            pop3Server.WaitForCompletion();
-
-            LockHelper.WaitForUnlock(fa);
-
-            fa.Delete();
-
-            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 5);
-            string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-
-
-
-            for (int i = 0; i < 5; i++)
-            {
-               if (downloadedMessage.Contains(messages[i]))
-                  return;
-            }
-
-            Assert.Fail("Downloaded messages did not match uploaded messages.");
-         }
-      }
-
+      
       [Test]
       [Description("Issue 14, Potentially invalid sender address when fetching from external account")]
       public void TestFetchMessageWithValidFromAddress()

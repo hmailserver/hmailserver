@@ -13,8 +13,6 @@
 #include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/Persistence/PersistentIMAPFolder.h"
-#include "../Common/Tracking/ChangeNotification.h"
-#include "../Common/Tracking/NotificationServer.h"
 #include "../Common/Util/FolderManipulationLock.h"
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

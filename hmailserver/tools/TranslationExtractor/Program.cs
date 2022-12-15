@@ -17,6 +17,8 @@ namespace TranslationExtractor
 
       private static void Main(string[] args)
       {
+          ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
          TranslationFolder = args[0];
 
          if (Directory.Exists(TranslationFolder) == false)

@@ -142,9 +142,11 @@ namespace HM
       {
          signature_plain_text.ReplaceNoCase(_T("%User.FirstName%"), sender_account->GetPersonFirstName());
          signature_plain_text.ReplaceNoCase(_T("%User.LastName%"), sender_account->GetPersonLastName());
+         signature_plain_text.ReplaceNoCase(_T("%User.Address%"), sender_account->GetAddress());
 
          signature_html.ReplaceNoCase(_T("%User.FirstName%"), sender_account->GetPersonFirstName());
          signature_html.ReplaceNoCase(_T("%User.LastName%"), sender_account->GetPersonLastName());
+         signature_html.ReplaceNoCase(_T("%User.Address%"), sender_account->GetAddress());
       }
 
       auto text_plain_body_part = message_data->GetBodyTextPlainPart();

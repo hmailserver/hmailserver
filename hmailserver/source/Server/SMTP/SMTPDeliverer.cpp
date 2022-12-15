@@ -82,11 +82,34 @@ namespace HM
       // Fetch the message ID before we delete the message and it's reset.
       __int64 messageID = pMessage->GetID();
 
-      String sSendersIP;
+      // Before we do anything else, check that the message file exists. If the file
+      // does not exist, there is nothing to deliver. So if the file does not exist,
+      // delete pMessage from the database and report in the application log.
+      const String messageFileName = PersistentMessage::GetFileName(pMessage);
+      if (!FileUtilities::Exists(messageFileName))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5006, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered since the data file does not exist.");
+         PersistentMessage::DeleteObject(pMessage);
+         return;
+      }
+
+      if (pMessage->GetRecipients()->GetCount() == 0)
+      {
+         // No remaining recipients.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5007, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered. No remaining recipients. File: " + messageFileName);
+
+         PersistentMessage::DeleteObject(pMessage);
+         return;
+      }
+
+      auto sSendersIP = MessageUtilities::GetSendersIP(pMessage);
+      String preprocessingFailureReason;
       RuleResult globalRuleResult;
-      if (!PreprocessMessage_(pMessage, sSendersIP, globalRuleResult))
+      if (!PreprocessMessage_(pMessage, globalRuleResult, preprocessingFailureReason))
       {
          // Message delivery was aborted during preprocessing.
+         LogAwstatsMessageRejected_(sSendersIP, pMessage, preprocessingFailureReason);
+         PersistentMessage::DeleteObject(pMessage);
          return;
       }
 
@@ -141,39 +164,16 @@ namespace HM
    // Returns true if delivery should continue. False if it should be aborted.
    //---------------------------------------------------------------------------()
    bool
-   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, String &sendersIP, RuleResult &globalRuleResult)
+   SMTPDeliverer::PreprocessMessage_(std::shared_ptr<Message> pMessage, RuleResult &globalRuleResult, String &preprocessingFailureReason)
    {
-      // Before we do anything else, check that the message file exists. If the file
-      // does not exist, there is nothing to deliver. So if the file does not exist,
-      // delete pMessage from the database and report in the application log.
-      const String messageFileName = PersistentMessage::GetFileName(pMessage);
-      if (!FileUtilities::Exists(messageFileName))
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5006, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered since the data file does not exist.");
-         PersistentMessage::DeleteObject(pMessage);
-
-         return false;
-      }
-
-      if (pMessage->GetRecipients()->GetCount() == 0)
-      {
-         // No remaining recipients.
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5007, "SMTPDeliverer::DeliverMessage()", "Message " + StringParser::IntToString(pMessage->GetID()) + " could not be delivered. No remaining recipients. File: " + messageFileName);
-
-         PersistentMessage::DeleteObject(pMessage);
-         return false;
-      }
-
-      if (AWStats::GetEnabled())
-      {
-         sendersIP = MessageUtilities::GetSendersIP(pMessage);
-      }
+      preprocessingFailureReason = "";
 
       // Create recipient list.
       String sRecipientList = pMessage->GetRecipients()->GetCommaSeperatedRecipientList();
 
       String log_from_address = pMessage->GetFromAddress().IsEmpty() ? "<Empty>" : pMessage->GetFromAddress();
 
+      auto messageFileName = PersistentMessage::GetFileName(pMessage);
       String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: Delivering message from {1} to {2}. File: {3}",
                                                 pMessage->GetID(), log_from_address, sRecipientList, messageFileName);
 
@@ -182,36 +182,28 @@ namespace HM
       // Run the first event in the delivery chain
       if (!Events::FireOnDeliveryStart(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
-         return false;
-      }
-
-      if (pMessage->GetRecipients()->GetCount() == 0)
-      {
-         std::vector<String> saErrorMessages;
-         SubmitErrorLog_(pMessage, saErrorMessages);
-         PersistentMessage::DeleteObject(pMessage);
+         preprocessingFailureReason = "Delivery cancelled by OnDeliveryStart-event";
          return false;
       }
 
       // Run virus protection.
       if (!RunVirusProtection_(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during virus scanning");
+         preprocessingFailureReason = "Message delivery cancelled during virus scanning";
          return false;
       }
 
       // Apply rules on this message.
       if (!RunGlobalRules_(pMessage, globalRuleResult))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during global rules");
+         preprocessingFailureReason = "Message delivery cancelled during global rules";
          return false;
       }
 
       // Run the OnDeliverMessage-event
       if (!Events::FireOnDeliverMessage(pMessage))
       {
-         LogAwstatsMessageRejected_(sendersIP, pMessage, "Message delivery cancelled during OnDeliverMessage-event");
+         preprocessingFailureReason = "Message delivery cancelled during OnDeliverMessage-event";
          return false;
       }
 
@@ -356,12 +348,10 @@ namespace HM
          if (antiVirusConfig.AVNotifySender())
             SMTPVirusNotifier::CreateMessageDeletedNotification(pMessage, pMessage->GetFromAddress());
 
-         String logMessage = Formatter::Format("SMTPDeliverer - Message {0}: Message deleted (contained virus {1}).", 
+         String logMessage = Formatter::Format("SMTPDeliverer - Message {0}: Message will be deleted (contained virus {1}).",
             pMessage->GetID(), virusName);
 
          LOG_APPLICATION(logMessage);
-
-         PersistentMessage::DeleteObject(pMessage);
          
          return false; // do not continue delivery
 
@@ -440,13 +430,12 @@ namespace HM
 
          String sMessage;
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-            _T("Message deleted. Action was taken by a global rule (%s). "),
+            _T("Message will be deleted. Action triggered by a global rule (%s). "),
             pMessage->GetID(), 
             sDeleteRuleName.c_str());
 
          LOG_APPLICATION(sMessage);
 
-         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
@@ -463,8 +452,8 @@ namespace HM
    // client to the server.
    //---------------------------------------------------------------------------()
    {
-      // Check that message exists, and that the awstats log is enabled.
-      if (!pMessage || !AWStats::GetEnabled())
+      // Check that message exists
+      if (!pMessage)
          return;
 
       // Go through the recipients and log one row for each of them.

@@ -12,10 +12,10 @@ namespace RegressionTests.Infrastructure.Persistence
    public class Maintenance : TestFixtureBase
    {
       [Test]
-      [ExpectedException(typeof (COMException), ExpectedMessage = "Unknown maintenance operation.")]
       public void TestUnknownOperation()
       {
-         _application.Utilities.PerformMaintenance((eMaintenanceOperation) 234);
+         var ex = Assert.Throws<COMException>(() => _application.Utilities.PerformMaintenance((eMaintenanceOperation) 234));
+         StringAssert.Contains("Unknown maintenance operation.", ex.Message);
       }
 
       [Test]

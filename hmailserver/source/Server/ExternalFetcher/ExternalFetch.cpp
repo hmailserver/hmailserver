@@ -5,15 +5,10 @@
 
 #include ".\ExternalFetch.h"
 #include "..\Common\BO\FetchAccount.h"
-#include "..\Common\BO\Account.h"
-#include "..\Common\BO\SecurityRange.h"
 #include "../common/Util/Event.h"
-#include "../Common/Util/Utilities.h"
 #include "../Common/TCPIP/IOService.h"
 #include "../Common/TCPIP/DNSResolver.h"
-#include "../Common/Cache/CacheContainer.h"
 #include "../common/TCPIP/TCPConnection.h"
-#include "../common/TCPIP/SslContextInitializer.h"
 #include "POP3ClientConnection.h"
 
 
@@ -53,7 +48,7 @@ namespace HM
       DNSResolver resolver;
 
       std::vector<String> ip_addresses;
-      resolver.GetIpAddresses(pFA->GetServerAddress(), ip_addresses);
+      resolver.GetIpAddresses(pFA->GetServerAddress(), ip_addresses, true);
 
       String ip_address;
       if (ip_addresses.size())

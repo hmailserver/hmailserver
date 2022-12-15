@@ -38,18 +38,18 @@ namespace HM
       sep_svc_logs_(false),
 	  rewrite_envelope_from_when_forwarding_(false),
       archive_hardlinks_(false),
-      pop3dmin_timeout_(false),
-      pop3dmax_timeout_(false),
-      pop3cmin_timeout_(false),
-      pop3cmax_timeout_(false),
-      smtpdmin_timeout_(false),
-      smtpdmax_timeout_(false),
-      smtpcmin_timeout_(false),
-      smtpcmax_timeout_(false),
-      samin_timeout_(false),
-      samax_timeout_(false),
-      clam_min_timeout_(false),
-      clam_max_timeout_(false),
+      pop3dmin_timeout_(0),
+      pop3dmax_timeout_(0),
+      pop3cmin_timeout_(0),
+      pop3cmax_timeout_(0),
+      smtpdmin_timeout_(0),
+      smtpdmax_timeout_(0),
+      smtpcmin_timeout_(0),
+      smtpcmax_timeout_(0),
+      samin_timeout_(0),
+      samax_timeout_(0),
+      clam_min_timeout_(0),
+      clam_max_timeout_(0),
       samove_vs_copy_(false),
       indexer_full_minutes_(0),
       indexer_full_limit_(0),
@@ -59,7 +59,8 @@ namespace HM
       blocked_iphold_seconds_(0),
       smtpdmax_size_drop_(0),
       backup_messages_dbonly_(false),
-      add_xauth_user_ip_(false)
+      add_xauth_user_ip_(false),
+      use_dns_cache_(true)
       
    {
 
@@ -86,6 +87,7 @@ namespace HM
       password_ = ReadIniSettingString_("Database", "Password", "");
       is_internal_database_ = ReadIniSettingInteger_("Database", "Internal", 0) == 1;
       database_server_FailoverPartner = ReadIniSettingString_("Database", "ServerFailoverPartner", "");
+      database_provider_ = ReadIniSettingString_("Database", "Provider", "");
 
       String sDatabaseType = ReadIniSettingString_("Database", "Type", "");
       
@@ -138,6 +140,8 @@ namespace HM
 
       max_no_of_external_fetch_threads_ = ReadIniSettingInteger_("Settings", "MaxNumberOfExternalFetchThreads", 15);
       add_xauth_user_header_ = ReadIniSettingInteger_("Settings", "AddXAuthUserHeader", 0) == 1;
+
+      daemonaddress_domain_ = ReadIniSettingString_("Settings", "DaemonAddressDomain", "");
       
       greylisting_enabled_during_record_expiration_ = ReadIniSettingInteger_("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;
       greylisting_expiration_interval_ = ReadIniSettingInteger_("Settings", "GreylistingRecordExpirationInterval", 240);
@@ -191,7 +195,8 @@ namespace HM
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
-
+      use_dns_cache_ = ReadIniSettingInteger_("Settings", "UseDNSCache", 1) == 1;
+      dns_server_ = ReadIniSettingString_("Settings", "DNSServer", "");
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
    }

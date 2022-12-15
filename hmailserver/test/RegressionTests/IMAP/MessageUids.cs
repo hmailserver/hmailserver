@@ -15,28 +15,28 @@ namespace RegressionTests.IMAP
    {
       private void CreateMessageModificationRule(hMailServer.Rules ruleContainer)
       {
-         Rule oRule = ruleContainer.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = ruleContainer.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRARunScriptFunction;
-         oRuleAction.ScriptFunction = "ModifyMessage";
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRARunScriptFunction;
+         ruleAction.ScriptFunction = "ModifyMessage";
+         ruleAction.Save();
 
-         oRule.Save();
+         rule.Save();
 
          File.WriteAllText(_settings.Scripting.CurrentScriptFile,
-                           "Sub ModifyMessage(oMessage)" + Environment.NewLine +
-                           "oMessage.Subject = \"[Spam] \" + CStr(oMessage.Subject)" + Environment.NewLine +
-                           "oMessage.Save" + Environment.NewLine +
+                           "Sub ModifyMessage(message)" + Environment.NewLine +
+                           "message.Subject = \"[Spam] \" + CStr(message.Subject)" + Environment.NewLine +
+                           "message.Save" + Environment.NewLine +
                            "End Sub");
 
          _settings.Scripting.Reload();
@@ -44,23 +44,23 @@ namespace RegressionTests.IMAP
 
       private void CreateMoveRule(hMailServer.Rules ruleContainer, string foldername)
       {
-         Rule oRule = ruleContainer.Add();
-         oRule.Name = "Criteria test";
-         oRule.Active = true;
+         Rule rule = ruleContainer.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
 
-         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
-         oRuleCriteria.UsePredefined = true;
-         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
-         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
-         oRuleCriteria.MatchValue = "0";
-         oRuleCriteria.Save();
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
 
-         RuleAction oRuleAction = oRule.Actions.Add();
-         oRuleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         oRuleAction.IMAPFolder = foldername;
-         oRuleAction.Save();
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
+         ruleAction.IMAPFolder = foldername;
+         ruleAction.Save();
 
-         oRule.Save();
+         rule.Save();
       }
 
       [Test]

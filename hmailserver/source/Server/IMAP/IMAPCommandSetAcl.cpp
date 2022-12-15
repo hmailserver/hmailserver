@@ -10,7 +10,6 @@
 #include "IMAPConfiguration.h"
 
 #include "../Common/Application/ACLManager.h"
-#include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/ACLPermission.h"
 

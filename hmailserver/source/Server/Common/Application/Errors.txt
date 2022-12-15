@@ -1,3 +1,6 @@
+4401, Too many recursions during IP address lookup. Query: {0}
+4402, Too many recursions during TXT record lookup. Query: {0}
+4403, Too many recursions during MX record lookup. Query: {0}
 5121, PersistentACLPermission::SaveObject, ACL item of type PTAnyone not initialized correctly.
 5122, SQLCEConnection::_UpgradeDatabase(), Failed to create instance of SQL CE Engine.
 5123, SQLCEConnection::_UpgradeDatabase(), Failed to upgrade SQL CE database. HRESULT:
@@ -45,7 +48,7 @@
 5305, DKIMSigner::Sign, Either the selector or private key file was not specified.
 5306, DKIMSigner::Sign, Message signing using DKIM failed.
 5307, DKIM::Sign, Creation of canonicalization method failed.
-5308, DKIM::Sign, Failed to create siganture.
+5308, DKIM::Sign, Failed to create signature.
 5309, DKIM::_SignHash, Unable to read the private key file into memory.
 5310, DKIM::_SignHash, Unable to parse the private key file.
 5311, DKIM::_SignHash, Call to EVP_SignFinal failed.
@@ -117,6 +120,7 @@
 5601, _AtlModule.WinMain returned {0}.
 5602, Unable to read install path from HKEY_LOCAL_MACHINE\SOFTWARE\\hMailServer. Using fallback method.
 5603, Unable to enable Diffie-Hellman key agreement. The required file {0} does not exist.
+5604, TCPConnection::AsyncHandshake, Failed to configure OpenSSL SNI. Expected remote host name: {0}.
 5700, Could not delete the directory %s.
 5701, Parsing HTML body with regular expression threw a runtime_error
 5702, A regex match was found, but there were <2 matches in the result

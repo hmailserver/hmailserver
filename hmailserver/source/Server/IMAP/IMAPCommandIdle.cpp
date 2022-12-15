@@ -7,9 +7,6 @@
 #include "IMAPConfiguration.h"
 #include "IMAPStore.h"
 
-#include "../Common/BO/Messages.h"
-#include "../Common/BO/IMAPFolder.h"
-
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW

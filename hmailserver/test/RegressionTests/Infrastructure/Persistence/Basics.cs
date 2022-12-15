@@ -16,28 +16,28 @@ namespace RegressionTests.Infrastructure.Persistence
       [Test]
       public void TestAccount()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "perste'ster@test.com", "test");
-         if (oAccount1.ID == 0)
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "perste'ster@test.com", "test");
+         if (account1.ID == 0)
             throw new Exception("Account not properly saved");
 
-         _domain.Accounts.DeleteByDBID(oAccount1.ID);
+         _domain.Accounts.DeleteByDBID(account1.ID);
       }
 
       [Test]
       public void TestAlias()
       {
-         Alias oAlias = SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "fr'om@test.com", "to@t'st.com");
-         if (oAlias.ID == 0)
+         Alias alias = SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "fr'om@test.com", "to@t'st.com");
+         if (alias.ID == 0)
             throw new Exception("Account not properly saved");
 
-         _domain.Aliases.DeleteByDBID(oAlias.ID);
+         _domain.Aliases.DeleteByDBID(alias.ID);
       }
 
       [Test]
       public void TestBlockedAttachment()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         BlockedAttachment attachment = oSettings.AntiVirus.BlockedAttachments.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         BlockedAttachment attachment = settings.AntiVirus.BlockedAttachments.Add();
 
          attachment.Description = "Some description";
          attachment.Wildcard = "*.some";
@@ -46,7 +46,7 @@ namespace RegressionTests.Infrastructure.Persistence
          if (attachment.ID == 0)
             throw new Exception("Blocked attachment not properly saved");
 
-         oSettings.AntiVirus.BlockedAttachments.DeleteByDBID(attachment.ID);
+         settings.AntiVirus.BlockedAttachments.DeleteByDBID(attachment.ID);
       }
 
 
@@ -107,15 +107,14 @@ namespace RegressionTests.Infrastructure.Persistence
 
          DistributionListRecipient recipient = list.Recipients[0];
          recipient.RecipientAddress = testAccount.Address.ToUpper();
-
          recipient.Delete();
       }
 
       [Test]
       public void TestDNSBlackList()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         DNSBlackList dnsBlackList = oSettings.AntiSpam.DNSBlackLists.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         DNSBlackList dnsBlackList = settings.AntiSpam.DNSBlackLists.Add();
 
          dnsBlackList.DNSHost = "somehost.com";
          dnsBlackList.RejectMessage = "somerejectmessage";
@@ -126,24 +125,24 @@ namespace RegressionTests.Infrastructure.Persistence
          if (dnsBlackList.ID == 0)
             throw new Exception("DNS blacklist not saved properly");
 
-         oSettings.AntiSpam.DNSBlackLists.DeleteByDBID(dnsBlackList.ID);
+         settings.AntiSpam.DNSBlackLists.DeleteByDBID(dnsBlackList.ID);
       }
 
       [Test]
       public void TestDistributionList()
       {
-         DistributionList oList = _domain.DistributionLists.Add();
-         oList.Address = "persis'tent-test-list@test.com";
-         oList.Active = true;
-         oList.Save();
+         DistributionList list = _domain.DistributionLists.Add();
+         list.Address = "persis'tent-test-list@test.com";
+         list.Active = true;
+         list.Save();
 
-         DistributionListRecipient oRecipient = oList.Recipients.Add();
-         oRecipient.RecipientAddress = "test@te'st.com";
-         oRecipient.Save();
+         DistributionListRecipient recipient = list.Recipients.Add();
+         recipient.RecipientAddress = "test@te'st.com";
+         recipient.Save();
 
-         oRecipient.RecipientAddress = "tes't2@test.com";
-         oRecipient.Save();
-         oList.Delete();
+         recipient.RecipientAddress = "tes't2@test.com";
+         recipient.Save();
+         list.Delete();
       }
 
       [Test]
@@ -217,16 +216,16 @@ namespace RegressionTests.Infrastructure.Persistence
       [Test]
       public void TestFetchAccount()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "fatester@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "fatester@test.com", "test");
 
-         FetchAccount oFA = oAccount1.FetchAccounts.Add();
-         oFA.Name = "test";
-         oFA.Save();
+         FetchAccount fetchAccount = account1.FetchAccounts.Add();
+         fetchAccount.Name = "test";
+         fetchAccount.Save();
 
-         if (oFA.ID == 0)
+         if (fetchAccount.ID == 0)
             throw new Exception("Fetch account could not be saved");
 
-         oAccount1.FetchAccounts.Delete(0);
+         account1.FetchAccounts.Delete(0);
       }
 
       [Test]
@@ -379,13 +378,13 @@ namespace RegressionTests.Infrastructure.Persistence
       [Description("Issue 343, Changing domain name doesn't change distribution list addresses")]
       public void TestRenameDomainWithAccountForward()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@test.com", "test");
-         oAccount1.ForwardAddress = "someone@test.com";
-         oAccount1.Save();
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@test.com", "test");
+         account1.ForwardAddress = "someone@test.com";
+         account1.Save();
 
-         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@test.com", "test");
-         oAccount2.ForwardAddress = "someone@external.com";
-         oAccount2.Save();
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@test.com", "test");
+         account2.ForwardAddress = "someone@external.com";
+         account2.Save();
 
          _domain.Name = "example.com";
          _domain.Save();
@@ -430,22 +429,22 @@ namespace RegressionTests.Infrastructure.Persistence
       [Description("Issue 343, Changing domain name doesn't change distribution list addresses")]
       public void TestRenameDomainWithList()
       {
-         DistributionList oList = _domain.DistributionLists.Add();
-         oList.Address = "list@test.com";
-         oList.Active = true;
-         oList.Save();
+         DistributionList list1 = _domain.DistributionLists.Add();
+         list1.Address = "list@test.com";
+         list1.Active = true;
+         list1.Save();
 
-         DistributionListRecipient oRecipient = oList.Recipients.Add();
-         oRecipient.RecipientAddress = "recipient1@test.com";
-         oRecipient.Save();
+         DistributionListRecipient recipient = list1.Recipients.Add();
+         recipient.RecipientAddress = "recipient1@test.com";
+         recipient.Save();
 
-         oRecipient = oList.Recipients.Add();
-         oRecipient.RecipientAddress = "recipient2@Test.com";
-         oRecipient.Save();
+         recipient = list1.Recipients.Add();
+         recipient.RecipientAddress = "recipient2@Test.com";
+         recipient.Save();
 
-         oRecipient = oList.Recipients.Add();
-         oRecipient.RecipientAddress = "recipient3@otherdomain.com";
-         oRecipient.Save();
+         recipient = list1.Recipients.Add();
+         recipient.RecipientAddress = "recipient3@otherdomain.com";
+         recipient.Save();
 
          _domain.Name = "example.com";
          _domain.Save();
@@ -478,8 +477,8 @@ namespace RegressionTests.Infrastructure.Persistence
       [Test]
       public void TestRoute()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         Route route = oSettings.Routes.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         Route route = settings.Routes.Add();
 
          route.DomainName = "myroute.com";
          route.TargetSMTPHost = "somehost.com";
@@ -490,15 +489,15 @@ namespace RegressionTests.Infrastructure.Persistence
          if (route.ID == 0)
             throw new Exception("Route not saved properly");
 
-         oSettings.Routes.DeleteByDBID(route.ID);
+         settings.Routes.DeleteByDBID(route.ID);
       }
 
 
       [Test]
       public void TestSSLCertificate()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         SSLCertificate sslcert = oSettings.SSLCertificates.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         SSLCertificate sslcert = settings.SSLCertificates.Add();
 
          sslcert.CertificateFile = "somefile.dat";
          sslcert.PrivateKeyFile = "someprivatefile.dat";
@@ -507,14 +506,14 @@ namespace RegressionTests.Infrastructure.Persistence
          if (sslcert.ID == 0)
             throw new Exception("SSL certificate not saved properly");
 
-         oSettings.SSLCertificates.DeleteByDBID(sslcert.ID);
+         settings.SSLCertificates.DeleteByDBID(sslcert.ID);
       }
 
       [Test]
       public void TestSURBLServer()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         SURBLServer surblServer = oSettings.AntiSpam.SURBLServers.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         SURBLServer surblServer = settings.AntiSpam.SURBLServers.Add();
 
          surblServer.DNSHost = "somehost.com";
          surblServer.RejectMessage = "somerejectmessage";
@@ -525,14 +524,14 @@ namespace RegressionTests.Infrastructure.Persistence
          if (surblServer.ID == 0)
             throw new Exception("SURBL server not saved properly");
 
-         oSettings.AntiSpam.SURBLServers.DeleteByDBID(surblServer.ID);
+         settings.AntiSpam.SURBLServers.DeleteByDBID(surblServer.ID);
       }
 
       [Test]
       public void TestWhiteListAddress()
       {
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-         WhiteListAddress whiteAddress = oSettings.AntiSpam.WhiteListAddresses.Add();
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         WhiteListAddress whiteAddress = settings.AntiSpam.WhiteListAddresses.Add();
 
          whiteAddress.Description = "My description of this entry";
          whiteAddress.EmailAddress = "myaddress@dummy-example.com";
@@ -541,7 +540,7 @@ namespace RegressionTests.Infrastructure.Persistence
          if (whiteAddress.ID == 0)
             throw new Exception("White list address not saved properly");
 
-         oSettings.AntiSpam.WhiteListAddresses.DeleteByDBID(whiteAddress.ID);
+         settings.AntiSpam.WhiteListAddresses.DeleteByDBID(whiteAddress.ID);
       }
    }
 }

@@ -12,8 +12,8 @@
 #include "../BO/DomainAliases.h"
 #include "../Util/SSPIValidation.h"
 #include "../Util/Crypt.h"
-#include "../Persistence/PersistentDomain.h"
-#include "../Persistence/PersistentAccount.h"
+#include "../Scripting/Result.h"
+#include "../Scripting/Events.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -108,6 +108,24 @@ namespace HM
    bool 
    PasswordValidator::ValidatePassword(std::shared_ptr<const Account> pAccount, const String &sPassword)
    {
+      // Let a script override the password validation
+      auto eventResult = Events::FireOnClientValidatePassword(pAccount, sPassword);
+
+      if (eventResult != nullptr)
+      {
+         if (eventResult->GetValue() == 0)
+         {
+            // The script said to let the user through.
+            return true;
+         }
+
+         if (eventResult->GetValue() == 1)
+         {
+            // The script said the password wasn't correct.
+            return false;
+         }
+      }
+
       if (sPassword.GetLength() == 0)
       {
          // Empty passwords are not permitted.

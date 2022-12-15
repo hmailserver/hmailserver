@@ -3,12 +3,14 @@
 
 #include "stdafx.h"
 #include "persistentdistributionlistrecipient.h"
+
+#include "../Cache/Cache.h"
+
 #include "PersistentDistributionList.h"
 #include "PreSaveLimitationsCheck.h"
 #include "PersistenceMode.h"
 
 #include "../BO/DistributionList.h"
-#include "../Cache/Cache.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

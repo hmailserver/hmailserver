@@ -25,21 +25,21 @@ namespace RegressionTests.SMTP
 
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
-         var oRecipients = new List<string>();
-         oRecipients.Add("test@dummy-example.com");
+         var recipients = new List<string>();
+         recipients.Add("test@dummy-example.com");
 
-         DistributionList oList3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com",
-                                                                                             oRecipients);
-         oList3.Mode = eDistributionListMode.eLMAnnouncement;
-         oList3.RequireSenderAddress = "test@dummy-example.com";
-         oList3.Save();
+         DistributionList list3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com",
+                                                                                             recipients);
+         list3.Mode = eDistributionListMode.eLMAnnouncement;
+         list3.RequireSenderAddress = "test@dummy-example.com";
+         list3.Save();
 
          // THIS MESSAGE SHOULD FAIL
          CustomAsserts.Throws<DeliveryFailedException>(()=> smtpClientSimulator.Send("test@test.com", "list@test.com", "Mail 1", "Mail 1"));
 
-         DomainAlias oDA = _domain.DomainAliases.Add();
-         oDA.AliasName = "dummy-example.com";
-         oDA.Save();
+         DomainAlias domainAlias = _domain.DomainAliases.Add();
+         domainAlias.AliasName = "dummy-example.com";
+         domainAlias.Save();
 
          // THIS MESSAGE SHOULD SUCCEED
          smtpClientSimulator.Send("test@dummy-example.com", "list@dummy-example.com", "Mail 1", "Mail 1");
@@ -50,13 +50,13 @@ namespace RegressionTests.SMTP
       public void TestDistributionListPointingAtItself()
       {
          // Add distribution list
-         var oRecipients = new List<string>();
-         oRecipients.Add("recipient1@test.com");
-         oRecipients.Add("recipient2@test.com");
-         oRecipients.Add("recipient4@test.com");
-         oRecipients.Add("list1@test.com");
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("recipient4@test.com");
+         recipients.Add("list1@test.com");
 
-         SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", oRecipients);
+         SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
@@ -74,23 +74,23 @@ namespace RegressionTests.SMTP
       public void TestDistributionListWithEmptyAddress()
       {
          // Add distribution list
-         var oRecipients = new List<string>();
-         oRecipients.Add("recipient1@test.com");
-         oRecipients.Add("recipient2@test.com");
-         oRecipients.Add("");
-         oRecipients.Add("recipient4@test.com");
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("");
+         recipients.Add("recipient4@test.com");
 
          try
          {
-            SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", oRecipients);
+            SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
          }
          catch (Exception ex)
          {
-            Assert.IsTrue(ex.Message.Contains("The recipient address is empty"));
+            Assert.IsTrue(ex.Message.Contains("The recipient address is empty"), ex.Message);
             return;
          }
 
-         Assert.Fail("No error reported when creating distribution list recipient with empty address");
+         Assert.Fail("No error reported when creating distribution list list with empty address");
       }
 
       [Test]
@@ -117,8 +117,8 @@ namespace RegressionTests.SMTP
          var smtpClient = new SmtpClientSimulator();
          smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1");
          
-         foreach (var recipient in recipients)
-            ImapClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
+         foreach (var recipientAddress in recipients)
+            ImapClientSimulator.AssertMessageCount(recipientAddress, "test", "Inbox", 1);
       }
 
 
@@ -148,8 +148,8 @@ namespace RegressionTests.SMTP
          CustomAsserts.Throws<DeliveryFailedException>(() => smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
          smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1");
 
-         foreach (var recipient in recipients)
-            ImapClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
+         foreach (var recipientAddress in recipients)
+            ImapClientSimulator.AssertMessageCount(recipientAddress, "test", "Inbox", 1);
       }
 
       [Test]
@@ -179,25 +179,25 @@ namespace RegressionTests.SMTP
          CustomAsserts.Throws<DeliveryFailedException>(() => smtpClient.Send(announcer.Address, list.Address, "Mail 1", "Mail 1"));
          smtpClient.Send(recipients[0], list.Address, "Mail 1", "Mail 1");
 
-         foreach (var recipient in recipients)
-            ImapClientSimulator.AssertMessageCount(recipient, "test", "Inbox", 1);
+         foreach (var recipientAddress in recipients)
+            ImapClientSimulator.AssertMessageCount(recipientAddress, "test", "Inbox", 1);
       }
 
       [Test]
       public void TestDistributionListsMembershipDomainAliases()
       {
-         var oIMAP = new ImapClientSimulator();
+         var imap = new ImapClientSimulator();
          var smtpClientSimulator = new SmtpClientSimulator();
 
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
 
 
-         DomainAlias oDA = _domain.DomainAliases.Add();
-         oDA.AliasName = "dummy-example.com";
-         oDA.Save();
+         DomainAlias domainAlias = _domain.DomainAliases.Add();
+         domainAlias.AliasName = "dummy-example.com";
+         domainAlias.Save();
 
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@test.com", "test");
-         oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@test.com", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@test.com", "test");
+         account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@test.com", "test");
 
 
          // 
@@ -205,30 +205,30 @@ namespace RegressionTests.SMTP
          // 
 
 
-         var oRecipients = new List<string>();
-         oRecipients.Clear();
-         oRecipients.Add("vaffe@dummy-example.com");
+         var recipients = new List<string>();
+         recipients.Clear();
+         recipients.Add("vaffe@dummy-example.com");
 
-         DistributionList oList3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com",
-                                                                                             oRecipients);
-         oList3.Mode = eDistributionListMode.eLMMembership;
-         oList3.Save();
+         DistributionList list3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com",
+                                                                                             recipients);
+         list3.Mode = eDistributionListMode.eLMMembership;
+         list3.Save();
 
          // THIS MESSAGE SHOULD FAIL - Membership required, unknown sender domain
          CustomAsserts.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1"));
 
-         oList3.Delete();
+         list3.Delete();
 
          // THIS MESSAGE SHOULD SUCCED - Membership required, sender domain is now an alias for test.com.
 
-         oRecipients = new List<string>();
-         oRecipients.Clear();
-         oRecipients.Add("account1@dummy-example.com");
-         oRecipients.Add("account2@test.com");
+         recipients = new List<string>();
+         recipients.Clear();
+         recipients.Add("account1@dummy-example.com");
+         recipients.Add("account2@test.com");
 
-         oList3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com", oRecipients);
-         oList3.Mode = eDistributionListMode.eLMMembership;
-         oList3.Save();
+         list3 = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@test.com", recipients);
+         list3.Mode = eDistributionListMode.eLMMembership;
+         list3.Save();
 
          smtpClientSimulator.Send("account1@dummy-example.com", "list@test.com", "Mail 1", "Mail 1");
 

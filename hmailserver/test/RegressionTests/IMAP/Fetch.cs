@@ -35,11 +35,11 @@ namespace RegressionTests.IMAP
 
          CustomAsserts.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 BODYSTRUCTURE");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 BODYSTRUCTURE");
+         simulator.Disconnect();
 
          // utf-8 representation of 本本本.zip:
          Assert.IsTrue(result.Contains("=?utf-8?B?5pys5pys5pys?=.zip"));
@@ -93,12 +93,12 @@ namespace RegressionTests.IMAP
 
          CustomAsserts.AssertFolderMessageCount(account.IMAPFolders[0], 1);
 
-         var oSimulator = new ImapClientSimulator();
-         oSimulator.ConnectAndLogon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string bodyStructureResponse = oSimulator.Fetch("1 BODYSTRUCTURE");
-         string bodyResponse = oSimulator.Fetch("1 BODY");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string bodyStructureResponse = simulator.Fetch("1 BODYSTRUCTURE");
+         string bodyResponse = simulator.Fetch("1 BODY");
+         simulator.Disconnect();
 
          Assert.IsTrue(bodyStructureResponse.Contains("BOUNDARY"));
          Assert.IsFalse(bodyResponse.Contains("BOUNDARY"));
@@ -122,12 +122,12 @@ namespace RegressionTests.IMAP
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 ENVELOPE");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 ENVELOPE");
+         simulator.Disconnect();
 
          Assert.IsTrue(result.Contains("Wed, 22 Apr 2009 11:05:09 GMT"));
       }
@@ -149,12 +149,12 @@ namespace RegressionTests.IMAP
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 ENVELOPE");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 ENVELOPE");
+         simulator.Disconnect();
 
          Assert.IsFalse(result.Contains("ShouldBeEncodedDueToQuote"));
       }
@@ -178,12 +178,12 @@ namespace RegressionTests.IMAP
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject From)]");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject From)]");
+         simulator.Disconnect();
 
 
          Assert.IsTrue(result.Contains("Subject: Something"));
@@ -210,12 +210,12 @@ namespace RegressionTests.IMAP
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject Subject)]");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject Subject)]");
+         simulator.Disconnect();
 
          Assert.AreEqual(1, StringExtensions.Occurences(result, "SubjectText"));
       }
@@ -239,12 +239,12 @@ namespace RegressionTests.IMAP
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         var oSimulator = new ImapClientSimulator();
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.Logon(account.Address, "test");
-         oSimulator.SelectFolder("INBOX");
-         string result = oSimulator.Fetch("1 BODY.PEEK[HEADER.FIELDS.NOT (Subject From)]");
-         oSimulator.Disconnect();
+         var simulator = new ImapClientSimulator();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.Logon(account.Address, "test");
+         simulator.SelectFolder("INBOX");
+         string result = simulator.Fetch("1 BODY.PEEK[HEADER.FIELDS.NOT (Subject From)]");
+         simulator.Disconnect();
 
 
          Assert.IsTrue(result.Contains("Received:"), result);

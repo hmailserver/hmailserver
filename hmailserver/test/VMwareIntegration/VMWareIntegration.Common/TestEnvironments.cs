@@ -11,118 +11,91 @@ namespace VMwareIntegration.Common
 {
    public class TestEnvironments
    {
-      private static string WindowsXPPath = @"D:\Build\VMware\Windows XP Professional\Windows XP Professional.vmx";
-      private static string WindowsXPPostgreSQL831Path = @"D:\Build\VMWare\Windows XP - PostgreSQL 8.3.1 (Link)\Windows XP - PostgreSQL 8.3.1 (Link).vmx";
-      private static string WindowsXPMySQL5_0_51Path = @"D:\Build\VMWare\Windows XP - MySQL 5.0.51 (Link)\Windows XP - MySQL 5.0.51 (Link).vmx";
-      private static string WindowsXPMySQL5_6_20Path = @"D:\Build\VMWare\Windows XP - MySQL 5.6.20 (Link)\Windows XP - MySQL 5.6.20 (Link).vmx";
-      private static string WindowsXPSQLServer2005Path = @"D:\Build\VMWare\Windows XP - SQL Server 2005\Windows XP - SQL Server 2005.vmx";
-      private static string WindowsXPSQLServer2000Path = @"D:\Build\VMWare\Windows XP - SQL Server 2000 (Link)\Windows XP - SQL Server 2000 (Link).vmx";
-      private static string WindowsXPHmail441SQLServerPath = @"D:\Build\VMWare\Windows XP - hMailServer 4.4.1 (SQL Server) (Link)\Windows XP - hMailServer 4.4.1 (SQL Server) (Link).vmx";
-      private static string WindowsXPHmail50PostgreSQL8_3_1 = @"D:\Build\VMWare\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link)\Windows XP - hMailServer 5.0 B289 (PostgreSQL 8.3.1) (Link).vmx";
-                                                               
-      private static string WindowsXPHmail441InternalMySQL = @"D:\Build\VMWare\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link)\Windows XP - hMailServer 4.4.1 (Internal MySQL) (Link).vmx";
-      private static string WindowsXPHmail50InternalMSSQLCE = @"D:\Build\VMWare\Windows XP - hMailServer 5.0 (B289 Internal SQL CE)\Windows XP - hMailServer 5.0 (B289 Internal SQL CE).vmx";
-      private static string WindowsXPHmail33SQL2000 = @"D:\Build\VMWare\Windows XP - hMailServer 3.3 (B57, SQL Server 2000)\Windows XP - hMailServer 3.3 (B57, SQL Server 2000).vmx";
+      private const string VirtualMachineBasePath = @"C:\Dev\Build\VMWare";
+      
+      private const string Windows10Path = 
+         VirtualMachineBasePath + @"\Windows 10\Windows 10.vmx";
 
-      private static string Windows2003Path = @"D:\Build\VMware\Windows Server 2003 Enterprise Edition\Windows Server 2003 Enterprise Edition.vmx";
-      private static string Windows2008Path = @"D:\Build\VMware\Windows Server 2008\Windows Server 2008 (experimental).vmx";
-      private static string WindowsVistaPath = @"D:\Build\VMware\Windows Vista\Windows Vista.vmx";
+      private const string Windows10_4_4_4_InternalMySQL = 
+         VirtualMachineBasePath + @"\Windows 10 - 4.4.4 - Internal MySQL\4.4.4 - Internal MySQL.vmx";
+
+      private const string Windows10_5_0_0_InternalSQLCompact =
+         VirtualMachineBasePath + @"\Windows 10 - 5.0.0 - Internal SQL Compact\Windows 10 - 5.0.0 - Internal SQL Compact.vmx";
+
+      private const string Windows10_PostgreSQL_9_6_24 =
+         VirtualMachineBasePath + @"\Windows 10 - PostgreSQL 9.6.24\Windows 10 - PostgreSQL 9.6.24.vmx";
+
+      private const string Windows10_SQL_Server_2019 =
+         VirtualMachineBasePath + @"\Windows 10 - SQL Server 2019\Windows 10 - SQL Server 2019.vmx";
+
+      private const string Windows10_MySQL_8_0_29 =
+         VirtualMachineBasePath + @"\Windows 10 - MySQL 8.0.29\Windows 10 - MySQL 8.0.29.vmx";
+
+      private const string Windows10_4_4_4_SQL_Server_2019 =
+         VirtualMachineBasePath + @"\Windows 10 - 4.4.4 - SQL Server 2019\Windows 10 - 4.4.4 - SQL Server 2019.vmx";
+
+      private const string Windows10_5_0_0_PostgreSQL_9_6_24 =
+         VirtualMachineBasePath + @"\Windows 10 - 5.0.0 - PostgreSQL 9.6.24\Windows 10 - 5.0.0 - PostgreSQL 9.6.24.vmx";
+
+      private const string Windows10_4_4_4_MySQL_8_0_29 =
+         VirtualMachineBasePath + @"\Windows 10 - 4.4.4 - MySQL 8.0.29\Windows 10 - 4.4.4 - MySQL 8.0.29.vmx";
+
 
 
       static public void AddAll(List<TestEnvironment> listEnvironments)
       {
-         AddBasicTestEnvironments(listEnvironments);
-         AddUpgradeTests(listEnvironments);
-      }
+         // New installation
+         listEnvironments.AddRange(new List<TestEnvironment>()
+         {
+            new TestEnvironment("Windows 10", "New installation", "Internal (SQL Compact)",  Windows10Path, "Booted"),
+            new TestEnvironment("Windows 10", "New installation", "PostgreSQL 9.6.24",  Windows10_PostgreSQL_9_6_24, "Booted")
+            {
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123") }
+            },
+            new TestEnvironment("Windows 10", "New installation9", "SQL Server 2019",  Windows10_SQL_Server_2019, "Booted")
+            {
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:.\\SQLEXPRESS DatabaseName:hMailServer Authentication:SServer CreateNew:Yes Username:sa Password:Secret123") }
+            },
+            new TestEnvironment("Windows 10", "New installation", "MySQL 8.0.29",  Windows10_MySQL_8_0_29, "Booted")
+            {
+               PostInstallCommands = { new InstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123") },
+               PostInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll") }
+            }
+         });
 
-      static void AddBasicTestEnvironments(List<TestEnvironment> listEnvironments)
-      {
-         TestXPSP3(listEnvironments);
-         TestWindows2003(listEnvironments);
-         TestWindows2008(listEnvironments);
-         TestWindowsVista(listEnvironments);
+         // Upgrade tests
+         listEnvironments.AddRange(new List<TestEnvironment>()
+         {
+            new TestEnvironment("Windows 10", "Upgrade, 4.1.1", "Internal",  Windows10_4_4_4_InternalMySQL, "Booted")
+            {
+               PreInstallCommands = { new InstallCommand(@"C:\Windows\System32\net.exe", "stop hMailServer") },
+               PreInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files (x86)\hMailServer\Bin\libmySQL.dll") }
+            },
+            new TestEnvironment("Windows 10", "Upgrade, 5.0.0", "Internal",  Windows10_5_0_0_InternalSQLCompact, "Booted"),
+            new TestEnvironment("Windows 10", "Upgrade, 4.4.4", "SQL Server 2019",  Windows10_4_4_4_SQL_Server_2019, "Booted"),
+            new TestEnvironment("Windows 10", "Upgrade, 5.0.0", "PostgreSQL 9.6.24", Windows10_5_0_0_PostgreSQL_9_6_24, "Booted"),
+            new TestEnvironment("Windows 10", "Upgrade, 4.4.4", "MySQL 8.0.29", Windows10_4_4_4_MySQL_8_0_29, "Booted")
+            {
+               PreInstallCommands = { new InstallCommand(@"C:\Windows\System32\net.exe", "stop hMailServer") },
+               PreInstallFileCopy = { new FileCopyCommand(Path.Combine(GetMySQLLib()), @"C:\Program Files (x86)\hMailServer\Bin\libmySQL.dll") }
+            }
+         });
       }
-
-      private static string GetTestDataDir()
-      {
-          string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-          string testDataDir = Path.Combine(currentDir, @"..\..\..\..\TestData");
-          string shortendName = Path.GetFullPath(testDataDir);
-          return shortendName;
-      }
-
+      
       private static string GetMySQLLib()
       {
-          string name = Path.Combine(GetTestDataDir(), "MySQLLib\\libmySQL.dll");
+         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+         var librariesDir = Path.Combine(currentDir, @"..\..\..\..\..\..\..\libraries");
+         var libMySqlDir = Path.Combine(librariesDir, "libmysql-5.7.38");
 
-          if (!File.Exists(name))
-          {
-              throw new Exception("The file " + name + " could not be found.");
-          }
+         string name = Path.Combine(libMySqlDir, "libmySQL.dll");
 
-          return name;
-      }
+         if (!File.Exists(name))
+         {
+            throw new Exception("The file " + name + " could not be found.");
+         }
 
-      private static void TestXPSP3(List<TestEnvironment> listEnvironments)
-      {
-         // Internal database
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "New installation", "Internal", WindowsXPPath, "Windows XP SP3, .NET Framework 2.0"));
-
-         // Test using PostgreSQL...
-         TestEnvironment tempEnv2 = new TestEnvironment("Windows XP SP3", "New installation", "PostgreSQL 8.3.1", WindowsXPPostgreSQL831Path, "Initial");
-         tempEnv2.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:build"));
-         listEnvironments.Add(tempEnv2);
-
-         // Test using MySQL 5.0.51.
-         TestEnvironment tempEnv1 = new TestEnvironment("Windows XP SP3", "New installation", "MySQL 5.0.51", WindowsXPMySQL5_0_51Path, "Initial");
-         tempEnv1.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
-         tempEnv1.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
-         listEnvironments.Add(tempEnv1);
-
-         // Test using MySQL 5.6.20 (with proper UTF8-support).
-         TestEnvironment tempEnv3 = new TestEnvironment("Windows XP SP3", "New installation", "MySQL 5.6.20", WindowsXPMySQL5_6_20Path, "Initial");
-         tempEnv3.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:build"));
-         tempEnv3.PostInstallFileCopy.Add(new PostInstallFileCopy(Path.Combine(GetTestDataDir(), GetMySQLLib()), @"C:\Program Files\hMailServer\Bin\libmySQL.dll"));
-         listEnvironments.Add(tempEnv3);
-
-         // Test using SQL Server 2000.
-         var tempEnv4 = new TestEnvironment("Windows XP SP3", "New installation", "SQL Server 2000", WindowsXPSQLServer2000Path, "Initial");
-         tempEnv4.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:. DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
-         listEnvironments.Add(tempEnv4);
-
-         // Test using SQL Server 2005.
-         TestEnvironment tempEnv5 = new TestEnvironment("Windows XP SP3", "New installation", "SQL Server 2005", WindowsXPSQLServer2005Path, "Initial");
-         tempEnv5.PostInstallCommands.Add(new PostInstallCommand(@"C:\Program Files\hMailServer\Bin\DBSetup.exe", "/silent ServerType:MSSQL ServerAddress:HI DatabaseName:hMailServer Authentication:Windows CreateNew:Yes"));
-         listEnvironments.Add(tempEnv5);
-      }
-
-      private static void TestWindows2008(List<TestEnvironment> listEnvironments)
-      {
-         // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows 2008", "New installation", "Internal", Windows2008Path, "Windows Server 2008"));
-      }
-
-      private static void TestWindows2003(List<TestEnvironment> listEnvironments)
-      {
-         // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows 2003", "New installation", "Internal", Windows2003Path, ".NET framework 2.0 installed"));
-      }
-
-
-      private static void TestWindowsVista(List<TestEnvironment> listEnvironments)
-      {
-         // Two basics using internal database
-         listEnvironments.Add(new TestEnvironment("Windows Vista", "New installation", "Internal", WindowsVistaPath, "Windows Vista SP2"));
-      }
-
-      static void AddUpgradeTests(List<TestEnvironment> listEnvironments)
-      {
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "PostgreSQL 8.3.1", WindowsXPHmail50PostgreSQL8_3_1, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "Internal", WindowsXPHmail441InternalMySQL, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "SQL Server", WindowsXPHmail441SQLServerPath, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "Internal", WindowsXPHmail50InternalMSSQLCE, "Initial"));
-         listEnvironments.Add(new TestEnvironment("Windows XP SP3", "Upgrade", "SQL Server 2000", WindowsXPHmail33SQL2000, "Initial"));
-
+         return name;
       }
    }
 }

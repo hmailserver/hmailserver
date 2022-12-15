@@ -28,6 +28,7 @@ namespace HM
       connection_result_(connection_result)
    {
       SetTimeout(10);
+      SetAllowConnectToSelf(true);
    }
 
    TestConnection::~TestConnection()

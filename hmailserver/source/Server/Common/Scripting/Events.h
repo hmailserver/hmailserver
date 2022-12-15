@@ -15,6 +15,7 @@ namespace HM
       Events(void);
       ~Events(void);
 
+      static std::shared_ptr<Result> FireOnClientValidatePassword(std::shared_ptr<const Account> pAccount, const String &sPassword);
       static bool FireOnDeliverMessage(std::shared_ptr<Message> pMessage);
       static bool FireOnDeliveryStart(std::shared_ptr<Message> pMessage);
       static void FireOnDeliveryFailed(std::shared_ptr<Message> pMessage, const String &sSendersIP, const String &sRecipient, const String &sErrorMessage);

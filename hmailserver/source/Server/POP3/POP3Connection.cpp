@@ -6,16 +6,10 @@
 #include "../common/BO/Account.h"
 #include "../common/BO/SecurityRange.h"
 #include "../common/BO/Message.h"
-#include "../common/BO/Messages.h"
 #include "../common/util/file.h"
 #include "../common/Util/AccountLogon.h"
 #include "../common/util/ByteBuffer.h"
 #include "../Common/Application/TimeoutCalculator.h"
-
-#include "../IMAP/IMAPFolderUtilities.h"
-#include "../IMAP/IMAPFolderContainer.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 
 #include "../Common/Application/FolderManager.h"
 #include "../Common/Application/ObjectCache.h"
@@ -23,15 +17,16 @@
 #include "../Common/BO/DomainAliases.h"
 #include "../Common/Persistence/PersistentMessage.h"
 
-#include "../Common/Tracking/ChangeNotification.h"
-#include "../Common/Tracking/NotificationServer.h"
-
 #include "POP3Sessions.h"
 #include "POP3Connection.h"
 #include "POP3Configuration.h"
 #include "../Common/Util/PasswordRemover.h"
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
+
+#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -446,12 +441,32 @@ namespace HM
 
       AccountLogon accountLogon;
       bool disconnect = false;
+      String sUsername = username_;
       account_ = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
 
       if (disconnect)
       {
          EnqueueWrite_("-ERR Invalid user name or password. Too many invalid logon attempts.");
          return ResultDisconnect;
+      }
+
+      const bool isAuthenticated = account_ != nullptr;
+
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetUsername(sUsername);
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
+         pClientInfo->SetIsAuthenticated(isAuthenticated);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+         String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
       }
 
       if (!account_)

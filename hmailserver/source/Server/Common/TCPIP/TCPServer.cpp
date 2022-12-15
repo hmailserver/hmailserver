@@ -32,7 +32,8 @@ namespace HM
 {
    TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
       acceptor_(io_service),
-      context_(io_service, boost::asio::ssl::context::sslv23),
+      context_(boost::asio::ssl::context::sslv23),
+      io_service_(io_service),
       ipaddress_(ipaddress),
       port_(port),
       connection_security_(connection_security)
@@ -134,7 +135,7 @@ namespace HM
       if (acceptor_.is_open())
       {
         
-         std::shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, acceptor_.get_io_service(), context_);
+         std::shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, io_service_, context_);
 
          acceptor_.async_accept(pNewConnection->GetSocket(),
             std::bind(&TCPServer::HandleAccept, this, pNewConnection,
@@ -154,7 +155,7 @@ namespace HM
 
    void 
    TCPServer::HandleAccept(std::shared_ptr<TCPConnection> connection,
-      const boost::system::error_code& error)
+      const boost::system::error_code &error)
    {
       if (error.value() == 995)
       {
@@ -211,7 +212,7 @@ namespace HM
             return;
          }
 
-         if (!FireOnAcceptEvent(remoteAddress, localEndpoint.port()))
+         if (!FireOnAcceptEvent(connection, remoteAddress, localEndpoint.port()))
          {
             // Session has been created, but is now terminated by a custom script. Since we haven't started the
             // TCPConnection yet, we are still responsible for tracking connection count.
@@ -240,7 +241,7 @@ namespace HM
    }
 
    bool
-   TCPServer::FireOnAcceptEvent(const IPAddress &remoteAddress, int port)
+   TCPServer::FireOnAcceptEvent(std::shared_ptr<TCPConnection> connection, const IPAddress &remoteAddress, int port)
    {
       // Fire an event...
       if (!Configuration::Instance()->GetUseScriptServer())
@@ -249,6 +250,7 @@ namespace HM
       std::shared_ptr<ClientInfo> pCliInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
       pCliInfo->SetIPAddress(remoteAddress.ToString());
       pCliInfo->SetPort(port);
+      pCliInfo->SetSessionID(connection->GetSessionID());
 
       std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
       std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);

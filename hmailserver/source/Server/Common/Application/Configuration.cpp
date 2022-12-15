@@ -474,18 +474,6 @@ namespace HM
    }
 
    void 
-   Configuration::SetSendStatistics(bool bNewVal)
-   {
-      GetSettings()->SetLong(PROPERTY_SENDSTATISTICS, bNewVal);
-   }
-
-   bool
-   Configuration::GetSendStatistics() const
-   {
-      return GetSettings()->GetLong(PROPERTY_SENDSTATISTICS) ? true : false;
-   }
-
-   void 
    Configuration::SetHostName(String &NewVal)
    {
       GetSettings()->SetString(PROPERTY_HOSTNAME, NewVal);

@@ -9,7 +9,6 @@
 #include "../Common/BO/MessageData.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/Util/Time.h"
-#include "../Common/Util/Utilities.h"
 #include "../Common/Persistence/PersistentMessage.h"
 #include "RecipientParser.h"
 #include "../Common/BO/MessageRecipients.h"

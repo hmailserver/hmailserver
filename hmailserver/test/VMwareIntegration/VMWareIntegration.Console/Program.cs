@@ -20,6 +20,8 @@ namespace VMwareIntegration.Console
 
       private static object _lockCounterTest = new object();
 
+      private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
       static int Main(string[] args)
       {
          var softwareUnderTest = args[0];
@@ -50,7 +52,7 @@ namespace VMwareIntegration.Console
 
          var options = new ParallelOptions()
             {
-               MaxDegreeOfParallelism = 3,
+               MaxDegreeOfParallelism = 4,
             };
 
          // We can run tests on XP and Vista/2003/2008 at the same time since it's separate VMware images.
@@ -82,27 +84,27 @@ namespace VMwareIntegration.Console
                   LogText(message);
                }
 
-               var runner = new TestRunner(true, environment, false, softwareUnderTest);
+               var runner = new TestRunner(environment, softwareUnderTest);
 
                try
                {
                   runner.Run();
                   
-                  LogText(string.Format("{0}: Test {1} completed successfully.",DateTime.Now, localIndex));
+                  Logger.Info(string.Format("{0}: Test {1} completed successfully.",DateTime.Now, localIndex));
                }
                catch (Exception ex) 
                {
-                  LogText(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
-                  LogText(ex.ToString());
+                  Logger.Error(string.Format("{0}: Test {1} failed.", DateTime.Now, localIndex));
+                  Logger.Error(ex.ToString());
                }
             }
 
          });
 
-         System.Console.WriteLine("All tests completed succesfully.");
+         Logger.Info("All tests completed.");
          if (System.Diagnostics.Debugger.IsAttached)
          {
-            System.Console.WriteLine("Press Enter to exit.");
+            Logger.Info("Press Enter to exit.");
             System.Console.ReadLine();
          }
 
@@ -113,7 +115,7 @@ namespace VMwareIntegration.Console
       {
          lock (_outputLogLock)
          {
-            System.Console.WriteLine(text);
+            Logger.Info(text);
             File.AppendAllText(_logFile, text + Environment.NewLine);
          }
       }

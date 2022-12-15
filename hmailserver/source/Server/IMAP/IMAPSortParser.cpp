@@ -3,8 +3,6 @@
 
 #include "StdAfx.h"
 #include ".\imapsortparser.h"
-#include "IMAPSimpleCommandParser.h"
-#include "IMAPCommand.h"
 
 
 #ifdef _DEBUG

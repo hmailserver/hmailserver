@@ -12,8 +12,8 @@
 
 namespace HM
 {
-   DatabaseSettings::DatabaseSettings(const String &sDatabaseServer, const String &sDatabaseName, const String &sUsername, const String &sPassword,
-                                     const String &sDatabaseDirectory, const String &sDatabaseServerFailoverPartner, HM::DatabaseSettings::SQLDBType dbType, long lDBPort) :
+   DatabaseSettings::DatabaseSettings(const String &sDatabaseProvider, const String &sDatabaseServer, const String &sDatabaseName, const String &sUsername, const String &sPassword,
+                                      const String &sDatabaseDirectory, const String &sDatabaseServerFailoverPartner, HM::DatabaseSettings::SQLDBType dbType, long lDBPort) :
       database_server_(sDatabaseServer),
       database_name_(sDatabaseName),
       username_(sUsername),
@@ -21,7 +21,8 @@ namespace HM
       database_directory_(sDatabaseDirectory),
       sqldbtype_(dbType),
       database_server_failover_partner_(sDatabaseServerFailoverPartner),
-      dbport_(lDBPort)
+      dbport_(lDBPort),
+      database_provider_(sDatabaseProvider)
    {
 
    }

@@ -35,10 +35,10 @@ namespace RegressionTests.SSL
          AddPort(ports, 11003, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTPOP3);
          AddPort(ports, 14303, eConnectionSecurity.eCSSTARTTLSRequired, sslCeritifcate.ID, eSessionType.eSTIMAP);
 
-         settings.SslVersion30Enabled = sslVersions == null || sslVersions.Ssl30;
          settings.TlsVersion10Enabled = sslVersions == null || sslVersions.Tls10;
          settings.TlsVersion11Enabled = sslVersions == null || sslVersions.Tls11;
          settings.TlsVersion12Enabled = sslVersions == null || sslVersions.Tls12;
+         settings.TlsVersion13Enabled = sslVersions == null || sslVersions.Tls13;
          
          application.Stop();
          application.Start();
@@ -57,10 +57,7 @@ namespace RegressionTests.SSL
 
       public static string GetSslCertPath()
       {
-         string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\..\\SSL examples";
-         string sslPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = originalPath;
+         string sslPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "..\\..\\..\\..\\SSL examples");
 
          return sslPath;
       }
@@ -68,13 +65,20 @@ namespace RegressionTests.SSL
       private static string GetCertificatePfx()
       {
          var sslPath = GetSslCertPath();
-         return Path.Combine(sslPath, "example.pfx");
+         return Path.Combine(sslPath, "localhost.pfx");
       }
 
       public static X509Certificate2 GetCertificate()
       {
          var pfxPath = GetCertificatePfx();
+
+         Console.WriteLine("Using certificate: " + pfxPath);
          var x509 = new X509Certificate2(pfxPath, "Secret1");
+
+         if (!x509.HasPrivateKey)
+         {
+            throw new Exception("Private key could not be accessed for test certificate.");
+         }
 
          return x509;
       }

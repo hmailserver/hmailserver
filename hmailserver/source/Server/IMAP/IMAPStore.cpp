@@ -6,7 +6,6 @@
 #include "IMAPConnection.h"
 
 #include "../Common/Application/FolderManager.h"
-#include "../Common/BO/Account.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/ACLPermission.h"

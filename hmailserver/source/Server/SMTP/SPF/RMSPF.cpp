@@ -13,6 +13,7 @@
 #undef UNICODE
 
 #include <windns.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -2372,6 +2373,9 @@ char** bufp, spfbool fordomain)
          num = 0;
          while (ISDIGIT(*cp))
          {
+            if (num > (INT_MAX - (*cp - '0')) / 10)
+                return SPF_PermError;
+
             num = num * 10 + *cp - '0';
             if (++cp >= s1)
                return SPF_PermError;
@@ -4062,6 +4066,8 @@ const char** explain)
       *(const uchar**)&ipaddr += 12;
       // fall thru
    case AF_INET:
+      if (addrequal(ipaddr, localhost4, 8))
+         return SPF_Pass;
       spfdata.spf_ipv6 = false;
       break;
    default:

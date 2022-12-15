@@ -48,10 +48,10 @@ namespace HM
       is_client_(false),
       timeout_(0),
       connection_state_(StatePendingConnect),
-      handshake_in_progress_(false)
+      handshake_in_progress_(false),
+      allow_connect_to_self_(false)
    {
       session_id_ = Application::Instance()->GetUniqueID();
-
       LOG_DEBUG("Pre-creating session " + StringParser::IntToString(session_id_));
    
    }
@@ -140,7 +140,7 @@ namespace HM
       //// that could start evil loops.
       //tcp::endpoint endpoint = *endpoint_iterator;
 
-      if (LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
+      if (!allow_connect_to_self_ && LocalIPAddresses::Instance()->IsLocalPort(ep.address(), remote_port_))
       {
          String sMessage; 
             sMessage.Format(_T("Could not connect to %s on port %d since this would mean connecting to myself."), remote_ip_address_.c_str(), remote_port_);
@@ -357,6 +357,18 @@ namespace HM
       else
       {
          LOG_DEBUG(Formatter::Format("Performing SSL/TLS handshake for session {0}. Verify certificate: {1}, Expected remote host name: {2}", session_id_, enable_peer_verification, expected_remote_hostname_));
+
+         // Set the expected remote host name for server name indication (SNI). This is required for TLS1.3 compliance.
+         if (!SSL_set_tlsext_host_name(ssl_socket_.native_handle(), expected_remote_hostname_.c_str()))
+         {
+            boost::system::error_code sni_error_code{ static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category() };
+
+            String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Expected remote host name: {0}."), expected_remote_hostname_);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5604, "TCPConnection::AsyncHandshake", error_message, sni_error_code);
+
+            HandshakeFailed_(error_code);
+            return;
+         }
       }
 
       boost::asio::ssl::stream_base::handshake_type handshakeType = IsClient() ?
@@ -838,9 +850,17 @@ namespace HM
    TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error)
    {
       String formattedMessage;
-      formattedMessage.Format(_T("%s Remote IP: %s, Error code: %d, Message: %s"), message.c_str(), SafeGetIPAddress().c_str(), error.code().value(), String(error.what()).c_str());
-      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
+      formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
+      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage, error);
    }
+
+	void
+	TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error)
+	{
+		String formattedMessage;
+      formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
+      ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage, error);
+	}
 
    void 
    TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message)

@@ -6,24 +6,24 @@
 //
 // MICROSOFT LIMITED PUBLIC LICENSE
 // 
-// This license governs use of code marked as ìsampleî available on this 
+// This license governs use of code marked as ‚Äúsample‚Äù available on this 
 // Web Site without a License Agreement , as provided under the Section above
-// titled ì NOTICE SPECIFIC TO SOFTWARE AVAILABLE ON THIS WEB SITE î. If you
-// use such code (the ìsoftwareî), you accept this license. If you do not
+// titled ‚Äú NOTICE SPECIFIC TO SOFTWARE AVAILABLE ON THIS WEB SITE ‚Äù. If you
+// use such code (the ‚Äúsoftware‚Äù), you accept this license. If you do not
 // accept the license, do not use the software.
 // 
 // 1. Definitions
 // 
-// The terms ìreproduce,î ìreproduction,î ìderivative works,î and ìdistributionî
+// The terms ‚Äúreproduce,‚Äù ‚Äúreproduction,‚Äù ‚Äúderivative works,‚Äù and ‚Äúdistribution‚Äù
 // have the same meaning here as under U.S. copyright law.
 // 
-// A ìcontributionî is the original software, or any additions or changes to the 
+// A ‚Äúcontribution‚Äù is the original software, or any additions or changes to the 
 // software.
 // 
-// A ìcontributorî is any person that distributes its contribution under 
+// A ‚Äúcontributor‚Äù is any person that distributes its contribution under 
 // this license.
 // 
-// ìLicensed patentsî are a contributorís patent claims that read directly
+// ‚ÄúLicensed patents‚Äù are a contributor‚Äôs patent claims that read directly
 // on its contribution.
 // 
 // 2. Grant of Rights
@@ -44,7 +44,7 @@
 // 3. Conditions and Limitations
 // 
 // (A) No Trademark License- This license does not grant you rights to use any 
-// contributorsí name, logo, or trademarks.
+// contributors‚Äô name, logo, or trademarks.
 // 
 // (B) If you bring a patent claim against any contributor over patents that you 
 // claim are infringed by the software, your patent license from such contributor
@@ -58,7 +58,7 @@
 // your distribution. If you distribute any portion of the software in compiled or 
 // object code form, you may only do so under a license that complies with this license.
 // 
-// (E) The software is licensed ìas-is.î You bear the risk of using it. The contributors
+// (E) The software is licensed ‚Äúas-is.‚Äù You bear the risk of using it. The contributors
 // give no express warranties, guarantees or conditions. You may have additional
 // consumer rights under your local laws which this license cannot change. To the extent 
 // permitted under your local laws, the contributors exclude the implied warranties of 
@@ -69,9 +69,10 @@
 // operating system product.
 
 
-using System.Collections;	
+using System.Collections;
 using System.Windows.Forms;
 using System;
+using System.Net;
 
 /// <summary>
 /// This class is an implementation of the 'IComparer' interface.
@@ -91,7 +92,11 @@ public class ListViewColumnSorter : IComparer
 	/// </summary>
 	private CaseInsensitiveComparer ObjectCompare;
 
-   private bool _numericSort;
+	private bool _numericSort;
+
+	private bool _datetimeSort;
+
+	private bool _ipaddressSort;
 
 	/// <summary>
 	/// Class constructor.  Initializes various elements
@@ -123,38 +128,95 @@ public class ListViewColumnSorter : IComparer
 		listviewX = (ListViewItem)x;
 		listviewY = (ListViewItem)y;
 
-        ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
-        ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemX = ColumnToSort < listviewX.SubItems.Count ? listviewX.SubItems[ColumnToSort] : null;
+		ListViewItem.ListViewSubItem subItemY = ColumnToSort < listviewY.SubItems.Count ? listviewY.SubItems[ColumnToSort] : null;
 
-        if (subItemX == null || subItemY == null)
-            return 0;
+		if (subItemX == null || subItemY == null)
+			return 0;
 
-        if (_numericSort)
-        {
-           try
-           {
-              Int64 val1 = Convert.ToInt64(subItemX.Text);
-              Int64 val2 = Convert.ToInt64(subItemY.Text);
+		if (_numericSort)
+		{
+			try
+			{
+				Int64 val1 = Convert.ToInt64(subItemX.Text);
+				Int64 val2 = Convert.ToInt64(subItemY.Text);
 
-              if (val1 < val2)
-                 compareResult = -1;
-              else if (val1 > val2)
-                 compareResult = 1;
+				if (val1 < val2)
+					compareResult = -1;
+				else if (val1 > val2)
+					compareResult = 1;
 
-              if (OrderOfSort == SortOrder.Descending)
-                 compareResult = -compareResult;
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
 
-              return compareResult;
-           }
-           catch (Exception)
-           {
+				return compareResult;
+			}
+			catch (Exception)
+			{
 
-           }
-        }
+			}
+		}
+
+		if (_datetimeSort)
+		{
+			try
+			{
+				DateTime dateX;
+				DateTime dateY;
+
+				if (DateTime.TryParse(subItemX.Text, out dateX) && DateTime.TryParse(subItemY.Text, out dateY))
+					compareResult = ObjectCompare.Compare(dateX, dateY);
+
+				if (OrderOfSort == SortOrder.Descending)
+					compareResult = -compareResult;
+
+				return compareResult;
+			}
+			catch (Exception)
+			{
+
+			}
+		}
+
+		if (_ipaddressSort)
+		{
+			try
+			{
+				IPAddress ipaddressX;
+				IPAddress ipaddressY;
+
+				if (IPAddress.TryParse(subItemX.Text, out ipaddressX) && IPAddress.TryParse(subItemY.Text, out ipaddressY))
+				{
+					compareResult = ipaddressX.AddressFamily.CompareTo(ipaddressY.AddressFamily);
+					if (compareResult != 0)
+						return compareResult;
+
+					var xBytes = ipaddressX.GetAddressBytes();
+					var yBytes = ipaddressY.GetAddressBytes();
+
+					var octets = Math.Min(xBytes.Length, yBytes.Length);
+					for (var i = 0; i < octets; i++)
+					{
+						compareResult = xBytes[i].CompareTo(yBytes[i]);
+
+						if (OrderOfSort == SortOrder.Descending)
+							compareResult = -compareResult;
+
+						if (compareResult != 0)
+							return compareResult;
+					}
+					return compareResult;
+				}
+			}
+			catch (Exception)
+			{
+
+			}
+		}
 
 		// Compare the two items
-        compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
-			
+		compareResult = ObjectCompare.Compare(subItemX.Text, subItemY.Text);
+
 		// Calculate correct return value based on object comparison
 		if (OrderOfSort == SortOrder.Ascending)
 		{
@@ -172,7 +234,7 @@ public class ListViewColumnSorter : IComparer
 			return 0;
 		}
 	}
-    
+
 	/// <summary>
 	/// Gets or sets the number of the column to which to apply the sorting operation (Defaults to '0').
 	/// </summary>
@@ -180,26 +242,52 @@ public class ListViewColumnSorter : IComparer
 	{
 		set
 		{
-         NumericSort = false;
+			NumericSort = false;
+			DateTimeSort = false;
+			IPAddressSort = false;
 			ColumnToSort = value;
 		}
 		get
- 		{
-		   return ColumnToSort;
+		{
+			return ColumnToSort;
 		}
 	}
 
-   public bool NumericSort
-   {
-      set
-      {
-         _numericSort = value;
-      }
-      get
-      {
-         return _numericSort;
-      }
-   }
+	public bool NumericSort
+	{
+		set
+		{
+			_numericSort = value;
+		}
+		get
+		{
+			return _numericSort;
+		}
+	}
+
+	public bool DateTimeSort
+	{
+		set
+		{
+			_datetimeSort = value;
+		}
+		get
+		{
+			return _datetimeSort;
+		}
+	}
+
+	public bool IPAddressSort
+	{
+		set
+		{
+			_ipaddressSort = value;
+		}
+		get
+		{
+			return _ipaddressSort;
+		}
+	}
 
 	/// <summary>
 	/// Gets or sets the order of sorting to apply (for example, 'Ascending' or 'Descending').
@@ -215,6 +303,5 @@ public class ListViewColumnSorter : IComparer
 			return OrderOfSort;
 		}
 	}
-    
+
 }
-			

@@ -11,7 +11,6 @@
 
 #include "../Common/BO/Message.h"
 #include "../common/BO/MessageRecipient.h"
-#include "../common/BO/MessageRecipients.h"
 #include "../common/BO/Routes.h"
 
 #include "../common/Scripting/Events.h"
@@ -21,7 +20,6 @@
 
 #include "../common/TCPIP/DNSResolver.h"
 #include "../common/TCPIP/IOService.h"
-#include "../common/TCPIP/SslContextInitializer.h"
 #include "../common/TCPIP/HostNameAndIpAddress.h"
 
 #include "../Common/Util/AWstats.h"
@@ -235,7 +233,7 @@ namespace HM
             for(String host : mailServerHosts)
             {
                std::vector<String> ip_addresses;
-               dnsQueryOK = resolver.GetIpAddresses(host, ip_addresses);
+               dnsQueryOK = resolver.GetIpAddresses(host, ip_addresses, true);
 
                for(String ip_address:  ip_addresses)
                {

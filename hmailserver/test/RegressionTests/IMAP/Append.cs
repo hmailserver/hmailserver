@@ -15,27 +15,27 @@ namespace RegressionTests.IMAP
       public void ConfirmFileAddedToCorrectAccountFolder()
       {
          TestSetup testSetup = SingletonProvider<TestSetup>.Instance;
-         Account oAccount = testSetup.AddAccount(_domain, "check@test.com", "test");
-         var oSimulator = new ImapClientSimulator();
+         Account account = testSetup.AddAccount(_domain, "check@test.com", "test");
+         var simulator = new ImapClientSimulator();
 
          // Confirm that the public folder is empty before we start our test.
          string publicDir = GetPublicDirectory();
          CustomAsserts.AssertFilesInDirectory(publicDir, 0);
 
          // Add a message to the inbox.
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral("check@test.com", "test");
-         oSimulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
+         simulator.Connect();
+         simulator.LogonWithLiteral("check@test.com", "test");
+         simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
 
          // Confirm it exists in the IMAP folder.
-         Assert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
-         oSimulator.Disconnect();
+         Assert.AreEqual(1, simulator.GetMessageCount("INBOX"));
+         simulator.Disconnect();
 
          // The public directory should still be empty - the message was added to the user account.
          CustomAsserts.AssertFilesInDirectory(publicDir, 0);
 
          // There should be a single file in the users directory.
-         CustomAsserts.AssertFilesInUserDirectory(oAccount, 1);
+         CustomAsserts.AssertFilesInUserDirectory(account, 1);
       }
 
       [Test]
@@ -43,8 +43,8 @@ namespace RegressionTests.IMAP
       public void ConfirmFileAddedToCorrectPublicFolder()
       {
          TestSetup testSetup = SingletonProvider<TestSetup>.Instance;
-         Account oAccount = testSetup.AddAccount(_domain, "check@test.com", "test");
-         var oSimulator = new ImapClientSimulator();
+         Account account = testSetup.AddAccount(_domain, "check@test.com", "test");
+         var simulator = new ImapClientSimulator();
 
          // Confirm that the public folder is empty before we start our test.
          string publicDir = GetPublicDirectory();
@@ -63,34 +63,34 @@ namespace RegressionTests.IMAP
          permission.Save();
 
          // Add the message to the public folder.
-         oSimulator.Connect();
-         oSimulator.LogonWithLiteral("check@test.com", "test");
-         oSimulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share {4}", "ABCD");
+         simulator.Connect();
+         simulator.LogonWithLiteral("check@test.com", "test");
+         simulator.SendSingleCommandWithLiteral("A01 APPEND #Public.Share {4}", "ABCD");
 
          // Confirm that the message exists in the public folder and not in the inbox.
-         Assert.AreEqual(1, oSimulator.GetMessageCount("#Public.Share"));
-         Assert.AreEqual(0, oSimulator.GetMessageCount("INBOX"));
-         oSimulator.Disconnect();
+         Assert.AreEqual(1, simulator.GetMessageCount("#Public.Share"));
+         Assert.AreEqual(0, simulator.GetMessageCount("INBOX"));
+         simulator.Disconnect();
 
 
          // The public directory should now contain the message.
          CustomAsserts.AssertFilesInDirectory(publicDir, 1);
 
          // There users directory should still be empty.
-         CustomAsserts.AssertFilesInUserDirectory(oAccount, 0);
+         CustomAsserts.AssertFilesInUserDirectory(account, 0);
       }
 
       [Test]
       public void TestAppend()
       {
-         Account oAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "check@test.com", "test");
-         var oSimulator = new ImapClientSimulator();
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "check@test.com", "test");
+         var simulator = new ImapClientSimulator();
 
-         string sWelcomeMessage = oSimulator.Connect();
-         oSimulator.LogonWithLiteral("check@test.com", "test");
-         oSimulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
-         Assert.AreEqual(1, oSimulator.GetMessageCount("INBOX"));
-         oSimulator.Disconnect();
+         string sWelcomeMessage = simulator.Connect();
+         simulator.LogonWithLiteral("check@test.com", "test");
+         simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
+         Assert.AreEqual(1, simulator.GetMessageCount("INBOX"));
+         simulator.Disconnect();
       }
 
       [Test]

@@ -10,6 +10,10 @@
 #include "../common/BO/Account.h"
 #include "../common/BO/SecurityRange.h"
 
+#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ScriptServer.h"
+#include "../Common/Scripting/ScriptObjectContainer.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -45,12 +49,6 @@ namespace HM
       // The folder wildcard could be sent in a separate buffer.
       String sUsername = pParser->GetParamValue(pArgument, 0);
       String sPassword = pParser->GetParamValue(pArgument, 1);
-      String sDefaultDomain = Configuration::Instance()->GetDefaultDomain();
-
-      if ((sUsername.Find(_T("@")) == -1) && sDefaultDomain.IsEmpty())
-      {
-	      return IMAPResult(IMAPResult::ResultNo, "Invalid user name. Please use full email address as user name.");
-      }
 
       AccountLogon accountLogon;
       bool disconnect = false;
@@ -65,11 +63,33 @@ namespace HM
          return IMAPResult(IMAPResult::ResultOKSupressRead, "");
       } 
 
+      const bool isAuthenticated = pAccount != nullptr;
+
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+         pClientInfo->SetUsername(sUsername);
+         pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
+         pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
+         pClientInfo->SetSessionID(pConnection->GetSessionID());
+         pClientInfo->SetIsAuthenticated(isAuthenticated);
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+         String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
+      }
+
       if (!pAccount)
       {
-         return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
+         if (sUsername.Find(_T("@")) == -1)
+            return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password. Please use full email address as user name.");
+         else
+            return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
       }
-      
+
       // Load mail boxes
       pConnection->Login(pAccount);
 

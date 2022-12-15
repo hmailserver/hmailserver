@@ -12,7 +12,6 @@
 #include "../Common/BO/Routes.h"
 #include "../Common/BO/MessageRecipient.h"
 #include "../Common/BO/MessageRecipients.h"
-#include "../Common/BO/Rule.h"
 #include "../Common/Util/ServerInfo.h"
 
 #include "RuleResult.h"

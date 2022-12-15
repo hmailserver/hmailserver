@@ -67,3 +67,28 @@ STDMETHODIMP InterfaceClient::get_HELO(BSTR *pVal)
    }
 }
 
+STDMETHODIMP InterfaceClient::get_Authenticated(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      *pVal = client_info_->GetIsAuthenticated() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceClient::get_SessionID(long* pVal)
+{
+   try
+   {
+      *pVal = client_info_->GetSessionID();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}

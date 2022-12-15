@@ -29,20 +29,20 @@ namespace RegressionTests.AntiSpam
       [Description("Test that grey listing can be enabled if message arrives from A or MX record.")]
       public void ItShouldBePossibleToBypassGreylistingOnMessagesArrivingFromMXorA()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
 
          _antiSpam.GreyListingEnabled = true;
 
          CustomAsserts.Throws<DeliveryFailedException>(
-            () => SmtpClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
+            () => SmtpClientSimulator.StaticSend("test@localhost.hmailserver.com", account1.Address, "Test",
                "Body"));
 
          _antiSpam.BypassGreylistingOnMailFromMX = true;
 
-         SmtpClientSimulator.StaticSend("test@localhost.hmailserver.com", oAccount1.Address, "Test",
+         SmtpClientSimulator.StaticSend("test@localhost.hmailserver.com", account1.Address, "Test",
                                                       "Body");
 
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
 
       [Test]
@@ -50,14 +50,14 @@ namespace RegressionTests.AntiSpam
       {
          _antiSpam.GreyListingEnabled = false;
 
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
 
          var smtp = new SmtpClientSimulator();
          var recipients = new List<string>();
-         recipients.Add(oAccount1.Address);
+         recipients.Add(account1.Address);
          smtp.Send("test@test.com", recipients, "Test", "Body");
          
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          _antiSpam.GreyListingEnabled = true;
 
@@ -68,7 +68,7 @@ namespace RegressionTests.AntiSpam
 
          smtp.Send("test@test.com", recipients, "Test", "Body");
          
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
       }
 
       [Test]
@@ -98,14 +98,14 @@ namespace RegressionTests.AntiSpam
       {
          _antiSpam.GreyListingEnabled = false;
 
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@test.com", "test");
 
          var smtp = new SmtpClientSimulator();
          var recipients = new List<string>();
-         recipients.Add(oAccount1.Address);
+         recipients.Add(account1.Address);
          smtp.Send("test@test.com", recipients, "Test", "Body");
          
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          _antiSpam.GreyListingEnabled = true;
 
@@ -117,7 +117,7 @@ namespace RegressionTests.AntiSpam
 
          smtp.Send("test@test.com", recipients, "Test", "Body");
 
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          DomainAlias da = _domain.DomainAliases.Add();
          da.AliasName = "test2.com";
@@ -127,7 +127,7 @@ namespace RegressionTests.AntiSpam
          recipients.Add("grey@test2.com");
 
          smtp.Send("test@test.com", recipients, "Test", "Body");
-         Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          _domain.AntiSpamEnableGreylisting = true;
          _domain.Save();

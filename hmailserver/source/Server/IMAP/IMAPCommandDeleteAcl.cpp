@@ -10,7 +10,6 @@
 #include "IMAPConfiguration.h"
 
 #include "../Common/Cache/CacheContainer.h"
-#include "../Common/Application/ACLManager.h"
 #include "../Common/BO/Account.h"
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/ACLPermission.h"

@@ -30,12 +30,13 @@ namespace RegressionTests.AntiSpam.DKIM
 
       private string GetPrivateKeyFile()
       {
-         string originalPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = Environment.CurrentDirectory + "\\..\\..\\..\\..\\SSL examples";
-         string sslPath = Environment.CurrentDirectory;
-         Environment.CurrentDirectory = originalPath;
+         string sslPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "..\\..\\..\\..\\SSL examples");
 
-         return Path.Combine(sslPath, "example.key");
+         var exampleKeyFile = Path.Combine(sslPath, "example.key");
+         if (!File.Exists((exampleKeyFile)))
+            throw new Exception("Example key file could not be found.");
+
+         return exampleKeyFile;
       }
 
       private string SendMessage()
@@ -79,9 +80,9 @@ namespace RegressionTests.AntiSpam.DKIM
       internal static Route AddRoutePointingAtLocalhost(int numberOfTries, int port)
       {
          // Add a route pointing at localhost
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
 
-         Route route = oSettings.Routes.Add();
+         Route route = settings.Routes.Add();
          route.DomainName = "example.com";
          route.TargetSMTPHost = "localhost";
          route.TargetSMTPPort = port;

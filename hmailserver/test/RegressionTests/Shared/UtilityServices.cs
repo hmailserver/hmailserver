@@ -6,7 +6,7 @@ namespace RegressionTests.Shared
    [TestFixture]
    public class UtilityServices : TestFixtureBase
    {
-      [TestFixtureSetUp]
+      [OneTimeSetUp]
       public void SetUpFixture()
       {
          SingletonProvider<TestSetup>.Instance.Authenticate();

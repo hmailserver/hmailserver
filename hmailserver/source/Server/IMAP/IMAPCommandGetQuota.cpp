@@ -6,10 +6,7 @@
 #include "IMAPConnection.h"
 #include "IMAPConfiguration.h"
 #include "IMAPSimpleCommandParser.h"
-#include "../Common/BO/IMAPFolders.h"
-#include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/Account.h"
-#include "../Common/Persistence/PersistentAccount.h"
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/Cache/AccountSizeCache.h"
 
@@ -54,14 +51,14 @@ namespace HM
       if (iMaxSize > 0)
       {
          sResponse.Format(_T("* QUOTA \"\" (STORAGE %I64d %I64d)\r\n")
-                        _T("%s OK GETRUOTA completed\r\n"), 
+                        _T("%s OK GETQUOTA completed\r\n"), 
                         iCurrentSize, iMaxSize, pArgument->Tag().c_str());
       }
       else
       {
          // NO QUOTA DEFINED
          sResponse.Format(_T("* QUOTA \"\" (STORAGE)\r\n")
-            _T("%s OK GETRUOTA completed\r\n"), 
+            _T("%s OK GETQUOTA completed\r\n"), 
             pArgument->Tag().c_str());
 
       }

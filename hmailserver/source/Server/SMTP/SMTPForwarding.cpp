@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "SMTPForwarding.h"
-#include "SMTPConfiguration.h"
 #include "RuleApplier.h"
 
 #include "../Common/BO/Account.h"
@@ -13,6 +12,8 @@
 #include "../Common/BO/MessageRecipients.h"
 
 #include "../Common/Persistence/PersistentMessage.h"
+
+#include "../common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "RecipientParser.h"
 
@@ -83,7 +84,10 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
      
-      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pNewMessage);
+      if (pNewMessage->GetFromAddress().IsEmpty())
+         pNewMessage->SetFromAddress(sMailerDaemonAddress);
+      else if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
          pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
 
       pNewMessage->SetState(Message::Delivering);

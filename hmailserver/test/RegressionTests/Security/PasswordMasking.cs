@@ -86,9 +86,9 @@ namespace RegressionTests.Security
       internal Route AddRoutePointingAtLocalhostWithAuth(int numberOfTries, int port)
       {
          // Add a route pointing at localhost
-         Settings oSettings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
 
-         Route route = oSettings.Routes.Add();
+         Route route = settings.Routes.Add();
          route.DomainName = "dummy-example.com";
          route.TargetSMTPHost = "localhost";
          route.TargetSMTPPort = port;

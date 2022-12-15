@@ -4,6 +4,7 @@
 using System;
 using NUnit.Framework;
 using hMailServer;
+using NUnit.Framework.Interfaces;
 using RegressionTests.Infrastructure;
 
 namespace RegressionTests.Shared
@@ -14,7 +15,7 @@ namespace RegressionTests.Shared
       protected Domain _domain;  
       protected Settings _settings;
 
-      [TestFixtureSetUp]
+      [OneTimeSetUp]
       public void TestFixtureSetUp()
       {
          SingletonProvider<TestSetup>.Instance.Authenticate();
@@ -26,6 +27,8 @@ namespace RegressionTests.Shared
       [SetUp]
       public void SetUp()
       {
+         ServiceRestartDetector.ValidateProcessId();
+
          _domain = SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
 
          LogHandler.DeleteCurrentDefaultLog();
@@ -37,7 +40,7 @@ namespace RegressionTests.Shared
       [TearDown]
       public void TearDown()
       {
-         if (TestContext.CurrentContext.Result.Status == TestStatus.Failed)
+         if (TestContext.CurrentContext.Result.FailCount > 0)
          {
             Console.WriteLine("hMailServer log:");
             Console.WriteLine(LogHandler.ReadCurrentDefaultLog());

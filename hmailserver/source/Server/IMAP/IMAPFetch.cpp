@@ -10,7 +10,6 @@
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/BO/Message.h"
 #include "../Common/Util/Charset.h"
-#include "../Common/Mime/MimeCode.h"
 #include "../Common/Util/Time.h"
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/ByteBuffer.h"

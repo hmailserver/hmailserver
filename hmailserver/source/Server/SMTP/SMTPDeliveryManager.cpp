@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "SMTPDeliveryManager.h"
 #include "SMTPConfiguration.h"
-#include "StatisticsSender.h"
 
 #include "DeliveryTask.h"
 
@@ -13,7 +12,6 @@
 #include "../common/Util/ServerStatus.h"
 #include "../common/Persistence/PersistentMessage.h"
 
-#include "../common/Persistence/PersistentGreyList.h"
 #include "../common/BO/Message.h"
 
 
@@ -33,11 +31,8 @@ namespace HM
       queue_name_("SMTP delivery queue"),
       uncache_pending_messages_(false)
    {
-      cur_number_of_sent_ = 0;
-
       int iMaxNumberOfThreads = Configuration::Instance()->GetSMTPConfiguration()->GetMaxNoOfDeliveryThreads();
       queue_id_ = WorkQueueManager::Instance()->CreateWorkQueue(iMaxNumberOfThreads, queue_name_);
-
    }  
 
    SMTPDeliveryManager::~SMTPDeliveryManager()
@@ -103,10 +98,6 @@ namespace HM
             std::shared_ptr<DeliveryTask> pDeliveryTask = std::shared_ptr<DeliveryTask>(new DeliveryTask(pMessage));
             WorkQueueManager::Instance()->AddTask(queue_id_, pDeliveryTask);
 
-            cur_number_of_sent_++;
-
-            SendStatistics_();
-
             ServerStatus::Instance()->OnMessageProcessed();
          }
 
@@ -114,33 +105,6 @@ namespace HM
       }
       
       return;
-   }
-
-   void
-   SMTPDeliveryManager::SendStatistics_(bool bIgnoreMessageCount)
-   //---------------------------------------------------------------------------
-   // DESCRIPTION:
-   // Sends statistics to hMailServer.com
-   //---------------------------------------------------------------------------
-   {
-      if (cur_number_of_sent_ > 1000 || (bIgnoreMessageCount && cur_number_of_sent_ > 5))
-      {
-         if (Configuration::Instance()->GetSendStatistics())
-         {
-            // Send statistics to server.
-            StatisticsSender Sender;
-            
-            Sender.SendStatistics(cur_number_of_sent_);
-
-            // Always reset the number. If the statistics sender can't connect
-            // to hMailServer for some reason, we should not try immediately again
-            // and instead just give up.
-            cur_number_of_sent_ = 0;
-         }
-         else
-            cur_number_of_sent_ = 0;
-      }
-
    }
 
    void

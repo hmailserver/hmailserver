@@ -63,11 +63,13 @@ namespace hMailServer.Administrator
            // 
            // columnHeader1
            // 
+           this.columnHeader1.Tag = "IPAddress";
            this.columnHeader1.Text = "Lower IP";
            this.columnHeader1.Width = 100;
            // 
            // columnHeader2
            // 
+           this.columnHeader2.Tag = "IPAddress";
            this.columnHeader2.Text = "Upper IP";
            this.columnHeader2.Width = 100;
            // 
@@ -79,6 +81,7 @@ namespace hMailServer.Administrator
            // 
            // columnHeader4
            // 
+           this.columnHeader4.Tag = "DateTime";
            this.columnHeader4.Text = "Expires";
            this.columnHeader4.Width = 150;
            // 

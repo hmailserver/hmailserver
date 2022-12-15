@@ -58,8 +58,6 @@ namespace ConfigureInstallation
          File.WriteAllText(phpVersionFile, phpVersionContent);
 
          // Write installation program verison
-         if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_32.iss"), version, build, false))
-            return -1;
          if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_64.iss"), version, build, true))
             return -1;
 
@@ -91,6 +89,7 @@ namespace ConfigureInstallation
          string versionWithBuild = string.Format("{0}.{1}", version, build);
 
          Ini.Write(installationFile, "Setup", "AppVersion", versionWithBuild);
+         Ini.Write(installationFile, "Setup", "VersionInfoVersion", versionWithBuild);
 
          return true;
       }
