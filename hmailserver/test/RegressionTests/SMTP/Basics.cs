@@ -61,6 +61,29 @@ namespace RegressionTests.SMTP
          Assert.AreNotEqual(lastLogonTimeBefore, lastLogonTimeAfter);
       }
 
+      [Test]
+      public void AuthLoginShouldOnlyBeAllowedOnce()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+
+         // Login a first time
+         string base64EncodedUsername = EncodeBase64("test@test.com");
+         sock.Send("AUTH LOGIN " + base64EncodedUsername + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
+         sock.Send(EncodeBase64("test") + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("235"));
+
+         // Login a second time
+         sock.Send("AUTH LOGIN " + base64EncodedUsername + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503 Already authenticated."));
+      }
+
 
       [Test]
       [Category("SMTP")]
