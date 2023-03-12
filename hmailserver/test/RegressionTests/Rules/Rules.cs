@@ -631,6 +631,43 @@ namespace RegressionTests.Rules
       }
 
       [Test]
+      public void ActionSetHeaderContents_MACRO_ORIGINAL_HEADER()
+      {
+         // Add an account
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
+
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
+
+         // Add action
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRASetHeaderValue;
+         ruleAction.HeaderName = "Subject";
+         ruleAction.Value = "Foo: %MACRO_ORIGINAL_HEADER%";
+         ruleAction.Save();
+
+         // Save the rule in the database
+         rule.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         // Spam folder
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
+
+         string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("ruletest@test.com", "test");
+
+         StringAssert.Contains("Foo: TestString", sContents, sContents);
+      }
+
+      [Test]
       public void CriteriaContains()
       {
          var watch = new Stopwatch();
