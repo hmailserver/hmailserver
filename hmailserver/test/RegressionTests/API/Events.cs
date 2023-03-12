@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Mail;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
