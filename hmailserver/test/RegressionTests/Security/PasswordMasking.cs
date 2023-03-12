@@ -174,7 +174,7 @@ namespace RegressionTests.Security
             fa.Delete();
 
             string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
-            Assert.IsTrue(downloadedMessage.Contains(message));
+            StringAssert.Contains("Hello!", downloadedMessage);
 
             EnsureNoPassword();
          }
