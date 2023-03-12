@@ -31,7 +31,8 @@ namespace HM
 
       enum Settings
       {
-         MaxFileSize = 1024 * 1024 * 10
+         // Limit signing of huge messages, to prevent memory/perforamnce issues.
+         MaxFileSize = 1024 * 1024 * 50
       };
 
       bool Sign(std::shared_ptr<Message> message, 
