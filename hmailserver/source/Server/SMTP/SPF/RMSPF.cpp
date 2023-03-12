@@ -3678,6 +3678,7 @@ check_host(spfrec* spfp, const char* domain)
             if (redirect != NULL) // already specified
             {
                spffree((void*)redirect);
+               redirect = NULL;
                result = SPF_PermError;
                break;
             }
@@ -3697,7 +3698,10 @@ check_host(spfrec* spfp, const char* domain)
                && _memicmp(name, "exp", 3) == 0)
             {
                if (explain != NULL) // already specified
+               {
                   spffree((void*)explain);
+                  explain = NULL;
+               }
                result1 = get_modifier(spfp, &cp, domain, &explain);
                if (result1 > 0) // syntax error or no memory
                {
@@ -3886,21 +3890,33 @@ check_host(spfrec* spfp, const char* domain)
       }
    }
    if (redirect != NULL)
+   {
       spffree((void*)redirect);
+      redirect = NULL;
+   }
 
    if (datap != NULL)
+   {
       spffree((void*)datap);
+      datap = NULL;
+   }
 
    if (explain != NULL)
    {
       if (result == SPF_Fail)
       {
          if (spfp->spf_expdom != NULL)
+         {
             spffree((void*)spfp->spf_expdom);
+            spfp->spf_expdom = NULL;
+         }
          spfp->spf_expdom = explain;
       }
       else
+      {
          spffree((void*)explain);
+         explain = NULL;
+      }
    }
 
    if (result == SPF_NoMatch)
