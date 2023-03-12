@@ -1088,7 +1088,7 @@ namespace RegressionTests.SMTP
 
          string sWelcomeMessage = simulator.GetWelcomeMessage();
 
-         if (sWelcomeMessage != "220 HOWDYHO\r\n")
+         if (sWelcomeMessage != "220 HOWDYHO ESMTP\r\n")
             throw new Exception("ERROR - Wrong welcome message.");
       }
 
