@@ -242,7 +242,7 @@ namespace HM
          boost::wregex expression(sRegex, boost::wregex::icase);
          boost::wsmatch matches;
          // AUTH PLAIN command and both user name and password in line. 
-         if (boost::regex_match(sLogData, matches, expression) && current_state_ == HEADER)
+         if (current_state_ == HEADER && boost::regex_match(sLogData, matches, expression))
          {
             if (matches.size() > 0)
             {
