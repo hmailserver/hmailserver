@@ -1079,6 +1079,17 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void TestTooLongEmailAddress()
+      {
+         var senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@test.com", "test");
+
+         var tooLongAddress = new string('i', 260) + "@example.com";
+         var ex = Assert.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend(senderAccount.Address, tooLongAddress, "", "foobar"));
+
+         StringAssert.Contains("550 A valid address is required.", ex.Message);
+      }
+
+      [Test]
       public void TestWelcomeMessage()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
