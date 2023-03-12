@@ -52,7 +52,7 @@ namespace RegressionTests.Security
       }
 
 
-      private void EnsureNoPassword()
+      private void EnsureNoPassword(bool usernameExpected = true)
       {
          string logFileName = _settings.Logging.CurrentDefaultLog;
 
@@ -77,7 +77,11 @@ namespace RegressionTests.Security
                continue;
             }
 
-            Assert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+            if (usernameExpected)
+               Assert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+            else
+               Assert.IsFalse(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+
             Assert.IsFalse(text.Contains(_password) || text.Contains(EncodeBase64(_password)), text);
             Assert.IsTrue(text.Contains("***"), text);
          }
@@ -271,6 +275,22 @@ namespace RegressionTests.Security
          sock.Send(EncodeBase64(str) + "\r\n");
          Assert.IsTrue(sock.Receive().StartsWith("535"));
          EnsureNoPassword();
+      }
+
+      [Test]
+      public void TestSMTPServerAuthPlainSingleLine()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         sock.Send("AUTH PLAIN 77+9dXNlcm5hbWVAZG9tYWluLmNvbe+/vVBAc3N3b3Jk\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+
+         EnsureNoPassword(false);
       }
    }
 }
