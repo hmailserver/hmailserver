@@ -761,6 +761,8 @@ namespace HM
          return;
       }
 
+      AppendHeaders_();
+
       ParseMessageHeaders_();
 
       if (DoSpamProtection_())
@@ -776,8 +778,6 @@ namespace HM
          // Notify the SMTP deliverer that there is a new message.
          Application::Instance()->SubmitPendingEmail();
       }
-
-      AppendHeaders_();
 
       MarkCurrentMessageAsRead_();
 
