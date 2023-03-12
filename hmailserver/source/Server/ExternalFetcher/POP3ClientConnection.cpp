@@ -646,22 +646,22 @@ namespace HM
       return true;
    }
 
-   void
-   POP3ClientConnection::AppendHeaders_()
+   void 
+   POP3ClientConnection::PrependHeaders_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Adds headers after the last existing header
+   // Adds headers to the beginning of the message.
    //---------------------------------------------------------------------------()
    {
       // Add a header with the name of the external account, so that
       // we can check where we downloaded it from later on.
 
-      String fileName = PersistentMessage::GetFileName(current_message_);
+      String sHeader;
+      sHeader.Format(_T("X-hMailServer-ExternalAccount: %s\r\n"), account_->GetName().c_str());
 
-      std::shared_ptr<MessageData> messageData = std::shared_ptr<MessageData>(new MessageData());
-      messageData->LoadFromMessage(fileName, current_message_);
-      messageData->SetFieldValue("X-hMailServer-ExternalAccount", account_->GetName().c_str());
-      messageData->Write(fileName);
+      AnsiString sAnsiHeader = sHeader;
+
+      transmission_buffer_->Append((BYTE*) sAnsiHeader.GetBuffer(), sAnsiHeader.GetLength());
    }
 
    void
@@ -722,6 +722,8 @@ namespace HM
             QuitNow_();
             return;
          }
+
+         PrependHeaders_();
       }
 
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
@@ -760,8 +762,6 @@ namespace HM
          QuitNow_();
          return;
       }
-
-      AppendHeaders_();
 
       ParseMessageHeaders_();
 

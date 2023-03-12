@@ -87,8 +87,8 @@ namespace HM
 
       void RetrieveReceivedDate_(std::shared_ptr<MimeHeader> pHeader);
 
-      void AppendHeaders_();
-      // Adds headers after the last existing header
+      void PrependHeaders_();
+      // Adds headers to the beginning of the message.
 
       void QuitNow_();
       // Sends a QUIT message and switch over to
