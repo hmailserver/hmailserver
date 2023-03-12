@@ -83,8 +83,20 @@ namespace HM
       DNSResolverWinApi resolver;
 
       std::vector<DNSRecord> foundRecords;
-      bool ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
-      bool ipv6QueryResult = Configuration::Instance()->IsIPv6Available() ? resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords) : false;
+
+      bool ipv4QueryResult = false;
+      bool ipv6QueryResult = false;
+      // if IPv6 is preferred first do IPv6 DNS Lookup(s)
+      if (Configuration::Instance()->IsIPv6Available() && Configuration::Instance()->GetIPv6Preferred())
+      {
+         ipv6QueryResult = resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
+         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+      }
+      else // Standard 
+      {
+         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+         ipv6QueryResult = Configuration::Instance()->IsIPv6Available() ? resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords) : false;
+      }
 
       if (foundRecords.size() == 0 && followCnameRecords)
       {
