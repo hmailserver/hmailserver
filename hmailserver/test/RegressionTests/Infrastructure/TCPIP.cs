@@ -107,5 +107,20 @@ namespace RegressionTests.Infrastructure
          Assert.IsTrue(pPOP3Simulator.TestConnect(110));
          Assert.IsTrue(pPOP3Simulator.TestConnect(143));
       }
+
+      [Test]
+      public void TestDefaultPortCount()
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         application.Settings.TCPIPPorts.SetDefault();
+
+         application.Stop();
+         application.Start();
+
+         var ports = application.Settings.TCPIPPorts;
+
+         Assert.AreEqual(4, ports.Count);
+      }
    }
 }
