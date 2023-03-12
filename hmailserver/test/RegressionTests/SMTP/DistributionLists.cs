@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Mail;
-using System.Text;
-using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
@@ -181,6 +178,38 @@ namespace RegressionTests.SMTP
 
          foreach (var recipientAddress in recipients)
             ImapClientSimulator.AssertMessageCount(recipientAddress, "test", "Inbox", 1);
+      }
+
+      [Test]
+      public void TestDistributionListModeDomainMembers()
+      {
+         var recipients = new List<string>();
+         recipients.Add("recipient1@test.com");
+         recipients.Add("recipient2@test.com");
+         recipients.Add("recipient3@test.com");
+
+         var list = SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list1@test.com", recipients);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient1@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient2@test.com", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient3@test.com", "test");
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // Switch list mode so that only a single announcer can send to list.
+         list.Mode = eDistributionListMode.eLMDomainMembers;
+         list.RequireSMTPAuth = false;
+         list.Save();
+
+         var smtpClient = new SmtpClientSimulator();
+         
+         Assert.DoesNotThrow(() => smtpClient.Send("test@test.com", list.Address, "Mail 1", "Mail 1"));
+         Assert.DoesNotThrow(() => smtpClient.Send("non-existent@test.com", list.Address, "Mail 1", "Mail 1"));
+
+         CustomAsserts.Throws<DeliveryFailedException>(() => smtpClient.Send("external@example.com", list.Address, "Mail 1", "Mail 1"));
+
+         foreach (var recipientAddress in recipients)
+            ImapClientSimulator.AssertMessageCount(recipientAddress, "test", "Inbox", 2);
       }
 
       [Test]
