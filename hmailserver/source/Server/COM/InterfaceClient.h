@@ -57,6 +57,7 @@ public:
    STDMETHOD(get_CipherVersion)(BSTR* pVal);
    STDMETHOD(get_CipherName)(BSTR* pVal);
    STDMETHOD(get_CipherBits)(LONG* pVal);
+   STDMETHOD(get_SessionID)(LONG* pVal);
 
 private:
 

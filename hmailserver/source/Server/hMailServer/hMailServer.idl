@@ -1597,6 +1597,7 @@ interface IInterfaceClient : IDispatch{
 	[propget, id(7), helpstring("The SSL/TLS cipher version of the client connection.")] HRESULT CipherVersion([out, retval] BSTR* pVal);
 	[propget, id(8), helpstring("The SSL/TLS cipher name of the client connection.")] HRESULT CipherName([out, retval] BSTR* pVal);
 	[propget, id(9), helpstring("The SSL/TLS cipher bits of the client connection.")] HRESULT CipherBits([out, retval] LONG* pVal);
+	[propget, id(10), helpstring("The assigned SessionID for the TCP/IP connection.")] HRESULT SessionID([out, retval] LONG* pVal);
 };
 [
 	object,

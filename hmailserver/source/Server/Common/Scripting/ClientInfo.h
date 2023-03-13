@@ -21,6 +21,9 @@ namespace HM
       void SetPort(long lNewVal) { port_ = lNewVal; }
       long GetPort() const { return port_; }
 
+      void SetSessionID(long lNewVal) { session_ = lNewVal; }
+      long GetSessionID() const { return session_; }
+
       void SetHELO(const String &HELO) { helo_ = HELO; }
       String GetHELO() const { return helo_; }
 
@@ -43,6 +46,7 @@ namespace HM
 
       String IPAddress;
       long port_;
+      long session_;
       String username_;
       String helo_;
       bool is_authenticated_;
