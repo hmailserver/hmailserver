@@ -38,7 +38,7 @@ function inputCheck(input,type) {
 
 	switch(type) {
 		case 'email':
-			expression	= /^.+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+			expression	= /^.+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,}|[0-9]{1,3})(\]?)$/;
 		break;
 		case 'text':
 			expression	= "";

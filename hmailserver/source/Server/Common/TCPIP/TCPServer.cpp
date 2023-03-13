@@ -155,7 +155,7 @@ namespace HM
 
    void 
    TCPServer::HandleAccept(std::shared_ptr<TCPConnection> connection,
-      const boost::system::error_code& error)
+      const boost::system::error_code &error)
    {
       if (error.value() == 995)
       {
@@ -212,7 +212,7 @@ namespace HM
             return;
          }
 
-         if (!FireOnAcceptEvent(remoteAddress, localEndpoint.port()))
+         if (!FireOnAcceptEvent(connection, remoteAddress, localEndpoint.port()))
          {
             // Session has been created, but is now terminated by a custom script. Since we haven't started the
             // TCPConnection yet, we are still responsible for tracking connection count.
@@ -241,7 +241,7 @@ namespace HM
    }
 
    bool
-   TCPServer::FireOnAcceptEvent(const IPAddress &remoteAddress, int port)
+   TCPServer::FireOnAcceptEvent(std::shared_ptr<TCPConnection> connection, const IPAddress &remoteAddress, int port)
    {
       // Fire an event...
       if (!Configuration::Instance()->GetUseScriptServer())
@@ -250,6 +250,7 @@ namespace HM
       std::shared_ptr<ClientInfo> pCliInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
       pCliInfo->SetIPAddress(remoteAddress.ToString());
       pCliInfo->SetPort(port);
+      pCliInfo->SetSessionID(connection->GetSessionID());
 
       std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
       std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);

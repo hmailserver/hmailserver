@@ -73,7 +73,7 @@ EXIT 0
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1t\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -95,7 +95,7 @@ EXIT 0
       <AdditionalDependencies>Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;libcrypto.lib;libssl.lib;crypt32.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_72_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1k\out64\lib;..\..\..\..\Libraries\libpq-12.2\x64;$(BOOST_LIBS_PATH);$(OPENSSL_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_72_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1t\out64\lib;..\..\..\..\Libraries\libpq-12.2\x64;$(BOOST_LIBS_PATH);$(OPENSSL_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
@@ -105,8 +105,8 @@ EXIT 0
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
-      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1k\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
-xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1k\out64\bin\libssl-1_1-x64.dll $(OutDir)
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1t\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1t\out64\bin\libssl-1_1-x64.dll $(OutDir)
 xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
 "$(TargetPath)" /Register
 </Command>
@@ -130,7 +130,7 @@ EXIT 0
       <ProxyFileName>hMailServer_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1k\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_72_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-1.1.1t\out64\include;..\..\..\..\Libraries\libpq-12.2;$(BOOST_INCLUDE_PATH);$(OPENSSL_INCLUDE_PATH);$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -149,7 +149,7 @@ EXIT 0
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;crypt32.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_72_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1k\out64\lib;..\..\..\..\Libraries\libpq-12.2\x64;$(BOOST_LIBS_PATH);$(OPENSSL_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_72_0\stage\lib;$(hMailServerLibs)\openssl-1.1.1t\out64\lib;..\..\..\..\Libraries\libpq-12.2\x64;$(BOOST_LIBS_PATH);$(OPENSSL_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -159,8 +159,8 @@ EXIT 0
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
-      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1k\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
-xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1k\out64\bin\libssl-1_1-x64.dll $(OutDir)
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1t\out64\bin\libcrypto-1_1-x64.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1t\out64\bin\libssl-1_1-x64.dll $(OutDir)
 xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
 "$(TargetPath)" /Register
 </Command>
@@ -181,6 +181,7 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClCompile Include="..\Common\AntiSpam\SpamTestDNSBlackLists.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestHeloHost.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestMXRecords.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestPTR.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestResult.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestRunner.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestSpamAssassin.cpp" />
@@ -638,7 +639,6 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
-    <ClCompile Include="..\Smtp\StatisticsSender.cpp" />
     <ClCompile Include="hMailServer.cpp" />
     <ClCompile Include="hMailServer_i.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -669,6 +669,7 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClInclude Include="..\Common\AntiSpam\SpamTestDNSBlackLists.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestHeloHost.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestMXRecords.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestPTR.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestResult.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestRunner.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestSpamAssassin.h" />
@@ -1140,7 +1141,6 @@ xcopy /F /Y $(ProjectDir)..\..\..\..\libraries\libpq-12.2\x64\*.dll $(OutDir)
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
-    <ClInclude Include="..\Smtp\StatisticsSender.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

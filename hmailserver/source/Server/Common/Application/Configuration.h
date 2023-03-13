@@ -117,9 +117,6 @@ namespace HM
 
       int GetRequiredDBVersion() { return REQUIRED_DB_VERSION; }
 
-      bool GetSendStatistics() const;
-      void SetSendStatistics(bool bNewVal);
-
       String GetHostName() const;
       void SetHostName(String &NewVal);
 
@@ -160,6 +157,9 @@ namespace HM
 
       bool GetSslVersionEnabled(SslTlsVersion version) const;
       void SetSslVersionEnabled(SslTlsVersion version, bool enabled);
+
+      bool GetIPv6Preferred();
+      void SetIPv6Preferred(bool enabled);
 
       int GetCrashSimulationMode() const;
       void SetCrashSimulationMode(int mode);

@@ -75,6 +75,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
          pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
+         pClientInfo->SetSessionID(pConnection->GetSessionID());
          pClientInfo->SetIsAuthenticated(isAuthenticated);
          pClientInfo->SetIsEncryptedConnection(pConnection->IsSSLConnection());
          if (pConnection->IsSSLConnection())

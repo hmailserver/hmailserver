@@ -512,6 +512,7 @@ interface IInterfaceStatus : IDispatch {
    [propget, id(4), helpstring("Gets the number of removed virues")] HRESULT RemovedViruses([out, retval] long *pVal);
    [propget, id(5), helpstring("Gets the number of detected spam messages")] HRESULT RemovedSpamMessages([out, retval] long *pVal);
    [propget, id(6), helpstring("Gets the current number of sessions")] HRESULT SessionCount([in] eSessionType iType, [out, retval] long *pVal);
+   [propget, id(7), helpstring("Gets the current thread number")] HRESULT ThreadID([out, retval] long *pVal);
 };
 
 [
@@ -557,8 +558,6 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(29), helpstring("The maximum number of SMTP delivery threads.")] HRESULT MaxDeliveryThreads([in] long newVal);
    [propget, id(30), helpstring("AntiVirus Settings.")] HRESULT AntiVirus([out, retval] IInterfaceAntiVirus * *pVal);
    [propget, id(31), helpstring("Routes collection.")] HRESULT Routes([out, retval] IInterfaceRoutes* *pVal);
-   [propget, id(32), helpstring("Gets or sets whether statistics should be sent to hMailServer.com")] HRESULT SendStatistics([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(32), helpstring("Gets or sets whether statistics should be sent to hMailServer.com")] HRESULT SendStatistics([in] VARIANT_BOOL newVal);
    [propget, id(33), helpstring("Gets or sets the host name hMailServer identifies itself with.")] HRESULT HostName([out, retval] BSTR *pVal);
    [propput, id(33), helpstring("Gets or sets the host name hMailServer identifies itself with.")] HRESULT HostName([in] BSTR newVal);
    [propget, id(34), helpstring("SMTP relayer requires authentication")] HRESULT SMTPRelayerRequiresAuthentication([out, retval] VARIANT_BOOL *pVal);
@@ -683,6 +682,9 @@ interface IInterfaceSettings : IDispatch{
    
    [propget, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
 
 };
 
@@ -1591,13 +1593,13 @@ interface IInterfaceClient : IDispatch{
    [propget, id(1), helpstring("The TCP/IP port the client is connected to.")] HRESULT Port([out, retval] LONG* pVal);
    [propget, id(2), helpstring("The TCP/IP address the client is connected to.")] HRESULT IPAddress([out, retval] BSTR* pVal);
    [propget, id(3), helpstring("The username of the client.")] HRESULT Username([out, retval] BSTR* pVal);
-   [propget, id(4), helpstring("The HELO sent by client.")] HRESULT HELO([out, retval] BSTR* pVal);
+   [propget, id(4), helpstring("The HELO greeting sent by client.")] HRESULT HELO([out, retval] BSTR* pVal);
    [propget, id(5), helpstring("The logon status of the client.")] HRESULT Authenticated([out, retval] VARIANT_BOOL* pVal);
-	[propget, id(6), helpstring("The SSL/TLS status of the client.")] HRESULT EncryptedConnection([out, retval] VARIANT_BOOL* pVal);
-	[propget, id(7), helpstring("The SSL/TLS cipher version of the client connection.")] HRESULT CipherVersion([out, retval] BSTR* pVal);
-	[propget, id(8), helpstring("The SSL/TLS cipher name of the client connection.")] HRESULT CipherName([out, retval] BSTR* pVal);
-	[propget, id(9), helpstring("The SSL/TLS cipher bits of the client connection.")] HRESULT CipherBits([out, retval] LONG* pVal);
-	[propget, id(10), helpstring("The assigned SessionID for the TCP/IP connection.")] HRESULT SessionID([out, retval] LONG* pVal);
+   [propget, id(6), helpstring("The SSL/TLS status of the client.")] HRESULT EncryptedConnection([out, retval] VARIANT_BOOL* pVal);
+   [propget, id(7), helpstring("The SSL/TLS cipher version of the client connection.")] HRESULT CipherVersion([out, retval] BSTR* pVal);
+   [propget, id(8), helpstring("The SSL/TLS cipher name of the client connection.")] HRESULT CipherName([out, retval] BSTR* pVal);
+   [propget, id(9), helpstring("The SSL/TLS cipher bits of the client connection.")] HRESULT CipherBits([out, retval] LONG* pVal);
+   [propget, id(10), helpstring("The assigned SessionID for the TCP/IP connection.")] HRESULT SessionID([out, retval] LONG* pVal);
 };
 [
 	object,
@@ -2247,6 +2249,11 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(35), helpstring("Bypass grey listing if mail comes from domain A or MX record.")] HRESULT BypassGreylistingOnMailFromMX([in] VARIANT_BOOL newVal);
 
    [id(36), helpstring("Tests to connect to SpamAssassin")] HRESULT TestSpamAssassinConnection([in] BSTR Hostname, long Port, [out] BSTR *ResultText, [out, retval] VARIANT_BOOL *pResult);
+   
+   [propget, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([in] VARIANT_BOOL newVal);
+   [propget, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([out, retval] long* pVal);
+   [propput, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([in] long newVal);
 };
 
 

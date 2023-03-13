@@ -301,7 +301,8 @@ namespace hMailServer.Administrator
                 string[] columns = temp.Split('\t');
 
                 ListViewItem item = new ListViewItem();
-                   
+
+                item.Text = columns[0];
 
                 if (columns.Length == 4)
                 {
@@ -313,7 +314,6 @@ namespace hMailServer.Administrator
                 }
                 else
                 {
-                    item.Text = columns[0];
                     item.SubItems.Add(columns[2]);
                     item.SubItems.Add(columns[1]);
                     item.SubItems.Add(columns[3]);

@@ -44,9 +44,7 @@ namespace RegressionTests.Infrastructure
 
          application.Settings.TCPIPPorts.SetDefault();
 
-         var pSMTPSimulator = new TcpConnection();
-         var pPOP3Simulator = new Pop3ClientSimulator();
-         var pIMAPSimulator = new ImapClientSimulator();
+         var tcpConnection = new TcpConnection();
 
          application.Stop();
 
@@ -56,9 +54,9 @@ namespace RegressionTests.Infrastructure
             TCPIPPort testPort = ports[i];
             if (testPort.Protocol == eSessionType.eSTIMAP)
                testPort.PortNumber = 14300;
-            else if (testPort.Protocol == eSessionType.eSTSMTP)
-               testPort.PortNumber = 11000;
             else if (testPort.Protocol == eSessionType.eSTPOP3)
+               testPort.PortNumber = 11000;
+            else if (testPort.Protocol == eSessionType.eSTSMTP && testPort.PortNumber == 25)
                testPort.PortNumber = 2500;
 
             testPort.Save();
@@ -66,9 +64,9 @@ namespace RegressionTests.Infrastructure
 
          application.Start();
 
-         Assert.IsTrue(pSMTPSimulator.TestConnect(2500));
-         Assert.IsTrue(pSMTPSimulator.TestConnect(11000));
-         Assert.IsTrue(pSMTPSimulator.TestConnect(14300));
+         Assert.IsTrue(tcpConnection.TestConnect(2500));
+         Assert.IsTrue(tcpConnection.TestConnect(11000));
+         Assert.IsTrue(tcpConnection.TestConnect(14300));
 
          application.Stop();
 
@@ -80,32 +78,34 @@ namespace RegressionTests.Infrastructure
          application.Start();
 
          // Try to connect to the new port
-         Assert.IsTrue(pSMTPSimulator.TestConnect(25000));
+         Assert.IsTrue(tcpConnection.TestConnect(25000));
 
          application.Stop();
 
          // Delete the port again
-         application.Settings.TCPIPPorts.DeleteByDBID(port.ID);
-
-         // Change back the ports
-         for (int i = 0; i < ports.Count; i++)
-         {
-            TCPIPPort testPort = ports[i];
-            if (testPort.Protocol == eSessionType.eSTIMAP)
-               testPort.PortNumber = 143;
-            else if (testPort.Protocol == eSessionType.eSTSMTP)
-               testPort.PortNumber = 25;
-            else if (testPort.Protocol == eSessionType.eSTPOP3)
-               testPort.PortNumber = 110;
-
-            testPort.Save();
-         }
+         application.Settings.TCPIPPorts.SetDefault();
 
          application.Start();
 
-         Assert.IsTrue(pSMTPSimulator.TestConnect(25));
-         Assert.IsTrue(pPOP3Simulator.TestConnect(110));
-         Assert.IsTrue(pPOP3Simulator.TestConnect(143));
+         Assert.IsTrue(tcpConnection.TestConnect(25));
+         Assert.IsTrue(tcpConnection.TestConnect(587));
+         Assert.IsTrue(tcpConnection.TestConnect(110));
+         Assert.IsTrue(tcpConnection.TestConnect(143));
+      }
+
+      [Test]
+      public void TestDefaultPortCount()
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         application.Settings.TCPIPPorts.SetDefault();
+
+         application.Stop();
+         application.Start();
+
+         var ports = application.Settings.TCPIPPorts;
+
+         Assert.AreEqual(4, ports.Count);
       }
    }
 }

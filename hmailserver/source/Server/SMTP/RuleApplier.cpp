@@ -14,6 +14,7 @@
 #include "../Common/BO/RuleAction.h"
 #include "../Common/BO/MessageData.h"
 #include "../Common/BO/Message.h"
+#include "../Common/Mime/Mime.h"
 #include "../Common/BO/Account.h"
 #include "../Common/BO/MessageRecipients.h"
 #include "../Common/Cache/CacheContainer.h"
@@ -369,6 +370,13 @@ namespace HM
       // Run a custom function
       String sHeader = pAction->GetHeaderName();
       String sValue = pAction->GetValue();
+
+      MimeHeader mimeHeader;
+      AnsiString header = pMsgData->GetHeader();
+      mimeHeader.Load(header, header.GetLength(), true);
+
+      // Replace macro value
+      sValue.Replace(_T("%MACRO_ORIGINAL_HEADER%"), String(mimeHeader.GetRawFieldValue(sHeader)));
 
       pMsgData->SetFieldValue(sHeader, sValue);
 

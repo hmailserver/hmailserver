@@ -76,9 +76,6 @@ END_COM_MAP()
    STDMETHOD(get_MaxMessageSize)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_MaxMessageSize)(/*[in]*/ long newVal);
 
-   STDMETHOD(get_SendStatistics)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_SendStatistics)(/*[in]*/ VARIANT_BOOL newVal);
-
    STDMETHOD(get_SMTPRelayerRequiresAuthentication)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_SMTPRelayerRequiresAuthentication)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_SMTPRelayerUsername)(/*[out, retval]*/ BSTR *pVal);
@@ -240,6 +237,9 @@ END_COM_MAP()
 
    STDMETHOD(get_IMAPSASLInitialResponseEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_IMAPSASLInitialResponseEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_IPv6PreferredEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_IPv6PreferredEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
    bool LoadSettings();
 

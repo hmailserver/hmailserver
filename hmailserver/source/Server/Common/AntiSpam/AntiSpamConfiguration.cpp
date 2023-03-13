@@ -71,6 +71,29 @@ namespace HM
       return GetSettings_()->GetLong(PROPERTY_AS_CHECKHOSTINHELOSCORE);
    }
 
+   void
+   AntiSpamConfiguration::SetCheckPTR(bool newVal)
+   {
+      GetSettings_()->SetBool(PROPERTY_AS_CHECKPTR, newVal);
+   }
+
+   bool
+   AntiSpamConfiguration::GetCheckPTR()
+   {
+      return GetSettings_()->GetBool(PROPERTY_AS_CHECKPTR);
+   }
+
+   void
+   AntiSpamConfiguration::SetCheckPTRScore(int newVal)
+   {
+      GetSettings_()->SetLong(PROPERTY_AS_CHECKPTRSCORE, newVal);
+   }
+
+   int
+   AntiSpamConfiguration::GetCheckPTRScore()
+   {
+      return GetSettings_()->GetLong(PROPERTY_AS_CHECKPTRSCORE);
+   }
 
    void
    AntiSpamConfiguration::SetUseGreyListing(bool newVal)

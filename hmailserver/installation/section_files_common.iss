@@ -10,7 +10,7 @@ Source: ".\Extras\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Componen
 ; Database scripts
 Source: "..\source\DBScripts\*.sql"; DestDir: "{app}\DBScripts";Flags: ignoreversion recursesubdirs; Components: server;
 
-Source: "..\source\Addons\*.*"; DestDir: "{app}\Addons"; Flags: ignoreversion recursesubdirs; Excludes: "Events";  Components: server;
+Source: "..\source\Addons\*.*"; DestDir: "{app}\Addons"; Flags: onlyifdoesntexist recursesubdirs; Excludes: "Events";  Components: server;
 Source: "..\source\Addons\Events\*.*"; DestDir: "{app}\Events"; Flags: onlyifdoesntexist;Components: server;
 
 Source: "..\source\WebAdmin\*.*"; DestDir: "{app}\PHPWebAdmin"; Flags: recursesubdirs; Components: admintools;

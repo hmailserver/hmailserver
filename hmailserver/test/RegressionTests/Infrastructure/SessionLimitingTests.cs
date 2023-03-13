@@ -198,7 +198,7 @@ namespace RegressionTests.Infrastructure
          {
             int count = application.Status.get_SessionCount(sessionType);
 
-            Assert.GreaterOrEqual(maxExpectedCount, count);
+            RetryableAssert.GreaterOrEqual(maxExpectedCount, count);
          });
 
       }

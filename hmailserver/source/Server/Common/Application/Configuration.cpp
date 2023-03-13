@@ -474,18 +474,6 @@ namespace HM
    }
 
    void 
-   Configuration::SetSendStatistics(bool bNewVal)
-   {
-      GetSettings()->SetLong(PROPERTY_SENDSTATISTICS, bNewVal);
-   }
-
-   bool
-   Configuration::GetSendStatistics() const
-   {
-      return GetSettings()->GetLong(PROPERTY_SENDSTATISTICS) ? true : false;
-   }
-
-   void 
    Configuration::SetHostName(String &NewVal)
    {
       GetSettings()->SetString(PROPERTY_HOSTNAME, NewVal);
@@ -648,6 +636,18 @@ namespace HM
          versions = versions &~version;
 
       GetSettings()->SetLong(PROPERTY_SSLVERSIONS, versions);
+   }
+
+   void
+   Configuration::SetIPv6Preferred(bool newVal)
+   {
+      GetSettings()->SetBool(PROPERTY_IPV6_PREFERRED, newVal);
+   }
+
+   bool
+   Configuration::GetIPv6Preferred()
+   {
+      return GetSettings()->GetBool(PROPERTY_IPV6_PREFERRED);
    }
 
    int

@@ -26,7 +26,7 @@ namespace HM
    TCPIPPorts::Refresh()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads all SURBL servers from the database.
+   // Reads all TCP/IP Ports from the database.
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_tcpipports order by portaddress1 asc, portaddress2 asc, portnumber asc";
@@ -37,17 +37,25 @@ namespace HM
    TCPIPPorts::SetDefault()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads all SURBL servers from the database.
+   // Resets all TCP/IP Ports to their default values.
    //---------------------------------------------------------------------------()
    {
       Refresh();
 
       // check if the settings are already default.
-      if (vecObjects.size() == 3)
+      if (vecObjects.size() == 4)
       {
+         /* Shouldn't we reset SSL/TLS settings as well?
+         https://github.com/hmailserver/hmailserver/pull/441#issuecomment-1221246664
          if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP &&
-             vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
-             vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP) 
+            vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
+            vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP &&
+            vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP)
+         */
+         if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP && vecObjects[0]->GetConnectionSecurity() == CSNone &&
+            vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 && vecObjects[1]->GetConnectionSecurity() == CSNone &&
+            vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP && vecObjects[2]->GetConnectionSecurity() == CSNone &&
+            vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP && vecObjects[3]->GetConnectionSecurity() == CSNone)
          {
             // no changes are needed. 
             return;
@@ -72,6 +80,11 @@ namespace HM
       pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(143);
       pTCPIPPort->SetProtocol(STIMAP);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
+
+      pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
+      pTCPIPPort->SetPortNumber(587);
+      pTCPIPPort->SetProtocol(STSMTP);
       PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       Refresh();

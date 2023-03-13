@@ -119,7 +119,8 @@ namespace RegressionTests.Infrastructure
          RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
             {
                var log = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
+
+               RetryableAssert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
             });
 
 
@@ -148,7 +149,7 @@ namespace RegressionTests.Infrastructure
          RetryHelper.TryAction(TimeSpan.FromSeconds(5), () =>
          {
             var log = LogHandler.ReadCurrentDefaultLog();
-            Assert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
+            RetryableAssert.IsTrue(log.Contains("Minidump creation aborted. The max count (10) is reached and no log is older than 4 hours."));
          });
 
          // Pretend one minidump is really old.
@@ -161,11 +162,10 @@ namespace RegressionTests.Infrastructure
          TriggerCrashSimulationError();
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
-         {
-            if (File.Exists(testminidump))
-               throw new Exception($"File {testminidump} still exists.");
-         });
-
+            {
+               if (File.Exists(testminidump))
+                  throw new Exception("Mini dump exists");
+            });
 
          AssertMinidumpsGeneratedAndErrorsLogged(10, true);
       }
@@ -187,7 +187,7 @@ namespace RegressionTests.Infrastructure
          {
             var minidumps = GetMinidumps();
             if (count != minidumps.Length)
-               throw new Exception($"Unexpected number of minidums. Expected: {count}, Actual: {minidumps.Length}");
+               throw new Exception(string.Format("Unexpected minidump count, Actual: {0}, Expected: {1}", minidumps.Length, count));
 
             if (count > 0 || expectedLoggedErrors.Length > 0)
             {
@@ -195,17 +195,13 @@ namespace RegressionTests.Infrastructure
                foreach (var minidump in minidumps)
                {
                   if (!errorLog.Contains(minidump))
-                  {
-                     throw new Exception($"Error log contains no reference to {minidump}.");
-                  }
+                     throw new Exception(errorLog);
                }
 
                foreach (var expectedLoggedError in expectedLoggedErrors)
                {
                   if (!errorLog.Contains(expectedLoggedError))
-                  {
-                     throw new Exception($"Error log does not contain '{expectedLoggedError}'");
-                  }
+                     throw new Exception(errorLog);
                }
             }
 

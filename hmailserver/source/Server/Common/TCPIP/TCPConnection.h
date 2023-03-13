@@ -70,10 +70,11 @@ namespace HM
 
       void SetAllowConnectToSelf(bool allow)  { allow_connect_to_self_ = allow; }
 
+      int GetSessionID();
+
    protected:
 
       ConnectionState GetConnectionState() { return connection_state_;  }
-      int GetSessionID();
 
       int GetBufferSize() {return BufferSize; }
 
@@ -119,8 +120,8 @@ namespace HM
 
       void AsyncConnectCompleted(const boost::system::error_code& err);
       void AsyncHandshakeCompleted(const boost::system::error_code& error);
-      void AsyncReadCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
-      void AsyncWriteCompleted(const boost::system::error_code& /*error*/,  size_t bytes_transferred);
+      void AsyncReadCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
+      void AsyncWriteCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);

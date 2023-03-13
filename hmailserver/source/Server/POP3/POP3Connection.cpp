@@ -368,7 +368,10 @@ namespace HM
    void
    POP3Connection::ProtocolCAPA_()
    {
-      String capabilities = "USER\r\nUIDL\r\nTOP\r\n";
+      String capabilities = "UIDL\r\nTOP\r\n";
+
+      if (IsSSLConnection() || GetConnectionSecurity() != CSSTARTTLSRequired)
+         capabilities+="USER\r\n";
 
       if (GetConnectionSecurity() == CSSTARTTLSOptional ||
           GetConnectionSecurity() == CSSTARTTLSRequired)
@@ -462,6 +465,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetIsAuthenticated(isAuthenticated);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())

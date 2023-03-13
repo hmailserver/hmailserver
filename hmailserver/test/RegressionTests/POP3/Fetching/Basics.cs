@@ -3,15 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
-using RegressionTests.SMTP;
 using RegressionTests.Shared;
 using hMailServer;
-using System.Text;
-using RegressionTests.SSL;
 
 namespace RegressionTests.POP3.Fetching
 {
@@ -147,7 +142,8 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsTrue(downloadedMessage.Contains(message));
+            StringAssert.Contains("Subject: Test", downloadedMessage);
+            StringAssert.Contains("Hello!", downloadedMessage);
          }
       }
 
@@ -225,7 +221,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
-            Assert.IsTrue(downloadedMessage.Contains(message));
+            StringAssert.Contains("Hello!", downloadedMessage);
             Assert.AreEqual(1, pop3Server.DeletedMessages.Count);
          }
       }
@@ -329,7 +325,7 @@ namespace RegressionTests.POP3.Fetching
 
             string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
             Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+            StringAssert.Contains("Hello!", downloadedMessage1);
 
             Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 0);
             Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
@@ -400,7 +396,7 @@ namespace RegressionTests.POP3.Fetching
                string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
                Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
                Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
-               Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+               StringAssert.Contains("Hello!", downloadedMessage1);
 
                // Make sure the exernal list has received his copy.
                smtpServer.WaitForCompletion();
@@ -433,11 +429,6 @@ namespace RegressionTests.POP3.Fetching
          {
             pop3Server.StartListen();
 
-            // Add a route so we can connect to localhost.
-            //Route route = SMTPClientTests.AddRoutePointingAtLocalhost(5, 250, false);
-            //route.TreatSecurityAsLocalDomain = false;
-            //route.Save();
-
             Account userAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
             Account recipientAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test1@test.com",
                                                                                          "test");
@@ -468,7 +459,7 @@ namespace RegressionTests.POP3.Fetching
             fa.Delete();
 
             string downloadedMessage1 = Pop3ClientSimulator.AssertGetFirstMessageText(recipientAccount1.Address, "test");
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
+            StringAssert.Contains("Hello!", downloadedMessage1);
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0, false);
          }
@@ -526,8 +517,8 @@ namespace RegressionTests.POP3.Fetching
             Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
             Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
 
-            Assert.IsTrue(downloadedMessage1.Contains(message), downloadedMessage1);
-            Assert.IsTrue(downloadedMessage2.Contains(message), downloadedMessage2);
+            StringAssert.Contains("Hello!", downloadedMessage1);
+            StringAssert.Contains("Hello!", downloadedMessage2);
          }
       }
 
@@ -574,8 +565,9 @@ namespace RegressionTests.POP3.Fetching
             RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
             {
                string error = LogHandler.ReadCurrentDefaultLog();
-               Assert.IsTrue(error.Contains("-ERR unhandled command"));
-               Assert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
+
+               RetryableAssert.IsTrue(error.Contains("-ERR unhandled command"));
+               RetryableAssert.IsTrue(error.Contains("Completed retrieval of messages from external account."));
             });
          }
       }
@@ -1005,8 +997,8 @@ namespace RegressionTests.POP3.Fetching
 
          var messages = new List<string>();
 
-         string message = "Received: from readsoft.com (readsoft.com [195.84.201.250]) by mail.host.edu\r\n" +
-                          "From: example@readsoft.com\r\n" +
+         string message = "Received: from example.com (example.com [1.2.3]) by mail.example.com\r\n" +
+                          "From: example@example.com\r\n" +
                           "To: Martin@example.com\r\n" +
                           "Subject: Test\r\n" +
                           "\r\n" +

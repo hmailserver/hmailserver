@@ -27,7 +27,6 @@
 #define PROPERTY_AV_NOTIFY_RECEIVER             _T("avnotifyreceiver")
 #define PROPERTY_AV_DELETE_INFC_EMAIL           _T("avdeleteinfectedemail")
 #define PROPERTY_AV_ACTION                      _T("avaction")
-#define PROPERTY_SENDSTATISTICS                 _T("sendstatistics")  
 #define PROPERTY_HOSTNAME                       _T("hostname")
 #define PROPERTY_SMTPRELAYER_USERNAME           _T("smtprelayerusername")
 #define PROPERTY_SMTPRELAYER_PASSWORD           _T("smtprelayerpassword")
@@ -55,6 +54,8 @@
 #define PROPERTY_USEMXCHECKSCORE                _T("usemxchecksscore")
 #define PROPERTY_AS_CHECKHOSTINHELO             _T("ascheckhostinhelo")
 #define PROPERTY_AS_CHECKHOSTINHELOSCORE        _T("ascheckhostinheloscore")
+#define PROPERTY_AS_CHECKPTR                    _T("ascheckptr")
+#define PROPERTY_AS_CHECKPTRSCORE               _T("ascheckptrscore")
 
 #define PROPERTY_BACKUPOPTIONS                  _T("backupoptions")
 #define PROPERTY_BACKUPDESTINATION              _T("backupdestination")
@@ -132,4 +133,6 @@
 #define PROPERTY_ENABLEIMAPSASLPLAIN           _T("EnableImapSASLPlain")
 #define PROPERTY_ENABLEIMAPSASLINTIALRESPONSE  _T("EnableImapSASLInitialResponse")
 
-#define REQUIRED_DB_VERSION            5700
+#define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
+
+#define REQUIRED_DB_VERSION            5703

@@ -893,40 +893,6 @@ STDMETHODIMP InterfaceSettings::put_ServiceIMAP(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_SendStatistics(VARIANT_BOOL *pVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      *pVal = config_->GetSendStatistics() ? VARIANT_TRUE : VARIANT_FALSE;
-   
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
-STDMETHODIMP InterfaceSettings::put_SendStatistics(VARIANT_BOOL newVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      config_->SetSendStatistics(newVal == VARIANT_TRUE);
-   
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
 STDMETHODIMP InterfaceSettings::get_SMTPRelayerRequiresAuthentication(VARIANT_BOOL *pVal)
 {
    try
@@ -2583,6 +2549,40 @@ STDMETHODIMP InterfaceSettings::get_IMAPSASLInitialResponseEnabled(VARIANT_BOOL 
          return GetAccessDenied();
 
       *pVal = config_->GetIMAPConfiguration()->GetUseIMAPSASLInitialResponse() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_IPv6PreferredEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetIPv6Preferred() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_IPv6PreferredEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetIPv6Preferred(newVal == VARIANT_TRUE);
+
       return S_OK;
    }
    catch (...)

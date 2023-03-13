@@ -14,9 +14,11 @@ namespace VMwareIntegration.Common
       private string _operatingSystem;
       private string _description;
       private string _databaseType;
-      private List<PostInstallCommand> _postInstallCommands;
-      private List<PostInstallFileCopy> _postInstallFileCopy;
-
+      private List<InstallCommand> _postInstallCommands;
+      private List<FileCopyCommand> _postInstallFileCopy;
+      private List<FileCopyCommand> _preInstallFileCopy;
+      private List<InstallCommand> _preInstallCommands;
+      
       public TestEnvironment(string operatingSystem, string description, string databaseType, string vmwarePath, string snapshotName)
       {
          _vmwarePath = vmwarePath;
@@ -24,8 +26,10 @@ namespace VMwareIntegration.Common
          _operatingSystem = operatingSystem;
          _description = description;
          _databaseType = databaseType;
-         _postInstallCommands = new List<PostInstallCommand>();
-         _postInstallFileCopy = new List<PostInstallFileCopy>();
+         _postInstallCommands = new List<InstallCommand>();
+         _preInstallFileCopy = new List<FileCopyCommand>();
+         _postInstallFileCopy = new List<FileCopyCommand>();
+         _preInstallCommands = new List<InstallCommand>();
       }
 
       public string OperatingSystem
@@ -54,7 +58,7 @@ namespace VMwareIntegration.Common
          get { return _databaseType; }
       }
 
-      public List<PostInstallCommand> PostInstallCommands
+      public List<InstallCommand> PostInstallCommands
       {
          get
          {
@@ -62,11 +66,27 @@ namespace VMwareIntegration.Common
          }
       }
 
-      public List<PostInstallFileCopy> PostInstallFileCopy
+      public List<FileCopyCommand> PostInstallFileCopy
       {
          get
          {
             return _postInstallFileCopy;
+         }
+      }
+
+      public List<FileCopyCommand> PreInstallFileCopy
+      {
+         get
+         {
+            return _preInstallFileCopy;
+         }
+      }
+
+      public List<InstallCommand> PreInstallCommands
+      {
+         get
+         {
+            return _preInstallCommands;
          }
       }
    }
