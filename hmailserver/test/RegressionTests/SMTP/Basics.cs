@@ -61,6 +61,29 @@ namespace RegressionTests.SMTP
          Assert.AreNotEqual(lastLogonTimeBefore, lastLogonTimeAfter);
       }
 
+      [Test]
+      public void AuthLoginShouldOnlyBeAllowedOnce()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+
+         // Login a first time
+         string base64EncodedUsername = EncodeBase64("test@test.com");
+         sock.Send("AUTH LOGIN " + base64EncodedUsername + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
+         sock.Send(EncodeBase64("test") + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("235"));
+
+         // Login a second time
+         sock.Send("AUTH LOGIN " + base64EncodedUsername + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503 Already authenticated."));
+      }
+
 
       [Test]
       [Category("SMTP")]
@@ -858,7 +881,6 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestTooManyInvalidCommandsAUTH()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Settings settings = _settings;
 
          settings.DisconnectInvalidClients = true;
@@ -867,34 +889,33 @@ namespace RegressionTests.SMTP
          var sim = new TcpConnection();
          sim.Connect(25);
          sim.Send("EHLO test.com\r\n");
+         sim.ReadUntil("250 HELP\r\n");
 
-         for (int i = 1; i <= 6; i++)
+         for (int i = 1; i <= 5; i++)
          {
-            try
+            sim.Send("AUTH LOGIN\r\n");
+
+            // Send invalid username/password
+            string usernamePrompt = sim.Receive();
+
+            // Send a invalid username
+            sim.Send("YWNhZGVtaWE=\r\n");
+            string passwordPrompt = sim.Receive();
+            StringAssert.Contains("334 UGFzc3dvcmQ6", passwordPrompt); // Base64 encoded "Password" prompt
+
+            // Send a invalid password
+            sim.Send("abc\r\n");
+            var loginResult = sim.Receive();
+
+
+            if (i == 4)
             {
-               sim.Send("AUTH LOGIN\r\n");
-
-               string result = sim.Receive();
-
-               if (result.Contains("Too many invalid commands"))
-                  return;
-
-               if (i > 5)
-                  break;
-
-               sim.Send("YWNhZGVtaWE=\r\n");
-               sim.Receive();
-               sim.Send("abc\r\n");
-               sim.Receive();
-            }
-            catch (Exception)
-            {
-               if (i < 5)
-               {
-                  Assert.Fail("Was disconnected prematurely.");
-               }
-
+               StringAssert.Contains("Too many invalid commands", loginResult);
                return;
+            }
+            else
+            {
+               StringAssert.Contains("535 Authentication failed. Restarting authentication process.", loginResult);
             }
          }
 
@@ -1058,6 +1079,17 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void TestTooLongEmailAddress()
+      {
+         var senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@test.com", "test");
+
+         var tooLongAddress = new string('i', 260) + "@example.com";
+         var ex = Assert.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend(senderAccount.Address, tooLongAddress, "", "foobar"));
+
+         StringAssert.Contains("550 A valid address is required.", ex.Message);
+      }
+
+      [Test]
       public void TestWelcomeMessage()
       {
          Application application = SingletonProvider<TestSetup>.Instance.GetApp();
@@ -1067,7 +1099,7 @@ namespace RegressionTests.SMTP
 
          string sWelcomeMessage = simulator.GetWelcomeMessage();
 
-         if (sWelcomeMessage != "220 HOWDYHO\r\n")
+         if (sWelcomeMessage != "220 HOWDYHO ESMTP\r\n")
             throw new Exception("ERROR - Wrong welcome message.");
       }
 

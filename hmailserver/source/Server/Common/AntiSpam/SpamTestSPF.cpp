@@ -59,7 +59,10 @@ namespace HM
       if (result == SPF::Fail)
       {
          // Blocked by SPF.s
-         sMessage.Format(_T("Blocked by SPF (%s)"), sExplanation.c_str());
+         if (!sExplanation.IsEmpty())
+            sMessage.Format(_T("Blocked by SPF. (%s)"), sExplanation.c_str());
+         else
+            sMessage = "Blocked by SPF.";
          iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseSPFScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));

@@ -56,17 +56,20 @@ namespace HM
       std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
 
-      // Add Return-Path header if none exist (ExternalAccount download?)
-      if (pTestData->GetMessageData()->GetReturnPath().IsEmpty())
+      // SMTP servers making final delivery MAY/SHOULD remove Return-path header fields before adding their own. See: rfc2821 and rfc5321
+      while (!pTestData->GetMessageData()->GetReturnPath().IsEmpty())
       {
-         String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
-
-         std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
-         fieldsToWrite.push_back(std::make_pair("Return-Path", sEnvelopeFrom));
-         
-         TraceHeaderWriter writer;
-         writer.Write(sFilename, pMessage, fieldsToWrite);
+         pTestData->GetMessageData()->DeleteField("Return-Path");
       }
+
+      // Add Return-Path as topmost header to help SpamAssassin with its SPF checks.
+      // SpamAssassin default rules and custom rules also rely on Return-Path header being present
+      // We delete this header again after SpamAssassin checking has completed
+      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
+      fieldsToWrite.push_back(std::make_pair("Return-Path", pTestData->GetEnvelopeFrom()));
+         
+      TraceHeaderWriter writer;
+      writer.Write(sFilename, pMessage, fieldsToWrite);
       
       std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
@@ -92,7 +95,7 @@ namespace HM
       else
       {
          String message = "The IP address for SpamAssassin could not be resolved. Aborting tests.";
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamAssassinTestConnect::TestConnect", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5507, "SpamTestSpamAssassin::RunTest", message);
          return setSpamTestResults;  
       }
 
@@ -108,7 +111,7 @@ namespace HM
       
       if (!testCompleted)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5508, "SpamAssassinTestConnect::TestConnect", 
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5508, "SpamTestSpamAssassin::RunTest", 
             "The SpamAssassin tests did not complete. Please confirm that the configuration (host name and port) is valid and that SpamAssassin is running.");
 
          return setSpamTestResults;  

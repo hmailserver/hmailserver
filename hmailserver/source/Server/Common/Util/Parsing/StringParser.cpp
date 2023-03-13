@@ -65,6 +65,15 @@ namespace HM
 
       RegularExpression regexpEvaluator;
       bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
+
+      const int maxEmailAddressLength = 254;
+      if (sEmailAddress.GetLength() > maxEmailAddressLength)
+      {
+         // https://stackoverflow.com/a/574698
+         // An email address must not exceed 254 characters.
+         return false;
+      }
+
       return result;
    }
 

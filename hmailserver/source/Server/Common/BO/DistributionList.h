@@ -18,7 +18,8 @@ namespace HM
       {
          LMPublic = 0,
          LMMembership = 1,
-         LMAnnouncement = 2
+         LMAnnouncement = 2,
+         LMDomainMembers = 3,
       };
 
       String GetName() {return address_; }

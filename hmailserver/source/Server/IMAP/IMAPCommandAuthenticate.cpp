@@ -63,7 +63,7 @@ namespace HM
 
 		sParam = pParser->GetParamValue(pArgument, 1);
 		StringParser::Base64Decode(sParam, sDecode64);
-		std::vector<String> plain_args = StringParser::SplitString(sDecode64, "\t");
+		std::vector<String> plain_args = StringParser::SplitString(sDecode64, "\0");
 
 		if (plain_args.size() != 3)
 			return IMAPResult(IMAPResult::ResultBad, "Command has malformed base64 token.");

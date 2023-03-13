@@ -394,6 +394,26 @@ namespace HM
 
          // OK. The correct user is sending
       }
+      else if (lm == DistributionList::LMDomainMembers)
+      {
+         Logger::Instance()->LogDebug("DistributionList::LMDomainMembers");
+
+         String sFormattedSender = pDA->ApplyAliasesOnAddress(sSender);
+         String sFormattedDomain = StringParser::ExtractDomain(sFormattedSender);
+
+         __int64 iDomainID = pList->GetDomainID();
+         std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(iDomainID);
+
+         if (sFormattedDomain.CompareNoCase(pDomain->GetName()) != 0)
+         {
+            // Let's adjust reason to better explain sender is not seen as OWNER
+            // and differentiate from SENDER like list member etc
+            sErrMsg = "Not authorized domain.";
+            return DP_PermissionDenied;
+         }
+
+         // OK. The correct domain is sending
+      }
       else if (lm == DistributionList::LMPublic)
       {
          // Anyone can send. OK

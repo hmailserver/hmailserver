@@ -558,8 +558,6 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(29), helpstring("The maximum number of SMTP delivery threads.")] HRESULT MaxDeliveryThreads([in] long newVal);
    [propget, id(30), helpstring("AntiVirus Settings.")] HRESULT AntiVirus([out, retval] IInterfaceAntiVirus * *pVal);
    [propget, id(31), helpstring("Routes collection.")] HRESULT Routes([out, retval] IInterfaceRoutes* *pVal);
-   [propget, id(32), helpstring("Gets or sets whether statistics should be sent to hMailServer.com")] HRESULT SendStatistics([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(32), helpstring("Gets or sets whether statistics should be sent to hMailServer.com")] HRESULT SendStatistics([in] VARIANT_BOOL newVal);
    [propget, id(33), helpstring("Gets or sets the host name hMailServer identifies itself with.")] HRESULT HostName([out, retval] BSTR *pVal);
    [propput, id(33), helpstring("Gets or sets the host name hMailServer identifies itself with.")] HRESULT HostName([in] BSTR newVal);
    [propget, id(34), helpstring("SMTP relayer requires authentication")] HRESULT SMTPRelayerRequiresAuthentication([out, retval] VARIANT_BOOL *pVal);

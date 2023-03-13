@@ -48,41 +48,24 @@ namespace HM
    VirusScanningResult
    ClamAVVirusScanner::Scan(const String &hostName, int primaryPort, const String &sFilename)
    {
-      LOG_DEBUG("Connecting to ClamAV virus scanner...");
-
-      int streamPort = 0;
+      union
+      {
+         uint32_t integer;
+         unsigned char byte[4];
+      } bArray;
 
       TimeoutCalculator calculator;
 
+      LOG_DEBUG("Connecting to ClamAV virus scanner...");
       SynchronousConnection commandConnection(calculator.Calculate(IniFileSettings::Instance()->GetClamMinTimeout(), IniFileSettings::Instance()->GetClamMaxTimeout()));
       if (!commandConnection.Connect(hostName, primaryPort))
       {
-         return VirusScanningResult(_T("ClamAVVirusScanner::Scan"), 
+         return VirusScanningResult(_T("ClamAVVirusScanner::Scan"),
             Formatter::Format("Unable to connect to ClamAV server at {0}:{1}.", hostName, primaryPort));
       }
 
-      if (!commandConnection.Write("STREAM\r\n"))
-         return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write STREAM command.");
-
-      AnsiString readData;
-      if (!commandConnection.ReadUntil("\n", readData))
-         return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to read STREAM command response.");
-
-      if (!readData.StartsWith("PORT"))
-         return VirusScanningResult("ClamAVVirusScanner::Scan", Formatter::Format("Protocol error. Unexpected response: {0}.", readData));
-      
-      readData.TrimRight("\n");
-
-      // Determine port.
-      std::string portString = readData.Mid(5);
-      
-      if (!StringParser::TryParseInt(portString, streamPort))
-         return VirusScanningResult("ClamAVVirusScanner::Scan", Formatter::Format("Protocol error. Unexpected response: {0} (Unable to parse port).", readData));
-
-      LOG_DEBUG("Connecting to ClamAV stream port...");
-      SynchronousConnection streamConnection(15);
-      if (!streamConnection.Connect(hostName, streamPort))
-         return VirusScanningResult("ClamAVVirusScanner::Scan", Formatter::Format("Unable to connect to ClamAV stream port at {0}:{1}.", hostName, streamPort));
+      if (!commandConnection.Write("nINSTREAM\n"))
+         return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write INSTREAM command.");
 
       // Send the file on the stream socket.
       File oFile;
@@ -101,24 +84,33 @@ namespace HM
          if (pBuf->GetSize() == 0)
             break;
 
+         bArray.integer = htonl(static_cast<uint32_t>(pBuf->GetSize()));
          // Send the request.
-         if (!streamConnection.Write(*pBuf))
-            return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write data to stream port.");
+         if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+            return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write packet size to stream port.");
+
+         if (!commandConnection.Write(*pBuf))
+            return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write packet data to stream port.");
       }
 
-      streamConnection.Close();
+      bArray.integer = 0;
+      if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+         return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write end of stream.");
 
+      AnsiString readData;
       if (!commandConnection.ReadUntil("\n", readData))
          return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to read response (after streaming).");
+
+      commandConnection.Close();
 
       readData.TrimRight("\n");
 
       // Parse the response and see if a virus was reported.
       try
       {
-         const regex expression("^stream.*: (.*) FOUND$"); 
-         cmatch what; 
-         if(regex_match(readData.c_str(), what, expression)) 
+         const regex expression("^stream.*: (.*) FOUND$");
+         cmatch what;
+         if (regex_match(readData.c_str(), what, expression))
          {
             LOG_DEBUG("Virus detected: " + what[1]);
             return VirusScanningResult(VirusScanningResult::VirusFound, String(what[1]));
@@ -129,11 +121,9 @@ namespace HM
             return VirusScanningResult(VirusScanningResult::NoVirusFound, Formatter::Format("Result: {0}", readData));
          }
       }
-      catch (std::runtime_error &) // regex_match will throw runtime_error if regexp is too complex.
+      catch (std::runtime_error&) // regex_match will throw runtime_error if regexp is too complex.
       {
          return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to parse regular expression.");
       }
-
-      
    }
 }

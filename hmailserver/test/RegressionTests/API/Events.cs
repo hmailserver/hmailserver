@@ -91,6 +91,84 @@ namespace RegressionTests.API
 
       }
 
+      [Test]
+      public void TestOnRecipientUnknownVBScript()
+      {
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"Sub OnRecipientUnknown(oClient, oMessage)
+                               EventLog.Write(""OnRecipientUnknown "")
+                              End Sub";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Add an account and send a message to it.
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         try
+         {
+            SmtpClientSimulator.StaticSend(account1.Address, "nonexistent@test.com", "Test", "SampleBody");
+         }
+         catch (DeliveryFailedException)
+         {
+            // Expected, since recipient does not exist.
+         }
+
+         // Check that the event was triggered
+         var message = TestSetup.ReadExistingTextFile(eventLogFile);
+         Assert.IsTrue(message.Contains("OnRecipientUnknown"));
+      }
+
+      [Test]
+      public void TestOnTooManyInvalidCommands()
+      {
+         int maxInvalid = 5;
+
+         _settings.MaxNumberOfInvalidCommands = maxInvalid;
+         _settings.DisconnectInvalidClients = true;
+
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"Sub OnTooManyInvalidCommands(oClient, oMessage)
+                               EventLog.Write(""OnTooManyInvalidCommands "")
+                              End Sub";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Add an account and send a message to it.
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         var client = new SmtpClientSimulator();
+         client.Connect();
+         client.Receive(); // Welcome banner
+         var ehloResponse = client.SendAndReceive("EHLO example.com\r\n");
+
+         for (int i = 0; i < maxInvalid + 1; i++)
+         {
+            client.SendAndReceive("MAIL FROM\r\n");
+         }
+
+         // Check that the event was triggered
+         var message = TestSetup.ReadExistingTextFile(eventLogFile);
+         Assert.IsTrue(message.Contains("OnTooManyInvalidCommands"));
+      }
+
 
       [Test]
       public void TestOnBackupCompletedJScript()

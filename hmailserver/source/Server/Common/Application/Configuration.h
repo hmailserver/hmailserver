@@ -117,9 +117,6 @@ namespace HM
 
       int GetRequiredDBVersion() { return REQUIRED_DB_VERSION; }
 
-      bool GetSendStatistics() const;
-      void SetSendStatistics(bool bNewVal);
-
       String GetHostName() const;
       void SetHostName(String &NewVal);
 

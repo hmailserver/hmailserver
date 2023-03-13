@@ -15,7 +15,7 @@ Branches
 
    * The master branch contains the latest development version of hMailServer. This version is typically not yet released for production usage. If you want to add new features to hMailServer, use this branch.
    
-   * The x.y.z (for exampel 5.6.2) contains the code for the version with the same name as the branch. For example, branch 5.6.1 contains hMailServer version 5.6.1. These branches are typically only used for bugfixes or minor features.
+   * The x.y.z (for example 5.6.2) contains the code for the version with the same name as the branch. For example, branch 5.6.1 contains hMailServer version 5.6.1. These branches are typically only used for bugfixes or minor features.
 
 Environment set up
 ---------------------
@@ -34,7 +34,7 @@ You should not be compiling hMailServer on a computer which already runs a produ
 Installing Visual Studio 2019 Community edition
 ----------------------------------------------
 
-1. Downlod [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) and launch the installation.
+1. Download [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) and launch the installation.
 2. Select the following _Workloads_
   * .NET desktop development
   * Desktop development with C++
@@ -96,12 +96,20 @@ Running in Debug
 
 If you want to run hMailServer in debug mode in Visual Studio, add the command argument /debug. You find this setting in the Project properties, under Configuration Properties -> Debugging.
 
-Continous Integration
----------------------
+Running tests
+-------------
 
-Production builds can be downloaded via [hMailServer.com](https://www.hmailserver.com), but if you want to pick up a build based on the latest commit you can download artifacts from [GitHub Actions](https://github.com/hmailserver/hmailserver/actions).
+hMailServer source code contains a number of automated tests which excercises the basic functionality. When adding new features or fixing bugs, corresponding tests should be added. hMailServer tests are implemented using NUnit. To run them in Visual Studio, follow these steps:
 
-![CI](https://github.com/hmailserver/hmailserver/workflows/CI/badge.svg)
+NOTE: When running tests, your local hMailServer installation will be updated with test accounts. Existing domains and accounts are deleted. Each tests prepares the server configuration in different ways. In other words, do not run the automated tests in an environment where you need to preserve hMailServer data.
+
+1. Make sure hMailServer.exe is built and can be run. The tests will launch the service.
+2. Open the test solution, `\hmailserver\test\hMailServer Tests.sln`
+3. In Visual Studio, select Test Explorer from the View-menu. 
+4. Locate a test to run under "RegressionTests"
+5. Right-click on a test or test category and select "Run".
+
+You can also navigate to the source code for a test, right-click anywhere and select "Run Test(s)" to run it.
 
 Releasing hMailServer
 =====================

@@ -36,7 +36,7 @@ namespace HM
           pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
          sResponse += " STARTTLS";
 
-      if (pConfig->GetUseIMAPSASLPlain())
+      if (pConfig->GetUseIMAPSASLPlain() && (pConnection->IsSSLConnection() || pConnection->GetConnectionSecurity() != CSSTARTTLSRequired))
 	      sResponse += " AUTH=PLAIN";
 
       if (pConfig->GetUseIMAPSASLInitialResponse())

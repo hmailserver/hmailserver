@@ -268,7 +268,7 @@ namespace RegressionTests.Rules
                   fileCount += files.Length;
                }
 
-               Assert.AreEqual(2, fileCount);
+               RetryableAssert.AreEqual(2, fileCount);
             });
 
          RetryHelper.TryAction(TimeSpan.FromSeconds(10), delegate
@@ -276,7 +276,7 @@ namespace RegressionTests.Rules
                var logContent = LogHandler.ReadCurrentDefaultLog();
                int loggedDeletionCount = new Regex(Regex.Escape("Delivery to this account was canceled by an account rule")).Matches(logContent).Count;
 
-               Assert.AreEqual(2, loggedDeletionCount);
+               RetryableAssert.AreEqual(2, loggedDeletionCount);
             });
       }
 
@@ -628,6 +628,43 @@ namespace RegressionTests.Rules
 
          if (sContents.IndexOf("SomeHeader: SomeValue") <= 0)
             throw new Exception("Message header not set");
+      }
+
+      [Test]
+      public void ActionSetHeaderContents_MACRO_ORIGINAL_HEADER()
+      {
+         // Add an account
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest@test.com", "test");
+
+         Rule rule = account.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
+
+         RuleCriteria ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = false;
+         ruleCriteria.HeaderField = "Subject";
+         ruleCriteria.MatchType = eRuleMatchType.eMTContains;
+         ruleCriteria.MatchValue = "TestString";
+         ruleCriteria.Save();
+
+         // Add action
+         RuleAction ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRASetHeaderValue;
+         ruleAction.HeaderName = "Subject";
+         ruleAction.Value = "Foo: %MACRO_ORIGINAL_HEADER%";
+         ruleAction.Save();
+
+         // Save the rule in the database
+         rule.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         // Spam folder
+         smtpClientSimulator.Send("ruletest@test.com", "ruletest@test.com", "TestString", "Test 1");
+
+         string sContents = Pop3ClientSimulator.AssertGetFirstMessageText("ruletest@test.com", "test");
+
+         StringAssert.Contains("Foo: TestString", sContents, sContents);
       }
 
       [Test]

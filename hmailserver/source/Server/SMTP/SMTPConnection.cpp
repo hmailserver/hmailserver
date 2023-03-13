@@ -106,6 +106,8 @@ namespace HM
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSMTPDMinTimeout(), IniFileSettings::Instance()->GetSMTPDMaxTimeout()));
    }
 
+   const String CONST_UNKNOWN_USER = "Unknown user";
+
    SMTPConnection::~SMTPConnection()
    {
       try
@@ -166,11 +168,15 @@ namespace HM
    {
 
       String sWelcome = Configuration::Instance()->GetSMTPConfiguration()->GetWelcomeMessage();
+      
+      String sESMTP = " ESMTP";
 
       String sData = "220 ";
 
       if (sWelcome.IsEmpty())
-         sData += Utilities::ComputerName() + " ESMTP";
+         sData += Utilities::ComputerName() + sESMTP;
+      else if (!sWelcome.EndsWith(sESMTP))
+         sData += sWelcome + sESMTP;
       else
          sData += sWelcome;
 
@@ -234,22 +240,54 @@ namespace HM
 
          String sLogData = sClientData;
 
-         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         String sRegex = "^(?>AUTH PLAIN )((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
+         boost::wregex expression(sRegex, boost::wregex::icase);
+         boost::wsmatch matches;
+         // AUTH PLAIN command and both user name and password in line. 
+         if (current_state_ == HEADER && boost::regex_match(sLogData, matches, expression))
          {
-            // Both user name and password in line. 
-            sLogData = "***";
+            if (matches.size() > 0)
+            {
+               // Both user name and password in line.
+               String sAuthentication;
+               String sBase64Encoded = matches[1];
+               StringParser::Base64Decode(sBase64Encoded, sAuthentication);
 
+               // Extract the username from the decoded string.
+               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
+               if (iSecondTab > 0)
+               {
+                  String username = sAuthentication.Mid(1, iSecondTab - 1);
+                  //sLogData = "AUTH PLAIN " + username + " ***";
+                  String usernameBase64Encoded;
+                  StringParser::Base64Encode(username, usernameBase64Encoded);
+                  sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
+               }
+               else
+               {
+                  sLogData = "AUTH PLAIN ***";
+               }
+            }
+         }
+         else if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         {
+            // Both user name and password in line.
             String sAuthentication;
             StringParser::Base64Decode(sClientData, sAuthentication);
 
-            // Extract the username and password from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"),1);
+            // Extract the username from the decoded string.
+            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
             if (iSecondTab > 0)
             {
-               String username = sAuthentication.Mid(0, iSecondTab);
-
-
-               sLogData = username + " ***";
+               String username = sAuthentication.Mid(1, iSecondTab - 1);
+               //sLogData = username + " ***";
+               String usernameBase64Encoded;
+               StringParser::Base64Encode(username, usernameBase64Encoded);
+               sLogData = usernameBase64Encoded + " ***";
+            }
+            else 
+            {
+               sLogData = "***";
             }
          }
          else if (current_state_ == SMTPUPASSWORD)
@@ -405,6 +443,11 @@ namespace HM
    void
    SMTPConnection::ProtocolRSET_()
    {
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
+      if (!CheckStartTlsRequired_())
+         return;
+
       ResetCurrentMessage_();
 
       EnqueueWrite_("250 OK");
@@ -415,6 +458,8 @@ namespace HM
    void
    SMTPConnection::ProtocolMAIL_(const String &Request)
    {
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
       if (!CheckStartTlsRequired_())
          return;
 
@@ -583,9 +628,14 @@ namespace HM
    {
       cur_no_of_rcptto_ ++;
 
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
+      if (!CheckStartTlsRequired_())
+         return;
+
       if (!current_message_) 
       {
-         EnqueueWrite_("503 must have sender first."); 
+         EnqueueWrite_("503 Must have sender first."); 
          return;
       }
 
@@ -741,7 +791,7 @@ namespace HM
 
       if (!recipientOK)
       {
-         SendErrorResponse_(550, "Unknown user");
+         SendErrorResponse_(550, CONST_UNKNOWN_USER);
          return;
       }
    
@@ -1462,7 +1512,7 @@ namespace HM
          }
       }
 
-      if (GetAuthIsEnabled_())
+      if (GetAuthIsEnabled_() && (IsSSLConnection() || GetConnectionSecurity() != CSSTARTTLSRequired))
       {
          String sAuth = "\r\n250-AUTH LOGIN";
 
@@ -1664,6 +1714,11 @@ namespace HM
    void
    SMTPConnection::ProtocolHELP_()
    {
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
+      if (!CheckStartTlsRequired_())
+         return;
+
       // The following code is to test the error handling in production environments.
       // Crash simulation mode can be enabled in hMailServer.ini. 
       int crash_simulation_mode = Configuration::Instance()->GetCrashSimulationMode();
@@ -1676,6 +1731,11 @@ namespace HM
    void
    SMTPConnection::ProtocolDATA_()
    {
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
+      if (!CheckStartTlsRequired_())
+         return;
+      
       if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
@@ -1772,18 +1832,28 @@ namespace HM
    void 
    SMTPConnection::ProtocolAUTH_(const String &sRequest)
    {
+      // 530 Must issue STARTTLS first
+      // to every command other than NOOP, EHLO, STARTTLS, or QUIT.
+      if (!CheckStartTlsRequired_())
+         return;
+
       if (!GetAuthIsEnabled_())
       {
          SendErrorResponse_(504, "Authentication not enabled.");
          return;
       }
 
-      if (!CheckStartTlsRequired_())
-         return;
-
       if (GetSecurityRange()->GetRequireTLSForAuth() && !IsSSLConnection())
       {
          SendErrorResponse_(530, "A SSL/TLS-connection is required for authentication.");
+         return;
+      }
+	  
+      // rfc4954 restrictions, After a successful AUTH command completes, 
+      // a server MUST reject any further AUTH commands with a 503 reply.
+      if (isAuthenticated_) 
+      {
+         SendErrorResponse_(503, "Already authenticated.");
          return;
       }
 
@@ -1986,6 +2056,7 @@ namespace HM
          return;
      }
    }
+
    void
    SMTPConnection::AuthenticateUsingPLAIN_(const String &sLine)
    {
@@ -2107,7 +2178,49 @@ namespace HM
             EnqueueWrite_("Too many invalid commands. Bye!");
             pending_disconnect_ = true;
             EnqueueDisconnect();
+
+            if (Configuration::Instance()->GetUseScriptServer())
+            {
+               std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+               std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+               pClientInfo->SetUsername(username_);
+               pClientInfo->SetIPAddress(GetIPAddressString());
+               pClientInfo->SetPort(GetLocalEndpointPort());
+               pClientInfo->SetHELO(helo_host_);
+               pClientInfo->SetIsAuthenticated(isAuthenticated_);
+
+               pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
+               pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+               String sEventCaller = "OnTooManyInvalidCommands(HMAILSERVER_CLIENT, HMAILSERVER_MESSAGE)";
+               ScriptServer::Instance()->FireEvent(ScriptServer::EventOnTooManyInvalidCommands, sEventCaller, pContainer);
+            }
+
             return;
+         }
+         else
+         {
+            if (!sResponse.compare(CONST_UNKNOWN_USER))
+            {
+               if (Configuration::Instance()->GetUseScriptServer())
+               {
+                  std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+                  std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+                  pClientInfo->SetUsername(username_);
+                  pClientInfo->SetIPAddress(GetIPAddressString());
+                  pClientInfo->SetPort(GetLocalEndpointPort());
+                  pClientInfo->SetHELO(helo_host_);
+                  pClientInfo->SetIsAuthenticated(isAuthenticated_);
+
+                  pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
+                  pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+                  String sEventCaller = "OnRecipientUnknown(HMAILSERVER_CLIENT, HMAILSERVER_MESSAGE)";
+                  ScriptServer::Instance()->FireEvent(ScriptServer::EventOnRecipientUnknown, sEventCaller, pContainer);
+               }
+            }
          }
       }
 

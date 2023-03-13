@@ -32,7 +32,7 @@ namespace RegressionTests.Infrastructure
             if (count != expectedCount)
                return;
 
-            Assert.AreEqual(expectedCount, count);
+            RetryableAssert.AreEqual(expectedCount, count);
 
          });
 
@@ -294,7 +294,7 @@ namespace RegressionTests.Infrastructure
       {
          if (File.Exists(LogHandler.GetErrorLogFileName()))
          {
-            string contents = File.ReadAllText(LogHandler.GetErrorLogFileName());
+            string contents = LogHandler.ReadErrorLog();
             Assert.Fail(contents);
          }
 
@@ -313,7 +313,9 @@ namespace RegressionTests.Infrastructure
                string errorLog = LogHandler.ReadErrorLog();
 
                foreach (var content in allExpectedContent)
-                  Assert.IsTrue(errorLog.Contains(content), errorLog);
+               {
+                  RetryableAssert.StringContains(content, errorLog);
+               }
             });
          }
          finally

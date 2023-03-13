@@ -97,7 +97,7 @@ namespace HM
          {
             String sMessage;
             sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-               _T("Message will be deleted. Action was taken by script subscribing to OnDeliveryStart."),
+               _T("Message will be deleted. Action triggered by script subscribing to OnDeliveryStart."),
                pMessage->GetID());
             LOG_APPLICATION(sMessage);
 
@@ -130,7 +130,7 @@ namespace HM
             {
                String sMessage;
                sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-                  _T("Message will be deleted. Action was taken by script subscribing to OnDeliverMessage."),
+                  _T("Message will be deleted. Action triggered by script subscribing to OnDeliverMessage."),
                   pMessage->GetID());
                LOG_APPLICATION(sMessage);
 
