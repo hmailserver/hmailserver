@@ -5,7 +5,6 @@
 #define PROPERTY_MAXSMTPCONNECTIONS             _T("maxsmtpconnections")
 #define PROPERTY_MIRROREMAILADDRESS             _T("mirroremailaddress")
 #define PROPERTY_AUTHALLOWPLAINTEXT             _T("authallowplaintext")
-#define PROPERTY_IMAPAUTHALLOWPLAINTEXT         _T("ImapAuthAllowPlainText")
 #define PROPERTY_ALLOWMAILFROMNULL              _T("allowmailfromnull")
 #define PROPERTY_LOGDEVICE                      _T("logdevice")
 #define PROPERTY_LOGGING                        _T("logging")

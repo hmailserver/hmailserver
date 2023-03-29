@@ -229,9 +229,6 @@ END_COM_MAP()
    STDMETHOD(get_IMAPMasterUser)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(put_IMAPMasterUser)(/*[in]*/ BSTR newVal);
 
-   STDMETHOD(get_IMAPAuthAllowPlainText)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_IMAPAuthAllowPlainText)(/*[in]*/ VARIANT_BOOL newVal);
-
    STDMETHOD(get_IMAPSASLPlainEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_IMAPSASLPlainEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
