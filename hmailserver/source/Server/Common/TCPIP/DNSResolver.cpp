@@ -169,7 +169,7 @@ namespace HM
 
 
    bool
-   DNSResolver::GetEmailServers(const String& sDomainName, std::vector<HostNameAndIpAddress>& saFoundNames)
+   DNSResolver::GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames)
    {
       return GetEmailServersRecursive_(sDomainName, saFoundNames, 0);
    }
