@@ -31,7 +31,7 @@ namespace HM
       String Value;
    };
 
-   bool SortDnsRecordWithPreference(DnsRecordWithPreference first, DnsRecordWithPreference second) { return (first.Preference < second.Preference); }
+   bool SortDnsRecordWithPreference(DnsRecordWithPreference first, DnsRecordWithPreference second) { return (first.Preference<second.Preference); }
 
 
    DNSResolver::DNSResolver()
@@ -45,7 +45,7 @@ namespace HM
    }
 
    std::vector<String>
-      DNSResolver::GetDnsRecordsValues_(std::vector<DNSRecord> records)
+   DNSResolver::GetDnsRecordsValues_(std::vector<DNSRecord> records)
    {
       std::vector<String> values;
 
@@ -56,15 +56,15 @@ namespace HM
 
       return values;
    }
-
-   bool
-      DNSResolver::GetIpAddresses(const String& sDomain, std::vector<String>& vecFoundNames, bool followCnameRecords)
+   
+   bool 
+   DNSResolver::GetIpAddresses(const String &sDomain, std::vector<String> &vecFoundNames, bool followCnameRecords)
    {
       return GetIpAddressesRecursive_(sDomain, vecFoundNames, 0, followCnameRecords);
    }
 
    bool
-      DNSResolver::GetIpAddressesRecursive_(const String& hostName, std::vector<String>& addresses, int recursionLevel, bool followCnameRecords)
+   DNSResolver::GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords)
    {
       if (hostName.IsEmpty())
       {
@@ -119,14 +119,14 @@ namespace HM
    }
 
 
-   bool
-      DNSResolver::GetTXTRecords(const String& sDomain, std::vector<String>& foundResult)
+   bool 
+   DNSResolver::GetTXTRecords(const String &sDomain, std::vector<String> &foundResult)
    {
       return GetTXTRecordsRecursive_(sDomain, foundResult, 0);
    }
 
    bool
-      DNSResolver::GetTXTRecordsRecursive_(const String& sDomain, std::vector<String>& foundResult, int recursionLevel)
+   DNSResolver::GetTXTRecordsRecursive_(const String &sDomain, std::vector<String> &foundResult, int recursionLevel)
    {
       if (sDomain.IsEmpty())
       {
@@ -141,7 +141,7 @@ namespace HM
 
          return false;
       }
-
+      
       DNSResolverWinApi resolver;
 
       std::vector<DNSRecord> foundRecords;
@@ -169,25 +169,25 @@ namespace HM
 
 
    bool
-      DNSResolver::GetEmailServers(const String& sDomainName, std::vector<HostNameAndIpAddress>& saFoundNames)
+   DNSResolver::GetEmailServers(const String& sDomainName, std::vector<HostNameAndIpAddress>& saFoundNames)
    {
       return GetEmailServersRecursive_(sDomainName, saFoundNames, 0);
    }
 
    bool
-      DNSResolver::GetEmailServersRecursive_(const String& sDomainName, std::vector<HostNameAndIpAddress>& saFoundNames, int recursionLevel)
+   DNSResolver::GetEmailServersRecursive_(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames, int recursionLevel)
    {
       String message = Formatter::Format("DNS MX lookup: {0}", sDomainName);
       LOG_TCPIP(message);
 
       DNSResolverWinApi resolver;
-      std::vector<DNSRecord> foundMxRecords;
+      std::vector<DNSRecord> foundMxRecords;      
 
 
       if (!resolver.Query(sDomainName, DNS_TYPE_MX, foundMxRecords))
       {
          String logMessage;
-         logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName.c_str());
+            logMessage.Format(_T("Failed to resolve email servers (MX lookup). Domain name: %s."), sDomainName.c_str());
          LOG_DEBUG(logMessage);
 
          return false;
@@ -219,13 +219,13 @@ namespace HM
          if (!GetIpAddresses(sDomainName, a_records, true))
          {
             String logMessage;
-            logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
+               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
             LOG_DEBUG(logMessage);
 
             return false;
          }
-
-         for (String record : a_records)
+		 
+         for(String record : a_records)         
          {
             HostNameAndIpAddress hostAndAddress;
             hostAndAddress.SetHostName(sDomainName);
@@ -280,7 +280,7 @@ namespace HM
          {
             // All dns queries failed.
             String logMessage;
-            logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
+               logMessage.Format(_T("Failed to resolve email servers (A lookup). Domain name: %s."), sDomainName.c_str());
             LOG_DEBUG(logMessage);
 
             return false;
@@ -293,7 +293,7 @@ namespace HM
 
       LOG_TCPIP(sLogMsg);
 
-
+            
       // Remove duplicate names.
       auto iter = saFoundNames.begin();
       std::set<String> duplicateCheck;
@@ -319,13 +319,13 @@ namespace HM
    }
 
    bool
-      DNSResolver::GetMXRecords(const String& sDomain, std::vector<String>& vecFoundNames)
+   DNSResolver::GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames)
    {
       return GetMXRecordsRecursive_(sDomain, vecFoundNames, 0);
    }
 
    bool
-      DNSResolver::GetMXRecordsRecursive_(const String& sDomain, std::vector<String>& vecFoundNames, int recursionLevel)
+   DNSResolver::GetMXRecordsRecursive_(const String &sDomain, std::vector<String> &vecFoundNames, int recursionLevel)
    {
       if (sDomain.IsEmpty())
       {
@@ -340,7 +340,7 @@ namespace HM
 
          return false;
       }
-
+      
       DNSResolverWinApi resolver;
       std::vector<DNSRecord> foundMxRecords;
 
@@ -365,8 +365,8 @@ namespace HM
       return result;
    }
 
-   bool
-      DNSResolver::GetPTRRecords(const String& sIP, std::vector<String>& vecFoundNames)
+   bool 
+   DNSResolver::GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames)
    {
       IPAddress address;
       if (!address.TryParse(AnsiString(sIP), true))
