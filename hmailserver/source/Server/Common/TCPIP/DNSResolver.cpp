@@ -177,6 +177,20 @@ namespace HM
    bool
    DNSResolver::GetEmailServersRecursive_(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames, int recursionLevel)
    {
+      if (sDomainName.IsEmpty())
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetEmailServersRecursive_", "Attempted DNS lookup for empty host name.");
+         return false;
+      }
+
+      if (recursionLevel > 10)
+      {
+         String sMessage = Formatter::Format("Too many recursions during email servers  lookup. Query: {0}", sDomainName);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4403, "DNSResolver::GetEmailServersRecursive_", sMessage);
+
+         return false;
+      }
+
       String message = Formatter::Format("DNS MX lookup: {0}", sDomainName);
       LOG_TCPIP(message);
 
