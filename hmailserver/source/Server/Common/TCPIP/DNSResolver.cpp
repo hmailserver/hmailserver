@@ -168,8 +168,28 @@ namespace HM
    }
 
    bool
-   DNSResolver::GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames )
+   DNSResolver::GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames)
    {
+      return GetEmailServersRecursive_(sDomainName, saFoundNames, 0);
+   }
+
+   bool
+   DNSResolver::GetEmailServersRecursive_(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames, int recursionLevel)
+   {
+      if (sDomainName.IsEmpty())
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetEmailServersRecursive_", "Attempted DNS lookup for empty host name.");
+         return false;
+      }
+
+      if (recursionLevel > 10)
+      {
+         String sMessage = Formatter::Format("Too many recursions during IP address lookup. Query: {0}", sDomainName);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4403, "DNSResolver::GetEmailServersRecursive_", sMessage);
+
+         return false;
+      }
+      
       String message = Formatter::Format("DNS MX lookup: {0}", sDomainName);
       LOG_TCPIP(message);
 
@@ -187,6 +207,17 @@ namespace HM
 
       if (foundMxRecords.empty())
       {
+         // The queries for MX didn't return any records. Attempt to look up via CNAME
+         std::vector<DNSRecord> foundCNames;
+         bool cnameQueryResult = resolver.Query(sDomainName, DNS_TYPE_CNAME, foundCNames);
+
+         // A CNAME should only point at a single host name.
+         if (cnameQueryResult && foundCNames.size() == 1)
+         {
+            auto cnameHostName = foundCNames[0].GetValue();
+            return GetEmailServersRecursive_(cnameHostName, saFoundNames, recursionLevel + 1);
+         }   
+         
          /* RFC 2821:
             If no MX records are found, but an A RR is found, the A RR is treated as
             if it was associated with an implicit MX RR, with a preference of 0,
@@ -224,7 +255,7 @@ namespace HM
             // https://tools.ietf.org/html/rfc7505
             if (dnsRecord.GetValue() == "." && dnsRecord.GetPreference() == 0)
             {
-               continue;
+               return false;
             }
 
             // Resolve to domain name to IP address and put it in the list.
@@ -245,15 +276,15 @@ namespace HM
                   dnsQueryFailure = true;
                   continue;
                }
+            }
 
-               for (String record : a_records)
-               {
-                  HostNameAndIpAddress hostAndAddress;
-                  hostAndAddress.SetHostName(hostName);
-                  hostAndAddress.SetIpAddress(record);
+            for (String record : a_records)
+            {
+               HostNameAndIpAddress hostAndAddress;
+               hostAndAddress.SetHostName(hostName);
+               hostAndAddress.SetIpAddress(record);
 
-                  saFoundNames.push_back(hostAndAddress);
-               }
+               saFoundNames.push_back(hostAndAddress);
             }
          }
 
@@ -338,6 +369,16 @@ namespace HM
          {
             auto cnameHostName = foundCNames[0].GetValue();
             return GetMXRecordsRecursive_(cnameHostName, vecFoundNames, recursionLevel + 1);
+         }
+      }
+
+      for (DNSRecord dnsRecord : foundMxRecords)
+      {
+         // Null MX, see: rfc7505 
+         // https://tools.ietf.org/html/rfc7505
+         if (dnsRecord.GetValue() == "." && dnsRecord.GetPreference() == 0)
+         {
+            return false;
          }
       }
 
