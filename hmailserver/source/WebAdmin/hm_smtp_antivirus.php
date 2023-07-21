@@ -88,7 +88,7 @@ function testVirusScanner(scannerType)
 			  document.getElementById('ExternalTestResult').innerHTML = "";
 			  var executable = document.getElementById('customscannerexecutable').value;
 			  var returnValue = document.getElementById('customscannerreturnvalue').value;
-			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=External&Executable="+ executable + "&ReturnValue=" + returnValue;
+			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=External&Executable="+ encodeURIComponent(executable) + "&ReturnValue=" + returnValue;
 			  sendRequest(url, "ExternalTestResult");
 			  break;
 		  default:
