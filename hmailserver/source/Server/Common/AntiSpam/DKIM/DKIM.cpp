@@ -70,10 +70,14 @@ namespace HM
       recommendedHeaderFields_.push_back("List-Id");
       recommendedHeaderFields_.push_back("List-Help");
       recommendedHeaderFields_.push_back("List-Unsubscribe");
+      recommendedHeaderFields_.push_back("List-Unsubscribe-Post");
       recommendedHeaderFields_.push_back("List-Subscribe");
       recommendedHeaderFields_.push_back("List-Post");
       recommendedHeaderFields_.push_back("List-Owner");
       recommendedHeaderFields_.push_back("List-Archive");
+
+      // Addition for CSA-Compliant Mail Headers
+      recommendedHeaderFields_.push_back("X-CSA-Complaints");
    }
 
    // helper.
