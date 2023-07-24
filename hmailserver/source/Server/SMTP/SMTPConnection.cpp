@@ -59,7 +59,7 @@
 #include "SMTPConfiguration.h"
 #include "SMTPMessageHeaderCreator.h"
 
-
+#include "../Common/TCPIP/CipherInfo.h"
 
 using namespace std;
 
@@ -1278,6 +1278,14 @@ namespace HM
          pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1607,6 +1615,14 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
@@ -1616,27 +1632,27 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-            case 1:
-            {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
-            case 2:
-            {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
-            case 3:
-            {
-               String sErrorMessage = "453 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
+         case 1:
+         {
+            String sErrorMessage = "554 Rejected";
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 2:
+         {
+            String sErrorMessage = "554 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 3:
+         {
+            String sErrorMessage = "453 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
          }
       }
 
@@ -1671,6 +1687,14 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
@@ -1680,27 +1704,27 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-            case 1:
-            {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
-            case 2:
-            {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
-            case 3:
-            {
-               String sErrorMessage = "453 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
-               LogAwstatsMessageRejected_();
-               return;
-            }
+         case 1:
+         {
+            String sErrorMessage = "554 Rejected";
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 2:
+         {
+            String sErrorMessage = "554 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 3:
+         {
+            String sErrorMessage = "453 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
          }
       }
 
@@ -1764,6 +1788,14 @@ namespace HM
          pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -2108,6 +2140,14 @@ namespace HM
          pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
 
