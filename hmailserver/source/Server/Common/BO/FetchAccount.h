@@ -53,6 +53,9 @@ namespace HM
       bool GetActive() const {return is_active_; }
       void SetActive(bool bActive) {is_active_ = bActive; }
 
+      String GetMIMERecipientHeaders() const { return mime_recipient_headers_; }
+      void SetMIMERecipientHeaders(const String &sNewVal) { mime_recipient_headers_ = sNewVal; }
+
       bool GetProcessMIMERecipients() const {return process_mimerecipients_; }
       void SetProcessMIMERecipients(bool bNewVal) {process_mimerecipients_ = bNewVal; }
 
@@ -96,6 +99,7 @@ namespace HM
       bool is_active_;
       std::shared_ptr<FetchAccountUIDs> uids_;
 
+      String mime_recipient_headers_;
       bool process_mimerecipients_;
       bool process_mimedate_;
 

@@ -398,6 +398,40 @@ STDMETHODIMP InterfaceFetchAccount::put_Enabled(VARIANT_BOOL newVal)
    }
 }
 
+STDMETHODIMP InterfaceFetchAccount::get_MIMERecipientHeaders(BSTR* pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetMIMERecipientHeaders().AllocSysString();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceFetchAccount::put_MIMERecipientHeaders(BSTR newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetMIMERecipientHeaders(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceFetchAccount::get_ProcessMIMERecipients(VARIANT_BOOL* pVal)
 {
    try

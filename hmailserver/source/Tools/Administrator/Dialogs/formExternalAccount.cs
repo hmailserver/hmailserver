@@ -26,7 +26,8 @@ namespace hMailServer.Administrator.Dialogs
          Strings.Localize(this);
 
          textPort.Number = 110;
-         
+         textMIMERecipientHeaders.Text = "To,CC,X-RCPT-TO,X-Envelope-To";
+
          DirtyChecker.SubscribeToChange(this, OnContentChanged);
          
          buttonDownloadNow.Enabled = false;
@@ -46,7 +47,8 @@ namespace hMailServer.Administrator.Dialogs
       private void EnableDisable()
       {
          btnOK.Enabled = DirtyChecker.IsDirty(this) && textName.Text.Length > 0;
-         checkEnableRouteRecipients.Enabled = checkProcessMIMERecipients.Checked;
+         checkProcessMIMERecipients.Enabled = textMIMERecipientHeaders.Text.Length > 0;
+         checkEnableRouteRecipients.Enabled = checkProcessMIMERecipients.Enabled && checkProcessMIMERecipients.Checked;
       }
 
 
@@ -64,9 +66,9 @@ namespace hMailServer.Administrator.Dialogs
          textPort.Number = fetchAccount.Port;
          textUsername.Text = fetchAccount.Username;
          comboConnectionSecurity.SelectedValue = fetchAccount.ConnectionSecurity;
-         
 
-         checkProcessMIMERecipients.Checked = fetchAccount.ProcessMIMERecipients;
+         textMIMERecipientHeaders.Text = !string.IsNullOrEmpty(fetchAccount.MIMERecipientHeaders) ? fetchAccount.MIMERecipientHeaders : "To,CC,X-RCPT-TO,X-Envelope-To";
+         checkProcessMIMERecipients.Checked = fetchAccount.ProcessMIMERecipients && !string.IsNullOrEmpty(fetchAccount.MIMERecipientHeaders);
          checkProcessMIMEDate.Checked = fetchAccount.ProcessMIMEDate;
 
          checkUseAntiSpam.Checked = fetchAccount.UseAntiSpam;
@@ -98,15 +100,16 @@ namespace hMailServer.Administrator.Dialogs
          fetchAccount.MinutesBetweenFetch = textMinutesBetweenFetch.Number;
          fetchAccount.Name = textName.Text;
          fetchAccount.Port = textPort.Number;
+         fetchAccount.MIMERecipientHeaders = !string.IsNullOrEmpty(textMIMERecipientHeaders.Text) ? textMIMERecipientHeaders.Text : "To,CC,X-RCPT-TO,X-Envelope-To";
          fetchAccount.ProcessMIMEDate = checkProcessMIMEDate.Checked;
-         fetchAccount.ProcessMIMERecipients = checkProcessMIMERecipients.Checked;
+         fetchAccount.ProcessMIMERecipients = checkProcessMIMERecipients.Checked && checkProcessMIMERecipients.Enabled;
          fetchAccount.ServerAddress = textServer.Text;
          fetchAccount.ServerType = (int) comboServerType.SelectedValue;
          fetchAccount.Username = textUsername.Text;
          fetchAccount.ConnectionSecurity = (eConnectionSecurity) comboConnectionSecurity.SelectedValue;
          fetchAccount.UseAntiSpam = checkUseAntiSpam.Checked;
          fetchAccount.UseAntiVirus = checkUseAntiVirus.Checked;
-         fetchAccount.EnableRouteRecipients = checkEnableRouteRecipients.Checked;
+         fetchAccount.EnableRouteRecipients = checkEnableRouteRecipients.Checked && checkEnableRouteRecipients.Enabled;
 
          if (textPassword.Dirty)
             fetchAccount.Password = textPassword.Password;
@@ -158,7 +161,10 @@ namespace hMailServer.Administrator.Dialogs
          EnableDisable();
       }
 
-
+      private void textMIMERecipientHeaders_TextChanged(object sender, EventArgs e)
+      {
+         EnableDisable();
+      }
 
       private void comboConnectionSecurity_SelectedIndexChanged(object sender, EventArgs e)
       {

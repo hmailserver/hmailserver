@@ -65,6 +65,7 @@ namespace HM
       pNode->AppendAttr(_T("Minutes"), StringParser::IntToString(minutes_));
       pNode->AppendAttr(_T("DaysToKeep"), StringParser::IntToString(days_to_keep_));
       pNode->AppendAttr(_T("Active"), is_active_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("MIMERecipientHeaders"), mime_recipient_headers_);
       pNode->AppendAttr(_T("ProcessMIMERecipients"), process_mimerecipients_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ProcessMIMEDate"), process_mimedate_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("UseAntiSpam"), use_anti_spam_ ? _T("1") : _T("0"));
@@ -90,6 +91,7 @@ namespace HM
       minutes_ = _ttoi(pNode->GetAttrValue(_T("Minutes")));
       days_to_keep_ = _ttoi(pNode->GetAttrValue(_T("DaysToKeep")));
       is_active_ = (pNode->GetAttrValue(_T("Active")) == _T("1"));
+      mime_recipient_headers_ = pNode->GetAttrValue(_T("MIMERecipientHeaders"));
       process_mimerecipients_ = (pNode->GetAttrValue(_T("ProcessMIMERecipients")) == _T("1"));
       process_mimedate_ = (pNode->GetAttrValue(_T("ProcessMIMEDate")) == _T("1"));
       use_anti_spam_ = (pNode->GetAttrValue(_T("UseAntiSpam")) == _T("1"));
