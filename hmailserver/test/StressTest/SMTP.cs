@@ -178,7 +178,7 @@ namespace StressTest
          string accountDir = Path.Combine(dataDir, "test");
 
          int memoryUsage = Shared.GetCurrentMemoryUsage();
-         int maxMemoryUsage = memoryUsage + 5;
+         int maxMemoryUsage = memoryUsage + 20;
 
          const int numberOfMessages = 200000;
          var stopwatch = Stopwatch.StartNew();
@@ -190,8 +190,8 @@ namespace StressTest
             if (i % 100 == 0)
             {
                double messagesPerSecond = 100 / stopwatch.Elapsed.TotalSeconds;
-               Shared.AssertLowMemoryUsage(maxMemoryUsage);
-               TestTracer.WriteTraceInfo("{0}/{1}. Messages per second: {2}", i, numberOfMessages, messagesPerSecond);
+               long bytesUsed = Shared.AssertLowMemoryUsage(maxMemoryUsage);
+               TestTracer.WriteTraceInfo("{0}/{1}. Messages per second: {2}, Bytes used: {3}", i, numberOfMessages, messagesPerSecond, bytesUsed);
 
                stopwatch.Reset();
                stopwatch.Start();

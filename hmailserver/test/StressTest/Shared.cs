@@ -11,7 +11,7 @@ namespace StressTest
 {
    public static class Shared
    {
-      public static void AssertLowMemoryUsage(long max)
+      public static long AssertLowMemoryUsage(long max)
       {
          System.Diagnostics.Process[] process = System.Diagnostics.Process.GetProcessesByName("hMailServer");
          if (process.Length != 1)
@@ -20,6 +20,8 @@ namespace StressTest
          long l = process[0].PrivateMemorySize64 / 1024 / 1024;
 
          Assert.Less(l, max);
+
+         return process[0].PrivateMemorySize64;
       }
 
       public static int GetCurrentMemoryUsage()
