@@ -2458,39 +2458,6 @@ STDMETHODIMP InterfaceSettings::put_IMAPMasterUser(BSTR newVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_IMAPAuthAllowPlainText(VARIANT_BOOL newVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      config_->GetIMAPConfiguration()->SetIMAPAuthAllowPlainText(newVal == VARIANT_TRUE);
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
-
-STDMETHODIMP InterfaceSettings::get_IMAPAuthAllowPlainText(VARIANT_BOOL *pVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      *pVal = config_->GetIMAPConfiguration()->GetIMAPAuthAllowPlainText() ? VARIANT_TRUE : VARIANT_FALSE;
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
 STDMETHODIMP InterfaceSettings::put_IMAPSASLPlainEnabled(VARIANT_BOOL newVal)
 {
    try

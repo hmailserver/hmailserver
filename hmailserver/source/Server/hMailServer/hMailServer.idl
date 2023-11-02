@@ -670,21 +670,17 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([out, retval] BSTR *pVal);
    [propput, id(100), helpstring("IMAP Master user")] HRESULT IMAPMasterUser([in] BSTR newVal);
 
-   [propget, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(101), helpstring("IMAP Master user")] HRESULT IMAPAuthAllowPlainText([in] VARIANT_BOOL newVal);
+   [propget, id(101), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(101), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([in] VARIANT_BOOL newVal);
 
-
-   [propget, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(102), helpstring("IMAP Enable SASL Plain")] HRESULT IMAPSASLPlainEnabled([in] VARIANT_BOOL newVal);
-
-   [propget, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(103), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([in] VARIANT_BOOL newVal);
+   [propget, id(102), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(102), helpstring("IMAP Enable SASL Plain Initial Response")] HRESULT IMAPSASLInitialResponseEnabled([in] VARIANT_BOOL newVal);
    
-   [propget, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(104), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
+   [propget, id(103), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(103), helpstring("Enable TLS version 1.3")] HRESULT TlsVersion13Enabled([in] VARIANT_BOOL newVal);
 
-   [propget, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
-   [propput, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
+   [propget, id(104), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(104), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
 
 };
 

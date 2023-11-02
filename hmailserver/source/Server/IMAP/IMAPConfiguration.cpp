@@ -134,13 +134,6 @@ namespace HM
       return GetSettings_()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
    }
 
-
-   void
-      IMAPConfiguration::SetIMAPAuthAllowPlainText(bool newVal)
-   {
-      GetSettings_()->SetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT, newVal);
-   }
-
    String
    IMAPConfiguration::GetIMAPMasterUser() const
    {
@@ -154,9 +147,9 @@ namespace HM
    }
 
    bool
-   IMAPConfiguration::GetIMAPAuthAllowPlainText() const
+   IMAPConfiguration::GetUseIMAPSASLPlain() const
    {
-      return GetSettings_()->GetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLPLAIN);
    }
 
    void
@@ -166,21 +159,15 @@ namespace HM
    }
 
    bool
-   IMAPConfiguration::GetUseIMAPSASLPlain() const
+   IMAPConfiguration::GetUseIMAPSASLInitialResponse() const
    {
-      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLPLAIN);
+      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE);
    }
 
    void
    IMAPConfiguration::SetUseIMAPSASLInitialResponse(bool newVal)
    {
       GetSettings_()->SetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE, newVal);
-   }
-
-   bool
-   IMAPConfiguration::GetUseIMAPSASLInitialResponse() const
-   {
-      return GetSettings_()->GetBool(PROPERTY_ENABLEIMAPSASLINTIALRESPONSE);
    }
 
    bool
