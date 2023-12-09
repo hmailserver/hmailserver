@@ -252,13 +252,12 @@ namespace HM
                String sAuthentication;
                String sBase64Encoded = matches[1];
                StringParser::Base64Decode(sBase64Encoded, sAuthentication);
+               std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
 
-               // Extract the username from the decoded string.
-               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-               if (iSecondTab > 0)
+               if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
                {
-                  String username = sAuthentication.Mid(1, iSecondTab - 1);
-                  //sLogData = "AUTH PLAIN " + username + " ***";
+                  // Extract the username from the decoded string.
+                  String username = plain_args[1];
                   String usernameBase64Encoded;
                   StringParser::Base64Encode(username, usernameBase64Encoded);
                   sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
@@ -274,13 +273,12 @@ namespace HM
             // Both user name and password in line.
             String sAuthentication;
             StringParser::Base64Decode(sClientData, sAuthentication);
+            std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
 
-            // Extract the username from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-            if (iSecondTab > 0)
+            if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
             {
-               String username = sAuthentication.Mid(1, iSecondTab - 1);
-               //sLogData = username + " ***";
+               // Extract the username from the decoded string.
+               String username = plain_args[1];
                String usernameBase64Encoded;
                StringParser::Base64Encode(username, usernameBase64Encoded);
                sLogData = usernameBase64Encoded + " ***";
@@ -2094,17 +2092,22 @@ namespace HM
    {
       String sAuthentication;
       StringParser::Base64Decode(sLine, sAuthentication);
+      std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
 
-      // Extract the username and password from the decoded string.
-      int iSecondTab = sAuthentication.Find(_T("\t"),1);
-      if (iSecondTab < 0)
+      if (plain_args.size() != 3) 
       {
          RestartAuthentication_();
          return;
       }
 
-      username_ = sAuthentication.Mid(1, iSecondTab-1);
-      password_ = sAuthentication.Mid(iSecondTab+1);
+      if (plain_args[1].GetLength() == 0 || plain_args[2].GetLength() == 0)
+      {
+         RestartAuthentication_();
+         return;
+      }
+
+      username_ = plain_args[1];
+      password_ = plain_args[2];
 
       // Authenticate the user.
       Authenticate_();      
