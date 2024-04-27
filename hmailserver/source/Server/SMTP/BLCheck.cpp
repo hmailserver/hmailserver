@@ -59,7 +59,7 @@ namespace HM
             }
          }
          
-		 if (isBlocked)
+         if (isBlocked)
          {
             // We have a match. No need to continue.
             break;
@@ -145,15 +145,37 @@ namespace HM
    }
 
    String
-   BLCheck::GetRevertedIP(const String & sIP)
+   BLCheck::GetRevertedIP(const String &sIP)
    {
-      std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
-      if (vecItems.size() != 4)
-         return "";
+      String result;
 
-      reverse(vecItems.begin(), vecItems.end());
+      IPAddress address;
+      if (!address.TryParse(AnsiString(sIP), true))
+         return result;
 
-      String result = StringParser::JoinVector(vecItems, ".");
+      if (address.GetType() == IPAddress::IPV4)
+      {
+         std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
+         if (vecItems.size() != 4)
+            return result;
+
+         reverse(vecItems.begin(), vecItems.end());
+
+         result = StringParser::JoinVector(vecItems, ".");
+      }
+      else if (address.GetType() == IPAddress::IPV6)
+      {
+         AnsiString long_ipv6 = address.ToLongString();
+         long_ipv6.MakeReverse();
+         long_ipv6.Remove(':');
+
+         for (int i = long_ipv6.GetLength() - 1; i > 0; i--)
+         {
+            long_ipv6.insert(i, 1, '.');
+         }
+
+         result = long_ipv6;
+      }
 
       return result;
    }

@@ -12,7 +12,7 @@ namespace HM
 
       static bool ClientExistsInDNSBL(const IPAddress &sClientIP, const String &sDNSBLHost, const String &sExpectedResult);
 
-      static String GetRevertedIP(const String & sIP);
+      static String GetRevertedIP(const String &sIP);
 
       static std::set<String> ExpandAddresses(const String &input);
 
