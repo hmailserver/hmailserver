@@ -7,6 +7,11 @@ This page describes how to compile and run hMailServer in debug.
 
 For other information about hMailServer, please go to http://www.hmailserver.com
 
+No active development
+=====================
+
+hMailServer is no longer being actively developed or maintained. The latest major version was released several years ago. hMailServer relies on algorithms which are considered insecure by modern standards, such as SHA1 and outdated versions of OpenSSL. For that reason, it's recommended that you migrate to an alternative software or service.
+
 Building hMailServer
 ====================
 
