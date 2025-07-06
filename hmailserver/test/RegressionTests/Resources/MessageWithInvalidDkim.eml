@@ -1,0 +1,35 @@
+﻿DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com; s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=syNc2SLm55vlwN6IjdVrbij1wTNuoXAo8x12RY/gyIU=; b=hWRmlUPrqWbCw+W27/cfsY0gTs06oYYNVTAPYhz+PlV4jKaz/ArzaMEkz9AimJVYzoS6sspI0JB21Z/VKlbiU+iH4lQcmPS7xF3+yKv2lODPuoioWtrGSS+nWYRhImYri8718yWPZPQlBEZ4wutFs80EJK9ASMmREOPfLN/wfjMVszqa18IRCvHNJD1Ed+YMCgyPV3/NzhrldTwzIbNBz8gBHYYeqmTIIZRWm549Hc/57DIJI9Yef7HtOyZjqpszLavp3sMvKqPtjU7VWChxaO9FkMkZBDGZSkUUkNG45J2QfmfgdPDRhf4ACf50xRT3mMngtXeRIFvxJdFwrq3YQQFOO==
+From: Martin Knafve <Martin.Knafve@outlook.com>
+To: "martintestaddress12345@gmail.com" <martintestaddress12345@gmail.com>
+Subject: test
+Date: Sun, 6 Jul 2025 11:07:13 +0000
+Message-ID: <VI1PR08MB3728323CBDD4076936E1801FEE4CA@VI1PR08MB3728.eurprd08.prod.outlook.com>
+Content-Type: multipart/alternative; boundary="_000_VI1PR08MB3728323CBDD4076936E1801FEE4CAVI1PR08MB3728eurp_"
+MIME-Version: 1.0
+
+--_000_VI1PR08MB3728323CBDD4076936E1801FEE4CAVI1PR08MB3728eurp_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+test
+
+--_000_VI1PR08MB3728323CBDD4076936E1801FEE4CAVI1PR08MB3728eurp_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+test</div>
+</body>
+</html>
+
+--_000_VI1PR08MB3728323CBDD4076936E1801FEE4CAVI1PR08MB3728eurp_--

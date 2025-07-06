@@ -189,6 +189,24 @@ namespace RegressionTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com; s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=syNc2SLm55vlwN6IjdVrbij1wTNuoXAo8x12RY/gyIU=; b=hWRmlUPrqWbCw+W27/cfsY0gTs06oYYNVTAPYhz+PlV4jKaz/ArzaMEkz9AimJVYzoS6sspI0JB21Z/VKlbiU+iH4lQcmPS7xF3+yKv2lODPuoioWtrGSS+nWYRhImYri8718yWPZPQlBEZ4wutFs80EJK9ASMmREOPfLN/wfjMVszqa18IRCvHNJD1Ed+YMCgyPV3/NzhrldTwzIbNBz8gBHYYeqmTIIZRWm549Hc/57DIJI9Yef7HtOyZjqpszLavp3sMvKqPtjU7VWChxaO9FkMkZBDGZSkUUk [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MessageWithInvalidDkim {
+            get {
+                return ResourceManager.GetString("MessageWithInvalidDkim", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com; s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=syNc2SLm55vlwN6IjdVrbij1wTNuoXAo8x12RY/gyIU=; b=hWRmlUPrqWbCw+W27/cfsY0gTs06oYYNVTAPYhz+PlV4jKaz/ArzaMEkz9AimJVYzoS6sspI0JB21Z/VKlbiU+iH4lQcmPS7xF3+yKv2lODPuoioWtrGSS+nWYRhImYri8718yWPZPQlBEZ4wutFs80EJK9ASMmREOPfLN/wfjMVszqa18IRCvHNJD1Ed+YMCgyPV3/NzhrldTwzIbNBz8gBHYYeqmTIIZRWm549Hc/57DIJI9Yef7HtOyZjqpszLavp3sMvKqPtjU7VWChxaO9FkMkZBDGZSkUUk [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MessageWithValidDkim {
+            get {
+                return ResourceManager.GetString("MessageWithValidDkim", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ----------------------------------------------------------------------
         ///
         ///The final version of the CSI 6.0 has been released. 
