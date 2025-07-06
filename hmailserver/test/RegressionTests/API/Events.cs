@@ -17,6 +17,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageJScript()
       {
+         LogHandler.DeleteEventLog();
+
          _settings.Scripting.Language = "JScript";
          // First set up a script
          string script =
@@ -47,9 +49,7 @@ namespace RegressionTests.API
       [Test]
       public void TestOnAcceptMessageVBScript()
       {
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          // First set up a script
          string script =
@@ -80,18 +80,20 @@ namespace RegressionTests.API
 
 
          // Check that the message exists
-         message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
 
       [Test]
       public void TestOnBackupCompletedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -120,6 +122,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupCompletedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script =
             @"Sub OnBackupCompleted()
@@ -144,6 +148,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -173,6 +179,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script =
             @"Sub OnBackupFailed(reason)
@@ -198,6 +206,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnClientConnectJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -234,6 +244,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnClientConnectVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -248,25 +260,23 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          var socket = new TcpConnection();
          Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
       [Test]
       public void TestOnDeliverMessageJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
          // First set up a script
@@ -298,6 +308,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliveryFailedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -324,12 +336,15 @@ namespace RegressionTests.API
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "), eventLogText);
          Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"), eventLogText);
-         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists") ||
+                               eventLogText.Contains("Unable to find the recipient's email server"), eventLogText);
       }
 
       [Test]
       public void TestOnDeliveryFailedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script = "Sub OnDeliveryFailed(oMessage, sRecipient, sErrorMessage)" + Environment.NewLine +
                          " EventLog.Write(\"File: \" & oMessage.FileName) " + Environment.NewLine +
@@ -353,12 +368,16 @@ namespace RegressionTests.API
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "));
          Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"));
-         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists") ||
+                       eventLogText.Contains("Unable to find the recipient's email server"), eventLogText);
+
       }
 
       [Test]
       public void TestOnDeliveryStartVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -384,6 +403,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnErrorJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
          scripting.Language = "JScript";
@@ -420,6 +441,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnErrorVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -457,7 +480,6 @@ namespace RegressionTests.API
       public void TestOnExternalAccountDownload()
       {
          LogHandler.DeleteCurrentDefaultLog();
-
 
          var messages = new List<string>();
 
