@@ -409,16 +409,16 @@ namespace RegressionTests.Infrastructure.Persistence
          alias3.Value = "external@external.com";
          alias3.Save();
 
-         _domain.Name = "example.com";
+         _domain.Name = "new1.example.com";
          _domain.Save();
 
-         Assert.AreEqual("alias1@example.com", _domain.Aliases[0].Name);
-         Assert.AreEqual("alias2@example.com", _domain.Aliases[0].Value);
+         Assert.AreEqual("alias1@new1.example.com", _domain.Aliases[0].Name);
+         Assert.AreEqual("alias2@new1.example.com", _domain.Aliases[0].Value);
 
-         Assert.AreEqual("alias2@example.com", _domain.Aliases[1].Name);
-         Assert.AreEqual("account@example.com", _domain.Aliases[1].Value);
+         Assert.AreEqual("alias2@new1.example.com", _domain.Aliases[1].Name);
+         Assert.AreEqual("account@new1.example.com", _domain.Aliases[1].Value);
 
-         Assert.AreEqual("alias3@example.com", _domain.Aliases[2].Name);
+         Assert.AreEqual("alias3@new1.example.com", _domain.Aliases[2].Name);
          Assert.AreEqual("external@external.com", _domain.Aliases[2].Value);
       }
 
@@ -443,13 +443,13 @@ namespace RegressionTests.Infrastructure.Persistence
          oRecipient.RecipientAddress = "recipient3@otherdomain.com";
          oRecipient.Save();
 
-         _domain.Name = "example.com";
+         _domain.Name = "new2.example.com";
          _domain.Save();
 
          DistributionList list = _domain.DistributionLists[0];
-         Assert.AreEqual("list@example.com", list.Address);
-         Assert.AreEqual("recipient1@example.com", list.Recipients[0].RecipientAddress);
-         Assert.AreEqual("recipient2@example.com", list.Recipients[1].RecipientAddress);
+         Assert.AreEqual("list@new2.example.com", list.Address);
+         Assert.AreEqual("recipient1@new2.example.com", list.Recipients[0].RecipientAddress);
+         Assert.AreEqual("recipient2@new2.example.com", list.Recipients[1].RecipientAddress);
          Assert.AreEqual("recipient3@otherdomain.com", list.Recipients[2].RecipientAddress);
       }
 
@@ -464,10 +464,10 @@ namespace RegressionTests.Infrastructure.Persistence
          SmtpClientSimulator.StaticSend(account.Address, account.Address, "Subj", messageBody);
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
 
-         _domain.Name = "example.com";
+         _domain.Name = "new3.example.com";
          _domain.Save();
 
-         string messageText = Pop3ClientSimulator.AssertGetFirstMessageText("account1@example.com", "test");
+         string messageText = Pop3ClientSimulator.AssertGetFirstMessageText("account1@new3.example.com", "test");
          Assert.IsTrue(messageText.Contains(messageBody), messageText);
       }
 

@@ -1,6 +1,9 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -39,7 +42,7 @@ namespace RegressionTests.IMAP
             Thread.Sleep(20);
          }
 
-         Assert.Fail("Messages not indexed...");
+         Assert.Fail("Messages not indexed. Message count: " + _indexing.TotalMessageCount + ", indexed count: " + _indexing.TotalIndexedCount);
       }
 
       private void SendMessage(string subject, string body, string to, string cc)
@@ -61,7 +64,6 @@ namespace RegressionTests.IMAP
       [Description("Test message metadata date")]
       public void TestMetaDataSortCC()
       {
-         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
          Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "meta'data@test.com", "test");
 
          // disable...
@@ -80,7 +82,20 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(CC) UTF-8 ALL");
 
-         Assert.AreEqual("3 1 2", result);
+         var locale = GetSystemLocaleName();
+
+         switch (locale)
+         {
+            case "en-US":
+               Assert.AreEqual("1 3 2", result);
+               break;
+            case "sv-SE":
+               Assert.AreEqual("3 1 2", result);
+               break;
+            default:
+               throw new InvalidOperationException("Unsupported system locale: " + locale);
+         }
+         
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -239,7 +254,19 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(SUBJECT) UTF-8 ALL");
 
-         Assert.AreEqual("3 1 2", result);
+         var locale = GetSystemLocaleName();
+
+         switch (locale)
+         {
+            case "en-US":
+               Assert.AreEqual("1 3 2", result);
+               break;
+            case "sv-SE":
+               Assert.AreEqual("3 1 2", result);
+               break;
+            default:
+               throw new InvalidOperationException("Unsupported system locale: " + locale);
+         }
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -320,7 +347,19 @@ namespace RegressionTests.IMAP
 
          string result = sim.Sort("(TO) UTF-8 ALL");
 
-         Assert.AreEqual("1 3 2", result);
+         var locale = GetSystemLocaleName();
+
+         switch (locale)
+         {
+            case "en-US":
+               Assert.AreEqual("3 1 2", result);
+               break;
+            case "sv-SE":
+               Assert.AreEqual("1 3 2", result);
+               break;
+            default:
+               throw new InvalidOperationException("Unsupported system locale: " + locale);
+         }
 
          // Disable the indexing functionality
          _indexing.Enabled = false;
@@ -330,6 +369,30 @@ namespace RegressionTests.IMAP
          string resultAfter = sim.Sort("(TO) UTF-8 ALL");
 
          Assert.AreEqual(result, resultAfter);
+      }
+
+      // P/Invoke signature
+      [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+      private static extern int GetSystemDefaultLocaleName(
+         [Out] StringBuilder lpLocaleName,
+         int cchLocaleName
+      );
+
+
+      private string GetSystemLocaleName()
+      {
+         const int LOCALE_NAME_MAX_LENGTH = 85; // Max length per Windows API docs
+         StringBuilder localeName = new StringBuilder(LOCALE_NAME_MAX_LENGTH);
+
+         int result = GetSystemDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH);
+         if (result > 0)
+         {
+            return localeName.ToString();
+         }
+         else
+         {
+            throw new InvalidOperationException("Unable to read system locale.");
+         }
       }
    }
 }
