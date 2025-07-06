@@ -21,6 +21,7 @@ namespace HM
       dbport_(0),
       no_of_dbconnections_(0),
       add_xauth_user_header_(false),
+      add_xoriginal_rcpt_to_header_(false),
       no_of_dbconnection_attempts_(6),
       no_of_dbconnection_attempts_Delay(5),
       max_no_of_external_fetch_threads_(15),
@@ -167,6 +168,7 @@ namespace HM
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
+      add_xoriginal_rcpt_to_header_ = ReadIniSettingInteger_("Settings", "AddXOriginalRcptTo", 0) == 1;
 
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");

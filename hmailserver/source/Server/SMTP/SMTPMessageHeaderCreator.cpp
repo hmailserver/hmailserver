@@ -5,6 +5,10 @@
 
 #include "SMTPMessageHeaderCreator.h"
 
+#include "../Common/BO/Message.h"
+#include "../Common/BO/MessageRecipients.h"
+#include "../Common/BO/MessageRecipient.h"
+
 #include "../Common/TCPIP/CipherInfo.h"
 #include "../Common/TCPIP/DNSResolver.h"
 
@@ -20,13 +24,14 @@
 
 namespace HM
 {
-   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers) :
+   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message) :
       username_(username),
       remote_ip_address_(remote_ip_address),
       is_authenticated_(is_authenticated),
       original_headers_(original_headers),
       helo_host_(helo_host),
-      is_tls_(false)
+      is_tls_(false),
+      message_(message)
    {
 
    }
@@ -78,6 +83,39 @@ namespace HM
       {
          if (!original_headers_->FieldExists("X-AuthUser"))
             new_header_lines += "X-AuthUser: " + username_ + "\r\n";
+      }
+
+      if (IniFileSettings::Instance()->GetAddXOriginalRcptToHeader() && message_)
+      {
+         auto recipients = message_->GetRecipients()->GetVector();
+         auto recipientIter = recipients.begin();
+
+         std::vector<String> originalLocalAddresses;
+
+         while (recipientIter != recipients.end())
+         {
+            auto recipient = *recipientIter;
+
+            if (recipient->GetIsLocalName())
+            {
+               auto originalAddress = recipient->GetOriginalAddress();
+
+               if (!originalAddress.IsEmpty())
+               {
+                  originalLocalAddresses.push_back(originalAddress);
+               }
+            }
+
+            recipientIter++;
+         }
+
+         if (originalLocalAddresses.size() > 0)
+         {
+            String header = "X-Original-Rcpt-To: ";
+
+            String sRcptToAddresses = JoinWithFolding_(originalLocalAddresses, ",", header.GetLength());
+            new_header_lines += header + sRcptToAddresses + "\r\n";
+         }
       }
 
       // Now add x- header for AUTH user if enabled since it was replaced above if so
@@ -142,6 +180,47 @@ namespace HM
 
       return sResult;
 
+   }
+
+   String
+   SMTPMessageHeaderCreator::JoinWithFolding_(const std::vector<String> &sVector, const String &sSeperator, int initialLineLength)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Joins contents of a vector into a string, with a separator. If the join string exceeds the max
+   // line length, it will be split across multiple lines.
+   //---------------------------------------------------------------------------()
+   {
+      auto iterVec = sVector.begin();
+      auto iterEnd = sVector.end();
+
+      String result;
+
+      const int maxLineLength = 70;
+      int currentLineLength = initialLineLength;
+
+      for (; iterVec != iterEnd; iterVec++)
+      {
+         String value = (*iterVec);
+         int valueLength = value.GetLength();
+
+         if (result.GetLength() > 0 && currentLineLength + value.GetLength() > maxLineLength)
+         {
+            // Break the line
+            result += "\r\n\t";
+            currentLineLength = 1;
+         }
+
+         result += value;
+         currentLineLength += valueLength;
+
+         if (iterVec + 1 != iterEnd)
+         {
+            result += sSeperator;
+            currentLineLength += sSeperator.GetLength();
+         }
+      }
+
+      return result;
    }
 
 }

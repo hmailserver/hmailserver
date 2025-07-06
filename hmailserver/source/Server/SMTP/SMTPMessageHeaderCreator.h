@@ -9,12 +9,13 @@ namespace HM
 {
    class CipherInfo;
    class MimeHeader;
+   class Message;
 
    class SMTPMessageHeaderCreator
    {
    public:
       
-      SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers);
+      SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message);
 
       AnsiString Create();
 
@@ -23,11 +24,13 @@ namespace HM
    private:
 
       String GenerateReceivedHeader_(const String &overriden_received_ip);
+      String JoinWithFolding_(const std::vector<String> &sVector, const String &sSeperator, int initialLineLength);
 
       String username_;
       AnsiString remote_ip_address_;
       AnsiString helo_host_;
       std::shared_ptr<MimeHeader> original_headers_;
+      std::shared_ptr<Message> message_;
       CipherInfo cipher_info_;
       bool is_tls_;
       bool is_authenticated_;
