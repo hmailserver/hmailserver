@@ -16,11 +16,6 @@
 #include "../../Util/FileUtilities.h"
 #include "../../Persistence/PersistentMessage.h"
 
-#include <openssl/pem.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-
-
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW

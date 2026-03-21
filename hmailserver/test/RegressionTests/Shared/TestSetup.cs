@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -633,25 +634,38 @@ namespace RegressionTests.Shared
 
       internal static IPAddress GetLocalIpAddress()
       {
-         // Connect to another local address.
-         var iphostentry = Dns.GetHostEntry(Dns.GetHostName());
-
          var allAddresses = new StringBuilder();
 
-         foreach (var ipaddress in iphostentry.AddressList)
+         foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
          {
-            allAddresses.AppendLine($"Family: {ipaddress.AddressFamily}, Address: {ipaddress}");
+            if (ni.OperationalStatus != OperationalStatus.Up)
+               continue;
 
-            if (ipaddress.AddressFamily == AddressFamily.InterNetwork)
+            foreach (UnicastIPAddressInformation ipInfo in ni.GetIPProperties().UnicastAddresses)
             {
-               if (ipaddress.ToString().Contains("192.168.") ||
-                   ipaddress.ToString().Contains("172.26."))
-                  return ipaddress;
+               IPAddress ip = ipInfo.Address;
+               allAddresses.AppendLine($"Family: {ip.AddressFamily}, Address: {ip}");
+
+               if (ip.AddressFamily == AddressFamily.InterNetwork)
+               {
+                  // Example: Only private networks
+                  if (IsPrivateIp(ip))
+                     return ip;
+               }
             }
          }
 
          Assert.Fail($"No local internet address found. Addresses: {allAddresses}");
          return null;
+      }
+
+      private static bool IsPrivateIp(IPAddress ip)
+      {
+         byte[] bytes = ip.GetAddressBytes();
+         return
+            (bytes[0] == 10) ||
+            (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) ||
+            (bytes[0] == 192 && bytes[1] == 168);
       }
 
       public static string GetResource(string resourceName)

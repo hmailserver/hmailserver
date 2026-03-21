@@ -26,4 +26,4 @@ Source: "{#OPENSSL_LIBS_PATH}\libcrypto-3-x64.dll"; DestDir: "{app}\Bin"; Flags:
 Source: "{#OPENSSL_LIBS_PATH}\libssl-3-x64.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 
 ; PQSQL (PostgreSQL client)
-Source: "..\..\libraries\libpq-12.2\x64\*.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+Source: "{#POSTGRESQL_LIBPQ_PATH}\*.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
