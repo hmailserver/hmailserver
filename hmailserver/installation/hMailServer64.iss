@@ -1,5 +1,5 @@
 #define HMAILSERVERLIBS = GetEnv("hMailServerLibs")
-#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "\openssl-1.1.1u\out64\bin"
+#define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "\openssl-3.0.19\out64\bin"
 
 
 #include "section_setup.iss"

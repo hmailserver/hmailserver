@@ -38,8 +38,6 @@ namespace HM
    void 
    DKIM::Initialize()
    {
-      OpenSSL_add_all_algorithms();
-      ERR_load_crypto_strings();
       ERR_load_EVP_strings();
 
       recommendedHeaderFields_.push_back("From");

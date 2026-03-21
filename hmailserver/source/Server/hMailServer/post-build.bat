@@ -8,10 +8,10 @@ set SCRIPT_DIR=%~dp0
 
 NET STOP hMailServer
 
-xcopy /F /Y "%HMS_LIBS%\openssl-1.1.1u\out64\bin\libcrypto-1_1-x64.dll" "%OUT_DIR%"
+xcopy /F /Y "%HMS_LIBS%\openssl-3.0.19\out64\bin\libcrypto-3-x64.dll" "%OUT_DIR%"
 if errorlevel 1 exit /b 1
 
-xcopy /F /Y "%HMS_LIBS%\openssl-1.1.1u\out64\bin\libssl-1_1-x64.dll" "%OUT_DIR%"
+xcopy /F /Y "%HMS_LIBS%\openssl-3.0.19\out64\bin\libssl-3-x64.dll" "%OUT_DIR%"
 if errorlevel 1 exit /b 1
 
 xcopy /F /Y "%SCRIPT_DIR%..\..\..\..\libraries\libpq-12.2\x64\*.dll" "%OUT_DIR%"

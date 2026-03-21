@@ -158,6 +158,9 @@ namespace HM
       bool GetSslVersionEnabled(SslTlsVersion version) const;
       void SetSslVersionEnabled(SslTlsVersion version, bool enabled);
 
+      bool GetTlsOptionEnabled(TlsOption option) const;
+      void SetTlsOptionEnabled(TlsOption option, bool enabled);
+
       bool GetIPv6Preferred();
       void SetIPv6Preferred(bool enabled);
 

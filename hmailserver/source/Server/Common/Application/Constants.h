@@ -135,4 +135,6 @@
 
 #define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
 
-#define REQUIRED_DB_VERSION            5704
+#define PROPERTY_TLSOPTIONS                     _T("TlsOptions")
+
+#define REQUIRED_DB_VERSION            5705

@@ -181,6 +181,9 @@ namespace HM
       bool tlsv12 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion12);
       bool tlsv13 = Configuration::Instance()->GetSslVersionEnabled(TlsVersion13);
 
+      bool tlsPreferServerCiphers = Configuration::Instance()->GetTlsOptionEnabled(TlsOptionPreferServerCiphers);
+      bool tlsPrioritizeChaCha = Configuration::Instance()->GetTlsOptionEnabled(TlsOptionPrioritizeChaCha);
+
       int options = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_SINGLE_ECDH_USE;
 
       if (!tlsv10)
@@ -192,6 +195,11 @@ namespace HM
       if (!tlsv13)
          options = options | SSL_OP_NO_TLSv1_3;
 
+      if (tlsPreferServerCiphers)
+         options = options | SSL_OP_CIPHER_SERVER_PREFERENCE;
+      if (tlsPrioritizeChaCha && tlsPreferServerCiphers && (tlsv12 || tlsv13))
+         options = options | SSL_OP_PRIORITIZE_CHACHA;
+
       SSL_CTX* ssl = context.native_handle();
       SSL_CTX_set_options(ssl, options);
    }
@@ -201,20 +209,10 @@ namespace HM
    {
       SSL_CTX* ssl = context.native_handle();
 
-      EC_KEY *ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-      if (!ecdh)
+      if (1 != SSL_CTX_set1_curves_list(ssl, "secp384r1:x25519:secp256r1"))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::SetCipherList_", "Failed to enable TLS EC");
-         return;
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::EnableEllipticCurveCrypto_", "Failed to enable TLS EC curves");
       }
-
-      int set_tmp_ecdhResult = SSL_CTX_set_tmp_ecdh(ssl, ecdh);
-      if (set_tmp_ecdhResult != 1)
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::SetCipherList_", Formatter::Format("Failed to enable TLS EC. SSL_CTX_set_tmp_ecdh returend {0}", set_tmp_ecdhResult));
-      }
-      
-      EC_KEY_free(ecdh);
    }
 
 }
