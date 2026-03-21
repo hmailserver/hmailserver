@@ -223,10 +223,10 @@ END_COM_MAP()
    STDMETHOD(get_TlsVersion13Enabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_TlsVersion13Enabled)(/*[in]*/ VARIANT_BOOL newVal);
 
-   STDMETHOD(get_TlsPreferServerCiphers)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_TlsPreferServerCiphers)(/*[in]*/ VARIANT_BOOL newVal);
-   STDMETHOD(get_TlsPrioritizeChaCha)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_TlsPrioritizeChaCha)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsOptionPreferServerCiphersEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsOptionPreferServerCiphersEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_TlsOptionPrioritizeChaChaEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_TlsOptionPrioritizeChaChaEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
    STDMETHOD(get_CrashSimulationMode)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_CrashSimulationMode)(/*[in]*/ long newVal);

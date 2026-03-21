@@ -18,48 +18,48 @@ namespace RegressionTests.SSL
       {
          _account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
 
-         _application.Settings.TlsPreferServerCiphers = false;
-         _application.Settings.TlsPrioritizeChaCha = false;
+         _application.Settings.TlsOptionPreferServerCiphersEnabled = false;
+         _application.Settings.TlsOptionPrioritizeChaChaEnabled = false;
       }
 
       private Account _account;
 
       [Test]
-      public void TlsPreferServerCiphers_DefaultsToFalse()
+      public void TlsOptionPreferServerCiphersEnabled_DefaultsToFalse()
       {
-         Assert.IsFalse(_application.Settings.TlsPreferServerCiphers);
+         Assert.IsFalse(_application.Settings.TlsOptionPreferServerCiphersEnabled);
       }
 
       [Test]
-      public void TlsPrioritizeChaCha_DefaultsToFalse()
+      public void TlsOptionPrioritizeChaChaEnabled_DefaultsToFalse()
       {
-         Assert.IsFalse(_application.Settings.TlsPrioritizeChaCha);
+         Assert.IsFalse(_application.Settings.TlsOptionPrioritizeChaChaEnabled);
       }
 
       [Test]
-      public void TlsPreferServerCiphers_CanBeToggled()
+      public void TlsOptionPreferServerCiphersEnabled_CanBeToggled()
       {
-         _application.Settings.TlsPreferServerCiphers = true;
-         Assert.IsTrue(_application.Settings.TlsPreferServerCiphers);
+         _application.Settings.TlsOptionPreferServerCiphersEnabled = true;
+         Assert.IsTrue(_application.Settings.TlsOptionPreferServerCiphersEnabled);
 
-         _application.Settings.TlsPreferServerCiphers = false;
-         Assert.IsFalse(_application.Settings.TlsPreferServerCiphers);
+         _application.Settings.TlsOptionPreferServerCiphersEnabled = false;
+         Assert.IsFalse(_application.Settings.TlsOptionPreferServerCiphersEnabled);
       }
 
       [Test]
-      public void TlsPrioritizeChaCha_CanBeToggled()
+      public void TlsOptionPrioritizeChaChaEnabled_CanBeToggled()
       {
-         _application.Settings.TlsPrioritizeChaCha = true;
-         Assert.IsTrue(_application.Settings.TlsPrioritizeChaCha);
+         _application.Settings.TlsOptionPrioritizeChaChaEnabled = true;
+         Assert.IsTrue(_application.Settings.TlsOptionPrioritizeChaChaEnabled);
 
-         _application.Settings.TlsPrioritizeChaCha = false;
-         Assert.IsFalse(_application.Settings.TlsPrioritizeChaCha);
+         _application.Settings.TlsOptionPrioritizeChaChaEnabled = false;
+         Assert.IsFalse(_application.Settings.TlsOptionPrioritizeChaChaEnabled);
       }
 
       [Test]
-      public void EnableTlsPreferServerCiphers_DoesNotBreakConnectivity()
+      public void EnableTlsOptionPreferServerCiphersEnabled_DoesNotBreakConnectivity()
       {
-         _application.Settings.TlsPreferServerCiphers = true;
+         _application.Settings.TlsOptionPreferServerCiphersEnabled = true;
 
          SslSetup.SetupSSLPorts(_application);
          Thread.Sleep(1000);
@@ -76,8 +76,8 @@ namespace RegressionTests.SSL
       [Test]
       public void EnableBothTlsOptions_DoesNotBreakConnectivity()
       {
-         _application.Settings.TlsPreferServerCiphers = true;
-         _application.Settings.TlsPrioritizeChaCha = true;
+         _application.Settings.TlsOptionPreferServerCiphersEnabled = true;
+         _application.Settings.TlsOptionPrioritizeChaChaEnabled = true;
 
          SslSetup.SetupSSLPorts(_application);
          Thread.Sleep(1000);

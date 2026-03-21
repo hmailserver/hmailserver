@@ -2423,7 +2423,7 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion13Enabled(VARIANT_BOOL *pVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_TlsPreferServerCiphers(VARIANT_BOOL newVal)
+STDMETHODIMP InterfaceSettings::put_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL newVal)
 {
    try
    {
@@ -2439,7 +2439,7 @@ STDMETHODIMP InterfaceSettings::put_TlsPreferServerCiphers(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_TlsPreferServerCiphers(VARIANT_BOOL *pVal)
+STDMETHODIMP InterfaceSettings::get_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
@@ -2455,7 +2455,7 @@ STDMETHODIMP InterfaceSettings::get_TlsPreferServerCiphers(VARIANT_BOOL *pVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_TlsPrioritizeChaCha(VARIANT_BOOL newVal)
+STDMETHODIMP InterfaceSettings::put_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL newVal)
 {
    try
    {
@@ -2471,7 +2471,7 @@ STDMETHODIMP InterfaceSettings::put_TlsPrioritizeChaCha(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_TlsPrioritizeChaCha(VARIANT_BOOL *pVal)
+STDMETHODIMP InterfaceSettings::get_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL *pVal)
 {
    try
    {

@@ -48,7 +48,7 @@ namespace DBUpdater
 
             if (script == null)
             {
-               MessageBox.Show("Upgrade path not found. Please contact support", "hMailServer");
+               MessageBox.Show("Upgrade path not found.", "hMailServer");
                return false;
             }
 
@@ -166,6 +166,7 @@ namespace DBUpdater
          _upgradeScripts.Add(new UpgradeScript(5700, 5702));
          _upgradeScripts.Add(new UpgradeScript(5702, 5703));
          _upgradeScripts.Add(new UpgradeScript(5703, 5704));
+         _upgradeScripts.Add(new UpgradeScript(5704, 5705));
       }
 
       private void buttonClose_Click(object sender, EventArgs e)
@@ -277,6 +278,8 @@ namespace DBUpdater
                return "hMailServer 5.7 (5703)";
             case 5704:
                return "hMailServer 5.7 (5704)";
+            case 5705:
+               return "hMailServer 5.7 (5705)";
             default:
                return "Unknown version";
          }

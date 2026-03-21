@@ -686,11 +686,11 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
    [propput, id(105), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
 
-   [propget, id(106), helpstring("Prefer server cipher order.")] HRESULT TlsPreferServerCiphers([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(106), helpstring("Prefer server cipher order.")] HRESULT TlsPreferServerCiphers([in] VARIANT_BOOL newVal);
+   [propget, id(106), helpstring("Prefer server cipher order.")] HRESULT TlsOptionPreferServerCiphersEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(106), helpstring("Prefer server cipher order.")] HRESULT TlsOptionPreferServerCiphersEnabled([in] VARIANT_BOOL newVal);
 
-   [propget, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsPrioritizeChaCha([out, retval] VARIANT_BOOL *pVal);
-   [propput, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsPrioritizeChaCha([in] VARIANT_BOOL newVal);
+   [propget, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsOptionPrioritizeChaChaEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsOptionPrioritizeChaChaEnabled([in] VARIANT_BOOL newVal);
 
 };
 

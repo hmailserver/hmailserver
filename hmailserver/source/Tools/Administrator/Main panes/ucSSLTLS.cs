@@ -45,8 +45,8 @@ namespace hMailServer.Administrator
            checkTlsVersion11.Checked = settings.TlsVersion11Enabled;
            checkTlsVersion12.Checked = settings.TlsVersion12Enabled;
            checkTlsVersion13.Checked = settings.TlsVersion13Enabled;
-           checkTlsPreferServerCiphers.Checked = settings.TlsPreferServerCiphers;
-           checkTlsPrioritizeChaCha.Checked = settings.TlsPrioritizeChaCha;
+           checkTlsOptionPreferServerCiphersEnabled.Checked = settings.TlsOptionPreferServerCiphersEnabled;
+           checkTlsOptionPrioritizeChaChaEnabled.Checked = settings.TlsOptionPrioritizeChaChaEnabled;
 
            Marshal.ReleaseComObject(settings);
         }
@@ -57,7 +57,7 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           bool restartRequired = textSslCipherList.Dirty || checkTlsVersion10.Dirty || checkTlsVersion11.Dirty || checkTlsVersion12.Dirty || checkTlsVersion13.Dirty || checkTlsPreferServerCiphers.Dirty || checkTlsPrioritizeChaCha.Dirty;
+           bool restartRequired = textSslCipherList.Dirty || checkTlsVersion10.Dirty || checkTlsVersion11.Dirty || checkTlsVersion12.Dirty || checkTlsVersion13.Dirty || checkTlsOptionPreferServerCiphersEnabled.Dirty || checkTlsOptionPrioritizeChaChaEnabled.Dirty;
 
            settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
@@ -66,8 +66,8 @@ namespace hMailServer.Administrator
            settings.TlsVersion11Enabled = checkTlsVersion11.Checked;
            settings.TlsVersion12Enabled = checkTlsVersion12.Checked;
            settings.TlsVersion13Enabled = checkTlsVersion13.Checked;
-           settings.TlsPreferServerCiphers = checkTlsPreferServerCiphers.Checked;
-           settings.TlsPrioritizeChaCha = checkTlsPrioritizeChaCha.Checked;
+           settings.TlsOptionPreferServerCiphersEnabled = checkTlsOptionPreferServerCiphersEnabled.Checked;
+           settings.TlsOptionPrioritizeChaChaEnabled = checkTlsOptionPrioritizeChaChaEnabled.Checked;
 
            Marshal.ReleaseComObject(settings);
 
