@@ -22,7 +22,7 @@ namespace HM
    class TCPServer
    {
    public:
-      TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security);
+      TCPServer(boost::asio::io_context& io_context, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security);
       ~TCPServer(void);
 
       void Run();
@@ -42,7 +42,7 @@ namespace HM
 
       boost::asio::ip::tcp::acceptor acceptor_;
       boost::asio::ssl::context context_;
-      boost::asio::io_service& io_service_;
+      boost::asio::io_context& io_context_;
       SessionType sessionType_;
       std::shared_ptr<SSLCertificate> certificate_;
 

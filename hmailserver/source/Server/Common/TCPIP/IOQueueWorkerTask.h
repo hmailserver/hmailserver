@@ -15,13 +15,13 @@ namespace HM
    {
    public:
 
-      IOCPQueueWorkerTask(boost::asio::io_service &io_service);
+      IOCPQueueWorkerTask(boost::asio::io_context &io_context);
 
       virtual void DoWork();
       void DoWorkInner();
 
    private:
 
-      boost::asio::io_service &io_service_;
+      boost::asio::io_context &io_context_;
    };
 }

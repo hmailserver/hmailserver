@@ -28,21 +28,24 @@ namespace HM
    {
       try
       {
-         boost::asio::io_service io_service;
+         boost::asio::io_context io_context;
 
          // Get a list of endpoints corresponding to the server name.
-         tcp::resolver resolver(io_service);
-         tcp::resolver::query query(AnsiString(sServer), "80", tcp::resolver::query::numeric_service);
-         tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-         tcp::resolver::iterator end;
+         tcp::resolver resolver(io_context);
+         boost::system::error_code resolve_error;
+         auto endpoints = resolver.resolve(AnsiString(sServer), "80", resolve_error);
+         if (resolve_error)
+            throw boost::system::system_error(resolve_error);
 
          // Try each endpoint until we successfully establish a connection.
-         tcp::socket socket(io_service);
+         tcp::socket socket(io_context);
          boost::system::error_code error = boost::asio::error::host_not_found;
-         while (error && endpoint_iterator != end)
+         for (auto& endpoint : endpoints)
          {
             socket.close();
-            socket.connect(*endpoint_iterator++, error);
+            socket.connect(endpoint, error);
+            if (!error)
+               break;
          }
          if (error)
             throw boost::system::system_error(error);

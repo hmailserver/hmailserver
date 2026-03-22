@@ -45,6 +45,26 @@ namespace RegressionTests.Infrastructure
       }
 
       [Test]
+      public void TestIPv6RangeCanBeSavedAndRetrieved()
+      {
+         // Verify that IPv6 addresses are parsed and stored correctly.
+         // This exercises the make_address_v6 code path in IPAddress::TryParse.
+         var range = _ipRanges.Add();
+         range.LowerIP = "::1";
+         range.UpperIP = "::1";
+         range.Name = "IPv6 loopback";
+         range.AllowSMTPConnections = true;
+         range.Save();
+
+         // Re-read from server to confirm the value round-tripped correctly.
+         var saved = _ipRanges[_ipRanges.Count - 1];
+         Assert.AreEqual("::1", saved.LowerIP);
+         Assert.AreEqual("::1", saved.UpperIP);
+
+         _ipRanges.Delete(_ipRanges.Count - 1);
+      }
+
+      [Test]
       public void TestConnections()
       {
          var oSocket = new TcpConnection();

@@ -3,6 +3,7 @@
 
 #include "StdAfx.h"
 #include ".\IPAddress.h"
+#include "../Util/Assert.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -82,22 +83,22 @@ namespace HM
       boost::system::error_code error;
 
       if (addressString.Find(":") >= 0)
-         address_ = boost::asio::ip::address_v6::from_string(addressString, error);
+         address_ = boost::asio::ip::make_address_v6(addressString, error);
       else
       {
          // Windows 2000 Workaround:
          // On Windows 2000, WSAStringToAddress won't be able to parse the address
          // 255.255.255.255. This is a bug in Windows 2000, which appears to be fixed
-         // in later versions. It does work properly on Windows XP. 
+         // in later versions. It does work properly on Windows XP.
          // According to Wine guys...
          // http://www.winehq.org/pipermail/wine-patches/2005-August/020220.html
          // .. this appears to be a known bug.
          // So we just do a hack to get around it.
-         // 
+         //
          if (addressString == "255.255.255.255")
             SetIPV4Address_(0xFFFFFFFF);
          else
-            address_ = boost::asio::ip::address_v4::from_string(addressString, error);         
+            address_ = boost::asio::ip::make_address_v4(addressString, error);
 
       }
 
@@ -174,13 +175,14 @@ namespace HM
    AnsiString 
    IPAddress::ToString() const
    {
-      boost::system::error_code error;
-      AnsiString result = address_.to_string(error);
-      
-      if (error)
+      try
+      {
+         return address_.to_string();
+      }
+      catch (boost::system::system_error&)
+      {
          return "";
-      else
-         return result;
+      }
    }
 
    AnsiString
@@ -337,11 +339,41 @@ namespace HM
    IPAddress::IsValid(const AnsiString &address)
    {
       boost::system::error_code errorCode;
-      boost::asio::ip::address adr = boost::asio::ip::address::from_string(address, errorCode);
+      boost::asio::ip::address adr = boost::asio::ip::make_address(address, errorCode);
 
       if (errorCode)
          return false;
       else
          return true;
+   }
+
+   void
+   IPAddressTester::Test()
+   {
+      // IPv4 parsing
+      IPAddress ipv4;
+      Assert::IsTrue(ipv4.TryParse("192.168.1.1", false));
+      Assert::AreEqual("192.168.1.1", ipv4.ToString());
+      Assert::IsTrue(ipv4.GetType() == IPAddress::IPV4);
+
+      // IPv6 parsing (exercises make_address_v6)
+      IPAddress ipv6;
+      Assert::IsTrue(ipv6.TryParse("::1", false));
+      Assert::AreEqual("::1", ipv6.ToString());
+      Assert::IsTrue(ipv6.GetType() == IPAddress::IPV6);
+
+      // Invalid address
+      IPAddress invalid;
+      Assert::IsFalse(invalid.TryParse("not-an-address", false));
+
+      // IsValid (exercises make_address)
+      Assert::IsTrue(IPAddress::IsValid("10.0.0.1"));
+      Assert::IsTrue(IPAddress::IsValid("2001:db8::1"));
+      Assert::IsFalse(IPAddress::IsValid("999.999.999.999"));
+
+      // Special case: 255.255.255.255 (Windows workaround path)
+      IPAddress broadcast;
+      Assert::IsTrue(broadcast.TryParse("255.255.255.255", false));
+      Assert::AreEqual("255.255.255.255", broadcast.ToString());
    }
 }

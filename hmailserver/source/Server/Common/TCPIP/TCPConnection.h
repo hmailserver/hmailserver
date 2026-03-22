@@ -26,7 +26,7 @@ namespace HM
    {
    public:
       TCPConnection(ConnectionSecurity connection_security,
-                    boost::asio::io_service& io_service,    
+                    boost::asio::io_context& io_context,    
                     boost::asio::ssl::context& context,
                     std::shared_ptr<Event> disconnected,
                     AnsiString expected_remote_hostname);
@@ -132,7 +132,7 @@ namespace HM
       ssl_socket ssl_socket_;
 
       boost::asio::ip::tcp::resolver resolver_;
-      boost::asio::deadline_timer timer_;
+      boost::asio::steady_timer timer_;
       boost::asio::streambuf receive_buffer_;
       boost::asio::ssl::context& context_;
 

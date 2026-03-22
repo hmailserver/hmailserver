@@ -398,7 +398,7 @@ namespace HM
 
       std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event()) ;
       std::shared_ptr<SMTPClientConnection> pClientConnection 
-         = std::shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
+         = std::shared_ptr<SMTPClientConnection> (new SMTPClientConnection(serverInfo->GetConnectionSecurity(), pIOService->GetIOContext(), pIOService->GetClientContext(), disconnectEvent, serverInfo->GetHostName()));
 
       pClientConnection->SetDelivery(original_message_, vecRecipients);
 

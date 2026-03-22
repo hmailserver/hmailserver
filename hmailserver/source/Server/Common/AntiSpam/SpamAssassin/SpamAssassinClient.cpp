@@ -18,11 +18,11 @@
 namespace HM
 {
    SpamAssassinClient::SpamAssassinClient(const String &sFile,
-                                          boost::asio::io_service& io_service, 
+                                          boost::asio::io_context& io_context, 
                                           boost::asio::ssl::context& context,
                                           std::shared_ptr<Event> disconnected,
                                           bool &testCompleted) :
-               TCPConnection(CSNone, io_service, context, disconnected, ""),
+               TCPConnection(CSNone, io_context, context, disconnected, ""),
                test_completed_(testCompleted),
                total_result_bytes_written_(0)
    {

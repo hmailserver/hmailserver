@@ -37,8 +37,8 @@ namespace HM
       void IoServiceRunWorker();
       void ExecuteTask(std::shared_ptr<Task> pTask);
 
-      boost::asio::io_service io_service_;
-      boost::asio::io_service::work work_;
+      boost::asio::io_context io_context_;
+      boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
 
       std::set<std::shared_ptr<Task>> runningTasks_;
       boost::recursive_mutex runningTasksMutex_;

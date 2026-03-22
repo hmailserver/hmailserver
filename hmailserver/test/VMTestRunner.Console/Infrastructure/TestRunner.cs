@@ -24,12 +24,15 @@ namespace VMTestRunner.Console
 
       private readonly string _softwareUnderTest;
 
+      private readonly int _testIndex;
+
       private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-      public TestRunner(TestEnvironment environment, string softwareUnderTest)
+      public TestRunner(TestEnvironment environment, string softwareUnderTest, int testIndex)
       {
          _environment = environment;
          _softwareUnderTest = softwareUnderTest;
+         _testIndex = testIndex;
 
          var packagePath = Path.Combine(Environment.CurrentDirectory, NuGetPackagesRelativePath);
 
@@ -51,7 +54,7 @@ namespace VMTestRunner.Console
 
       private void RunInternal()
       {
-         var vm = new HyperV();
+         var vm = new HyperV(_testIndex);
 
          var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
          var testAssemblyDirectory = Path.Combine(currentDirectory, RegressionTestsBinRelativePath);
@@ -170,9 +173,11 @@ namespace VMTestRunner.Console
          vm.RunScriptInGuest("NET START HMAILSERVER");
       }
 
+      private void Debug(string message) => Logger.Debug($"[Test {_testIndex}] {message}");
+
       private void EnsureNetworkAccess(HyperV vm)
       {
-         Logger.Debug("Ensuring network access...");
+         Debug("Ensuring network access...");
 
          string pingResultData = string.Empty;
 

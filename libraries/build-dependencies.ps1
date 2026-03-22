@@ -77,7 +77,7 @@ if (!(Test-Path $libsPath))
     Throw "The environment variable hMailServerLibs was found, but the folder it was pointing at ($libsPath) was not. Please create it."
 }
 
-$boostPath = Join-Path -Path $libsPath -ChildPath "boost_1_57_0"
+$boostPath = Join-Path -Path $libsPath -ChildPath "boost_1_90_0"
 
 if (!(Test-Path $boostPath))
 {

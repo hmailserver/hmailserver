@@ -23,7 +23,7 @@ namespace HM
    WorkQueue::WorkQueue(unsigned int iMaxSimultaneous, const String &sQueueName) :
       queue_name_ (sQueueName),
       max_simultaneous_(0),
-      work_( io_service_)
+      work_(boost::asio::make_work_guard(io_context_))
    {
       SetMaxSimultaneous(iMaxSimultaneous);
 
@@ -52,7 +52,7 @@ namespace HM
 
       // Post a wrapped task into the queue.
       std::function<void ()> func = std::bind(&WorkQueue::ExecuteTask, this, pTask);
-      io_service_.post( func );
+      boost::asio::post(io_context_, func);
    }
 
    void 
@@ -85,7 +85,7 @@ namespace HM
    {
       LOG_DEBUG(Formatter::Format("Starting work queue {0}", queue_name_));
 
-      io_service_.reset();
+      io_context_.restart();
 
       for ( std::size_t i = 0; i < max_simultaneous_; ++i )
       {
@@ -105,7 +105,7 @@ namespace HM
 
       try
       {
-         io_service_.run();
+         io_context_.run();
       }
       catch (boost::system::system_error& error)
       {
@@ -130,7 +130,7 @@ namespace HM
       LOG_DEBUG(Formatter::Format("Stopping working queue {0}.", queue_name_));
 
       // Prevent new tasks from being started.
-      io_service_.stop();
+      io_context_.stop();
 
       LOG_DEBUG(Formatter::Format("Interupt and join threads in working queue {0}", queue_name_));
 

@@ -22,11 +22,11 @@ namespace HM
 {
 
    SMTPClientConnection::SMTPClientConnection(ConnectionSecurity connection_security,
-      boost::asio::io_service& io_service, 
+      boost::asio::io_context& io_context, 
       boost::asio::ssl::context& context,
       std::shared_ptr<Event> disconnected,
       AnsiString expected_remote_hostname) :
-      TCPConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
+      TCPConnection(connection_security, io_context, context, disconnected, expected_remote_hostname),
       current_state_(HELO),
       use_smtpauth_(false),
       cur_recipient_(-1),

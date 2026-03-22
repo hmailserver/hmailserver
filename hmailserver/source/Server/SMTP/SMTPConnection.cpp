@@ -71,9 +71,9 @@ using namespace std;
 namespace HM
 {
    SMTPConnection::SMTPConnection(ConnectionSecurity connection_security,
-      boost::asio::io_service& io_service, 
+      boost::asio::io_context& io_context, 
       boost::asio::ssl::context& context) :  
-      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_context, context, std::shared_ptr<Event>(), ""),
       rejected_by_delayed_grey_listing_(false),
       current_state_(INITIAL),
       trace_headers_written_(true),

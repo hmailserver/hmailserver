@@ -63,7 +63,13 @@ namespace HM
       void SetIPV4Address_(__int64 address1);
       void SetIPV6Address_(__int64 address1, __int64 address2);
 
-      boost::asio::ip::address address_;     
+      boost::asio::ip::address address_;
 
+   };
+
+   class IPAddressTester
+   {
+   public:
+      void Test();
    };
 }

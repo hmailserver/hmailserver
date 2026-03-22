@@ -30,10 +30,10 @@ using boost::asio::ip::tcp;
 
 namespace HM
 {
-   TCPServer::TCPServer(boost::asio::io_service& io_service, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
-      acceptor_(io_service),
+   TCPServer::TCPServer(boost::asio::io_context& io_context, const IPAddress &ipaddress, int port, SessionType sessionType, std::shared_ptr<SSLCertificate> certificate, std::shared_ptr<TCPConnectionFactory> connectionFactory, ConnectionSecurity connection_security) :
+      acceptor_(io_context),
       context_(boost::asio::ssl::context::sslv23),
-      io_service_(io_service),
+      io_context_(io_context),
       ipaddress_(ipaddress),
       port_(port),
       connection_security_(connection_security)
@@ -135,7 +135,7 @@ namespace HM
       if (acceptor_.is_open())
       {
         
-         std::shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, io_service_, context_);
+         std::shared_ptr<TCPConnection> pNewConnection = connectionFactory_->Create(connection_security_, io_context_, context_);
 
          acceptor_.async_accept(pNewConnection->GetSocket(),
             std::bind(&TCPServer::HandleAccept, this, pNewConnection,

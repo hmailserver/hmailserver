@@ -94,7 +94,7 @@ namespace HM
       for (int i = 1; i <= iMaxNumberOfTries; i++)
       {
          boost::system::error_code error_code;
-         boost::filesystem::copy_file(sFrom, sTo, boost::filesystem::copy_option::overwrite_if_exists, error_code);
+         boost::filesystem::copy_file(sFrom, sTo, boost::filesystem::copy_options::overwrite_existing, error_code);
 
          // Use classic api to copy the file
          if (!error_code)
@@ -589,7 +589,7 @@ namespace HM
    }
 
    void FileUtilitiesTester::Test()
-   {  
+   {
       Assert::AreEqual("C:\\Temp", FileUtilities::Combine("C:\\", "Temp"));
       Assert::AreEqual("C:\\Temp", FileUtilities::Combine("C:\\", "\\Temp"));
       Assert::AreEqual("C:\\Temp", FileUtilities::Combine("C:", "\\Temp"));
@@ -604,5 +604,15 @@ namespace HM
       Assert::IsFalse(FileUtilities::IsFullPath("\\Test.eml"));
       Assert::IsFalse(FileUtilities::IsFullPath("Test.eml"));
       Assert::IsFalse(FileUtilities::IsFullPath("AB\\Data.eml"));
+
+      // Verify that Copy overwrites an existing destination file.
+      String sSrc = FileUtilities::GetTempFileName();
+      String sDst = FileUtilities::GetTempFileName();
+      FileUtilities::WriteToFile(sSrc, AnsiString("source"));
+      FileUtilities::WriteToFile(sDst, AnsiString("original"));
+      Assert::IsTrue(FileUtilities::Copy(sSrc, sDst, false));
+      Assert::AreEqual("source", FileUtilities::ReadCompleteTextFile(sDst));
+      FileUtilities::DeleteFile(sSrc);
+      FileUtilities::DeleteFile(sDst);
    }
 }

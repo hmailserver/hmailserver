@@ -13,6 +13,7 @@
 #include "../Util/Charset.h"
 #include "../Util/RegularExpression.h"
 #include "../TCPIP/LocalIPAddresses.h"
+#include "../TCPIP/IPAddress.h"
 #include "Time.h"
 #include "Utilities.h"
 #include "Parsing\AddresslistParser.h"
@@ -66,6 +67,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing FileUtilities\n"));
       FileUtilitiesTester fileUtilitiesTester;
       fileUtilitiesTester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing IPAddress\n"));
+      IPAddressTester ipAddressTester;
+      ipAddressTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing MessageUtilities\n"));
       MessageUtilitiesTester messageUtilitiesTester;

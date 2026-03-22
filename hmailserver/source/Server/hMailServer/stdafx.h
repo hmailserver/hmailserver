@@ -73,7 +73,7 @@
 //
 #define BOOST_USE_WINAPI_VERSION 0x0501
 #include <boost/winapi/config.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>

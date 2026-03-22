@@ -29,14 +29,14 @@ namespace HM
       // Session types
       bool RegisterSessionType(SessionType st);
 
-      boost::asio::io_service &GetIOService();
+      boost::asio::io_context &GetIOContext();
       boost::asio::ssl::context &GetClientContext();
    private:
 
       const String asynchronous_tasks_queue_;
 
       std::set<SessionType> session_types_;
-      boost::asio::io_service io_service_;
+      boost::asio::io_context io_context_;
 
       std::vector<std::shared_ptr<TCPServer> > tcp_servers_;
 

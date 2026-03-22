@@ -17,13 +17,13 @@ namespace HM
 {
 
    TestConnection::TestConnection(ConnectionSecurity connection_security,
-      boost::asio::io_service& io_service, 
+      boost::asio::io_context& io_context, 
       boost::asio::ssl::context& context,
       std::shared_ptr<Event> disconnected,
       AnsiString expected_remote_hostname,
       std::shared_ptr<TestConnectionResult> connection_result) :
 
-      TCPConnection(connection_security, io_service, context, disconnected, expected_remote_hostname),
+      TCPConnection(connection_security, io_context, context, disconnected, expected_remote_hostname),
       
       connection_result_(connection_result)
    {

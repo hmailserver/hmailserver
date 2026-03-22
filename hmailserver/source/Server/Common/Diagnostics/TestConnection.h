@@ -13,7 +13,7 @@ namespace HM
    {
    public:
       TestConnection(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context,
          std::shared_ptr<Event> disconnected,
          AnsiString remote_hostname,

@@ -12,7 +12,7 @@ namespace HM
    {
    public:
       virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context) = 0;
    };
 
@@ -20,7 +20,7 @@ namespace HM
    {
    public:
       virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context);
    };
 
@@ -28,7 +28,7 @@ namespace HM
    {
    public:
       virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context);
    };
 
@@ -36,7 +36,7 @@ namespace HM
    {
    public:
       virtual std::shared_ptr<TCPConnection> Create(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context);
    };
 

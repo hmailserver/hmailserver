@@ -12,11 +12,13 @@ namespace VMTestRunner.Console
    {
       private string _vmName;
       private PSCredential _credential;
+      private readonly int _testIndex;
 
       private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-      public HyperV()
+      public HyperV(int testIndex)
       {
+         _testIndex = testIndex;
       }
 
       public void OpenVM(string vmName)
@@ -38,7 +40,7 @@ namespace VMTestRunner.Console
 
       public void RevertToSnapshot(string snapshotName)
       {
-         Logger.Debug($"Reverting '{_vmName}' to snapshot '{snapshotName}'...");
+         Debug($"Reverting '{_vmName}' to snapshot '{snapshotName}'...");
 
          using (var ps = PowerShell.Create())
          {
@@ -56,7 +58,7 @@ namespace VMTestRunner.Console
 
       public void PowerOn()
       {
-         Logger.Debug($"Powering on '{_vmName}'...");
+         Debug($"Powering on '{_vmName}'...");
 
          using (var ps = PowerShell.Create())
          {
@@ -75,7 +77,7 @@ namespace VMTestRunner.Console
 
       public void PowerOff()
       {
-         Logger.Debug($"Powering off '{_vmName}'...");
+         Debug($"Powering off '{_vmName}'...");
 
          using (var ps = PowerShell.Create())
          {
@@ -90,7 +92,7 @@ namespace VMTestRunner.Console
 
       private void WaitForHeartbeat()
       {
-         Logger.Debug($"Waiting for heartbeat from '{_vmName}'...");
+         Debug($"Waiting for heartbeat from '{_vmName}'...");
 
          DateTime timeout = DateTime.UtcNow.AddSeconds(120);
 
@@ -111,7 +113,7 @@ namespace VMTestRunner.Console
                       heartbeat == "OkApplicationsUnknown" ||
                       heartbeat == "Ok")
                   {
-                     Logger.Debug($"Heartbeat received: {heartbeat}");
+                     Debug($"Heartbeat received: {heartbeat}");
                      return;
                   }
                }
@@ -135,7 +137,7 @@ namespace VMTestRunner.Console
 
       public void CopyFileToGuest(string hostPath, string guestPath)
       {
-         Logger.Debug($"Copying file {hostPath} to guest ({guestPath})...");
+         Debug($"Copying file {hostPath} to guest ({guestPath})...");
 
          RetryHelper.TryAction(() =>
          {
@@ -160,7 +162,7 @@ namespace VMTestRunner.Console
 
       public void CopyFileToHost(string guestPath, string hostPath)
       {
-         Logger.Debug($"Copying file {guestPath} from guest to host...");
+         Debug($"Copying file {guestPath} from guest to host...");
 
          using (var ps = PowerShell.Create())
          {
@@ -201,7 +203,7 @@ namespace VMTestRunner.Console
 
       public void RunProgramInGuest(string fullPath, string param)
       {
-         Logger.Debug($"Executing {fullPath} {param}...");
+         Debug($"Executing {fullPath} {param}...");
 
          using (var ps = PowerShell.Create())
          {
@@ -248,6 +250,8 @@ namespace VMTestRunner.Console
             return string.Join(Environment.NewLine, results.Select(r => r.ToString()));
          }
       }
+
+      private void Debug(string message) => Logger.Debug($"[Test {_testIndex}] {message}");
 
       private void HandleErrors(PowerShell ps, string operation)
       {

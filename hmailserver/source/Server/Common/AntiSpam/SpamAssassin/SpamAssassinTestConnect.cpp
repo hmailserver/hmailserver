@@ -35,7 +35,7 @@ namespace HM
       bool testCompleted;
 
       std::shared_ptr<Event> disconnectEvent = std::shared_ptr<Event>(new Event());
-      std::shared_ptr<SpamAssassinClient> pSAClient = std::shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOService(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
+      std::shared_ptr<SpamAssassinClient> pSAClient = std::shared_ptr<SpamAssassinClient>(new SpamAssassinClient(tempFile, pIOService->GetIOContext(), pIOService->GetClientContext(), disconnectEvent, testCompleted));
 
       DNSResolver resolver;
 

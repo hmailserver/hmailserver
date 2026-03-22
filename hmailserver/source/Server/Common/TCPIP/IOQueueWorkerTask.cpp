@@ -18,9 +18,9 @@
 
 namespace HM
 {
-   IOCPQueueWorkerTask::IOCPQueueWorkerTask(boost::asio::io_service &io_service) :
+   IOCPQueueWorkerTask::IOCPQueueWorkerTask(boost::asio::io_context &io_context) :
       Task("IOCPQueueWorkerTask"),
-      io_service_(io_service)
+      io_context_(io_context)
    {
 
    }
@@ -45,7 +45,7 @@ namespace HM
       {
          try
          {
-            io_service_.run();
+            io_context_.run();
             return;
          }
          catch (boost::system::system_error& error)

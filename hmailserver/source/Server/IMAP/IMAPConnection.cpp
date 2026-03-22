@@ -47,9 +47,9 @@
 namespace HM
 {
    IMAPConnection::IMAPConnection(ConnectionSecurity connection_security,
-         boost::asio::io_service& io_service, 
+         boost::asio::io_context& io_context, 
          boost::asio::ssl::context& context) :
-      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_context, context, std::shared_ptr<Event>(), ""),
       is_idling_(false),
       literal_data_to_receive_(0),
       pending_disconnect_(false),

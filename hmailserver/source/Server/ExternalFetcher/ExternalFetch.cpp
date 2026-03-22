@@ -40,7 +40,7 @@ namespace HM
       std::shared_ptr<POP3ClientConnection> pClientConnection = std::shared_ptr<POP3ClientConnection> 
          (new POP3ClientConnection(pFA, 
                                    pFA->GetConnectionSecurity(), 
-                                   pIOService->GetIOService(), 
+                                   pIOService->GetIOContext(), 
                                    pIOService->GetClientContext(), 
                                    disconnectEvent,
                                    pFA->GetServerAddress()));

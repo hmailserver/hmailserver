@@ -65,7 +65,7 @@ namespace VMTestRunner.Console
                   Logger.Info($"{localIndex}/{listEnvironments.Count} - Test: {environment.Description} on {environment.OperatingSystem}. VM: {environment.VMName} (Snapshot: {environment.SnapshotName})");
                }
 
-               var runner = new TestRunner(environment, softwareUnderTest);
+               var runner = new TestRunner(environment, softwareUnderTest, localIndex);
 
                try
                {
@@ -77,7 +77,9 @@ namespace VMTestRunner.Console
                catch (Exception ex)
                {
                   Logger.Error($"Test {localIndex} failed.");
-                  Logger.Error(ex.ToString());
+                  var exLines = ex.ToString().Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                  var truncated = exLines.Length > 100 ? exLines.Take(100).Append($"... ({exLines.Length - 100} more lines truncated)") : exLines;
+                  Logger.Error(string.Join(Environment.NewLine, truncated));
                }
             }
          });

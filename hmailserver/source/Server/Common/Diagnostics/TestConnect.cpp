@@ -68,7 +68,7 @@ namespace HM
 
          std::shared_ptr<TestConnectionResult> connection_result = std::make_shared<TestConnectionResult>();
 
-         std::shared_ptr<TestConnection> connection = std::make_shared<TestConnection>(connection_security, io_service_wrapper->GetIOService(), io_service_wrapper->GetClientContext(), disconnectEvent, server, connection_result);
+         std::shared_ptr<TestConnection> connection = std::make_shared<TestConnection>(connection_security, io_service_wrapper->GetIOContext(), io_service_wrapper->GetClientContext(), disconnectEvent, server, connection_result);
          if (connection->Connect(ipaddress, port, localAddress))
          {
             connection.reset();

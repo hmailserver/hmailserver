@@ -126,7 +126,7 @@ namespace HM
             break;
          }
 
-         pTCPServer = std::shared_ptr<TCPServer>(new TCPServer(io_service_, address, iPort, st, pSSLCertificate, pConnectionFactory, connection_security));
+         pTCPServer = std::shared_ptr<TCPServer>(new TCPServer(io_context_, address, iPort, st, pSSLCertificate, pConnectionFactory, connection_security));
 
          pTCPServer->Run();
 
@@ -146,7 +146,7 @@ namespace HM
       // Launch a thread that holds the IOCP objects
       for (int i = 0; i < iThreadCount; i++)
       {
-         std::shared_ptr<IOCPQueueWorkerTask> pWorkerTask = std::shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(io_service_));
+         std::shared_ptr<IOCPQueueWorkerTask> pWorkerTask = std::shared_ptr<IOCPQueueWorkerTask>(new IOCPQueueWorkerTask(io_context_));
          WorkQueueManager::Instance()->AddTask(iQueueID, pWorkerTask);
       }	
 
@@ -162,7 +162,7 @@ namespace HM
          boost::this_thread::disable_interruption disabled;
 
          LOG_DEBUG("IOService::Stop()");
-         io_service_.stop();
+         io_context_.stop();
 
          auto iterServer = tcp_servers_.begin();
          auto iterEnd = tcp_servers_.end();
@@ -188,10 +188,10 @@ namespace HM
       return client_context_;
    }
 
-   boost::asio::io_service &
-   IOService::GetIOService()
+   boost::asio::io_context &
+   IOService::GetIOContext()
    {
-      return io_service_;
+      return io_context_;
    }
 
 

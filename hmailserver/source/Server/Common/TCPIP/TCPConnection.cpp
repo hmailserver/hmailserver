@@ -29,15 +29,15 @@ namespace HM
   
 
    TCPConnection::TCPConnection(ConnectionSecurity connection_security,
-                                boost::asio::io_service& io_service, 
+                                boost::asio::io_context& io_context, 
                                 boost::asio::ssl::context& context,
                                 std::shared_ptr<Event> disconnected,
                                 AnsiString expected_remote_hostname) :
       connection_security_(connection_security),
-      socket_(io_service),
+      socket_(io_context),
       ssl_socket_(socket_, context),
-      resolver_(io_service),
-      timer_(io_service),
+      resolver_(io_context),
+      timer_(io_context),
       receive_binary_(false),
       remote_port_(0),
       receive_buffer_(250000),
@@ -804,18 +804,9 @@ namespace HM
 
       boost::mutex::scoped_lock lock(autologout_timer_);
 
-      boost::system::error_code error_code;
-
       // Put a timeout...
-      timer_.expires_from_now(boost::posix_time::seconds(timeout_), error_code);
+      timer_.expires_after(std::chrono::seconds(timeout_));
 
-      if (error_code)
-      {
-         ReportError(ErrorManager::Low, 5333, "TCPConnection::UpdateLogoutTimer", "An unknown error occurred while updating logout timer.", error_code);
-         return;
-      }
-
-         
       timer_.async_wait(std::bind(&TCPConnection::OnTimeout, std::weak_ptr<TCPConnection>(shared_from_this()), std::placeholders::_1));
    }
 

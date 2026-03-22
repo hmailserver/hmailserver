@@ -39,9 +39,9 @@ namespace HM
 {
 
    POP3Connection::POP3Connection(ConnectionSecurity connection_security,
-      boost::asio::io_service& io_service, 
+      boost::asio::io_context& io_context, 
       boost::asio::ssl::context& context) :
-      TCPConnection(connection_security, io_service, context, std::shared_ptr<Event>(), ""),
+      TCPConnection(connection_security, io_context, context, std::shared_ptr<Event>(), ""),
       current_state_(AUTHORIZATION),
       transmission_buffer_(true),
       pending_disconnect_(false)
