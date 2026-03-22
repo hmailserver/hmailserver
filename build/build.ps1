@@ -1,5 +1,6 @@
 Param(
-	[string]$Configuration = 'Debug'
+	[string]$Configuration = 'Debug',
+	[switch]$Clean
 )
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
@@ -26,6 +27,12 @@ Write-Host "Using MSBuild: $msbuild"
 Write-Host "Building solution: $solution"
 Write-Host "Configuration: $Configuration"
 
+if ($Clean) {
+	Write-Host "Cleaning..."
+	& "$msbuild" $solution '/t:Clean' "/p:Configuration=$Configuration" '/p:Platform=x64' *>&1
+	if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+
 $msbuildArgs = @(
 	$solution
 	'/m'
@@ -35,12 +42,16 @@ $msbuildArgs = @(
 	'/p:PostBuildEventUseInBuild=false'
 )
 
+$sw = [System.Diagnostics.Stopwatch]::StartNew()
+
 & "$msbuild" @msbuildArgs *>&1
 
 $exitCode = $LASTEXITCODE
+$sw.Stop()
+Write-Host ("Build completed in {0:F1} seconds." -f $sw.Elapsed.TotalSeconds)
 if ($exitCode -ne 0) {
 	exit $exitCode
 }
 
-Write-Host "Build succeeded. Build log: $msbuildLog"
+Write-Host "Build succeeded."
 
