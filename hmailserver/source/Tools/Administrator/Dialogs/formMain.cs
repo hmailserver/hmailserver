@@ -503,23 +503,26 @@ namespace hMailServer.Administrator
                     return;
 
                 /*
-                    Switch to the new node. We do this to make sure that the
-                    event handler can refresh the tree properly.
-                 
-                    For example, if the user clicks on a domain, right clicks
-                    on the Accounts node and selects Add, we need to do the following:
-                    1) Ask the user if he wants to save the domain changes (if any)
-                    2) Switch to the Accounts node
+                    Switch to the right-clicked node before showing the context menu.
+                    This ensures that currentlySelectedNode is correct when the event
+                    handler runs.
+
+                    For example, if the user has just added account1 (so account1 is
+                    selected), then right-clicks the Accounts node and chooses Add:
+                    1) Ask the user if he wants to save any unsaved changes
+                    2) Switch currentlySelectedNode to the Accounts node
                     3) Show the context menu
-                 
-                    Number 2 isn't strictly required here. However, if we don't change
-                    the node, it will be hard for the Account user control to update
-                    the tree in the correct location.
+
+                    Step 2 is required. Without it, RefreshCurrentNode() operates on
+                    account1's tree node and renames it to the new account's address
+                    instead of refreshing the Accounts container. This caused a bug
+                    where adding a second account corrupted the first account's tree
+                    node text.
                 */
 
-                /*if (!ChangeToNode(currentNode))
+                if (!ChangeToNode(currentNode))
                     return;
-*/
+
                 // Display the context menu.
                 menu.Show(treeNodes.PointToScreen(e.Location));
 
