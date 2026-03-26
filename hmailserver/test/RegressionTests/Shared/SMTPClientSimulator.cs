@@ -302,7 +302,12 @@ namespace RegressionTests.Shared
 
          _tcpConnection.Send(text);
 
-         _tcpConnection.Send("\r\n");
+         // RFC 5321: the dot terminator must be on its own line. Only add \r\n if
+         // the message does not already end with one, to avoid appending a spurious
+         // blank line that would alter the stored body content.
+         if (!text.EndsWith("\r\n"))
+            _tcpConnection.Send("\r\n");
+
          _tcpConnection.Send(".\r\n");
 
          // Wait for OK.

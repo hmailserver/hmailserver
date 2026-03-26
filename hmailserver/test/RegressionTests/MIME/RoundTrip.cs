@@ -83,8 +83,110 @@ namespace RegressionTests.MIME
       }
 
       [Test]
+      [Description("Adding a new header to a plain-text message must not modify the body content.")]
+      public void TestAddingHeaderPreservesSimpleBody()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip3@example.test", "test");
+         AddSetHeaderRule(account, "X-Test", "test-value");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.EmailWith_TextPlainBody_TextPlainContentType);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
+         var storedContent = File.ReadAllText(storedFilename);
+         var originalContent = TestResources.EmailWith_TextPlainBody_TextPlainContentType;
+
+         StringAssert.Contains("X-Test: test-value", storedContent,
+            "The rule should have added the X-Test header");
+
+         var originalBody = ExtractBody(originalContent);
+         var storedBody = ExtractBody(storedContent);
+         Assert.AreEqual(originalBody, storedBody,
+            "Plain-text body content was modified during re-serialization");
+      }
+
+      [Test]
+      [Description("Modifying an existing header via a rule must store the new value, not the original raw bytes.")]
+      public void TestModifyingExistingHeaderAppliesNewValue()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip4@example.test", "test");
+         AddSetHeaderRule(account, "Subject", "modified-subject");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.EmailWith_TextPlainBody_TextPlainContentType);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
+         var storedContent = File.ReadAllText(storedFilename);
+         var originalContent = TestResources.EmailWith_TextPlainBody_TextPlainContentType;
+
+         var storedSubject = ExtractHeaderValue(storedContent, "Subject");
+         Assert.AreEqual("modified-subject", storedSubject,
+            "Subject header should contain the rule's new value, not the original raw bytes");
+
+         var originalFrom = ExtractHeaderValue(originalContent, "From");
+         var storedFrom = ExtractHeaderValue(storedContent, "From");
+         Assert.AreEqual(originalFrom, storedFrom,
+            "Unmodified From header must not be re-encoded during re-serialization");
+
+         var originalBody = ExtractBody(originalContent);
+         var storedBody = ExtractBody(storedContent);
+         Assert.AreEqual(originalBody, storedBody,
+            "Body must not be modified when only a header is changed");
+      }
+
+      [Test]
+      [Description("Adding a new header to a message with no Content-Type must not modify the body content.")]
+      public void TestAddingHeaderPreservesBodyWithNoContentType()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip5@example.test", "test");
+         AddSetHeaderRule(account, "X-Test", "test-value");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.EmailWith_TextPlainBody_NoContentType);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
+         var storedContent = File.ReadAllText(storedFilename);
+         var originalContent = TestResources.EmailWith_TextPlainBody_NoContentType;
+
+         StringAssert.Contains("X-Test: test-value", storedContent,
+            "The rule should have added the X-Test header");
+
+         var originalBody = ExtractBody(originalContent);
+         var storedBody = ExtractBody(storedContent);
+         Assert.AreEqual(originalBody, storedBody,
+            "Body content was modified during re-serialization of a message with no Content-Type");
+      }
+
+      [Test]
+      [Description("Adding a new header to an HTML message must not modify the body content.")]
+      public void TestAddingHeaderPreservesHtmlBody()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip6@example.test", "test");
+         AddSetHeaderRule(account, "X-Test", "test-value");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.EmailWith_TextHtmlBody_TextHtmlContentType);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
+         var storedContent = File.ReadAllText(storedFilename);
+         var originalContent = TestResources.EmailWith_TextHtmlBody_TextHtmlContentType;
+
+         StringAssert.Contains("X-Test: test-value", storedContent,
+            "The rule should have added the X-Test header");
+
+         var originalBody = ExtractBody(originalContent);
+         var storedBody = ExtractBody(storedContent);
+         Assert.AreEqual(originalBody, storedBody,
+            "HTML body content was modified during re-serialization");
+      }
+
+      [Test]
       [Description("Adding a new header to a multipart message must not modify the body content.")]
-      public void TestAddingHeaderPreservesMultipartBody()
+      public virtual void TestAddingHeaderPreservesMultipartBody()
       {
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip2@example.test", "test");
          AddSetHeaderRule(account, "X-Test", "test-value");

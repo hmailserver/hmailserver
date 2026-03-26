@@ -324,7 +324,7 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_NoContentType);
 
-         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
          Assert.AreEqual("", message.HTMLBody);
       }
 
@@ -334,7 +334,7 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_TextPlainContentType);
 
-         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\n\r\nPlainTextSignature"), message.Body);
+         Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
          Assert.AreEqual("", message.HTMLBody);
       }
 
@@ -345,7 +345,7 @@ namespace RegressionTests.SMTP
             TestResources.EmailWith_TextHtmlBody_TextHtmlContentType);
 
          Assert.AreEqual("", message.Body);
-         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
+         Assert.IsTrue(message.HTMLBody.Contains("<b>HtmlBody</b>\r\n<br/>\r\nHtmlSignature"), message.HTMLBody);
       }
 
       [Test]

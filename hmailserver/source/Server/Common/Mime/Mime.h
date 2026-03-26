@@ -100,6 +100,9 @@ namespace HM
 	   void SetCharset(const char* pszCharset);
 	   const char* GetCharset() const;
 
+      bool IsModified() const { return modified_; }
+      bool IsNew() const { return is_new_; }
+
 	   void Clear();
 	   int GetLength() const;
 	   void Store(AnsiString &output) const;
@@ -115,6 +118,9 @@ namespace HM
       string decoded_value_;
 
    private:
+      string raw_line_;    // Original header line from file (name: value with folding + \r\n)
+      bool modified_ = false;
+      bool is_new_ = true;  // True if created programmatically, not loaded from file
 
 	   bool FindParameter(const char* pszAttr, int& nPos, int& nSize, bool &encodedParameter) const;
       /*
@@ -135,19 +141,19 @@ namespace HM
    { return name_.data(); }
 
    inline void MimeField::SetValue(const char* pszValue)
-   { value_ = pszValue; }
+   { modified_ = true; value_ = pszValue; }
 
    inline const char* MimeField::GetValue() const
    { return value_.data(); }
 
    inline void MimeField::SetCharset(const char* pszCharset)
-   { charset_ = pszCharset; }
+   { modified_ = true; charset_ = pszCharset; }
 
    inline const char* MimeField::GetCharset() const
    { return charset_.c_str(); }
 
    inline void MimeField::Clear()
-   { name_.clear(); value_.clear(); charset_.clear(); }
+   { name_.clear(); value_.clear(); charset_.clear(); raw_line_.clear(); modified_ = false; is_new_ = true; }
 
    class MIMEUnicodeEncoder
    {
@@ -238,6 +244,7 @@ namespace HM
    protected:
 	   std::vector<MimeField> fields_;	// list of all header fields
 	   std::vector<MimeField>::iterator FindField(const char* pszFieldName) const;
+      bool headers_modified_ = false;
 
 	   struct MediaTypeCvt
 	   {
@@ -257,6 +264,7 @@ namespace HM
    // add a new field or update an existing field
    inline void MimeHeader::SetField(const MimeField& field)
    {
+      headers_modified_ = true;
 	   auto it = FindField(field.GetName());
 	   if (it != fields_.end())
 		   *it = field;
@@ -452,6 +460,7 @@ namespace HM
       bool SaveAllToFile(const AnsiString &pszFilename);
 
       String GetCleanContentType() const;
+      bool IsAnyChildModified() const;
       // Returns a clean content type like text/html or text/plain,
       // not other things that exists in the Content-Type header.
 
@@ -474,9 +483,17 @@ namespace HM
 	   BodyList bodies_;			// list of all child body parts
 	   BodyList::iterator find_;
 
+      AnsiString source_file_;          // Path of file this was loaded from
+      size_t body_byte_offset_ = 0;    // Byte offset where body starts in source file (after headers + blank line)
+      size_t body_byte_end_ = 0;       // Byte offset one past last meaningful body byte (end of closing boundary marker)
+      bool body_modified_ = false;     // True if any body content was changed
+      size_t last_header_size_ = 0;    // Header size captured from last Load() call
+      size_t last_multipart_end_ = 0;  // Position right after "--boundary--" closing marker, or 0 if not multipart
+
    protected:
 	   bool AllocateBuffer(size_t nBufSize);
 	   void FreeBuffer();
+      AnsiString ReadBodyFromSourceFile() const;
 
       String GenerateFileNameFromEncapsulatedSubject(bool unicode) const;
    };
