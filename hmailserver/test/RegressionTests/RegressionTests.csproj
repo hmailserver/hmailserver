@@ -210,6 +210,7 @@
     <Compile Include="Infrastructure\RetryHelper.cs" />
     <Compile Include="Infrastructure\SessionLimitingTests.cs" />
     <Compile Include="MIME\MessageParsing.cs" />
+    <Compile Include="MIME\RoundTrip.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
     <Compile Include="POP3\Fetching\ExternalAccountSslTests.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />
