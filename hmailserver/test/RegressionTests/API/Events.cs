@@ -364,6 +364,7 @@ namespace RegressionTests.API
             @"function OnDeliverMessage(message)
                            {
                                message.HeaderValue('X-SpamResult') = 'TEST2';
+                               message.Body = 'This is the body text.';
                                message.Save();
                            }";
 
@@ -382,7 +383,8 @@ namespace RegressionTests.API
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
          Assert.IsNotEmpty(message);
 
-         Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
+         StringAssert.Contains("X-SpamResult: TEST2", message);
+         StringAssert.Contains("This is the body text.", message);
       }
 
       [Test]
