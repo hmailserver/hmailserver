@@ -87,6 +87,8 @@ namespace HM
          std::shared_ptr<Message> pMessage;
          while (pMessage = GetNextMessage_())
          {
+            boost::this_thread::interruption_point();
+
             // Lock this message
             if (!PersistentMessage::LockObject(pMessage))
             {
