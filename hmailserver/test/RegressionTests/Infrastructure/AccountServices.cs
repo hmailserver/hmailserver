@@ -441,6 +441,62 @@ namespace RegressionTests.Infrastructure
 
       [Test]
       [Category("Accounts")]
+      [Description("Ensure that the auto-reply cache is cleared when the vacation message expires, so a subsequent vacation period sends replies again.")]
+      public void TestAutoReplyCacheResetOnExpiry()
+      {
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+            TestSetup.UniqueString() + "@example.test", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+            TestSetup.UniqueString() + "@example.test", "test");
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         // First vacation period: vacation is active with a future expiry date.
+         // account1 sends an email, receives OOO, and is added to the "already replied" cache.
+         account2.VacationMessageIsOn = true;
+         account2.VacationMessage = "I'm away in February";
+         account2.VacationSubject = "Out of office - February";
+         account2.VacationMessageExpires = true;
+         account2.VacationMessageExpiresDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+         account2.Save();
+
+         smtpClientSimulator.Send(account1.Address, account2.Address, "Hello in February", "Body");
+         Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 1);
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1); // OOO received; account1 now in cache
+         var februaryReply = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         Assert.IsTrue(februaryReply.Contains("Out of office - February"), "Expected OOO reply for second vacation period but cache was not cleared on expiry.");
+
+         // Simulate the vacation expiring: set the expiry date to the past.
+         // The next delivery will detect the expiry, disable the vacation in the DB,
+         // and (with the fix) clear the "already replied" cache.
+         account2.VacationMessageExpiresDate = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+         account2.Save();
+
+         smtpClientSimulator.Send(account1.Address, account2.Address, "Still February", "Body");
+         Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 2);
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0); // No OOO - vacation expired; cache cleared by fix
+
+         // Second vacation period: re-enable vacation. account1 should receive an OOO again
+         // because the cache was cleared when the first period expired.
+         account2.VacationMessageIsOn = true;
+         account2.VacationMessage = "I'm away in August";
+         account2.VacationSubject = "Out of office - August";
+         account2.VacationMessageExpires = false;
+         account2.Save();
+
+         smtpClientSimulator.Send(account1.Address, account2.Address, "Hello in August", "Body");
+         Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 3);
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1); // OOO must be received; fails without the fix
+
+         var augustReply = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         Assert.IsTrue(augustReply.Contains("Out of office - August"), "Expected OOO reply for second vacation period but cache was not cleared on expiry.");
+
+         account2.VacationMessageIsOn = false;
+         account2.Save();
+      }
+
+      [Test]
+      [Category("Accounts")]
       [Description("Test cache refresh when renaming account.")]
       public void TestRefreshOfCache()
       {

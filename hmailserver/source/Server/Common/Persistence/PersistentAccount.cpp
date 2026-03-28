@@ -30,6 +30,7 @@
 
 #include "../../IMAP/IMAPFolderContainer.h"
 #include "../../IMAP/MessagesContainer.h"
+#include "../../SMTP/SMTPVacationMessageCreator.h"
 
 #include "PreSaveLimitationsCheck.h"
 
@@ -433,6 +434,11 @@ namespace HM
       SQLCommand command("update hm_accounts set accountvacationmessageon = 0 where accountid = @ACCOUNTID");
       command.AddParameter("@ACCOUNTID", pAccount->GetID());
 
-      return Application::Instance()->GetDBManager()->Execute(command);
+      bool result = Application::Instance()->GetDBManager()->Execute(command);
+
+      if (result)
+         SMTPVacationMessageCreator::Instance()->VacationMessageTurnedOff(pAccount->GetAddress());
+
+      return result;
    }
 }
