@@ -359,6 +359,41 @@ namespace RegressionTests.SMTP
       }
 
 
+      [Test]
+      [Description("QP-encoded bare LFs (=0A) in a message body should not cause rejection when a signature is appended. Issue #357.")]
+      public void TestSignatureWithQpEncodedBareLfDoesNotCauseRejection()
+      {
+         // Disallow incorrect line endings so bare LFs are rejected.
+         SingletonProvider<TestSetup>.Instance.GetApp().Settings.AllowIncorrectLineEndings = false;
+
+         _domain.SignatureEnabled = true;
+         _domain.AddSignaturesToLocalMail = true;
+
+         _account.SignatureEnabled = true;
+         _account.SignaturePlainText = "MyDomainSignature";
+         _account.Save();
+
+         // A text/plain message whose body uses =0A (QP-encoded bare LF) for line breaks,
+         // similar to what RainLoop and some other clients produce.
+         string messageWithQpBareLf =
+            "From: signature@example.test\r\n" +
+            "To: signature@example.test\r\n" +
+            "Subject: QP bare LF test\r\n" +
+            "Content-Type: text/plain; charset=utf-8\r\n" +
+            "Content-Transfer-Encoding: quoted-printable\r\n" +
+            "\r\n" +
+            "Line one=0ALine two=0ALine three\r\n";
+
+         // Should NOT throw — the message is valid; the =0A is QP-encoded.
+         SmtpClientSimulator.StaticSendRaw(_account.Address, _account.Address, messageWithQpBareLf);
+
+         var message = CustomAsserts.AssertGetFirstMessage(_account, "Inbox");
+
+         // The signature should have been appended.
+         Assert.IsTrue(message.Body.Contains("MyDomainSignature"),
+            "Expected the domain signature to be present in the delivered message body.");
+      }
+
       private Message SendMessageWithSignature(string plainTextSignature, string htmlSignature, string message)
       {
          _domain.SignatureEnabled = true;

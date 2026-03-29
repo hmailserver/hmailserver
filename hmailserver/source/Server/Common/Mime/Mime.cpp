@@ -902,6 +902,13 @@ namespace HM
       }
 
       AnsiString sMBText = Charset::ToMultiByte(sText, strCharset);
+
+      // Normalise bare LFs to CRLF before QP-encoding so the encoder does not
+      // write literal \n bytes into the message file (which CheckLineEndings_
+      // would then correctly flag as bare LFs and reject).
+      sMBText.Replace("\r\n", "\n");
+      sMBText.Replace("\n", "\r\n");
+
       AnsiString sEncodedValue;
       MimeCodeBase* pCoder = MimeEnvironment::CreateCoder("quoted-printable");
       pCoder->SetInput(sMBText, sMBText.GetLength(), true);
