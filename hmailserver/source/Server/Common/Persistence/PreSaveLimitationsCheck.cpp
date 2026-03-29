@@ -56,17 +56,29 @@ namespace HM
    bool
    PreSaveLimitationsCheck::IsValidAccountAddress_(const String &sEmailAddress)
    {
-      // Original: ^(("[^<>@\\/\?\*|]+")|([^<> @\\/"\?\*|]+))@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
-      // 
+      // Stricter than general email validation: additionally forbids \ / ? * |
+      // in the local part because hMailServer uses the account address to build
+      // filesystem paths for message storage, and these characters are illegal
+      // in Windows file/directory names.
+
+      const int maxEmailAddressLength = 254;
+      if (sEmailAddress.GetLength() > maxEmailAddressLength)
+         return false;
+
+      // Note: RFC 5321 Section 4.5.3.1.1 limits the local part to 64 octets, but we
+      // intentionally do not enforce this to maintain backwards compatibility with
+      // existing accounts that have longer local parts.
+      //
+      // Original: ^(("[^<>@\\/\?\*|]+")|(?!\.|.*\.(\.|@))[^<> @\\/"\?\*|]+)@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
+      //
       // Conversion:
       // 1) Replace \ with \\
       // 2) Replace " with \"
 
-      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|([^<> @\\\\/\"\\?\\*|]+))@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
+      String regularExpression = "^((\"[^<>@\\\\/\\?\\*|]+\")|(?!\\.|.*\\.(\\.|@))[^<> @\\\\/\"\\?\\*|]+)@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
-      bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
-      return result;
+      return regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
    }
 
    bool

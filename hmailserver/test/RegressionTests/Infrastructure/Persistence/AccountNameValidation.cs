@@ -111,6 +111,45 @@ namespace RegressionTests.Infrastructure.Persistence
             exception.Message);
       }
 
+      [Test]
+      public void TestAccountWithLeadingDotInLocalPart()
+      {
+         AssertInvalidEmailAddress(".user@example.test");
+      }
+
+      [Test]
+      public void TestAccountWithTrailingDotInLocalPart()
+      {
+         AssertInvalidEmailAddress("user.@example.test");
+      }
+
+      [Test]
+      public void TestAccountWithConsecutiveDotsInLocalPart()
+      {
+         AssertInvalidEmailAddress("us..er@example.test");
+      }
+
+      [Test]
+      public void TestAccountWithSingleDotInLocalPart()
+      {
+         AssertValidEmailAddress("us.er@example.test");
+      }
+
+      [Test]
+      public void TestAccountWithMaxLengthLocalPart()
+      {
+         // 64-char local part is the RFC 5321 maximum and should be accepted
+         AssertValidEmailAddress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.test");
+      }
+
+      [Test]
+      public void TestAccountWithTooLongLocalPart()
+      {
+         // 65-char local part exceeds the RFC 5321 maximum
+         // Supported for backwards compatibility.
+         AssertValidEmailAddress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.test");
+      }
+
       private void AssertInvalidEmailAddress(string address,
          string expectedErrorMessage = "Failed to save object. The account address is not a valid email address.")
       {

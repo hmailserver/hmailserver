@@ -45,3 +45,4 @@ hmailserver/source/Server/hMailServer.Minidump/x64/*
 /TestResult.xml
 /.claude/*
 **/.vs/*
+/hmailserver/.claude/*

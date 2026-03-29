@@ -37,6 +37,24 @@ namespace RegressionTests.Infrastructure.Persistence
          AssertValidDomainName("examp.co.uk");
       }
 
+      [Test]
+      public void TestDomainWithIPv4Literal()
+      {
+         AssertValidDomainName("[192.168.1.1]");
+      }
+
+      [Test]
+      public void TestDomainWithIPv6Literal()
+      {
+         AssertValidDomainName("[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]");
+      }
+
+      [Test]
+      public void TestDomainWithInvalidIPv6Literal()
+      {
+         AssertInvalidDomainName("[IPv6:invalid]");
+      }
+
       private void AssertInvalidDomainName(string domainName)
       {
          var domain = _application.Domains.Add();

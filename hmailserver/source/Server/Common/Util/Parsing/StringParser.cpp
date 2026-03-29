@@ -55,41 +55,40 @@ namespace HM
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // Original: ^(("[^<>@\\]+")|([^<> @\\"]+))@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
-      // 
+      // RFC 5321 Section 4.5.3.1.3: the maximum total length of a reverse-path
+      // or forward-path is 256 octets, which limits an email address to 254 characters.
+      const int maxEmailAddressLength = 254;
+      if (sEmailAddress.GetLength() > maxEmailAddressLength)
+         return false;
+
+      // Note: RFC 5321 Section 4.5.3.1.1 limits the local part to 64 octets, but we
+      // intentionally do not enforce this to maintain backwards compatibility with
+      // existing accounts that have longer local parts.
+      //
+      // Original: ^(("[^<>@\\]+")|(?!\.|.*\.(\.|@))[^<> @\\"]+)@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
+      //
       // Conversion:
       // 1) Replace \ with \\
       // 2) Replace " with \"
 
-      String regularExpression = "^((\"[^<>@\\\\]+\")|([^<> @\\\\\"]+))@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
+      String regularExpression = "^((\"[^<>@\\\\]+\")|(?!\\.|.*\\.(\\.|@))[^<> @\\\\\"]+)@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
-      bool result = regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
-
-      const int maxEmailAddressLength = 254;
-      if (sEmailAddress.GetLength() > maxEmailAddressLength)
-      {
-         // https://stackoverflow.com/a/574698
-         // An email address must not exceed 254 characters.
-         return false;
-      }
-
-      return result;
+      return regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
    }
 
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      // Original: ^(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
+      // Original: ^(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
       // Conversion:
       // 1) Replace \ with \\
       // 2) Replace " with \"
 
-      String regularExpression = "^(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
+      String regularExpression = "^(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
 
       RegularExpression regexpEvaluator;
-      bool result = regexpEvaluator.TestExactMatch(regularExpression, sDomainName);
-      return result;
+      return regexpEvaluator.TestExactMatch(regularExpression, sDomainName);
    }
 
    
@@ -592,7 +591,57 @@ namespace HM
       if (!StringParser::IsValidEmailAddress("vaff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("va'ff@test.co.uk")) throw;
       if (!StringParser::IsValidEmailAddress("\"va ff\"@test.co.uk")) throw;
-      
+
+      // Dot validation in unquoted local part
+      if (StringParser::IsValidEmailAddress(".user@example.test")) throw;          // leading dot rejected
+      if (StringParser::IsValidEmailAddress("user.@example.test")) throw;          // trailing dot rejected
+      if (StringParser::IsValidEmailAddress("us..er@example.test")) throw;         // consecutive dots rejected
+      if (StringParser::IsValidEmailAddress("...@example.test")) throw;            // only dots rejected
+      if (!StringParser::IsValidEmailAddress("us.er@example.test")) throw;         // valid single dot
+      if (!StringParser::IsValidEmailAddress("a.b.c.d@example.test")) throw;       // multiple valid dots
+      if (!StringParser::IsValidEmailAddress("\"us..er\"@example.test")) throw;    // consecutive dots in quoted string allowed
+      if (!StringParser::IsValidEmailAddress("\".user\"@example.test")) throw;     // leading dot in quoted string allowed
+      if (!StringParser::IsValidEmailAddress("\"user.\"@example.test")) throw;     // trailing dot in quoted string allowed
+
+      // Local-part length: RFC 5321 limits to 64 chars, but we allow longer for
+      // backwards compatibility with existing accounts.
+      if (!StringParser::IsValidEmailAddress("a@example.test")) throw;             // 1-char local part accepted
+      if (!StringParser::IsValidEmailAddress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.test")) throw;  // 65-char local part allowed
+
+      // Overall email length limit (RFC 5321: max 254 chars)
+      // Build a 255-char email: 64-char local + @ + 190-char domain = 255
+      if (StringParser::IsValidEmailAddress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")) throw;
+
+      // IPv6 address literal support
+      if (!StringParser::IsValidEmailAddress("user@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]")) throw;
+      if (StringParser::IsValidEmailAddress("user@[IPv6:invalid]")) throw;         // invalid IPv6 rejected
+      if (StringParser::IsValidEmailAddress("user@[IPv6:]")) throw;                // empty IPv6 rejected
+      if (StringParser::IsValidEmailAddress("user@[IPv6:2001:0db8:85a3]")) throw;  // too few groups rejected
+      if (StringParser::IsValidEmailAddress("user@[IPv6:ZZZZ:0db8:85a3:0000:0000:8a2e:0370:7334]")) throw; // non-hex rejected
+
+      // IPv4 literal
+      if (!StringParser::IsValidEmailAddress("user@[192.168.1.1]")) throw;
+      if (StringParser::IsValidEmailAddress("user@[1.2.3]")) throw;                // too few octets rejected
+      if (StringParser::IsValidEmailAddress("user@[]")) throw;                     // empty brackets rejected
+
+      // Domain validation edge cases
+      if (StringParser::IsValidEmailAddress("user@-example.test")) throw;          // domain label starting with hyphen
+      if (StringParser::IsValidEmailAddress("user@example-.test")) throw;          // domain label ending with hyphen
+      if (StringParser::IsValidEmailAddress("user@.example.test")) throw;          // domain starting with dot
+      if (!StringParser::IsValidEmailAddress("user@sub.example.test")) throw;      // subdomain valid
+      if (!StringParser::IsValidEmailAddress("user@a.b.c.d.example.test")) throw;  // deep subdomain valid
+
+      // Domain name validation: IPv6 support
+      if (!StringParser::IsValidDomainName("[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]")) throw;
+      if (StringParser::IsValidDomainName("[IPv6:invalid]")) throw;
+      if (StringParser::IsValidDomainName("[IPv6:]")) throw;                       // empty IPv6 rejected
+      if (StringParser::IsValidDomainName("[IPv6:2001:0db8:85a3]")) throw;         // too few groups rejected
+      // IPv4 literal still works
+      if (!StringParser::IsValidDomainName("[192.168.1.1]")) throw;
+      // Domain edge cases
+      if (StringParser::IsValidDomainName("-example.test")) throw;                 // leading hyphen rejected
+      if (StringParser::IsValidDomainName(".example.test")) throw;                 // leading dot rejected
+      if (!StringParser::IsValidDomainName("sub.example.test")) throw;             // subdomain valid
 
       if (StringParser::ExtractAddress("\"va@ff\"@test.co.uk").Compare(_T("\"va@ff\"")) != 0) throw;
       if (StringParser::ExtractAddress("test@test.co.uk").Compare(_T("test")) != 0) throw;
