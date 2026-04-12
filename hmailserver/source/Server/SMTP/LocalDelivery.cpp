@@ -195,6 +195,7 @@ namespace HM
       {
          String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: The message was not delivered to {1} because a forward was set up for the account.",
                                                 original_message_->GetID(), account->GetAddress());
+         LOG_APPLICATION(sMessage);
 
          return false;
       }

@@ -246,6 +246,9 @@ END_COM_MAP()
    STDMETHOD(get_IPv6PreferredEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_IPv6PreferredEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_RewriteEnvelopeFromWhenForwarding)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_RewriteEnvelopeFromWhenForwarding)(/*[in]*/ VARIANT_BOOL newVal);
+
    bool LoadSettings();
 
 private:

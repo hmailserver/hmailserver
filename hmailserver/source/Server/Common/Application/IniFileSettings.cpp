@@ -533,7 +533,14 @@ namespace HM
       WriteIniSetting_("Database", "Internal", is_internal_database_ ? 1 : 0);
    }
 
-   String 
+   void
+   IniFileSettings::SetRewriteEnvelopeFromWhenForwarding(bool value)
+   {
+      rewrite_envelope_from_when_forwarding_ = value;
+      WriteIniSetting_("Settings", "RewriteEnvelopeFromWhenForwarding", value ? 1 : 0);
+   }
+
+   String
    IniFileSettings::GetBinDirectory()
    {
       return FileUtilities::Combine(app_directory_, "Bin");

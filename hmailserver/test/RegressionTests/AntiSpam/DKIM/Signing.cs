@@ -274,5 +274,66 @@ namespace RegressionTests.AntiSpam.DKIM
 
          CustomAsserts.AssertReportedError("Either the selector or private key file was not specified.");
       }
+
+      [Test]
+      [Description("When RewriteEnvelopeFromWhenForwarding is enabled and a message is forwarded " +
+                   "between two different local domains, the forwarded message should carry a DKIM " +
+                   "signature from the original sender's domain before the envelope-From is rewritten " +
+                   "(GitHub #511).")]
+      public void WhenForwardingBetweenLocalDomains_WithRewriteEnabled_ForwardedMessageShouldBeDKIMSigned()
+      {
+         // _domain is "example.test" — configure it with DKIM signing.
+         _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+         _domain.Save();
+
+         // Add a second domain for the forwarding account. No DKIM is configured on this domain.
+         var forwarderDomain = SingletonProvider<TestSetup>.Instance.AddDomain("other.test");
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@example.test", "test");
+
+         var forwarder = SingletonProvider<TestSetup>.Instance.AddAccount(forwarderDomain, "forwarder@other.test", "test");
+
+         var port = TestSetup.GetNextFreePort();
+         using (var smtpServer = new SmtpServerSimulator(1, port))
+         {
+            smtpServer.SecondsToWaitBeforeTerminate = 60;
+            smtpServer.AddRecipientResult(new Dictionary<string, int> { { "external@example.com", 250 } });
+            smtpServer.StartListen();
+
+            AddRoutePointingAtLocalhost(5, port);
+
+            forwarder.ForwardEnabled = true;
+            forwarder.ForwardAddress = "external@example.com";
+            forwarder.ForwardKeepOriginal = false;
+            forwarder.Save();
+
+            // Enable envelope-From rewriting so the forwarded copy's sender becomes forwarder@other.test.
+            // Without the fix this rewrite causes ExternalDelivery to attempt signing with other.test,
+            // which has no DKIM key, so no signature is added. The test will therefore FAIL until
+            // SMTPForwarding.cpp is updated to sign with the original sender's domain key first.
+            _settings.RewriteEnvelopeFromWhenForwarding = true;
+            try
+            {
+               var smtp = new SmtpClientSimulator();
+               smtp.Send("sender@example.test", "forwarder@other.test", "Test subject", "Test body");
+
+               CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+               smtpServer.WaitForCompletion();
+
+               var messageData = smtpServer.MessageData;
+
+               Assert.IsTrue(messageData.ToLower().Contains("dkim-signature"),
+                  "Expected a DKIM-Signature header in the forwarded message but none was found.\r\n" + messageData);
+               Assert.IsTrue(messageData.ToLower().Contains("d=example.test"),
+                  "Expected DKIM-Signature with d=example.test (original sender domain) but it was not found.\r\n" + messageData);
+            }
+            finally
+            {
+               _settings.RewriteEnvelopeFromWhenForwarding = false;
+            }
+         }
+      }
    }
 }

@@ -111,6 +111,7 @@ namespace HM
       bool GetBackupMessagesDBOnly () const { return backup_messages_dbonly_; }
       bool GetAddXAuthUserIP () const { return add_xauth_user_ip_; }
       bool GetRewriteEnvelopeFromWhenForwarding() const { return rewrite_envelope_from_when_forwarding_; }
+      void SetRewriteEnvelopeFromWhenForwarding(bool value);
       bool GetUseDNSCache() const { return use_dns_cache_; }
       String GetDNSServer() const { return dns_server_; }
       std::set<int> GetAuthDisabledOnPorts();

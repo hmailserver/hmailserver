@@ -692,6 +692,9 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsOptionPrioritizeChaChaEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(107), helpstring("Prioritize ChaCha20 ciphers when client prefers them.")] HRESULT TlsOptionPrioritizeChaChaEnabled([in] VARIANT_BOOL newVal);
 
+   [propget, id(108), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(108), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([in] VARIANT_BOOL newVal);
+
 };
 
 

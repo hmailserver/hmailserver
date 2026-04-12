@@ -6,6 +6,11 @@
 #include "SMTPForwarding.h"
 #include "RuleApplier.h"
 
+#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
+#include "../Common/Application/ObjectCache.h"
+#include "../Common/Cache/CacheContainer.h"
+#include "../Common/BO/DomainAliases.h"
+
 #include "../Common/BO/Account.h"
 #include "../Common/BO/MessageData.h"
 #include "../Common/BO/Message.h"
@@ -83,7 +88,35 @@ namespace HM
 
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
-     
+
+      // When envelope-From rewriting is enabled and the original sender's domain differs from
+      // the forwarder's domain, DKIM-sign the forwarded copy now — before the rewrite — so
+      // that the signature is made with the original sender's domain key.  Domain aliases are
+      // resolved on both addresses so that alias domains map to their primary domain correctly.
+      // ExternalDelivery will later attempt to sign with the rewritten (forwarder) domain; if
+      // that domain has no key the attempt is a no-op, leaving only this signature intact.
+      if (!pNewMessage->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      {
+         std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+
+         String resolvedOriginal = pDA->ApplyAliasesOnAddress(pNewMessage->GetFromAddress());
+         String originalDomain = StringParser::ExtractDomain(resolvedOriginal);
+         std::shared_ptr<const Domain> pOriginalDomain = CacheContainer::Instance()->GetDomain(originalDomain);
+
+         if (pOriginalDomain)
+         {
+            String resolvedForwarder = pDA->ApplyAliasesOnAddress(pRecipientAccount->GetAddress());
+            String forwarderDomain = StringParser::ExtractDomain(resolvedForwarder);
+            std::shared_ptr<const Domain> pForwarderDomain = CacheContainer::Instance()->GetDomain(forwarderDomain);
+
+            if (pForwarderDomain && originalDomain.CompareNoCase(forwarderDomain) != 0 && pNewMessage->GetNoOfRetries() == 0)
+            {
+               DKIMSigner signer;
+               signer.Sign(pNewMessage);
+            }
+         }
+      }
+
       String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pNewMessage);
       if (pNewMessage->GetFromAddress().IsEmpty())
          pNewMessage->SetFromAddress(sMailerDaemonAddress);
@@ -91,7 +124,7 @@ namespace HM
          pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
 
       pNewMessage->SetState(Message::Delivering);
-      
+
       // Increase the number of rule-deliveries made.
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       const String newFileName = PersistentMessage::GetFileName(pNewMessage);
