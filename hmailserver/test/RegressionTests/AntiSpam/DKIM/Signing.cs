@@ -340,8 +340,9 @@ namespace RegressionTests.AntiSpam.DKIM
       [Test]
       [Description("In a two-hop forwarding chain where the first and last forwarder share the same " +
                    "DKIM-enabled domain (sender@a → forwarder_b@b → forwarder_a@a → external), " +
-                   "ExternalDelivery must not add a second DKIM-Signature for domain 'a' after " +
-                   "SMTPForwarding already signed with it in the first hop (GitHub #511).")]
+                   "the message must carry exactly one DKIM-Signature for the From: header domain. " +
+                   "The intermediate domain b must not sign because the From: header belongs to domain a, " +
+                   "and domain a must not sign a second time when the message revisits it (GitHub #511).")]
       public void WhenForwardingChainRevisitsDomain_DeliveredMessageShouldNotHaveDuplicateDKIMSignatureForThatDomain()
       {
          // _domain is "example.test" — configure it with DKIM signing.
@@ -395,23 +396,22 @@ namespace RegressionTests.AntiSpam.DKIM
 
                var messageData = smtpServer.MessageData;
 
-               // Hop 1 SMTPForwarding signs with example.test (original sender domain).
-               // Hop 2 SMTPForwarding signs with other.test (intermediate forwarder domain).
-               // ExternalDelivery then tries to sign with example.test again — without the fix
-               // this produces a duplicate DKIM-Signature for example.test.
-               // After the fix there must be exactly 2 DKIM-Signature headers: one per domain.
+               // Signing is driven by the RFC 5322 From: header domain, which is example.test
+               // throughout the entire chain. other.test is only an intermediate relay and does
+               // not own the From: domain, so it must not add a DKIM signature. example.test
+               // signs on the first hop and the duplicate check prevents it from signing again
+               // when the message revisits example.test on the second hop.
                int signatureCount = Regex.Matches(messageData, "DKIM-Signature", RegexOptions.IgnoreCase).Count;
-               Assert.AreEqual(2, signatureCount,
-                  $"Expected exactly 2 DKIM-Signature headers (one per domain) but found {signatureCount}.\r\n" + messageData);
+               Assert.AreEqual(1, signatureCount,
+                  $"Expected exactly 1 DKIM-Signature header (for the From: domain) but found {signatureCount}.\r\n" + messageData);
 
-               // Verify each domain signed exactly once.
                int exampleTestCount = Regex.Matches(messageData, @"d=example\.test", RegexOptions.IgnoreCase).Count;
                Assert.AreEqual(1, exampleTestCount,
                   $"Expected d=example.test to appear exactly once but found {exampleTestCount}.\r\n" + messageData);
 
                int otherTestCount = Regex.Matches(messageData, @"d=other\.test", RegexOptions.IgnoreCase).Count;
-               Assert.AreEqual(1, otherTestCount,
-                  $"Expected d=other.test to appear exactly once but found {otherTestCount}.\r\n" + messageData);
+               Assert.AreEqual(0, otherTestCount,
+                  $"Expected d=other.test to not appear (other.test does not own the From: domain) but found {otherTestCount}.\r\n" + messageData);
             }
             finally
             {
