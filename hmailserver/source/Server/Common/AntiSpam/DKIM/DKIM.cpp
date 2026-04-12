@@ -639,20 +639,6 @@ namespace HM
          }
       }
       
-      AnsiString allowedHashes = dnsKeyParams.GetValue("h");
-      if (allowedHashes.GetLength() > 0)
-      {
-         AnsiString tagA = signatureParams.GetValue("a");
-
-         AnsiString usedHash = tagA == "rsa-sha256" ? "sha256" : "sha1";
-
-         if (allowedHashes.Find(usedHash) < 0)
-         {
-            LOG_DEBUG("DKIM: Error when retrieving public key. Hash not allowed: " + usedHash);
-            return PermFail;
-         }
-      }
-
       return Pass;
    }
 
@@ -713,8 +699,12 @@ namespace HM
       AnsiString tagH = entryParams.GetValue("h");
       if (!tagH.IsEmpty())
       {
-         AnsiString tagA = entryParams.GetValue("a");
-         if (tagH.Find(tagH) < 0)
+         AnsiString tagA = headerParams.GetValue("a");
+         // The "a=" tag has the form "<key-type>-<hash>" (e.g. "rsa-sha256", "ed25519-sha256").
+         // Extract the hash portion after the first '-' to compare against the DNS "h=" list.
+         int dashPos = tagA.Find("-");
+         AnsiString usedHash = dashPos >= 0 ? tagA.Mid(dashPos + 1) : tagA;
+         if (tagH.Find(usedHash) < 0)
             return false;
       }
 
