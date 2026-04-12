@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -328,6 +329,89 @@ namespace RegressionTests.AntiSpam.DKIM
                   "Expected a DKIM-Signature header in the forwarded message but none was found.\r\n" + messageData);
                Assert.IsTrue(messageData.ToLower().Contains("d=example.test"),
                   "Expected DKIM-Signature with d=example.test (original sender domain) but it was not found.\r\n" + messageData);
+            }
+            finally
+            {
+               _settings.RewriteEnvelopeFromWhenForwarding = false;
+            }
+         }
+      }
+
+      [Test]
+      [Description("In a two-hop forwarding chain where the first and last forwarder share the same " +
+                   "DKIM-enabled domain (sender@a → forwarder_b@b → forwarder_a@a → external), " +
+                   "ExternalDelivery must not add a second DKIM-Signature for domain 'a' after " +
+                   "SMTPForwarding already signed with it in the first hop (GitHub #511).")]
+      public void WhenForwardingChainRevisitsDomain_DeliveredMessageShouldNotHaveDuplicateDKIMSignatureForThatDomain()
+      {
+         // _domain is "example.test" — configure it with DKIM signing.
+         _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+         _domain.Save();
+
+         // Intermediate domain that also has DKIM signing enabled.
+         var intermediateDomain = SingletonProvider<TestSetup>.Instance.AddDomain("other.test");
+         intermediateDomain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         intermediateDomain.DKIMSelector = "TestSelector";
+         intermediateDomain.DKIMSignEnabled = true;
+         intermediateDomain.Save();
+
+         // Three accounts: sender and final-forwarder both on example.test;
+         // intermediate forwarder on other.test.
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@example.test", "test");
+         var forwarderA = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "forwarder.a@example.test", "test");
+         var forwarderB = SingletonProvider<TestSetup>.Instance.AddAccount(intermediateDomain, "forwarder.b@other.test", "test");
+
+         var port = TestSetup.GetNextFreePort();
+         using (var smtpServer = new SmtpServerSimulator(1, port))
+         {
+            smtpServer.SecondsToWaitBeforeTerminate = 60;
+            smtpServer.AddRecipientResult(new Dictionary<string, int> { { "external@example.com", 250 } });
+            smtpServer.StartListen();
+
+            AddRoutePointingAtLocalhost(5, port);
+
+            // Chain: forwarder.b@other.test → forwarder.a@example.test → external@example.com
+            forwarderB.ForwardEnabled = true;
+            forwarderB.ForwardAddress = "forwarder.a@example.test";
+            forwarderB.ForwardKeepOriginal = false;
+            forwarderB.Save();
+
+            forwarderA.ForwardEnabled = true;
+            forwarderA.ForwardAddress = "external@example.com";
+            forwarderA.ForwardKeepOriginal = false;
+            forwarderA.Save();
+
+            _settings.RewriteEnvelopeFromWhenForwarding = true;
+            try
+            {
+               // Send: sender@example.test → forwarder.b@other.test → forwarder.a@example.test → external
+               var smtp = new SmtpClientSimulator();
+               smtp.Send("sender@example.test", "forwarder.b@other.test", "Test subject", "Test body");
+
+               CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+               smtpServer.WaitForCompletion();
+
+               var messageData = smtpServer.MessageData;
+
+               // Hop 1 SMTPForwarding signs with example.test (original sender domain).
+               // Hop 2 SMTPForwarding signs with other.test (intermediate forwarder domain).
+               // ExternalDelivery then tries to sign with example.test again — without the fix
+               // this produces a duplicate DKIM-Signature for example.test.
+               // After the fix there must be exactly 2 DKIM-Signature headers: one per domain.
+               int signatureCount = Regex.Matches(messageData, "DKIM-Signature", RegexOptions.IgnoreCase).Count;
+               Assert.AreEqual(2, signatureCount,
+                  $"Expected exactly 2 DKIM-Signature headers (one per domain) but found {signatureCount}.\r\n" + messageData);
+
+               // Verify each domain signed exactly once.
+               int exampleTestCount = Regex.Matches(messageData, @"d=example\.test", RegexOptions.IgnoreCase).Count;
+               Assert.AreEqual(1, exampleTestCount,
+                  $"Expected d=example.test to appear exactly once but found {exampleTestCount}.\r\n" + messageData);
+
+               int otherTestCount = Regex.Matches(messageData, @"d=other\.test", RegexOptions.IgnoreCase).Count;
+               Assert.AreEqual(1, otherTestCount,
+                  $"Expected d=other.test to appear exactly once but found {otherTestCount}.\r\n" + messageData);
             }
             finally
             {

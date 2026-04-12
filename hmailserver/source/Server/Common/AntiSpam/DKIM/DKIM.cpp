@@ -113,6 +113,12 @@ namespace HM
          return true;
       }
 
+      if (HasSignatureForDomain_(fileName, domain))
+      {
+         LOG_DEBUG("Skipping DKIM signing: message already carries a DKIM-Signature for domain " + String(domain));
+         return true;
+      }
+
       String messageBody = bodyCanonicalization->CanonicalizeBody(PersistentMessage::LoadBody(fileName));
 
       HashCreator shaer(algorithm);
@@ -761,7 +767,31 @@ namespace HM
       return headerValue;
    }
 
-   std::vector<std::pair<AnsiString, AnsiString> > 
+   bool
+   DKIM::HasSignatureForDomain_(const String &fileName, const AnsiString &domain)
+   {
+      AnsiString messageHeader = PersistentMessage::LoadHeader(fileName);
+      MimeHeader mimeHeader;
+      mimeHeader.Load(messageHeader.GetBuffer(), messageHeader.GetLength(), false);
+
+      std::vector<std::pair<AnsiString, AnsiString>> signatures = GetSignatureFields(mimeHeader);
+      for (const auto &sig : signatures)
+      {
+         AnsiString headerValue = sig.second;
+         MimeField::UnfoldField(headerValue);
+
+         DKIMParameters params;
+         params.Load(headerValue);
+
+         AnsiString sigDomain = params.GetValue("d");
+         if (sigDomain.CompareNoCase(domain) == 0)
+            return true;
+      }
+
+      return false;
+   }
+
+   std::vector<std::pair<AnsiString, AnsiString> >
    DKIM::GetSignatureFields(MimeHeader &mimeHeader)
    {
       std::vector<std::pair<AnsiString, AnsiString>> result;
