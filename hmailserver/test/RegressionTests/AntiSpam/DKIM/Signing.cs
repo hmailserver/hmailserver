@@ -419,5 +419,79 @@ namespace RegressionTests.AntiSpam.DKIM
             }
          }
       }
+
+      [Test]
+      [Description("When DKIM signing is enabled on the sender's domain, a message delivered to a " +
+                   "local recipient should carry a DKIM-Signature header. " +
+                   "This fails until signing is moved into SMTPDeliverer::PreprocessMessage_.")]
+      public void WhenSigningEnabled_LocalRecipientShouldReceiveDKIMSignedMessage()
+      {
+         _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+         _domain.Save();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@example.test", "test");
+
+         SmtpClientSimulator.StaticSend("sender@example.test", account.Address, "Test subject", "Test body");
+
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var imap = new ImapClientSimulator();
+         imap.ConnectAndLogon(account.Address, "test");
+         imap.SelectFolder("Inbox");
+         var messageData = imap.Fetch("1 RFC822");
+
+         Assert.IsTrue(messageData.ToLower().Contains("dkim-signature"),
+            "Expected a DKIM-Signature header in the locally-delivered message but none was found.\r\n" + messageData);
+         Assert.IsTrue(messageData.ToLower().Contains("d=example.test"),
+            "Expected DKIM-Signature with d=example.test but it was not found.\r\n" + messageData);
+      }
+
+      [Test]
+      [Description("When DKIM signing is enabled and a message is delivered to both a local and an " +
+                   "external recipient, the locally-stored copy should also carry a DKIM-Signature header. " +
+                   "This fails until signing is moved into SMTPDeliverer::PreprocessMessage_.")]
+      public void WhenSendingToBothLocalAndExternalRecipients_LocalCopyShouldBeDKIMSigned()
+      {
+         _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+         _domain.Save();
+
+         var localAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "local@example.test", "test");
+
+         var port = TestSetup.GetNextFreePort();
+         using (var smtpServer = new SmtpServerSimulator(1, port))
+         {
+            smtpServer.SecondsToWaitBeforeTerminate = 60;
+            smtpServer.AddRecipientResult(new Dictionary<string, int> { { "external@example.com", 250 } });
+            smtpServer.StartListen();
+
+            AddRoutePointingAtLocalhost(5, port);
+
+            var smtp = new SmtpClientSimulator();
+            smtp.Send("sender@example.test", new List<string> { localAccount.Address, "external@example.com" },
+               "Test subject", "Test body");
+
+            smtpServer.WaitForCompletion();
+
+            // External copy should be signed (already passes before the refactor).
+            var externalData = smtpServer.MessageData;
+            Assert.IsTrue(externalData.ToLower().Contains("dkim-signature"),
+               "Expected a DKIM-Signature in the externally-delivered message.\r\n" + externalData);
+
+            // Local copy must also be signed — currently fails because LocalDelivery does not sign.
+            ImapClientSimulator.AssertMessageCount(localAccount.Address, "test", "Inbox", 1);
+
+            var imap = new ImapClientSimulator();
+            imap.ConnectAndLogon(localAccount.Address, "test");
+            imap.SelectFolder("Inbox");
+            var localData = imap.Fetch("1 RFC822");
+
+            Assert.IsTrue(localData.ToLower().Contains("dkim-signature"),
+               "Expected a DKIM-Signature header in the locally-delivered message but none was found.\r\n" + localData);
+         }
+      }
    }
 }

@@ -40,6 +40,7 @@
 #include "LocalDelivery.h"
 #include "ExternalDelivery.h"
 #include "SMTPConfiguration.h"
+#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
 #include "SMTPVirusNotifier.h"
 #include "RuleApplier.h"
 #include "RuleResult.h"
@@ -205,6 +206,13 @@ namespace HM
       {
          preprocessingFailureReason = "Message delivery cancelled during OnDeliverMessage-event";
          return false;
+      }
+
+      // DKIM-sign the message before it is split between local and external delivery paths.
+      if (pMessage->GetNoOfRetries() == 0)
+      {
+         DKIMSigner signer;
+         signer.Sign(pMessage);
       }
 
       // Run mirroring

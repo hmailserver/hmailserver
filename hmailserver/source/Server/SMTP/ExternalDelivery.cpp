@@ -7,8 +7,6 @@
 
 #include "RuleResult.h"
 
-#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
-
 #include "../Common/BO/Message.h"
 #include "../common/BO/MessageRecipient.h"
 #include "../common/BO/Routes.h"
@@ -59,13 +57,6 @@ namespace HM
    bool
    ExternalDelivery::Perform(std::vector<String> &saErrorMessages)
    {
-      // DKIM-tag the message.
-      if (original_message_->GetNoOfRetries() == 0)
-      {
-         DKIMSigner signer;
-         signer.Sign(original_message_);
-      }
-
       std::map<String,String> mapFailedDueToNonFatalError;
 
       ServerTargetResolver serverTargetResolver(original_message_, _globalRuleResult);

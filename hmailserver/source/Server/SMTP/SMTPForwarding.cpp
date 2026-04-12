@@ -6,11 +6,6 @@
 #include "SMTPForwarding.h"
 #include "RuleApplier.h"
 
-#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
-#include "../Common/Application/ObjectCache.h"
-#include "../Common/Cache/CacheContainer.h"
-#include "../Common/BO/DomainAliases.h"
-
 #include "../Common/BO/Account.h"
 #include "../Common/BO/MessageData.h"
 #include "../Common/BO/Message.h"
@@ -88,31 +83,6 @@ namespace HM
 
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
-
-      // DKIM-sign email messages forwarded from one domain to another.
-      if (!pNewMessage->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
-      {
-         std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
-
-         String firstFromAddress = pNewMessage->GetFromAddress();
-         String firstAddress = pDA->ApplyAliasesOnAddress(firstFromAddress);
-         String firstDomain = StringParser::ExtractDomain(firstAddress);
-         std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(firstDomain);
-         // the first domain exists locally
-         if (pDomain)
-         {
-            String secondFromAddress = pRecipientAccount->GetAddress();
-            String secondAddress = pDA->ApplyAliasesOnAddress(secondFromAddress);
-            String secondDomain = StringParser::ExtractDomain(secondAddress);
-            pDomain = CacheContainer::Instance()->GetDomain(secondDomain);
-            // the second domain exists locally, but isn't the same as the first domain, DKIM sign it
-            if (pDomain && firstDomain.CompareNoCase(secondDomain) != 0 && pNewMessage->GetNoOfRetries() == 0)
-            {
-               DKIMSigner signer;
-               signer.Sign(pNewMessage);
-            }
-         }
-      }
 
       String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pNewMessage);
       if (pNewMessage->GetFromAddress().IsEmpty())
