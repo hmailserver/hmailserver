@@ -89,27 +89,24 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      // When envelope-From rewriting is enabled and the original sender's domain differs from
-      // the forwarder's domain, DKIM-sign the forwarded copy now — before the rewrite — so
-      // that the signature is made with the original sender's domain key.  Domain aliases are
-      // resolved on both addresses so that alias domains map to their primary domain correctly.
-      // ExternalDelivery will later attempt to sign with the rewritten (forwarder) domain; if
-      // that domain has no key the attempt is a no-op, leaving only this signature intact.
+      // DKIM-sign email messages forwarded from one domain to another.
       if (!pNewMessage->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
       {
          std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
 
-         String resolvedOriginal = pDA->ApplyAliasesOnAddress(pNewMessage->GetFromAddress());
-         String originalDomain = StringParser::ExtractDomain(resolvedOriginal);
-         std::shared_ptr<const Domain> pOriginalDomain = CacheContainer::Instance()->GetDomain(originalDomain);
-
-         if (pOriginalDomain)
+         String firstFromAddress = pNewMessage->GetFromAddress();
+         String firstAddress = pDA->ApplyAliasesOnAddress(firstFromAddress);
+         String firstDomain = StringParser::ExtractDomain(firstAddress);
+         std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(firstDomain);
+         // the first domain exists locally
+         if (pDomain)
          {
-            String resolvedForwarder = pDA->ApplyAliasesOnAddress(pRecipientAccount->GetAddress());
-            String forwarderDomain = StringParser::ExtractDomain(resolvedForwarder);
-            std::shared_ptr<const Domain> pForwarderDomain = CacheContainer::Instance()->GetDomain(forwarderDomain);
-
-            if (pForwarderDomain && originalDomain.CompareNoCase(forwarderDomain) != 0 && pNewMessage->GetNoOfRetries() == 0)
+            String secondFromAddress = pRecipientAccount->GetAddress();
+            String secondAddress = pDA->ApplyAliasesOnAddress(secondFromAddress);
+            String secondDomain = StringParser::ExtractDomain(secondAddress);
+            pDomain = CacheContainer::Instance()->GetDomain(secondDomain);
+            // the second domain exists locally, but isn't the same as the first domain, DKIM sign it
+            if (pDomain && firstDomain.CompareNoCase(secondDomain) != 0 && pNewMessage->GetNoOfRetries() == 0)
             {
                DKIMSigner signer;
                signer.Sign(pNewMessage);
