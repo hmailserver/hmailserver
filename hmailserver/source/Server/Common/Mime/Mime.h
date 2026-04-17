@@ -35,6 +35,8 @@ using namespace std;
 // RFC 822 - Standard For The Format of ARPA Internet Text Message
 namespace HM
 {
+   const char* FindString(const char* pszStr1, const char* pszStr2, const char* pszEnd);
+
    class CMimeConst
    {
    public:

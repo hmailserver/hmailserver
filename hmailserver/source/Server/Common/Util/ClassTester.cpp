@@ -56,6 +56,7 @@ namespace HM
 
       OutputDebugString(_T("hMailServer: Testing mime parser\n"));
 	   MimeTester *pMimeTester = new MimeTester;
+      pMimeTester->Test();
       pMimeTester->TestFolder("C:\\Temp\\Testdata\\martin");
 	   delete pMimeTester;
 

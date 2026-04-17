@@ -58,20 +58,32 @@ namespace HM
    }
 
    // search for string2 in string1 (strstr)
-   static const char* FindString(const char* pszStr1, const char* pszStr2, const char* pszEnd)
+   const char* FindString(const char* haystack,
+      const char* needle,
+      const char* haystackEnd) // one past last valid char
    {
-      pszEnd -= ::strlen(pszStr2);
-      const char *s1, *s2;
-      while (pszStr1 <= pszEnd)
+      if (haystack == NULL || needle == NULL || haystackEnd == NULL)
+         return NULL;
+
+      const size_t needleLength = std::strlen(needle);
+      if (needleLength == 0)
+         return haystack;
+
+      if (haystackEnd <= haystack)
+         return NULL;
+
+      const size_t haystackLength = static_cast<size_t>(haystackEnd - haystack);
+      if (needleLength > haystackLength)
+         return NULL;
+
+      const char* const lastStart = haystack + (haystackLength - needleLength);
+      while (haystack <= lastStart)
       {
-         s1 = pszStr1;
-         s2 = pszStr2;
-         while (*s1 == *s2 && *s2)
-            s1++, s2++;
-         if (!*s2)
-            return pszStr1;
-         pszStr1++;
+         if (std::memcmp(haystack, needle, needleLength) == 0)
+            return haystack;
+         ++haystack;
       }
+
       return NULL;
    }
 
@@ -1137,9 +1149,10 @@ namespace HM
             size_t nLoaded = Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index, part_loaded);
 
             // Record source file and body offset for body preservation during save.
-            // For multipart messages, last_multipart_end_ is the position right after
-            // "--boundary--", excluding any trailing CRLF added by the SMTP transport.
-            // For simple messages, use the full Load() return value.
+            // For multipart messages, last_multipart_end_ mirrors what the parser
+            // actually consumed for the closing boundary, including the trailing
+            // CRLF when present in the source file. For simple messages, use the
+            // full Load() return value.
             source_file_ = pszFilename;
             body_byte_offset_ = last_header_size_;
             body_byte_end_ = (last_multipart_end_ > 0) ? last_multipart_end_ : nLoaded;
@@ -1534,11 +1547,12 @@ namespace HM
       {
          counter--;
 
-         // return if the string after the boundary is either a newline, or a --.
-         // this is to prevent the problem that we return incorrect boundaries
-         // if the boundary string is a part of another boundary string.
-         size_t sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
-         if (sizeRemainingAfterBoundaryString <= 2)
+         // We inspect the 2 bytes immediately following the full boundary text
+         // to verify that this is a real boundary line ("--" or "\r\n"), not
+         // just a boundary prefix found inside other content.
+         size_t bytesRemainingFromCandidate = endSearch - possibleEnding;
+         size_t bytesRequiredForBoundaryAndSuffix = boundary.length() + 2;
+         if (bytesRemainingFromCandidate < bytesRequiredForBoundaryAndSuffix)
          {
             // malformed message. the end of the character string is the boundary line with no trailing crlf or --.
             return 0;
@@ -1634,19 +1648,44 @@ namespace HM
       while (pszBound1 != NULL && pszBound1 < pszEnd && counter > 0)
       {
          counter--;
-         const char* pszStart = FindString(pszBound1+2, "\r\n", pszEnd);
-         if (pszBound1[strBoundary.size()] == '-' && pszBound1[strBoundary.size()+1] == '-')
-         {
-            // Closing boundary: record end right after "--boundary--" (before any trailing CRLF)
-            last_multipart_end_ = (pszBound1 + strBoundary.size() + 2) - pszDataBegin;
-            if (!pszStart)
-               break;
-            pszStart += 2;
-            return (int)(pszStart - pszDataBegin);	// reach the closing boundary
-         }
-         if (!pszStart)
+         // pszBound1 points at the start of "\r\n--boundary". Move past the
+         // boundary text so we can inspect what terminates this boundary line.
+         const char* pszAfterBoundary = pszBound1 + strBoundary.size();
+
+         // Need at least 2 bytes available to distinguish a closing boundary
+         // ("--") from a normal part boundary ("\r\n").
+         if (pszAfterBoundary + 2 > pszEnd)
             break;
-         pszStart += 2;
+
+         if (pszAfterBoundary[0] == '-' && pszAfterBoundary[1] == '-')
+         {
+            const char* pszAfterClosingBoundary = pszAfterBoundary + 2;
+
+            // Preserve the trailing CRLF after the closing boundary when it
+            // exists in the source file. Some malformed messages end directly
+            // at "--boundary--", so accept EOF there as well.
+            if (pszAfterClosingBoundary + 2 <= pszEnd &&
+                pszAfterClosingBoundary[0] == '\r' &&
+                pszAfterClosingBoundary[1] == '\n')
+            {
+               // Include the trailing CRLF after "--boundary--" in the preserved byte range.
+               last_multipart_end_ = (pszAfterClosingBoundary + 2) - pszDataBegin;
+               return (int)(pszAfterClosingBoundary + 2 - pszDataBegin);	// reach the closing boundary
+            }
+
+            // Preserve EOF exactly as it appeared on disk when the closing
+            // boundary is the final bytes in the file.
+            last_multipart_end_ = pszAfterClosingBoundary - pszDataBegin;
+            return (int)(pszAfterClosingBoundary - pszDataBegin);
+         }
+
+         // A non-closing part boundary must be followed by CRLF before the
+         // next part headers begin. If not, stop parsing rather than scanning
+         // past the valid input range looking for a newline.
+         if (pszAfterBoundary[0] != '\r' || pszAfterBoundary[1] != '\n')
+            break;
+
+         const char* pszStart = pszAfterBoundary + 2;
 
          // look for the next boundary
          string strBoundaryLine = strBoundary + "\r\n";

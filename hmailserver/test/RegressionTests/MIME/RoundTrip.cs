@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 namespace RegressionTests.MIME
@@ -66,7 +67,7 @@ namespace RegressionTests.MIME
 
          var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
          var storedContent = File.ReadAllText(storedFilename);
-         var originalContent = TestResources.MessageWithValidDkim;
+         var originalContent = ToSmtpWireMessage(TestResources.MessageWithValidDkim);
 
          StringAssert.Contains("X-Test: test-value", storedContent,
             "The rule should have added the X-Test header");
@@ -197,7 +198,7 @@ namespace RegressionTests.MIME
 
          var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
          var storedContent = File.ReadAllText(storedFilename);
-         var originalContent = TestResources.MessageWithValidDkim;
+         var originalContent = ToSmtpWireMessage(TestResources.MessageWithValidDkim);
 
          var originalContentType = ExtractHeaderValue(originalContent, "Content-Type");
          var storedContentType = ExtractHeaderValue(storedContent, "Content-Type");
@@ -208,6 +209,39 @@ namespace RegressionTests.MIME
          var storedBody = ExtractBody(storedContent);
          Assert.AreEqual(originalBody, storedBody,
             "Multipart body content was modified during re-serialization");
+         StringAssert.EndsWith("\r\n", storedContent,
+            "Multipart message should retain the trailing CRLF after the closing boundary");
+      }
+
+      [Test]
+      [Description("A multipart message fixture with no final CRLF must still be fetchable after round-tripping through rules.")]
+      public void TestMultipartWithoutFinalFixtureCrlfCanBeParsedAfterRoundTrip()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "roundtrip7@example.test", "test");
+         AddSetHeaderRule(account, "X-Test", "test-value");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.EmailWith_TextPlainBody_TextHtmlBody_TextHtmlAttachment);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var storedFilename = account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename;
+         var storedContent = File.ReadAllText(storedFilename);
+         StringAssert.Contains("X-Test: test-value", storedContent,
+            "The rule should have added the X-Test header before the message is parsed again");
+
+         var imapSim = new ImapClientSimulator(account.Address, "test", "INBOX");
+         var result = imapSim.Fetch("1 BODYSTRUCTURE");
+         imapSim.Logout();
+
+         StringAssert.Contains("A17 OK FETCH completed", result,
+            "The round-tripped multipart message should still be parseable over IMAP");
+
+         CustomAsserts.AssertNoReportedError();
+      }
+
+      private static string ToSmtpWireMessage(string message)
+      {
+         return message.EndsWith("\r\n") ? message : message + "\r\n";
       }
    }
 }

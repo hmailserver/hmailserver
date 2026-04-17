@@ -11,6 +11,7 @@ namespace HM
       MimeTester(void);
       ~MimeTester(void);
 
+      bool Test();
       bool TestFolder(const String &sFolderName);
       void TestFile(const String &sFilename);
 	  void TestLoadFile(const String &sFilename);
