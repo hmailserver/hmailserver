@@ -414,8 +414,7 @@ namespace HM
 
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
-      if (!pAccount)
-         pNewMsgData->SetReturnPath("");
+      pNewMsgData->SetReturnPath("");
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetTo(sReplyRecipientAddress);
       pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
@@ -425,11 +424,6 @@ namespace HM
       pNewMsgData->SetAutoReplied();
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newMessageFileName);
-
-      // We need to update the SMTP envelope from address, if this
-      // message is replied to by a user-level account.
-      if (pAccount)
-	      pMsg->SetFromAddress(pAccount->GetAddress());
 
       // Add recipients.
       bool recipientOK = false;
