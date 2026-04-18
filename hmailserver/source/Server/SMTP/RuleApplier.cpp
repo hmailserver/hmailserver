@@ -249,10 +249,7 @@ namespace HM
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
       std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pMsg);
-      if (pMsg->GetFromAddress().IsEmpty())
-         pMsg->SetFromAddress(sMailerDaemonAddress);
-      else if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pMsg->GetFromAddress().IsEmpty())
          pMsg->SetFromAddress(pAccount->GetAddress());
       
       // Add new recipients

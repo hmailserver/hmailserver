@@ -320,7 +320,9 @@ namespace HM
    {
       std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
 
-      fieldsToWrite.push_back(std::make_pair("Return-Path", pMessage->GetFromAddress()));
+      String sFromAddress = pMessage->GetFromAddress();
+      AnsiString sReturnPath = sFromAddress.IsEmpty() ? "<>" : "<" + sFromAddress + ">";
+      fieldsToWrite.push_back(std::make_pair("Return-Path", sReturnPath));
 
       if (Configuration::Instance()->GetSMTPConfiguration()->GetAddDeliveredToHeader())
          fieldsToWrite.push_back(std::make_pair("Delivered-To", sOriginalAddress));

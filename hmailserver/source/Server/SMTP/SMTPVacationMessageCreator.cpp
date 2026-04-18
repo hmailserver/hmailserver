@@ -89,7 +89,7 @@ namespace HM
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
 
       pMsg->SetState(Message::Delivering);
-      pMsg->SetFromAddress(recipientAccount->GetAddress());
+      pMsg->SetFromAddress(_T(""));
 
       const String newFileName = PersistentMessage::GetFileName(pMsg);
 
