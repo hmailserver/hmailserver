@@ -66,11 +66,10 @@ namespace HM
       sErrMsg.Replace(_T("%MACRO_SENT%"), String(header.GetRawFieldValue("Date")));
       sErrMsg.Replace(_T("%MACRO_SUBJECT%"), sOriginalSubject);
 
-      // Send a copy of this email.
+      // Send a notification
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
 
       pMsg->SetState(Message::Delivering);
-      pMsg->SetFromAddress("");
 
       std::shared_ptr<Account> account;
 
@@ -78,7 +77,6 @@ namespace HM
       pNewMsgData->LoadFromMessage(account, pMsg);
 
       // Required headers
-      pNewMsgData->SetReturnPath("");
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
 

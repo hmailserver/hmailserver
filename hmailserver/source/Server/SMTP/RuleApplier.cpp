@@ -403,18 +403,14 @@ namespace HM
 
       std::shared_ptr<Account> emptyAccount;
 
-      // Send a copy of this email.
+      // Reply to the email
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
       pMsg->SetState(Message::Delivering);
 
       String newMessageFileName = PersistentMessage::GetFileName(pMsg);
 
-      // check if this us a user-level account rule or global rule.
-      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
-      pNewMsgData->SetReturnPath("");
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetTo(sReplyRecipientAddress);
       pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
@@ -431,7 +427,6 @@ namespace HM
       recipientParser.CreateMessageRecipientList(sReplyRecipientAddress, pMsg->GetRecipients(), recipientOK);
 
       PersistentMessage::SaveObject(pMsg);
-
    }
 
    bool

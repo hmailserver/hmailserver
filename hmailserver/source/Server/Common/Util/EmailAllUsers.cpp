@@ -103,7 +103,6 @@ namespace HM
       String sFrom;
       sFrom.Format(_T("\"%s\" <%s>"), sFromName.c_str(), sFromAddress.c_str());
 
-      oMessageData.SetReturnPath("");
       oMessageData.SetFrom(sFrom);
       oMessageData.SetSubject(sSubject);
       oMessageData.SetBody(sBody);
