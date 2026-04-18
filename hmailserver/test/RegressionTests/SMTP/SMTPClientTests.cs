@@ -94,7 +94,7 @@ namespace RegressionTests.SMTP
          CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText("test@example.test", "test");
-         Assert.IsTrue(message.Contains("this would mean connecting to myself."));
+         Assert.IsTrue(message.Contains("Could not connect to 127.0.0.1 on port 25 since this would mean"));
       }
 
       [Test]

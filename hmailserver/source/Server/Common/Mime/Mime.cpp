@@ -923,9 +923,10 @@ namespace HM
 
       AnsiString sEncodedValue;
       MimeCodeBase* pCoder = MimeEnvironment::CreateCoder("quoted-printable");
+      static_cast<MimeCodeQP*>(pCoder)->AddLineBreak(true);
       pCoder->SetInput(sMBText, sMBText.GetLength(), true);
       pCoder->GetOutput(sEncodedValue);
-      delete pCoder;   
+      delete pCoder;
 
       SetTransferEncoding("quoted-printable");
 

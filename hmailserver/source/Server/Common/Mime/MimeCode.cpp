@@ -260,8 +260,6 @@ namespace HM
 	   const unsigned char* pbData = input_;
 	   const unsigned char* pbEnd = input_ + input_size_;
 	   int nLineLen = 0;
-   
-      int lastSpacePos = -1;
 
 	   while (pbData < pbEnd)
 	   {
@@ -274,23 +272,19 @@ namespace HM
 		   {
 			   if (pbData == pbEnd-1 || (!quote_line_break_ && *(pbData+1) == '\r'))
 				   bQuote = true;		// quote the SPACE/TAB
+			   else if (add_line_break_ && nLineLen >= MAX_MIME_LINE_LEN - 4)
+				   bQuote = true;		// any following char (max encoded cost=3) cannot push nLineLen to 76 before this space, so quoting here guarantees no literal whitespace precedes a soft break
 			   else
 				   bCopy = true;		// copy the SPACE/TAB
-			   
-            if (nLineLen > 0)
-            {
-               lastSpacePos = (int) output.size();
-            }
 		   }
 		   else if (!quote_line_break_ && (ch == '\r' || ch == '\n'))
 		   {
 			   bCopy = true;			// keep 'hard' line break
 			   nLineLen = -1;
-			   lastSpacePos = -1;
 		   }
 		   else if (!quote_line_break_ && ch == '.')
 		   {
-			   if (pbData-input_ >= 2 &&
+			   if (pbData-input_ >= 2 && pbData+2 < pbEnd &&
 				   *(pbData-2) == '\r' && *(pbData-1) == '\n' &&
 				   *(pbData+1) == '\r' && *(pbData+2) == '\n')
 				   bQuote = true;		// avoid confusing with SMTP's message end flag
@@ -304,30 +298,11 @@ namespace HM
 
          if (add_line_break_)
          {
-            if (nLineLen+(bQuote ? 3 : 1) >= MAX_MIME_LINE_LEN)
-		      {
-			      if (lastSpacePos != -1)
-			      {
-                  // TODO: Implement?!
-                  ASSERT(0);
-                  /*lastSpacePos++;
-				      int nSize = output.size() - lastSpacePos;
-                  
-                  output = output.Mid(0, lastSpacePos+2) + output.Mid(;
-                  
-
-				      ::memmove(pbSpace+3, pbSpace, nSize);
-				      nLineLen = nSize;*/
-			      }
-			      else
-			      {
-                  lastSpacePos = (int) output.size();
-				      //pbSpace = pbOutput;
-				      nLineLen = 0;
-			      }
-
+            if (nLineLen + (bQuote ? 3 : 1) >= MAX_MIME_LINE_LEN)
+            {
                output.append("=\r\n");
-		      }
+               nLineLen = 0;
+            }
          }
 
 		   if (bQuote)

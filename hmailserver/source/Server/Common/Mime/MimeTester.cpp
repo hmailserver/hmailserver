@@ -210,6 +210,162 @@ namespace HM
          return true;
       }
 
+      AnsiString QPEncode(const char* input, bool addLineBreak = false)
+      {
+         MimeCodeQP coder;
+         if (addLineBreak)
+            coder.AddLineBreak(true);
+         coder.SetInput(input, (int)strlen(input), true);
+         AnsiString output;
+         coder.GetOutput(output);
+         return output;
+      }
+
+      bool TestQPEncodeEmpty()
+      {
+         return QPEncode("") == "";
+      }
+
+      bool TestQPEncodeSinglePrintableChar()
+      {
+         return QPEncode("a") == "a";
+      }
+
+      bool TestQPEncodeEqualsSign()
+      {
+         // '=' must always be quoted
+         return QPEncode("=") == "=3D";
+      }
+
+      bool TestQPEncodeNonAscii()
+      {
+         // bytes outside printable ASCII range must be quoted
+         return QPEncode("\x80") == "=80";
+      }
+
+      bool TestQPEncodeCRLF()
+      {
+         // hard line breaks must be preserved as-is
+         return QPEncode("\r\n") == "\r\n";
+      }
+
+      bool TestQPEncodeBareLF()
+      {
+         // bare LF must be preserved (the encoder does not normalise line endings)
+         return QPEncode("\n") == "\n";
+      }
+
+      bool TestQPEncodeTrailingSpace()
+      {
+         // space at end of input must be quoted per RFC 2045 §6.7
+         return QPEncode("hello ") == "hello=20";
+      }
+
+      bool TestQPEncodeTrailingTab()
+      {
+         // tab at end of input must be quoted per RFC 2045 §6.7
+         return QPEncode("hello\t") == "hello=09";
+      }
+
+      bool TestQPEncodeSpaceBeforeHardBreak()
+      {
+         // space immediately before \r\n must be quoted
+         return QPEncode("hello \r\n") == "hello=20\r\n";
+      }
+
+      bool TestQPEncodeTabBeforeHardBreak()
+      {
+         // tab immediately before \r\n must be quoted
+         return QPEncode("hello\t\r\n") == "hello=09\r\n";
+      }
+
+      bool TestQPEncodeSmtpDotQuoted()
+      {
+         // a lone '.' on its own line (\r\n.\r\n) must be quoted to avoid
+         // being interpreted as the SMTP end-of-data marker
+         return QPEncode("\r\n.\r\n") == "\r\n=2E\r\n";
+      }
+
+      bool TestQPEncodeDotNotQuotedMidLine()
+      {
+         // '.' in the middle of a line must not be quoted
+         return QPEncode("a.b") == "a.b";
+      }
+
+      bool TestQPEncodeDotAtEndOfInputNotQuoted()
+      {
+         // '.' at end of input: pbData+2 would be out of bounds; must fall back to bCopy
+         return QPEncode("a\r\n.") == "a\r\n.";
+      }
+
+      bool TestQPEncode75CharsNoSoftBreak()
+      {
+         // 75 regular chars followed by CRLF must not produce a soft line break
+         AnsiString input(75, 'a');
+         input += "\r\n";
+         AnsiString output = QPEncode(input.c_str(), true);
+         return output.find("=\r\n") == AnsiString::npos;
+      }
+
+      bool TestQPEncode76CharsTriggersSoftBreak()
+      {
+         // 76 regular chars: the 76th triggers a soft break (line limit is 75 content chars + '=')
+         AnsiString input(76, 'a');
+         AnsiString output = QPEncode(input.c_str(), true);
+         return output.find("=\r\n") != AnsiString::npos;
+      }
+
+      bool TestQPEncodeNoTrailingWhitespaceBeforeSoftBreakHighCostNextChar()
+      {
+         // 73 'a' chars + two spaces + 'b': the first space is copied at nLineLen=73 (below the
+         // quoting threshold), leaving nLineLen=74. The second space gets quoted (cost=3), firing
+         // a soft break and leaving the first literal space as the last char before =\r\n.
+         AnsiString input(73, 'a');
+         input += "  b\r\n";
+
+         MimeCodeQP coder;
+         coder.AddLineBreak(true);
+         coder.SetInput(input.c_str(), (int)input.size(), true);
+
+         AnsiString output;
+         coder.GetOutput(output);
+
+         size_t softBreakPos = output.find("=\r\n");
+         if (softBreakPos == AnsiString::npos)
+            return false;
+
+         char charBeforeSoftBreak = output[(int)(softBreakPos - 1)];
+         if (charBeforeSoftBreak == ' ' || charBeforeSoftBreak == '\t')
+            return false;
+
+         return true;
+      }
+
+      bool TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak()
+      {
+         // 74 'a' chars + space + 'b': the space lands at line position 75, then 'b' triggers
+         // the soft break. Per RFC 2045 §6.7 rule 3, the space must be quoted (=20), not literal.
+         AnsiString input(74, 'a');
+         input += " b\r\n";
+
+         MimeCodeQP coder;
+         coder.AddLineBreak(true);
+         coder.SetInput(input.c_str(), (int)input.size(), true);
+
+         AnsiString output;
+         coder.GetOutput(output);
+
+         size_t softBreakPos = output.find("=\r\n");
+         if (softBreakPos == AnsiString::npos)
+            return false;
+
+         char charBeforeSoftBreak = output[(int)(softBreakPos - 1)];
+         if (charBeforeSoftBreak == ' ' || charBeforeSoftBreak == '\t')
+            return false;
+
+         return true;
+      }
+
       bool TestMultipartWithPartBoundaryMissingCrlf()
       {
          const char* multipartWithPartBoundaryMissingCrlf =
@@ -267,113 +423,56 @@ namespace HM
 
       if (!TestMultipartWithPartBoundaryMissingCrlf())
          throw;
-   }
 
-
-
-   bool 
-   MimeTester::TestFolder(const String &sFolderName)
-   {
-      return true;
-
-      String sCleanFolder = sFolderName;
-      if (sCleanFolder.Right(1) == _T("\\"))
-         sCleanFolder = sCleanFolder.Left(sCleanFolder.GetLength() - 1);
-
-      if (sCleanFolder.Right(1) != _T("\\"))
-         sCleanFolder += "\\";
-
-      String sWildCard = sCleanFolder + "*.*";
-
-      // Locate first match
-      WIN32_FIND_DATA ffData;
-      HANDLE hFileFound = FindFirstFile(sWildCard, &ffData);
-
-      if (hFileFound == INVALID_HANDLE_VALUE)
-         return FALSE;
-
-      while (hFileFound && FindNextFile(hFileFound, &ffData))
-      {
-         String sFullPath = sCleanFolder + ffData.cFileName;
-
-         if (ffData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) 
-         {
-            if( (_tcscmp(ffData.cFileName, _T(".")) != 0) &&
-               (_tcscmp(ffData.cFileName, _T("..")) != 0) ) 
-            {
-               if( !TestFolder(sFullPath) )
-                  return false;
-            }
-
-         }
-         else
-         { 
-            TestLoadFile(sFullPath);
-         }
-      }
-
-      FindClose(hFileFound);
-
-      return true;
-   
-   }
-
-   void 
-   MimeTester::TestLoadFile(const String &sFilename)
-   {
-	   try
-	   {
-         OutputDebugString("Loading file " + sFilename +"\n");
-
-		   std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message(false));
-
-		   std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
-		   pMsgData->LoadFromMessage(sFilename, pMessage);
-	   }
-	   catch (...)
-	   {
-		   assert(0);
-		   MessageBox(0,_T("ERROR"), _T("ERROR"), 0);
-		   throw;
-	   }
-   }
-
-   void 
-   MimeTester::TestFile(const String &sFilename)
-   {
-      try
-      {
-         std::shared_ptr<Message> pMessage = std::shared_ptr<Message>(new Message(false));
-         
-         std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
-         pMsgData->LoadFromMessage(sFilename, pMessage);
-
-         String sOutput = "hMailServer: [MimeTester] --> "; 
-         sOutput += sFilename + " --> "; 
-         sOutput += pMsgData->GetSubject();
-         sOutput += "\n";
-         OutputDebugString(sOutput);
-
-         // Add a message header
-         pMsgData->SetFieldValue("X-MyHeader", "ValueOfMyHeader");
-
-         // New message
-         std::shared_ptr<Message> pNewMessage = std::shared_ptr<Message>(new Message());
-         std::shared_ptr<Account> account;
-         String newFileName = PersistentMessage::GetFileName(account, pNewMessage);
-
-         pMsgData->Write(newFileName);
-
-         // Delete the new message.
-         FileUtilities::DeleteFile(newFileName);
-
-      }
-      catch (...)
-      {
-         assert(0);
-         MessageBox(0,_T("ERROR"), _T("ERROR"), 0);
+      if (!TestQPEncodeEmpty())
          throw;
-      }
-   }
 
+      if (!TestQPEncodeSinglePrintableChar())
+         throw;
+
+      if (!TestQPEncodeEqualsSign())
+         throw;
+
+      if (!TestQPEncodeNonAscii())
+         throw;
+
+      if (!TestQPEncodeCRLF())
+         throw;
+
+      if (!TestQPEncodeBareLF())
+         throw;
+
+      if (!TestQPEncodeTrailingSpace())
+         throw;
+
+      if (!TestQPEncodeTrailingTab())
+         throw;
+
+      if (!TestQPEncodeSpaceBeforeHardBreak())
+         throw;
+
+      if (!TestQPEncodeTabBeforeHardBreak())
+         throw;
+
+      if (!TestQPEncodeSmtpDotQuoted())
+         throw;
+
+      if (!TestQPEncodeDotNotQuotedMidLine())
+         throw;
+
+      if (!TestQPEncodeDotAtEndOfInputNotQuoted())
+         throw;
+
+      if (!TestQPEncode75CharsNoSoftBreak())
+         throw;
+
+      if (!TestQPEncode76CharsTriggersSoftBreak())
+         throw;
+
+      if (!TestQPEncodeNoTrailingWhitespaceBeforeSoftBreakHighCostNextChar())
+         throw;
+
+      if (!TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak())
+         throw;
+   }
 }

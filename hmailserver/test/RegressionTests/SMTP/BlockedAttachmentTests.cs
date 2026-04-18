@@ -124,7 +124,7 @@ namespace RegressionTests.SMTP
             // Check that the message exists
             var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
             Assert.IsTrue(message.Contains(
-               string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachmentName)));
+               $"The attachment {attachmentName} was blocked for del="));
          }
          finally
          {
@@ -163,10 +163,8 @@ namespace RegressionTests.SMTP
 
             // Check that the message exists
             var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(message.Contains(
-               string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment1Name)));
-            Assert.IsTrue(message.Contains(
-               string.Format("The attachment {0} was blocked for delivery by the e-mail server.", attachment2Name)));
+            Assert.IsTrue(message.Contains($"The attachment {attachment1Name} was blocked for del="));
+            Assert.IsTrue(message.Contains($"The attachment {attachment2Name} was blocked for del="));
          }
          finally
          {

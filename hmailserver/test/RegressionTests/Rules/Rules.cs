@@ -1616,6 +1616,44 @@ namespace RegressionTests.Rules
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
       }
 
+      [Test]
+      [Description("Rule REPLY body must be QP-wrapped to 76 chars per RFC 2045 section 6.7 (issue #171).")]
+      public void WhenRuleReplyBodyExceedsQPLineLimitShouldWrapToRfc2045()
+      {
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "qpwrap-src@example.test", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "qpwrap-dst@example.test", "test");
+
+         var rule = account2.Rules.Add();
+         rule.Name = "QP wrap test";
+         rule.Active = true;
+
+         var ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
+
+         const string longLine = "Please note my normal office hours are Monday and Tuesday only.  I will respond to your email when I return.";
+
+         var ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAReply;
+         ruleAction.FromAddress = account2.Address;
+         ruleAction.Subject = "Autoreply";
+         ruleAction.Body = longLine;
+         ruleAction.Save();
+
+         rule.Save();
+
+         SmtpClientSimulator.StaticSend(account1.Address, account2.Address, "Test", "Trigger.");
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var rawMessage = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+
+         foreach (var line in rawMessage.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+            Assert.LessOrEqual(line.Length, 76, $"QP line exceeds 76 chars: {line}");
+      }
+
       private void AddExactMatchRule(Account account)
       {
          var rule = account.Rules.Add();
