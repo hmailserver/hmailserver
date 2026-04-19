@@ -393,6 +393,157 @@ namespace HM
 
          return true;
       }
+
+      // GetParameter must not split on ';' inside a quoted value.
+      bool TestGetParameterWithQuotedSemicolon()
+      {
+         MimeField field;
+         const char* line = "Content-Disposition: attachment; filename=\"semi;colon.dll\"\r\n";
+         field.Load(line, strlen(line), false);
+
+         AnsiString value;
+         if (!field.GetParameter("filename", value))
+            return false;
+         return value == "semi;colon.dll";
+      }
+
+      // A quoted value containing ';' must not consume the parameter that follows it.
+      bool TestGetParameterNeighboringParamUnaffectedByQuotedSemicolon()
+      {
+         MimeField field;
+         const char* line = "Content-Disposition: attachment; filename=\"semi;colon.dll\"; size=42\r\n";
+         field.Load(line, strlen(line), false);
+
+         AnsiString filename;
+         if (!field.GetParameter("filename", filename))
+            return false;
+         if (filename != "semi;colon.dll")
+            return false;
+
+         AnsiString size;
+         if (!field.GetParameter("size", size))
+            return false;
+         return size == "42";
+      }
+
+      // RemoveParameter must remove the named parameter while leaving others intact.
+      bool TestRemoveParameterRemovesSimpleParam()
+      {
+         MimeField field;
+         const char* line = "Content-Type: text/plain; charset=utf-8; name=\"test.txt\"\r\n";
+         field.Load(line, strlen(line), false);
+
+         field.RemoveParameter("name");
+
+         AnsiString val;
+         if (field.GetParameter("name", val))
+            return false;
+
+         AnsiString charset;
+         if (!field.GetParameter("charset", charset))
+            return false;
+         return charset == "utf-8";
+      }
+
+      // RemoveParameter("filename") must remove RFC 2231 continuation parameters
+      // (filename*0, filename*1) so that a subsequent SetParameter produces a clean
+      // single value that GetParameter returns first.
+      bool TestRemoveParameterRemovesRfc2231Continuations()
+      {
+         MimeField field;
+         const char* line = "Content-Disposition: attachment; filename*0=\"long\"; filename*1=\"name.dll\"\r\n";
+         field.Load(line, strlen(line), false);
+
+         field.RemoveParameter("filename");
+         field.SetParameter("filename", "new.dll");
+
+         AnsiString val;
+         if (!field.GetParameter("filename", val))
+            return false;
+         return val == "new.dll";
+      }
+
+      // SetFileName must remove RFC 2231 continuation filename parameters before installing
+      // the new single filename= value.  With the old code the continuations were left
+      // in place and shadowed the new value returned by GetParameter.
+      bool TestSetFileNameReplacesRfc2231ContinuationFilename()
+      {
+         MimeHeader header;
+         const char* headers =
+            "Content-Type: application/octet-stream\r\n"
+            "Content-Disposition: attachment; filename*0=\"oldpart0\"; filename*1=\"oldpart1\"\r\n"
+            "\r\n";
+         header.Load(headers, strlen(headers));
+
+         header.SetFileName(L"replacement.dll");
+
+         string result = header.GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
+
+         if (result == "oldpart0" || result == "oldpart1")
+            return false;
+
+         return result.find("replacement.dll") != string::npos;
+      }
+
+      // SetFileName must also replace a single RFC 2231 encoded filename*= parameter
+      // rather than appending a new filename= after it.
+      bool TestSetFileNameReplacesEncodedFilenameVariant()
+      {
+         MimeHeader header;
+         const char* headers =
+            "Content-Type: application/octet-stream\r\n"
+            "Content-Disposition: attachment; filename*=UTF-8''old%20name.dll\r\n"
+            "\r\n";
+         header.Load(headers, strlen(headers));
+
+         header.SetFileName(L"replacement.dll");
+
+         string result = header.GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
+
+         if (result.find("old") != string::npos)
+            return false;
+
+         return result.find("replacement.dll") != string::npos;
+      }
+
+      // If there is no filename= on Content-Disposition, SetFileName falls back to
+      // Content-Type name=. That path should also clear old RFC 2231-style name*
+      // values before writing the new filename.
+      bool TestSetFileNameReplacesContentTypeNameVariant()
+      {
+         MimeHeader header;
+         const char* headers =
+            "Content-Type: application/octet-stream; name*=UTF-8''old%20name.dll\r\n"
+            "\r\n";
+         header.Load(headers, strlen(headers));
+
+         header.SetFileName(L"replacement.dll");
+
+         string result = header.GetParameter(CMimeConst::ContentType(), CMimeConst::Name());
+
+         if (result.find("old") != string::npos)
+            return false;
+
+         return result.find("replacement.dll") != string::npos;
+      }
+
+      // An RFC 2231 unquoted value like filename*=UTF-8''hello.dll must not be truncated
+      // at the apostrophes.  The old code used IsToken which stops at non-token characters
+      // such as apostrophe; the fix scans to ';' or end-of-string instead.
+      bool TestRfc2231ApostropheInUnquotedValue()
+      {
+         MimeField field;
+         const char* line = "Content-Disposition: attachment; filename*=UTF-8''hello.dll\r\n";
+         field.Load(line, strlen(line), false);
+
+         AnsiString val;
+         if (!field.GetParameter("filename", val))
+            return false;
+         // GetParameter decodes the RFC 2231 value; the decoded result must contain the
+         // actual filename.  With the old code the scan stopped at the first apostrophe
+         // so only "UTF-8" was captured and "hello.dll" would be absent.
+         return val.Find("hello.dll") >= 0;
+      }
    }
 
    MimeTester::MimeTester(void)
@@ -406,7 +557,7 @@ namespace HM
    void
    MimeTester::Test()
    {
-      if (!TestFindStringEdgeCases())
+     if (!TestFindStringEdgeCases())
          throw;
 
       if (!TestMultipartWithoutFinalCrlf())
@@ -474,5 +625,29 @@ namespace HM
 
       if (!TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak())
          throw;
+      if (!TestGetParameterWithQuotedSemicolon())
+         throw;
+
+      if (!TestGetParameterNeighboringParamUnaffectedByQuotedSemicolon())
+         throw;
+
+      if (!TestRemoveParameterRemovesSimpleParam())
+         throw;
+
+      if (!TestRemoveParameterRemovesRfc2231Continuations())
+         throw;
+
+      if (!TestSetFileNameReplacesRfc2231ContinuationFilename())
+         throw;
+
+      if (!TestSetFileNameReplacesEncodedFilenameVariant())
+         throw;
+
+      if (!TestSetFileNameReplacesContentTypeNameVariant())
+         throw;
+
+      if (!TestRfc2231ApostropheInUnquotedValue())
+         throw;
+
    }
 }

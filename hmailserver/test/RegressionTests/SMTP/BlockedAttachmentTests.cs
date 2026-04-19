@@ -174,6 +174,155 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      public void TestBlockedAttachmentWithLongFilenameRFC2231()
+      {
+         // Regression test for issue #145: long filenames sent with RFC 2231 parameter continuation
+         // (filename*0=...; filename*1=...) caused the blocked attachment to be renamed
+         // e.g. "...zip.txtzip" instead of "...zip.txt" because SetFileName only replaced
+         // the value of filename*0 while leaving filename*1 intact.
+         const string originalName = "12345678901234567890123456789012345678901234567890123456789.dll";
+         const string expectedName = originalName + ".txt";
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"------------050908050500020808050006\"\r\n" +
+                           "\r\n" +
+                           "This is a multi-part message in MIME format.\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\r\n" +
+                           "Content-Transfer-Encoding: 7bit\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: application/octet-stream\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "Content-Disposition: attachment;\r\n" +
+                           " filename*0=\"12345678901234567890123456789012345678901234567890\";\r\n" +
+                           " filename*1=\"123456789.dll\"\r\n" +
+                           "\r\n" +
+                           "AAAA\r\n" +
+                           "--------------050908050500020808050006--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         ImapClientSimulator.AssertMessageCount("test@example.test", "test", "Inbox", 1);
+
+         var message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual(expectedName, message.Attachments[0].Filename);
+
+         var tempFile = Path.GetTempFileName();
+         message.Attachments[0].SaveAs(tempFile);
+         var contents = File.ReadAllText(tempFile);
+         Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
+         File.Delete(tempFile);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentWithRFC2231EncodedFilename()
+      {
+         // Regression test for issue #145: filenames with non-ASCII characters sent using
+         // RFC 2231 encoding (filename*=UTF-8''...) caused SetFileName to add a new
+         // filename= parameter while leaving the original filename*= intact. Mail clients
+         // prefer filename*= per RFC 5987, so the attachment kept its original name and
+         // the content replacement was invisible to the user.
+         const string originalName = "fileö.dll";
+         const string expectedName = originalName + ".txt";
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"------------050908050500020808050006\"\r\n" +
+                           "\r\n" +
+                           "This is a multi-part message in MIME format.\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\r\n" +
+                           "Content-Transfer-Encoding: 7bit\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: application/octet-stream\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "Content-Disposition: attachment;\r\n" +
+                           " filename*=UTF-8''file%C3%B6.dll\r\n" +
+                           "\r\n" +
+                           "AAAA\r\n" +
+                           "--------------050908050500020808050006--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         ImapClientSimulator.AssertMessageCount("test@example.test", "test", "Inbox", 1);
+
+         var message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual(expectedName, message.Attachments[0].Filename);
+
+         var tempFile = Path.GetTempFileName();
+         message.Attachments[0].SaveAs(tempFile);
+         var contents = File.ReadAllText(tempFile);
+         Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
+         File.Delete(tempFile);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentWithSemicolonInQuotedFilename()
+      {
+         // Regression test for quoted parameter values containing semicolons.
+         // MIME parameters may legally contain ';' inside quotes, and blocked
+         // attachment rewriting must preserve the structure of the header while
+         // still replacing the attachment name.
+         const string originalName = "semi;colon.dll";
+         const string expectedName = originalName + ".txt";
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"------------050908050500020808050006\"\r\n" +
+                           "\r\n" +
+                           "This is a multi-part message in MIME format.\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\r\n" +
+                           "Content-Transfer-Encoding: 7bit\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "\r\n" +
+                           "--------------050908050500020808050006\r\n" +
+                           "Content-Type: application/octet-stream\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "Content-Disposition: attachment;\r\n" +
+                           " filename=\"semi;colon.dll\"\r\n" +
+                           "\r\n" +
+                           "AAAA\r\n" +
+                           "--------------050908050500020808050006--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         ImapClientSimulator.AssertMessageCount("test@example.test", "test", "Inbox", 1);
+
+         var message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual(expectedName, message.Attachments[0].Filename);
+
+         var tempFile = Path.GetTempFileName();
+         message.Attachments[0].SaveAs(tempFile);
+         var contents = File.ReadAllText(tempFile);
+         Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
+         File.Delete(tempFile);
+      }
+
+      [Test]
       public void TestBlockedAttachmentWithUnicodeInName()
       {
          var attachmentName = Guid.NewGuid() + "漢語.dll";

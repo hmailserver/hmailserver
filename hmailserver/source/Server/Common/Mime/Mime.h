@@ -90,6 +90,7 @@ namespace HM
 
 	   void SetParameter(const char* pszAttr, const char* pszValue);
 	   bool GetParameter(const char* pszAttr, AnsiString& strValue) const;
+      void RemoveParameter(const char* pszAttr);
       /*
       encodedParameter indicates whether the content is encoding according to 
 

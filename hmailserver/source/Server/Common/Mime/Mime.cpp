@@ -145,7 +145,27 @@ namespace HM
 
       bool encodedParameter = false;
 
-      std::vector<AnsiString> parameters = StringParser::SplitString(AnsiString(value_), ";");
+      // Split on ';' while respecting quoted strings, so that parameter values
+      // which legally contain semicolons (e.g. filename="semi;colon.dll") are
+      // not broken across segments.
+      std::vector<AnsiString> parameters;
+      {
+         AnsiString current;
+         bool inQuote = false;
+         for (size_t i = 0; i < value_.size(); i++)
+         {
+            char c = value_[i];
+            if (c == '"') inQuote = !inQuote;
+            if (!inQuote && c == ';')
+            {
+               parameters.push_back(current);
+               current = "";
+            }
+            else
+               current += c;
+         }
+         parameters.push_back(current);
+      }
 
       for (unsigned int i = 1; i < parameters.size(); i++)
       {
@@ -193,31 +213,39 @@ namespace HM
          valuePos++;
 
          // Locate the start of the actual value. May be enclosed with quotes.
-         // 
-         // For instance, this is perfectly valid 
+         // Track whether it is quoted so we can find the correct closing delimiter.
+         //
+         // For instance, this is perfectly valid
          // Content-Type: text/plain; charset = "iso-8859-1"
          //
+         bool isQuoted = false;
          for (; valuePos < value.GetLength(); valuePos++)
          {
             char c = value[valuePos];
 
-            if (c == ' ' || c == '"')
+            if (c == ' ')
                continue;
-            else
-               break;
+            else if (c == '"') { isQuoted = true; valuePos++; break; }
+            else break;
          }
 
-         // Locate the end of the value. The value may contain
-         // pretty much any character, including space.
+         // Locate the end of the value.
+         // For quoted values scan to the closing '"'; for unquoted values scan
+         // to the next ';' or '"'.  This ensures semicolons inside quoted values
+         // (e.g. filename="semi;colon.dll") are included in the result.
          int valueEndPos = valuePos;
          for (; valueEndPos < value.GetLength(); valueEndPos++)
          {
             char c = value[valueEndPos];
 
-            if (c == ';' || c == '"')
-               break;
+            if (isQuoted)
+            {
+               if (c == '"') break;
+            }
             else
-               continue;
+            {
+               if (c == ';' || c == '"') break;
+            }
          }
 
          int valueLength = valueEndPos - valuePos;
@@ -225,7 +253,7 @@ namespace HM
          value = value.Mid(valuePos, valueLength);
 
          // If the value is
-         //    Content-Type: text/plain; charset = "iso-8859-1"  
+         //    Content-Type: text/plain; charset = "iso-8859-1"
          // it needs to be trimmed.
          value.TrimRight();
 
@@ -260,6 +288,34 @@ namespace HM
       strValue.TrimLeft();
 
       return true;
+   }
+
+   // Remove all parameters whose base name matches pszAttr, including RFC 2231
+   // continuation parameters (filename*0, filename*1, ...) and encoded variants (filename*).
+   void MimeField::RemoveParameter(const char* pszAttr)
+   {
+      bool encodedParameter;
+      int nPos, nSize;
+      bool changed = false;
+
+      while (FindParameter(pszAttr, nPos, nSize, encodedParameter))
+      {
+         // nPos points to the value start (right after '=').
+         // Walk backwards to find the ';' that begins this parameter segment.
+         // rfind is safe here: any ';' inside a preceding quoted value is at a position
+         // less than that value's opening '"', which is itself less than nPos.
+         string::size_type segStart = value_.rfind(';', nPos);
+         if (segStart == string::npos)
+            break;
+
+         size_t segEnd = nPos + nSize;
+
+         value_.erase(segStart, segEnd - segStart);
+         changed = true;
+      }
+
+      if (changed)
+         modified_ = true;
    }
 
    int MimeField::GetLength() const
@@ -425,12 +481,13 @@ namespace HM
          const char* pszParmEnd = NULL;
          if (*pszParms == '"')		// quoted string
             pszParmEnd = ::strchr(pszParms+1, '"');
-         if (!pszParmEnd)			// non quoted string
+         if (!pszParmEnd)			// non quoted string (includes RFC 2231 values like UTF-8''name)
          {
             pszParmEnd = pszParms;
 
-            // Locate end of parameter value.
-            while (CMimeChar::IsToken(*pszParmEnd) || (*pszParmEnd == '.'))
+            // Scan to the next ';' or end. Using IsToken here is insufficient because
+            // RFC 2231 unquoted values contain non-token characters such as apostrophes.
+            while (*pszParmEnd && *pszParmEnd != ';')
                pszParmEnd++;
          }
          else  pszParmEnd++;			// pszParmEnd -> end of parameter value
@@ -519,12 +576,26 @@ namespace HM
    {
       AnsiString encoded_filename = MIMEUnicodeEncoder::EncodeValue("utf-8", file_name);
 
-      AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
-      if (!sRawValue.IsEmpty())
-         SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), encoded_filename);
-      else
-         SetParameter(CMimeConst::ContentType(), CMimeConst::Name(), encoded_filename);
-      
+      MimeField* pfd = GetField(CMimeConst::ContentDisposition());
+      if (pfd != nullptr)
+      {
+         AnsiString existingValue;
+         if (pfd->GetParameter(CMimeConst::Filename(), existingValue))
+         {
+            // Remove all existing filename parameters, including RFC 2231 continuations
+            // (filename*0, filename*1, filename*), before setting the new single value.
+            pfd->RemoveParameter(CMimeConst::Filename());
+            pfd->SetParameter(CMimeConst::Filename(), encoded_filename);
+            return;
+         }
+      }
+
+      pfd = GetField(CMimeConst::ContentType());
+      if (pfd != nullptr)
+      {
+         pfd->RemoveParameter(CMimeConst::Name());
+         pfd->SetParameter(CMimeConst::Name(), encoded_filename);
+      }
    }
 
    String
