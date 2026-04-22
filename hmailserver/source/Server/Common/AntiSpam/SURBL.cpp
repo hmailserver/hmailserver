@@ -27,24 +27,22 @@ namespace HM
    {
    }
 
-   
+   const int maxURLsToProcess = 15;
 
-   bool 
-   SURBL::Run(std::shared_ptr<SURBLServer> pSURBLServer, std::shared_ptr<MessageData> pMessageData)
+   bool
+   SURBL::ExtractUrls(std::shared_ptr<MessageData> pMessageData, std::vector<String> &vecUrls)
    {
       LOG_DEBUG("SURBL: Execute");
 
       // Extract body
-      String sBody = pMessageData->GetBody() + pMessageData->GetHTMLBody(); 
+      String sBody = pMessageData->GetBody() + pMessageData->GetHTMLBody();
 
       // Extract URL's from the mail body:
       // Original: (?:(?>https?)?(?>:\/\/|\%3A\%2F\%2F))(?:www\.)?([a-z0-9\-\.\=\r\n]+)
 
-      String sRegex = "(?:(?>https?)?(?>:\\/\\/|\\%3A\\%2F\\%2F))(?:www\\.)?([a-z0-9\\-\\=\\.\\r\\n]+)";
+      String sRegex = "(?:(?>https?)?(?>:\\/\\/|\\%3A\\%2F\\%2F))(?:www\\.)?([a-z0-9\\-\\.\\=\\r\\n]+)";
 
       std::set<String> addresses;
-
-      const int maxURLsToProcess = 15;
 
       try
       {
@@ -66,6 +64,34 @@ namespace HM
             // Clean the URL from linefeeds
             CleanURL_(sURL);
 
+            // ignore some HTML doctype url's, which are default in for example Outlook composed mails
+            // www.w3.org
+            // www.w3c.org
+            // schemas.microsoft.com
+            // fonts.googleapis.com
+            // fonts.gstatic.com
+            sRegex = "(?=.*)(w3(?:c)?\\.org|(?:schemas\\.microsoft|fonts\\.(?:googleapis|gstatic))\\.com)";
+            boost::wregex expr(sRegex, boost::wregex::icase);
+            if (boost::regex_match(sURL, expr))
+            {
+               sRemainingSearchSpace = matches.suffix();
+               continue;
+            }
+
+            if (addresses.find(sURL) == addresses.end())
+            {
+               String slogMessage;
+               slogMessage.Format(_T("SURBL: Found URL: %s"), sURL.c_str());
+               LOG_DEBUG(slogMessage);
+
+               addresses.insert(sURL);
+
+               if (addresses.size() > maxURLsToProcess)
+               {
+                  break;
+               }
+            }
+
             // Trim away top domain
             if (!CleanHost_(sURL))
             {
@@ -86,7 +112,7 @@ namespace HM
                   break;
                }
             }
-            
+
             sRemainingSearchSpace = matches.suffix();
          }
       }
@@ -98,15 +124,32 @@ namespace HM
 
       if (addresses.size() > 0)
       {
-         String logMessage = Formatter::Format("SURBL: {0} unique addresses found.", addresses.size());
+         String logMessage = Formatter::Format("SURBL: {0} unique domain addresses found.", addresses.size());
          LOG_DEBUG(logMessage);
       }
 
-      
+      for (auto address : addresses)
+      { 
+         // store found domain addresses in std::vector<String>
+         vecUrls.push_back(address);
+      }
+
+      if (vecUrls.empty())
+      {
+         LOG_DEBUG("SURBL: No domain addresses found.");
+         return false;
+      }
+
+      return true;
+   }
+
+   bool 
+   SURBL::Run(std::shared_ptr<SURBLServer> pSURBLServer, std::vector<String> &vecUrls)
+   {
       boost::chrono::system_clock::time_point start_time = boost::chrono::system_clock::now();
 
       int processedAddresses = 0;
-      for (String sURL : addresses)
+      for (auto sURL : vecUrls)
       {
          boost::chrono::duration<double> elapsed_seconds = boost::chrono::system_clock::now() - start_time;
 
@@ -150,9 +193,14 @@ namespace HM
    void
    SURBL::CleanURL_(String &url) const
    {
+      if (url.empty())
+         return;
+
       url.Replace(_T("=\r\n"), _T(""));
       url.Replace(_T("=\r"), _T(""));
       url.Replace(_T("=\n"), _T(""));
+      if (url.EndsWith(_T("=0D=0A")))
+         url = url.substr(0, url.length() - 6);
       url.MakeLower();
 
       int newLinePosition = url.FindOneOf(_T("\r\n"));
@@ -166,6 +214,5 @@ namespace HM
    {
       bool bIsIPAddress = false;
       return TLD::Instance()->GetDomainNameFromHost(sDomain, bIsIPAddress);
-
    }
 }

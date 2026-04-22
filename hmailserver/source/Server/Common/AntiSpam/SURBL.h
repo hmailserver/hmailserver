@@ -14,7 +14,8 @@ namespace HM
       SURBL(void);
       ~SURBL(void);
 
-      bool Run(std::shared_ptr<SURBLServer> pSURBLServer, std::shared_ptr<MessageData> pMessageData);
+      bool ExtractUrls(std::shared_ptr<MessageData> pMessageData, std::vector<String> &vecUrls);
+      bool Run(std::shared_ptr<SURBLServer> pSURBLServer, std::vector<String> &vecUrls);
 
    private:
 

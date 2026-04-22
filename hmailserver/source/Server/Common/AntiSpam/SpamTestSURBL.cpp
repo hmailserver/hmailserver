@@ -57,22 +57,24 @@ namespace HM
 
       SURBL surblTester;
 
-      for(std::shared_ptr<SURBLServer> pSURBLServer : pSURBLServers->GetVector())
+      std::vector<String> results;
+      if (surblTester.ExtractUrls(pMessageData, results))
       {
-         if (pSURBLServer->GetIsActive()) 
+         for (std::shared_ptr<SURBLServer> pSURBLServer : pSURBLServers->GetVector())
          {
-            if (!surblTester.Run(pSURBLServer, pMessageData))
+            if (pSURBLServer->GetIsActive())
             {
-               // Blocked
-               int iSomeScore = pSURBLServer->GetScore();
-               std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iSomeScore, pSURBLServer->GetRejectMessage()));
+               if (!surblTester.Run(pSURBLServer, results))
+               {
+                  // Blocked
+                  int iSomeScore = pSURBLServer->GetScore();
+                  std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iSomeScore, pSURBLServer->GetRejectMessage()));
 
-               setSpamTestResults.insert(pResult);
+                  setSpamTestResults.insert(pResult);
+               }
             }
          }
-
-      }      
-
+      }
 
       return setSpamTestResults;
    }
