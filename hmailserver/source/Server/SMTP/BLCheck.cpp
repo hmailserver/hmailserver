@@ -155,7 +155,8 @@ namespace HM
 
       if (address.GetType() == IPAddress::IPV4)
       {
-         std::vector<String> vecItems = StringParser::SplitString(sIP, ".");
+         String str_ipv4 = address.ToString();
+         std::vector<String> vecItems = StringParser::SplitString(str_ipv4, ".");
          if (vecItems.size() != 4)
             return result;
 
