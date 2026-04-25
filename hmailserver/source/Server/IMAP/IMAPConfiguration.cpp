@@ -134,13 +134,6 @@ namespace HM
       return GetSettings_()->GetString(PROPERTY_IMAPPUBLICFOLDERNAME);
    }
 
-
-   void
-      IMAPConfiguration::SetIMAPAuthAllowPlainText(bool newVal)
-   {
-      GetSettings_()->SetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT, newVal);
-   }
-
    String
    IMAPConfiguration::GetIMAPMasterUser() const
    {
@@ -151,12 +144,6 @@ namespace HM
    IMAPConfiguration::SetIMAPMasterUser(const String &newVal)
    {
       GetSettings_()->SetString(PROPERTY_IMAPMASTERUSER, newVal);
-   }
-
-   bool
-   IMAPConfiguration::GetIMAPAuthAllowPlainText() const
-   {
-      return GetSettings_()->GetBool(PROPERTY_IMAPAUTHALLOWPLAINTEXT);
    }
 
    void
