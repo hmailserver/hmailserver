@@ -141,6 +141,8 @@ END_COM_MAP()
    // dkim begin
    STDMETHOD(get_DKIMSignEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_DKIMSignEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_DKIMSignAliasesEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_DKIMSignAliasesEnabled)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_DKIMSelector)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(put_DKIMSelector)(/*[in]*/ BSTR newVal);
    STDMETHOD(get_DKIMPrivateKeyFile)(/*[out, retval]*/ BSTR *pVal);

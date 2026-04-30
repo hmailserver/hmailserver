@@ -41,6 +41,7 @@ $MaxNumberOfAliasesEnabled  = 0;
 $MaxNumberOfDistributionListsEnabled = 0;
 
 $DKIMSignEnabled = 0;
+$DKIMSignAliasesEnabled = 0;
 $DKIMPrivateKeyFile = "";
 $DKIMSelector = "";
 
@@ -83,6 +84,7 @@ if ($action == "edit")
    $MaxNumberOfDistributionListsEnabled = $obDomain->MaxNumberOfDistributionListsEnabled;
    
    $DKIMSignEnabled = $obDomain->DKIMSignEnabled;
+   $DKIMSignAliasesEnabled = $obDomain->DomainAliases->Count > 0 ? $obDomain->DKIMSignAliasesEnabled : 0;
    $DKIMPrivateKeyFile = $obDomain->DKIMPrivateKeyFile;
    $DKIMSelector = $obDomain->DKIMSelector;
 
@@ -390,6 +392,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
          <table border="0" width="100%" cellpadding="5">
       		<?php
                PrintCheckboxRow("DKIMSignEnabled", $obLanguage->String("Enabled"), $DKIMSignEnabled);
+               PrintCheckboxRow("DKIMSignAliasesEnabled", $obLanguage->String("Sign aliases"), $DKIMSignAliasesEnabled, $obDomain->DomainAliases->Count == 0);
                PrintPropertyEditRow("DKIMPrivateKeyFile", $obLanguage->String("Private key file"), $DKIMPrivateKeyFile, 50);
                PrintPropertyEditRow("DKIMSelector", $obLanguage->String("Selector"), $DKIMSelector, 20);
             ?>

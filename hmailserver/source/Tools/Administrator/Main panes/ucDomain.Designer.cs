@@ -87,6 +87,7 @@ namespace hMailServer.Administrator
            this.labelDKIMPrivateKeyFile = new System.Windows.Forms.Label();
            this.textDKIMPrivateKeyFile = new hMailServer.Shared.ucText();
            this.checkDKIMSignEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkDKIMSignAliasesEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabPageAdvanced = new System.Windows.Forms.TabPage();
            this.textCatchAllAddress = new hMailServer.Administrator.Controls.ucEmailEdit();
            this.labelCatchAll = new System.Windows.Forms.Label();
@@ -557,6 +558,7 @@ namespace hMailServer.Administrator
            this.tabPageDKIM.Controls.Add(this.labelDKIMPrivateKeyFile);
            this.tabPageDKIM.Controls.Add(this.textDKIMPrivateKeyFile);
            this.tabPageDKIM.Controls.Add(this.checkDKIMSignEnabled);
+           this.tabPageDKIM.Controls.Add(this.checkDKIMSignAliasesEnabled);
            this.tabPageDKIM.Location = new System.Drawing.Point(4, 22);
            this.tabPageDKIM.Name = "tabPageDKIM";
            this.tabPageDKIM.Size = new System.Drawing.Size(554, 354);
@@ -740,6 +742,16 @@ namespace hMailServer.Administrator
            this.checkDKIMSignEnabled.TabIndex = 15;
            this.checkDKIMSignEnabled.Text = "Enabled";
            this.checkDKIMSignEnabled.UseVisualStyleBackColor = true;
+           // 
+           // checkDKIMSignAliasesEnabled
+           // 
+           this.checkDKIMSignAliasesEnabled.AutoSize = true;
+           this.checkDKIMSignAliasesEnabled.Location = new System.Drawing.Point(90, 14);
+           this.checkDKIMSignAliasesEnabled.Name = "checkDKIMSignAliasesEnabled";
+           this.checkDKIMSignAliasesEnabled.Size = new System.Drawing.Size(83, 17);
+           this.checkDKIMSignAliasesEnabled.TabIndex = 16;
+           this.checkDKIMSignAliasesEnabled.Text = "Sign Aliases";
+           this.checkDKIMSignAliasesEnabled.UseVisualStyleBackColor = true;
            // 
            // tabPageAdvanced
            // 
@@ -926,6 +938,7 @@ namespace hMailServer.Administrator
         private System.Windows.Forms.Label labelDKIMPrivateKeyFile;
         private hMailServer.Shared.ucText textDKIMPrivateKeyFile;
         private hMailServer.Administrator.Controls.ucCheckbox checkDKIMSignEnabled;
+        private hMailServer.Administrator.Controls.ucCheckbox checkDKIMSignAliasesEnabled;
         private System.Windows.Forms.Label labelDKIMSigningAlgorithm;
         private System.Windows.Forms.Label labelDKIMBodyCanonicalizationMethod;
         private System.Windows.Forms.Label labelDKIMHeaderCanonicalizationMethod;
