@@ -138,7 +138,7 @@ namespace hMailServer.Administrator
             this.labelOptions.Name = "labelOptions";
             this.labelOptions.Size = new System.Drawing.Size(43, 13);
             this.labelOptions.TabIndex = 25;
-            this.labelOptions.Text = "Options\r\n";
+            this.labelOptions.Text = "Options";
             //
             // checkTlsOptionPreferServerCiphersEnabled
             //
@@ -157,7 +157,7 @@ namespace hMailServer.Administrator
             this.checkTlsOptionPrioritizeChaChaEnabled.Name = "checkTlsOptionPrioritizeChaChaEnabled";
             this.checkTlsOptionPrioritizeChaChaEnabled.Size = new System.Drawing.Size(198, 17);
             this.checkTlsOptionPrioritizeChaChaEnabled.TabIndex = 27;
-            this.checkTlsOptionPrioritizeChaChaEnabled.Text = "Prioritize ChaCha20 for mobile clients";
+            this.checkTlsOptionPrioritizeChaChaEnabled.Text = "Prioritize ChaCha20-Poly1305 when client prefers it (requires TLS v1.2 or TLS v1.3)";
             this.checkTlsOptionPrioritizeChaChaEnabled.UseVisualStyleBackColor = true;
             //
             // ucSSLTLS
