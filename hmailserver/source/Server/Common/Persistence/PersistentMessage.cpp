@@ -966,7 +966,7 @@ namespace HM
       {
          if (reportError)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "Message::GetHeader", "Could not read the message header, since the file was not available. File: " + fileName);
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadHeader", "Could not read the message header, since the file was not available. File: " + fileName);
          }
 
          return sHeaderData;
@@ -1036,7 +1036,7 @@ namespace HM
 
       if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0) 
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "Message::GetHeader", "Could not read the message header, since the file was not available. File: " + fileName);
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadBody", "Could not read the message body, since the file was not available. File: " + fileName);
          return "";
       }
 
