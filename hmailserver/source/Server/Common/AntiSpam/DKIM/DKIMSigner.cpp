@@ -51,13 +51,15 @@ namespace HM
       {
          AddresslistParser parser;
          auto addresses = parser.ParseList(String(fromField->GetValue()));
-         if (!addresses.empty()) {
+         if (!addresses.empty())
+         {
             senderAddress = addresses[0]->sMailboxName + "@" + addresses[0]->sDomainName;
             senderDomain = addresses[0]->sDomainName;
          }
       }
 
-      if (senderDomain.IsEmpty()) {
+      if (senderDomain.IsEmpty())
+      {
          senderAddress = message->GetFromAddress();
          senderDomain = StringParser::ExtractDomain(senderAddress);
       }
@@ -68,7 +70,7 @@ namespace HM
       AnsiString mbDomain = StringParser::ExtractDomain(sSender);
 
       // was the sender address from the main domain already?
-      boolean sameDomain = senderDomain.CompareNoCase(mbDomain) == 0;
+      bool sameDomain = senderDomain.CompareNoCase(mbDomain) == 0;
 
       // Check if signing is enabled for this domain.
       std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(mbDomain);
