@@ -184,6 +184,17 @@ namespace HM
       SetFlag_(FlagVirusScan, bNewVal);
    }
 
+   bool 
+   Message::GetFlagSpam() const
+   {
+      return GetFlag_(FlagSpam);
+   }
+
+   void 
+   Message::SetFlagSpam(bool bNewVal)
+   {
+      SetFlag_(FlagSpam, bNewVal);
+   }
 
    bool 
    Message::XMLStore(XNode *pParentNode, int iOptions)

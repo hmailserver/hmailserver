@@ -20,7 +20,6 @@
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/Util/Time.h"
 #include "../Common/Util/RegularExpression.h"
-#include "../common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "../Common/Persistence/PersistentMessage.h"
 
@@ -229,6 +228,17 @@ namespace HM
          return;
       }
 
+      std::shared_ptr<Message> pOriginalMessage = pMsgData->GetMessage();
+
+      if (!pOriginalMessage)
+         return;
+
+      if (pOriginalMessage->GetFlagSpam() && pAction->GetAbortSpamFlagged())
+      {
+         LOG_DEBUG("RuleApplier::ApplyAction_Forward aborted, message marked as spam");
+         return; // skip message flagged as spam
+      }
+
       std::shared_ptr<Message> pMsg = PersistentMessage::CopyToQueue(account, pMsgData->GetMessage());
 
       if (!pMsg)
@@ -401,7 +411,16 @@ namespace HM
 	      return;
       }
 
-      std::shared_ptr<Account> emptyAccount;
+      std::shared_ptr<Message> pOriginalMessage = pMsgData->GetMessage();
+
+      if (!pOriginalMessage)
+         return;
+
+      if (pOriginalMessage->GetFlagSpam() && pAction->GetAbortSpamFlagged())
+      {
+         LOG_DEBUG("RuleApplier::ApplyAction_Reply aborted, message marked as spam");
+         return; // skip message flagged as spam
+      }
 
       // Reply to the email
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());

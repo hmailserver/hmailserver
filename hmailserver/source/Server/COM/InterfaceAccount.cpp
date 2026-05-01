@@ -659,6 +659,38 @@ STDMETHODIMP InterfaceAccount::put_VacationMessageExpiresDate(BSTR newVal)
    }
 }
 
+STDMETHODIMP InterfaceAccount::get_VacationMessageAbortSpamFlagged(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetVacationAbortSpamFlagged() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAccount::put_VacationMessageAbortSpamFlagged(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetVacationAbortSpamFlagged(newVal == VARIANT_TRUE);
+      return S_OK;   
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceAccount::get_FetchAccounts(IInterfaceFetchAccounts **pVal)
 {
    try
@@ -929,6 +961,38 @@ STDMETHODIMP InterfaceAccount::put_ForwardKeepOriginal(VARIANT_BOOL newVal)
 
       object_->SetForwardKeepOriginal(newVal == VARIANT_TRUE);
       return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAccount::get_ForwardAbortSpamFlagged(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetForwardAbortSpamFlagged() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAccount::put_ForwardAbortSpamFlagged(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetForwardAbortSpamFlagged(newVal == VARIANT_TRUE);
+      return S_OK;   
    }
    catch (...)
    {

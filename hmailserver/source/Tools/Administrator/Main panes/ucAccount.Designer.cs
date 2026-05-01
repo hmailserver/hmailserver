@@ -45,6 +45,7 @@ namespace hMailServer.Administrator
            this.labelPassword = new System.Windows.Forms.Label();
            this.labelAddress = new System.Windows.Forms.Label();
            this.tabPageAutoReply = new System.Windows.Forms.TabPage();
+           this.checkVacationMessageAbortSpamFlagged = new hMailServer.Administrator.Controls.ucCheckbox();
            this.dateVacationMessageExpiresDate = new hMailServer.Administrator.Controls.ucDateTimePicker();
            this.checkVacationMessageExpires = new hMailServer.Administrator.Controls.ucCheckbox();
            this.labelAutoReplyText = new System.Windows.Forms.Label();
@@ -53,6 +54,7 @@ namespace hMailServer.Administrator
            this.textVacationMessageSubject = new hMailServer.Shared.ucText();
            this.checkVacationMessageEnable = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabPageForwarding = new System.Windows.Forms.TabPage();
+           this.checkForwardAbortSpamFlagged = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkForwardKeepOriginal = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textForwardAddress = new hMailServer.Administrator.Controls.ucEmailEdit();
            this.labelForwardAddress = new System.Windows.Forms.Label();
@@ -265,6 +267,7 @@ namespace hMailServer.Administrator
            // 
            // tabPageAutoReply
            // 
+           this.tabPageAutoReply.Controls.Add(this.checkVacationMessageAbortSpamFlagged);
            this.tabPageAutoReply.Controls.Add(this.dateVacationMessageExpiresDate);
            this.tabPageAutoReply.Controls.Add(this.checkVacationMessageExpires);
            this.tabPageAutoReply.Controls.Add(this.labelAutoReplyText);
@@ -280,9 +283,19 @@ namespace hMailServer.Administrator
            this.tabPageAutoReply.Text = "Auto-reply";
            this.tabPageAutoReply.UseVisualStyleBackColor = true;
            // 
+           // checkVacationMessageAbortSpamFlagged
+           // 
+           this.checkVacationMessageAbortSpamFlagged.AutoSize = true;
+           this.checkVacationMessageAbortSpamFlagged.Location = new System.Drawing.Point(26, 277);
+           this.checkVacationMessageAbortSpamFlagged.Name = "checkVacationMessageAbortSpamFlagged";
+           this.checkVacationMessageAbortSpamFlagged.Size = new System.Drawing.Size(196, 17);
+           this.checkVacationMessageAbortSpamFlagged.TabIndex = 21;
+           this.checkVacationMessageAbortSpamFlagged.Text = "Abort on messages marked as spam";
+           this.checkVacationMessageAbortSpamFlagged.UseVisualStyleBackColor = true;
+           // 
            // dateVacationMessageExpiresDate
            // 
-           this.dateVacationMessageExpiresDate.Location = new System.Drawing.Point(39, 245);
+           this.dateVacationMessageExpiresDate.Location = new System.Drawing.Point(41, 249);
            this.dateVacationMessageExpiresDate.Name = "dateVacationMessageExpiresDate";
            this.dateVacationMessageExpiresDate.Size = new System.Drawing.Size(200, 20);
            this.dateVacationMessageExpiresDate.TabIndex = 20;
@@ -291,7 +304,7 @@ namespace hMailServer.Administrator
            // checkVacationMessageExpires
            // 
            this.checkVacationMessageExpires.AutoSize = true;
-           this.checkVacationMessageExpires.Location = new System.Drawing.Point(24, 222);
+           this.checkVacationMessageExpires.Location = new System.Drawing.Point(26, 226);
            this.checkVacationMessageExpires.Name = "checkVacationMessageExpires";
            this.checkVacationMessageExpires.Size = new System.Drawing.Size(119, 17);
            this.checkVacationMessageExpires.TabIndex = 19;
@@ -319,7 +332,7 @@ namespace hMailServer.Administrator
            // 
            // textVacationMessageText
            // 
-           this.textVacationMessageText.Location = new System.Drawing.Point(24, 96);
+           this.textVacationMessageText.Location = new System.Drawing.Point(26, 96);
            this.textVacationMessageText.MaxLength = 1000;
            this.textVacationMessageText.Multiline = true;
            this.textVacationMessageText.Name = "textVacationMessageText";
@@ -330,7 +343,7 @@ namespace hMailServer.Administrator
            // 
            // textVacationMessageSubject
            // 
-           this.textVacationMessageSubject.Location = new System.Drawing.Point(24, 48);
+           this.textVacationMessageSubject.Location = new System.Drawing.Point(26, 48);
            this.textVacationMessageSubject.Name = "textVacationMessageSubject";
            this.textVacationMessageSubject.Number = 0;
            this.textVacationMessageSubject.Numeric = false;
@@ -350,6 +363,7 @@ namespace hMailServer.Administrator
            // 
            // tabPageForwarding
            // 
+           this.tabPageForwarding.Controls.Add(this.checkForwardAbortSpamFlagged);
            this.tabPageForwarding.Controls.Add(this.checkForwardKeepOriginal);
            this.tabPageForwarding.Controls.Add(this.textForwardAddress);
            this.tabPageForwarding.Controls.Add(this.labelForwardAddress);
@@ -360,6 +374,16 @@ namespace hMailServer.Administrator
            this.tabPageForwarding.TabIndex = 2;
            this.tabPageForwarding.Text = "Forwarding";
            this.tabPageForwarding.UseVisualStyleBackColor = true;
+           // 
+           // checkForwardAbortSpamFlagged
+           // 
+           this.checkForwardAbortSpamFlagged.AutoSize = true;
+           this.checkForwardAbortSpamFlagged.Location = new System.Drawing.Point(26, 103);
+           this.checkForwardAbortSpamFlagged.Name = "checkForwardAbortSpamFlagged";
+           this.checkForwardAbortSpamFlagged.Size = new System.Drawing.Size(196, 17);
+           this.checkForwardAbortSpamFlagged.TabIndex = 19;
+           this.checkForwardAbortSpamFlagged.Text = "Abort on messages marked as spam";
+           this.checkForwardAbortSpamFlagged.UseVisualStyleBackColor = true;
            // 
            // checkForwardKeepOriginal
            // 
@@ -829,5 +853,7 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucPassword textPassword;
        private System.Windows.Forms.ColumnHeader columnHeader3;
        private System.Windows.Forms.Button buttonEditFolders;
+       private Controls.ucCheckbox checkVacationMessageAbortSpamFlagged;
+       private Controls.ucCheckbox checkForwardAbortSpamFlagged;
     }
 }

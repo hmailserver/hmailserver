@@ -81,6 +81,9 @@ namespace RegressionTests.Shared
             restartRequired = true;
          }
 
+         if (!string.IsNullOrEmpty(_settings.WelcomePOP3))
+            _settings.WelcomePOP3 = string.Empty;
+
          if (_settings.AutoBanOnLogonFailure)
             _settings.AutoBanOnLogonFailure = false;
 
@@ -142,8 +145,6 @@ namespace RegressionTests.Shared
             _settings.IMAPSASLPlainEnabled = false;
          if (_settings.IMAPSASLInitialResponseEnabled)
             _settings.IMAPSASLInitialResponseEnabled = false;
-         if (_settings.IMAPAuthAllowPlainText)
-            _settings.IMAPAuthAllowPlainText = false;
          if (!string.IsNullOrEmpty(_settings.IMAPMasterUser))
             _settings.IMAPMasterUser = string.Empty;
 
@@ -442,6 +443,9 @@ namespace RegressionTests.Shared
 
          if (antiSpam.UseSPF)
             antiSpam.UseSPF = false;
+
+         if (antiSpam.CheckPTR)
+            antiSpam.CheckPTR = false;
 
          if (antiSpam.MaximumMessageSize != 1024)
             antiSpam.MaximumMessageSize = 1024;

@@ -39,6 +39,13 @@ namespace HM
          return true;
       }
 
+      // Don't forward when the message is classified as spam
+      if (pRecipientAccount->GetForwardAbortSpamFlagged() && pOriginalMessage->GetFlagSpam())
+      {
+         LOG_DEBUG("SMTPForwarding::PerformForwarding aborted, message marked as spam");
+         return true;
+      }
+
       if (!pRecipientAccount->GetForwardAddress().CompareNoCase(pRecipientAccount->GetAddress()))
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4334, "SMTPDeliverer::_ApplyForwarding", "Could not forward message since target address as same as account address.");

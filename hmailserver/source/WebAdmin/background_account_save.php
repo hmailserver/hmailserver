@@ -28,10 +28,12 @@
    $vacationmessage   =   hmailGetVar("vacationmessage","");
    $vacationmessageexpires   =   hmailGetVar("vacationmessageexpires","0");
    $vacationmessageexpiresdate   =   hmailGetVar("vacationmessageexpiresdate","2001-01-01");
+   $vacationmessageabortspamflagged = hmailGetVar("vacationmessageabortspamflagged","0");
    
    $forwardenabled  = hmailGetVar("forwardenabled","0");
    $forwardaddress   = hmailGetVar("forwardaddress","");
    $forwardkeeporiginal   =   hmailGetVar("forwardkeeporiginal","0");
+   $forwardabortspamflagged = hmailGetVar("forwardabortspamflagged","0");
    
    $adenabled   = hmailGetVar("adenabled","");
    $addomain    = hmailGetVar("addomain","0");
@@ -72,10 +74,12 @@
    $obAccount->VacationMessage     = $vacationmessage;
    $obAccount->VacationMessageExpires      = $vacationmessageexpires;
    $obAccount->VacationMessageExpiresDate  = $vacationmessageexpiresdate;
+   $obAccount->VacationMessageAbortSpamFlagged = $vacationmessageabortspamflagged == "1";
 
    $obAccount->ForwardEnabled		= $forwardenabled == "1";
    $obAccount->ForwardAddress		= $forwardaddress;
    $obAccount->ForwardKeepOriginal	= $forwardkeeporiginal == "1";
+   $obAccount->ForwardAbortSpamFlagged = $forwardabortspamflagged == "1";
 
    $obAccount->SignatureEnabled		= $SignatureEnabled == "1";
    $obAccount->SignatureHTML		   = $SignatureHTML;

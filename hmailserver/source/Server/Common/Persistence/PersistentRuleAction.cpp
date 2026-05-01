@@ -56,6 +56,7 @@ namespace HM
       pRuleAction->SetHeaderName(pRS->GetStringValue("actionheader"));
       pRuleAction->SetValue(pRS->GetStringValue("actionvalue"));
       pRuleAction->SetRouteID(pRS->GetLongValue("actionrouteid"));
+      pRuleAction->SetAbortSpamFlagged(pRS->GetLongValue("actionabortspamflagged") ? true : false);
 
       return true;
    }
@@ -104,6 +105,7 @@ namespace HM
       oStatement.AddColumn("actionheader", pRuleAction->GetHeaderName());
       oStatement.AddColumn("actionvalue", pRuleAction->GetValue());
       oStatement.AddColumnInt64("actionrouteid", pRuleAction->GetRouteID());
+      oStatement.AddColumn("actionabortspamflagged", pRuleAction->GetAbortSpamFlagged());
 
       // Save and fetch ID
       __int64 iDBID = 0;

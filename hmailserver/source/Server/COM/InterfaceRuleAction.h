@@ -93,6 +93,9 @@ public:
 
    STDMETHOD(get_Value)(BSTR* pVal);
    STDMETHOD(put_Value)(BSTR pVal);
+
+   STDMETHOD(get_AbortSpamFlagged)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_AbortSpamFlagged)(/*[in]*/ VARIANT_BOOL newVal);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RuleAction), InterfaceRuleAction)

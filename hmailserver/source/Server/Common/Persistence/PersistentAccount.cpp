@@ -161,6 +161,7 @@ namespace HM
       pAccount->SetVacationMessage(pRS->GetStringValue("accountvacationmessage"));
       pAccount->SetVacationSubject(pRS->GetStringValue("accountvacationsubject"));
       pAccount->SetVacationExpires(pRS->GetLongValue("accountvacationexpires") ? true : false);
+      pAccount->SetVacationAbortSpamFlagged(pRS->GetLongValue("accountvacationabortspamflagged") ? true : false);
 
       String sVacationExpiresDate = pRS->GetStringValue("accountvacationexpiredate");
       if (sVacationExpiresDate.Left(4) != _T("0000"))
@@ -169,6 +170,7 @@ namespace HM
       pAccount->SetForwardEnabled(pRS->GetLongValue("accountforwardenabled") ? true : false);
       pAccount->SetForwardAddress(pRS->GetStringValue("accountforwardaddress"));
       pAccount->SetForwardKeepOriginal(pRS->GetLongValue("accountforwardkeeporiginal") ? true : false);
+      pAccount->SetForwardAbortSpamFlagged(pRS->GetLongValue("accountforwardabortspamflagged") ? true : false);
 
       pAccount->SetPasswordEncryption(pRS->GetLongValue("accountpwencryption"));
 
@@ -273,6 +275,7 @@ namespace HM
       oStatement.AddColumn("accountvacationsubject", pAccount->GetVacationSubject());
       oStatement.AddColumn("accountvacationexpires", pAccount->GetVacationExpires());
       oStatement.AddColumn("accountvacationexpiredate", pAccount->GetVacationExpiresDate());
+      oStatement.AddColumn("accountvacationabortspamflagged", pAccount->GetVacationAbortSpamFlagged());
 
       oStatement.AddColumn("accountpwencryption", pAccount->GetPasswordEncryption());
       oStatement.AddColumn("accountadminlevel", pAccount->GetAdminLevel());
@@ -280,6 +283,7 @@ namespace HM
       oStatement.AddColumn("accountforwardenabled", pAccount->GetForwardEnabled());
       oStatement.AddColumn("accountforwardaddress", pAccount->GetForwardAddress());
       oStatement.AddColumn("accountforwardkeeporiginal", pAccount->GetForwardKeepOriginal());
+      oStatement.AddColumn("accountforwardabortspamflagged", pAccount->GetForwardAbortSpamFlagged());
 
       oStatement.AddColumn("accountenablesignature", pAccount->GetEnableSignature());
       oStatement.AddColumn("accountsignatureplaintext", pAccount->GetSignaturePlainText());

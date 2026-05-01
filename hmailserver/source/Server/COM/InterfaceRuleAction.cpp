@@ -535,6 +535,38 @@ STDMETHODIMP InterfaceRuleAction::put_Value(BSTR newVal)
    }
 }
 
+STDMETHODIMP InterfaceRuleAction::get_AbortSpamFlagged(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = object_->GetAbortSpamFlagged() ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceRuleAction::put_AbortSpamFlagged(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      object_->SetAbortSpamFlagged(newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceRuleAction::Delete()
 {
    try

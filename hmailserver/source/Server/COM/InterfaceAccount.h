@@ -107,7 +107,8 @@ public:
    STDMETHOD(put_VacationMessageExpires)(/*[in]*/ VARIANT_BOOL newVal);
    STDMETHOD(get_VacationMessageExpiresDate)(/*[out, retval]*/ BSTR *pVal);
    STDMETHOD(put_VacationMessageExpiresDate)(/*[in]*/ BSTR newVal);
-
+   STDMETHOD(get_VacationMessageAbortSpamFlagged)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_VacationMessageAbortSpamFlagged)(/*[in]*/ VARIANT_BOOL newVal);
 
 
    STDMETHOD(get_AdminLevel)(/*[out, retval]*/ eAdminLevel *pVal);
@@ -125,6 +126,8 @@ public:
    STDMETHOD(put_ForwardAddress)(/*[in]*/ BSTR newVal);
    STDMETHOD(get_ForwardKeepOriginal)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_ForwardKeepOriginal)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_ForwardAbortSpamFlagged)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_ForwardAbortSpamFlagged)(/*[in]*/ VARIANT_BOOL newVal);
 
    STDMETHOD(get_SignatureEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_SignatureEnabled)(/*[in]*/ VARIANT_BOOL newVal);

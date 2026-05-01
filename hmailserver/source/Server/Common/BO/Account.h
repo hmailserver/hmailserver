@@ -71,6 +71,9 @@ namespace HM
       String GetVacationExpiresDate() const{return vacation_expires_date_; }
       void SetVacationExpiresDate(const String &sNewVal) {vacation_expires_date_ = sNewVal;}
 
+      bool GetVacationAbortSpamFlagged() const { return vacation_abort_spam_flagged_; }
+      void SetVacationAbortSpamFlagged(bool bNewVal) { vacation_abort_spam_flagged_ = bNewVal; }
+
 
       AdminLevel GetAdminLevel() const{return admin_level_;}
       void SetAdminLevel(AdminLevel iNewVal) {admin_level_ = iNewVal; }
@@ -97,6 +100,9 @@ namespace HM
       
       bool GetForwardKeepOriginal() const;
       void SetForwardKeepOriginal(bool bEnabled);
+
+      bool GetForwardAbortSpamFlagged() const { return forward_abort_spam_flagged_; }
+      void SetForwardAbortSpamFlagged(bool bNewVal) { forward_abort_spam_flagged_ = bNewVal; }
 
       bool GetEnableSignature() const;
       void SetEnableSignature(bool bEnabled);
@@ -138,6 +144,7 @@ namespace HM
       String vacation_subject_;
       bool vacation_expires_;
       String vacation_expires_date_;
+      bool vacation_abort_spam_flagged_;
       
       String signature_plain_text_;
       String signature_html_;
@@ -145,6 +152,7 @@ namespace HM
       AnsiString forward_address_;
       bool forward_enabled_;
       bool forward_keep_original_;
+      bool forward_abort_spam_flagged_;
       bool active_;
       bool is_ad_;
       bool vacation_message_is_on_;

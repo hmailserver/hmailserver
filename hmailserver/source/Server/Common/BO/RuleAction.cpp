@@ -15,7 +15,8 @@ namespace HM
       type_(Unknown),
       rule_id_(0),
       sort_order_(0),
-      route_id_(0)
+      route_id_(0),
+      abort_spam_flagged_(false)
    {
    }
 
@@ -42,6 +43,7 @@ namespace HM
       pNode->AppendAttr(_T("Header"), header_name_);
       pNode->AppendAttr(_T("Value"), value_);
       pNode->AppendAttr(_T("RouteID"), StringParser::IntToString(route_id_));
+      pNode->AppendAttr(_T("AbortSpamFlagged"), abort_spam_flagged_ ? _T("1") : _T("0"));
 
       return true;
    }
@@ -62,6 +64,7 @@ namespace HM
       header_name_ = pNode->GetAttrValue(_T("Header"));
       value_ = pNode->GetAttrValue(_T("Value"));
       route_id_ = _ttoi(pNode->GetAttrValue(_T("RouteID")));
+      abort_spam_flagged_ = (pNode->GetAttrValue(_T("AbortSpamFlagged")) == _T("1"));
 
       return true;
    }

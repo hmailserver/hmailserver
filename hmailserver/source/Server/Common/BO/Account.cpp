@@ -33,7 +33,9 @@ namespace HM
       password_encryption_(0),
       admin_level_(NormalUser),
       enable_signature_(false),
-      vacation_expires_(false)
+      vacation_expires_(false),
+      vacation_abort_spam_flagged_(false),
+      forward_abort_spam_flagged_(false)
    {
       Initialize();
    }
@@ -50,7 +52,9 @@ namespace HM
       password_encryption_(0),
       admin_level_(adminLevel),
       enable_signature_(false),
-      vacation_expires_(false)
+      vacation_expires_(false),
+      vacation_abort_spam_flagged_(false),
+      forward_abort_spam_flagged_(false)
    {
       Initialize();
    }
@@ -84,11 +88,13 @@ namespace HM
       vacation_subject_ = oldAccount.vacation_subject_;
       vacation_expires_ = oldAccount.vacation_expires_;
       vacation_expires_date_ = oldAccount.vacation_expires_date_;
+      vacation_abort_spam_flagged_ = oldAccount.vacation_abort_spam_flagged_;
       signature_plain_text_ = oldAccount.signature_plain_text_;
       signature_html_ = oldAccount.signature_html_;
       forward_address_ = oldAccount.forward_address_;
       forward_enabled_ = oldAccount.forward_enabled_;
       forward_keep_original_ = oldAccount.forward_keep_original_;
+      forward_abort_spam_flagged_ = oldAccount.forward_abort_spam_flagged_;
       active_ = oldAccount.active_;
       is_ad_ = oldAccount.is_ad_;
       vacation_message_is_on_ = oldAccount.vacation_message_is_on_;
@@ -292,11 +298,13 @@ namespace HM
       pNode->AppendAttr(_T("VacationSubject"), vacation_subject_);
       pNode->AppendAttr(_T("VacationExpires"), vacation_expires_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("VacationExpireDate"), vacation_expires_date_);
+      pNode->AppendAttr(_T("VacationAbortSpamFlagged"), vacation_abort_spam_flagged_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("AdminLevel"), StringParser::IntToString(admin_level_));
       
       pNode->AppendAttr(_T("ForwardEnabled"), forward_enabled_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("ForwardAddress"), String(forward_address_));
       pNode->AppendAttr(_T("ForwardKeepOriginal"), forward_keep_original_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("ForwardAbortSpamFlagged"), forward_abort_spam_flagged_ ? _T("1") : _T("0"));
 
       pNode->AppendAttr(_T("EnableSignature"), enable_signature_ ? _T("1") : _T("0"));
       pNode->AppendAttr(_T("SignaturePlainText"), signature_plain_text_);
@@ -344,6 +352,7 @@ namespace HM
       vacation_subject_ = pAccountNode->GetAttrValue(_T("VacationSubject"));
       vacation_expires_ = (pAccountNode->GetAttrValue(_T("VacationExpires")) == _T("1"));
       vacation_expires_date_ = pAccountNode->GetAttrValue(_T("VacationExpireDate"));
+      vacation_abort_spam_flagged_ = (pAccountNode->GetAttrValue(_T("VacationAbortSpamFlagged")) == _T("1"));
 
       admin_level_ = (AdminLevel) _ttoi(pAccountNode->GetAttrValue(_T("AdminLevel")));
      
@@ -352,6 +361,7 @@ namespace HM
       forward_enabled_ = (pAccountNode->GetAttrValue(_T("ForwardEnabled")) == _T("1"));
       forward_address_ = pAccountNode->GetAttrValue(_T("ForwardAddress"));
       forward_keep_original_ = (pAccountNode->GetAttrValue(_T("ForwardKeepOriginal")) == _T("1"));
+      forward_abort_spam_flagged_ = (pAccountNode->GetAttrValue(_T("ForwardAbortSpamFlagged")) == _T("1"));
 
       signature_plain_text_ = pAccountNode->GetAttrValue(_T("SignaturePlainText"));
       signature_html_ = pAccountNode->GetAttrValue(_T("SignatureHTML"));

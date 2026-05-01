@@ -35,6 +35,7 @@ if ($action == "edit")
    $HeaderName = $ruleAction->HeaderName;
    $Value = $ruleAction->Value;
    $Type = $ruleAction->Type;
+   $AbortSpamFlagged = $ruleAction->AbortSpamFlagged;
 }
 else
 {
@@ -48,6 +49,7 @@ else
    $HeaderName = "";
    $Value = "";
    $Type = 0;
+   $AbortSpamFlagged = 0;
 }  
 ?>
 
@@ -154,6 +156,10 @@ function hideAllPanels()
                   <div id="panel-<?php echo eRAForwardEmail?>" style="display: none">
                      <?php EchoTranslation("To")?><br/>
                      <input type="text" name="To" value="<?php echo PreprocessOutput($To)?>">
+                     <p>
+                        <input type="checkbox" name="forwardabortspamflagged" value="1" id="forwardabortspamflagged" <?php if ($AbortSpamFlagged == 1) echo "checked"?>>
+                        <label for="forwardabortspamflagged"><?php EchoTranslation("Abort on messages marked as spam")?></label>
+                     </p>
                   </div>
                   
                   <div id="panel-<?php echo eRAReply?>" style="display: none">
@@ -168,7 +174,10 @@ function hideAllPanels()
                      <br/>
                      <?php EchoTranslation("Body")?><br/>
                      <textarea name="Body" cols="30" rows="5"><?php echo PreprocessOutput($Body)?></textarea>
-                     <br/>
+                     <p>
+                        <input type="checkbox" name="replyabortspamflagged" value="1" id="replyabortspamflagged" <?php if ($AbortSpamFlagged == 1) echo "checked"?>>
+                        <label for="replyabortspamflagged"><?php EchoTranslation("Abort on messages marked as spam")?></label>
+                     </p>
                   </div>   
 
                   <div id="panel-<?php echo eRAMoveToImapFolder?>" style="display: none">

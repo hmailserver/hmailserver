@@ -27,7 +27,8 @@ namespace HM
          FlagAnswered = 8,
          FlagDraft = 16,
          FlagRecent = 32,
-         FlagVirusScan = 64
+         FlagVirusScan = 64,
+         FlagSpam = 128
       };
 
 	   Message(bool generateFileName);
@@ -79,7 +80,8 @@ namespace HM
       void SetFlagRecent(bool bNewVal);
       bool GetFlagVirusScan() const;
       void SetFlagVirusScan(bool bNewVal);
-
+      bool GetFlagSpam() const;
+      void SetFlagSpam(bool bNewVal);
 
       void SetNoOfRetries(unsigned short lNewVal) {no_of_retries_ = lNewVal; }
       unsigned short GetNoOfRetries() const { return no_of_retries_;}

@@ -61,6 +61,8 @@ namespace hMailServer.Administrator.Dialogs
          this.labelIPAddress = new System.Windows.Forms.Label();
          this.comboRouteName = new hMailServer.Administrator.Controls.ucComboBox();
          this.comboAction = new hMailServer.Administrator.Controls.ucComboBox();
+         this.checkForwardAbortSpamFlagged = new hMailServer.Administrator.Controls.ucCheckbox();
+         this.checkReplyAbortSpamFlagged = new hMailServer.Administrator.Controls.ucCheckbox();
          this.panelForward.SuspendLayout();
          this.panelIMAP.SuspendLayout();
          this.panelScriptFunction.SuspendLayout();
@@ -72,6 +74,7 @@ namespace hMailServer.Administrator.Dialogs
          // 
          // panelForward
          // 
+         this.panelForward.Controls.Add(this.checkForwardAbortSpamFlagged);
          this.panelForward.Controls.Add(this.textForwardTo);
          this.panelForward.Controls.Add(this.labelForwardTo);
          this.panelForward.Location = new System.Drawing.Point(7, 34);
@@ -126,6 +129,7 @@ namespace hMailServer.Administrator.Dialogs
          // 
          // panelReply
          // 
+         this.panelReply.Controls.Add(this.checkReplyAbortSpamFlagged);
          this.panelReply.Controls.Add(this.textActionBody);
          this.panelReply.Controls.Add(this.label1);
          this.panelReply.Controls.Add(this.textActionSubject);
@@ -136,13 +140,13 @@ namespace hMailServer.Administrator.Dialogs
          this.panelReply.Controls.Add(this.labelFromName);
          this.panelReply.Location = new System.Drawing.Point(287, 362);
          this.panelReply.Name = "panelReply";
-         this.panelReply.Size = new System.Drawing.Size(274, 258);
+         this.panelReply.Size = new System.Drawing.Size(274, 268);
          this.panelReply.TabIndex = 4;
          // 
          // label1
          // 
          this.label1.AutoSize = true;
-         this.label1.Location = new System.Drawing.Point(13, 138);
+         this.label1.Location = new System.Drawing.Point(10, 138);
          this.label1.Name = "label1";
          this.label1.Size = new System.Drawing.Size(31, 13);
          this.label1.TabIndex = 6;
@@ -203,6 +207,26 @@ namespace hMailServer.Administrator.Dialogs
          this.labelHeaderName.Size = new System.Drawing.Size(71, 13);
          this.labelHeaderName.TabIndex = 0;
          this.labelHeaderName.Text = "Header name";
+         // 
+         // checkForwardAbortSpamFlagged
+         // 
+         this.checkForwardAbortSpamFlagged.AutoSize = true;
+         this.checkForwardAbortSpamFlagged.Location = new System.Drawing.Point(13, 54);
+         this.checkForwardAbortSpamFlagged.Name = "checkForwardAbortSpamFlagged";
+         this.checkForwardAbortSpamFlagged.Size = new System.Drawing.Size(196, 17);
+         this.checkForwardAbortSpamFlagged.TabIndex = 2;
+         this.checkForwardAbortSpamFlagged.Text = "Abort on messages marked as spam";
+         this.checkForwardAbortSpamFlagged.UseVisualStyleBackColor = true;
+         // 
+         // checkReplyAbortSpamFlagged
+         // 
+         this.checkReplyAbortSpamFlagged.AutoSize = true;
+         this.checkReplyAbortSpamFlagged.Location = new System.Drawing.Point(13, 248);
+         this.checkReplyAbortSpamFlagged.Name = "checkReplyAbortSpamFlagged";
+         this.checkReplyAbortSpamFlagged.Size = new System.Drawing.Size(196, 17);
+         this.checkReplyAbortSpamFlagged.TabIndex = 8;
+         this.checkReplyAbortSpamFlagged.Text = "Abort on messages marked as spam";
+         this.checkReplyAbortSpamFlagged.UseVisualStyleBackColor = true;
          // 
          // groupBox1
          // 
@@ -271,7 +295,7 @@ namespace hMailServer.Administrator.Dialogs
          // 
          // textActionBody
          // 
-         this.textActionBody.Location = new System.Drawing.Point(16, 154);
+         this.textActionBody.Location = new System.Drawing.Point(13, 154);
          this.textActionBody.Multiline = true;
          this.textActionBody.Name = "textActionBody";
          this.textActionBody.Number = 0;
@@ -457,5 +481,7 @@ namespace hMailServer.Administrator.Dialogs
       private System.Windows.Forms.Panel panelBindToAddress;
       private hMailServer.Shared.ucText textBindToAddress;
       private System.Windows.Forms.Label labelIPAddress;
+      private hMailServer.Administrator.Controls.ucCheckbox checkForwardAbortSpamFlagged;
+      private hMailServer.Administrator.Controls.ucCheckbox checkReplyAbortSpamFlagged;
    }
 }

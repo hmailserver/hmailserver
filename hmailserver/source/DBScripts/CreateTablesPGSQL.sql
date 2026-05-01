@@ -101,10 +101,12 @@ create table hm_accounts
 	accountsignatureplaintext text not null,
 	accountsignaturehtml text not null,
 	accountlastlogontime timestamp not null,
-	accountvacationexpires smallint  not null,
+	accountvacationexpires smallint not null,
 	accountvacationexpiredate timestamp not null,
 	accountpersonfirstname varchar(60) not null,
-	accountpersonlastname varchar(60) not null	
+	accountpersonlastname varchar(60) not null,	
+	accountvacationabortspamflagged smallint not null,
+	accountforwardabortspamflagged smallint not null
 );
 
 
@@ -383,7 +385,8 @@ create table hm_rule_actions
 	actionscriptfunction varchar(255) not null,
 	actionheader varchar(80) not null,
 	actionvalue varchar(255) not null,
-    actionrouteid int not null
+    actionrouteid int not null,
+	actionabortspamflagged smallint not null
 );
 
 CREATE INDEX idx_rules_actions ON hm_rule_actions (actionruleid);
@@ -799,4 +802,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5705);
+insert into hm_dbversion values (5708);

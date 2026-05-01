@@ -31,13 +31,14 @@ $PersonLastName = "";
 $vacationmessageon = 0;
 $vacationsubject = "";
 $vacationmessage = "";
-
 $vacationmessageexpires = 0;
 $vacationmessageexpiresdate = "";
+$vacationmessageabortspamflagged = 0;
 
 $forwardenabled = 0;
 $forwardaddress = "";
 $forwardkeeporiginal = 0;
+$forwardabortspamflagged = 0;
 
 $adenabled       = 0;
 $addomain        = "";
@@ -66,16 +67,15 @@ if ($action == "edit")
    $vacationmessageon = $obAccount->VacationMessageIsOn;
    $vacationsubject = $obAccount->VacationSubject;
    $vacationmessage = $obAccount->VacationMessage;
-
    $vacationmessageexpires     = $obAccount->VacationMessageExpires;
    $vacationmessageexpiresdate = $obAccount->VacationMessageExpiresDate;
    $vacationmessageexpiresdate = substr($vacationmessageexpiresdate, 0, 10);
-     
-   
+   $vacationmessageabortspamflagged = $obAccount->VacationMessageAbortSpamFlagged;
    
    $forwardenabled = $obAccount->ForwardEnabled;
    $forwardaddress = $obAccount->ForwardAddress;
    $forwardkeeporiginal = $obAccount->ForwardKeepOriginal;
+   $forwardabortspamflagged = $obAccount->ForwardAbortSpamFlagged;
    
    $adenabled       = $obAccount->IsAD;
    $addomain        = $obAccount->ADDomain;
@@ -224,7 +224,10 @@ $str_server = $obLanguage->String("Server");
          		
          			<input type="text" name="vacationmessageexpiresdate" value="<?php echo PreprocessOutput($vacationmessageexpiresdate)?>"> (YYYY-MM-DD)
                </td>		
-      		</tr>		
+      		</tr>
+            <?php     
+               PrintCheckboxRow("vacationmessageabortspamflagged", "Abort on messages marked as spam", $vacationmessageabortspamflagged);
+            ?>
       	</table>
       </div>
        
@@ -240,7 +243,7 @@ $str_server = $obLanguage->String("Server");
                PrintCheckboxRow("forwardenabled", "Enabled", $forwardenabled);
                PrintPropertyEditRow("forwardaddress", "Address", $forwardaddress);
                PrintCheckboxRow("forwardkeeporiginal", "Keep original message", $forwardkeeporiginal);
-               
+               PrintCheckboxRow("forwardabortspamflagged", "Abort on messages marked as spam", $forwardabortspamflagged);
             ?>
          </table>
       </div>       

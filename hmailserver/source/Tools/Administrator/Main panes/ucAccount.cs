@@ -69,9 +69,11 @@ namespace hMailServer.Administrator
             textVacationMessageText.Enabled = checkVacationMessageEnable.Checked;
             checkVacationMessageExpires.Enabled = checkVacationMessageEnable.Checked;
             dateVacationMessageExpiresDate.Enabled = checkVacationMessageEnable.Checked;
+            checkVacationMessageAbortSpamFlagged.Enabled = checkVacationMessageEnable.Checked;
 
             textForwardAddress.Enabled = checkForwardEnabled.Checked;
             checkForwardKeepOriginal.Enabled = checkForwardEnabled.Checked;
+            checkForwardAbortSpamFlagged.Enabled = checkForwardEnabled.Checked;
 
             textSignaturePlainText.Enabled = checkSignatureEnabled.Checked;
             textSignatureHTML.Enabled = checkSignatureEnabled.Checked;
@@ -116,6 +118,7 @@ namespace hMailServer.Administrator
             textVacationMessageText.Text = _representedAccount.VacationMessage;
             checkVacationMessageExpires.Checked = _representedAccount.VacationMessageExpires;
             dateVacationMessageExpiresDate.Value = Convert.ToDateTime(_representedAccount.VacationMessageExpiresDate);
+            checkVacationMessageAbortSpamFlagged.Checked = _representedAccount.VacationMessageAbortSpamFlagged;
 
             // If out-of-office is not currently enabled, change the date to today. This makes it easier
             // for users to configure their out-of-office.
@@ -129,6 +132,7 @@ namespace hMailServer.Administrator
             checkForwardEnabled.Checked = _representedAccount.ForwardEnabled;
             textForwardAddress.Text = _representedAccount.ForwardAddress;
             checkForwardKeepOriginal.Checked = _representedAccount.ForwardKeepOriginal;
+            checkForwardAbortSpamFlagged.Checked = _representedAccount.ForwardAbortSpamFlagged;
 
             checkSignatureEnabled.Checked = _representedAccount.SignatureEnabled;
             textSignaturePlainText.Text = _representedAccount.SignaturePlainText;
@@ -202,10 +206,12 @@ namespace hMailServer.Administrator
             _representedAccount.VacationMessage = textVacationMessageText.Text;
             _representedAccount.VacationMessageExpires = checkVacationMessageExpires.Checked;
             _representedAccount.VacationMessageExpiresDate = dateVacationMessageExpiresDate.FormattedValue;
+            _representedAccount.VacationMessageAbortSpamFlagged = checkVacationMessageAbortSpamFlagged.Checked;
 
             _representedAccount.ForwardEnabled = checkForwardEnabled.Checked;
             _representedAccount.ForwardAddress = textForwardAddress.Text;
             _representedAccount.ForwardKeepOriginal = checkForwardKeepOriginal.Checked;
+            _representedAccount.ForwardAbortSpamFlagged = checkForwardAbortSpamFlagged.Checked;
 
             _representedAccount.SignatureEnabled = checkSignatureEnabled.Checked;
             _representedAccount.SignaturePlainText = textSignaturePlainText.Text;

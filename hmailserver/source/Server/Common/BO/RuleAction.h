@@ -62,6 +62,9 @@ namespace HM
       String GetScriptFunction() const {return script_function_; }
       void SetScriptFunction(const String &sNewVal) {script_function_ = sNewVal; }
 
+      bool GetAbortSpamFlagged() const { return abort_spam_flagged_; }
+      void SetAbortSpamFlagged(bool bNewVal) { abort_spam_flagged_ = bNewVal; }
+
       bool XMLStore(XNode *pRuleNode, int iOptions);
       bool XMLLoad(XNode *pNode, int iOptions);
       bool XMLLoadSubItems(XNode *pNode, int iOptions) {return true;};
@@ -92,5 +95,6 @@ namespace HM
       String filename_;
       String to_;
       String script_function_;
+      bool abort_spam_flagged_;
    };
 }

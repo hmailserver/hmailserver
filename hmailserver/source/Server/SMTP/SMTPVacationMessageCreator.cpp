@@ -96,7 +96,6 @@ namespace HM
       pNewMsgData->LoadFromMessage(newFileName, pMsg);
       
       // Required headers
-      pNewMsgData->SetReturnPath(recipientAccount->GetAddress());
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
       pNewMsgData->SetFieldValue("Content-Type", "text/plain; charset=\"utf-8\"");

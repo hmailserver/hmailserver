@@ -190,7 +190,9 @@ create table hm_accounts (
 	accountvacationexpires tinyint not null,
 	accountvacationexpiredate datetime not null,
 	accountpersonfirstname nvarchar(60) not null,
-	accountpersonlastname nvarchar(60) not null
+	accountpersonlastname nvarchar(60) not null,
+	accountvacationabortspamflagged tinyint not null,
+	accountforwardabortspamflagged tinyint not null
 ) 
 
 ALTER TABLE hm_accounts ADD CONSTRAINT hm_accounts_pk PRIMARY KEY NONCLUSTERED (accountid) 
@@ -512,7 +514,8 @@ create table hm_rule_actions
 	actionscriptfunction nvarchar(255) not null,
 	actionheader nvarchar(80) not null,
 	actionvalue nvarchar(255) not null,
-   actionrouteid int not null
+	actionrouteid int not null,
+	actionabortspamflagged tinyint not null
 ) 
 
 ALTER TABLE hm_rule_actions ADD CONSTRAINT hm_rule_actions_pk PRIMARY KEY NONCLUSTERED (actionid) 
@@ -958,4 +961,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0) 
 
-insert into hm_dbversion values (5705)
+insert into hm_dbversion values (5708)

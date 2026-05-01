@@ -402,6 +402,8 @@ typedef
 	eMFRecent = 32,
 	[helpstring("Virus scan")] 
 	eMFVirusScan = 64,
+    [helpstring("Spam")]
+    eMFSpam = 128,
 } eMessageFlag;
 
 typedef
@@ -875,6 +877,11 @@ interface IInterfaceAccount : IDispatch
 	[propget, id(36), helpstring("Last name of the account holder.")] HRESULT PersonLastName([out, retval] BSTR *pVal);
 	[propput, id(36), helpstring("Last name of the account holder.")] HRESULT PersonLastName([in] BSTR newVal);
    [id(37), helpstring("Deletes the account from the database.")] HRESULT Delete();
+   
+    [propget, id(38), helpstring("Vacation message is set to be aborted on messages marked as spam.")] HRESULT VacationMessageAbortSpamFlagged([out, retval] VARIANT_BOOL *pVal);
+    [propput, id(38), helpstring("Vacation message is set to be aborted on messages marked as spam.")] HRESULT VacationMessageAbortSpamFlagged([in] VARIANT_BOOL newVal);
+    [propget, id(39), helpstring("Forwarding is set to be aborted on messages marked as spam.")] HRESULT ForwardAbortSpamFlagged([out, retval] VARIANT_BOOL *pVal);
+    [propput, id(39), helpstring("Forwarding is set to be aborted on messages marked as spam.")] HRESULT ForwardAbortSpamFlagged([in] VARIANT_BOOL newVal);
 };
 
 
@@ -1868,7 +1875,9 @@ interface IInterfaceRuleAction : IDispatch
    [propput, id(16), helpstring("Value")] HRESULT Value([in] BSTR newVal);   
    [id(17), helpstring("Deletes the object from the database.")] HRESULT Delete();
    [propget, id(18), helpstring("Route ID to deliver via")] HRESULT RouteID([out, retval] LONG* pVal);
-   [propput, id(18), helpstring("Route ID to deliver via")] HRESULT RouteID([in] LONG newVal);   
+   [propput, id(18), helpstring("Route ID to deliver via")] HRESULT RouteID([in] LONG newVal);
+   [propget, id(19), helpstring("Abort on messages marked as spam.")] HRESULT AbortSpamFlagged([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(19), helpstring("Abort on messages marked as spam.")] HRESULT AbortSpamFlagged([in] VARIANT_BOOL newVal);
 };
 
 [

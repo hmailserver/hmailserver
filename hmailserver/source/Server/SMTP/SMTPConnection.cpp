@@ -826,12 +826,12 @@ namespace HM
       }
 
       int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
+      int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
+      int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      int deleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
-      int markThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
-
-      if (deleteThreshold > 0 && iTotalSpamScore >= deleteThreshold)
+      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
       {
+         // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
 
          // Generate a text string to send to the client.
@@ -848,7 +848,7 @@ namespace HM
 
          return false;
       }
-      else if (markThreshold > 0 && iTotalSpamScore >= markThreshold)
+      else if (iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold)
       {
          // This message is spam, but we shouldn't delete it. Instead, we will add spam headers to it.
          return true;
@@ -1193,9 +1193,13 @@ namespace HM
       int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      bool classifiedAsSpam = iTotalSpamScore >= iSpamMarkThreshold;
+      bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
+      
+      if (classifiedAsSpam) 
+      {
+         // Set message SPAM Flag
+         current_message_->SetFlagSpam(classifiedAsSpam);
 
-      if (classifiedAsSpam) {
          pMsgData = SpamProtection::AddSpamScoreHeaders(current_message_, spam_test_results_, classifiedAsSpam);
 
          // Increase the spam-counter
