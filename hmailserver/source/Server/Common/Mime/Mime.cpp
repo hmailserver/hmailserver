@@ -1553,8 +1553,6 @@ namespace HM
    void MimeBody::Store(AnsiString &output, bool bIncludeHeader) const
    {
       // store header fields
-      int nSize = 0;
-
       if (bIncludeHeader)
          MimeHeader::Store(output);
 
@@ -1569,7 +1567,6 @@ namespace HM
       if (strBoundary.empty())
          return;					// boundary not be set
 
-      int nBoundSize = (int)strBoundary.size() + 6;
       for (BodyList::const_iterator it=bodies_.begin(); it!=bodies_.end(); it++)
       {
          // If the initial body ends with \r\n, remove them. We add new ones below.
@@ -1766,8 +1763,6 @@ namespace HM
          const char* pszStart = pszAfterBoundary + 2;
 
          // look for the next boundary
-         string strBoundaryLine = strBoundary + "\r\n";
-
          const char* pszBound2 = GetBoundaryEnd(pszStart, pszEnd, strBoundary.c_str());
 
          if (!pszBound2)				// overflow, boundary may be truncated

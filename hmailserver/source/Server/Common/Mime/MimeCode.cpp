@@ -158,7 +158,7 @@ namespace HM
 	   for (auto it=field_coders_.begin(); it!=field_coders_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
-		   if (::_stricmp(pszFieldName, (*it).first))
+		   if (!::_stricmp(pszFieldName, (*it).first))
 		   {
 			   FIELD_CODER_FACTORY pfnCreateObject = (*it).second;
 			   ASSERT(pfnCreateObject != NULL);
@@ -213,10 +213,9 @@ namespace HM
    //////////////////////////////////////////////////////////////////////
    void MimeCode7bit::Encode(AnsiString &output) const
    {
-	   const unsigned char* pbData = input_;
-	   const unsigned char* pbEnd = input_ + input_size_;
-	   unsigned char* pbSpace = NULL;
-	   int nLineLen = 0;
+      const unsigned char* pbData = input_;
+      const unsigned char* pbEnd = input_ + input_size_;
+      int nLineLen = 0;
       int lastSpacePos = -1;
 	   
       while (pbData < pbEnd)
@@ -778,7 +777,7 @@ namespace HM
 
 			   while (pszData < pszEnd)
 			   {
-				   char ch = *pszData++;
+               char ch = *pszData;
 				   if (ch == '\r' || ch == '\n')
 				   {
 					   nLineLen = -1;
@@ -807,7 +806,8 @@ namespace HM
 				   
                output.append(1, ch);
 
-				   nLineLen++;
+               pszData++;
+               nLineLen++;
 			   }
 		   }
 
