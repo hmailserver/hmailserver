@@ -593,5 +593,43 @@ namespace RegressionTests.IMAP
 
          sim.Disconnect();
       }
+
+      [Test]
+      [Description("Valid partial fetch of a numbered body part (BODY[1]) must return the correct byte slice")]
+      public void PartialFetch_BodyPart_ValidRangeReturnsCorrectBytes()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test subject", "SampleBodyContent");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // Fetch full body part to establish baseline.
+         var fullResult = sim.Fetch("1 BODY.PEEK[1]");
+         var literalStart = fullResult.IndexOf('{');
+         var literalEnd = fullResult.IndexOf('}', literalStart);
+         var fullSize = int.Parse(fullResult.Substring(literalStart + 1, literalEnd - literalStart - 1));
+         Assert.IsTrue(fullSize > 5, $"Body part too short ({fullSize} bytes) for a meaningful partial test");
+         var contentStart = fullResult.IndexOf("\r\n", literalEnd) + 2;
+         var fullContent = fullResult.Substring(contentStart, fullSize);
+
+         // <0.5>: 5 bytes from the start.
+         var result0 = sim.Fetch("1 BODY.PEEK[1]<0.5>");
+         Assert.IsTrue(result0.Contains("BODY[1]<0>"), result0);
+         Assert.IsTrue(result0.Contains("{5}"), result0);
+         var partial0Start = result0.IndexOf("{5}") + 5;
+         Assert.AreEqual(fullContent.Substring(0, 5), result0.Substring(partial0Start, 5));
+
+         // <5.5>: 5 bytes starting at offset 5.
+         var result5 = sim.Fetch("1 BODY.PEEK[1]<5.5>");
+         Assert.IsTrue(result5.Contains("BODY[1]<5>"), result5);
+         Assert.IsTrue(result5.Contains("{5}"), result5);
+         var partial5Start = result5.IndexOf("{5}") + 5;
+         Assert.AreEqual(fullContent.Substring(5, 5), result5.Substring(partial5Start, 5));
+
+         sim.Disconnect();
+      }
    }
 }
