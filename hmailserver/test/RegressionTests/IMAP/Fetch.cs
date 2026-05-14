@@ -595,6 +595,295 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      [Description("Issue 459, IMAP: BODY[X.MIME] for message/rfc822 part must return outer MIME headers, not inner message headers")]
+      public void FetchMimeOfRfc822Part_ReturnsOuterMimeHeaders()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var innerMessage =
+            "From: inner@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Inner Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Inner body\r\n";
+
+         var outerMessage =
+            "From: outer@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Outer Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/mixed; boundary=\"boundary123\"\r\n" +
+            "\r\n" +
+            "--boundary123\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Outer body\r\n" +
+            "\r\n" +
+            "--boundary123\r\n" +
+            "Content-Type: message/rfc822\r\n" +
+            "Content-Transfer-Encoding: 7bit\r\n" +
+            "Content-Disposition: attachment\r\n" +
+            "\r\n" +
+            innerMessage +
+            "--boundary123--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, outerMessage);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // BODY[2.MIME] must return the MIME headers of part 2 (Content-Type: message/rfc822, etc.)
+         // and must NOT return the inner message's RFC 822 headers (From, Subject, etc.)
+         var mimeResult = sim.Fetch("1 BODY[2.MIME]");
+         Assert.IsTrue(mimeResult.Contains("message/rfc822"), "BODY[2.MIME] should contain 'message/rfc822': " + mimeResult);
+         Assert.IsFalse(mimeResult.Contains("Inner Subject"), "BODY[2.MIME] must not contain inner message Subject: " + mimeResult);
+         Assert.IsFalse(mimeResult.Contains("inner@example.test"), "BODY[2.MIME] must not contain inner message From: " + mimeResult);
+
+         // BODY[2.HEADER] must return the inner message's RFC 822 headers (From, Subject, etc.)
+         var headerResult = sim.Fetch("1 BODY[2.HEADER]");
+         Assert.IsTrue(headerResult.Contains("Inner Subject"), "BODY[2.HEADER] should contain inner Subject: " + headerResult);
+         Assert.IsTrue(headerResult.Contains("inner@example.test"), "BODY[2.HEADER] should contain inner From: " + headerResult);
+
+         // BODY[2.TEXT] must return the inner message's body text (without headers)
+         var textResult = sim.Fetch("1 BODY[2.TEXT]");
+         Assert.IsTrue(textResult.Contains("Inner body"), "BODY[2.TEXT] should contain inner body text: " + textResult);
+         Assert.IsFalse(textResult.Contains("Inner Subject"), "BODY[2.TEXT] must not contain inner message headers: " + textResult);
+
+         // BODY[2] must return the inner message including its headers and body
+         var bodyResult = sim.Fetch("1 BODY[2]");
+         Assert.IsTrue(bodyResult.Contains("Inner Subject"), "BODY[2] should contain inner message headers: " + bodyResult);
+         Assert.IsTrue(bodyResult.Contains("Inner body"), "BODY[2] should contain inner message body: " + bodyResult);
+
+         sim.Disconnect();
+      }
+
+      [Test]
+      [Description("Issue 459, IMAP: BODY[X.MIME] and BODY[X.HEADER] must return identical data for non-message/rfc822 parts")]
+      public void FetchMimeAndHeaderOfPlainPart_ReturnSameData()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var message =
+            "From: test@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Test\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/mixed; boundary=\"boundary456\"\r\n" +
+            "\r\n" +
+            "--boundary456\r\n" +
+            "Content-Type: text/plain; charset=US-ASCII\r\n" +
+            "Content-Transfer-Encoding: 7bit\r\n" +
+            "\r\n" +
+            "Hello\r\n" +
+            "--boundary456--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, message);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // For a plain text part, BODY[1.MIME] and BODY[1.HEADER] should return the same MIME headers
+         var mimeResult = sim.Fetch("1 BODY[1.MIME]");
+         var headerResult = sim.Fetch("1 BODY[1.HEADER]");
+         Assert.IsTrue(mimeResult.Contains("text/plain"), "BODY[1.MIME] should contain Content-Type: " + mimeResult);
+         Assert.IsTrue(headerResult.Contains("text/plain"), "BODY[1.HEADER] should contain Content-Type: " + headerResult);
+
+         sim.Disconnect();
+      }
+
+      [Test]
+      [Description("Issue 459, IMAP: BODY[X.HEADER] must return inner RFC2822 headers, not outer MIME headers. " +
+                   "A naive fix that skips LoadEncapsulatedMessage for any single-component path would break this.")]
+      public void FetchHeaderOfRfc822Part_ReturnsInnerHeaders()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var innerMessage =
+            "From: inner@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Inner Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Inner body\r\n";
+
+         var outerMessage =
+            "From: outer@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Outer Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/mixed; boundary=\"boundary123\"\r\n" +
+            "\r\n" +
+            "--boundary123\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Outer body\r\n" +
+            "\r\n" +
+            "--boundary123\r\n" +
+            "Content-Type: message/rfc822\r\n" +
+            "Content-Transfer-Encoding: 7bit\r\n" +
+            "Content-Disposition: attachment\r\n" +
+            "\r\n" +
+            innerMessage +
+            "--boundary123--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, outerMessage);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // BODY[2.HEADER] must load the encapsulated message and return its RFC2822 headers.
+         // A fix that skips loading for any single-component path would wrongly return the
+         // outer MIME headers (Content-Type: message/rfc822) instead.
+         var headerResult = sim.Fetch("1 BODY[2.HEADER]");
+         Assert.IsTrue(headerResult.Contains("Inner Subject"), "BODY[2.HEADER] should contain inner RFC2822 Subject: " + headerResult);
+         Assert.IsTrue(headerResult.Contains("inner@example.test"), "BODY[2.HEADER] should contain inner RFC2822 From: " + headerResult);
+         Assert.IsFalse(headerResult.Contains("message/rfc822"), "BODY[2.HEADER] must not contain outer MIME Content-Type: " + headerResult);
+
+         // BODY[2.MIME] must NOT load the encapsulated message and return the outer MIME headers.
+         var mimeResult = sim.Fetch("1 BODY[2.MIME]");
+         Assert.IsTrue(mimeResult.Contains("message/rfc822"), "BODY[2.MIME] should contain outer MIME Content-Type: " + mimeResult);
+         Assert.IsFalse(mimeResult.Contains("Inner Subject"), "BODY[2.MIME] must not contain inner RFC2822 Subject: " + mimeResult);
+
+         sim.Disconnect();
+      }
+
+      [Test]
+      [Description("Issue 459, IMAP: BODY[X.Y] deep navigation into encapsulated message/rfc822 must still work")]
+      public void FetchSubPartOfRfc822Part_ReturnsCorrectContent()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var innerMessage =
+            "From: inner@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Inner Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/alternative; boundary=\"innerboundary\"\r\n" +
+            "\r\n" +
+            "--innerboundary\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Plain text part\r\n" +
+            "--innerboundary\r\n" +
+            "Content-Type: text/html\r\n" +
+            "\r\n" +
+            "<b>HTML part</b>\r\n" +
+            "--innerboundary--\r\n";
+
+         var outerMessage =
+            "From: outer@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Outer Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/mixed; boundary=\"outerboundary\"\r\n" +
+            "\r\n" +
+            "--outerboundary\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Outer body\r\n" +
+            "\r\n" +
+            "--outerboundary\r\n" +
+            "Content-Type: message/rfc822\r\n" +
+            "Content-Transfer-Encoding: 7bit\r\n" +
+            "\r\n" +
+            innerMessage +
+            "--outerboundary--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, outerMessage);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // BODY[2.1] must return the plain text sub-part of the encapsulated message
+         var part1Result = sim.Fetch("1 BODY[2.1]");
+         Assert.IsTrue(part1Result.Contains("Plain text part"), "BODY[2.1] should return plain text sub-part: " + part1Result);
+
+         // BODY[2.2] must return the HTML sub-part of the encapsulated message
+         var part2Result = sim.Fetch("1 BODY[2.2]");
+         Assert.IsTrue(part2Result.Contains("HTML part"), "BODY[2.2] should return HTML sub-part: " + part2Result);
+
+         sim.Disconnect();
+      }
+
+      [Test]
+      [Description("Issue 459, IMAP: BODY[X.Y.MIME] must traverse intermediate message/rfc822 parts and return the MIME headers of the target sub-part")]
+      public void FetchMimeOfSubPartInsideRfc822Part_ReturnsCorrectMimeHeaders()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var innerMessage =
+            "From: inner@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Inner Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/alternative; boundary=\"innerboundary\"\r\n" +
+            "\r\n" +
+            "--innerboundary\r\n" +
+            "Content-Type: text/plain; charset=US-ASCII\r\n" +
+            "\r\n" +
+            "Plain text part\r\n" +
+            "--innerboundary\r\n" +
+            "Content-Type: text/html\r\n" +
+            "\r\n" +
+            "<b>HTML part</b>\r\n" +
+            "--innerboundary--\r\n";
+
+         var outerMessage =
+            "From: outer@example.test\r\n" +
+            "To: test@example.test\r\n" +
+            "Subject: Outer Subject\r\n" +
+            "MIME-Version: 1.0\r\n" +
+            "Content-Type: multipart/mixed; boundary=\"outerboundary\"\r\n" +
+            "\r\n" +
+            "--outerboundary\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "Outer body\r\n" +
+            "\r\n" +
+            "--outerboundary\r\n" +
+            "Content-Type: message/rfc822\r\n" +
+            "Content-Transfer-Encoding: 7bit\r\n" +
+            "\r\n" +
+            innerMessage +
+            "--outerboundary--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, outerMessage);
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // BODY[2.1.MIME] must traverse through the message/rfc822 at part 2 (intermediate
+         // component — encapsulated message is loaded for traversal) and then return the
+         // MIME entity headers of sub-part 1 (final component — encapsulated message is NOT
+         // loaded, so GetHeaderContents returns the sub-part's own headers, not inner content).
+         var mime1Result = sim.Fetch("1 BODY[2.1.MIME]");
+         Assert.IsTrue(mime1Result.Contains("text/plain"), "BODY[2.1.MIME] should contain Content-Type text/plain: " + mime1Result);
+         Assert.IsTrue(mime1Result.Contains("US-ASCII"), "BODY[2.1.MIME] should contain charset from the sub-part header: " + mime1Result);
+         Assert.IsFalse(mime1Result.Contains("Plain text part"), "BODY[2.1.MIME] must not contain body content: " + mime1Result);
+         Assert.IsFalse(mime1Result.Contains("Inner Subject"), "BODY[2.1.MIME] must not contain inner RFC2822 headers: " + mime1Result);
+
+         // BODY[2.2.MIME] must return the MIME headers of sub-part 2 (text/html).
+         var mime2Result = sim.Fetch("1 BODY[2.2.MIME]");
+         Assert.IsTrue(mime2Result.Contains("text/html"), "BODY[2.2.MIME] should contain Content-Type text/html: " + mime2Result);
+         Assert.IsFalse(mime2Result.Contains("HTML part"), "BODY[2.2.MIME] must not contain body content: " + mime2Result);
+
+         sim.Disconnect();
+      }
+
+      [Test]
       [Description("Valid partial fetch of a numbered body part (BODY[1]) must return the correct byte slice")]
       public void PartialFetch_BodyPart_ValidRangeReturnsCorrectBytes()
       {

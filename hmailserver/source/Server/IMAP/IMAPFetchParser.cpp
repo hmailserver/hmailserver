@@ -11,14 +11,16 @@
 
 namespace HM
 {
-   IMAPFetchParser::BodyPart::BodyPart() : name_(""), 
+   IMAPFetchParser::BodyPart::BodyPart() : name_(""),
       octet_start_(-1),
       octet_count_(-1),
       show_body_header_fields_(false),
       show_body_header_fields_NOT(false),
       show_body_header_(false),
+      show_body_mime_(false),
       show_body_text_(false),
-      show_body_full_(false)
+      show_body_full_(false),
+      show_body_content_(false)
    {
 
    }
@@ -393,10 +395,10 @@ namespace HM
          lTemp = sBody.FindNoCase(_T("MIME"));
          if (lTemp >= 0)
          {
-            oPart.SetShowBodyHeader(true);
+            oPart.SetShowBodyMime(true);
 
             String sBefore = sBody.Mid(0, lTemp);
-            String sAfter = sBody.Mid(lTemp + 7);
+            String sAfter = sBody.Mid(lTemp + 5);
             sBody = sBefore + sAfter;
          }
 
@@ -415,9 +417,10 @@ namespace HM
          if (!oPart.GetShowBodyText() &&
              !oPart.GetShowBodyHeader() &&
              !oPart.GetShowBodyHeaderFields() &&
-             !oPart.GetShowBodyHeaderFieldsNOT())
+             !oPart.GetShowBodyHeaderFieldsNOT() &&
+             !oPart.GetShowBodyMime())
          {
-             oPart.SetShowBodyText(true);
+             oPart.SetShowBodyContent(true);
              set_seen_ = true;
          }
          
