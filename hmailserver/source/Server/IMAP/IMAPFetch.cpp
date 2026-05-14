@@ -267,6 +267,13 @@ namespace HM
          // Jump forward to the start of the buffer.
          iBufferSize -= iOctetStart;
 
+         if (iBufferSize <= 0)
+         {
+            iOutStart = 0;
+            iOutCount = 0;
+            return;
+         }
+
          // Check if block size is within buffer.
          if (iOctetCount > iBufferSize)
          {

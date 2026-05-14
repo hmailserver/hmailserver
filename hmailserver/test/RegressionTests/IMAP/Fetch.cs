@@ -295,6 +295,45 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      [Description("Issue 524: BODY[TEXT] partial fetch where offset >= part size must return empty string, not crash")]
+      public void PartialFetch_BodyText_StartBeyondEndReturnsEmptyString()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "Body");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         var result = sim.Fetch("1 BODY.PEEK[TEXT]<393216.393216>");
+         Assert.IsTrue(result.Contains("BODY[TEXT]<393216>"), result);
+         Assert.IsTrue(result.Contains("\"\""), result);
+
+         sim.Disconnect();
+      }
+
+      [Test]
+      [Description("Issue 524: BODY[1] partial fetch where offset >= part size must return empty string, not crash (Thunderbird chunked fetch scenario)")]
+      public void PartialFetch_BodyPart_StartBeyondEndReturnsEmptyString()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "Body");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         // Reproduces the exact Thunderbird chunked-fetch scenario from issue #524.
+         var result = sim.Fetch("1 BODY.PEEK[1]<393216.393216>");
+         Assert.IsTrue(result.Contains("BODY[1]<393216>"), result);
+         Assert.IsTrue(result.Contains("\"\""), result);
+
+         sim.Disconnect();
+      }
+
+      [Test]
       [Description("RFC 3501: partial fetch where requested count exceeds remaining bytes must truncate")]
       public void PartialFetch_RequestedSizeExceedingRemainderTruncates()
       {
