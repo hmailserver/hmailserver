@@ -181,6 +181,13 @@ namespace HM
 
       connection_state_ = StateConnected;
 
+      boost::system::error_code ec;
+      socket_.set_option(boost::asio::ip::tcp::no_delay(true), ec);
+      if (ec) 
+      { 
+         LOG_DEBUG(Formatter::Format(_T("Failed to set TCP_NODELAY, session {0}, code {1}"), session_id_, ec.value())); 
+      }
+
       OnConnected();
 
       if (connection_security_ == CSSSL)
@@ -366,7 +373,7 @@ namespace HM
             String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Expected remote host name: {0}."), expected_remote_hostname_);
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5604, "TCPConnection::AsyncHandshake", error_message, sni_error_code);
 
-            HandshakeFailed_(error_code);
+            HandshakeFailed_(sni_error_code);
             return;
          }
       }
@@ -486,46 +493,19 @@ namespace HM
    {
       UpdateAutoLogoutTimer();
 
-      auto saEnabled = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamAssassinEnabled();
-      auto saPort = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamAssassinPort();
-      // Catch SpamAssassin WinSock error code is 2 (boost boost::asio::error::eof)
-      if ((error.value() == 0 || error.value() == boost::asio::error::eof) && receive_binary_ && saEnabled && remote_port_ == saPort)
-      {
-         // https://www.boost.org/doc/libs/1_72_0/doc/html/boost_asio/overview/core/streams.html
-         // Why EOF is an Error
-         // The end of a stream can cause read, async_read, read_until or async_read_until functions to violate their contract.E.g.a read of N bytes may finish early due to EOF.
-         // An EOF error may be used to distinguish the end of a stream from a successful read of size 0.
-
-         std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
-         pBuffer->Allocate(receive_buffer_.size());
-
-         std::istream is(&receive_buffer_);
-         is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
-
-         try
-         {
-            ParseData(pBuffer);
-         }
-         catch (DisconnectedException&)
-         {
-            throw;
-         }
-         catch (...)
-         {
-            String message;
-            message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
-
-            ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
-
-            throw;
-         }
-      }
-      else if (error.value() != 0)
+      // Ignore end of file or end of stream error when binary transfer, there may still be data in the receive buffer we can read.
+      if ((error && !receive_binary_) || (error && error != boost::asio::error::eof && receive_binary_))
       {
          if (connection_state_ != StateConnected)
          {
             // The read failed, but we've already started the disconnection. So we should not log the failure
             // or enqueue a new disconnect.
+            return;
+         }
+
+         if (error == boost::asio::error::eof)
+         {
+            // Ignore end of file or end of stream error
             return;
          }
 
@@ -535,7 +515,7 @@ namespace HM
          message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
          ReportDebugMessage(message, error);
 
-         if (error.value() == boost::asio::error::not_found)
+         if (error == boost::asio::error::not_found)
          {
             // read buffer is full...
             OnExcessiveDataReceived();
