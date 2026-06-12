@@ -73,7 +73,7 @@ namespace HM
       bool has_on_client_logon_;
       bool has_on_client_validate_password_;
       bool has_on_recipient_unknown_;
-      bool has_on_too_many_invalid_comands_;
+      bool has_on_too_many_invalid_commands_;
 
       String script_contents_;
       String script_extension_;
