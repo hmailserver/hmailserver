@@ -764,7 +764,7 @@ namespace HM
    {
       static int s_nPartNumber = 0;
       char buf[80];
-      if (!pszBoundary)				// generate a new boundary delimeter
+      if (!pszBoundary)				// generate a new boundary delimiter
       {
          unsigned __int64 value = (unsigned __int64)::time(NULL) ^ (unsigned __int64)this;
          ::srand((unsigned int) value);

@@ -38,8 +38,8 @@ using namespace std;
 #endif
 
 // maximum length of an encoded line (RFC 2045)
-#define MAX_MIME_LINE_LEN	76
-#define MAX_ENCODEDWORD_LEN	75
+constexpr int MAX_MIME_LINE_LEN = 76;
+constexpr int MAX_ENCODEDWORD_LEN = 75;
 
 //////////////////////////////////////////////////////////////////////
 // MimeEnvironment - global environment to manage encoding/decoding
@@ -286,14 +286,14 @@ namespace HM
 	   string charset_;
 
 	   virtual bool IsFoldingChar(char ch) const { return false; }
-	   virtual int GetDelimeter() const { return 0; }
-      int FindSymbol(const char* pszData, size_t nSize, int& nDelimeter, int& nNonAscChars) const;
+	   virtual int GetDelimiter() const { return 0; }
+      int FindSymbol(const char* pszData, size_t nSize, int& nDelimiter, int& nNonAscChars) const;
 	   void UnfoldField(string& strField) const;
 	   int SelectEncoding(size_t nLength, int nNonAsciiChars) const
 	   {
-         size_t nQEncodeSize = nLength + nNonAsciiChars * 2;
+         size_t nQEncodeSize = nLength + ((size_t)nNonAsciiChars) * 2;
          size_t nBEncodeSize = (nLength + 2) / 3 * 4;
-		   return (nQEncodeSize <= nBEncodeSize || ((size_t) nNonAsciiChars)*5 <= nLength) ? 'Q' : 'B';
+		   return (nQEncodeSize <= nBEncodeSize || ((size_t)nNonAsciiChars)*5 <= nLength) ? 'Q' : 'B';
 	   }
 
    protected:
@@ -309,7 +309,7 @@ namespace HM
 	   DECLARE_FIELDCODER(FieldCodeText)
 
    protected:
-	   virtual int GetDelimeter() const { return 0xff; }
+	   virtual int GetDelimiter() const { return 0xff; }
    };
 
    //////////////////////////////////////////////////////////////////////

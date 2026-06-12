@@ -739,7 +739,7 @@ namespace HM
 
 	   const char* pszInput = (const char*) input_;
       size_t nInputSize = input_size_;
-	   int nNonAsciiChars, nDelimeter = GetDelimeter();
+	   int nNonAsciiChars, nDelimiter = GetDelimiter();
 	   int nLineLen = 0;
 	   
       AnsiString strUnit;
@@ -747,7 +747,7 @@ namespace HM
 	   // divide the field into syntactic units to encode
 	   for (;;)
 	   {
-		   size_t nUnitSize = FindSymbol(pszInput, nInputSize, nDelimeter, nNonAsciiChars);
+		   size_t nUnitSize = FindSymbol(pszInput, nInputSize, nDelimiter, nNonAsciiChars);
 		   if (!nNonAsciiChars || strCharset.empty())
          {
 			   strUnit.assign(pszInput, nUnitSize);
@@ -761,7 +761,7 @@ namespace HM
             coder.GetOutput(strUnit);
 		   }
 		   if (nUnitSize < nInputSize)
-			   strUnit += pszInput[nUnitSize];		// add the following delimeter (space or special char)
+			   strUnit += pszInput[nUnitSize];		// add the following delimiter (space or special char)
 
 		   // copy the encoded string to target buffer and perform folding if needed
 		   if (!MimeEnvironment::AutoFolding())
@@ -872,7 +872,7 @@ namespace HM
 	   }
    }
 
-   int FieldCodeBase::FindSymbol(const char* pszData, size_t nSize, int& nDelimeter, int& nNonAscChars) const
+   int FieldCodeBase::FindSymbol(const char* pszData, size_t nSize, int& nDelimiter, int& nNonAscChars) const
    {
 	   nNonAscChars = 0;
 	   const char* pszDataStart = pszData;
@@ -885,9 +885,9 @@ namespace HM
 			   nNonAscChars++;
 		   else
 		   {
-			   if (ch == (char) nDelimeter)
+			   if (ch == (char)nDelimiter)
 			   {
-				   nDelimeter = 0;		// stop at any delimeters (space or specials)
+				   nDelimiter = 0;		// stop at any delimeters (space or specials)
 				   break;
 			   }
 
@@ -898,7 +898,7 @@ namespace HM
             The notation of RFC 822 is used, with the exception that white space
             characters MUST NOT appear between components of an 'encoded-word'.
             */
-            if (!nDelimeter && CMimeChar::IsSpecial(ch))
+            if (!nDelimiter && CMimeChar::IsSpecial(ch))
 			   {
                if (pszData > pszDataStart)
                {
@@ -906,22 +906,22 @@ namespace HM
                   if (CMimeChar::IsSpace(previousChar))
                   {
                      pszData--;
-                     nDelimeter = ' ';
+                     nDelimiter = ' ';
                   }
                }
                
-               if (nDelimeter == 0 )
+               if (nDelimiter == 0 )
                {
 				      switch (ch)
 				      {
 				      case '"':
-					      nDelimeter = '"';	// quoted-string, delimeter is '"'
+					      nDelimiter = '"';	// quoted-string, delimiter is '"'
 					      break;
 				      case '(':
-					      nDelimeter = ')';	// comment, delimeter is ')'
+					      nDelimiter = ')';	// comment, delimetir is ')'
 					      break;
 				      case '<':
-					      nDelimeter = '>';	// address, delimeter is '>'
+					      nDelimiter = '>';	// address, delimetir is '>'
 					      break;
 				      }
                }
