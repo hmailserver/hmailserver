@@ -31,7 +31,7 @@ namespace HM
 
       enum Settings
       {
-         // Limit signing of huge messages, to prevent memory/perforamnce issues.
+         // Limit signing of huge messages, to prevent memory/performance issues.
          MaxFileSize = 1024 * 1024 * 50
       };
 

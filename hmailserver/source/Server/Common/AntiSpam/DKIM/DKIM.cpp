@@ -110,7 +110,7 @@ namespace HM
 
       if (FileUtilities::FileSize(fileName) > MaxFileSize)
       {
-         LOG_DEBUG("Message was not signed using DKIM since the size of the message exceeded the max DKIM size of 10MB.");
+         LOG_DEBUG("Message was not signed using DKIM since the size of the message exceeded the max DKIM size of 50MB.");
          return true;
       }
 
