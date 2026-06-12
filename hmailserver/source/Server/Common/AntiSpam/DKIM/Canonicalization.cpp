@@ -163,7 +163,7 @@ namespace HM
       if (!signatureField.first.IsEmpty())
       {
          // Don't pick the value from the actual header, use the header we're verifying instead
-         // If there are more than one DKIM-signature fields in the header, this will be important.
+         // If there are more than one DKIM-Signature fields in the header, this will be important.
          AnsiString  relaxedHeaderName = CanonicalizeHeaderName(signatureField.first);
          AnsiString relaxedFieldValue = CanonicalizeHeaderValue(signatureField.second);
 
@@ -320,7 +320,7 @@ namespace HM
       if (!signatureField.first.IsEmpty())
       {
          // Don't pick the value from the actual header, use the header we're verifying instead
-         // If there are more than one DKIM-signature fields in the header, this will be important.
+         // If there are more than one DKIM-Signature fields in the header, this will be important.
          AnsiString headerName = signatureField.first;
 
          AnsiString headerLine = headerName + ": " + GetDKIMWithoutSignature_(signatureField.second);

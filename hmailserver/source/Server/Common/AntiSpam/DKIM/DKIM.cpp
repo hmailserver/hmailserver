@@ -144,7 +144,7 @@ namespace HM
 
       String headerValue = BuildSignatureHeader_(tagA, tagDomain, tagSelector, tagC, tagQ, fieldList, bodyHash, "");
       
-      canonicalizedHeader += headerCanonicalization->CanonicalizeHeaderLine("dkim-signature", headerValue);
+      canonicalizedHeader += headerCanonicalization->CanonicalizeHeaderLine("DKIM-Signature", headerValue);
 
       AnsiString privateKeyContent = FileUtilities::ReadCompleteTextFile(String(privateKey));
 
@@ -159,7 +159,7 @@ namespace HM
 
       // output to file.
       std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
-      fieldsToWrite.push_back(std::make_pair("dkim-signature", headerValue));
+      fieldsToWrite.push_back(std::make_pair("DKIM-Signature", headerValue));
 
       TraceHeaderWriter writer;
       bool result = writer.Write(fileName, message, fieldsToWrite);

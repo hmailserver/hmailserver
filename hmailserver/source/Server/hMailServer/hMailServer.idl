@@ -2254,7 +2254,7 @@ interface IInterfaceAntiSpam : IDispatch
    [propget, id(30), helpstring("Maximum message size to run anti-spam on.")] HRESULT MaximumMessageSize([out, retval] long *pVal);
    [propput, id(30), helpstring("Maximum message size to run anti-spam on.")] HRESULT MaximumMessageSize([in] long newVal);
 
-   [id(31), helpstring("Verifies the DKIM-signature of the specified file. Returns true if neutral or pass.")] HRESULT DKIMVerify([in] BSTR File, [out, retval] eDKIMResult *pResult);
+   [id(31), helpstring("Verifies the DKIM-Signature of the specified file. Returns true if neutral or pass.")] HRESULT DKIMVerify([in] BSTR File, [out, retval] eDKIMResult *pResult);
    
    [propget, id(32), helpstring("Enable DKIM header verification.")] HRESULT DKIMVerificationEnabled([out, retval] VARIANT_BOOL  *pVal);
    [propput, id(32), helpstring("Enable DKIM header verification.")] HRESULT DKIMVerificationEnabled([in] VARIANT_BOOL newVal);
