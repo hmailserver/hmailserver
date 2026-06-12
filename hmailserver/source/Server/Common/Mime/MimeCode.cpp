@@ -887,7 +887,7 @@ namespace HM
 		   {
 			   if (ch == (char)nDelimiter)
 			   {
-				   nDelimiter = 0;		// stop at any delimeters (space or specials)
+				   nDelimiter = 0;		// stop at any delimiters (space or specials)
 				   break;
 			   }
 
