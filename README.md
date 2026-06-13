@@ -72,19 +72,15 @@ Building OpenSSL
 
 Building PostgreSQL
 -------------------
-1. Download PostgreSQL 18.3 source from https://www.postgresql.org/ftp/source/v18.3/ and put it into %hMailServerLibs%\postgresql-18.3.
-   You should now have a folder named %hMailServerLibs%\postgresql-18.3, for example C:\Dev\hMailLibs\postgresql-18.3
-2. Download winflexbison from https://github.com/lexxmark/winflexbison/releases, extract it, and add the folder to `%PATH%`.
-3. Install Python dependencies: `py -m pip install meson ninja`
-4. Start a x64 Native Tools Command Prompt for VS2019.
-5. Change dir to %hMailServerLibs%
-6. Run the following commands:
+1. Download PostgreSQL 18.3 source from https://www.postgresql.org/ftp/source/v15.18/ and put it into %hMailServerLibs%\postgresql-15.18.
+   You should now have a folder named %hMailServerLibs%\postgresql-15.18, for example C:\Dev\hMailLibs\postgresql-15.18
+2. Start a x64 Native Tools Command Prompt for VS2019.
+3. Change dir to %hMailServerLibs%
+4. Run the following commands:
 
    <pre>
-   set hMailServerLibs=%cd%
-   cd postgresql-18.3
-   meson setup builddir -Dssl=openssl -Dextra_include_dirs=%hMailServerLibs%\openssl-3.5.5\out64\include -Dextra_lib_dirs=%hMailServerLibs%\openssl-3.5.5\out64\lib
-   meson compile -C builddir src/interfaces/libpq/libpq:shared_library
+   cd src\tools\msvc
+   perl build.pl Release libpq
    </pre>
 
 **NOTE:** The `-Dextra_include_dirs` and `-Dextra_lib_dirs` flags ensure meson links against the specific OpenSSL version built above. Verify that no other OpenSSL installation appears earlier in `%PATH%` (e.g. from Git for Windows or other tools), as meson may pick up the wrong version.
