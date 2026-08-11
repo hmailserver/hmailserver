@@ -118,6 +118,8 @@ namespace RegressionTests.SMTP
          var content = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          Assert.IsTrue(content.Contains("Inbox is full"));
          Assert.IsTrue(content.Contains("Subject: Test subject"));
+         Assert.IsFalse(content.Contains("In-Reply-To:"));
+         Assert.IsFalse(content.Contains("References:"));
 
          // Make sure body contains year.
          var bodyStartPos = content.IndexOf("\r\n\r\n");
@@ -137,12 +139,14 @@ namespace RegressionTests.SMTP
          recipientAccount.Save();
 
          const string messageID = "<dsn-threading@example.test>";
+         const string previousReference = "<previous-message@example.test>";
          var builder = new StringBuilder();
          for (var i = 0; i < 11000; i++)
             builder.Append(
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
 
          var content = "Message-ID: " + messageID + "\r\n" +
+                       "References: " + previousReference + " " + messageID + "\r\n" +
                        "Subject: Test subject\r\n" +
                        "\r\n" +
                        builder;
@@ -151,7 +155,7 @@ namespace RegressionTests.SMTP
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          var bounce = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          Assert.IsTrue(bounce.Contains("In-Reply-To: " + messageID));
-         Assert.IsTrue(bounce.Contains("References: " + messageID));
+         Assert.IsTrue(bounce.Contains("References: " + previousReference + " " + messageID));
       }
 
       [Test]

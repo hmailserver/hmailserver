@@ -434,6 +434,7 @@ namespace HM
       pNewMsgData->SetTo(sReplyRecipientAddress);
       pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
       pNewMsgData->SetSubject(pAction->GetSubject());
+      pNewMsgData->SetReplyThreadingHeaders(*pMsgData);
       pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
       pNewMsgData->SetAutoReplied();

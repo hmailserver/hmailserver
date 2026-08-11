@@ -266,6 +266,27 @@ namespace HM
       return sRetVal;
    }
 
+   void
+   MessageData::SetReplyThreadingHeaders(const MessageData &source)
+   {
+      const String originalMessageID = source.GetFieldValue("Message-ID");
+      if (originalMessageID.IsEmpty())
+         return;
+
+      SetFieldValue("In-Reply-To", originalMessageID);
+
+      String references = source.GetFieldValue("References");
+      if (!references.ContainsNoCase(originalMessageID))
+      {
+         if (!references.IsEmpty())
+            references += " ";
+
+         references += originalMessageID;
+      }
+
+      SetFieldValue("References", references);
+   }
+
    int 
    MessageData::GetSize() const
    {
