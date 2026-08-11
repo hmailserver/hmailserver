@@ -126,6 +126,35 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      [Category("SMTP")]
+      public void BounceMessageShouldReferenceOriginalMessageID()
+      {
+         var senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@example.test", "test");
+         var recipientAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "list@example.test",
+            "test");
+
+         recipientAccount.MaxSize = 1;
+         recipientAccount.Save();
+
+         const string messageID = "<dsn-threading@example.test>";
+         var builder = new StringBuilder();
+         for (var i = 0; i < 11000; i++)
+            builder.Append(
+               "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
+
+         var content = "Message-ID: " + messageID + "\r\n" +
+                       "Subject: Test subject\r\n" +
+                       "\r\n" +
+                       builder;
+         SmtpClientSimulator.StaticSendRaw(senderAccount.Address, recipientAccount.Address, content);
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+         var bounce = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         Assert.IsTrue(bounce.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(bounce.Contains("References: " + messageID));
+      }
+
+      [Test]
       [Description("Issue 226. Domain alias rewrites sender address.")]
       public void DomainAliasesShouldNotRewriteRecipientList()
       {
