@@ -76,35 +76,26 @@ Only OpenSSL 3.5.x is supported; the build recipe for 3.0.x and 4.x differs.
 
 Building PostgreSQL
 -------------------
-1. Download PostgreSQL 15.19 source from https://www.postgresql.org/ftp/source/v15.19/ and put it into %hMailServerLibs%\postgresql-15.19.
-   You should now have a folder named %hMailServerLibs%\postgresql-15.19, for example C:\Dev\hMailLibs\postgresql-15.19
-2. Start a x64 Native Tools Command Prompt for VS2019.
-3. Change dir to %hMailServerLibs%\postgresql-15.19\src\tools\msvc
-4. Create a file named config.pl in that folder with the following content, adjusting the openssl path to match the OpenSSL version you built above:
+hMailServer talks to PostgreSQL through libpq. libpq is built by the `libraries\build-pgsql.ps1`
+script, which downloads the requested version into %hMailServerLibs%\postgresql-&lt;Version&gt;,
+generates the `src\tools\msvc\config.pl` that links libpq against a previously built OpenSSL, and
+builds `libpq.dll` / `libpq.lib` into `postgresql-&lt;Version&gt;\Release\libpq`.
+
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
+- Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by PostgreSQL's build.pl.
+- Visual Studio 2019 with the x64 C++ build tools.
+
+Run, from the repository root:
 
    <pre>
-   use strict;
-   use warnings;
-
-   our $config = {
-       # Target Windows Vista so libpq does not statically import
-       # GetSystemTimePreciseAsFileTime (unavailable before Windows 8).
-       cflags  => '/D_WIN32_WINNT=0x0600',
-       # Link libpq against the OpenSSL you built above (root of the out64 install).
-       openssl => 'C:\Dev\hMailLibs\openssl-3.5.x\out64',
-   };
-
-   1;
-   </pre>
-5. Run the following command:
-
-   <pre>
-   perl build.pl Release libpq
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version 15.19
    </pre>
 
-**NOTE:** Without the `openssl` entry in config.pl the resulting libpq.dll is built without SSL support and cannot make encrypted connections to PostgreSQL.
-
-**TIP:** You can use [Dependencies](https://github.com/lucasg/Dependencies/releases) to verify that the built `libpq.dll` links against the correct OpenSSL DLLs (`libcrypto-3-x64.dll` / `libssl-3-x64.dll`).
+The script auto-detects the OpenSSL version to link against from the hMailServer project; pass
+`-OpenSSLVersion 3.5.x` to override it. Only PostgreSQL 15.x and 16.x are supported (17 removed
+the `src\tools\msvc\build.pl` build system this relies on).
 
 Building Boost
 --------------
