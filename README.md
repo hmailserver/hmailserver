@@ -58,7 +58,7 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 Building OpenSSL
 ----------------
 1. Download OpenSSL 3.5.x from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-3.5.5
+   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-3.5.x
 2. Start a x64 Native Tools Command Prompt for VS2019.
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 3. Run the following commands:
@@ -75,13 +75,32 @@ Building PostgreSQL
 1. Download PostgreSQL 15.18 source from https://www.postgresql.org/ftp/source/v15.18/ and put it into %hMailServerLibs%\postgresql-15.18.
    You should now have a folder named %hMailServerLibs%\postgresql-15.18, for example C:\Dev\hMailLibs\postgresql-15.18
 2. Start a x64 Native Tools Command Prompt for VS2019.
-3. Change dir to %hMailServerLibs%
-4. Run the following commands:
+3. Change dir to %hMailServerLibs%\postgresql-15.18\src\tools\msvc
+4. Create a file named config.pl in that folder with the following content, adjusting the openssl path to match the OpenSSL version you built above:
 
    <pre>
-   cd src\tools\msvc
+   use strict;
+   use warnings;
+
+   our $config = {
+       # Target Windows Vista so libpq does not statically import
+       # GetSystemTimePreciseAsFileTime (unavailable before Windows 8).
+       cflags  => '/D_WIN32_WINNT=0x0600',
+       # Link libpq against the OpenSSL you built above (root of the out64 install).
+       openssl => 'C:\Dev\hMailLibs\openssl-3.5.x\out64',
+   };
+
+   1;
+   </pre>
+5. Run the following command:
+
+   <pre>
    perl build.pl Release libpq
    </pre>
+
+**NOTE:** Without the `openssl` entry in config.pl the resulting libpq.dll is built without SSL support and cannot make encrypted connections to PostgreSQL.
+
+**TIP:** You can use [Dependencies](https://github.com/lucasg/Dependencies/releases) to verify that the built `libpq.dll` links against the correct OpenSSL DLLs (`libcrypto-3-x64.dll` / `libssl-3-x64.dll`).
 
 Building Boost
 --------------
