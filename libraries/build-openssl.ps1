@@ -45,82 +45,12 @@ $PSNativeCommandUseErrorActionPreference = $false
 #
 #     Get-Content libraries\build-openssl.log -Wait
 #
-# and a full transcript to inspect if a step fails.
-# All log writes use this one encoding. Under Windows PowerShell 5.1 the various
-# file cmdlets default to *different* encodings (Set-Content/Add-Content ->
-# ANSI, Tee-Object -FilePath -> UTF-16LE), so mixing them produces a log where
-# some lines render with a NUL between every character. Pin everything to UTF-8.
-$logEncoding = "UTF8"
+# and a full transcript to inspect if a step fails. The logging helpers
+# (Start-BuildLog, Write-Log, Invoke-BuildStep) are shared with build-pgsql.ps1.
+. (Join-Path -Path $PSScriptRoot -ChildPath "build-common.ps1")
 
 $logPath = Join-Path -Path $PSScriptRoot -ChildPath "build-openssl.log"
-Set-Content -Path $logPath -Value "OpenSSL $Version build log - started $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -Encoding $logEncoding
-
-# Write a message to both the console and the log file.
-function Write-Log
-{
-    param([string]$Message)
-    Write-Host $Message
-    Add-Content -Path $logPath -Value $Message -Encoding $logEncoding
-}
-
-# Run a build step, mirroring its stdout+stderr to the console and the log file.
-# The step's native exit code is left in $LastExitCode for the caller to check.
-function Invoke-BuildStep
-{
-    param(
-        [string]$Description,
-        [scriptblock]$Command
-    )
-    Write-Log $Description
-    Add-Content -Path $logPath -Value "----- $Description -----" -Encoding $logEncoding
-    # Merge the step's stderr into the output stream so it is logged too. Native
-    # tools (nmake) legitimately write progress/warnings to stderr; under
-    # $ErrorActionPreference='Stop' a 2>&1-redirected stderr line is otherwise
-    # turned into a terminating NativeCommandError before we can inspect the exit
-    # code. Force Continue for just this pipeline; the caller still gates on
-    # $LastExitCode.
-    #
-    # We deliberately do NOT use 'Tee-Object -FilePath' here: on Windows
-    # PowerShell 5.1 it has no -Encoding switch and always writes UTF-16LE, which
-    # corrupts a log the rest of the script writes as UTF-8. Instead echo each
-    # line to the console and append it to the log with the shared encoding.
-    #
-    # The 2>&1 stream carries stdout lines as plain strings but stderr lines as
-    # ErrorRecords (native tools such as cl.exe write the current source file
-    # name to stderr). Casting such a record to [string] yields the useless text
-    # "System.Management.Automation.RemoteException"; the real stderr text is in
-    # its .Exception.Message, so pull that out explicitly.
-    #
-    # Write through a single StreamWriter held open for the whole step rather than
-    # an Add-Content call per line: nmake emits on the order of 10k lines and a
-    # per-line open/seek/close is needless disk churn. AutoFlush keeps the log
-    # tailable live (Get-Content -Wait). UTF8Encoding($false) => no BOM, matching
-    # the UTF-8 the rest of the script writes.
-    $prevEAP = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-    $writer = New-Object System.IO.StreamWriter($logPath, $true, (New-Object System.Text.UTF8Encoding($false)))
-    $writer.AutoFlush = $true
-    try
-    {
-        & $Command 2>&1 | ForEach-Object {
-            if ($_ -is [System.Management.Automation.ErrorRecord])
-            {
-                $line = $_.Exception.Message
-            }
-            else
-            {
-                $line = [string]$_
-            }
-            Write-Host $line
-            $writer.WriteLine($line)
-        }
-    }
-    finally
-    {
-        $writer.Close()
-        $ErrorActionPreference = $prevEAP
-    }
-}
+Start-BuildLog -LogPath $logPath -Title "OpenSSL $Version build log"
 
 # --- Resolve the library folder -------------------------------------------------
 

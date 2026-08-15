@@ -93,7 +93,7 @@ whether a change was needed.
 
 ### 5. libpq note (usually no action)
 
-libpq (in `%hMailServerLibs%\postgresql-15.18\Release\libpq`) is compiled against OpenSSL but
+libpq (in `%hMailServerLibs%\postgresql-15.19\Release\libpq`) is compiled against OpenSSL but
 loads `libcrypto-3-x64.dll` / `libssl-3-x64.dll` at runtime. The OpenSSL 3.5.x line is
 ABI-stable, so the prebuilt `libpq.dll` does **not** need rebuilding for a patch bump. If a
 rebuild is ever required, follow README's "Building PostgreSQL" section, pointing its
