@@ -298,7 +298,7 @@ namespace HM
       {
          sSQL = "select sum(messagesize) as size from hm_messages "
                 "where messageaccountid in "
-                "(select accountdomainid from hm_accounts where accountdomainid = @DOMAINID) ";
+                "(select accountid from hm_accounts where accountdomainid = @DOMAINID)";
       }
       else if (DBType == DatabaseSettings::TypeMYSQLServer)
       {
