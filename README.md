@@ -57,18 +57,22 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
-1. Download OpenSSL 3.5.x from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-3.5.x
-2. Start a x64 Native Tools Command Prompt for VS2019.
-3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
-3. Run the following commands:
+OpenSSL 3.5.x is built by the `libraries\build-openssl.ps1` script, which downloads the
+requested version into %hMailServerLibs%\openssl-&lt;Version&gt; and builds it into an `out64`
+install prefix (headers, import libs and `libcrypto-3-x64.dll` / `libssl-3-x64.dll`).
+
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by OpenSSL's Configure.
+- Visual Studio 2019 with the x64 C++ build tools (the script locates vcvars64.bat automatically).
+
+Run, from the repository root:
 
    <pre>
-   SET CFLAGS=-DOPENSSL_TLS_SECURITY_LEVEL=0
-   Perl Configure no-asm VC-WIN64A --prefix=%cd%\out64 --openssldir=%cd%\out64 -D_WIN32_WINNT=0x600 --api=1.1.1 no-deprecated
-   nmake clean
-   nmake install_sw
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-openssl.ps1 -Version 3.5.x
    </pre>
+
+Only OpenSSL 3.5.x is supported; the build recipe for 3.0.x and 4.x differs.
 
 Building PostgreSQL
 -------------------
