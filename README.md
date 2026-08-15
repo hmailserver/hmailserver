@@ -76,10 +76,10 @@ Only OpenSSL 3.5.x is supported; the build recipe for 3.0.x and 4.x differs.
 
 Building PostgreSQL
 -------------------
-1. Download PostgreSQL 15.18 source from https://www.postgresql.org/ftp/source/v15.18/ and put it into %hMailServerLibs%\postgresql-15.18.
-   You should now have a folder named %hMailServerLibs%\postgresql-15.18, for example C:\Dev\hMailLibs\postgresql-15.18
+1. Download PostgreSQL 15.19 source from https://www.postgresql.org/ftp/source/v15.19/ and put it into %hMailServerLibs%\postgresql-15.19.
+   You should now have a folder named %hMailServerLibs%\postgresql-15.19, for example C:\Dev\hMailLibs\postgresql-15.19
 2. Start a x64 Native Tools Command Prompt for VS2019.
-3. Change dir to %hMailServerLibs%\postgresql-15.18\src\tools\msvc
+3. Change dir to %hMailServerLibs%\postgresql-15.19\src\tools\msvc
 4. Create a file named config.pl in that folder with the following content, adjusting the openssl path to match the OpenSSL version you built above:
 
    <pre>
