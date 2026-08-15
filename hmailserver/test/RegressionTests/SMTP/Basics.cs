@@ -261,6 +261,39 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should be added for authenticated senders, since we act as a submission server for them.")]
+      public void TestMessageIDAddedForAuthenticatedSender()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // The simulator does not add a Message-ID of its own, so any Message-ID in the
+         // delivered message was added by the server.
+         string errorMessage;
+         var simulator = new SmtpClientSimulator();
+         simulator.Send(false, "test@example.test", "test", "test@example.test", "test@example.test",
+                        "Test subject", "Test body", out errorMessage);
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@example.test", "test");
+
+         Assert.IsTrue(test.Contains("Message-ID: <"));
+      }
+
+      [Test]
+      [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should not be added to relayed messages, since that hides from spam filters that the original message had none.")]
+      public void TestMessageIDNotAddedForUnauthenticatedSender()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSend("someone@example.com", "test@example.test", "Test subject", "Test body");
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@example.test", "test");
+
+         Assert.IsFalse(test.Contains("Message-ID"));
+      }
+
+      [Test]
       public void TestEHLOKeywords()
       {
          var application = SingletonProvider<TestSetup>.Instance.GetApp();
