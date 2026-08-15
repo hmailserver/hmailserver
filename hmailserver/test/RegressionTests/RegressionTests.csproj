@@ -71,6 +71,7 @@
     <Compile Include="API\Messages.cs" />
     <Compile Include="IMAP\ConcurrentConnections.cs" />
     <Compile Include="Infrastructure\AccountProperties.cs" />
+    <Compile Include="Infrastructure\DomainProperties.cs" />
     <Compile Include="Infrastructure\AccountServices.cs" />
     <Compile Include="AntiSpam\Combinations.cs" />
     <Compile Include="AntiSpam\Basics.cs" />

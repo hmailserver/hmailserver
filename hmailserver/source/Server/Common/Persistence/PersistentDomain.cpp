@@ -290,23 +290,9 @@ namespace HM
    // Returns the current size of this domain, measured in mega bytes.
    //---------------------------------------------------------------------------()
    {
-      
-      HM::DatabaseSettings::SQLDBType DBType = IniFileSettings::Instance()->GetDatabaseType();
-
-      String sSQL;
-      if (DBType == DatabaseSettings::TypeMSSQLServer || DBType == DatabaseSettings::TypeMSSQLCompactEdition || DBType == DatabaseSettings::TypePGServer)
-      {
-         sSQL = "select sum(messagesize) as size from hm_messages "
-                "where messageaccountid in "
-                "(select accountid from hm_accounts where accountdomainid = @DOMAINID)";
-      }
-      else if (DBType == DatabaseSettings::TypeMYSQLServer)
-      {
-         sSQL = "select sum(messagesize) as size from hm_messages "
-                "inner join hm_accounts on "
-                "(hm_messages.messageaccountid = hm_accounts.accountid and hm_accounts.accountdomainid = @DOMAINID)";
-
-      }
+      String sSQL = "select sum(messagesize) as size from hm_messages "
+                    "where messageaccountid in "
+                    "(select accountid from hm_accounts where accountdomainid = @DOMAINID)";
 
       SQLCommand command (sSQL);
       command.AddParameter("@DOMAINID", pDomain->GetID());
