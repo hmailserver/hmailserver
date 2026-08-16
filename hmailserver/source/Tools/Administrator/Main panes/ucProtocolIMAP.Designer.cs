@@ -45,6 +45,7 @@ namespace hMailServer.Administrator
          this.textIMAPMasterUser = new hMailServer.Shared.ucText();
          this.checkEnableIMAPInitialResponse = new hMailServer.Administrator.Controls.ucCheckbox();
          this.checkEnableIMAPPlain = new hMailServer.Administrator.Controls.ucCheckbox();
+         this.checkCreateDefaultSpecialUseFolders = new hMailServer.Administrator.Controls.ucCheckbox();
          this.labelHierarchyDelimiter = new System.Windows.Forms.Label();
          this.comboIMAPHierarchyDelimiter = new hMailServer.Administrator.Controls.ucComboBox();
          this.labelOther2 = new System.Windows.Forms.Label();
@@ -188,6 +189,7 @@ namespace hMailServer.Administrator
          // 
          // tabPage2
          // 
+         this.tabPage2.Controls.Add(this.checkCreateDefaultSpecialUseFolders);
          this.tabPage2.Controls.Add(this.labelIMAPMasterUser);
          this.tabPage2.Controls.Add(this.textIMAPMasterUser);
          this.tabPage2.Controls.Add(this.checkEnableIMAPInitialResponse);
@@ -226,9 +228,19 @@ namespace hMailServer.Administrator
          this.textIMAPMasterUser.Numeric = false;
          this.textIMAPMasterUser.Size = new System.Drawing.Size(154, 20);
          this.textIMAPMasterUser.TabIndex = 26;
-         // 
+         //
+         // checkCreateDefaultSpecialUseFolders
+         //
+         this.checkCreateDefaultSpecialUseFolders.AutoSize = true;
+         this.checkCreateDefaultSpecialUseFolders.Location = new System.Drawing.Point(35, 225);
+         this.checkCreateDefaultSpecialUseFolders.Name = "checkCreateDefaultSpecialUseFolders";
+         this.checkCreateDefaultSpecialUseFolders.Size = new System.Drawing.Size(350, 17);
+         this.checkCreateDefaultSpecialUseFolders.TabIndex = 28;
+         this.checkCreateDefaultSpecialUseFolders.Text = "Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts";
+         this.checkCreateDefaultSpecialUseFolders.UseVisualStyleBackColor = true;
+         //
          // checkEnableIMAPInitialResponse
-         // 
+         //
          this.checkEnableIMAPInitialResponse.AutoSize = true;
          this.checkEnableIMAPInitialResponse.Location = new System.Drawing.Point(35, 155);
          this.checkEnableIMAPInitialResponse.Name = "checkEnableIMAPInitialResponse";
@@ -374,5 +386,6 @@ namespace hMailServer.Administrator
        private Controls.ucCheckbox checkEnableIMAPPlain;
        private Shared.ucText textIMAPMasterUser;
        private System.Windows.Forms.Label labelIMAPMasterUser;
+       private hMailServer.Administrator.Controls.ucCheckbox checkCreateDefaultSpecialUseFolders;
     }
 }

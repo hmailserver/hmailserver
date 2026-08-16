@@ -12,6 +12,31 @@ namespace RegressionTests.IMAP
    public class SpecialUse : TestFixtureBase
    {
       [Test]
+      public void TestNewAccountDoesNotGetDefaultSpecialUseFoldersByDefault()
+      {
+         // CreateDefaultSpecialUseFoldersEnabled is off by default (PerformBasicSetup resets it),
+         // so a brand-new account should only get INBOX.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse11@example.test", "test");
+
+         Assert.AreEqual(1, account.IMAPFolders.Count);
+         Assert.AreEqual("INBOX", account.IMAPFolders[0].Name);
+      }
+
+      [Test]
+      public void TestNewAccountGetsDefaultSpecialUseFoldersWhenEnabled()
+      {
+         var settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
+         settings.CreateDefaultSpecialUseFoldersEnabled = true;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse12@example.test", "test");
+
+         Assert.AreEqual(eSpecialUse.eSUSent, account.IMAPFolders.get_ItemByName("Sent").SpecialUse);
+         Assert.AreEqual(eSpecialUse.eSUDrafts, account.IMAPFolders.get_ItemByName("Drafts").SpecialUse);
+         Assert.AreEqual(eSpecialUse.eSUTrash, account.IMAPFolders.get_ItemByName("Trash").SpecialUse);
+         Assert.AreEqual(eSpecialUse.eSUJunk, account.IMAPFolders.get_ItemByName("Junk").SpecialUse);
+      }
+
+      [Test]
       public void TestCapabilityIncludesSpecialUse()
       {
          var simulator = new ImapClientSimulator();

@@ -712,6 +712,9 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(107), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([out, retval] VARIANT_BOOL *pVal);
    [propput, id(107), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([in] VARIANT_BOOL newVal);
 
+   [propget, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([in] VARIANT_BOOL newVal);
+
 };
 
 

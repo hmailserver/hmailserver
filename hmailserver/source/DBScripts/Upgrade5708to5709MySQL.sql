@@ -12,4 +12,6 @@ update hm_imapfolders set folderspecialuse = 4 where folderparentid = -1 and fol
 
 update hm_imapfolders set folderspecialuse = 1 where folderparentid = -1 and foldername = 'Archive';
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('CreateDefaultSpecialUseFolders', '', 1);
+
 update hm_dbversion set value = 5709;
