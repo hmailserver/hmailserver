@@ -69,8 +69,13 @@ namespace HM
 
       String sComputerName = Utilities::ComputerName();
 
-      // Add Message-ID header if it does not exist.
-      if (!original_headers_->FieldExists("Message-ID"))
+      // Add Message-ID header if it does not exist. Adding a missing Message-ID is a
+      // message submission task (RFC 6409), so it's only done for authenticated senders.
+      // When another server relays a message to us we act as a relay rather than as a
+      // submission server, and should only add trace fields. Inserting a Message-ID in
+      // that case would hide from spam filters and rules further down the line that the
+      // original message didn't have one.
+      if (is_authenticated_ && !original_headers_->FieldExists("Message-ID"))
       {
          String sTemp;
          sTemp.Format(_T("Message-ID: %s\r\n"), Utilities::GenerateMessageID().c_str());
