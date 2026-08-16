@@ -78,8 +78,12 @@ namespace VMTestRunner.Console
                {
                   Logger.Error($"Test {localIndex} failed.");
                   var exLines = ex.ToString().Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-                  var truncated = exLines.Length > 100 ? exLines.Take(100).Append($"... ({exLines.Length - 100} more lines truncated)") : exLines;
-                  Logger.Error(string.Join(Environment.NewLine, truncated));
+                  Logger.Error(string.Join(Environment.NewLine, exLines));
+
+                  // Log a concise summary of the failing tests after the raw NUnit
+                  // output, so failures are easy to spot in the log.
+                  if (ex is TestFailedException testFailure && testFailure.FailureSummary != null)
+                     Logger.Error($"Test {localIndex} - {environment.Description} on {environment.OperatingSystem} - failure summary:{Environment.NewLine}{testFailure.FailureSummary}");
                }
             }
          });
