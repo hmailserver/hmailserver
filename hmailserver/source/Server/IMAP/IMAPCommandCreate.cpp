@@ -65,7 +65,7 @@ namespace HM
          for (const String &sAttribute : vecAttributes)
          {
             if (!IMAPFolder::IsValidSpecialUseAttribute(sAttribute))
-               return IMAPResult(IMAPResult::ResultNo, "[BADSPECIALUSE] CREATE Unsupported special-use attribute.");
+               return IMAPResult(IMAPResult::ResultNo, "[USEATTR] CREATE Unsupported special-use attribute.");
          }
 
          sSpecialUse = StringParser::JoinVector(vecAttributes, _T(" "));

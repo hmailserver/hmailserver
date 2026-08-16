@@ -124,5 +124,74 @@ namespace RegressionTests.IMAP
 
          simulator.Disconnect();
       }
+
+      [Test]
+      public void TestCreateWithUnsupportedUseAttributeReturnsUseAttrError()
+      {
+         // RFC 6154 defines a single response code, USEATTR, for CREATE-with-USE
+         // failures - whether the attribute is unrecognized or already in use
+         // elsewhere. The server must not invent a non-standard code here.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse6@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         var createResult = simulator.Send("A01 CREATE \"Bogus\" (USE (\\NotARealAttribute))");
+         Assert.IsTrue(createResult.Contains("A01 NO"));
+         Assert.IsTrue(createResult.Contains("USEATTR"));
+
+         simulator.Disconnect();
+      }
+
+      [Test]
+      public void TestListReturnSpecialUseOptionAnnotatesFolders()
+      {
+         // RFC 6154 LIST-EXTENDED: "LIST "" "*" RETURN (SPECIAL-USE)" must be
+         // accepted (not BAD) by a server advertising the SPECIAL-USE capability,
+         // and must annotate special-use folders in the response.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse7@example.test", "test");
+
+         var folder = account.IMAPFolders.Add("Sent Items");
+         folder.SpecialUse = eSpecialUse.eSUSent;
+         folder.Save();
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         var result = simulator.Send("A01 LIST \"\" \"*\" RETURN (SPECIAL-USE)");
+
+         Assert.IsTrue(result.Contains("A01 OK"), "Expected extended LIST with RETURN (SPECIAL-USE) to succeed. Result: " + result);
+         Assert.IsTrue(result.Contains("\\Sent"));
+
+         simulator.Disconnect();
+      }
+
+      [Test]
+      public void TestListSelectSpecialUseOptionFiltersFolders()
+      {
+         // RFC 6154 LIST-EXTENDED: "LIST (SPECIAL-USE) "" "*"" must return only
+         // mailboxes that have a special-use attribute set.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse8@example.test", "test");
+
+         var specialFolder = account.IMAPFolders.Add("Trash");
+         specialFolder.SpecialUse = eSpecialUse.eSUTrash;
+         specialFolder.Save();
+
+         account.IMAPFolders.Add("NotSpecial");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         var result = simulator.Send("A01 LIST (SPECIAL-USE) \"\" \"*\"");
+
+         Assert.IsTrue(result.Contains("A01 OK"), "Expected extended LIST with SPECIAL-USE selection option to succeed. Result: " + result);
+         Assert.IsTrue(result.Contains("Trash"));
+         Assert.IsFalse(result.Contains("NotSpecial"));
+
+         simulator.Disconnect();
+      }
    }
 }
