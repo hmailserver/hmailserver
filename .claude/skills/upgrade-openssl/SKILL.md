@@ -119,5 +119,4 @@ elevation) copies the new DLLs into the output dir; for deeper DLL-linkage check
 - **Build recipe (edited only if the release changes it):** `libraries\build-openssl.ps1`,
   `README.md`.
 - **Not version-bearing within 3.5.x (leave alone):** DLL/lib names in `section_files_64.iss`
-  and the `hMailServer.vcxproj` linker dependencies; the OpenSSL version macros in
-  `libraries/asio-overrides/boost/asio/ssl/impl/context.ipp` (only relevant on a major jump).
+  and the `hMailServer.vcxproj` linker dependencies.
