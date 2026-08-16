@@ -45,7 +45,7 @@ namespace HM
 
       vecObjects.clear();
 
-      SQLCommand command("select folderid, folderparentid, foldername, folderissubscribed, foldercurrentuid, foldercreationtime from hm_imapfolders "
+      SQLCommand command("select folderid, folderparentid, foldername, folderissubscribed, foldercurrentuid, foldercreationtime, folderspecialuse from hm_imapfolders "
                          " where folderaccountid = @FOLDERACCOUNTID order by folderid asc");
 
       command.AddParameter("@FOLDERACCOUNTID", account_id_);
@@ -74,6 +74,7 @@ namespace HM
             bIsSubscribed = (pRS->GetLongValue("folderissubscribed") == 1) ? true : false;
             currentUID = (unsigned int) pRS->GetInt64Value("foldercurrentuid");
             creationTime = Time::GetDateFromSystemDate(pRS->GetStringValue("foldercreationtime"));
+            unsigned int specialUseFlags = (unsigned int) pRS->GetLongValue("folderspecialuse");
 
             // Initialize with dummy parent folder. We can't set it here since it may not
             // even be loaded from the recordset yet.
@@ -84,6 +85,7 @@ namespace HM
             pFolder->SetIsSubscribed(bIsSubscribed);
             pFolder->SetCurrentUID(currentUID);
             pFolder->SetCreationTime(creationTime);
+            pFolder->SetSpecialUseFlags(specialUseFlags);
 
             vecIMAPFolders.push_back(std::make_pair(iParentID, pFolder));
 
@@ -174,6 +176,29 @@ namespace HM
 
   
 
+
+   std::shared_ptr<IMAPFolder>
+   IMAPFolders::GetFolderWithSpecialUse(unsigned int specialUseFlags, bool bRecursive)
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      for (std::shared_ptr<IMAPFolder> pFolder : vecObjects)
+      {
+         if ((pFolder->GetSpecialUseFlags() & specialUseFlags) != 0)
+            return pFolder;
+
+         if (bRecursive)
+         {
+            std::shared_ptr<IMAPFolder> pMatch = pFolder->GetSubFolders()->GetFolderWithSpecialUse(specialUseFlags, bRecursive);
+
+            if (pMatch)
+               return pMatch;
+         }
+      }
+
+      std::shared_ptr<IMAPFolder> pEmpty;
+      return pEmpty;
+   }
 
    std::shared_ptr<IMAPFolder>
    IMAPFolders::GetFolderByFullPath(const String &sPath)

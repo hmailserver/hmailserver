@@ -252,7 +252,8 @@ create table hm_imapfolders
   foldername varchar(255) NOT NULL,
   folderissubscribed smallint NOT NULL,
   foldercreationtime timestamp NOT NULL,
-  foldercurrentuid bigint NOT NULL
+  foldercurrentuid bigint NOT NULL,
+  folderspecialuse int NOT NULL
 );
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);

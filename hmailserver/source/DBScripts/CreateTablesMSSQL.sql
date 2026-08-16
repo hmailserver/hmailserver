@@ -360,8 +360,9 @@ create table hm_imapfolders
 	foldername nvarchar(255) NOT NULL,
 	folderissubscribed tinyint NOT NULL,
    foldercreationtime datetime NOT NULL,
-   foldercurrentuid bigint NOT NULL
-) 
+   foldercurrentuid bigint NOT NULL,
+   folderspecialuse int NOT NULL
+)
 
 ALTER TABLE hm_imapfolders ADD CONSTRAINT hm_imapfolders_pk PRIMARY KEY NONCLUSTERED (folderid) 
 

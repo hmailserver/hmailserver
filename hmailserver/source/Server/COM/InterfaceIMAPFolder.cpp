@@ -157,7 +157,47 @@ InterfaceIMAPFolder::put_Subscribed(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP 
+STDMETHODIMP
+InterfaceIMAPFolder::get_SpecialUse(eSpecialUse *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = (eSpecialUse) object_->GetSpecialUseFlags();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceIMAPFolder::put_SpecialUse(eSpecialUse newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      const long knownFlags = HM::IMAPFolder::SpecialUseAll | HM::IMAPFolder::SpecialUseArchive |
+         HM::IMAPFolder::SpecialUseDrafts | HM::IMAPFolder::SpecialUseFlagged |
+         HM::IMAPFolder::SpecialUseJunk | HM::IMAPFolder::SpecialUseSent | HM::IMAPFolder::SpecialUseTrash;
+
+      if ((newVal & ~knownFlags) != 0)
+         return COMError::GenerateError("Invalid special-use attribute. Valid values are eSUAll, eSUArchive, eSUDrafts, eSUFlagged, eSUJunk, eSUSent and eSUTrash.");
+
+      object_->SetSpecialUseFlags((unsigned int) newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP
 InterfaceIMAPFolder::get_Messages(IInterfaceMessages **pVal)
 {
    try

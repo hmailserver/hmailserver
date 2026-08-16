@@ -135,6 +135,16 @@ namespace HM
 
       if (!isSelectable)
          nameAttributes += " \\Noselect";
+      else if (currentFolder)
+      {
+         // Language-independent special-use hint (RFC 6154). Read the stored
+         // attribute(s) rather than deriving them from the (possibly localized) folder name.
+         // GetSpecialUse() decodes the folderspecialuse bitmask, so it can only ever
+         // produce known RFC 6154 tokens - no extra validation needed here.
+         String specialUse = currentFolder->GetSpecialUse();
+         if (!specialUse.IsEmpty())
+            nameAttributes += " " + specialUse;
+      }
 
       // Workaround for Outlook "feature".
       AdjustCaseToClientCase_(sFullPath, sWildcard, hierarchyDelimiter);

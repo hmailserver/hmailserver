@@ -142,6 +142,7 @@ namespace HM
       oStatement.AddColumnInt64("folderparentid", pFolder->GetParentFolderID());
       oStatement.AddColumn("foldername", pFolder->GetFolderName());
       oStatement.AddColumn("folderissubscribed", pFolder->GetIsSubscribed() ? 1 : 0);
+      oStatement.AddColumn("folderspecialuse", (long) pFolder->GetSpecialUseFlags());
 
       
       __int64 iDBID = 0;

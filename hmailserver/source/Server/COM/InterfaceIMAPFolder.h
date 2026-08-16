@@ -67,6 +67,8 @@ END_COM_MAP()
    STDMETHOD(put_Name)(/*[in]*/ BSTR newVal);
    STDMETHOD(get_Subscribed)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_Subscribed)(/*[in]*/ VARIANT_BOOL newVal);
+   STDMETHOD(get_SpecialUse)(/*[out, retval]*/ eSpecialUse *pVal);
+   STDMETHOD(put_SpecialUse)(/*[in]*/ eSpecialUse newVal);
 
    STDMETHOD(get_Messages)(/*[out, retval]*/ IInterfaceMessages **pVal);
    STDMETHOD(get_SubFolders)(/*[out, retval]*/ IInterfaceIMAPFolders **pVal);

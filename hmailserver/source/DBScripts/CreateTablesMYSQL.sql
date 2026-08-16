@@ -238,7 +238,8 @@ create table hm_imapfolders
   foldername varchar(255) NOT NULL,
   folderissubscribed tinyint unsigned NOT NULL,
   foldercreationtime datetime NOT NULL,
-  foldercurrentuid bigint NOT NULL
+  foldercurrentuid bigint NOT NULL,
+  folderspecialuse int NOT NULL
 ) DEFAULT CHARSET=utf8;
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
