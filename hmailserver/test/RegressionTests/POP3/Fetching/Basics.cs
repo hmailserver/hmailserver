@@ -1302,6 +1302,8 @@ namespace RegressionTests.POP3.Fetching
 
          var account = DownloadMessageFromExternalAccount(MessageWithAddressLiteralInHelo);
 
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
          var messageText = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
 
          Assert.IsTrue(messageText.Contains("Subject: ThisIsSpam Test"), messageText);
