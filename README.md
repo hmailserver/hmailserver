@@ -99,18 +99,26 @@ the `src\tools\msvc\build.pl` build system this relies on).
 
 Building Boost
 --------------
-1. Download Boost 1.90.0 from http://www.boost.org/ and put it into %hMailServerLibs%\<Boost-Version>.
-   You should now have a folder named %hMailServerLibs%\<Boost-Version>, for example C:\Dev\hMailLibs\boost_1_90_0
-2. Start a x64 Native Tools Command Prompt for VS2019.
-3. Change dir to %hMailServerLibs%\<Boost-Version>.
-4. Run the following commands:
+hMailServer links statically against a handful of compiled Boost libraries (thread, filesystem,
+regex, chrono, atomic; Boost.System is header-only as of Boost 1.92). Boost is built by the
+`libraries\build-boost.ps1` script, which
+downloads the requested version into %hMailServerLibs%\boost_&lt;Version&gt; (e.g. `boost_1_92_0`),
+bootstraps `b2`, and builds the static, multithreaded x64 libraries into `stage\lib`.
 
-   NOTE: Change the -j parameter from 4 to the number of cores on your computer. The parameter specifies the number of parallel compilations will be done.
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- Visual Studio 2019 with the x64 C++ build tools (the script locates vcvars64.bat automatically
+  and drives `b2` with the msvc-14.2 toolset).
+
+Run, from the repository root:
 
    <pre>
-   bootstrap
-   b2 debug release threading=multi link=static --with-thread --with-filesystem --with-regex --with-chrono --with-system --with-atomic --toolset=msvc-14.2 address-model=64 stage --build-dir=out64 -j 4
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-boost.ps1 -Version 1.92.0
    </pre>
+
+Pass `-Toolset &lt;name&gt;` to override the default `msvc-14.2`, or `-Jobs &lt;n&gt;` to change the
+number of parallel compilations (defaults to the number of logical processors). Only Boost 1.x is
+supported.
 
 Building hMailServer
 --------------------
