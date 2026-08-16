@@ -46,4 +46,7 @@ hmailserver/source/Server/hMailServer.Minidump/x64/*
 **/.vs/*
 
 /.claude/settings.*
+# Shared project settings are checked in. Personal overrides (settings.local.json)
+# are still ignored by the rule above.
+!/.claude/settings.json
 /hmailserver/.claude/settings.*
