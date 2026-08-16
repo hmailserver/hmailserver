@@ -335,7 +335,11 @@ namespace HM
          String hostName = Utilities::GetHostNameFromReceivedHeader(header);
          IPAddress ipaddress = Utilities::GetIPAddressFromReceivedHeader(header);
 
-         if (hostName == _T("") || ipaddress == emptyAddress)
+         // The host name is the one the sender presented in HELO/EHLO, and may be
+         // anything at all - the header is still usable without it. Skipping the
+         // header when it can't be parsed would mean continuing into the headers
+         // below, which the sender may have written.
+         if (ipaddress == emptyAddress)
             continue;
 
          vecAddresses.push_back(std::make_pair(hostName, ipaddress));
@@ -405,6 +409,74 @@ namespace HM
 
       if (!address.IsAny())
          throw;
+
+      TestHeloDependentOriginatingAddress_();
+   }
+
+   void
+   MessageUtilitiesTester::TestHeloDependentOriginatingAddress_()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // https://github.com/hmailserver/hmailserver/issues/168
+   //
+   // The originating IP address is used for the IP based anti spam tests (DNSBL,
+   // SPF, ...) when a message is received from an incoming relay, or downloaded
+   // from an external account. What the sender presented in HELO/EHLO must not
+   // affect which IP address is picked - the sender controls that string, and
+   // everything below the topmost Received header the sender may have forged.
+   //---------------------------------------------------------------------------()
+   {
+      std::list<String> headerLines;
+
+      String hostName;
+      IPAddress address;
+
+      // The sender presented an address literal in HELO. 203.0.113.99 is where
+      // the message was actually received from.
+      headerLines.push_back("from [198.51.100.7] (unknown [203.0.113.99]) by mail.example.test with ESMTP; Fri, 06 May 2016 03:49:14 +0200");
+
+      bool result = MessageUtilities::RetrieveOriginatingAddress(headerLines, hostName, address);
+
+      if (result == false)
+         throw std::logic_error("Expected an originating address to be located.");
+
+      if (address.ToString() != "203.0.113.99")
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the originating address 203.0.113.99, but got {0}. The address literal presented in HELO was used instead.", address.ToString()));
+
+      // The host name is what the sender claimed to be. It's used by the HELO
+      // host name spam test, which compares it against the address above.
+      if (hostName != _T("[198.51.100.7]"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the host name presented in HELO, but got {0}.", hostName));
+
+      // The sender presented an unqualified host name which isn't a valid domain
+      // name. The header still states which IP address the message was received
+      // from, so it must be used - if it isn't, parsing continues into the
+      // header below, which the sender is free to forge.
+      headerLines.clear();
+      headerLines.push_back("from my_pc (unknown [203.0.113.99]) by mail.example.test with ESMTP; Fri, 06 May 2016 03:49:14 +0200");
+      headerLines.push_back("from forged.example.test (forged.example.test [198.51.100.7]) by forged.example.test; Fri, 06 May 2016 03:49:13 +0200");
+
+      result = MessageUtilities::RetrieveOriginatingAddress(headerLines, hostName, address);
+
+      if (result == false)
+         throw std::logic_error("Expected an originating address to be located.");
+
+      if (address.ToString() != "203.0.113.99")
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the originating address 203.0.113.99, but got {0}. A Received header written by the sender was used instead.", address.ToString()));
+
+      // Without any header below it, the same message instead ends up without a
+      // known originating address, which silently disables the IP based spam
+      // tests.
+      headerLines.clear();
+      headerLines.push_back("from my_pc (unknown [203.0.113.99]) by mail.example.test with ESMTP; Fri, 06 May 2016 03:49:14 +0200");
+
+      result = MessageUtilities::RetrieveOriginatingAddress(headerLines, hostName, address);
+
+      if (result == false)
+         throw std::logic_error("Expected an originating address to be located. Since none was, the IP based spam tests are skipped for this message.");
+
+      if (address.ToString() != "203.0.113.99")
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the originating address 203.0.113.99, but got {0}.", address.ToString()));
    }
 
 }

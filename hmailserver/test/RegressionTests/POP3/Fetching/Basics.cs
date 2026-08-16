@@ -1138,5 +1138,195 @@ namespace RegressionTests.POP3.Fetching
             Assert.IsTrue(log.Contains("Delivering message from <Empty> to user@example.test."));
          }
       }
+
+      // https://github.com/hmailserver/hmailserver/issues/168
+      //
+      // When a message is downloaded from an external account, the IP address used for the IP
+      // based spam tests is parsed out of the Received headers of the message. The host name the
+      // sender presented in HELO/EHLO ends up in those headers, but it is supplied by the sender
+      // and must not affect which IP address is tested.
+      //
+      // In the messages below, 203.0.113.99 is the address the message was received from, and
+      // 198.51.100.7 is an address the sender put in the message. The black list host doesn't
+      // resolve - the tests assert on which lookups hMailServer makes, not on their result.
+      private const string OriginatingIPBlackList = "dnsbl.example.test";
+
+      private void EnableOriginatingIPBlackList()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+
+         var dnsBlackList = _application.Settings.AntiSpam.DNSBlackLists.Add();
+         dnsBlackList.DNSHost = OriginatingIPBlackList;
+         dnsBlackList.RejectMessage = "Blocked";
+         dnsBlackList.Score = 5;
+         dnsBlackList.Active = true;
+         dnsBlackList.Save();
+      }
+
+      private Account DownloadMessageFromExternalAccount(string message)
+      {
+         var messages = new List<string> {message};
+
+         var port = TestSetup.GetNextFreePort();
+
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@example.test", "test");
+            var fa = CreateFetchAccount(account, port, true, false);
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            LockHelper.WaitForUnlock(fa);
+
+            fa.Delete();
+
+            return account;
+         }
+      }
+
+      private string FetchMessageAndReadLog(string message)
+      {
+         LogHandler.DeleteCurrentDefaultLog();
+
+         var account = DownloadMessageFromExternalAccount(message);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         return LogHandler.ReadCurrentDefaultLog();
+      }
+
+      [Test]
+      [Description("Issue 168: The DNSBL lookup should be made against the IP address the message " +
+                   "was received from, not against an address literal presented in HELO.")]
+      public void TestSpamTestsUseReceivedIPWhenHeloContainsAddressLiteral()
+      {
+         EnableOriginatingIPBlackList();
+
+         var message = "Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n" +
+                       "\tby mail.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+                       "From: sender@example.com\r\n" +
+                       "To: user@example.test\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Test body.";
+
+         var log = FetchMessageAndReadLog(message);
+
+         Assert.IsTrue(log.Contains("DNS lookup: 99.113.0.203." + OriginatingIPBlackList), log);
+         Assert.IsFalse(log.Contains("DNS lookup: 7.100.51.198." + OriginatingIPBlackList), log);
+      }
+
+      [Test]
+      [Description("Issue 168: A HELO host name which isn't a valid domain name should not cause " +
+                   "the spam tests to be skipped.")]
+      public void TestSpamTestsAreRunWhenHeloIsNotAValidDomainName()
+      {
+         EnableOriginatingIPBlackList();
+
+         var message = "Received: from my_pc (unknown [203.0.113.99])\r\n" +
+                       "\tby mail.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+                       "From: sender@example.com\r\n" +
+                       "To: user@example.test\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Test body.";
+
+         var log = FetchMessageAndReadLog(message);
+
+         Assert.IsTrue(log.Contains("DNS lookup: 99.113.0.203." + OriginatingIPBlackList), log);
+      }
+
+      [Test]
+      [Description("Issue 168: A HELO host name which isn't a valid domain name should not cause " +
+                   "hMailServer to fall back on a Received header written by the sender.")]
+      public void TestSpamTestsIgnoreReceivedHeadersBelowTheOriginatingOne()
+      {
+         EnableOriginatingIPBlackList();
+
+         var message = "Received: from my_pc (unknown [203.0.113.99])\r\n" +
+                       "\tby mail.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+                       "Received: from forged.example.test (forged.example.test [198.51.100.7])\r\n" +
+                       "\tby forged.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:13 +0200\r\n" +
+                       "From: sender@example.com\r\n" +
+                       "To: user@example.test\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Test body.";
+
+         var log = FetchMessageAndReadLog(message);
+
+         Assert.IsTrue(log.Contains("DNS lookup: 99.113.0.203." + OriginatingIPBlackList), log);
+         Assert.IsFalse(log.Contains("DNS lookup: 7.100.51.198." + OriginatingIPBlackList), log);
+      }
+
+      // The message below was received from 203.0.113.99, but the sender presented the address
+      // literal [198.51.100.7] in HELO. The HELO host name test compares the two, and since they
+      // don't match, the message should be classified as spam.
+      //
+      // The test doesn't depend on DNS: when the HELO host name is an address literal, the HELO
+      // host name test is a plain comparison against the originating IP address.
+      private const string MessageWithAddressLiteralInHelo =
+         "Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n" +
+         "\tby mail.example.test with ESMTP\r\n" +
+         "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+         "From: sender@example.com\r\n" +
+         "To: user@example.test\r\n" +
+         "Subject: Test\r\n" +
+         "\r\n" +
+         "Test body.";
+
+      [Test]
+      [Description("Issue 168: A message whose HELO host name does not match the IP address it was " +
+                   "received from should be marked as spam, also when the HELO host name is an " +
+                   "address literal.")]
+      public void TestMessageWithAddressLiteralInHeloIsMarkedAsSpam()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+         _application.Settings.AntiSpam.AddHeaderReason = true;
+         _application.Settings.AntiSpam.AddHeaderSpam = true;
+         _application.Settings.AntiSpam.PrependSubject = true;
+         _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
+
+         _application.Settings.AntiSpam.CheckHostInHelo = true;
+         _application.Settings.AntiSpam.CheckHostInHeloScore = 5;
+
+         var account = DownloadMessageFromExternalAccount(MessageWithAddressLiteralInHelo);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var messageText = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(messageText.Contains("Subject: ThisIsSpam Test"), messageText);
+         Assert.IsTrue(messageText.Contains("X-hMailServer-Spam: YES"), messageText);
+         Assert.IsTrue(messageText.Contains("X-hMailServer-Reason-1:"), messageText);
+         Assert.IsTrue(messageText.Contains("The host name specified in HELO"), messageText);
+      }
+
+      [Test]
+      [Description("Issue 168: A message whose HELO host name does not match the IP address it was " +
+                   "received from should be deleted when it reaches the delete threshold, also when " +
+                   "the HELO host name is an address literal.")]
+      public void TestMessageWithAddressLiteralInHeloIsDeleted()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+
+         _application.Settings.AntiSpam.CheckHostInHelo = true;
+         _application.Settings.AntiSpam.CheckHostInHeloScore = 105;
+
+         var account = DownloadMessageFromExternalAccount(MessageWithAddressLiteralInHelo);
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
+      }
    }
 }

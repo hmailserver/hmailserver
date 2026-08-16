@@ -306,15 +306,14 @@ namespace HM
       int endPos = sReceivedHeader.Find(_T(" "), startPos );
       if (endPos == -1)
       {
-         assert(0);
-         return "";
+         // The header ends directly after the host name.
+         endPos = sReceivedHeader.GetLength();
       }
 
       int length = endPos - startPos;
 
-      if (length == -1)
+      if (length <= 0)
       {
-         assert(0);
          return "";
       }
 
@@ -356,37 +355,57 @@ namespace HM
          return IPAddress();
       }
 
-      int iBracketPos = sReceivedHeader.Find(_T("["), iFromPos );
-      if (iBracketPos == -1)
+      // Only the part of the header describing the sending host is of interest.
+      // What follows "by" describes the receiving host, and may contain values
+      // which look like IP addresses, such as software version numbers.
+      int iEndPos = sReceivedHeader.Find(_T("by "), iFromPos);
+      if (iEndPos == -1)
+         iEndPos = sReceivedHeader.GetLength();
+
+      // The sending host may be described both by the host name it presented in
+      // HELO/EHLO, and by the address the receiving server saw it connect from:
+      //
+      //    from [198.51.100.7] (unknown [203.0.113.99]) by ...
+      //
+      // The client decides what to put in HELO/EHLO, so when both are given, the
+      // address observed by the receiving server - the last one - is the one to
+      // use.
+      IPAddress result;
+
+      int iSearchPos = iFromPos;
+      int iBracketPos = sReceivedHeader.Find(_T("["), iSearchPos);
+
+      while (iBracketPos >= 0 && iBracketPos < iEndPos)
       {
-         // Could not locate IP address.
-         return IPAddress();
+         int iBracketEndPos = sReceivedHeader.Find(_T("]"), iBracketPos);
+         if (iBracketEndPos == -1 || iBracketEndPos > iEndPos)
+            break;
+
+         String sPreceding = sReceivedHeader.Mid(iSearchPos, iBracketPos - iSearchPos);
+         sPreceding.TrimRight();
+
+         // Some servers state the host name given in HELO/EHLO in the comment -
+         // "(helo=[198.51.100.7])" - instead of the address they observed. What
+         // is marked that way comes from the client, and is not used.
+         bool givenInHelo = sPreceding.EndsWith(_T("helo=")) ||
+                            sPreceding.EndsWith(_T(" helo")) ||
+                            sPreceding.EndsWith(_T("(helo"));
+
+         if (!givenInHelo)
+         {
+            String sIPAddress = sReceivedHeader.Mid(iBracketPos + 1, iBracketEndPos - iBracketPos - 1);
+
+            IPAddress address;
+
+            if (address.TryParse(sIPAddress, false))
+               result = address;
+         }
+
+         iSearchPos = iBracketEndPos + 1;
+         iBracketPos = sReceivedHeader.Find(_T("["), iSearchPos);
       }
 
-      int iByPos = sReceivedHeader.Find(_T("by "));
-      if (iByPos >= 0 && iByPos < iBracketPos)
-      {
-         // Found from but no bracket.
-         return IPAddress();
-      }
-
-      int iBracketEndPos = sReceivedHeader.Find(_T("]"), iBracketPos);
-
-      int iIPLength = iBracketEndPos - iBracketPos - 1;
-
-      String sIPAddress = sReceivedHeader.Mid(iBracketPos + 1, iIPLength);
-
-      if (!StringParser::IsValidIPAddress(sIPAddress))
-      {
-         // Could not locate IP address
-         assert(0);
-         return IPAddress();
-      }
-
-      IPAddress address;
-      address.TryParse(sIPAddress);
-
-      return address;
+      return result;
 
    }
 
@@ -526,9 +545,148 @@ namespace HM
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
       if (hostName != _T("outbound1.den.paypal.com"))
          throw;
+
+      TestHeloDependentReceivedHeaderParse_();
+      TestMalformedReceivedHeaderParse_();
    }
 
+   void
+   UtilitiesTester::TestHeloDependentReceivedHeaderParse_()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // https://github.com/hmailserver/hmailserver/issues/168
+   //
+   // The host name a client presents in HELO/EHLO is copied verbatim into the
+   // "from" part of the Received header. Since the sender decides what to put
+   // there, nothing in that part of the header may be allowed to decide which IP
+   // address we consider the message to originate from. The IP address which the
+   // server writing the header actually observed is the one within the
+   // parentheses.
+   //---------------------------------------------------------------------------()
+   {
+      // The client presented an address literal in HELO. 203.0.113.99 is the IP
+      // address the message was received from; 198.51.100.7 is the literal the
+      // sender chose to present.
+      AssertIPAddress_("Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n"
+                       "\tby mail.example.test with ESMTP\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
 
+      // Same header, written in the format hMailServer itself uses.
+      AssertIPAddress_("Received: from [198.51.100.7] (Unknown [203.0.113.99])\r\n"
+                       "\tby MAILSERVER with ESMTP\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
+
+      // The client presented an unqualified host name which isn't a valid domain
+      // name. The IP address is still unambiguous.
+      AssertIPAddress_("Received: from my_pc (unknown [203.0.113.99])\r\n"
+                       "\tby mail.example.test with ESMTP\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
+
+      // Servers which state the observed address first, and the host name given
+      // in HELO/EHLO in the comment.
+      AssertIPAddress_("Received: from [203.0.113.99] (helo=mail.example.test)\r\n"
+                       "\tby mail.example.test with esmtp id 1abcDE-000123-45\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
+
+      AssertIPAddress_("Received: from [203.0.113.99] (port=54321 helo=[198.51.100.7])\r\n"
+                       "\tby mail.example.test with esmtp id 1abcDE-000123-45\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
+
+      AssertIPAddress_("Received: from unknown (HELO [198.51.100.7]) ([203.0.113.99])\r\n"
+                       "\tby mail.example.test (qmail-ldap-1.03) with SMTP\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("203.0.113.99"));
+
+      // The host name is reported as the sender presented it, so that the HELO
+      // host name spam test can compare the two.
+      AssertHostName_("Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n"
+                      "\tby mail.example.test with ESMTP\r\n"
+                      "\t; Fri, 06 May 2016 03:49:14 +0200\r\n", _T("[198.51.100.7]"));
+   }
+
+   void
+   UtilitiesTester::TestMalformedReceivedHeaderParse_()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Received headers are written by other servers, and partly from data given
+   // by the client, so anything may end up in them. Parsing one must never
+   // report an address which isn't stated in the header - anti spam tests are
+   // run against whatever is reported.
+   //---------------------------------------------------------------------------()
+   {
+      // Only the part of the header describing the sending host is parsed. What
+      // follows "by" describes the receiving host.
+      AssertIPAddress_("from mail.example.test by relay.example.test [203.0.113.99]; date", _T("0.0.0.0"));
+      AssertIPAddress_("from mail.example.test (unknown [203.0.113.99])"
+                       " by relay.example.test (Postfix) with ESMTP id [198.51.100.7]; date", _T("203.0.113.99"));
+      AssertIPAddress_("from host.edu (host.edu [1.2.3.4]) by mail.host.edu (8.8.5) id 004A21; date", _T("1.2.3.4"));
+
+      // Headers which don't state where the message came from.
+      AssertIPAddress_("", _T("0.0.0.0"));
+      AssertIPAddress_("by 10.103.12.12 with SMTP id p12cs158601mui; date", _T("0.0.0.0"));
+      AssertIPAddress_("from mail.example.test by relay.example.test; date", _T("0.0.0.0"));
+      AssertIPAddress_("Received: from ", _T("0.0.0.0"));
+
+      // Headers where the address can't be parsed.
+      AssertIPAddress_("from mail.example.test ([]) by relay.example.test; date", _T("0.0.0.0"));
+      AssertIPAddress_("from mail.example.test (unknown [not-an-ip-address]) by relay.example.test; date", _T("0.0.0.0"));
+      AssertIPAddress_("from mail.example.test (unknown [203.0.113.999]) by relay.example.test; date", _T("0.0.0.0"));
+      AssertIPAddress_("from [203.0.113.99 (unknown [198.51.100.7]) by relay.example.test; date", _T("0.0.0.0"));
+
+      // IPv6.
+      AssertIPAddress_("from mail.example.test (mail.example.test [2001:db8::1])\r\n"
+                       "\tby mail.example.test with ESMTP\r\n"
+                       "\t; date", _T("2001:db8::1"));
+      AssertIPAddress_("from [IPv6:2001:db8::1] (unknown [2001:db8::99])\r\n"
+                       "\tby mail.example.test with ESMTP\r\n"
+                       "\t; date", _T("2001:db8::99"));
+
+      // Host names which aren't valid domain names are not reported. The address
+      // stated by the header is used regardless of them.
+      AssertHostName_("from mail.example.test(unknown [203.0.113.99]) by relay.example.test; date", _T(""));
+      AssertHostName_("from mail.example.test. (unknown [203.0.113.99]) by relay.example.test; date", _T(""));
+      AssertHostName_("from my_pc (unknown [203.0.113.99]) by relay.example.test; date", _T(""));
+      AssertHostName_("from -mail.example.test (unknown [203.0.113.99]) by relay.example.test; date", _T(""));
+      AssertHostName_("from [IPv6:2001:db8::1] (unknown [203.0.113.99]) by relay.example.test; date", _T(""));
+
+      AssertIPAddress_("from mail.example.test(unknown [203.0.113.99]) by relay.example.test; date", _T("203.0.113.99"));
+      AssertIPAddress_("from my_pc (unknown [203.0.113.99]) by relay.example.test; date", _T("203.0.113.99"));
+
+      // Host names which are.
+      AssertHostName_("from mail.example.test (unknown [203.0.113.99]) by relay.example.test; date", _T("mail.example.test"));
+      AssertHostName_("from localhost (unknown [203.0.113.99]) by relay.example.test; date", _T("localhost"));
+      AssertHostName_("from [198.51.100.7] (unknown [203.0.113.99]) by relay.example.test; date", _T("[198.51.100.7]"));
+      AssertHostName_("from [IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334] (unknown [203.0.113.99]) by relay.example.test; date",
+                      _T("[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]"));
+
+      // Headers which don't state a host name.
+      AssertHostName_("", _T(""));
+      AssertHostName_("by 10.103.12.12 with SMTP id p12cs158601mui; date", _T(""));
+      AssertHostName_("Received: from ", _T(""));
+   }
+
+   void
+   UtilitiesTester::AssertHostName_(const String &receivedHeader, const String &expectedHostName)
+   {
+      String actualHostName = Utilities::GetHostNameFromReceivedHeader(receivedHeader);
+
+      if (actualHostName != expectedHostName)
+      {
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the host name {0}, but got {1}. Header: {2}",
+            expectedHostName, actualHostName, receivedHeader));
+      }
+   }
+
+   void
+   UtilitiesTester::AssertIPAddress_(const String &receivedHeader, const String &expectedIPAddress)
+   {
+      String actualIPAddress = Utilities::GetIPAddressFromReceivedHeader(receivedHeader).ToString();
+
+      if (actualIPAddress != expectedIPAddress)
+      {
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address {0}, but got {1}. Header: {2}",
+            expectedIPAddress, actualIPAddress, receivedHeader));
+      }
+   }
 
    void 
    UtilitiesTester::TestComputerName_()

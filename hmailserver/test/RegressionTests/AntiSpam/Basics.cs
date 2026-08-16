@@ -641,5 +641,54 @@ namespace RegressionTests.AntiSpam
          Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Lookup: ca.secunia.com.multi.surbl.org"));
          Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Lookup: ubuntu.com.multi.surbl.org"));
       }
+
+      [Test]
+      [Description("Issue 168: When a message is received from an incoming relay, the IP address " +
+                   "used for the IP based spam tests is parsed out of the Received headers. An " +
+                   "address literal presented in HELO must not be used as the originating address.")]
+      public void TestSpamProtectionBehindIncomingRelayIgnoresAddressLiteralInHelo()
+      {
+         _antiSpam.SpamMarkThreshold = 1;
+         _antiSpam.SpamDeleteThreshold = 100;
+         _antiSpam.AddHeaderReason = true;
+         _antiSpam.AddHeaderSpam = true;
+         _antiSpam.PrependSubject = true;
+         _antiSpam.PrependSubjectText = "ThisIsSpam";
+
+         // When the HELO host name is an address literal, this test is a plain comparison against
+         // the originating IP address, so the test doesn't depend on DNS.
+         _antiSpam.CheckHostInHelo = true;
+         _antiSpam.CheckHostInHeloScore = 5;
+
+         // Deliveries from the test client are treated as coming from a relay, which means that
+         // the originating IP address is taken from the Received headers of the message rather
+         // than from the connection.
+         var incomingRelay = _settings.IncomingRelays.Add();
+         incomingRelay.LowerIP = "127.0.0.1";
+         incomingRelay.UpperIP = "127.0.0.1";
+         incomingRelay.Name = "Test";
+         incomingRelay.Save();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "helotest@example.test", "test");
+
+         // The relay received the message from 203.0.113.99, from a client presenting the address
+         // literal [198.51.100.7] in HELO. The two don't match, so the message is spam.
+         var message = "Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n" +
+                       "\tby mail.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+                       "From: sender@example.com\r\n" +
+                       "To: " + account.Address + "\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Test body.";
+
+         SmtpClientSimulator.StaticSendRaw("sender@example.com", account.Address, message);
+
+         var messageText = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(messageText.Contains("Subject: ThisIsSpam Test"), messageText);
+         Assert.IsTrue(messageText.Contains("X-hMailServer-Spam: YES"), messageText);
+         Assert.IsTrue(messageText.Contains("The host name specified in HELO"), messageText);
+      }
    }
 }
