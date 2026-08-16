@@ -36,12 +36,25 @@ namespace HM
    bool
    PersistentIMAPFolder::DeleteByAccount(__int64 iAccountID)
    {
+      return DeleteByAccount(iAccountID, false);
+   }
+
+   bool
+   PersistentIMAPFolder::DeleteByAccount(__int64 iAccountID, bool forceDelete)
+   {
       if (iAccountID <= 0)
          return false;
 
       IMAPFolders accountFolders (iAccountID, -1);
       accountFolders.Refresh();
-      return accountFolders.DeleteAll();
+
+      for (int i = 0; i < accountFolders.GetCount(); i++)
+      {
+         if (!DeleteObject(accountFolders.GetItem(i), forceDelete))
+            return false;
+      }
+
+      return true;
    }
 
    bool
@@ -53,7 +66,9 @@ namespace HM
    /*
       Deletes a specific IMAP folder.
 
-      If forceDelete is false, the user Inbox won't be deleted.
+      If forceDelete is false, the user Inbox and any folder with a
+      special-use flag (e.g. Sent, Trash), regardless of nesting depth,
+      won't be deleted.
 
    */
    bool
@@ -62,9 +77,16 @@ namespace HM
       if (pFolder->GetID() <= 0)
          return false;
       
-      // Delete sub folders first...
-      if (!pFolder->GetSubFolders()->DeleteAll())
-         return false;
+      // Delete sub folders first. Loop explicitly (rather than using
+      // Collection::DeleteAll, which always deletes with forceDelete=false)
+      // so that forceDelete propagates to nested folders too - otherwise a
+      // whole-account delete would leave nested special-use folders behind.
+      std::shared_ptr<IMAPFolders> pSubFolders = pFolder->GetSubFolders();
+      for (int i = 0; i < pSubFolders->GetCount(); i++)
+      {
+         if (!DeleteObject(pSubFolders->GetItem(i), forceDelete))
+            return false;
+      }
 
       // We must delete all email in this folder.
       pFolder->GetMessages()->Refresh(false);
@@ -81,7 +103,8 @@ namespace HM
          return false;
 
       bool isInbox = pFolder->GetParentFolderID() == -1 && pFolder->GetFolderName().CompareNoCase(_T("Inbox")) == 0;
-      bool deleteActualFolder = forceDelete || !isInbox;
+      bool isSpecialUseFolder = pFolder->GetSpecialUseFlags() != IMAPFolder::SpecialUseNone;
+      bool deleteActualFolder = forceDelete || !(isInbox || isSpecialUseFolder);
 
       if (deleteActualFolder)
       {

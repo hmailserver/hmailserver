@@ -65,10 +65,9 @@ namespace HM
       // Delete messages connected to this account.
       DeleteMessages(pAccount);
 
-      // Force delete the inbox as well. DeleteMessages above does not delete it.
-      std::shared_ptr<IMAPFolder> inbox = pAccount->GetFolders()->GetFolderByName("Inbox");
-      if (inbox)
-         PersistentIMAPFolder::DeleteObject(inbox, true);
+      // Force delete any folders DeleteMessages above retained (Inbox and any
+      // special-use folders), since the whole account is being removed.
+      PersistentIMAPFolder::DeleteByAccount(iID, true);
 
       pAccount->GetRules()->DeleteAll();
 
@@ -202,7 +201,7 @@ namespace HM
       if (!pAccount || pAccount->GetID() == 0)
          return false;
 
-	   PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
+	  PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
 	   
       Cache<Account>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());

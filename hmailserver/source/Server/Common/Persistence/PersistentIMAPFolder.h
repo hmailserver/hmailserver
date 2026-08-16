@@ -22,6 +22,7 @@ namespace HM
       static bool SaveObject(std::shared_ptr<IMAPFolder> pFolder, String &errorMessage, PersistenceMode mode);
       static bool SaveObject(std::shared_ptr<IMAPFolder> pFolder);
       static bool DeleteByAccount(__int64 iAccountID);
+      static bool DeleteByAccount(__int64 iAccountID, bool forceDelete);
 
       static bool GetExistsFolderContainingCharacter(String theChar);
 

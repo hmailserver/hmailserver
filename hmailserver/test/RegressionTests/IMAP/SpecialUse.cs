@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.Runtime.InteropServices;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -254,6 +255,85 @@ namespace RegressionTests.IMAP
          Assert.IsFalse(result.Contains("NotSpecial"));
 
          simulator.Disconnect();
+      }
+
+      [Test]
+      public void TestEmptyAccountRetainsSpecialUseFolders()
+      {
+         // Emptying an account already retains INBOX. Root folders tagged with a
+         // special-use attribute (e.g. Sent, Trash) should be retained the same way -
+         // only their messages should be cleared, not the folders themselves.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse15@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         var trash = account.IMAPFolders.Add("Trash");
+         trash.SpecialUse = eSpecialUse.eSUTrash;
+         trash.Save();
+
+         account.IMAPFolders.Add("NotSpecial");
+
+         account.DeleteMessages();
+
+         var reloadedAccount = _domain.Accounts.get_ItemByDBID(account.ID);
+
+         Assert.IsNotNull(reloadedAccount.IMAPFolders.get_ItemByName("INBOX"));
+
+         var reloadedSent = reloadedAccount.IMAPFolders.get_ItemByName("Sent");
+         Assert.IsNotNull(reloadedSent, "Expected the Sent folder to survive emptying the account.");
+         Assert.AreEqual(eSpecialUse.eSUSent, reloadedSent.SpecialUse);
+
+         var reloadedTrash = reloadedAccount.IMAPFolders.get_ItemByName("Trash");
+         Assert.IsNotNull(reloadedTrash, "Expected the Trash folder to survive emptying the account.");
+         Assert.AreEqual(eSpecialUse.eSUTrash, reloadedTrash.SpecialUse);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("NotSpecial"), "Expected the non-special-use folder to be deleted.");
+      }
+
+      [Test]
+      public void TestEmptyAccountRetainsNestedSpecialUseFolder()
+      {
+         // Special-use tagging isn't restricted to root folders (IMAPCommandCreate
+         // validates uniqueness recursively, not just at the root), so a nested
+         // folder like INBOX/Archive tagged \Archive should also survive emptying
+         // the account, the same way a root-level special-use folder does.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse17@example.test", "test");
+
+         var inbox = account.IMAPFolders.get_ItemByName("INBOX");
+         var archive = inbox.SubFolders.Add("Archive");
+         archive.SpecialUse = eSpecialUse.eSUArchive;
+         archive.Save();
+
+         account.DeleteMessages();
+
+         var reloadedAccount = _domain.Accounts.get_ItemByDBID(account.ID);
+         var reloadedInbox = reloadedAccount.IMAPFolders.get_ItemByName("INBOX");
+         var reloadedArchive = reloadedInbox.SubFolders.get_ItemByName("Archive");
+
+         Assert.IsNotNull(reloadedArchive, "Expected the nested special-use folder to survive emptying the account.");
+         Assert.AreEqual(eSpecialUse.eSUArchive, reloadedArchive.SpecialUse);
+      }
+
+      [Test]
+      public void TestDeletingAccountRemovesSpecialUseFolders()
+      {
+         // Full account deletion must still remove special-use folders - both at the
+         // root and nested (unlike emptying the account, which now retains them) -
+         // so no orphaned rows are left behind in hm_imapfolders.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse16@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         var inbox = account.IMAPFolders.get_ItemByName("INBOX");
+         var archive = inbox.SubFolders.Add("Archive");
+         archive.SpecialUse = eSpecialUse.eSUArchive;
+         archive.Save();
+
+         Assert.DoesNotThrow(() => _domain.Accounts.DeleteByDBID(account.ID));
       }
    }
 }
