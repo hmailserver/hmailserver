@@ -356,37 +356,60 @@ namespace HM
          return IPAddress();
       }
 
-      int iBracketPos = sReceivedHeader.Find(_T("["), iFromPos );
-      if (iBracketPos == -1)
+      // Only the part of the header describing the sending host is of interest.
+      // What follows "by" describes the receiving host, and may contain values
+      // which look like IP addresses, such as software version numbers.
+      int iEndPos = sReceivedHeader.Find(_T("by "), iFromPos);
+      if (iEndPos == -1)
+         iEndPos = sReceivedHeader.GetLength();
+
+      // The sending host may be described both by the host name it presented in
+      // HELO/EHLO, and by the address the receiving server saw it connect from:
+      //
+      //    from [198.51.100.7] (unknown [203.0.113.99]) by ...
+      //
+      // The client decides what to put in HELO/EHLO, so when both are given, the
+      // address observed by the receiving server - the last one - is the one to
+      // use.
+      IPAddress result;
+
+      int iSearchPos = iFromPos;
+      int iBracketPos = sReceivedHeader.Find(_T("["), iSearchPos);
+
+      while (iBracketPos >= 0 && iBracketPos < iEndPos)
       {
-         // Could not locate IP address.
-         return IPAddress();
+         int iBracketEndPos = sReceivedHeader.Find(_T("]"), iBracketPos);
+         if (iBracketEndPos == -1 || iBracketEndPos > iEndPos)
+            break;
+
+         String sPreceding = sReceivedHeader.Mid(iSearchPos, iBracketPos - iSearchPos);
+         sPreceding.TrimRight();
+
+         // Some servers state the host name given in HELO/EHLO in the comment -
+         // "(helo=[198.51.100.7])" - instead of the address they observed. What
+         // is marked that way comes from the client, and is not used.
+         bool givenInHelo = sPreceding.EndsWith(_T("helo=")) ||
+                            sPreceding.EndsWith(_T(" helo")) ||
+                            sPreceding.EndsWith(_T("(helo"));
+
+         if (!givenInHelo)
+         {
+            String sIPAddress = sReceivedHeader.Mid(iBracketPos + 1, iBracketEndPos - iBracketPos - 1);
+
+            if (StringParser::IsValidIPAddress(sIPAddress))
+            {
+               IPAddress address;
+
+               if (address.TryParse(sIPAddress, false))
+                  result = address;
+            }
+         }
+
+         iSearchPos = iBracketEndPos + 1;
+         iBracketPos = sReceivedHeader.Find(_T("["), iSearchPos);
       }
 
-      int iByPos = sReceivedHeader.Find(_T("by "));
-      if (iByPos >= 0 && iByPos < iBracketPos)
-      {
-         // Found from but no bracket.
-         return IPAddress();
-      }
-
-      int iBracketEndPos = sReceivedHeader.Find(_T("]"), iBracketPos);
-
-      int iIPLength = iBracketEndPos - iBracketPos - 1;
-
-      String sIPAddress = sReceivedHeader.Mid(iBracketPos + 1, iIPLength);
-
-      if (!StringParser::IsValidIPAddress(sIPAddress))
-      {
-         // Could not locate IP address
-         assert(0);
-         return IPAddress();
-      }
-
-      IPAddress address;
-      address.TryParse(sIPAddress);
-
-      return address;
+      return result;
 
    }
 
@@ -568,6 +591,24 @@ namespace HM
       // name. The IP address is still unambiguous.
       sHeader = "Received: from my_pc (unknown [203.0.113.99])\r\n"
                 "\tby mail.example.test with ESMTP\r\n"
+                "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
+
+      sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();
+      if (sIPAddress != _T("203.0.113.99"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address observed by the receiving server (203.0.113.99), but got {0}.", sIPAddress));
+
+      // Servers which state the observed address first, and the host name given
+      // in HELO/EHLO in the comment.
+      sHeader = "Received: from [203.0.113.99] (helo=mail.example.test)\r\n"
+                "\tby mail.example.test with esmtp id 1abcDE-000123-45\r\n"
+                "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
+
+      sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();
+      if (sIPAddress != _T("203.0.113.99"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address observed by the receiving server (203.0.113.99), but got {0}.", sIPAddress));
+
+      sHeader = "Received: from [203.0.113.99] (port=54321 helo=[198.51.100.7])\r\n"
+                "\tby mail.example.test with esmtp id 1abcDE-000123-45\r\n"
                 "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
 
       sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();

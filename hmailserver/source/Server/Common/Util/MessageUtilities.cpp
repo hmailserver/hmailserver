@@ -335,7 +335,11 @@ namespace HM
          String hostName = Utilities::GetHostNameFromReceivedHeader(header);
          IPAddress ipaddress = Utilities::GetIPAddressFromReceivedHeader(header);
 
-         if (hostName == _T("") || ipaddress == emptyAddress)
+         // The host name is the one the sender presented in HELO/EHLO, and may be
+         // anything at all - the header is still usable without it. Skipping the
+         // header when it can't be parsed would mean continuing into the headers
+         // below, which the sender may have written.
+         if (ipaddress == emptyAddress)
             continue;
 
          vecAddresses.push_back(std::make_pair(hostName, ipaddress));
