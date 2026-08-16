@@ -445,7 +445,7 @@ namespace HM
 
       // The host name is what the sender claimed to be. It's used by the HELO
       // host name spam test, which compares it against the address above.
-      if (hostName != "[198.51.100.7]")
+      if (hostName != _T("[198.51.100.7]"))
          throw std::logic_error(Formatter::FormatAsAnsi("Expected the host name presented in HELO, but got {0}.", hostName));
 
       // The sender presented an unqualified host name which isn't a valid domain
