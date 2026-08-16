@@ -262,10 +262,10 @@ namespace HM
    IMAPFolder::IsValidSpecialUseAttribute(const String &sAttribute)
    {
       // RFC 6154 section 2. \Important (Gmail extension) is intentionally not supported.
-      return sAttribute.CompareNoCase(_T("\\All")) == 0 ||
-             sAttribute.CompareNoCase(_T("\\Archive")) == 0 ||
+      // \All and \Flagged are also intentionally not supported - see the comment on
+      // SpecialUseFlags in IMAPFolder.h.
+      return sAttribute.CompareNoCase(_T("\\Archive")) == 0 ||
              sAttribute.CompareNoCase(_T("\\Drafts")) == 0 ||
-             sAttribute.CompareNoCase(_T("\\Flagged")) == 0 ||
              sAttribute.CompareNoCase(_T("\\Junk")) == 0 ||
              sAttribute.CompareNoCase(_T("\\Sent")) == 0 ||
              sAttribute.CompareNoCase(_T("\\Trash")) == 0;
@@ -279,14 +279,10 @@ namespace HM
       std::vector<String> vecAttributes = StringParser::SplitString(sAttributes, _T(" "));
       for (const String &sAttribute : vecAttributes)
       {
-         if (sAttribute.CompareNoCase(_T("\\All")) == 0)
-            flags |= SpecialUseAll;
-         else if (sAttribute.CompareNoCase(_T("\\Archive")) == 0)
+         if (sAttribute.CompareNoCase(_T("\\Archive")) == 0)
             flags |= SpecialUseArchive;
          else if (sAttribute.CompareNoCase(_T("\\Drafts")) == 0)
             flags |= SpecialUseDrafts;
-         else if (sAttribute.CompareNoCase(_T("\\Flagged")) == 0)
-            flags |= SpecialUseFlagged;
          else if (sAttribute.CompareNoCase(_T("\\Junk")) == 0)
             flags |= SpecialUseJunk;
          else if (sAttribute.CompareNoCase(_T("\\Sent")) == 0)
@@ -304,14 +300,10 @@ namespace HM
    {
       std::vector<String> vecAttributes;
 
-      if (flags & SpecialUseAll)
-         vecAttributes.push_back(_T("\\All"));
       if (flags & SpecialUseArchive)
          vecAttributes.push_back(_T("\\Archive"));
       if (flags & SpecialUseDrafts)
          vecAttributes.push_back(_T("\\Drafts"));
-      if (flags & SpecialUseFlagged)
-         vecAttributes.push_back(_T("\\Flagged"));
       if (flags & SpecialUseJunk)
          vecAttributes.push_back(_T("\\Junk"));
       if (flags & SpecialUseSent)

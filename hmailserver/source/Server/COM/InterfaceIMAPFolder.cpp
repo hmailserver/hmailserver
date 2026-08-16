@@ -181,12 +181,11 @@ STDMETHODIMP InterfaceIMAPFolder::put_SpecialUse(eSpecialUse newVal)
       if (!object_)
          return GetAccessDenied();
 
-      const long knownFlags = HM::IMAPFolder::SpecialUseAll | HM::IMAPFolder::SpecialUseArchive |
-         HM::IMAPFolder::SpecialUseDrafts | HM::IMAPFolder::SpecialUseFlagged |
+      const long knownFlags = HM::IMAPFolder::SpecialUseArchive | HM::IMAPFolder::SpecialUseDrafts |
          HM::IMAPFolder::SpecialUseJunk | HM::IMAPFolder::SpecialUseSent | HM::IMAPFolder::SpecialUseTrash;
 
       if ((newVal & ~knownFlags) != 0)
-         return COMError::GenerateError("Invalid special-use attribute. Valid values are eSUAll, eSUArchive, eSUDrafts, eSUFlagged, eSUJunk, eSUSent and eSUTrash.");
+         return COMError::GenerateError("Invalid special-use attribute. Valid values are eSUArchive, eSUDrafts, eSUJunk, eSUSent and eSUTrash.");
 
       object_->SetSpecialUseFlags((unsigned int) newVal);
       return S_OK;

@@ -145,6 +145,43 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      public void TestCreateWithUseAllAttributeReturnsUseAttrError()
+      {
+         // \All is defined by RFC 6154 but intentionally not supported: it is
+         // "almost certain to represent a virtual mailbox" aggregating messages
+         // across all folders, which hMailServer has no concept of.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse9@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         var createResult = simulator.Send("A01 CREATE \"AllMail\" (USE (\\All))");
+         Assert.IsTrue(createResult.Contains("A01 NO"));
+         Assert.IsTrue(createResult.Contains("USEATTR"));
+
+         simulator.Disconnect();
+      }
+
+      [Test]
+      public void TestCreateWithUseFlaggedAttributeReturnsUseAttrError()
+      {
+         // \Flagged is defined by RFC 6154 but intentionally not supported, for the
+         // same reason as \All - it is a virtual, cross-folder aggregate view.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse10@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         var createResult = simulator.Send("A01 CREATE \"Starred\" (USE (\\Flagged))");
+         Assert.IsTrue(createResult.Contains("A01 NO"));
+         Assert.IsTrue(createResult.Contains("USEATTR"));
+
+         simulator.Disconnect();
+      }
+
+      [Test]
       public void TestListReturnSpecialUseOptionAnnotatesFolders()
       {
          // RFC 6154 LIST-EXTENDED: "LIST "" "*" RETURN (SPECIAL-USE)" must be

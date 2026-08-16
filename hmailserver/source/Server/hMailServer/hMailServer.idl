@@ -502,20 +502,16 @@ typedef
 {
 	[helpstring("No special use.")]
 	eSUNone = 0,
-	[helpstring("\\All")]
-	eSUAll = 1,
 	[helpstring("\\Archive")]
-	eSUArchive = 2,
+	eSUArchive = 1,
 	[helpstring("\\Drafts")]
-	eSUDrafts = 4,
-	[helpstring("\\Flagged")]
-	eSUFlagged = 8,
+	eSUDrafts = 2,
 	[helpstring("\\Junk")]
-	eSUJunk = 16,
+	eSUJunk = 4,
 	[helpstring("\\Sent")]
-	eSUSent = 32,
+	eSUSent = 8,
 	[helpstring("\\Trash")]
-	eSUTrash = 64,
+	eSUTrash = 16,
 } eSpecialUse;
 
 //

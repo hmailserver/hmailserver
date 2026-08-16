@@ -23,16 +23,18 @@ namespace HM
       };
 
       // RFC 6154 special-use attributes, stored as a bitmask (folderspecialuse column).
+      // \All and \Flagged are intentionally not supported: RFC 6154 describes both as
+      // "almost certain to represent a virtual mailbox" (an aggregate view computed
+      // across all folders), and hMailServer has no such virtual-mailbox concept - every
+      // IMAP folder is a real, physically populated mailbox.
       enum SpecialUseFlags
       {
          SpecialUseNone    = 0x00,
-         SpecialUseAll     = 0x01,
-         SpecialUseArchive = 0x02,
-         SpecialUseDrafts  = 0x04,
-         SpecialUseFlagged = 0x08,
-         SpecialUseJunk    = 0x10,
-         SpecialUseSent    = 0x20,
-         SpecialUseTrash   = 0x40
+         SpecialUseArchive = 0x01,
+         SpecialUseDrafts  = 0x02,
+         SpecialUseJunk    = 0x04,
+         SpecialUseSent    = 0x08,
+         SpecialUseTrash   = 0x10
       };
    
       IMAPFolder();
