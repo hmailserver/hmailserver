@@ -141,7 +141,8 @@ namespace VMTestRunner.Console
 
             string resultContent = File.ReadAllText(localResultFile);
             string logContent = File.ReadAllText(localLogFile);
-            throw new Exception($"{resultContent}\r\n\r\n{logContent}");
+            string failureSummary = NUnitResultParser.SummarizeFailures(doc);
+            throw new TestFailedException($"{resultContent}\r\n\r\n{logContent}", failureSummary);
          }
          finally
          {
