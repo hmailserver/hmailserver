@@ -1,7 +1,5 @@
 alter table hm_imapfolders add folderspecialuse int not null default 0
 
--- folderspecialuse is a bitmask matching HM::IMAPFolder::SpecialUseFlags (IMAPFolder.h):
--- 1=Archive, 2=Drafts, 4=Junk, 8=Sent, 16=Trash
 update hm_imapfolders set folderspecialuse = 8 where folderparentid = -1 and foldername = 'Sent'
 
 update hm_imapfolders set folderspecialuse = 2 where folderparentid = -1 and foldername = 'Drafts'
