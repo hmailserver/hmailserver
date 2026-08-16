@@ -526,6 +526,53 @@ namespace HM
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
       if (hostName != _T("outbound1.den.paypal.com"))
          throw;
+
+      TestHeloDependentReceivedHeaderParse_();
+   }
+
+   void
+   UtilitiesTester::TestHeloDependentReceivedHeaderParse_()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // https://github.com/hmailserver/hmailserver/issues/168
+   //
+   // The host name a client presents in HELO/EHLO is copied verbatim into the
+   // "from" part of the Received header. Since the sender decides what to put
+   // there, nothing in that part of the header may be allowed to decide which IP
+   // address we consider the message to originate from. The IP address which the
+   // server writing the header actually observed is the one within the
+   // parentheses.
+   //---------------------------------------------------------------------------()
+   {
+      // The client presented an address literal in HELO. 203.0.113.99 is the IP
+      // address the message was received from; 198.51.100.7 is the literal the
+      // sender chose to present.
+      String sHeader = "Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n"
+                       "\tby mail.example.test with ESMTP\r\n"
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
+
+      String sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();
+      if (sIPAddress != _T("203.0.113.99"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address observed by the receiving server (203.0.113.99), but got {0}.", sIPAddress));
+
+      // Same header, written in the format hMailServer itself uses.
+      sHeader = "Received: from [198.51.100.7] (Unknown [203.0.113.99])\r\n"
+                "\tby MAILSERVER with ESMTP\r\n"
+                "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
+
+      sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();
+      if (sIPAddress != _T("203.0.113.99"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address observed by the receiving server (203.0.113.99), but got {0}.", sIPAddress));
+
+      // The client presented an unqualified host name which isn't a valid domain
+      // name. The IP address is still unambiguous.
+      sHeader = "Received: from my_pc (unknown [203.0.113.99])\r\n"
+                "\tby mail.example.test with ESMTP\r\n"
+                "\t; Fri, 06 May 2016 03:49:14 +0200\r\n";
+
+      sIPAddress = Utilities::GetIPAddressFromReceivedHeader(sHeader).ToString();
+      if (sIPAddress != _T("203.0.113.99"))
+         throw std::logic_error(Formatter::FormatAsAnsi("Expected the IP address observed by the receiving server (203.0.113.99), but got {0}.", sIPAddress));
    }
 
 

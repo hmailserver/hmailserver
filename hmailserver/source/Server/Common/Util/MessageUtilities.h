@@ -46,6 +46,9 @@ namespace HM
    {
    public:
       void Test();
+
+   private:
+      void TestHeloDependentOriginatingAddress_();
    };
 }
 

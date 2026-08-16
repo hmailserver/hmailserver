@@ -52,6 +52,7 @@ namespace HM
    private:
       void TestComputerName_();
       void TestReceivedHeaderParse_();
+      void TestHeloDependentReceivedHeaderParse_();
    };
 
 }
