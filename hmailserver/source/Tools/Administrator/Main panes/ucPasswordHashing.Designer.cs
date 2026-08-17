@@ -35,7 +35,6 @@ namespace hMailServer.Administrator
             this.labelIterations = new System.Windows.Forms.Label();
             this.textIterations = new hMailServer.Shared.ucText();
             this.checkAutoUpgrade = new hMailServer.Administrator.Controls.ucCheckbox();
-            this.labelDescription = new System.Windows.Forms.Label();
             this.SuspendLayout();
             //
             // labelAlgorithm
@@ -55,6 +54,7 @@ namespace hMailServer.Administrator
             this.comboAlgorithm.Name = "comboAlgorithm";
             this.comboAlgorithm.Size = new System.Drawing.Size(177, 21);
             this.comboAlgorithm.TabIndex = 1;
+            this.comboAlgorithm.SelectedIndexChanged += new System.EventHandler(this.comboAlgorithm_SelectedIndexChanged);
             //
             // labelMemoryCost
             //
@@ -104,25 +104,10 @@ namespace hMailServer.Administrator
             this.checkAutoUpgrade.Text = "Upgrade stored passwords during logon";
             this.checkAutoUpgrade.UseVisualStyleBackColor = true;
             //
-            // labelDescription
-            //
-            this.labelDescription.Location = new System.Drawing.Point(7, 190);
-            this.labelDescription.Name = "labelDescription";
-            this.labelDescription.Size = new System.Drawing.Size(542, 90);
-            this.labelDescription.TabIndex = 7;
-            this.labelDescription.Text = "Zero means the recommended default for the selected algorithm: 19456 kilobyte" +
-                "s and 2 iterations for Argon2id, 600000 iterations for PBKDF2-SHA256. The memor" +
-                "y cost is not used by PBKDF2-SHA256.\r\n\r\nWhen upgrading during logon is enable" +
-                "d, passwords stored using an older algorithm or a lower cost are re-hashed the " +
-                "next time the user logs on. Each account is upgraded once, but the first logon " +
-                "after a change costs one hash and one database write. Existing installations st" +
-                "art with this switched off.";
-            //
             // ucPasswordHashing
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.labelDescription);
             this.Controls.Add(this.checkAutoUpgrade);
             this.Controls.Add(this.textIterations);
             this.Controls.Add(this.labelIterations);
@@ -146,7 +131,6 @@ namespace hMailServer.Administrator
         private System.Windows.Forms.Label labelIterations;
         private hMailServer.Shared.ucText textIterations;
         private Controls.ucCheckbox checkAutoUpgrade;
-        private System.Windows.Forms.Label labelDescription;
 
     }
 }

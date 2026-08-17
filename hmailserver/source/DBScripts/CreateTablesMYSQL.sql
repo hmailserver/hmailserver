@@ -783,9 +783,9 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Cr
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashAlgorithm', '', 1);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashMemoryCost', '', 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashMemoryCost', '', 19456);
 
-insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashIterations', '', 0);
+insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashIterations', '', 2);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashAutoUpgrade', '', 1);
 

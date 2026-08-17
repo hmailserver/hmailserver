@@ -685,7 +685,9 @@ namespace HM
    int
    Configuration::GetPasswordHashMemoryCost() const
    {
-      // Zero means "use the default of the configured algorithm". PasswordHasher
+      // The database scripts seed a concrete value, so zero only turns up when the
+      // settings are unavailable or when somebody has cleared the setting by hand.
+      // It means "use the default of the configured algorithm"; PasswordHasher
       // resolves it - it must never be compared against a stored hash as-is.
       if (!IsLoaded())
          return 0;

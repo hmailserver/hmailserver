@@ -14,6 +14,13 @@ namespace hMailServer.Administrator
        private const int AlgorithmArgon2id = 1;
        private const int AlgorithmPbkdf2Sha256 = 2;
 
+       // Must match PasswordHasher::Constants in the server.
+       private const int DefaultArgon2idMemoryCost = 19456;
+       private const int DefaultArgon2idIterations = 2;
+       private const int DefaultPbkdf2Iterations = 600000;
+
+       private bool _loading;
+
        public ucPasswordHashing()
         {
             InitializeComponent();
@@ -45,10 +52,21 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           comboAlgorithm.SelectedValue = settings.PasswordHashAlgorithm;
-           textMemoryCost.Number = settings.PasswordHashMemoryCost;
-           textIterations.Number = settings.PasswordHashIterations;
-           checkAutoUpgrade.Checked = settings.PasswordHashAutoUpgradeEnabled;
+           // Selecting the algorithm normally replaces the cost with the defaults for
+           // that algorithm. While loading, the stored cost is what we want to show.
+           _loading = true;
+
+           try
+           {
+              comboAlgorithm.SelectedValue = settings.PasswordHashAlgorithm;
+              textMemoryCost.Number = settings.PasswordHashMemoryCost;
+              textIterations.Number = settings.PasswordHashIterations;
+              checkAutoUpgrade.Checked = settings.PasswordHashAutoUpgradeEnabled;
+           }
+           finally
+           {
+              _loading = false;
+           }
 
            Marshal.ReleaseComObject(settings);
 
@@ -97,6 +115,26 @@ namespace hMailServer.Administrator
         {
            // The memory cost only means something to Argon2id.
            textMemoryCost.Enabled = GetSelectedAlgorithm() == AlgorithmArgon2id;
+        }
+
+        private void comboAlgorithm_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           if (_loading)
+              return;
+
+           // The cost parameters mean entirely different things to the two algorithms,
+           // so whatever suited the previous one is replaced by the defaults for the
+           // one now selected. PBKDF2-SHA256 has no memory cost at all.
+           if (GetSelectedAlgorithm() == AlgorithmPbkdf2Sha256)
+           {
+              textMemoryCost.Number = 0;
+              textIterations.Number = DefaultPbkdf2Iterations;
+           }
+           else
+           {
+              textMemoryCost.Number = DefaultArgon2idMemoryCost;
+              textIterations.Number = DefaultArgon2idIterations;
+           }
         }
 
         private void OnContentChanged()

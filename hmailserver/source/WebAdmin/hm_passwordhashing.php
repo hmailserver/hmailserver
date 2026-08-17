@@ -25,6 +25,45 @@ $PasswordHashAutoUpgradeEnabled = $obSettings->PasswordHashAutoUpgradeEnabled;
 
 <h1><?php EchoTranslation("Password hashing")?></h1>
 
+<script type="text/javascript">
+
+// Must match PasswordHasher::Constants in the server.
+var argon2idMemoryCost = 19456;
+var argon2idIterations = 2;
+var pbkdf2Iterations = 600000;
+
+function onAlgorithmChanged()
+{
+   // The cost parameters mean entirely different things to the two algorithms, so
+   // whatever suited the previous one is replaced by the defaults for the one now
+   // selected. PBKDF2-SHA256 has no memory cost at all.
+   var algorithm = document.getElementById("PasswordHashAlgorithm").value;
+
+   if (algorithm == "2")
+   {
+      document.getElementById("PasswordHashMemoryCost").value = 0;
+      document.getElementById("PasswordHashIterations").value = pbkdf2Iterations;
+   }
+   else
+   {
+      document.getElementById("PasswordHashMemoryCost").value = argon2idMemoryCost;
+      document.getElementById("PasswordHashIterations").value = argon2idIterations;
+   }
+
+   updateMemoryCostState();
+}
+
+function updateMemoryCostState()
+{
+   // Read only rather than disabled - a disabled field is not submitted, and the
+   // value would silently be lost.
+   var algorithm = document.getElementById("PasswordHashAlgorithm").value;
+
+   document.getElementById("PasswordHashMemoryCost").readOnly = (algorithm == "2");
+}
+
+</script>
+
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
    <?php
       PrintHiddenCsrfToken();
@@ -45,7 +84,7 @@ $PasswordHashAutoUpgradeEnabled = $obSettings->PasswordHashAutoUpgradeEnabled;
             <tr>
                <td><?php EchoTranslation("Algorithm")?></td>
                <td>
-                  <select name="PasswordHashAlgorithm" style="font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif">
+                  <select name="PasswordHashAlgorithm" id="PasswordHashAlgorithm" onchange="onAlgorithmChanged();" style="font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif">
                      <option value="1" <?php if ($PasswordHashAlgorithm == "1") echo "selected";?> >Argon2id</option>
                      <option value="2" <?php if ($PasswordHashAlgorithm == "2") echo "selected";?> >PBKDF2-SHA256</option>
                   </select>
@@ -58,14 +97,6 @@ $PasswordHashAutoUpgradeEnabled = $obSettings->PasswordHashAutoUpgradeEnabled;
 				PrintCheckboxRow("PasswordHashAutoUpgradeEnabled", "Upgrade stored passwords during logon", $PasswordHashAutoUpgradeEnabled);
 			?>
 
-            <tr>
-               <td colspan="2">
-                  <?php EchoTranslation("Zero means the recommended default for the selected algorithm: 19456 kilobytes and 2 iterations for Argon2id, 600000 iterations for PBKDF2-SHA256. The memory cost is not used by PBKDF2-SHA256.")?>
-                  <br/><br/>
-                  <?php EchoTranslation("When upgrading during logon is enabled, passwords stored using an older algorithm or a lower cost are re-hashed the next time the user logs on. Each account is upgraded once, but the first logon after a change costs one hash and one database write. Existing installations start with this switched off.")?>
-               </td>
-            </tr>
-
       	</table>
       </div>
    </div>
@@ -73,4 +104,7 @@ $PasswordHashAutoUpgradeEnabled = $obSettings->PasswordHashAutoUpgradeEnabled;
       PrintSaveButton();
    ?>
 
+   <script type="text/javascript">
+      updateMemoryCostState();
+   </script>
 </form>

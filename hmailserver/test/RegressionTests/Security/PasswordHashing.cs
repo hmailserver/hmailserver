@@ -20,6 +20,9 @@ namespace RegressionTests.Security
       private const int AlgorithmArgon2id = 1;
       private const int AlgorithmPbkdf2Sha256 = 2;
 
+      private const int DefaultArgon2idMemoryCost = 19456;
+      private const int DefaultArgon2idIterations = 2;
+
       private const int EncryptionBlowfish = 1;
       private const int EncryptionMd5 = 2;
 
@@ -86,9 +89,11 @@ namespace RegressionTests.Security
       [Test]
       public void PasswordHashSettingsHaveExpectedDefaults()
       {
+         // The database scripts seed a concrete cost rather than a zero, so that the
+         // administration interfaces show what is actually in use.
          Assert.AreEqual(AlgorithmArgon2id, _settings.PasswordHashAlgorithm);
-         Assert.AreEqual(0, _settings.PasswordHashMemoryCost);
-         Assert.AreEqual(0, _settings.PasswordHashIterations);
+         Assert.AreEqual(DefaultArgon2idMemoryCost, _settings.PasswordHashMemoryCost);
+         Assert.AreEqual(DefaultArgon2idIterations, _settings.PasswordHashIterations);
       }
 
       [Test]
