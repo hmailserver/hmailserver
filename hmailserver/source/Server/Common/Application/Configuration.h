@@ -183,6 +183,12 @@ namespace HM
       void SetCrashSimulationMode(int mode);
 
 
+      bool IsLoaded() const;
+      // False until Load() has run. Load() is skipped entirely when the database is
+      // of the wrong version, so anything reachable from the COM API before the
+      // server has finished starting - the administrator password, for one - has to
+      // cope with the settings not being there.
+
       std::shared_ptr<PropertySet> GetSettings() const;
 
       std::shared_ptr<ServerMessages> GetServerMessages() {return server_messages_;}

@@ -71,7 +71,11 @@ namespace HM
 
          if (passwordValid)
          {
-            if (rehashRequired)
+            // Not while the settings are unavailable. DBUpdater authenticates before
+            // it upgrades the database, and at that point the configured algorithm
+            // and cost cannot be read - re-hashing would silently pick the built in
+            // defaults instead. The next logon migrates it properly.
+            if (rehashRequired && Configuration::Instance()->IsLoaded())
                HM::IniFileSettings::Instance()->SetAdministratorPassword(sPassword);
 
             // Create a dummy account since the administrator

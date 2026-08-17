@@ -112,6 +112,12 @@ namespace HM
    }
 
 
+   bool
+   Configuration::IsLoaded() const
+   {
+      return property_set_ != nullptr;
+   }
+
    std::shared_ptr<PropertySet>
    Configuration::GetSettings() const
    {
@@ -660,6 +666,13 @@ namespace HM
    int
    Configuration::GetPasswordHashAlgorithm() const
    {
+      // These four are reachable through the COM API before the settings have been
+      // loaded - DBUpdater authenticates, and may set the administrator password,
+      // while the database is still of the old version. Report the settings as
+      // unset in that case; PasswordHasher resolves that to its built in defaults.
+      if (!IsLoaded())
+         return 0;
+
       return GetSettings()->GetLong(PROPERTY_PASSWORDHASHALGORITHM);
    }
 
@@ -674,6 +687,9 @@ namespace HM
    {
       // Zero means "use the default of the configured algorithm". PasswordHasher
       // resolves it - it must never be compared against a stored hash as-is.
+      if (!IsLoaded())
+         return 0;
+
       return GetSettings()->GetLong(PROPERTY_PASSWORDHASHMEMORYCOST);
    }
 
@@ -687,6 +703,9 @@ namespace HM
    Configuration::GetPasswordHashIterations() const
    {
       // Zero means "use the default of the configured algorithm".
+      if (!IsLoaded())
+         return 0;
+
       return GetSettings()->GetLong(PROPERTY_PASSWORDHASHITERATIONS);
    }
 
@@ -699,6 +718,10 @@ namespace HM
    bool
    Configuration::GetPasswordHashAutoUpgrade() const
    {
+      // Nothing is migrated while we cannot tell what it should be migrated to.
+      if (!IsLoaded())
+         return false;
+
       return GetSettings()->GetBool(PROPERTY_PASSWORDHASHAUTOUPGRADE);
    }
 
