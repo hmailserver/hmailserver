@@ -158,6 +158,7 @@ if (hmailGetAdminLevel() == 2)
     
     
     $dtree .= "d.add(" . $dtitem++ . ",$advanced_root,'" . GetStringForJavaScript("Mirror") . "','index.php?page=mirror','','','" . "images/arrow_branch.png','" . "images/arrow_branch.png');\r\n";
+    $dtree .= "d.add(" . $dtitem++ . ",$advanced_root,'" . GetStringForJavaScript("Password hashing") . "','index.php?page=passwordhashing','','','" . "images/construction.png','" . "images/construction.png');\r\n";
     $dtree .= "d.add(" . $dtitem++ . ",$advanced_root,'" . GetStringForJavaScript("Performance") . "','index.php?page=performance','','','" . "images/speedometer.png','" . "speedometer/flash.png');\r\n";
     $dtree .= "d.add(" . $dtitem++ . ",$advanced_root,'" . GetStringForJavaScript("Server messages") . "','index.php?page=servermessages','','','" . "images/folder.png','" . "images/folder.png');\r\n";
     $dtree .= "d.add(" . $dtitem++ . ",$advanced_root,'" . GetStringForJavaScript("SSL/TLS") . "','index.php?page=ssltls','','','" . "images/construction.png','" . "images/construction.png');\r\n";

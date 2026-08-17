@@ -5,6 +5,7 @@
 #include "IniFileSettings.h"
 
 #include "../Util/Crypt.h"
+#include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/Utilities.h"
 
 #ifdef _DEBUG
@@ -201,6 +202,16 @@ namespace HM
       dns_server_ = ReadIniSettingString_("Settings", "DNSServer", "");
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
+
+      if (preferred_hash_algorithm_ != 3)
+      {
+         // The setting is no longer honoured - passwords are always written using the
+         // algorithm configured in PasswordHashAlgorithm. Tell the administrator who
+         // deliberately picked something else, rather than silently ignoring them.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5518, "IniFileSettings::LoadSettings",
+            "The hMailServer.ini setting PreferredHashAlgorithm is no longer used and is being ignored. "
+            "Account passwords are hashed using the algorithm selected in the Password hashing settings.");
+      }
    }
 
    bool 
@@ -361,7 +372,12 @@ namespace HM
    // Updates the main hMailServer administration password found in hMailServer.ini
    //---------------------------------------------------------------------------()
    {
-      administrator_password_ = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
+      AnsiString hash = PasswordHasher::Hash(sNewPassword);
+
+      if (hash.GetLength() == 0)
+         return;
+
+      administrator_password_ = hash;
 
       WriteIniSetting_("Security", "AdministratorPassword", administrator_password_);
    }

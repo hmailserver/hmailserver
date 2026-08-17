@@ -17,6 +17,7 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 
 #include "../Common/Persistence/PersistentServerMessage.h"
+#include "../Common/Util/Hashing/PasswordHasher.h"
 
 #include "../POP3/POP3Configuration.h"
 #include "../SMTP/SMTPConfiguration.h"
@@ -2680,6 +2681,120 @@ STDMETHODIMP InterfaceSettings::put_CreateDefaultSpecialUseFoldersEnabled(VARIAN
          return GetAccessDenied();
 
       config_->SetCreateDefaultSpecialUseFolders(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashAlgorithm(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashAlgorithm();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashAlgorithm(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal != HM::PasswordHasher::AlgorithmArgon2id &&
+          newVal != HM::PasswordHasher::AlgorithmPBKDF2SHA256)
+      {
+         return COMError::GenerateError("Invalid password hash algorithm. Valid values are 1 (Argon2id) and 2 (PBKDF2-SHA256).");
+      }
+
+      config_->SetPasswordHashAlgorithm(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashMemoryCost(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashMemoryCost();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashMemoryCost(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal < 0)
+         return COMError::GenerateError("The password hash memory cost cannot be negative. Use 0 to select the recommended default.");
+
+      config_->SetPasswordHashMemoryCost(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashIterations(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashIterations();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashIterations(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal < 0)
+         return COMError::GenerateError("The password hash iteration count cannot be negative. Use 0 to select the recommended default.");
+
+      config_->SetPasswordHashIterations(newVal);
 
       return S_OK;
    }

@@ -18,6 +18,7 @@
 
 #include "../Util/File.h"
 #include "../Util/Crypt.h"
+#include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/Time.h"
 #include "../BO/Account.h"
 #include "../BO/Rules.h"
@@ -184,12 +185,19 @@ namespace HM
       pAccount->SetPersonFirstName(pRS->GetStringValue("accountpersonfirstname"));
       pAccount->SetPersonLastName(pRS->GetStringValue("accountpersonlastname"));
 
-      if (pAccount->GetPasswordEncryption() == 0)
+      if (pAccount->GetPasswordEncryption() == Crypt::ETNone && !pAccount->GetIsAD())
       {
-         // The password isn't encrypted. Encrypt it now using the preferred hash algorithm.
-         int preferredHashAlgorithm = IniFileSettings::Instance()->GetPreferredHashAlgorithm();
-         pAccount->SetPassword(Crypt::Instance()->EnCrypt(pAccount->GetPassword(), (HM::Crypt::EncryptionType) preferredHashAlgorithm));
-         pAccount->SetPasswordEncryption(preferredHashAlgorithm);
+         // The password is stored in plain text. Hash it now, and write it back, so
+         // that we don't have to do this again the next time the account is read.
+         AnsiString hash = PasswordHasher::Hash(pAccount->GetPassword());
+
+         if (hash.GetLength() > 0)
+         {
+            pAccount->SetPassword(hash);
+            pAccount->SetPasswordEncryption(Crypt::ETPHC);
+
+            UpdatePassword(pAccount, hash, Crypt::ETPHC);
+         }
       }
 
       return true;
@@ -432,6 +440,27 @@ namespace HM
       command.AddParameter("@ACCOUNTID", pAccount->GetID());
 
       return Application::Instance()->GetDBManager()->Execute(command);
+   }
+
+   bool
+   PersistentAccount::UpdatePassword(std::shared_ptr<const Account> pAccount, const String &passwordHash, int passwordEncryption)
+   {
+      if (!pAccount || pAccount->GetID() == 0)
+         return false;
+
+      SQLCommand command("update hm_accounts set accountpassword = @PASSWORD, accountpwencryption = @PWENCRYPTION where accountid = @ACCOUNTID");
+      command.AddParameter("@PASSWORD", passwordHash);
+      command.AddParameter("@PWENCRYPTION", passwordEncryption);
+      command.AddParameter("@ACCOUNTID", pAccount->GetID());
+
+      if (!Application::Instance()->GetDBManager()->Execute(command))
+         return false;
+
+      // The cached account still carries the old password. If it isn't dropped here,
+      // every logon until the cache entry expires would decide to re-hash again.
+      Cache<Account>::Instance()->RemoveObject(pAccount->GetName());
+
+      return true;
    }
 
    bool

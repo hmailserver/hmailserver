@@ -1,8 +1,17 @@
 # Determine repository root relative to this script (script is in the `build` folder)
 $repoRoot = (Get-Item $PSScriptRoot).Parent.FullName
 
-# Path to the NUnit console runner installed under the RegressionTests packages folder
-$nunitExe = Join-Path $repoRoot 'hmailserver\test\RegressionTests\packages\NUnit.ConsoleRunner.3.11.1\tools\nunit3-console.exe'
+# Path to the NUnit console runner installed under the RegressionTests packages folder.
+# The version is not hard coded here - it follows whatever packages.config restores.
+$packagesRoot = Join-Path $repoRoot 'hmailserver\test\RegressionTests\packages'
+$nunitExe = Get-ChildItem -Path $packagesRoot -Filter 'nunit3-console.exe' -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object FullName -Descending |
+    Select-Object -First 1 -ExpandProperty FullName
+
+if (-not $nunitExe) {
+    Write-Error "NUnit console runner not found under: $packagesRoot. Restore NuGet packages first."
+    exit 1
+}
 
 # Path to the test assembly to run (Debug x64 as requested)
 $testAssembly = Join-Path $repoRoot 'hmailserver\test\RegressionTests\bin\x64\Debug\RegressionTests.dll'

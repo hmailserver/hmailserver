@@ -144,6 +144,13 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+         if (_settings.PasswordHashAlgorithm != 1)
+            _settings.PasswordHashAlgorithm = 1;
+         if (_settings.PasswordHashMemoryCost != 0)
+            _settings.PasswordHashMemoryCost = 0;
+         if (_settings.PasswordHashIterations != 0)
+            _settings.PasswordHashIterations = 0;
+
          if (_settings.IMAPSASLPlainEnabled)
             _settings.IMAPSASLPlainEnabled = false;
          if (_settings.IMAPSASLInitialResponseEnabled)

@@ -12,6 +12,7 @@
 #include "../Common/Util/Math.h"
 #include "../Common/Util/PasswordValidator.h"
 #include "../Common/Util/Crypt.h"
+#include "../Common/Util/Hashing/PasswordHasher.h"
 #include "../Common/Util/Time.h"
 #include "../Common/Cache/AccountSizeCache.h"
 
@@ -255,13 +256,16 @@ STDMETHODIMP InterfaceAccount::put_Password(BSTR newVal)
       if (!object_)
          return GetAccessDenied();
 
-      // The password isn't encrypted. Encrypt it now using MD5.
-      int preferredHashAlgorithm = HM::IniFileSettings::Instance()->GetPreferredHashAlgorithm();
-      String sPassword = HM::Crypt::Instance()->EnCrypt(newVal, (HM::Crypt::EncryptionType) preferredHashAlgorithm);
-   
+      // The password is given to us in clear text. Hash it before it is stored.
+      HM::String sClearTextPassword = newVal;
+      HM::AnsiString sPassword = HM::PasswordHasher::Hash(sClearTextPassword);
+
+      if (sPassword.GetLength() == 0)
+         return COMError::GenerateError("Failed to hash the password.");
+
       object_->SetPassword(sPassword);
-      object_->SetPasswordEncryption(preferredHashAlgorithm);
-   
+      object_->SetPasswordEncryption(HM::Crypt::ETPHC);
+
       return S_OK;
    }
    catch (...)

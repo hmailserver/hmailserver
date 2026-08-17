@@ -182,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IMAP\HierarchyDelimiter.cs" />
+    <Compile Include="Security\PasswordHashing.cs" />
     <Compile Include="Security\PasswordMasking.cs" />
   </ItemGroup>
   <ItemGroup>

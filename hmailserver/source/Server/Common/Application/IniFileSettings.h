@@ -76,7 +76,6 @@ namespace HM
       int GetMaxNumberOfExternalFetchThreads() {return max_no_of_external_fetch_threads_ ;}
       bool GetGreylistingEnabledDuringRecordExpiration() {return greylisting_enabled_during_record_expiration_;}
       int GetGreylistingExpirationInterval() {return greylisting_expiration_interval_; }
-      int GetPreferredHashAlgorithm() {return preferred_hash_algorithm_;}
       bool GetDNSBLChecksAfterMailFrom() {return dnsbl_checks_after_mail_from_; }
       bool GetSepSvcLogs() {return sep_svc_logs_; }
       int GetLogLevel() {return log_level_; }
@@ -154,6 +153,7 @@ namespace HM
       bool is_internal_database_;
       int greylisting_expiration_interval_;
       
+      // Retired: the value is only read so that we can warn about it being ignored.
       int preferred_hash_algorithm_;
 
       String log_directory_;

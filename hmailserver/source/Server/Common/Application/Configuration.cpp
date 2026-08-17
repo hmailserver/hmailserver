@@ -657,6 +657,45 @@ namespace HM
       GetSettings()->SetLong(PROPERTY_TLSOPTIONS, options);
    }
 
+   int
+   Configuration::GetPasswordHashAlgorithm() const
+   {
+      return GetSettings()->GetLong(PROPERTY_PASSWORDHASHALGORITHM);
+   }
+
+   void
+   Configuration::SetPasswordHashAlgorithm(int algorithm)
+   {
+      GetSettings()->SetLong(PROPERTY_PASSWORDHASHALGORITHM, algorithm);
+   }
+
+   int
+   Configuration::GetPasswordHashMemoryCost() const
+   {
+      // Zero means "use the default of the configured algorithm". PasswordHasher
+      // resolves it - it must never be compared against a stored hash as-is.
+      return GetSettings()->GetLong(PROPERTY_PASSWORDHASHMEMORYCOST);
+   }
+
+   void
+   Configuration::SetPasswordHashMemoryCost(int memoryCostKb)
+   {
+      GetSettings()->SetLong(PROPERTY_PASSWORDHASHMEMORYCOST, memoryCostKb);
+   }
+
+   int
+   Configuration::GetPasswordHashIterations() const
+   {
+      // Zero means "use the default of the configured algorithm".
+      return GetSettings()->GetLong(PROPERTY_PASSWORDHASHITERATIONS);
+   }
+
+   void
+   Configuration::SetPasswordHashIterations(int iterations)
+   {
+      GetSettings()->SetLong(PROPERTY_PASSWORDHASHITERATIONS, iterations);
+   }
+
    void
    Configuration::SetIPv6Preferred(bool newVal)
    {

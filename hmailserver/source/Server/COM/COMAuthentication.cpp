@@ -7,6 +7,7 @@
 #include "..\Common\BO\Account.h"
 #include "..\Common\Util\PasswordValidator.h"
 #include "..\Common\Util\Crypt.h"
+#include "..\Common\Util\Hashing\PasswordHasher.h"
 
 #include "COMError.h"
 
@@ -37,26 +38,46 @@ namespace HM
       {
          String sPasswordCorrect = HM::IniFileSettings::Instance()->GetAdministratorPassword();
 
+         bool passwordValid = false;
+         bool rehashRequired = false;
+
          if (sPasswordCorrect.IsEmpty())
          {
             // The administrators password has not been set yet. It's likely
-            // that we have just installed or upgraded hMailServer.
-            
-            // Has the empty password, so we can compare. The upgrade tool first
-            // tries to authenticate with an empty password.
-            sPasswordCorrect = HM::Crypt::Instance()->EnCrypt(sPasswordCorrect, HM::Crypt::ETSHA256);
+            // that we have just installed or upgraded hMailServer. The upgrade
+            // tool first tries to authenticate with an empty password.
+            //
+            // Nothing is written back here - an empty setting is what tells us
+            // that no password has been chosen yet.
+            passwordValid = sPassword.IsEmpty();
+         }
+         else
+         {
+            Crypt::EncryptionType type = HM::Crypt::Instance()->GetHashType(sPasswordCorrect);
+
+            if (type == Crypt::ETPHC)
+            {
+               passwordValid = PasswordHasher::Verify(sPassword, sPasswordCorrect);
+               rehashRequired = passwordValid && PasswordHasher::NeedsRehash(sPasswordCorrect);
+            }
+            else if (type == Crypt::ETMD5 || type == Crypt::ETSHA256)
+            {
+               // Kept for verification only, so that an administrator who upgrades
+               // is not locked out of the server.
+               passwordValid = HM::Crypt::Instance()->Validate(sPassword, sPasswordCorrect, type);
+               rehashRequired = passwordValid;
+            }
          }
 
-         
-         Crypt::EncryptionType type = HM::Crypt::Instance()->GetHashType(sPasswordCorrect);
-
-         // Validate the password.
-         if (HM::Crypt::Instance()->Validate(sPassword, sPasswordCorrect, type))
+         if (passwordValid)
          {
+            if (rehashRequired)
+               HM::IniFileSettings::Instance()->SetAdministratorPassword(sPassword);
+
             // Create a dummy account since the administrator
             // does not have a real email account.
 
-            account_ = std::shared_ptr<Account> 
+            account_ = std::shared_ptr<Account>
                (
                   new Account("Administrator", Account::ServerAdmin)
                );

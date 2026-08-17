@@ -161,6 +161,15 @@ namespace HM
       bool GetTlsOptionEnabled(TlsOption option) const;
       void SetTlsOptionEnabled(TlsOption option, bool enabled);
 
+      int GetPasswordHashAlgorithm() const;
+      void SetPasswordHashAlgorithm(int algorithm);
+
+      int GetPasswordHashMemoryCost() const;
+      void SetPasswordHashMemoryCost(int memoryCostKb);
+
+      int GetPasswordHashIterations() const;
+      void SetPasswordHashIterations(int iterations);
+
       bool GetIPv6Preferred();
       void SetIPv6Preferred(bool enabled);
 

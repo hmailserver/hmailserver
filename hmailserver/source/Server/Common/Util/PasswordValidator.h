@@ -21,5 +21,12 @@ namespace HM
       static bool ValidatePassword(std::shared_ptr<const Account> pAccount, const String &sPassword);
 
       // Validates the user password. Return true if the password is correct.
+
+   private:
+
+      static void RehashPasswordIfNeeded_(std::shared_ptr<const Account> pAccount, const String &sPassword, const String &sStoredPassword);
+
+      // Silently migrates the stored password to the currently configured algorithm
+      // and cost. Only ever called after a stored credential has been verified.
    };
 }

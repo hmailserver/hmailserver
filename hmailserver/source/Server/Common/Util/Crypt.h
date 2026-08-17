@@ -18,8 +18,12 @@ namespace HM
          ETNone = 0,
          ETBlowFish = 1,
          ETMD5 = 2,
-         ETSHA256 = 3
+         ETSHA256 = 3,
+         ETPHC = 4
       };
+      // ETPHC means "the stored string describes itself" - see PasswordHasher.
+      // Adding another key derivation function later does not require a new
+      // value here, nor a database migration.
 
       EncryptionType GetHashType(const String &hash);
 

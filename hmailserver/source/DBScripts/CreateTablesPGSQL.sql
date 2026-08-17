@@ -797,6 +797,12 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Tl
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('CreateDefaultSpecialUseFolders', '', 1);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashAlgorithm', '', 1);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashMemoryCost', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('PasswordHashIterations', '', 0);
+
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 587, 0, NULL, 0, 0);
@@ -805,4 +811,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5709);
+insert into hm_dbversion values (5710);
