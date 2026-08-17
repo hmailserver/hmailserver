@@ -92,6 +92,86 @@ namespace RegressionTests.Security
       }
 
       [Test]
+      public void PasswordHashAutoUpgradeCanBeToggled()
+      {
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         Assert.IsFalse(_settings.PasswordHashAutoUpgradeEnabled);
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         Assert.IsTrue(_settings.PasswordHashAutoUpgradeEnabled);
+      }
+
+      [Test]
+      public void LegacyPasswordsAreLeftAloneWhenAutoUpgradeIsOff()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         // The account must still be able to log on - only the migration is switched off.
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+
+         ClearCache();
+         Assert.AreEqual(md5, GetStoredPassword());
+      }
+
+      [Test]
+      public void AStrongerCostIsNotAppliedWhenAutoUpgradeIsOff()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var beforeChange = GetStoredPassword();
+
+         _settings.PasswordHashMemoryCost = 32768;
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         ClearCache();
+
+         Assert.AreEqual(beforeChange, GetStoredPassword());
+      }
+
+      [Test]
+      public void TurningAutoUpgradeBackOnResumesMigration()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         ClearCache();
+         Assert.AreEqual(md5, GetStoredPassword());
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         ClearCache();
+
+         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         ClearCache();
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+      }
+
+      [Test]
+      public void NewAccountsAreHashedEvenWhenAutoUpgradeIsOff()
+      {
+         // The switch governs migration during logon, not how new passwords are stored.
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+      }
+
+      [Test]
       public void PasswordHashSettingsCanBeChanged()
       {
          _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;

@@ -724,6 +724,9 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(111), helpstring("Iteration count used when hashing account passwords. 0 means the recommended default of the selected algorithm.")] HRESULT PasswordHashIterations([out, retval] long *pVal);
    [propput, id(111), helpstring("Iteration count used when hashing account passwords. 0 means the recommended default of the selected algorithm.")] HRESULT PasswordHashIterations([in] long newVal);
 
+   [propget, id(112), helpstring("Re-hash account passwords during logon when they use an older algorithm or a lower cost.")] HRESULT PasswordHashAutoUpgradeEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(112), helpstring("Re-hash account passwords during logon when they use an older algorithm or a lower cost.")] HRESULT PasswordHashAutoUpgradeEnabled([in] VARIANT_BOOL newVal);
+
 };
 
 

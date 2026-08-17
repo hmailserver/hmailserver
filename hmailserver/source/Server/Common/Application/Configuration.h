@@ -170,6 +170,9 @@ namespace HM
       int GetPasswordHashIterations() const;
       void SetPasswordHashIterations(int iterations);
 
+      bool GetPasswordHashAutoUpgrade() const;
+      void SetPasswordHashAutoUpgrade(bool enabled);
+
       bool GetIPv6Preferred();
       void SetIPv6Preferred(bool enabled);
 

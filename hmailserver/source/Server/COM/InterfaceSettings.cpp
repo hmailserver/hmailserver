@@ -2803,3 +2803,37 @@ STDMETHODIMP InterfaceSettings::put_PasswordHashIterations(long newVal)
       return COMError::GenerateGenericMessage();
    }
 }
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashAutoUpgradeEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashAutoUpgrade() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashAutoUpgradeEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetPasswordHashAutoUpgrade(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}

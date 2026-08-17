@@ -150,6 +150,10 @@ namespace RegressionTests.Shared
             _settings.PasswordHashMemoryCost = 0;
          if (_settings.PasswordHashIterations != 0)
             _settings.PasswordHashIterations = 0;
+         // Seeded on for new installations, off for upgrades. The fixtures that care
+         // set it explicitly; everyone else gets the new-installation behaviour.
+         if (!_settings.PasswordHashAutoUpgradeEnabled)
+            _settings.PasswordHashAutoUpgradeEnabled = true;
 
          if (_settings.IMAPSASLPlainEnabled)
             _settings.IMAPSASLPlainEnabled = false;

@@ -141,5 +141,6 @@
 #define PROPERTY_PASSWORDHASHALGORITHM          _T("PasswordHashAlgorithm")
 #define PROPERTY_PASSWORDHASHMEMORYCOST         _T("PasswordHashMemoryCost")
 #define PROPERTY_PASSWORDHASHITERATIONS         _T("PasswordHashIterations")
+#define PROPERTY_PASSWORDHASHAUTOUPGRADE        _T("PasswordHashAutoUpgrade")
 
 #define REQUIRED_DB_VERSION            5710

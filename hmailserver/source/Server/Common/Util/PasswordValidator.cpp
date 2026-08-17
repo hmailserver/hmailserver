@@ -224,6 +224,12 @@ namespace HM
    void
    PasswordValidator::RehashPasswordIfNeeded_(std::shared_ptr<const Account> pAccount, const String &sPassword, const String &sStoredPassword)
    {
+      // Migrating during logon costs one hash and one database write per account.
+      // Upgrades start with this switched off, so that an existing installation
+      // does not pay for every account at once when its clients reconnect.
+      if (!Configuration::Instance()->GetPasswordHashAutoUpgrade())
+         return;
+
       // Active Directory accounts have no password of their own to migrate.
       if (pAccount->GetIsAD())
          return;

@@ -14,11 +14,13 @@ if($action == "save")
 	$obSettings->PasswordHashAlgorithm = hmailGetVar("PasswordHashAlgorithm", 1);
 	$obSettings->PasswordHashMemoryCost = hmailGetVar("PasswordHashMemoryCost", 0);
 	$obSettings->PasswordHashIterations = hmailGetVar("PasswordHashIterations", 0);
+	$obSettings->PasswordHashAutoUpgradeEnabled = hmailGetVar("PasswordHashAutoUpgradeEnabled", 0);
 }
 
 $PasswordHashAlgorithm  = $obSettings->PasswordHashAlgorithm;
 $PasswordHashMemoryCost = $obSettings->PasswordHashMemoryCost;
 $PasswordHashIterations = $obSettings->PasswordHashIterations;
+$PasswordHashAutoUpgradeEnabled = $obSettings->PasswordHashAutoUpgradeEnabled;
 ?>
 
 <h1><?php EchoTranslation("Password hashing")?></h1>
@@ -53,13 +55,14 @@ $PasswordHashIterations = $obSettings->PasswordHashIterations;
 			<?php
 				PrintPropertyEditRow("PasswordHashMemoryCost", "Memory cost (kilobytes)", $PasswordHashMemoryCost, 10, "number");
 				PrintPropertyEditRow("PasswordHashIterations", "Iterations", $PasswordHashIterations, 10, "number");
+				PrintCheckboxRow("PasswordHashAutoUpgradeEnabled", "Upgrade stored passwords during logon", $PasswordHashAutoUpgradeEnabled);
 			?>
 
             <tr>
                <td colspan="2">
                   <?php EchoTranslation("Zero means the recommended default for the selected algorithm: 19456 kilobytes and 2 iterations for Argon2id, 600000 iterations for PBKDF2-SHA256. The memory cost is not used by PBKDF2-SHA256.")?>
                   <br/><br/>
-                  <?php EchoTranslation("Passwords hashed using an older algorithm or a lower cost are migrated automatically the next time the user logs on.")?>
+                  <?php EchoTranslation("When upgrading during logon is enabled, passwords stored using an older algorithm or a lower cost are re-hashed the next time the user logs on. Each account is upgraded once, but the first logon after a change costs one hash and one database write. Existing installations start with this switched off.")?>
                </td>
             </tr>
 

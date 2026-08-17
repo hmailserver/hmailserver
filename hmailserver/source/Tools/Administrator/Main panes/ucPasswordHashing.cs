@@ -48,6 +48,7 @@ namespace hMailServer.Administrator
            comboAlgorithm.SelectedValue = settings.PasswordHashAlgorithm;
            textMemoryCost.Number = settings.PasswordHashMemoryCost;
            textIterations.Number = settings.PasswordHashIterations;
+           checkAutoUpgrade.Checked = settings.PasswordHashAutoUpgradeEnabled;
 
            Marshal.ReleaseComObject(settings);
 
@@ -65,6 +66,7 @@ namespace hMailServer.Administrator
            settings.PasswordHashAlgorithm = GetSelectedAlgorithm();
            settings.PasswordHashMemoryCost = textMemoryCost.Number;
            settings.PasswordHashIterations = textIterations.Number;
+           settings.PasswordHashAutoUpgradeEnabled = checkAutoUpgrade.Checked;
 
            Marshal.ReleaseComObject(settings);
 

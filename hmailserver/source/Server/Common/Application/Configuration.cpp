@@ -696,6 +696,18 @@ namespace HM
       GetSettings()->SetLong(PROPERTY_PASSWORDHASHITERATIONS, iterations);
    }
 
+   bool
+   Configuration::GetPasswordHashAutoUpgrade() const
+   {
+      return GetSettings()->GetBool(PROPERTY_PASSWORDHASHAUTOUPGRADE);
+   }
+
+   void
+   Configuration::SetPasswordHashAutoUpgrade(bool enabled)
+   {
+      GetSettings()->SetBool(PROPERTY_PASSWORDHASHAUTOUPGRADE, enabled);
+   }
+
    void
    Configuration::SetIPv6Preferred(bool newVal)
    {
