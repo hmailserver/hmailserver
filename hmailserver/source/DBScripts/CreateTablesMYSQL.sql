@@ -238,7 +238,8 @@ create table hm_imapfolders
   foldername varchar(255) NOT NULL,
   folderissubscribed tinyint unsigned NOT NULL,
   foldercreationtime datetime NOT NULL,
-  foldercurrentuid bigint NOT NULL
+  foldercurrentuid bigint NOT NULL,
+  folderspecialuse int NOT NULL
 ) DEFAULT CHARSET=utf8;
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
@@ -778,6 +779,8 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('IP
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('TlsOptions', '', 0);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('CreateDefaultSpecialUseFolders', '', 1);
+
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 587, 0, NULL, 0, 0);
@@ -786,4 +789,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5708);
+insert into hm_dbversion values (5709);

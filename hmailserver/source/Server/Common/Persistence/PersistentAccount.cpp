@@ -34,6 +34,8 @@
 
 #include "PreSaveLimitationsCheck.h"
 
+#include "../Application/ErrorManager.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -63,10 +65,9 @@ namespace HM
       // Delete messages connected to this account.
       DeleteMessages(pAccount);
 
-      // Force delete the inbox as well. DeleteMessages above does not delete it.
-      std::shared_ptr<IMAPFolder> inbox = pAccount->GetFolders()->GetFolderByName("Inbox");
-      if (inbox)
-         PersistentIMAPFolder::DeleteObject(inbox, true);
+      // Force delete any folders DeleteMessages above retained (Inbox and any
+      // special-use folders), since the whole account is being removed.
+      PersistentIMAPFolder::DeleteByAccount(iID, true);
 
       pAccount->GetRules()->DeleteAll();
 
@@ -200,7 +201,7 @@ namespace HM
       if (!pAccount || pAccount->GetID() == 0)
          return false;
 
-	   PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
+	  PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
 	   
       Cache<Account>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());
@@ -328,6 +329,10 @@ namespace HM
             {
                PersistentAccount::DeleteObject(pAccount);
             }
+            else if (Configuration::Instance()->GetCreateDefaultSpecialUseFolders())
+            {
+               CreateDefaultSpecialUseFolders(*pAccount);
+            }
          }
       }
 
@@ -380,7 +385,40 @@ namespace HM
       return PersistentIMAPFolder::SaveObject(inbox);
    }
 
-   bool 
+   void
+   PersistentAccount::CreateDefaultSpecialUseFolders(const Account &account)
+   {
+      struct DefaultFolder
+      {
+         const TCHAR *name;
+         unsigned int specialUseFlag;
+      };
+
+      const DefaultFolder defaultFolders[] =
+      {
+         { _T("Drafts"), IMAPFolder::SpecialUseDrafts },
+         { _T("Sent"), IMAPFolder::SpecialUseSent },
+         { _T("Trash"), IMAPFolder::SpecialUseTrash },
+         { _T("Junk"), IMAPFolder::SpecialUseJunk },
+      };
+
+      for (const DefaultFolder &defaultFolder : defaultFolders)
+      {
+         std::shared_ptr<IMAPFolder> folder = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+         folder->SetFolderName(defaultFolder.name);
+         folder->SetIsSubscribed(true);
+         folder->SetSpecialUseFlags(defaultFolder.specialUseFlag);
+
+         if (!PersistentIMAPFolder::SaveObject(folder))
+         {
+            String sErrorMessage;
+            sErrorMessage.Format(_T("Failed to create default special-use folder '%s' for account %I64d."), defaultFolder.name, account.GetID());
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5523, "PersistentAccount::CreateDefaultSpecialUseFolders", sErrorMessage);
+         }
+      }
+   }
+
+   bool
    PersistentAccount::UpdateLastLogonTime(std::shared_ptr<const Account> pAccount)
    {
       if (!pAccount)

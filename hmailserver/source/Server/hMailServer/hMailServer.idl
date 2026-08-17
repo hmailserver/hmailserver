@@ -491,11 +491,30 @@ typedef
 	helpstring("Maintenance operations")] 
 	enum 
 {
-	[helpstring("Updates the UID for IMAP folders to their current value.")] 
+	[helpstring("Updates the UID for IMAP folders to their current value.")]
 	eUpdateIMAPFolderUID = 1,
 } eMaintenanceOperation;
 
-// 
+typedef
+[uuid(90745436-4C3F-11D9-AD17-A0BCEA20CD15),
+	helpstring("RFC 6154 IMAP folder special-use attribute(s). Combine with bitwise OR.")]
+	enum
+{
+	[helpstring("No special use.")]
+	eSUNone = 0,
+	[helpstring("\\Archive")]
+	eSUArchive = 1,
+	[helpstring("\\Drafts")]
+	eSUDrafts = 2,
+	[helpstring("\\Junk")]
+	eSUJunk = 4,
+	[helpstring("\\Sent")]
+	eSUSent = 8,
+	[helpstring("\\Trash")]
+	eSUTrash = 16,
+} eSpecialUse;
+
+//
 // ENUMS END
 //
 
@@ -692,6 +711,9 @@ interface IInterfaceSettings : IDispatch{
 
    [propget, id(107), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([out, retval] VARIANT_BOOL *pVal);
    [propput, id(107), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([in] VARIANT_BOOL newVal);
+
+   [propget, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([in] VARIANT_BOOL newVal);
 
 };
 
@@ -2109,6 +2131,8 @@ interface IInterfaceIMAPFolder : IDispatch{
    [id(9), helpstring("Deletes the object from the database.")] HRESULT Delete();
    [propget, id(10), helpstring("The latest message UID.")] HRESULT CurrentUID([out, retval] long *pVal);
    [propget, id(11), helpstring("The folder creation time.")] HRESULT CreationTime([out, retval] BSTR *pVal);
+   [propget, id(12), helpstring("The RFC 6154 special-use attribute(s) of the IMAP folder. Combine multiple eSpecialUse values with bitwise OR.")] HRESULT SpecialUse([out, retval] eSpecialUse *pVal);
+   [propput, id(12), helpstring("The RFC 6154 special-use attribute(s) of the IMAP folder. Combine multiple eSpecialUse values with bitwise OR.")] HRESULT SpecialUse([in] eSpecialUse newVal);
 };
 
 [

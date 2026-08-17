@@ -21,6 +21,21 @@ namespace HM
       {
          MaxFolderDepth = 25
       };
+
+      // RFC 6154 special-use attributes, stored as a bitmask (folderspecialuse column).
+      // \All and \Flagged are intentionally not supported: RFC 6154 describes both as
+      // "almost certain to represent a virtual mailbox" (an aggregate view computed
+      // across all folders), and hMailServer has no such virtual-mailbox concept - every
+      // IMAP folder is a real, physically populated mailbox.
+      enum SpecialUseFlags
+      {
+         SpecialUseNone    = 0x00,
+         SpecialUseArchive = 0x01,
+         SpecialUseDrafts  = 0x02,
+         SpecialUseJunk    = 0x04,
+         SpecialUseSent    = 0x08,
+         SpecialUseTrash   = 0x10
+      };
    
       IMAPFolder();
       IMAPFolder(__int64 iAccountID, __int64 iParentFolderID);
@@ -49,6 +64,14 @@ namespace HM
       String GetFolderName() const { return folder_name_;}
       void SetFolderName(const String & sNewVal) { folder_name_ =sNewVal; }
 
+      // RFC 6154 attribute list, e.g. "\Sent" or "\Drafts \Trash". Used at the IMAP/COM/backup
+      // boundaries, where the wire and script-facing form is text, not the internal bitmask.
+      String GetSpecialUse() const { return SpecialUseFlagsToString(special_use_flags_); }
+      void SetSpecialUse(const String & sNewVal) { special_use_flags_ = SpecialUseStringToFlags(sNewVal); }
+
+      unsigned int GetSpecialUseFlags() const { return special_use_flags_; }
+      void SetSpecialUseFlags(unsigned int flags) { special_use_flags_ = flags; }
+
       String GetName() const {return GetFolderName(); }
       
       std::shared_ptr<Messages> GetMessages();
@@ -66,6 +89,9 @@ namespace HM
       bool XMLLoadSubItems(XNode *pFolderNode, int iRestoreOptions);
 
       static bool IsValidFolderName(const std::vector<String> &vecPath, bool bIsPublicFolder);
+      static bool IsValidSpecialUseAttribute(const String &sAttribute);
+      static unsigned int SpecialUseStringToFlags(const String &sAttributes);
+      static String SpecialUseFlagsToString(unsigned int flags);
 
       bool IsPublicFolder();
 
@@ -78,6 +104,7 @@ namespace HM
 
       bool folder_is_subscribed_;
       AnsiString folder_name_;
+      unsigned int special_use_flags_;
 
       std::shared_ptr<Messages> messages_;
       std::shared_ptr<IMAPFolders> sub_folders_;   

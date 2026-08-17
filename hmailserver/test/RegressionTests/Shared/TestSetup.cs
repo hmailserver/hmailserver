@@ -132,6 +132,9 @@ namespace RegressionTests.Shared
          if (_settings.IMAPACLEnabled != true)
             _settings.IMAPACLEnabled = true;
 
+         if (_settings.CreateDefaultSpecialUseFoldersEnabled)
+            _settings.CreateDefaultSpecialUseFoldersEnabled = false;
+
          if (_settings.MaxMessageSize != 20480)
             _settings.MaxMessageSize = 20480;
 

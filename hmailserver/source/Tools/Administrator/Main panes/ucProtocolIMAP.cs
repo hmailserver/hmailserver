@@ -59,6 +59,8 @@ namespace hMailServer.Administrator
          checkEnableIMAPInitialResponse.Checked = settings.IMAPSASLInitialResponseEnabled;
          textIMAPMasterUser.Text = settings.IMAPMasterUser;
 
+         checkCreateDefaultSpecialUseFolders.Checked = settings.CreateDefaultSpecialUseFoldersEnabled;
+
          textIMAPPublicFolderName.Text = settings.IMAPPublicFolderName;
          comboIMAPHierarchyDelimiter.Text = settings.IMAPHierarchyDelimiter;
 
@@ -82,7 +84,9 @@ namespace hMailServer.Administrator
          settings.IMAPSASLPlainEnabled = checkEnableIMAPPlain.Checked;
          settings.IMAPSASLInitialResponseEnabled = checkEnableIMAPInitialResponse.Checked;
          settings.IMAPMasterUser = textIMAPMasterUser.Text;
-         
+
+         settings.CreateDefaultSpecialUseFoldersEnabled = checkCreateDefaultSpecialUseFolders.Checked;
+
          bool setClean = true;
          try
          {

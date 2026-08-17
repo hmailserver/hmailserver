@@ -161,6 +161,7 @@
   <ItemGroup>
     <Compile Include="IMAP\CommandSequences.cs" />
     <Compile Include="IMAP\Folders.cs" />
+    <Compile Include="IMAP\SpecialUse.cs" />
     <Compile Include="IMAP\Search.cs" />
   </ItemGroup>
   <ItemGroup>

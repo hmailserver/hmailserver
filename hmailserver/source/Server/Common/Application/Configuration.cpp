@@ -669,6 +669,18 @@ namespace HM
       return GetSettings()->GetBool(PROPERTY_IPV6_PREFERRED);
    }
 
+   void
+   Configuration::SetCreateDefaultSpecialUseFolders(bool newVal)
+   {
+      GetSettings()->SetBool(PROPERTY_CREATE_DEFAULT_SPECIAL_USE_FOLDERS, newVal);
+   }
+
+   bool
+   Configuration::GetCreateDefaultSpecialUseFolders()
+   {
+      return GetSettings()->GetBool(PROPERTY_CREATE_DEFAULT_SPECIAL_USE_FOLDERS);
+   }
+
    int
    Configuration::GetCrashSimulationMode() const
    {

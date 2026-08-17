@@ -134,6 +134,8 @@
 
 #define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
 
+#define PROPERTY_CREATE_DEFAULT_SPECIAL_USE_FOLDERS  _T("CreateDefaultSpecialUseFolders")
+
 #define PROPERTY_TLSOPTIONS                     _T("TlsOptions")
 
-#define REQUIRED_DB_VERSION            5708
+#define REQUIRED_DB_VERSION            5709
