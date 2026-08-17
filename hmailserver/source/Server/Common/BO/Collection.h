@@ -190,7 +190,9 @@ namespace HM
          std::shared_ptr<T> pObject = (*iter);
          if (pObject->GetID() == DBID)
          {
-            P::DeleteObject(pObject);
+            if (!P::DeleteObject(pObject))
+               return false;
+
             vecObjects.erase(iter);
             return true;
          }

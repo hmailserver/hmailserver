@@ -57,10 +57,20 @@ namespace HM
       return true;
    }
 
+   /*
+      Deletes a specific IMAP folder, including the Inbox and folders with a
+      special-use flag.
+
+      This is the Collection<>/persistence contract, and is what explicit,
+      user-initiated deletes go through - the IMAP DELETE command, and the COM
+      API used by hMailServer Administrator. Such a delete must really delete,
+      since the caller reports the outcome back to the user and drops the
+      folder from its in-memory list either way.
+   */
    bool
    PersistentIMAPFolder::DeleteObject(std::shared_ptr<IMAPFolder> pFolder)
    {
-      return DeleteObject  (pFolder, false);
+      return DeleteObject  (pFolder, true);
    }
 
    /*
@@ -68,7 +78,12 @@ namespace HM
 
       If forceDelete is false, the user Inbox and any folder with a
       special-use flag (e.g. Sent, Trash), regardless of nesting depth,
-      won't be deleted.
+      are retained: their messages and permissions are deleted, but the
+      folders themselves are kept.
+
+      That mode exists for emptying an account (PersistentAccount::DeleteMessages).
+      It must not be used to delete an individual folder, since it reports
+      success while leaving the row in hm_imapfolders behind.
 
    */
    bool
@@ -78,9 +93,10 @@ namespace HM
          return false;
       
       // Delete sub folders first. Loop explicitly (rather than using
-      // Collection::DeleteAll, which always deletes with forceDelete=false)
-      // so that forceDelete propagates to nested folders too - otherwise a
-      // whole-account delete would leave nested special-use folders behind.
+      // Collection::DeleteAll, which goes through the forcing single-argument
+      // overload) so that forceDelete propagates to nested folders too -
+      // otherwise emptying an account would delete nested special-use folders
+      // instead of retaining them.
       std::shared_ptr<IMAPFolders> pSubFolders = pFolder->GetSubFolders();
       for (int i = 0; i < pSubFolders->GetCount(); i++)
       {

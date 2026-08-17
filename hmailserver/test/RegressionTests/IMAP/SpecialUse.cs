@@ -335,5 +335,163 @@ namespace RegressionTests.IMAP
 
          Assert.DoesNotThrow(() => _domain.Accounts.DeleteByDBID(account.ID));
       }
+
+      /*
+         Re-reads the account's folders from hm_imapfolders.
+
+         Folder collections are cached per account in IMAPFolderContainer, and
+         deleting a folder drops it from that cached collection whether or not the
+         row was actually deleted - which is precisely how this bug stayed hidden.
+         Emptying the account is the one public operation that uncaches the folders,
+         so the returned account reflects what is really in the database. It retains
+         INBOX and special-use folders, so a special-use folder that shows up here
+         after being deleted is an orphaned row.
+      */
+      private Account ReloadFoldersFromDatabase(Account account)
+      {
+         account.DeleteMessages();
+
+         return _domain.Accounts.get_ItemByDBID(account.ID);
+      }
+
+      [Test]
+      public void TestDeletingSingleSpecialUseFolderRemovesItFromDatabase()
+      {
+         // Deleting an individual special-use folder - what hMailServer Administrator's
+         // "Delete folder" command does, via IMAPFolder.Delete() - must really delete it.
+         // Retaining special-use folders is only correct when emptying an account; doing
+         // it here left an orphaned row in hm_imapfolders even though the caller was
+         // told the delete succeeded and had already dropped the folder from its UI.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse18@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         sent.Delete();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("Sent"),
+            "Expected the special-use folder to be gone from the database after being deleted.");
+      }
+
+      [Test]
+      public void TestDeletingSingleSpecialUseFolderByDBIDRemovesItFromDatabase()
+      {
+         // Same as above, but through the IMAPFolders.DeleteByDBID() entry point.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse19@example.test", "test");
+
+         var trash = account.IMAPFolders.Add("Trash");
+         trash.SpecialUse = eSpecialUse.eSUTrash;
+         trash.Save();
+
+         account.IMAPFolders.DeleteByDBID(trash.ID);
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("Trash"),
+            "Expected the special-use folder to be gone from the database after being deleted.");
+      }
+
+      [Test]
+      public void TestImapDeleteRemovesSpecialUseFolderFromDatabase()
+      {
+         // The IMAP DELETE command goes through the same persistence call as the
+         // Administrator does, and was affected by the same bug: the client got an
+         // OK and the folder left the in-memory list, but the row survived.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse20@example.test", "test");
+
+         var archive = account.IMAPFolders.Add("Archive");
+         archive.SpecialUse = eSpecialUse.eSUArchive;
+         archive.Save();
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         Assert.IsTrue(simulator.DeleteFolder("Archive"));
+
+         simulator.Disconnect();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("Archive"),
+            "Expected the special-use folder to be gone from the database after being deleted over IMAP.");
+      }
+
+      [Test]
+      public void TestDeletingNestedSpecialUseFolderRemovesItFromDatabase()
+      {
+         // Special-use folders can be nested, and deleting one directly must remove
+         // it as well - otherwise the orphaned row is left pointing at a parent that
+         // no longer lists it.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse21@example.test", "test");
+
+         var inbox = account.IMAPFolders.get_ItemByName("INBOX");
+         var archive = inbox.SubFolders.Add("Archive");
+         archive.SpecialUse = eSpecialUse.eSUArchive;
+         archive.Save();
+
+         archive.Delete();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+         var reloadedInbox = reloadedAccount.IMAPFolders.get_ItemByName("INBOX");
+
+         Assert.Throws<COMException>(() => reloadedInbox.SubFolders.get_ItemByName("Archive"),
+            "Expected the nested special-use folder to be gone from the database after being deleted.");
+      }
+
+      [Test]
+      public void TestImapDeleteRejectsInbox()
+      {
+         // The Inbox is never special-use-flagged, but it must still be
+         // undeletable - the force-delete change for special-use folders must
+         // not end up forcing the Inbox to be deletable too.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse22@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         Assert.IsFalse(simulator.DeleteFolder("Inbox"),
+            "Expected the IMAP DELETE command to reject a request to delete the Inbox.");
+
+         simulator.Disconnect();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.DoesNotThrow(() => reloadedAccount.IMAPFolders.get_ItemByName("INBOX"),
+            "Expected the Inbox to still exist after a rejected delete attempt.");
+      }
+
+      [Test]
+      public void TestDeletingSpecialUseFolderTwiceFailsOnSecondAttempt()
+      {
+         // Once a special-use folder has really been deleted, a second delete
+         // attempt against the same (now stale) folder reference must fail
+         // cleanly rather than throwing an unexpected error or silently
+         // succeeding.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse23@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         sent.Delete();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("Sent"),
+            "Expected the special-use folder to be gone from the database after being deleted.");
+
+         Assert.Throws<COMException>(() => sent.Delete(),
+            "Expected deleting the already-deleted folder a second time to fail rather than succeed or resurrect it.");
+
+         var reloadedAgain = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAgain.IMAPFolders.get_ItemByName("Sent"),
+            "Expected the folder to still be gone from the database after the second delete attempt.");
+      }
    }
 }
