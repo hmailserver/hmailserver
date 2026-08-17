@@ -77,6 +77,7 @@ namespace HM
       rejected_by_delayed_grey_listing_(false),
       current_state_(INITIAL),
       trace_headers_written_(true),
+      message_submission_(false),
       requestedAuthenticationType_(AUTH_NONE),
       max_message_size_kb_(0),
       cur_no_of_rcptto_(0),
@@ -740,6 +741,15 @@ namespace HM
          return;
       }
 
+      // We act as message submission server (RFC 6409) for this message if the client has
+      // authenticated, or if it sends as one of our own domains from an IP range where we
+      // don't require authentication to do so. With the default configuration, the latter
+      // only applies to clients running on the server itself, such as web sites and scripts
+      // submitting mail over localhost. For everyone else we're a relay, and should not
+      // modify the message beyond adding trace fields.
+      if (isAuthenticated_ || (localSender && !authenticationRequired))
+         message_submission_ = true;
+
       // Pre-transmission spam protection.
       if (type_ == SPPreTransmission)
       {
@@ -890,7 +900,7 @@ namespace HM
       {
          std::shared_ptr<MimeHeader> original_headers = Utilities::GetMimeHeader(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
 
-         SMTPMessageHeaderCreator header_creator(username_, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers, current_message_);
+         SMTPMessageHeaderCreator header_creator(username_, GetIPAddressString(), isAuthenticated_, message_submission_, helo_host_, original_headers, current_message_);
          
          if (IsSSLConnection())
             header_creator.SetCipherInfo(GetCipherInfo());
@@ -1472,6 +1482,8 @@ namespace HM
       }
 
       rejected_by_delayed_grey_listing_ = false;
+
+      message_submission_ = false;
 
       sender_domain_.reset();
       sender_account_.reset();

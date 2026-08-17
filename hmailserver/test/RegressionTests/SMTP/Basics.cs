@@ -281,11 +281,33 @@ namespace RegressionTests.SMTP
 
       [Test]
       [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should be added for unauthenticated senders which are allowed to send as one of our domains, since we act as a submission server for them as well.")]
+      public void TestMessageIDAddedForLocalSenderNotRequiredToAuthenticate()
+      {
+         // The "My computer" IP range allows the local computer to send as one of our
+         // domains without authenticating. Web sites and scripts submitting mail over
+         // localhost rely on this.
+         var range =
+            SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
+         Assert.IsFalse(range.RequireSMTPAuthLocalToLocal);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSend("test@example.test", "test@example.test", "Test subject", "Test body");
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@example.test", "test");
+
+         Assert.IsTrue(test.Contains("Message-ID: <"));
+      }
+
+      [Test]
+      [Category("SMTP")]
       [Description("Issue 536: A missing Message-ID should not be added to relayed messages, since that hides from spam filters that the original message had none.")]
-      public void TestMessageIDNotAddedForUnauthenticatedSender()
+      public void TestMessageIDNotAddedForRelayedMessage()
       {
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
 
+         // The sender is not one of our domains, so we're relaying rather than submitting.
          SmtpClientSimulator.StaticSend("someone@example.com", "test@example.test", "Test subject", "Test body");
 
          var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@example.test", "test");

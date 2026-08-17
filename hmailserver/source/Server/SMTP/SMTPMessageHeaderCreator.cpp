@@ -23,10 +23,11 @@
 
 namespace HM
 {
-   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message) :
+   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, bool is_message_submission, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message) :
       username_(username),
       remote_ip_address_(remote_ip_address),
       is_authenticated_(is_authenticated),
+      is_message_submission_(is_message_submission),
       original_headers_(original_headers),
       helo_host_(helo_host),
       is_tls_(false),
@@ -70,12 +71,14 @@ namespace HM
       String sComputerName = Utilities::ComputerName();
 
       // Add Message-ID header if it does not exist. Adding a missing Message-ID is a
-      // message submission task (RFC 6409), so it's only done for authenticated senders.
+      // message submission task (RFC 6409), so it's only done for messages we've accepted
+      // for submission - either from an authenticated user, or from a client which is
+      // allowed to send as one of our domains without authenticating.
       // When another server relays a message to us we act as a relay rather than as a
       // submission server, and should only add trace fields. Inserting a Message-ID in
       // that case would hide from spam filters and rules further down the line that the
       // original message didn't have one.
-      if (is_authenticated_ && !original_headers_->FieldExists("Message-ID"))
+      if (is_message_submission_ && !original_headers_->FieldExists("Message-ID"))
       {
          String sTemp;
          sTemp.Format(_T("Message-ID: %s\r\n"), Utilities::GenerateMessageID().c_str());
