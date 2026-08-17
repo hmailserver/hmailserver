@@ -40,6 +40,8 @@ namespace HM
       bool Write(File &sourceFile);
       bool WriteBOF();
 
+      bool Flush();
+
       void Write_(void *buffer, int item_size, int item_count);
       int GetSize();
 

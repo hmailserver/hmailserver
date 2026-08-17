@@ -171,6 +171,15 @@ namespace HM
       return true;
    }
 
+   bool
+   File::Flush()
+   {
+      if (file_ == nullptr)
+         return false;
+
+      return fflush(file_) == 0;
+   }
+
    bool 
    File::ReadLine(AnsiString &sLine)
    {
