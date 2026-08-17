@@ -14,6 +14,8 @@
 #include <openssl/params.h>
 #include <openssl/rand.h>
 
+#include "../Encoding/Base64.h"
+
 #include "PasswordHasher.h"
 
 #ifdef _DEBUG
@@ -27,8 +29,6 @@ namespace HM
    {
       const char *ARGON2ID_IDENTIFIER = "argon2id";
       const char *PBKDF2_SHA256_IDENTIFIER = "pbkdf2-sha256";
-
-      const char BASE64_ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
       const unsigned char EMPTY_BYTE = 0;
 
@@ -511,74 +511,24 @@ namespace HM
    AnsiString
    PasswordHasher::EncodeBase64_(const std::vector<unsigned char> &input)
    {
-      // The PHC string format uses the standard base64 alphabet without padding.
-      AnsiString result;
+      if (input.empty())
+         return "";
 
-      size_t index = 0;
-
-      while (index < input.size())
-      {
-         size_t remaining = input.size() - index;
-
-         unsigned int block = ((unsigned int) input[index]) << 16;
-
-         if (remaining > 1)
-            block |= ((unsigned int) input[index + 1]) << 8;
-         if (remaining > 2)
-            block |= (unsigned int) input[index + 2];
-
-         result += BASE64_ALPHABET[(block >> 18) & 0x3f];
-         result += BASE64_ALPHABET[(block >> 12) & 0x3f];
-
-         if (remaining > 1)
-            result += BASE64_ALPHABET[(block >> 6) & 0x3f];
-         if (remaining > 2)
-            result += BASE64_ALPHABET[block & 0x3f];
-
-         index += 3;
-      }
-
-      return result;
+      return Base64::EncodeUnpadded((const char*) &input[0], (int) input.size());
    }
 
    bool
    PasswordHasher::DecodeBase64_(const AnsiString &input, std::vector<unsigned char> &output)
    {
-      output.clear();
+      AnsiString decoded;
 
-      unsigned int block = 0;
-      int bitsInBlock = 0;
-
-      for (int i = 0; i < input.GetLength(); i++)
-      {
-         char c = input.GetAt(i);
-
-         const char *position = strchr(BASE64_ALPHABET, c);
-
-         if (position == nullptr || c == '\0')
-         {
-            output.clear();
-            return false;
-         }
-
-         block = (block << 6) | (unsigned int) (position - BASE64_ALPHABET);
-         bitsInBlock += 6;
-
-         if (bitsInBlock >= 8)
-         {
-            bitsInBlock -= 8;
-            output.push_back((unsigned char) ((block >> bitsInBlock) & 0xff));
-         }
-      }
-
-      // Any bits left over must be zero padding, and there can never be a full
-      // byte of them.
-      if (bitsInBlock >= 6 || (block & ((1u << bitsInBlock) - 1u)) != 0)
+      if (!Base64::DecodeUnpadded(input, decoded))
       {
          output.clear();
          return false;
       }
 
+      output = ToBytes_(decoded);
       return true;
    }
 
