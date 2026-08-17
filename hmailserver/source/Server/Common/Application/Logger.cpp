@@ -326,7 +326,7 @@ namespace HM
 
       try
       {
-         bool fileExists = FileUtilities::Exists(fileName);
+         fileExists = FileUtilities::Exists(fileName);
       }
       catch (boost::system::system_error&)
       {
@@ -409,7 +409,13 @@ namespace HM
          file->Write(sAnsiString);
       }
 
-      if (!keepFileOpen)
+      if (keepFileOpen)
+      {
+         // The file is buffered by the CRT and won't be closed after this write. Flush it, so that
+         // the last lines don't remain invisible in the log file while the server is idle.
+         file->Flush();
+      }
+      else
          file->Close();
    }
 
