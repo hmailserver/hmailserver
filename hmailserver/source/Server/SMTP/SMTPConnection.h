@@ -191,6 +191,10 @@ namespace HM
 
       bool trace_headers_written_;
 
+      // True if we act as message submission server for the current message, rather
+      // than as a relay. Set when a recipient has been accepted.
+      bool message_submission_;
+
       String username_;
       String password_;
 
