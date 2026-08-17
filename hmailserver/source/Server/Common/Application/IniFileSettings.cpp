@@ -28,7 +28,7 @@ namespace HM
       max_no_of_external_fetch_threads_(15),
       greylisting_enabled_during_record_expiration_(true),
       greylisting_expiration_interval_(240),
-      preferred_hash_algorithm_(3),
+      preferred_hash_algorithm_(Crypt::ETSHA256),
       dnsbl_checks_after_mail_from_(false),
       log_level_(0),
       max_log_line_len_(500),
@@ -155,7 +155,7 @@ namespace HM
       String sValidLanguages = ReadIniSettingString_("GUILanguages", "ValidLanguages", "");
       valid_languages_ = StringParser::SplitString(sValidLanguages, ",");
 
-      preferred_hash_algorithm_ = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", 3);
+      preferred_hash_algorithm_ = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", Crypt::ETSHA256);
 
       dnsbl_checks_after_mail_from_ = ReadIniSettingInteger_("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
 
@@ -203,7 +203,7 @@ namespace HM
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
 
-      if (preferred_hash_algorithm_ != 3)
+      if (preferred_hash_algorithm_ != Crypt::ETSHA256)
       {
          // The setting is no longer honoured - passwords are always written using the
          // algorithm configured in PasswordHashAlgorithm. Tell the administrator who
