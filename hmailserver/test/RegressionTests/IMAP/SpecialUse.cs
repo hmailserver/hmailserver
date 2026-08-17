@@ -335,5 +335,48 @@ namespace RegressionTests.IMAP
 
          Assert.DoesNotThrow(() => _domain.Accounts.DeleteByDBID(account.ID));
       }
+
+      [Test]
+      public void TestDeletingSingleSpecialUseFolderFailsAndFolderIsRetained()
+      {
+         // Deleting an individual special-use folder (e.g. via hMailAdmin's "Delete
+         // folder" command, which calls IMAPFolder.Delete()) must not silently
+         // succeed - the underlying PersistentIMAPFolder::DeleteObject() call
+         // refuses to delete the row, and that failure must now propagate as a
+         // COMException, so the folder is not left orphaned in the database while
+         // appearing removed in the caller's UI.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse18@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         Assert.Throws<COMException>(() => sent.Delete());
+
+         var reloadedAccount = _domain.Accounts.get_ItemByDBID(account.ID);
+         var reloadedSent = reloadedAccount.IMAPFolders.get_ItemByName("Sent");
+
+         Assert.IsNotNull(reloadedSent, "Expected the special-use folder to still exist in the database after the failed delete.");
+         Assert.AreEqual(eSpecialUse.eSUSent, reloadedSent.SpecialUse);
+      }
+
+      [Test]
+      public void TestDeletingSingleSpecialUseFolderByDBIDFailsAndFolderIsRetained()
+      {
+         // Same as above, but through the IMAPFolders.DeleteByDBID() entry point.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse19@example.test", "test");
+
+         var trash = account.IMAPFolders.Add("Trash");
+         trash.SpecialUse = eSpecialUse.eSUTrash;
+         trash.Save();
+
+         Assert.Throws<COMException>(() => account.IMAPFolders.DeleteByDBID(trash.ID));
+
+         var reloadedAccount = _domain.Accounts.get_ItemByDBID(account.ID);
+         var reloadedTrash = reloadedAccount.IMAPFolders.get_ItemByName("Trash");
+
+         Assert.IsNotNull(reloadedTrash, "Expected the special-use folder to still exist in the database after the failed delete.");
+         Assert.AreEqual(eSpecialUse.eSUTrash, reloadedTrash.SpecialUse);
+      }
    }
 }

@@ -293,10 +293,16 @@ STDMETHODIMP InterfaceIMAPFolder::Delete()
          return GetAccessDenied();
 
       if (!parent_collection_)
-         return HM::PersistentIMAPFolder::DeleteObject(object_) ? S_OK : S_FALSE;
-      
-      parent_collection_->DeleteItemByDBID(object_->GetID());
-   
+      {
+         if (!HM::PersistentIMAPFolder::DeleteObject(object_))
+            return COMError::GenerateError("The folder could not be deleted. The account Inbox and folders with a special-use flag (such as Sent, Drafts, Junk, Trash or Archive) cannot be deleted.");
+
+         return S_OK;
+      }
+
+      if (!parent_collection_->DeleteItemByDBID(object_->GetID()))
+         return COMError::GenerateError("The folder could not be deleted. The account Inbox and folders with a special-use flag (such as Sent, Drafts, Junk, Trash or Archive) cannot be deleted.");
+
       return S_OK;
    }
    catch (...)
