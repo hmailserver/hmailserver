@@ -91,7 +91,6 @@ namespace HM
       {
          HashParameters() :
             algorithm(AlgorithmArgon2id),
-            version(0),
             memory_cost_kb(0),
             iterations(0),
             lanes(1)
@@ -99,7 +98,6 @@ namespace HM
          }
 
          Algorithm algorithm;
-         unsigned int version;
          unsigned int memory_cost_kb;
          unsigned int iterations;
          unsigned int lanes;

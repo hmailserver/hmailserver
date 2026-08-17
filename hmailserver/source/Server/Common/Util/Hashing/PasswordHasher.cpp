@@ -105,7 +105,6 @@ namespace HM
       HashParameters parameters;
 
       parameters.algorithm = GetConfiguredAlgorithm();
-      parameters.version = ARGON2_VERSION_13;
       parameters.memory_cost_kb = GetConfiguredMemoryCostKb();
       parameters.iterations = GetConfiguredIterations();
       parameters.lanes = 1;
@@ -380,10 +379,15 @@ namespace HM
 
          parameters.algorithm = AlgorithmArgon2id;
 
-         if (!ParseNamedValue(fields[2], "v", parameters.version))
+         unsigned int version = 0;
+
+         if (!ParseNamedValue(fields[2], "v", version))
             return false;
 
-         if (parameters.version != ARGON2_VERSION_13)
+         // Only version 19 is ever written, and only version 19 is accepted. Should
+         // another version need supporting, DeriveArgon2id has to be handed the
+         // value - it currently hard codes it.
+         if (version != ARGON2_VERSION_13)
             return false;
 
          std::vector<AnsiString> costFields = SplitFields(fields[3], ',');
@@ -415,7 +419,6 @@ namespace HM
             return false;
 
          parameters.algorithm = AlgorithmPBKDF2SHA256;
-         parameters.version = 0;
          parameters.lanes = 1;
          parameters.memory_cost_kb = 0;
 
@@ -455,7 +458,7 @@ namespace HM
       case AlgorithmArgon2id:
          result.Format("$%s$v=%u$m=%u,t=%u,p=%u$%s$%s",
             ARGON2ID_IDENTIFIER,
-            parameters.version,
+            (unsigned int) ARGON2_VERSION_13,
             parameters.memory_cost_kb,
             parameters.iterations,
             parameters.lanes,
