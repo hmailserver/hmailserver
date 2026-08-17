@@ -441,5 +441,57 @@ namespace RegressionTests.IMAP
          Assert.Throws<COMException>(() => reloadedInbox.SubFolders.get_ItemByName("Archive"),
             "Expected the nested special-use folder to be gone from the database after being deleted.");
       }
+
+      [Test]
+      public void TestImapDeleteRejectsInbox()
+      {
+         // The Inbox is never special-use-flagged, but it must still be
+         // undeletable - the force-delete change for special-use folders must
+         // not end up forcing the Inbox to be deletable too.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse22@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.Logon(account.Address, "test");
+
+         Assert.IsFalse(simulator.DeleteFolder("Inbox"),
+            "Expected the IMAP DELETE command to reject a request to delete the Inbox.");
+
+         simulator.Disconnect();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.DoesNotThrow(() => reloadedAccount.IMAPFolders.get_ItemByName("INBOX"),
+            "Expected the Inbox to still exist after a rejected delete attempt.");
+      }
+
+      [Test]
+      public void TestDeletingSpecialUseFolderTwiceFailsOnSecondAttempt()
+      {
+         // Once a special-use folder has really been deleted, a second delete
+         // attempt against the same (now stale) folder reference must fail
+         // cleanly rather than throwing an unexpected error or silently
+         // succeeding.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "specialuse23@example.test", "test");
+
+         var sent = account.IMAPFolders.Add("Sent");
+         sent.SpecialUse = eSpecialUse.eSUSent;
+         sent.Save();
+
+         sent.Delete();
+
+         var reloadedAccount = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAccount.IMAPFolders.get_ItemByName("Sent"),
+            "Expected the special-use folder to be gone from the database after being deleted.");
+
+         Assert.Throws<COMException>(() => sent.Delete(),
+            "Expected deleting the already-deleted folder a second time to fail rather than succeed or resurrect it.");
+
+         var reloadedAgain = ReloadFoldersFromDatabase(account);
+
+         Assert.Throws<COMException>(() => reloadedAgain.IMAPFolders.get_ItemByName("Sent"),
+            "Expected the folder to still be gone from the database after the second delete attempt.");
+      }
    }
 }
