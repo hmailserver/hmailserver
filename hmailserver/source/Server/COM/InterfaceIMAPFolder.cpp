@@ -295,13 +295,13 @@ STDMETHODIMP InterfaceIMAPFolder::Delete()
       if (!parent_collection_)
       {
          if (!HM::PersistentIMAPFolder::DeleteObject(object_))
-            return COMError::GenerateError("The folder could not be deleted. The account Inbox and folders with a special-use flag (such as Sent, Drafts, Junk, Trash or Archive) cannot be deleted.");
+            return COMError::GenerateError("The folder could not be deleted. Please check the hMailServer error log for details.");
 
          return S_OK;
       }
 
       if (!parent_collection_->DeleteItemByDBID(object_->GetID()))
-         return COMError::GenerateError("The folder could not be deleted. The account Inbox and folders with a special-use flag (such as Sent, Drafts, Junk, Trash or Archive) cannot be deleted.");
+         return COMError::GenerateError("The folder could not be deleted. Please check the hMailServer error log for details.");
 
       return S_OK;
    }
