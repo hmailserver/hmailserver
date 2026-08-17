@@ -66,6 +66,14 @@ namespace HM
          return result;
       }
 
+      AnsiString
+      ToAnsiString(unsigned int value)
+      {
+         char buffer[16];
+         sprintf_s(buffer, sizeof(buffer), "%u", value);
+         return AnsiString(buffer);
+      }
+
       bool
       ParseNamedValue(const AnsiString &field, const AnsiString &name, unsigned int &value)
       {
@@ -453,24 +461,38 @@ namespace HM
 
       AnsiString result;
 
+      // Built by concatenation rather than with AnsiString::Format. CStdStr::FormatV
+      // sizes its buffer by handing the format string to _vsctprintf, which in this
+      // build is the wide character variant - so a narrow format string is cast to
+      // wchar_t* and the resulting length is nonsense. The comment on FormatV says
+      // as much. Only the wide String::Format is safe to use.
       switch (parameters.algorithm)
       {
       case AlgorithmArgon2id:
-         result.Format("$%s$v=%u$m=%u,t=%u,p=%u$%s$%s",
-            ARGON2ID_IDENTIFIER,
-            (unsigned int) ARGON2_VERSION_13,
-            parameters.memory_cost_kb,
-            parameters.iterations,
-            parameters.lanes,
-            salt.c_str(),
-            hash.c_str());
+         result = "$";
+         result += ARGON2ID_IDENTIFIER;
+         result += "$v=";
+         result += ToAnsiString((unsigned int) ARGON2_VERSION_13);
+         result += "$m=";
+         result += ToAnsiString(parameters.memory_cost_kb);
+         result += ",t=";
+         result += ToAnsiString(parameters.iterations);
+         result += ",p=";
+         result += ToAnsiString(parameters.lanes);
+         result += "$";
+         result += salt;
+         result += "$";
+         result += hash;
          break;
       case AlgorithmPBKDF2SHA256:
-         result.Format("$%s$i=%u$%s$%s",
-            PBKDF2_SHA256_IDENTIFIER,
-            parameters.iterations,
-            salt.c_str(),
-            hash.c_str());
+         result = "$";
+         result += PBKDF2_SHA256_IDENTIFIER;
+         result += "$i=";
+         result += ToAnsiString(parameters.iterations);
+         result += "$";
+         result += salt;
+         result += "$";
+         result += hash;
          break;
       default:
          return "";
