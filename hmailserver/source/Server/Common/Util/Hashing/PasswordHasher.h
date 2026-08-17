@@ -53,8 +53,9 @@ namespace HM
       // in that string.
 
       static bool NeedsRehash(const AnsiString &stored);
-      // True if the stored hash was created using another algorithm, a weaker cost
-      // or a shorter salt than what is configured right now.
+      // True if the stored hash was created using another algorithm, another cost or
+      // a shorter salt than what is configured right now. A cost that differs in
+      // either direction counts - lowering it is as deliberate as raising it.
 
       static bool IsPasswordHash(const AnsiString &stored);
       // True if the string looks like a PHC string. Used to tell the new hashes

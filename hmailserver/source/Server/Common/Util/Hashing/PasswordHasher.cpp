@@ -160,12 +160,15 @@ namespace HM
       if (parameters.algorithm != GetConfiguredAlgorithm())
          return true;
 
-      if (parameters.iterations < GetConfiguredIterations())
+      // Any difference counts, in either direction. Lowering the cost is a decision
+      // the administrator has made deliberately, and the stored hashes are expected
+      // to follow it down just as they follow it up.
+      if (parameters.iterations != GetConfiguredIterations())
          return true;
 
       if (parameters.algorithm == AlgorithmArgon2id)
       {
-         if (parameters.memory_cost_kb < GetConfiguredMemoryCostKb())
+         if (parameters.memory_cost_kb != GetConfiguredMemoryCostKb())
             return true;
 
          if (parameters.lanes != 1)
@@ -662,6 +665,40 @@ namespace HM
             if (!PasswordHasher::NeedsRehash(malformedHash))
                throw std::logic_error("A hash we cannot make sense of was not reported as needing a rehash.");
          }
+      }
+
+      // A stored hash whose cost differs from the configured one must be rehashed
+      // whichever way the difference goes. Lowering the cost is as deliberate a
+      // decision as raising it, so a stronger-than-configured hash is not left alone.
+      {
+         // Sixteen salt bytes and thirty two hash bytes, so that only the cost
+         // differs from what NeedsRehash expects. The hash is never derived here.
+         const AnsiString salt = "MDEyMzQ1Njc4OWFiY2RlZg";
+         const AnsiString hash = "iVKEwm6AiziWdVGSRxFEXum0G7Sul+rkFiuuw+jYw+0";
+
+         AnsiString strongerThanConfigured;
+
+         if (PasswordHasher::GetConfiguredAlgorithm() == PasswordHasher::AlgorithmArgon2id)
+         {
+            strongerThanConfigured = "$argon2id$v=19$m=";
+            strongerThanConfigured += ToAnsiString(PasswordHasher::GetConfiguredMemoryCostKb() + 1024);
+            strongerThanConfigured += ",t=";
+            strongerThanConfigured += ToAnsiString(PasswordHasher::GetConfiguredIterations() + 1);
+            strongerThanConfigured += ",p=1$";
+         }
+         else
+         {
+            strongerThanConfigured = "$pbkdf2-sha256$i=";
+            strongerThanConfigured += ToAnsiString(PasswordHasher::GetConfiguredIterations() + 1);
+            strongerThanConfigured += "$";
+         }
+
+         strongerThanConfigured += salt;
+         strongerThanConfigured += "$";
+         strongerThanConfigured += hash;
+
+         if (!PasswordHasher::NeedsRehash(strongerThanConfigured))
+            throw std::logic_error("A hash created with a cost other than the configured one was not reported as needing a rehash.");
       }
 
       // Round trip using the configured algorithm and cost.

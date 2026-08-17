@@ -323,6 +323,54 @@ namespace RegressionTests.Security
       }
 
       [Test]
+      public void ALowerMemoryCostAlsoCausesARehashOnLogon()
+      {
+         // Lowering the cost is as deliberate a decision as raising it, so the stored
+         // hashes are expected to follow it down as well as up.
+         _settings.PasswordHashMemoryCost = 32768;
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().Contains("m=32768"));
+
+         _settings.PasswordHashMemoryCost = DefaultArgon2idMemoryCost;
+         ClearCache();
+
+         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         ClearCache();
+
+         var afterChange = GetStoredPassword();
+
+         Assert.IsTrue(afterChange.Contains("m=19456"),
+            "Expected the lowered memory cost to be recorded in the hash, but got: " + afterChange);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void ALowerIterationCountAlsoCausesARehashOnLogon()
+      {
+         _settings.PasswordHashIterations = 6;
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().Contains("t=6"));
+
+         _settings.PasswordHashIterations = DefaultArgon2idIterations;
+         ClearCache();
+
+         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         ClearCache();
+
+         var afterChange = GetStoredPassword();
+
+         Assert.IsTrue(afterChange.Contains("t=2"),
+            "Expected the lowered iteration count to be recorded in the hash, but got: " + afterChange);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
       public void ChangingTheAlgorithmCausesARehashOnLogon()
       {
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
