@@ -122,13 +122,12 @@ namespace HM
    }
 
    bool
-   FileUtilities::Move(const String &sFrom, const String &sTo, bool overwrite)
+   FileUtilities::Move(const String &sFrom, const String &sTo)
    {
       const int iMaxNumberOfTries = 5;
 
-      if (overwrite)
-         DeleteFile(sTo);
-
+      // boost::filesystem::rename maps to MoveFileExW with MOVEFILE_REPLACE_EXISTING,
+      // so an existing target is replaced atomically - no need to delete it first.
       for (int i = 1; i <= iMaxNumberOfTries; i++)
       {
          boost::system::error_code error_code;

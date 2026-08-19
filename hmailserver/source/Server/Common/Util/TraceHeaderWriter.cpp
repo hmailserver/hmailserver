@@ -58,7 +58,7 @@ namespace HM
       temporaryFile.Close();
       messageFile.Close();
 
-      return FileUtilities::Move(tempFile, messageFileName, true);
+      return FileUtilities::Move(tempFile, messageFileName);
    }
 
 }

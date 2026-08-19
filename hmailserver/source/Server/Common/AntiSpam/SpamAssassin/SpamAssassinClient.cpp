@@ -182,7 +182,7 @@ namespace HM
          if (IniFileSettings::Instance()->GetSAMoveVsCopy())
          {
             // Move temp file overwriting message file
-            FileUtilities::Move(sTempFile, message_file_, true);
+            FileUtilities::Move(sTempFile, message_file_);
             LOG_DEBUG("SA - Move used");
          }
          else
