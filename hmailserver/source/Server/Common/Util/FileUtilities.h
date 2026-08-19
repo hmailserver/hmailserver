@@ -22,7 +22,7 @@ namespace HM
 
       //static bool ReadLine(HANDLE hFile, String &sLine);
       static bool Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories = false);
-      static bool Move(const String &sFrom, const String &sTo, bool overwrite = false);
+      static bool Move(const String &sFrom, const String &sTo);
       static bool Exists(const String &sFilename);
 
       static void ReadFileToBuf(const String &sFilename, BYTE *Buf, int iStart = -1, int iCount = -1);

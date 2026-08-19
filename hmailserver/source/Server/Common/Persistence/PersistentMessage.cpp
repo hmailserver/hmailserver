@@ -962,11 +962,15 @@ namespace HM
          NULL // file template
          );
 
-      if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0) 
+      if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0)
       {
          if (reportError)
          {
-            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadHeader", "Could not read the message header, since the file was not available. File: " + fileName);
+            // Capture the Win32 error immediately so the log distinguishes the actual cause
+            // (file gone vs. sharing violation vs. delete-pending/permissions) rather than
+            // collapsing them all into "file was not available".
+            boost::system::error_code error_code(::GetLastError(), boost::system::system_category());
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadHeader", "Could not read the message header, since the file was not available. File: " + fileName, error_code);
          }
 
          return sHeaderData;
