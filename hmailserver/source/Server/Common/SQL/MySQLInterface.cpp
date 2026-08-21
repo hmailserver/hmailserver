@@ -5,6 +5,8 @@
 
 #include "MySQLInterface.h"
 
+#include "../Util/FileUtilities.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -48,8 +50,8 @@ namespace HM
       }
    }
 
-   String 
-   MySQLInterface::GetLibraryFileName_()
+   String
+   MySQLInterface::GetLibraryDirectory_()
    {
       LPTSTR szPath = (LPTSTR)alloca( 2048 );
       DWORD  dwPathLength;
@@ -60,10 +62,24 @@ namespace HM
       String sPath(szPath);
 
       int iLastSlash = std::max(sPath.ReverseFind(_T("\\")), sPath.ReverseFind(_T("/")));
-      String sRetVal = sPath.Mid(0, iLastSlash);
-      sRetVal += "\\libmysql.dll";
+      return sPath.Mid(0, iLastSlash);
+   }
 
-      return sRetVal;
+   String
+   MySQLInterface::GetLibraryFileName_()
+   {
+      String sDirectory = GetLibraryDirectory_();
+
+      // Prefer the MariaDB Connector/C client (libmariadb.dll) if it has been
+      // copied to the hMailServer Bin directory. It exposes the same mysql_*
+      // C API as libmysql.dll but is self-contained (Windows SChannel for TLS,
+      // no external OpenSSL/CRT DLLs). Fall back to libmysql.dll otherwise so
+      // existing installations keep working unchanged.
+      String sMariaDB = sDirectory + "\\libmariadb.dll";
+      if (FileUtilities::Exists(sMariaDB))
+         return sMariaDB;
+
+      return sDirectory + "\\libmysql.dll";
    }
 
    bool
@@ -77,10 +93,10 @@ namespace HM
          String versionArchitecture = Application::Instance()->GetVersionArchitecture();
 
          sErrorMessage = Formatter::Format("Error:\r\n"
-               "The MySQL client (libmysql.dll, {0}) could not be loaded.\r\n"
+               "The MySQL client ({0}) could not be loaded.\r\n"
                "hMailServer needs this file to be able to connect to MySQL.\r\n"
-               "The MySQL client needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n"
-               "It can be obtained from https://dev.mysql.com/downloads/connector/c/.\r\n"
+               "The client library needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n"
+               "It can be obtained from https://mariadb.com/downloads/connectors/ (libmariadb.dll) or https://dev.mysql.com/downloads/connector/c/ (libmysql.dll).\r\n"
                "Path: {1}", versionArchitecture, sLibrary);
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5094, "MySQLInterface::Load", sErrorMessage);

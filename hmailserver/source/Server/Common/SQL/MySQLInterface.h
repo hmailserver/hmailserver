@@ -60,6 +60,7 @@ namespace HM
    private:
 
       String GetLibraryFileName_();
+      String GetLibraryDirectory_();
 
       HINSTANCE library_instance_;
    };
