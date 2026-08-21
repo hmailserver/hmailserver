@@ -1110,29 +1110,25 @@ STDMETHODIMP InterfaceSettings::get_Backup(IInterfaceBackupSettings **pVal)
 
 STDMETHODIMP InterfaceSettings::get_Directories(IInterfaceDirectories **pVal)
 {
-   try
+   return COMError::Guard("InterfaceSettings::get_Directories", [&]() -> HRESULT
    {
       if (!config_)
          return GetAccessDenied();
 
       if (!GetIsServerAdmin())
          return authentication_->GetAccessDenied();
-   
+
       CComObject<InterfaceDirectories>* pItem = new CComObject<InterfaceDirectories>();
-   
+
       ini_file_settings_->LoadSettings();
-   
+
       pItem->SetAuthentication(authentication_);
       pItem->LoadSettings(ini_file_settings_);
       pItem->AddRef();
       *pVal = pItem;
-   
+
       return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
+   });
 }
 
 STDMETHODIMP InterfaceSettings::get_AntiSpam(IInterfaceAntiSpam **pVal)
