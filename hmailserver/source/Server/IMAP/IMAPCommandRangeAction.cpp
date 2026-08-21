@@ -132,6 +132,9 @@ namespace HM
                   {
                      if (lEndIndex == -1 || index <= lEndIndex)
                      {
+                        if (IsMessageSequenceNumberStale(pConnection, index))
+                           return GetExpungeIssuedResult();
+
                         IMAPResult result = DoAction(pConnection, index, message, pArgument);
                         if (result.GetResult() != IMAPResult::ResultOK)
                         {
@@ -145,6 +148,10 @@ namespace HM
             else 
             {
                int messageIndex = _ttoi(sCur);
+
+               if (IsMessageSequenceNumberStale(pConnection, messageIndex))
+                  return GetExpungeIssuedResult();
+
                std::shared_ptr<Message> pMessage = pConnection->GetCurrentFolder()->GetMessages()->GetItem(messageIndex-1);
 
                if (!pMessage)

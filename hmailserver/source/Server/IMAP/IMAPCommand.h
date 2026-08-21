@@ -39,7 +39,24 @@ namespace HM
       ~IMAPCommand();
 
       virtual IMAPResult ExecuteCommand(std::shared_ptr<HM::IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument) = 0;
-      
+
+   protected:
+
+      /*
+         Message sequence numbers are only meaningful as long as the client and the
+         server agree on the content of the selected folder. If another client has
+         expunged a message, and we have not yet been able to send an EXPUNGE response
+         to this client (which we're not allowed to do while responding to FETCH, STORE,
+         SEARCH or SORT), the client and the server disagree.
+
+         Rather than operating on another message than the client intended, we fail the
+         command and let the client resynchronize. This is the behavior described in
+         RFC 2180, 4.1.2.
+      */
+      static bool HasUnsentExpunge(std::shared_ptr<HM::IMAPConnection> pConnection);
+      static bool IsMessageSequenceNumberStale(std::shared_ptr<HM::IMAPConnection> pConnection, int messageIndex);
+      static IMAPResult GetExpungeIssuedResult();
+
    };
 
 

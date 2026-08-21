@@ -119,6 +119,8 @@ namespace HM
 
       std::shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
+      int GetFirstUnsentExpungeIndex();
+
       void StartHandshake();
 	 
 	  void SetRecentMessages(const std::set<__int64> &messages);

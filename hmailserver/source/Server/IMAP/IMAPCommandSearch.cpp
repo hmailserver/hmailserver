@@ -51,6 +51,14 @@ namespace HM
       if (!pArgument)
          return IMAPResult(IMAPResult::ResultNo, "Internal error IMAP-SEARCH-1.");
 
+      if (!is_uid_ && HasUnsentExpunge(pConnection))
+      {
+         // The result of this command is a list of message sequence numbers, and those
+         // would refer to other messages than the client expects. UID SEARCH and UID SORT
+         // aren't affected, since they operate on unique identifiers.
+         return GetExpungeIssuedResult();
+      }
+
       {
          // The IMAP Search parser should not parse
          // the beginning of the command, UID SEARCH

@@ -23,6 +23,8 @@ namespace HM
 
       void SendCachedNotifications(bool send_expunge);
 
+      int GetFirstUnsentExpungeIndex();
+
       static String GenerateRecentString(int recentMessages);
       static String GenerateExistsString(int recentMessages);
 

@@ -731,6 +731,21 @@ namespace HM
       notification_client_->SendCachedNotifications(send_expunge);
    }
 
+   int
+   IMAPConnection::GetFirstUnsentExpungeIndex()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Returns the lowest message sequence number which another client has expunged
+   // without us having been able to notify this client about it. Zero if there is
+   // no such message.
+   //---------------------------------------------------------------------------()
+   {
+      if (!notification_client_)
+         return 0;
+
+      return notification_client_->GetFirstUnsentExpungeIndex();
+   }
+
    void
    IMAPConnection::RefreshIMAPFolders()
    //---------------------------------------------------------------------------()

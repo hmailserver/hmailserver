@@ -161,18 +161,24 @@ namespace HM
             }
          case ChangeNotification::NotificationMessageDeleted:
             {
-               if (send_expunge)
+               if (!send_expunge)
                {
-                  // Send EXPUNGE
-                  SendEXPUNGE_(changeNotification->GetAffectedMessages());
-
-                  // Send EXISTS
-                  std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
-                  lastExists = pMessages->GetCount();
-                  lastRecent = (int)connection->GetRecentMessages().size();
-
+                  // We're not allowed to send EXPUNGE at the moment. Keep the notification
+                  // cached until we are. The affected messages of a delete notification are
+                  // message sequence numbers rather than message id's, so the notification
+                  // must not be handled as a flag change below.
                   break;
                }
+
+               // Send EXPUNGE
+               SendEXPUNGE_(changeNotification->GetAffectedMessages());
+
+               // Send EXISTS
+               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               lastExists = pMessages->GetCount();
+               lastRecent = (int)connection->GetRecentMessages().size();
+
+               break;
             }
          case ChangeNotification::NotificationMessageFlagsChanged:
             {
@@ -215,6 +221,40 @@ namespace HM
 
          iter = cached_changes_.erase(iter);
       }
+   }
+
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Returns the lowest message sequence number which has been expunged by someone
+   // else, but which we have not yet been able to tell the client about. Returns
+   // zero if there is no such message.
+   //
+   // Message sequence numbers at or above this number refer to other messages than
+   // the client believes, since the client is not aware of the expunge yet.
+   //---------------------------------------------------------------------------()
+   int
+   IMAPNotificationClient::GetFirstUnsentExpungeIndex()
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+
+      int first_index = 0;
+
+      for (std::shared_ptr<ChangeNotification> changeNotification : cached_changes_)
+      {
+         if (changeNotification->GetType() != ChangeNotification::NotificationMessageDeleted)
+            continue;
+
+         for (__int64 messageIndex : changeNotification->GetAffectedMessages())
+         {
+            if (messageIndex <= 0)
+               continue;
+
+            if (first_index == 0 || messageIndex < first_index)
+               first_index = (int) messageIndex;
+         }
+      }
+
+      return first_index;
    }
 
    void 
