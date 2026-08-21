@@ -940,6 +940,7 @@ EXIT 0
     <ClInclude Include="..\Common\Util\ProcessLauncher.h" />
     <ClInclude Include="..\Common\Util\Registry.h" />
     <ClInclude Include="..\Common\Util\RegularExpression.h" />
+    <ClInclude Include="..\Common\Util\ScopedSETranslator.h" />
     <ClInclude Include="..\Common\Util\ServerInfo.h" />
     <ClInclude Include="..\Common\Util\ServerStatus.h" />
     <ClInclude Include="..\Common\Util\ServiceManager.h" />
