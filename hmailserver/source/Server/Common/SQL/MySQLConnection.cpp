@@ -69,6 +69,24 @@ namespace HM
 
          dbconn_ = MySQLInterface::Instance()->p_mysql_init(NULL);
 
+         // MariaDB Connector/C negotiates TLS by default and aborts the
+         // connection if the server does not support it ("SSL is required, but
+         // the server does not support it"). The old libmysql client did not.
+         // Restore a "prefer TLS, fall back to plaintext" behavior: keep using
+         // TLS when the server offers it, but do not require it and do not
+         // verify the server certificate (matching the previous, unencrypted
+         // default). These option enum values are MariaDB-specific, so only
+         // apply them when the MariaDB connector is loaded.
+         if (MySQLInterface::Instance()->IsMariaDB() && MySQLInterface::Instance()->p_mysql_options != 0)
+         {
+            const int HM_MYSQL_OPT_SSL_VERIFY_SERVER_CERT = 21;
+            const int HM_MYSQL_OPT_SSL_ENFORCE = 38;
+
+            char disabled = 0;
+            MySQLInterface::Instance()->p_mysql_options(dbconn_, HM_MYSQL_OPT_SSL_ENFORCE, &disabled);
+            MySQLInterface::Instance()->p_mysql_options(dbconn_, HM_MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &disabled);
+         }
+
          //MYSQL *pResult = mysql_real_connect(
          hm_MYSQL *pResult = MySQLInterface::Instance()->p_mysql_real_connect(
                      dbconn_, 
