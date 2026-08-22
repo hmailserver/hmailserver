@@ -8,7 +8,7 @@ is_book: false
 
 ## Background
 
-<p>Starting with hMailServer 4.3, a main administrator password exists for hMailServer. The purpose of this is to prevent unauthorized users from making changes to your hMailServer installation. During the installation of hMailServer 4.3, you specify the password you wish to use. A MD5 hash of this password is then stored in hMailServer.ini (The <span class="Code">AdministratorPassword</span> setting under the <span class="Code">Security</span> section )</p>
+<p>Starting with hMailServer 4.3, a main administrator password exists for hMailServer. The purpose of this is to prevent unauthorized users from making changes to your hMailServer installation. During the installation of hMailServer 4.3, you specify the password you wish to use. A hash of this password is then stored in hMailServer.ini (The <span class="Code">AdministratorPassword</span> setting under the <span class="Code">Security</span> section ). Like account passwords, the administrator password is hashed using the algorithm configured under <a href="?page=reference_advanced">Settings -> Advanced -> Password hashing</a> (Argon2id by default).</p>
 
 ## Changing the password
 
@@ -24,11 +24,5 @@ If you know the current administrator password, or any other password to an acco
 
 1. Remove the *AdministratorPassword* setting from hMailServer.ini.
 2. Re-install the same hMailServer version you have already installed. During the installation you will be prompted to specify a new password.
-
-### Method  3 - Using a MD5 calculator
-
-1. Use a MD5 calculator to calculate a new MD5 hash.
-2. Specify the new MD5 hash in hMailServer.ini. The setting you should update is *AdministratorPassword*
-3. Restart the hMailServer service.
 
  

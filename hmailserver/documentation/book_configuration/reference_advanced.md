@@ -15,3 +15,23 @@ is_book: false
 ### Administration password
 
 <div class="indented">This setting allows you to change the administrator password for your hMailServer installation. This password is required to log on hMailServer Administrator so it's important that you remember it.</div>
+
+## Password hashing
+
+<div class="indented">These settings control how account passwords (and the administrator password) are hashed before being stored. Hashes are self-describing, so changing these settings only affects passwords hashed from now on - existing hashes keep working until they are re-hashed.</div>
+
+### Algorithm
+
+<div class="indented">The key derivation function used to hash passwords. Argon2id is the recommended default. PBKDF2-SHA256 is provided for compatibility with environments that require FIPS-validated cryptography.</div>
+
+### Memory cost (kilobytes)
+
+<div class="indented">Only used by Argon2id. The amount of memory used per password hash. Set to 0 to use the recommended default, which is 19456 KiB (19 MiB). Valid range: 8192-1048576 KiB.</div>
+
+### Iterations
+
+<div class="indented">The number of iterations used per password hash. Set to 0 to use the recommended default for the selected algorithm - 2 for Argon2id, 600000 for PBKDF2-SHA256. Valid range: 2-20 for Argon2id, 100000-10000000 for PBKDF2-SHA256.</div>
+
+### Upgrade stored passwords during logon
+
+<div class="indented">When enabled, an account's stored password hash is transparently re-hashed with the current algorithm and cost the next time the account logs on successfully, if it was hashed with a different algorithm or a lower cost.</div>
