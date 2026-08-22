@@ -1,11 +1,9 @@
 ---
-id: 20
 title: "OnAcceptMessage"
 slug: scripting_onacceptmessage
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2017-08-05
 ---
 
 ## Signature

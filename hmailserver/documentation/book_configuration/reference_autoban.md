@@ -1,11 +1,9 @@
 ---
-id: 429
 title: "Auto-ban"
 slug: reference_autoban
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2022-09-13
 ---
 
 ## Overview

@@ -1,11 +1,9 @@
 ---
-id: 85
 title: "Caching"
 slug: details_cache
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Overview

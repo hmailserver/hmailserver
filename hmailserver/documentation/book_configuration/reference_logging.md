@@ -1,11 +1,9 @@
 ---
-id: 120
 title: "Logging"
 slug: reference_logging
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2010-12-25
 ---
 
 ## General

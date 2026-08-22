@@ -1,11 +1,9 @@
 ---
-id: 203
 title: "hMailServer Change log"
 slug: changelog
 parent: book_before_installation
 index: 60
 is_book: false
-updated: 2014-11-16
 ---
 
 ## Change log has moved

@@ -1,11 +1,9 @@
 ---
-id: 253
 title: "SMTP error messages"
 slug: reference_error_messages_smtp
 parent: book_error_messages
 index: 0
 is_book: false
-updated: 2017-03-15
 ---
 
 ## SMTP error messages

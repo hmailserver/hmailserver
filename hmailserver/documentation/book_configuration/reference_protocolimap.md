@@ -1,11 +1,9 @@
 ---
-id: 75
 title: "IMAP settings"
 slug: reference_protocolimap
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-07-20
 ---
 
 <h3><span class="Title">General</span></h3>

@@ -1,11 +1,9 @@
 ---
-id: 366
 title: "Application object"
 slug: com_object_application
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

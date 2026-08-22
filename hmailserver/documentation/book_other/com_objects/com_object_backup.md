@@ -1,11 +1,9 @@
 ---
-id: 389
 title: "Backup object"
 slug: com_object_backup
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

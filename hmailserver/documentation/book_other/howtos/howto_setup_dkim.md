@@ -1,11 +1,9 @@
 ---
-id: 456
 title: "Setting up DKIM"
 slug: howto_setup_dkim
 parent: howtos
 index: 0
 is_book: false
-updated: 2016-08-28
 ---
 
 <div>This page describes how to set up DKIM with hMailServer.</div>

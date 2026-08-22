@@ -1,11 +1,9 @@
 ---
-id: 361
 title: "SecurityRanges object"
 slug: com_object_securityranges
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

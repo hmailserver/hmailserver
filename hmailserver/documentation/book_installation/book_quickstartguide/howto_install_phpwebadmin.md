@@ -1,11 +1,9 @@
 ---
-id: 26
 title: "Installing PHPWebAdmin"
 slug: howto_install_phpwebadmin
 parent: book_quickstartguide
 index: 20
 is_book: false
-updated: 2021-09-13
 ---
 
 ## Overview

@@ -1,11 +1,9 @@
 ---
-id: 391
 title: "DeliveryQueue object"
 slug: com_object_deliveryqueue
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

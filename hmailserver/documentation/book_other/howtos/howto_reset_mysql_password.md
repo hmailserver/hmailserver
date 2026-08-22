@@ -1,11 +1,9 @@
 ---
-id: 80
 title: "Reset the MySQL password"
 slug: howto_reset_mysql_password
 parent: howtos
 index: 0
 is_book: false
-updated: 2007-04-11
 ---
 
 ## Background

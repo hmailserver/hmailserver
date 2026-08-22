@@ -1,11 +1,9 @@
 ---
-id: 116
 title: "Distribution list"
 slug: reference_distributionlist
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2016-04-17
 ---
 
 ## General

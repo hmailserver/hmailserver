@@ -1,11 +1,9 @@
 ---
-id: 398
 title: "AntiSpam object"
 slug: com_object_antispam
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

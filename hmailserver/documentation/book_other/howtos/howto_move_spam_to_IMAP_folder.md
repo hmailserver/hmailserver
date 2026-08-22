@@ -1,11 +1,9 @@
 ---
-id: 82
 title: "Move spam to IMAP folder"
 slug: howto_move_spam_to_IMAP_folder
 parent: howtos
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 These instructions assume you're using hMailServer version 4.0 or higher. They are applicable to mail marked as spam using ASSP, but should work equally well with any other spam filter. It is only necessary that the filter put a spam flag in the header, for example, simply by replacing steps 3 and 4 below with the appropriate Header and Value.

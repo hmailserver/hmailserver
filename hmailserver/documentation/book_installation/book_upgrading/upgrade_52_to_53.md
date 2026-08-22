@@ -1,11 +1,9 @@
 ---
-id: 442
 title: "Upgrading: 5.2 to 5.3"
 slug: upgrade_52_to_53
 parent: book_upgrading
 index: 50
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

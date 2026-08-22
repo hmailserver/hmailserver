@@ -1,11 +1,9 @@
 ---
-id: 40
 title: "Connect to the database"
 slug: ts_connect_to_database
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 Open the hMailServer Log directory in Windows Explorer. Open the file named ERROR_*.log in a text-editor

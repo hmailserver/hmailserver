@@ -1,11 +1,9 @@
 ---
-id: 182
 title: "hMailServer fails to deliver messages to certain servers"
 slug: ts_send_messages_to_specific_server
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2009-08-09
 ---
 
 ## Overview

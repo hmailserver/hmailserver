@@ -1,11 +1,9 @@
 ---
-id: 65
 title: "SMTP settings"
 slug: reference_protocolsmtp
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2024-02-26
 ---
 
 ## General

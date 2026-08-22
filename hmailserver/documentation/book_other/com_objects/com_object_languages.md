@@ -1,11 +1,9 @@
 ---
-id: 420
 title: "Languages object"
 slug: com_object_languages
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

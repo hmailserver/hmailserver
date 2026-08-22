@@ -1,11 +1,9 @@
 ---
-id: 48
 title: "Non-default SMTP port"
 slug: ts_using_nondefault_smtp_port
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 Email sent between mail servers is always sent on port 25. This is not configurable and is the same for all mail servers. If you change the SMTP port to anything other than 25, other servers will not be able to send you email. Unless, you have set up some kind of portforwarding. 

@@ -1,11 +1,9 @@
 ---
-id: 168
 title: "Installing hMailServer client tools"
 slug: howto_install_client
 parent: howtos
 index: 0
 is_book: false
-updated: 2006-04-23
 ---
 
 This page describes how to install the hMailServer client tools. If you want to manage your hMailServer installation remotely, you need to install the hMailServer client tools on the computer you want to manage your installation from.

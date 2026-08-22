@@ -1,11 +1,9 @@
 ---
-id: 104
 title: "Administer hMailServer remotely"
 slug: howto_administer_remote
 parent: howtos
 index: 0
 is_book: false
-updated: 2016-10-04
 ---
 
 ## Overview

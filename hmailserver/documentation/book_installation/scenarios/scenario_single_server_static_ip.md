@@ -1,11 +1,9 @@
 ---
-id: 172
 title: "Single server, static IP address"
 slug: scenario_single_server_static_ip
 parent: scenarios
 index: 0
 is_book: false
-updated: 2007-07-30
 ---
 
 ## Scenario:

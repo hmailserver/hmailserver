@@ -1,11 +1,9 @@
 ---
-id: 41
 title: "Connect using client"
 slug: ts_connect_using_client
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2010-06-18
 ---
 
 ## General suggestions

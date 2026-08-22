@@ -1,11 +1,9 @@
 ---
-id: 439
 title: "OnExternalAccountDownload"
 slug: scripting_onexternalaccountdownload
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2015-07-02
 ---
 
 ## Overview

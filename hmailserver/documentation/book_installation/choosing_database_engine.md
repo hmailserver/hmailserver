@@ -1,11 +1,9 @@
 ---
-id: 239
 title: "Choosing database engine"
 slug: choosing_database_engine
 parent: book_installation
 index: 15
 is_book: false
-updated: 2015-03-16
 ---
 
 ## Overview

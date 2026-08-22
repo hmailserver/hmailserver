@@ -1,11 +1,9 @@
 ---
-id: 219
 title: "Mirror"
 slug: reference_mirror
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2007-02-10
 ---
 
 # Overview

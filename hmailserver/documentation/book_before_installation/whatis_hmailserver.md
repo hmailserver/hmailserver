@@ -1,11 +1,9 @@
 ---
-id: 70
 title: "What is hMailServer?"
 slug: whatis_hmailserver
 parent: book_before_installation
 index: 10
 is_book: false
-updated: 2015-11-15
 ---
 
 ## Overview

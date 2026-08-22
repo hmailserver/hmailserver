@@ -1,11 +1,9 @@
 ---
-id: 53
 title: "COM API"
 slug: com_objects
 parent: book_other
 index: 0
 is_book: false
-updated: 2016-08-14
 ---
 
 # Overview

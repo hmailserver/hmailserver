@@ -1,11 +1,9 @@
 ---
-id: 438
 title: "IPv6 support"
 slug: details_ipv6
 parent: book_other
 index: 0
 is_book: false
-updated: 2022-09-12
 ---
 
 ## Overview

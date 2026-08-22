@@ -1,11 +1,9 @@
 ---
-id: 78
 title: "Repair corrupt MySQL table"
 slug: howto_repair_mysql
 parent: howtos
 index: 0
 is_book: false
-updated: 2007-09-29
 ---
 
 MySQL tables can become corrupt for several reasons, such as hardware failure, operating system bugs, viruses and bugs in MySQL. hMailServer itself does not cause corrupt MySQL tables. hMailServer communicates with MySQL over TCP/IP using a standardized language. There's nothing in this language that can cause corrupt tables. 

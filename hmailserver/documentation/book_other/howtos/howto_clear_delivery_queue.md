@@ -1,11 +1,9 @@
 ---
-id: 108
 title: "Clear the delivery queue"
 slug: howto_clear_delivery_queue
 parent: howtos
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 ## Background

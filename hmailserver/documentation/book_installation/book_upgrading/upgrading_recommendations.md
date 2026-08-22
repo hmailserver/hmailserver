@@ -1,11 +1,9 @@
 ---
-id: 181
 title: "Upgrading recommendations"
 slug: upgrading_recommendations
 parent: book_upgrading
 index: 0
 is_book: false
-updated: 2009-10-14
 ---
 
 ## Overview

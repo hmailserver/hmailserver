@@ -1,11 +1,9 @@
 ---
-id: 119
 title: "Route"
 slug: reference_route
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2024-03-04
 ---
 
 ## Overview

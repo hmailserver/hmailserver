@@ -1,11 +1,9 @@
 ---
-id: 425
 title: "Rule troubleshooting"
 slug: ts_rules
 parent: book_troubleshooting_tips
 index: 0
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

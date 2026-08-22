@@ -1,11 +1,9 @@
 ---
-id: 111
 title: "Storing only attachments on disk"
 slug: faq_storing_attachments_on_disk
 parent: FAQ
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 ## Question: Why not store only attachments on disk?

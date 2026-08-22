@@ -1,11 +1,9 @@
 ---
-id: 233
 title: "Welcome"
 slug: reference_welcome
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Welcome

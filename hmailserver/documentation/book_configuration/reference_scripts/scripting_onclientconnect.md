@@ -1,11 +1,9 @@
 ---
-id: 21
 title: "OnClientConnect"
 slug: scripting_onclientconnect
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2017-08-05
 ---
 
 ## Signature

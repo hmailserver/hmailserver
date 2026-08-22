@@ -1,11 +1,9 @@
 ---
-id: 1
 title: "System requirements"
 slug: system_requirements
 parent: book_installation
 index: 10
 is_book: false
-updated: 2021-08-15
 ---
 
 ## Operating system

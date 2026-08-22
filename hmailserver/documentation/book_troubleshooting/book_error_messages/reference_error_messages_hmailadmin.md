@@ -1,11 +1,9 @@
 ---
-id: 256
 title: "hMailServer Administrator error messages"
 slug: reference_error_messages_hmailadmin
 parent: book_error_messages
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ## hMailServer Administrator errors

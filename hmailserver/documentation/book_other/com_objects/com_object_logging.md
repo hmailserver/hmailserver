@@ -1,11 +1,9 @@
 ---
-id: 355
 title: "Logging object"
 slug: com_object_logging
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

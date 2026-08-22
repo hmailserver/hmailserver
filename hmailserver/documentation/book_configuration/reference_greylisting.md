@@ -1,11 +1,9 @@
 ---
-id: 186
 title: "Grey listing"
 slug: reference_greylisting
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2017-01-08
 ---
 
 ## General

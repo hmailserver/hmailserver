@@ -1,11 +1,9 @@
 ---
-id: 231
 title: "Moving to a new server"
 slug: maintenance_newserver
 parent: book_maintenance
 index: 20
 is_book: false
-updated: 2019-09-21
 ---
 
 ## Overview

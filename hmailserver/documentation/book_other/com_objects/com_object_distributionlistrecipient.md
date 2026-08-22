@@ -1,11 +1,9 @@
 ---
-id: 359
 title: "Distribution List Recipient object"
 slug: com_object_distributionlistrecipient
 parent: com_objects
 index: 0
 is_book: false
-updated: 2023-10-12
 ---
 
 ### Description

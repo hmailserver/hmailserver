@@ -1,11 +1,9 @@
 ---
-id: 405
 title: "TCPIPPorts object"
 slug: com_object_tcpipports
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

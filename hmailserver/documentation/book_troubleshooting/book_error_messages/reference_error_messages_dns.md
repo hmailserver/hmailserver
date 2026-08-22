@@ -1,11 +1,9 @@
 ---
-id: 255
 title: "DNS error messages"
 slug: reference_error_messages_dns
 parent: book_error_messages
 index: 0
 is_book: false
-updated: 2008-09-25
 ---
 
 ## DNS errors

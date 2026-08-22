@@ -1,11 +1,9 @@
 ---
-id: 81
 title: "Recreating messages lists in the database"
 slug: howto_recreate_message_list
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-08-28
 ---
 
 ## Background

@@ -1,11 +1,9 @@
 ---
-id: 428
 title: "Incoming relay"
 slug: reference_incomingrelay
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2016-07-20
 ---
 
 ## Overview

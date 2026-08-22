@@ -1,11 +1,9 @@
 ---
-id: 208
 title: "API Example: Deleting an account"
 slug: com_example_account_delete
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-05-11
 ---
 
 This example shows how to delete an account from your domain in your hMailServer installation. The script is written in VBA. To use it, follow these steps:

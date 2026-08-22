@@ -1,11 +1,9 @@
 ---
-id: 87
 title: "Connect to MySQL"
 slug: howto_connect_to_mysql
 parent: howtos
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 This page describes how to connect to the MySQL database to execute statements.

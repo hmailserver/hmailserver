@@ -1,11 +1,9 @@
 ---
-id: 406
 title: "TCPIPPort object"
 slug: com_object_tcpipport
 parent: com_objects
 index: 0
 is_book: false
-updated: 2022-02-03
 ---
 
 ### Description

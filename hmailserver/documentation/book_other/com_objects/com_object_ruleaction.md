@@ -1,11 +1,9 @@
 ---
-id: 382
 title: "RuleAction object"
 slug: com_object_ruleaction
 parent: com_objects
 index: 0
 is_book: false
-updated: 2022-09-12
 ---
 
 ### Description

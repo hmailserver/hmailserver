@@ -1,11 +1,9 @@
 ---
-id: 402
 title: "ServerMessage object"
 slug: com_object_servermessage
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

@@ -1,11 +1,9 @@
 ---
-id: 121
 title: "DNS blacklist"
 slug: reference_dnsblacklist
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2010-03-13
 ---
 
 ## General

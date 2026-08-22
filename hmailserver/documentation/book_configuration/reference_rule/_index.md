@@ -1,11 +1,9 @@
 ---
-id: 183
 title: "Rule"
 slug: reference_rule
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2013-05-07
 ---
 
 ## Overview

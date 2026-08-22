@@ -1,11 +1,9 @@
 ---
-id: 254
 title: "Database error messages"
 slug: reference_error_messages_database
 parent: book_error_messages
 index: 0
 is_book: false
-updated: 2008-09-25
 ---
 
 ### MySQL server has gone away

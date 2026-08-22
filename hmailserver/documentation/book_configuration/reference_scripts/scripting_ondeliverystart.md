@@ -1,11 +1,9 @@
 ---
-id: 224
 title: "OnDeliveryStart"
 slug: scripting_ondeliverystart
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2014-10-07
 ---
 
 ## Overview

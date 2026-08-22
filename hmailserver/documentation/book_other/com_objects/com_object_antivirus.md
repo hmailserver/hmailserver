@@ -1,11 +1,9 @@
 ---
-id: 362
 title: "AntiVirus object"
 slug: com_object_antivirus
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

@@ -1,11 +1,9 @@
 ---
-id: 218
 title: "Ini-file settings"
 slug: reference_inifilesettings
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2016-12-20
 ---
 
 # Overview

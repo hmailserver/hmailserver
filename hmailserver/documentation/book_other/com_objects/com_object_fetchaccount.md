@@ -1,11 +1,9 @@
 ---
-id: 373
 title: "FetchAccount object"
 slug: com_object_fetchaccount
 parent: com_objects
 index: 0
 is_book: false
-updated: 2016-09-29
 ---
 
 ### Description

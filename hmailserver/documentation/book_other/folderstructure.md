@@ -1,11 +1,9 @@
 ---
-id: 23
 title: "hMailServer folder structure"
 slug: folderstructure
 parent: book_other
 index: 0
 is_book: false
-updated: 2007-03-07
 ---
 
 <table width="100%" border="0">

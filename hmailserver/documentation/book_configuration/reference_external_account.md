@@ -1,11 +1,9 @@
 ---
-id: 88
 title: "External accounts"
 slug: reference_external_account
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2014-09-23
 ---
 
 ## Overview

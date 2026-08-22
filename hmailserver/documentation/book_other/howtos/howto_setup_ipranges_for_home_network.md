@@ -1,11 +1,9 @@
 ---
-id: 28
 title: "Set up IP ranges for your home network"
 slug: howto_setup_ipranges_for_home_network
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-07-02
 ---
 
 ## Background

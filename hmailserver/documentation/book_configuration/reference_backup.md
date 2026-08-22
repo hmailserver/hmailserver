@@ -1,11 +1,9 @@
 ---
-id: 131
 title: "Backup"
 slug: reference_backup
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Overview

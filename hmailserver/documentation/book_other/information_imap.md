@@ -1,11 +1,9 @@
 ---
-id: 92
 title: "IMAP information"
 slug: information_imap
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 IMAP stands for Internet Message Access Protocol. It is a protocol that an email client can use to download email from an email server. IMAP includes many more features than POP3. The IMAP protocol is designed to let users keep their email on the server. The IMAP protocol requires more disk space and CPU resources on the server than the POP3 protocol, since all email messages remain stored on the server after the email client downloads them. IMAP normally uses port 143.

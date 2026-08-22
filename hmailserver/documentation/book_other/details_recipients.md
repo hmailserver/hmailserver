@@ -1,11 +1,9 @@
 ---
-id: 449
 title: "Resolving recipients"
 slug: details_recipients
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-12-23
 ---
 
 ## Overview

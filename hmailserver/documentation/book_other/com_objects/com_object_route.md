@@ -1,11 +1,9 @@
 ---
-id: 363
 title: "Route object"
 slug: com_object_route
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

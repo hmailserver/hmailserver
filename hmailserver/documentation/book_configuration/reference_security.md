@@ -1,11 +1,9 @@
 ---
-id: 453
 title: "Security"
 slug: reference_security
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2014-10-11
 ---
 
 This document describes the settings listed under Advanced -> Security.

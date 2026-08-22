@@ -1,11 +1,9 @@
 ---
-id: 3
 title: "Installation tutorial"
 slug: howto_install
 parent: book_quickstartguide
 index: 0
 is_book: false
-updated: 2017-01-26
 ---
 
 ## Installing hMailServer

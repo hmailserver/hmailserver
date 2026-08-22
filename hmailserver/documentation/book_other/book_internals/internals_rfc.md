@@ -1,11 +1,9 @@
 ---
-id: 434
 title: "RFC's"
 slug: internals_rfc
 parent: book_internals
 index: 0
 is_book: false
-updated: 2009-08-04
 ---
 
 ## Overview

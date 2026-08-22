@@ -1,11 +1,9 @@
 ---
-id: 210
 title: "Whitelisting"
 slug: reference_whitelisting
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2019-06-21
 ---
 
 # General

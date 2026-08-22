@@ -1,11 +1,9 @@
 ---
-id: 372
 title: "Client object"
 slug: com_object_client
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-07-19
 ---
 
 ### Description

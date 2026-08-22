@@ -1,11 +1,9 @@
 ---
-id: 9
 title: "Storing the message in the database"
 slug: faq_storing_message_in_database
 parent: FAQ
 index: 0
 is_book: false
-updated: 2008-10-27
 ---
 
 ## Question: Why aren't entire e-mail messages stored in the database?

@@ -1,11 +1,9 @@
 ---
-id: 24
 title: "Act as a MX backup"
 slug: howto_act_as_mx_backup
 parent: howtos
 index: 0
 is_book: false
-updated: 2018-01-20
 ---
 
 ## Overview

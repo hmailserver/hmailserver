@@ -1,11 +1,9 @@
 ---
-id: 153
 title: "Distribution List Recipient"
 slug: com_distributionlistrecipient
 parent: com_objects
 index: 0
 is_book: false
-updated: 2023-10-12
 ---
 
 The Recipient object represents an recipient of a hMailServer distribution list.

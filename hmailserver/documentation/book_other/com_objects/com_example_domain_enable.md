@@ -1,11 +1,9 @@
 ---
-id: 227
 title: "API example: Enabling a domain"
 slug: com_example_domain_enable
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-05-11
 ---
 
 This example shows how to enable an existing domain in your hMailServer installation. The script is written in VBA.

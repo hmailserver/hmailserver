@@ -17,19 +17,16 @@ Every file starts with a YAML front matter block:
 
 ```
 ---
-id: 1
 title: "Page title"
 slug: page_slug
 parent: parent_slug   # or "null" for a top-level page
 index: 10             # sort order among siblings
 is_book: false         # true for a section heading with no page content of its own
-updated: 2021-08-15
 ---
 ```
 
 - `slug` must be unique across the whole tree and match the filename (minus `.md`).
 - `parent` refers to another page's `slug`, not a path.
-- `id` is carried over from the legacy CMS for traceability; new pages can pick any unused integer.
 
 ## Body
 

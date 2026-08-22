@@ -1,11 +1,9 @@
 ---
-id: 67
 title: "Configuration tutorial"
 slug: basic_configuration
 parent: book_quickstartguide
 index: 10
 is_book: false
-updated: 2017-01-26
 ---
 
 ## Overview

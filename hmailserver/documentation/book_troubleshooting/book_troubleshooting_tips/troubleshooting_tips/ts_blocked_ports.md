@@ -1,11 +1,9 @@
 ---
-id: 38
 title: "Blocked ports"
 slug: ts_blocked_ports
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2008-02-17
 ---
 
 ## Troubleshooting blocked ports
