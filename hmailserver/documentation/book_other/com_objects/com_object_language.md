@@ -1,0 +1,23 @@
+---
+id: 392
+title: "Language object"
+slug: com_object_language
+parent: com_objects
+index: 0
+is_book: false
+updated: 2008-10-31
+---
+
+### Description
+
+The language object represents a single language and contains functionality to do translation.
+
+### Properties
+
+<div class="api_method_name">string Name</div>
+
+<div class="api_description">Name of the language<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">string String(string EnglishString)</div>
+
+<div class="api_description">A string<br> <i>(read-only)</i></div>
