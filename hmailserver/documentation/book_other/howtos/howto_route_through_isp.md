@@ -1,11 +1,9 @@
 ---
-id: 27
 title: "Route all outgoing email through another server"
 slug: howto_route_through_isp
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-02-20
 ---
 
 ## Background

@@ -1,11 +1,9 @@
 ---
-id: 381
 title: "RuleCriterias object"
 slug: com_object_rulecriterias
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

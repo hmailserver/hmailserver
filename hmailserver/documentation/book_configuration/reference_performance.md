@@ -1,11 +1,9 @@
 ---
-id: 188
 title: "Performance"
 slug: reference_performance
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-09-17
 ---
 
 ## Overview

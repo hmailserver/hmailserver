@@ -1,11 +1,9 @@
 ---
-id: 448
 title: "COM API: Examples"
 slug: com_examples
 parent: com_objects
 index: 0
 is_book: false
-updated: 2009-12-02
 ---
 
 ### Script examples

@@ -1,11 +1,9 @@
 ---
-id: 232
 title: "About message recipients"
 slug: information_recipients
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-05-19
 ---
 
 ## Background

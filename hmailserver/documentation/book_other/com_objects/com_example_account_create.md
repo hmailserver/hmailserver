@@ -1,11 +1,9 @@
 ---
-id: 207
 title: "API Example: Creating an account"
 slug: com_example_account_create
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-05-11
 ---
 
 This example shows how to add a new account to an existing domain in your hMailServer installation. The script is written in VBA. To use it, follow these steps:

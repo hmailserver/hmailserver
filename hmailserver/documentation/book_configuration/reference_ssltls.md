@@ -1,11 +1,9 @@
 ---
-id: 452
 title: "SSL/TLS"
 slug: reference_ssltls
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2015-10-06
 ---
 
 When hMailServer communicates with other clients and servers (called peers), it is possible to enable encryption of the TCP/IP connection. In hMailServer, this is called Connection security.

@@ -1,11 +1,9 @@
 ---
-id: 386
 title: "Cache object"
 slug: com_object_cache
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

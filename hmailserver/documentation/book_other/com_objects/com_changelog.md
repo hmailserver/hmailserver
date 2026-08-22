@@ -1,11 +1,9 @@
 ---
-id: 202
 title: "COM API ChangeLog"
 slug: com_changelog
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-05
 ---
 
 This document briefly lists the changes made to the COM API.

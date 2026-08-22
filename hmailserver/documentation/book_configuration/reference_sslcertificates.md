@@ -1,11 +1,9 @@
 ---
-id: 246
 title: "SSL certificate"
 slug: reference_sslcertificates
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2019-09-21
 ---
 
 <h2><span style="color: rgb(119, 119, 119); font-size: 18px;">Settings</span></h2>

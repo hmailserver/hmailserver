@@ -1,11 +1,9 @@
 ---
-id: 367
 title: "Domains object"
 slug: com_object_domains
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

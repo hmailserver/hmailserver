@@ -1,11 +1,9 @@
 ---
-id: 225
 title: "API example: List user folders"
 slug: com_example_folder_list
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-04-21
 ---
 
 This example shows how to list a users IMAP folders using the hMailServer COM API. The script will display a message box listing all the IMAP folders (including sub folders) belonging to the account test@example.com.

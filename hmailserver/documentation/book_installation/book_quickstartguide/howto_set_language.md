@@ -1,11 +1,9 @@
 ---
-id: 441
 title: "Display language"
 slug: howto_set_language
 parent: book_quickstartguide
 index: 9
 is_book: false
-updated: 2016-03-21
 ---
 
 ## Overview

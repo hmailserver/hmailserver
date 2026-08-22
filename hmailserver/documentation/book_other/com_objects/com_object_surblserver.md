@@ -1,11 +1,9 @@
 ---
-id: 397
 title: "SURBLServer object"
 slug: com_object_surblserver
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

@@ -1,11 +1,9 @@
 ---
-id: 36
 title: "Status"
 slug: reference_status
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2008-11-25
 ---
 
 ## Overview

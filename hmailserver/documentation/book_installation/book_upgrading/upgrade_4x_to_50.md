@@ -1,11 +1,9 @@
 ---
-id: 258
 title: "Upgrading: 4.x to 5.0"
 slug: upgrade_4x_to_50
 parent: book_upgrading
 index: 20
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

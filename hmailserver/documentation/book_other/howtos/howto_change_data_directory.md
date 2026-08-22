@@ -1,11 +1,9 @@
 ---
-id: 25
 title: "Change the data directory"
 slug: howto_change_data_directory
 parent: howtos
 index: 20
 is_book: false
-updated: 2015-07-08
 ---
 
 ## Background

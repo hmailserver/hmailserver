@@ -1,11 +1,9 @@
 ---
-id: 444
 title: "Maintenance scripts"
 slug: maintenance_scripts
 parent: book_maintenance
 index: 0
 is_book: false
-updated: 2009-11-04
 ---
 
 ## Maintenance scripts

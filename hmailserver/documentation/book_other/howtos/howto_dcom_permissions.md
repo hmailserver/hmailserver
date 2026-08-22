@@ -1,11 +1,9 @@
 ---
-id: 107
 title: "DCOM permissions"
 slug: howto_dcom_permissions
 parent: howtos
 index: 0
 is_book: false
-updated: 2015-12-03
 ---
 
 ## Overview

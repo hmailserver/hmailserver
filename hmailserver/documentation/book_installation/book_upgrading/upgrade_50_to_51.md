@@ -1,11 +1,9 @@
 ---
-id: 431
 title: "Upgrading: 5.0 to 5.1"
 slug: upgrade_50_to_51
 parent: book_upgrading
 index: 30
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

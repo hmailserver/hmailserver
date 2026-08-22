@@ -1,11 +1,9 @@
 ---
-id: 33
 title: "Account"
 slug: reference_account
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2022-09-12
 ---
 
 ## General

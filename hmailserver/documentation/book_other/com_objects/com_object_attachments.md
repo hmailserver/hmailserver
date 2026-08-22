@@ -1,11 +1,9 @@
 ---
-id: 354
 title: "Attachments object"
 slug: com_object_attachments
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

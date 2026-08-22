@@ -1,11 +1,9 @@
 ---
-id: 440
 title: "Downgrading"
 slug: upgrade_downgrade
 parent: book_upgrading
 index: 100
 is_book: false
-updated: 2009-08-03
 ---
 
 ## Overview

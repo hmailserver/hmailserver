@@ -1,11 +1,9 @@
 ---
-id: 245
 title: "Advanced"
 slug: reference_advanced
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-08-18
 ---
 
 ## General

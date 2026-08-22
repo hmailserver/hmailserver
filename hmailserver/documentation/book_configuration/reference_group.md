@@ -1,11 +1,9 @@
 ---
-id: 244
 title: "Group"
 slug: reference_group
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2017-11-04
 ---
 
 ## General

@@ -1,11 +1,9 @@
 ---
-id: 32
 title: "Open relay tests"
 slug: open_relay_tests
 parent: book_other
 index: 0
 is_book: false
-updated: 2016-01-23
 ---
 
 As soon as you finish installing and configuring hMailServer, you should run some open relay tests. It ensures that your server will not be used for spamming.[](http://members.iinet.net.au/~remmie/relay/)

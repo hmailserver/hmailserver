@@ -1,11 +1,9 @@
 ---
-id: 187
 title: "Server message"
 slug: reference_servermessage
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2008-08-16
 ---
 
 ## General

@@ -1,11 +1,9 @@
 ---
-id: 422
 title: "OnError"
 slug: scripting_onerror
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2017-07-19
 ---
 
 ## Overview

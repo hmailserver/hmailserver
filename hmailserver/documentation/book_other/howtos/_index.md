@@ -1,11 +1,9 @@
 ---
-id: 30
 title: "HOW TO:s"
 slug: howtos
 parent: book_other
 index: 0
 is_book: false
-updated: 2012-05-12
 ---
 
 **How do I...**

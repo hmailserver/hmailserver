@@ -1,11 +1,9 @@
 ---
-id: 240
 title: "External anti virus sample settings"
 slug: details_antivirus_external_example
 parent: book_other
 index: 0
 is_book: false
-updated: 2016-05-29
 ---
 
 ## Overview

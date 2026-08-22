@@ -1,11 +1,9 @@
 ---
-id: 2
 title: "What are SMTP, POP3 and IMAP?"
 slug: whatis_pop3imapsmtp
 parent: book_before_installation
 index: 20
 is_book: false
-updated: 2006-01-18
 ---
 
 ## Overview

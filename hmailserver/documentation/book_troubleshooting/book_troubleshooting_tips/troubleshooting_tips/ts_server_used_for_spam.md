@@ -1,11 +1,9 @@
 ---
-id: 46
 title: "Server used for spam"
 slug: ts_server_used_for_spam
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2016-05-06
 ---
 
 ## Background

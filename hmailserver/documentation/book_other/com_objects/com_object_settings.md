@@ -1,11 +1,9 @@
 ---
-id: 343
 title: "Settings object"
 slug: com_object_settings
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

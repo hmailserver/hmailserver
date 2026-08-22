@@ -1,11 +1,9 @@
 ---
-id: 346
 title: "Account object"
 slug: com_object_account
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

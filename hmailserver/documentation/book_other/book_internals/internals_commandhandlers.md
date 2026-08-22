@@ -1,11 +1,9 @@
 ---
-id: 222
 title: "Command handlers"
 slug: internals_commandhandlers
 parent: book_internals
 index: 0
 is_book: false
-updated: 2007-03-15
 ---
 
 # Overview

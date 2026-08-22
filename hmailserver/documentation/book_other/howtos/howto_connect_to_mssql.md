@@ -1,11 +1,9 @@
 ---
-id: 443
 title: "Connect to MSSQL"
 slug: howto_connect_to_mssql
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-11-03
 ---
 
 This page describes how to connect to the hMailServer MSSQL database to execute statements.

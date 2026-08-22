@@ -1,11 +1,9 @@
 ---
-id: 122
 title: "IP range"
 slug: reference_iprange
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2014-08-16
 ---
 
 ## General

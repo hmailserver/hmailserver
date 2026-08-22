@@ -1,11 +1,9 @@
 ---
-id: 171
 title: "Single server, dynamic IP address"
 slug: scenario_single_server_dynamic_ip
 parent: scenarios
 index: 0
 is_book: false
-updated: 2009-03-21
 ---
 
 ## Scenario:

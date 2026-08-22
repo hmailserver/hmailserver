@@ -1,11 +1,9 @@
 ---
-id: 458
 title: "Incoming Relay"
 slug: com_object_incomingrelay
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

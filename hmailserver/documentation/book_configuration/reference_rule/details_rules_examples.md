@@ -1,11 +1,9 @@
 ---
-id: 106
 title: "Rule examples"
 slug: details_rules_examples
 parent: reference_rule
 index: 0
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Example 1, Delete email

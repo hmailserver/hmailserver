@@ -1,11 +1,9 @@
 ---
-id: 342
 title: "Status object"
 slug: com_object_status
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

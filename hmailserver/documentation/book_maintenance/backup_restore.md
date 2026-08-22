@@ -1,11 +1,9 @@
 ---
-id: 68
 title: "Backup & Restore"
 slug: backup_restore
 parent: book_maintenance
 index: 10
 is_book: false
-updated: 2014-12-20
 ---
 
 ## Overview

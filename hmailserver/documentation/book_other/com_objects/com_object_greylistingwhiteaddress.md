@@ -1,11 +1,9 @@
 ---
-id: 404
 title: "GreyListingWhiteAddress object"
 slug: com_object_greylistingwhiteaddress
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

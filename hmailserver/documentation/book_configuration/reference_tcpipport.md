@@ -1,11 +1,9 @@
 ---
-id: 248
 title: "TCP/IP Listening Port"
 slug: reference_tcpipport
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2018-06-06
 ---
 
 ## TCP/IP Ports (listening only)

@@ -1,11 +1,9 @@
 ---
-id: 206
 title: "HOWTO: Changing the administrator password"
 slug: howto_change_administrator_password
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-04-17
 ---
 
 ## Background

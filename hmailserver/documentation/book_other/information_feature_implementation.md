@@ -1,11 +1,9 @@
 ---
-id: 205
 title: "Feature implementation"
 slug: information_feature_implementation
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Feature implementation

@@ -1,11 +1,9 @@
 ---
-id: 118
 title: "Anti spam"
 slug: reference_antispam
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2023-02-20
 ---
 
 ## Overview

@@ -1,11 +1,9 @@
 ---
-id: 348
 title: "Message object"
 slug: com_object_message
 parent: com_objects
 index: 0
 is_book: false
-updated: 2019-01-14
 ---
 
 ### Description

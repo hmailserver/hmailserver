@@ -1,11 +1,9 @@
 ---
-id: 60
 title: "API example: Sending a message"
 slug: com_example_message_send
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-10-02
 ---
 
 This example shows how to send an email using the hMailServer COM API.

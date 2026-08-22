@@ -1,11 +1,9 @@
 ---
-id: 47
 title: "Starting the server"
 slug: ts_start_server
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 ## Terminal services

@@ -1,11 +1,9 @@
 ---
-id: 242
 title: "Settings"
 slug: reference_settings
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Settings

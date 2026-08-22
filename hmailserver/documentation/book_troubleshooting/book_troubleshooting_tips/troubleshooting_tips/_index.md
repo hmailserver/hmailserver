@@ -1,11 +1,9 @@
 ---
-id: 37
 title: "More troubleshooting tips..."
 slug: troubleshooting_tips
 parent: book_troubleshooting_tips
 index: 30
 is_book: false
-updated: 2012-07-25
 ---
 
 ## Troubleshooting

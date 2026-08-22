@@ -1,11 +1,9 @@
 ---
-id: 251
 title: "Server sendout"
 slug: reference_serversendout
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2008-08-16
 ---
 
 ## Server sendout

@@ -1,11 +1,9 @@
 ---
-id: 35
 title: "Live"
 slug: reference_live
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 ## Overview

@@ -1,11 +1,9 @@
 ---
-id: 185
 title: "SURBL servers"
 slug: reference_surblserver
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2006-08-31
 ---
 
 ## General

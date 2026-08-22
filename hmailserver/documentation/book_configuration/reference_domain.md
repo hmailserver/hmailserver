@@ -1,11 +1,9 @@
 ---
-id: 34
 title: "Domain"
 slug: reference_domain
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2021-08-12
 ---
 
 ## Overview

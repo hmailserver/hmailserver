@@ -1,11 +1,9 @@
 ---
-id: 247
 title: "Scripts"
 slug: reference_scripts
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2016-08-14
 ---
 
 ## Overview

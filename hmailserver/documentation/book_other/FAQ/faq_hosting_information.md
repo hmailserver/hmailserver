@@ -1,11 +1,9 @@
 ---
-id: 230
 title: "FAQ: Hosting information"
 slug: faq_hosting_information
 parent: FAQ
 index: 0
 is_book: false
-updated: 2007-12-13
 ---
 
 ## hMailServer hosting information

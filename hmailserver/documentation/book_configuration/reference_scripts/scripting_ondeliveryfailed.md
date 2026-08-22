@@ -1,11 +1,9 @@
 ---
-id: 424
 title: "OnDeliveryFailed"
 slug: scripting_ondeliveryfailed
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2010-05-09
 ---
 
 ## Overview

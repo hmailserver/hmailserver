@@ -1,11 +1,9 @@
 ---
-id: 427
 title: "Set up local / stand-alone server"
 slug: howto_set_up_local
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-03-15
 ---
 
 ## Background

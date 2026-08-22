@@ -1,11 +1,9 @@
 ---
-id: 223
 title: "PHPWebAdmin setup problems"
 slug: ts_setup_phpwebadmin
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2013-02-11
 ---
 
 ## Overview

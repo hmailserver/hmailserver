@@ -1,11 +1,9 @@
 ---
-id: 399
 title: "BlockedAttachment object"
 slug: com_object_blockedattachment
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

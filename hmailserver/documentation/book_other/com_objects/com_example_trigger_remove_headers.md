@@ -1,11 +1,9 @@
 ---
-id: 447
 title: "Trigger example: Remove headers"
 slug: com_example_trigger_remove_headers
 parent: com_objects
 index: 0
 is_book: false
-updated: 2009-12-02
 ---
 
 ## Overview

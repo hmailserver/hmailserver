@@ -1,11 +1,9 @@
 ---
-id: 446
 title: "Trigger example: Hello World"
 slug: com_example_trigger_helloworld
 parent: com_objects
 index: 0
 is_book: false
-updated: 2009-12-02
 ---
 
 ## Overview

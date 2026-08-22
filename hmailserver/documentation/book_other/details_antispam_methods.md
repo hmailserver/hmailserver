@@ -1,11 +1,9 @@
 ---
-id: 252
 title: "Anti-spam methods"
 slug: details_antispam_methods
 parent: book_other
 index: 0
 is_book: false
-updated: 2016-04-02
 ---
 
 ## Anti spam methods

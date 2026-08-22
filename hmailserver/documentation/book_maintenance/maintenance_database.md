@@ -1,11 +1,9 @@
 ---
-id: 433
 title: "Database maintenance"
 slug: maintenance_database
 parent: book_maintenance
 index: 0
 is_book: false
-updated: 2009-02-10
 ---
 
 ## Background

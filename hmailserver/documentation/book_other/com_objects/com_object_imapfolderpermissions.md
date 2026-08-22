@@ -1,11 +1,9 @@
 ---
-id: 418
 title: "IMAPFolderPermissions object"
 slug: com_object_imapfolderpermissions
 parent: com_objects
 index: 0
 is_book: false
-updated: 2017-02-14
 ---
 
 ### Description

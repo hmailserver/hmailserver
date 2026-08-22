@@ -1,11 +1,9 @@
 ---
-id: 226
 title: "API Example: Copying a message to a new IMAP folder"
 slug: com_example_copy_message_to_imap_folder
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-04-28
 ---
 
 # Overview

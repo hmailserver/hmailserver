@@ -1,11 +1,9 @@
 ---
-id: 220
 title: "HOWTO: Enabling SMTP authentication in email client"
 slug: howto_enable_smtp_authentication_in_client
 parent: howtos
 index: 0
 is_book: false
-updated: 2007-02-19
 ---
 
 # Overview

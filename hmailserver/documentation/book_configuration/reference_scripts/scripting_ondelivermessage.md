@@ -1,11 +1,9 @@
 ---
-id: 22
 title: "OnDeliverMessage"
 slug: scripting_ondelivermessage
 parent: reference_scripts
 index: 0
 is_book: false
-updated: 2014-10-07
 ---
 
 ## Signature

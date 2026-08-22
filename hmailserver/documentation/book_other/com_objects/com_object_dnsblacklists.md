@@ -1,11 +1,9 @@
 ---
-id: 364
 title: "DNSBlackLists object"
 slug: com_object_dnsblacklists
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

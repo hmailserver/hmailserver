@@ -1,11 +1,9 @@
 ---
-id: 229
 title: "HOWTO: Determine hMailServer database password"
 slug: howto_determine_mysql_password
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-11-02
 ---
 
 If you are using the built-in version that comes with hMailServer, you might not know your password. To determine the password, follow these steps:

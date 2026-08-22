@@ -1,11 +1,9 @@
 ---
-id: 74
 title: "POP3 settings"
 slug: reference_protocolpop3
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2008-07-04
 ---
 
 ### Connections

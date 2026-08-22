@@ -1,11 +1,9 @@
 ---
-id: 378
 title: "Rules object"
 slug: com_object_rules
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

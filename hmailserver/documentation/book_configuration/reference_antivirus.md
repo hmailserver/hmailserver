@@ -1,11 +1,9 @@
 ---
-id: 117
 title: "Anti virus"
 slug: reference_antivirus
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2021-05-23
 ---
 
 ## Overview

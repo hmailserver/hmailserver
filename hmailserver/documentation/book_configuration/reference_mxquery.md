@@ -1,11 +1,9 @@
 ---
-id: 250
 title: "MX query"
 slug: reference_mxquery
 parent: book_configuration
 index: 0
 is_book: false
-updated: 2008-08-16
 ---
 
 ## MX query

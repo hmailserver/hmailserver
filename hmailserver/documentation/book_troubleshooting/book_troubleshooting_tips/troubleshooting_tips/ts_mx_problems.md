@@ -1,11 +1,9 @@
 ---
-id: 42
 title: "MX problems"
 slug: ts_mx_problems
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2010-05-03
 ---
 
 ## What is MX?

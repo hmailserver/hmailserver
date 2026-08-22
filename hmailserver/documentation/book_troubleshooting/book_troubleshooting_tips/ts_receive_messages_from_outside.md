@@ -1,11 +1,9 @@
 ---
-id: 44
 title: "Receiving messages"
 slug: ts_receive_messages_from_outside
 parent: book_troubleshooting_tips
 index: 20
 is_book: false
-updated: 2010-01-30
 ---
 
 The most common problems that prevent you from receiving emails are:

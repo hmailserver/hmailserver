@@ -1,11 +1,9 @@
 ---
-id: 71
 title: "Upgrading: 3.x to 4.0"
 slug: upgrade_3x_to_40
 parent: book_upgrading
 index: 10
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

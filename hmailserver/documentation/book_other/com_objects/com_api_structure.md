@@ -1,11 +1,9 @@
 ---
-id: 228
 title: "COM API: API structure"
 slug: com_api_structure
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-05-19
 ---
 
 # Overview

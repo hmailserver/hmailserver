@@ -1,11 +1,9 @@
 ---
-id: 388
 title: "BackupSettings object"
 slug: com_object_backupsettings
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description

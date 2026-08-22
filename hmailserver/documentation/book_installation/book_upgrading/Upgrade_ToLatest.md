@@ -1,11 +1,9 @@
 ---
-id: 455
 title: "Upgrading: 5.x to Latest Version"
 slug: Upgrade_ToLatest
 parent: book_upgrading
 index: 0
 is_book: false
-updated: 2015-11-15
 ---
 
 ## Overview

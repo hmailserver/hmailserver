@@ -1,11 +1,9 @@
 ---
-id: 79
 title: "External virus scanner - Return value"
 slug: howto_determine_antivirus_external_returnvalue
 parent: howtos
 index: 0
 is_book: false
-updated: 2009-10-16
 ---
 
 ## Overview

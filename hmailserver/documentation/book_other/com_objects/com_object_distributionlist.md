@@ -1,11 +1,9 @@
 ---
-id: 357
 title: "DistributionList object"
 slug: com_object_distributionlist
 parent: com_objects
 index: 0
 is_book: false
-updated: 2023-10-16
 ---
 
 ### Description

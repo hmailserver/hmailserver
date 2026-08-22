@@ -1,11 +1,9 @@
 ---
-id: 204
 title: "Data directory synchronizer"
 slug: userguide_dds
 parent: book_other
 index: 0
 is_book: false
-updated: 2010-04-02
 ---
 
 ## Background

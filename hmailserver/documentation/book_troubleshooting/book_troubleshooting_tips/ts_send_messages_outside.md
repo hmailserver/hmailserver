@@ -1,11 +1,9 @@
 ---
-id: 45
 title: "Sending messages"
 slug: ts_send_messages_outside
 parent: book_troubleshooting_tips
 index: 10
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Port 25 blocked for outbound traffic

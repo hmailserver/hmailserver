@@ -1,11 +1,9 @@
 ---
-id: 209
 title: "API Example: Changing an account password"
 slug: com_example_account_change_password
 parent: com_objects
 index: 0
 is_book: false
-updated: 2007-05-11
 ---
 
 This example shows how to change the password for an account in your hMailServer installation. The script is written in VBA. To use it, follow these steps:

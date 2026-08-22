@@ -1,11 +1,9 @@
 ---
-id: 112
 title: "IMAP Sort extension"
 slug: details_imap_sort
 parent: book_other
 index: 0
 is_book: false
-updated: 2009-07-03
 ---
 
 ## Overview

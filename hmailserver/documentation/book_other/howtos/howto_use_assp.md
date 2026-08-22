@@ -1,11 +1,9 @@
 ---
-id: 29
 title: "Use ASSP"
 slug: howto_use_assp
 parent: howtos
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 ## Background

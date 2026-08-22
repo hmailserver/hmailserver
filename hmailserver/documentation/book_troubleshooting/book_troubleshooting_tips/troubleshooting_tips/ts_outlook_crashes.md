@@ -1,11 +1,9 @@
 ---
-id: 43
 title: "Outlook crashes"
 slug: ts_outlook_crashes
 parent: troubleshooting_tips
 index: 0
 is_book: false
-updated: 2005-11-22
 ---
 
 The Outlook 2003 IMAP implementation behaves a bit differently from the IMAP implementation in other email clients. There are problems encountered with Outlook, that are not specific to hMailServer. They will occur regardless of which IMAP server you are using. 

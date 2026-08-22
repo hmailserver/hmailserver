@@ -1,11 +1,9 @@
 ---
-id: 169
 title: "Why are there empty directories in the data directory?"
 slug: faq_empty_dirs_in_datadir
 parent: FAQ
 index: 0
 is_book: false
-updated: 2007-06-11
 ---
 
 ## Question: Why are there empty directories in the data directory?

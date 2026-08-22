@@ -1,11 +1,9 @@
 ---
-id: 93
 title: "Author information"
 slug: information_author
 parent: book_before_installation
 index: 40
 is_book: false
-updated: 2010-02-16
 ---
 
 The server technology and overall design of hMailServer is in the hands of [Martin Knafve](mailto:martin@hmailserver.com).

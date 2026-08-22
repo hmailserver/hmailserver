@@ -1,11 +1,9 @@
 ---
-id: 419
 title: "Directories object"
 slug: com_object_directories
 parent: com_objects
 index: 0
 is_book: false
-updated: 2008-10-31
 ---
 
 ### Description
