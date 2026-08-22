@@ -67,7 +67,7 @@
   {
     "operatingSystem": "Windows 10",
     "description": "MySQL 8.0.29: Upgrade, 4.4.4",
-    "vmName": "Windows-10-4.4.4-MySQL 8.0.29",
+    "vmName": "Windows-10-hMailServer-4.4.4-MySQL 8.0.29",
     "snapshotName": "Ready",
     "preInstallCommands": [
       {
@@ -116,7 +116,7 @@
   },
   {
     "operatingSystem": "Windows 10",
-    "description": "MySQL 8.0.29: New installation",
+    "description": "MySQL 8.0.29: New installation - MySQL client",
     "vmName": "Windows10-MySQL8.0.29",
     "snapshotName": "Ready",
     "preInstallCommands": [
@@ -136,6 +136,31 @@
       {
         "from": "{{MySQLLib}}",
         "to": "C:\\Program Files\\hMailServer\\Bin\\libmySQL.dll"
+      }
+    ]
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "MySQL 8.0.29: New installation - MariaDb client",
+    "vmName": "Windows10-MySQL8.0.29",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
+        "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
+      }
+    ],
+    "postInstallFileCopy": [
+      {
+        "from": "{{MariaDbLib}}",
+        "to": "C:\\Program Files\\hMailServer\\Bin\\libmariadb.dll"
       }
     ]
   },

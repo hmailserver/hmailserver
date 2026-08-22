@@ -8,6 +8,7 @@ namespace VMTestRunner.Console
    public class TestEnvironments
    {
       private const string MySQLLibPlaceholder = "{{MySQLLib}}";
+      private const string MariaDbLibPlaceholder = "{{MariaDbLib}}";
 
       public static void AddAll(List<TestEnvironment> listEnvironments)
       {
@@ -38,9 +39,15 @@ namespace VMTestRunner.Console
 
       private static string ResolvePath(string path)
       {
-         if (path == MySQLLibPlaceholder)
-            return GetMySQLLib();
-         return path;
+         switch (path)
+         {
+            case MySQLLibPlaceholder:
+               return GetMySQLLib();
+            case MariaDbLibPlaceholder:
+               return GetMariaDbLib();
+            default:
+               return path;
+         }
       }
 
       private static string GetMySQLLib()
@@ -50,6 +57,22 @@ namespace VMTestRunner.Console
          var libMySqlDir = Path.Combine(librariesDir, "libmysql-5.7.38");
 
          string name = Path.Combine(libMySqlDir, "libmySQL.dll");
+
+         if (!File.Exists(name))
+         {
+            throw new System.Exception($"The file {name} could not be found.");
+         }
+
+         return name;
+      }
+
+      private static string GetMariaDbLib()
+      {
+         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+         var librariesDir = Path.Combine(currentDir, @"..\..\..\..\..\..\libraries");
+         var libMySqlDir = Path.Combine(librariesDir, "libmariadb-3.4.9");
+
+         string name = Path.Combine(libMySqlDir, "libmariadb.dll");
 
          if (!File.Exists(name))
          {
