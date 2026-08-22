@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 using System;
@@ -6,16 +6,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 
-
 namespace hMailServer.Administrator.Nodes
 {
-    class NodeAdvanced : INode
+    class NodePasswordHashing : INode
     {
         public string Title
         {
             get
             {
-                return "Advanced";
+                return "Password hashing";
             }
             set { }
         }
@@ -31,13 +30,13 @@ namespace hMailServer.Administrator.Nodes
         {
             get
             {
-               return "understanding.ico";
+               return "construction.ico";
             }
         }
 
         public UserControl CreateControl()
         {
-            return new ucAdvanced();
+            return new ucPasswordHashing();
         }
 
         public List<INode> SubNodes
@@ -45,17 +44,6 @@ namespace hMailServer.Administrator.Nodes
             get
             {
                 List<INode> subNodes = new List<INode>();
-                subNodes.Add(new NodeAutoBan());
-                subNodes.Add(new NodeSSLCertificates());
-                subNodes.Add(new NodeIPRanges());
-                subNodes.Add(new NodeIncomingRelays());
-                subNodes.Add(new NodeMirror());
-                subNodes.Add(new NodePasswordHashing());
-                subNodes.Add(new NodePerformance());
-                subNodes.Add(new NodeServerMessages());
-                subNodes.Add(new NodeSslTls());
-                subNodes.Add(new NodeScripts());
-                subNodes.Add(new NodeTCPIPPorts());
                 return subNodes;
 
             }

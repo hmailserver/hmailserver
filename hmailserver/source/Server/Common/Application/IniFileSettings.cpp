@@ -5,6 +5,7 @@
 #include "IniFileSettings.h"
 
 #include "../Util/Crypt.h"
+#include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/Utilities.h"
 
 #ifdef _DEBUG
@@ -27,7 +28,7 @@ namespace HM
       max_no_of_external_fetch_threads_(15),
       greylisting_enabled_during_record_expiration_(true),
       greylisting_expiration_interval_(240),
-      preferred_hash_algorithm_(3),
+      preferred_hash_algorithm_(Crypt::ETSHA256),
       dnsbl_checks_after_mail_from_(false),
       log_level_(0),
       max_log_line_len_(500),
@@ -154,7 +155,7 @@ namespace HM
       String sValidLanguages = ReadIniSettingString_("GUILanguages", "ValidLanguages", "");
       valid_languages_ = StringParser::SplitString(sValidLanguages, ",");
 
-      preferred_hash_algorithm_ = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", 3);
+      preferred_hash_algorithm_ = ReadIniSettingInteger_("Settings", "PreferredHashAlgorithm", Crypt::ETSHA256);
 
       dnsbl_checks_after_mail_from_ = ReadIniSettingInteger_("Settings", "DNSBLChecksAfterMailFrom", 1) == 1;
 
@@ -201,6 +202,16 @@ namespace HM
       dns_server_ = ReadIniSettingString_("Settings", "DNSServer", "");
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
+
+      if (preferred_hash_algorithm_ != Crypt::ETSHA256)
+      {
+         // The setting is no longer honoured - passwords are always written using the
+         // algorithm configured in PasswordHashAlgorithm. Tell the administrator who
+         // deliberately picked something else, rather than silently ignoring them.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5525, "IniFileSettings::LoadSettings",
+            "The hMailServer.ini setting PreferredHashAlgorithm is no longer used and is being ignored. "
+            "Account passwords are hashed using the algorithm selected in the Password hashing settings.");
+      }
    }
 
    bool 
@@ -354,16 +365,25 @@ namespace HM
       return administrator_password_;
    }
 
-   void 
+   bool 
    IniFileSettings::SetAdministratorPassword(const String &sNewPassword)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Updates the main hMailServer administration password found in hMailServer.ini
+   // Updates the main hMailServer administration password found in hMailServer.ini.
+   // Returns false if the password could not be hashed, in which case nothing has
+   // been written.
    //---------------------------------------------------------------------------()
    {
-      administrator_password_ = HM::Crypt::Instance()->EnCrypt(sNewPassword, HM::Crypt::ETSHA256);
+      AnsiString hash = PasswordHasher::Hash(sNewPassword);
+
+      if (hash.GetLength() == 0)
+         return false;
+
+      administrator_password_ = hash;
 
       WriteIniSetting_("Security", "AdministratorPassword", administrator_password_);
+
+      return true;
    }
 
    void 

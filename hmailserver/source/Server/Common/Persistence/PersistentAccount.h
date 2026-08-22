@@ -30,6 +30,11 @@ namespace HM
 
       static bool UpdateLastLogonTime(std::shared_ptr<const Account> pAccount);
 
+      static bool UpdatePassword(std::shared_ptr<const Account> pAccount, const String &passwordHash, int passwordEncryption);
+      // Writes just the two password columns, and drops the account from the cache.
+      // Used when a password is re-hashed during logon; SaveObject cannot be used
+      // there since the account we hold is const, and shared with other connections.
+
       static bool GetIsVacationMessageOn(std::shared_ptr<const Account> pAccount);
       static bool CreateInbox(const Account &account);
 

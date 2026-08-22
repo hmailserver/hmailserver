@@ -144,6 +144,18 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+         // The values the database scripts seed: Argon2id at the recommended cost.
+         if (_settings.PasswordHashAlgorithm != 1)
+            _settings.PasswordHashAlgorithm = 1;
+         if (_settings.PasswordHashMemoryCost != 19456)
+            _settings.PasswordHashMemoryCost = 19456;
+         if (_settings.PasswordHashIterations != 2)
+            _settings.PasswordHashIterations = 2;
+         // Seeded on for new installations, off for upgrades. The fixtures that care
+         // set it explicitly; everyone else gets the new-installation behaviour.
+         if (!_settings.PasswordHashAutoUpgradeEnabled)
+            _settings.PasswordHashAutoUpgradeEnabled = true;
+
          if (_settings.IMAPSASLPlainEnabled)
             _settings.IMAPSASLPlainEnabled = false;
          if (_settings.IMAPSASLInitialResponseEnabled)

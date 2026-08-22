@@ -249,6 +249,18 @@ END_COM_MAP()
    STDMETHOD(get_CreateDefaultSpecialUseFoldersEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_CreateDefaultSpecialUseFoldersEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_PasswordHashAlgorithm)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_PasswordHashAlgorithm)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_PasswordHashMemoryCost)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_PasswordHashMemoryCost)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_PasswordHashIterations)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_PasswordHashIterations)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_PasswordHashAutoUpgradeEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_PasswordHashAutoUpgradeEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
    bool LoadSettings();
 
 private:

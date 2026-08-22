@@ -17,7 +17,6 @@
 #include "PersistenceMode.h"
 
 #include "../Util/File.h"
-#include "../Util/Crypt.h"
 #include "../Util/Time.h"
 #include "../BO/Account.h"
 #include "../BO/Rules.h"
@@ -184,13 +183,12 @@ namespace HM
       pAccount->SetPersonFirstName(pRS->GetStringValue("accountpersonfirstname"));
       pAccount->SetPersonLastName(pRS->GetStringValue("accountpersonlastname"));
 
-      if (pAccount->GetPasswordEncryption() == 0)
-      {
-         // The password isn't encrypted. Encrypt it now using the preferred hash algorithm.
-         int preferredHashAlgorithm = IniFileSettings::Instance()->GetPreferredHashAlgorithm();
-         pAccount->SetPassword(Crypt::Instance()->EnCrypt(pAccount->GetPassword(), (HM::Crypt::EncryptionType) preferredHashAlgorithm));
-         pAccount->SetPasswordEncryption(preferredHashAlgorithm);
-      }
+      // Plain-text accounts are migrated to a hash on a verified login instead (see
+      // PasswordValidator::ValidatePassword's iPasswordEncryption == 0 branch), gated
+      // by the PasswordHashAutoUpgrade setting like the MD5 and Blowfish schemes. Doing
+      // it here unconditionally would rehash on any read - including a plain account
+      // listing - ignore an administrator who turned auto-upgrade off, and write to the
+      // database inside a function every caller treats as a read.
 
       return true;
    }
@@ -432,6 +430,27 @@ namespace HM
       command.AddParameter("@ACCOUNTID", pAccount->GetID());
 
       return Application::Instance()->GetDBManager()->Execute(command);
+   }
+
+   bool
+   PersistentAccount::UpdatePassword(std::shared_ptr<const Account> pAccount, const String &passwordHash, int passwordEncryption)
+   {
+      if (!pAccount || pAccount->GetID() == 0)
+         return false;
+
+      SQLCommand command("update hm_accounts set accountpassword = @PASSWORD, accountpwencryption = @PWENCRYPTION where accountid = @ACCOUNTID");
+      command.AddParameter("@PASSWORD", passwordHash);
+      command.AddParameter("@PWENCRYPTION", passwordEncryption);
+      command.AddParameter("@ACCOUNTID", pAccount->GetID());
+
+      if (!Application::Instance()->GetDBManager()->Execute(command))
+         return false;
+
+      // The cached account still carries the old password. If it isn't dropped here,
+      // every logon until the cache entry expires would decide to re-hash again.
+      Cache<Account>::Instance()->RemoveObject(pAccount->GetName());
+
+      return true;
    }
 
    bool

@@ -715,6 +715,18 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([in] VARIANT_BOOL newVal);
 
+   [propget, id(109), helpstring("Algorithm used when hashing account passwords. 1 = Argon2id, 2 = PBKDF2-SHA256.")] HRESULT PasswordHashAlgorithm([out, retval] long *pVal);
+   [propput, id(109), helpstring("Algorithm used when hashing account passwords. 1 = Argon2id, 2 = PBKDF2-SHA256.")] HRESULT PasswordHashAlgorithm([in] long newVal);
+
+   [propget, id(110), helpstring("Memory cost in kilobytes used when hashing account passwords with Argon2id. 0 means the recommended default.")] HRESULT PasswordHashMemoryCost([out, retval] long *pVal);
+   [propput, id(110), helpstring("Memory cost in kilobytes used when hashing account passwords with Argon2id. 0 means the recommended default.")] HRESULT PasswordHashMemoryCost([in] long newVal);
+
+   [propget, id(111), helpstring("Iteration count used when hashing account passwords. 0 means the recommended default of the selected algorithm.")] HRESULT PasswordHashIterations([out, retval] long *pVal);
+   [propput, id(111), helpstring("Iteration count used when hashing account passwords. 0 means the recommended default of the selected algorithm.")] HRESULT PasswordHashIterations([in] long newVal);
+
+   [propget, id(112), helpstring("Re-hash account passwords during logon when they use an older algorithm or a lower cost.")] HRESULT PasswordHashAutoUpgradeEnabled([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(112), helpstring("Re-hash account passwords during logon when they use an older algorithm or a lower cost.")] HRESULT PasswordHashAutoUpgradeEnabled([in] VARIANT_BOOL newVal);
+
 };
 
 

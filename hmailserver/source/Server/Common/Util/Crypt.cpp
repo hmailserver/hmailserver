@@ -5,6 +5,7 @@
 #include "Crypt.h"
 #include "BlowFish.h"
 #include "Hashing/HashCreator.h"
+#include "Hashing/PasswordHasher.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -64,6 +65,10 @@ namespace HM
    {
       switch (iType)
       {
+      case ETPHC:
+         {
+            return PasswordHasher::Verify(password, originalHash);
+         }
       case ETMD5:
          {
             // Salts are not used for the MD5 hashes.
@@ -91,6 +96,9 @@ namespace HM
    Crypt::EncryptionType 
    Crypt::GetHashType(const String &hash)
    {
+      if (PasswordHasher::IsPasswordHash(hash))
+         return ETPHC;
+
       int length = hash.GetLength();
       if (length == 32)
          return ETMD5;
