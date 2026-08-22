@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Text;
+using Microsoft.Win32;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -56,7 +57,22 @@ namespace RegressionTests.Security
       private static string GetIniFileName()
       {
          // The server administrator password lives in hMailServer.ini rather than in
-         // the database, and the file sits next to the running executable.
+         // the database. Utilities::GetBinDirectory (Utilities.cpp) resolves the ini
+         // location the same way the server does: from the registry install location
+         // first, only falling back to the running executable's own folder if that
+         // key isn't set.
+         // hMailServer.exe is 32-bit, so it writes under the WOW6432Node redirect -
+         // read the 32-bit view explicitly so this works regardless of whether the
+         // test process itself is 32- or 64-bit.
+         using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
+         using (var key = baseKey.OpenSubKey(@"SOFTWARE\hMailServer"))
+         {
+            var installLocation = key?.GetValue("InstallLocation") as string;
+
+            if (!string.IsNullOrEmpty(installLocation))
+               return Path.Combine(installLocation, "Bin", "hMailServer.ini");
+         }
+
          var processes = Process.GetProcessesByName("hmailserver");
 
          if (processes.Length != 1)
@@ -116,6 +132,15 @@ namespace RegressionTests.Security
          ClearCache();
       }
 
+      private static void LogonAndDisconnect(string address, string password)
+      {
+         // Plain ConnectAndLogon leaves the POP3 connection - and its mailbox lock -
+         // open. Any test that logs on again afterwards needs that lock released first.
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsTrue(pop3.ConnectAndLogon(address, password));
+         pop3.Disconnect();
+      }
+
       private static void AssertLogonSucceedsOnAllProtocols(string address, string password)
       {
          var pop3 = new Pop3ClientSimulator();
@@ -150,11 +175,12 @@ namespace RegressionTests.Security
       [Test]
       public void PasswordHashSettingsHaveExpectedDefaults()
       {
-         // The database scripts seed a concrete cost rather than a zero, so that the
-         // administration interfaces show what is actually in use.
+         // The database scripts seed zero for cost/iterations, meaning "use the
+         // algorithm's default" - PasswordHasher resolves that at hash time, the
+         // stored setting itself stays zero.
          Assert.AreEqual(AlgorithmArgon2id, _settings.PasswordHashAlgorithm);
-         Assert.AreEqual(DefaultArgon2idMemoryCost, _settings.PasswordHashMemoryCost);
-         Assert.AreEqual(DefaultArgon2idIterations, _settings.PasswordHashIterations);
+         Assert.AreEqual(0, _settings.PasswordHashMemoryCost);
+         Assert.AreEqual(0, _settings.PasswordHashIterations);
       }
 
       [Test]
@@ -196,7 +222,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashAutoUpgradeEnabled = false;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          Assert.AreEqual(beforeChange, GetStoredPassword());
@@ -213,14 +239,14 @@ namespace RegressionTests.Security
          _settings.PasswordHashAutoUpgradeEnabled = false;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
          Assert.AreEqual(md5, GetStoredPassword());
 
          _settings.PasswordHashAutoUpgradeEnabled = true;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
@@ -386,7 +412,7 @@ namespace RegressionTests.Security
 
          Assert.AreEqual(md5, GetStoredPassword());
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
 
          ClearCache();
 
@@ -404,16 +430,16 @@ namespace RegressionTests.Security
 
          OverwriteStoredPassword(account, _application.Utilities.MD5(Password), EncryptionMd5);
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          var afterFirstLogon = GetStoredPassword();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
          Assert.AreEqual(afterFirstLogon, GetStoredPassword());
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
          Assert.AreEqual(afterFirstLogon, GetStoredPassword());
       }
@@ -429,7 +455,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashMemoryCost = 32768;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          var afterChange = GetStoredPassword();
@@ -456,7 +482,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashMemoryCost = DefaultArgon2idMemoryCost;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          var afterChange = GetStoredPassword();
@@ -479,7 +505,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashIterations = DefaultArgon2idIterations;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          var afterChange = GetStoredPassword();
@@ -500,7 +526,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
@@ -531,7 +557,7 @@ namespace RegressionTests.Security
 
          OverwriteStoredPassword(account, _application.Utilities.MD5(Password), EncryptionMd5);
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          AssertLogonSucceedsOnAllProtocols(Address, Password);
@@ -565,7 +591,7 @@ namespace RegressionTests.Security
          _settings.PasswordHashAutoUpgradeEnabled = true;
          ClearCache();
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, Password));
+         LogonAndDisconnect(Address, Password);
          ClearCache();
 
          var storedPassword = GetStoredPassword();
@@ -611,7 +637,8 @@ namespace RegressionTests.Security
          Assert.AreNotEqual(Password, differentCasing);
 
          // Allowed pre-migration because the plaintext comparison is case-insensitive.
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, differentCasing));
+         // This is also the login that triggers the rehash.
+         LogonAndDisconnect(Address, differentCasing);
          ClearCache();
 
          Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
@@ -624,6 +651,10 @@ namespace RegressionTests.Security
       [Test]
       public void ABlowfishPasswordCanBeUsedWithDifferentCasingAndStillWorksAfterTheRehash()
       {
+         // Blowfish accounts compare case-insensitively, so a client that has always
+         // used one casing keeps working through the migration to Argon2id - which is
+         // case sensitive - only if the exact casing the client sent is what gets
+         // hashed and stored, not the casing that happened to be recorded originally.
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var blowfish = _application.Utilities.BlowfishEncrypt(Password);
@@ -632,11 +663,15 @@ namespace RegressionTests.Security
          var differentCasing = Password.ToUpperInvariant();
          Assert.AreNotEqual(Password, differentCasing);
 
-         Assert.IsTrue(new Pop3ClientSimulator().ConnectAndLogon(Address, differentCasing));
+         // Allowed pre-migration because the Blowfish comparison is case-insensitive.
+         // This is also the login that triggers the rehash.
+         LogonAndDisconnect(Address, differentCasing);
          ClearCache();
 
          Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
 
+         // The casing that was actually used to log on - not the originally stored
+         // casing - must keep working after the rehash.
          AssertLogonSucceedsOnAllProtocols(Address, differentCasing);
       }
 
