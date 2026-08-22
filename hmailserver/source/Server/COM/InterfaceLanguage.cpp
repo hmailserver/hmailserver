@@ -64,20 +64,3 @@ STDMETHODIMP InterfaceLanguage::get_IsDownloaded(VARIANT_BOOL *pVal)
    }
 }
 
-STDMETHODIMP InterfaceLanguage::Download()
-{
-   try
-   {
-      if (!language_)
-         return GetAccessDenied();
-
-      // language_->Download();   
-   
-      return COMError::GenerateError("Not implemented.");
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
