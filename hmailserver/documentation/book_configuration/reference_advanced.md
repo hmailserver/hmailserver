@@ -26,11 +26,11 @@ is_book: false
 
 ### Memory cost (kilobytes)
 
-<div class="indented">Only used by Argon2id. The amount of memory used per password hash. Set to 0 to use the recommended default, which is 19456 KiB (19 MiB). Valid range: 8192-1048576 KiB.</div>
+<div class="indented">Only used by Argon2id. The amount of memory used per password hash. Set to 0 to use the recommended default, which is 19456 KiB (19 MiB). Valid range: 4096-1048576 KiB.</div>
 
 ### Iterations
 
-<div class="indented">The number of iterations used per password hash. Set to 0 to use the recommended default for the selected algorithm - 2 for Argon2id, 600000 for PBKDF2-SHA256. Valid range: 2-20 for Argon2id, 100000-10000000 for PBKDF2-SHA256.</div>
+<div class="indented">The number of iterations used per password hash. Set to 0 to use the recommended default for the selected algorithm - 2 for Argon2id, 600000 for PBKDF2-SHA256. Valid range: 1-20 for Argon2id, 10000-10000000 for PBKDF2-SHA256.</div>
 
 ### Upgrade stored passwords during logon
 

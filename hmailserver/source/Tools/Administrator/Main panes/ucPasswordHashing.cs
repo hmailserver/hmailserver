@@ -11,17 +11,14 @@ namespace hMailServer.Administrator
 {
     public partial class ucPasswordHashing : UserControl, ISettingsControl
     {
-       private const int AlgorithmArgon2id = 1;
-       private const int AlgorithmPbkdf2Sha256 = 2;
-
        private bool _loading;
 
        public ucPasswordHashing()
         {
             InitializeComponent();
 
-            comboAlgorithm.AddItem("Argon2id", AlgorithmArgon2id);
-            comboAlgorithm.AddItem("PBKDF2-SHA256", AlgorithmPbkdf2Sha256);
+            comboAlgorithm.AddItem("Argon2id", hMailServer.ePasswordHashAlgorithm.ePWHashArgon2id);
+            comboAlgorithm.AddItem("PBKDF2-SHA256", hMailServer.ePasswordHashAlgorithm.ePWHashPBKDF2SHA256);
 
             DirtyChecker.SubscribeToChange(this, OnContentChanged);
 
@@ -96,20 +93,20 @@ namespace hMailServer.Administrator
             // load the translated resources
         }
 
-        private int GetSelectedAlgorithm()
+        private hMailServer.ePasswordHashAlgorithm GetSelectedAlgorithm()
         {
            object selected = comboAlgorithm.SelectedValue;
 
            if (selected == null)
-              return AlgorithmArgon2id;
+              return hMailServer.ePasswordHashAlgorithm.ePWHashArgon2id;
 
-           return (int) selected;
+           return (hMailServer.ePasswordHashAlgorithm) selected;
         }
 
         private void EnableDisable()
         {
            // The memory cost only means something to Argon2id.
-           textMemoryCost.Enabled = GetSelectedAlgorithm() == AlgorithmArgon2id;
+           textMemoryCost.Enabled = GetSelectedAlgorithm() == hMailServer.ePasswordHashAlgorithm.ePWHashArgon2id;
         }
 
         private void comboAlgorithm_SelectedIndexChanged(object sender, EventArgs e)

@@ -24,8 +24,8 @@ namespace RegressionTests.Security
       // The password the test suite itself authenticates the API session with.
       private const string AdministratorPassword = "testar";
 
-      private const int AlgorithmArgon2id = 1;
-      private const int AlgorithmPbkdf2Sha256 = 2;
+      private const ePasswordHashAlgorithm AlgorithmArgon2id = ePasswordHashAlgorithm.ePWHashArgon2id;
+      private const ePasswordHashAlgorithm AlgorithmPbkdf2Sha256 = ePasswordHashAlgorithm.ePWHashPBKDF2SHA256;
 
       private const int DefaultArgon2idMemoryCost = 19456;
       private const int DefaultArgon2idIterations = 2;
@@ -35,11 +35,11 @@ namespace RegressionTests.Security
       private const int EncryptionMd5 = 2;
 
       // Must match PasswordHasher::Constants in the server.
-      private const int MinArgon2idMemoryCost = 8192;
+      private const int MinArgon2idMemoryCost = 4096;
       private const int MaxArgon2idMemoryCost = 1048576;
-      private const int MinArgon2idIterations = 2;
+      private const int MinArgon2idIterations = 1;
       private const int MaxArgon2idIterations = 20;
-      private const int MinPbkdf2Iterations = 100000;
+      private const int MinPbkdf2Iterations = 10000;
       private const int MaxPbkdf2Iterations = 10000000;
 
       private static string EncodeBase64(string s)
@@ -121,6 +121,27 @@ namespace RegressionTests.Security
          SingletonProvider<TestSetup>.Instance.GetApp().Settings.Cache.Clear();
       }
 
+      private void SetArgon2idHashing(int iterations, int memoryCostKb)
+      {
+         // The algorithm must be written before the iteration count - the iteration
+         // count's valid range is read against whichever algorithm is configured
+         // right now (InterfaceSettings::put_PasswordHashIterations). All three
+         // properties are set together so a test can never be left running against a
+         // stale memory cost or iteration count left over from a previous test.
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+         _settings.PasswordHashIterations = iterations;
+         _settings.PasswordHashMemoryCost = memoryCostKb;
+      }
+
+      private void SetPbkdf2Sha256Hashing(int iterations)
+      {
+         // Memory cost means nothing to PBKDF2, so it is reset to the sentinel here
+         // rather than left at whatever an Argon2id test set it to.
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         _settings.PasswordHashIterations = iterations;
+         _settings.PasswordHashMemoryCost = 0;
+      }
+
       private static void OverwriteStoredPassword(Account account, string password, int passwordEncryption)
       {
          var sql = string.Format(
@@ -175,12 +196,12 @@ namespace RegressionTests.Security
       [Test]
       public void PasswordHashSettingsHaveExpectedDefaults()
       {
-         // The database scripts seed zero for cost/iterations, meaning "use the
-         // algorithm's default" - PasswordHasher resolves that at hash time, the
-         // stored setting itself stays zero.
-         Assert.AreEqual(AlgorithmArgon2id, _settings.PasswordHashAlgorithm);
+         // TestSetup configures PBKDF2-SHA256 with a low iteration count for every
+         // test, so the suite runs fast - the actual database-seeded default is
+         // Argon2id, exercised explicitly by the tests that need it.
+         Assert.AreEqual(AlgorithmPbkdf2Sha256, _settings.PasswordHashAlgorithm);
          Assert.AreEqual(0, _settings.PasswordHashMemoryCost);
-         Assert.AreEqual(0, _settings.PasswordHashIterations);
+         Assert.AreEqual(MinPbkdf2Iterations, _settings.PasswordHashIterations);
       }
 
       [Test]
@@ -214,6 +235,9 @@ namespace RegressionTests.Security
       [Test]
       public void AStrongerCostIsNotAppliedWhenAutoUpgradeIsOff()
       {
+         // Memory cost only means something to Argon2id.
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var beforeChange = GetStoredPassword();
@@ -249,7 +273,7 @@ namespace RegressionTests.Security
          LogonAndDisconnect(Address, Password);
          ClearCache();
 
-         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
       }
 
       [Test]
@@ -260,7 +284,7 @@ namespace RegressionTests.Security
 
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
-         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
       }
 
       [Test]
@@ -274,6 +298,9 @@ namespace RegressionTests.Security
 
          try
          {
+            // Memory cost only means something to Argon2id.
+            SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
             _settings.SetAdministratorPassword(AdministratorPassword);
 
             var beforeChange = ReadStoredAdministratorPassword();
@@ -301,7 +328,7 @@ namespace RegressionTests.Security
          }
          finally
          {
-            _settings.PasswordHashMemoryCost = DefaultArgon2idMemoryCost;
+            SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
             _settings.SetAdministratorPassword(AdministratorPassword);
          }
       }
@@ -315,8 +342,8 @@ namespace RegressionTests.Security
 
          var stored = ReadStoredAdministratorPassword();
 
-         Assert.IsTrue(stored.StartsWith("$argon2id$"),
-            "Expected an Argon2id hash, but got: " + stored);
+         Assert.IsTrue(stored.StartsWith("$pbkdf2-sha256$"),
+            "Expected a PBKDF2-SHA256 hash, but got: " + stored);
 
          Assert.IsNotNull(new Application().Authenticate("Administrator", AdministratorPassword));
          Assert.IsNull(new Application().Authenticate("Administrator", AdministratorPassword + "x"));
@@ -335,8 +362,10 @@ namespace RegressionTests.Security
       }
 
       [Test]
-      public void NewAccountsAreHashedUsingTheConfiguredAlgorithm()
+      public void NewAccountsAreHashedUsingArgon2idWhenSelected()
       {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var storedPassword = GetStoredPassword();
@@ -348,7 +377,7 @@ namespace RegressionTests.Security
       [Test]
       public void NewAccountsAreHashedUsingPbkdf2WhenSelected()
       {
-         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         SetPbkdf2Sha256Hashing(MinPbkdf2Iterations);
 
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
@@ -405,6 +434,8 @@ namespace RegressionTests.Security
       [Test]
       public void LegacyPasswordsAreRehashedOnLogon()
       {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var md5 = _application.Utilities.MD5(Password);
@@ -447,6 +478,8 @@ namespace RegressionTests.Security
       [Test]
       public void AStrongerCostCausesARehashOnLogon()
       {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var beforeChange = GetStoredPassword();
@@ -473,7 +506,7 @@ namespace RegressionTests.Security
       {
          // Lowering the cost is as deliberate a decision as raising it, so the stored
          // hashes are expected to follow it down as well as up.
-         _settings.PasswordHashMemoryCost = 32768;
+         SetArgon2idHashing(DefaultArgon2idIterations, 32768);
 
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
@@ -496,7 +529,7 @@ namespace RegressionTests.Security
       [Test]
       public void ALowerIterationCountAlsoCausesARehashOnLogon()
       {
-         _settings.PasswordHashIterations = 6;
+         SetArgon2idHashing(6, DefaultArgon2idMemoryCost);
 
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
@@ -519,11 +552,13 @@ namespace RegressionTests.Security
       [Test]
       public void ChangingTheAlgorithmCausesARehashOnLogon()
       {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
 
-         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         SetPbkdf2Sha256Hashing(MinPbkdf2Iterations);
          ClearCache();
 
          LogonAndDisconnect(Address, Password);
@@ -596,8 +631,8 @@ namespace RegressionTests.Security
 
          var storedPassword = GetStoredPassword();
          Assert.AreNotEqual(Password, storedPassword);
-         Assert.IsTrue(storedPassword.StartsWith("$argon2id$"),
-            "Expected an Argon2id hash after the rehash, but got: " + storedPassword);
+         Assert.IsTrue(storedPassword.StartsWith("$pbkdf2-sha256$"),
+            "Expected a PBKDF2-SHA256 hash after the rehash, but got: " + storedPassword);
       }
 
       [Test]
@@ -626,8 +661,8 @@ namespace RegressionTests.Security
       {
          // This is the Fix 1 regression test. Plaintext and Blowfish accounts compare
          // case-insensitively, so a client that has always used one casing keeps
-         // working through the migration to Argon2id - which is case sensitive - only
-         // if the exact casing the client sent is what gets hashed and stored, not the
+         // working through the migration to a case-sensitive KDF hash only if the
+         // exact casing the client sent is what gets hashed and stored, not the
          // casing that happened to be recorded when the account was created.
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
@@ -641,7 +676,7 @@ namespace RegressionTests.Security
          LogonAndDisconnect(Address, differentCasing);
          ClearCache();
 
-         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
 
          // The casing that was actually used to log on - not the originally stored
          // casing - must keep working after the rehash.
@@ -655,6 +690,8 @@ namespace RegressionTests.Security
          // used one casing keeps working through the migration to Argon2id - which is
          // case sensitive - only if the exact casing the client sent is what gets
          // hashed and stored, not the casing that happened to be recorded originally.
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
 
          var blowfish = _application.Utilities.BlowfishEncrypt(Password);
@@ -748,15 +785,21 @@ namespace RegressionTests.Security
       }
 
       [Test]
-      public void Argon2idIterationsBelowTheMinimumIsRejected()
+      public void Argon2idIterationsNegativeIsRejected()
       {
-         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = MinArgon2idIterations - 1);
-         StringAssert.Contains("Invalid password hash iteration count", ex.Message);
+         // 0 is the reserved sentinel for "use the recommended default", so with a
+         // minimum of 1 there is no non-sentinel value below the minimum to test.
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = -1);
+         StringAssert.Contains("cannot be negative", ex.Message);
       }
 
       [Test]
       public void Argon2idIterationsAtTheMinimumIsAccepted()
       {
+         // The valid range is read against whichever algorithm is configured right
+         // now, so this has to select Argon2id before testing its range.
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
          _settings.PasswordHashIterations = MinArgon2idIterations;
          Assert.AreEqual(MinArgon2idIterations, _settings.PasswordHashIterations);
       }
@@ -764,6 +807,8 @@ namespace RegressionTests.Security
       [Test]
       public void Argon2idIterationsAboveTheMaximumIsRejected()
       {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
          var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = MaxArgon2idIterations + 1);
          StringAssert.Contains("Invalid password hash iteration count", ex.Message);
       }
@@ -771,6 +816,8 @@ namespace RegressionTests.Security
       [Test]
       public void Argon2idIterationsAtTheMaximumIsAccepted()
       {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
          _settings.PasswordHashIterations = MaxArgon2idIterations;
          Assert.AreEqual(MaxArgon2idIterations, _settings.PasswordHashIterations);
       }
@@ -814,6 +861,7 @@ namespace RegressionTests.Security
       [Test]
       public void IterationsZeroIsStillAcceptedForBothAlgorithms()
       {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
          _settings.PasswordHashIterations = 6;
          _settings.PasswordHashIterations = 0;
          Assert.AreEqual(0, _settings.PasswordHashIterations);

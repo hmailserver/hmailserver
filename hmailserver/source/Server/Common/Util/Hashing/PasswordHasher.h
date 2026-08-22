@@ -45,11 +45,11 @@ namespace HM
          // IOCP worker thread. Enforced both at the COM boundary (InterfaceSettings,
          // the choke point every admin tool goes through) and again defensively here,
          // so that a value written straight to hm_settings can't produce a weak hash.
-         MinArgon2idMemoryCostKb = 8192,
+         MinArgon2idMemoryCostKb = 4096,
          MaxArgon2idMemoryCostKb = 1048576,
-         MinArgon2idIterations = 2,
+         MinArgon2idIterations = 1,
          MaxArgon2idIterations = 20,
-         MinPBKDF2Iterations = 100000,
+         MinPBKDF2Iterations = 10000,
          MaxPBKDF2Iterations = 10000000,
 
          SaltLength = 16,

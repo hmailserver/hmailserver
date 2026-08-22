@@ -123,8 +123,8 @@ namespace hMailServer.Administrator
             this.labelValidRanges.Name = "labelValidRanges";
             this.labelValidRanges.Size = new System.Drawing.Size(300, 13);
             this.labelValidRanges.TabIndex = 8;
-            this.labelValidRanges.Text = "Valid ranges: Argon2id memory 8192-1048576 KiB, iterations 2-20; PBKDF2-SHA256" +
-    " iterations 100000-10000000.";
+            this.labelValidRanges.Text = "Valid ranges: Argon2id memory 4096-1048576 KiB, iterations 1-20; PBKDF2-SHA256" +
+    " iterations 10000-10000000.";
             //
             // checkAutoUpgrade
             //

@@ -2687,14 +2687,14 @@ STDMETHODIMP InterfaceSettings::put_CreateDefaultSpecialUseFoldersEnabled(VARIAN
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_PasswordHashAlgorithm(long *pVal)
+STDMETHODIMP InterfaceSettings::get_PasswordHashAlgorithm(ePasswordHashAlgorithm *pVal)
 {
    try
    {
       if (!config_)
          return GetAccessDenied();
 
-      *pVal = config_->GetPasswordHashAlgorithm();
+      *pVal = static_cast<ePasswordHashAlgorithm>(config_->GetPasswordHashAlgorithm());
 
       return S_OK;
    }
@@ -2704,15 +2704,15 @@ STDMETHODIMP InterfaceSettings::get_PasswordHashAlgorithm(long *pVal)
    }
 }
 
-STDMETHODIMP InterfaceSettings::put_PasswordHashAlgorithm(long newVal)
+STDMETHODIMP InterfaceSettings::put_PasswordHashAlgorithm(ePasswordHashAlgorithm newVal)
 {
    try
    {
       if (!config_)
          return GetAccessDenied();
 
-      if (newVal != HM::PasswordHasher::AlgorithmArgon2id &&
-          newVal != HM::PasswordHasher::AlgorithmPBKDF2SHA256)
+      if (newVal != ePWHashArgon2id &&
+          newVal != ePWHashPBKDF2SHA256)
       {
          return COMError::GenerateError("Invalid password hash algorithm. Valid values are 1 (Argon2id) and 2 (PBKDF2-SHA256).");
       }
@@ -2761,7 +2761,7 @@ STDMETHODIMP InterfaceSettings::put_PasswordHashMemoryCost(long newVal)
       if (newVal != 0 &&
           (newVal < HM::PasswordHasher::MinArgon2idMemoryCostKb || newVal > HM::PasswordHasher::MaxArgon2idMemoryCostKb))
       {
-         return COMError::GenerateError("Invalid password hash memory cost. Valid values are 0 (recommended default) or 8192-1048576 KiB.");
+         return COMError::GenerateError("Invalid password hash memory cost. Valid values are 0 (recommended default) or 4096-1048576 KiB.");
       }
 
       config_->SetPasswordHashMemoryCost(newVal);
@@ -2811,12 +2811,12 @@ STDMETHODIMP InterfaceSettings::put_PasswordHashIterations(long newVal)
          if (HM::PasswordHasher::GetConfiguredAlgorithm() == HM::PasswordHasher::AlgorithmPBKDF2SHA256)
          {
             if (newVal < HM::PasswordHasher::MinPBKDF2Iterations || newVal > HM::PasswordHasher::MaxPBKDF2Iterations)
-               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 100000-10000000 for PBKDF2-SHA256.");
+               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 10000-10000000 for PBKDF2-SHA256.");
          }
          else
          {
             if (newVal < HM::PasswordHasher::MinArgon2idIterations || newVal > HM::PasswordHasher::MaxArgon2idIterations)
-               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 2-20 for Argon2id.");
+               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 1-20 for Argon2id.");
          }
       }
 

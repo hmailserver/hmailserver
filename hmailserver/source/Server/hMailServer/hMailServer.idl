@@ -514,6 +514,17 @@ typedef
 	eSUTrash = 16,
 } eSpecialUse;
 
+typedef
+[uuid(90745436-4C3F-11D9-AD17-A0BCEA20CD16),
+	helpstring("Password hashing algorithm")]
+	enum
+{
+	[helpstring("Argon2id")]
+	ePWHashArgon2id = 1,
+	[helpstring("PBKDF2-SHA256")]
+	ePWHashPBKDF2SHA256 = 2,
+} ePasswordHashAlgorithm;
+
 //
 // ENUMS END
 //
@@ -715,8 +726,8 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(108), helpstring("Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts.")] HRESULT CreateDefaultSpecialUseFoldersEnabled([in] VARIANT_BOOL newVal);
 
-   [propget, id(109), helpstring("Algorithm used when hashing account passwords. 1 = Argon2id, 2 = PBKDF2-SHA256.")] HRESULT PasswordHashAlgorithm([out, retval] long *pVal);
-   [propput, id(109), helpstring("Algorithm used when hashing account passwords. 1 = Argon2id, 2 = PBKDF2-SHA256.")] HRESULT PasswordHashAlgorithm([in] long newVal);
+   [propget, id(109), helpstring("Algorithm used when hashing account passwords.")] HRESULT PasswordHashAlgorithm([out, retval] ePasswordHashAlgorithm *pVal);
+   [propput, id(109), helpstring("Algorithm used when hashing account passwords.")] HRESULT PasswordHashAlgorithm([in] ePasswordHashAlgorithm newVal);
 
    [propget, id(110), helpstring("Memory cost in kilobytes used when hashing account passwords with Argon2id. 0 means the recommended default.")] HRESULT PasswordHashMemoryCost([out, retval] long *pVal);
    [propput, id(110), helpstring("Memory cost in kilobytes used when hashing account passwords with Argon2id. 0 means the recommended default.")] HRESULT PasswordHashMemoryCost([in] long newVal);
