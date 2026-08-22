@@ -18,8 +18,6 @@ namespace HM
       bool GetIsDownloded() {return is_downloaded_; }
       static void LoadEnglish();
 
-      bool Download();
-
    private:
       
       String name_;

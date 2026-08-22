@@ -2107,7 +2107,6 @@ interface IInterfaceLanguage : IDispatch{
    [propget, id(1), helpstring("A string")] HRESULT String([in] BSTR EnglishString, [out, retval] BSTR *pVal);
    [propget, id(2), helpstring("Name of the language")] HRESULT Name([out, retval] BSTR *pVal);
    [propget, id(3), helpstring("Gets whether the language has been downloaded.")] HRESULT IsDownloaded([out, retval] VARIANT_BOOL *pVal);
-   [id(4), helpstring("Not implemented: Downlods the translation from hMailServer.com.")] HRESULT Download();
 };
 [
 	object,

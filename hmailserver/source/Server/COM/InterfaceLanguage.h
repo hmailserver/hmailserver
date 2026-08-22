@@ -51,8 +51,7 @@ public:
    STDMETHOD(get_Name)(BSTR *pVal);
    STDMETHOD(get_String)(BSTR EnglishString, BSTR *pVal);
    STDMETHOD(get_IsDownloaded)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(Download)(); 
-   
+
 private:
 
    std::shared_ptr<HM::Language> language_;
