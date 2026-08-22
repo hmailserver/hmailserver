@@ -22,7 +22,7 @@ is_book: false
 
 ### Algorithm
 
-<div class="indented">The key derivation function used to hash passwords. Argon2id is the recommended default. PBKDF2-SHA256 is provided for compatibility with environments that require FIPS-validated cryptography.</div>
+<div class="indented">The key derivation function used to hash passwords. Argon2id is the recommended default: it deliberately uses a chunk of memory as well as CPU time for each hash, which makes large-scale password cracking (e.g. on GPUs) much more expensive. PBKDF2-SHA256 uses CPU time only, with no memory cost - it is lighter on the server but easier to attack at scale, so it's mainly provided for compatibility with environments that require FIPS-validated cryptography.</div>
 
 ### Memory cost (kilobytes)
 

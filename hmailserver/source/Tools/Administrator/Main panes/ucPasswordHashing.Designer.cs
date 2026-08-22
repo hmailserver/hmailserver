@@ -35,6 +35,8 @@ namespace hMailServer.Administrator
             this.labelIterations = new System.Windows.Forms.Label();
             this.textIterations = new hMailServer.Shared.ucText();
             this.labelZeroHint = new System.Windows.Forms.Label();
+            this.labelRecommendedValues = new System.Windows.Forms.Label();
+            this.labelValidRanges = new System.Windows.Forms.Label();
             this.checkAutoUpgrade = new hMailServer.Administrator.Controls.ucCheckbox();
             this.SuspendLayout();
             //
@@ -100,18 +102,37 @@ namespace hMailServer.Administrator
             this.labelZeroHint.AutoSize = true;
             this.labelZeroHint.Location = new System.Drawing.Point(7, 146);
             this.labelZeroHint.Name = "labelZeroHint";
-            this.labelZeroHint.Size = new System.Drawing.Size(300, 13);
+            this.labelZeroHint.Size = new System.Drawing.Size(140, 13);
             this.labelZeroHint.TabIndex = 6;
-            this.labelZeroHint.Text = "0 selects the recommended value. Valid ranges: Argon2id memory 8192-1048576 K" +
-    "iB, iterations 2-20; PBKDF2-SHA256 iterations 100000-10000000";
+            this.labelZeroHint.Text = "0 selects the recommended value.";
+            //
+            // labelRecommendedValues
+            //
+            this.labelRecommendedValues.AutoSize = true;
+            this.labelRecommendedValues.Location = new System.Drawing.Point(7, 161);
+            this.labelRecommendedValues.Name = "labelRecommendedValues";
+            this.labelRecommendedValues.Size = new System.Drawing.Size(300, 13);
+            this.labelRecommendedValues.TabIndex = 7;
+            this.labelRecommendedValues.Text = "Recommended values: Argon2id 19456 KiB memory / 2 iterations, PBKDF2-SHA256 60" +
+    "0000 iterations.";
+            //
+            // labelValidRanges
+            //
+            this.labelValidRanges.AutoSize = true;
+            this.labelValidRanges.Location = new System.Drawing.Point(7, 176);
+            this.labelValidRanges.Name = "labelValidRanges";
+            this.labelValidRanges.Size = new System.Drawing.Size(300, 13);
+            this.labelValidRanges.TabIndex = 8;
+            this.labelValidRanges.Text = "Valid ranges: Argon2id memory 8192-1048576 KiB, iterations 2-20; PBKDF2-SHA256" +
+    " iterations 100000-10000000.";
             //
             // checkAutoUpgrade
             //
             this.checkAutoUpgrade.AutoSize = true;
-            this.checkAutoUpgrade.Location = new System.Drawing.Point(10, 173);
+            this.checkAutoUpgrade.Location = new System.Drawing.Point(10, 203);
             this.checkAutoUpgrade.Name = "checkAutoUpgrade";
             this.checkAutoUpgrade.Size = new System.Drawing.Size(260, 17);
-            this.checkAutoUpgrade.TabIndex = 7;
+            this.checkAutoUpgrade.TabIndex = 9;
             this.checkAutoUpgrade.Text = "Upgrade stored passwords during logon";
             this.checkAutoUpgrade.UseVisualStyleBackColor = true;
             //
@@ -120,6 +141,8 @@ namespace hMailServer.Administrator
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.checkAutoUpgrade);
+            this.Controls.Add(this.labelValidRanges);
+            this.Controls.Add(this.labelRecommendedValues);
             this.Controls.Add(this.labelZeroHint);
             this.Controls.Add(this.textIterations);
             this.Controls.Add(this.labelIterations);
@@ -143,6 +166,8 @@ namespace hMailServer.Administrator
         private System.Windows.Forms.Label labelIterations;
         private hMailServer.Shared.ucText textIterations;
         private System.Windows.Forms.Label labelZeroHint;
+        private System.Windows.Forms.Label labelRecommendedValues;
+        private System.Windows.Forms.Label labelValidRanges;
         private Controls.ucCheckbox checkAutoUpgrade;
 
     }
