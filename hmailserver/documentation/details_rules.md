@@ -2,7 +2,7 @@
 id: 426
 title: "Rule details"
 slug: details_rules
-parent: null
+parent: reference_rule
 index: 0
 is_book: false
 updated: 2009-07-03
