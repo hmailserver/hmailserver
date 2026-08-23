@@ -36,6 +36,9 @@ namespace HM
       bool Initialize(std::weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
 
+      void Close();
+      // Releases the handle to the file the received data is written to.
+
       void SetMaxSizeKB(size_t maxSize);
       
       std::shared_ptr<ByteBuffer> GetBuffer() 
