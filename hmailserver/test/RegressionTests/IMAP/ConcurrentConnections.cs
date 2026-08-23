@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -150,6 +151,164 @@ namespace RegressionTests.IMAP
          CustomAsserts.AssertNoReportedError();
 
          Assert.IsEmpty(failures, string.Join(Environment.NewLine, failures));
+      }
+
+      private const int RefreshRaceReaderCount = 4;
+      private const int RefreshRacePreloadedMessageCount = 3000;
+      private static readonly TimeSpan RefreshRaceDuration = TimeSpan.FromSeconds(60);
+
+      private class RefreshRaceState
+      {
+         // Only counts messages the server has already acknowledged as stored.
+         public int CommittedCount;
+         public int Examines;
+         public int Appends;
+         public int Selects;
+      }
+
+      [Test]
+      [Explicit("Stress test - long running, run manually.")]
+      [Description(
+         "EXAMINE must never report fewer messages than the server has already acknowledged storing, " +
+         "no matter what other connections are doing to the same folder.")]
+      public void ConcurrentExamineReportsEveryAcknowledgedMessage()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         PreloadMessages(account.Address, RefreshRacePreloadedMessageCount);
+
+         var failures = new List<string>();
+         var state = new RefreshRaceState { CommittedCount = RefreshRacePreloadedMessageCount };
+         var deadline = DateTime.UtcNow + RefreshRaceDuration;
+         var threads = new List<Thread>();
+
+         for (var i = 0; i < RefreshRaceReaderCount; i++)
+            threads.Add(new Thread(() => RepeatedlyExamineAndCheckCount(account.Address, deadline, failures, state)));
+
+         threads.Add(new Thread(() => RepeatedlyAppendWithoutSelecting(account.Address, deadline, failures, state)));
+
+         // A concurrent SELECT loop, which is slow on a large folder, is what makes the timing
+         // window wide enough to hit.
+         threads.Add(new Thread(() => RepeatedlySelectInbox(account.Address, deadline, failures, state)));
+
+         foreach (var thread in threads)
+            thread.Start();
+
+         foreach (var thread in threads)
+            thread.Join();
+
+         TestContext.WriteLine("Refresh flag race: {0} EXAMINEs, {1} APPENDs, {2} SELECTs over {3}, {4} preloaded messages.",
+            state.Examines, state.Appends, state.Selects, RefreshRaceDuration, RefreshRacePreloadedMessageCount);
+
+         Assert.IsEmpty(failures, string.Join(Environment.NewLine, failures));
+      }
+
+      private static void RepeatedlyExamineAndCheckCount(string address, DateTime deadline, List<string> failures,
+         RefreshRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Reader could not log on.");
+               return;
+            }
+
+            while (DateTime.UtcNow < deadline)
+            {
+               // Read the committed count first, so every message it counts was already stored
+               // when this EXAMINE was sent.
+               var expectedAtLeast = Interlocked.CompareExchange(ref state.CommittedCount, 0, 0);
+
+               var actual = ParseExists(simulator.ExamineFolder("INBOX"));
+
+               Interlocked.Increment(ref state.Examines);
+
+               if (actual < expectedAtLeast)
+               {
+                  Record(failures, string.Format("EXAMINE reported {0} EXISTS, but {1} messages were already stored.",
+                     actual, expectedAtLeast));
+                  return;
+               }
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Reader aborted: " + ex.Message);
+         }
+      }
+
+      private static void RepeatedlyAppendWithoutSelecting(string address, DateTime deadline, List<string> failures,
+         RefreshRaceState state)
+      {
+         try
+         {
+            // This connection never selects a folder, so its APPENDs mark the folder as needing a
+            // refresh without performing one.
+            var simulator = new ImapClientSimulator();
+            simulator.Connect();
+            simulator.LogonWithLiteral(address, "test");
+
+            while (DateTime.UtcNow < deadline)
+            {
+               simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
+
+               Interlocked.Increment(ref state.CommittedCount);
+               Interlocked.Increment(ref state.Appends);
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Writer aborted: " + ex.Message);
+         }
+      }
+
+      private static void RepeatedlySelectInbox(string address, DateTime deadline, List<string> failures,
+         RefreshRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Lock holder could not log on.");
+               return;
+            }
+
+            while (DateTime.UtcNow < deadline)
+            {
+               if (!simulator.SelectFolderWithoutLiteral("INBOX"))
+               {
+                  Record(failures, "Lock holder could not select INBOX.");
+                  return;
+               }
+
+               Interlocked.Increment(ref state.Selects);
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Lock holder aborted: " + ex.Message);
+         }
+      }
+
+      private static int ParseExists(string response)
+      {
+         var match = Regex.Match(response, @"^\* (\d+) EXISTS", RegexOptions.Multiline);
+
+         if (!match.Success)
+            throw new InvalidOperationException("No EXISTS in EXAMINE response: " + response);
+
+         return int.Parse(match.Groups[1].Value);
       }
 
       private static void RepeatedlyExpungeFirstMessage(string address, DateTime deadline, List<string> failures,

@@ -40,8 +40,13 @@ namespace HM
 
       std::shared_ptr<Messages> GetMessages(bool update_recent_flags) 
       { 
+         // Held across the refresh, so a second caller waits for it rather than returning a
+         // folder which has only been partially loaded.
+         boost::lock_guard<boost::recursive_mutex> guard(refresh_mutex_);
+
          if (refresh_needed_)
          {
+            // Cleared before the refresh, so a change made while it runs isn't swallowed.
             refresh_needed_ = false;
 
             messages_->Refresh(update_recent_flags);
@@ -52,6 +57,8 @@ namespace HM
 
       void SetRefreshNeeded()
       {
+         boost::lock_guard<boost::recursive_mutex> guard(refresh_mutex_);
+
          refresh_needed_ = true;
       }
 
@@ -59,5 +66,6 @@ namespace HM
 
       std::shared_ptr<Messages> messages_;
       bool refresh_needed_;
+      boost::recursive_mutex refresh_mutex_;
    };
 }
