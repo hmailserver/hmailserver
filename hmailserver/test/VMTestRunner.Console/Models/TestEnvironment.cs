@@ -4,12 +4,13 @@ namespace VMTestRunner.Console
 {
    public class TestEnvironment
    {
-      public TestEnvironment(string operatingSystem, string description, string vmName, string snapshotName)
+      public TestEnvironment(string operatingSystem, string description, string vmName, string snapshotName, bool includeStressTests)
       {
          VMName = vmName;
          SnapshotName = snapshotName;
          OperatingSystem = operatingSystem;
          Description = description;
+         IncludeStressTests = includeStressTests;
       }
 
       public string OperatingSystem { get; }
@@ -19,6 +20,8 @@ namespace VMTestRunner.Console
       public string SnapshotName { get; }
 
       public string VMName { get; }
+
+      public bool IncludeStressTests;
 
       public List<InstallCommand> PostInstallCommands { get; } = new List<InstallCommand>();
 

@@ -116,6 +116,7 @@
     <Compile Include="Infrastructure\Timeouts.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />
+    <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

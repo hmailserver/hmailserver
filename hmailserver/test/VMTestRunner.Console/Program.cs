@@ -62,7 +62,7 @@ namespace VMTestRunner.Console
                {
                   localIndex = ++testIndex;
 
-                  Logger.Info($"{localIndex}/{listEnvironments.Count} - Test: {environment.Description} on {environment.OperatingSystem}. VM: {environment.VMName} (Snapshot: {environment.SnapshotName})");
+                  Logger.Info($"{localIndex}/{listEnvironments.Count} - Test: {environment.Description} on {environment.OperatingSystem}. VM: {environment.VMName} (Snapshot: {environment.SnapshotName}), Include stress tests: {environment.IncludeStressTests}");
                }
 
                var runner = new TestRunner(environment, softwareUnderTest, localIndex);

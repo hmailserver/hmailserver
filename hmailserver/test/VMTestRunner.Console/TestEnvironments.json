@@ -97,7 +97,8 @@
         "parameters": "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123"
       }
     ],
-    "postInstallFileCopy": []
+    "postInstallFileCopy": [],
+    "includeStressTests": true 
   },
   {
     "operatingSystem": "Windows 10",
