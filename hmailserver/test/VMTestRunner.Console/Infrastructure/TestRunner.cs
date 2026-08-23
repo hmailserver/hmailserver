@@ -124,11 +124,11 @@ namespace VMTestRunner.Console
             // Run NUnit
             if (_environment.IncludeStressTests)
             {
-               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
+               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
             }
             else
             {
-               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
+               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
             }
 
             // Collect results.
