@@ -76,7 +76,8 @@ namespace RegressionTests.SMTP
 
          var text = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, Password);
          StringAssert.Contains(
-            "X-Original-Rcpt-To: my-alias@example.test,test1@example.test,test2@example.test" + Environment.NewLine,
+            "X-Original-Rcpt-To: my-alias@example.test,test1@example.test," + Environment.NewLine +
+            "\ttest2@example.test" + Environment.NewLine,
             text);
       }
 
