@@ -3,6 +3,8 @@
 
 using System;
 using System.ServiceProcess;
+using System.Text;
+using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -41,6 +43,62 @@ namespace RegressionTests.AntiSpam
 
       private Account account;
 
+
+      [Test]
+      [Description("Issue 533, message file kept open when the end-of-data sequence arrives in a packet of its own")]
+      public void TerminatingDotInSeparatePacketShouldNotLeaveMessageFileOpen()
+      {
+         // The transmission buffer writes its content to the message file when it holds more
+         // than 40000 bytes. The message below is sent in two chunks, where the second one
+         // pushes the buffer past that limit and ends with a line break. Everything received
+         // has then been written to the message file, and the buffer is empty when the
+         // terminating <CRLF>.<CRLF> is received in a packet of its own.
+         //
+         // hMailServer used to keep the message file open for writing in that situation, which
+         // made the spam tests below unable to add the Return-Path header to the message and
+         // unable to replace the message file with the SpamAssassin result.
+         var connection = new TcpConnection();
+         Assert.IsTrue(connection.Connect(25));
+         Assert.IsTrue(connection.Receive().StartsWith("220"));
+         Assert.IsTrue(connection.SendAndReceive("HELO example.com\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("MAIL FROM:<" + account.Address + ">\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("RCPT TO:<" + account.Address + ">\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("DATA\r\n").StartsWith("354"));
+
+         var firstChunk = new StringBuilder();
+         firstChunk.Append("From: " + account.Address + "\r\n");
+         firstChunk.Append("To: " + account.Address + "\r\n");
+         firstChunk.Append("Subject: SA test\r\n");
+         firstChunk.Append("\r\n");
+
+         // Stay below the 40000 byte limit, so that nothing has been written to the message
+         // file when the second chunk is sent.
+         while (firstChunk.Length < 39800)
+            firstChunk.Append("This is a test message which is sent in several packets.\r\n");
+
+         connection.Send(firstChunk.ToString());
+         Thread.Sleep(1000);
+
+         var secondChunk = new StringBuilder();
+         while (secondChunk.Length < 300)
+            secondChunk.Append("Second chunk of the test message.\r\n");
+
+         connection.Send(secondChunk.ToString());
+         Thread.Sleep(1000);
+
+         connection.Send(".\r\n");
+         Assert.IsTrue(connection.Receive().StartsWith("250"));
+
+         connection.SendAndReceive("QUIT\r\n");
+         connection.Disconnect();
+
+         var messageContents = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(messageContents.Contains("Second chunk of the test message."), messageContents);
+         Assert.IsTrue(messageContents.Contains("X-Spam-Status"), "SpamAssassin did not run");
+
+         CustomAsserts.AssertNoReportedError();
+      }
 
       [Test]
       public void ItShouldBePossibleToTestSAConnectionUsingAPISuccess()
