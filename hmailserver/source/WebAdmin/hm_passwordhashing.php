@@ -77,25 +77,20 @@ function updateMemoryCostState()
                </td>
             </tr>
 
-			<?php
-				PrintPropertyEditRow("PasswordHashMemoryCost", "Memory cost (kilobytes)", $PasswordHashMemoryCost, 10, "number");
-				PrintPropertyEditRow("PasswordHashIterations", "Iterations", $PasswordHashIterations, 10, "number");
-			?>
+            <?php
+               PrintPropertyEditRow("PasswordHashMemoryCost", "Memory cost (kilobytes)", $PasswordHashMemoryCost, 10, "number");
+               PrintPropertyEditRow("PasswordHashIterations", "Iterations", $PasswordHashIterations, 10, "number");
+               PrintCheckboxRow("PasswordHashAutoUpgradeEnabled", "Upgrade stored passwords during logon", $PasswordHashAutoUpgradeEnabled);
+            ?>
 
             <tr>
                <td></td>
                <td>
-                  <small>
-                     <?php EchoTranslation("0 selects the recommended value.")?><br>
-                     <?php EchoTranslation("Recommended values: Argon2id 19456 KiB memory / 2 iterations, PBKDF2-SHA256 600000 iterations.")?><br>
-                     <?php EchoTranslation("Valid ranges: Argon2id memory 8192-1048576 KiB, iterations 2-20; PBKDF2-SHA256 iterations 100000-10000000.")?>
-                  </small>
+                  <?php EchoTranslation("0 selects the recommended value.")?><br>
+                  <?php EchoTranslation("Recommended values: Argon2id 19456 KiB memory / 2 iterations, PBKDF2-SHA256 600000 iterations.")?><br>
+                  <?php EchoTranslation("Valid ranges: Argon2id memory 8192-1048576 KiB, iterations 2-20; PBKDF2-SHA256 iterations 100000-10000000.")?>
                </td>
             </tr>
-
-			<?php
-				PrintCheckboxRow("PasswordHashAutoUpgradeEnabled", "Upgrade stored passwords during logon", $PasswordHashAutoUpgradeEnabled);
-			?>
 
       	</table>
       </div>
