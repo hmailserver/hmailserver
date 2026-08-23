@@ -8,17 +8,29 @@ is_book: false
 
 ## Operating system
 
-hMailServer can be installed in the following operating systems. The latest available Windows service pack must be installed. hMailServer has only been tested on the following operating systems. hMailServer may work on other operating system versions as well, but only the versions below are officially and regulary tested.
+hMailServer can be installed in the following operating systems. The latest available Windows service pack must be installed.
+
+### hMailServer 5.7
+
+- Microsoft Server 2022
+- Microsoft Server 2019
+- Microsoft Server 2016
+- Microsoft Server 2012
+- Microsoft Server 2008 R2
+- Microsoft Windows 11
+- Microsoft Windows 10
+- Microsoft Windows 8.X
+- Microsoft Windows 7 Service Pack 1
 
 ### hMailServer 5.6
 
-- Microsoft Server 2016 (all editions)*
-- Microsoft Server 2012 (all editions)*
-- Microsoft Server 2008 (all editions)
-- Microsoft Server 2003 (all editions)
-- Microsoft Windows 10 (all editions)*
-- Microsoft Windows 8.X (all editions)*
-- Microsoft Windows 7 (all editions)
+- Microsoft Server 2016*
+- Microsoft Server 2012*
+- Microsoft Server 2008
+- Microsoft Server 2003
+- Microsoft Windows 10*
+- Microsoft Windows 8.X*
+- Microsoft Windows 7
 - Microsoft Windows Vista
 - Microsoft Windows XP Professional Service Pack 3
 
@@ -30,34 +42,34 @@ An alternative is to use an external database with these Operating Systems.
 
 ### hMailServer 5.4 and 5.5
 
-- Microsoft Windows 2012 (all editions)
-- Microsoft Windows 2008 (all editions)
-- Microsoft Windows 2003 (all editions)
-- Microsoft Windows 7 (all editions)
+- Microsoft Windows 2012
+- Microsoft Windows 2008
+- Microsoft Windows 2003
+- Microsoft Windows 7
 - Microsoft Windows Vista
 - Microsoft Windows XP Professional
 
-<p><span style="color: green; font-size: 14px; font-weight: bold;">hMailServer 5.3.x &amp; Earlier</span></p>
+### hMailServer 5.3.x &amp; Earlier
 
 - Microsoft Windows 2008 (all editions, except for *Core*)
 - Microsoft Windows Vista
-- Microsoft Windows 2003 (all editions)
+- Microsoft Windows 2003
 - Microsoft Windows XP Professional
-- Microsoft Windows 2000 (all editions)
+- Microsoft Windows 2000
 
 ### hMailServer 4.3 and 4.4
 
-- Microsoft Windows 2003 (all editions)
+- Microsoft Windows 2003
 - Microsoft Windows XP Professional
-- Microsoft Windows 2000 (all editions)
+- Microsoft Windows 2000
 
 Windows NT support has been removed since Microsoft no longer supports this operating system.
 
 ### hMailServer 4.2
 
-- Microsoft Windows 2003 (all editions)
+- Microsoft Windows 2003
 - Microsoft Windows XP Professional
-- Microsoft Windows 2000 (all editions)
+- Microsoft Windows 2000
 - Microsoft Windows NT
 
 ## Other Software
