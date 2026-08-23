@@ -71,17 +71,12 @@ namespace hMailServer.Administrator
 
            hMailServer.Settings settings = app.Settings;
 
-           bool restartRequired = comboAlgorithm.Dirty || textMemoryCost.Dirty || textIterations.Dirty;
-
            settings.PasswordHashAlgorithm = GetSelectedAlgorithm();
            settings.PasswordHashMemoryCost = textMemoryCost.Number;
            settings.PasswordHashIterations = textIterations.Number;
            settings.PasswordHashAutoUpgradeEnabled = checkAutoUpgrade.Checked;
 
            Marshal.ReleaseComObject(settings);
-
-           if (restartRequired)
-              Utility.AskRestartServer();
 
            DirtyChecker.SetClean(this);
            return true;
