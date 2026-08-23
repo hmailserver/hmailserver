@@ -35,3 +35,5 @@ is_book: false
 ### Upgrade stored passwords during logon
 
 <div class="indented">When enabled, an account's stored password hash is transparently re-hashed with the current algorithm and cost the next time the account logs on successfully, if it was hashed with a different algorithm or a lower cost.</div>
+
+<div class="indented">The administrator password is an exception: if it is still stored using an older scheme, it is replaced on the next successful logon even when this setting is off.</div>

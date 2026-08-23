@@ -88,7 +88,7 @@ function updateMemoryCostState()
                <td>
                   <?php EchoTranslation("0 selects the recommended value.")?><br>
                   <?php EchoTranslation("Recommended values: Argon2id 19456 KiB memory / 2 iterations, PBKDF2-SHA256 600000 iterations.")?><br>
-                  <?php EchoTranslation("Valid ranges: Argon2id memory 8192-1048576 KiB, iterations 2-20; PBKDF2-SHA256 iterations 100000-10000000.")?>
+                  <?php EchoTranslation("Valid ranges: Argon2id memory 4096-1048576 KiB, iterations 1-20; PBKDF2-SHA256 iterations 10000-10000000.")?>
                </td>
             </tr>
 

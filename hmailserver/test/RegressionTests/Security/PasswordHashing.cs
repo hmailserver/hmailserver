@@ -291,9 +291,11 @@ namespace RegressionTests.Security
       public void TheAdministratorPasswordIsNotRehashedWhenAutoUpgradeIsOff()
       {
          // The administrator account has a logon path of its own, in COMAuthentication,
-         // rather than going through PasswordValidator. It has to honour the same
-         // opt-out: an administrator who switched the upgrade off - to decide when the
-         // migration happens - should not find this password migrated behind their back.
+         // rather than going through PasswordValidator. A stored hash that already uses
+         // the current scheme, and only differs in cost, honours the same opt-out: an
+         // administrator who switched the upgrade off - to decide when the migration
+         // happens - should not find this password migrated behind their back. A legacy
+         // hash is the exception, and is always replaced.
          RequireKnownAdministratorPassword();
 
          try

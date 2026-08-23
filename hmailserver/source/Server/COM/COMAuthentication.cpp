@@ -40,6 +40,7 @@ namespace HM
 
          bool passwordValid = false;
          bool rehashRequired = false;
+         bool legacyHash = false;
 
          if (sPasswordCorrect.IsEmpty())
          {
@@ -66,23 +67,32 @@ namespace HM
                // is not locked out of the server.
                passwordValid = HM::Crypt::Instance()->Validate(sPassword, sPasswordCorrect, type);
                rehashRequired = passwordValid;
+               legacyHash = passwordValid;
             }
          }
 
          if (passwordValid)
          {
-            // Migrating during logon is opt-in, exactly as it is for regular accounts
-            // in PasswordValidator::RehashPasswordIfNeeded_. An administrator who has
-            // switched the upgrade off - to control when the migration happens - should
-            // not have this password migrated behind their back either.
-            //
-            // GetPasswordHashAutoUpgrade also answers false while the settings are
-            // unavailable. DBUpdater authenticates before it upgrades the database, and
-            // at that point the configured algorithm and cost cannot be read - re-hashing
-            // would silently pick the built in defaults instead. A later logon migrates
-            // it properly.
-            if (rehashRequired && Configuration::Instance()->GetPasswordHashAutoUpgrade())
-               HM::IniFileSettings::Instance()->SetAdministratorPassword(sPassword);
+            // Nothing is migrated while the settings are unavailable. DBUpdater
+            // authenticates before it upgrades the database, and at that point the
+            // configured algorithm and cost cannot be read - re-hashing would silently
+            // pick the built in defaults instead. A later logon migrates it properly.
+            if (rehashRequired && Configuration::Instance()->IsLoaded())
+            {
+               // A legacy hash is always replaced, whatever the auto-upgrade setting
+               // says. That setting exists to control the cost of migrating every
+               // account at once; there is only ever one administrator password, and
+               // the installer still writes it as an unsalted MD5 hash. Leaving that
+               // in hMailServer.ini until somebody happens to switch the setting on
+               // would defeat the point of hashing it at all.
+               //
+               // A hash that is already a PHC string, and only differs in cost, is a
+               // different matter - that one follows the setting, so an administrator
+               // who switched the upgrade off to control when the migration happens
+               // does not find this password migrated behind their back.
+               if (legacyHash || Configuration::Instance()->GetPasswordHashAutoUpgrade())
+                  HM::IniFileSettings::Instance()->SetAdministratorPassword(sPassword);
+            }
 
             // Create a dummy account since the administrator
             // does not have a real email account.
