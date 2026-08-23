@@ -17,6 +17,8 @@ namespace HM
 
       virtual void AddItem(std::shared_ptr<T> pObject)
       {
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
          vecObjects.push_back(pObject);
       }
 
@@ -35,7 +37,12 @@ namespace HM
       std::vector<std::shared_ptr<T> > &GetVector() {return vecObjects; }
       const std::vector<std::shared_ptr<T> > &GetConstVector() const {return vecObjects; }
 
-      int GetCount() const {return (int) vecObjects.size(); }
+      int GetCount() const
+      {
+         boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+         return (int) vecObjects.size();
+      }
 
 
    protected:
