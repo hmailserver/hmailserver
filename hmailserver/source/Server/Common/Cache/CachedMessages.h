@@ -46,10 +46,11 @@ namespace HM
 
          if (refresh_needed_)
          {
-            // Cleared before the refresh, so a change made while it runs isn't swallowed.
-            refresh_needed_ = false;
-
-            messages_->Refresh(update_recent_flags);
+            // Cleared only when the refresh succeeded, so a failed load is retried rather
+            // than leaving the folder looking up to date. A SetRefreshNeeded made while the
+            // refresh runs blocks on the mutex, so it can't be swallowed by this.
+            if (messages_->Refresh(update_recent_flags))
+               refresh_needed_ = false;
          }
 
          return messages_; 

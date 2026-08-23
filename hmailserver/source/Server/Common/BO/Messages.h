@@ -32,7 +32,8 @@ namespace HM
 
       void DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter);
 
-      void Refresh(bool update_recent_flags);
+      // Returns false if the messages could not be loaded.
+      bool Refresh(bool update_recent_flags);
 
       void AddToCollection(std::shared_ptr<DALRecordset> pRS);
       

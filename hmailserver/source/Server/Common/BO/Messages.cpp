@@ -156,7 +156,7 @@ namespace HM
    }
 
 
-   void
+   bool
    Messages::Refresh(bool update_recent_flags)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
@@ -174,7 +174,7 @@ namespace HM
             to messages before they are inserted into the queue.
          */
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5204, "Messages::Refresh", "Refresh not supported on the current collection.");
-         return;
+         return false;
 
       }
 
@@ -217,11 +217,11 @@ namespace HM
 
       std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
-         return;
+         return false;
 
       AddToCollection(pRS);
 
-     
+      return true;
    }
 
    void
