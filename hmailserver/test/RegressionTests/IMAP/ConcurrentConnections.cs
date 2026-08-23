@@ -78,6 +78,7 @@ namespace RegressionTests.IMAP
 
       [Test]
       [Explicit("Stress test - long running, run manually.")]
+      [Category("Stress")]
       [Description(
          "Issue #551: a concurrent refresh calls vector::reserve, which nulls the old slots while a " +
          "reader is walking them. Being a race, a single green run proves little.")]
@@ -120,6 +121,7 @@ namespace RegressionTests.IMAP
 
       [Test]
       [Explicit("Stress test - long running, run manually.")]
+      [Category("Stress")]
       [Description(
          "Issue #551, backend-agnostic variant. vector::erase moves every following element down a slot, " +
          "nulling each source. Unlike reserve(), this does not depend on RecordCount.")]
@@ -168,6 +170,7 @@ namespace RegressionTests.IMAP
 
       [Test]
       [Explicit("Stress test - long running, run manually.")]
+      [Category("Stress")]
       [Description(
          "EXAMINE must never report fewer messages than the server has already acknowledged storing, " +
          "no matter what other connections are doing to the same folder.")]
@@ -444,6 +447,7 @@ namespace RegressionTests.IMAP
 
       [Test]
       [Explicit("Stress test - long running, run manually.")]
+      [Category("Stress")]
       [Description(
          "Defect 4: FolderListCreator iterates the live vector returned by IMAPFolders::GetVector(), " +
          "while CREATE and DELETE on other connections push_back into and erase from the same vector.")]

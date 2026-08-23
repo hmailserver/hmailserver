@@ -55,7 +55,7 @@ namespace HM
 
       std::shared_ptr<TCPIPPorts> pTCPIPPorts = Configuration::Instance()->GetTCPIPPorts();
 
-      const std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = pTCPIPPorts->GetVector();
+      const std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = pTCPIPPorts->GetSnapshot();
 
       std::vector<std::shared_ptr<TCPIPPort> >::const_iterator iter = vecTCPIPPorts.begin();
       std::vector<std::shared_ptr<TCPIPPort> >::const_iterator iterEnd = vecTCPIPPorts.end();

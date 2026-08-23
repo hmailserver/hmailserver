@@ -79,7 +79,7 @@ namespace HM
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
       // Create one socket for each IP address specified in the multi-homing settings.
-      std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = Configuration::Instance()->GetTCPIPPorts()->GetVector();
+      std::vector<std::shared_ptr<TCPIPPort> > vecTCPIPPorts = Configuration::Instance()->GetTCPIPPorts()->GetSnapshot();
 
       auto iterPort = vecTCPIPPorts.begin();
       auto iterPortEnd = vecTCPIPPorts.end();

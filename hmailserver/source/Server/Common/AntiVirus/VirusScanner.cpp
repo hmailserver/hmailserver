@@ -194,7 +194,7 @@ namespace HM
    VirusScanner::BlockAttachments(std::shared_ptr<Message> message)
    {
       std::shared_ptr<BlockedAttachments> blocked_attachments_config = HM::Configuration::Instance()->GetBlockedAttachments();
-      std::vector<std::shared_ptr<BlockedAttachment> > blocked_attachment_wildcards = blocked_attachments_config->GetVector();
+      std::vector<std::shared_ptr<BlockedAttachment> > blocked_attachment_wildcards = blocked_attachments_config->GetSnapshot();
 
       const String file_name = PersistentMessage::GetFileName(message);
 
