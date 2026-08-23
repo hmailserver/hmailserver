@@ -63,6 +63,9 @@ namespace HM
    std::shared_ptr<IMAPFolders>
    IMAPFolder::GetSubFolders()
    {
+      // Connections share IMAPFolder instances, so the lazy creation must be synchronized.
+      boost::lock_guard<boost::recursive_mutex> guard(sub_folders_mutex_);
+
       if (sub_folders_.get() == NULL)
          sub_folders_ = std::shared_ptr<IMAPFolders>(new IMAPFolders(account_id_, dbid_));
 
@@ -228,7 +231,7 @@ namespace HM
       int iDepth = 1;
       
       std::shared_ptr<IMAPFolders> pSubFolders = GetSubFolders();
-      std::vector<std::shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetVector();
+      std::vector<std::shared_ptr<IMAPFolder> > vecSubFolders = pSubFolders->GetSnapshot();
       auto iterCurFolder = vecSubFolders.begin();
 
       int iSubDepth = 0;

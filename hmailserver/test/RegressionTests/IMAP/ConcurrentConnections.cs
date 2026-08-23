@@ -429,5 +429,177 @@ namespace RegressionTests.IMAP
          lock (failures)
             failures.Add(message);
       }
+
+      private const int StableFolderCount = 150;
+      private const int FolderRaceReaderCount = 4;
+      private const int FolderRaceWriterCount = 2;
+      private static readonly TimeSpan FolderRaceDuration = TimeSpan.FromSeconds(60);
+
+      private class FolderRaceState
+      {
+         public int Lists;
+         public int Creates;
+         public int Deletes;
+      }
+
+      [Test]
+      [Explicit("Stress test - long running, run manually.")]
+      [Description(
+         "Defect 4: FolderListCreator iterates the live vector returned by IMAPFolders::GetVector(), " +
+         "while CREATE and DELETE on other connections push_back into and erase from the same vector.")]
+      public void ConcurrentListAndFolderChurnListsEveryExistingFolder()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // These folders are never touched again, so every LIST must report all of them.
+         var stableFolders = CreateStableFolders(account.Address, StableFolderCount);
+
+         var failures = new List<string>();
+         var state = new FolderRaceState();
+         var deadline = DateTime.UtcNow + FolderRaceDuration;
+         var threads = new List<Thread>();
+
+         // All connections for one account share a single cached IMAPFolders instance.
+         for (var i = 0; i < FolderRaceReaderCount; i++)
+            threads.Add(new Thread(() => RepeatedlyListFolders(account.Address, stableFolders, deadline, failures, state)));
+
+         // CREATE reallocates the vector; DELETE shifts every following element down a slot.
+         for (var i = 0; i < FolderRaceWriterCount; i++)
+         {
+            var writerIndex = i;
+            threads.Add(new Thread(() => RepeatedlyChurnFolders(account.Address, writerIndex, deadline, failures, state)));
+         }
+
+         foreach (var thread in threads)
+            thread.Start();
+
+         foreach (var thread in threads)
+            thread.Join();
+
+         TestContext.WriteLine("Folder list race: {0} LISTs, {1} CREATEs, {2} DELETEs over {3}, {4} stable folders.",
+            state.Lists, state.Creates, state.Deletes, FolderRaceDuration, StableFolderCount);
+
+         CustomAsserts.AssertNoReportedError();
+
+         Assert.IsEmpty(failures, string.Join(Environment.NewLine, failures));
+      }
+
+      private static List<string> CreateStableFolders(string address, int count)
+      {
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         simulator.LogonWithLiteral(address, "test");
+
+         var folders = new List<string>();
+
+         for (var i = 0; i < count; i++)
+         {
+            var name = string.Format("Stable{0:D3}", i);
+
+            Assert.IsTrue(simulator.CreateFolder(name), "Could not create " + name);
+
+            folders.Add(name);
+         }
+
+         var listing = simulator.List("*");
+
+         foreach (var folder in folders)
+            Assert.IsTrue(ListingContainsFolder(listing, folder), "Setup did not list " + folder);
+
+         simulator.Disconnect();
+
+         return folders;
+      }
+
+      private static void RepeatedlyListFolders(string address, List<string> stableFolders, DateTime deadline,
+         List<string> failures, FolderRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Reader could not log on.");
+               return;
+            }
+
+            while (DateTime.UtcNow < deadline)
+            {
+               var listing = simulator.List("*");
+
+               Interlocked.Increment(ref state.Lists);
+
+               foreach (var folder in stableFolders)
+               {
+                  if (!ListingContainsFolder(listing, folder))
+                  {
+                     Record(failures, string.Format("LIST omitted {0}, which exists and is never modified.", folder));
+                     return;
+                  }
+               }
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            // A crashing worker drops the connection mid-command.
+            Record(failures, "Reader aborted: " + ex.Message);
+         }
+      }
+
+      private static void RepeatedlyChurnFolders(string address, int writerIndex, DateTime deadline,
+         List<string> failures, FolderRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Writer could not log on.");
+               return;
+            }
+
+            var counter = 0;
+
+            while (DateTime.UtcNow < deadline)
+            {
+               var name = string.Format("Churn{0}_{1}", writerIndex, counter++);
+
+               if (!simulator.CreateFolder(name))
+               {
+                  Record(failures, "Writer could not create " + name);
+                  return;
+               }
+
+               Interlocked.Increment(ref state.Creates);
+
+               if (!simulator.DeleteFolder(name))
+               {
+                  Record(failures, "Writer could not delete " + name);
+                  return;
+               }
+
+               Interlocked.Increment(ref state.Deletes);
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Writer aborted: " + ex.Message);
+         }
+      }
+
+      private static bool ListingContainsFolder(string listing, string folderName)
+      {
+         // A LIST line ends with the folder name in quotes, so the quoted name is unambiguous.
+         var quote = ((char) 34).ToString();
+
+         return listing.Contains(quote + folderName + quote);
+      }
+
    }
 }

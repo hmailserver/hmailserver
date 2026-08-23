@@ -107,8 +107,9 @@ namespace HM
       unsigned int special_use_flags_;
 
       std::shared_ptr<Messages> messages_;
-      std::shared_ptr<IMAPFolders> sub_folders_;   
- 
+      std::shared_ptr<IMAPFolders> sub_folders_;
+      boost::recursive_mutex sub_folders_mutex_;
+
       DateTime create_time_;
    };
 
