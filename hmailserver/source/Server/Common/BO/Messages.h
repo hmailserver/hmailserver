@@ -25,6 +25,8 @@ namespace HM
       
       std::vector<std::shared_ptr<Message>> GetCopy();
 
+      void GetRecentMessages(std::set<__int64> &recent_messages) const;
+
       std::shared_ptr<Message> GetItemByUID(unsigned int uid);
       std::shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
 

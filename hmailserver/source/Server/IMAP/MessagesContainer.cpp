@@ -74,13 +74,7 @@ namespace HM
       
       messages_cache_.AdjustEstimatedSize(increased_size, size_change);
 
-      recent_messages.clear();
-            
-      for (std::shared_ptr<Message> message : messages->GetVector())
-      {
-         if (message->GetFlagRecent())
-            recent_messages.insert(message->GetID());
-      }
+      messages->GetRecentMessages(recent_messages);
 
       if (update_recent_messages)
          messages->RemoveRecentFlags();

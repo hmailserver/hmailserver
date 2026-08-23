@@ -45,6 +45,22 @@ namespace HM
 
    }
 
+   // Collects the ID of every message with the \Recent flag. Done here, rather than by the
+   // caller iterating the collection, so that the collection mutex is held during the scan.
+   void
+   Messages::GetRecentMessages(std::set<__int64> &recent_messages) const
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      recent_messages.clear();
+
+      for (std::shared_ptr<Message> message : vecObjects)
+      {
+         if (message->GetFlagRecent())
+            recent_messages.insert(message->GetID());
+      }
+   }
+
    long
    Messages::GetNoOfSeen() const
    {
