@@ -50,3 +50,4 @@ hmailserver/source/Server/hMailServer.Minidump/x64/*
 # are still ignored by the rule above.
 !/.claude/settings.json
 /hmailserver/.claude/settings.*
+/**/TestResult.xml

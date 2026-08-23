@@ -46,6 +46,8 @@ namespace HM
    std::shared_ptr<Accounts>
    Domain::GetAccounts()
    {
+      boost::lock_guard<boost::recursive_mutex> guard(collections_mutex_);
+
       if (!accounts_)
          accounts_ = std::shared_ptr<Accounts>(new Accounts(id_));
 
@@ -57,6 +59,8 @@ namespace HM
    std::shared_ptr<DomainAliases>
    Domain::GetDomainAliases()
    {
+      boost::lock_guard<boost::recursive_mutex> guard(collections_mutex_);
+
       if (!domain_aliases_)
          domain_aliases_ = std::shared_ptr<DomainAliases>(new DomainAliases(id_));
 
@@ -67,6 +71,8 @@ namespace HM
    std::shared_ptr<Accounts>
    Domain::GetAccounts(__int64 iAccountID)
    {
+      boost::lock_guard<boost::recursive_mutex> guard(collections_mutex_);
+
       if (!accounts_)
       {
          // Only fetch a specific account and put it in the list. This happens
@@ -81,6 +87,8 @@ namespace HM
    std::shared_ptr<Aliases>
    Domain::GetAliases()
    {
+      boost::lock_guard<boost::recursive_mutex> guard(collections_mutex_);
+
       if (!aliases_)
          aliases_ = std::shared_ptr<Aliases>(new Aliases(id_));
       
@@ -92,6 +100,8 @@ namespace HM
    std::shared_ptr<DistributionLists>
    Domain::GetDistributionLists()
    {
+      boost::lock_guard<boost::recursive_mutex> guard(collections_mutex_);
+
       if (!distribution_lists_)
          distribution_lists_ = std::shared_ptr<DistributionLists>(new DistributionLists(id_));
 

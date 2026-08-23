@@ -180,6 +180,9 @@ namespace HM
       String dkim_selector_;
       String dkim_private_key_file_;
 
+      // Guards the lazy creation of the collections below.
+      boost::recursive_mutex collections_mutex_;
+
       std::shared_ptr<Accounts> accounts_;
       std::shared_ptr<Aliases> aliases_;
       std::shared_ptr<DistributionLists> distribution_lists_;
