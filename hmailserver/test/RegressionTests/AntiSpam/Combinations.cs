@@ -34,8 +34,12 @@ namespace RegressionTests.AntiSpam
          antiSpam.PrependSubject = true;
          antiSpam.PrependSubjectText = "ThisIsSpam";
 
-         antiSpam.CheckHostInHelo = true;
-         antiSpam.CheckHostInHeloScore = 10;
+         // Enable SpamAssassin.
+         antiSpam.SpamAssassinEnabled = true;
+         antiSpam.SpamAssassinHost = "localhost";
+         antiSpam.SpamAssassinPort = 783;
+         antiSpam.SpamAssassinMergeScore = false;
+         antiSpam.SpamAssassinScore = 10;
 
          // Enable SURBL.
          var surblServer = antiSpam.SURBLServers[0];
@@ -43,14 +47,14 @@ namespace RegressionTests.AntiSpam
          surblServer.Score = 10;
          surblServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
-         // We should only detect one of these two:
+         // Send a message to this account, containing both a SURBL-hit and a GTUBE
+         // (SpamAssassin test) string. Both tests should fire, since the delete
+         // threshold is lower than the mark threshold.
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Should not be possible to send this email since it's results in a spam
-         // score over the delete threshold.
          smtpClientSimulator.Send("test@example.com", account1.Address, "INBOX",
-            "Test http://surbl-org-permanent-test-point.com/ Test 2");
+            "Test http://surbl-org-permanent-test-point.com/ Test 2 " +
+            "XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
@@ -72,23 +76,24 @@ namespace RegressionTests.AntiSpam
          _settings.AntiSpam.PrependSubject = true;
          _settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
 
-         _settings.AntiSpam.CheckHostInHelo = true;
-         _settings.AntiSpam.CheckHostInHeloScore = 5;
+         // Enable SpamAssassin.
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
 
-         // Enable SURBL.
+         // Enable SURBL, but don't include any URL in the message body, so this
+         // test passes while the SpamAssassin (GTUBE) test fails.
          var surblServer = _settings.AntiSpam.SURBLServers[0];
          surblServer.Active = true;
          surblServer.Score = 5;
          surblServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
-         // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Should not be possible to send this email since it's results in a spam
-         // score over the delete threshold.
-         smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", account1.Address, "INBOX",
-            "This is a test message.");
+         smtpClientSimulator.Send("test@example.com", account1.Address, "INBOX",
+            "This is a test message. XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 

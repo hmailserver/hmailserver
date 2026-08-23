@@ -754,6 +754,12 @@ namespace HM
       // The entire message has now been downloaded from the
       // remote POP3 server. Save it in the database and deliver
       // it to the account.
+
+      // Release the handle to the message file first. The message file is read and
+      // delivered below, which requires that we no longer keep it open for writing.
+      if (transmission_buffer_)
+         transmission_buffer_->Close();
+
       String fileName = PersistentMessage::GetFileName(current_message_);
       current_message_->SetSize(FileUtilities::FileSize(fileName));
 

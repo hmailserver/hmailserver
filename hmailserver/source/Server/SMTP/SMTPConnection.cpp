@@ -989,6 +989,13 @@ namespace HM
    void
    SMTPConnection::HandleSMTPFinalizationTaskCompleted_()
    {
+      // The entire message has been received, so the handle to the message file must
+      // be released before we continue. The spam tests, the message modifications and
+      // the delivery below all access the message file themselves, and a lingering
+      // write handle stops them from reading or replacing it.
+      if (transmission_buffer_)
+         transmission_buffer_->Close();
+
       if (!DoPreAcceptSpamProtection_())
       {
          // This message was stopped by spam protection. The user either needs
@@ -1132,8 +1139,8 @@ namespace HM
          // Add the message to the database.
          if (PersistentMessage::SaveObject(current_message_))
          {
-            // Make sure the transmission buffer has released the handle
-            // to the file.
+            // The transmission buffer isn't needed any longer. The handle to the
+            // message file has already been released above.
             if (transmission_buffer_)
                transmission_buffer_.reset();
 
