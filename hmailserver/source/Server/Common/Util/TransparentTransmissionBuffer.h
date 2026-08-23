@@ -35,6 +35,7 @@ namespace HM
       
       bool Initialize(std::weak_ptr<TCPConnection> pTcpConnection);
       bool Initialize(const String &sFilename);
+      void Close();
 
       void SetMaxSizeKB(size_t maxSize);
       
