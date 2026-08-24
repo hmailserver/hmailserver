@@ -183,7 +183,13 @@ namespace VMTestRunner.Console
          vm.RunScriptInGuest("NET START HMAILSERVER");
       }
 
-      private void Debug(string message) => Logger.Debug($"[Test {_testIndex}] {message}");
+      private void Debug(string message)
+      {
+         // The test index tells the status board which row the message belongs to.
+         var logEvent = new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, $"[Test {_testIndex}] {message}");
+         logEvent.Properties[TestBoardConsoleTarget.TestIndexProperty] = _testIndex;
+         Logger.Log(logEvent);
+      }
 
       private void EnsureNetworkAccess(HyperV vm)
       {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +24,16 @@ namespace VMTestRunner.Console
          var name = Sanitize($"{environment.OperatingSystem} {environment.Description}");
 
          return Path.Combine(baseDirectory, $"vmtestrunner-{Timestamp}_{name}.xml");
+      }
+
+      /// <summary>
+      /// Returns the path of the JSON file summarizing the outcome of all tests in this run.
+      /// </summary>
+      public static string GetResultSummaryFilePath()
+      {
+         var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+         return Path.Combine(baseDirectory, $"vmtestrunner-{Timestamp}_results.json");
       }
 
       private static string Sanitize(string name)
