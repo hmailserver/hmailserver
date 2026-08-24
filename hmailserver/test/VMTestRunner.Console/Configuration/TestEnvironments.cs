@@ -19,7 +19,7 @@ namespace VMTestRunner.Console
 
          foreach (var item in items)
          {
-            var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName);
+            var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName, item.IncludeStressTests);
 
             foreach (var cmd in item.PreInstallCommands)
                env.PreInstallCommands.Add(new InstallCommand(cmd.Executable, cmd.Parameters));
@@ -92,6 +92,7 @@ namespace VMTestRunner.Console
          public List<FileCopyDto> PreInstallFileCopy { get; set; } = new List<FileCopyDto>();
          public List<CommandDto> PostInstallCommands { get; set; } = new List<CommandDto>();
          public List<FileCopyDto> PostInstallFileCopy { get; set; } = new List<FileCopyDto>();
+         public bool IncludeStressTests = false;
       }
 
       private class CommandDto

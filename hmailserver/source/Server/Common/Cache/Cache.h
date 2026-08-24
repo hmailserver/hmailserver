@@ -51,6 +51,10 @@ namespace HM
 
       void Add(std::shared_ptr<T> pObject);
 
+      std::shared_ptr<T> AddIfNotExists(std::shared_ptr<T> pObject);
+      // Adds the object unless one with the same ID is already cached. Returns the
+      // object which is in the cache afterwards.
+
    private:
 
       void ResetEstimatedSizeIfEmpty_();
@@ -313,8 +317,27 @@ namespace HM
       items.insert(object);
    }
 
-   template <class T> 
-   bool 
+   template <class T>
+   std::shared_ptr<T>
+   Cache<T>::AddIfNotExists(std::shared_ptr<T> pObject)
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      if (!enabled_)
+         return pObject;
+
+      auto existing_object = GetItemBy_<id>(objects_, pObject->GetID());
+
+      if (existing_object != nullptr)
+         return existing_object;
+
+      Add(pObject);
+
+      return pObject;
+   }
+
+   template <class T>
+   bool
    Cache<T>::GetObjectIsWithinTTL_(CachedObject<T> pObject)
    {
       if (pObject.SecondsOld() < ttl_)

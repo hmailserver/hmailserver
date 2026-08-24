@@ -122,7 +122,14 @@ namespace VMTestRunner.Console
             }
 
             // Run NUnit
-            vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
+            if (_environment.IncludeStressTests)
+            {
+               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
+            }
+            else
+            {
+               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
+            }
 
             // Collect results.
             string localResultFile = Path.GetTempFileName() + ".xml";

@@ -47,8 +47,9 @@ namespace HM
       {
          auto messages = std::shared_ptr<Messages>(new Messages(account_id, folder_id));
 
-         cached_messages = std::make_shared<CachedMessages>(messages);
-         messages_cache_.Add(cached_messages);
+         // Another connection may have cached the folder since the lookup above. If so, use
+         // that one, so that all connections share a single Messages per folder.
+         cached_messages = messages_cache_.AddIfNotExists(std::make_shared<CachedMessages>(messages));
       }
 
       size_t estimated_size_before = cached_messages->GetEstimatedCachingSize();
@@ -74,13 +75,7 @@ namespace HM
       
       messages_cache_.AdjustEstimatedSize(increased_size, size_change);
 
-      recent_messages.clear();
-            
-      for (std::shared_ptr<Message> message : messages->GetVector())
-      {
-         if (message->GetFlagRecent())
-            recent_messages.insert(message->GetID());
-      }
+      messages->GetRecentMessages(recent_messages);
 
       if (update_recent_messages)
          messages->RemoveRecentFlags();

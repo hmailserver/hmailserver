@@ -37,7 +37,7 @@ STDMETHODIMP InterfaceRuleAction::Save()
       // Set the sort order of the rule.
       if (object_->GetID() == 0 && object_->GetSortOrder() == 0)
       {
-         std::vector<std::shared_ptr<HM::RuleAction> > vecExistingRuleActions = parent_collection_->GetVector();
+         std::vector<std::shared_ptr<HM::RuleAction> > vecExistingRuleActions = parent_collection_->GetSnapshot();
    
          // Determine the highest SortOrder.
          if (vecExistingRuleActions.size() == 0)

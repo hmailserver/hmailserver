@@ -31,11 +31,14 @@ namespace HM
    bool 
    AntiSpamConfiguration::Load()
    {
-      dnsBlackLists_ = std::shared_ptr<DNSBlackLists>(new DNSBlackLists);
-      dnsBlackLists_->Refresh();
+      // Populate before publishing, so that readers never see an empty list.
+      auto dnsBlackLists = std::shared_ptr<DNSBlackLists>(new DNSBlackLists);
+      dnsBlackLists->Refresh();
+      dnsBlackLists_ = dnsBlackLists;
 
-      surblServers_ = std::shared_ptr<SURBLServers>(new SURBLServers);
-      surblServers_->Refresh();
+      auto surblServers = std::shared_ptr<SURBLServers>(new SURBLServers);
+      surblServers->Refresh();
+      surblServers_ = surblServers;
 
       return true;
    }

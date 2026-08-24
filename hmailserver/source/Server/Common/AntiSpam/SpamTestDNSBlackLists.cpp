@@ -34,7 +34,7 @@ namespace HM
    {
       std::shared_ptr<DNSBlackLists> pDNSBlackLists = Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
 
-      std::vector<std::shared_ptr<DNSBlackList> > vec = pDNSBlackLists->GetVector();
+      std::vector<std::shared_ptr<DNSBlackList> > vec = pDNSBlackLists->GetSnapshot();
       auto iter = vec.begin();
       auto iterEnd = vec.end();
       for (; iter != iterEnd; iter++)
@@ -62,7 +62,7 @@ namespace HM
 
       std::shared_ptr<DNSBlackLists> pDNSBlackLists = HM::Configuration::Instance()->GetAntiSpamConfiguration().GetDNSBlackLists();
       
-      for(std::shared_ptr<DNSBlackList> pDNSBL : pDNSBlackLists->GetVector())
+      for(std::shared_ptr<DNSBlackList> pDNSBL : pDNSBlackLists->GetSnapshot())
       {
          if (pDNSBL->GetIsActive() && 
             BLCheck::ClientExistsInDNSBL(addr, pDNSBL->GetDNSHost(), pDNSBL->GetExpectedResult()))
