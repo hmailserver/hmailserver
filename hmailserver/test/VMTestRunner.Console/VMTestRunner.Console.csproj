@@ -65,6 +65,7 @@
     <Compile Include="Configuration\TestEnvironments.cs" />
     <Compile Include="Infrastructure\HyperV.cs" />
     <Compile Include="Infrastructure\NUnitResultParser.cs" />
+    <Compile Include="Infrastructure\RunContext.cs" />
     <Compile Include="Infrastructure\StatusLineConsoleTarget.cs" />
     <Compile Include="Infrastructure\TestFailedException.cs" />
     <Compile Include="Infrastructure\TestRunner.cs" />

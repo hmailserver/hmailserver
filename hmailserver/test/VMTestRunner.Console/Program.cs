@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +18,10 @@ namespace VMTestRunner.Console
       static int Main(string[] args)
       {
          NLog.Targets.Target.Register<StatusLineConsoleTarget>("StatusLineConsole");
+
+         // Makes the log file and the NUnit result files share the same timestamp.
+         NLog.GlobalDiagnosticsContext.Set(RunContext.TimestampVariableName, RunContext.Timestamp);
+
          NLog.LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NLog.config"));
 
