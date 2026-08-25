@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -131,11 +131,13 @@ namespace VMTestRunner.Console
                vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
             }
 
-            // Collect results.
-            string localResultFile = Path.GetTempFileName() + ".xml";
+            // Collect results. The NUnit result is kept next to the log file of this run.
+            string localResultFile = RunContext.GetResultFilePath(_environment);
             string localLogFile = Path.GetTempFileName() + ".log";
             vm.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.xml"), localResultFile);
             vm.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.log"), localLogFile);
+
+            Logger.Info($"Test {_testIndex} - NUnit result saved to {localResultFile}");
 
             var doc = new XmlDocument();
             doc.Load(localResultFile);
@@ -181,7 +183,13 @@ namespace VMTestRunner.Console
          vm.RunScriptInGuest("NET START HMAILSERVER");
       }
 
-      private void Debug(string message) => Logger.Debug($"[Test {_testIndex}] {message}");
+      private void Debug(string message)
+      {
+         // The test index tells the status board which row the message belongs to.
+         var logEvent = new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, $"[Test {_testIndex}] {message}");
+         logEvent.Properties[TestBoardConsoleTarget.TestIndexProperty] = _testIndex;
+         Logger.Log(logEvent);
+      }
 
       private void EnsureNetworkAccess(HyperV vm)
       {

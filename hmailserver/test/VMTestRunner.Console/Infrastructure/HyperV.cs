@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -251,7 +251,13 @@ namespace VMTestRunner.Console
          }
       }
 
-      private void Debug(string message) => Logger.Debug($"[Test {_testIndex}] {message}");
+      private void Debug(string message)
+      {
+         // The test index tells the status board which row the message belongs to.
+         var logEvent = new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, $"[Test {_testIndex}] {message}");
+         logEvent.Properties[TestBoardConsoleTarget.TestIndexProperty] = _testIndex;
+         Logger.Log(logEvent);
+      }
 
       private void HandleErrors(PowerShell ps, string operation)
       {

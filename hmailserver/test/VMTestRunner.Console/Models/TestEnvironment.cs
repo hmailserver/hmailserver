@@ -15,6 +15,11 @@ namespace VMTestRunner.Console
 
       public string OperatingSystem { get; }
 
+      /// <summary>
+      /// Identifies the test in the status board and in the JSON result file.
+      /// </summary>
+      public string Name => $"{OperatingSystem} - {Description}";
+
       public string Description { get; }
 
       public string SnapshotName { get; }
