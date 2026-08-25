@@ -121,6 +121,15 @@ namespace RegressionTests.Shared
             _tcpClient.Close();
       }
 
+      /// <summary>
+      ///    Closes the sending half of the connection, so that the server sees the end of the
+      ///    stream but can still send its response.
+      /// </summary>
+      public void ShutdownSend()
+      {
+         _tcpClient.Client.Shutdown(SocketShutdown.Send);
+      }
+
       public void HandshakeAsClient()
       {
          // Create an SSL stream that will close the client's stream.

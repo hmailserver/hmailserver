@@ -535,7 +535,11 @@ namespace HM
 
             try
             {
-               ParseData(pBuffer);
+               // The peer may have closed the connection without sending any data. Parsing an
+               // empty buffer would make the protocol handler ask for more data, causing an
+               // endless read loop.
+               if (pBuffer->GetSize() > 0)
+                  ParseData(pBuffer);
             }
             catch (DisconnectedException&)
             {

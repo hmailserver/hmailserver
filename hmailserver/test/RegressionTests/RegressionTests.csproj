@@ -170,6 +170,7 @@
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="API\Links.cs" />
+    <Compile Include="Stress\AbruptDisconnectTests.cs" />
     <Compile Include="Stress\ContentStressTest.cs" />
     <Compile Include="IMAP\Sort.cs" />
     <Compile Include="POP3\Fetching\Basics.cs" />
