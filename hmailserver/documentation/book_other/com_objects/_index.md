@@ -26,10 +26,6 @@ These are the basic steps to perform when you want to access the hMailServer COM
 2. Authenticate. Before you can call any other methods in the API, you need to authenticate. This is done using the Authenticate() method on the Application object. This is required to prevent unauthorized users to access your hMailServer installation.
 3. Call the methods and use the properties you need.
 
-# Change log
-
-For a list of changes in the COM API, see the [COM API Changelog](?page=com_changelog)
-
 # .NET Class
 
 The complete COM API is available as a .NET class in the hMailserver bin directory ...\hmailserver\bin\Interop.hMailServer.dll

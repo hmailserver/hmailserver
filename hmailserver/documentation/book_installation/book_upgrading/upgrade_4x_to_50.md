@@ -54,7 +54,7 @@ hMailServer 5 includes a lot of changes. Some of these changes modify the behavi
 
  Â    
 
- A [lot of changes](?page=com_changelog) have been made in the COMÂ API.  
+ A lot of changes have been made in the COMÂ API.  
 
  Â 
 - **Password hashing algorithm**  
