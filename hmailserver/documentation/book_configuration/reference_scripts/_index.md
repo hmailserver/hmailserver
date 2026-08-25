@@ -18,7 +18,7 @@ All hMailServer scripts should be placed in a file called EventHandlers.vbs. The
 
 hMailServer offers the following pre-defined events:
 
-<table width="800" cellspacing="10">
+<table width="100%" cellspacing="10">
     <tbody>
         <tr>
             <td><strong>Event</strong></td>
