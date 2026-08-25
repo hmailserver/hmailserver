@@ -24,7 +24,7 @@ The DomainAliases object is a collection of all domain name aliases set up for a
 
 <div class="api_description">DeleteByDBID</div>
 
-<div class="api_method_name">Refresh()</div>
+<div class="api_method_name">Refresh(void)</div>
 
 <div class="api_description">Refresh</div>
 

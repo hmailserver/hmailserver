@@ -24,7 +24,7 @@ The RuleActions object is a collection of all actions set up in a single rule.
 
 <div class="api_description">DeleteByDBID</div>
 
-<div class="api_method_name">Refresh()</div>
+<div class="api_method_name">Refresh(void)</div>
 
 <div class="api_description">Refresh</div>
 

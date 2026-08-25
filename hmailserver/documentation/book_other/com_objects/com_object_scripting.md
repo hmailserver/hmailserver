@@ -16,7 +16,7 @@ The scripting object contains all settings related to scripting.
 
 <div class="api_description">Compiles the script in the event directory and returns the result.</div>
 
-<div class="api_method_name">Reload()</div>
+<div class="api_method_name">Reload(void)</div>
 
 <div class="api_description">Reloads the script from the event directory.</div>
 

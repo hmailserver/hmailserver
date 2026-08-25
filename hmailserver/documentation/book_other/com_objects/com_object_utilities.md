@@ -20,6 +20,10 @@ The utilities object contains misc. functions used by hMailServer Administrator.
 
 <div class="api_description">Encrypts a string to blowfish.</div>
 
+<div class="api_method_name">CriteriaMatch(string MatchValue, eRuleMatchType, string TestValue)</div>
+
+<div class="api_description">Returns true if a rule criteria matches a value.</div>
+
 <div class="api_method_name">EmailAllAccounts(string sRecipientWildcard, string sFromAddress, string sFromName, string sSubject, string sBody)</div>
 
 <div class="api_description">Sends an email message to accounts on the server.</div>
@@ -56,6 +60,10 @@ The utilities object contains misc. functions used by hMailServer Administrator.
 
 <div class="api_description">Returns true if the given e-mail address is valid. false otherwise.</div>
 
+<div class="api_method_name">IsValidIPAddress(string IPAddress)</div>
+
+<div class="api_description">Returns true if the given IP-address is parseable</div>
+
 <div class="api_method_name">MakeDependent(string OtherService)</div>
 
 <div class="api_description">Makes the hMailServer service dependent on another service.</div>
@@ -64,10 +72,18 @@ The utilities object contains misc. functions used by hMailServer Administrator.
 
 <div class="api_description">Returns the MD5 hex string for a string.</div>
 
+<div class="api_method_name">PerformMaintenance(eMaintenanceOperation operation)</div>
+
+<div class="api_description">Performs maintenance operations in the database.</div>
+
+<div class="api_method_name">RetrieveMessageID(string sFilename)</div>
+
+<div class="api_description">Returns the ID of the message file</div>
+
 <div class="api_method_name">RunTestSuite(string sTestPassword)</div>
 
 <div class="api_description">Runs test suite. This will delete all objects on the server.</div>
 
 <div class="api_method_name">SHA256(string Input)</div>
 
-<div class="api_description">Returns the SHA256 hex string for a string.</div>
+<div class="api_description">Returns a salted SHA256 hex string for a string.</div>

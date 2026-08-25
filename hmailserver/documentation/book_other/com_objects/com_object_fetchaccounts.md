@@ -24,7 +24,7 @@ The FetchAccounts object is a collection of all fetch accounts set up in a hMail
 
 <div class="api_description">DeleteByDBID</div>
 
-<div class="api_method_name">Refresh()</div>
+<div class="api_method_name">Refresh(void)</div>
 
 <div class="api_description">Refresh</div>
 

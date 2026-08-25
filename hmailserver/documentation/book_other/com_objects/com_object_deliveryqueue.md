@@ -16,11 +16,11 @@ The DeliveryQueue object contains method to manipulate the hMailServer queue.
 
 <div class="api_description">Clears the delivery queue.</div>
 
-<div class="api_method_name">Remove(int iMessageID)</div>
+<div class="api_method_name">Remove(long iMessageID)</div>
 
 <div class="api_description">Removes the message from the delivery queue.</div>
 
-<div class="api_method_name">ResetDeliveryTime(int iMessageID)</div>
+<div class="api_method_name">ResetDeliveryTime(long iMessageID)</div>
 
 <div class="api_description">Reset next delivery time</div>
 

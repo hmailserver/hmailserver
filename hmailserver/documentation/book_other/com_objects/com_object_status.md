@@ -32,6 +32,10 @@ The Status object contains information on your system, such as uptime and basic 
 
 <div class="api_description">Gets the server start time<br> <i>(read-only)</i></div>
 
+<div class="api_method_name">long ThreadID</div>
+
+<div class="api_description">Gets the current thread number<br> <i>(read-only)</i></div>
+
 <div class="api_method_name">string UndeliveredMessages</div>
 
 <div class="api_description">Gets a list of undelivered messages.<br> <i>(read-only)</i></div>

@@ -12,7 +12,7 @@ The IMAPFolders object is a collection of the root IMAP folders in an account, o
 
 ### Methods
 
-<div class="api_method_name">Add(string sName )</div>
+<div class="api_method_name">Add(string sName)</div>
 
 <div class="api_description">Adds an IMAP folder with the given name to the collection. It is saved immediately.</div>
 

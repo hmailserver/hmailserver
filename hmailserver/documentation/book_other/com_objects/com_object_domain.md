@@ -22,7 +22,7 @@ The domain object represents one hMailServer domain.
 
 <div class="api_method_name">SynchronizeDirectory()</div>
 
-<div class="api_description">Synchronizes this domain towards active directory.</div>
+<div class="api_description">OBSOLETE. Only included to make all clients continue working.</div>
 
 ### Properties
 
@@ -61,6 +61,34 @@ The domain object represents one hMailServer domain.
 <div class="api_method_name"><a href="?page=com_object_distributionlists">DistributionLists</a> DistributionLists</div>
 
 <div class="api_description">The distribution lists collection for the domain.<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">eDKIMCanonicalizationMethod DKIMBodyCanonicalizationMethod</div>
+
+<div class="api_description">Gets or sets the body canonicalization method.<br></div>
+
+<div class="api_method_name">eDKIMCanonicalizationMethod DKIMHeaderCanonicalizationMethod</div>
+
+<div class="api_description">Gets or sets the header canonicalization method.<br></div>
+
+<div class="api_method_name">string DKIMPrivateKeyFile</div>
+
+<div class="api_description">Gets or sets the DKIM private key file to use for this domain.<br></div>
+
+<div class="api_method_name">string DKIMSelector</div>
+
+<div class="api_description">Gets or sets the DKIM selector to use for this domain.<br></div>
+
+<div class="api_method_name">bool DKIMSignAliasesEnabled</div>
+
+<div class="api_description">Enable DKIM signing for aliases.<br></div>
+
+<div class="api_method_name">bool DKIMSignEnabled</div>
+
+<div class="api_description">Enable DKIM signing for this domain.<br></div>
+
+<div class="api_method_name">eDKIMAlgorithm DKIMSigningAlgorithm</div>
+
+<div class="api_description">Gets or sets the signing algorithm.<br></div>
 
 <div class="api_method_name"><a href="?page=com_object_domainaliases">DomainAliases</a> DomainAliases</div>
 

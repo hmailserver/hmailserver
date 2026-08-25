@@ -18,7 +18,7 @@ The account object represents a single hMailServer account.
 
 <div class="api_method_name">DeleteMessages()</div>
 
-<div class="api_description">Deletes all messages that exists in the account.</div>
+<div class="api_description">Deletes all IMAP folders and messages that exists in the account.</div>
 
 <div class="api_method_name">Save()</div>
 
@@ -61,6 +61,10 @@ The account object represents a single hMailServer account.
 <div class="api_method_name"><a href="?page=com_object_fetchaccounts">FetchAccounts</a> FetchAccounts</div>
 
 <div class="api_description">External fetch accounts connected to this account.<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">bool ForwardAbortSpamFlagged</div>
+
+<div class="api_description">Forwarding is set to be aborted on messages marked as spam.<br></div>
 
 <div class="api_method_name">string ForwardAddress</div>
 
@@ -137,6 +141,10 @@ The account object represents a single hMailServer account.
 <div class="api_method_name">string VacationMessage</div>
 
 <div class="api_description">The vacation message<br></div>
+
+<div class="api_method_name">bool VacationMessageAbortSpamFlagged</div>
+
+<div class="api_description">Vacation message is set to be aborted on messages marked as spam.<br></div>
 
 <div class="api_method_name">bool VacationMessageExpires</div>
 

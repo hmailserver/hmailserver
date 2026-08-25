@@ -46,6 +46,10 @@ The application object is the root object in the hMailServer API. It's the first
 
 <div class="api_description">Gets the database interface.<br> <i>(read-only)</i></div>
 
+<div class="api_method_name"><a href="?page=com_object_diagnostics">Diagnostics</a> Diagnostics</div>
+
+<div class="api_description">Gets a diagnostics object.<br> <i>(read-only)</i></div>
+
 <div class="api_method_name"><a href="?page=com_object_domains">Domains</a> Domains</div>
 
 <div class="api_description">Gets the Domains collection.<br> <i>(read-only)</i></div>
@@ -85,3 +89,7 @@ The application object is the root object in the hMailServer API. It's the first
 <div class="api_method_name">string Version</div>
 
 <div class="api_description">Gets the current hMailServer version<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">string VersionArchitecture</div>
+
+<div class="api_description">Gets the current hMailServer architecture (x86/x64)<br> <i>(read-only)</i></div>

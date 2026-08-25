@@ -24,7 +24,7 @@ The RuleCriterias object is a collection of all criteria set up in a single rule
 
 <div class="api_description">DeleteByDBID</div>
 
-<div class="api_method_name">Refresh()</div>
+<div class="api_method_name">Refresh(void)</div>
 
 <div class="api_description">Refresh</div>
 

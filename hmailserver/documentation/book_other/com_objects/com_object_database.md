@@ -28,6 +28,10 @@ The database object contains information on current database set-up and basic me
 
 <div class="api_description">Create internal database</div>
 
+<div class="api_method_name">EnsurePrerequisites(long DBVersion)</div>
+
+<div class="api_description">Ensures that the prerequisites for a specific build is fulfilled.</div>
+
 <div class="api_method_name">ExecuteSQL(string sSQLStatement)</div>
 
 <div class="api_description">Executes an SQL statement.</div>
@@ -35,6 +39,10 @@ The database object contains information on current database set-up and basic me
 <div class="api_method_name">ExecuteSQLScript(string sFilename)</div>
 
 <div class="api_description">Executes an script file containing SQL statements.</div>
+
+<div class="api_method_name">ExecuteSQLWithReturn(string sSQLStatement)</div>
+
+<div class="api_description">Executes an SQL statement and returns the unique ID.</div>
 
 <div class="api_method_name">RollbackTransaction()</div>
 

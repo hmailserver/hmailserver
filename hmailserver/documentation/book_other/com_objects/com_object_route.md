@@ -34,6 +34,10 @@ The route object represents one hMailServer route.
 
 <div class="api_description">Route to all addresses<br></div>
 
+<div class="api_method_name">eConnectionSecurity ConnectionSecurity</div>
+
+<div class="api_description">Connection security for the route.<br></div>
+
 <div class="api_method_name">string Description</div>
 
 <div class="api_description">Description for this route.<br></div>
@@ -70,9 +74,17 @@ The route object represents one hMailServer route.
 
 <div class="api_description">Target SMTP host<br></div>
 
+<div class="api_method_name">bool TreatRecipientAsLocalDomain</div>
+
+<div class="api_description">When email is sent to the route domain name, treat recipient domain as a local domain.<br></div>
+
 <div class="api_method_name">bool TreatSecurityAsLocalDomain</div>
 
-<div class="api_description">Treat security as for local domains.<br></div>
+<div class="api_description">Obsolete. Use TreatRecipientAsLocalDomain instead.<br></div>
+
+<div class="api_method_name">bool TreatSenderAsLocalDomain</div>
+
+<div class="api_description">When email is sent from the route domain name, treat sender domain as a local domain.<br></div>
 
 <div class="api_method_name">bool UseSSL</div>
 

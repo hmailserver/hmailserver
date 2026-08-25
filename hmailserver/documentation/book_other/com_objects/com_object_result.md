@@ -16,6 +16,10 @@ The result object is a temporary object used in hMailServer events which allows 
 
 <div class="api_description">Message<br></div>
 
+<div class="api_method_name">long Parameter</div>
+
+<div class="api_description">Parameter<br></div>
+
 <div class="api_method_name">long Value</div>
 
 <div class="api_description">Value<br></div>

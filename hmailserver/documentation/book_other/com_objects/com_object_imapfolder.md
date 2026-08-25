@@ -22,6 +22,14 @@ The IMAPFolder object represents a single IMAP folder.
 
 ### Properties
 
+<div class="api_method_name">string CreationTime</div>
+
+<div class="api_description">The folder creation time.<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">long CurrentUID</div>
+
+<div class="api_description">The latest message UID.<br> <i>(read-only)</i></div>
+
 <div class="api_method_name">long ID</div>
 
 <div class="api_description">The database identifier for the IMAP folder.<br> <i>(read-only)</i></div>
@@ -41,6 +49,10 @@ The IMAPFolder object represents a single IMAP folder.
 <div class="api_method_name"><a href="?page=com_object_imapfolderpermissions">IMAPFolderPermissions</a> Permissions</div>
 
 <div class="api_description">The permissions for this IMAP folder<br> <i>(read-only)</i></div>
+
+<div class="api_method_name">eSpecialUse SpecialUse</div>
+
+<div class="api_description">The RFC 6154 special-use attribute(s) of the IMAP folder. Combine multiple eSpecialUse values with bitwise OR.<br></div>
 
 <div class="api_method_name"><a href="?page=com_object_imapfolders">IMAPFolders</a> SubFolders</div>
 
