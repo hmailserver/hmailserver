@@ -493,8 +493,8 @@ namespace HM
    {
       UpdateAutoLogoutTimer();
 
-      // Ignore end of file or end of stream error when binary transfer, there may still be data in the receive buffer we can read.
-      if ((error && !receive_binary_) || (error && error != boost::asio::error::eof && receive_binary_))
+      // Ignore end of file or end of stream error when binary transfer and we received some bytes, there may still be data in the receive buffer we can read.
+      if ((error && !receive_binary_) || (error && ((error != boost::asio::error::eof) || (bytes_transferred == 0)) && receive_binary_))
       {
          if (connection_state_ != StateConnected)
          {
