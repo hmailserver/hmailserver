@@ -18,7 +18,7 @@ All hMailServer scripts should be placed in a file called EventHandlers.vbs. The
 
 hMailServer offers the following pre-defined events:
 
-<table width="650" cellspacing="10">
+<table width="800" cellspacing="10">
     <tbody>
         <tr>
             <td><strong>Event</strong></td>
@@ -39,6 +39,21 @@ hMailServer offers the following pre-defined events:
             <td valign="top"><a href="?page=scripting_onclientconnect">OnClientConnect</a></td>
             <td valign="top">Executed when a client is connected.</td>
             <td valign="top">4.0</td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="?page=scripting_onhelo">OnHELO</a></td>
+            <td valign="top">Executed when a client sends the SMTP HELO or EHLO command.</td>
+            <td valign="top">5.7</td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="?page=scripting_onclientlogon">OnClientLogon</a></td>
+            <td valign="top">Executed when a client has logged on using SMTP, POP3 or IMAP.</td>
+            <td valign="top">5.7</td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="?page=scripting_onclientvalidatepassword">OnClientValidatePassword</a></td>
+            <td valign="top">Executed when a password is about to be validated. Lets a script accept or reject the password.</td>
+            <td valign="top">5.7</td>
         </tr>
         <tr>
             <td valign="top"><a href="?page=scripting_onacceptmessage">OnAcceptMessage</a></td>
@@ -77,31 +92,37 @@ hMailServer offers the following pre-defined events:
             <td valign="top">Executed when SMTP Data is received</td>
             <td valign="top">5.4</td>
         </tr>
+        <tr>
+            <td valign="top"><a href="?page=scripting_onrecipientunknown">OnRecipientUnknown</a></td>
+            <td valign="top">Executed when a client specifies a recipient in a local domain which does not exist.</td>
+            <td valign="top">5.7</td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="?page=scripting_ontoomanyinvalidcommands">OnTooManyInvalidCommands</a></td>
+            <td valign="top">Executed when an SMTP client has sent too many invalid commands and is about to be disconnected.</td>
+            <td valign="top">5.7</td>
+        </tr>
     </tbody>
 </table>
 
 ## Order of Execution
 
-OnClientConnect (oClient)
+The events are executed in the following order:
 
-spam tests >> DNSBlackilists, HELOhost, MXRecords, SPF
-
-OnSMTPData (oClient, oMessage)
-
-spam tests >> SURBL, DKIM, Greylisting, integrated SpamAssasin
-
-OnAcceptMessage (oClient, oMessage)
-
-OnDeliveryStart (oMessage)
-
-integrated anti-virus check, Global rules
-
-OnDeliverMessage (oMessage)
-
-OnDeliveryFailed (oMessage, sRecipient, sErrorMessage) - if applicable
-
-<p>Message delivered to recipeint(s), Account level rules<strong><em><br>
-</em></strong><a href="https://github.com/hmailserver/hmailserver/blob/master/hmailserver/source/Server/Common/Scripting/ScriptServer.h" class="postlink"></a></p>
+1. `OnClientConnect` (oClient)
+2. `OnHELO` (oClient)
+3. *Spam tests: DNS blacklists, HELO host, MX records, SPF*
+4. `OnClientValidatePassword` (oAccount, sPassword) - if the client authenticates
+5. `OnClientLogon` (oClient) - if the client authenticates
+6. `OnRecipientUnknown` (oClient, oMessage) - if applicable
+7. `OnSMTPData` (oClient, oMessage)
+8. *Spam tests: SURBL, DKIM, greylisting, integrated SpamAssassin*
+9. `OnAcceptMessage` (oClient, oMessage)
+10. `OnDeliveryStart` (oMessage)
+11. *Integrated virus check, global rules*
+12. `OnDeliverMessage` (oMessage)
+13. `OnDeliveryFailed` (oMessage, sRecipient, sErrorMessage) - if applicable
+14. *Message delivered to recipient(s), account-level rules*
 
 ## Settings
 
