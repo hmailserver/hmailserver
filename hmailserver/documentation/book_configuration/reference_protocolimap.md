@@ -44,7 +44,7 @@ Use these settings to enable and disable IMAP extensions on the server.
 
 #### Create default special-use folders
 
-<div class="indented">When enabled, hMailServer automatically creates the well-known special-use folders - Drafts, Sent, Trash and Junk - for each new account, and marks them so that email clients recognize what each folder is for. This only applies to accounts created after the setting is enabled; existing accounts are not affected. This setting is disabled by default.</div>
+<div class="indented">When enabled, hMailServer automatically creates the well-known special-use folders - Drafts, Sent, Trash and Junk - for each new account, and marks them so that email clients recognize what each folder is for. This only applies to accounts created after the setting is enabled; existing accounts are not affected. This setting is enabled by default.</div>
 
 #### Hierarchy delimiter
 
