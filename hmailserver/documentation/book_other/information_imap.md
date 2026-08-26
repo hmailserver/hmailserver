@@ -26,4 +26,4 @@ hMailServer supports the IMAP SORT extension. This extension can dramatically im
 
 ## Folder separators
 
-hMailServer uses . (dot) as folder separator. This means that you cannot have dot in an IMAP folder name.
+By default, hMailServer uses . (dot) as the folder separator. This can be changed to a different character under Settings -> Protocols -> IMAP -> Advanced. Whichever character is selected as the separator cannot also be used in an IMAP folder name.
