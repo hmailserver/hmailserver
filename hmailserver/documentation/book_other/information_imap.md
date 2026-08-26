@@ -10,7 +10,9 @@ IMAP stands for Internet Message Access Protocol. It is a protocol that an email
 
 ## IMAP folders
 
-It is the IMAP client itself (webmail client, Outlook Express, Netscape Mail and so on) that is responsible for the properties of the components that make up the IMAP client. For example, hMailServer does not decide what name the "Sent items" folder should have. Nor does it know that the "Sent items" folder actually contains sent items. The IMAP client asks the server to create a folder for sent items, and then puts messages in the folder. If you want to change the name of that folder, you should do so in your IMAP client, not in hMailServer.
+It is the IMAP client itself (webmail client, Outlook Express, Netscape Mail and so on) that is responsible for the properties of the components that make up the IMAP client. By default, hMailServer does not decide what name the "Sent items" folder should have. Nor does it know that the "Sent items" folder actually contains sent items. The IMAP client asks the server to create a folder for sent items, and then puts messages in the folder. If you want to change the name of that folder, you should do so in your IMAP client, not in hMailServer.
+
+If you enable *Create default special-use folders* under Settings -> Protocols -> IMAP -> Advanced (disabled by default), hMailServer will instead create the well-known Drafts, Sent, Trash and Junk folders itself for every new account, marking each with the corresponding IMAP SPECIAL-USE ([RFC 6154](https://tools.ietf.org/html/rfc6154)) attribute so that compatible clients recognize them automatically. This only affects accounts created after the setting is enabled; the folder names are fixed and cannot be renamed in hMailServer.
 
 ## Refreshing IMAP folder list
 
