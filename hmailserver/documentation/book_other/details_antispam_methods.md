@@ -34,6 +34,10 @@ If DKIM verification is enabled, hMailServer will look for a DKIM-Signature head
 
 This test is expected to catch little spam, since spammers can simply skip including the DKIM-Signature header.
 
+### Check rDNS/PTR record
+
+If you enable this option, hMailServer will look up the PTR (reverse DNS) record for the IP address the message is delivered from, and check that hostname resolves back to that same IP address. Legitimate mail servers are normally set up with matching forward and reverse DNS records, while many spam sources are not. If no matching PTR record is found, the message is treated as spam.
+
 ### SpamAssassin
 
 [SpamAssassin](http://spamassassin.apache.org/) is a popular 3rd part y spam system. It does hundreds of checks on the email message to determine whether the email message is spam.

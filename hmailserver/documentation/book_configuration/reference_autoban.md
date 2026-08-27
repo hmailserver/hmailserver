@@ -26,19 +26,19 @@ When a user is banned, an IP range matching the user is automatically created. I
 
 When a client is banned, an IP range matching his IP address will be created. This IP range will have the following name:
 
-<p style="margin-left: 40px;">Auto-ban: username (random)</p>
+<p style="margin-left: 40px;">Auto-ban: username</p>
 
-Where "username" will be replaced with the username he is trying to log on with, and "random" is replaced with a 9 character random string.  
+Where "username" is replaced with the username he is trying to log on with. If an IP range with that name already exists, hMailServer appends a number in parentheses, e.g. "Auto-ban: username (1)", trying up to 10 numbers. If all of those are taken too, hMailServer falls back to appending a 9-character random string, e.g. "Auto-ban: username (Zx7Hq2pLm)".  
 
   
 
-In hMailServer you can not have multiple IP ranges with the same name. This is the reason the random string is included.
+In hMailServer you can not have multiple IP ranges with the same name. This is the reason a suffix is appended when needed.
 
 ### Potential problems
 
 The Auto-ban functionality blocks IP addresses. If too many invalid logon attempts are made from the same IP address, the IP address will be banned. If you are using a webmail system, all connections to hMailServer from that webmail system will come from the same IP address. If too many invalid logon attempts are made on that webmail system, the IP address the webmail system is connecting from will be blocked.
 
-To solve this problem, you can whitelist the webmail system. A workaround to this problem is to add a new IP range matching the shared IP address and give this IP range higher priority than any IP range added by the auto-ban functionality. The IP ranges added by auto-ban is given the priority 20, so if your own IP range has priority 25 it will take precedence.
+To solve this problem, you can whitelist the webmail system. A workaround to this problem is to add a new IP range matching the shared IP address and give this IP range higher priority than any IP range added by the auto-ban functionality. The IP ranges added by auto-ban is given the priority 100, so if your own IP range has priority 105 it will take precedence.
 
 ## Settings
 

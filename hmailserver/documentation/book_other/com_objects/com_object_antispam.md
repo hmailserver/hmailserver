@@ -18,7 +18,7 @@ The AntiSpam object contains all server-wide settings related to anti-spam.
 
 <div class="api_method_name">DKIMVerify(string File)</div>
 
-<div class="api_description">Verifies the DKIM-Signature of the specified file. Returns true if neutral or pass.</div>
+<div class="api_description">Verifies the DKIM-Signature of the specified file. Returns an eDKIMResult value: 0 (Neutral), 1 (Pass), 2 (Temporary failure) or 3 (Permanent failure).</div>
 
 <div class="api_method_name">TestSpamAssassinConnection(string Hostname, long Port, string ResultText)</div>
 
