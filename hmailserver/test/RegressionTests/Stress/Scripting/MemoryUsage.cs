@@ -7,7 +7,9 @@ using RegressionTests.Shared;
 namespace RegressionTests.Stress.Scripting
 {
    [TestFixture]
-   public class Events : TestFixtureBase
+   [Explicit]
+   [Category("Stress")]
+   public class MemoryUsage : TestFixtureBase
    {
       [Test]
       [Description("Regression test for issue #577 - reloading event scripts leaked a script engine per event handler.")]
