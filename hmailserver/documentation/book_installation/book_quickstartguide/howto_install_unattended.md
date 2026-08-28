@@ -6,7 +6,7 @@ index: 5
 is_book: false
 ---
 
-## Unattended installation
+## Overview
 
 The setup program can run without user interaction, which is useful when you
 install or upgrade hMailServer using a script or a deployment tool.
