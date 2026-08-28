@@ -10,6 +10,9 @@ var
   rdoUseInternal : TRadioButton;
   rdoUseExternal : TRadioButton;
 
+  // Non-zero if the installation failed. Setup exits with this code.
+  g_iExitCode : Integer;
+
 // The NT-service specific parts of the scrit below is taken
 // from the innosetup extension knowledgebase.
 // Author: Silvio Iaccarino silvio.iaccarino(at)de.adp.com
@@ -612,12 +615,31 @@ begin
 end;
 
 
-// Aborts the installation with an error message. Setup then exits with a non-zero
-// exit code, so an unattended installation doesn't report success after a failure.
+procedure ExitProcess(uExitCode: UINT);
+  external 'ExitProcess@kernel32.dll stdcall';
+
+// Aborts the installation with an error message. Inno Setup ignores an exception
+// raised after the files have been installed, and would report success even though
+// the installation failed. The exception stops the remaining post-installation
+// tasks, and the exit code is set when setup shuts down. 4 is the exit code Inno
+// Setup itself uses for a fatal error during installation.
 procedure FailPostInstall(szMessage: String);
 begin
+   Log('hMailServer: ' + szMessage);
    SuppressibleMsgBox(szMessage, mbError, MB_OK, IDOK);
+
+   g_iExitCode := 4;
+
    RaiseException(szMessage);
+end;
+
+procedure DeinitializeSetup();
+begin
+   if (g_iExitCode <> 0) then
+   begin
+      DelTree(ExpandConstant('{tmp}'), True, True, True);
+      ExitProcess(g_iExitCode);
+   end;
 end;
 
 // Must be kept in sync with hMailServer.Shared.ExitCodes.

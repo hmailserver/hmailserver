@@ -180,8 +180,8 @@
   },
   {
     "operatingSystem": "Windows 10",
-    "description": "MySQL 8.0.29: New installation - MariaDB client",
-    "vmName": "Windows10-MySQL8.0.29",
+    "description": "MySQL 26.7.0: New installation - MariaDB client",
+    "vmName": "Windows10-MySQL-26.7.0",
     "snapshotName": "Ready",
     "preInstallCommands": [
       {

@@ -202,6 +202,14 @@ namespace VMTestRunner.Console
          }
       }
 
+      // The exit code is read inside the guest - a Process object doesn't keep its
+      // ExitCode when it's serialized back to us.
+      private const string RunProgramScript =
+         "param($exe, $argList) " +
+         "if ($argList) { $process = Start-Process -FilePath $exe -ArgumentList $argList -Wait -PassThru } " +
+         "else { $process = Start-Process -FilePath $exe -Wait -PassThru } " +
+         "$process.ExitCode";
+
       /// <summary>
       /// Runs a program in the guest. throwOnFailure should only be used for programs
       /// which are known to return a meaningful exit code - 'net stop' for example
@@ -217,7 +225,7 @@ namespace VMTestRunner.Console
               .AddParameter("VMName", _vmName)
               .AddParameter("Credential", _credential)
               .AddParameter("ScriptBlock",
-                  ScriptBlock.Create("param($exe, $argList) if ($argList) { Start-Process -FilePath $exe -ArgumentList $argList -Wait -PassThru } else { Start-Process -FilePath $exe -Wait -PassThru }"))
+                  ScriptBlock.Create(RunProgramScript))
               .AddParameter("ArgumentList", new object[] { fullPath, param });
 
             var results = ps.Invoke();
@@ -235,12 +243,12 @@ namespace VMTestRunner.Console
 
       private int GetExitCode(Collection<PSObject> results)
       {
-         var exitCode = results.FirstOrDefault()?.Properties["ExitCode"]?.Value;
+         var exitCode = results.FirstOrDefault()?.BaseObject;
 
-         if (exitCode == null)
-            throw new Exception("RunProgramInGuest: The exit code of the process could not be determined.");
+         if (!(exitCode is int))
+            throw new Exception($"RunProgramInGuest: The exit code of the process could not be determined. Result: {exitCode ?? "(none)"}");
 
-         return Convert.ToInt32(exitCode);
+         return (int) exitCode;
       }
 
       public void CreateDirectory(string name)
