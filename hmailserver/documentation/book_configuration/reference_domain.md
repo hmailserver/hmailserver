@@ -93,8 +93,8 @@ It is possible to use the macros %User.FirstName% and %User.LastName% in signa
 <p>DKIM, Domain Keys Identified Mail, is a method to sign the content of messages. The recipient can verify that the message is sent from a server authenticated to send from the sender's domain, and that the message content has not been modified in transit.</p>
 <p>Before hMailServer delivers a message to another server, it will look at the sender address of the message. If the sender address matches a local domain, the DKIM signing options from that domain will be used. If DKIM signing has been enabled, the message will be signed.</p>
 <p>Whether or not the original sender has used SMTP authentication when delivering the message to hMailServer has no effect on the DKIM signing process.</p>
-<p>hMailServer only DKIM-signs email messages delivered to other servers. If a user on a hMailServer installation sends a message to another user on the same server, the message will not be signed.</p>
-<p>hMailServer only signs messages smaller than an internally-defined limit. Currently that limit is set to 10MB in the program code. The limit is not runtime-configurable.</p>
+<p>hMailServer signs a message with DKIM before deciding whether it will be delivered locally or to another server, so messages between two accounts on the same server are signed as well.</p>
+<p>hMailServer only signs messages smaller than an internally-defined limit. Currently that limit is set to 50MB in the program code. The limit is not runtime-configurable.</p>
 <h3>Private key file</h3>
 <div class="indented">The private key to use when signing messages with DKIM. This must be a file existing on the local file system, readable by hMailServer, and the file must not have a password set.</div>
 <h3>Selector</h3>
