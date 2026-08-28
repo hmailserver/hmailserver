@@ -319,6 +319,9 @@ public:
       // Determines wether a procedure exists in
       // the script. 
 
+      if (!engine_)
+         return false;
+
       CComPtr<IDispatch> spScriptDispatch;
       HRESULT hr = engine_->GetScriptDispatch(NULL, &spScriptDispatch);
       if (FAILED(hr) || !spScriptDispatch)
