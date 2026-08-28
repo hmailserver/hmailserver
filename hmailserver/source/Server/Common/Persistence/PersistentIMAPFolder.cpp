@@ -97,10 +97,12 @@ namespace HM
       // overload) so that forceDelete propagates to nested folders too -
       // otherwise emptying an account would delete nested special-use folders
       // instead of retaining them.
+      // Snapshot, rather than indexing the collection: another connection may remove a
+      // folder between the count and the lookup, which would give us an empty pointer.
       std::shared_ptr<IMAPFolders> pSubFolders = pFolder->GetSubFolders();
-      for (int i = 0; i < pSubFolders->GetCount(); i++)
+      for (std::shared_ptr<IMAPFolder> pSubFolder : pSubFolders->GetSnapshot())
       {
-         if (!DeleteObject(pSubFolders->GetItem(i), forceDelete))
+         if (!DeleteObject(pSubFolder, forceDelete))
             return false;
       }
 
