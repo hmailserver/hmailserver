@@ -118,18 +118,45 @@ public:
    {
       if(pase==NULL)
          return E_POINTER;
-      EXCEPINFO ei;
-      HR(pase->GetExceptionInfo(&ei));
-      if(ei.pfnDeferredFillIn!=NULL) {
-         HR((*ei.pfnDeferredFillIn)(&ei));
+
+      EXCEPINFO ei = {};
+      HRESULT hr = pase->GetExceptionInfo(&ei);
+      if (FAILED(hr))
+         return hr;
+
+      if(ei.pfnDeferredFillIn!=NULL)
+      {
+         hr = (*ei.pfnDeferredFillIn)(&ei);
+         if (FAILED(hr))
+         {
+            ::SysFreeString(ei.bstrSource);
+            ::SysFreeString(ei.bstrDescription);
+            ::SysFreeString(ei.bstrHelpFile);
+            return hr;
+         }
       }
+
       DWORD dwContext;
       ULONG ulLine;
       LONG lPos;
-      HR(pase->GetSourcePosition(&dwContext,&ulLine,&lPos));
+      hr = pase->GetSourcePosition(&dwContext,&ulLine,&lPos);
+      if (FAILED(hr))
+      {
+         ::SysFreeString(ei.bstrSource);
+         ::SysFreeString(ei.bstrDescription);
+         ::SysFreeString(ei.bstrHelpFile);
+         return hr;
+      }
+
       CComBSTR src;
       pase->GetSourceLineText(&src);
-      return HandleScriptError(&ei,ulLine,lPos,src);
+      hr = HandleScriptError(&ei,ulLine,lPos,src);
+
+      ::SysFreeString(ei.bstrSource);
+      ::SysFreeString(ei.bstrDescription);
+      ::SysFreeString(ei.bstrHelpFile);
+
+      return hr;
    }
 
    // This method is called when (before) the script engine starts executing the script/event handler
@@ -292,14 +319,15 @@ public:
       // Determines wether a procedure exists in
       // the script. 
 
-      IDispatch *ScriptDispatch = NULL;
-
-      engine_->GetScriptDispatch(NULL, &ScriptDispatch);
+      CComPtr<IDispatch> spScriptDispatch;
+      HRESULT hr = engine_->GetScriptDispatch(NULL, &spScriptDispatch);
+      if (FAILED(hr) || !spScriptDispatch)
+         return false;
 
       DISPID dispid;
       BSTR names[1];
       names[0] = sName.AllocSysString();
-      HRESULT hr = ScriptDispatch->GetIDsOfNames( IID_NULL, names, 1, 0, &dispid );
+      hr = spScriptDispatch->GetIDsOfNames( IID_NULL, names, 1, 0, &dispid );
 
       SysFreeString(names[0]);
 
@@ -318,10 +346,14 @@ public:
 
       USES_CONVERSION;
       const DWORD dwFlags = SCRIPTTEXT_ISVISIBLE;
-      EXCEPINFO einfo;
-      return spParse->ParseScriptText(T2COLE(pszScript),pszContext!=NULL ? T2COLE(pszContext) : OLESTR(""),NULL,NULL,0,0,dwFlags,NULL,&einfo);
+      EXCEPINFO einfo = {};
+      HRESULT hr = spParse->ParseScriptText(T2COLE(pszScript),pszContext!=NULL ? T2COLE(pszContext) : OLESTR(""),NULL,NULL,0,0,dwFlags,NULL,&einfo);
 
-      
+      ::SysFreeString(einfo.bstrSource);
+      ::SysFreeString(einfo.bstrDescription);
+      ::SysFreeString(einfo.bstrHelpFile);
+
+      return hr;
    }
 
    STDMETHOD(SetObjectContainer)(std::shared_ptr<HM::ScriptObjectContainer> pObject)
@@ -404,6 +436,3 @@ public:
       COM_INTERFACE_ENTRY(IActiveScriptSiteWindow)
    END_COM_MAP()
 };
-
-
-
