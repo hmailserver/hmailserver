@@ -72,11 +72,11 @@ namespace HM
    {
       String sDirectory = GetLibraryDirectory_();
 
-      // Prefer the MariaDB Connector/C client (libmariadb.dll) if it has been
-      // copied to the hMailServer Bin directory. It exposes the same mysql_*
-      // C API as libmysql.dll but is self-contained (Windows SChannel for TLS,
-      // no external OpenSSL/CRT DLLs). Fall back to libmysql.dll otherwise so
-      // existing installations keep working unchanged.
+      // Prefer the MariaDB Connector/C client (libmariadb.dll), which is
+      // installed into the hMailServer Bin directory. It exposes the same
+      // mysql_* C API as libmysql.dll, and uses the OpenSSL DLLs installed
+      // next to it for TLS. Fall back to libmysql.dll otherwise, so that
+      // installations where it has been replaced keep working unchanged.
       String sMariaDB = sDirectory + "\\libmariadb.dll";
       if (FileUtilities::Exists(sMariaDB))
       {
@@ -101,8 +101,8 @@ namespace HM
          sErrorMessage = Formatter::Format("Error:\r\n"
                "The MySQL client ({0}) could not be loaded.\r\n"
                "hMailServer needs this file to be able to connect to MySQL.\r\n"
-               "The client library needs to be manually copied to the hMailServer Bin directory. The file is not included in the hMailServer installation.\r\n"
-               "It can be obtained from https://mariadb.com/downloads/connectors/ (libmariadb.dll) or https://dev.mysql.com/downloads/connector/c/ (libmysql.dll).\r\n"
+               "This file is installed into the hMailServer Bin directory. If it has been removed, reinstall hMailServer to restore it.\r\n"
+               "A replacement can also be downloaded from https://mariadb.com/downloads/connectors/ (libmariadb.dll) or https://dev.mysql.com/downloads/connector/c/ (libmysql.dll).\r\n"
                "Path: {1}", versionArchitecture, sLibrary);
 
          ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5094, "MySQLInterface::Load", sErrorMessage);

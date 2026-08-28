@@ -78,9 +78,11 @@ Windows NT support has been removed since Microsoft no longer supports this oper
 
 hMailServer was designed to provide, in one single download, everything you need to run an email server. hMailServer has its own integrated database server, a light-weight version of the MSSQL database server. Should you not wish to use it, you can [select one](?page=choosing_database_engine) of the following database engines:
 
-- MySQL 4 and MySQL 5 (or Maria DB)
+- MySQL 4 and MySQL 5 (or MariaDB)
 - Microsoft SQL Server 2000, 2005, 2008, 2012 and 2016 (including Express, Standard and Enterprise edition)
 - PostgreSQL 8
+
+The client libraries needed to connect to these database engines are included in the hMailServer installation. For MySQL and MariaDB, hMailServer installs MariaDB Connector/C (libmariadb.dll), which connects to both. No client library has to be downloaded or copied manually.
 
 Notice that hMailServer is only tested with production releases of database engines. If you install an alpha or beta of for example MySQL, you should not expect hMailServer to work with it. The bundled Microsoft SQL Server Compact Edition (MS SQL CE) is not supported by Microsoft for Windows 8, Windows 8.1, Windows 10, Server 2012 or Server 2016. You will need to use an external database with these Operating Systems.
 
