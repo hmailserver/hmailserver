@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -201,7 +202,12 @@ namespace VMTestRunner.Console
          }
       }
 
-      public void RunProgramInGuest(string fullPath, string param)
+      /// <summary>
+      /// Runs a program in the guest. throwOnFailure should only be used for programs
+      /// which are known to return a meaningful exit code - 'net stop' for example
+      /// fails if the service isn't running, which isn't an error to us.
+      /// </summary>
+      public void RunProgramInGuest(string fullPath, string param, bool throwOnFailure = false)
       {
          Debug($"Executing {fullPath} {param}...");
 
@@ -214,9 +220,27 @@ namespace VMTestRunner.Console
                   ScriptBlock.Create("param($exe, $argList) if ($argList) { Start-Process -FilePath $exe -ArgumentList $argList -Wait -PassThru } else { Start-Process -FilePath $exe -Wait -PassThru }"))
               .AddParameter("ArgumentList", new object[] { fullPath, param });
 
-            ps.Invoke();
+            var results = ps.Invoke();
             HandleErrors(ps, "RunProgramInGuest");
+
+            if (!throwOnFailure)
+               return;
+
+            int exitCode = GetExitCode(results);
+
+            if (exitCode != 0)
+               throw new Exception($"RunProgramInGuest: {fullPath} {param} failed with exit code {exitCode}.");
          }
+      }
+
+      private int GetExitCode(Collection<PSObject> results)
+      {
+         var exitCode = results.FirstOrDefault()?.Properties["ExitCode"]?.Value;
+
+         if (exitCode == null)
+            throw new Exception("RunProgramInGuest: The exit code of the process could not be determined.");
+
+         return Convert.ToInt32(exitCode);
       }
 
       public void CreateDirectory(string name)

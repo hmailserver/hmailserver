@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 using System;
@@ -14,19 +14,31 @@ namespace DBSetupQuick
       private static hMailServer.Application _application;
 
       [STAThread]
-      static void Main()
+      static int Main()
       {
          CommandLineParser.Parse();
 
          _application = new hMailServer.Application();
 
          if (_application.Database.DatabaseExists)
-            UpgradeDatabase();
+            return UpgradeDatabase();
          else
-            CreateDatabase();
+            return CreateDatabase();
       }
 
-      private static void UpgradeDatabase()
+      /// <summary>
+      /// Shows an error, unless we're running unattended. In that case there may be
+      /// no desktop to show it on, so the failure is reported using the exit code instead.
+      /// </summary>
+      private static void ShowError(string text)
+      {
+         if (CommandLineParser.IsSilent())
+            return;
+
+         MessageBox.Show(text, "hMailServer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
+
+      private static int UpgradeDatabase()
       {
          try
          {
@@ -42,19 +54,27 @@ namespace DBSetupQuick
             if (CommandLineParser.IsSilent())
                arguments += " /silent";
 
+            // The updater needs the administrator password as well, since it can't ask
+            // for it when running unattended.
+            if (CommandLineParser.ContainsArgument("password"))
+               arguments += " password:" + CommandLineParser.GetArgument("password");
+
             upgradeProcess.Arguments = arguments;
 
             // Launch upgrader and wait for it to complete.
             Process p = Process.Start(upgradeProcess);
             p.WaitForExit();
+
+            return p.ExitCode;
          }
          catch (Exception ex)
          {
-            MessageBox.Show("Failed to start DBUpdater.exe" + Environment.NewLine + ex.Message, "hMailServer");
+            ShowError("Failed to start DBUpdater.exe" + Environment.NewLine + ex.Message);
+            return ExitCodes.UnexpectedError;
          }
       }
 
-      private static void CreateDatabase()
+      private static int CreateDatabase()
       {
          string adminPassword = string.Empty;
 
@@ -62,16 +82,18 @@ namespace DBSetupQuick
             adminPassword = CommandLineParser.GetArgument("password");
 
          if (!Authenticator.AuthenticateUser(_application, adminPassword))
-            return;
+            return ExitCodes.AuthenticationFailed;
 
          if (_application.Database.DatabaseType == hMailServer.eDBtype.hDBTypeMSSQLCE ||
              _application.Database.DatabaseType == hMailServer.eDBtype.hDBTypeUnknown)
          {
-            InitializeInternalDatabase();
+            return InitializeInternalDatabase();
          }
+
+         return ExitCodes.Success;
       }
 
-      private static void InitializeInternalDatabase()
+      private static int InitializeInternalDatabase()
       {
           try
           {
@@ -84,10 +106,13 @@ namespace DBSetupQuick
 
               // Re-initialize to connect to the newly created database.
               _application.Reinitialize();
+
+              return ExitCodes.Success;
           }
           catch (Exception ex)
           {
-              MessageBox.Show(ex.Message, "hMailServer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+              ShowError(ex.Message);
+              return ExitCodes.UnexpectedError;
           }
       }
 

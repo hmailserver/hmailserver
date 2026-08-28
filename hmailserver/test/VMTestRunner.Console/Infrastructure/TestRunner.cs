@@ -20,6 +20,8 @@ namespace VMTestRunner.Console
 
       private const string RunTestScriptName = "RunTestsInHyperV.bat";
 
+      private const string SetupLogPath = @"C:\setup.log";
+
       private readonly TestEnvironment _environment;
 
       private readonly string _softwareUnderTest;
@@ -70,7 +72,7 @@ namespace VMTestRunner.Console
          string softwareUnderTestFullPath = _softwareUnderTest;
          string softwareUnderTestName = Path.GetFileName(softwareUnderTestFullPath);
 
-         string softwareUnderTestSilentParmas = "/SILENT /LOG=\"C:\\setup.log\"";
+         string softwareUnderTestSilentParmas = $"/SILENT /LOG=\"{SetupLogPath}\"";
 
          string sslFolder = Path.Combine(TestSettings.GetTestFolder(), "SSL examples");
 
@@ -106,7 +108,7 @@ namespace VMTestRunner.Console
             vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
 
             vm.CopyFileToGuest(softwareUnderTestFullPath, Path.Combine(guestTestPath, softwareUnderTestName));
-            vm.RunProgramInGuest(Path.Combine(guestTestPath, softwareUnderTestName), softwareUnderTestSilentParmas);
+            RunSetup(vm, Path.Combine(guestTestPath, softwareUnderTestName), softwareUnderTestSilentParmas);
 
             foreach (var copyOperation in _environment.PostInstallFileCopy)
                vm.CopyFileToGuest(copyOperation.From, copyOperation.To);
@@ -163,6 +165,37 @@ namespace VMTestRunner.Console
             {
                Logger.Error(ex, "Unable to power off VM. Maybe it's not powered on?");
             }
+         }
+      }
+
+      /// <summary>
+      /// Runs the setup program. Setup returns a non-zero exit code if the installation
+      /// fails, for example if the database couldn't be upgraded.
+      /// </summary>
+      private void RunSetup(HyperV vm, string setupPath, string parameters)
+      {
+         try
+         {
+            vm.RunProgramInGuest(setupPath, parameters, true);
+         }
+         catch (Exception ex)
+         {
+            throw new Exception($"{ex.Message}{Environment.NewLine}{Environment.NewLine}{GetSetupLog(vm)}", ex);
+         }
+      }
+
+      private string GetSetupLog(HyperV vm)
+      {
+         try
+         {
+            string localSetupLog = Path.GetTempFileName() + ".log";
+            vm.CopyFileToHost(SetupLogPath, localSetupLog);
+
+            return File.ReadAllText(localSetupLog);
+         }
+         catch (Exception ex)
+         {
+            return $"The setup log {SetupLogPath} could not be read: {ex.Message}";
          }
       }
 

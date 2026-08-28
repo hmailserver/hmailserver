@@ -44,6 +44,9 @@ namespace hMailServer.Shared
 
       public static bool ContainsArgument(string argument)
       {
+         if (_argumentMap == null)
+            return false;
+
          if (_argumentMap.ContainsKey(argument))
             return true;
          else
