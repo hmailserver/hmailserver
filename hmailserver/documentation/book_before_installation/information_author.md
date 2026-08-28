@@ -6,7 +6,7 @@ index: 40
 is_book: false
 ---
 
-The server technology and overall design of hMailServer is in the hands of [Martin Knafve](mailto:martin@hmailserver.com).
+The server technology and overall design of hMailServer is in the hands of Martin Knafve.
 
 The software uses a couple of third-party components and libraries.
 
@@ -14,27 +14,11 @@ The software uses a couple of third-party components and libraries.
 - MD5 algorithm by RSA Data Security
 - Blowfish algorithm by Bruce Schneier
 - SPF library by Roger Moser
-- Boost by [boost.org](http://boost.org)
-- Winsock, ATL, ADO etc by [Microsoft](http://www.microsoft.com)
-- InnoSetup by [JR Software](http://www.jrsoftware.org/)
-- This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. (http://www.OpenSSL.org/)
+- Boost by [boost.org](https://www.boost.org)
+- OpenSSL by [the OpenSSL Project](https://www.openssl.org/), used for SSL/TLS and cryptography
+- MariaDB Connector/C by [MariaDB](https://mariadb.com/), used to connect to MySQL and MariaDB databases
+- libpq by [the PostgreSQL Global Development Group](https://www.postgresql.org/), used to connect to PostgreSQL databases
+- Winsock, ATL, ADO etc by [Microsoft](https://www.microsoft.com)
+- InnoSetup by [JR Software](https://jrsoftware.org/)
 
 [More copyright details...](?page=information_copyright)
-
-# Contact information
-
-Martin Knafve  
-
-Nedre Långvinkelsgatan 21  
-
-252 20 Helsingborg  
-
-Sweden  
-
-  
-
-martin@hmailserver.com  
-
-Phone: +46 (0)42 30 10000  
-
-Cell: +46 (0)73 82 00 781

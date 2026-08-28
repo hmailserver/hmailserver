@@ -15,7 +15,6 @@ is_book: false
 - [install WebAdmin](?page=howto_install_phpwebadmin)
 - [remotely manage hMailServer](?page=howto_remote_management)
 - [use ASSP with hMailServer?](?page=howto_use_assp)[](?page=howto_setup_ipranges_for_home_network)
-- [configure hMailServer to use a specific language?](?page=howto_set_language)
 
 ### Configuration
 
