@@ -70,15 +70,11 @@ If the size of an email message exceeds this size, hMailServer will not scan it 
 
 ### Use SPF
 
-<div class="indented">Select to enable spam protection using SPF. SPF record for the sending domain will be checked. Only a hard fail will score.</div>
+<div class="indented">Select to enable spam protection using SPF. The SPF record for the sending domain will be checked. Only a hard fail will score.</div>
 
-<div class="indented">If the domain has no SPF record, or the SPF record of the domain ends in a +all (allow all) or ends in ~all (softfail, intended only for testing) then this test will always pass and will not score.</div>
+<div class="indented">A hard fail happens when the mechanism that matches the sending IP address is prefixed with '-' (deny) - most commonly a trailing '-all' (deny all others), but it can also be an earlier, more specific mechanism such as '-ip4:1.2.3.4/32'. If the domain has no SPF record, or the matching mechanism is unprefixed / '+' (pass), '~' (softfail, intended only for testing) or '?' (neutral), the test will pass and will not score.</div>
 
-<div class="indented"> </div>
-
-<div class="indented">SPF scoring ONLY occurs where a SPF record for a domain exists, and that SPF record ends in a '-all' (deny all others), and the sending IP does NOT match the allowed parts of the record.</div>
-
-<div class="indented"> </div>
+<div class="indented"> </div>
 
 <div class="indented">See <a href="http://www.openspf.org/">www.openspf.org</a> for more detail about SPF. You can set SPF records for your own domains as part  of the DNS records.</div>
 
@@ -94,6 +90,11 @@ If the size of an email message exceeds this size, hMailServer will not scan it 
 <div class="indented">
 <h3>Verify DKIM-Signature header</h3>
 <div class="indented">If you enable this option, hMailServer will look for a DKIM-Signature header in every incoming message. If a header is found, hMailServer will verify that the message content matches the signature. If it does not, the spam score of this test will be added to the total spam score for the message.</div>
+</div>
+
+<div class="indented">
+<h3>Check rDNS/PTR record</h3>
+<div class="indented">If you enable this option, hMailServer will look up the PTR (reverse DNS) record for the connecting IP address, and check that one of the addresses that hostname resolves back to matches the connecting IP address. If no matching PTR record is found, the spam score of this test will be added to the total spam score for the message. This option is disabled by default.</div>
 </div>
 
 ## SpamAssassin
