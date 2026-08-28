@@ -68,7 +68,7 @@ The application object is the root object in the hMailServer API. It's the first
 
 <div class="api_method_name"><a href="?page=com_object_rules">Rules</a> Rules</div>
 
-<div class="api_description">Gets a colleciton of global rules.<br> <i>(read-only)</i></div>
+<div class="api_description">Gets a collection of global rules.<br> <i>(read-only)</i></div>
 
 <div class="api_method_name">eServerState ServerState</div>
 

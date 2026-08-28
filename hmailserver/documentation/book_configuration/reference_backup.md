@@ -50,4 +50,4 @@ The built-in backup functionality is designed for small installations. If you ha
 
 ### Messages
 
-<div class="indented">If you've choosen to backup domains, you can choose to backup messages as well. If you choose this option, hMailServer will backup IMAP folders and the messages stored in these IMAP folders. Messages in the hMailServer delivery queue are not backuped.</div>
+<div class="indented">If you've chosen to backup domains, you can choose to backup messages as well. If you choose this option, hMailServer will backup IMAP folders and the messages stored in these IMAP folders. Messages in the hMailServer delivery queue are not backuped.</div>

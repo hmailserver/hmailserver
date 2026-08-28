@@ -43,7 +43,7 @@ After restoring the backup, remember to:
 
 - Update any MX record which was pointing at the old host name.
 - Update the host name in your hMailServer configuration (if it has changed)
-- Update WebMail Cleint coinfiguration (if server settings have changed)
+- Update WebMail Client coinfiguration (if server settings have changed)
 - Check that your Windows Firewall is not blocking traffic to hMailServer
 - Ensure that port forwards from router / edge device / Hardware Firewall are pointing to the new server
 - Test connections to SpamAssassin and AntiVirus installations

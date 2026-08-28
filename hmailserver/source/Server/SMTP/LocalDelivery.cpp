@@ -54,7 +54,7 @@ namespace HM
    }
 
    /// Delivers the message to local recipients (recipients that exists in this installation)
-   /// Returns true if the message has been re-used by us. If it has, the deliverer outside
+   /// Returns true if the message has been reused by us. If it has, the deliverer outside
    /// should not delete the message from the database when we're done.
    bool
    LocalDelivery::Perform(std::vector<String> &saErrorMessages)

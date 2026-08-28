@@ -24,4 +24,4 @@ If you want to determine the current situation, you can run the following SQL s
 
 <p style="margin-left: 40px;"><span class="Code">select max(messageid) from hm_messages</span></p>
 
-If this value is higher than 4 000 000 000, you will soon run into this probem.
+If this value is higher than 4 000 000 000, you will soon run into this problem.

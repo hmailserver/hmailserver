@@ -333,7 +333,7 @@ namespace HM
 		   if (ch == '=')
 		   {
 			   if (pbData+2 > pbEnd)
-				   break;				// invalid endcoding
+				   break;				// invalid encoding
 			   ch = *pbData++;
 			   if (CMimeChar::IsHexDigit(ch))
 			   {
@@ -347,7 +347,7 @@ namespace HM
 			   }
 			   else if (ch == '\r' && *pbData == '\n')
 				   pbData++;			// Soft Line Break, eat it
-			   else					// invalid endcoding, let it go
+			   else					// invalid encoding, let it go
 				   output.append(1, ch);
 		   }
          else
@@ -369,7 +369,7 @@ namespace HM
          if (ch == '=')
          {
             if (pbData+2 > pbEnd)
-               break;				// invalid endcoding
+               break;				// invalid encoding
             ch = *pbData++;
             if (CMimeChar::IsHexDigit(ch))
             {
@@ -383,7 +383,7 @@ namespace HM
             }
             else if (ch == '\r' && *pbData == '\n')
                pbData++;			// Soft Line Break, eat it
-            else					// invalid endcoding, let it go
+            else					// invalid encoding, let it go
                output.append(1, ch);
          }
          else

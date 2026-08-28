@@ -22,7 +22,7 @@ hMailServer 4.2 and later can limit the number of times a message is processed i
 
 ### Global rules vs. Account rules
 
-During message delivery, global rules are executed before any account rules. This means that if you set up a global rule to delete all messages for a specific account, the messages won't reach this account and they won't be effected by rules in tihs account.
+During message delivery, global rules are executed before any account rules. This means that if you set up a global rule to delete all messages for a specific account, the messages won't reach this account and they won't be effected by rules in this account.
 
 In the same way, account level rules can override behaviour of global rules. If you set up a global rule to move messages a specific IMAP folder, and then set up an account rule to move the messages to a different IMAP folder, the account rule will have precedence.
 

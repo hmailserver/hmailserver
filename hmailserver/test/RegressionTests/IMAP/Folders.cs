@@ -182,7 +182,7 @@ namespace RegressionTests.IMAP
       }
 
       /// <summary>
-      ///    Tests that the LSUB resposne doesn't contain an empty line if a folder is not subscribed to.
+      ///    Tests that the LSUB response doesn't contain an empty line if a folder is not subscribed to.
       /// </summary>
       [Test]
       public void TestFolderLSUBUnsubscribedFolder()

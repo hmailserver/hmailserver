@@ -92,7 +92,7 @@ namespace HM
             pRS->MoveNext();
          }
 
-         // Sort theese folders into sub-folders.
+         // Sort these folders into sub-folders.
          long lPanicLevel = 0;
          while (vecIMAPFolders.size() > 0)
          {
@@ -255,7 +255,7 @@ namespace HM
 
          if (pFolder->GetID() == lRemoveFolderID)
          {
-            // Remove this folder fro the collection.
+            // Remove this folder from the collection.
             vecObjects.erase(iterCurPos);
             return;
          }

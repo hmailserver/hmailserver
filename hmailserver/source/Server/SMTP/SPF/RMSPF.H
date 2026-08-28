@@ -6,7 +6,7 @@
 // License: You can do with this source whatever you want.
 
 
-// define SPFDLL before incuding this file if using a DLL
+// define SPFDLL before including this file if using a DLL
 #ifdef SPFDLL
 #define SPFAPI __stdcall
 #ifdef __cplusplus

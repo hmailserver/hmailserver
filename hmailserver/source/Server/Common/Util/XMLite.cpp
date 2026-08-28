@@ -61,7 +61,7 @@ LPTSTR _tcschrs( LPCTSTR psz, LPCTSTR pszchs )
 // Name   : _tcsskip
 // Desc   : skip space
 // Param  : 
-// Return : skiped string
+// Return : skipped string
 //--------------------------------------------------------
 // Coder    Date                      Desc
 // bro      2002-10-29
@@ -1011,7 +1011,7 @@ LPXNode	_tagXMLDocument::GetRoot()
 
 //========================================================
 // Name   : GetXML
-// Desc   : convert plain xml text from parsed xml attirbute
+// Desc   : convert plain xml text from parsed xml attribute
 // Param  :
 // Return : converted plain string
 //--------------------------------------------------------
@@ -1205,7 +1205,7 @@ HM::String _tagXMLNode::GetText( LPDISP_OPT opt /*= &optDefault*/ )
 		}
 		else
 		{
-			// childs text
+			// children text
 			for( unsigned int i = 0 ; i < childs.size(); i++ )
 				os << (LPCTSTR)childs[i]->GetText();
 			
@@ -1286,7 +1286,7 @@ XNodes _tagXMLNode::GetChilds()
 
 //========================================================
 // Name   : GetChilds
-// Desc   : Find childs with name and return childs list
+// Desc   : Find children with name and return children list
 // Param  :
 // Return : 
 //--------------------------------------------------------
@@ -1396,7 +1396,7 @@ LPCTSTR _tagXMLNode::GetChildAttrValue( LPCTSTR name, LPCTSTR attrname )
 
 //========================================================
 // Name   : Find
-// Desc   : find node with tag name from it's all childs
+// Desc   : find node with tag name from it's all children
 // Param  :
 // Return : NULL return if no found node.
 //--------------------------------------------------------
@@ -1428,7 +1428,7 @@ LPXNode	_tagXMLNode::Find( LPCTSTR name )
 // Name   : GetChildIterator
 // Desc   : get child nodes iterator
 // Param  :
-// Return : NULL return if no childs.
+// Return : NULL return if no children.
 //--------------------------------------------------------
 // Coder    Date                      Desc
 // bro      2002-10-29

@@ -31,7 +31,7 @@ is_book: false
         </tr>
         <tr>
             <td valign="top">/Languages</td>
-            <td valign="top">Tranlations of the hMailServer user interface.</td>
+            <td valign="top">Translations of the hMailServer user interface.</td>
         </tr>
         <tr>
             <td valign="top">/Logs</td>

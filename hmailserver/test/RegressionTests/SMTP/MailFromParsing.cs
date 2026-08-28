@@ -162,7 +162,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(expectedResponse + "\r\n", result);
       }
 
-      private void AssertValidMailFromCommand(string comamnd)
+      private void AssertValidMailFromCommand(string command)
       {
          var smtpClientSimulator = new TcpConnection();
          smtpClientSimulator.Connect(25);
@@ -170,7 +170,7 @@ namespace RegressionTests.SMTP
          smtpClientSimulator.Send("HELO test\r\n");
          Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
 
-         var result = smtpClientSimulator.SendAndReceive(comamnd + "\r\n");
+         var result = smtpClientSimulator.SendAndReceive(command + "\r\n");
 
          smtpClientSimulator.Disconnect();
 

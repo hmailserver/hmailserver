@@ -512,7 +512,7 @@ namespace HM
       unsigned int tmp_rnd = 0;
       int iRandomAdjust = 0;
 
-      // See if randomness is enabled to work around Win2k compatability issue
+      // See if randomness is enabled to work around Win2k compatibility issue
       // plus saves work if not enabled which is default
       if (queue_randomness_minutes_ > 0)
       {
@@ -609,7 +609,7 @@ namespace HM
    }
 
    /// Returns the retry options for a list of address.
-   /// The maximum number of retries and the maximum number of mintues between
+   /// The maximum number of retries and the maximum number of minutes between
    /// every try.
    // Type changed to bool for use in ETRN's
    bool 
@@ -620,7 +620,7 @@ namespace HM
 
       bool bFirstMatchingRoute = true;
 
-      // First fetch the default values. Theese are used
+      // First fetch the default values. These are used
       // if we can't find a route for any of the domains.
       lNoOfRetries = pSMTPConfig->GetNoOfRetries();
       lMinutesBetween  = pSMTPConfig->GetMinutesBetweenTry();

@@ -160,7 +160,7 @@ namespace HM
 
       bool bIsOrCriteria = pParentCriteria->GetIsOR();
 
-      // Loop over the criterias in the command.
+      // Loop over the criteria in the command.
       std::vector<std::shared_ptr<IMAPSearchCriteria> > &vecCriterias = pParentCriteria->GetSubCriterias();
       auto iterCriteria = vecCriterias.begin();
 
@@ -562,7 +562,7 @@ namespace HM
    IMAPCommandSEARCH::MatchesLARGERCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Messages whose size is larger than the size specified in critera.
+   // Messages whose size is larger than the size specified in criteria.
    //---------------------------------------------------------------------------()
    {
       int iMessageSize = pMessage->GetSize();
@@ -578,7 +578,7 @@ namespace HM
    IMAPCommandSEARCH::MatchesSMALLERCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Messages whose size is smaller than the size specified in critera.
+   // Messages whose size is smaller than the size specified in criteria.
    //---------------------------------------------------------------------------()
 {
       int iMessageSize = pMessage->GetSize();

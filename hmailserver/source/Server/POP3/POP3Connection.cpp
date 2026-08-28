@@ -1003,7 +1003,7 @@ namespace HM
             "1", the second is assigned "2", and so on, so that the nth message
             in a maildrop is assigned a message-number of "n". 
 
-         If there are messages marked for deletion in the mailbox, this woulnd't work.
+         If there are messages marked for deletion in the mailbox, this wouldn't work.
 
       */
       for(std::shared_ptr<Message> message : messages_)

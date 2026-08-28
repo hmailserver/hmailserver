@@ -352,7 +352,7 @@ namespace HM
    // DESCRIPTION:
    // Runs a SQL script which contains commands separated with semicolons. This
    // function will always succeed, so should only be used for non-important
-   // SQL epressions
+   // SQL expressions
    //---------------------------------------------------------------------------()
    {
 #ifndef _DISABLE_MYSQL_AUTOUPGRADE

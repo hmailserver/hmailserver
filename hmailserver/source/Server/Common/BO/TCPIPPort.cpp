@@ -62,7 +62,7 @@ namespace HM
       address_.TryParse(pNode->GetAttrValue(_T("Address")));
       sslcertificate_id_  = GetSSLCertificateID_(pNode->GetAttrValue(_T("SSLCertificateName")));
 
-      // Backwards compatibiltiy
+      // Backwards compatibility
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
       {
          connection_security_ = CSSSL;

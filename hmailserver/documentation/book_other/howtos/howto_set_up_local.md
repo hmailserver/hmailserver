@@ -32,6 +32,6 @@ When the accounts have been created and firewall configured, it's time to config
 
 ### Done
 
-After the above steps have been performed, your users in your network will be able to send email to eachother, using the internal addresses.
+After the above steps have been performed, your users in your network will be able to send email to each other, using the internal addresses.
 
  

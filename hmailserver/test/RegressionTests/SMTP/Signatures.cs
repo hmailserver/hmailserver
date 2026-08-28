@@ -217,7 +217,7 @@ namespace RegressionTests.SMTP
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "list@example.test", "test");
 
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send("nonexistant@dummy-example.com", account.Address, "SignatureTest",
+         smtpClientSimulator.Send("nonexistent@dummy-example.com", account.Address, "SignatureTest",
             "SignaturerTestBody");
 
          var messageData = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
@@ -240,7 +240,7 @@ namespace RegressionTests.SMTP
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "list@example.test", "test");
 
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send("nonexistant@" + _domain.Name, account.Address, "SignatureTest",
+         smtpClientSimulator.Send("nonexistent@" + _domain.Name, account.Address, "SignatureTest",
             "SignaturerTestBody");
 
          var messageData = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
@@ -264,7 +264,7 @@ namespace RegressionTests.SMTP
          account.PersonFirstName = "Martin";
 
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send("nonexistant@" + _domain.Name, account.Address, "SignatureTest",
+         smtpClientSimulator.Send("nonexistent@" + _domain.Name, account.Address, "SignatureTest",
             "SignaturerTestBody");
 
          var messageData = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");

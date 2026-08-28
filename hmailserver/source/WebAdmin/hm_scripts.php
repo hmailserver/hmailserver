@@ -14,9 +14,9 @@ if($action == "save")
 {
 	$obScripting->Enabled = hmailGetVar("scriptingenabled",0);
 	
-	$langauge = hmailGetVar("scriptinglanguage",0);
+	$language = hmailGetVar("scriptinglanguage",0);
 	
-	if ($langauge != "VBScript" && $langauge != "JScript")
+	if ($language != "VBScript" && $language != "JScript")
 	{
 		echo "Unsupported language";
 		die;

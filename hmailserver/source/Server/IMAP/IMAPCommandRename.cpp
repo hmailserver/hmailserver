@@ -96,7 +96,7 @@ namespace HM
       // 2a) Set the new namepNewParentFolder of the folder
       pFolderToRename->SetFolderName(sFolderName);
 
-      // 2a) Add to new parent, and update all paths recursivly.
+      // 2a) Add to new parent, and update all paths recursively.
       if (pNewParentFolder)
       {
          pFolderToRename->SetParentFolderID(pNewParentFolder->GetID());
@@ -141,7 +141,7 @@ namespace HM
          return pEmpty;
       }
       
-      // Remove everythin but the last...
+      // Remove everything but the last...
       std::vector<String> vecParentFolder = vecFolderPath;
       vecParentFolder.resize(vecParentFolder.size() -1);
 

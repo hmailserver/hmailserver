@@ -128,7 +128,7 @@ namespace HM
       pResult->SetBackupFile(sZipFile);
       pResult->SetContains(iMode);
 
-      // Delete the XML file we temporarly created
+      // Delete the XML file we temporarily created
       FileUtilities::DeleteFile(sXMLFile);
 
       LOG_DEBUG("BackupManager::~LoadBackup - E2");

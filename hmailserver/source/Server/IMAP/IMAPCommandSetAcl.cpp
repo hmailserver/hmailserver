@@ -55,7 +55,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
       if (pFolder->GetAccountID() != 0)
-         return IMAPResult(IMAPResult::ResultNo, "It is not possible to set permisssion for account folders.");
+         return IMAPResult(IMAPResult::ResultNo, "It is not possible to set permission for account folders.");
 
       // Check that user has permission to do this.
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionAdminister))

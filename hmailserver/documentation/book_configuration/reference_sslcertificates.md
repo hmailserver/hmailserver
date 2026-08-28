@@ -14,7 +14,7 @@ is_book: false
 
 ### Certificate file
 
-The certificate file to use. This certificate should conatin the trust chain (Root CA and any Intermediary Certificates), in addition to the Server Certificate. Please see the user forum for some 'How Tos' for various types of SSL Certificates.
+The certificate file to use. This certificate should contain the trust chain (Root CA and any Intermediary Certificates), in addition to the Server Certificate. Please see the user forum for some 'How Tos' for various types of SSL Certificates.
 
 ### Private key file
 

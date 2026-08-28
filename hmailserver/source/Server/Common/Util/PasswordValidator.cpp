@@ -152,7 +152,7 @@ namespace HM
 
       if (iPasswordEncryption == 0)
       {
-         // Do plain text comparision
+         // Do plain text comparison
 
          // POTENTIAL TO BREAK BACKWARD COMPATIBILITY
          // Unencrypted passwords are not case sensitive so these changes WOULD fix that
@@ -169,7 +169,7 @@ namespace HM
       else if (iPasswordEncryption == Crypt::ETMD5 ||
                iPasswordEncryption == Crypt::ETSHA256)
       {
-         // Compare hashs
+         // Compare hashes
          bool result = Crypt::Instance()->Validate(sPassword, sComparePassword, iPasswordEncryption);
 
          if (!result)

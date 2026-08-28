@@ -10,7 +10,7 @@ is_book: false
 
 ### General information
 
-hMailServer uses the Windows API to query the DNS server. hMailServer itself does not not ask Windows to use a specific DNS server. The DNS query is made using the Windows API function DnsQuery. Depending on what DNS error that has occured, DnsQuery return different values. If an error occurs, this error is listed in the hMailServer log.
+hMailServer uses the Windows API to query the DNS server. hMailServer itself does not not ask Windows to use a specific DNS server. The DNS query is made using the Windows API function DnsQuery. Depending on what DNS error that has occurred, DnsQuery return different values. If an error occurs, this error is listed in the hMailServer log.
 
 ### 1460, ERROR_TIMEOUT
 

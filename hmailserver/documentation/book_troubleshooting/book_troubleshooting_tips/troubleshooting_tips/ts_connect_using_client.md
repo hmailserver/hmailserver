@@ -14,8 +14,8 @@ If you cannot connect to hMailServer using your email client, the most likely ca
 - The host name you have entered in your email client does not resolve to the IP address of the computer where the email server is running.
 - A firewall is running which blocks traffic to hMailServer. This can be both software and hardware firewalls. Very often server administrators have not opened up the relevant ports (typically 25, 110 and 143) in the Windows XP firewall.
 - Loopback connections is not enabled in the router, so even though you connect to the correct public IP address and the firewall is opened up, your router won't forward the connection to the mail server since you are connecting from inside the network.
-- hMailServer is not listening on the TCP/IP ports. In most cases, this occurs if another email server is running on the same computer as hMailServer. Often server administrators have choosen to install Microsoft IIS SMTP server and then forgotten about it. Telnet your server on the ports 25, 110 and 143 to check whether another server is listening on them.
-- Your IP address has been banned. Check whther Auto-ban has been enabled in hMailServer. Also check whether there's an auto-ban IP range matching your IP address.
+- hMailServer is not listening on the TCP/IP ports. In most cases, this occurs if another email server is running on the same computer as hMailServer. Often server administrators have chosen to install Microsoft IIS SMTP server and then forgotten about it. Telnet your server on the ports 25, 110 and 143 to check whether another server is listening on them.
+- Your IP address has been banned. Check whether Auto-ban has been enabled in hMailServer. Also check whether there's an auto-ban IP range matching your IP address.
 
 ## Problems connecting from the computer where hMailServer is installed
 

@@ -195,7 +195,7 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
          Assert.IsTrue(simulator.SelectFolder("INBOX"));
 
-         var result = simulator.SendSingleCommand("A01 SEARCH CHARSET NONEXISTANT ALL SUBJECT MySubject");
+         var result = simulator.SendSingleCommand("A01 SEARCH CHARSET NONEXISTENT ALL SUBJECT MySubject");
          Assert.AreEqual("A01 NO [BADCHARSET]\r\n", result);
       }
 
@@ -525,7 +525,7 @@ namespace RegressionTests.IMAP
 
          ImapClientSimulator.AssertMessageCount("search@example.test", "test", "INBOX", 3);
 
-         // There should be 3 UID's, 1,2,3 or similar. No skips in the middle fo them.
+         // There should be 3 UID's, 1,2,3 or similar. No skips in the middle of them.
          var simulator = new ImapClientSimulator();
          var sWelcomeMessage = simulator.Connect();
          simulator.Logon("search@example.test", "test");

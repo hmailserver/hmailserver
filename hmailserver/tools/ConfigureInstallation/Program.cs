@@ -57,7 +57,7 @@ namespace ConfigureInstallation
          var phpVersionContent = string.Format("<?php\r\ndefine('REQUIRED_VERSION', '{0}-B{1}');\r\n?>", version, build);
          File.WriteAllText(phpVersionFile, phpVersionContent);
 
-         // Write installation program verison
+         // Write installation program version
          if (!ConfigureInstallationFile(Path.Combine(rootDir, @"hmailserver\Installation\section_setup_64.iss"), version, build, true))
             return -1;
 

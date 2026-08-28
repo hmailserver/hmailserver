@@ -40,6 +40,6 @@ In the hMailServer Addons folder, there's a VBA script called StartBackup.vbs. T
 
 ## Recommendations
 
-Regardless of how you perform the back up, it's strongly recommended that you regulary confirm that the backups are working properly by restoring them to another server.
+Regardless of how you perform the back up, it's strongly recommended that you regularly confirm that the backups are working properly by restoring them to another server.
 
  

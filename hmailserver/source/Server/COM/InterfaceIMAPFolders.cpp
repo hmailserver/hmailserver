@@ -196,7 +196,7 @@ InterfaceIMAPFolders::Add(BSTR sName, IInterfaceIMAPFolder **pVal)
          return COMError::GenerateError("Folder could not be saved.");
       }
    
-      // Add the folder ot the collection.
+      // Add the folder to the collection.
       object_->AddItem(pIMAPFolder);
    
       pIMAPFolderInt->AttachParent(object_, true);

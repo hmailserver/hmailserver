@@ -120,7 +120,7 @@ namespace HM
    AddresslistParser::ExtractParts(const String &sCompound, String &sFullName, String &sMailbox, String &sDomain) const
    {
       // Extract the name and address from a string like:
-      // first last <email@domain.com>. This method is extremly
+      // first last <email@domain.com>. This method is extremely
       // fuzzy and won't work unless the address is really properly
       // formatted.
       
@@ -355,7 +355,7 @@ namespace HM
          delete pParser;
       }
 
-      {  // EVEN MORE ADVANCED. Two addresses seperated by tab, newline and space.
+      {  // EVEN MORE ADVANCED. Two addresses separated by tab, newline and space.
          
          String sTestStr = "\"Martin Knafve\" <martin@example.test>, \r\n  \"Test2 Testar\" <testa@testy.com>";
 

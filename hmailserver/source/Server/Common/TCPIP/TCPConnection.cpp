@@ -452,18 +452,18 @@ namespace HM
    }
 
    void 
-   TCPConnection::EnqueueRead(const AnsiString &delimitor)
+   TCPConnection::EnqueueRead(const AnsiString &delimiter)
    {
       ThrowIfNotConnected_();
 
-      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimiter));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
    }
 
    void 
-   TCPConnection::AsyncRead(const AnsiString &delimitor)
+   TCPConnection::AsyncRead(const AnsiString &delimiter)
    {
       UpdateAutoLogoutTimer();
 
@@ -474,17 +474,17 @@ namespace HM
 
       if (is_ssl_)
       {
-         if (delimitor.GetLength() == 0)
+         if (delimiter.GetLength() == 0)
             boost::asio::async_read(ssl_socket_, receive_buffer_, boost::asio::transfer_at_least(1), AsyncReadCompletedFunction);
          else
-            boost::asio::async_read_until(ssl_socket_, receive_buffer_,  delimitor, AsyncReadCompletedFunction);
+            boost::asio::async_read_until(ssl_socket_, receive_buffer_,  delimiter, AsyncReadCompletedFunction);
       }
       else
       {
-         if (delimitor.GetLength() == 0)
+         if (delimiter.GetLength() == 0)
             boost::asio::async_read(socket_, receive_buffer_, boost::asio::transfer_at_least(1), AsyncReadCompletedFunction);
          else
-            boost::asio::async_read_until(socket_, receive_buffer_, delimitor, AsyncReadCompletedFunction);
+            boost::asio::async_read_until(socket_, receive_buffer_, delimiter, AsyncReadCompletedFunction);
       }
 
    }
@@ -555,7 +555,7 @@ namespace HM
             catch (...)
             {
                String message;
-               message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
+               message.Format(_T("An error occurred while parsing data. Data size: %d"), pBuffer->GetSize());
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
@@ -590,7 +590,7 @@ namespace HM
             catch (...)
             {
                String message;
-               message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
+               message.Format(_T("An error occurred while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
@@ -856,7 +856,7 @@ namespace HM
          EnqueueDisconnect();
 
          // Make sure the autologout timer is triggered. This is done in OnConnectionTimeout if we send
-         // a timeout message, but if we don't we need to make sure its triggerd.
+         // a timeout message, but if we don't we need to make sure its triggered.
          UpdateAutoLogoutTimer();
       }
    }

@@ -16,7 +16,7 @@
 // 2002-10-29 : First Coded. Parsing XMLElelement and Attributes.
 //              get xml parsed string ( looks good )
 // 2002-10-30 : Get Node Functions, error handling ( not completed )
-// 2002-12-06 : Helper Funtion string to long
+// 2002-12-06 : Helper Function string to long
 // 2002-12-12 : Entity Helper Support
 // 2003-04-08 : Close, 
 // 2003-07-23 : add property escape_value. (now no escape on default)
@@ -85,12 +85,12 @@ typedef struct _tagParseInfo
 {
 	bool		trim_value;			// [set] do trim when parse?
 	bool		entity_value;		// [set] do convert from reference to entity? ( &lt; -> < )
-	LPXENTITYS	entitys;			// [set] entity table for entity decode
+	LPXENTITYS	entities;			// [set] entity table for entity decode
 	TCHAR		escape_value;		// [set] escape value (default '\\')
 	bool		force_parse;		// [set] force parse even if xml is not welformed
 
 	LPTSTR		xml;				// [get] xml source
-	bool		erorr_occur;		// [get] is occurance of error?
+	bool		erorr_occur;		// [get] is occurrence of error?
 	LPTSTR		error_pointer;		// [get] error position of xml source
 	PCODE		error_code;			// [get] error code
 	HM::String		error_string;		// [get] error string
@@ -120,7 +120,7 @@ typedef struct _tagDispOption
 	bool newline;			// newline when new tag
 	bool reference_value;	// do convert from entity to reference ( < -> &lt; )
 	char value_quotation_mark;	// val="" (default value quotation mark "
-	LPXENTITYS	entitys;	// entity table for entity encode
+	LPXENTITYS	entities;	// entity table for entity encode
 
 	int tab_base;			// internal usage
 	_tagDispOption() { newline = true; reference_value = true; entitys = &entityDefault; tab_base = 0; value_quotation_mark = '"'; }
@@ -156,7 +156,7 @@ typedef struct _tagXMLNode
 
 	// internal variables
 	LPXNode	parent;		// parent node
-	XNodes	childs;		// child node
+	XNodes	children;		// child node
 	XAttrs	attrs;		// attributes
 	NODE_TYPE type;		// node type 
 	LPXDoc	doc;		// document
@@ -238,7 +238,7 @@ typedef struct _tagXMLDocument : public XNode
 
 }XDoc, *LPXDoc;
 
-// Helper Funtion
+// Helper Function
 inline long XStr2Int( LPCTSTR str, long default_value = 0 )
 {
 	return ( str && *str ) ? _ttol(str) : default_value;

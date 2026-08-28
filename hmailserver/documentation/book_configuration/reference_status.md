@@ -42,14 +42,14 @@ The status page shows information on when the server was started, the number of 
 
 ### Logging
 
-Using the live log, you can see what is happening in your hMailServer installation without have to manually open the log. The live log is primarly used for troubleshooting. To use the log, you first go to the logging settings and enable which details you want to log. After that, you then open up this page and click Start. Whenever something is added to the log, it will automatically appear on this page.
+Using the live log, you can see what is happening in your hMailServer installation without have to manually open the log. The live log is primarily used for troubleshooting. To use the log, you first go to the logging settings and enable which details you want to log. After that, you then open up this page and click Start. Whenever something is added to the log, it will automatically appear on this page.
 
 ### Delivery queue
 
 The delivery queue page shows messages which are in the queue to be delivered. The following tasks can be performed:
 
 - Refresh - The list you see is a snapshot from the time when you opened the page. If you wait a few minutes several of the messages will have been delivered. To see a new snapshot, click refresh.
-- Clear queue - Select clear queue to remove all messages from the delivery queue. Messages currently  beeing delivered might still be delivered, depending on the exact state at the moment.
+- Clear queue - Select clear queue to remove all messages from the delivery queue. Messages currently  being delivered might still be delivered, depending on the exact state at the moment.
 - Show (right click in list) - Choosing this will open up a new dialog which allows you to see the message content.
 - Send now (right click in list) -This will queue the message for immediate delivery. This means that if there is an available delivery thread, thedelivery will start immediately. If not, the delivery will start when adelivery thread is available.
 - Remove (right click in list) - this operation will remove a message from the delivery queue.

@@ -20,12 +20,12 @@ Note: ClamWIN should NOT be used on a busy server as it is NOT Multithreading
 
 <div class="indented">
 <h3>Maximum message size to virus scan (KB)</h3>
-<div class="indented">Most email message which contains viruses are relativly small. Using this setting, you can configure hMailServer to skip virus scanning if a message is larger than a specified size. </div>
+<div class="indented">Most email message which contains viruses are relatively small. Using this setting, you can configure hMailServer to skip virus scanning if a message is larger than a specified size. </div>
 </div>
 
 ## ClamAV
 
-<div class="indented">hMailServer can be set to use an external ClamAV instalation. Specificy the Host Name or Static LAN IP address and the port for your ClamAV instalation. Standard port is 3310.<br>
+<div class="indented">hMailServer can be set to use an external ClamAV installation. Specify the Host Name or Static LAN IP address and the port for your ClamAV installation. Standard port is 3310.<br>
 <h3>Test</h3>
 The test button will generate a EICAR test virus and send it to your ClamAV, and detail the response provided by your ClamAV installation.</div>
 

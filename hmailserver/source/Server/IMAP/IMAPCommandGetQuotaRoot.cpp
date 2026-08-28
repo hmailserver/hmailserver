@@ -47,7 +47,7 @@ namespace HM
 
       if (pParser->Word(1)->Quoted())
       {
-         // If there was quotes in the command, readd
+         // If there was quotes in the command, re-add
          // them now. For example, if there's a space
          // in the folder name it should be in quotes.
          sFolderName = "\"" + sFolderName + "\"";

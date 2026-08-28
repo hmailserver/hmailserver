@@ -21,7 +21,7 @@ is_book: false
 <div class="indented">If a Max Message Size is specified, hMailServer will reject messages larger than that size. If you wish to allow messages of unlimited size, set the value to zero. The size is specified in KB.</div>
 
 <div class="indented"><br>
-This value can be overriden in the <a href="?page=reference_domain">domain settings</a>. If a value is specified in the domain settings, this will be used instead of the value specified in the SMTP settings.</div>
+This value can be overridden in the <a href="?page=reference_domain">domain settings</a>. If a value is specified in the domain settings, this will be used instead of the value specified in the SMTP settings.</div>
 
 <div class="indented"> </div>
 

@@ -49,7 +49,7 @@ namespace HM
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultNo, "Folder could not be found.");
       
-      // Check if ther user has access to see this folder.
+      // Check if the user has access to see this folder.
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionLookup))
          return IMAPResult(IMAPResult::ResultNo, "ACL: Lookup permission denied (required for SUBSCRIBE).");
 

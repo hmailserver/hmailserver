@@ -13,7 +13,7 @@ var
   // Non-zero if the installation failed. Setup exits with this code.
   g_iExitCode : Integer;
 
-// The NT-service specific parts of the scrit below is taken
+// The NT-service specific parts of the script below is taken
 // from the innosetup extension knowledgebase.
 // Author: Silvio Iaccarino silvio.iaccarino(at)de.adp.com
 // Article created: 6 November 2002
@@ -583,7 +583,7 @@ begin
    bUpgradeWithSQLCE := (szDatabaseType = 'mssqlce');
 
 
-   // Only install SQL CE if we haven't already choosen another
+   // Only install SQL CE if we haven't already chosen another
    // database, or if this is a fresh installation. No point in
    // installing SQL CE if MySQL is used.
 

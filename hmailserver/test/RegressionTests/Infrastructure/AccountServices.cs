@@ -520,7 +520,7 @@ namespace RegressionTests.Infrastructure
 
       [Test]
       [Category("Accounts")]
-      [Description("Ensure that messges aren't forwarded if they re deleted using a rule.")]
+      [Description("Ensure that messages aren't forwarded if they re deleted using a rule.")]
       public void TestForwardingCombinedWithAccountRule()
       {
          // Create a test account

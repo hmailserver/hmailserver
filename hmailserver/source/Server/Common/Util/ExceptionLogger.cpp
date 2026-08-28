@@ -33,7 +33,7 @@ namespace HM
    {
       boost::mutex::scoped_lock lock(logging_mutex_);
 
-      // limit the number of logs crated to prevent disk from becoming full.
+      // limit the number of logs created to prevent disk from becoming full.
       if (!TryToMakeRoom())
       {
          return;

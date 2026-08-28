@@ -278,7 +278,7 @@ namespace HM
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Takes an input parameter such as C:\DataDir\Account\Sub1\Sub2\Test.eml and
-   // returns the root of that hierarcy, such as C:\Datadir\Account in this case.
+   // returns the root of that hierarchy, such as C:\Datadir\Account in this case.
    //---------------------------------------------------------------------------()
    {
       // The file must be located in the data directory. Make sure this is the case.
@@ -333,7 +333,7 @@ namespace HM
       }        
 
       // We could not determine the date by looking at the Received header, check
-      // the Date header insetad.
+      // the Date header instead.
       String sDateHeader = pMsgData->GetFieldValue("Date");
       if (!sDateHeader.IsEmpty())
       {

@@ -51,7 +51,7 @@ namespace HM
    Logger::LogSMTPConversation(int iSessionID, const String &sRemoteHost, const String &sMessage, bool bClient)
    {
       if (!(log_mask_ & LSSMTP))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
@@ -74,7 +74,7 @@ namespace HM
    Logger::LogPOP3Conversation(int iSessionID, const String &sRemoteHost, const String &sMessage, bool bClient)
    {
       if (!(log_mask_ & LSPOP3))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
@@ -97,7 +97,7 @@ namespace HM
    Logger::LogIMAPConversation(int iSessionID, const String &sRemoteHost, const String &sMessage)
    {
       if (!(log_mask_ & LSIMAP))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
@@ -123,7 +123,7 @@ namespace HM
    {
 #ifndef _DEBUG
       if (!(log_mask_ & LSApplication))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 #endif
 
       long lThread = GetThreadID_();
@@ -147,7 +147,7 @@ namespace HM
    Logger::LogDebug(const String &sMessage)
    {
       if (!(log_mask_ & LSDebug))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();
@@ -188,7 +188,7 @@ namespace HM
    Logger::LogTCPIP(const String &sMessage)
    {
       if (!(log_mask_ & LSTCPIP))
-         return; // not intressted in this...   
+         return; // not interested in this...   
 
       long lThread = GetThreadID_();
       String sTime = GetCurrentTime();

@@ -155,7 +155,7 @@ After you have performed the steps above, hMailServer will download the messages
 
 <ul>
     <li>
-    <div class="indented">Edit folders - This option allows you to craete and delete IMAP folders connected to this account</div>
+    <div class="indented">Edit folders - This option allows you to create and delete IMAP folders connected to this account</div>
     </li>
     <li>
     <div class="indented">Empty account - This option will delete all IMAP folders and their content (messages) from the account.</div>

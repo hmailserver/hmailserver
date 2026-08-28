@@ -22,7 +22,7 @@ To work properly, all email servers must use port 25 for inbound traffic. If you
 
 ## Router / firewall not set up
 
-As mentioned above, all email server must use port 25 for inbound traffic. If you want to receive email from other people you need to let hMailServer listen for SMTP connections on port 25 (which it does, by default). However, if your hMailServer installation is behind a router of firewall, you likely need to configure the router or firewall to forward incoming TCP traffic on port 25 to the computer where hMailServer is runnnig. If you do not do this, the traffic won't arrive at hMailServer and senders of email will not be able to connect.
+As mentioned above, all email server must use port 25 for inbound traffic. If you want to receive email from other people you need to let hMailServer listen for SMTP connections on port 25 (which it does, by default). However, if your hMailServer installation is behind a router of firewall, you likely need to configure the router or firewall to forward incoming TCP traffic on port 25 to the computer where hMailServer is running. If you do not do this, the traffic won't arrive at hMailServer and senders of email will not be able to connect.
 
 ## DNS errors
 

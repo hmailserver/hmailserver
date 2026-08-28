@@ -379,7 +379,7 @@ namespace HM
       if (lm == DistributionList::LMAnnouncement)
       {
          // Only one person can send to list. Check if it's the correct. Before we do the
-         // comparision, we resolve any domain name aliases.
+         // comparison, we resolve any domain name aliases.
 
          Logger::Instance()->LogDebug("DistributionList::LMAnnouncement");
 

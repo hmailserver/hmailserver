@@ -45,7 +45,7 @@ namespace HM
       void EnqueueWrite(const AnsiString &sData);
       void EnqueueWrite(std::shared_ptr<ByteBuffer> pByteBuffer);
       void EnqueueRead();
-      void EnqueueRead(const AnsiString &delimitor);
+      void EnqueueRead(const AnsiString &delimiter);
       void EnqueueShutdownSend();
       void EnqueueDisconnect();
       void EnqueueHandshake();
@@ -115,7 +115,7 @@ namespace HM
       void Shutdown(boost::asio::socket_base::shutdown_type);
       
       void AsyncWrite(std::shared_ptr<ByteBuffer> buffer);
-      void AsyncRead(const AnsiString &delimitor);
+      void AsyncRead(const AnsiString &delimiter);
       void AsyncHandshake();
 
       void AsyncConnectCompleted(const boost::system::error_code& err);

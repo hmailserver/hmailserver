@@ -98,7 +98,7 @@ namespace HM
       use_anti_virus_ = (pNode->GetAttrValue(_T("UseAntiVirus")) == _T("1"));
       enable_route_recipients_ = (pNode->GetAttrValue(_T("EnableRouteRecipients")) == _T("1"));
 
-      // Backwards compatibiltiy
+      // Backwards compatibility
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
       {
          connection_security_ = CSSSL;

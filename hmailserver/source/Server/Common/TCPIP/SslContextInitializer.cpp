@@ -155,7 +155,7 @@ namespace HM
       if (cipher_list.Trim().IsEmpty())
          return;
 
-      // Asio does not expose cipher list. Access underlaying layer (OpenSSL) directly.
+      // Asio does not expose cipher list. Access underlying layer (OpenSSL) directly.
       SSL_CTX* ssl = context.native_handle();
       int result = SSL_CTX_set_cipher_list(ssl, cipher_list.c_str());
 

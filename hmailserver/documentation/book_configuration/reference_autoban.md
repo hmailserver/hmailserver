@@ -14,11 +14,11 @@ If *Max invalid logon attempts* are made from a specific IP address within *Minu
 
   
 
-*Invalid logon attempts* only occur once a connection has been made and has been accepted by your hMailserver. Connections rejected or blocked due to IP range restrictions (including existing Auto-ban entires), or due to the INI setting 'DisableAuthList" will NOT be Auto-banned.  
+*Invalid logon attempts* only occur once a connection has been made and has been accepted by your hMailserver. Connections rejected or blocked due to IP range restrictions (including existing Auto-ban entries), or due to the INI setting 'DisableAuthList" will NOT be Auto-banned.  
 
   
 
-Remember that if multiple IP ranges apply, the IP range with the highest priority (highest priority is highest number) will be used. If you have a higher priority IP range for your web-mail server, and the same IP exists as an Autoban, the higher priority IP range will be used. In this case further matching Auto-ban entires may be created.
+Remember that if multiple IP ranges apply, the IP range with the highest priority (highest priority is highest number) will be used. If you have a higher priority IP range for your web-mail server, and the same IP exists as an Autoban, the higher priority IP range will be used. In this case further matching Auto-ban entries may be created.
 
 When a user is banned, an IP range matching the user is automatically created. In this IP range, all protocols are de-selected which has the effect that the user will no longer be able to connect. The new IP range will have an expiry date set which means that it will be removed when *Minutes to auto-ban minutes have passed.*
 

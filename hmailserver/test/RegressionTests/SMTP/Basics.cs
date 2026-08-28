@@ -650,7 +650,7 @@ namespace RegressionTests.SMTP
       [Test]
       public void TestPostmasterToPostmasterOnOtherDomain()
       {
-         _domain.Postmaster = "nonexistant@otherDomain.com";
+         _domain.Postmaster = "nonexistent@otherDomain.com";
          _domain.Save();
 
          var otherDomain =

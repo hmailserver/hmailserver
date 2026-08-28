@@ -339,7 +339,7 @@ namespace HM
          return false;
       }
 
-      // Check if there's a domain alias with this name. If so, this domain would be a duplciate.
+      // Check if there's a domain alias with this name. If so, this domain would be a duplicate.
       std::shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
       std::shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domain->GetName());
       if (pDomainAlias)
@@ -373,7 +373,7 @@ namespace HM
          return false;
       }
 
-      // Check if there's a domain alias with this name. If so, this domain would be a duplciate.
+      // Check if there's a domain alias with this name. If so, this domain would be a duplicate.
       std::shared_ptr<DomainAliases> pDomainAliases = ObjectCache::Instance()->GetDomainAliases();
       std::shared_ptr<DomainAlias> pDomainAlias = pDomainAliases->GetItemByName(domainAlias->GetName());
       if (pDomainAlias && (domainAlias->GetID() == 0 || domainAlias->GetID() != pDomainAlias->GetID()))

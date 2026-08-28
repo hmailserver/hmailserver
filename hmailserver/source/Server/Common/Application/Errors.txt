@@ -7,26 +7,26 @@
 5124, SQLCEConnection::_UpgradeDatabase(), Moving of current database file to backup location failed.
 5125, SQLCEConnection::_UpgradeDatabase(), Moving of upgraded database file to current database file failed.
 5126, IMAPFolders::Refresh(), Unable to retrieve folder list for account. Folder recursion not parseable. Account: %I64d, Parent: %%I64d
-5127, IOOperationList::_LogError, An error occured while logging error. Error: %s
+5127, IOOperationList::_LogError, An error occurred while logging error. Error: %s
 5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
 5128, IOCPOperationParser::_DoSocketSanityCheck, Socket sanity check failed. Address: %d
 5129, TCPConnection::AsyncHandshakeCompleted, SSL handshake with client failed
 5131, IOOperationQueue::Pop, Trying to pop empty queue
 5134, TCPConnection::HandleResolve, Call to async_connect failed. Error: %s
-5135, IOCPQueueWorkerTask::DoWork, An error occured while handling asynchronous requests.
-5136, TCPConnection::AsyncReadCompleted, An error occured while parsing buffer.
-5137, TCPConnection::PostTimeout, An error occured while sending a timeout message to the client.
-5138, TCPConnection::_ProcessOperationQueue, An error occured while processing the queue.
-5139, TCPConnection::Disconnect, An error occured while setting connection termination flag.
+5135, IOCPQueueWorkerTask::DoWork, An error occurred while handling asynchronous requests.
+5136, TCPConnection::AsyncReadCompleted, An error occurred while parsing buffer.
+5137, TCPConnection::PostTimeout, An error occurred while sending a timeout message to the client.
+5138, TCPConnection::_ProcessOperationQueue, An error occurred while processing the queue.
+5139, TCPConnection::Disconnect, An error occurred while setting connection termination flag.
 5140, TCPConnection::AsyncReadCompleted, AsyncReadCompleted called even though there are no outstanding operations.
-5141, TCPConnection::AsyncReadCompleted, An error occured while handling read operation.
+5141, TCPConnection::AsyncReadCompleted, An error occurred while handling read operation.
 5142, TCPConnection::AsyncWriteCompleted, AsyncWriteCompleted called even though there are no outstanding operations.
 5143, TCPServer::GetPassword, The private key file has a password. hMailServer does not support this.
-5144, TCPConnection::PrepareContext, An eror occured while preparing SSL context.
+5144, TCPConnection::PrepareContext, An error occurred while preparing SSL context.
 5155, Encoding::DecodeBase64, Decoding buffer is not correct.
 5156, SMTPDeliverer::_DeliverToLocalAccounts, The recipient account appears to have been deleted after the message was received. Aborting delivery.
 5157, SpamAssassinClient::OnReadError, There was a communication error with SpamAssassin. Test aborted.
-5158, MessageIndexer::DoWork(), An error occured while indexing messages. The indexing was aborted.
+5158, MessageIndexer::DoWork(), An error occurred while indexing messages. The indexing was aborted.
 5160, DateTime::ToInt(), Tried to convert non-date to integral representation.
 5201, RuleApplier::_ApplyActionCopy, Tried to convert non-date to integral representation.
 5202, IMAPSortHeaderField::operator(), An error occurred while sorting. Check system locale settings.
@@ -41,8 +41,8 @@
 5211, TCPConnection::CancelLogoutTimer, The message %I64d in mailbox %I64d in account %I64d has no UID set.
 5212, Collection::XMLLoad, Failed to save object %s. Error: %s
 5213, PersistentMessage::AddObject, Aborting save since no folder was specified.
-5301, PGRecordset::GetIsNull, An error occured while checking for null.
-5302, MySQLRecordset::GetIsNull, An error occured while checking for null.
+5301, PGRecordset::GetIsNull, An error occurred while checking for null.
+5302, MySQLRecordset::GetIsNull, An error occurred while checking for null.
 5303, PersistentIMAPFolder::_GetCurrentUID, Current UID for folder %I64d could not be looked up. Folder does not eixst.
 5304, DALRecordset::ReportEOFError_, Trying to access data in recordset which was EOF. Field name: %s.
 5305, DKIMSigner::Sign, Either the selector or private key file was not specified.
@@ -98,7 +98,7 @@
 5501, ExternalFetch::Start, Connect() threw a system_error error.
 5502, ExternalDelivery::_InitiateExternalConnection, Connect() threw a system_error error.
 5503, SpamTestSpamAssassin::RunTest
-5503, WorkQueue::ExecuteTask, An error occured while executing task {0}
+5503, WorkQueue::ExecuteTask, An error occurred while executing task {0}
 5504, Failed to open Windows certificate store. GetLastError() == {0}
 5505, Failed to open add CA certificate.
 5506, Attempting to connect to {0} - Not a valid IP address.
@@ -112,7 +112,7 @@
 5514, Unable to find appropriate MySQL character set.
 5515, Failed to enable lingering for session {0}
 5516, Attempted DNS lookup for empty host name.
-5518, An error occured when accepting a connection
+5518, An error occurred when accepting a connection
 5519, An error has been detected and an error stack will be generated and saved in {0}.
 5520, Failed to open socket on IP address {0}.
 5521, An error has been detected. hMailServer was unable to launch minidump generator.

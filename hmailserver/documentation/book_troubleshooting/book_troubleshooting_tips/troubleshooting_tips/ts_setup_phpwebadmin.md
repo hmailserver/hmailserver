@@ -40,7 +40,7 @@ A common cause of trouble is to edit PHP.ini in the wrong directory. When a PHP 
 
 <p>PHPWebAdmin uses the hMailServer COM API to access the settings and your objects in your hMailServer installation. For this to work, it may be required to enable DCOM in the PHP configuration. Make sure that <span class="Code">com.allow_dcom = true</span> exists and is uncommented in php.ini.</p>
 
-<p>For php version 5.3.15 / 5.4.5 and higher the COM API has been disabled as a module. The error probably will be <span class="Code">PHP Fatal error:  Class 'COM' not found in \phpwebadmin\initialize.php on line xx</span>. Make sure you edit the php.ini file has been edited with the value <span class="Code">extension=php_com_dotnet.dll</span> in the extentions.</p>
+<p>For php version 5.3.15 / 5.4.5 and higher the COM API has been disabled as a module. The error probably will be <span class="Code">PHP Fatal error:  Class 'COM' not found in \phpwebadmin\initialize.php on line xx</span>. Make sure you edit the php.ini file has been edited with the value <span class="Code">extension=php_com_dotnet.dll</span> in the extensions.</p>
 
 ### Session directory not created
 

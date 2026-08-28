@@ -67,7 +67,7 @@ namespace HM
 
             String sSubString = sCommand.Mid(iCurWordStart, iPos - iCurWordStart - 1);
 
-            // We have now find something between two parantheses.
+            // We have now find something between two parentheses.
             // Split up the string 
          }
          

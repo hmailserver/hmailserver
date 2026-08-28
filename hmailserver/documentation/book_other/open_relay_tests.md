@@ -17,7 +17,7 @@ In some cases, open relay tests may return false positives. This means that the
 
 ### Default domain and catch-all address
 
-If you specify a default domain in hMailServer, this domain name will be appended to all email addresses which are missing a domain name (the setting is located in hMailServer Administrator under Settings->Advanced). If you specify the default doman example.com, and someone tries to send an email to webmaster, hMailServer will assume the messge should be sent to webmaster@example.com.  
+If you specify a default domain in hMailServer, this domain name will be appended to all email addresses which are missing a domain name (the setting is located in hMailServer Administrator under Settings->Advanced). If you specify the default domain example.com, and someone tries to send an email to webmaster, hMailServer will assume the message should be sent to webmaster@example.com.  
 
   
 

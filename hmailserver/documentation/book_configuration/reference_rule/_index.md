@@ -20,7 +20,7 @@ Rules are applied during the email delivery phase. This means that if you do con
 
 ### Match testing
 
-In the rule criteria dialog, you can test whether specific values will match the criteria. To run a test, simply enter the value you want to test into the Test value field. If the value matches the criteria, you will see the next "Match" next to the text box. If not, you will see the text "No match". This makes it easier to create more advanced criterias, for example using regular expressions.
+In the rule criteria dialog, you can test whether specific values will match the criteria. To run a test, simply enter the value you want to test into the Test value field. If the value matches the criteria, you will see the next "Match" next to the text box. If not, you will see the text "No match". This makes it easier to create more advanced criteria, for example using regular expressions.
 
 ### Examples
 
@@ -65,7 +65,7 @@ If you are experiencing a problem with rules, please read the [troubleshooting t
 <div class="indented">The criteria for this rule. Messages matching the criteria will be affected by the rule actions.</div>
 <div class="indented">
 <ul>
-    <li>Use AND - All of the criterias must match for the message to be effected by the rule.</li>
+    <li>Use AND - All of the criteria must match for the message to be effected by the rule.</li>
     <li>Use OR - If one criteria matches, the message will be effected by the rule.</li>
 </ul>
 <h4>Predefined field</h4>
@@ -77,7 +77,7 @@ If you are experiencing a problem with rules, please read the [troubleshooting t
     <li>Subject - The Subject MIME-header of the email message.</li>
     <li>Body - The Body of the email message. This includes both the plain text body and the HTML body.</li>
     <li>Message size - The size of the message</li>
-    <li>Delivery attempts - 1 the first time the message is delivered, 2 ond the second attempt and so on.</li>
+    <li>Delivery attempts - 1 the first time the message is delivered, 2 and the second attempt and so on.</li>
 </ul>
 <h4>Custom header field</h4>
 <p>If the header you want to filter on does not exist in the list of predefined fields, you can enter the name of the MIME-header in this field.</p>

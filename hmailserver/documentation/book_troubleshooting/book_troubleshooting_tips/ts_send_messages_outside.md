@@ -18,7 +18,7 @@ To test whether your ISP has blocked port 25, you can try manually connecting to
 2. Type `telnet mail.hmailserver.com 25` (Exactly this text. You should not replace mail.hmailserver.com with the name of your own email server)
 3. Click *OK* to start the telnet session
 
-If you can connect, then your ISP has not blocked outgoing traffic on port 25. If you can't, then your ISP may have blocked traffic on port 25. This means that the only way to send email out of your ISP's network is through their own mail servers. You may try relaying your outgoing messages throught your ISP's SMTP servers. If you're unsuccessful, contact your ISP and request that they either allow relaying through their SMTP servers or open port 25 for you.
+If you can connect, then your ISP has not blocked outgoing traffic on port 25. If you can't, then your ISP may have blocked traffic on port 25. This means that the only way to send email out of your ISP's network is through their own mail servers. You may try relaying your outgoing messages through your ISP's SMTP servers. If you're unsuccessful, contact your ISP and request that they either allow relaying through their SMTP servers or open port 25 for you.
 
 ## Incorrect DNS settings on local computer
 

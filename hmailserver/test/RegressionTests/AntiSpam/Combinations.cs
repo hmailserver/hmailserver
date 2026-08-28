@@ -18,7 +18,7 @@ namespace RegressionTests.AntiSpam
 
       [Test]
       [Description(
-         "Confirm that if you have a delete threshold lower than the mark threshhold, spam tests are run until" +
+         "Confirm that if you have a delete threshold lower than the mark threshold, spam tests are run until" +
          "the mark threshold is reached.")]
       public void TestDeleteThresholdLowerThanMarkThreshold()
       {

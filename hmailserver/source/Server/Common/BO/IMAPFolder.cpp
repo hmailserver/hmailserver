@@ -175,7 +175,7 @@ namespace HM
       if (!GetSubFolders()->XMLLoad(pFolderNode, iRestoreOptions))
          return false;
 
-      // Restore ACL permisisons.
+      // Restore ACL permissions.
       if (IsPublicFolder())
       {
          if (!GetPermissions()->XMLLoad(pFolderNode, iRestoreOptions))

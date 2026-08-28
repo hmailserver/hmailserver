@@ -50,7 +50,7 @@ In other words: If you want the <em>Received</em> column in your email client to
 <div class="indented"> </div>
 <div class="indented"><strong>Anti-spam &amp; Anti-virus</strong></div>
 <div class="indented"> </div>
-<div class="indented">Select these option if you want hMailServer to scan downloaded messages for spam and viruses. If you know that the server hosting the external account already performs anti-spam and anti-virus, you may want to de-select these options in the external account to improve perfromance.</div>
+<div class="indented">Select these option if you want hMailServer to scan downloaded messages for spam and viruses. If you know that the server hosting the external account already performs anti-spam and anti-virus, you may want to de-select these options in the external account to improve performance.</div>
 <div class="indented"> </div>
 </div>
 

@@ -8,7 +8,7 @@ is_book: false
 
 ## Background
 
-For an email message, there are two seperate lists of message recipients. There is one list which defines who the message is to be delivered to, and there's a list which is displayed to the recipients in their email clients. 
+For an email message, there are two separate lists of message recipients. There is one list which defines who the message is to be delivered to, and there's a list which is displayed to the recipients in their email clients. 
 
 The list which defines who the message is going to be delivered to, the SMTP envelope recipients, does not have to match the recipients displayed in email clients (the MIME header recipients).
 
