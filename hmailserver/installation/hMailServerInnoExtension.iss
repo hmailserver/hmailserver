@@ -452,6 +452,10 @@ begin
    else
       g_bUseInternal := false;
 
+   // The password page isn't shown during an unattended installation, and never during
+   // an upgrade. /ADMINPASSWORD= makes it possible to supply the password in those cases.
+   g_szAdminPassword := ExpandConstant('{param:ADMINPASSWORD}');
+
    OverrideInstallationFolder();
 
    if (WizardSilent() = false) then
@@ -608,6 +612,25 @@ begin
 end;
 
 
+// Aborts the installation with an error message. Setup then exits with a non-zero
+// exit code, so an unattended installation doesn't report success after a failure.
+procedure FailPostInstall(szMessage: String);
+begin
+   SuppressibleMsgBox(szMessage, mbError, MB_OK, IDOK);
+   RaiseException(szMessage);
+end;
+
+// Must be kept in sync with hMailServer.Shared.ExitCodes.
+function GetDatabaseSetupErrorMessage(ResultCode: Integer) : String;
+begin
+   case ResultCode of
+      2: Result := 'The hMailServer database could not be upgraded because the hMailServer administrator password was not accepted.' #13#13 'Re-run the setup program with /ADMINPASSWORD=<password>, or run DBUpdater.exe manually.';
+      3: Result := 'The hMailServer database upgrade failed. Please check the hMailServer error log for further details.';
+   else
+      Result := 'The hMailServer database setup failed with error code ' + IntToStr(ResultCode) + '.' #13#13 'Please check the hMailServer error log for further details.';
+   end;
+end;
+
 function RunPostInstallTasks() : Boolean;
    var
       ResultCode: Integer;
@@ -633,7 +656,7 @@ begin
 
       // Register hMaillServer service
       if (Exec(ExpandConstant('{app}\Bin\hMailServer.exe'), '/Register', '',  SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) then
-         MsgBox(SysErrorMessage(ResultCode), mbError, MB_OK);
+         FailPostInstall('The hMailServer service could not be created. ' + SysErrorMessage(ResultCode));
 
       ProgressPage.SetText('Initializing hMailServer database...', '');
       ProgressPage.SetProgress(4,6);
@@ -644,20 +667,25 @@ begin
       end;
 
 	  // Add the password as well, so that the administrator doesn't have to type it in again
-      //  if he have just entered it. If this is an upgrade, he'll have to enter it again though.
+      //  if he have just entered it, or supplied it using /ADMINPASSWORD.
       if (Length(g_szAdminPassword) > 0) then
          szParameters := szParameters + ' password:' + g_szAdminPassword;
-		 
+
       if ((GetCurrentDatabaseType() <> '') or g_bUseInternal) then
       begin
          if (Exec(ExpandConstant('{app}\Bin\DBSetupQuick.exe'), szParameters, '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode) = False) then
-            MsgBox(SysErrorMessage(ResultCode), mbError, MB_OK);
+            FailPostInstall('DBSetupQuick.exe could not be started. ' + SysErrorMessage(ResultCode));
+
+         if (ResultCode <> 0) then
+            FailPostInstall(GetDatabaseSetupErrorMessage(ResultCode));
       end
       else
       begin
          if (Exec(ExpandConstant('{app}\Bin\DBSetup.exe'), szParameters, '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode) = False) then
-            MsgBox(SysErrorMessage(ResultCode), mbError, MB_OK);
+            FailPostInstall('DBSetup.exe could not be started. ' + SysErrorMessage(ResultCode));
 
+         if (ResultCode <> 0) then
+            FailPostInstall(GetDatabaseSetupErrorMessage(ResultCode));
       end;
 
       ProgressPage.SetText('Starting the hMailServer service...', '');
@@ -665,7 +693,7 @@ begin
 
       // Start hMailServer
       if (Exec(ExpandConstant('{sys}\net.exe'), 'START hMailServer', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) then
-         MsgBox(SysErrorMessage(ResultCode), mbError, MB_OK);
+         FailPostInstall('The hMailServer service could not be started. ' + SysErrorMessage(ResultCode));
 
       ProgressPage.SetText('Completed', '');
       ProgressPage.SetProgress(6,6);

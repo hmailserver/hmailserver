@@ -83,6 +83,7 @@
     <Compile Include="Interfaces\IPropertyEditor.cs" />
     <Compile Include="Miscellaneous\Authenticator.cs" />
     <Compile Include="Miscellaneous\CommandLineParser.cs" />
+    <Compile Include="Miscellaneous\ExitCodes.cs" />
     <Compile Include="Miscellaneous\TabOrderManager.cs" />
     <Compile Include="Miscellaneous\WaitCursor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

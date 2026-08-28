@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 using System;
@@ -20,17 +20,33 @@ namespace hMailServer.Shared
 
       public static bool AuthenticateUser(hMailServer.Application application)
       {
-         // First try to authenticate using an empty password.
+         return AuthenticateUser(application, null, true);
+      }
+
+      /// <summary>
+      /// Authenticates the Administrator account. If allowPrompt is false, no dialog is
+      /// shown - needed when running unattended, where there may be no desktop available.
+      /// </summary>
+      public static bool AuthenticateUser(hMailServer.Application application, string password, bool allowPrompt)
+      {
+         // Try the password we've been given, if any.
+         if (!string.IsNullOrEmpty(password) && AuthenticateUser(application, password))
+            return true;
+
+         // Then try to authenticate using an empty password.
          if (AuthenticateUser(application, ""))
             return true;
-         
+
          // Try to authenticate using password on command line...
          string [] args = Environment.GetCommandLineArgs();
-         foreach (string password in args)
+         foreach (string commandLinePassword in args)
          {
-            if (AuthenticateUser(application, password))
+            if (AuthenticateUser(application, commandLinePassword))
                return true;
          }
+
+         if (!allowPrompt)
+            return false;
 
          while (true)
          {
@@ -39,9 +55,9 @@ namespace hMailServer.Shared
             if (passwordDlg.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                return false;
 
-            string password = passwordDlg.Password;
+            string enteredPassword = passwordDlg.Password;
 
-            if (AuthenticateUser(application, password))
+            if (AuthenticateUser(application, enteredPassword))
                return true;
 
             MessageBox.Show("Invalid user name or password.", "hMailServer");

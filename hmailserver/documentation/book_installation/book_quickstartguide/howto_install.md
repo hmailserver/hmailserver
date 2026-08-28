@@ -8,7 +8,7 @@ is_book: false
 
 ## Installing hMailServer
 
-This page describes the required steps to install hMailServer 5. Before installing hMailServer, you should ensure that your computer fulfills the [system requirements](?page=system_requirements).
+This page describes the required steps to install hMailServer 5. Before installing hMailServer, you should ensure that your computer fulfills the [system requirements](?page=system_requirements). If you want to install hMailServer from a script, see [unattended installation](?page=howto_install_unattended) instead.
 
 ### Step 1: Download
 

@@ -27,3 +27,7 @@ This page describes how to upgrade to hMailServer latest version. If you follow 
 8. Click Upgrade to upgrade the database to the latest structure.
 9. Click Exit to return to the setup wizard
 10. Click Finish to exit the setup and start hMailAdmin.
+
+### Upgrading without user interaction
+
+If you upgrade using a script, see [unattended installation](?page=howto_install_unattended). You must supply the administrator password using `/ADMINPASSWORD`, otherwise the database can't be upgraded.
