@@ -396,6 +396,7 @@ namespace HM
       if (!error)
       {
          is_ssl_ = true;
+         operation_queue_.SetIsSSL(true);
 
          // Send welcome message to client.
          auto cipher_info = GetCipherInfo();
@@ -499,13 +500,18 @@ namespace HM
          if (connection_state_ != StateConnected)
          {
             // The read failed, but we've already started the disconnection. So we should not log the failure
-            // or enqueue a new disconnect.
+            // or enqueue a new disconnect. The read is still done, so release it and let anything
+            // queued behind it run - on SSL it would otherwise be blocked until the connection times out.
+            operation_queue_.Pop(IOOperation::BCTRead);
+            ProcessOperationQueue_(0);
             return;
          }
 
          if (error == boost::asio::error::eof)
          {
             // Ignore end of file or end of stream error
+            operation_queue_.Pop(IOOperation::BCTRead);
+            ProcessOperationQueue_(0);
             return;
          }
 
@@ -543,6 +549,7 @@ namespace HM
             }
             catch (DisconnectedException&)
             {
+               operation_queue_.Pop(IOOperation::BCTRead);
                throw;
             }
             catch (...)
@@ -552,6 +559,7 @@ namespace HM
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
+               operation_queue_.Pop(IOOperation::BCTRead);
                throw;
             }
          }
@@ -576,6 +584,7 @@ namespace HM
             }
             catch (DisconnectedException&)
             {
+               operation_queue_.Pop(IOOperation::BCTRead);
                throw;
             }
             catch (...)
@@ -585,6 +594,7 @@ namespace HM
 
                ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
+               operation_queue_.Pop(IOOperation::BCTRead);
                throw;
             }
          }
