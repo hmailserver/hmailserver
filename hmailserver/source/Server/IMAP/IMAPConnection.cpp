@@ -796,41 +796,70 @@ namespace HM
       SendAsciiData(sEntireString);
    }
 
+   std::shared_ptr<IMAPFolder>
+   IMAPConnection::GetCurrentFolder() const
+   {
+      StateLock lock(state_mutex_);
+      return current_folder_;
+   }
+
+   bool
+   IMAPConnection::GetCurrentFolderReadOnly() const
+   {
+      StateLock lock(state_mutex_);
+      return current_folder_read_only_;
+   }
+
    void
    IMAPConnection::CloseCurrentFolder()
    {
-      if (!current_folder_)
-         return;
+      std::shared_ptr<IMAPFolder> closedFolder;
+      bool readOnly = false;
+
+      {
+         // Unload the folder under the lock, so a notification client on another thread either
+         // completes against the old folder or sees it already gone. Nothing slow in here.
+         StateLock lock(state_mutex_);
+
+         if (!current_folder_)
+            return;
+
+         closedFolder = current_folder_;
+         readOnly = current_folder_read_only_;
+
+         current_folder_.reset();
+      }
 
       notification_client_->UnsubscribeMessageChanges();
 
       // Set the recent flag on all messages in the folder. Since the user has been notified
       // about these messages, they are no longer recent. This doesn't happen if the folder
       // is in read-only mode - if it has been selected using the EXAMINE command.
-      if (!current_folder_read_only_)
+      if (!readOnly)
       {
-         current_folder_->GetMessages()->RemoveRecentFlags();
+         closedFolder->GetMessages()->RemoveRecentFlags();
       }
-
-      // Unload the folder.
-      current_folder_.reset();
    }
 
    void
    IMAPConnection::SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly)
    {
-      // First close the currently set folder. This will cause an unsubscribe from the 
-      // current folder to be made and \recent flags to be removed.
+      // First close the currently set folder. This will cause an unsubscribe from the
+      // current folder to be made and recent flags to be removed.
       CloseCurrentFolder();
 
-      // Select the new folder
-      current_folder_ = pFolder;
-      current_folder_read_only_ = readOnly;
-
-      // Subscribe to changes in the new folder.
-      if (current_folder_)
       {
-         notification_client_->SubscribeMessageChanges(current_folder_->GetAccountID(), pFolder->GetID());
+         // Select the new folder.
+         StateLock lock(state_mutex_);
+
+         current_folder_ = pFolder;
+         current_folder_read_only_ = readOnly;
+      }
+
+      // Subscribe after the folder is visible, so a notification arriving immediately finds it.
+      if (pFolder)
+      {
+         notification_client_->SubscribeMessageChanges(pFolder->GetAccountID(), pFolder->GetID());
       }
    }
 
@@ -847,6 +876,7 @@ namespace HM
    // Switch in or out idling mode. 
    //---------------------------------------------------------------------------()
    {
+      StateLock lock(state_mutex_);
       is_idling_ = bNewVal;
    }
 
@@ -857,6 +887,7 @@ namespace HM
    // Switch in or out idling mode. 
    //---------------------------------------------------------------------------()
    {
+      StateLock lock(state_mutex_);
       return is_idling_;
    }
 
@@ -932,16 +963,32 @@ namespace HM
       EnqueueHandshake();
    }
 
-   void 
+   void
    IMAPConnection::SetRecentMessages(const std::set<__int64> &messages)
    {
+      StateLock lock(state_mutex_);
       recent_messages_ = messages;
    }
 
-   std::set<__int64>& 
-   IMAPConnection::GetRecentMessages()
+   void
+   IMAPConnection::AddRecentMessage(__int64 message_id)
    {
-      return recent_messages_;
+      StateLock lock(state_mutex_);
+      recent_messages_.insert(message_id);
+   }
+
+   bool
+   IMAPConnection::IsRecentMessage(__int64 message_id) const
+   {
+      StateLock lock(state_mutex_);
+      return recent_messages_.find(message_id) != recent_messages_.end();
+   }
+
+   size_t
+   IMAPConnection::GetRecentMessageCount() const
+   {
+      StateLock lock(state_mutex_);
+      return recent_messages_.size();
    }
 }
 

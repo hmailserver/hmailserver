@@ -101,6 +101,10 @@ namespace HM
       if (!parentConnection)
          return;
 
+      // The notifying thread is not this connection's thread. Hold its state lock so the
+      // folder cannot be closed between the idling check and the send.
+      IMAPConnection::StateLock lock(parentConnection->GetStateMutex());
+
       if (parentConnection->GetIsIdling())
       {
          try
@@ -140,6 +144,9 @@ namespace HM
       if (!connection)
          return;
 
+      // Lock order is always connection state before mutex_; OnNotification takes them in that
+      // order too. Reversing it here deadlocks against a notification on another thread.
+      IMAPConnection::StateLock stateLock(connection->GetStateMutex());
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
 
       int lastExists = -1;
@@ -153,10 +160,14 @@ namespace HM
          {
          case ChangeNotification::NotificationMessageAdded:
             {
-               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+               std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
+               if (!currentFolder)
+                  break;
+
+               std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
                pMessages->Refresh(false);
                lastExists = pMessages->GetCount();
-               lastRecent = (int)connection->GetRecentMessages().size();
+               lastRecent = (int)connection->GetRecentMessageCount();
                break;
             }
          case ChangeNotification::NotificationMessageDeleted:
@@ -167,9 +178,13 @@ namespace HM
                   SendEXPUNGE_(changeNotification->GetAffectedMessages());
 
                   // Send EXISTS
-                  std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+                  std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
+                  if (!currentFolder)
+                     break;
+
+                  std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
                   lastExists = pMessages->GetCount();
-                  lastRecent = (int)connection->GetRecentMessages().size();
+                  lastRecent = (int)connection->GetRecentMessageCount();
 
                   break;
                }
@@ -224,13 +239,17 @@ namespace HM
       if (!connection)
          return;
 
+      std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
+      if (!currentFolder)
+         return;
+
       switch (pChangeNotification->GetType())
       {
       case ChangeNotification::NotificationMessageAdded:
          {
-               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+            std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
             SendEXISTS_(pMessages->GetCount());
-            SendRECENT_((int)connection->GetRecentMessages().size());
+            SendRECENT_((int)connection->GetRecentMessageCount());
             break;
          }
       case ChangeNotification::NotificationMessageDeleted:
@@ -239,9 +258,9 @@ namespace HM
             SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
 
             // Send EXISTS
-               std::shared_ptr<Messages> pMessages = connection->GetCurrentFolder()->GetMessages();
+            std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
             SendEXISTS_(pMessages->GetCount());
-            SendRECENT_((int)connection->GetRecentMessages().size());
+            SendRECENT_((int)connection->GetRecentMessageCount());
 
             break;
          }
@@ -289,7 +308,11 @@ namespace HM
          String sResponse;
 
          int foundIndex = 0;
-         std::shared_ptr<Message> pMessage = connection->GetCurrentFolder()->GetMessages()->GetItemByDBID(messageID, foundIndex);
+         std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
+         if (!currentFolder)
+            return;
+
+         std::shared_ptr<Message> pMessage = currentFolder->GetMessages()->GetItemByDBID(messageID, foundIndex);
 
          if (!pMessage)
             return;

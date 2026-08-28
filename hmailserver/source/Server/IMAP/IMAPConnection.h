@@ -96,7 +96,12 @@ namespace HM
       std::shared_ptr<IMAPFolder> GetFolderByFullPath(const String &sFolderName);
       std::shared_ptr<IMAPFolder> GetFolderByFullPath(std::vector<String> &vecFolderPath);
 
-      std::shared_ptr<IMAPFolder> GetCurrentFolder() { return current_folder_; }
+      // Folder and idle state is read by notification clients running on other connections'
+      // threads, so every accessor below takes state_mutex_.
+      typedef boost::lock_guard<boost::recursive_mutex> StateLock;
+      boost::recursive_mutex& GetStateMutex() const { return state_mutex_; }
+
+      std::shared_ptr<IMAPFolder> GetCurrentFolder() const;
 
       bool CheckPermission(std::shared_ptr<IMAPFolder> pFolder, int iPermission);
       void CheckFolderPermissions(std::shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess);
@@ -115,14 +120,16 @@ namespace HM
       void Logout(const String &goodbyeMessage);
   
       bool IsAuthenticated();
-      bool GetCurrentFolderReadOnly() {return current_folder_read_only_; }
+      bool GetCurrentFolderReadOnly() const;
 
       std::shared_ptr<IMAPNotificationClient> GetNotificationClient() {return notification_client_;}
 
       void StartHandshake();
 	 
-	  void SetRecentMessages(const std::set<__int64> &messages);
-      std::set<__int64>& GetRecentMessages();
+      void SetRecentMessages(const std::set<__int64> &messages);
+      void AddRecentMessage(__int64 message_id);
+      bool IsRecentMessage(__int64 message_id) const;
+      size_t GetRecentMessageCount() const;
 
 
       void SetCommandBuffer(const String &sval);
@@ -168,6 +175,8 @@ namespace HM
       std::shared_ptr<IMAPFolders> public_imap_folders_;
 
       std::shared_ptr<ChangeNotification> delayed_change_notification_;
+
+      mutable boost::recursive_mutex state_mutex_;
 
       // Folder info
       std::shared_ptr<IMAPFolder> current_folder_;
