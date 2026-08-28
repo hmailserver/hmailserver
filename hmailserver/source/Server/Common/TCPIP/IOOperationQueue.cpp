@@ -13,9 +13,18 @@
 
 namespace HM
 {
-   IOOperationQueue::IOOperationQueue()
+   IOOperationQueue::IOOperationQueue() :
+      is_ssl_(false)
    {
       
+   }
+
+   void
+   IOOperationQueue::SetIsSSL(bool is_ssl)
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+
+      is_ssl_ = is_ssl;
    }
 
    IOOperationQueue::~IOOperationQueue(void)
@@ -128,7 +137,16 @@ namespace HM
                {
                   switch (pendingType)
                   {
-                  case IOOperation::BCTWrite:         // We may send data while we're processing data (normal responses)
+                  case IOOperation::BCTWrite:
+                     // On a plain socket we may send data while we're processing data (normal responses).
+                     // On a ssl::stream, read and write drive the same SSL object; starting a write with a
+                     // read outstanding corrupts its state, so the write has to wait.
+                     if (is_ssl_)
+                     {
+                        std::shared_ptr<IOOperation> empty;
+                        return empty;
+                     }
+                     break;
                   case IOOperation::BCTDisconnect:   // We may disconnect while we're processing data
                   case IOOperation::BCTShutdownSend: // It's OK to close the sending even though we're receiving data.
                      break;

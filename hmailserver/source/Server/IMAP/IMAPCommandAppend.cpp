@@ -285,7 +285,7 @@ namespace HM
 
       PersistentMessage::SaveObject(current_message_);
 
-      pConnection->GetRecentMessages().insert(current_message_->GetID());
+      pConnection->AddRecentMessage(current_message_->GetID());
 
       MessagesContainer::Instance()->SetFolderNeedsRefresh(destination_folder_->GetID());
 
@@ -297,7 +297,7 @@ namespace HM
       {
          std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
-         sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessages().size());
+         sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount());
       }
 
       // Send the OK response to the client.

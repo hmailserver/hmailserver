@@ -73,16 +73,6 @@ namespace HM
 
       if (!expunged_messages_uid.empty())
       {
-         auto recent_messages = pConnection->GetRecentMessages();
-
-         for (__int64 messageUid : expunged_messages_uid)
-         {
-            auto recent_messages_it = recent_messages.find(messageUid);
-            if (recent_messages_it != recent_messages.end())
-               recent_messages.erase(recent_messages_it);
-         }
-         
-
          // Messages have been expunged
          // Notify the mailbox notifier that the mailbox contents have changed.
          std::shared_ptr<ChangeNotification> pNotification = 

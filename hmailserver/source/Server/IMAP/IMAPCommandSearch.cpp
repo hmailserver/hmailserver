@@ -669,10 +669,7 @@ namespace HM
    bool 
    IMAPCommandSEARCH::IsMessageRecent_(std::shared_ptr<IMAPConnection> pConnection, __int64 message_uid)
    {
-      auto& recent_messages = pConnection->GetRecentMessages();
-
-      auto recent_messages_iter = recent_messages.find(message_uid);
-      return recent_messages_iter != recent_messages.end();
+      return pConnection->IsRecentMessage(message_uid);
    }
 
    String
