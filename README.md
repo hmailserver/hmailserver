@@ -30,8 +30,7 @@ Environment set up
    * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2019 Community edition
    * InnoSetup 5.5.4a (non-unicode version)
-   * Perl 5 (https://strawberryperl.com/)
-   * Python 3 (https://www.python.org/)
+   * Perl 5 (https://strawberryperl.com/) - required by the OpenSSL and PostgreSQL library builds
    * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
    
 **NOTE**
