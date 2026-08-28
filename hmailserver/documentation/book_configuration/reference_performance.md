@@ -18,7 +18,7 @@ Use these settings to configure the hMailServer cache. hMailServer can cache obj
 
 #### Max number of command threads
 
-When an SMTP, POP3 or IMAP client sends a command to hMailServer, this is handled by something called a [command thread](?page=internals_commandhandlers). The command threads typically handles simple commands, such as "log in", "retrieve message" and "add recipient to message". This number specifies how many simultanoeus commands can be run by clients. If you increase this value, more commands can run at the same time, but all of them will run slower. If you decrease this value, less commands can run at the same time, but they will be executed faster.
+When an SMTP, POP3 or IMAP client sends a command to hMailServer, this is handled by something called a command thread. The command threads typically handles simple commands, such as "log in", "retrieve message" and "add recipient to message". This number specifies how many simultanoeus commands can be run by clients. If you increase this value, more commands can run at the same time, but all of them will run slower. If you decrease this value, less commands can run at the same time, but they will be executed faster.
 
 #### Delivery threads
 
