@@ -91,13 +91,19 @@ release's notes; only if OpenSSL changed the build process (Configure flags, `nm
 DLL names) update both `libraries\build-openssl.ps1` and the README accordingly. State
 whether a change was needed.
 
-### 5. libpq note (usually no action)
+### 5. Database client note (usually no action)
 
-libpq (in `%hMailServerLibs%\postgresql-15.19\Release\libpq`) is compiled against OpenSSL but
-loads `libcrypto-3-x64.dll` / `libssl-3-x64.dll` at runtime. The OpenSSL 3.5.x line is
-ABI-stable, so the prebuilt `libpq.dll` does **not** need rebuilding for a patch bump. If a
-rebuild is ever required, follow README's "Building PostgreSQL" section, pointing its
-`config.pl` `openssl => ...\openssl-<new>\out64` entry at the newly built OpenSSL.
+Two prebuilt client libraries are compiled against OpenSSL and load
+`libcrypto-3-x64.dll` / `libssl-3-x64.dll` at runtime:
+
+- libpq, in `%hMailServerLibs%\postgresql-15.19\Release\libpq`
+- MariaDB Connector/C, in
+  `%hMailServerLibs%\libmariadb-3.4.9\build64\libmariadb\RelWithDebInfo`
+
+The OpenSSL 3.5.x line is ABI-stable, so neither DLL needs rebuilding for a **patch** bump
+within 3.5.x. A minor or major bump (e.g. 3.5.x -> 3.6.x or 4.x) changes the DLL names, so
+both must be rebuilt: run the upgrade-pgsql skill and the upgrade-mariadb skill at their
+current pinned versions, which relink them against the newly built OpenSSL.
 
 ### 6. Verify
 

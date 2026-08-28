@@ -32,6 +32,7 @@ Environment set up
    * InnoSetup 5.5.4a (non-unicode version)
    * Perl 5 (https://strawberryperl.com/)
    * Python 3 (https://www.python.org/)
+   * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
    
 **NOTE**
 
@@ -96,6 +97,30 @@ Run, from the repository root:
 The script auto-detects the OpenSSL version to link against from the hMailServer project; pass
 `-OpenSSLVersion 3.5.x` to override it. Only PostgreSQL 15.x and 16.x are supported (17 removed
 the `src\tools\msvc\build.pl` build system this relies on).
+
+Building MariaDB Connector/C
+----------------------------
+hMailServer talks to MySQL and MariaDB through MariaDB Connector/C, and ships its
+`libmariadb.dll` in the Bin directory. It is built by the `libraries\build-mariadb.ps1` script,
+which downloads the requested version into %hMailServerLibs%\libmariadb-&lt;Version&gt;, configures it
+with CMake against a previously built OpenSSL, and builds
+`libmariadb.dll` into `libmariadb-&lt;Version&gt;\build64\libmariadb\RelWithDebInfo`. The authentication
+plugins are compiled into the DLL, so no plugin files have to be shipped alongside it.
+
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
+- CMake - either on PATH, or Visual Studio's "C++ CMake tools for Windows" component. MariaDB Connector/C has no other build system.
+- Visual Studio 2019 with the x64 C++ build tools.
+
+Run, from the repository root:
+
+   <pre>
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9
+   </pre>
+
+The script auto-detects the OpenSSL version to link against from the hMailServer project; pass
+`-OpenSSLVersion 3.5.x` to override it. Only MariaDB Connector/C 3.4.x is supported.
 
 Building Boost
 --------------

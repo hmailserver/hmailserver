@@ -158,7 +158,7 @@ test/
 
 ## `libraries/`
 
-Vendored third-party C++ libraries checked directly into the repository. Large external dependencies (OpenSSL, Boost) are **not** included here and must be built separately using the `hMailServerLibs` environment variable.
+Vendored third-party C++ libraries checked directly into the repository. Large external dependencies (OpenSSL, Boost, libpq, MariaDB Connector/C) are **not** included here and must be built separately using the `hMailServerLibs` environment variable; this folder holds the `build-*.ps1` scripts that build them.
 
 ---
 
@@ -184,7 +184,7 @@ Vendored third-party C++ libraries checked directly into the repository. Large e
 | Admin tools | `source/Tools/hMailServer Tools.sln` |
 | Installer | `installation/hMailServer.iss` (InnoSetup) |
 
-**External dependencies** (not in repo): OpenSSL, Boost. Set `%hMailServerLibs%` to the parent directory where these are built. See `README.md` for step-by-step build instructions.
+**External dependencies** (not in repo): OpenSSL, Boost, PostgreSQL (libpq), MariaDB Connector/C (libmariadb). Set `%hMailServerLibs%` to the parent directory where these are built. See `README.md` for step-by-step build instructions.
 
 **Branches:** `master` is the development branch for new features. Version branches (e.g., `5.6.2`) are used for bug fixes only.
 

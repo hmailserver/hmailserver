@@ -16,7 +16,20 @@
         "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
       }
     ],
-    "postInstallCommands": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
+      }
+    ],
     "postInstallFileCopy": []
   },
   {
@@ -81,7 +94,20 @@
         "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
       }
     ],
-    "postInstallCommands": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
+      }
+    ],
     "postInstallFileCopy": []
   },
   {
@@ -129,8 +155,20 @@
     "preInstallFileCopy": [],
     "postInstallCommands": [
       {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
         "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
         "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
       }
     ],
     "postInstallFileCopy": [
@@ -142,7 +180,7 @@
   },
   {
     "operatingSystem": "Windows 10",
-    "description": "MySQL 8.0.29: New installation - MariaDb client",
+    "description": "MySQL 8.0.29: New installation - MariaDB client",
     "vmName": "Windows10-MySQL8.0.29",
     "snapshotName": "Ready",
     "preInstallCommands": [
@@ -158,13 +196,9 @@
         "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
       }
     ],
-    "postInstallFileCopy": [
-      {
-        "from": "{{MariaDbLib}}",
-        "to": "C:\\Program Files\\hMailServer\\Bin\\libmariadb.dll"
-      }
-    ]
+    "postInstallFileCopy": []
   },
+
   {
     "operatingSystem": "Windows 10",
     "description": "Internal (SQL Compact): New installation",

@@ -40,6 +40,8 @@ The below steps are the same for most hMailServer version. For version specific 
 8. Click Exit to return to the setup wizard
 9. Click Finish to exit the setup and start hMailAdmin.
 
+The setup installs the MySQL/MariaDB client library libmariadb.dll into the hMailServer Bin directory. If you previously placed a libmysql.dll there yourself, it is left untouched, but hMailServer now uses libmariadb.dll instead. Delete libmariadb.dll if you want hMailServer to keep using your own libmysql.dll.
+
 ### Upgrading multiple version steps
 
 When upgrading hMailServer to the latest version, you can install the latest version immediately in step 3. For example, when upgrading from 4.0 to 4.4, you do not have to install 4.1, 4.2 or 4.3 since version 4.4 contains all changes made for 4.1, 4.2 and 4.3. It's possible to upgrade directly from 2.0 and later versions to the latest version without installing any other versions inbetween. There are exceptions to this rule though:

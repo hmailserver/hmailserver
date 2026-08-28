@@ -12,8 +12,10 @@ hMailServer supports 4 different database engines
 
 - [Microsoft SQL Server 2000 and later](http://www.microsoft.com/SQL/default.mspx)
 - [Microsoft SQL Server Compact Edition (CE)](http://www.microsoft.com/sql/editions/compact/default.mspx)
-- [MySQL 4 and later](http://www.mysql.com)
+- [MySQL 4 and later](http://www.mysql.com) (and [MariaDB](https://mariadb.org/))
 - [PostgreSQL](http://www.postgresql.org/)
+
+The database client libraries are installed together with hMailServer, so any of these engines can be selected during setup without installing anything else. MySQL and MariaDB are both reached through the bundled MariaDB Connector/C (libmariadb.dll).
 
 ## Choosing database
 

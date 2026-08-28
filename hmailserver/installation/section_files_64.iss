@@ -27,3 +27,6 @@ Source: "{#OPENSSL_LIBS_PATH}\libssl-3-x64.dll"; DestDir: "{app}\Bin"; Flags: ig
 
 ; PQSQL (PostgreSQL client)
 Source: "{#POSTGRESQL_LIBPQ_PATH}\*.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+
+; MariaDB Connector/C (MySQL / MariaDB client)
+Source: "{#MARIADB_LIBS_PATH}\libmariadb.dll"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
