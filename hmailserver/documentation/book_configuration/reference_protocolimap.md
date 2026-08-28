@@ -42,6 +42,10 @@ Use these settings to enable and disable IMAP extensions on the server.
 - IMAP Idle - Using this extension, IMAP client can receive notifications from the server whenever a new email exist. This way the email client does not have to manually check for new messages every X minute.
 - IMAP ACL - When this extension is enabled, you can set up public folders and permissions for these.
 
+#### Create default special-use folders
+
+<div class="indented">When enabled, hMailServer automatically creates the well-known special-use folders - Drafts, Sent, Trash and Junk - for each new account, and marks them so that email clients recognize what each folder is for. This only applies to accounts created after the setting is enabled; existing accounts are not affected. This setting is enabled by default.</div>
+
 #### Hierarchy delimiter
 
 Select which hierarchy delimiter you want hMailServer to use. The delimiter is used in the communication between IMAP clients and hMailServer. For example, in the hierarchy Inbox\Test\Sub the delimiter is \.
