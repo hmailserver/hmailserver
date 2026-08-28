@@ -10,9 +10,11 @@ IMAP stands for Internet Message Access Protocol. It is a protocol that an email
 
 ## IMAP folders
 
-By default, it is the IMAP client itself (Outlook, Thunderbird, Apple Mail, a webmail client and so on) that decides which folder it uses for sent items, drafts, deleted items and junk, and what that folder is named. hMailServer does not try to guess this from the folder name - the client creates the folder it wants to use, and then puts messages in it. If you want to rename such a folder, do so in your IMAP client, not in hMailServer.
+When a new account is created, hMailServer creates the folders Drafts, Sent, Trash and Junk, marked with the standard special-use flags that tell clients what each folder is for. This is controlled by *Create default special-use folders* under Settings -> Protocols -> IMAP -> Advanced, and is enabled by default. It only affects accounts created while the setting is enabled.
 
-Many modern email clients can also tell hMailServer what a folder is for when they create it, using a standard feature called special-use folders. hMailServer remembers this and passes it on to other clients, so they can automatically recognize, for example, which folder holds sent mail. hMailServer can also create the well-known Drafts, Sent, Trash and Junk folders itself, already marked as special-use, for every new account - this is controlled by *Create default special-use folders* under Settings -> Protocols -> IMAP -> Advanced, and is enabled by default. This only affects accounts created after the setting is enabled; the folder names are fixed and cannot be renamed in hMailServer.
+The client still decides which folders it actually uses for sent items, drafts, deleted items and junk, and what they are named. A client that understands special-use flags normally picks the folders hMailServer created; other clients simply create the folders they want and put messages in them. hMailServer does not guess a folder's purpose from its name. If you want to rename a folder your client uses, do so in the client, so that it keeps pointing at the right folder.
+
+Clients can also set the special-use flags themselves when they create a folder. hMailServer remembers the flags and reports them to other clients, so they can recognize, for example, which folder holds sent mail.
 
 ## Refreshing IMAP folder list
 
