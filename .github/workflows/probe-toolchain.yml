@@ -3,25 +3,21 @@
 # Established so far on windows-2022 (VS2022 Enterprise 17.14, the only VS installed):
 #
 #   - No VS2019: vswhere -version [16.0,17.0) finds nothing.
-#   - The v142 compiler is present (14.29.30133) and vcvars64 -vcvars_ver=14.29 selects it
-#     (VCToolsVersion=14.29.30133), but atlmfc is installed only for 14.44 (v143), so
-#     hMailServer.vcxproj (v142 + UseOfAtl=Static) fails with C1083 on atlbase.h.
+#   - The v142 compiler is present (14.29.30133) and vcvars64 -vcvars_ver=14.29 selects it,
+#     but atlmfc is installed only for 14.44 (v143), so hMailServer.vcxproj (v142 +
+#     UseOfAtl=Static) fails with C1083 on atlbase.h.
 #   - Strawberry Perl 5.32.1 and CMake 3.31.6 are present; cmake -G "Visual Studio 17 2022"
-#     -A x64 -T v142 configures and builds, so the third-party libraries are fine.
-#   - Adding Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL failed twice, silently:
-#     vs_installer.exe returned in ~5s without installing anything, and the aka.ms
-#     bootstrapper exited with code 1 after unpacking itself. Neither printed a reason.
+#     -A x64 -T v142 configures and builds, so the third-party libraries are covered.
+#   - The three earlier attempts to add the ATL component failed for OUR reason, not the
+#     installer's: Start-Process -ArgumentList joins array elements with spaces and does not
+#     quote them, so the installer was handed "--installPath C:\Program" and logged
+#     "An installed product matching the following parameters cannot be found: installPath:
+#     C:\Program" in %TEMP%\dd_installer_*.log.
 #
-# This round finds out WHY, and tries the two remaining shapes of the install:
-#
-#   A. vs_installer.exe modify, with --productId/--channelId spelled out.
-#   B. the aka.ms bootstrapper, likewise, with --installWhileDownloading.
-#   C. an offline layout of just that one component, then install from the layout. If this
-#      works it is also the cacheable option: the layout can be restored from the Actions
-#      cache and installed in seconds on later runs.
-#
-# Every attempt is timed, and the VS setup logs (%TEMP%\dd_*.log) are printed afterwards -
-# that is where the real error text lives.
+# This round invokes the installers through PowerShell's call operator with splatting, which
+# quotes each argument properly, and reads $LASTEXITCODE. Everything else is unchanged: the
+# component ID is the VS2022 one (Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL), both
+# attempts are timed, and the installer's own logs are printed at the end.
 #
 # Delete this file once the real build workflow is settled.
 name: Toolchain probe (temporary)
@@ -41,7 +37,7 @@ jobs:
   probe:
     name: Install v142 ATL on windows-2022
     runs-on: windows-2022
-    timeout-minutes: 90
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
@@ -53,22 +49,33 @@ jobs:
           if (-not $instance) { throw "No VS2022 with the x64 C++ toolchain found." }
 
           "Visual Studio $($instance.installationVersion) at $($instance.installationPath)"
-          "Product:   $($instance.productId)"
-          "Channel:   $($instance.channelId)"
-          "Elevated:  $([Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))"
+          "Product:  $($instance.productId)"
+          "Channel:  $($instance.channelId)"
+          "Elevated: $([Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))"
 
           Add-Content -Path $env:GITHUB_ENV -Value "VSPATH=$($instance.installationPath)"
           Add-Content -Path $env:GITHUB_ENV -Value "VSPRODUCT=$($instance.productId)"
-          # The instance's own channel is authoritative; the env default is only a fallback.
           if ($instance.channelId) {
               Add-Content -Path $env:GITHUB_ENV -Value "CHANNEL_ID=$($instance.channelId)"
           }
 
-      - name: Attempt A - vs_installer.exe modify with productId/channelId
+          ""
+          "=== atlmfc per installed toolset (before) ==="
+          foreach ($toolset in (Get-ChildItem (Join-Path $instance.installationPath 'VC\Tools\MSVC') -Directory | Sort-Object Name)) {
+              $hasHeader = Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')
+              $hasLib = Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib')
+              "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
+          }
+
+      - name: Attempt A - vs_installer.exe modify
         continue-on-error: true
         run: |
           $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
           $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+
+          # & with splatting, NOT Start-Process -ArgumentList: the install path contains a
+          # space, and -ArgumentList would pass it as several arguments (this is what made the
+          # three earlier rounds fail with "installPath: C:\Program").
           $installerArgs = @(
               'modify',
               '--installPath', $env:VSPATH,
@@ -78,11 +85,11 @@ jobs:
               '--quiet', '--norestart'
           )
           "Running: vs_installer.exe $($installerArgs -join ' ')"
-          $process = Start-Process -FilePath $installer -ArgumentList $installerArgs -Wait -PassThru -NoNewWindow
-          "vs_installer exit code: $($process.ExitCode)"
+          & $installer @installerArgs
+          "vs_installer exit code: $LASTEXITCODE"
 
-          # vs_installer.exe delegates to background setup processes and can return before
-          # they finish; wait for them to drain before judging the result.
+          # vs_installer.exe delegates to background setup processes and returns before they
+          # finish, so wait for them to drain before judging the result.
           $deadline = (Get-Date).AddMinutes(30)
           while ((Get-Date) -lt $deadline) {
               $running = Get-Process -Name 'vs_installer', 'vs_installershell', 'vs_installerservice', 'setup', 'vs_setup_bootstrapper' -ErrorAction SilentlyContinue
@@ -103,7 +110,7 @@ jobs:
           "v142 ATL installed after attempt A: $ok"
           Add-Content -Path $env:GITHUB_OUTPUT -Value "installed=$ok"
 
-      - name: Attempt B - bootstrapper with productId/channelId
+      - name: Attempt B - Visual Studio bootstrapper from aka.ms
         if: steps.check_a.outputs.installed != 'True'
         continue-on-error: true
         run: |
@@ -115,7 +122,6 @@ jobs:
           }
           $exe = Join-Path $env:RUNNER_TEMP 'vs_bootstrapper.exe'
           Invoke-WebRequest -Uri $url -OutFile $exe
-          "Downloaded $url ({0:N1} MB)" -f ((Get-Item $exe).Length / 1MB)
 
           $bootstrapperArgs = @(
               'modify',
@@ -126,64 +132,10 @@ jobs:
               '--quiet', '--norestart', '--wait', '--installWhileDownloading'
           )
           "Running: vs_bootstrapper.exe $($bootstrapperArgs -join ' ')"
-          $process = Start-Process -FilePath $exe -ArgumentList $bootstrapperArgs -Wait -PassThru -NoNewWindow
+          & $exe @bootstrapperArgs
           $stopwatch.Stop()
-          "bootstrapper exit code: $($process.ExitCode)  (0=ok, 3010=ok+reboot pending, 1602=cancelled)"
+          "bootstrapper exit code: $LASTEXITCODE  (0=ok, 3010=ok+reboot pending, 1602=cancelled)"
           "Elapsed: {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
-
-      - name: Check ATL after attempt B
-        id: check_b
-        if: steps.check_a.outputs.installed != 'True'
-        run: |
-          $toolset = Get-ChildItem (Join-Path $env:VSPATH 'VC\Tools\MSVC') -Directory -Filter '14.29.*' | Select-Object -First 1
-          $ok = $false
-          if ($toolset) {
-              $ok = (Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')) -and (Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'))
-          }
-          "v142 ATL installed after attempt B: $ok"
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "installed=$ok"
-
-      - name: Attempt C - offline layout of just the ATL component, then install from it
-        if: steps.check_a.outputs.installed != 'True' && steps.check_b.outputs.installed != 'True'
-        continue-on-error: true
-        run: |
-          # A layout is a local copy of just the requested packages. If this works it is the
-          # cacheable path: download the layout once, restore it from the Actions cache on
-          # later runs, and install from it in seconds.
-          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-          $layout = 'C:\vslayout'
-          $exe = Join-Path $env:RUNNER_TEMP 'vs_bootstrapper.exe'
-          if (-not (Test-Path $exe)) {
-              Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vs_enterprise.exe' -OutFile $exe
-          }
-
-          $layoutArgs = @('--layout', $layout, '--add', $env:ATL_COMPONENT, '--lang', 'en-US', '--quiet', '--wait')
-          "Running: vs_bootstrapper.exe $($layoutArgs -join ' ')"
-          $process = Start-Process -FilePath $exe -ArgumentList $layoutArgs -Wait -PassThru -NoNewWindow
-          "layout exit code: $($process.ExitCode)"
-          "Layout download took {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
-
-          if (Test-Path $layout) {
-              $size = (Get-ChildItem $layout -Recurse -File | Measure-Object -Property Length -Sum).Sum
-              "Layout size: {0:N0} MB" -f ($size / 1MB)
-              Get-ChildItem $layout -Filter '*.exe' | ForEach-Object { "  $($_.Name)" }
-
-              $setup = Join-Path $layout 'vs_setup.exe'
-              if (-not (Test-Path $setup)) { $setup = (Get-ChildItem $layout -Filter 'vs_*.exe' | Select-Object -First 1).FullName }
-              $installArgs = @(
-                  'modify',
-                  '--installPath', $env:VSPATH,
-                  '--productId', $env:VSPRODUCT,
-                  '--channelId', $env:CHANNEL_ID,
-                  '--add', $env:ATL_COMPONENT,
-                  '--quiet', '--norestart', '--wait', '--noWeb'
-              )
-              "Running: $setup $($installArgs -join ' ')"
-              $install = Start-Process -FilePath $setup -ArgumentList $installArgs -Wait -PassThru -NoNewWindow
-              "install-from-layout exit code: $($install.ExitCode)"
-          }
-          $stopwatch.Stop()
-          "Elapsed total: {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
 
       - name: Final ATL state and compile
         continue-on-error: true
@@ -194,6 +146,7 @@ jobs:
               "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
           }
 
+          # Mirrors how hMailServer uses ATL: static ATL, COM smart pointers, MBCS.
           $probeDir = Join-Path $env:RUNNER_TEMP 'atlprobe'
           New-Item -ItemType Directory -Force -Path $probeDir | Out-Null
           $source = @(
@@ -217,21 +170,27 @@ jobs:
           $code = $LASTEXITCODE
           Pop-Location
 
+          ""
           if ($code -eq 0) { "RESULT: static ATL compiles and links with the v142 toolset." }
           else { "RESULT: FAILED with exit code $code." }
+          exit $code
 
       - name: Visual Studio setup logs
         if: always()
         continue-on-error: true
         run: |
-          # The installer writes dd_*.log files to %TEMP%; they carry the actual error text
-          # behind an exit code of 1. Print the tail of the most recent ones inline.
+          # The installer writes dd_*.log to %TEMP%; that is where the reason behind an exit
+          # code lives (it is what identified the truncated install path).
           $logs = Get-ChildItem -Path $env:TEMP -Filter 'dd_*.log' -ErrorAction SilentlyContinue |
-                  Sort-Object LastWriteTime -Descending | Select-Object -First 8
+                  Sort-Object LastWriteTime -Descending | Select-Object -First 4
           if (-not $logs) { "No dd_*.log files found in $env:TEMP"; return }
 
           foreach ($log in $logs) {
               ""
-              "================ $($log.Name)  ({0:N0} KB, {1}) ================" -f ($log.Length / 1KB), $log.LastWriteTime
-              Get-Content $log.FullName -Tail 60
+              "================ $($log.Name)  ({0:N0} KB) ================" -f ($log.Length / 1KB)
+              # Only the lines that carry a verdict: warnings, errors and exit codes.
+              Get-Content $log.FullName |
+                  Select-String -Pattern 'Warning:|Error|Exit Code|exit code|cannot be found|Package .* installed|Applying package' |
+                  Select-Object -Last 40 |
+                  ForEach-Object { $_.Line }
           }
