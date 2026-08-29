@@ -124,7 +124,7 @@
       }
     ],
     "postInstallFileCopy": [],
-    "includeStressTests": true 
+    "includeStressTests": true
   },
   {
     "operatingSystem": "Windows 10",

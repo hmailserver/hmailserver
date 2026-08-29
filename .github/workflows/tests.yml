@@ -18,8 +18,14 @@ on:
         description: 'Artifact holding the setup executable to install and test.'
         required: true
         type: string
+      runner-image:
+        description: 'Runner image label to install and test on. Passed by the caller so that
+          the tests run on the image the installer was built for, rather than this workflow
+          naming one of its own that could drift from it.'
+        required: true
+        type: string
       configuration:
-        description: 'Configuration to build the test solution in.'
+        description: 'Configuration to build the test solution in. Debug or Release.'
         required: false
         type: string
         default: Debug
@@ -32,13 +38,16 @@ permissions:
 jobs:
   regression:
     name: Regression tests
-    runs-on: windows-2025-vs2026
+    runs-on: ${{ inputs.runner-image }}
     timeout-minutes: 120
     defaults:
       run:
         shell: pwsh
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # Nothing here pushes, and the installer under test runs on this machine.
+          persist-credentials: false
 
       - name: Download the installer
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
@@ -47,9 +56,11 @@ jobs:
           path: ${{ runner.temp }}\installer
 
       - name: Install hMailServer
+        env:
+          INSTALLER_ARTIFACT: ${{ inputs.installer-artifact }}
         run: |
           $setup = Get-ChildItem (Join-Path $env:RUNNER_TEMP 'installer\*.exe') | Select-Object -First 1
-          if (-not $setup) { throw "The '${{ inputs.installer-artifact }}' artifact contains no executable." }
+          if (-not $setup) { throw "The '$env:INSTALLER_ARTIFACT' artifact contains no executable." }
           "Installing $($setup.Name)"
 
           # A silent install takes the defaults the tests need: the internal SQL CE
@@ -84,25 +95,34 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "nuget restore failed with exit code $LASTEXITCODE" }
 
       - name: Build the test solution
+        env:
+          CONFIGURATION: ${{ inputs.configuration }}
         run: |
+          # A workflow_call input is whatever the caller passes, and this one ends up in an
+          # msbuild switch and in the path the test assembly is looked for under, so it is
+          # checked against the two values that mean anything here.
+          if ($env:CONFIGURATION -notin @('Debug', 'Release')) { throw "The configuration must be Debug or Release, was '$env:CONFIGURATION'." }
+
           . build\Find-MsBuild.ps1
           $msbuild = Find-MsBuild
           if (-not $msbuild) { throw "MSBuild was not found." }
 
           # Every project in the solution targets .NET Framework 4.8, which the runner image
           # has, so none of build.yml's targeting-pack juggling is needed here.
-          & $msbuild 'hmailserver\test\hMailServer Tests.sln' /m '/p:Configuration=${{ inputs.configuration }}' /p:Platform=x64
+          & $msbuild 'hmailserver\test\hMailServer Tests.sln' /m "/p:Configuration=$env:CONFIGURATION" /p:Platform=x64
           if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tests.sln failed with exit code $LASTEXITCODE" }
 
       - name: Run the regression tests
         id: nunit
+        env:
+          CONFIGURATION: ${{ inputs.configuration }}
         run: |
           # The runner comes from packages.config, so find it rather than pinning a version
           # here that a package bump would silently leave behind.
           $console = Get-ChildItem 'hmailserver\test\packages' -Recurse -Filter 'nunit3-console.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $console) { throw "nunit3-console.exe was not found - did the NuGet restore run?" }
 
-          $assembly = 'hmailserver\test\RegressionTests\bin\x64\${{ inputs.configuration }}\RegressionTests.dll'
+          $assembly = "hmailserver\test\RegressionTests\bin\x64\$env:CONFIGURATION\RegressionTests.dll"
           if (-not (Test-Path $assembly)) { throw "The test assembly was not built: $assembly" }
 
           $result = Join-Path $env:GITHUB_WORKSPACE 'TestResult.xml'
@@ -163,6 +183,8 @@ jobs:
 
       - name: Fail if any test failed
         if: always()
+        env:
+          NUNIT_EXIT_CODE: ${{ steps.nunit.outputs.exit-code }}
         run: |
-          $exitCode = [int]'${{ steps.nunit.outputs.exit-code }}'
+          $exitCode = [int]$env:NUNIT_EXIT_CODE
           if ($exitCode -ne 0) { throw "The regression tests failed - nunit3-console exited with $exitCode." }

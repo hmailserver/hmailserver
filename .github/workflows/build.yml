@@ -48,7 +48,9 @@ permissions:
 
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: true
+  # Superseding a branch build is what this is for. master is exempt: its builds are the
+  # ones that get published, and cancelling one leaves that commit with no installer.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 env:
   # Where the library build scripts download and build into. Anywhere outside the working
@@ -60,20 +62,30 @@ env:
   # 14.29 redistributable. The image installs the v142 compiler; this is the fallback for
   # when it stops doing so.
   V142_COMPONENT: Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64
-  # The runner image, in one place: it is the label the jobs run on and part of every
-  # library cache key, so the two can never disagree.
-  RUNNER_IMAGE: windows-2025-vs2026
   # The v142 toolset the projects are pinned to, and so the oldest C++ runtime the installer
   # may ship. A later one is fine - the 14.x runtimes are backwards compatible.
   REDIST_MIN_VERSION: '14.29'
   # The Windows SDK whose Universal CRT redistributable the installer ships: the newest
   # version Get-UCRTRedistPath.ps1 allows, and one the runner image does not carry.
   UCRT_VERSION: 10.0.19041.0
+  # The Chocolatey package carrying that SDK, pinned: its version is the SDK servicing build,
+  # so this is 10.0.19041.0 plus the package's own revision.
+  UCRT_SDK_PACKAGE_VERSION: 10.0.19041.685
+  # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
+  # compiled it with.
+  INNOSETUP_VERSION: 5.6.1
 
 jobs:
   build:
     name: Release x64
-    runs-on: windows-2025-vs2026
+    # The runner image is written once, here. It is both the label the job runs on and part
+    # of every library cache key, and `runs-on` does not accept the `env` context - only
+    # `matrix` and a few others - so a one-entry matrix is what makes the two the same
+    # string. `name:` above keeps the matrix value out of the job title in the web UI.
+    strategy:
+      matrix:
+        image: [windows-2025-vs2026]
+    runs-on: ${{ matrix.image }}
     timeout-minutes: 90
     defaults:
       run:
@@ -81,8 +93,15 @@ jobs:
     outputs:
       version: ${{ steps.product.outputs.version }}
       build: ${{ steps.product.outputs.build }}
+      # Passed to tests.yml so the tests run on the same image, rather than it naming one
+      # of its own that could drift from this.
+      runner-image: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # Nothing here pushes; leaving the token in .git/config would only widen what a
+          # later step - or a build script - could reach.
+          persist-credentials: false
 
       - name: Create the library folder
         run: New-Item -ItemType Directory -Force -Path $env:hMailServerLibs | Out-Null
@@ -172,7 +191,7 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: C:\Program Files (x86)\Windows Kits\10\Redist\${{ env.UCRT_VERSION }}\ucrt
-          key: ucrt-${{ env.UCRT_VERSION }}
+          key: ucrt-${{ env.UCRT_SDK_PACKAGE_VERSION }}
 
       # Deliberately not conditioned on the cache: the step decides by looking for the files,
       # so an empty or half-restored cache heals itself instead of failing two steps later.
@@ -193,8 +212,8 @@ jobs:
           # Not a Visual Studio component: VS2026 no longer offers the older Windows 10 SDKs,
           # so the standalone SDK is installed instead. It lands in the same
           # Windows Kits\10\Redist\$env:UCRT_VERSION that Get-UCRTRedistPath.ps1 looks in.
-          choco install windows-sdk-10-version-2004-all --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw "Installing the Windows 10 SDK ($env:UCRT_VERSION) failed with exit code $LASTEXITCODE" }
+          . build\Install-ChocoPackage.ps1
+          Install-ChocoPackage -Package 'windows-sdk-10-version-2004-all' -Version $env:UCRT_SDK_PACKAGE_VERSION
 
           $ucrt = Get-UCRTRedistPath
           if (-not $ucrt) { throw "The Windows 10 SDK installed, but no allowed Universal CRT redistributable appeared under Windows Kits\10\Redist." }
@@ -260,71 +279,106 @@ jobs:
       #
       # Deliberately no restore-keys: a partial match would restore a tree built from a
       # different version or toolset, which is worse than rebuilding.
-      - name: Cache OpenSSL
+      #
+      # Restore and save are separate actions rather than the combined actions/cache, because
+      # the combined one saves in a post step that has no idea whether the job succeeded. A
+      # library build that died halfway would have its half-built tree stored under the key
+      # that means "this library is built", and with no restore-keys to fall back to, every
+      # later run on the branch would restore that and fail at link time instead of rebuilding.
+      # The matching save steps sit after each build below, and only run when it worked.
+      - name: Restore OpenSSL
         id: cache-openssl
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: C:\hMailLibs\${{ steps.versions.outputs.openssl_dir }}
-          key: openssl-${{ steps.versions.outputs.openssl }}-${{ env.RUNNER_IMAGE }}-${{ hashFiles('libraries/build-openssl.ps1', 'libraries/build-common.ps1') }}
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.openssl_dir }}
+          key: openssl-${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-openssl.ps1', 'libraries/build-common.ps1') }}
 
-      - name: Cache Boost
+      - name: Restore Boost
         id: cache-boost
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: C:\hMailLibs\${{ steps.versions.outputs.boost_dir }}
-          key: boost-${{ steps.versions.outputs.boost }}-msvc14.2-${{ env.RUNNER_IMAGE }}-${{ hashFiles('libraries/build-boost.ps1', 'libraries/build-common.ps1') }}
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.boost_dir }}
+          key: boost-${{ steps.versions.outputs.boost }}-msvc14.2-${{ matrix.image }}-${{ hashFiles('libraries/build-boost.ps1', 'libraries/build-common.ps1') }}
 
-      - name: Cache PostgreSQL (libpq)
+      - name: Restore PostgreSQL (libpq)
         id: cache-pgsql
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: C:\hMailLibs\${{ steps.versions.outputs.postgresql_dir }}
-          key: pgsql-${{ steps.versions.outputs.postgresql }}-ssl${{ steps.versions.outputs.openssl }}-${{ env.RUNNER_IMAGE }}-${{ hashFiles('libraries/build-pgsql.ps1', 'libraries/build-common.ps1') }}
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.postgresql_dir }}
+          key: pgsql-${{ steps.versions.outputs.postgresql }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-pgsql.ps1', 'libraries/build-common.ps1') }}
 
-      - name: Cache MariaDB Connector/C
+      - name: Restore MariaDB Connector/C
         id: cache-mariadb
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: C:\hMailLibs\${{ steps.versions.outputs.mariadb_dir }}
-          key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-${{ env.RUNNER_IMAGE }}-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
+          key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
 
-      # Each build step prunes its tree before the job ends, because actions/cache saves the
-      # whole path afterwards. What is kept is exactly what hMailServer.vcxproj and
-      # post-build.bat reference; the rest is source and intermediates that would multiply the
-      # cache size (Boost alone is ~2 GB unpruned against ~500 MB pruned).
+      # Each build step prunes its tree before it is saved. What is kept is exactly what
+      # hMailServer.vcxproj and post-build.bat reference; the rest is source and intermediates
+      # that would multiply the cache size (Boost alone is ~2 GB unpruned against ~500 MB
+      # pruned). Pruning runs inside the build step so that a prune which removes too much
+      # fails the step, and the save below is then skipped along with it.
+      #
+      # The version and folder name reach the scripts as environment variables rather than
+      # being pasted into the script body: the value is what varies, and it has no business
+      # being able to change what the shell parses.
       - name: Build OpenSSL
         if: steps.cache-openssl.outputs.cache-hit != 'true'
+        env:
+          LIB_VERSION: ${{ steps.versions.outputs.openssl }}
+          LIB_DIR: ${{ steps.versions.outputs.openssl_dir }}
         run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-openssl.ps1 -Version ${{ steps.versions.outputs.openssl }}
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-openssl.ps1 -Version $env:LIB_VERSION
           if ($LASTEXITCODE -ne 0) { throw "build-openssl.ps1 failed with exit code $LASTEXITCODE" }
 
-          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.openssl_dir }}'
+          $root = Join-Path $env:hMailServerLibs $env:LIB_DIR
           Get-ChildItem $root -Force | Where-Object { $_.Name -ne 'out64' } | Remove-Item -Recurse -Force
           foreach ($required in @('out64\include\openssl\ssl.h', 'out64\lib\libssl.lib', 'out64\bin\libssl-3-x64.dll')) {
               if (-not (Test-Path (Join-Path $root $required))) { throw "Pruning removed something needed: $required" }
           }
 
+      - name: Save OpenSSL
+        if: success() && steps.cache-openssl.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.openssl_dir }}
+          key: ${{ steps.cache-openssl.outputs.cache-primary-key }}
+
       - name: Build Boost
         if: steps.cache-boost.outputs.cache-hit != 'true'
+        env:
+          LIB_VERSION: ${{ steps.versions.outputs.boost }}
+          LIB_DIR: ${{ steps.versions.outputs.boost_dir }}
         run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-boost.ps1 -Version ${{ steps.versions.outputs.boost }}
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-boost.ps1 -Version $env:LIB_VERSION
           if ($LASTEXITCODE -ne 0) { throw "build-boost.ps1 failed with exit code $LASTEXITCODE" }
 
           # hMailServer.vcxproj references only the headers (boost_<ver>) and stage\lib.
-          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.boost_dir }}'
+          $root = Join-Path $env:hMailServerLibs $env:LIB_DIR
           Get-ChildItem $root -Force | Where-Object { $_.Name -notin @('boost', 'stage') } | Remove-Item -Recurse -Force
           if (-not (Test-Path (Join-Path $root 'boost\version.hpp'))) { throw "Pruning removed the Boost headers." }
           if (-not (Get-ChildItem (Join-Path $root 'stage\lib') -Filter '*vc142*.lib')) { throw "No vc142-tagged libraries in stage\lib - Boost was built with the wrong toolset." }
 
+      - name: Save Boost
+        if: success() && steps.cache-boost.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.boost_dir }}
+          key: ${{ steps.cache-boost.outputs.cache-primary-key }}
+
       - name: Build PostgreSQL (libpq)
         if: steps.cache-pgsql.outputs.cache-hit != 'true'
+        env:
+          LIB_VERSION: ${{ steps.versions.outputs.postgresql }}
+          LIB_DIR: ${{ steps.versions.outputs.postgresql_dir }}
         run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version ${{ steps.versions.outputs.postgresql }}
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version $env:LIB_VERSION
           if ($LASTEXITCODE -ne 0) { throw "build-pgsql.ps1 failed with exit code $LASTEXITCODE" }
 
           # Keep the built libpq plus the headers the project includes (src\include and
           # src\interfaces\libpq); the rest of the PostgreSQL source tree is not referenced.
-          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.postgresql_dir }}'
+          $root = Join-Path $env:hMailServerLibs $env:LIB_DIR
           Get-ChildItem $root -Force | Where-Object { $_.Name -notin @('Release', 'src') } | Remove-Item -Recurse -Force
           Get-ChildItem (Join-Path $root 'src') -Force | Where-Object { $_.Name -notin @('include', 'interfaces') } | Remove-Item -Recurse -Force
           Get-ChildItem (Join-Path $root 'src\interfaces') -Force | Where-Object { $_.Name -ne 'libpq' } | Remove-Item -Recurse -Force
@@ -332,22 +386,41 @@ jobs:
               if (-not (Test-Path (Join-Path $root $required))) { throw "Pruning removed something needed: $required" }
           }
 
+      - name: Save PostgreSQL (libpq)
+        if: success() && steps.cache-pgsql.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.postgresql_dir }}
+          key: ${{ steps.cache-pgsql.outputs.cache-primary-key }}
+
       - name: Build MariaDB Connector/C
         if: steps.cache-mariadb.outputs.cache-hit != 'true'
+        env:
+          LIB_VERSION: ${{ steps.versions.outputs.mariadb }}
+          LIB_DIR: ${{ steps.versions.outputs.mariadb_dir }}
         run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version ${{ steps.versions.outputs.mariadb }}
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version $env:LIB_VERSION
           if ($LASTEXITCODE -ne 0) { throw "build-mariadb.ps1 failed with exit code $LASTEXITCODE" }
 
           # Only the DLL is shipped; hMailServer compiles against the vendored
           # libraries\libmysql-5.7.38 headers, not this source tree. Keep just the folder
           # chain leading to the DLL by dropping the siblings at each level.
-          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.mariadb_dir }}'
+          $root = Join-Path $env:hMailServerLibs $env:LIB_DIR
           Get-ChildItem $root -Force | Where-Object { $_.Name -ne 'build64' } | Remove-Item -Recurse -Force
           Get-ChildItem (Join-Path $root 'build64') -Force | Where-Object { $_.Name -ne 'libmariadb' } | Remove-Item -Recurse -Force
           Get-ChildItem (Join-Path $root 'build64\libmariadb') -Force | Where-Object { $_.Name -ne 'RelWithDebInfo' } | Remove-Item -Recurse -Force
           if (-not (Test-Path (Join-Path $root 'build64\libmariadb\RelWithDebInfo\libmariadb.dll'))) { throw "Pruning removed libmariadb.dll." }
 
+      - name: Save MariaDB Connector/C
+        if: success() && steps.cache-mariadb.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
+          key: ${{ steps.cache-mariadb.outputs.cache-primary-key }}
+
       - name: Build the developer tools
+        env:
+          NETFX_OVERRIDE: ${{ steps.netfx.outputs.override }}
         run: |
           # DevTools.sln builds ConfigureInstallation.exe, which the next step runs.
           . build\Find-MsBuild.ps1
@@ -355,16 +428,19 @@ jobs:
           if (-not $msbuild) { throw "MSBuild was not found." }
 
           $arguments = @('hmailserver\tools\DevTools.sln', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU')
-          if ('${{ steps.netfx.outputs.override }}') { $arguments += '/p:TargetFrameworkVersion=${{ steps.netfx.outputs.override }}' }
+          if ($env:NETFX_OVERRIDE) { $arguments += "/p:TargetFrameworkVersion=$env:NETFX_OVERRIDE" }
           & $msbuild @arguments
           if ($LASTEXITCODE -ne 0) { throw "Building DevTools.sln failed with exit code $LASTEXITCODE" }
 
       - name: Stamp the version into the sources and the installer script
+        env:
+          PRODUCT_VERSION: ${{ steps.product.outputs.version }}
+          PRODUCT_BUILD: ${{ steps.product.outputs.build }}
         run: |
           # Writes Version.h, the WebAdmin version check and the version and output file name
           # in section_setup_64.iss, so it has to run before the server is compiled.
           $configure = 'hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe'
-          & $configure $env:GITHUB_WORKSPACE '${{ steps.product.outputs.version }}' '${{ steps.product.outputs.build }}'
+          & $configure $env:GITHUB_WORKSPACE $env:PRODUCT_VERSION $env:PRODUCT_BUILD
           if ($LASTEXITCODE -ne 0) { throw "ConfigureInstallation.exe failed with exit code $LASTEXITCODE" }
 
       - name: Build hMailServer
@@ -385,6 +461,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "post-build.ps1 failed with exit code $LASTEXITCODE" }
 
       - name: Build the hMailServer tools
+        env:
+          NETFX_OVERRIDE: ${{ steps.netfx.outputs.override }}
         run: |
           # hMailAdmin, DBSetup, DBUpdater and the rest of what the installer ships.
           . build\Find-MsBuild.ps1
@@ -392,7 +470,7 @@ jobs:
           if (-not $msbuild) { throw "MSBuild was not found." }
 
           $arguments = @('hmailserver\source\Tools\hMailServer Tools.sln', '/m', '/p:Configuration=Release', '/p:Platform=x64')
-          if ('${{ steps.netfx.outputs.override }}') { $arguments += '/p:TargetFrameworkVersion=${{ steps.netfx.outputs.override }}' }
+          if ($env:NETFX_OVERRIDE) { $arguments += "/p:TargetFrameworkVersion=$env:NETFX_OVERRIDE" }
           & $msbuild @arguments
           if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tools.sln failed with exit code $LASTEXITCODE" }
 
@@ -432,15 +510,17 @@ jobs:
           name: symbols-untested
           path: ${{ runner.temp }}/symbols
           if-no-files-found: error
+          # Job-to-job plumbing, not a deliverable: the publish job re-uploads these under
+          # their release name, which is the copy that keeps the default 90 days.
+          retention-days: 1
 
       - name: Install Inno Setup
         run: |
-          # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
-          # compiled it with; the image carries Inno Setup 6 instead. --allow-downgrade is
-          # what makes choco step back from it - the two versions install side by side, in
-          # their own "Inno Setup 5" and "Inno Setup 6" folders.
-          choco install innosetup --version=5.6.1 --allow-downgrade --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw "Installing Inno Setup failed with exit code $LASTEXITCODE" }
+          # The image carries Inno Setup 6 instead of the 5.6.1 hMailServer64.iss is written
+          # for. -AllowDowngrade is what makes choco step back from it - the two versions
+          # install side by side, in their own "Inno Setup 5" and "Inno Setup 6" folders.
+          . build\Install-ChocoPackage.ps1
+          Install-ChocoPackage -Package 'innosetup' -Version $env:INNOSETUP_VERSION -AllowDowngrade
 
       - name: Locate the Visual C++ redistributable
         id: redist
@@ -520,6 +600,9 @@ jobs:
           name: installer-untested
           path: hmailserver/installation/Output/*.exe
           if-no-files-found: error
+          # As with the symbols: this copy only has to survive until the publish job has
+          # re-uploaded it, so it does not sit in the run's storage for 90 days as well.
+          retention-days: 1
 
       - name: Upload the library build logs
         if: failure()
@@ -540,17 +623,37 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       installer-artifact: installer-untested
+      runner-image: ${{ needs.build.outputs.runner-image }}
 
   publish:
     name: Publish the installer
     needs: [build, test]
     runs-on: ubuntu-latest
+    # Four artifact transfers and nothing else. The default of six hours would let a stuck
+    # download hold a runner for most of a day before anyone noticed.
+    timeout-minutes: 15
+    # The only job in either workflow that needs more than a read-only token, and only for
+    # the attestation below: id-token to get the short-lived signing certificate, attestations
+    # to record the result against the repository.
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
       - name: Download the tested installer
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: installer-untested
           path: installer
+
+      # The installer is a downloadable executable, and this is what lets someone check that a
+      # given setup.exe came out of this repository and this workflow rather than from
+      # somewhere else: `gh attestation verify hMailServer-...-Setup.exe -R hmailserver/hmailserver`.
+      # It signs the file's digest, so it has to run on the copy that is published.
+      - name: Attest the installer's provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: installer/*.exe
 
       - name: Upload the installer under its release name
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
