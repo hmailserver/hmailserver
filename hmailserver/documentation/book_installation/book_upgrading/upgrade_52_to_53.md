@@ -28,6 +28,6 @@ This page describes how to upgrade from hMailServer version 5.2 to 5.3. If you f
 9. Click Exit to return to the setup wizard
 10. Click Finish to exit the setup and start hMailAdmin.
 
-Â 
 
-Â 
+
+

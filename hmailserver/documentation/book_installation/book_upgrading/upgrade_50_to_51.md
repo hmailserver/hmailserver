@@ -12,8 +12,8 @@ This page describes how to upgrade from hMailServer version 5.0 to 5.1. If you f
 
 ### Before installation
 
-- Note that the system requirements for version 5 is not the same as for version 4. For example, if you are using Microsoft SQLÂ Server, Microsoft SQLÂ Server 2005 is now a requirement.
-- If you are using the internal MySQLÂ database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
+- Note that the system requirements for version 5 is not the same as for version 4. For example, if you are using Microsoft SQL Server, Microsoft SQL Server 2005 is now a requirement.
+- If you are using the internal MySQL database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
 
 ### Install the new version
 
@@ -32,10 +32,10 @@ This page describes how to upgrade from hMailServer version 5.0 to 5.1. If you f
 
 hMailServer 5.1 includes a lot of changes. Some of these changes modify the behavior of existing functionality. The following functionality have been redesigned in hMailServer 5. After upgrade, please review this configuration to make sure it fits your needs.
 
-**SMTPÂ authentication settings**  
+**SMTP authentication settings**  
 
-Â    
 
-In hMailServer 5.1, the settings related to SMTPÂ authentication in IPÂ ranges have been redesigned. After upgrading to 5.1, it's important that you [review the IPÂ range settings](?page=reference_iprange) to confirm that they fit your needs.
 
-Â 
+In hMailServer 5.1, the settings related to SMTP authentication in IP ranges have been redesigned. After upgrading to 5.1, it's important that you [review the IP range settings](?page=reference_iprange) to confirm that they fit your needs.
+
+

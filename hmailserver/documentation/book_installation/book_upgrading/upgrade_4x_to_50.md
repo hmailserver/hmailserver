@@ -12,8 +12,8 @@ This page describes how to upgrade from hMailServer version 4.x to hMailServer 5
 
 ### Before installation
 
-- Note that the system requirements for version 5 is not the same as for version 4. In version 5.0, Microsoft SQLÂ Server version 2005 is required. In version 5.1, version 2000 is supported as well. Hence, if you are using Microsoft SQLÂ Server 2000 you should upgrade directly from v4 to 5.1 or later. Do not upgrade to 5.0 first.
-- If you are using the internal MySQLÂ database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
+- Note that the system requirements for version 5 is not the same as for version 4. In version 5.0, Microsoft SQL Server version 2005 is required. In version 5.1, version 2000 is supported as well. Hence, if you are using Microsoft SQL Server 2000 you should upgrade directly from v4 to 5.1 or later. Do not upgrade to 5.0 first.
+- If you are using the internal MySQL database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
 
 ### Install the new version
 
@@ -38,29 +38,29 @@ hMailServer 5 includes a lot of changes. Some of these changes modify the behavi
 
 - **New default database engine**  
 
- Â    
 
- In hMailServer 4, the internal database engine was MySQL. hMailServer 5 uses Microsoft SQLÂ Server 2008 Compact Edition instead. This will not have any effect on upgrades - if you have installed hMailServer 4 with the internal MySQL database and you upgrade to version 5, your hMailServer installation will continue using MySQL.   
 
- Â 
+ In hMailServer 4, the internal database engine was MySQL. hMailServer 5 uses Microsoft SQL Server 2008 Compact Edition instead. This will not have any effect on upgrades - if you have installed hMailServer 4 with the internal MySQL database and you upgrade to version 5, your hMailServer installation will continue using MySQL.   
+
+
 - **TCP/IP port configuration changes**  
 
-   
 
- In hMailServer 4, it was possible to configure what IPÂ addresses hMailServer should listen on, and which TCP/IPÂ ports hMailServer should listen on. There was no link between these two settings and they were made independently of each other.Â In version 5, these two settings are now one, which means that it's now possible to specify exactly which ports hMailServer should listen on for different IPÂ addresses. For example, on 127.0.0.1 hMailServer can listen on port 25 and on 192.168.0.1 it can listen on TCP/IP port 26. If you have not modified the default multi-homing or TCP/IP port settings in hMailServer 4, this change won't affect you.  
 
- Â 
-- **COMÂ API** changes  
+ In hMailServer 4, it was possible to configure what IP addresses hMailServer should listen on, and which TCP/IP ports hMailServer should listen on. There was no link between these two settings and they were made independently of each other. In version 5, these two settings are now one, which means that it's now possible to specify exactly which ports hMailServer should listen on for different IP addresses. For example, on 127.0.0.1 hMailServer can listen on port 25 and on 192.168.0.1 it can listen on TCP/IP port 26. If you have not modified the default multi-homing or TCP/IP port settings in hMailServer 4, this change won't affect you.  
 
- Â    
 
- A lot of changes have been made in the COMÂ API.  
+- **COM API** changes  
 
- Â 
+
+
+ A lot of changes have been made in the COM API.  
+
+
 - **Password hashing algorithm**  
 
-   
+
 
  In version 4, hMailServer stored account passwords as MD5 hashes in the database. MD5 is no longer considered to be sure so in hMailServer 5 an algorithm named SHA256 is used instead. If you have custom-built software which accesses the hMailServer database and assumes that account passwords are MD5 hashes, you either need to update this software, or you need to [configure hMailServer to continue using MD5](?page=reference_inifilesettings) using the *PreferredHashAlgorithm* setting.
 
-Â 
+

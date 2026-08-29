@@ -18,11 +18,11 @@ Before you upgrade hMailServer, you should back up all your email messages and s
 
 Generally, there's no need to uninstall the old hMailServer version before installing the new one. The hMailServer installation program will automatically stop the current hMailServer installation before installing the new version. The recommendation is therefore not to uninstall the existing version before installing the new one.   
 
-  
+
 
 The exception to this rule is if you upgrade from hMailServer 3.x to hMailServer 4.x. The hMailServer COM API has a new name in hMailServer 4.x. If you don't uninstall hMailServer 3.x before installing hMailServer 4.x, these old API will still exist on your system. This should never cause any problems. But if you don't want the old API to still be available, you should uninstall hMailServer 3.x before installing hMailServer 4.x.   
 
-  
+
 
 Uninstalling hMailServer does not remove any email messages, accounts or other settings. You can uninstall hMailServer and then install it again without losing any messages.
 

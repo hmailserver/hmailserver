@@ -16,8 +16,8 @@ If you have upgraded and want to downgrade to the previous version again, one wa
 
 ### Manually reverting the database changes
 
-The database changes made by the upgrade scripts can in some cases be manually reverted by a person with knowledge in SQL syntax. The person need to manually go through the upgrade scripts starting from the end and determine what they do. He or she then needs to create new scripts which reverts the change in the database. In many cases, this approach won't be possible. For instance, if a feature which existed in the old version has been removed in the new version, the data required for this feature may have been dropped when the upgrade was made.
+The database changes made by the upgrade scripts can in some cases be manually reverted by a person with knowledge in SQL syntax. The person need to manually go through the upgrade scripts starting from the end and determine what they do. He or she then needs to create new scripts which reverts the change in the database. In many cases, this approach won't be possible. For instance, if a feature which existed in the old version has been removed in the new version, the data required for this feature may have been dropped when the upgrade was made.
 
 ### Alternatives
 
-If you experience a problem in the current version of hMailServer, the best way to proceed is trying to solve the problem. Sometimes users feel that they must downgrade if they run into a problem, when the problem they experience isn't really related to hMailServer. The problem may be related to some modified feature in hMailServer, or it may be a bug in which case it will be fixed if it's reported.
+If you experience a problem in the current version of hMailServer, the best way to proceed is trying to solve the problem. Sometimes users feel that they must downgrade if they run into a problem, when the problem they experience isn't really related to hMailServer. The problem may be related to some modified feature in hMailServer, or it may be a bug in which case it will be fixed if it's reported.

@@ -12,7 +12,7 @@ This page describes how to upgrade from hMailServer version 5.1 to 5.2. If you f
 
 ### Before installation
 
-- If you are using the internal MySQLÂ database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
+- If you are using the internal MySQL database, and are upgrading from 4.2 or earlier, you should install the latest 4.4-build prior to upgrading to version 5. If you do not do this, the database upgrade will fail.
 - If you are using other software which communicates with hMailServer, make sure that that software is compatible with the hMailServer version you are upgrading to. This may be the case for example if you're using 3'rd party web interfaces for the server.
 
 ### Install the new version
@@ -31,7 +31,7 @@ This page describes how to upgrade from hMailServer version 5.1 to 5.2. If you f
 ### What's new
 
 - In hMailServer Administrator, under Utilities, a new basic **diagnostic tool** is now available. This tool helps you troubleshoot basic set up issues.
-- If a client sends a message from a local domain, the sener is now considered local. The same applies if his address matches a route. The previous behavior was that a sender was only considered local if his address matched an local account.Â This means that if you send from an alias address, you are now considered local. Please note that it's still not possible to authenticate using an alias though.
+- If a client sends a message from a local domain, the sener is now considered local. The same applies if his address matches a route. The previous behavior was that a sender was only considered local if his address matched an local account. This means that if you send from an alias address, you are now considered local. Please note that it's still not possible to authenticate using an alias though.
 - In the grey listing options you can now choose to **bypass greylisting if SPF passes**.
 - A new rule action has been added; **Create Copy**. This can be used for example to deliver copies of the same message to different destination servers.
 - A new rule criteria has been added; **Delivery attempts**. This can be used for example to deliver messages to different routes, depending on the current number of delivery attempts.
@@ -44,16 +44,16 @@ This page describes how to upgrade from hMailServer version 5.1 to 5.2. If you f
 
 hMailServer 5.2 includes a lot of changes. Some of these changes modify the behavior of existing functionality. The following functionality have been redesigned in hMailServer 5. After upgrade, please review this configuration to make sure it fits your needs.
 
-**SMTPÂ authentication settings**  
+**SMTP authentication settings**  
 
-Â    
 
-In hMailServer 5.2, the settings related to SMTPÂ authentication in IPÂ ranges have been redesigned. After upgrading to 5.2, it's important that you [review the IPÂ range settings](?page=reference_iprange) to confirm that they fit your needs.
+
+In hMailServer 5.2, the settings related to SMTP authentication in IP ranges have been redesigned. After upgrading to 5.2, it's important that you [review the IP range settings](?page=reference_iprange) to confirm that they fit your needs.
 
 **Message UIDs**  
 
-Â    
+
 
 When upgrading to hMailServer 5.2, message UID's will be regenerated. If your email client has connected information to the specific UID's, this information may be lost. For example, some email clients store flag information such as Important and Follow up per message UID, which means that these flags may be lost during an upgrade to 5.2.
 
-Â 
+
