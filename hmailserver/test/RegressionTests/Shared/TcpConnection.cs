@@ -18,7 +18,12 @@ namespace RegressionTests.Shared
    /// </summary>
    public class TcpConnection : IDisposable
    {
-      private readonly SslProtocols _sslProtocols = SslProtocols.Default;
+      // Not SslProtocols.Default: that means SSL 3.0 and TLS 1.0, both of which Schannel
+      // has disabled since Windows Server 2022, so requesting them fails the handshake
+      // before it starts.
+      public const SslProtocols DefaultSslProtocols = SslProtocols.Tls12;
+
+      private readonly SslProtocols _sslProtocols = DefaultSslProtocols;
 
       private SslStream _sslStream;
       private TcpClient _tcpClient;
@@ -28,7 +33,7 @@ namespace RegressionTests.Shared
       }
 
       public TcpConnection(bool useSSL)
-         : this(useSSL, SslProtocols.Default)
+         : this(useSSL, DefaultSslProtocols)
 
       {
          IsSslConnection = useSSL;
