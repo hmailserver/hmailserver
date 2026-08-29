@@ -28,7 +28,7 @@ Environment set up
 **Required software**
 
    * An installed version of hMailServer 5.7 (configured with a database)
-   * Visual Studio 2019 Community edition, or Visual Studio 2022/2026 with the v142 (VS2019) build tools
+   * Visual Studio 2026 Community edition with the v142 (VS2019) build tools
    * InnoSetup 5.5.4a (non-unicode version)
    * Perl 5 (https://strawberryperl.com/) - required by the OpenSSL and PostgreSQL library builds
    * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
@@ -40,30 +40,21 @@ You should not be compiling hMailServer on a computer which already runs a produ
 Installing Visual Studio
 ------------------------
 
-hMailServer's C++ projects are built with the v142 platform toolset. Visual Studio 2019 provides
-it by default; Visual Studio 2022 and 2026 provide it as an optional component, so any of them
-works as long as v142 and its ATL are installed.
+hMailServer's C++ projects are built with the v142 platform toolset. Visual Studio 2026
+provides it as an optional component, so it has to be selected during installation.
 
-**Visual Studio 2019**
+**Visual Studio 2026**
 
-1. Download [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) and launch the installation.
+1. Download [Visual Studio 2026](https://visualstudio.microsoft.com/vs/) and launch the installation.
 2. Select the following _Workloads_
   * .NET desktop development
   * Desktop development with C++
 3. Select the following _Individual components_
-  * C++ ATL for latest v142 build tools (x86 & x64)
-  * Windows 10 SDK (10.0.18362.0)
-
-**Visual Studio 2022 or 2026**
-
-1. Download [Visual Studio](https://visualstudio.microsoft.com/vs/) and launch the installation.
-2. Select the same _Workloads_ as above.
-3. Select the following _Individual components_
   * MSVC v142 - VS 2019 C++ x64/x86 build tools
   * C++ v14.29 (16.11) ATL for v142 build tools (x86 & x64)
 
-The build scripts locate whichever version is installed, preferring VS2019, and select the
-v142 compiler out of VS2022 or VS2026 when that is what they find.
+The build scripts locate the installed Visual Studio automatically and select the v142
+compiler out of it.
 
 3rd party libraries
 -------------------
@@ -81,7 +72,7 @@ install prefix (headers, import libs and `libcrypto-3-x64.dll` / `libssl-3-x64.d
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
 - Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by OpenSSL's Configure.
-- Visual Studio 2019, 2022 or 2026 with the x64 C++ build tools (the script locates vcvars64.bat automatically).
+- Visual Studio 2026 with the x64 C++ build tools (the script locates vcvars64.bat automatically).
 
 Run, from the repository root:
 
@@ -102,7 +93,7 @@ Prerequisites:
 - The environment variable hMailServerLibs (see above).
 - A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
 - Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by PostgreSQL's build.pl.
-- Visual Studio 2019, 2022 or 2026 with the x64 C++ build tools.
+- Visual Studio 2026 with the x64 C++ build tools.
 
 Run, from the repository root:
 
@@ -127,7 +118,7 @@ Prerequisites:
 - The environment variable hMailServerLibs (see above).
 - A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
 - CMake - either on PATH, or Visual Studio's "C++ CMake tools for Windows" component. MariaDB Connector/C has no other build system.
-- Visual Studio 2019, 2022 or 2026 with the x64 C++ build tools.
+- Visual Studio 2026 with the x64 C++ build tools.
 
 Run, from the repository root:
 
@@ -148,7 +139,7 @@ bootstraps `b2`, and builds the static, multithreaded x64 libraries into `stage\
 
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
-- Visual Studio 2019, or Visual Studio 2022/2026 with the "MSVC v142 build tools" component (the
+- Visual Studio 2026 with the "MSVC v142 build tools" component (the
   script locates vcvars64.bat automatically and drives `b2` with the msvc-14.2 toolset, which is
   the toolset hMailServer itself is built with).
 

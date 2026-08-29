@@ -1,6 +1,6 @@
 # hMailServer — Codebase Guide for Agents
 
-hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting the Visual Studio v142 toolset (VS2019, or VS2022/VS2026 with the v142 build tools) with 64-bit Windows builds.
+hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting the Visual Studio v142 toolset (VS2026 with the v142 build tools installed) with 64-bit Windows builds.
 
 ## Repository Layout
 
@@ -153,6 +153,10 @@ test/
 ```
 
 `RegressionTests/` is the primary test suite — it executes against a real hMailServer instance and exercises it end-to-end over SMTP, IMAP, and POP3. The full suite covers 500+ scenarios.
+
+**Every bug fix and every new feature needs a regression test.** Add it to `RegressionTests/`,
+next to the existing tests for the same protocol or area. For a bug fix, write the test first and
+confirm it fails before the fix, so it is known to actually reproduce the issue.
 
 ---
 

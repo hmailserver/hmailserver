@@ -90,15 +90,15 @@ if ($Jobs -lt 1)
 # inside hMailServer.exe, and the auto-linking pragma encodes the toolset in the library
 # name (libboost_thread-vc142-mt-s-x64-1_92.lib).
 #
-# msvc-14.2 (v142) is available two ways: from VS2019, where it is the default compiler, and
-# from VS2022 and VS2026, where it is the optional "MSVC v142 build tools" component selected
-# with -vcvars_ver=14.29. Accept all three, preferring VS2019; the GitHub Actions
-# windows-2025-vs2026 image has only VS2026. A custom/unknown toolset falls back to -latest
-# ($null ranges).
+# msvc-14.2 (v142) is available two ways: from VS2026 and VS2022, where it is the optional
+# "MSVC v142 build tools" component selected with -vcvars_ver=14.29, and from VS2019, where it
+# is the default compiler. Accept all three, newest first: VS2026 is what the README asks a
+# developer to install and the only Visual Studio on the GitHub Actions windows-2025-vs2026
+# image. A custom/unknown toolset falls back to -latest ($null ranges).
 $vsVersionRanges = switch -Regex ($Toolset)
 {
-    '^msvc-14\.2$' { @('[16.0,17.0)', '[17.0,18.0)', '[18.0,19.0)'); break }  # VS2019, or VS2022/VS2026 + v142
-    '^msvc-14\.3$' { @('[17.0,18.0)', '[18.0,19.0)'); break }                 # VS2022, or VS2026 + v143
+    '^msvc-14\.2$' { @('[18.0,19.0)', '[17.0,18.0)', '[16.0,17.0)'); break }  # VS2026/VS2022 + v142, or VS2019
+    '^msvc-14\.3$' { @('[18.0,19.0)', '[17.0,18.0)'); break }                 # VS2026 + v143, or VS2022
     default        { $null }                                                  # custom/unknown toolset
 }
 

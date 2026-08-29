@@ -149,25 +149,24 @@ $script:HMailServerVcToolsetVersion = '14.29'
 # unresolved externals at link time. So the caller states which Visual Studio versions are
 # acceptable, in preference order, and the first one installed wins.
 #
-# The default order prefers VS2019 (what the README asks a developer to install) and falls
-# back to VS2022 and then VS2026 - the latter being what the GitHub Actions
-# windows-2025-vs2026 image ships, as its only Visual Studio. On those, callers that need the
-# v142 compiler ask Import-VsEnvironment for it; see the comment there for which libraries
-# actually care.
+# The default order prefers VS2026 - what the README asks a developer to install, and the only
+# Visual Studio on the GitHub Actions windows-2025-vs2026 image - and falls back to VS2022 and
+# then VS2019. On VS2026 and VS2022, callers that need the v142 compiler ask
+# Import-VsEnvironment for it; see the comment there for which libraries actually care.
 #
 # Pass $null or an empty array to fall back to 'vswhere -latest'.
 function Resolve-VcVars64
 {
     param(
         [Parameter(Mandatory = $false)]
-        [string[]]$VersionRanges = @('[16.0,17.0)', '[17.0,18.0)', '[18.0,19.0)')
+        [string[]]$VersionRanges = @('[18.0,19.0)', '[17.0,18.0)', '[16.0,17.0)')
     )
 
     $vsWhere = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "Microsoft Visual Studio\Installer\vswhere.exe"
 
     if (!(Test-Path $vsWhere))
     {
-        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2019, 2022 or 2026 (or the Visual Studio Installer)."
+        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2026 (or the Visual Studio Installer)."
     }
 
     $rangesToTry = if ($VersionRanges) { $VersionRanges } else { @($null) }

@@ -74,6 +74,13 @@ env:
   # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
   # compiled it with.
   INNOSETUP_VERSION: 5.6.1
+  # The build number continues the series TeamCity produced, which ended at 2869. GitHub's
+  # run number cannot be seeded, so it is offset by that instead: build = offset + run number.
+  # The run number is counted per workflow file path, so renaming this file restarts it at 1
+  # and the offset has to be re-based on the last build number published.
+  BUILD_NUMBER_OFFSET: 2869
+  # No build may be numbered at or below the last TeamCity build. See the check that uses it.
+  BUILD_NUMBER_FLOOR: 2869
 
 jobs:
   build:
@@ -235,12 +242,17 @@ jobs:
           INPUT_BUILD: ${{ inputs.build }}
         run: |
           # TeamCity kept these in build parameters; here the version lives in the VERSION
-          # file and the build number is the run number, both overridable on a manual run.
+          # file and the build number is the offset run number, both overridable on a manual
+          # run.
           $version = if ($env:INPUT_VERSION) { $env:INPUT_VERSION.Trim() } else { (Get-Content VERSION -Raw).Trim() }
-          $build = if ($env:INPUT_BUILD) { $env:INPUT_BUILD.Trim() } else { $env:GITHUB_RUN_NUMBER }
+          $build = if ($env:INPUT_BUILD) { $env:INPUT_BUILD.Trim() } else { [string]([int]$env:GITHUB_RUN_NUMBER + [int]$env:BUILD_NUMBER_OFFSET) }
 
           if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "The version must be major.minor.patch, was '$version'." }
           if ($build -notmatch '^\d+$') { throw "The build number must be numeric, was '$build'." }
+
+          # Catches an offset that was dropped or mis-edited, which would renumber new builds
+          # back into the range TeamCity already published.
+          if ([int]$build -le [int]$env:BUILD_NUMBER_FLOOR) { throw "The build number must continue the series after $env:BUILD_NUMBER_FLOOR, was $build. Check BUILD_NUMBER_OFFSET." }
 
           "Building hMailServer $version-B$build"
           Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$version"
@@ -475,10 +487,17 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tools.sln failed with exit code $LASTEXITCODE" }
 
       - name: Collect the debug symbols
+        env:
+          OPENSSL_DIR: ${{ steps.versions.outputs.openssl_dir }}
+          POSTGRESQL_DIR: ${{ steps.versions.outputs.postgresql_dir }}
+          MARIADB_DIR: ${{ steps.versions.outputs.mariadb_dir }}
         run: |
-          # Symbols for the binaries hMailServer itself ships, so a crash dump from a CI
-          # build can be read. Third-party DLLs are left out - their symbols are not ours
-          # to publish, and the installer already carries the DLLs.
+          # Symbols for the binaries hMailServer ships, so a crash dump from a CI build can be
+          # read. That includes OpenSSL, libpq and libmariadb: those DLLs are built by
+          # libraries\build-*.ps1 rather than downloaded, so these PDBs are the only ones that
+          # match what the installer carries, and a dump taken inside one is unreadable
+          # without them. Boost is linked statically, so its symbols are already in
+          # hMailServer.pdb.
           $symbolDirs = @(
               'hmailserver\source\Server\hMailServer\x64\Release',
               'hmailserver\source\Server\hMailServer.Minidump\x64\Release',
@@ -490,12 +509,28 @@ jobs:
               'hmailserver\source\Tools\Shared\bin\x64\Release'
           )
 
+          # Named one by one rather than globbed: these folders also hold PDBs for things the
+          # installer does not ship - openssl.exe, and the vc142.pdb the compiler leaves behind.
+          $libraryPdbs = @(
+              "$env:OPENSSL_DIR\out64\bin\libcrypto-3-x64.pdb",
+              "$env:OPENSSL_DIR\out64\bin\libssl-3-x64.pdb",
+              "$env:POSTGRESQL_DIR\Release\libpq\libpq.pdb",
+              "$env:MARIADB_DIR\build64\libmariadb\RelWithDebInfo\libmariadb.pdb"
+          ) | ForEach-Object { Join-Path $env:hMailServerLibs $_ }
+
           $symbols = Join-Path $env:RUNNER_TEMP 'symbols'
           New-Item -ItemType Directory -Force -Path $symbols | Out-Null
 
           foreach ($dir in $symbolDirs) {
               $pdbs = @(Get-ChildItem (Join-Path $dir '*.pdb') -ErrorAction SilentlyContinue)
               if ($pdbs) { Copy-Item $pdbs.FullName $symbols } else { "No symbols in $dir" }
+          }
+
+          # These come from our own library builds at a fixed path, so a missing one means the
+          # layout or the cache pruning changed and the symbols would silently degrade.
+          foreach ($pdb in $libraryPdbs) {
+              if (-not (Test-Path $pdb)) { throw "Expected library symbols were not found: $pdb" }
+              Copy-Item $pdb $symbols
           }
 
           # The server's own symbols are the ones that matter; missing those means the
