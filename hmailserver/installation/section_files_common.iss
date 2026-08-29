@@ -3,8 +3,6 @@ Source: isxdl.dll; DestDir: {tmp}; Flags: dontcopy
 Source: "License.rtf"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 
 ; 3'rd party dependencies
-Source: "System files\dnsapi.dll"; DestDir: "{sys}"; Flags: uninsneveruninstall onlyifdoesntexist; Components: admintools; OnlyBelowVersion: 0,6;
-Source: "System files\ATL\atl70.dll"; DestDir: "{sys}";  Components: server;
 Source: ".\Extras\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
 
 ; Database scripts
