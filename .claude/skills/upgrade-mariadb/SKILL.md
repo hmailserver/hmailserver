@@ -141,8 +141,8 @@ link error:
 powershell.exe -NoProfile -Command "$d = Get-ChildItem 'C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1; $names = & $d.FullName /nologo /exports \"$env:hMailServerLibs\libmariadb-<new>\build64\libmariadb\RelWithDebInfo\libmariadb.dll\" | ForEach-Object { if ($_ -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]{8}\s+(\S+)') { $matches[1] } }; 'mysql_real_connect','mysql_close','mysql_init','mysql_error','mysql_query','mysql_store_result','mysql_free_result','mysql_insert_id','mysql_errno','mysql_num_rows','mysql_fetch_row','mysql_num_fields','mysql_fetch_field_direct','mysql_get_server_version','mysql_options' | Where-Object { $names -notcontains $_ }"
 ```
 
-It must print nothing. Finally, run the regression tests against a MySQL or MariaDB database
-(`build\run-tests.ps1`) to prove the connector actually authenticates and queries.
+It must print nothing. Finally, run the regression tests against a MySQL or MariaDB database to prove the
+connector actually authenticates and queries.
 
 ## Reference: all MariaDB Connector/C touch points
 

@@ -196,4 +196,4 @@ The below scripts will automatically locate prerequisites. They must be run usin
 * Use `build/build.ps1` to build hMailServer server.
 * Use `build/post-build.ps1` to copy DLLs and register the COM server after a successful build. It requires Administrator elevation and will prompt via UAC automatically.
 * Use `build/build-tests.ps1` to build the regression test solution.
-* Use `build/run-tests.ps1` to run the regression tests solution.
+* Run the regression tests with the NUnit console runner from the restored packages, for example `hmailserver\test\RegressionTests\packages\NUnit.ConsoleRunner.<version>\tools\nunit3-console.exe hmailserver\test\RegressionTests\bin\x64\Debug\RegressionTests.dll`. They need an installed and running hMailServer, since they drive it through its COM API.
