@@ -57,7 +57,7 @@ There are two reasons to run it:
 ### 2. Build the connector
 
 Invoke the build script (prerequisites — `%hMailServerLibs%`, an existing
-`openssl-<ver>\out64`, CMake on PATH, VS2019 x64 tools — are validated inside it; surface its
+`openssl-<ver>\out64`, CMake on PATH, VS2019/VS2022 x64 tools — are validated inside it; surface its
 error message if it fails):
 
 ```
@@ -158,6 +158,6 @@ It must print nothing. Finally, run the regression tests against a MySQL or Mari
 
 ## Note
 
-The script's own end-to-end run needs the source download, the VS2019 x64 toolchain, CMake, and
+The script's own end-to-end run needs the source download, the VS2019/VS2022 x64 toolchain, CMake, and
 a matching `openssl-<ver>\out64` build present; it validates those prerequisites and fails early
 with a clear message if any is missing.

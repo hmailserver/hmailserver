@@ -24,8 +24,8 @@
         (build it with build-openssl.ps1). It is the TLS backend of the client library.
       - CMake, either on PATH or from Visual Studio's "C++ CMake tools for Windows"
         component - MariaDB Connector/C has no other build system.
-      - Visual Studio 2019 with the x64 build tools (vcvars64.bat is located
-        automatically via vswhere).
+      - Visual Studio 2019, or Visual Studio 2022, with the x64 build tools (vcvars64.bat
+        is located automatically via vswhere).
 
 .PARAMETER Version
     The MariaDB Connector/C version to build, e.g. 3.4.9. Must match 3.4.x.
@@ -110,9 +110,9 @@ if (!(Test-Path $openSslOut))
     Throw "The OpenSSL build to link libmariadb against was not found at $openSslOut. Build it first with build-openssl.ps1 -Version $OpenSSLVersion. Without it libmariadb would be built without OpenSSL support."
 }
 
-# --- Locate vcvars64.bat via vswhere -------------------------------------------
+# --- Locate the Visual Studio build environment via vswhere --------------------
 
-$vcvars64 = Resolve-VcVars64
+$vsInstall = Resolve-VcVars64
 
 # --- Import the VS x64 build environment ---------------------------------------
 
@@ -120,7 +120,9 @@ $vcvars64 = Resolve-VcVars64
 # "C++ CMake tools for Windows" component) is not on the ambient PATH, only on the
 # one vcvars64.bat sets up. Importing first means either a standalone CMake or the
 # one shipped with Visual Studio satisfies the prerequisite.
-Import-VsEnvironment -VcVars64 $vcvars64
+# libmariadb is a C library consumed through an import library and a DLL, so its ABI does not
+# depend on the toolset; no -ToolsetVersion is needed (see Import-VsEnvironment).
+Import-VsEnvironment -VsInstall $vsInstall
 
 # --- Verify CMake is available --------------------------------------------------
 
@@ -157,10 +159,16 @@ Write-Log "Progress is being logged to $logPath (tail it with: Get-Content `"$lo
 # sha256_password, client_ed25519 and parsec without a plugin directory, so
 # hMailServer ships a single DLL. dialog / mysql_clear_password / auth_gssapi_client
 # are interactive or Kerberos-based and hMailServer never uses them.
+# The generator has to name the Visual Studio that was actually resolved above: asking for
+# "Visual Studio 16 2019" on a machine that only has VS2022 (as the GitHub Actions
+# windows-2022 image does) fails at configure time.
+$generator = if ($vsInstall.MajorVersion -ge 17) { "Visual Studio 17 2022" } else { "Visual Studio 16 2019" }
+Write-Log "Using the CMake generator '$generator' for Visual Studio $($vsInstall.Version)"
+
 $cmakeArgs = @(
     "-S", $srcDir,
     "-B", $buildDir,
-    "-G", "Visual Studio 16 2019",
+    "-G", $generator,
     "-A", "x64",
     "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
     "-DWITH_SSL=OPENSSL",

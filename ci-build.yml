@@ -1,0 +1,252 @@
+# Builds hMailServer.exe on a GitHub-hosted VS2022 runner.
+#
+# The expensive part of a hMailServer build is not the server itself (a few minutes) but the
+# four third-party libraries it links against - OpenSSL, Boost, libpq and libmariadb - which
+# take 35-45 minutes to build from source. Each is therefore cached separately under
+# %hMailServerLibs%, keyed on the version the repository pins plus the script that builds it,
+# so a normal run restores them and only compiles hMailServer.
+#
+# About the runner: windows-2022 ships Visual Studio 2022 (no VS2019 at all) with the v142
+# compiler that hMailServer's projects are pinned to, but without ATL for v142 - which the
+# ATL-static projects need. The workflow installs that one component when it is missing
+# (~4 minutes). windows-2025 is not an alternative: it now ships Visual Studio 18.
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - 'claude/**'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Where the library build scripts download and build into. Anywhere outside the working
+  # directory will do; the build scripts and hMailServer.vcxproj both read this variable.
+  hMailServerLibs: C:\hMailLibs
+  # "C++ v14.29 (16.11) ATL for v142 build tools (x86 & x64)" in the VS2022 installer.
+  ATL_COMPONENT: Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL
+
+jobs:
+  build:
+    name: hMailServer Release x64
+    runs-on: windows-2022
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create the library folder
+        run: New-Item -ItemType Directory -Force -Path $env:hMailServerLibs | Out-Null
+
+      - name: Install ATL for the v142 toolset if the image lacks it
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $instance = (& $vswhere -products '*' -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | Out-String | ConvertFrom-Json) | Select-Object -First 1
+          if (-not $instance) { throw "No Visual Studio 2022 with the x64 C++ toolchain was found." }
+
+          # hMailServer.vcxproj is PlatformToolset v142 with UseOfAtl=Static, so the 14.29
+          # toolset needs its atlmfc folder. The image ships the v142 compiler but only the
+          # v143 ATL, so compiling fails with C1083 on atlbase.h unless we add the component.
+          $toolset = Get-ChildItem (Join-Path $instance.installationPath 'VC\Tools\MSVC') -Directory -Filter '14.29.*' | Select-Object -First 1
+          if (-not $toolset) { throw "The v142 (14.29) toolset is not installed in $($instance.installationPath)." }
+
+          $hasAtl = (Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')) -and
+                    (Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'))
+          if ($hasAtl) {
+              "ATL for v142 is already installed in $($toolset.Name) - nothing to do."
+              exit 0
+          }
+
+          "ATL for v142 is missing from $($toolset.Name); installing $env:ATL_COMPONENT"
+          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+
+          # & with splatting, not Start-Process -ArgumentList: the install path contains a
+          # space, and -ArgumentList would hand the installer "--installPath C:\Program".
+          $installerArgs = @(
+              'modify',
+              '--installPath', $instance.installationPath,
+              '--productId', $instance.productId,
+              '--channelId', $instance.channelId,
+              '--add', $env:ATL_COMPONENT,
+              '--quiet', '--norestart'
+          )
+          & $installer @installerArgs
+          "vs_installer exit code: $LASTEXITCODE"
+
+          # vs_installer.exe delegates to background setup processes and returns before they
+          # finish, so wait for them to drain before checking the result.
+          $deadline = (Get-Date).AddMinutes(30)
+          while ((Get-Date) -lt $deadline) {
+              $running = Get-Process -Name 'vs_installer', 'vs_installershell', 'vs_installerservice', 'setup' -ErrorAction SilentlyContinue
+              if (-not $running) { break }
+              Start-Sleep -Seconds 10
+          }
+          $stopwatch.Stop()
+          "Installed in {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
+
+          $hasAtl = (Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')) -and
+                    (Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'))
+          if (-not $hasAtl) { throw "Installing $env:ATL_COMPONENT did not produce atlmfc under $($toolset.FullName)." }
+
+      - name: Read the pinned library versions
+        id: versions
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Get-LibraryVersions.ps1
+
+      # One cache per library, so bumping one version does not throw the others away. Each key
+      # carries the pinned version, the scripts that produce the build, and the runner image;
+      # libpq and libmariadb link against OpenSSL, so their keys carry its version too, and
+      # Boost's carries the toolset its libraries are name-tagged with.
+      #
+      # Deliberately no restore-keys: a partial match would restore a tree built from a
+      # different version or toolset, which is worse than rebuilding.
+      - name: Cache OpenSSL
+        id: cache-openssl
+        uses: actions/cache@v4
+        with:
+          path: C:\hMailLibs\${{ steps.versions.outputs.openssl_dir }}
+          key: openssl-${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-openssl.ps1', 'libraries/build-common.ps1') }}
+
+      - name: Cache Boost
+        id: cache-boost
+        uses: actions/cache@v4
+        with:
+          path: C:\hMailLibs\${{ steps.versions.outputs.boost_dir }}
+          key: boost-${{ steps.versions.outputs.boost }}-msvc14.2-windows-2022-${{ hashFiles('libraries/build-boost.ps1', 'libraries/build-common.ps1') }}
+
+      - name: Cache PostgreSQL (libpq)
+        id: cache-pgsql
+        uses: actions/cache@v4
+        with:
+          path: C:\hMailLibs\${{ steps.versions.outputs.postgresql_dir }}
+          key: pgsql-${{ steps.versions.outputs.postgresql }}-ssl${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-pgsql.ps1', 'libraries/build-common.ps1') }}
+
+      - name: Cache MariaDB Connector/C
+        id: cache-mariadb
+        uses: actions/cache@v4
+        with:
+          path: C:\hMailLibs\${{ steps.versions.outputs.mariadb_dir }}
+          key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
+
+      # Each build step prunes its tree before the job ends, because actions/cache saves the
+      # whole path afterwards. What is kept is exactly what hMailServer.vcxproj and
+      # post-build.bat reference; the rest is source and intermediates that would multiply the
+      # cache size (Boost alone is ~2 GB unpruned against ~500 MB pruned).
+      - name: Build OpenSSL
+        if: steps.cache-openssl.outputs.cache-hit != 'true'
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-openssl.ps1 -Version ${{ steps.versions.outputs.openssl }}
+          if ($LASTEXITCODE -ne 0) { throw "build-openssl.ps1 failed with exit code $LASTEXITCODE" }
+
+          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.openssl_dir }}'
+          Get-ChildItem $root -Force | Where-Object { $_.Name -ne 'out64' } | Remove-Item -Recurse -Force
+          foreach ($required in @('out64\include\openssl\ssl.h', 'out64\lib\libssl.lib', 'out64\bin\libssl-3-x64.dll')) {
+              if (-not (Test-Path (Join-Path $root $required))) { throw "Pruning removed something needed: $required" }
+          }
+
+      - name: Build Boost
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-boost.ps1 -Version ${{ steps.versions.outputs.boost }}
+          if ($LASTEXITCODE -ne 0) { throw "build-boost.ps1 failed with exit code $LASTEXITCODE" }
+
+          # hMailServer.vcxproj references only the headers (boost_<ver>) and stage\lib.
+          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.boost_dir }}'
+          Get-ChildItem $root -Force | Where-Object { $_.Name -notin @('boost', 'stage') } | Remove-Item -Recurse -Force
+          if (-not (Test-Path (Join-Path $root 'boost\version.hpp'))) { throw "Pruning removed the Boost headers." }
+          if (-not (Get-ChildItem (Join-Path $root 'stage\lib') -Filter '*vc142*.lib')) { throw "No vc142-tagged libraries in stage\lib - Boost was built with the wrong toolset." }
+
+      - name: Build PostgreSQL (libpq)
+        if: steps.cache-pgsql.outputs.cache-hit != 'true'
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version ${{ steps.versions.outputs.postgresql }}
+          if ($LASTEXITCODE -ne 0) { throw "build-pgsql.ps1 failed with exit code $LASTEXITCODE" }
+
+          # Keep the built libpq plus the headers the project includes (src\include and
+          # src\interfaces\libpq); the rest of the PostgreSQL source tree is not referenced.
+          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.postgresql_dir }}'
+          Get-ChildItem $root -Force | Where-Object { $_.Name -notin @('Release', 'src') } | Remove-Item -Recurse -Force
+          Get-ChildItem (Join-Path $root 'src') -Force | Where-Object { $_.Name -notin @('include', 'interfaces') } | Remove-Item -Recurse -Force
+          Get-ChildItem (Join-Path $root 'src\interfaces') -Force | Where-Object { $_.Name -ne 'libpq' } | Remove-Item -Recurse -Force
+          foreach ($required in @('Release\libpq\libpq.dll', 'Release\libpq\libpq.lib', 'src\interfaces\libpq\libpq-fe.h')) {
+              if (-not (Test-Path (Join-Path $root $required))) { throw "Pruning removed something needed: $required" }
+          }
+
+      - name: Build MariaDB Connector/C
+        if: steps.cache-mariadb.outputs.cache-hit != 'true'
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version ${{ steps.versions.outputs.mariadb }}
+          if ($LASTEXITCODE -ne 0) { throw "build-mariadb.ps1 failed with exit code $LASTEXITCODE" }
+
+          # Only the DLL is shipped; hMailServer compiles against the vendored
+          # libraries\libmysql-5.7.38 headers, not this source tree. Keep just the folder
+          # chain leading to the DLL by dropping the siblings at each level.
+          $root = Join-Path $env:hMailServerLibs '${{ steps.versions.outputs.mariadb_dir }}'
+          Get-ChildItem $root -Force | Where-Object { $_.Name -ne 'build64' } | Remove-Item -Recurse -Force
+          Get-ChildItem (Join-Path $root 'build64') -Force | Where-Object { $_.Name -ne 'libmariadb' } | Remove-Item -Recurse -Force
+          Get-ChildItem (Join-Path $root 'build64\libmariadb') -Force | Where-Object { $_.Name -ne 'RelWithDebInfo' } | Remove-Item -Recurse -Force
+          if (-not (Test-Path (Join-Path $root 'build64\libmariadb\RelWithDebInfo\libmariadb.dll'))) { throw "Pruning removed libmariadb.dll." }
+
+      - name: Build hMailServer
+        run: |
+          # build.ps1 disables the pre/post build events, so the runner is spared the
+          # 'NET STOP hMailServer' and 'hMailServer.exe /Register' steps that a developer
+          # machine runs - no service and no COM registration are needed to compile.
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\build.ps1 -Configuration Release
+          if ($LASTEXITCODE -ne 0) { throw "build.ps1 failed with exit code $LASTEXITCODE" }
+
+      - name: Collect the build artifact
+        run: |
+          # The same set post-build.bat copies next to hMailServer.exe on a developer machine.
+          $outDir = 'hmailserver\source\Server\hMailServer\x64\Release'
+          $minidumpDir = 'hmailserver\source\Server\hMailServer.Minidump\x64\Release'
+          $artifacts = Join-Path $env:RUNNER_TEMP 'artifacts'
+          New-Item -ItemType Directory -Force -Path $artifacts | Out-Null
+
+          $libs = $env:hMailServerLibs
+          $files = @(
+              (Join-Path $outDir 'hMailServer.exe'),
+              (Join-Path $libs '${{ steps.versions.outputs.openssl_dir }}\out64\bin\libcrypto-3-x64.dll'),
+              (Join-Path $libs '${{ steps.versions.outputs.openssl_dir }}\out64\bin\libssl-3-x64.dll'),
+              (Join-Path $libs '${{ steps.versions.outputs.mariadb_dir }}\build64\libmariadb\RelWithDebInfo\libmariadb.dll')
+          )
+          foreach ($file in $files) {
+              if (-not (Test-Path $file)) { throw "Expected build output is missing: $file" }
+              Copy-Item $file $artifacts
+          }
+
+          # libpq ships several DLLs (libpq plus its dependencies), as post-build.bat's
+          # wildcard copy reflects.
+          Copy-Item (Join-Path $libs '${{ steps.versions.outputs.postgresql_dir }}\Release\libpq\*.dll') $artifacts
+
+          # Debug symbols and the minidump helper, when the Release configuration produced
+          # them - useful for diagnosing a crash from a CI build, but not worth failing over.
+          foreach ($optional in @((Join-Path $outDir 'hMailServer.pdb'), (Join-Path $minidumpDir 'hMailServer.Minidump.exe'))) {
+              if (Test-Path $optional) { Copy-Item $optional $artifacts } else { "Not produced by this build: $optional" }
+          }
+
+          Get-ChildItem $artifacts | Select-Object Name, Length | Format-Table -AutoSize | Out-String
+
+      - name: Upload the build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hMailServer-Release-x64
+          path: ${{ runner.temp }}/artifacts
+          if-no-files-found: error
+
+      - name: Upload the library build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-build-logs
+          path: libraries/build-*.log
+          if-no-files-found: ignore

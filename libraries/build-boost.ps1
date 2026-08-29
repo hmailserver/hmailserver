@@ -15,15 +15,18 @@
 
     Prerequisites (must be on PATH / installed):
       - The environment variable hMailServerLibs, pointing at your library folder.
-      - Visual Studio 2019 with the x64 build tools (vcvars64.bat is located
-        automatically via vswhere). b2 is driven with the msvc-14.2 toolset.
+      - Visual Studio 2019 with the x64 build tools, or Visual Studio 2022 with the
+        "MSVC v142 build tools" component (vcvars64.bat is located automatically via
+        vswhere). b2 is driven with the msvc-14.2 toolset, which hMailServer's own
+        projects are built with.
 
 .PARAMETER Version
     The Boost version to build, e.g. 1.90.0. Must match 1.x.y.
 
 .PARAMETER Toolset
-    The b2 toolset to build with. Defaults to msvc-14.2 (Visual Studio 2019),
-    which is what hMailServer's project files expect.
+    The b2 toolset to build with. Defaults to msvc-14.2, the v142 toolset
+    hMailServer's project files expect. It is provided by Visual Studio 2019, and by
+    Visual Studio 2022 with the "MSVC v142 build tools" component.
 
 .PARAMETER Jobs
     Number of parallel compilations (b2 -j). Defaults to the number of logical
@@ -80,21 +83,33 @@ if ($Jobs -lt 1)
     $Jobs = 4
 }
 
-# --- Locate vcvars64.bat via vswhere -------------------------------------------
+# --- Locate the Visual Studio build environment via vswhere --------------------
 
-# Build Boost with the SAME Visual Studio that provides the requested toolset, not
-# simply the newest one installed (see Resolve-VcVars64 for why -latest is wrong).
-# Map the msvc-14.x toolset to the corresponding VS version range so the compiled
-# Boost matches hMailServer's own toolset; a custom/unknown toolset falls back to
-# -latest ($null range).
-$vsVersionRange = switch -Regex ($Toolset)
+# Boost must be compiled with the requested toolset, not simply the newest compiler
+# installed (see Resolve-VcVars64 for why -latest is wrong): its static libraries end up
+# inside hMailServer.exe, and the auto-linking pragma encodes the toolset in the library
+# name (libboost_thread-vc142-mt-s-x64-1_92.lib).
+#
+# msvc-14.2 (v142) is available two ways: from VS2019, where it is the default compiler, and
+# from VS2022, where it is the optional "MSVC v142 build tools" component selected with
+# -vcvars_ver=14.29. Accept both, preferring VS2019; the GitHub Actions windows-2022 image
+# has only VS2022. A custom/unknown toolset falls back to -latest ($null ranges).
+$vsVersionRanges = switch -Regex ($Toolset)
 {
-    '^msvc-14\.2$' { '[16.0,17.0)'; break }   # VS2019
-    '^msvc-14\.3$' { '[17.0,18.0)'; break }   # VS2022
-    default        { $null }                   # custom/unknown toolset: fall back to latest
+    '^msvc-14\.2$' { @('[16.0,17.0)', '[17.0,18.0)'); break }  # VS2019, or VS2022 + v142
+    '^msvc-14\.3$' { @('[17.0,18.0)'); break }                 # VS2022
+    default        { $null }                                    # custom/unknown toolset
 }
 
-$vcvars64 = Resolve-VcVars64 -VersionRange $vsVersionRange
+# The compiler vcvars must select when the toolset is not that Visual Studio's default.
+# Import-VsEnvironment applies this only on VS2022 and newer.
+$vcVarsToolsetVersion = switch -Regex ($Toolset)
+{
+    '^msvc-14\.2$' { $script:HMailServerVcToolsetVersion; break }  # 14.29
+    default        { $null }
+}
+
+$vsInstall = Resolve-VcVars64 -VersionRanges $vsVersionRanges
 
 # --- Download and extract the source (always a clean tree) ---------------------
 
@@ -103,7 +118,33 @@ Get-SourceArchive -Url $tarUrl -SrcDir $srcDir -LibsPath $libsPath
 
 # --- Import the VS x64 build environment ---------------------------------------
 
-Import-VsEnvironment -VcVars64 $vcvars64
+Import-VsEnvironment -VsInstall $vsInstall -ToolsetVersion $vcVarsToolsetVersion
+
+# When the toolset does not belong to the Visual Studio that is installed - v142 built out of
+# VS2022 - b2 cannot auto-configure it: Boost.Build looks for a VS2019 installation to satisfy
+# --toolset=msvc-14.2 and finds none. Point it at the compiler vcvars just put on PATH with a
+# generated user-config.jam, which also keeps the library name tag at vc142 (the tag comes
+# from the declared version, and hMailServer's auto-linking pragma expects
+# libboost_thread-vc142-mt-s-x64-...). On VS2019 nothing is generated and b2 auto-configures
+# exactly as before.
+$userConfigArgument = $null
+if ($vcVarsToolsetVersion -and $vsInstall.MajorVersion -ge 17)
+{
+    $clPath = Join-Path -Path $env:VCToolsInstallDir -ChildPath "bin\Hostx64\x64\cl.exe"
+    if (!(Test-Path $clPath))
+    {
+        Throw "The $vcVarsToolsetVersion compiler was not found at $clPath. Visual Studio $($vsInstall.MajorVersion) needs the 'MSVC v142 build tools' component to build Boost with $Toolset."
+    }
+
+    # Jam reads backslashes as escapes, so write the path with forward slashes.
+    $jamClPath = $clPath -replace '\\', '/'
+    $jamVersion = $Toolset -replace '^msvc-', ''
+    $userConfigPath = Join-Path -Path $libsPath -ChildPath "boost-user-config.jam"
+    Set-Content -Path $userConfigPath -Value "using msvc : $jamVersion : `"$jamClPath`" ;" -Encoding ASCII
+    Write-Log "Pinning b2 to $clPath via $userConfigPath"
+
+    $userConfigArgument = "--user-config=$userConfigPath"
+}
 
 # --- Bootstrap and build (each step checked individually) -----------------------
 
@@ -133,9 +174,17 @@ try
     # multithreaded, x64. Intermediate build output goes to out64; the finished
     # import/static libs are staged into stage\lib (what the project references).
     Invoke-BuildStep "Compiling Boost libraries (b2 stage)" {
-        .\b2 debug release threading=multi link=static `
-            --with-thread --with-filesystem --with-regex --with-chrono --with-system --with-atomic `
-            --toolset=$Toolset address-model=64 stage --build-dir=out64 -j $Jobs
+        # $userConfigArgument is $null unless the toolset had to be pinned above; passing a
+        # $null through the argument list would send an empty argument to b2, so splat an
+        # array that simply omits it.
+        $b2Arguments = @(
+            'debug', 'release', 'threading=multi', 'link=static',
+            '--with-thread', '--with-filesystem', '--with-regex', '--with-chrono', '--with-system', '--with-atomic',
+            "--toolset=$Toolset", 'address-model=64', 'stage', '--build-dir=out64', '-j', $Jobs
+        )
+        if ($userConfigArgument) { $b2Arguments += $userConfigArgument }
+
+        .\b2 @b2Arguments
     }
     if ($LastExitCode -ne 0)
     {
