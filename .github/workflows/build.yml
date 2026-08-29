@@ -21,13 +21,15 @@
 name: Build
 
 on:
+  # Only branches that live in this repository. Pull requests are deliberately not built:
+  # a fork's pull request would otherwise run its code on our runners and against our caches.
   push:
     branches:
       - master
       - 'claude/**'
-  pull_request:
-    branches:
-      - master
+      - 'feature/**'
+      - 'techdebt/**'
+      - 'bugfix/**'
   workflow_dispatch:
     inputs:
       version:
@@ -38,6 +40,10 @@ on:
         description: 'Build number. Defaults to the run number of this workflow.'
         required: false
         default: ''
+
+# Read-only token. Nothing here writes to the repository; checkout is the only consumer.
+permissions:
+  contents: read
 
 concurrency:
   group: build-${{ github.ref }}
@@ -62,7 +68,7 @@ jobs:
       version: ${{ steps.product.outputs.version }}
       build: ${{ steps.product.outputs.build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Create the library folder
         run: New-Item -ItemType Directory -Force -Path $env:hMailServerLibs | Out-Null
@@ -175,28 +181,28 @@ jobs:
       # different version or toolset, which is worse than rebuilding.
       - name: Cache OpenSSL
         id: cache-openssl
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: C:\hMailLibs\${{ steps.versions.outputs.openssl_dir }}
           key: openssl-${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-openssl.ps1', 'libraries/build-common.ps1') }}
 
       - name: Cache Boost
         id: cache-boost
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: C:\hMailLibs\${{ steps.versions.outputs.boost_dir }}
           key: boost-${{ steps.versions.outputs.boost }}-msvc14.2-windows-2022-${{ hashFiles('libraries/build-boost.ps1', 'libraries/build-common.ps1') }}
 
       - name: Cache PostgreSQL (libpq)
         id: cache-pgsql
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: C:\hMailLibs\${{ steps.versions.outputs.postgresql_dir }}
           key: pgsql-${{ steps.versions.outputs.postgresql }}-ssl${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-pgsql.ps1', 'libraries/build-common.ps1') }}
 
       - name: Cache MariaDB Connector/C
         id: cache-mariadb
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: C:\hMailLibs\${{ steps.versions.outputs.mariadb_dir }}
           key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-windows-2022-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
@@ -340,7 +346,7 @@ jobs:
           Get-ChildItem $symbols | Select-Object Name, Length | Format-Table -AutoSize | Out-String
 
       - name: Upload the symbols for publishing
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: symbols-untested
           path: ${{ runner.temp }}/symbols
@@ -374,7 +380,7 @@ jobs:
       # between jobs, so the run ends up carrying the installer twice - which is the price
       # of testing it on a machine that did not build it.
       - name: Upload the installer for testing
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: installer-untested
           path: hmailserver/installation/Output/*.exe
@@ -382,7 +388,7 @@ jobs:
 
       - name: Upload the library build logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: library-build-logs
           path: libraries/build-*.log
@@ -406,26 +412,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download the tested installer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: installer-untested
           path: installer
 
       - name: Upload the installer under its release name
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Setup
           path: installer/*.exe
           if-no-files-found: error
 
       - name: Download the symbols
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: symbols-untested
           path: symbols
 
       - name: Upload the symbols under their release name
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Symbols
           path: symbols/*.pdb
