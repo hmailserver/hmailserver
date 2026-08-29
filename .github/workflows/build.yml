@@ -66,6 +66,9 @@ env:
   # The v142 toolset the projects are pinned to, and so the oldest C++ runtime the installer
   # may ship. A later one is fine - the 14.x runtimes are backwards compatible.
   REDIST_MIN_VERSION: '14.29'
+  # The Windows SDK whose Universal CRT redistributable the installer ships: the newest
+  # version Get-UCRTRedistPath.ps1 allows, and one the runner image does not carry.
+  UCRT_VERSION: 10.0.19041.0
 
 jobs:
   build:
@@ -160,6 +163,19 @@ jobs:
           if (-not $redist -or -not (Split-Path (Split-Path (Split-Path $redist -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) { throw "Installing $env:V142_COMPONENT did not produce a $env:REDIST_MIN_VERSION redistributable; the newest one found is $redist." }
           "v142 redistributable: $redist"
 
+      # Only the redistributable DLLs are taken from the SDK - a couple of megabytes - so
+      # they are cached instead of the 2.5-minute install being paid on every run. The key
+      # carries no runner image: these files are SDK payload, identical wherever they come
+      # from, and nothing here compiles them.
+      - name: Cache the Universal CRT redistributable
+        id: cache-ucrt
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: C:\Program Files (x86)\Windows Kits\10\Redist\${{ env.UCRT_VERSION }}\ucrt
+          key: ucrt-${{ env.UCRT_VERSION }}
+
+      # Deliberately not conditioned on the cache: the step decides by looking for the files,
+      # so an empty or half-restored cache heals itself instead of failing two steps later.
       - name: Install the Windows 10 SDK the Universal CRT is taken from
         run: |
           # The installer ships the Universal CRT for the Windows versions that have none of
@@ -168,20 +184,26 @@ jobs:
           # VS2026 image carries only the 10.0.26100 SDK, so the allowed one is installed here
           # rather than the allow-list being widened.
           . build\Get-UCRTRedistPath.ps1
-          if (Get-UCRTRedistPath) {
-              "An allowed Universal CRT redistributable is already installed - nothing to do."
+          $ucrt = Get-UCRTRedistPath
+          if ($ucrt) {
+              "An allowed Universal CRT redistributable is already there: $ucrt"
               exit 0
           }
 
           # Not a Visual Studio component: VS2026 no longer offers the older Windows 10 SDKs,
           # so the standalone SDK is installed instead. It lands in the same
-          # Windows Kits\10\Redist\10.0.19041.0 that Get-UCRTRedistPath.ps1 looks in.
+          # Windows Kits\10\Redist\$env:UCRT_VERSION that Get-UCRTRedistPath.ps1 looks in.
           choco install windows-sdk-10-version-2004-all --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw "Installing the Windows 10 SDK (10.0.19041) failed with exit code $LASTEXITCODE" }
+          if ($LASTEXITCODE -ne 0) { throw "Installing the Windows 10 SDK ($env:UCRT_VERSION) failed with exit code $LASTEXITCODE" }
 
           $ucrt = Get-UCRTRedistPath
           if (-not $ucrt) { throw "The Windows 10 SDK installed, but no allowed Universal CRT redistributable appeared under Windows Kits\10\Redist." }
           "Universal CRT redistributable: $ucrt"
+
+          # The cache above saves one path only. If the SDK ever lands somewhere else, it
+          # would quietly store nothing and every later run would reinstall it.
+          $cached = "${env:ProgramFiles(x86)}\Windows Kits\10\Redist\$env:UCRT_VERSION\ucrt"
+          if (-not $ucrt.StartsWith($cached)) { throw "The Universal CRT was installed to $ucrt, which the 'Cache the Universal CRT redistributable' step does not cache ($cached). Point that step's path at it." }
 
       - name: Read the pinned library versions
         id: versions
