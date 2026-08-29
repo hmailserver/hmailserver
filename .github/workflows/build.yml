@@ -392,7 +392,9 @@ jobs:
   # the installer, which is what a user would get. The publish job below waits for this,
   # so a failing suite stops the installer from being released.
   test:
-    name: Regression tests
+    # The called workflow names the job that actually runs, and the web UI shows the two
+    # together - so this one names the stage rather than repeating it.
+    name: Tests
     needs: build
     uses: ./.github/workflows/tests.yml
     with:
