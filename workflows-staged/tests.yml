@@ -1,0 +1,190 @@
+# Runs the hMailServer regression tests against an installer built by build.yml.
+#
+# This is a reusable workflow rather than a workflow_run trigger on purpose. workflow_run
+# only fires once the build has finished, which is too late to stop a bad installer from
+# being published; called as a job it sits in the middle of the build, and the publish job
+# waits for it. Being a separate job also gives it what it needs anyway - a fresh runner,
+# with no build output on it beyond the installer a user would download.
+#
+# The tests are installed-server tests, not unit tests: RegressionTests.csproj has a COM
+# reference to the hMailServer type library, so hMailServer has to be installed and
+# registered here before the solution will even compile.
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+      installer-artifact:
+        description: 'Artifact holding the setup executable to install and test.'
+        required: true
+        type: string
+      runner-image:
+        description: 'Runner image label to install and test on. Passed by the caller so that
+          the tests run on the image the installer was built for, rather than this workflow
+          naming one of its own that could drift from it.'
+        required: true
+        type: string
+      configuration:
+        description: 'Configuration to build the test solution in. Debug or Release.'
+        required: false
+        type: string
+        default: Debug
+
+# Read-only token. A called workflow can never exceed the caller's permissions anyway,
+# but declaring it keeps this workflow honest if it is ever called from elsewhere.
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: Regression tests
+    runs-on: ${{ inputs.runner-image }}
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # Nothing here pushes, and the installer under test runs on this machine.
+          persist-credentials: false
+
+      - name: Download the installer
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ inputs.installer-artifact }}
+          path: ${{ runner.temp }}\installer
+
+      - name: Install hMailServer
+        env:
+          INSTALLER_ARTIFACT: ${{ inputs.installer-artifact }}
+        run: |
+          $setup = Get-ChildItem (Join-Path $env:RUNNER_TEMP 'installer\*.exe') | Select-Object -First 1
+          if (-not $setup) { throw "The '$env:INSTALLER_ARTIFACT' artifact contains no executable." }
+          "Installing $($setup.Name)"
+
+          # A silent install takes the defaults the tests need: the internal SQL CE
+          # database, a blank administrator password - TestSetup falls back to it - and a
+          # registered, started hMailServer service.
+          Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait
+
+          # Inno Setup relaunches itself from a temporary copy and the first process
+          # returns before that one is done, so wait for the service it creates instead.
+          $deadline = (Get-Date).AddMinutes(10)
+          while ((Get-Date) -lt $deadline) {
+              $service = Get-Service -Name 'hMailServer' -ErrorAction SilentlyContinue
+              if ($service -and $service.Status -eq 'Running') { break }
+              if ($service -and $service.Status -eq 'Stopped') { Start-Service -Name 'hMailServer' }
+              Start-Sleep -Seconds 5
+          }
+
+          $service = Get-Service -Name 'hMailServer' -ErrorAction SilentlyContinue
+          if (-not $service) { throw "The installer did not create the hMailServer service." }
+          if ($service.Status -ne 'Running') { throw "The hMailServer service is $($service.Status), not Running." }
+
+          # The COM reference in RegressionTests.csproj resolves through the registered type
+          # library, so a missing registration would surface as a compile error later.
+          $application = New-Object -ComObject 'hMailServer.Application'
+          "Installed hMailServer $($application.Version)"
+
+      - name: Restore the NuGet packages
+        run: |
+          # packages\ is not committed, and the test projects use packages.config - which
+          # msbuild does not restore on its own.
+          nuget restore 'hmailserver\test\hMailServer Tests.sln'
+          if ($LASTEXITCODE -ne 0) { throw "nuget restore failed with exit code $LASTEXITCODE" }
+
+      - name: Build the test solution
+        env:
+          CONFIGURATION: ${{ inputs.configuration }}
+        run: |
+          # A workflow_call input is whatever the caller passes, and this one ends up in an
+          # msbuild switch and in the path the test assembly is looked for under, so it is
+          # checked against the two values that mean anything here.
+          if ($env:CONFIGURATION -notin @('Debug', 'Release')) { throw "The configuration must be Debug or Release, was '$env:CONFIGURATION'." }
+
+          . build\Find-MsBuild.ps1
+          $msbuild = Find-MsBuild
+          if (-not $msbuild) { throw "MSBuild was not found." }
+
+          # Every project in the solution targets .NET Framework 4.8, which the runner image
+          # has, so none of build.yml's targeting-pack juggling is needed here.
+          & $msbuild 'hmailserver\test\hMailServer Tests.sln' /m "/p:Configuration=$env:CONFIGURATION" /p:Platform=x64
+          if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tests.sln failed with exit code $LASTEXITCODE" }
+
+      - name: Run the regression tests
+        id: nunit
+        env:
+          CONFIGURATION: ${{ inputs.configuration }}
+        run: |
+          # The runner comes from packages.config, so find it rather than pinning a version
+          # here that a package bump would silently leave behind.
+          $console = Get-ChildItem 'hmailserver\test\packages' -Recurse -Filter 'nunit3-console.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $console) { throw "nunit3-console.exe was not found - did the NuGet restore run?" }
+
+          $assembly = "hmailserver\test\RegressionTests\bin\x64\$env:CONFIGURATION\RegressionTests.dll"
+          if (-not (Test-Path $assembly)) { throw "The test assembly was not built: $assembly" }
+
+          $result = Join-Path $env:GITHUB_WORKSPACE 'TestResult.xml'
+          & $console.FullName $assembly --labels=All "--result=$result"
+          $exitCode = $LASTEXITCODE
+
+          # Not a failure yet: the result still has to be summarised and uploaded, so the
+          # verdict is left to the last step.
+          "nunit3-console exit code: $exitCode"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "exit-code=$exitCode"
+
+      - name: Summarise the NUnit result
+        if: always()
+        run: |
+          $result = Join-Path $env:GITHUB_WORKSPACE 'TestResult.xml'
+          if (-not (Test-Path $result)) {
+              'NUnit produced no result file.' | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+              exit 0
+          }
+
+          $run = ([xml](Get-Content $result -Raw)).'test-run'
+          $lines = @(
+              '## Regression tests',
+              '',
+              '| Total | Passed | Failed | Skipped | Duration |',
+              '| ----: | -----: | -----: | ------: | -------: |',
+              ('| {0} | {1} | {2} | {3} | {4:F0}s |' -f $run.total, $run.passed, $run.failed, $run.skipped, [double]$run.duration)
+          )
+
+          $failures = $run.SelectNodes("//test-case[@result='Failed']")
+          if ($failures.Count -gt 0) {
+              $lines += @('', '### Failed tests', '')
+              foreach ($failure in $failures) {
+                  $message = "$($failure.failure.message.InnerText)".Split("`n")[0].Trim()
+                  if ($message) { $message = " - $message" }
+                  $lines += ('- `{0}`{1}' -f $failure.fullname, $message)
+              }
+          }
+
+          $lines | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+          $lines | Out-String
+
+      - name: Upload the NUnit result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: regression-test-result
+          path: TestResult.xml
+          if-no-files-found: warn
+
+      - name: Upload the hMailServer logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: regression-test-logs
+          path: C:\Program Files\hMailServer\Logs\*.log
+          if-no-files-found: ignore
+
+      - name: Fail if any test failed
+        if: always()
+        env:
+          NUNIT_EXIT_CODE: ${{ steps.nunit.outputs.exit-code }}
+        run: |
+          $exitCode = [int]$env:NUNIT_EXIT_CODE
+          if ($exitCode -ne 0) { throw "The regression tests failed - nunit3-console exited with $exitCode." }

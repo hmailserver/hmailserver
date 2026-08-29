@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  # The workflows pin every action to a commit SHA, which is what keeps a compromised or
+  # retagged action from reaching the build - but it also means nothing ever moves them, so a
+  # pinned action quietly ages into an unmaintained version. Dependabot is the other half of
+  # that arrangement: it opens a pull request when a pinned action gets a new release, moving
+  # the SHA and the `# vX.Y.Z` comment beside it together.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'CI'
+    labels:
+      - dependencies
+    groups:
+      # The actions here are all first-party and move together often enough that separate
+      # pull requests for each would be noise.
+      actions:
+        patterns:
+          - '*'
