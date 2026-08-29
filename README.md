@@ -175,6 +175,21 @@ Visual Studio must be started with _Run as Administrator_.
 4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
+   The installer ships two runtimes beside hMailServer.exe: the Visual C++ runtime, taken
+   from the toolset that compiled it, and the Universal CRT, for the Windows versions older
+   than 10 that have none of their own. Point the environment at both first:
+
+   ```
+   . build\Get-VCRedistPath.ps1
+   . build\Get-UCRTRedistPath.ps1
+   $env:VCRedistPath = Get-VCRedistPath
+   $env:UCRTRedistPath = Get-UCRTRedistPath
+   ```
+
+   Get-UCRTRedistPath.ps1 will only use Windows SDK versions whose Universal CRT is known to
+   still load on the oldest Windows the installer supports. Read the comment in it before
+   adding another.
+
 Running in Debug
 ----------------
 

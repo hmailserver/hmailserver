@@ -55,6 +55,9 @@ env:
   hMailServerLibs: C:\hMailLibs
   # "C++ v14.29 (16.11) ATL for v142 build tools (x86 & x64)" in the VS2022 installer.
   ATL_COMPONENT: Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL
+  # The v142 toolset the projects are pinned to, and so the oldest C++ runtime the installer
+  # may ship. A later one is fine - the 14.x runtimes are backwards compatible.
+  REDIST_MIN_VERSION: '14.29'
 
 jobs:
   build:
@@ -361,12 +364,58 @@ jobs:
           choco install innosetup --version=5.6.1 --allow-downgrade --yes --no-progress
           if ($LASTEXITCODE -ne 0) { throw "Installing Inno Setup failed with exit code $LASTEXITCODE" }
 
+      - name: Locate the Visual C++ redistributable
+        id: redist
+        run: |
+          # The installer ships the C++ runtime beside hMailServer.exe, and it must not be
+          # older than the toolset that compiled it. These DLLs used to be checked into the
+          # repository at 14.25 (VS2019 16.5) and were left behind when the build moved to
+          # VS2022, whose v142 toolset is 14.29 - so they are taken from the installed
+          # toolset now, and the two can no longer drift apart.
+          . build\Get-VCRedistPath.ps1
+          $redist = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
+          if (-not $redist) {
+              throw "No Visual C++ redistributable of $env:REDIST_MIN_VERSION or later was found. hMailServer.exe is compiled with the v142 ($env:REDIST_MIN_VERSION) toolset and must not ship an older runtime."
+          }
+
+          "Shipping the runtime from $redist"
+          Get-ChildItem $redist -File |
+              Select-Object Name, @{ Name = 'Version'; Expression = { $_.VersionInfo.FileVersion } } |
+              Format-Table -AutoSize | Out-String
+
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$redist"
+
+      - name: Locate the Universal CRT
+        id: ucrt
+        run: |
+          # Shipped for the pre-Windows 10 versions the installer still supports, which have
+          # no Universal CRT of their own. Windows 10 and later never load these, so the
+          # installer only puts them on the older ones - but they still have to be present
+          # here, and current: what shipped before was the 2015 RTM set.
+          . build\Get-UCRTRedistPath.ps1
+          $ucrt = Get-UCRTRedistPath
+          if (-not $ucrt) {
+              $kits = "${env:ProgramFiles(x86)}\Windows Kits\10\Redist"
+              $available = (Get-ChildItem $kits -Directory -ErrorAction SilentlyContinue |
+                  Where-Object { Test-Path (Join-Path $_.FullName 'ucrt\DLLs\x64\ucrtbase.dll') } |
+                  ForEach-Object { $_.Name }) -join ', '
+              throw "None of the Windows SDK versions allowed by Get-UCRTRedistPath.ps1 are installed. SDKs carrying a UCRT redistributable here: $available. Install one of the allowed versions rather than widening the allow-list - see the comment in that script for what the restriction protects."
+          }
+
+          "Shipping the Universal CRT from $ucrt"
+          "ucrtbase.dll {0}" -f (Get-Item (Join-Path $ucrt 'ucrtbase.dll')).VersionInfo.FileVersion
+
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$ucrt"
+
       - name: Build the installer
+        env:
+          VCREDIST_PATH: ${{ steps.redist.outputs.path }}
+          UCRT_PATH: ${{ steps.ucrt.outputs.path }}
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 5\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
 
-          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" hmailserver\installation\hMailServer64.iss
+          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH=$env:VCREDIST_PATH" "/DUCRT_PATH=$env:UCRT_PATH" hmailserver\installation\hMailServer64.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE" }
 
           # The script sets no OutputDir, so Inno Setup writes to Output next to it.

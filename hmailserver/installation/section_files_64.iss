@@ -3,8 +3,12 @@
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.tlb"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.Minidump.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
-Source: "Microsoft.VC142.CRT\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
-Source: "Microsoft.UCRT.WindowsSDK10240\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+; Taken from the toolset that compiled the binaries - see VCREDIST_PATH in hMailServer64.iss.
+Source: "{#VCREDIST_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+; Windows 10 and later carry the Universal CRT themselves, and resolve api-ms-win-crt-* to it
+; through the API set schema without ever looking in {app}\Bin - so it is shipped only to the
+; older versions that need it.
+Source: "{#UCRT_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools; OnlyBelowVersion: 0,10.0;
 
 Source: "SQLCE\SSCERuntime_x64-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
 
