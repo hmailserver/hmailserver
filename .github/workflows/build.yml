@@ -4,6 +4,10 @@
 # version with ConfigureInstallation.exe, build the server, build the administration tools,
 # and compile hMailServer64.iss with Inno Setup into a setup executable.
 #
+# The installer is then handed to tests.yml, which installs it on a runner of its own and
+# runs the regression tests against it, before the publish job releases it under its
+# version-stamped name. A failing suite therefore stops the release.
+#
 # The expensive part of a hMailServer build is not the server itself (a few minutes) but the
 # four third-party libraries it links against - OpenSSL, Boost, libpq and libmariadb - which
 # take 35-45 minutes to build from source. Each is therefore cached separately under
@@ -54,6 +58,9 @@ jobs:
     defaults:
       run:
         shell: pwsh
+    outputs:
+      version: ${{ steps.product.outputs.version }}
+      build: ${{ steps.product.outputs.build }}
     steps:
       - uses: actions/checkout@v4
 
@@ -363,10 +370,15 @@ jobs:
           if (-not $setup) { throw "ISCC.exe produced no setup executable." }
           $setup | Select-Object Name, Length | Format-Table -AutoSize | Out-String
 
-      - name: Upload the installer
+      # Under a name that says it has not been tested yet. The regression tests run
+      # against this artifact in the next job, and only if they pass does the publish job
+      # re-upload it under the release name. An artifact is the only way to move a file
+      # between jobs, so the run ends up carrying the installer twice - which is the price
+      # of testing it on a machine that did not build it.
+      - name: Upload the installer for testing
         uses: actions/upload-artifact@v4
         with:
-          name: hMailServer-${{ steps.product.outputs.version }}-B${{ steps.product.outputs.build }}-x64-setup
+          name: installer-untested
           path: hmailserver/installation/Output/*.exe
           if-no-files-found: error
 
@@ -377,3 +389,31 @@ jobs:
           name: library-build-logs
           path: libraries/build-*.log
           if-no-files-found: ignore
+
+  # A separate job, so the tests get a clean runner: nothing of the build is on it except
+  # the installer, which is what a user would get. The publish job below waits for this,
+  # so a failing suite stops the installer from being released.
+  test:
+    name: Regression tests
+    needs: build
+    uses: ./.github/workflows/tests.yml
+    with:
+      installer-artifact: installer-untested
+
+  publish:
+    name: Publish the installer
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the tested installer
+        uses: actions/download-artifact@v4
+        with:
+          name: installer-untested
+          path: installer
+
+      - name: Upload the installer under its release name
+        uses: actions/upload-artifact@v4
+        with:
+          name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-setup
+          path: installer/*.exe
+          if-no-files-found: error
