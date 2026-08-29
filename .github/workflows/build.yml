@@ -309,43 +309,41 @@ jobs:
           & $msbuild @arguments
           if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tools.sln failed with exit code $LASTEXITCODE" }
 
-      - name: Collect the build artifact
+      - name: Collect the debug symbols
         run: |
-          # The same set post-build.bat copies next to hMailServer.exe on a developer machine.
-          $outDir = 'hmailserver\source\Server\hMailServer\x64\Release'
-          $minidumpDir = 'hmailserver\source\Server\hMailServer.Minidump\x64\Release'
-          $artifacts = Join-Path $env:RUNNER_TEMP 'artifacts'
-          New-Item -ItemType Directory -Force -Path $artifacts | Out-Null
-
-          $libs = $env:hMailServerLibs
-          $files = @(
-              (Join-Path $outDir 'hMailServer.exe'),
-              (Join-Path $libs '${{ steps.versions.outputs.openssl_dir }}\out64\bin\libcrypto-3-x64.dll'),
-              (Join-Path $libs '${{ steps.versions.outputs.openssl_dir }}\out64\bin\libssl-3-x64.dll'),
-              (Join-Path $libs '${{ steps.versions.outputs.mariadb_dir }}\build64\libmariadb\RelWithDebInfo\libmariadb.dll')
+          # Symbols for the binaries hMailServer itself ships, so a crash dump from a CI
+          # build can be read. Third-party DLLs are left out - their symbols are not ours
+          # to publish, and the installer already carries the DLLs.
+          $symbolDirs = @(
+              'hmailserver\source\Server\hMailServer\x64\Release',
+              'hmailserver\source\Server\hMailServer.Minidump\x64\Release',
+              'hmailserver\source\Tools\Administrator\bin\x64\Release',
+              'hmailserver\source\Tools\DBSetup\Bin\x64\Release',
+              'hmailserver\source\Tools\DBSetupQuick\bin\x64\Release',
+              'hmailserver\source\Tools\DBUpdater\Bin\x64\Release',
+              'hmailserver\source\Tools\DataDirectorySynchronizer\Bin\x64\Release',
+              'hmailserver\source\Tools\Shared\bin\x64\Release'
           )
-          foreach ($file in $files) {
-              if (-not (Test-Path $file)) { throw "Expected build output is missing: $file" }
-              Copy-Item $file $artifacts
+
+          $symbols = Join-Path $env:RUNNER_TEMP 'symbols'
+          New-Item -ItemType Directory -Force -Path $symbols | Out-Null
+
+          foreach ($dir in $symbolDirs) {
+              $pdbs = @(Get-ChildItem (Join-Path $dir '*.pdb') -ErrorAction SilentlyContinue)
+              if ($pdbs) { Copy-Item $pdbs.FullName $symbols } else { "No symbols in $dir" }
           }
 
-          # libpq ships several DLLs (libpq plus its dependencies), as post-build.bat's
-          # wildcard copy reflects.
-          Copy-Item (Join-Path $libs '${{ steps.versions.outputs.postgresql_dir }}\Release\libpq\*.dll') $artifacts
+          # The server's own symbols are the ones that matter; missing those means the
+          # Release build did not produce a PDB, which is worth failing over.
+          if (-not (Test-Path (Join-Path $symbols 'hMailServer.pdb'))) { throw "hMailServer.pdb was not produced by this build." }
 
-          # Debug symbols and the minidump helper, when the Release configuration produced
-          # them - useful for diagnosing a crash from a CI build, but not worth failing over.
-          foreach ($optional in @((Join-Path $outDir 'hMailServer.pdb'), (Join-Path $minidumpDir 'hMailServer.Minidump.exe'))) {
-              if (Test-Path $optional) { Copy-Item $optional $artifacts } else { "Not produced by this build: $optional" }
-          }
+          Get-ChildItem $symbols | Select-Object Name, Length | Format-Table -AutoSize | Out-String
 
-          Get-ChildItem $artifacts | Select-Object Name, Length | Format-Table -AutoSize | Out-String
-
-      - name: Upload the build artifact
+      - name: Upload the symbols for publishing
         uses: actions/upload-artifact@v4
         with:
-          name: hMailServer-Release-x64
-          path: ${{ runner.temp }}/artifacts
+          name: symbols-untested
+          path: ${{ runner.temp }}/symbols
           if-no-files-found: error
 
       - name: Install Inno Setup
@@ -414,6 +412,19 @@ jobs:
       - name: Upload the installer under its release name
         uses: actions/upload-artifact@v4
         with:
-          name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-setup
+          name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Setup
           path: installer/*.exe
+          if-no-files-found: error
+
+      - name: Download the symbols
+        uses: actions/download-artifact@v4
+        with:
+          name: symbols-untested
+          path: symbols
+
+      - name: Upload the symbols under their release name
+        uses: actions/upload-artifact@v4
+        with:
+          name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Symbols
+          path: symbols/*.pdb
           if-no-files-found: error
