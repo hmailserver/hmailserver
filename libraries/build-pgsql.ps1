@@ -20,7 +20,7 @@
         (build it with build-openssl.ps1). Without it libpq is built without SSL and
         cannot make encrypted connections to PostgreSQL.
       - Perl (e.g. Strawberry Perl) - required by PostgreSQL's build.pl.
-      - Visual Studio 2019, or Visual Studio 2022, with the x64 build tools (vcvars64.bat
+      - Visual Studio 2019, 2022 or 2026, with the x64 build tools (vcvars64.bat
         is located automatically via vswhere).
 
 .PARAMETER Version

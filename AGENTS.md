@@ -1,6 +1,6 @@
 # hMailServer — Codebase Guide for Agents
 
-hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting the Visual Studio v142 toolset (VS2019, or VS2022 with the v142 build tools) with 64-bit Windows builds.
+hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting the Visual Studio v142 toolset (VS2019, or VS2022/VS2026 with the v142 build tools) with 64-bit Windows builds.
 
 ## Repository Layout
 

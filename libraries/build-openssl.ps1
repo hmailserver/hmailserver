@@ -15,7 +15,7 @@
     Prerequisites (must be on PATH / installed):
       - The environment variable hMailServerLibs, pointing at your library folder.
       - Perl (e.g. Strawberry Perl) - required by OpenSSL's Configure.
-      - Visual Studio 2019, or Visual Studio 2022, with the x64 build tools (vcvars64.bat
+      - Visual Studio 2019, 2022 or 2026, with the x64 build tools (vcvars64.bat
         is located automatically via vswhere).
 
 .PARAMETER Version

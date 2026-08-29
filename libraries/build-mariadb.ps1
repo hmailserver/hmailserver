@@ -24,7 +24,7 @@
         (build it with build-openssl.ps1). It is the TLS backend of the client library.
       - CMake, either on PATH or from Visual Studio's "C++ CMake tools for Windows"
         component - MariaDB Connector/C has no other build system.
-      - Visual Studio 2019, or Visual Studio 2022, with the x64 build tools (vcvars64.bat
+      - Visual Studio 2019, 2022 or 2026, with the x64 build tools (vcvars64.bat
         is located automatically via vswhere).
 
 .PARAMETER Version
@@ -160,9 +160,14 @@ Write-Log "Progress is being logged to $logPath (tail it with: Get-Content `"$lo
 # hMailServer ships a single DLL. dialog / mysql_clear_password / auth_gssapi_client
 # are interactive or Kerberos-based and hMailServer never uses them.
 # The generator has to name the Visual Studio that was actually resolved above: asking for
-# "Visual Studio 16 2019" on a machine that only has VS2022 (as the GitHub Actions
-# windows-2022 image does) fails at configure time.
-$generator = if ($vsInstall.MajorVersion -ge 17) { "Visual Studio 17 2022" } else { "Visual Studio 16 2019" }
+# "Visual Studio 16 2019" on a machine that only has VS2026 (as the GitHub Actions
+# windows-2025-vs2026 image does) fails at configure time.
+$generator = switch ($vsInstall.MajorVersion)
+{
+    { $_ -ge 18 } { "Visual Studio 18 2026"; break }
+    17            { "Visual Studio 17 2022"; break }
+    default       { "Visual Studio 16 2019" }
+}
 Write-Log "Using the CMake generator '$generator' for Visual Studio $($vsInstall.Version)"
 
 $cmakeArgs = @(

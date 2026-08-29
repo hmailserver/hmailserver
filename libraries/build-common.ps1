@@ -135,8 +135,8 @@ function Resolve-HMailServerLibs
 
 # The MSVC toolset hMailServer's own projects are compiled with: PlatformToolset v142,
 # which is the 14.2x compiler. Visual Studio 2019 provides it by default; Visual Studio
-# 2022 provides it as the optional "MSVC v142 build tools" component, selected with
-# 'vcvars64.bat -vcvars_ver=14.29'.
+# 2022 and 2026 provide it as the optional "MSVC v142 build tools" component, selected
+# with 'vcvars64.bat -vcvars_ver=14.29'.
 $script:HMailServerVcToolsetVersion = '14.29'
 
 # Locate a Visual Studio installation with the x64 C++ toolchain and return what the callers
@@ -150,23 +150,24 @@ $script:HMailServerVcToolsetVersion = '14.29'
 # acceptable, in preference order, and the first one installed wins.
 #
 # The default order prefers VS2019 (what the README asks a developer to install) and falls
-# back to VS2022 (what the GitHub Actions windows-2022 image ships - it has no VS2019 at all).
-# On VS2022, callers that need the v142 compiler ask Import-VsEnvironment for it; see the
-# comment there for which libraries actually care.
+# back to VS2022 and then VS2026 - the latter being what the GitHub Actions
+# windows-2025-vs2026 image ships, as its only Visual Studio. On those, callers that need the
+# v142 compiler ask Import-VsEnvironment for it; see the comment there for which libraries
+# actually care.
 #
 # Pass $null or an empty array to fall back to 'vswhere -latest'.
 function Resolve-VcVars64
 {
     param(
         [Parameter(Mandatory = $false)]
-        [string[]]$VersionRanges = @('[16.0,17.0)', '[17.0,18.0)')
+        [string[]]$VersionRanges = @('[16.0,17.0)', '[17.0,18.0)', '[18.0,19.0)')
     )
 
     $vsWhere = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "Microsoft Visual Studio\Installer\vswhere.exe"
 
     if (!(Test-Path $vsWhere))
     {
-        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2019 or 2022 (or the Visual Studio Installer)."
+        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2019, 2022 or 2026 (or the Visual Studio Installer)."
     }
 
     $rangesToTry = if ($VersionRanges) { $VersionRanges } else { @($null) }
@@ -232,7 +233,7 @@ function Resolve-VcVars64
 # succeeded.
 #
 # -ToolsetVersion pins the MSVC compiler vcvars selects (vcvars64.bat -vcvars_ver=14.29). It
-# is applied only on VS2022 and newer, whose default compiler is 14.4x rather than the 14.2x
+# is applied only on VS2022 and newer, whose default compiler is 14.4x or 14.5x rather than the 14.2x
 # (v142) toolset hMailServer is built with; on VS2019 the default is already the right one and
 # older 16.x installs may not even carry 14.29.
 #

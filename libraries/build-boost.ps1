@@ -15,7 +15,7 @@
 
     Prerequisites (must be on PATH / installed):
       - The environment variable hMailServerLibs, pointing at your library folder.
-      - Visual Studio 2019 with the x64 build tools, or Visual Studio 2022 with the
+      - Visual Studio 2019 with the x64 build tools, or Visual Studio 2022/2026 with the
         "MSVC v142 build tools" component (vcvars64.bat is located automatically via
         vswhere). b2 is driven with the msvc-14.2 toolset, which hMailServer's own
         projects are built with.
@@ -26,7 +26,7 @@
 .PARAMETER Toolset
     The b2 toolset to build with. Defaults to msvc-14.2, the v142 toolset
     hMailServer's project files expect. It is provided by Visual Studio 2019, and by
-    Visual Studio 2022 with the "MSVC v142 build tools" component.
+    Visual Studio 2022 and 2026 with the "MSVC v142 build tools" component.
 
 .PARAMETER Jobs
     Number of parallel compilations (b2 -j). Defaults to the number of logical
@@ -91,14 +91,15 @@ if ($Jobs -lt 1)
 # name (libboost_thread-vc142-mt-s-x64-1_92.lib).
 #
 # msvc-14.2 (v142) is available two ways: from VS2019, where it is the default compiler, and
-# from VS2022, where it is the optional "MSVC v142 build tools" component selected with
-# -vcvars_ver=14.29. Accept both, preferring VS2019; the GitHub Actions windows-2022 image
-# has only VS2022. A custom/unknown toolset falls back to -latest ($null ranges).
+# from VS2022 and VS2026, where it is the optional "MSVC v142 build tools" component selected
+# with -vcvars_ver=14.29. Accept all three, preferring VS2019; the GitHub Actions
+# windows-2025-vs2026 image has only VS2026. A custom/unknown toolset falls back to -latest
+# ($null ranges).
 $vsVersionRanges = switch -Regex ($Toolset)
 {
-    '^msvc-14\.2$' { @('[16.0,17.0)', '[17.0,18.0)'); break }  # VS2019, or VS2022 + v142
-    '^msvc-14\.3$' { @('[17.0,18.0)'); break }                 # VS2022
-    default        { $null }                                    # custom/unknown toolset
+    '^msvc-14\.2$' { @('[16.0,17.0)', '[17.0,18.0)', '[18.0,19.0)'); break }  # VS2019, or VS2022/VS2026 + v142
+    '^msvc-14\.3$' { @('[17.0,18.0)', '[18.0,19.0)'); break }                 # VS2022, or VS2026 + v143
+    default        { $null }                                                  # custom/unknown toolset
 }
 
 # The compiler vcvars must select when the toolset is not that Visual Studio's default.
@@ -121,7 +122,7 @@ Get-SourceArchive -Url $tarUrl -SrcDir $srcDir -LibsPath $libsPath
 Import-VsEnvironment -VsInstall $vsInstall -ToolsetVersion $vcVarsToolsetVersion
 
 # When the toolset does not belong to the Visual Studio that is installed - v142 built out of
-# VS2022 - b2 cannot auto-configure it: Boost.Build looks for a VS2019 installation to satisfy
+# VS2022 or VS2026 - b2 cannot auto-configure it: Boost.Build looks for a VS2019 installation to satisfy
 # --toolset=msvc-14.2 and finds none. Point it at the compiler vcvars just put on PATH with a
 # generated user-config.jam, which also keeps the library name tag at vc142 (the tag comes
 # from the declared version, and hMailServer's auto-linking pragma expects

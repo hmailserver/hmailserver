@@ -1,10 +1,10 @@
 function Find-MsBuild {
-    # The range covers VS2019 and VS2022. MSBuild 17 builds the v142 projects hMailServer
-    # uses just as well as MSBuild 16 does, provided the v142 toolset is installed - which
-    # matters because VS2022 is what the GitHub Actions windows-2022 image ships, with no
-    # VS2019 at all.
+    # The range covers VS2019 through VS2026. MSBuild 17 and 18 build the v142 projects
+    # hMailServer uses just as well as MSBuild 16 does, provided the v142 toolset is
+    # installed - which matters because the GitHub Actions runner ships one Visual Studio
+    # only: VS2026 on windows-2025-vs2026, with the v142 build tools beside it.
     param(
-        [string]$VsWhereMinVersion = '[16.0,18.0)'
+        [string]$VsWhereMinVersion = '[16.0,19.0)'
     )
 
     $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
