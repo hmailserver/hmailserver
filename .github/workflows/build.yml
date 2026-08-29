@@ -48,7 +48,7 @@ env:
 
 jobs:
   build:
-    name: hMailServer installer x64
+    name: Release x64
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -344,8 +344,10 @@ jobs:
       - name: Install Inno Setup
         run: |
           # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
-          # compiled it with. The runner image only carries Inno Setup 6.
-          choco install innosetup --version=5.6.1 --yes --no-progress
+          # compiled it with; the image carries Inno Setup 6 instead. --allow-downgrade is
+          # what makes choco step back from it - the two versions install side by side, in
+          # their own "Inno Setup 5" and "Inno Setup 6" folders.
+          choco install innosetup --version=5.6.1 --allow-downgrade --yes --no-progress
           if ($LASTEXITCODE -ne 0) { throw "Installing Inno Setup failed with exit code $LASTEXITCODE" }
 
       - name: Build the installer
