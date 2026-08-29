@@ -148,7 +148,7 @@ namespace hMailServer.Administrator.Dialogs
 
            if ((eRuleActionType)comboAction.SelectedValue == eRuleActionType.eRAMoveToImapFolder)
            {
-              foreach (char otherDelim in delimitors)
+              foreach (char otherDelim in delimiters)
               {
                  if (textIMAPFolder.Text.Contains(otherDelim.ToString()))
                  {
