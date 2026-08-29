@@ -1,4 +1,8 @@
-# Builds hMailServer.exe on a GitHub-hosted VS2022 runner.
+# Builds the hMailServer installer on a GitHub-hosted VS2022 runner.
+#
+# The steps mirror the TeamCity job this replaces: build the developer tools, stamp the
+# version with ConfigureInstallation.exe, build the server, build the administration tools,
+# and compile hMailServer64.iss with Inno Setup into a setup executable.
 #
 # The expensive part of a hMailServer build is not the server itself (a few minutes) but the
 # four third-party libraries it links against - OpenSSL, Boost, libpq and libmariadb - which
@@ -21,6 +25,15 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Product version, major.minor.patch. Defaults to the VERSION file.'
+        required: false
+        default: ''
+      build:
+        description: 'Build number. Defaults to the run number of this workflow.'
+        required: false
+        default: ''
 
 concurrency:
   group: build-${{ github.ref }}
@@ -35,7 +48,7 @@ env:
 
 jobs:
   build:
-    name: hMailServer Release x64
+    name: hMailServer installer x64
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -101,6 +114,50 @@ jobs:
       - name: Read the pinned library versions
         id: versions
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Get-LibraryVersions.ps1
+
+      - name: Determine the version and build number
+        id: product
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_BUILD: ${{ inputs.build }}
+        run: |
+          # TeamCity kept these in build parameters; here the version lives in the VERSION
+          # file and the build number is the run number, both overridable on a manual run.
+          $version = if ($env:INPUT_VERSION) { $env:INPUT_VERSION.Trim() } else { (Get-Content VERSION -Raw).Trim() }
+          $build = if ($env:INPUT_BUILD) { $env:INPUT_BUILD.Trim() } else { $env:GITHUB_RUN_NUMBER }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "The version must be major.minor.patch, was '$version'." }
+          if ($build -notmatch '^\d+$') { throw "The build number must be numeric, was '$build'." }
+
+          "Building hMailServer $version-B$build"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$version"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "build=$build"
+
+      - name: Pick the .NET Framework the C# projects build against
+        id: netfx
+        run: |
+          # The C# projects target .NET Framework 4.5, whose reference assemblies Visual
+          # Studio 2022 no longer installs. 4.5 through 4.8 are in-place updates of the same
+          # runtime, so building against a later targeting pack is safe; the override is used
+          # only when v4.5 really is missing, and never below v4.7.2 - the highest version any
+          # project in the two solutions asks for, which must not be downgraded.
+          $refRoot = "${env:ProgramFiles(x86)}\Reference Assemblies\Microsoft\Framework\.NETFramework"
+          $installed = @(Get-ChildItem $refRoot -Directory -ErrorAction SilentlyContinue |
+              Where-Object { Test-Path (Join-Path $_.FullName 'mscorlib.dll') } |
+              ForEach-Object { $_.Name })
+          "Installed targeting packs: $($installed -join ', ')"
+
+          $override = ''
+          if ($installed -notcontains 'v4.5') {
+              $candidate = $installed |
+                  Where-Object { $_ -match '^v(\d+(\.\d+)+)$' -and [version]$Matches[1] -ge [version]'4.7.2' } |
+                  Sort-Object { [version]($_ -replace '^v', '') } |
+                  Select-Object -First 1
+              if (-not $candidate) { throw "No .NET Framework targeting pack of v4.7.2 or later is installed." }
+              $override = $candidate
+              "v4.5 is not installed; building the C# projects against $override instead."
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "override=$override"
 
       # One cache per library, so bumping one version does not throw the others away. Each key
       # carries the pinned version, the scripts that produce the build, and the runner image;
@@ -196,13 +253,54 @@ jobs:
           Get-ChildItem (Join-Path $root 'build64\libmariadb') -Force | Where-Object { $_.Name -ne 'RelWithDebInfo' } | Remove-Item -Recurse -Force
           if (-not (Test-Path (Join-Path $root 'build64\libmariadb\RelWithDebInfo\libmariadb.dll'))) { throw "Pruning removed libmariadb.dll." }
 
+      - name: Build the developer tools
+        run: |
+          # DevTools.sln builds ConfigureInstallation.exe, which the next step runs.
+          . build\Find-MsBuild.ps1
+          $msbuild = Find-MsBuild
+          if (-not $msbuild) { throw "MSBuild was not found." }
+
+          $arguments = @('hmailserver\tools\DevTools.sln', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU')
+          if ('${{ steps.netfx.outputs.override }}') { $arguments += '/p:TargetFrameworkVersion=${{ steps.netfx.outputs.override }}' }
+          & $msbuild @arguments
+          if ($LASTEXITCODE -ne 0) { throw "Building DevTools.sln failed with exit code $LASTEXITCODE" }
+
+      - name: Stamp the version into the sources and the installer script
+        run: |
+          # Writes Version.h, the WebAdmin version check and the version and output file name
+          # in section_setup_64.iss, so it has to run before the server is compiled.
+          $configure = 'hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe'
+          & $configure $env:GITHUB_WORKSPACE '${{ steps.product.outputs.version }}' '${{ steps.product.outputs.build }}'
+          if ($LASTEXITCODE -ne 0) { throw "ConfigureInstallation.exe failed with exit code $LASTEXITCODE" }
+
       - name: Build hMailServer
         run: |
           # build.ps1 disables the pre/post build events, so the runner is spared the
-          # 'NET STOP hMailServer' and 'hMailServer.exe /Register' steps that a developer
-          # machine runs - no service and no COM registration are needed to compile.
+          # 'NET STOP hMailServer' of a developer machine; the copy and registration half of
+          # the post-build step runs separately below.
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\build.ps1 -Configuration Release
           if ($LASTEXITCODE -ne 0) { throw "build.ps1 failed with exit code $LASTEXITCODE" }
+
+      - name: Copy the runtime DLLs and register the type library
+        run: |
+          # hMailAdmin has a COM reference to the hMailServer type library, so the tools
+          # solution only compiles once hMailServer.exe has registered it - and the server
+          # only starts for the registration with its DLLs beside it. post-build.ps1 does
+          # both, exactly as the project's post-build event does on a developer machine.
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\post-build.ps1 -Configuration Release
+          if ($LASTEXITCODE -ne 0) { throw "post-build.ps1 failed with exit code $LASTEXITCODE" }
+
+      - name: Build the hMailServer tools
+        run: |
+          # hMailAdmin, DBSetup, DBUpdater and the rest of what the installer ships.
+          . build\Find-MsBuild.ps1
+          $msbuild = Find-MsBuild
+          if (-not $msbuild) { throw "MSBuild was not found." }
+
+          $arguments = @('hmailserver\source\Tools\hMailServer Tools.sln', '/m', '/p:Configuration=Release', '/p:Platform=x64')
+          if ('${{ steps.netfx.outputs.override }}') { $arguments += '/p:TargetFrameworkVersion=${{ steps.netfx.outputs.override }}' }
+          & $msbuild @arguments
+          if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tools.sln failed with exit code $LASTEXITCODE" }
 
       - name: Collect the build artifact
         run: |
@@ -241,6 +339,33 @@ jobs:
         with:
           name: hMailServer-Release-x64
           path: ${{ runner.temp }}/artifacts
+          if-no-files-found: error
+
+      - name: Install Inno Setup
+        run: |
+          # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
+          # compiled it with. The runner image only carries Inno Setup 6.
+          choco install innosetup --version=5.6.1 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "Installing Inno Setup failed with exit code $LASTEXITCODE" }
+
+      - name: Build the installer
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 5\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
+
+          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" hmailserver\installation\hMailServer64.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE" }
+
+          # The script sets no OutputDir, so Inno Setup writes to Output next to it.
+          $setup = Get-ChildItem 'hmailserver\installation\Output\*.exe' -ErrorAction SilentlyContinue
+          if (-not $setup) { throw "ISCC.exe produced no setup executable." }
+          $setup | Select-Object Name, Length | Format-Table -AutoSize | Out-String
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: hMailServer-${{ steps.product.outputs.version }}-B${{ steps.product.outputs.build }}-x64-setup
+          path: hmailserver/installation/Output/*.exe
           if-no-files-found: error
 
       - name: Upload the library build logs
