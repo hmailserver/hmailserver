@@ -84,7 +84,7 @@ The message object represents a single e-mail message.
 
 <div class="api_method_name"><a href="?page=com_object_messageheaders">MessageHeaders</a> Headers</div>
 
-<div class="api_description">Collection of message heades.<br> <i>(read-only)</i></div>
+<div class="api_description">Collection of message headers.<br> <i>(read-only)</i></div>
 
 <div class="api_method_name">string HeaderValue(string FieldName)</div>
 

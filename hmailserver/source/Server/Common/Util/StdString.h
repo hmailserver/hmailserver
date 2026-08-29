@@ -38,7 +38,7 @@
 //
 //	PEOPLE WHO HAVE CONTRIBUTED TO THIS CLASS:
 //
-//		Several people have helped me iron out problems and othewise improve
+//		Several people have helped me iron out problems and otherwise improve
 //		this class.  OK, this is a long list but in my own defense, this code
 //		has undergone two major rewrites.  Many of the improvements became
 //		necessary after I rewrote the code as a template.  Others helped me
@@ -379,7 +379,7 @@
 
 // MACRO: SS_SAFE_FORMAT
 // ---------------------
-//      This macro provides limited compatability with a questionable CString
+//      This macro provides limited compatibility with a questionable CString
 //      "feature".  You can define it in order to avoid a common problem that
 //      people encounter when switching from CString to CStdString.
 //
@@ -696,7 +696,7 @@ inline const Type& SSMAX(const Type& arg1, const Type& arg2)
 #endif
 
 
-// SGI compiler 7.3 doesnt know these  types - oh and btw, remember to use
+// SGI compiler 7.3 doesn't know these  types - oh and btw, remember to use
 // -LANG:std in the CXX Flags
 #if defined(__sgi)
     typedef unsigned long           DWORD;
@@ -2308,9 +2308,9 @@ public:
                                                         sslen(this->c_str())));
 	}
 
-	void BufferRel()		 { RelBuf(); }			// backwards compatability
-	CT*  Buffer()			 { return GetBuf(); }	// backwards compatability
-	CT*  BufferSet(int nLen) { return SetBuf(nLen);}// backwards compatability
+	void BufferRel()		 { RelBuf(); }			// backwards compatibility
+	CT*  Buffer()			 { return GetBuf(); }	// backwards compatibility
+	CT*  BufferSet(int nLen) { return SetBuf(nLen);}// backwards compatibility
 
 	bool Equals(const CT* pT, bool bUseCase=false) const
 	{
@@ -2390,7 +2390,7 @@ public:
 		}
 		else if ( 0 == (dwSize = ::SizeofResource(hModule, hrsrc) / sizeof(CT)))
 		{
-			TRACE(_T("Cant get size of resource %d 0x%X\n"),nId,GetLastError());
+			TRACE(_T("Can't get size of resource %d 0x%X\n"),nId,GetLastError());
 		}
 		else
 		{
@@ -2435,7 +2435,7 @@ public:
     
     // Question:  Joe, you wacky coder you, why do you have so many overloads
     //      of the Format() function
-    // Answer:  One reason only - CString compatability.  In short, by making
+    // Answer:  One reason only - CString compatibility.  In short, by making
     //      the Format() function a template this way, I can do strong typing
     //      and allow people to pass CStdString arguments as fillers for
     //      "%s" format specifiers without crashing their program!  The downside
@@ -2448,7 +2448,7 @@ public:
     //      that they should not be doing anyway.  I am protecting them from
     //      themselves.  Why am I doing this?  Well, if you had any idea the
     //      number of times I've been emailed by people about this
-    //      "incompatability" in my code, you wouldn't ask.
+    //      "incompatibility" in my code, you wouldn't ask.
 
 	void Fmt(const CT* szFmt, ...)
 	{
@@ -3620,7 +3620,7 @@ public:
 
 		if ( FAILED(hr=pStream->Read(&hdr, sizeof(SSSHDR), 0)) )
 		{
-			TRACE(_T("StreamLoad: Cant read control header, ERR=0x%X\n"), hr);
+			TRACE(_T("StreamLoad: Can't read control header, ERR=0x%X\n"), hr);
 		}
 		else if ( hdr.nChars > 0 )
 		{
@@ -3689,7 +3689,7 @@ public:
 //		3.	#define 2 macros per the instructions in MS KnowledgeBase
 //			article Q168958.  The macros are:
 //
-//		MACRO		DEFINTION WHEN EXPORTING		DEFINITION WHEN IMPORTING
+//		MACRO		DEFINITION WHEN EXPORTING		DEFINITION WHEN IMPORTING
 //		-----		------------------------		-------------------------
 //		SSDLLEXP	(nothing, just #define it)		extern
 //		SSDLLSPEC	__declspec(dllexport)			__declspec(dllimport)

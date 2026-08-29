@@ -3,7 +3,7 @@
 *  Form Check, JavaScript Form Validation Library
 ******************************************************************
 *
-*  FormCheck currently supports the following contols:
+*  FormCheck currently supports the following controls:
 *	- Null values
 *	- Minimum and maximum lengths
 *	- Minimum and maximum values (for numbers)

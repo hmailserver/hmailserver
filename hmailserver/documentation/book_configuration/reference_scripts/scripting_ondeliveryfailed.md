@@ -10,7 +10,7 @@ is_book: false
 
 This event is executed if delivery to a recipient fails. If a message to multiple recipients cannot be sent, the event is executed once for every recipient.
 
-Notice that the event is only executed if hMailServer has accepted a message for delivery. If hMailServer rejects a message, for instance during anti spam check, OnDeliveryFailed is not excuted.
+Notice that the event is only executed if hMailServer has accepted a message for delivery. If hMailServer rejects a message, for instance during anti spam check, OnDeliveryFailed is not executed.
 
 ## Signature
 

@@ -697,7 +697,7 @@ namespace HM
       }
 
       {  //  PARANTHESE3
-         // Purpose: Detect invalid paranthesis.
+         // Purpose: Detect invalid parenthesis.
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
          std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
          pArgument->Command("CREATE (TE((()ST)");
@@ -714,7 +714,7 @@ namespace HM
       }      
 
       {  //  PARANTHESE4
-         // Purpose: Detect invalid paranthesis.
+         // Purpose: Detect invalid parenthesis.
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
          std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);
@@ -732,7 +732,7 @@ namespace HM
       }    
 
       {  // PARANTHESE5
-         // Correct paranthesis which may look incorrect
+         // Correct parenthesis which may look incorrect
 
          IMAPSimpleCommandParser *pParser = new IMAPSimpleCommandParser();
          std::shared_ptr<IMAPCommandArgument> pArgument = std::shared_ptr<IMAPCommandArgument>(new IMAPCommandArgument);

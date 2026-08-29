@@ -26,7 +26,7 @@ If the .eml file exists in the Data root directory, the message is inserted into
 
 ## How do I run it?
 
-1. Back up your system. DDS makes a relativly large amount of changes to the database. Because of this, it's recommended that you backup everything prior to running DDS.
+1. Back up your system. DDS makes a relatively large amount of changes to the database. Because of this, it's recommended that you backup everything prior to running DDS.
 2. Locate DataDirectorySynchronizer.exe in the Addons folder and run it.
 3. Click "Next" to start the synchronization.
 

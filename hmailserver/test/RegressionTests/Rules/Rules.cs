@@ -508,7 +508,7 @@ namespace RegressionTests.Rules
          // Add action
          ruleAction = accountRule.Actions.Add();
          ruleAction.Type = eRuleActionType.eRAMoveToImapFolder;
-         ruleAction.IMAPFolder = "INBOX.Overriden.Test";
+         ruleAction.IMAPFolder = "INBOX.Overridden.Test";
          ruleAction.Save();
 
          // Save the rule in the database
@@ -518,13 +518,13 @@ namespace RegressionTests.Rules
 
          // Spam folder
          smtpClientSimulator.Send("ruletest@example.test", "ruletest@example.test", "SomeString",
-            "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "Detta ska inte hamna i mappen Inbox.Overridden.Test");
          smtpClientSimulator.Send("ruletest@example.test", "ruletest@example.test", "SomeStringA",
-            "Detta ska hamna i mappen Inbox.Overriden.Test");
+            "Detta ska hamna i mappen Inbox.Overridden.Test");
          smtpClientSimulator.Send("ruletest@example.test", "ruletest@example.test", "somestring",
-            "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "Detta ska inte hamna i mappen Inbox.Overridden.Test");
 
-         ImapClientSimulator.AssertMessageCount("ruletest@example.test", "test", "Inbox.Overriden.Test", 1);
+         ImapClientSimulator.AssertMessageCount("ruletest@example.test", "test", "Inbox.Overridden.Test", 1);
          ImapClientSimulator.AssertMessageCount("ruletest@example.test", "test", "Inbox", 2);
       }
 
@@ -536,7 +536,7 @@ namespace RegressionTests.Rules
          // add an account to send from
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
 
-         // Add a route so we can conenct to localhost.
+         // Add a route so we can connect to localhost.
          var route = TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
          // Add a global send-using-route rule
@@ -1450,7 +1450,7 @@ namespace RegressionTests.Rules
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Test to send the messge to account 1.
+         // Test to send the message to account 1.
          smtpClientSimulator.Send(account1.Address, account1.Address, "Test", "Test message.");
 
          ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
@@ -1504,7 +1504,7 @@ namespace RegressionTests.Rules
 
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Test to send the messge to account 1.
+         // Test to send the message to account 1.
          smtpClientSimulator.Send(account1.Address, account1.Address, "Test message", "This is a test message with spam.\r\n XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X.");
 
          ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
@@ -1577,7 +1577,7 @@ namespace RegressionTests.Rules
          CreatePrintRecipientCountRule(account1.Rules);
 
          SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
-            "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "Detta ska inte hamna i mappen Inbox.Overridden.Test");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single list.
          var eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
@@ -1586,7 +1586,7 @@ namespace RegressionTests.Rules
 
          // Send message to two recipients. Recipient should still be one, since it's an account-level rule.
          SmtpClientSimulator.StaticSend(account1.Address, new List<string> { account1.Address, account2.Address },
-            "SomeString", "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "SomeString", "Detta ska inte hamna i mappen Inbox.Overridden.Test");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single list.
@@ -1608,7 +1608,7 @@ namespace RegressionTests.Rules
          CreatePrintRecipientCountRule(_application.Rules);
 
          SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "SomeString",
-            "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "Detta ska inte hamna i mappen Inbox.Overridden.Test");
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a single list.
 
@@ -1618,7 +1618,7 @@ namespace RegressionTests.Rules
 
          // Send message to two recipients. 
          SmtpClientSimulator.StaticSend(account1.Address, new List<string> { account1.Address, account2.Address },
-            "SomeString", "Detta ska inte hamna i mappen Inbox.Overriden.Test");
+            "SomeString", "Detta ska inte hamna i mappen Inbox.Overridden.Test");
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
          // This should print a two recipients. Global rule is affected before message reaches recipients.

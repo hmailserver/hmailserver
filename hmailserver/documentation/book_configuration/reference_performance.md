@@ -26,7 +26,7 @@ hMailServer can deliver several email messages at the same time. This setting le
 
 #### Max number of asynchronous task threads
 
-This setting defines how many parallell connections hMailServer will make to external software while running anti-spam protection. The settings defines for example how many connections hMailServer will open up to SpamAssassin at most.
+This setting defines how many parallel connections hMailServer will make to external software while running anti-spam protection. The settings defines for example how many connections hMailServer will open up to SpamAssassin at most.
 
 #### Worker thread priority
 
@@ -34,6 +34,6 @@ hMailServer is a multi-threaded application. This means that inside the hMailSer
 
 ### Message indexing
 
-When message indexing is enabled, some additional message meta data is stored in the database. This can greatly improve browsing speed in large folders when using a webmail client in combination with server side sort. The performance is achived since hMailServer can sort the messages by retrieving parsed data from the database, rather than having to read all files in the folder and parse the content one at a time.
+When message indexing is enabled, some additional message meta data is stored in the database. This can greatly improve browsing speed in large folders when using a webmail client in combination with server side sort. The performance is achieved since hMailServer can sort the messages by retrieving parsed data from the database, rather than having to read all files in the folder and parse the content one at a time.
 
 The downside of this feature is that the database size will increase. It's not recommended to enable this feature unless you're experiencing performance problems related to large folders in web mail.

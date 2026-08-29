@@ -216,7 +216,7 @@ namespace RegressionTests.Shared
          {
             if (SimulatedError == SimulatedErrorType.DisconnectAfterDeliveryStarted)
             {
-               // We've received some message data. Disconenct!
+               // We've received some message data. Disconnect!
                Disconnect();
                return true;
             }

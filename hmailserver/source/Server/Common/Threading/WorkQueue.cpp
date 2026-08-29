@@ -132,7 +132,7 @@ namespace HM
       // Prevent new tasks from being started.
       io_context_.stop();
 
-      LOG_DEBUG(Formatter::Format("Interupt and join threads in working queue {0}", queue_name_));
+      LOG_DEBUG(Formatter::Format("Interrupt and join threads in working queue {0}", queue_name_));
 
       std::set<std::shared_ptr<boost::thread>> completedThreads;
 

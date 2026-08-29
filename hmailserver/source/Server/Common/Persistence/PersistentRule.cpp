@@ -63,7 +63,7 @@ namespace HM
       // Read actions
       pRule->GetActions();
 
-      // Read criterias
+      // Read criteria
       pRule->GetCriterias();
 
       return true;
@@ -110,7 +110,7 @@ namespace HM
       if (bRetVal && bNewObject)
          pRule->SetID((int) iDBID);
 
-      // Save criterias.
+      // Save criteria.
       __int64 iRuleID = pRule->GetID();
       std::shared_ptr<RuleCriterias> pRuleCriterias = pRule->GetCriterias();
       for (int i = 0; i < pRuleCriterias->GetCount(); i++)

@@ -26,7 +26,7 @@ Select the [connection security](https://www.hmailserver.com/documentation/lates
 
 ### SSL certificate
 
-If you have choosen to use SSL/TLS or StartTLS, you must select which SSL certificate you want to use for this specific port.
+If you have chosen to use SSL/TLS or StartTLS, you must select which SSL certificate you want to use for this specific port.
 
 ## TCP/IP Sending port
 

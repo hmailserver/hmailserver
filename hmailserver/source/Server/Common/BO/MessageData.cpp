@@ -444,7 +444,7 @@ namespace HM
 
       if (!textPart && !htmlPart)
       {
-         // We don't have any text or HMTL part. Copy the main content
+         // We don't have any text or HTML part. Copy the main content
          // of the message to a new part, if the main content isn't empty.
          if (sMainBodyType == "" || sMainBodyType == "text/plain")
          {

@@ -133,7 +133,7 @@ namespace HM
       if (saErrorMessages.size() > 0)
          SubmitErrorLog_(pMessage, saErrorMessages);
 
-      // Unless the message has been re-used, or has been rescheduled for
+      // Unless the message has been reused, or has been rescheduled for
       // later delivery, we should delete it now.
       bool deleteMessageNow = !messageReused && !messageRescheduled;
       if (deleteMessageNow)

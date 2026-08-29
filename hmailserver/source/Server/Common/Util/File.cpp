@@ -275,17 +275,17 @@ namespace HM
       }
       catch (boost::system::system_error& error)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occurred when reading file.", error);
          throw;
       }
       catch (std::exception& error)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.", error);
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occurred when reading file.", error);
          throw;
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occured when reading file.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 4208, "File::ReadFile()", "An error occurred when reading file.");
          throw;
       }
 

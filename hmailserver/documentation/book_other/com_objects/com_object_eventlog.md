@@ -14,4 +14,4 @@ The event log object is used by event-implementors to write messages to the even
 
 <div class="api_method_name">Write(string sMessage)</div>
 
-<div class="api_description">Writes a mesage to the hMailServer event log.</div>
+<div class="api_description">Writes a message to the hMailServer event log.</div>

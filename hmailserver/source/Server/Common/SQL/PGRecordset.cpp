@@ -338,7 +338,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5301, "PGRecordset::GetIsNull", "An error occured while checking for null.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5301, "PGRecordset::GetIsNull", "An error occurred while checking for null.");
          throw;
       }
    }

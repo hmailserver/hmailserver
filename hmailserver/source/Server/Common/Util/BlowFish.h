@@ -48,7 +48,7 @@ namespace HM
    };
 
    // choose a byte order for your hardware
-   #define ORDER_DCBA	// chosing Intel in this case
+   #define ORDER_DCBA	// choosing Intel in this case
 
    #ifdef ORDER_DCBA  	// DCBA - little endian - intel
 	   union aword {

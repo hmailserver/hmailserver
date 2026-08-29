@@ -38,7 +38,7 @@ is_book: false
 
 ### AWStats
 
-<div class="indented">The AWStats log (saved in hmailserver_awstats.log) contains SMTP delivery events formatteded for <a href="http://awstats.sourceforge.net">AWstats</a>.</div>
+<div class="indented">The AWStats log (saved in hmailserver_awstats.log) contains SMTP delivery events formatted for <a href="http://awstats.sourceforge.net">AWstats</a>.</div>
 
 <div class="indented"><br>
 In the AWstats configuration, the following settings should be used:<br>
@@ -50,7 +50,7 @@ LogSeparator="\t"</span></div>
 
 ### Keep files open
 
-<div class="indented">This setting lets you specify whether hMailServer should keep log files open inbetween writes. The default log writing behavior in hMailServer is that whenever hMailServer should append something to a log file, the file is open, written to and after that closed.  This means that any data hMailServer writes to the file is flushed immediately. If there are a lot of small writes to the log files, this may be bad for performance. </div>
+<div class="indented">This setting lets you specify whether hMailServer should keep log files open in between writes. The default log writing behavior in hMailServer is that whenever hMailServer should append something to a log file, the file is open, written to and after that closed.  This means that any data hMailServer writes to the file is flushed immediately. If there are a lot of small writes to the log files, this may be bad for performance. </div>
 
 <div class="indented"> </div>
 

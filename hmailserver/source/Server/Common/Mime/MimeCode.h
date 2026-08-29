@@ -269,7 +269,7 @@ namespace HM
 	   AnsiString charset_;
 
 	   void BEncode(AnsiString &output) const;
-	   void QEncode(AnsiString &utput) const;
+	   void QEncode(AnsiString &output) const;
    };
 
    //////////////////////////////////////////////////////////////////////

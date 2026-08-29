@@ -12,11 +12,11 @@ namespace MemoryTests
     {
         public void Run()
         {
-            hMailServer.Application applicaiton = new hMailServer.Application();
-            applicaiton.Authenticate("Administrator", "testar");
+            hMailServer.Application application = new hMailServer.Application();
+            application.Authenticate("Administrator", "testar");
 
             // Run DNS query tests.
-            TestDNSQueries test = new TestDNSQueries(applicaiton);
+            TestDNSQueries test = new TestDNSQueries(application);
             test.Prepare();
             int iMemoryUsageBefore = Utilities.GetMemoryUsage();
             test.Run();

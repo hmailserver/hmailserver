@@ -123,7 +123,7 @@ Private Function IWizardPage_OnShowPage() As Boolean
    m_oWizard.EnableNext (True)
    m_oWizard.EnablePrevious (True)
    
-   MsgBox "Import completed succesfully"
+   MsgBox "Import completed successfully"
    
    End
    
@@ -264,7 +264,7 @@ Private Sub SaveMessages(sIMAPFolderName As String, oMessages As Collection)
    
 Exception:
    
-   MsgBox "An error occured while saving messages" & vbNewLine & Err.Description, vbCritical
+   MsgBox "An error occurred while saving messages" & vbNewLine & Err.Description, vbCritical
    End
    
 End Sub
@@ -287,7 +287,7 @@ Private Sub SaveMessage(oMessage As clsParsedMessage, lIMAPFolderID As Long, sFi
    
 Exception:
    
-   MsgBox "An error occured while saving an message" & vbNewLine & Err.Description, vbCritical
+   MsgBox "An error occurred while saving an message" & vbNewLine & Err.Description, vbCritical
    End
    
 End Sub
@@ -303,7 +303,7 @@ Private Function GetUniqueFilename() As String
    Exit Function
 Exception:
    
-   MsgBox "An error occured while creating unique filename." & vbNewLine & Err.Description, vbCritical
+   MsgBox "An error occurred while creating unique filename." & vbNewLine & Err.Description, vbCritical
    End
 End Function
 
@@ -437,7 +437,7 @@ Private Function GetInternalDate(sFirstLine As String) As String
    GetInternalDate = sDateStamp
    Exit Function
 Exception:
-   MsgBox "An error occured while parsing asciidate for " & sFirstLine & vbNewLine & Err.Description, vbCritical
+   MsgBox "An error occurred while parsing asciidate for " & sFirstLine & vbNewLine & Err.Description, vbCritical
    End
 End Function
 
@@ -467,7 +467,7 @@ Private Function GetSystemDateFromAscTime(sAscTime As String)
    
    Exit Function
 Exception:
-   MsgBox "An error occured while creating an system date for " & sAscTime & vbNewLine & Err.Description, vbCritical
+   MsgBox "An error occurred while creating an system date for " & sAscTime & vbNewLine & Err.Description, vbCritical
    End
 End Function
 

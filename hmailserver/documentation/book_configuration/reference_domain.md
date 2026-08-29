@@ -137,7 +137,7 @@ The solution is to specify an account - either a previously existing one, or one
 </div>
 <div class="indented">
 <h3>Plus addressing</h3>
-<p>Use this option to enable plus addressing for this domain. To avoid confusion and configuration problems, only a limited set of characters are allowed for plus addresing.</p>
+<p>Use this option to enable plus addressing for this domain. To avoid confusion and configuration problems, only a limited set of characters are allowed for plus addressing.</p>
 </div>
 <div class="indented">
 <h3>Grey listing</h3>

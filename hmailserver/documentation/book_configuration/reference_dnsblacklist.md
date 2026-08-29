@@ -18,7 +18,7 @@ is_book: false
 
 <div class="indented"> </div>
 
-<div class="indented">There is some limited support for specifying multiple possible addresses. You can separate multiple addresses by using |, such as 127.0.0.1|127.0.0.2. In the last section of the IP address, you can use - to specify a range, as in 127.0.0.2-8. So if you specify 127.0.0.2-8|127.0.0.10-11, that will cover the IP adresses 127.0.0.2, 127.0.0.3 up until 127.0.0.8 and 127.0.0.10 and 127.0.0.11.</div>
+<div class="indented">There is some limited support for specifying multiple possible addresses. You can separate multiple addresses by using |, such as 127.0.0.1|127.0.0.2. In the last section of the IP address, you can use - to specify a range, as in 127.0.0.2-8. So if you specify 127.0.0.2-8|127.0.0.10-11, that will cover the IP addresses 127.0.0.2, 127.0.0.3 up until 127.0.0.8 and 127.0.0.10 and 127.0.0.11.</div>
 
 ### Rejection message
 

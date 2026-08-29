@@ -35,7 +35,7 @@ Daemon module installed
 
 ## ASSP Installation & Configuration
 
-1. Installation is straightfoward, download and unzip files to c:\ASSP
+1. Installation is straightforward, download and unzip files to c:\ASSP
 2. Create the following directories:  
 
    - c:/assp/spam

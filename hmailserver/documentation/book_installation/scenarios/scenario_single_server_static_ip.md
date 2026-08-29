@@ -44,7 +44,7 @@ If you have a firewall (which you hopefully have) you need to modify its setting
 If your Internet service provider is blocking outgoing traffic on port 25, hMailServer will not be able to deliver email to other servers since all SMTP servers normally only receives email on port 25. If your ISP is blocking outgoing traffic on port 25, the easiest solution is normally to configure hMailServer to forward all outgoing email through your ISP's SMTP server. To do this, follow these steps:
 
 1. Start hMailServer Administrator
-2. Go to the SMTP setitngs and choose Delivery of email.
+2. Go to the SMTP settings and choose Delivery of email.
 3. In the SMTP relayer setting, enter the name of your ISP's smtp server, for example *smtp.myisp.com*.
 4. If your ISP requires a username / password when sending email through their server, select Server requires authentication and enter the username and password.
 

@@ -82,7 +82,7 @@ namespace RegressionTests.Infrastructure
       {
          // Create a test account
          // Fetch the default domain
-         // Enable plus adressing
+         // Enable plus addressing
          _domain.PlusAddressingEnabled = true;
          _domain.PlusAddressingCharacter = "+";
 

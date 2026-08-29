@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 // This class is a bit whacky. The single purpose of it is to
 // reintialize the entire server. Sometimes, for example when
-// doing a restore, this needs to be done asynchroniously.
+// doing a restore, this needs to be done asynchronously.
 
 #include "StdAfx.h"
 #include ".\reinitializator.h"

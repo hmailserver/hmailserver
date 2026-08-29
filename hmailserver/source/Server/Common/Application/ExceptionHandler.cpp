@@ -79,7 +79,7 @@ namespace HM
       catch (std::exception& error)
       {
          String sErrorMessage = 
-            Formatter::Format("An error occured while executing '{0}'", descriptive_name);
+            Formatter::Format("An error occurred while executing '{0}'", descriptive_name);
 
          try
          {
@@ -87,7 +87,7 @@ namespace HM
          }
          catch (...)
          {
-            // Don't swallow the origial exception
+            // Don't swallow the original exception
          }
          
          throw;
@@ -95,7 +95,7 @@ namespace HM
       catch (...)
       {
          String sErrorMessage = 
-            Formatter::Format("An error occured while executing '{0}'", descriptive_name);
+            Formatter::Format("An error occurred while executing '{0}'", descriptive_name);
 
          try
          {
@@ -116,7 +116,7 @@ namespace HM
    ExceptionHandler::GetExceptionText(const String &descriptive_name)
    {
       String sErrorMessage = 
-         Formatter::Format("An error occured while executing '{0}'", descriptive_name);
+         Formatter::Format("An error occurred while executing '{0}'", descriptive_name);
 
       return sErrorMessage;
 

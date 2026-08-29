@@ -44,8 +44,8 @@ The DistributionList object represents a hMailServer distribution list.
 
 <div class="api_method_name">string RequireSenderAddress</div>
 
-<div class="api_description">Require the user to send from the adress.<br></div>
+<div class="api_description">Require the user to send from the address.<br></div>
 
 <div class="api_method_name">bool RequireSMTPAuth</div>
 
-<div class="api_description">Sets wether the list requires a user to SMTP Authenticate before sending mail to it.<br></div>
+<div class="api_description">Sets whether the list requires a user to SMTP Authenticate before sending mail to it.<br></div>

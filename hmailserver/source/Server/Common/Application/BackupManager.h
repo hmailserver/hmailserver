@@ -22,7 +22,7 @@ namespace HM
       // an backup object that contains backup information.
 
       bool StartRestore(std::shared_ptr<Backup> pBackup);
-      // Starts a restore of the backup. Restors the part of the
+      // Starts a restore of the backup. Restores the part of the
       // backup specified by iRestoreMode.
 
       void OnThreadStopped();

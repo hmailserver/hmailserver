@@ -578,7 +578,7 @@ namespace HM
        long n4Yr;              // Year within 4 year block (0,1,2 or 3)
        BOOL bLeap4 = TRUE;     // TRUE if 4 year block includes leap year
     
-       double dblDate = dtSrc; // tempory serial date
+       double dblDate = dtSrc; // temporary serial date
     
        // If a valid date, then this conversion should not overflow
        nDays = (long)dblDate;

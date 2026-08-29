@@ -136,7 +136,7 @@ namespace HM
       HRESULT RegisterAppID()
       //------------------------------------------------------------------------//
       // This function registers an APP-ID in the registry. If this isn't registered
-      // it wont be possible to use CreateObject("hMailServer.Application") to get
+      // it won't be possible to use CreateObject("hMailServer.Application") to get
       // a reference to the running application. 
       //------------------------------------------------------------------------//
       {
@@ -174,7 +174,7 @@ HM::ChMailServerModule _AtlModule;
 extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, 
                                 LPTSTR lpCmdLine, int nShowCmd)
 {
-   // Initailize some service variables.
+   // Initialize some service variables.
    ServiceStatus.dwServiceType = SERVICE_WIN32; 
    ServiceStatus.dwWin32ExitCode = 0;
    ServiceStatus.dwServiceSpecificExitCode = 0; 

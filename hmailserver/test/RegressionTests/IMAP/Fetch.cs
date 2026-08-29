@@ -217,7 +217,7 @@ namespace RegressionTests.IMAP
          var result = simulator.Fetch("1 BODY.PEEK[HEADER.FIELDS (Subject Subject)]");
          simulator.Disconnect();
 
-         Assert.AreEqual(1, StringExtensions.Occurences(result, "SubjectText"));
+         Assert.AreEqual(1, StringExtensions.Occurrences(result, "SubjectText"));
       }
 
 

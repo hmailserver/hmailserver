@@ -39,11 +39,11 @@ namespace HM
       if (!pTheFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
-      // Check if ther user has access to read this folder.
+      // Check if the user has access to read this folder.
       if (!pConnection->CheckPermission(pTheFolder, ACLPermission::PermissionRead))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for STATUS command).");
 
-      // Check if ther user has access to read this folder.
+      // Check if the user has access to read this folder.
       if (!pConnection->CheckPermission(pTheFolder, ACLPermission::PermissionRead))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied.");
 

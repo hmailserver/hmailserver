@@ -140,15 +140,15 @@ namespace hMailServer.Administrator.Dialogs
         {
            char delimiter = APICreator.Settings.IMAPHierarchyDelimiter[0];
 
-           List<char> delimitors = new List<char>();
-           delimitors.Add('.');
-           delimitors.Add('\\');
-           delimitors.Add('/');
-           delimitors.Remove(delimiter);
+           List<char> delimiters = new List<char>();
+           delimiters.Add('.');
+           delimiters.Add('\\');
+           delimiters.Add('/');
+           delimiters.Remove(delimiter);
 
            if ((eRuleActionType)comboAction.SelectedValue == eRuleActionType.eRAMoveToImapFolder)
            {
-              foreach (char otherDelim in delimitors)
+              foreach (char otherDelim in delimiters)
               {
                  if (textIMAPFolder.Text.Contains(otherDelim.ToString()))
                  {

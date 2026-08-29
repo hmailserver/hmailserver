@@ -21,7 +21,7 @@ HIS_LoggerFile::AddToLog(int LogType, const HIS_String &sRemoteHost, const HIS_S
          return; // logging not enabled.
 
       if (!(log_setting_ & LogType))
-         return; // not intressted in this...
+         return; // not interested in this...
 
       HIS_String sTime = GetCurrentTime();
 

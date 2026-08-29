@@ -316,7 +316,7 @@ public:
    bool 
    ProcedureExists(HM::String sName)
    {
-      // Determines wether a procedure exists in
+      // Determines whether a procedure exists in
       // the script. 
 
       if (!engine_)

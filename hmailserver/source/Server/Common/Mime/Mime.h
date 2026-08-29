@@ -66,7 +66,7 @@ namespace HM
 	   static inline const char* MediaText() { return "text"; }
 	   static inline const char* MediaImage() { return "image"; }
 	   static inline const char* MediaAudio() { return "audio"; }
-	   static inline const char* MediaVedio() { return "vedio"; }
+	   static inline const char* MediaVideo() { return "video"; }
 	   static inline const char* MediaApplication() { return "application"; }
 	   static inline const char* MediaMultiPart() { return "multipart"; }
 	   static inline const char* MediaMessage() { return "message"; }
@@ -438,7 +438,7 @@ namespace HM
 	   bool SetMessage(const MimeBody* pMM);
 	   void GetMessage(MimeBody* pMM) const;
 
-	   // operations for 'image/audio/vedio/application' (attachment) media
+	   // operations for 'image/audio/video/application' (attachment) media
 	   bool IsAttachment() const;
 	   bool ReadFromFile(const String &pszFilename);
 	   bool WriteToFile(const String  &sFilename);

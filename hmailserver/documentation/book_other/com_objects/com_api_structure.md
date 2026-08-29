@@ -21,7 +21,7 @@ The hMailServer COM API throws exception in the following cases:
 - When you try to create a new object with the same name as an existing one. For example, if you try to create two accounts with the same address, an exception will be thrown.
 - If a database error occurs. If the connection to the database server is lost, or another database problem occurs, an exception will be thrown.
 - If client permissions isn't sufficient. Before you can access objects in the hMailServer COM API, you must first authenticate (using Authenticate on hMailServer.Application). If you try to access an object after this which you do not have permission to access, an exception will be thrown. For example, if you authenticate as a user with user-level rights, an exception will be thrown if you try to access global server settings.
-- An exception will be thrown if you try to access a nonexistant item in a collection. For example, calling ItemByName() on the hMailServer.Domains collection will throw an exception if the domain cannot be found.
+- An exception will be thrown if you try to access a nonexistent item in a collection. For example, calling ItemByName() on the hMailServer.Domains collection will throw an exception if the domain cannot be found.
 
 ## Creating new objects
 

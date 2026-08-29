@@ -57,7 +57,7 @@ namespace HM
  
       String Compile_(const String &sLanguage, const String &sFilename);
       // Compiels the script in sFileName and returns the result. If
-      // no compilation errors exists, the function returns an emtpy string.
+      // no compilation errors exists, the function returns an empty string.
  
       bool has_on_client_connect_;
       bool has_on_accept_message_;

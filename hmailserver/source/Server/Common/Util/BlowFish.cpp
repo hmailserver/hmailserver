@@ -272,7 +272,7 @@ namespace HM
 		 	   }
 		 	   pInput += 8 ;
 		   }
-		   else 			// output buffer not equal to input uffer, so must copy
+		   else 			// output buffer not equal to input buffer, so must copy
 		   {               // input to output buffer prior to encrypting
 		 	   if (lCount < lSize - 7)	// if not dealing with uneven bytes at end
 		 	   {

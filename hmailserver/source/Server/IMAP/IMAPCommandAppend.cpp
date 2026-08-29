@@ -65,7 +65,7 @@ namespace HM
       
       current_tag_ = pArgument->Tag();
       
-      // Reset these two so we don't re-use old values.
+      // Reset these two so we don't reuse old values.
       flags_to_set_ = "";
       create_time_to_set_ = "";
 

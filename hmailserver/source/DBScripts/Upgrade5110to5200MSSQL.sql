@@ -82,7 +82,7 @@ ALTER TABLE hm_fetchaccounts ADD faenablerouterecipients tinyint not null DEFAUL
 
 delete from hm_settings where settingname = 'maskpasswordsinlog'
 
---- Recreate the indes we dropped int the beginning of this script.
+--- Recreate the index we dropped int the beginning of this script.
 CREATE CLUSTERED INDEX idx_hm_messages ON hm_messages (messageaccountid, messagefolderid)  
 
 CREATE INDEX idx_hm_messages_type ON hm_messages (messagetype) 

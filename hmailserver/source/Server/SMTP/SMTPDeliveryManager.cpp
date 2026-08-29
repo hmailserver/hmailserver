@@ -133,7 +133,7 @@ namespace HM
    SMTPDeliveryManager::GetNextMessage_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Retrives the first unlcoked message from the database and tries to lock it.
+   // Retrieves the first unlcoked message from the database and tries to lock it.
    // 
    // 0 is returned if no messages exists.
    //---------------------------------------------------------------------------()

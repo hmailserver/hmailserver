@@ -605,7 +605,7 @@ namespace HM
          // specifying an email address. Should we allow this?
          if (!smtpconf_->GetAllowMailFromNull())
          {
-            // Nope, we should'nt... We send the below text even
+            // Nope, we shouldn't... We send the below text even
             // though RFC 822 tells us not to...
             SendErrorResponse_(550, "Sender address must be specified.");             
             return false;
@@ -1094,7 +1094,7 @@ namespace HM
                      if (bArchiveHardlinks) 
                      {
                         FileUtilities::CreateDirectory(sArchiveDir + "\\" + sSenderDomain + "\\" + sSenderName);
-                        // This function call is odd in that original is 2nd anc destination is 1st..
+                        // This function call is odd in that original is 2nd and destination is 1st..
                         BOOL fCreatedLink = CreateHardLink( sMessageArchivePath2, sMessageArchivePath, NULL ); // Last is reserved, must be NULL
 
                         if ( fCreatedLink == FALSE )
@@ -1593,7 +1593,7 @@ namespace HM
       // Cut out the string after the space.
       helo_host_ = sRequest.Mid(iFirstSpace + 1);
 
-      // Trim it incase of leading or trailing spaces.
+      // Trim it in case of leading or trailing spaces.
       helo_host_ = helo_host_.Trim();
 
       if (helo_host_.IsEmpty())
@@ -1610,7 +1610,7 @@ namespace HM
       if (!ReadDomainAddressFromHelo_(sRequest))
       {
          // The client did not supply a parameter to
-         // the helo command which is syntaxically
+         // the helo command which is syntactically
          // incorrect. Reject.
          SendErrorResponse_(501, "EHLO Invalid domain address.");
          return;
@@ -1682,7 +1682,7 @@ namespace HM
       if (!ReadDomainAddressFromHelo_(sRequest))
       {
          // The client did not supply a parameter to
-         // the helo command which is syntaxically
+         // the helo command which is syntactically
          // incorrect. Reject.
          SendErrorResponse_(501, "HELO Invalid domain address.");
          return;

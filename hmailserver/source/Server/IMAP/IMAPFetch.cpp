@@ -163,7 +163,7 @@ namespace HM
 
 
       // Sometimes we need to load the entire mail into memory.
-      // If the user want's to download a specific attachment or
+      // If the user wants to download a specific attachment or
       // if he wants to look at the structure of the mime message.
       std::shared_ptr<MimeBody> pMimeBody = LoadMimeBody_(parser_, messageFileName);
       
@@ -229,7 +229,7 @@ namespace HM
      
       if (parser_->GetSetSeenFlag() && !pConnection->GetCurrentFolderReadOnly())
       {
-         // Check if ther user has access to set the Seen flag, otherwise 
+         // Check if the user has access to set the Seen flag, otherwise 
          bool bMayChangeSeen = pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteSeen);
 
          // Since the user has looked at the email, we should set the Seen flag.
@@ -323,7 +323,7 @@ namespace HM
 
             if (!pBody)
             {
-               // Client is requesting an non-existant body.
+               // Client is requesting an non-existent body.
                return pBody;
             }
 

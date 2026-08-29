@@ -55,7 +55,7 @@ PHP needs to have access to the hMailServer COM API. To do this, you need to [co
 
 <p>Copy PHPWebAdmin from the hMailServer directory to your web root directory. The web root differs between web servers so check your web server's documentation if you're unsure where your web root is located. Copy the entire PHPWebAdmin from <span class="Code">C:\Program Files\hMailServer</span>  to your web root. Example: If your web root is <span class="Code">C:/wwwroot,</span> copy PHPWebAdmin to <span class="Code">C:\wwwroot</span>, so that you get <span class="Code">C:\wwwroot\PHPWebAdmin</span>.  <br>
 <br>
-Alternately, you can use the PHPWebAdmin folder where hMailServer installed, you will neede to point your webserver to that folder and set permissions as above.</p>
+Alternately, you can use the PHPWebAdmin folder where hMailServer installed, you will need to point your webserver to that folder and set permissions as above.</p>
 
 ### Step 4: Configure PHPWebAdmin
 

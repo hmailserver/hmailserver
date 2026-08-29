@@ -624,7 +624,7 @@ STDMETHODIMP InterfaceMessage::AddRecipient(BSTR bstrName, BSTR bstrAddress)
       if (!object_)
          return GetAccessDenied();
 
-      // Add this recipent to the actual email.
+      // Add this recipient to the actual email.
       HM::String sAddress(bstrAddress);
       HM::String sName (bstrName);
    

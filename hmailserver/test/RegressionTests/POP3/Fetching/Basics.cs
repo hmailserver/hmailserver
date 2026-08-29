@@ -159,7 +159,7 @@ namespace RegressionTests.POP3.Fetching
          fa.Username = "test@example.com";
          fa.Password = "test";
          fa.UseSSL = false;
-         fa.ServerAddress = "nonexistant.example.com";
+         fa.ServerAddress = "nonexistent.example.com";
          fa.Port = 110;
          fa.ProcessMIMERecipients = false;
          fa.Save();
@@ -400,7 +400,7 @@ namespace RegressionTests.POP3.Fetching
                Pop3ClientSimulator.AssertMessageCount(catchallAccount.Address, "test", 0);
                StringAssert.Contains("Hello!", downloadedMessage1);
 
-               // Make sure the exernal list has received his copy.
+               // Make sure the external list has received his copy.
                smtpServer.WaitForCompletion();
                var messageData = smtpServer.MessageData;
                Assert.IsTrue(messageData.Contains(messageData), messageData);

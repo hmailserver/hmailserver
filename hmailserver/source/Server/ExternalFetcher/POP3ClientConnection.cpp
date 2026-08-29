@@ -194,7 +194,7 @@ namespace HM
          bool bRetVal = true;
          switch (current_state_)
          {
-            // Re-using POP states names for now
+            // Reusing POP states names for now
          case StateConnected:
             // Realize we shouldn't blindly send but this works for now
             EnqueueWrite_LogAsSMTP("HELO " + vecParams[1]);
@@ -546,7 +546,7 @@ namespace HM
    {
       if (CommandIsSuccessfull_(sData))
       {
-         // We have quitted successfully.
+         // We have quit successfully.
          EnqueueDisconnect();
       }
 
@@ -962,7 +962,7 @@ namespace HM
       }
       else if (iDaysToKeep > 0)
       {
-         // Check wether we should delete this UID.
+         // Check whether we should delete this UID.
          std::shared_ptr<FetchAccountUID> pUID = GetUIDList_()->GetUID(sUID);
 
          // Get the creation date of the UID.
@@ -1186,7 +1186,7 @@ namespace HM
    {
       int iDaysToKeep = account_->GetDaysToKeep();
 
-      // Has an event overriden when messages should be deleted?
+      // Has an event overridden when messages should be deleted?
       if (event_results_.find(sUID) != event_results_.end())
       {
          std::shared_ptr<Result> result = event_results_[sUID];

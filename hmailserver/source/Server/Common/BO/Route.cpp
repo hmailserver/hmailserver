@@ -86,7 +86,7 @@ namespace HM
       treat_recipient_as_local_domain_ = pNode->GetAttrValue(_T("TreatRecipientAsLocalDomain")) == _T("1");
       treat_sender_as_local_domain_ = pNode->GetAttrValue(_T("TreatSenderAsLocalDomain")) == _T("1");
 
-      // Backwards compatibiltiy
+      // Backwards compatibility
       if (pNode->GetAttrValue(_T("UseSSL")) == _T("1"))
       {
          connection_security_ = CSSSL;

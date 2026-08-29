@@ -111,7 +111,7 @@ namespace HM
    SMTPClientConnection::ParseData(const AnsiString &Request)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Parses a server SMTP cmmand.
+   // Parses a server SMTP command.
    //---------------------------------------------------------------------------()
    {
       multi_line_response_buffer_ += Request;

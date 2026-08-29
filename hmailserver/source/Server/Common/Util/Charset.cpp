@@ -158,7 +158,7 @@ namespace HM
       String sB64Encoded;
       StringParser::Base64Encode(sInput, sB64Encoded);
 
-      // Format encording string according to RFC (above)
+      // Format encoding string according to RFC (above)
       String sEncodedWord;
       sEncodedWord.Format(_T("=?%s?%s?%s?="), _T("iso-8859-1"), _T("B"), sB64Encoded.c_str());
 

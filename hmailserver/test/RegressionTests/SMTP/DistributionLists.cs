@@ -258,7 +258,7 @@ namespace RegressionTests.SMTP
 
          list3.Delete();
 
-         // THIS MESSAGE SHOULD SUCCED - Membership required, sender domain is now an alias for test.com.
+         // THIS MESSAGE SHOULD SUCCEED - Membership required, sender domain is now an alias for test.com.
 
          recipients = new List<string>();
          recipients.Clear();

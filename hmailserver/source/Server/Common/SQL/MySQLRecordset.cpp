@@ -267,7 +267,7 @@ namespace HM
       }
       catch (...)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::High, 5302, "MySQLRecordset::GetIsNull", "An error occured while checking for null.");
+         ErrorManager::Instance()->ReportError(ErrorManager::High, 5302, "MySQLRecordset::GetIsNull", "An error occurred while checking for null.");
          throw;
       }
    }

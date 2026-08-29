@@ -149,7 +149,7 @@
       
       $ruleid = $rule->ID;
       
-      // can't re-use rule_link since the rule id might be new (if add)
+      // can't reuse rule_link since the rule id might be new (if add)
       header("Location: index.php?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid");   
       die;
    }

@@ -39,7 +39,7 @@ namespace HM
    OutboundPortConnection::ParseData(const AnsiString &Request)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Parses a server SMTP cmmand.
+   // Parses a server SMTP command.
    //---------------------------------------------------------------------------()
    {
 

@@ -44,7 +44,7 @@ namespace HM
    StringParser::ExtractAddress(const String &sEMailAddress)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Extracts the adress from an email address string. (the part before @)
+   // Extracts the address from an email address string. (the part before @)
    //---------------------------------------------------------------------------()
    {
       int iAtSign = sEMailAddress.ReverseFind(_T("@"));

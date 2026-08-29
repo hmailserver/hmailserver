@@ -982,7 +982,7 @@ interface IInterfaceMessage : IDispatch
    [propget, id(21), helpstring("Message flags")] HRESULT Flag([in] eMessageFlag iType, [out, retval] VARIANT_BOOL *pVal);
    [propput, id(21), helpstring("Message flags")] HRESULT Flag([in] eMessageFlag iType, [in] VARIANT_BOOL pVal);
    [propget, id(22), helpstring("The internal date and time of this message.")] HRESULT InternalDate([out, retval] VARIANT *pVal);
-   [propget, id(23), helpstring("Collection of message heades.")] HRESULT Headers([out, retval] IInterfaceMessageHeaders ** pVal);
+   [propget, id(23), helpstring("Collection of message headers.")] HRESULT Headers([out, retval] IInterfaceMessageHeaders ** pVal);
    [id(24), helpstring("Refreshes the message content")] HRESULT RefreshContent();
    [propget, id(25), helpstring("The number of this delivery attempt.")] HRESULT DeliveryAttempt([out, retval] long *pVal);
 	[propget, id(26), helpstring("The main character set of the email.")] HRESULT Charset([out, retval] BSTR *pVal);
@@ -1204,10 +1204,10 @@ interface IInterfaceDistributionList : IDispatch
    [propget, id(6), helpstring("The recipients in the distribution list.")] HRESULT Recipients([out, retval] IInterfaceDistributionListRecipients **pVal);
    [propget, id(7), helpstring("The address of the distribution list.")] HRESULT Address([out, retval] BSTR  * pVal);
    [propput, id(7), helpstring("The address of the distribution list.")] HRESULT Address([in] BSTR newVal);
-   [propget, id(8), helpstring("Sets wether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([out, retval] VARIANT_BOOL* pVal);
-   [propput, id(8), helpstring("Sets wether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([in] VARIANT_BOOL newVal);
-   [propget, id(9), helpstring("Require the user to send from the adress.")] HRESULT RequireSenderAddress([out, retval] BSTR  * pVal);
-   [propput, id(9), helpstring("Require the user to send from the adress.")] HRESULT RequireSenderAddress([in] BSTR newVal);
+   [propget, id(8), helpstring("Sets whether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(8), helpstring("Sets whether the list requires a user to SMTP Authenticate before sending mail to it.")] HRESULT RequireSMTPAuth([in] VARIANT_BOOL newVal);
+   [propget, id(9), helpstring("Require the user to send from the address.")] HRESULT RequireSenderAddress([out, retval] BSTR  * pVal);
+   [propput, id(9), helpstring("Require the user to send from the address.")] HRESULT RequireSenderAddress([in] BSTR newVal);
    [propget, id(10), helpstring("Distribution list mode.")] HRESULT Mode([out, retval] eDistributionListMode *pVal);
    [propput, id(10), helpstring("Distribution list mode.")] HRESULT Mode([in] eDistributionListMode newVal);
 
@@ -1295,8 +1295,8 @@ interface IInterfaceSecurityRange : IDispatch{
 
 		[propget, id(19), helpstring("Enable spam protection for this IP range.")] HRESULT EnableSpamProtection([out, retval] VARIANT_BOOL *pVal);
 		[propput, id(19), helpstring("Enable spam protection for this IP range")] HRESULT EnableSpamProtection([in] VARIANT_BOOL newVal);
-      [propget, id(20), helpstring("Obsolete: Used IncomingRelays colleciton instead.")] HRESULT IsForwardingRelay([out, retval] VARIANT_BOOL *pVal);
-      [propput, id(20), helpstring("Obsolete: Used IncomingRelays colleciton instead.")] HRESULT IsForwardingRelay([in] VARIANT_BOOL newVal);
+      [propget, id(20), helpstring("Obsolete: Used IncomingRelays collection instead.")] HRESULT IsForwardingRelay([out, retval] VARIANT_BOOL *pVal);
+      [propput, id(20), helpstring("Obsolete: Used IncomingRelays collection instead.")] HRESULT IsForwardingRelay([in] VARIANT_BOOL newVal);
 		[propget, id(21), helpstring("Enable virus protection for this IP range.")] HRESULT EnableAntiVirus([out, retval] VARIANT_BOOL *pVal);
 		[propput, id(21), helpstring("Enable virus protection for this IP range")] HRESULT EnableAntiVirus([in] VARIANT_BOOL newVal);
 
@@ -1513,7 +1513,7 @@ interface IInterfaceApplication : IDispatch{
    [id(11), helpstring("Opens a connection to the hMailServer database.")] HRESULT Connect();
    [propget, id(12), helpstring("The initialization file currently in use.")] HRESULT InitializationFile([out, retval] BSTR *pVal);
    [id(13), helpstring("Reloads all the server settinsg")] HRESULT Reinitialize();
-   [propget, id(14), helpstring("Gets a colleciton of global rules.")] HRESULT Rules([out, retval] IInterfaceRules** pVal);
+   [propget, id(14), helpstring("Gets a collection of global rules.")] HRESULT Rules([out, retval] IInterfaceRules** pVal);
    [propget, id(15), helpstring("Gets the backup manager.")] HRESULT BackupManager([out, retval] IInterfaceBackupManager **pVal);
    [propget, id(16), helpstring("Gets the global objects object.")] HRESULT GlobalObjects([out, retval] IInterfaceGlobalObjects **pVal);
    [id(17), helpstring("Authenticate the client.")] HRESULT Authenticate([in] BSTR Username, [in] BSTR Password, [out, retval] IInterfaceAccount** pAccount);
@@ -1803,7 +1803,7 @@ interface IInterfaceRule : IDispatch{
    [propput, id(4), helpstring("Active")] HRESULT Active([in] VARIANT_BOOL newVal);
    [propget, id(5), helpstring("UseAND")] HRESULT UseAND([out, retval] VARIANT_BOOL* pVal);
    [propput, id(5), helpstring("UseAND")] HRESULT UseAND([in] VARIANT_BOOL newVal);
-   [propget, id(6), helpstring("The criterias for this rule.")] HRESULT Criterias([out, retval] IInterfaceRuleCriterias** pVal);
+   [propget, id(6), helpstring("The criteria for this rule.")] HRESULT Criterias([out, retval] IInterfaceRuleCriterias** pVal);
    [propget, id(7), helpstring("The actions for this rule.")] HRESULT Actions([out, retval] IInterfaceRuleActions** pVal);
    [id(8), helpstring("Saves changes of the object in the database.")] HRESULT Save();
    [id(9), helpstring("Moves the rule up in the priority order.")] HRESULT MoveUp();
@@ -2161,7 +2161,7 @@ interface IInterfaceIMAPFolders : IDispatch{
 ]
 interface IInterfaceEventLog : IDispatch
 {
-   [id(1), helpstring("Writes a mesage to the hMailServer event log.")] HRESULT Write(BSTR sMessage);     
+   [id(1), helpstring("Writes a message to the hMailServer event log.")] HRESULT Write(BSTR sMessage);     
 };
 
 [

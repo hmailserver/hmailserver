@@ -168,7 +168,7 @@ namespace HM
 
       if (result < 0)
       {
-         // During start-up, the counter may not be initialized yet. (Defualt = -1)
+         // During start-up, the counter may not be initialized yet. (Default = -1)
          result = 0;
       }
 

@@ -62,7 +62,7 @@
       Dim obFiles
       Set obFiles = obFS.GetFolder(sAttachmentsDirctory).Files
       
-      ' Go through the output directory, and see if theres
+      ' Go through the output directory, and see if there's
       ' any extracted ifles      
       Dim obFile
       For Each obFile in obFiles

@@ -12,7 +12,7 @@ It's a quite common problem that spammers use other peoples servers to deliver s
 
 ## How do I know for sure?
 
-- First check the hMailServer delivery queue. If the queue contains a lot of messages from external to other external addresses, it's pretty safe to say that someone is abusing your server to send spam. So if you do not recgonize either the senders address or the recipients address, it's probabily spam.
+- First check the hMailServer delivery queue. If the queue contains a lot of messages from external to other external addresses, it's pretty safe to say that someone is abusing your server to send spam. So if you do not recgonize either the senders address or the recipients address, it's probably spam.
 
 - Another method is to telnet relay-test.mail-abuse.org from the computer running hMailServer. The remote server will automatically connect back to the mail server running on your computer and execute some tests to check whether your computer can be used for spamming.
 

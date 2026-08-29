@@ -75,7 +75,7 @@ namespace RegressionTests.SMTP
       {
          Assert.AreEqual(0, _status.UndeliveredMessages.Length);
 
-         // Add a route so we can conenct to localhost.
+         // Add a route so we can connect to localhost.
          TestSetup.AddRoutePointingAtLocalhost(1, 25, false);
 
          // Send message to this route.
@@ -206,7 +206,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            // Add a route so we can conenct to localhost.
+            // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
@@ -389,7 +389,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            // Add a route so we can conenct to localhost.
+            // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(5, smtpServerPort, false);
 
             // Send message to this route.
@@ -454,7 +454,7 @@ namespace RegressionTests.SMTP
 
 
       [Test]
-      [Description("Test that an error after the message delivery completion doens't affect the delivery.")]
+      [Description("Test that an error after the message delivery completion doesn't affect the delivery.")]
       public void TestFailureAfterDelivery()
       {
          _application.Settings.SMTPNoOfTries = 3;
@@ -594,7 +594,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            // Add a route so we can conenct to localhost.
+            // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(0, smtpServerPort, false);
 
             // Send message to this route.
@@ -963,7 +963,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            // Add a route so we can conenct to localhost.
+            // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
 
@@ -995,7 +995,7 @@ namespace RegressionTests.SMTP
             server.AddRecipientResult(deliveryResults);
             server.StartListen();
 
-            // Add a route so we can conenct to localhost.
+            // Add a route so we can connect to localhost.
             TestSetup.AddRoutePointingAtLocalhost(1, smtpServerPort, false, eConnectionSecurity.eCSNone);
 
             // Send message to this route.

@@ -14,7 +14,7 @@ This document describes how recipients are resolved in hMailServer. When a SMTP
 
 When a client specifies the recipient address (using the SMTP RCPT TO command), the following happens:
 
-1. hMailServer checks if the recipient domain name matches a local domain name alias. If this is the case, the recipient address is rewritten to use the primary domain name. For instance, if the domain example.com has the alias sub.example.com, and a message is sent to someone@sub.example.com, the recipent address is rewritten to someone@example.com.  
+1. hMailServer checks if the recipient domain name matches a local domain name alias. If this is the case, the recipient address is rewritten to use the primary domain name. For instance, if the domain example.com has the alias sub.example.com, and a message is sent to someone@sub.example.com, the recipient address is rewritten to someone@example.com.  
 
   
 2. If a domain exists matching the recipient domain:  

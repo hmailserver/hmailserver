@@ -114,7 +114,7 @@ namespace HM
       while (true)
       {
          
-         // added the boolean quickIndex to tell the funciton to use the quick index or the full index
+         // added the boolean quickIndex to tell the function to use the quick index or the full index
          std::set<std::shared_ptr<PersistentMessageMetaData::MessageInfo> > messagesToIndex = persistentMetaData.GetMessagesToIndex(bDoQuickIndex);
          if (messagesToIndex.size() == 0)
          {

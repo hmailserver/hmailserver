@@ -67,7 +67,7 @@ hMailServer offers the following pre-defined events:
         </tr>
         <tr>
             <td valign="top"><a href="?page=scripting_ondelivermessage">OnDeliverMessage</a></td>
-            <td valign="top">Executed when an e-mail is beeing delivered. Executed after global rules are executed, but before account-level rules.</td>
+            <td valign="top">Executed when an e-mail is being delivered. Executed after global rules are executed, but before account-level rules.</td>
             <td valign="top">4.0</td>
         </tr>
         <tr>

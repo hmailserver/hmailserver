@@ -26,7 +26,7 @@ namespace HM
    ServiceManager::RegisterService(const String &ServiceName, const String &ServiceCaption)
    //---------------------------------------------------------------------------//
    // DESCRIPTION:
-   // Registres a service with the SCM. (adds the application to the list of services)
+   // Registers a service with the SCM. (adds the application to the list of services)
    //---------------------------------------------------------------------------//
    {
       // Retrieve the handle for the local service manager.
@@ -37,7 +37,7 @@ namespace HM
          return false;
       }
 
-      // Check wether we already exists.
+      // Check whether we already exists.
       if (DoesServiceExist(ServiceName))
       {
          if (!ReconfigureService_(hSCManager, ServiceName))
@@ -48,7 +48,7 @@ namespace HM
          // Get the path to the currently running executable
          String sPath = "\"" + Application::GetExecutableName() + "\" RunAsService";
 
-         // Check wether we should set the service dependent on MySQL.
+         // Check whether we should set the service dependent on MySQL.
          LPCTSTR szServiceDependencies = _T("RPCSS\0\0");
 
          SC_HANDLE hService = CreateService( hSCManager,

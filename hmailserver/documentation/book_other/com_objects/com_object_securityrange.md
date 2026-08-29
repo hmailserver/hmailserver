@@ -72,7 +72,7 @@ The security range object represents one hMailServer IP range.
 
 <div class="api_method_name">bool IsForwardingRelay</div>
 
-<div class="api_description">Obsolete: Used IncomingRelays colleciton instead.<br></div>
+<div class="api_description">Obsolete: Used IncomingRelays collection instead.<br></div>
 
 <div class="api_method_name">string LowerIP</div>
 

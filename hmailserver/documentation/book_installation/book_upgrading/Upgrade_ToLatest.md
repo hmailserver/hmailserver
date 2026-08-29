@@ -20,7 +20,7 @@ This page describes how to upgrade to hMailServer latest version. If you follow 
 1. IMPORTANT: Back up your hMailServer database, your data directory and the hMailServer.ini file.
 2. Read the Backwards compatibility section below. If something is unclear, it's recommended that you install hMailServer latest version on a test server first to learn about the new functionality.
 3. Download latest hMailServer from the hMailServer website.
-4. Launch the setup executable by double-clicking it. You should not stop or uninstall the current version before instaling the new version.
+4. Launch the setup executable by double-clicking it. You should not stop or uninstall the current version before installing the new version.
 5. Run through the setup dialogs and click Install in the Ready to install dialog.
 6. The setup software now makes a copy of the files.
 7. After the files have been copied, the setup software will automatically start hMailServer database upgrade. If you see the text "*Creating the hMailServer database*" in the installation wizard for more than 15 seconds, and no "*Database upgrade*"-dialog is shown, it's likely that the upgrade dialog is located "behind" the wizard. So if the upgrade dialog is not shown, try moving the installation wizard window.

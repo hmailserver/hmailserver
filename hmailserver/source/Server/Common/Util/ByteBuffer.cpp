@@ -132,7 +132,7 @@ namespace HM
       if (buffer_size_ - iDecreaseWith < 0)
       {
          // We should never get here. This code is only run if you
-         // decrease so that the size get's negative.
+         // decrease so that the size gets negative.
          ErrorManager::Instance()->ReportError(ErrorManager::High, 4222, "ByteBuffer::DecreaseSize", "Tried to decrease the size of the buffer to a negative value.");
          return ;
       }

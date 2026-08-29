@@ -143,7 +143,7 @@ namespace HM
          if (!IsValidCharset_(charset_name_))
             return IMAPResult(IMAPResult::ResultNo, "[BADCHARSET]");
 
-         // Trim away the SORT part of the SEARCH expresson 
+         // Trim away the SORT part of the SEARCH expression 
          // since we only care about SEARCH below.
          String tempString = pArgument->Command();
 
@@ -290,7 +290,7 @@ namespace HM
 
       if (ct == IMAPSearchCriteria::CTHeader)
       {
-         // The client want's to search for a 
+         // The client wants to search for a 
          // header field.
          iCurrentWord++;
 

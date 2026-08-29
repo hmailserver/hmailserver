@@ -39,7 +39,7 @@ namespace HM
       // Do the action
       void ApplyAction_(std::shared_ptr<Rule> pRule, std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult);
 
-      // Check wether pMessage matches pCriteria.
+      // Check whether pMessage matches pCriteria.
       bool MessageMatchesCriteria_(std::shared_ptr<RuleCriteria> pCriteria, std::shared_ptr<MessageData> pMsgData) const;
       
       // Actions
