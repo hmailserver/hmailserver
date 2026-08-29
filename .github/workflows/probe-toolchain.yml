@@ -1,20 +1,26 @@
 # Temporary diagnostic workflow.
 #
-# hMailServer's C++ projects are pinned to PlatformToolset v142 (Visual Studio 2019) and
-# build ATL statically. The GitHub-hosted Windows images ship Visual Studio 2022 with the
-# v142 *compiler* (Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64), but their
-# published component list only mentions the v143 ATL components. This workflow answers,
-# on a real runner:
+# Round 1 established, on windows-2022 (VS2022 Enterprise 17.14, the only VS installed):
 #
-#   1. Which Visual Studio versions/toolsets are installed (and confirms no VS2019 exists,
-#      which the repo's build scripts currently require).
-#   2. Whether ATL for v142 (14.29) is actually present - the decisive check.
-#   3. Whether a minimal ATL translation unit compiles and links with the v142 toolset
-#      selected out of VS2022 via "vcvars64.bat -vcvars_ver=14.29".
-#   4. If ATL v142 is missing: whether adding it with vs_installer works, and what it costs
-#      per run (it cannot be cached).
-#   5. Whether the preinstalled Perl and CMake can drive the OpenSSL / libpq / libmariadb
-#      builds, and whether CMake can target v142 through the VS2022 generator.
+#   - vswhere -version [16.0,17.0) finds nothing, so Resolve-VcVars64 (build-common.ps1)
+#     and Find-MsBuild (build/Find-MsBuild.ps1) cannot locate a toolchain there.
+#   - The v142 compiler IS present (14.29.30133) and -vcvars_ver=14.29 selects it, but its
+#     atlmfc folder is not installed: atlbase.h and x64\atls.lib exist only for 14.44
+#     (v143). hMailServer.vcxproj is v142 + UseOfAtl=Static, so it cannot compile.
+#   - Strawberry Perl 5.32.1 (C:\Strawberry) and CMake 3.31.6 are both present, and
+#     cmake -G "Visual Studio 17 2022" -A x64 -T v142 configures and builds with
+#     cl 19.29.30159 - so the third-party library builds have what they need.
+#   - windows-2025 now ships Visual Studio 18, not VS2022, so it is not a candidate image.
+#
+# Round 2 (this file) answers the remaining question: can the missing ATL be installed as
+# part of the workflow, and what does it cost? Round 1 used the component ID
+# Microsoft.VisualStudio.Component.VC.v142.ATL, which is a VS2019 ID - the VS2022 installer
+# rejected it with exit code 87. The correct ID for VS2022 is
+# Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL ("C++ v14.29 (16.11) ATL for v142
+# build tools (x86 & x64)"). Two ways of applying it are tried, in order, and each is timed:
+#
+#   A. the installed vs_installer.exe
+#   B. the Visual Studio bootstrapper downloaded from aka.ms (supports --wait properly)
 #
 # Delete this file once the real build workflow is settled.
 name: Toolchain probe (temporary)
@@ -25,70 +31,120 @@ on:
       - claude/vs2022-github-actions-build-k1yd4b
   workflow_dispatch:
 
+env:
+  # "C++ v14.29 (16.11) ATL for v142 build tools (x86 & x64)" as named by the VS2022 installer.
+  ATL_COMPONENT: Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL
+
 jobs:
   probe:
-    name: Probe ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022, windows-2025]
+    name: Install v142 ATL on windows-2022
+    runs-on: windows-2022
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
     steps:
-      - name: Visual Studio installations
+      - name: Locate Visual Studio and confirm ATL is missing
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          if (-not (Test-Path $vswhere)) { throw "vswhere.exe not found at $vswhere" }
+          $instance = (& $vswhere -products '*' -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | Out-String | ConvertFrom-Json) | Select-Object -First 1
+          if (-not $instance) { throw "No VS2022 with the x64 C++ toolchain found." }
 
-          "=== All installations ==="
-          & $vswhere -products '*' -property installationVersion
-          & $vswhere -products '*' -property installationPath
-          & $vswhere -products '*' -property catalog_productDisplayVersion
-
-          ""
-          "=== What the repo scripts ask for today: -version [16.0,17.0) (VS2019) ==="
-          $vs2019 = & $vswhere -products '*' -version '[16.0,17.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          if ($vs2019) { "FOUND: $vs2019" } else { "NOT FOUND - Resolve-VcVars64 / Find-MsBuild would fail here." }
+          "Visual Studio $($instance.installationVersion) at $($instance.installationPath)"
+          $productId = $instance.productId
+          "Product: $productId"
+          Add-Content -Path $env:GITHUB_ENV -Value "VSPATH=$($instance.installationPath)"
+          Add-Content -Path $env:GITHUB_ENV -Value "VSPRODUCT=$productId"
 
           ""
-          "=== VS2022: -version [17.0,18.0) ==="
-          $vs2022 = (& $vswhere -products '*' -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath | Select-Object -First 1)
-          "FOUND: $vs2022"
-          if (-not $vs2022) { throw "No VS2022 with the x64 C++ toolchain found." }
-
-          Add-Content -Path $env:GITHUB_ENV -Value "VSPATH=$vs2022"
-
-      - name: MSVC toolsets and ATL availability
-        run: |
-          $vs = $env:VSPATH
-          "Visual Studio: $vs"
-          ""
-
-          $toolsRoot = Join-Path $vs 'VC\Tools\MSVC'
-          "=== Installed MSVC toolsets, and whether each ships ATL ==="
-          $has142Atl = $false
-          foreach ($toolset in (Get-ChildItem $toolsRoot -Directory | Sort-Object Name)) {
-              $header = Join-Path $toolset.FullName 'atlmfc\include\atlbase.h'
-              $lib    = Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'
-              $hasHeader = Test-Path $header
-              $hasLib = Test-Path $lib
+          "=== atlmfc per installed toolset (before) ==="
+          foreach ($toolset in (Get-ChildItem (Join-Path $instance.installationPath 'VC\Tools\MSVC') -Directory | Sort-Object Name)) {
+              $hasHeader = Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')
+              $hasLib = Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib')
               "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
-              if ($toolset.Name -like '14.29.*' -and $hasHeader -and $hasLib) { $has142Atl = $true }
           }
 
-          ""
-          "=== Verdict for the v142 (14.29) toolset ==="
-          if ($has142Atl) {
-              "ATL for v142 IS present - hMailServer.vcxproj (v142 + UseOfAtl=Static) can build as-is."
-          } else {
-              "ATL for v142 is MISSING - the build workflow would need vs_installer to add"
-              "Microsoft.VisualStudio.Component.VC.v142.ATL, or the projects must move to v143."
-          }
-          Add-Content -Path $env:GITHUB_ENV -Value "ATL142=$has142Atl"
+      - name: Attempt A - vs_installer.exe modify
+        continue-on-error: true
+        run: |
+          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
 
-      - name: Compile a minimal static-ATL translation unit with v142
+          $installerArgs = @(
+              'modify',
+              '--installPath', $env:VSPATH,
+              '--add', $env:ATL_COMPONENT,
+              '--quiet', '--norestart'
+          )
+          "Running: vs_installer.exe $($installerArgs -join ' ')"
+          $process = Start-Process -FilePath $installer -ArgumentList $installerArgs -Wait -PassThru -NoNewWindow
+          "vs_installer exit code: $($process.ExitCode)"
+
+          # vs_installer.exe hands the work to background setup processes and can return
+          # before they finish, so wait for them to drain before judging the result.
+          $deadline = (Get-Date).AddMinutes(25)
+          while ((Get-Date) -lt $deadline) {
+              $running = Get-Process -Name 'vs_installer', 'vs_installershell', 'setup', 'vs_bootstrapper' -ErrorAction SilentlyContinue
+              if (-not $running) { break }
+              Start-Sleep -Seconds 10
+          }
+          $stopwatch.Stop()
+          "Elapsed including wait: {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
+
+      - name: Check ATL after attempt A
+        id: check_a
+        run: |
+          $toolset = Get-ChildItem (Join-Path $env:VSPATH 'VC\Tools\MSVC') -Directory -Filter '14.29.*' | Select-Object -First 1
+          $ok = $false
+          if ($toolset) {
+              $hasHeader = Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')
+              $hasLib = Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib')
+              "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
+              $ok = $hasHeader -and $hasLib
+          }
+          if ($ok) { "Attempt A installed the v142 ATL." } else { "Attempt A did not install the v142 ATL." }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "installed=$ok"
+
+      - name: Attempt B - Visual Studio bootstrapper from aka.ms
+        if: steps.check_a.outputs.installed != 'True'
+        continue-on-error: true
+        run: |
+          # The bootstrapper is the documented way to modify an installation unattended:
+          # unlike vs_installer.exe it supports --wait and returns a meaningful exit code
+          # (0 = done, 3010 = done but a reboot is pending, 1602 = cancelled).
+          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+          $bootstrapper = switch -Wildcard ($env:VSPRODUCT) {
+              '*Enterprise' { 'https://aka.ms/vs/17/release/vs_enterprise.exe'; break }
+              '*Professional' { 'https://aka.ms/vs/17/release/vs_professional.exe'; break }
+              default { 'https://aka.ms/vs/17/release/vs_community.exe' }
+          }
+          $exe = Join-Path $env:RUNNER_TEMP 'vs_bootstrapper.exe'
+          "Downloading $bootstrapper"
+          Invoke-WebRequest -Uri $bootstrapper -OutFile $exe
+
+          $bootstrapperArgs = @(
+              'modify',
+              '--installPath', $env:VSPATH,
+              '--add', $env:ATL_COMPONENT,
+              '--quiet', '--norestart', '--wait'
+          )
+          "Running: vs_bootstrapper.exe $($bootstrapperArgs -join ' ')"
+          $process = Start-Process -FilePath $exe -ArgumentList $bootstrapperArgs -Wait -PassThru -NoNewWindow
+          $stopwatch.Stop()
+          "bootstrapper exit code: $($process.ExitCode)"
+          "Elapsed: {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
+
+      - name: Check ATL after attempt B
+        if: steps.check_a.outputs.installed != 'True'
+        continue-on-error: true
+        run: |
+          foreach ($toolset in (Get-ChildItem (Join-Path $env:VSPATH 'VC\Tools\MSVC') -Directory | Sort-Object Name)) {
+              $hasHeader = Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')
+              $hasLib = Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib')
+              "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
+          }
+
+      - name: Compile a static-ATL translation unit with v142
         continue-on-error: true
         run: |
           # Mirrors how hMailServer uses ATL: static ATL, COM smart pointers, MBCS.
@@ -110,11 +166,10 @@ jobs:
           Set-Content -Path (Join-Path $probeDir 'probe.cpp') -Value $source -Encoding ascii
 
           $vcvars = Join-Path $env:VSPATH 'VC\Auxiliary\Build\vcvars64.bat'
-          "Using $vcvars -vcvars_ver=14.29"
-          ""
-
           Push-Location $probeDir
-          cmd /c "call `"$vcvars`" -vcvars_ver=14.29 && echo VCToolsVersion=%VCToolsVersion% && cl /nologo /EHsc /MD /D_MBCS probe.cpp atls.lib ole32.lib oleaut32.lib"
+          # /v:on + !VAR! so the toolset version is expanded after vcvars has run, not while
+          # cmd parses the line (round 1 printed the literal %VCToolsVersion% for that reason).
+          cmd /v:on /c "call `"$vcvars`" -vcvars_ver=14.29 && echo VCToolsVersion=!VCToolsVersion! && cl /nologo /EHsc /MD /D_MBCS probe.cpp atls.lib ole32.lib oleaut32.lib"
           $code = $LASTEXITCODE
           Pop-Location
 
@@ -122,92 +177,3 @@ jobs:
           if ($code -eq 0) { "RESULT: static ATL compiles and links with the v142 toolset." }
           else { "RESULT: FAILED with exit code $code." }
           exit $code
-
-      - name: Add the v142 ATL component (only if it was missing)
-        if: env.ATL142 != 'True'
-        continue-on-error: true
-        run: |
-          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-          if (-not (Test-Path $installer)) { throw "vs_installer.exe not found at $installer" }
-
-          $installerArgs = @(
-              'modify',
-              '--installPath', $env:VSPATH,
-              '--add', 'Microsoft.VisualStudio.Component.VC.v142.ATL',
-              '--quiet', '--norestart', '--nocache', '--wait'
-          )
-          "Running: vs_installer.exe $($installerArgs -join ' ')"
-          $process = Start-Process -FilePath $installer -ArgumentList $installerArgs -Wait -PassThru -NoNewWindow
-          $stopwatch.Stop()
-          "vs_installer exit code: $($process.ExitCode)"
-          "Elapsed: {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
-
-      - name: Re-check ATL and re-compile after the installer step
-        if: env.ATL142 != 'True'
-        continue-on-error: true
-        run: |
-          $toolsRoot = Join-Path $env:VSPATH 'VC\Tools\MSVC'
-          foreach ($toolset in (Get-ChildItem $toolsRoot -Directory | Sort-Object Name)) {
-              $hasHeader = Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')
-              $hasLib = Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib')
-              "{0,-16}  atlbase.h={1,-5}  x64\atls.lib={2}" -f $toolset.Name, $hasHeader, $hasLib
-          }
-
-          $probeDir = Join-Path $env:RUNNER_TEMP 'atlprobe'
-          $vcvars = Join-Path $env:VSPATH 'VC\Auxiliary\Build\vcvars64.bat'
-          Push-Location $probeDir
-          cmd /c "call `"$vcvars`" -vcvars_ver=14.29 && echo VCToolsVersion=%VCToolsVersion% && cl /nologo /EHsc /MD /D_MBCS probe.cpp atls.lib ole32.lib oleaut32.lib"
-          $code = $LASTEXITCODE
-          Pop-Location
-          "Compile exit code after installing the component: $code"
-
-      - name: MSBuild, Perl, CMake and Windows SDKs
-        continue-on-error: true
-        run: |
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-
-          "=== MSBuild (build/Find-MsBuild.ps1 currently restricts this to [16.0,17.0)) ==="
-          $msbuild = & $vswhere -products '*' -version '[17.0,18.0)' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
-          "Found: $msbuild"
-          if ($msbuild) { & $msbuild -version -nologo }
-
-          ""
-          "=== Perl (needed by OpenSSL Configure and PostgreSQL build.pl) ==="
-          $perls = Get-Command perl -All -ErrorAction SilentlyContinue
-          if ($perls) {
-              $perls | ForEach-Object { $_.Source }
-              perl -e 'print "flavour: $^O, version: $], exe: $^X\n"'
-          } else {
-              "No perl on PATH."
-          }
-
-          ""
-          "=== CMake (needed by libmariadb) ==="
-          $cmake = Get-Command cmake -ErrorAction SilentlyContinue
-          if ($cmake) { $cmake.Source; cmake --version } else { "No cmake on PATH." }
-
-          ""
-          "=== Windows SDKs (WindowsTargetPlatformVersion is 10.0 -> latest installed) ==="
-          $sdkRoot = "${env:ProgramFiles(x86)}\Windows Kits\10\Include"
-          if (Test-Path $sdkRoot) { Get-ChildItem $sdkRoot -Directory | Select-Object -ExpandProperty Name }
-
-      - name: CMake configure with the VS2022 generator targeting v142
-        continue-on-error: true
-        run: |
-          # build-mariadb.ps1 hardcodes -G "Visual Studio 16 2019". On a VS2022-only runner it
-          # must become -G "Visual Studio 17 2022" -T v142; this proves that combination works.
-          $dir = Join-Path $env:RUNNER_TEMP 'cmakeprobe'
-          New-Item -ItemType Directory -Force -Path $dir | Out-Null
-          $cmakeLists = @(
-              'cmake_minimum_required(VERSION 3.10)',
-              'project(probe C)',
-              'add_library(probe STATIC probe.c)'
-          )
-          Set-Content -Path (Join-Path $dir 'CMakeLists.txt') -Value $cmakeLists -Encoding ascii
-          Set-Content -Path (Join-Path $dir 'probe.c') -Value 'int probe(void) { return 0; }' -Encoding ascii
-
-          cmake -S $dir -B (Join-Path $dir 'build') -G 'Visual Studio 17 2022' -A x64 -T v142
-          $configure = $LASTEXITCODE
-          if ($configure -eq 0) { cmake --build (Join-Path $dir 'build') --config RelWithDebInfo }
-          "cmake configure exit code: $configure, build exit code: $LASTEXITCODE"
