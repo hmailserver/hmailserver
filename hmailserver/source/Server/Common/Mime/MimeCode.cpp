@@ -918,10 +918,10 @@ namespace HM
 					      nDelimiter = '"';	// quoted-string, delimiter is '"'
 					      break;
 				      case '(':
-					      nDelimiter = ')';	// comment, delimetir is ')'
+					      nDelimiter = ')';	// comment, delimiter is ')'
 					      break;
 				      case '<':
-					      nDelimiter = '>';	// address, delimetir is '>'
+					      nDelimiter = '>';	// address, delimiter is '>'
 					      break;
 				      }
                }
