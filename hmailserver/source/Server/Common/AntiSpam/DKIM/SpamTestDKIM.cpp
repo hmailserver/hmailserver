@@ -7,6 +7,7 @@
 
 #include "../SpamTestData.h"
 #include "../SpamTestResult.h"
+#include "../AuthenticationResult.h"
 #include "../../BO/MessageData.h"
 #include "../AntiSpamConfiguration.h"
 #include "DKIM.h"
@@ -42,7 +43,12 @@ namespace HM
       const String fileName = PersistentMessage::GetFileName(pMessage);
 
       DKIM dkim;
-      DKIM::Result result = dkim.Verify(fileName);
+      std::vector<std::pair<AnsiString, DKIM::Result> > signatureResults;
+      DKIM::Result result = dkim.Verify(fileName, signatureResults);
+
+      if (auto authenticationResult = pTestData->GetAuthenticationResult())
+         authenticationResult->SetDKIMResults(signatureResults);
+
       if (result == DKIM::PermFail)
       {
          // Blocked

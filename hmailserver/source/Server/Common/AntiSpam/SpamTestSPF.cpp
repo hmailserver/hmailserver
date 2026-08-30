@@ -6,6 +6,7 @@
 
 #include "SpamTestData.h"
 #include "SpamTestResult.h"
+#include "AuthenticationResult.h"
 
 #include "AntiSpamConfiguration.h"
 
@@ -55,7 +56,17 @@ namespace HM
 
       String sExplanation;
       SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), pTestData->GetHeloHost(), sExplanation);
-      
+
+      if (auto authenticationResult = pTestData->GetAuthenticationResult())
+      {
+         // With a null sender, SPF authenticates the HELO identity instead.
+         String domain = StringParser::ExtractDomain(pTestData->GetEnvelopeFrom());
+         if (domain.IsEmpty())
+            domain = pTestData->GetHeloHost();
+
+         authenticationResult->SetSPFResult(result, domain);
+      }
+
       if (result == SPF::Fail)
       {
          // Blocked by SPF.s

@@ -81,4 +81,16 @@ namespace HM
       return message_data_;
    }
 
+   void
+   SpamTestData::SetAuthenticationResult(std::shared_ptr<AuthenticationResult> pAuthenticationResult)
+   {
+      authentication_result_ = pAuthenticationResult;
+   }
+
+   std::shared_ptr<AuthenticationResult>
+   SpamTestData::GetAuthenticationResult() const
+   {
+      return authentication_result_;
+   }
+
 }

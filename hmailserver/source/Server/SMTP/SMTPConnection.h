@@ -19,6 +19,7 @@ namespace HM
    class MessageData;
    class Domain;
    class SpamTestResult;
+   class AuthenticationResult;
 
    enum eSMTPCommandTypes
    {
@@ -220,6 +221,7 @@ namespace HM
       std::shared_ptr<const Account> sender_account_;
 
       std::set<std::shared_ptr<SpamTestResult> > spam_test_results_;
+      std::shared_ptr<AuthenticationResult> authentication_result_;
 
       bool re_authenticate_user_;
       bool pending_disconnect_;

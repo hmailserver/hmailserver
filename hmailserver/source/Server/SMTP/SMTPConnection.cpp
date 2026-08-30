@@ -45,6 +45,7 @@
 
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
+#include "../Common/AntiSpam/AuthenticationResult.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
 #include "../Common/Scripting/ScriptServer.h"
@@ -819,17 +820,20 @@ namespace HM
       if (!GetDoSpamProtection_())
          return true;
 
+      if (!authentication_result_)
+         authentication_result_ = std::shared_ptr<AuthenticationResult>(new AuthenticationResult);
+
       if (spType == SPPreTransmission)
       {
-         std::set<std::shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName);
+         std::set<std::shared_ptr<SpamTestResult> > setResult =
+            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, authentication_result_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
-         std::set<std::shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), current_message_);
+         std::set<std::shared_ptr<SpamTestResult> > setResult =
+            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, current_message_, authentication_result_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
 
@@ -1159,6 +1163,7 @@ namespace HM
 
             // Reset the spam protection results.
             spam_test_results_.clear();
+            authentication_result_.reset();
 
             // Tell the client that everything went fine. This
             // will cause the client to either disconnect or to
@@ -1496,8 +1501,9 @@ namespace HM
       sender_account_.reset();
 
       spam_test_results_.clear();
+      authentication_result_.reset();
 
-      // Reset the number of RCPT TO's for this 
+      // Reset the number of RCPT TO's for this
       // message.
       cur_no_of_rcptto_ = 0;
 
