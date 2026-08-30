@@ -155,6 +155,34 @@ namespace HM
          assert(0);
          throw;
       }
+
+      // Domains where the registry allows anyone to register a name below a
+      // multi-label suffix. Each name is an organizational domain of its own.
+      if (DMARCEvaluator::GetOrganizationalDomain(_T("evil.github.io")) != _T("evil.github.io") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("a.b.evil.github.io")) != _T("evil.github.io") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("github.io")) != _T("github.io") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("co.uk")) != _T("co.uk"))
+      {
+         assert(0);
+         throw;
+      }
+
+      // Wildcard rule (*.kawasaki.jp) and the exception to it (!city.kawasaki.jp).
+      if (DMARCEvaluator::GetOrganizationalDomain(_T("a.b.kawasaki.jp")) != _T("a.b.kawasaki.jp") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("x.a.b.kawasaki.jp")) != _T("a.b.kawasaki.jp") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("www.city.kawasaki.jp")) != _T("city.kawasaki.jp"))
+      {
+         assert(0);
+         throw;
+      }
+
+      // Unknown top level domains fall back to the default rule.
+      if (DMARCEvaluator::GetOrganizationalDomain(_T("example.nonexistingtld")) != _T("example.nonexistingtld") ||
+          DMARCEvaluator::GetOrganizationalDomain(_T("a.b.example.nonexistingtld")) != _T("example.nonexistingtld"))
+      {
+         assert(0);
+         throw;
+      }
    }
 
    void
@@ -176,6 +204,7 @@ namespace HM
       if (DMARCEvaluator::IsAligned("mail.example.com", "example.com", strict) ||
           DMARCEvaluator::IsAligned("example.com", "example.net", relaxed) ||
           DMARCEvaluator::IsAligned("example.co.uk", "other.co.uk", relaxed) ||
+          DMARCEvaluator::IsAligned("evil.github.io", "victim.github.io", relaxed) ||
           DMARCEvaluator::IsAligned("", "example.com", relaxed) ||
           DMARCEvaluator::IsAligned("example.com", "", relaxed))
       {

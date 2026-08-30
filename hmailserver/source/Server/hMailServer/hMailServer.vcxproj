@@ -455,6 +455,7 @@ EXIT 0
     <ClCompile Include="..\Common\Util\Strings\Formatter.cpp" />
     <ClCompile Include="..\Common\Util\SystemInformation.cpp" />
     <ClCompile Include="..\Common\Util\Time.cpp" />
+    <ClCompile Include="..\Common\Util\PublicSuffixList.cpp" />
     <ClCompile Include="..\Common\Util\TLD.cpp" />
     <ClCompile Include="..\Common\Util\TraceHeaderWriter.cpp" />
     <ClCompile Include="..\Common\Util\TransparentTransmissionBuffer.cpp" />
@@ -970,6 +971,7 @@ EXIT 0
     <ClInclude Include="..\Common\Util\Strings\Formatter.h" />
     <ClInclude Include="..\Common\Util\SystemInformation.h" />
     <ClInclude Include="..\Common\Util\Time.h" />
+    <ClInclude Include="..\Common\Util\PublicSuffixList.h" />
     <ClInclude Include="..\Common\Util\TLD.h" />
     <ClInclude Include="..\Common\Util\TraceHeaderWriter.h" />
     <ClInclude Include="..\Common\Util\TransparentTransmissionBuffer.h" />

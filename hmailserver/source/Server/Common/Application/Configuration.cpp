@@ -13,6 +13,7 @@
 #include "../Cache/CacheContainer.h"
 #include "../Application/ObjectCache.h"
 #include "..\Scripting\ScriptServer.h"
+#include "..\Util\PublicSuffixList.h"
 #include "..\Util\TLD.h"
 #include "..\TCPIP\LocalIPAddresses.h"
 
@@ -83,6 +84,7 @@ namespace HM
 
       ScriptServer::Instance()->LoadScripts();
       TLD::Instance()->Initialize();
+      PublicSuffixList::Instance()->Initialize();
       LocalIPAddresses::Instance()->LoadIPAddresses();
 
       return imap_configuration_->Load();

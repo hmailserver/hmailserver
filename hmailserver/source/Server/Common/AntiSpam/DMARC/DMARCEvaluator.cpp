@@ -5,7 +5,7 @@
 
 #include "DMARCEvaluator.h"
 
-#include "../../Util/TLD.h"
+#include "../../Util/PublicSuffixList.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -20,15 +20,12 @@ namespace HM
       String organizationalDomain = domain;
       organizationalDomain.ToLower();
 
-      bool isIPAddress = false;
+      // Host names which aren't domain names, such as IP addresses, are returned
+      // as-is. Alignment then relies on an exact match.
+      if (StringParser::IsValidIPAddress(organizationalDomain))
+         return organizationalDomain;
 
-      if (!TLD::Instance()->GetDomainNameFromHost(organizationalDomain, isIPAddress) || isIPAddress)
-      {
-         organizationalDomain = domain;
-         organizationalDomain.ToLower();
-      }
-
-      return organizationalDomain;
+      return PublicSuffixList::Instance()->GetRegistrableDomain(organizationalDomain);
    }
 
    bool
