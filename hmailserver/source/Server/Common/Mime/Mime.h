@@ -184,6 +184,7 @@ namespace HM
 
 	   // set/get the values of header fields
 	   void SetField(const MimeField& field);
+      void AddRawFieldValue(const AnsiString &pszFieldName, const AnsiString &pszFieldValue);
 	   MimeField* GetField(const char* pszFieldName) const;
       MimeField* GetField(unsigned int iIndex);
 	   
@@ -273,6 +274,17 @@ namespace HM
 		   *it = field;
 	   else
 		   fields_.push_back(field);
+   }
+
+   // add a field, keeping any field which already has the same name
+   inline void MimeHeader::AddRawFieldValue(const AnsiString & pszFieldName, const AnsiString & pszFieldValue)
+   {
+      MimeField fd;
+      fd.SetName(pszFieldName);
+      fd.SetValue(pszFieldValue);
+
+      headers_modified_ = true;
+      fields_.push_back(fd);
    }
 
    // find a field by name

@@ -46,6 +46,7 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
 #include "../Common/AntiSpam/AuthenticationResult.h"
+#include "../Common/AntiSpam/AuthenticationResultsHeader.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
 #include "../Common/Scripting/ScriptServer.h"
@@ -1242,6 +1243,20 @@ namespace HM
 
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
+      }
+
+      // The header is only added to messages we've actually run authentication tests on.
+      if (authentication_result_ && Configuration::Instance()->GetAntiSpamConfiguration().GetAddAuthenticationResultsHeader())
+      {
+         if (!pMsgData)
+         {
+            pMsgData = std::shared_ptr<MessageData>(new MessageData);
+
+            if (!pMsgData->LoadFromMessage(PersistentMessage::GetFileName(current_message_), current_message_))
+               pMsgData.reset();
+         }
+
+         AuthenticationResultsHeader::Apply(pMsgData, authentication_result_);
       }
 
       SetMessageSignature_(pMsgData);

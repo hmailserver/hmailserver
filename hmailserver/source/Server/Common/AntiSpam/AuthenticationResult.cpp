@@ -14,7 +14,8 @@ namespace HM
    AuthenticationResult::AuthenticationResult() :
       spf_checked_(false),
       spf_result_(SPF::Neutral),
-      dkim_checked_(false)
+      dkim_checked_(false),
+      dmarc_result_(DMARCResult::NotEvaluated)
    {
 
    }
@@ -62,5 +63,24 @@ namespace HM
    AuthenticationResult::GetDKIMSignatures() const
    {
       return dkim_signatures_;
+   }
+
+   void
+   AuthenticationResult::SetDMARCResult(DMARCResult result, const String &headerFromDomain)
+   {
+      dmarc_result_ = result;
+      dmarc_domain_ = headerFromDomain;
+   }
+
+   AuthenticationResult::DMARCResult
+   AuthenticationResult::GetDMARCResult() const
+   {
+      return dmarc_result_;
+   }
+
+   String
+   AuthenticationResult::GetDMARCDomain() const
+   {
+      return dmarc_domain_;
    }
 }

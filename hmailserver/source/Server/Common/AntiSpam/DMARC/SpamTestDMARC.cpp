@@ -78,11 +78,15 @@ namespace HM
 
       if (IsAuthenticated_(authenticationResult, record, headerFromDomain))
       {
+         authenticationResult->SetDMARCResult(AuthenticationResult::DMARCResult::Pass, headerFromDomain);
+
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
          setSpamTestResults.insert(pResult);
 
          return setSpamTestResults;
       }
+
+      authenticationResult->SetDMARCResult(AuthenticationResult::DMARCResult::Fail, headerFromDomain);
 
       String message;
       message.Format(_T("Rejected by DMARC. (%s)"), headerFromDomain.c_str());

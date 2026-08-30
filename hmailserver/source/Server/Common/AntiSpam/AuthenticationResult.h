@@ -14,6 +14,13 @@ namespace HM
    {
    public:
 
+      enum class DMARCResult
+      {
+         NotEvaluated = 0,
+         Pass = 1,
+         Fail = 2
+      };
+
       AuthenticationResult();
 
       // domain is the identity SPF authenticated - the MAIL FROM domain, or the
@@ -28,6 +35,10 @@ namespace HM
       bool GetDKIMChecked() const;
       const std::vector<std::pair<AnsiString, DKIM::Result> > &GetDKIMSignatures() const;
 
+      void SetDMARCResult(DMARCResult result, const String &headerFromDomain);
+      DMARCResult GetDMARCResult() const;
+      String GetDMARCDomain() const;
+
    private:
 
       bool spf_checked_;
@@ -36,5 +47,8 @@ namespace HM
 
       bool dkim_checked_;
       std::vector<std::pair<AnsiString, DKIM::Result> > dkim_signatures_;
+
+      DMARCResult dmarc_result_;
+      String dmarc_domain_;
    };
 }
