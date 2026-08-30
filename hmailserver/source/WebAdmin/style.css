@@ -132,3 +132,8 @@ td {
 .dtree .clip {
 	overflow: hidden;
 }
+
+/* Sub-setting label, indented under the setting it belongs to. */
+td.indented {
+	padding-left: 20px;
+}

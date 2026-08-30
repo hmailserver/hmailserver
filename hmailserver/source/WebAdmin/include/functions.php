@@ -166,7 +166,7 @@ function  PrintPropertyRow($caption, $value)
     ";
 }
 
-function  PrintPropertyEditRow($name, $caption, $value, $length = 20, $checktype = "")
+function  PrintPropertyEditRow($name, $caption, $value, $length = 20, $checktype = "", $indented = false)
 {
    global $obLanguage;
    $caption = $obLanguage->String($caption);
@@ -174,10 +174,12 @@ function  PrintPropertyEditRow($name, $caption, $value, $length = 20, $checktype
    
    $value = PreprocessOutput($value);
    
+   $class = $indented ? " class=\"indented\"" : "";
+   
    echo 
    "
 		<tr>
-			<td>$caption</td>
+			<td$class>$caption</td>
 			<td>
             <input type=\"text\" name=\"$name\" id=\"$name\" value=\"$value\" checktype=\"$checktype\" size=\"$length\">
    	   </td>
@@ -222,7 +224,7 @@ function  PrintPasswordEntry($name, $caption, $length = 20)
 }
 
 
-function PrintCheckboxRow($name, $caption, $checked, $disabled = false)
+function PrintCheckboxRow($name, $caption, $checked, $disabled = false, $indented = false)
 {
    global $obLanguage;
    $caption = $obLanguage->String($caption);
@@ -234,10 +236,12 @@ function PrintCheckboxRow($name, $caption, $checked, $disabled = false)
       $disabledstr = " disabled";
    }
    
+   $class = $indented ? " class=\"indented\"" : "";
+   
    echo 
    "
    	<tr>
-   		<td>$caption</td>
+   		<td$class>$caption</td>
    		<td><input type=\"checkbox\"$disabledstr name=\"$name\" value=\"1\" $checked_text></td>
    	</tr>	
     ";

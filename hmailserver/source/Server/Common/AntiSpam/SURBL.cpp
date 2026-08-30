@@ -8,7 +8,7 @@
 #include "../../Common/BO/SURBLServer.h"
 #include "../../Common/TCPIP/DNSResolver.h"
 
-#include "../../Common/Util/TLD.h"
+#include "../../Common/Util/PublicSuffixList.h"
 #include <boost/regex.hpp>
 
 #ifdef _DEBUG
@@ -212,7 +212,26 @@ namespace HM
    bool
    SURBL::CleanHost_(String &sDomain) const
    {
-      bool bIsIPAddress = false;
-      return TLD::Instance()->GetDomainNameFromHost(sDomain, bIsIPAddress);
+      // A URL containing an IP address is looked up using the reversed address.
+      if (StringParser::IsValidIPAddress(sDomain))
+      {
+         std::vector<String> parts = StringParser::SplitString(sDomain, _T("."));
+
+         if (parts.size() != 4)
+            return false;
+
+         sDomain = parts[3] + _T(".") + parts[2] + _T(".") + parts[1] + _T(".") + parts[0];
+
+         return true;
+      }
+
+      String registrableDomain;
+
+      if (!PublicSuffixList::Instance()->GetRegistrableDomain(sDomain, registrableDomain))
+         return false;
+
+      sDomain = registrableDomain;
+
+      return true;
    }
 }

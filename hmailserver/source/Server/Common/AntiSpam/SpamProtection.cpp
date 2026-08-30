@@ -66,15 +66,17 @@ namespace HM
    SpamProtection::RunPreTransmissionTests(const String &sFromAddress, 
                                            const IPAddress &iOriginatingIP,
                                            const IPAddress &iConnectingIP,
-                                           const String &sHeloHost)
+                                           const String &sHeloHost,
+                                           std::shared_ptr<SenderAuthentication> pSenderAuthentication)
    {
 
       std::shared_ptr<SpamTestData> pTestData = std::shared_ptr<SpamTestData>(new SpamTestData);
-      
+
       pTestData->SetEnvelopeFrom(sFromAddress);
       pTestData->SetHeloHost(sHeloHost);
       pTestData->SetOriginatingIP(iOriginatingIP);
       pTestData->SetConnectingIP(iConnectingIP);
+      pTestData->SetSenderAuthentication(pSenderAuthentication);
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
       int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
@@ -88,7 +90,9 @@ namespace HM
    SpamProtection::RunPostTransmissionTests(const String &sFromAddress, 
                                             const IPAddress & iOriginatingIP,
                                             const IPAddress & iConnectingIP,
-                                            std::shared_ptr<Message> pMessage)
+                                            const String &sHeloHost,
+                                            std::shared_ptr<Message> pMessage,
+                                            std::shared_ptr<SenderAuthentication> pSenderAuthentication)
    {
 
       const String fileName = PersistentMessage::GetFileName(pMessage);
@@ -118,9 +122,11 @@ namespace HM
       pMessageData->LoadFromMessage(fileName, pMessage);
 
       pTestData->SetEnvelopeFrom(sFromAddress);
+      pTestData->SetHeloHost(sHeloHost);
       pTestData->SetOriginatingIP(iOriginatingIP);
       pTestData->SetConnectingIP(iConnectingIP);
       pTestData->SetMessageData(pMessageData);
+      pTestData->SetSenderAuthentication(pSenderAuthentication);
 
       int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 

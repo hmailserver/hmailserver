@@ -2317,6 +2317,15 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([in] VARIANT_BOOL newVal);
    [propget, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([out, retval] long* pVal);
    [propput, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([in] long newVal);
+
+   [propget, id(39), helpstring("Enable DMARC verification.")] HRESULT DMARCEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(39), helpstring("Enable DMARC verification.")] HRESULT DMARCEnabled([in] VARIANT_BOOL newVal);
+   [propget, id(40), helpstring("DMARC verification failure score.")] HRESULT DMARCFailureScore([out, retval] long* pVal);
+   [propput, id(40), helpstring("DMARC verification failure score.")] HRESULT DMARCFailureScore([in] long newVal);
+   [propget, id(41), helpstring("Honor the DMARC policy published by the sender domain.")] HRESULT DMARCHonorPolicy([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(41), helpstring("Honor the DMARC policy published by the sender domain.")] HRESULT DMARCHonorPolicy([in] VARIANT_BOOL newVal);
+   [propget, id(42), helpstring("Add an Authentication-Results header to accepted messages.")] HRESULT AddAuthenticationResultsHeader([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(42), helpstring("Add an Authentication-Results header to accepted messages.")] HRESULT AddAuthenticationResultsHeader([in] VARIANT_BOOL newVal);
 };
 
 

@@ -45,6 +45,8 @@
 
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
+#include "../Common/AntiSpam/SenderAuthentication.h"
+#include "../Common/AntiSpam/AuthenticationResultsHeader.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
 #include "../Common/Scripting/ScriptServer.h"
@@ -819,17 +821,20 @@ namespace HM
       if (!GetDoSpamProtection_())
          return true;
 
+      if (!sender_authentication_)
+         sender_authentication_ = std::shared_ptr<SenderAuthentication>(new SenderAuthentication);
+
       if (spType == SPPreTransmission)
       {
-         std::set<std::shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName);
+         std::set<std::shared_ptr<SpamTestResult> > setResult =
+            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, sender_authentication_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
-         std::set<std::shared_ptr<SpamTestResult> > setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), current_message_);
+         std::set<std::shared_ptr<SpamTestResult> > setResult =
+            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, current_message_, sender_authentication_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
 
@@ -839,13 +844,21 @@ namespace HM
       int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
+      // A test may ask for the message to be rejected regardless of the spam score.
+      std::shared_ptr<SpamTestResult> rejectingResult;
+      for (std::shared_ptr<SpamTestResult> testResult : spam_test_results_)
+      {
+         if (testResult->GetRejectMessage())
+            rejectingResult = testResult;
+      }
+
+      if (rejectingResult || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
       {
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
 
          // Generate a text string to send to the client.
-         String messageText = GetSpamTestResultMessage_(spam_test_results_);
+         String messageText = rejectingResult ? rejectingResult->GetMessage() : GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
             EnqueueWrite_("550 " + messageText);
@@ -1159,6 +1172,7 @@ namespace HM
 
             // Reset the spam protection results.
             spam_test_results_.clear();
+            sender_authentication_.reset();
 
             // Tell the client that everything went fine. This
             // will cause the client to either disconnect or to
@@ -1211,7 +1225,15 @@ namespace HM
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
       bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
-      
+
+      // A test may ask for the message to be marked as spam regardless of the spam score.
+      for (std::shared_ptr<SpamTestResult> testResult : spam_test_results_)
+      {
+         if (testResult->GetMarkAsSpam())
+            classifiedAsSpam = true;
+      }
+
+
       if (classifiedAsSpam) 
       {
          // Set message SPAM Flag
@@ -1221,6 +1243,20 @@ namespace HM
 
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
+      }
+
+      // The header is only added to messages we've actually run authentication tests on.
+      if (sender_authentication_ && Configuration::Instance()->GetAntiSpamConfiguration().GetAddAuthenticationResultsHeader())
+      {
+         if (!pMsgData)
+         {
+            pMsgData = std::shared_ptr<MessageData>(new MessageData);
+
+            if (!pMsgData->LoadFromMessage(PersistentMessage::GetFileName(current_message_), current_message_))
+               pMsgData.reset();
+         }
+
+         AuthenticationResultsHeader::Apply(pMsgData, sender_authentication_);
       }
 
       SetMessageSignature_(pMsgData);
@@ -1496,8 +1532,9 @@ namespace HM
       sender_account_.reset();
 
       spam_test_results_.clear();
+      sender_authentication_.reset();
 
-      // Reset the number of RCPT TO's for this 
+      // Reset the number of RCPT TO's for this
       // message.
       cur_no_of_rcptto_ = 0;
 

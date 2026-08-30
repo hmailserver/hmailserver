@@ -34,6 +34,16 @@ If DKIM verification is enabled, hMailServer will look for a DKIM-Signature head
 
 This test is expected to catch little spam, since spammers can simply skip including the DKIM-Signature header.
 
+### Use DMARC
+
+DMARC, Domain-based Message Authentication, Reporting and Conformance, builds on SPF and DKIM. A domain owner publishes a DMARC record in DNS, stating that messages from the domain should pass SPF or DKIM, and what a receiver should do with messages that do not.
+
+If DMARC is enabled, hMailServer looks up the DMARC record for the domain in the From header of the message. The message passes if SPF passed for a domain matching the From domain, or if the message has a valid DKIM signature for a matching domain. If neither is true, the message is treated as spam.
+
+hMailServer can also honor the policy the domain publishes. A domain which publishes the policy *reject* asks receivers to reject failing messages, and *quarantine* asks receivers to treat them as spam. See the [anti-spam settings](?page=reference_antispam) for how to enable this.
+
+Messages from domains which do not publish a DMARC record are not affected.
+
 ### Check rDNS/PTR record
 
 If you enable this option, hMailServer will look up the PTR (reverse DNS) record for the IP address the message is delivered from, and check that hostname resolves back to that same IP address. Legitimate mail servers are normally set up with matching forward and reverse DNS records, while many spam sources are not. If no matching PTR record is found, the message is treated as spam.

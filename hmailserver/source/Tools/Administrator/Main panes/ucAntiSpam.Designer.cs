@@ -1,4 +1,4 @@
-namespace hMailServer.Administrator
+﻿namespace hMailServer.Administrator
 {
     partial class ucAntiSpam
     {
@@ -43,6 +43,10 @@ namespace hMailServer.Administrator
            this.tabPage2 = new System.Windows.Forms.TabPage();
            this.textDKIMVerificationFailureScore = new hMailServer.Shared.ucText();
            this.checkDKIMVerificationEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.textDMARCFailureScore = new hMailServer.Shared.ucText();
+           this.checkDMARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkDMARCHonorPolicy = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkAddAuthenticationResultsHeader = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textCheckHostInHeloScore = new hMailServer.Shared.ucText();
            this.textCheckPTRScore = new hMailServer.Shared.ucText();
            this.textUseMXChecksScore = new hMailServer.Shared.ucText();
@@ -81,11 +85,12 @@ namespace hMailServer.Administrator
            this.tabControl.Location = new System.Drawing.Point(0, 0);
            this.tabControl.Name = "tabControl";
            this.tabControl.SelectedIndex = 0;
-           this.tabControl.Size = new System.Drawing.Size(488, 299);
+           this.tabControl.Size = new System.Drawing.Size(488, 320);
            this.tabControl.TabIndex = 0;
            // 
            // tabPage1
            // 
+           this.tabPage1.Controls.Add(this.checkAddAuthenticationResultsHeader);
            this.tabPage1.Controls.Add(this.textMaximumMessageSize);
            this.tabPage1.Controls.Add(this.labelMaxSizeToScan);
            this.tabPage1.Controls.Add(this.textPrependSubjectText);
@@ -99,10 +104,20 @@ namespace hMailServer.Administrator
            this.tabPage1.Location = new System.Drawing.Point(4, 22);
            this.tabPage1.Name = "tabPage1";
            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-           this.tabPage1.Size = new System.Drawing.Size(480, 273);
+           this.tabPage1.Size = new System.Drawing.Size(480, 294);
            this.tabPage1.TabIndex = 0;
            this.tabPage1.Text = "General";
            this.tabPage1.UseVisualStyleBackColor = true;
+           // 
+           // checkAddAuthenticationResultsHeader
+           // 
+           this.checkAddAuthenticationResultsHeader.AutoSize = true;
+           this.checkAddAuthenticationResultsHeader.Location = new System.Drawing.Point(18, 258);
+           this.checkAddAuthenticationResultsHeader.Name = "checkAddAuthenticationResultsHeader";
+           this.checkAddAuthenticationResultsHeader.Size = new System.Drawing.Size(230, 17);
+           this.checkAddAuthenticationResultsHeader.TabIndex = 30;
+           this.checkAddAuthenticationResultsHeader.Text = "Add Authentication-Results header";
+           this.checkAddAuthenticationResultsHeader.UseVisualStyleBackColor = true;
            // 
            // textMaximumMessageSize
            // 
@@ -202,6 +217,9 @@ namespace hMailServer.Administrator
            // 
            this.tabPage2.Controls.Add(this.textDKIMVerificationFailureScore);
            this.tabPage2.Controls.Add(this.checkDKIMVerificationEnabled);
+           this.tabPage2.Controls.Add(this.textDMARCFailureScore);
+           this.tabPage2.Controls.Add(this.checkDMARCEnabled);
+           this.tabPage2.Controls.Add(this.checkDMARCHonorPolicy);
            this.tabPage2.Controls.Add(this.textCheckHostInHeloScore);
            this.tabPage2.Controls.Add(this.textUseMXChecksScore);
            this.tabPage2.Controls.Add(this.textCheckPTRScore);
@@ -214,7 +232,7 @@ namespace hMailServer.Administrator
            this.tabPage2.Location = new System.Drawing.Point(4, 22);
            this.tabPage2.Name = "tabPage2";
            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-           this.tabPage2.Size = new System.Drawing.Size(480, 273);
+           this.tabPage2.Size = new System.Drawing.Size(480, 294);
            this.tabPage2.TabIndex = 1;
            this.tabPage2.Text = "Spam tests";
            this.tabPage2.UseVisualStyleBackColor = true;
@@ -260,7 +278,37 @@ namespace hMailServer.Administrator
            this.checkDKIMVerificationEnabled.Text = "Verify DKIM-Signature header";
            this.checkDKIMVerificationEnabled.UseVisualStyleBackColor = true;
            this.checkDKIMVerificationEnabled.CheckedChanged += new System.EventHandler(this.checkDKIMVerificationEnabled_CheckedChanged);
-           // 
+           //
+           // textDMARCFailureScore
+           //
+           this.textDMARCFailureScore.Location = new System.Drawing.Point(316, 182);
+           this.textDMARCFailureScore.Name = "textDMARCFailureScore";
+           this.textDMARCFailureScore.Number = 0;
+           this.textDMARCFailureScore.Numeric = true;
+           this.textDMARCFailureScore.Size = new System.Drawing.Size(64, 20);
+           this.textDMARCFailureScore.TabIndex = 27;
+           //
+           // checkDMARCEnabled
+           //
+           this.checkDMARCEnabled.AutoSize = true;
+           this.checkDMARCEnabled.Location = new System.Drawing.Point(15, 182);
+           this.checkDMARCEnabled.Name = "checkDMARCEnabled";
+           this.checkDMARCEnabled.Size = new System.Drawing.Size(166, 17);
+           this.checkDMARCEnabled.TabIndex = 26;
+           this.checkDMARCEnabled.Text = "Use DMARC";
+           this.checkDMARCEnabled.UseVisualStyleBackColor = true;
+           this.checkDMARCEnabled.CheckedChanged += new System.EventHandler(this.checkDMARCEnabled_CheckedChanged);
+           //
+           // checkDMARCHonorPolicy
+           //
+           this.checkDMARCHonorPolicy.AutoSize = true;
+           this.checkDMARCHonorPolicy.Location = new System.Drawing.Point(31, 205);
+           this.checkDMARCHonorPolicy.Name = "checkDMARCHonorPolicy";
+           this.checkDMARCHonorPolicy.Size = new System.Drawing.Size(250, 17);
+           this.checkDMARCHonorPolicy.TabIndex = 28;
+           this.checkDMARCHonorPolicy.Text = "Honor policy published by sender domain";
+           this.checkDMARCHonorPolicy.UseVisualStyleBackColor = true;
+           //
            // textCheckHostInHeloScore
            // 
            this.textCheckHostInHeloScore.Location = new System.Drawing.Point(316, 62);
@@ -343,7 +391,7 @@ namespace hMailServer.Administrator
            this.tabPage3.Controls.Add(this.checkSpamAssassinEnabled);
            this.tabPage3.Location = new System.Drawing.Point(4, 22);
            this.tabPage3.Name = "tabPage3";
-           this.tabPage3.Size = new System.Drawing.Size(480, 273);
+           this.tabPage3.Size = new System.Drawing.Size(480, 294);
            this.tabPage3.TabIndex = 2;
            this.tabPage3.Text = "SpamAssassin";
            this.tabPage3.UseVisualStyleBackColor = true;
@@ -482,7 +530,7 @@ namespace hMailServer.Administrator
            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
            this.Controls.Add(this.tabControl);
            this.Name = "ucAntiSpam";
-           this.Size = new System.Drawing.Size(488, 299);
+           this.Size = new System.Drawing.Size(488, 320);
            this.tabControl.ResumeLayout(false);
            this.tabPage1.ResumeLayout(false);
            this.tabPage1.PerformLayout();
@@ -533,6 +581,10 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelMaxSizeToScan;
        private hMailServer.Shared.ucText textDKIMVerificationFailureScore;
        private hMailServer.Administrator.Controls.ucCheckbox checkDKIMVerificationEnabled;
+       private hMailServer.Shared.ucText textDMARCFailureScore;
+       private hMailServer.Administrator.Controls.ucCheckbox checkDMARCEnabled;
+       private hMailServer.Administrator.Controls.ucCheckbox checkDMARCHonorPolicy;
+       private hMailServer.Administrator.Controls.ucCheckbox checkAddAuthenticationResultsHeader;
        private System.Windows.Forms.Button buttonTest;
     }
 }

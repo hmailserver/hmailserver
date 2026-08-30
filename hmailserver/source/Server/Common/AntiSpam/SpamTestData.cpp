@@ -4,6 +4,8 @@
 #include "StdAfx.h"
 #include "SpamTestData.h"
 
+#include "SenderAuthentication.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -11,7 +13,8 @@
 
 namespace HM
 {
-   SpamTestData::SpamTestData(void)
+   SpamTestData::SpamTestData(void) :
+      sender_authentication_(new SenderAuthentication)
    {
 
    }
@@ -79,6 +82,20 @@ namespace HM
    SpamTestData::GetMessageData()  const
    {
       return message_data_;
+   }
+
+   void
+   SpamTestData::SetSenderAuthentication(std::shared_ptr<SenderAuthentication> pSenderAuthentication)
+   {
+      // Never cleared - the tests always expect somewhere to store their results.
+      if (pSenderAuthentication)
+         sender_authentication_ = pSenderAuthentication;
+   }
+
+   std::shared_ptr<SenderAuthentication>
+   SpamTestData::GetSenderAuthentication() const
+   {
+      return sender_authentication_;
    }
 
 }

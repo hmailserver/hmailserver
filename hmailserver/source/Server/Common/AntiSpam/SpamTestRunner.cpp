@@ -16,6 +16,7 @@
 #include "SpamTestSURBL.h"
 #include "SpamTestSpamAssassin.h"
 #include "DKIM/SpamTestDKIM.h"
+#include "DMARC/SpamTestDMARC.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -44,6 +45,7 @@ namespace HM
       spam_tests_.push_back(std::shared_ptr<SpamTestSPF> (new SpamTestSPF));
       spam_tests_.push_back(std::shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
       spam_tests_.push_back(std::shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
+      spam_tests_.push_back(std::shared_ptr<SpamTestDMARC> (new SpamTestDMARC));
       spam_tests_.push_back(std::shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
    }
 
@@ -56,12 +58,17 @@ namespace HM
       std::set<std::shared_ptr<SpamTestResult> > setTotalResult;
 
       int iTotalScore = 0;
+      bool thresholdReached = false;
 
       for (; iter != iterEnd; iter++)
       {
          std::shared_ptr<SpamTest> pSpamTest = (*iter);
 
          if (!pSpamTest->GetIsEnabled())
+            continue;
+
+         // The threshold has been reached, so only tests which must always run are left.
+         if (thresholdReached && !pSpamTest->GetAlwaysRun())
             continue;
 
          // Pre or post transmission?
@@ -93,8 +100,9 @@ namespace HM
 
          if (iTotalScore >= iMaxScore)
          {
-            // Threshold has been reached. No point in running any more tests.
-            break;
+            // Threshold has been reached. No point in running any more tests, except
+            // the ones which must always run.
+            thresholdReached = true;
          }
 
       }

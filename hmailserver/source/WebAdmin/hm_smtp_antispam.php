@@ -40,6 +40,11 @@ if($action == "save")
 
    $antiSpamSettings->DKIMVerificationEnabled = hmailGetVar("DKIMVerificationEnabled", 0);
    $antiSpamSettings->DKIMVerificationFailureScore = hmailGetVar("DKIMVerificationFailureScore", 0);
+
+   $antiSpamSettings->DMARCEnabled = hmailGetVar("DMARCEnabled", 0);
+   $antiSpamSettings->DMARCFailureScore = hmailGetVar("DMARCFailureScore", 0);
+   $antiSpamSettings->DMARCHonorPolicy = hmailGetVar("DMARCHonorPolicy", 0);
+   $antiSpamSettings->AddAuthenticationResultsHeader = hmailGetVar("AddAuthenticationResultsHeader", 0);
 }
 
 $SpamMarkThreshold = $antiSpamSettings->SpamMarkThreshold;
@@ -63,6 +68,11 @@ $checkptrscore = $antiSpamSettings->CheckPTRScore;
 
 $DKIMVerificationEnabled = $antiSpamSettings->DKIMVerificationEnabled;
 $DKIMVerificationFailureScore = $antiSpamSettings->DKIMVerificationFailureScore;
+
+$DMARCEnabled = $antiSpamSettings->DMARCEnabled;
+$DMARCFailureScore = $antiSpamSettings->DMARCFailureScore;
+$DMARCHonorPolicy = $antiSpamSettings->DMARCHonorPolicy;
+$AddAuthenticationResultsHeader = $antiSpamSettings->AddAuthenticationResultsHeader;
 
 $AddHeaderSpam =   $antiSpamSettings->AddHeaderSpam;
 $AddHeaderReason =   $antiSpamSettings->AddHeaderReason;
@@ -128,15 +138,15 @@ function TestSpamAssassinConnection()
                   PrintPropertyEditRow("SpamMarkThreshold", "Spam mark threshold", $SpamMarkThreshold);
                   ?>
             	<tr>
-            		<td>&nbsp;&nbsp;&nbsp;<?php EchoTranslation("Add X-hMailServer-Spam")?></td>
+            		<td class="indented"><?php EchoTranslation("Add X-hMailServer-Spam")?></td>
             		<td><input type="checkbox" name="AddHeaderSpam" value="1" <?php echo $AddHeaderSpamChecked?>></td>
             	</tr> 		
             	<tr>
-            		<td>&nbsp;&nbsp;&nbsp;<?php EchoTranslation("Add X-hMailServer-Reason")?></td>
+            		<td class="indented"><?php EchoTranslation("Add X-hMailServer-Reason")?></td>
             		<td><input type="checkbox" name="AddHeaderReason" value="1" <?php echo $AddHeaderReasonChecked?>></td>
             	</tr> 		  
             	<tr>
-            		<td>&nbsp;&nbsp;&nbsp;<?php EchoTranslation("Add to message subject")?><br/>
+            		<td class="indented"><?php EchoTranslation("Add to message subject")?><br/>
             		</td>
             		<td>
             		   <input type="checkbox" name="PrependSubject" value="1" <?php echo $PrependSubjectChecked?>>
@@ -149,6 +159,7 @@ function TestSpamAssassinConnection()
                   <?php
                   PrintPropertyEditRow("SpamDeleteThreshold", "Spam delete threshold", $SpamDeleteThreshold);
                   PrintPropertyEditRow("MaximumMessageSize", "Maximum message size to scan (KB)", $MaximumMessageSize, 6, "number");
+                  PrintCheckboxRow("AddAuthenticationResultsHeader", "Add Authentication-Results header", $AddAuthenticationResultsHeader);
                ?>
          	  
 
@@ -165,15 +176,18 @@ function TestSpamAssassinConnection()
             </tr>
             <?php
                PrintCheckboxRow("usespf", "Use SPF", $usespf);
-               PrintPropertyEditRow("usespfscore", "Score", $usespfscore, 4, "number");
+               PrintPropertyEditRow("usespfscore", "Score", $usespfscore, 4, "number", true);
                PrintCheckboxRow("checkhostinhelo", "Check host in the HELO command", $checkhostinhelo);
-               PrintPropertyEditRow("checkhostinheloscore", "Score", $checkhostinheloscore, 4, "number");
+               PrintPropertyEditRow("checkhostinheloscore", "Score", $checkhostinheloscore, 4, "number", true);
                PrintCheckboxRow("usemxchecks", "Check that sender has DNS-MX records", $usemxchecks);
-               PrintPropertyEditRow("usemxchecksscore", "Score", $usemxchecksscore, 4, "number");
+               PrintPropertyEditRow("usemxchecksscore", "Score", $usemxchecksscore, 4, "number", true);
                PrintCheckboxRow("checkptr", "Check rDNS/PTR", $checkptr);
-               PrintPropertyEditRow("checkptrscore", "Score", $checkptrscore, 4, "number", "small");
+               PrintPropertyEditRow("checkptrscore", "Score", $checkptrscore, 4, "number", true);
                PrintCheckboxRow("DKIMVerificationEnabled", "Verify DKIM-Signature header", $DKIMVerificationEnabled);
-               PrintPropertyEditRow("DKIMVerificationFailureScore", "Score", $DKIMVerificationFailureScore, 4, "number");
+               PrintPropertyEditRow("DKIMVerificationFailureScore", "Score", $DKIMVerificationFailureScore, 4, "number", true);
+               PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
+               PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number", true);
+               PrintCheckboxRow("DMARCHonorPolicy", "Honor policy published by sender domain", $DMARCHonorPolicy, false, true);
             ?>
          </table>
      </div>
@@ -190,7 +204,7 @@ function TestSpamAssassinConnection()
                PrintPropertyEditRow("SpamAssassinHost", "Host name", $SpamAssassinHost);
                PrintPropertyEditRow("SpamAssassinPort", "TCP/IP port", $SpamAssassinPort, 10, "number");
                PrintCheckboxRow("SpamAssassinMergeScore", "Use score from SpamAssassin", $SpamAssassinMergeScore);
-               PrintPropertyEditRow("SpamAssassinScore", "Score", $SpamAssassinScore, 4, "number");
+               PrintPropertyEditRow("SpamAssassinScore", "Score", $SpamAssassinScore, 4, "number", true);
             ?>
             <tr>
                <td colspan="2">

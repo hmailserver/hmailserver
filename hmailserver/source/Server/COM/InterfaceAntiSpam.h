@@ -143,7 +143,19 @@ public:
    STDMETHOD(put_BypassGreylistingOnSPFSuccess)(/*[in]*/ VARIANT_BOOL newVal);	
 
    STDMETHOD(get_BypassGreylistingOnMailFromMX)(/*[out, retval]*/ VARIANT_BOOL *pVal);
-   STDMETHOD(put_BypassGreylistingOnMailFromMX)(/*[in]*/ VARIANT_BOOL newVal);	
+   STDMETHOD(put_BypassGreylistingOnMailFromMX)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_DMARCEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_DMARCEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_DMARCFailureScore)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_DMARCFailureScore)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_DMARCHonorPolicy)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_DMARCHonorPolicy)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_AddAuthenticationResultsHeader)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_AddAuthenticationResultsHeader)(/*[in]*/ VARIANT_BOOL newVal);
 
 private:
 

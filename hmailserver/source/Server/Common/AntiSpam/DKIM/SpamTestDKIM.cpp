@@ -7,10 +7,9 @@
 
 #include "../SpamTestData.h"
 #include "../SpamTestResult.h"
-#include "../../BO/MessageData.h"
+#include "../SenderAuthentication.h"
 #include "../AntiSpamConfiguration.h"
 #include "DKIM.h"
-#include "../../Persistence/PersistentMessage.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -35,14 +34,10 @@ namespace HM
    std::set<std::shared_ptr<SpamTestResult> >
    SpamTestDKIM::RunTest(std::shared_ptr<SpamTestData> pTestData)
    {
-      std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
-
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
-      const String fileName = PersistentMessage::GetFileName(pMessage);
+      DKIM::Result result = pTestData->GetSenderAuthentication()->EvaluateDKIM(pTestData);
 
-      DKIM dkim;
-      DKIM::Result result = dkim.Verify(fileName);
       if (result == DKIM::PermFail)
       {
          // Blocked

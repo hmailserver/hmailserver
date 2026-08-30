@@ -34,6 +34,8 @@
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
+#include "../Common/AntiSpam/SenderAuthentication.h"
+#include "../Common/AntiSpam/SpamTestResult.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -827,16 +829,18 @@ namespace HM
          return true;
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
-      
+
+      std::shared_ptr<SenderAuthentication> senderAuthentication = std::shared_ptr<SenderAuthentication>(new SenderAuthentication);
+
       // Run PreTransmissionTests. These consists of light tests such as DNSBL/SPF checks.
-      std::set<std::shared_ptr<SpamTestResult> > setResult = 
-           SpamProtection::Instance()->RunPreTransmissionTests(senderAddress, ipAddress, ipAddress, hostName);
+      std::set<std::shared_ptr<SpamTestResult> > setResult =
+           SpamProtection::Instance()->RunPreTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, senderAuthentication);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
 
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
       setResult =
-         SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, current_message_);
+         SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, current_message_, senderAuthentication);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
       
@@ -844,7 +848,21 @@ namespace HM
       int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
+      // A test may ask for the message to be rejected or marked as spam regardless
+      // of the spam score.
+      bool rejectRequested = false;
+      bool markRequested = false;
+
+      for (std::shared_ptr<SpamTestResult> testResult : setSpamTestResults)
+      {
+         if (testResult->GetRejectMessage())
+            rejectRequested = true;
+
+         if (testResult->GetMarkAsSpam())
+            markRequested = true;
+      }
+
+      if (rejectRequested || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
       {
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
@@ -852,8 +870,8 @@ namespace HM
          FileUtilities::DeleteFile(fileName);
          return false;
       }
-      
-      bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
+
+      bool classifiedAsSpam = markRequested || (iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold);
 
       if (classifiedAsSpam)
       {

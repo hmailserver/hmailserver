@@ -162,11 +162,19 @@ EXIT 0
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\AntiSpam\AntiSpamConfiguration.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SenderAuthentication.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\AuthenticationResultsHeader.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\Canonicalization.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIM.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIMParameters.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIMSigner.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\SpamTestDKIM.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCEvaluator.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCPolicyLocator.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCRecord.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCTester.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCTxtLookup.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\SpamTestDMARC.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamProtection.cpp" />
@@ -447,7 +455,8 @@ EXIT 0
     <ClCompile Include="..\Common\Util\Strings\Formatter.cpp" />
     <ClCompile Include="..\Common\Util\SystemInformation.cpp" />
     <ClCompile Include="..\Common\Util\Time.cpp" />
-    <ClCompile Include="..\Common\Util\TLD.cpp" />
+    <ClCompile Include="..\Common\Util\PublicSuffixList.cpp" />
+    <ClCompile Include="..\Common\Util\PublicSuffixListTester.cpp" />
     <ClCompile Include="..\Common\Util\TraceHeaderWriter.cpp" />
     <ClCompile Include="..\Common\Util\TransparentTransmissionBuffer.cpp" />
     <ClCompile Include="..\Common\Util\Unicode.cpp" />
@@ -651,11 +660,19 @@ EXIT 0
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\AntiSpam\AntiSpamConfiguration.h" />
+    <ClInclude Include="..\Common\AntiSpam\SenderAuthentication.h" />
+    <ClInclude Include="..\Common\AntiSpam\AuthenticationResultsHeader.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\Canonicalization.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIM.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIMParameters.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIMSigner.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\SpamTestDKIM.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCEvaluator.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCPolicyLocator.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCRecord.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCTester.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCTxtLookup.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\SpamTestDMARC.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamProtection.h" />
@@ -954,7 +971,8 @@ EXIT 0
     <ClInclude Include="..\Common\Util\Strings\Formatter.h" />
     <ClInclude Include="..\Common\Util\SystemInformation.h" />
     <ClInclude Include="..\Common\Util\Time.h" />
-    <ClInclude Include="..\Common\Util\TLD.h" />
+    <ClInclude Include="..\Common\Util\PublicSuffixList.h" />
+    <ClInclude Include="..\Common\Util\PublicSuffixListTester.h" />
     <ClInclude Include="..\Common\Util\TraceHeaderWriter.h" />
     <ClInclude Include="..\Common\Util\TransparentTransmissionBuffer.h" />
     <ClInclude Include="..\Common\Util\Unicode.h" />

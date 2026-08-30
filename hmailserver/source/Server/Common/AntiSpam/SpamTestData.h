@@ -9,6 +9,7 @@ namespace HM
 {
    class MessageData;
    class IPAddress;
+   class SenderAuthentication;
 
    class SpamTestData
    {
@@ -33,6 +34,9 @@ namespace HM
       void SetMessageData(const std::shared_ptr<MessageData> pMessageData);
       std::shared_ptr<MessageData> GetMessageData() const;
 
+      void SetSenderAuthentication(std::shared_ptr<SenderAuthentication> pSenderAuthentication);
+      std::shared_ptr<SenderAuthentication> GetSenderAuthentication() const;
+
    private:
 
       String envelope_from_;
@@ -42,7 +46,8 @@ namespace HM
       String helo_host_;
 
       std::shared_ptr<MessageData> message_data_;
-      
+      std::shared_ptr<SenderAuthentication> sender_authentication_;
+
    };
 
 }

@@ -437,6 +437,54 @@ namespace HM
       GetSettings_()->SetLong(PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE, newValue);
    }
 
+   bool
+   AntiSpamConfiguration::GetDMARCEnabled()
+   {
+      return GetSettings_()->GetBool(PROPERTY_AS_DMARC_ENABLED);
+   }
+
+   void
+   AntiSpamConfiguration::SetDMARCEnabled(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_AS_DMARC_ENABLED, newValue);
+   }
+
+   int
+   AntiSpamConfiguration::GetDMARCFailureScore()
+   {
+      return GetSettings_()->GetLong(PROPERTY_AS_DMARC_FAILURE_SCORE);
+   }
+
+   void
+   AntiSpamConfiguration::SetDMARCFailureScore(int newValue)
+   {
+      GetSettings_()->SetLong(PROPERTY_AS_DMARC_FAILURE_SCORE, newValue);
+   }
+
+   bool
+   AntiSpamConfiguration::GetDMARCHonorPolicy()
+   {
+      return GetSettings_()->GetBool(PROPERTY_AS_DMARC_HONOR_POLICY);
+   }
+
+   void
+   AntiSpamConfiguration::SetDMARCHonorPolicy(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_AS_DMARC_HONOR_POLICY, newValue);
+   }
+
+   bool
+   AntiSpamConfiguration::GetAddAuthenticationResultsHeader()
+   {
+      return GetSettings_()->GetBool(PROPERTY_AS_ADD_AUTHENTICATION_RESULTS);
+   }
+
+   void
+   AntiSpamConfiguration::SetAddAuthenticationResultsHeader(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_AS_ADD_AUTHENTICATION_RESULTS, newValue);
+   }
+
    bool 
    AntiSpamConfiguration::GetBypassGreyListingOnSPFSuccess()
    {

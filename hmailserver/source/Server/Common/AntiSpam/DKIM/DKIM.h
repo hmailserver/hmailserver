@@ -32,7 +32,9 @@ namespace HM
       enum Settings
       {
          // Limit signing of huge messages, to prevent memory/performance issues.
-         MaxFileSize = 1024 * 1024 * 50
+         MaxFileSize = 1024 * 1024 * 50,
+         // Limit the number of signatures we verify in a single message.
+         MaxSignatureCount = 5
       };
 
       bool Sign(std::shared_ptr<Message> message,
@@ -46,6 +48,10 @@ namespace HM
 
       Result Verify(const String &messageFile);
 
+      // Verifies every signature in the message. signatureResults is filled with the
+      // d= domain and result of each signature, which DMARC needs for alignment.
+      Result Verify(const String &messageFile, std::vector<std::pair<AnsiString, Result> > &signatureResults);
+
    private:
 
       bool ValidateHeaderContents_(const DKIMParameters &signatureParams);
@@ -55,6 +61,7 @@ namespace HM
       Result VerifySignature_(const String &fileName, const AnsiString &messageHeader, std::pair<AnsiString, AnsiString> signatureField);
       Result RetrievePublicKey_(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags);
       AnsiString GetDKIMWithoutSignature_(AnsiString value);
+      AnsiString GetSignatureDomain_(AnsiString headerValue);
 
       String BuildSignatureHeader_(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString);
       std::shared_ptr<Canonicalization> CreateCanonicalization_(Canonicalization::CanonicalizeMethod method);

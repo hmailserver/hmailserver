@@ -461,6 +461,18 @@ namespace RegressionTests.Shared
          if (antiSpam.DKIMVerificationEnabled)
             antiSpam.DKIMVerificationEnabled = false;
 
+         if (antiSpam.DMARCEnabled)
+            antiSpam.DMARCEnabled = false;
+
+         if (antiSpam.DMARCFailureScore != 5)
+            antiSpam.DMARCFailureScore = 5;
+
+         if (antiSpam.DMARCHonorPolicy)
+            antiSpam.DMARCHonorPolicy = false;
+
+         if (antiSpam.AddAuthenticationResultsHeader)
+            antiSpam.AddAuthenticationResultsHeader = false;
+
          antiSpam.WhiteListAddresses.Clear();
 
          for (var i = 0; i < antiSpam.DNSBlackLists.Count; i++)

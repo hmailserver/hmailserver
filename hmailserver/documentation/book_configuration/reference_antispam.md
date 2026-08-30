@@ -66,6 +66,10 @@ If the message arrived via External POP3 Account download, then the message is s
 
 If the size of an email message exceeds this size, hMailServer will not scan it for spam. In most cases, spammers sends small messages to save bandwidth so scanning large messages serves no purpose in most cases. Scanning large  messages for spam may require a lot of CPU processing.
 
+### Add Authentication-Results header
+
+When this option is enabled, hMailServer adds an Authentication-Results header to incoming messages, listing the DMARC, SPF and DKIM results for the message. Any Authentication-Results header already in the message which claims to come from this server is removed first, so a sender cannot fake a result. Headers added by other servers are kept.
+
 ## Spam tests
 
 ### Use SPF
@@ -90,6 +94,20 @@ If the size of an email message exceeds this size, hMailServer will not scan it 
 <div class="indented">
 <h3>Verify DKIM-Signature header</h3>
 <div class="indented">If you enable this option, hMailServer will look for a DKIM-Signature header in every incoming message. If a header is found, hMailServer will verify that the message content matches the signature. If it does not, the spam score of this test will be added to the total spam score for the message.</div>
+</div>
+
+<div class="indented">
+<h3>Use DMARC</h3>
+<div class="indented">If you enable this option, hMailServer will check the DMARC policy of the domain in the message From header. DMARC requires that a message passes SPF or DKIM, and that the domain which passed matches the From header domain. If neither does, the spam score of this test is added to the total spam score for the message.</div>
+
+<div class="indented">If the From domain does not publish a DMARC policy, or the message does not have exactly one From address, no DMARC check is made.</div>
+
+<div class="indented">This test is run after the message has been transmitted, since the From header and any DKIM signatures are part of the message.</div>
+
+<h3>Honor policy published by sender domain</h3>
+<div class="indented">If you enable this option, hMailServer applies the policy the sender domain publishes in its DMARC record when the check fails, regardless of the spam score. A policy of <em>reject</em> makes hMailServer reject the message, and a policy of <em>quarantine</em> makes hMailServer mark the message as spam. A policy of <em>none</em> only adds the spam score. The <em>pct</em> tag of the DMARC record is respected, so a domain owner can roll a policy out gradually.</div>
+
+<div class="indented">If this option is disabled, a failed DMARC check only adds the spam score.</div>
 </div>
 
 <div class="indented">

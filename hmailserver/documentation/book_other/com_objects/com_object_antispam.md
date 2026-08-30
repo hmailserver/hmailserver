@@ -26,6 +26,10 @@ The AntiSpam object contains all server-wide settings related to anti-spam.
 
 ### Properties
 
+<div class="api_method_name">bool AddAuthenticationResultsHeader</div>
+
+<div class="api_description">Add an Authentication-Results header to accepted messages.<br></div>
+
 <div class="api_method_name">bool AddHeaderReason</div>
 
 <div class="api_description">Add header X-hMailServer-Reason when spam message is found.<br></div>
@@ -65,6 +69,18 @@ The AntiSpam object contains all server-wide settings related to anti-spam.
 <div class="api_method_name">long DKIMVerificationFailureScore</div>
 
 <div class="api_description">DKIM verification failure score.<br></div>
+
+<div class="api_method_name">bool DMARCEnabled</div>
+
+<div class="api_description">Enable DMARC verification.<br></div>
+
+<div class="api_method_name">long DMARCFailureScore</div>
+
+<div class="api_description">DMARC verification failure score.<br></div>
+
+<div class="api_method_name">bool DMARCHonorPolicy</div>
+
+<div class="api_description">Honor the DMARC policy published by the sender domain.<br></div>
 
 <div class="api_method_name"><a href="?page=com_object_dnsblacklists">DNSBlackLists</a> DNSBlackLists</div>
 

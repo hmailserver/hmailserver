@@ -79,6 +79,11 @@ namespace hMailServer.Administrator
             checkDKIMVerificationEnabled.Checked = antiSpam.DKIMVerificationEnabled;
             textDKIMVerificationFailureScore.Number = antiSpam.DKIMVerificationFailureScore;
 
+            checkDMARCEnabled.Checked = antiSpam.DMARCEnabled;
+            textDMARCFailureScore.Number = antiSpam.DMARCFailureScore;
+            checkDMARCHonorPolicy.Checked = antiSpam.DMARCHonorPolicy;
+            checkAddAuthenticationResultsHeader.Checked = antiSpam.AddAuthenticationResultsHeader;
+
             EnableDisable();
 
             Marshal.ReleaseComObject(settings);
@@ -114,6 +119,11 @@ namespace hMailServer.Administrator
 
             antiSpam.DKIMVerificationEnabled = checkDKIMVerificationEnabled.Checked;
             antiSpam.DKIMVerificationFailureScore = textDKIMVerificationFailureScore.Number;
+
+            antiSpam.DMARCEnabled = checkDMARCEnabled.Checked;
+            antiSpam.DMARCFailureScore = textDMARCFailureScore.Number;
+            antiSpam.DMARCHonorPolicy = checkDMARCHonorPolicy.Checked;
+            antiSpam.AddAuthenticationResultsHeader = checkAddAuthenticationResultsHeader.Checked;
 
             antiSpam.MaximumMessageSize = textMaximumMessageSize.Number;
 
@@ -162,6 +172,9 @@ namespace hMailServer.Administrator
 
             textDKIMVerificationFailureScore.Enabled = checkDKIMVerificationEnabled.Checked;
 
+            textDMARCFailureScore.Enabled = checkDMARCEnabled.Checked;
+            checkDMARCHonorPolicy.Enabled = checkDMARCEnabled.Checked;
+
         }
 
         private void checkSpamAssassinMergeScore_CheckedChanged(object sender, EventArgs e)
@@ -209,6 +222,11 @@ namespace hMailServer.Administrator
         }
 
         private void checkDKIMVerificationEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisable();
+        }
+
+        private void checkDMARCEnabled_CheckedChanged(object sender, EventArgs e)
         {
             EnableDisable();
         }
