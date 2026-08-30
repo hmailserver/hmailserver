@@ -212,8 +212,6 @@ namespace RegressionTests.Shared
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
 
-         EnableLogging(true);
-
          CustomAsserts.AssertNoReportedError();
 
          if (File.Exists(LogHandler.GetEventLogFileName()))
@@ -237,10 +235,12 @@ namespace RegressionTests.Shared
       {
          var antiVirusSettings = _settings.AntiVirus;
 
+         var blockedAttachments = antiVirusSettings.BlockedAttachments;
+
          var blockExists = false;
-         for (var i = 0; i < antiVirusSettings.BlockedAttachments.Count; i++)
+         for (var i = 0; i < blockedAttachments.Count; i++)
          {
-            var item = antiVirusSettings.BlockedAttachments[i];
+            var item = blockedAttachments[i];
 
             if (item.Wildcard == "*.bat")
             {
@@ -251,7 +251,7 @@ namespace RegressionTests.Shared
 
          if (blockExists == false)
          {
-            var item = antiVirusSettings.BlockedAttachments.Add();
+            var item = blockedAttachments.Add();
             item.Description = "Batch scripts";
             item.Wildcard = "*.bat";
             item.Save();
@@ -298,8 +298,16 @@ namespace RegressionTests.Shared
       private void RemoveAllSharedFolders()
       {
          var folders = _settings.PublicFolders;
+         var anyFolderDeleted = false;
          while (folders.Count > 0)
+         {
             folders.DeleteByDBID(folders[0].ID);
+            anyFolderDeleted = true;
+         }
+
+         // The directory only exists if a public folder has been created.
+         if (!anyFolderDeleted)
+            return;
 
          var publicFolderPath = Path.Combine(_settings.Directories.DataDirectory, "#Public");
          if (Directory.Exists(publicFolderPath))
@@ -475,16 +483,6 @@ namespace RegressionTests.Shared
 
          antiSpam.WhiteListAddresses.Clear();
 
-         for (var i = 0; i < antiSpam.DNSBlackLists.Count; i++)
-         {
-            var list = antiSpam.DNSBlackLists[i];
-            if (list.Active)
-            {
-               list.Active = false;
-               list.Save();
-            }
-         }
-
          var dnsBlackLists = antiSpam.DNSBlackLists;
          while (dnsBlackLists.Count > 0)
             dnsBlackLists.DeleteByDBID(dnsBlackLists[0].ID);
@@ -492,10 +490,14 @@ namespace RegressionTests.Shared
          var surblServers = antiSpam.SURBLServers;
 
          for (var i = surblServers.Count - 1; i >= 0; i--)
-            if (surblServers[i].DNSHost != "multi.surbl.org")
-               surblServers.DeleteByDBID(surblServers[i].ID);
-            else
-               surblServers[i].Active = false;
+         {
+            var surblServer = surblServers[i];
+
+            if (surblServer.DNSHost != "multi.surbl.org")
+               surblServers.DeleteByDBID(surblServer.ID);
+            else if (surblServer.Active)
+               surblServer.Active = false;
+         }
 
          if (surblServers.Count == 0)
          {
@@ -656,8 +658,15 @@ namespace RegressionTests.Shared
          return "";
       }
 
+      private static IPAddress _localIpAddress;
+
       internal static IPAddress GetLocalIpAddress()
       {
+         // Enumerating the network interfaces is expensive and the result does not
+         // change while the tests are running, so it is only looked up once.
+         if (_localIpAddress != null)
+            return _localIpAddress;
+
          var allAddresses = new StringBuilder();
 
          foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
@@ -674,7 +683,10 @@ namespace RegressionTests.Shared
                {
                   // Example: Only private networks
                   if (IsPrivateIp(ip))
+                  {
+                     _localIpAddress = ip;
                      return ip;
+                  }
                }
             }
          }

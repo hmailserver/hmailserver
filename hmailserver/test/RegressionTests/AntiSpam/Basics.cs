@@ -551,7 +551,8 @@ namespace RegressionTests.AntiSpam
          surblServer.Active = false;
          surblServer.Save();
 
-         Assert.IsFalse(LogHandler.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com'.multi.surbl.org"));
+         Assert.IsTrue(
+            LogHandler.DefaultLogDoesNotContain("Lookup: surbl-org-permanent-test-point.com'.multi.surbl.org"));
          Assert.IsTrue(LogHandler.DefaultLogContains("Lookup: surbl-org-permanent-test-point.com.multi.surbl.org"));
       }
 

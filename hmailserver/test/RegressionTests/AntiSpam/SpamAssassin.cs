@@ -173,7 +173,7 @@ namespace RegressionTests.AntiSpam
          var smtpClientSimulator = new SmtpClientSimulator();
 
          _settings.AntiSpam.SpamAssassinEnabled = true;
-         _settings.AntiSpam.SpamAssassinHost = "localhost"; // <- misspelled
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
          _settings.AntiSpam.SpamAssassinPort = 12345;
 
          smtpClientSimulator.Send(account.Address, account.Address, "SA test", "This is a test message.");

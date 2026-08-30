@@ -81,15 +81,6 @@ namespace RegressionTests.SMTP
          // Send message to this route.
          SmtpClientSimulator.StaticSend("test@example.test", "test@dummy-example.com", "subject", "body");
 
-         for (var i = 0; i < 40; i++)
-         {
-            var s = _status.UndeliveredMessages;
-            if (s.Contains("\t\ttest@example.test"))
-               break;
-
-            Thread.Sleep(250);
-         }
-
          // Wait for the bounce message to be delivered.
          CustomAsserts.AssertRecipientsInDeliveryQueue(0, true);
 

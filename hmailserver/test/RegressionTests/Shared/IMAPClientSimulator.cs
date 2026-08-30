@@ -616,13 +616,8 @@ namespace RegressionTests.Shared
       private void AssertFolderExists(string folderName)
       {
          // wait for the folder to appear.
-         for (var i = 1; i <= 1000; i++)
-         {
-            if (SelectFolder(folderName))
-               return;
-
-            Thread.Sleep(25);
-         }
+         if (Poll.Until(TimeSpan.FromSeconds(25), () => SelectFolder(folderName)))
+            return;
 
          Assert.Fail("Folder not found: " + folderName);
       }
@@ -642,22 +637,17 @@ namespace RegressionTests.Shared
             imap.AssertFolderExists(folderName);
 
          var currentCount = 0;
-         var timeout = 1000; // 1000 * 25 = 25 seconds.
-         while (timeout > 0)
+
+         Poll.Until(TimeSpan.FromSeconds(25), () =>
          {
             currentCount = imap.GetMessageCount(folderName);
+            return currentCount >= expectedCount;
+         });
 
-            if (currentCount > expectedCount)
-               break;
-
-            if (currentCount == expectedCount)
-            {
-               imap.Disconnect();
-               return;
-            }
-
-            timeout--;
-            Thread.Sleep(25);
+         if (currentCount == expectedCount)
+         {
+            imap.Disconnect();
+            return;
          }
 
          imap.Disconnect();

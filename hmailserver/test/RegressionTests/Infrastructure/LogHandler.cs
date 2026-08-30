@@ -83,23 +83,36 @@ namespace RegressionTests.Infrastructure
          return content;
       }
 
+      /// <summary>
+      ///    Waits for the text to appear in the default log.
+      /// </summary>
       public static bool DefaultLogContains(string data)
+      {
+         return DefaultLogContains(data, TimeSpan.FromSeconds(10));
+      }
+
+      /// <summary>
+      ///    Checks that the text is not written to the default log. Asserting on
+      ///    DefaultLogContains instead always waits the full timeout, since the text
+      ///    never appears. The callers have already waited for the operation to
+      ///    complete, so a short grace period is enough here.
+      /// </summary>
+      public static bool DefaultLogDoesNotContain(string data)
+      {
+         return !DefaultLogContains(data, TimeSpan.FromSeconds(2));
+      }
+
+      private static bool DefaultLogContains(string data, TimeSpan timeout)
       {
          var filename = GetDefaultLogFileName();
 
-         for (var i = 0; i < 40; i++)
+         return Poll.Until(timeout, () =>
          {
-            if (File.Exists(filename))
-            {
-               var content = TestSetup.ReadExistingTextFile(filename);
-               if (content.Contains(data))
-                  return true;
-            }
+            if (!File.Exists(filename))
+               return false;
 
-            Thread.Sleep(250);
-         }
-
-         return false;
+            return TestSetup.ReadExistingTextFile(filename).Contains(data);
+         });
       }
 
       public static string GetEventLogFileName()
