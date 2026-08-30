@@ -1,0 +1,63 @@
+# Lints the workflow files themselves.
+#
+# build.yml drives a 16-minute Windows build, so a typo in it is expensive to find by running
+# it. actionlint parses the workflow the way the runner does - unknown keys, bad `needs`
+# references, expressions using a context that is not available where they sit - and zizmor
+# audits it for the mistakes that matter for security: an expression pasted into a shell
+# script, a checkout that leaves the token on disk, a job with more permissions than it uses.
+#
+# Both are pinned by version rather than by commit: neither is a GitHub Action, so there is
+# no `uses:` to pin. The Go module proxy and PyPI both verify what they serve against the
+# recorded checksum for that version.
+name: Lint workflows
+
+on:
+  push:
+    branches:
+      - master
+      - 'claude/**'
+      - 'feature/**'
+      - 'techdebt/**'
+      - 'bugfix/**'
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-workflows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ACTIONLINT_VERSION: v1.7.12
+  ZIZMOR_VERSION: 1.29.0
+
+jobs:
+  lint:
+    name: actionlint and zizmor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Run actionlint
+        run: |
+          go install "github.com/rhysd/actionlint/cmd/actionlint@$ACTIONLINT_VERSION"
+          # With no arguments it finds .github/workflows itself and checks everything there.
+          "$(go env GOPATH)/bin/actionlint" -color
+
+      - name: Run zizmor
+        run: |
+          pipx install "zizmor==$ZIZMOR_VERSION"
+          # --no-online-audits keeps this to what can be decided from the files themselves,
+          # so the job needs no token beyond the read-only one it already has.
+          #
+          # No severity threshold: the workflows are clean of everything zizmor reports today,
+          # including its informational findings, and the point is to keep them that way. If a
+          # finding here is a deliberate choice rather than a mistake, silence that one with a
+          # `# zizmor: ignore[rule]` comment on the line, so the reason sits next to the code.
+          zizmor --no-online-audits .github/workflows

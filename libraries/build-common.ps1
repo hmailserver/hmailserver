@@ -16,9 +16,9 @@
         . (Join-Path -Path $PSScriptRoot -ChildPath "build-common.ps1")
         Start-BuildLog -LogPath (Join-Path $PSScriptRoot "build-openssl.log") -Title "OpenSSL 3.5.7 build log"
         $libsPath = Resolve-HMailServerLibs
-        $vcvars64 = Resolve-VcVars64
+        $vsInstall = Resolve-VcVars64
         Get-SourceArchive -Url $tarUrl -SrcDir $srcDir -LibsPath $libsPath
-        Import-VsEnvironment -VcVars64 $vcvars64
+        Import-VsEnvironment -VsInstall $vsInstall
         Invoke-BuildStep "Compiling" { nmake install_sw }
         if ($LastExitCode -ne 0) { Throw "..." }
 
@@ -133,58 +133,94 @@ function Resolve-HMailServerLibs
     return $libsPath
 }
 
-# Locate vcvars64.bat via vswhere and return its path.
+# The MSVC toolset hMailServer's own projects are compiled with: PlatformToolset v142,
+# which is the 14.2x compiler. Visual Studio 2019 provides it by default; Visual Studio
+# 2022 and 2026 provide it as the optional "MSVC v142 build tools" component, selected
+# with 'vcvars64.bat -vcvars_ver=14.29'.
+$script:HMailServerVcToolsetVersion = '14.29'
+
+# Locate a Visual Studio installation with the x64 C++ toolchain and return what the callers
+# need from it: the vcvars64.bat path, the installation path and its version.
 #
-# We import vcvars/cl from a SPECIFIC Visual Studio version, not simply the newest one
-# installed. If a newer VS (e.g. VS2022) is also present, 'vswhere -latest' would import
-# its environment and the libraries would be compiled with the newer STL/CRT. For C++
-# code (Boost) that newer STL emits vectorized-algorithm symbols (e.g.
-# __std_find_last_trivial_2) that the VS2019 runtime hMailServer links against does not
-# provide, producing LNK2019 unresolved externals at link time; even for the C libraries
-# it is wrong to build against a different toolset than the rest of hMailServer. The
-# default range targets VS2019 (16.x), matching hMailServer's own toolset; callers that
-# support other toolsets (build-boost.ps1) pass the matching range, or $null to fall back
-# to -latest.
+# We do NOT simply take 'vswhere -latest'. The Visual Studio in use decides which STL/CRT the
+# libraries are compiled against, and Boost in particular must match hMailServer's own v142
+# toolset: a newer STL emits vectorized-algorithm symbols (e.g. __std_find_last_trivial_2)
+# that the v142 runtime hMailServer links against does not provide, producing LNK2019
+# unresolved externals at link time. So the caller states which Visual Studio versions are
+# acceptable, in preference order, and the first one installed wins.
+#
+# The default order prefers VS2026 - what the README asks a developer to install, and the only
+# Visual Studio on the GitHub Actions windows-2025-vs2026 image - and falls back to VS2022 and
+# then VS2019. On VS2026 and VS2022, callers that need the v142 compiler ask
+# Import-VsEnvironment for it; see the comment there for which libraries actually care.
+#
+# Pass $null or an empty array to fall back to 'vswhere -latest'.
 function Resolve-VcVars64
 {
     param(
         [Parameter(Mandatory = $false)]
-        [string]$VersionRange = '[16.0,17.0)'
+        [string[]]$VersionRanges = @('[18.0,19.0)', '[17.0,18.0)', '[16.0,17.0)')
     )
 
     $vsWhere = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "Microsoft Visual Studio\Installer\vswhere.exe"
 
     if (!(Test-Path $vsWhere))
     {
-        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2019 (or the Visual Studio Installer)."
+        Throw "vswhere.exe was not found at $vsWhere. Please install Visual Studio 2026 (or the Visual Studio Installer)."
     }
 
-    $vsWhereArgs = @('-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath')
-    if ($VersionRange)
+    $rangesToTry = if ($VersionRanges) { $VersionRanges } else { @($null) }
+
+    $instance = $null
+    foreach ($range in $rangesToTry)
     {
-        $vsWhereArgs += @('-version', $VersionRange)
+        $vsWhereArgs = @('-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-format', 'json')
+        if ($range)
+        {
+            $vsWhereArgs += @('-version', $range)
+        }
+        else
+        {
+            $vsWhereArgs = @('-latest') + $vsWhereArgs
+        }
+
+        # -format json returns installationPath and installationVersion from a single query, so
+        # the reported version can never describe a different install than the path. vswhere
+        # prints '[]' when nothing matches, but guard against empty output too: under Windows
+        # PowerShell 5.1, ConvertFrom-Json on an empty string is a terminating error.
+        $json = (& $vsWhere @vsWhereArgs | Out-String)
+        if ([string]::IsNullOrWhiteSpace($json))
+        {
+            continue
+        }
+
+        $found = ($json | ConvertFrom-Json) | Select-Object -First 1
+        if ($found)
+        {
+            $instance = $found
+            break
+        }
     }
-    else
+
+    if (-not $instance)
     {
-        $vsWhereArgs = @('-latest') + $vsWhereArgs
+        $wanted = if ($VersionRanges) { " in version " + ($VersionRanges -join ' or ') } else { "" }
+        Throw "No Visual Studio installation with the x64 C++ toolchain (VC.Tools.x86.x64$wanted) was found."
     }
 
-    $vsInstallPath = & $vsWhere @vsWhereArgs
-    $vsInstallPath = ($vsInstallPath | Select-Object -First 1)
-
-    if ([string]::IsNullOrEmpty($vsInstallPath))
-    {
-        Throw "No Visual Studio installation with the x64 C++ toolchain (VC.Tools.x86.x64$(if ($VersionRange) { ", version $VersionRange" })) was found."
-    }
-
-    $vcvars64 = Join-Path -Path $vsInstallPath -ChildPath "VC\Auxiliary\Build\vcvars64.bat"
+    $vcvars64 = Join-Path -Path $instance.installationPath -ChildPath "VC\Auxiliary\Build\vcvars64.bat"
 
     if (!(Test-Path $vcvars64))
     {
         Throw "vcvars64.bat was not found at $vcvars64."
     }
 
-    return $vcvars64
+    return [PSCustomObject]@{
+        VcVars64     = $vcvars64
+        InstallPath  = $instance.installationPath
+        Version      = $instance.installationVersion
+        MajorVersion = [int]($instance.installationVersion -split '\.')[0]
+    }
 }
 
 # Import the VS x64 build environment (PATH, INCLUDE, LIB, ...) from vcvars64.bat into
@@ -194,19 +230,44 @@ function Resolve-VcVars64
 # each build step is then run separately with its own exit-code check. vcvars' own stdout
 # is discarded so only 'set' output is parsed; the '&&' ensures 'set' runs only if vcvars
 # succeeded.
+#
+# -ToolsetVersion pins the MSVC compiler vcvars selects (vcvars64.bat -vcvars_ver=14.29). It
+# is applied only on VS2022 and newer, whose default compiler is 14.4x or 14.5x rather than the 14.2x
+# (v142) toolset hMailServer is built with; on VS2019 the default is already the right one and
+# older 16.x installs may not even carry 14.29.
+#
+# Only Boost needs this. It is C++, linked statically into hMailServer, and its auto-linking
+# pragma encodes the toolset in the library name (libboost_thread-vc142-...). OpenSSL, libpq
+# and libmariadb are C libraries consumed through an import library and a DLL, so their C ABI
+# is toolset-independent and they build fine with whatever compiler the resolved Visual Studio
+# defaults to.
 function Import-VsEnvironment
 {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$VcVars64
+        [object]$VsInstall,
+
+        [Parameter(Mandatory = $false)]
+        [string]$ToolsetVersion
     )
+
+    # Accept either the object Resolve-VcVars64 returns or a bare vcvars64.bat path.
+    $vcVars64 = if ($VsInstall -is [string]) { $VsInstall } else { $VsInstall.VcVars64 }
+    $majorVersion = if ($VsInstall -is [string]) { 0 } else { $VsInstall.MajorVersion }
+
+    $vcVarsArguments = ""
+    if ($ToolsetVersion -and $majorVersion -ge 17)
+    {
+        $vcVarsArguments = " -vcvars_ver=$ToolsetVersion"
+        Write-Log "Selecting the MSVC $ToolsetVersion toolset from Visual Studio $majorVersion"
+    }
 
     Write-Log "Importing the VS x64 build environment"
 
-    $vcVarsOutput = cmd /c "call `"$VcVars64`" >nul 2>&1 && set"
+    $vcVarsOutput = cmd /c "call `"$vcVars64`"$vcVarsArguments >nul 2>&1 && set"
     if ($LastExitCode -ne 0)
     {
-        Throw "Failed to initialize the VS x64 build environment via $VcVars64 (exit code $LastExitCode)."
+        Throw "Failed to initialize the VS x64 build environment via $vcVars64$vcVarsArguments (exit code $LastExitCode)."
     }
 
     foreach ($line in $vcVarsOutput)

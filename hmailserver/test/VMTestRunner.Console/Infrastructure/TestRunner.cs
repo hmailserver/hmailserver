@@ -22,6 +22,8 @@ namespace VMTestRunner.Console
 
       private const string SetupLogPath = @"C:\setup.log";
 
+      private const string NetworkTestHostname = "www.google.com";
+
       private readonly TestEnvironment _environment;
 
       private readonly string _softwareUnderTest;
@@ -228,7 +230,30 @@ namespace VMTestRunner.Console
       {
          Debug("Ensuring network access...");
 
-         string pingResultData = string.Empty;
+         // ICMP and general internet access are blocked on the host, so check
+         // for a usable IP address and a working DNS lookup instead of pinging.
+         string script = @"
+            $ErrorActionPreference = 'SilentlyContinue'
+
+            ipconfig /renew | Out-Null
+
+            $ip = (Get-NetIPAddress -AddressFamily IPv4 |
+                   Where-Object { $_.IPAddress -notlike '169.254.*' -and $_.IPAddress -ne '127.0.0.1' } |
+                   Select-Object -First 1).IPAddress
+
+            if (-not $ip) { 'NO_IP'; return }
+
+            try
+            {
+               [void][System.Net.Dns]::GetHostEntry('" + NetworkTestHostname + @"')
+               ""OK $ip""
+            }
+            catch
+            {
+               ""NO_DNS $ip""
+            }";
+
+         string resultData = string.Empty;
 
          var timeoutTime = DateTime.UtcNow.AddSeconds(60);
 
@@ -236,9 +261,9 @@ namespace VMTestRunner.Console
          {
             try
             {
-               pingResultData = vm.RunScriptInGuest("ipconfig /renew; ping www.google.com -n 1");
+               resultData = vm.RunScriptInGuest(script);
 
-               if (pingResultData.Contains("Reply from "))
+               if (resultData.StartsWith("OK "))
                   return;
             }
             catch (Exception)
@@ -248,7 +273,7 @@ namespace VMTestRunner.Console
             Thread.Sleep(TimeSpan.FromSeconds(2));
          }
 
-         throw new Exception($"No network access. Ping result: {pingResultData}");
+         throw new Exception($"No network access. Result: {resultData}");
       }
    }
 }

@@ -5,7 +5,7 @@
 .DESCRIPTION
     Downloads the OpenSSL source for the requested version into
     %hMailServerLibs%\openssl-<Version>, then configures and builds it with the
-    VS2019 x64 toolchain into an "out64" install prefix, matching the layout
+    Visual Studio x64 toolchain into an "out64" install prefix, matching the layout
     hMailServer and libpq link against (out64\include, out64\lib, out64\bin with
     libcrypto-3-x64.dll / libssl-3-x64.dll).
 
@@ -15,8 +15,8 @@
     Prerequisites (must be on PATH / installed):
       - The environment variable hMailServerLibs, pointing at your library folder.
       - Perl (e.g. Strawberry Perl) - required by OpenSSL's Configure.
-      - Visual Studio 2019 with the x64 build tools (vcvars64.bat is located
-        automatically via vswhere).
+      - Visual Studio 2019, 2022 or 2026, with the x64 build tools (vcvars64.bat
+        is located automatically via vswhere).
 
 .PARAMETER Version
     The OpenSSL version to build, e.g. 3.5.7. Must match 3.5.x.
@@ -59,9 +59,9 @@ $libsPath = Resolve-HMailServerLibs
 $srcDir = Join-Path -Path $libsPath -ChildPath "openssl-$Version"
 $outDir = Join-Path -Path $srcDir -ChildPath "out64"
 
-# --- Locate vcvars64.bat via vswhere -------------------------------------------
+# --- Locate the Visual Studio build environment via vswhere --------------------
 
-$vcvars64 = Resolve-VcVars64
+$vsInstall = Resolve-VcVars64
 
 # --- Verify Perl is available ---------------------------------------------------
 
@@ -77,7 +77,9 @@ Get-SourceArchive -Url $tarUrl -SrcDir $srcDir -LibsPath $libsPath
 
 # --- Import the VS x64 build environment ---------------------------------------
 
-Import-VsEnvironment -VcVars64 $vcvars64
+# OpenSSL is a C library consumed through an import library and a DLL, so its ABI does not
+# depend on the toolset; no -ToolsetVersion is needed (see Import-VsEnvironment).
+Import-VsEnvironment -VsInstall $vsInstall
 
 # --- Configure and build (each step checked individually) ----------------------
 

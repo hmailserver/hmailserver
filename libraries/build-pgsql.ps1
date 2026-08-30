@@ -6,7 +6,7 @@
     Downloads the PostgreSQL source for the requested version into
     %hMailServerLibs%\postgresql-<Version>, generates the src\tools\msvc\config.pl
     that links libpq against a previously built OpenSSL, and builds libpq with the
-    VS2019 x64 toolchain (perl build.pl Release libpq). The result is the layout
+    Visual Studio x64 toolchain (perl build.pl Release libpq). The result is the layout
     hMailServer links against: postgresql-<Version>\Release\libpq (libpq.dll /
     libpq.lib) plus the libpq-fe.h header under src\interfaces\libpq.
 
@@ -20,8 +20,8 @@
         (build it with build-openssl.ps1). Without it libpq is built without SSL and
         cannot make encrypted connections to PostgreSQL.
       - Perl (e.g. Strawberry Perl) - required by PostgreSQL's build.pl.
-      - Visual Studio 2019 with the x64 build tools (vcvars64.bat is located
-        automatically via vswhere).
+      - Visual Studio 2019, 2022 or 2026, with the x64 build tools (vcvars64.bat
+        is located automatically via vswhere).
 
 .PARAMETER Version
     The PostgreSQL version to build, e.g. 15.18. Must match 15.x or 16.x.
@@ -106,9 +106,9 @@ if (!(Test-Path $openSslOut))
     Throw "The OpenSSL build to link libpq against was not found at $openSslOut. Build it first with build-openssl.ps1 -Version $OpenSSLVersion. Without it libpq would be built without SSL support."
 }
 
-# --- Locate vcvars64.bat via vswhere -------------------------------------------
+# --- Locate the Visual Studio build environment via vswhere --------------------
 
-$vcvars64 = Resolve-VcVars64
+$vsInstall = Resolve-VcVars64
 
 # --- Verify Perl is available ---------------------------------------------------
 
@@ -156,7 +156,10 @@ Set-Content -Path $configPlPath -Value $configPl -Encoding UTF8
 
 # --- Import the VS x64 build environment ---------------------------------------
 
-Import-VsEnvironment -VcVars64 $vcvars64
+# libpq is a C library consumed through an import library and a DLL, so its ABI does not
+# depend on the toolset; no -ToolsetVersion is needed (see Import-VsEnvironment). PostgreSQL's
+# build.pl generates its own project files from the Visual Studio version it finds here.
+Import-VsEnvironment -VsInstall $vsInstall
 
 # --- Build libpq (run from src\tools\msvc) -------------------------------------
 

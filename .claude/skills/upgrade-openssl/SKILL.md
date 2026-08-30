@@ -38,7 +38,7 @@ version, rewrites those references, and verifies the build.
 
 ### 2. Build the new OpenSSL
 
-Invoke the build script (prerequisites — `%hMailServerLibs%`, Perl on PATH, VS2019 x64
+Invoke the build script (prerequisites — `%hMailServerLibs%`, Perl on PATH, VS2019/VS2022 x64
 tools — are validated inside it; surface its error message if it fails):
 
 ```

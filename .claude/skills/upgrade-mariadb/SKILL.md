@@ -57,7 +57,7 @@ There are two reasons to run it:
 ### 2. Build the connector
 
 Invoke the build script (prerequisites — `%hMailServerLibs%`, an existing
-`openssl-<ver>\out64`, CMake on PATH, VS2019 x64 tools — are validated inside it; surface its
+`openssl-<ver>\out64`, CMake on PATH, VS2019/VS2022 x64 tools — are validated inside it; surface its
 error message if it fails):
 
 ```
@@ -141,8 +141,8 @@ link error:
 powershell.exe -NoProfile -Command "$d = Get-ChildItem 'C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe' | Select-Object -First 1; $names = & $d.FullName /nologo /exports \"$env:hMailServerLibs\libmariadb-<new>\build64\libmariadb\RelWithDebInfo\libmariadb.dll\" | ForEach-Object { if ($_ -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]{8}\s+(\S+)') { $matches[1] } }; 'mysql_real_connect','mysql_close','mysql_init','mysql_error','mysql_query','mysql_store_result','mysql_free_result','mysql_insert_id','mysql_errno','mysql_num_rows','mysql_fetch_row','mysql_num_fields','mysql_fetch_field_direct','mysql_get_server_version','mysql_options' | Where-Object { $names -notcontains $_ }"
 ```
 
-It must print nothing. Finally, run the regression tests against a MySQL or MariaDB database
-(`build\run-tests.ps1`) to prove the connector actually authenticates and queries.
+It must print nothing. Finally, run the regression tests against a MySQL or MariaDB database to prove the
+connector actually authenticates and queries.
 
 ## Reference: all MariaDB Connector/C touch points
 
@@ -158,6 +158,6 @@ It must print nothing. Finally, run the regression tests against a MySQL or Mari
 
 ## Note
 
-The script's own end-to-end run needs the source download, the VS2019 x64 toolchain, CMake, and
+The script's own end-to-end run needs the source download, the VS2019/VS2022 x64 toolchain, CMake, and
 a matching `openssl-<ver>\out64` build present; it validates those prerequisites and fails early
 with a clear message if any is missing.

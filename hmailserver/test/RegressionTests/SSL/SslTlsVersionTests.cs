@@ -70,14 +70,16 @@ namespace RegressionTests.SSL
       public void WhenSSL3IsDisabledTLSShouldWork()
       {
          SetSslVersions(true, true, true, true);
-         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls, 25001, IPAddress.Parse("127.0.0.1"));
+
+         // TLS 1.2 rather than TLS 1.0, which Schannel no longer offers.
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
 
          string errorMessage;
          smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
             out errorMessage);
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains("version=TLSv1"), message);
+         Assert.IsTrue(message.Contains("version=TLSv1.2"), message);
       }
 
       [Test]

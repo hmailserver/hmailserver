@@ -29,7 +29,7 @@ namespace RegressionTests.Shared
       }
 
       public SmtpClientSimulator(bool useSSL, int port, IPAddress ipaddress) :
-         this(useSSL, SslProtocols.Default, port, ipaddress)
+         this(useSSL, TcpConnection.DefaultSslProtocols, port, ipaddress)
       {
       }
 

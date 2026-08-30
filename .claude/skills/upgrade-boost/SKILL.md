@@ -33,7 +33,8 @@ There are two reasons to run it:
   time and there is **no Boost DLL** to copy in `post-build.bat` or ship in the installer —
   that is why Boost, unlike OpenSSL/libpq, has no touch points in `post-build.bat`,
   `section_files_64.iss`, or `hMailServer64.iss`.
-- The compiled libs are built with the **msvc-14.2** toolset (Visual Studio 2019), matching the
+- The compiled libs are built with the **msvc-14.2** toolset (v142 - VS2019, or VS2022 with the
+  "MSVC v142 build tools" component), matching the
   rest of hMailServer. Updating any CI/CD-built copy of Boost is out of scope, but the README
   build instructions must stay accurate.
 
@@ -53,7 +54,7 @@ There are two reasons to run it:
 
 ### 2. Build Boost
 
-Invoke the build script (prerequisites — `%hMailServerLibs%`, VS2019 x64 tools — are validated
+Invoke the build script (prerequisites — `%hMailServerLibs%`, VS2019/VS2022 x64 tools — are validated
 inside it; surface its error message if it fails):
 
 ```
@@ -131,5 +132,5 @@ installer changes are involved.
 
 ## Note
 
-The script's own end-to-end run needs the Boost source download and the VS2019 x64 toolchain
+The script's own end-to-end run needs the Boost source download and the VS2019/VS2022 x64 toolchain
 present; it validates those prerequisites and fails early with a clear message if any is missing.

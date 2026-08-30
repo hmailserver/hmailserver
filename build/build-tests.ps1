@@ -8,7 +8,7 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
 . (Join-Path $scriptRoot "Find-MsBuild.ps1")
 $msbuild = Find-MsBuild
 if (-not $msbuild) {
-    Write-Error "MSBuild not found. Install Visual Studio 2019 (Build Tools) or ensure msbuild is on PATH."
+    Write-Error "MSBuild not found. Install Visual Studio 2019 or 2022 (Build Tools) or ensure msbuild is on PATH."
     exit 2
 }
 
