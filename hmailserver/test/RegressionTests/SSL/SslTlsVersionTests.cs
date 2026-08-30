@@ -32,8 +32,6 @@ namespace RegressionTests.SSL
             Tls12 = tlsv12,
             Tls13 = tlsv13
          });
-
-         Thread.Sleep(1000);
       }
 
       [Test]

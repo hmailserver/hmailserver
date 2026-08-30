@@ -114,6 +114,7 @@
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
+    <Compile Include="Shared\Poll.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />
     <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />

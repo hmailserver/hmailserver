@@ -62,7 +62,6 @@ namespace RegressionTests.SSL
          _application.Settings.TlsOptionPreferServerCiphersEnabled = true;
 
          SslSetup.SetupSSLPorts(_application);
-         Thread.Sleep(1000);
 
          var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
 
@@ -80,7 +79,6 @@ namespace RegressionTests.SSL
          _application.Settings.TlsOptionPrioritizeChaChaEnabled = true;
 
          SslSetup.SetupSSLPorts(_application);
-         Thread.Sleep(1000);
 
          var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
 

@@ -12,9 +12,6 @@ namespace RegressionTests.SSL.StartTls
       public new void TestFixtureSetUp()
       {
          SslSetup.SetupSSLPorts(_application);
-
-
-         Thread.Sleep(1000);
       }
 
       [SetUp]
