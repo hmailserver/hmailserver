@@ -501,7 +501,7 @@ namespace HM
   
       if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
-         EnqueueWrite_("+ERR Server error: Failed to fetch messages in Inbox.");
+         EnqueueWrite_("-ERR Server error: Failed to fetch messages in Inbox.");
          return ResultNormalResponse;
       }
 

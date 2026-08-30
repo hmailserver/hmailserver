@@ -247,6 +247,22 @@ namespace RegressionTests.POP3
       }
 
       [Test]
+      [Description("If the inbox messages can't be loaded, the failure should be reported using -ERR.")]
+      public void TestLogonWhenInboxMessagesCannotBeFetched()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // Remove the INBOX folder, so that the server is unable to load the inbox messages during logon.
+         account.IMAPFolders.get_ItemByName("INBOX").Delete();
+
+         string errorMessage;
+
+         var sim = new Pop3ClientSimulator();
+         Assert.IsFalse(sim.ConnectAndLogon(account.Address, "test", out errorMessage));
+         Assert.IsTrue(errorMessage.StartsWith("-ERR"), errorMessage);
+      }
+
+      [Test]
       public void TestPOP3TransactionSafety()
       {
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
