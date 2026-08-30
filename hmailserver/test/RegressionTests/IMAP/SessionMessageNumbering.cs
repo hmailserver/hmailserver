@@ -170,8 +170,8 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
-      [Description("Issue #458, write side: COPY addressed by sequence number must not copy a " +
-                   "message the client never referred to.")]
+      [Description("Issue #458, write side: COPY addressed by sequence number must never copy a " +
+                   "message the client was not told about.")]
       public void CopyMustNotCopyTheWrongMessage()
       {
          var account = CreateAccountWithThreeAttachmentMessages();
@@ -180,8 +180,15 @@ namespace RegressionTests.IMAP
          var sim1 = SelectInbox(account);
          ExpungeMessageInSeparateSession(account, 1);
 
+         // COPY is not one of the commands during which EXPUNGE is forbidden, so the server
+         // reports the expunge first and the numbering may change - but only because the
+         // client was told. Message 2 is the third message from that point on.
          var copy = sim1.SendSingleCommand("A44 COPY 2 \"Target\"");
          Assert.IsTrue(copy.Contains("A44 OK"), copy);
+
+         var expunge = copy.IndexOf("* 1 EXPUNGE", StringComparison.Ordinal);
+         Assert.IsTrue(expunge >= 0, "COPY renumbered the mailbox without reporting the expunge. " + copy);
+
          sim1.Disconnect();
 
          ImapClientSimulator.AssertMessageCount(account.Address, "test", "Target", 1);
@@ -192,8 +199,7 @@ namespace RegressionTests.IMAP
          var copied = reader.Fetch("1 BODY[2]");
          reader.Disconnect();
 
-         AssertDoesNotContainAttachment(copied, MarkerThree);
-         AssertContainsAttachment(copied, MarkerTwo);
+         AssertContainsAttachment(copied, MarkerThree);
       }
 
       [Test]
@@ -338,7 +344,8 @@ namespace RegressionTests.IMAP
 
       [Test]
       [Description("Issue #458: the reporter's client fetches by UID but then addresses body parts " +
-                   "by the sequence number in the response, so that number must be this session's.")]
+                   "by the sequence number in the response, so that number must never change " +
+                   "without the client being told.")]
       public void UidFetchUsesTheSessionsOwnSequenceNumbersInUntaggedResponses()
       {
          var account = CreateAccountWithMessages(3);
@@ -348,9 +355,23 @@ namespace RegressionTests.IMAP
 
          ExpungeMessageInSeparateSession(account, 1);
 
+         // EXPUNGE is permitted during the UID commands (RFC 5256 chapter 3 spells this out for
+         // UID SORT), so the number in the response may be the post-expunge one - but the
+         // EXPUNGE that justifies it has to come first, in the same response.
          var result = sim1.SendSingleCommand("A50 UID FETCH " + uids[3] + " (UID)");
 
-         Assert.IsTrue(result.Contains("* 3 FETCH"), "Wrong sequence number in UID FETCH response. " + result);
+         var expunge = result.IndexOf("* 1 EXPUNGE", StringComparison.Ordinal);
+         var fetch = result.IndexOf("* 2 FETCH", StringComparison.Ordinal);
+
+         if (expunge < 0)
+         {
+            // The client was not told, so the numbering must be unchanged.
+            Assert.IsTrue(result.Contains("* 3 FETCH"), "Silent renumbering in UID FETCH. " + result);
+         }
+         else
+         {
+            Assert.IsTrue(fetch > expunge, "The message was renumbered before the EXPUNGE. " + result);
+         }
 
          sim1.Disconnect();
       }

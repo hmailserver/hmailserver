@@ -165,31 +165,42 @@ namespace HM
    
    }
 
-   void
-   Messages::DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter)
+   std::vector<__int64>
+   Messages::DeleteMessages(const std::function<bool(std::shared_ptr<Message>)> &filter)
    {
       boost::lock_guard<boost::recursive_mutex> guard(_mutex);
 
-      std::vector<int> vecExpungedMessages;
+      std::vector<__int64> deleted_message_ids;
       auto iterMessage = vecObjects.begin();
 
-      int index = 0;
       while (iterMessage != vecObjects.end())
       {
-         index++;
-
          std::shared_ptr<Message> message = (*iterMessage);
 
-         if (filter(index, message))
+         if (filter(message))
          {
+            // Read the id first - deleting the message resets it.
+            deleted_message_ids.push_back(message->GetID());
+
             PersistentMessage::DeleteObject(message);
             iterMessage = vecObjects.erase(iterMessage);
-            index--;
          }
          else
             iterMessage++;
       }
 
+      return deleted_message_ids;
+   }
+
+   std::vector<__int64>
+   Messages::DeleteMessagesById(const std::set<__int64> &message_ids)
+   {
+      std::function<bool(std::shared_ptr<Message>)> filter = [&message_ids](std::shared_ptr<Message> message)
+      {
+         return message_ids.find(message->GetID()) != message_ids.end();
+      };
+
+      return DeleteMessages(filter);
    }
 
 

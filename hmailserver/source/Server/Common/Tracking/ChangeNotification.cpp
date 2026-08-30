@@ -26,11 +26,11 @@ namespace HM
 
    }
 
-   ChangeNotification::ChangeNotification(__int64 accountID, __int64 folderID, NotificationType type, const std::vector<__int64>& affectedMessages) :
+   ChangeNotification::ChangeNotification(__int64 accountID, __int64 folderID, NotificationType type, const std::vector<__int64>& affectedMessageIds) :
       account_id_(accountID),
       folder_id_(folderID),
       type_(type),
-      affected_messages_(affectedMessages)
+      affected_message_ids_(affectedMessageIds)
    {
 
    }
@@ -74,9 +74,9 @@ namespace HM
    }
 
    const std::vector<__int64>&
-   ChangeNotification::GetAffectedMessages() const
+   ChangeNotification::GetAffectedMessageIds() const
    {
-      return affected_messages_;
+      return affected_message_ids_;
    }
 
 }

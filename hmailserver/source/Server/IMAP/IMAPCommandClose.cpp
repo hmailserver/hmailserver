@@ -7,6 +7,11 @@
 
 #include "MessagesContainer.h"
 
+#include "../Common/BO/Messages.h"
+#include "../Common/BO/Message.h"
+#include "../Common/Tracking/ChangeNotification.h"
+#include "../Common/Tracking/NotificationServer.h"
+
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/BO/IMAPFolder.h"
 #ifdef _DEBUG
@@ -32,13 +37,23 @@ namespace HM
       if (!pConnection->GetCurrentFolderReadOnly() &&
           pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionExpunge))
       {
-         std::function<bool(int, std::shared_ptr<Message>)> filter = [](int index, std::shared_ptr<Message> message)
+         std::function<bool(std::shared_ptr<Message>)> filter = [](std::shared_ptr<Message> message)
             {
                return message->GetFlagDeleted();
             };
 
          auto messages = MessagesContainer::Instance()->GetMessages(pCurFolder->GetAccountID(), pCurFolder->GetID());
-         messages->DeleteMessages(filter);
+         auto deleted_message_ids = messages->DeleteMessages(filter);
+
+         if (!deleted_message_ids.empty())
+         {
+            // CLOSE sends no EXPUNGE responses to this session (RFC 3501 6.4.2), but the other
+            // sessions still need to know that the messages are gone.
+            std::shared_ptr<ChangeNotification> pNotification =
+               std::shared_ptr<ChangeNotification>(new ChangeNotification(pCurFolder->GetAccountID(), pCurFolder->GetID(), ChangeNotification::NotificationMessageDeleted, deleted_message_ids));
+
+            Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
+         }
       }
       
       pConnection->CloseCurrentFolder();

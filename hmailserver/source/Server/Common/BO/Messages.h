@@ -35,7 +35,10 @@ namespace HM
       std::shared_ptr<Message> GetItemByUID(unsigned int uid);
       std::shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
 
-      void DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter);
+      // Deletes the messages the filter selects. Returns the database ids of the messages
+      // which were actually deleted, which is what change notifications carry.
+      std::vector<__int64> DeleteMessages(const std::function<bool(std::shared_ptr<Message>)> &filter);
+      std::vector<__int64> DeleteMessagesById(const std::set<__int64> &message_ids);
 
       // Returns false if the messages could not be loaded.
       bool Refresh(bool update_recent_flags);

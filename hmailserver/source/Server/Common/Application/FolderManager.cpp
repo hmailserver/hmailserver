@@ -66,11 +66,9 @@ namespace HM
 
       __int64 inboxID = folder->GetID();
 
-      std::vector<__int64> affectedMessages;
-
       int count = 0;
 
-      std::function<bool(int, std::shared_ptr<Message>)> filter = [&uids, &affectedMessages, &count, &callbackEvery1000Message](int index, std::shared_ptr<Message> message)
+      std::function<bool(std::shared_ptr<Message>)> filter = [&uids, &count, &callbackEvery1000Message](std::shared_ptr<Message> message)
          {
             count++;
 
@@ -79,19 +77,11 @@ namespace HM
                callbackEvery1000Message();
             }
 
-            if (uids.find(message->GetUID()) != uids.end())
-            {
-               affectedMessages.push_back(index);
-               return true;
-            }
-            else
-            {
-               return false;
-            }
+            return uids.find(message->GetUID()) != uids.end();
          };
 
       auto messages = MessagesContainer::Instance()->GetMessages(folder->GetAccountID(), folder->GetID());
-      messages->DeleteMessages(filter);
+      auto affectedMessages = messages->DeleteMessages(filter);
       
       if (affectedMessages.size() > 0)
       {
