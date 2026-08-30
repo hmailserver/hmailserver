@@ -148,4 +148,4 @@
 #define PROPERTY_PASSWORDHASHITERATIONS         _T("PasswordHashIterations")
 #define PROPERTY_PASSWORDHASHAUTOUPGRADE        _T("PasswordHashAutoUpgrade")
 
-#define REQUIRED_DB_VERSION            5710
+#define REQUIRED_DB_VERSION            5711
