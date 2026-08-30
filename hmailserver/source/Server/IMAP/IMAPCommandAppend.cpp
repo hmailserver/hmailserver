@@ -21,6 +21,7 @@
 
 #include "IMAPSimpleCommandParser.h"
 #include "MessagesContainer.h"
+#include "IMAPFolderView.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -296,6 +297,12 @@ namespace HM
           pConnection->GetCurrentFolder()->GetID() == destination_folder_->GetID())
       {
          std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
+
+         // The message is appended at the end, so this session's existing numbering is unaffected.
+         auto view = pConnection->GetCurrentFolderView();
+         if (view)
+            view->AppendNewMessages(messages);
+
          sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
          sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount());
       }

@@ -7,6 +7,7 @@
 #include "IMAPSimpleCommandParser.h"
 #include "IMAPConfiguration.h"
 #include "MessagesContainer.h"
+#include "IMAPFolderView.h"
 
 #include "../Common/BO/IMAPFolders.h"
 #include "../Common/BO/IMAPFolder.h"
@@ -48,14 +49,19 @@ namespace HM
       if (!readAccess)
          return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for SELECT command).");
 
-      pConnection->SetCurrentFolder(pSelectedFolder, false);
+      // Close the previously selected folder before loading this one, so that re-selecting
+      // the same folder still clears its recent flags first.
+      pConnection->CloseCurrentFolder();
 
       std::set<__int64> recent_messages;
       auto messages = MessagesContainer::Instance()->GetMessages(pSelectedFolder->GetAccountID(), pSelectedFolder->GetID(), recent_messages, true);
 
+      pConnection->SetCurrentFolder(pSelectedFolder, false, messages);
       pConnection->SetRecentMessages(recent_messages);
 
-      long lCount = messages->GetCount();
+      // The message count comes from this session's view, which is the numbering every
+      // response to this session uses.
+      long lCount = pConnection->GetCurrentFolderView()->GetMessageCount();
       __int64 lFirstUnseenID = messages->GetFirstUnseenUID();
       long lRecentCount = (int) recent_messages.size();
 

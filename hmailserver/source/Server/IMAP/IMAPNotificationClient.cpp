@@ -6,6 +6,7 @@
 #include "IMAPNotificationClient.h"
 #include "IMAPConnection.h"
 #include "IMAPStore.h"
+#include "IMAPFolderView.h"
 
 #include "../Common/Tracking/ChangeNotification.h"
 #include "../common/Tracking/NotificationServer.h"
@@ -166,6 +167,13 @@ namespace HM
 
                std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
                pMessages->Refresh(false);
+
+               // New messages are added at the end, so telling the client about them never
+               // renumbers the messages it already knows about.
+               auto view = connection->GetCurrentFolderView();
+               if (view)
+                  view->AppendNewMessages(pMessages);
+
                lastExists = pMessages->GetCount();
                lastRecent = (int)connection->GetRecentMessageCount();
                break;
@@ -248,6 +256,11 @@ namespace HM
       case ChangeNotification::NotificationMessageAdded:
          {
             std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
+
+            auto view = connection->GetCurrentFolderView();
+            if (view)
+               view->AppendNewMessages(pMessages);
+
             SendEXISTS_(pMessages->GetCount());
             SendRECENT_((int)connection->GetRecentMessageCount());
             break;

@@ -45,6 +45,43 @@ namespace HM
 
    }
 
+   std::map<__int64, std::shared_ptr<Message>>
+   Messages::GetCopyByIds(const std::set<__int64> &message_ids) const
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      std::map<__int64, std::shared_ptr<Message>> result;
+
+      for (std::shared_ptr<Message> message : vecObjects)
+      {
+         if (message_ids.find(message->GetID()) == message_ids.end())
+            continue;
+
+         result[message->GetID()] = std::shared_ptr<Message>(new Message(*message.get()));
+      }
+
+      return result;
+   }
+
+   std::shared_ptr<Message>
+   Messages::GetCopyByDBID(__int64 message_id) const
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      std::shared_ptr<Message> result;
+
+      for (std::shared_ptr<Message> message : vecObjects)
+      {
+         if (message->GetID() != message_id)
+            continue;
+
+         result = std::shared_ptr<Message>(new Message(*message.get()));
+         break;
+      }
+
+      return result;
+   }
+
    // Collects the ID of every message with the \Recent flag. Done here, rather than by the
    // caller iterating the collection, so that the collection mutex is held during the scan.
    void

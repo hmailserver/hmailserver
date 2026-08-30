@@ -605,6 +605,7 @@ EXIT 0
     <ClCompile Include="..\Imap\IMAPFetch.cpp" />
     <ClCompile Include="..\Imap\IMAPFetchParser.cpp" />
     <ClCompile Include="..\IMAP\IMAPFolderContainer.cpp" />
+    <ClCompile Include="..\IMAP\IMAPFolderView.cpp" />
     <ClCompile Include="..\IMAP\IMAPFolderUtilities.cpp" />
     <ClCompile Include="..\IMAP\IMAPListLookup.cpp" />
     <ClCompile Include="..\IMAP\IMAPNotificationClient.cpp" />
@@ -1117,6 +1118,7 @@ EXIT 0
     <ClInclude Include="..\Imap\IMAPFetch.h" />
     <ClInclude Include="..\Imap\IMAPFetchParser.h" />
     <ClInclude Include="..\IMAP\IMAPFolderContainer.h" />
+    <ClInclude Include="..\IMAP\IMAPFolderView.h" />
     <ClInclude Include="..\IMAP\IMAPFolderUtilities.h" />
     <ClInclude Include="..\IMAP\IMAPListLookup.h" />
     <ClInclude Include="..\IMAP\IMAPNotificationClient.h" />

@@ -25,6 +25,11 @@ namespace HM
       
       std::vector<std::shared_ptr<Message>> GetCopy();
 
+      // Copies of the messages with the given database ids, keyed on id. One pass over the
+      // collection, so a caller resolving many ids doesn't scan the collection once per id.
+      std::map<__int64, std::shared_ptr<Message>> GetCopyByIds(const std::set<__int64> &message_ids) const;
+      std::shared_ptr<Message> GetCopyByDBID(__int64 message_id) const;
+
       void GetRecentMessages(std::set<__int64> &recent_messages) const;
 
       std::shared_ptr<Message> GetItemByUID(unsigned int uid);

@@ -18,6 +18,8 @@ namespace HM
    class IMAPFolder;
    class IMAPCommandArgument;
    class Message;
+   class Messages;
+   class IMAPFolderView;
    class IMAPMailboxChangeNotifier;
    class IMailboxChangeClient;
 
@@ -103,11 +105,14 @@ namespace HM
 
       std::shared_ptr<IMAPFolder> GetCurrentFolder() const;
 
+      // This session's view of the selected folder. Null when no folder is selected.
+      std::shared_ptr<IMAPFolderView> GetCurrentFolderView() const;
+
       bool CheckPermission(std::shared_ptr<IMAPFolder> pFolder, int iPermission);
       void CheckFolderPermissions(std::shared_ptr<IMAPFolder> pFolder, bool &readAccess, bool &writeAccess);
 
       void CloseCurrentFolder();
-      void SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly);
+      void SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly, std::shared_ptr<Messages> messages);
    
       void SendResponseString(const String &sTag, const String &sResponse, const String &sMessage);
 
@@ -128,6 +133,7 @@ namespace HM
 	 
       void SetRecentMessages(const std::set<__int64> &messages);
       void AddRecentMessage(__int64 message_id);
+      void RemoveRecentMessages(const std::vector<__int64> &message_ids);
       bool IsRecentMessage(__int64 message_id) const;
       size_t GetRecentMessageCount() const;
 
@@ -180,6 +186,7 @@ namespace HM
 
       // Folder info
       std::shared_ptr<IMAPFolder> current_folder_;
+      std::shared_ptr<IMAPFolderView> current_folder_view_;
       bool current_folder_read_only_;
 
       String command_buffer_;

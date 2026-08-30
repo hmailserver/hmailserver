@@ -8,6 +8,7 @@
 #include "IMAPResult.h"
 #include "IMAPConfiguration.h"
 #include "IMAPFolderContainer.h"
+#include "IMAPFolderView.h"
 
 #include "../Common/Application/ACLManager.h"
 #include "../Common/Application/TimeoutCalculator.h"
@@ -803,6 +804,13 @@ namespace HM
       return current_folder_;
    }
 
+   std::shared_ptr<IMAPFolderView>
+   IMAPConnection::GetCurrentFolderView() const
+   {
+      StateLock lock(state_mutex_);
+      return current_folder_view_;
+   }
+
    bool
    IMAPConnection::GetCurrentFolderReadOnly() const
    {
@@ -828,6 +836,7 @@ namespace HM
          readOnly = current_folder_read_only_;
 
          current_folder_.reset();
+         current_folder_view_.reset();
       }
 
       notification_client_->UnsubscribeMessageChanges();
@@ -842,17 +851,28 @@ namespace HM
    }
 
    void
-   IMAPConnection::SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly)
+   IMAPConnection::SetCurrentFolder(std::shared_ptr<IMAPFolder> pFolder, bool readOnly, std::shared_ptr<Messages> messages)
    {
       // First close the currently set folder. This will cause an unsubscribe from the
       // current folder to be made and recent flags to be removed.
       CloseCurrentFolder();
+
+      std::shared_ptr<IMAPFolderView> view;
+
+      if (pFolder)
+      {
+         // Build this session's view before the folder becomes visible, so a notification
+         // arriving immediately after never sees a folder without a view.
+         view = std::shared_ptr<IMAPFolderView>(new IMAPFolderView(pFolder->GetAccountID(), pFolder->GetID()));
+         view->Initialize(messages);
+      }
 
       {
          // Select the new folder.
          StateLock lock(state_mutex_);
 
          current_folder_ = pFolder;
+         current_folder_view_ = view;
          current_folder_read_only_ = readOnly;
       }
 
@@ -975,6 +995,15 @@ namespace HM
    {
       StateLock lock(state_mutex_);
       recent_messages_.insert(message_id);
+   }
+
+   void
+   IMAPConnection::RemoveRecentMessages(const std::vector<__int64> &message_ids)
+   {
+      StateLock lock(state_mutex_);
+
+      for (__int64 message_id : message_ids)
+         recent_messages_.erase(message_id);
    }
 
    bool
