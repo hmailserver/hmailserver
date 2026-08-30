@@ -10,13 +10,12 @@
 #include "DMARCTxtLookup.h"
 
 #include "../AntiSpamConfiguration.h"
-#include "../AuthenticationResult.h"
+#include "../SenderAuthentication.h"
 #include "../SpamTestData.h"
 #include "../SpamTestResult.h"
 #include "../DKIM/DKIM.h"
 
 #include "../../BO/MessageData.h"
-#include "../../Persistence/PersistentMessage.h"
 #include "../../Util/Parsing/AddresslistParser.h"
 
 #include "../../../SMTP/SPF/SPF.h"
@@ -68,17 +67,15 @@ namespace HM
          return setSpamTestResults;
       }
 
-      std::shared_ptr<AuthenticationResult> authenticationResult = pTestData->GetAuthenticationResult();
+      std::shared_ptr<SenderAuthentication> senderAuthentication = pTestData->GetSenderAuthentication();
 
-      if (!authenticationResult)
-         authenticationResult = std::shared_ptr<AuthenticationResult>(new AuthenticationResult);
+      // No-ops if the SPF and DKIM tests have already run for this message.
+      senderAuthentication->EvaluateSPF(pTestData);
+      senderAuthentication->EvaluateDKIM(pTestData);
 
-      EnsureSPFResult_(pTestData, authenticationResult);
-      EnsureDKIMResults_(pTestData, authenticationResult);
-
-      if (IsAuthenticated_(authenticationResult, record, headerFromDomain))
+      if (IsAuthenticated_(senderAuthentication, record, headerFromDomain))
       {
-         authenticationResult->SetDMARCResult(AuthenticationResult::DMARCResult::Pass, headerFromDomain);
+         senderAuthentication->SetDMARCResult(SenderAuthentication::DMARCResult::Pass, headerFromDomain);
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
          setSpamTestResults.insert(pResult);
@@ -86,7 +83,7 @@ namespace HM
          return setSpamTestResults;
       }
 
-      authenticationResult->SetDMARCResult(AuthenticationResult::DMARCResult::Fail, headerFromDomain);
+      senderAuthentication->SetDMARCResult(SenderAuthentication::DMARCResult::Fail, headerFromDomain);
 
       String message;
       message.Format(_T("Rejected by DMARC. (%s)"), headerFromDomain.c_str());
@@ -173,58 +170,16 @@ namespace HM
       return domain;
    }
 
-   void
-   SpamTestDMARC::EnsureSPFResult_(std::shared_ptr<SpamTestData> pTestData, std::shared_ptr<AuthenticationResult> authenticationResult)
-   {
-      if (authenticationResult->GetSPFChecked())
-         return;
-
-      const IPAddress &originatingAddress = pTestData->GetOriginatingIP();
-
-      if (originatingAddress.IsAny())
-         return;
-
-      String explanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), pTestData->GetHeloHost(), explanation);
-
-      // With a null sender, SPF authenticates the HELO identity instead.
-      String domain = StringParser::ExtractDomain(pTestData->GetEnvelopeFrom());
-      if (domain.IsEmpty())
-         domain = pTestData->GetHeloHost();
-
-      authenticationResult->SetSPFResult(result, domain);
-   }
-
-   void
-   SpamTestDMARC::EnsureDKIMResults_(std::shared_ptr<SpamTestData> pTestData, std::shared_ptr<AuthenticationResult> authenticationResult)
-   {
-      if (authenticationResult->GetDKIMChecked())
-         return;
-
-      std::shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
-
-      if (!pMessageData)
-         return;
-
-      const String fileName = PersistentMessage::GetFileName(pMessageData->GetMessage());
-
-      DKIM dkim;
-      std::vector<std::pair<AnsiString, DKIM::Result> > signatureResults;
-      dkim.Verify(fileName, signatureResults);
-
-      authenticationResult->SetDKIMResults(signatureResults);
-   }
-
    bool
-   SpamTestDMARC::IsAuthenticated_(std::shared_ptr<AuthenticationResult> authenticationResult, const DMARCRecord &record, const String &headerFromDomain)
+   SpamTestDMARC::IsAuthenticated_(std::shared_ptr<SenderAuthentication> senderAuthentication, const DMARCRecord &record, const String &headerFromDomain)
    {
-      if (authenticationResult->GetSPFResult() == SPF::Pass &&
-          DMARCEvaluator::IsAligned(authenticationResult->GetSPFDomain(), headerFromDomain, record.GetSPFAlignment()))
+      if (senderAuthentication->GetSPFResult() == SPF::Pass &&
+          DMARCEvaluator::IsAligned(senderAuthentication->GetSPFDomain(), headerFromDomain, record.GetSPFAlignment()))
       {
          return true;
       }
 
-      for (auto signature : authenticationResult->GetDKIMSignatures())
+      for (auto signature : senderAuthentication->GetDKIMSignatures())
       {
          if (signature.second != DKIM::Pass)
             continue;

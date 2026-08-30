@@ -67,7 +67,7 @@ namespace HM
                                            const IPAddress &iOriginatingIP,
                                            const IPAddress &iConnectingIP,
                                            const String &sHeloHost,
-                                           std::shared_ptr<AuthenticationResult> pAuthenticationResult)
+                                           std::shared_ptr<SenderAuthentication> pSenderAuthentication)
    {
 
       std::shared_ptr<SpamTestData> pTestData = std::shared_ptr<SpamTestData>(new SpamTestData);
@@ -76,7 +76,7 @@ namespace HM
       pTestData->SetHeloHost(sHeloHost);
       pTestData->SetOriginatingIP(iOriginatingIP);
       pTestData->SetConnectingIP(iConnectingIP);
-      pTestData->SetAuthenticationResult(pAuthenticationResult);
+      pTestData->SetSenderAuthentication(pSenderAuthentication);
 
       AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
       int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
@@ -92,7 +92,7 @@ namespace HM
                                             const IPAddress & iConnectingIP,
                                             const String &sHeloHost,
                                             std::shared_ptr<Message> pMessage,
-                                            std::shared_ptr<AuthenticationResult> pAuthenticationResult)
+                                            std::shared_ptr<SenderAuthentication> pSenderAuthentication)
    {
 
       const String fileName = PersistentMessage::GetFileName(pMessage);
@@ -126,7 +126,7 @@ namespace HM
       pTestData->SetOriginatingIP(iOriginatingIP);
       pTestData->SetConnectingIP(iConnectingIP);
       pTestData->SetMessageData(pMessageData);
-      pTestData->SetAuthenticationResult(pAuthenticationResult);
+      pTestData->SetSenderAuthentication(pSenderAuthentication);
 
       int maxScore = std::max(config.GetSpamDeleteThreshold(), config.GetSpamMarkThreshold());
 

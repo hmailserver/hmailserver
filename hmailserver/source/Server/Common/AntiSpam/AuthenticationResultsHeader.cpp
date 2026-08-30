@@ -5,7 +5,7 @@
 
 #include "AuthenticationResultsHeader.h"
 
-#include "AuthenticationResult.h"
+#include "SenderAuthentication.h"
 
 #include "../BO/MessageData.h"
 #include "../Mime/Mime.h"
@@ -51,9 +51,9 @@ namespace HM
    }
 
    void
-   AuthenticationResultsHeader::Apply(std::shared_ptr<MessageData> messageData, std::shared_ptr<AuthenticationResult> authenticationResult)
+   AuthenticationResultsHeader::Apply(std::shared_ptr<MessageData> messageData, std::shared_ptr<SenderAuthentication> senderAuthentication)
    {
-      if (!messageData || !authenticationResult)
+      if (!messageData || !senderAuthentication)
          return;
 
       std::shared_ptr<MimeBody> mimeMessage = messageData->GetMimeMessage();
@@ -68,31 +68,31 @@ namespace HM
       RemoveOwnFields_(messageData, authservId);
 
       // Added rather than set, since results from upstream relays must be kept.
-      mimeMessage->AddRawFieldValue(FieldName, BuildValue(authenticationResult, authservId));
+      mimeMessage->AddRawFieldValue(FieldName, BuildValue(senderAuthentication, authservId));
    }
 
    String
-   AuthenticationResultsHeader::BuildValue(std::shared_ptr<AuthenticationResult> authenticationResult, const String &authservId)
+   AuthenticationResultsHeader::BuildValue(std::shared_ptr<SenderAuthentication> senderAuthentication, const String &authservId)
    {
       std::vector<String> methods;
 
-      switch (authenticationResult->GetDMARCResult())
+      switch (senderAuthentication->GetDMARCResult())
       {
-      case AuthenticationResult::DMARCResult::Pass:
-         methods.push_back("dmarc=pass header.from=" + authenticationResult->GetDMARCDomain());
+      case SenderAuthentication::DMARCResult::Pass:
+         methods.push_back("dmarc=pass header.from=" + senderAuthentication->GetDMARCDomain());
          break;
-      case AuthenticationResult::DMARCResult::Fail:
-         methods.push_back("dmarc=fail header.from=" + authenticationResult->GetDMARCDomain());
+      case SenderAuthentication::DMARCResult::Fail:
+         methods.push_back("dmarc=fail header.from=" + senderAuthentication->GetDMARCDomain());
          break;
       }
 
-      if (authenticationResult->GetSPFChecked())
+      if (senderAuthentication->GetSPFChecked())
       {
-         methods.push_back("spf=" + GetSPFResultText(authenticationResult->GetSPFResult()) +
-                           " smtp.mailfrom=" + authenticationResult->GetSPFDomain());
+         methods.push_back("spf=" + GetSPFResultText(senderAuthentication->GetSPFResult()) +
+                           " smtp.mailfrom=" + senderAuthentication->GetSPFDomain());
       }
 
-      for (auto signature : authenticationResult->GetDKIMSignatures())
+      for (auto signature : senderAuthentication->GetDKIMSignatures())
       {
          methods.push_back("dkim=" + GetDKIMResultText(signature.second) +
                            " header.d=" + String(signature.first));

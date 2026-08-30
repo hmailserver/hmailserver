@@ -34,7 +34,7 @@
 #include "../Common/Cache/CacheContainer.h"
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
-#include "../Common/AntiSpam/AuthenticationResult.h"
+#include "../Common/AntiSpam/SenderAuthentication.h"
 #include "../Common/AntiSpam/SpamTestResult.h"
 
 #include <boost/algorithm/string.hpp>
@@ -830,17 +830,17 @@ namespace HM
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
 
-      std::shared_ptr<AuthenticationResult> authenticationResult = std::shared_ptr<AuthenticationResult>(new AuthenticationResult);
+      std::shared_ptr<SenderAuthentication> senderAuthentication = std::shared_ptr<SenderAuthentication>(new SenderAuthentication);
 
       // Run PreTransmissionTests. These consists of light tests such as DNSBL/SPF checks.
       std::set<std::shared_ptr<SpamTestResult> > setResult =
-           SpamProtection::Instance()->RunPreTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, authenticationResult);
+           SpamProtection::Instance()->RunPreTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, senderAuthentication);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
 
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
       setResult =
-         SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, current_message_, authenticationResult);
+         SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, hostName, current_message_, senderAuthentication);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
       

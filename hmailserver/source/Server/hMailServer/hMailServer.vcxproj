@@ -162,7 +162,7 @@ EXIT 0
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\AntiSpam\AntiSpamConfiguration.cpp" />
-    <ClCompile Include="..\Common\AntiSpam\AuthenticationResult.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SenderAuthentication.cpp" />
     <ClCompile Include="..\Common\AntiSpam\AuthenticationResultsHeader.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\Canonicalization.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIM.cpp" />
@@ -659,7 +659,7 @@ EXIT 0
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\AntiSpam\AntiSpamConfiguration.h" />
-    <ClInclude Include="..\Common\AntiSpam\AuthenticationResult.h" />
+    <ClInclude Include="..\Common\AntiSpam\SenderAuthentication.h" />
     <ClInclude Include="..\Common\AntiSpam\AuthenticationResultsHeader.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\Canonicalization.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIM.h" />

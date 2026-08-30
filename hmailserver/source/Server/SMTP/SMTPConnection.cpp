@@ -45,7 +45,7 @@
 
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
-#include "../Common/AntiSpam/AuthenticationResult.h"
+#include "../Common/AntiSpam/SenderAuthentication.h"
 #include "../Common/AntiSpam/AuthenticationResultsHeader.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
@@ -821,20 +821,20 @@ namespace HM
       if (!GetDoSpamProtection_())
          return true;
 
-      if (!authentication_result_)
-         authentication_result_ = std::shared_ptr<AuthenticationResult>(new AuthenticationResult);
+      if (!sender_authentication_)
+         sender_authentication_ = std::shared_ptr<SenderAuthentication>(new SenderAuthentication);
 
       if (spType == SPPreTransmission)
       {
          std::set<std::shared_ptr<SpamTestResult> > setResult =
-            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, authentication_result_);
+            SpamProtection::Instance()->RunPreTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, sender_authentication_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
       }
       else if (spType == SPPostTransmission)
       {
          std::set<std::shared_ptr<SpamTestResult> > setResult =
-            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, current_message_, authentication_result_);
+            SpamProtection::Instance()->RunPostTransmissionTests(sFromAddress, lIPAddress, GetRemoteEndpointAddress(), hostName, current_message_, sender_authentication_);
 
          spam_test_results_.insert(setResult.begin(), setResult.end());
 
@@ -1172,7 +1172,7 @@ namespace HM
 
             // Reset the spam protection results.
             spam_test_results_.clear();
-            authentication_result_.reset();
+            sender_authentication_.reset();
 
             // Tell the client that everything went fine. This
             // will cause the client to either disconnect or to
@@ -1246,7 +1246,7 @@ namespace HM
       }
 
       // The header is only added to messages we've actually run authentication tests on.
-      if (authentication_result_ && Configuration::Instance()->GetAntiSpamConfiguration().GetAddAuthenticationResultsHeader())
+      if (sender_authentication_ && Configuration::Instance()->GetAntiSpamConfiguration().GetAddAuthenticationResultsHeader())
       {
          if (!pMsgData)
          {
@@ -1256,7 +1256,7 @@ namespace HM
                pMsgData.reset();
          }
 
-         AuthenticationResultsHeader::Apply(pMsgData, authentication_result_);
+         AuthenticationResultsHeader::Apply(pMsgData, sender_authentication_);
       }
 
       SetMessageSignature_(pMsgData);
@@ -1532,7 +1532,7 @@ namespace HM
       sender_account_.reset();
 
       spam_test_results_.clear();
-      authentication_result_.reset();
+      sender_authentication_.reset();
 
       // Reset the number of RCPT TO's for this
       // message.

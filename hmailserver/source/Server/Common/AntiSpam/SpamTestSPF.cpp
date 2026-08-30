@@ -6,7 +6,7 @@
 
 #include "SpamTestData.h"
 #include "SpamTestResult.h"
-#include "AuthenticationResult.h"
+#include "SenderAuthentication.h"
 
 #include "AntiSpamConfiguration.h"
 
@@ -49,23 +49,10 @@ namespace HM
       String sMessage = "";
       int iScore = 0;
 
-      const IPAddress &originatingAddress = pTestData->GetOriginatingIP();
+      std::shared_ptr<SenderAuthentication> senderAuthentication = pTestData->GetSenderAuthentication();
 
-      if (originatingAddress.IsAny())
-         return setSpamTestResults;
-
-      String sExplanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), pTestData->GetEnvelopeFrom(), pTestData->GetHeloHost(), sExplanation);
-
-      if (auto authenticationResult = pTestData->GetAuthenticationResult())
-      {
-         // With a null sender, SPF authenticates the HELO identity instead.
-         String domain = StringParser::ExtractDomain(pTestData->GetEnvelopeFrom());
-         if (domain.IsEmpty())
-            domain = pTestData->GetHeloHost();
-
-         authenticationResult->SetSPFResult(result, domain);
-      }
+      SPF::Result result = senderAuthentication->EvaluateSPF(pTestData);
+      String sExplanation = senderAuthentication->GetSPFExplanation();
 
       if (result == SPF::Fail)
       {
