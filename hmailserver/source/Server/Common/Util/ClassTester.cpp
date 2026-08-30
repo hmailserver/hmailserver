@@ -21,6 +21,7 @@
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
+#include "../AntiSpam/DMARC/DMARCTester.h"
 #include "../../SMTP/BLCheck.h"
 #include "../Application/BackupManager.h"
 #include "../Util/Encoding/Base64.h"
@@ -102,6 +103,10 @@ namespace HM
       SPFTester *pSPF = new SPFTester();
       pSPF->Test();
       delete pSPF;
+
+      OutputDebugString(_T("hMailServer: Testing DMARC\n"));
+      DMARCTester dmarcTester;
+      dmarcTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing SHA256\n"));
       HashCreatorTester tester;
