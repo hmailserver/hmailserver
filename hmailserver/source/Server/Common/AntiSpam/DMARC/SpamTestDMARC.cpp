@@ -21,6 +21,8 @@
 
 #include "../../../SMTP/SPF/SPF.h"
 
+#include <random>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -85,12 +87,65 @@ namespace HM
       String message;
       message.Format(_T("Rejected by DMARC. (%s)"), headerFromDomain.c_str());
 
-      int score = Configuration::Instance()->GetAntiSpamConfiguration().GetDMARCFailureScore();
+      AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
 
-      std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, score, message));
+      std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, config.GetDMARCFailureScore(), message));
+
+      if (config.GetDMARCHonorPolicy())
+      {
+         DMARCRecord::Policy policy = DMARCEvaluator::GetApplicablePolicy(record, headerFromDomain, policyDomain);
+
+         switch (GetPolicyToApply_(record, policy))
+         {
+         case DMARCRecord::Policy::Reject:
+            pResult->SetRejectMessage(true);
+            break;
+         case DMARCRecord::Policy::Quarantine:
+            pResult->SetMarkAsSpam(true);
+            break;
+         }
+      }
+
       setSpamTestResults.insert(pResult);
 
       return setSpamTestResults;
+   }
+
+   DMARCRecord::Policy
+   SpamTestDMARC::GetPolicyToApply_(const DMARCRecord &record, DMARCRecord::Policy policy)
+   {
+      int percent = record.GetPercent();
+
+      if (percent >= 100)
+         return policy;
+
+      // The pct tag lets a domain owner roll a policy out gradually, by having
+      // receivers apply it to a random sample of that size of their messages.
+
+      // Thread local since the generator isn't thread safe, and messages are
+      // processed on several threads at the same time.
+      thread_local std::mt19937 generator(std::random_device{}());
+      std::uniform_int_distribution<int> distribution(0, 99);
+
+      if (distribution(generator) < percent)
+         return policy;
+
+      // Outside the sampled percentage the policy is applied one step down.
+      return DegradePolicy_(policy);
+   }
+
+   DMARCRecord::Policy
+   SpamTestDMARC::DegradePolicy_(DMARCRecord::Policy policy)
+   {
+      switch (policy)
+      {
+      case DMARCRecord::Policy::Reject:
+         return DMARCRecord::Policy::Quarantine;
+      case DMARCRecord::Policy::Quarantine:
+         return DMARCRecord::Policy::None;
+      }
+
+      return DMARCRecord::Policy::None;
    }
 
    String

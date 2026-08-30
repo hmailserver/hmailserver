@@ -35,6 +35,7 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
 #include "../Common/AntiSpam/AuthenticationResult.h"
+#include "../Common/AntiSpam/SpamTestResult.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -847,7 +848,21 @@ namespace HM
       int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
+      // A test may ask for the message to be rejected or marked as spam regardless
+      // of the spam score.
+      bool rejectRequested = false;
+      bool markRequested = false;
+
+      for (std::shared_ptr<SpamTestResult> testResult : setSpamTestResults)
+      {
+         if (testResult->GetRejectMessage())
+            rejectRequested = true;
+
+         if (testResult->GetMarkAsSpam())
+            markRequested = true;
+      }
+
+      if (rejectRequested || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
       {
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
@@ -855,8 +870,8 @@ namespace HM
          FileUtilities::DeleteFile(fileName);
          return false;
       }
-      
-      bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
+
+      bool classifiedAsSpam = markRequested || (iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold);
 
       if (classifiedAsSpam)
       {

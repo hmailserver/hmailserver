@@ -28,6 +28,11 @@ namespace HM
       // Returns true if this spam protection mechanism is enabled. False otherwise.
       
       virtual SpamTestType GetTestType() = 0;
+
+      virtual bool GetAlwaysRun() {return false; }
+      // Returns true if this test should run even when the spam score threshold
+      // has already been reached.
+
       virtual std::set<std::shared_ptr<SpamTestResult> > RunTest(std::shared_ptr<SpamTestData> pTestData) = 0;
          
    private:

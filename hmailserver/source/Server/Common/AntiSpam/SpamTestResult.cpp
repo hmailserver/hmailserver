@@ -15,7 +15,9 @@ namespace HM
       spam_score_(iSpamScore),
       message_(sMessage),
       testName_(testName),
-      result_(result)
+      result_(result),
+      reject_message_(false),
+      mark_as_spam_(false)
    {
 
    }

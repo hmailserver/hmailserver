@@ -20,6 +20,10 @@ namespace HM
       virtual bool GetIsEnabled();
       virtual SpamTestType GetTestType() {return PostTransmission; }
 
+      // DMARC must run even when the spam score threshold has been reached, since
+      // it can reject the message on its own.
+      virtual bool GetAlwaysRun() {return true; }
+
       virtual std::set<std::shared_ptr<SpamTestResult> > RunTest(std::shared_ptr<SpamTestData> pTestData);
 
    private:
@@ -31,5 +35,9 @@ namespace HM
       void EnsureDKIMResults_(std::shared_ptr<SpamTestData> pTestData, std::shared_ptr<AuthenticationResult> authenticationResult);
 
       bool IsAuthenticated_(std::shared_ptr<AuthenticationResult> authenticationResult, const DMARCRecord &record, const String &headerFromDomain);
+
+      // The policy to enforce, after applying the pct tag. See RFC 7489, section 6.6.4.
+      static DMARCRecord::Policy GetPolicyToApply_(const DMARCRecord &record, DMARCRecord::Policy policy);
+      static DMARCRecord::Policy DegradePolicy_(DMARCRecord::Policy policy);
    };
 }

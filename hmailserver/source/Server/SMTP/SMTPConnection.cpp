@@ -843,13 +843,21 @@ namespace HM
       int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
+      // A test may ask for the message to be rejected regardless of the spam score.
+      std::shared_ptr<SpamTestResult> rejectingResult;
+      for (std::shared_ptr<SpamTestResult> testResult : spam_test_results_)
+      {
+         if (testResult->GetRejectMessage())
+            rejectingResult = testResult;
+      }
+
+      if (rejectingResult || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
       {
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
 
          // Generate a text string to send to the client.
-         String messageText = GetSpamTestResultMessage_(spam_test_results_);
+         String messageText = rejectingResult ? rejectingResult->GetMessage() : GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
             EnqueueWrite_("550 " + messageText);
@@ -1216,7 +1224,15 @@ namespace HM
       int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
       bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
-      
+
+      // A test may ask for the message to be marked as spam regardless of the spam score.
+      for (std::shared_ptr<SpamTestResult> testResult : spam_test_results_)
+      {
+         if (testResult->GetMarkAsSpam())
+            classifiedAsSpam = true;
+      }
+
+
       if (classifiedAsSpam) 
       {
          // Set message SPAM Flag

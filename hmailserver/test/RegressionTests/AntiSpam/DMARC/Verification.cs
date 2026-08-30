@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 namespace RegressionTests.AntiSpam.DMARC
@@ -69,6 +70,84 @@ namespace RegressionTests.AntiSpam.DMARC
 
          Assert.IsFalse(text.Contains("X-hMailServer-Spam"), text);
          Assert.IsFalse(text.Contains("Rejected by DMARC"), text);
+      }
+
+      [Test]
+      [Description("A message failing DMARC for a domain publishing p=reject should be rejected when the policy is honored.")]
+      public void TestRejectPolicyIsHonored()
+      {
+         _antiSpam.DMARCHonorPolicy = true;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         CustomAsserts.Throws<DeliveryFailedException>(() =>
+            SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, GetMessage_("sender@example.com")));
+      }
+
+      [Test]
+      [Description("A message failing DMARC for a domain publishing p=reject should only be scored when the policy isn't honored.")]
+      public void TestRejectPolicyIsIgnoredWhenNotHonored()
+      {
+         _antiSpam.DMARCHonorPolicy = false;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, GetMessage_("sender@example.com"));
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("Rejected by DMARC. (example.com) - (Score: 6)"), text);
+      }
+
+      [Test]
+      [Description("A message failing DMARC for a domain publishing sp=quarantine should be marked as spam.")]
+      public void TestQuarantinePolicyIsHonored()
+      {
+         _antiSpam.DMARCHonorPolicy = true;
+
+         // The spam score alone must not be enough to mark the message as spam, so that
+         // the mark can only come from the published policy.
+         _antiSpam.DMARCFailureScore = 1;
+         _antiSpam.SpamMarkThreshold = 50;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // The subdomain publishes no DMARC record of its own, so the record at the
+         // organizational domain applies - and there sp=quarantine.
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
+            GetMessage_("sender@dmarctest.gmail.com"));
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("X-hMailServer-Spam: YES"), text);
+      }
+
+      [Test]
+      [Description("DMARC should run even when the spam score threshold has already been reached.")]
+      public void TestDmarcRunsAfterScoreThresholdReached()
+      {
+         // DKIM runs before DMARC and reaches the threshold on its own, which stops
+         // the remaining tests from running.
+         _antiSpam.DKIMVerificationEnabled = true;
+         _antiSpam.DKIMVerificationFailureScore = 10;
+         _antiSpam.SpamDeleteThreshold = 0;
+         _antiSpam.SpamMarkThreshold = 5;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, TestResources.MessageWithInvalidDkim);
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("Rejected by DMARC. (outlook.com)"), text);
+      }
+
+      private static string GetMessage_(string fromAddress)
+      {
+         return "From: " + fromAddress + "\r\n" +
+                "Subject: DMARC test\r\n" +
+                "\r\n" +
+                "Test body\r\n";
       }
 
       [Test]
