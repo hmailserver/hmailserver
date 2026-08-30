@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -66,14 +66,8 @@ namespace HM
 
       if (UsesLiveMessages())
       {
-         // The caller updates the message, so it needs the object the collection holds.
-         for (__int64 message_id : message_ids)
-         {
-            auto message = messages->GetItemByDBID(message_id);
-
-            if (message)
-               resolved_messages[message_id] = message;
-         }
+         // The caller updates the message, so it needs the objects the collection holds.
+         resolved_messages = messages->GetItemsByIds(message_ids);
       }
       else
       {

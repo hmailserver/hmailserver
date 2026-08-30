@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -58,11 +58,27 @@ namespace HM
       // others, so their sequence numbers would mean nothing to the client.
       std::set<__int64> messages_to_delete;
 
-      for (const auto &entry : view->GetAllEntries())
-      {
-         auto message = messages->GetItemByDBID(entry.second.message_id);
+      auto entries = view->GetAllEntries();
 
-         if (message && message->GetFlagDeleted())
+      std::set<__int64> view_message_ids;
+      for (const auto &entry : entries)
+         view_message_ids.insert(entry.second.message_id);
+
+      auto view_messages = messages->GetCopyByIds(view_message_ids);
+
+      for (const auto &entry : entries)
+      {
+         auto iter = view_messages.find(entry.second.message_id);
+
+         if (iter == view_messages.end())
+         {
+            // Expunged by another session. The client is told about the expunge the next
+            // time we're allowed to send one.
+            view->MarkVanished(entry.second.message_id);
+            continue;
+         }
+
+         if (iter->second->GetFlagDeleted())
             messages_to_delete.insert(entry.second.message_id);
       }
 

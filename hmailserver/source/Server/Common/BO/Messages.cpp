@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -58,6 +58,24 @@ namespace HM
             continue;
 
          result[message->GetID()] = std::shared_ptr<Message>(new Message(*message.get()));
+      }
+
+      return result;
+   }
+
+   std::map<__int64, std::shared_ptr<Message>>
+   Messages::GetItemsByIds(const std::set<__int64> &message_ids) const
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
+
+      std::map<__int64, std::shared_ptr<Message>> result;
+
+      for (std::shared_ptr<Message> message : vecObjects)
+      {
+         if (message_ids.find(message->GetID()) == message_ids.end())
+            continue;
+
+         result[message->GetID()] = message;
       }
 
       return result;

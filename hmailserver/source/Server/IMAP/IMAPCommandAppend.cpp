@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -303,7 +303,10 @@ namespace HM
          if (view)
             view->AppendNewMessages(messages);
 
-         sResponse += IMAPNotificationClient::GenerateExistsString(messages->GetCount());
+         // Report this session's numbering, which may still contain messages expunged elsewhere.
+         int message_count = view ? view->GetMessageCount() : messages->GetCount();
+
+         sResponse += IMAPNotificationClient::GenerateExistsString(message_count);
          sResponse += IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount());
       }
 
