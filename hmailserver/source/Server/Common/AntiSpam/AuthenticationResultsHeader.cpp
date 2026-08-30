@@ -48,6 +48,47 @@ namespace HM
 
          return "none";
       }
+
+      // Sender-controlled values must not be able to inject additional results
+      // into the header. Anything which isn't a plain domain is quoted.
+      String FormatValue(const String &value)
+      {
+         bool needsQuoting = value.IsEmpty();
+
+         for (TCHAR character : value)
+         {
+            bool alphaNumeric = (character >= '0' && character <= '9') ||
+                                (character >= 'a' && character <= 'z') ||
+                                (character >= 'A' && character <= 'Z');
+
+            if (!alphaNumeric && character != '-' && character != '.' && character != '_')
+            {
+               needsQuoting = true;
+               break;
+            }
+         }
+
+         if (!needsQuoting)
+            return value;
+
+         String result = _T("\"");
+
+         for (TCHAR character : value)
+         {
+            // Control characters, including CR and LF, are dropped.
+            if (character < 32 || character == 127)
+               continue;
+
+            if (character == '"' || character == '\\')
+               result += '\\';
+
+            result += character;
+         }
+
+         result += _T("\"");
+
+         return result;
+      }
    }
 
    void
@@ -79,23 +120,23 @@ namespace HM
       switch (senderAuthentication->GetDMARCResult())
       {
       case SenderAuthentication::DMARCResult::Pass:
-         methods.push_back("dmarc=pass header.from=" + senderAuthentication->GetDMARCDomain());
+         methods.push_back("dmarc=pass header.from=" + FormatValue(senderAuthentication->GetDMARCDomain()));
          break;
       case SenderAuthentication::DMARCResult::Fail:
-         methods.push_back("dmarc=fail header.from=" + senderAuthentication->GetDMARCDomain());
+         methods.push_back("dmarc=fail header.from=" + FormatValue(senderAuthentication->GetDMARCDomain()));
          break;
       }
 
       if (senderAuthentication->GetSPFChecked())
       {
          methods.push_back("spf=" + GetSPFResultText(senderAuthentication->GetSPFResult()) +
-                           " smtp.mailfrom=" + senderAuthentication->GetSPFDomain());
+                           " smtp.mailfrom=" + FormatValue(senderAuthentication->GetSPFDomain()));
       }
 
       for (auto signature : senderAuthentication->GetDKIMSignatures())
       {
          methods.push_back("dkim=" + GetDKIMResultText(signature.second) +
-                           " header.d=" + String(signature.first));
+                           " header.d=" + FormatValue(String(signature.first)));
       }
 
       if (methods.empty())
