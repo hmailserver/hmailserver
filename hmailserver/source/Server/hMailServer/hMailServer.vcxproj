@@ -173,6 +173,7 @@ EXIT 0
     <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCRecord.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCTester.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DMARC\DMARCTxtLookup.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\DMARC\SpamTestDMARC.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamProtection.cpp" />
@@ -668,6 +669,7 @@ EXIT 0
     <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCRecord.h" />
     <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCTester.h" />
     <ClInclude Include="..\Common\AntiSpam\DMARC\DMARCTxtLookup.h" />
+    <ClInclude Include="..\Common\AntiSpam\DMARC\SpamTestDMARC.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinClient.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamAssassin\SpamAssassinTestConnect.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamProtection.h" />

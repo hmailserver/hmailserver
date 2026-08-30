@@ -171,6 +171,7 @@
     <Compile Include="AntiSpam\DKIM\Signing.cs" />
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
     <Compile Include="AntiSpam\DMARC\Settings.cs" />
+    <Compile Include="AntiSpam\DMARC\Verification.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="API\Links.cs" />
     <Compile Include="Stress\AbruptDisconnectTests.cs" />

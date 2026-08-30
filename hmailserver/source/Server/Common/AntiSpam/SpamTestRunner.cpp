@@ -16,6 +16,7 @@
 #include "SpamTestSURBL.h"
 #include "SpamTestSpamAssassin.h"
 #include "DKIM/SpamTestDKIM.h"
+#include "DMARC/SpamTestDMARC.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -44,6 +45,7 @@ namespace HM
       spam_tests_.push_back(std::shared_ptr<SpamTestSPF> (new SpamTestSPF));
       spam_tests_.push_back(std::shared_ptr<SpamTestSURBL> (new SpamTestSURBL));
       spam_tests_.push_back(std::shared_ptr<SpamTestDKIM> (new SpamTestDKIM));
+      spam_tests_.push_back(std::shared_ptr<SpamTestDMARC> (new SpamTestDMARC));
       spam_tests_.push_back(std::shared_ptr<SpamTestSpamAssassin> (new SpamTestSpamAssassin));
    }
 
