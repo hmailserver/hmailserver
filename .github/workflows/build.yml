@@ -104,7 +104,7 @@ jobs:
       # of its own that could drift from this.
       runner-image: ${{ matrix.image }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Nothing here pushes; leaving the token in .git/config would only widen what a
           # later step - or a build script - could reach.
@@ -195,7 +195,7 @@ jobs:
       # from, and nothing here compiles them.
       - name: Cache the Universal CRT redistributable
         id: cache-ucrt
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: C:\Program Files (x86)\Windows Kits\10\Redist\${{ env.UCRT_VERSION }}\ucrt
           key: ucrt-${{ env.UCRT_SDK_PACKAGE_VERSION }}
@@ -300,28 +300,28 @@ jobs:
       # The matching save steps sit after each build below, and only run when it worked.
       - name: Restore OpenSSL
         id: cache-openssl
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.openssl_dir }}
           key: openssl-${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-openssl.ps1', 'libraries/build-common.ps1') }}
 
       - name: Restore Boost
         id: cache-boost
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.boost_dir }}
           key: boost-${{ steps.versions.outputs.boost }}-msvc14.2-${{ matrix.image }}-${{ hashFiles('libraries/build-boost.ps1', 'libraries/build-common.ps1') }}
 
       - name: Restore PostgreSQL (libpq)
         id: cache-pgsql
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.postgresql_dir }}
           key: pgsql-${{ steps.versions.outputs.postgresql }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-pgsql.ps1', 'libraries/build-common.ps1') }}
 
       - name: Restore MariaDB Connector/C
         id: cache-mariadb
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
@@ -352,7 +352,7 @@ jobs:
 
       - name: Save OpenSSL
         if: success() && steps.cache-openssl.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.openssl_dir }}
           key: ${{ steps.cache-openssl.outputs.cache-primary-key }}
@@ -374,7 +374,7 @@ jobs:
 
       - name: Save Boost
         if: success() && steps.cache-boost.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.boost_dir }}
           key: ${{ steps.cache-boost.outputs.cache-primary-key }}
@@ -400,7 +400,7 @@ jobs:
 
       - name: Save PostgreSQL (libpq)
         if: success() && steps.cache-pgsql.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.postgresql_dir }}
           key: ${{ steps.cache-pgsql.outputs.cache-primary-key }}
@@ -425,7 +425,7 @@ jobs:
 
       - name: Save MariaDB Connector/C
         if: success() && steps.cache-mariadb.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: ${{ steps.cache-mariadb.outputs.cache-primary-key }}
@@ -540,7 +540,7 @@ jobs:
           Get-ChildItem $symbols | Select-Object Name, Length | Format-Table -AutoSize | Out-String
 
       - name: Upload the symbols for publishing
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: symbols-untested
           path: ${{ runner.temp }}/symbols
@@ -630,7 +630,7 @@ jobs:
       # between jobs, so the run ends up carrying the installer twice - which is the price
       # of testing it on a machine that did not build it.
       - name: Upload the installer for testing
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: installer-untested
           path: hmailserver/installation/Output/*.exe
@@ -641,7 +641,7 @@ jobs:
 
       - name: Upload the library build logs
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: library-build-logs
           path: libraries/build-*.log
@@ -676,7 +676,7 @@ jobs:
       attestations: write
     steps:
       - name: Download the tested installer
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: installer-untested
           path: installer
@@ -691,20 +691,20 @@ jobs:
           subject-path: installer/*.exe
 
       - name: Upload the installer under its release name
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Setup
           path: installer/*.exe
           if-no-files-found: error
 
       - name: Download the symbols
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: symbols-untested
           path: symbols
 
       - name: Upload the symbols under their release name
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Symbols
           path: symbols/*.pdb
