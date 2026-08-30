@@ -198,6 +198,11 @@ Vendored third-party C++ libraries checked directly into the repository. Large e
 The below scripts will automatically locate prerequisites. They must be run using `powershell.exe` (not bash/sh). Use the `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <script>` invocation from bash.
 
 * Use `build/build.ps1` to build hMailServer server.
-* Use `build/post-build.ps1` to copy DLLs and register the COM server after a successful build. It requires Administrator elevation and will prompt via UAC automatically.
+* Use `build/post-build.ps1` to copy DLLs and register the COM server after a successful build. It stops the
+  service, copies the dependencies, registers the COM server if that is needed, and starts the service again.
+  Only the registration needs elevation, and it is skipped when the build output is already registered and the
+  type library is unchanged, so an ordinary rebuild does not prompt. Pass `-ForceRegister` to register anyway.
+* Run `build/grant-service-control.ps1` once, elevated, to let your account start and stop the hMailServer
+  service without a UAC prompt. Re-run it if the service is ever deleted and recreated.
 * Use `build/build-tests.ps1` to build the regression test solution.
 * Run the regression tests with the NUnit console runner from the restored packages, for example `hmailserver\test\RegressionTests\packages\NUnit.ConsoleRunner.<version>\tools\nunit3-console.exe hmailserver\test\RegressionTests\bin\x64\Debug\RegressionTests.dll`. They need an installed and running hMailServer, since they drive it through its COM API.

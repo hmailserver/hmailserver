@@ -469,7 +469,7 @@ jobs:
           # solution only compiles once hMailServer.exe has registered it - and the server
           # only starts for the registration with its DLLs beside it. post-build.ps1 does
           # both, exactly as the project's post-build event does on a developer machine.
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\post-build.ps1 -Configuration Release
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\post-build.ps1 -Configuration Release -NoServiceStart
           if ($LASTEXITCODE -ne 0) { throw "post-build.ps1 failed with exit code $LASTEXITCODE" }
 
       - name: Build the hMailServer tools
