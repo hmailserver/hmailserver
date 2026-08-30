@@ -103,6 +103,18 @@ namespace HM
       int GetDKIMVerificationFailureScore();
       void SetDKIMVerificationFailureScore(int newValue);
 
+      bool GetDMARCEnabled();
+      void SetDMARCEnabled(bool newValue);
+
+      int GetDMARCFailureScore();
+      void SetDMARCFailureScore(int newValue);
+
+      bool GetDMARCHonorPolicy();
+      void SetDMARCHonorPolicy(bool newValue);
+
+      bool GetAddAuthenticationResultsHeader();
+      void SetAddAuthenticationResultsHeader(bool newValue);
+
       bool GetBypassGreyListingOnSPFSuccess();
       void SetBypassGreyListingOnSPFSuccess(bool newValue);
 

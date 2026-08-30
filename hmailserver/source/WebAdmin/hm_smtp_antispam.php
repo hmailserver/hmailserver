@@ -40,6 +40,11 @@ if($action == "save")
 
    $antiSpamSettings->DKIMVerificationEnabled = hmailGetVar("DKIMVerificationEnabled", 0);
    $antiSpamSettings->DKIMVerificationFailureScore = hmailGetVar("DKIMVerificationFailureScore", 0);
+
+   $antiSpamSettings->DMARCEnabled = hmailGetVar("DMARCEnabled", 0);
+   $antiSpamSettings->DMARCFailureScore = hmailGetVar("DMARCFailureScore", 0);
+   $antiSpamSettings->DMARCHonorPolicy = hmailGetVar("DMARCHonorPolicy", 0);
+   $antiSpamSettings->AddAuthenticationResultsHeader = hmailGetVar("AddAuthenticationResultsHeader", 0);
 }
 
 $SpamMarkThreshold = $antiSpamSettings->SpamMarkThreshold;
@@ -63,6 +68,11 @@ $checkptrscore = $antiSpamSettings->CheckPTRScore;
 
 $DKIMVerificationEnabled = $antiSpamSettings->DKIMVerificationEnabled;
 $DKIMVerificationFailureScore = $antiSpamSettings->DKIMVerificationFailureScore;
+
+$DMARCEnabled = $antiSpamSettings->DMARCEnabled;
+$DMARCFailureScore = $antiSpamSettings->DMARCFailureScore;
+$DMARCHonorPolicy = $antiSpamSettings->DMARCHonorPolicy;
+$AddAuthenticationResultsHeader = $antiSpamSettings->AddAuthenticationResultsHeader;
 
 $AddHeaderSpam =   $antiSpamSettings->AddHeaderSpam;
 $AddHeaderReason =   $antiSpamSettings->AddHeaderReason;
@@ -174,6 +184,10 @@ function TestSpamAssassinConnection()
                PrintPropertyEditRow("checkptrscore", "Score", $checkptrscore, 4, "number", "small");
                PrintCheckboxRow("DKIMVerificationEnabled", "Verify DKIM-Signature header", $DKIMVerificationEnabled);
                PrintPropertyEditRow("DKIMVerificationFailureScore", "Score", $DKIMVerificationFailureScore, 4, "number");
+               PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
+               PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number");
+               PrintCheckboxRow("DMARCHonorPolicy", "Honor policy published by sender domain", $DMARCHonorPolicy);
+               PrintCheckboxRow("AddAuthenticationResultsHeader", "Add Authentication-Results header", $AddAuthenticationResultsHeader);
             ?>
          </table>
      </div>

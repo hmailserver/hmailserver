@@ -43,6 +43,10 @@ namespace hMailServer.Administrator
            this.tabPage2 = new System.Windows.Forms.TabPage();
            this.textDKIMVerificationFailureScore = new hMailServer.Shared.ucText();
            this.checkDKIMVerificationEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.textDMARCFailureScore = new hMailServer.Shared.ucText();
+           this.checkDMARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkDMARCHonorPolicy = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkAddAuthenticationResultsHeader = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textCheckHostInHeloScore = new hMailServer.Shared.ucText();
            this.textCheckPTRScore = new hMailServer.Shared.ucText();
            this.textUseMXChecksScore = new hMailServer.Shared.ucText();
@@ -202,6 +206,10 @@ namespace hMailServer.Administrator
            // 
            this.tabPage2.Controls.Add(this.textDKIMVerificationFailureScore);
            this.tabPage2.Controls.Add(this.checkDKIMVerificationEnabled);
+           this.tabPage2.Controls.Add(this.textDMARCFailureScore);
+           this.tabPage2.Controls.Add(this.checkDMARCEnabled);
+           this.tabPage2.Controls.Add(this.checkDMARCHonorPolicy);
+           this.tabPage2.Controls.Add(this.checkAddAuthenticationResultsHeader);
            this.tabPage2.Controls.Add(this.textCheckHostInHeloScore);
            this.tabPage2.Controls.Add(this.textUseMXChecksScore);
            this.tabPage2.Controls.Add(this.textCheckPTRScore);
@@ -260,7 +268,47 @@ namespace hMailServer.Administrator
            this.checkDKIMVerificationEnabled.Text = "Verify DKIM-Signature header";
            this.checkDKIMVerificationEnabled.UseVisualStyleBackColor = true;
            this.checkDKIMVerificationEnabled.CheckedChanged += new System.EventHandler(this.checkDKIMVerificationEnabled_CheckedChanged);
-           // 
+           //
+           // textDMARCFailureScore
+           //
+           this.textDMARCFailureScore.Location = new System.Drawing.Point(316, 182);
+           this.textDMARCFailureScore.Name = "textDMARCFailureScore";
+           this.textDMARCFailureScore.Number = 0;
+           this.textDMARCFailureScore.Numeric = true;
+           this.textDMARCFailureScore.Size = new System.Drawing.Size(64, 20);
+           this.textDMARCFailureScore.TabIndex = 27;
+           //
+           // checkDMARCEnabled
+           //
+           this.checkDMARCEnabled.AutoSize = true;
+           this.checkDMARCEnabled.Location = new System.Drawing.Point(15, 182);
+           this.checkDMARCEnabled.Name = "checkDMARCEnabled";
+           this.checkDMARCEnabled.Size = new System.Drawing.Size(166, 17);
+           this.checkDMARCEnabled.TabIndex = 26;
+           this.checkDMARCEnabled.Text = "Use DMARC";
+           this.checkDMARCEnabled.UseVisualStyleBackColor = true;
+           this.checkDMARCEnabled.CheckedChanged += new System.EventHandler(this.checkDMARCEnabled_CheckedChanged);
+           //
+           // checkDMARCHonorPolicy
+           //
+           this.checkDMARCHonorPolicy.AutoSize = true;
+           this.checkDMARCHonorPolicy.Location = new System.Drawing.Point(31, 205);
+           this.checkDMARCHonorPolicy.Name = "checkDMARCHonorPolicy";
+           this.checkDMARCHonorPolicy.Size = new System.Drawing.Size(250, 17);
+           this.checkDMARCHonorPolicy.TabIndex = 28;
+           this.checkDMARCHonorPolicy.Text = "Honor policy published by sender domain";
+           this.checkDMARCHonorPolicy.UseVisualStyleBackColor = true;
+           //
+           // checkAddAuthenticationResultsHeader
+           //
+           this.checkAddAuthenticationResultsHeader.AutoSize = true;
+           this.checkAddAuthenticationResultsHeader.Location = new System.Drawing.Point(15, 235);
+           this.checkAddAuthenticationResultsHeader.Name = "checkAddAuthenticationResultsHeader";
+           this.checkAddAuthenticationResultsHeader.Size = new System.Drawing.Size(230, 17);
+           this.checkAddAuthenticationResultsHeader.TabIndex = 29;
+           this.checkAddAuthenticationResultsHeader.Text = "Add Authentication-Results header";
+           this.checkAddAuthenticationResultsHeader.UseVisualStyleBackColor = true;
+           //
            // textCheckHostInHeloScore
            // 
            this.textCheckHostInHeloScore.Location = new System.Drawing.Point(316, 62);
@@ -533,6 +581,10 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelMaxSizeToScan;
        private hMailServer.Shared.ucText textDKIMVerificationFailureScore;
        private hMailServer.Administrator.Controls.ucCheckbox checkDKIMVerificationEnabled;
+       private hMailServer.Shared.ucText textDMARCFailureScore;
+       private hMailServer.Administrator.Controls.ucCheckbox checkDMARCEnabled;
+       private hMailServer.Administrator.Controls.ucCheckbox checkDMARCHonorPolicy;
+       private hMailServer.Administrator.Controls.ucCheckbox checkAddAuthenticationResultsHeader;
        private System.Windows.Forms.Button buttonTest;
     }
 }

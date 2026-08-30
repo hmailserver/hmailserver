@@ -747,6 +747,14 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASDKIMVerificationFailureScore', '', 5);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASDMARCEnabled', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASDMARCFailureScore', '', 5);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASDMARCHonorPolicy', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthenticationResultsHeader', '', 0);
+
 insert into hm_settings (settingname, settingstring, settinginteger) values ('AutoBanOnLogonFailureEnabled', '', 1);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('MaxInvalidLogonAttempts', '', 3);
