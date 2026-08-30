@@ -418,6 +418,7 @@ EXIT 0
     <ClCompile Include="..\Common\Util\FolderManipulationLock.cpp" />
     <ClCompile Include="..\Common\Util\GUIDCreator.cpp" />
     <ClCompile Include="..\Common\Util\Hashing\HashCreator.cpp" />
+    <ClCompile Include="..\Common\Util\Hashing\PasswordHasher.cpp" />
     <ClCompile Include="..\Common\Util\HeapChecker.cpp" />
     <ClCompile Include="..\Common\Util\HTTPClient.cpp" />
     <ClCompile Include="..\Common\Util\Language.cpp" />
@@ -921,6 +922,7 @@ EXIT 0
     <ClInclude Include="..\Common\Util\FolderManipulationLock.h" />
     <ClInclude Include="..\Common\Util\GUIDCreator.h" />
     <ClInclude Include="..\Common\Util\Hashing\HashCreator.h" />
+    <ClInclude Include="..\Common\Util\Hashing\PasswordHasher.h" />
     <ClInclude Include="..\Common\Util\HeapChecker.h" />
     <ClInclude Include="..\Common\Util\HTTPClient.h" />
     <ClInclude Include="..\Common\Util\Language.h" />

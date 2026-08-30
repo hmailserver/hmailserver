@@ -17,6 +17,7 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 
 #include "../Common/Persistence/PersistentServerMessage.h"
+#include "../Common/Util/Hashing/PasswordHasher.h"
 
 #include "../POP3/POP3Configuration.h"
 #include "../SMTP/SMTPConfiguration.h"
@@ -1022,7 +1023,8 @@ STDMETHODIMP InterfaceSettings::SetAdministratorPassword(BSTR newVal)
          return false;
       
    
-      ini_file_settings_->SetAdministratorPassword(newVal);
+      if (!ini_file_settings_->SetAdministratorPassword(newVal))
+         return COMError::GenerateError("Failed to hash the password.");
    
       return S_OK;
    }
@@ -2676,6 +2678,183 @@ STDMETHODIMP InterfaceSettings::put_CreateDefaultSpecialUseFoldersEnabled(VARIAN
          return GetAccessDenied();
 
       config_->SetCreateDefaultSpecialUseFolders(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashAlgorithm(ePasswordHashAlgorithm *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = static_cast<ePasswordHashAlgorithm>(config_->GetPasswordHashAlgorithm());
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashAlgorithm(ePasswordHashAlgorithm newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal != ePWHashArgon2id &&
+          newVal != ePWHashPBKDF2SHA256)
+      {
+         return COMError::GenerateError("Invalid password hash algorithm. Valid values are 1 (Argon2id) and 2 (PBKDF2-SHA256).");
+      }
+
+      config_->SetPasswordHashAlgorithm(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashMemoryCost(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashMemoryCost();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashMemoryCost(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal < 0)
+         return COMError::GenerateError("The password hash memory cost cannot be negative. Use 0 to select the recommended default.");
+
+      // Only Argon2id uses this setting, and only its bounds apply: below the floor
+      // the hash is no stronger than a salted SHA-256, above the ceiling a single
+      // verification allocates more than is reasonable on a shared worker thread.
+      // 0 always means "use the recommended default" and is exempt from the range.
+      if (newVal != 0 &&
+          (newVal < HM::PasswordHasher::MinArgon2idMemoryCostKb || newVal > HM::PasswordHasher::MaxArgon2idMemoryCostKb))
+      {
+         return COMError::GenerateError("Invalid password hash memory cost. Valid values are 0 (recommended default) or 4096-1048576 KiB.");
+      }
+
+      config_->SetPasswordHashMemoryCost(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashIterations(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashIterations();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashIterations(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (newVal < 0)
+         return COMError::GenerateError("The password hash iteration count cannot be negative. Use 0 to select the recommended default.");
+
+      // The valid range differs by an order of magnitude between the two algorithms,
+      // so it is read against whichever algorithm is configured right now. Both the
+      // Administrator and WebAdmin always write the algorithm before the iteration
+      // count, so this sees the algorithm the administrator actually chose. 0 always
+      // means "use the recommended default" and is exempt from the range.
+      if (newVal != 0)
+      {
+         if (HM::PasswordHasher::GetConfiguredAlgorithm() == HM::PasswordHasher::AlgorithmPBKDF2SHA256)
+         {
+            if (newVal < HM::PasswordHasher::MinPBKDF2Iterations || newVal > HM::PasswordHasher::MaxPBKDF2Iterations)
+               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 10000-10000000 for PBKDF2-SHA256.");
+         }
+         else
+         {
+            if (newVal < HM::PasswordHasher::MinArgon2idIterations || newVal > HM::PasswordHasher::MaxArgon2idIterations)
+               return COMError::GenerateError("Invalid password hash iteration count. Valid values are 0 (recommended default) or 1-20 for Argon2id.");
+         }
+      }
+
+      config_->SetPasswordHashIterations(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_PasswordHashAutoUpgradeEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetPasswordHashAutoUpgrade() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_PasswordHashAutoUpgradeEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetPasswordHashAutoUpgrade(newVal == VARIANT_TRUE);
 
       return S_OK;
    }

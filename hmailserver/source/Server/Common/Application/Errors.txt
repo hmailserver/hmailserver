@@ -112,11 +112,14 @@
 5514, Unable to find appropriate MySQL character set.
 5515, Failed to enable lingering for session {0}
 5516, Attempted DNS lookup for empty host name.
+5517, Failed to generate a random salt.
 5518, An error occurred when accepting a connection
 5519, An error has been detected and an error stack will be generated and saved in {0}.
 5520, Failed to open socket on IP address {0}.
 5521, An error has been detected. hMailServer was unable to launch minidump generator.
 5522, An error has been detected. hMailServer attempted to generate minidump, but hMailServer.minidump.exe returned {0}.
+5524, Argon2id is not available in the OpenSSL library being used. OpenSSL 3.2 or later is required.
+5525, The hMailServer.ini setting PreferredHashAlgorithm is no longer used and is being ignored.
 5601, _AtlModule.WinMain returned {0}.
 5602, Unable to read install path from HKEY_LOCAL_MACHINE\SOFTWARE\\hMailServer. Using fallback method.
 5603, Unable to enable Diffie-Hellman key agreement. The required file {0} does not exist.

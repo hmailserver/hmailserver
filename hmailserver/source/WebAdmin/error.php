@@ -23,7 +23,7 @@
          Error location: <?php echo PreprocessOutput($errfile)?><br/>
          </font>
          <br/><br/>
-         <input type="submit" onClick="history.back();" value="Go back">
+         <input type="submit" onClick="document.location.href=document.referrer;" value="Go back">
          <input type="submit" onClick="document.location.href='logout.php';" value="Log out">
          
          

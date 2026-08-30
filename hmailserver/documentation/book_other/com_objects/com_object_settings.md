@@ -194,6 +194,30 @@ The Settings object is the root-object for all hMailServer settings which are no
 
 <div class="api_description">A copy of all e-mails are sent to the address.<br></div>
 
+<div class="api_method_name">long PasswordHashAlgorithm</div>
+
+<div class="api_description"> Algorithm used to hash account passwords. 1 = Argon2id, 2 = PBKDF2-SHA256.</div>
+
+<div class="api_description"> </div>
+
+<div class="api_method_name">bool PasswordHashAutoUpgradeEnabled</div>
+
+<div class="api_description"> Re-hash account passwords during logon when they use an older algorithm or a lower cost.</div>
+
+<div class="api_description"> </div>
+
+<div class="api_method_name">long PasswordHashIterations</div>
+
+<div class="api_description"> Iteration count used when hashing account passwords. 0 means the recommended default of the selected algorithm: 2 for Argon2id, 600000 for PBKDF2-SHA256.</div>
+
+<div class="api_description"> </div>
+
+<div class="api_method_name">long PasswordHashMemoryCost</div>
+
+<div class="api_description"> Memory cost in kilobytes used when hashing account passwords with Argon2id. 0 means the recommended default of 19456 KiB (19 MiB).</div>
+
+<div class="api_description"> </div>
+
 <div class="api_method_name">string PublicFolderDiskName</div>
 
 <div class="api_description">The name of the folder on disk in which public folders are stored.<br> <i>(read-only)</i></div>

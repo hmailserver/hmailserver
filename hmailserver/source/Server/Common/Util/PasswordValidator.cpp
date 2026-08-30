@@ -12,6 +12,8 @@
 #include "../BO/DomainAliases.h"
 #include "../Util/SSPIValidation.h"
 #include "../Util/Crypt.h"
+#include "../Util/Hashing/PasswordHasher.h"
+#include "../Persistence/PersistentAccount.h"
 #include "../Scripting/Result.h"
 #include "../Scripting/Events.h"
 
@@ -150,7 +152,28 @@ namespace HM
 
       String sComparePassword = pAccount->GetPassword();
 
-      if (iPasswordEncryption == 0)
+      // Set only where a stored credential has actually been compared, and found to
+      // match. It must never be set on the script-override path above - a permissive
+      // event handler would otherwise cause us to overwrite every stored password
+      // with whatever string the client presented.
+      bool hash_verified = false;
+
+      // What to store when re-hashing. Always the string the client sent, never a
+      // recovered value from the old scheme: the plaintext and Blowfish paths below
+      // compare case-insensitively, so a recovered value can differ in case from what
+      // the client typed. Argon2id/PBKDF2 are case-sensitive, so hashing the recovered
+      // value would silently narrow the accepted password to one casing and lock out
+      // whichever casing wasn't the one that happened to migrate first.
+      String sPasswordToStore = sPassword;
+
+      if (iPasswordEncryption == Crypt::ETPHC)
+      {
+         if (!PasswordHasher::Verify(sPassword, sComparePassword))
+            return false;
+
+         hash_verified = true;
+      }
+      else if (iPasswordEncryption == 0)
       {
          // Do plain text comparison
 
@@ -162,18 +185,24 @@ namespace HM
          // if (sPassword.Compare(sComparePassword) != 0)
          //   return false;
          //
-         sComparePassword.MakeLower();
-         if (sPassword.CompareNoCase(sComparePassword) != 0)
+         String sComparePasswordLowered = sComparePassword;
+         sComparePasswordLowered.MakeLower();
+         if (sPassword.CompareNoCase(sComparePasswordLowered) != 0)
             return false;
+
+         hash_verified = true;
       }
       else if (iPasswordEncryption == Crypt::ETMD5 ||
                iPasswordEncryption == Crypt::ETSHA256)
       {
-         // Compare hashes
+         // Compare hashes. These algorithms are kept for verification only, so that
+         // nobody is locked out. They are never written any more.
          bool result = Crypt::Instance()->Validate(sPassword, sComparePassword, iPasswordEncryption);
 
          if (!result)
             return false;
+
+         hash_verified = true;
       }
       else if (iPasswordEncryption == Crypt::ETBlowFish)
       {
@@ -181,11 +210,40 @@ namespace HM
 
          if (sPassword.CompareNoCase(decrypted) != 0)
             return false;
+
+         hash_verified = true;
       }
       else
          return false;
 
+      if (hash_verified)
+         RehashPasswordIfNeeded_(pAccount, sPasswordToStore, sComparePassword);
+
       return true;
+   }
+
+   void
+   PasswordValidator::RehashPasswordIfNeeded_(std::shared_ptr<const Account> pAccount, const String &sPassword, const String &sStoredPassword)
+   {
+      // Migrating during logon costs one hash and one database write per account.
+      // Upgrades start with this switched off, so that an existing installation
+      // does not pay for every account at once when its clients reconnect.
+      if (!Configuration::Instance()->GetPasswordHashAutoUpgrade())
+         return;
+
+      // Active Directory accounts have no password of their own to migrate.
+      if (pAccount->GetIsAD())
+         return;
+
+      if (!PasswordHasher::NeedsRehash(sStoredPassword))
+         return;
+
+      AnsiString hash = PasswordHasher::Hash(sPassword);
+
+      if (hash.GetLength() == 0)
+         return;
+
+      PersistentAccount::UpdatePassword(pAccount, hash, Crypt::ETPHC);
    }
 
 }

@@ -161,6 +161,18 @@ namespace HM
       bool GetTlsOptionEnabled(TlsOption option) const;
       void SetTlsOptionEnabled(TlsOption option, bool enabled);
 
+      int GetPasswordHashAlgorithm() const;
+      void SetPasswordHashAlgorithm(int algorithm);
+
+      int GetPasswordHashMemoryCost() const;
+      void SetPasswordHashMemoryCost(int memoryCostKb);
+
+      int GetPasswordHashIterations() const;
+      void SetPasswordHashIterations(int iterations);
+
+      bool GetPasswordHashAutoUpgrade() const;
+      void SetPasswordHashAutoUpgrade(bool enabled);
+
       bool GetIPv6Preferred();
       void SetIPv6Preferred(bool enabled);
 
@@ -170,6 +182,12 @@ namespace HM
       int GetCrashSimulationMode() const;
       void SetCrashSimulationMode(int mode);
 
+
+      bool IsLoaded() const;
+      // False until Load() has run. Load() is skipped entirely when the database is
+      // of the wrong version, so anything reachable from the COM API before the
+      // server has finished starting - the administrator password, for one - has to
+      // cope with the settings not being there.
 
       std::shared_ptr<PropertySet> GetSettings() const;
 

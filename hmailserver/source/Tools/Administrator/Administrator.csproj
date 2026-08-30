@@ -257,6 +257,12 @@
     <Compile Include="Main panes\ucSSLTLS.Designer.cs">
       <DependentUpon>ucSSLTLS.cs</DependentUpon>
     </Compile>
+    <Compile Include="Main panes\ucPasswordHashing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Main panes\ucPasswordHashing.Designer.cs">
+      <DependentUpon>ucPasswordHashing.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main panes\ucAccount.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -585,6 +591,7 @@
     <Compile Include="Nodes\NodeLogging.cs" />
     <Compile Include="Nodes\NodeMirror.cs" />
     <Compile Include="Nodes\NodeMXQuery.cs" />
+    <Compile Include="Nodes\NodePasswordHashing.cs" />
     <Compile Include="Nodes\NodePerformance.cs" />
     <Compile Include="Nodes\NodeProtocolIMAP.cs" />
     <Compile Include="Nodes\NodeProtocolPOP3.cs" />
@@ -711,6 +718,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Main panes\ucSSLTLS.resx">
       <DependentUpon>ucSSLTLS.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main panes\ucPasswordHashing.resx">
+      <DependentUpon>ucPasswordHashing.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Main panes\ucAccount.resx">

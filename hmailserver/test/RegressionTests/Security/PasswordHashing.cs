@@ -1,0 +1,877 @@
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
+// http://www.hmailserver.com
+
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Security.Authentication;
+using System.Text;
+using Microsoft.Win32;
+using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Infrastructure;
+using RegressionTests.Shared;
+
+namespace RegressionTests.Security
+{
+   [TestFixture]
+   public class PasswordHashing : TestFixtureBase
+   {
+      private const string Address = "test@example.test";
+      private const string Password = "SecretPassword";
+
+      // The password the test suite itself authenticates the API session with.
+      private const string AdministratorPassword = "testar";
+
+      private const ePasswordHashAlgorithm AlgorithmArgon2id = ePasswordHashAlgorithm.ePWHashArgon2id;
+      private const ePasswordHashAlgorithm AlgorithmPbkdf2Sha256 = ePasswordHashAlgorithm.ePWHashPBKDF2SHA256;
+
+      private const int DefaultArgon2idMemoryCost = 19456;
+      private const int DefaultArgon2idIterations = 2;
+
+      private const int EncryptionPlainText = 0;
+      private const int EncryptionBlowfish = 1;
+      private const int EncryptionMd5 = 2;
+
+      // Must match PasswordHasher::Constants in the server.
+      private const int MinArgon2idMemoryCost = 4096;
+      private const int MaxArgon2idMemoryCost = 1048576;
+      private const int MinArgon2idIterations = 1;
+      private const int MaxArgon2idIterations = 20;
+      private const int MinPbkdf2Iterations = 10000;
+      private const int MaxPbkdf2Iterations = 10000000;
+
+      private static string EncodeBase64(string s)
+      {
+         return Convert.ToBase64String(Encoding.UTF8.GetBytes(s));
+      }
+
+      private static string GetStoredPassword()
+      {
+         // Read the account back from the database rather than from the object we
+         // created it with. The getter returns the stored value verbatim.
+         return SingletonProvider<TestSetup>.Instance.GetApp().Domains[0].Accounts[0].Password;
+      }
+
+      private static string GetIniFileName()
+      {
+         // The server administrator password lives in hMailServer.ini rather than in
+         // the database. Utilities::GetBinDirectory (Utilities.cpp) resolves the ini
+         // location the same way the server does: from the registry install location
+         // first, only falling back to the running executable's own folder if that
+         // key isn't set.
+         // hMailServer.exe is 32-bit, so it writes under the WOW6432Node redirect -
+         // read the 32-bit view explicitly so this works regardless of whether the
+         // test process itself is 32- or 64-bit.
+         using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
+         using (var key = baseKey.OpenSubKey(@"SOFTWARE\hMailServer"))
+         {
+            var installLocation = key?.GetValue("InstallLocation") as string;
+
+            if (!string.IsNullOrEmpty(installLocation))
+               return Path.Combine(installLocation, "Bin", "hMailServer.ini");
+         }
+
+         var processes = Process.GetProcessesByName("hmailserver");
+
+         if (processes.Length != 1)
+            throw new InvalidOperationException("Expected exactly one running hMailServer.exe.");
+
+         return Path.Combine(Path.GetDirectoryName(processes[0].MainModule.FileName), "hMailServer.ini");
+      }
+
+      private static string ReadStoredAdministratorPassword()
+      {
+         const string key = "AdministratorPassword=";
+
+         // Read without taking a lock, so that the server can keep writing to the file.
+         using (var fileStream = new FileStream(GetIniFileName(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+         using (var textReader = new StreamReader(fileStream))
+         {
+            string line;
+
+            while ((line = textReader.ReadLine()) != null)
+            {
+               line = line.Trim();
+
+               if (line.StartsWith(key, StringComparison.OrdinalIgnoreCase))
+                  return line.Substring(key.Length);
+            }
+         }
+
+         return string.Empty;
+      }
+
+      private static void RequireKnownAdministratorPassword()
+      {
+         // These tests have to write the server administrator password, and there is no
+         // API to read the stored value back or to restore an empty one - so they can
+         // only put back a password they already know. Where the administrator password
+         // is not the one this suite authenticates with, there is nothing safe to
+         // restore, and the test is skipped rather than left changing the environment.
+         if (new Application().Authenticate("Administrator", AdministratorPassword) == null)
+            Assert.Ignore("The server administrator password is not '" + AdministratorPassword +
+                          "', so this test cannot restore it afterwards.");
+      }
+
+      private static void ClearCache()
+      {
+         // Mandatory - the password validator reads accounts through the cache.
+         SingletonProvider<TestSetup>.Instance.GetApp().Settings.Cache.Clear();
+      }
+
+      private void SetArgon2idHashing(int iterations, int memoryCostKb)
+      {
+         // The algorithm must be written before the iteration count - the iteration
+         // count's valid range is read against whichever algorithm is configured
+         // right now (InterfaceSettings::put_PasswordHashIterations). All three
+         // properties are set together so a test can never be left running against a
+         // stale memory cost or iteration count left over from a previous test.
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+         _settings.PasswordHashIterations = iterations;
+         _settings.PasswordHashMemoryCost = memoryCostKb;
+      }
+
+      private void SetPbkdf2Sha256Hashing(int iterations)
+      {
+         // Memory cost means nothing to PBKDF2, so it is reset to the sentinel here
+         // rather than left at whatever an Argon2id test set it to.
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         _settings.PasswordHashIterations = iterations;
+         _settings.PasswordHashMemoryCost = 0;
+      }
+
+      private static void OverwriteStoredPassword(Account account, string password, int passwordEncryption)
+      {
+         var sql = string.Format(
+            "update hm_accounts set accountpassword = '{0}', accountpwencryption = {1} where accountid = {2}",
+            TestSetup.Escape(password), passwordEncryption, account.ID);
+
+         SingletonProvider<TestSetup>.Instance.GetApp().Database.ExecuteSQL(sql);
+
+         ClearCache();
+      }
+
+      private static void LogonAndDisconnect(string address, string password)
+      {
+         // Plain ConnectAndLogon leaves the POP3 connection - and its mailbox lock -
+         // open. Any test that logs on again afterwards needs that lock released first.
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsTrue(pop3.ConnectAndLogon(address, password));
+         pop3.Disconnect();
+      }
+
+      private static void AssertLogonSucceedsOnAllProtocols(string address, string password)
+      {
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsTrue(pop3.ConnectAndLogon(address, password));
+         pop3.Disconnect();
+
+         var imap = new ImapClientSimulator();
+         Assert.IsTrue(imap.ConnectAndLogon(address, password));
+         imap.Disconnect();
+
+         string errorMessage;
+         var smtp = new SmtpClientSimulator();
+         smtp.ConnectAndLogon(EncodeBase64(address), EncodeBase64(password), out errorMessage);
+         smtp.Disconnect();
+      }
+
+      private static void AssertLogonFails(string address, string password)
+      {
+         string errorMessage;
+
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsFalse(pop3.ConnectAndLogon(address, password, out errorMessage));
+
+         var imap = new ImapClientSimulator();
+         Assert.IsFalse(imap.ConnectAndLogon(address, password, out errorMessage));
+
+         var smtp = new SmtpClientSimulator();
+         CustomAsserts.Throws<AuthenticationException>(() =>
+            smtp.ConnectAndLogon(EncodeBase64(address), EncodeBase64(password), out errorMessage));
+      }
+
+      [Test]
+      public void PasswordHashSettingsHaveExpectedDefaults()
+      {
+         // TestSetup configures PBKDF2-SHA256 with a low iteration count for every
+         // test, so the suite runs fast - the actual database-seeded default is
+         // Argon2id, exercised explicitly by the tests that need it.
+         Assert.AreEqual(AlgorithmPbkdf2Sha256, _settings.PasswordHashAlgorithm);
+         Assert.AreEqual(0, _settings.PasswordHashMemoryCost);
+         Assert.AreEqual(MinPbkdf2Iterations, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void PasswordHashAutoUpgradeCanBeToggled()
+      {
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         Assert.IsFalse(_settings.PasswordHashAutoUpgradeEnabled);
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         Assert.IsTrue(_settings.PasswordHashAutoUpgradeEnabled);
+      }
+
+      [Test]
+      public void LegacyPasswordsAreLeftAloneWhenAutoUpgradeIsOff()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         // The account must still be able to log on - only the migration is switched off.
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+
+         ClearCache();
+         Assert.AreEqual(md5, GetStoredPassword());
+      }
+
+      [Test]
+      public void AStrongerCostIsNotAppliedWhenAutoUpgradeIsOff()
+      {
+         // Memory cost only means something to Argon2id.
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var beforeChange = GetStoredPassword();
+
+         _settings.PasswordHashMemoryCost = 32768;
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         Assert.AreEqual(beforeChange, GetStoredPassword());
+      }
+
+      [Test]
+      public void TurningAutoUpgradeBackOnResumesMigration()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+         Assert.AreEqual(md5, GetStoredPassword());
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
+      }
+
+      [Test]
+      public void NewAccountsAreHashedEvenWhenAutoUpgradeIsOff()
+      {
+         // The switch governs migration during logon, not how new passwords are stored.
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
+      }
+
+      [Test]
+      public void TheAdministratorPasswordIsNotRehashedWhenAutoUpgradeIsOff()
+      {
+         // The administrator account has a logon path of its own, in COMAuthentication,
+         // rather than going through PasswordValidator. A stored hash that already uses
+         // the current scheme, and only differs in cost, honours the same opt-out: an
+         // administrator who switched the upgrade off - to decide when the migration
+         // happens - should not find this password migrated behind their back. A legacy
+         // hash is the exception, and is always replaced.
+         RequireKnownAdministratorPassword();
+
+         try
+         {
+            // Memory cost only means something to Argon2id.
+            SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+            _settings.SetAdministratorPassword(AdministratorPassword);
+
+            var beforeChange = ReadStoredAdministratorPassword();
+            Assert.IsTrue(beforeChange.StartsWith("$argon2id$"),
+               "Expected an Argon2id hash, but got: " + beforeChange);
+
+            // Move the cost away from the one the stored hash was created with, so that
+            // a logon would rehash if it were allowed to.
+            _settings.PasswordHashMemoryCost = 32768;
+            _settings.PasswordHashAutoUpgradeEnabled = false;
+
+            Assert.IsNotNull(new Application().Authenticate("Administrator", AdministratorPassword));
+
+            Assert.AreEqual(beforeChange, ReadStoredAdministratorPassword(),
+               "The administrator password was rehashed even though the upgrade is switched off.");
+
+            _settings.PasswordHashAutoUpgradeEnabled = true;
+
+            Assert.IsNotNull(new Application().Authenticate("Administrator", AdministratorPassword));
+
+            var afterUpgrade = ReadStoredAdministratorPassword();
+
+            Assert.AreNotEqual(beforeChange, afterUpgrade);
+            StringAssert.Contains("m=32768", afterUpgrade);
+         }
+         finally
+         {
+            SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+            _settings.SetAdministratorPassword(AdministratorPassword);
+         }
+      }
+
+      [Test]
+      public void SettingTheAdministratorPasswordStoresAHashOfIt()
+      {
+         RequireKnownAdministratorPassword();
+
+         _settings.SetAdministratorPassword(AdministratorPassword);
+
+         var stored = ReadStoredAdministratorPassword();
+
+         Assert.IsTrue(stored.StartsWith("$pbkdf2-sha256$"),
+            "Expected a PBKDF2-SHA256 hash, but got: " + stored);
+
+         Assert.IsNotNull(new Application().Authenticate("Administrator", AdministratorPassword));
+         Assert.IsNull(new Application().Authenticate("Administrator", AdministratorPassword + "x"));
+      }
+
+      [Test]
+      public void PasswordHashSettingsCanBeChanged()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         _settings.PasswordHashMemoryCost = 32768;
+         _settings.PasswordHashIterations = 700000;
+
+         Assert.AreEqual(AlgorithmPbkdf2Sha256, _settings.PasswordHashAlgorithm);
+         Assert.AreEqual(32768, _settings.PasswordHashMemoryCost);
+         Assert.AreEqual(700000, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void NewAccountsAreHashedUsingArgon2idWhenSelected()
+      {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var storedPassword = GetStoredPassword();
+
+         Assert.IsTrue(storedPassword.StartsWith("$argon2id$"),
+            "Expected an Argon2id hash, but got: " + storedPassword);
+      }
+
+      [Test]
+      public void NewAccountsAreHashedUsingPbkdf2WhenSelected()
+      {
+         SetPbkdf2Sha256Hashing(MinPbkdf2Iterations);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var storedPassword = GetStoredPassword();
+
+         Assert.IsTrue(storedPassword.StartsWith("$pbkdf2-sha256$"),
+            "Expected a PBKDF2-SHA256 hash, but got: " + storedPassword);
+      }
+
+      [Test]
+      public void LegacyMd5PasswordsCanStillBeUsedToLogOn()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void LegacyMd5PasswordsRejectAnIncorrectPassword()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         AssertLogonFails(Address, "WrongPassword");
+      }
+
+      [Test]
+      public void LegacyBlowfishPasswordsCanStillBeUsedToLogOn()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var blowfish = _application.Utilities.BlowfishEncrypt(Password);
+         OverwriteStoredPassword(account, blowfish, EncryptionBlowfish);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void LegacyBlowfishPasswordsRejectAnIncorrectPassword()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var blowfish = _application.Utilities.BlowfishEncrypt(Password);
+         OverwriteStoredPassword(account, blowfish, EncryptionBlowfish);
+
+         AssertLogonFails(Address, "WrongPassword");
+      }
+
+      [Test]
+      public void LegacyPasswordsAreRehashedOnLogon()
+      {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         Assert.AreEqual(md5, GetStoredPassword());
+
+         LogonAndDisconnect(Address, Password);
+
+         ClearCache();
+
+         var storedPassword = GetStoredPassword();
+
+         Assert.AreNotEqual(md5, storedPassword);
+         Assert.IsTrue(storedPassword.StartsWith("$argon2id$"),
+            "Expected an Argon2id hash after the rehash, but got: " + storedPassword);
+      }
+
+      [Test]
+      public void RehashingIsNotRepeatedOnSubsequentLogons()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, _application.Utilities.MD5(Password), EncryptionMd5);
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         var afterFirstLogon = GetStoredPassword();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+         Assert.AreEqual(afterFirstLogon, GetStoredPassword());
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+         Assert.AreEqual(afterFirstLogon, GetStoredPassword());
+      }
+
+      [Test]
+      public void AStrongerCostCausesARehashOnLogon()
+      {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var beforeChange = GetStoredPassword();
+         Assert.IsTrue(beforeChange.Contains("m=19456"));
+
+         _settings.PasswordHashMemoryCost = 32768;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         var afterChange = GetStoredPassword();
+
+         Assert.AreNotEqual(beforeChange, afterChange);
+         Assert.IsTrue(afterChange.Contains("m=32768"),
+            "Expected the new memory cost to be recorded in the hash, but got: " + afterChange);
+
+         // And the account must still be usable afterwards.
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void ALowerMemoryCostAlsoCausesARehashOnLogon()
+      {
+         // Lowering the cost is as deliberate a decision as raising it, so the stored
+         // hashes are expected to follow it down as well as up.
+         SetArgon2idHashing(DefaultArgon2idIterations, 32768);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().Contains("m=32768"));
+
+         _settings.PasswordHashMemoryCost = DefaultArgon2idMemoryCost;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         var afterChange = GetStoredPassword();
+
+         Assert.IsTrue(afterChange.Contains("m=19456"),
+            "Expected the lowered memory cost to be recorded in the hash, but got: " + afterChange);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void ALowerIterationCountAlsoCausesARehashOnLogon()
+      {
+         SetArgon2idHashing(6, DefaultArgon2idMemoryCost);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().Contains("t=6"));
+
+         _settings.PasswordHashIterations = DefaultArgon2idIterations;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         var afterChange = GetStoredPassword();
+
+         Assert.IsTrue(afterChange.Contains("t=2"),
+            "Expected the lowered iteration count to be recorded in the hash, but got: " + afterChange);
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void ChangingTheAlgorithmCausesARehashOnLogon()
+      {
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+
+         SetPbkdf2Sha256Hashing(MinPbkdf2Iterations);
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+      }
+
+      [Test]
+      public void AFailedLogonDoesNotChangeTheStoredPassword()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var md5 = _application.Utilities.MD5(Password);
+         OverwriteStoredPassword(account, md5, EncryptionMd5);
+
+         string errorMessage;
+         Assert.IsFalse(new Pop3ClientSimulator().ConnectAndLogon(Address, "WrongPassword", out errorMessage));
+
+         ClearCache();
+
+         Assert.AreEqual(md5, GetStoredPassword());
+      }
+
+      [Test]
+      public void AnAccountRemainsUsableAfterBeingRehashed()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, _application.Utilities.MD5(Password), EncryptionMd5);
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+         AssertLogonFails(Address, "WrongPassword");
+      }
+
+      [Test]
+      public void PlaintextPasswordsAreLeftAloneWhenAutoUpgradeIsOff()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, Password, EncryptionPlainText);
+
+         _settings.PasswordHashAutoUpgradeEnabled = false;
+         ClearCache();
+
+         // The account must still be able to log on - only the migration is switched off.
+         AssertLogonSucceedsOnAllProtocols(Address, Password);
+
+         ClearCache();
+         Assert.AreEqual(Password, GetStoredPassword());
+      }
+
+      [Test]
+      public void PlaintextPasswordsAreRehashedOnLogonWhenAutoUpgradeIsOn()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, Password, EncryptionPlainText);
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         ClearCache();
+
+         LogonAndDisconnect(Address, Password);
+         ClearCache();
+
+         var storedPassword = GetStoredPassword();
+         Assert.AreNotEqual(Password, storedPassword);
+         Assert.IsTrue(storedPassword.StartsWith("$pbkdf2-sha256$"),
+            "Expected a PBKDF2-SHA256 hash after the rehash, but got: " + storedPassword);
+      }
+
+      [Test]
+      public void ReadingAPlaintextAccountDoesNotRehashItRegardlessOfAutoUpgrade()
+      {
+         // PersistentAccount::ReadObject must not migrate a plaintext account on its
+         // own - that would ignore PasswordHashAutoUpgrade and turn a plain account
+         // listing into a database write. Re-reading the account (which Password /
+         // GetStoredPassword do, through the cache) must leave it untouched even with
+         // auto-upgrade on; only a verified logon may migrate it.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, Password, EncryptionPlainText);
+
+         _settings.PasswordHashAutoUpgradeEnabled = true;
+         ClearCache();
+
+         Assert.AreEqual(Password, GetStoredPassword());
+
+         ClearCache();
+         Assert.AreEqual(Password, GetStoredPassword());
+      }
+
+      [Test]
+      public void APlaintextPasswordCanBeUsedWithDifferentCasingAndStillWorksAfterTheRehash()
+      {
+         // This is the Fix 1 regression test. Plaintext and Blowfish accounts compare
+         // case-insensitively, so a client that has always used one casing keeps
+         // working through the migration to a case-sensitive KDF hash only if the
+         // exact casing the client sent is what gets hashed and stored, not the
+         // casing that happened to be recorded when the account was created.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         OverwriteStoredPassword(account, Password, EncryptionPlainText);
+
+         var differentCasing = Password.ToUpperInvariant();
+         Assert.AreNotEqual(Password, differentCasing);
+
+         // Allowed pre-migration because the plaintext comparison is case-insensitive.
+         // This is also the login that triggers the rehash.
+         LogonAndDisconnect(Address, differentCasing);
+         ClearCache();
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$pbkdf2-sha256$"));
+
+         // The casing that was actually used to log on - not the originally stored
+         // casing - must keep working after the rehash.
+         AssertLogonSucceedsOnAllProtocols(Address, differentCasing);
+      }
+
+      [Test]
+      public void ABlowfishPasswordCanBeUsedWithDifferentCasingAndStillWorksAfterTheRehash()
+      {
+         // Blowfish accounts compare case-insensitively, so a client that has always
+         // used one casing keeps working through the migration to Argon2id - which is
+         // case sensitive - only if the exact casing the client sent is what gets
+         // hashed and stored, not the casing that happened to be recorded originally.
+         SetArgon2idHashing(DefaultArgon2idIterations, DefaultArgon2idMemoryCost);
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var blowfish = _application.Utilities.BlowfishEncrypt(Password);
+         OverwriteStoredPassword(account, blowfish, EncryptionBlowfish);
+
+         var differentCasing = Password.ToUpperInvariant();
+         Assert.AreNotEqual(Password, differentCasing);
+
+         // Allowed pre-migration because the Blowfish comparison is case-insensitive.
+         // This is also the login that triggers the rehash.
+         LogonAndDisconnect(Address, differentCasing);
+         ClearCache();
+
+         Assert.IsTrue(GetStoredPassword().StartsWith("$argon2id$"));
+
+         // The casing that was actually used to log on - not the originally stored
+         // casing - must keep working after the rehash.
+         AssertLogonSucceedsOnAllProtocols(Address, differentCasing);
+      }
+
+      [Test]
+      public void APermissiveScriptHandlerDoesNotOverwriteTheStoredPassword()
+      {
+         // hash_verified in PasswordValidator::ValidatePassword must never be set on
+         // the OnClientValidatePassword script-override path - a permissive handler
+         // that lets everyone through must not cause whatever the client sent to be
+         // hashed and written over the real stored password.
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, Address, Password);
+
+         var storedBeforeScript = GetStoredPassword();
+
+         var scripting = _application.Settings.Scripting;
+
+         var script =
+            @"Sub OnClientValidatePassword(account, password)
+                 Result.Value = 0
+              End Sub";
+
+         System.IO.File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         try
+         {
+            Assert.IsTrue(ImapClientSimulator.ValidatePassword(Address, "WhateverTheClientSent"));
+
+            ClearCache();
+            Assert.AreEqual(storedBeforeScript, GetStoredPassword());
+         }
+         finally
+         {
+            scripting.Enabled = false;
+         }
+      }
+
+      [Test]
+      public void MemoryCostBelowTheMinimumIsRejected()
+      {
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashMemoryCost = MinArgon2idMemoryCost - 1);
+         StringAssert.Contains("Invalid password hash memory cost", ex.Message);
+      }
+
+      [Test]
+      public void MemoryCostAtTheMinimumIsAccepted()
+      {
+         _settings.PasswordHashMemoryCost = MinArgon2idMemoryCost;
+         Assert.AreEqual(MinArgon2idMemoryCost, _settings.PasswordHashMemoryCost);
+      }
+
+      [Test]
+      public void MemoryCostAboveTheMaximumIsRejected()
+      {
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashMemoryCost = MaxArgon2idMemoryCost + 1);
+         StringAssert.Contains("Invalid password hash memory cost", ex.Message);
+      }
+
+      [Test]
+      public void MemoryCostAtTheMaximumIsAccepted()
+      {
+         _settings.PasswordHashMemoryCost = MaxArgon2idMemoryCost;
+         Assert.AreEqual(MaxArgon2idMemoryCost, _settings.PasswordHashMemoryCost);
+      }
+
+      [Test]
+      public void MemoryCostZeroIsStillAccepted()
+      {
+         _settings.PasswordHashMemoryCost = 32768;
+         _settings.PasswordHashMemoryCost = 0;
+         Assert.AreEqual(0, _settings.PasswordHashMemoryCost);
+      }
+
+      [Test]
+      public void Argon2idIterationsNegativeIsRejected()
+      {
+         // 0 is the reserved sentinel for "use the recommended default", so with a
+         // minimum of 1 there is no non-sentinel value below the minimum to test.
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = -1);
+         StringAssert.Contains("cannot be negative", ex.Message);
+      }
+
+      [Test]
+      public void Argon2idIterationsAtTheMinimumIsAccepted()
+      {
+         // The valid range is read against whichever algorithm is configured right
+         // now, so this has to select Argon2id before testing its range.
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
+         _settings.PasswordHashIterations = MinArgon2idIterations;
+         Assert.AreEqual(MinArgon2idIterations, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void Argon2idIterationsAboveTheMaximumIsRejected()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = MaxArgon2idIterations + 1);
+         StringAssert.Contains("Invalid password hash iteration count", ex.Message);
+      }
+
+      [Test]
+      public void Argon2idIterationsAtTheMaximumIsAccepted()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+
+         _settings.PasswordHashIterations = MaxArgon2idIterations;
+         Assert.AreEqual(MaxArgon2idIterations, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void Pbkdf2IterationsBelowTheMinimumIsRejected()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = MinPbkdf2Iterations - 1);
+         StringAssert.Contains("Invalid password hash iteration count", ex.Message);
+      }
+
+      [Test]
+      public void Pbkdf2IterationsAtTheMinimumIsAccepted()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+
+         _settings.PasswordHashIterations = MinPbkdf2Iterations;
+         Assert.AreEqual(MinPbkdf2Iterations, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void Pbkdf2IterationsAboveTheMaximumIsRejected()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+
+         var ex = Assert.Throws<COMException>(() => _settings.PasswordHashIterations = MaxPbkdf2Iterations + 1);
+         StringAssert.Contains("Invalid password hash iteration count", ex.Message);
+      }
+
+      [Test]
+      public void Pbkdf2IterationsAtTheMaximumIsAccepted()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+
+         _settings.PasswordHashIterations = MaxPbkdf2Iterations;
+         Assert.AreEqual(MaxPbkdf2Iterations, _settings.PasswordHashIterations);
+      }
+
+      [Test]
+      public void IterationsZeroIsStillAcceptedForBothAlgorithms()
+      {
+         _settings.PasswordHashAlgorithm = AlgorithmArgon2id;
+         _settings.PasswordHashIterations = 6;
+         _settings.PasswordHashIterations = 0;
+         Assert.AreEqual(0, _settings.PasswordHashIterations);
+
+         _settings.PasswordHashAlgorithm = AlgorithmPbkdf2Sha256;
+         _settings.PasswordHashIterations = 700000;
+         _settings.PasswordHashIterations = 0;
+         Assert.AreEqual(0, _settings.PasswordHashIterations);
+      }
+   }
+}
