@@ -159,6 +159,7 @@ function TestSpamAssassinConnection()
                   <?php
                   PrintPropertyEditRow("SpamDeleteThreshold", "Spam delete threshold", $SpamDeleteThreshold);
                   PrintPropertyEditRow("MaximumMessageSize", "Maximum message size to scan (KB)", $MaximumMessageSize, 6, "number");
+                  PrintCheckboxRow("AddAuthenticationResultsHeader", "Add Authentication-Results header", $AddAuthenticationResultsHeader);
                ?>
          	  
 
@@ -187,7 +188,6 @@ function TestSpamAssassinConnection()
                PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
                PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number", true);
                PrintCheckboxRow("DMARCHonorPolicy", "Honor policy published by sender domain", $DMARCHonorPolicy, false, true);
-               PrintCheckboxRow("AddAuthenticationResultsHeader", "Add Authentication-Results header", $AddAuthenticationResultsHeader);
             ?>
          </table>
      </div>
