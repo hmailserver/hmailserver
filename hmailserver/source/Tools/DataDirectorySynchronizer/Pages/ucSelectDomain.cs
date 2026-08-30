@@ -40,6 +40,8 @@ namespace DataDirectorySynchronizer.Pages
             else
                item.Checked = false;
          }
+
+         checkPublicFolders.Checked = Globals.SynchronizePublicFolders;
       }
 
       public bool OnLeavePage(bool next)
@@ -52,24 +54,30 @@ namespace DataDirectorySynchronizer.Pages
                Globals.SelectedDomains.Add(item.Text);
          }
 
+         Globals.SynchronizePublicFolders = checkPublicFolders.Checked;
+
          return true;
       }
 
       public string Title
       {
-         get { return "Select domain"; }
+         get { return "Select what to synchronize"; }
       }
 
       private void buttonSelectAll_Click(object sender, EventArgs e)
       {
          foreach (ListViewItem item in listViewDomains.Items)
             item.Checked = true;
+
+         checkPublicFolders.Checked = true;
       }
 
       private void buttonSelectNone_Click(object sender, EventArgs e)
       {
          foreach (ListViewItem item in listViewDomains.Items)
             item.Checked = false;
+
+         checkPublicFolders.Checked = false;
       }
    }
 }
