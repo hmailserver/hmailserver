@@ -114,6 +114,29 @@ namespace RegressionTests.AntiSpam
          Assert.IsFalse(header.Contains("header.d=evil.example"), text);
       }
 
+      [Test]
+      [Description("Our header should be placed above headers added by others, since the topmost one is trusted.")]
+      public void TestHeaderIsAddedAboveExistingHeaders()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw(account.Address, account.Address,
+            "Authentication-Results: upstream.example; dmarc=pass header.from=bank.example\r\n" +
+            "From: sender@example.test\r\n" +
+            "Subject: Authentication-Results order test\r\n" +
+            "\r\n" +
+            "Test body\r\n");
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         int ourIndex = text.IndexOf("Authentication-Results: " + HostName + ";");
+         int upstreamIndex = text.IndexOf("Authentication-Results: upstream.example;");
+
+         Assert.AreNotEqual(-1, ourIndex, text);
+         Assert.AreNotEqual(-1, upstreamIndex, text);
+         Assert.IsTrue(ourIndex < upstreamIndex, text);
+      }
+
       private static string ExtractAuthenticationResults(string message)
       {
          // Match the header value including any continuation (folded) lines.

@@ -109,7 +109,8 @@ namespace HM
       RemoveOwnFields_(messageData, authservId);
 
       // Added rather than set, since results from upstream relays must be kept.
-      mimeMessage->AddRawFieldValue(FieldName, BuildValue(senderAuthentication, authservId));
+      // Inserted first, since a reader is expected to trust the topmost header.
+      mimeMessage->InsertRawFieldValue(FieldName, BuildValue(senderAuthentication, authservId));
    }
 
    String
