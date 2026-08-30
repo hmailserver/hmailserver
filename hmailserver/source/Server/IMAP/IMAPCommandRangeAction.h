@@ -10,6 +10,17 @@ namespace HM
 {
    class IMAPFolderView;
 
+   // What to do when a message set names a message which another session has expunged.
+   enum class MissingMessagePolicy
+   {
+      // Skip it. Required for the UID variants (RFC 3501 6.4.8).
+      Ignore,
+      // Act on the messages which do exist, then fail the command (RFC 2180 4.1.3).
+      ReportAfterActing,
+      // Fail without acting on any of the messages.
+      FailBeforeActing,
+   };
+
    class IMAPCommandRangeAction : public IMAPCommand  
    {
    public:
@@ -29,6 +40,8 @@ namespace HM
       // Override and return true if DoAction updates the message. Such commands are given the
       // objects the collection holds rather than copies of them.
       virtual bool UsesLiveMessages() const { return false; }
+
+      virtual MissingMessagePolicy GetMissingMessagePolicy() const { return MissingMessagePolicy::Ignore; }
 
    private:
 

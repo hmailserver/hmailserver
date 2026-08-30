@@ -24,6 +24,9 @@ namespace HM
 
       virtual IMAPResult DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument);
 
+      // Fetch what still exists, then report that the rest is gone (RFC 2180 4.1.3).
+      virtual MissingMessagePolicy GetMissingMessagePolicy() const { return MissingMessagePolicy::ReportAfterActing; }
+
       
    private:
       

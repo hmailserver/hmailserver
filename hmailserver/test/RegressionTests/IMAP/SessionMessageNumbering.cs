@@ -87,9 +87,11 @@ namespace RegressionTests.IMAP
          var after = sim1.Fetch("2 BODY[2]");
 
          // Message 2 is gone, so no body data may be returned at all - and above all not
-         // the data of the message that slid into its place.
+         // the data of the message that slid into its place. RFC 2180 4.1.3 allows the
+         // command to fail, and RFC 5530 chapter 3 gives it the EXPUNGEISSUED response code.
          AssertDoesNotContainAttachment(after, MarkerThree);
          AssertDoesNotContainAttachment(after, MarkerTwo);
+         Assert.IsTrue(after.Contains("A17 NO [EXPUNGEISSUED]"), after);
 
          sim1.Disconnect();
       }
@@ -112,22 +114,22 @@ namespace RegressionTests.IMAP
 
          var fetch = sim1.Fetch("3 (UID)");
          Assert.IsTrue(fetch.Contains("UID " + uids[3]), "FETCH 3 returned the wrong message. " + fetch);
-         Assert.IsFalse(fetch.Contains("EXPUNGE"), "EXPUNGE sent during FETCH. " + fetch);
+         AssertNoUntaggedExpunge(fetch, "FETCH");
 
          var store = sim1.SendSingleCommand("A40 STORE 3 +FLAGS (\\Flagged)");
          Assert.IsTrue(store.Contains("UID " + uids[3]), "STORE 3 hit the wrong message. " + store);
-         Assert.IsFalse(store.Contains("EXPUNGE"), "EXPUNGE sent during STORE. " + store);
+         AssertNoUntaggedExpunge(store, "STORE");
 
          var search = sim1.SendSingleCommand("A41 SEARCH FLAGGED");
          Assert.IsTrue(SearchResult(search, "A41") == "3", "SEARCH returned " + search);
-         Assert.IsFalse(search.Contains("EXPUNGE"), "EXPUNGE sent during SEARCH. " + search);
+         AssertNoUntaggedExpunge(search, "SEARCH");
 
          // Message 1 was expunged elsewhere so it cannot be returned (RFC 2180 4.3), but the
          // messages that remain must keep the numbers this session knows them by. The bug
          // would renumber them to 1 2 3 4.
          var sort = sim1.SendSingleCommand("A42 SORT (DATE) UTF-8 ALL");
          Assert.IsTrue(SearchResult(sort, "A42") == "2 3 4 5", "SORT returned " + sort);
-         Assert.IsFalse(sort.Contains("EXPUNGE"), "EXPUNGE sent during SORT. " + sort);
+         AssertNoUntaggedExpunge(sort, "SORT");
 
          sim1.Disconnect();
       }
@@ -141,7 +143,7 @@ namespace RegressionTests.IMAP
          ExpungeMessageInSeparateSession(account, 1);
 
          var fetch = sim1.Fetch("1 (UID)");
-         Assert.IsFalse(fetch.Contains("EXPUNGE"), "EXPUNGE sent during FETCH. " + fetch);
+         AssertNoUntaggedExpunge(fetch, "FETCH");
 
          var noop = sim1.NOOP() + sim1.NOOP();
          Assert.IsTrue(noop.Contains("* 1 EXPUNGE"), "EXPUNGE not delivered by NOOP. " + noop);
@@ -185,6 +187,7 @@ namespace RegressionTests.IMAP
          // client was told. Message 2 is the third message from that point on.
          var copy = sim1.SendSingleCommand("A44 COPY 2 \"Target\"");
          Assert.IsTrue(copy.Contains("A44 OK"), copy);
+
 
          var expunge = copy.IndexOf("* 1 EXPUNGE", StringComparison.Ordinal);
          Assert.IsTrue(expunge >= 0, "COPY renumbered the mailbox without reporting the expunge. " + copy);
@@ -574,6 +577,16 @@ namespace RegressionTests.IMAP
 
          Assert.Fail("Timeout while waiting for: " + text);
          return null;
+      }
+
+      /// <summary>
+      ///    RFC 3501 7.4.1 forbids untagged EXPUNGE responses during these commands. The
+      ///    EXPUNGEISSUED response code is a different thing and is allowed.
+      /// </summary>
+      private static void AssertNoUntaggedExpunge(string response, string command)
+      {
+         Assert.IsFalse(Regex.IsMatch(response, @"^\* \d+ EXPUNGE", RegexOptions.Multiline),
+            "EXPUNGE sent during " + command + ". " + response);
       }
 
       private static void AssertContainsAttachment(string response, string marker)

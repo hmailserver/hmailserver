@@ -80,27 +80,43 @@ namespace HM
          resolved_messages = messages->GetCopyByIds(message_ids);
       }
 
+      /*
+         A message which is in this session's view but no longer in the folder has been
+         expunged by another session. The client hasn't been told yet - it's told the next
+         time we're allowed to send an EXPUNGE - so how the command reacts depends on how it's
+         addressed. The UID variants ignore it (RFC 3501 6.4.8), the others report it.
+      */
+      MissingMessagePolicy policy = is_uid_ ? MissingMessagePolicy::Ignore : GetMissingMessagePolicy();
+
+      bool any_missing = false;
+
+      for (const auto &target : targets)
+      {
+         if (resolved_messages.find(target.second.message_id) != resolved_messages.end())
+            continue;
+
+         view->MarkVanished(target.second.message_id);
+         any_missing = true;
+      }
+
+      if (any_missing && policy == MissingMessagePolicy::FailBeforeActing)
+         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+
       for (const auto &target : targets)
       {
          auto iter = resolved_messages.find(target.second.message_id);
 
          if (iter == resolved_messages.end())
-         {
-            /*
-               The message is in this session's view but no longer in the folder - another
-               session has expunged it. Skipping it is what RFC 3501 6.4.8 requires for the
-               UID variants, and for the sequence number variants it at least guarantees that
-               we never hand out a different message than the one the client asked for.
-            */
-            view->MarkVanished(target.second.message_id);
             continue;
-         }
 
          IMAPResult result = DoAction(pConnection, target.first, (*iter).second, pArgument);
 
          if (result.GetResult() != IMAPResult::ResultOK)
             return result;
       }
+
+      if (any_missing && policy == MissingMessagePolicy::ReportAfterActing)
+         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
 
       return IMAPResult();
    }

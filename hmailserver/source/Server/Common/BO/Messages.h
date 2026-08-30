@@ -32,9 +32,6 @@ namespace HM
 
       void GetRecentMessages(std::set<__int64> &recent_messages) const;
 
-      std::shared_ptr<Message> GetItemByUID(unsigned int uid);
-      std::shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
-
       // Deletes the messages the filter selects. Returns the database ids of the messages
       // which were actually deleted, which is what change notifications carry.
       std::vector<__int64> DeleteMessages(const std::function<bool(std::shared_ptr<Message>)> &filter);
@@ -45,8 +42,6 @@ namespace HM
 
       void AddToCollection(std::shared_ptr<DALRecordset> pRS);
       
-      void Remove(__int64 iDBID);
-
       void RemoveRecentFlags();
 
       __int64 GetAccountID() {return account_id_; }

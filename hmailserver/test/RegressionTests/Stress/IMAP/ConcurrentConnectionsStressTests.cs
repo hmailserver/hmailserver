@@ -680,7 +680,7 @@ namespace RegressionTests.Stress.IMAP
                Interlocked.Increment(ref state.Expunges);
 
                // Keep the folder large enough that the readers' sequence numbers stay in range.
-               simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX {4}", "ABCD");
+               AppendMessage(simulator);
             }
 
             simulator.Disconnect();
@@ -689,6 +689,38 @@ namespace RegressionTests.Stress.IMAP
          {
             Record(failures, "Expunger aborted: " + ex.Message);
          }
+      }
+
+      /// <summary>
+      ///    Not SendSingleCommandWithLiteral: that only treats the response as a literal request
+      ///    if the very first read starts with "+ Ready", and the other threads' unsolicited
+      ///    EXISTS and RECENT responses arrive ahead of it.
+      /// </summary>
+      private const string CrLf = "\r\n";
+
+      private static void AppendMessage(ImapClientSimulator simulator)
+      {
+         simulator.SendRaw("A01 APPEND INBOX {4}" + CrLf);
+         ReceiveUntil(simulator, "+ Ready");
+
+         simulator.SendRaw("ABCD" + CrLf);
+         ReceiveUntil(simulator, "A01 OK");
+      }
+
+      private static void ReceiveUntil(ImapClientSimulator simulator, string text)
+      {
+         var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+         var result = string.Empty;
+
+         while (DateTime.UtcNow < deadline)
+         {
+            result += simulator.Receive();
+
+            if (result.Contains(text))
+               return;
+         }
+
+         throw new TimeoutException("Timeout while waiting for: " + text);
       }
 
       private static Dictionary<int, int> ParseUids(string response)
