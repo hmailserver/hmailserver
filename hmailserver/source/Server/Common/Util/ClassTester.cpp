@@ -22,6 +22,7 @@
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
+#include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
 #include "../Application/BackupManager.h"
 #include "../Util/Encoding/Base64.h"
@@ -103,6 +104,10 @@ namespace HM
       SPFTester *pSPF = new SPFTester();
       pSPF->Test();
       delete pSPF;
+
+      OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
+      PublicSuffixListTester publicSuffixListTester;
+      publicSuffixListTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing DMARC\n"));
       DMARCTester dmarcTester;

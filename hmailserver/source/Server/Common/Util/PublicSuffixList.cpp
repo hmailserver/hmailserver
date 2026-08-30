@@ -89,6 +89,20 @@ namespace HM
    String
    PublicSuffixList::GetRegistrableDomain(const String &domain) const
    {
+      String registrableDomain;
+
+      if (GetRegistrableDomain(domain, registrableDomain))
+         return registrableDomain;
+
+      String result = domain;
+      result.ToLower();
+
+      return result;
+   }
+
+   bool
+   PublicSuffixList::GetRegistrableDomain(const String &domain, String &registrableDomain) const
+   {
       String result = domain;
       result.ToLower();
 
@@ -98,15 +112,17 @@ namespace HM
       std::vector<String> labels = StringParser::SplitString(result, _T("."));
 
       if (labels.size() < 2)
-         return result;
+         return false;
 
       size_t suffixLabelCount = GetPublicSuffixLabelCount_(labels);
 
       // The domain is a public suffix in itself, so there's no domain to return.
       if (suffixLabelCount >= labels.size())
-         return result;
+         return false;
 
-      return JoinLabels_(labels, labels.size() - suffixLabelCount - 1);
+      registrableDomain = JoinLabels_(labels, labels.size() - suffixLabelCount - 1);
+
+      return true;
    }
 
    size_t

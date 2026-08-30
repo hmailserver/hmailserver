@@ -11,7 +11,7 @@
 #include "AntiSpamConfiguration.h"
 
 #include "../TCPIP/DNSResolver.h"
-#include "../Util/TLD.h"
+#include "../Util/PublicSuffixList.h"
 
 
 #ifdef _DEBUG
@@ -82,16 +82,15 @@ namespace HM
 
       // Extract the domain name from the host name. For example, replace
       // cgi.example.com with example.com.
-      bool bIsIPAddress = false;
-      String sDomainName = sHostName;
-      if (!TLD::Instance()->GetDomainNameFromHost(sDomainName, bIsIPAddress))
-         return true;
-
-      if (bIsIPAddress)
+      if (StringParser::IsValidIPAddress(sHostName))
       {
          // Sender address contains an IP address. Skip MX checks.
          return true;
       }
+
+      String sDomainName;
+      if (!PublicSuffixList::Instance()->GetRegistrableDomain(sHostName, sDomainName))
+         return true;
 
       if (sDomainName == sHostName)
       {

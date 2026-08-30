@@ -14,7 +14,6 @@
 #include "../Application/ObjectCache.h"
 #include "..\Scripting\ScriptServer.h"
 #include "..\Util\PublicSuffixList.h"
-#include "..\Util\TLD.h"
 #include "..\TCPIP\LocalIPAddresses.h"
 
 #include "../../POP3/POP3Configuration.h"
@@ -83,7 +82,6 @@ namespace HM
       ssl_certificates_->Refresh();
 
       ScriptServer::Instance()->LoadScripts();
-      TLD::Instance()->Initialize();
       PublicSuffixList::Instance()->Initialize();
       LocalIPAddresses::Instance()->LoadIPAddresses();
 

@@ -15,6 +15,8 @@ namespace HM
 
       String GetRegistrableDomain(const String &domain) const;
 
+      bool GetRegistrableDomain(const String &domain, String &registrableDomain) const;
+
    private:
 
       size_t GetPublicSuffixLabelCount_(const std::vector<String> &labels) const;
