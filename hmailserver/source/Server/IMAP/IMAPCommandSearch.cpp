@@ -5,6 +5,7 @@
 
 #include "IMAPCommandSEARCH.h"
 #include "IMAPConnection.h"
+#include "IMAPFolderView.h"
 #include "IMAPSort.h"
 #include "IMAPConfiguration.h"
 #include "IMAPListLookup.h"
@@ -83,7 +84,19 @@ namespace HM
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultBad, "No selected folder");
 
-      std::vector<std::shared_ptr<Message>> messages = pCurFolder->GetMessages()->GetCopy();
+      auto view = pConnection->GetCurrentFolderView();
+
+      if (!view)
+         return IMAPResult(IMAPResult::ResultBad, "No selected folder");
+
+      // Search the messages in this session's view, using this session's numbering.
+      auto entries = view->GetAllEntries();
+
+      std::set<__int64> message_ids;
+      for (const auto &entry : entries)
+         message_ids.insert(entry.second.message_id);
+
+      auto messages = pCurFolder->GetMessages()->GetCopyByIds(message_ids);
 
       std::vector<String> sMatchingVec;
       if (messages.size() > 0)
@@ -91,13 +104,25 @@ namespace HM
          // Iterate through the messages and see which ones match.
          std::vector<std::pair<int, std::shared_ptr<Message> > > vecMatchingMessages;
 
-         int index = 0;
-         for(std::shared_ptr<Message> pMessage : messages)
+         for (const auto &entry : entries)
          {
+            int index = entry.first;
+
+            auto iter = messages.find(entry.second.message_id);
+
+            if (iter == messages.end())
+            {
+               // Expunged by another session. It can't match, and the client is told about
+               // the expunge the next time we're allowed to send one.
+               view->MarkVanished(entry.second.message_id);
+               continue;
+            }
+
+            std::shared_ptr<Message> pMessage = (*iter).second;
+
             const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
 
-            index++;
-            if (pMessage && DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
+            if (DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
             {
                // Yup we got a match.
                vecMatchingMessages.push_back(make_pair(index, pMessage));

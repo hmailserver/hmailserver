@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -122,8 +122,11 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(SearchResult(search, "A41") == "3", "SEARCH returned " + search);
          Assert.IsFalse(search.Contains("EXPUNGE"), "EXPUNGE sent during SEARCH. " + search);
 
+         // Message 1 was expunged elsewhere so it cannot be returned (RFC 2180 4.3), but the
+         // messages that remain must keep the numbers this session knows them by. The bug
+         // would renumber them to 1 2 3 4.
          var sort = sim1.SendSingleCommand("A42 SORT (DATE) UTF-8 ALL");
-         Assert.IsTrue(SearchResult(sort, "A42") == "1 2 3 4 5", "SORT returned " + sort);
+         Assert.IsTrue(SearchResult(sort, "A42") == "2 3 4 5", "SORT returned " + sort);
          Assert.IsFalse(sort.Contains("EXPUNGE"), "EXPUNGE sent during SORT. " + sort);
 
          sim1.Disconnect();
