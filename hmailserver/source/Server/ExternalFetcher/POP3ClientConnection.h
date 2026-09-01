@@ -142,7 +142,11 @@ namespace HM
       std::map<int ,String> downloaded_messages_;
       // Messages which have been downloaded from the remote server.
 
-      std::map<int ,String>::iterator cur_message_;
+      // Position in uidlresponse_, while messages are being downloaded.
+      std::map<int ,String>::iterator cur_download_;
+
+      // Position in downloaded_messages_, while the remote mailbox is being cleaned up.
+      std::map<int ,String>::iterator cur_cleanup_;
 
       std::shared_ptr<Message> current_message_;
 

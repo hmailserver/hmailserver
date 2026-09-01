@@ -560,6 +560,7 @@ EXIT 0
     <ClCompile Include="..\ExternalFetcher\ExternalFetch.cpp" />
     <ClCompile Include="..\ExternalFetcher\ExternalFetchManager.cpp" />
     <ClCompile Include="..\ExternalFetcher\ExternalFetchTask.cpp" />
+    <ClCompile Include="..\ExternalFetcher\FetchAccountLock.cpp" />
     <ClCompile Include="..\ExternalFetcher\FetchAccountUIDList.cpp" />
     <ClCompile Include="..\ExternalFetcher\POP3ClientConnection.cpp" />
     <ClCompile Include="..\IMAP\FolderListCreator.cpp" />
@@ -1073,6 +1074,7 @@ EXIT 0
     <ClInclude Include="..\ExternalFetcher\ExternalFetch.h" />
     <ClInclude Include="..\ExternalFetcher\ExternalFetchManager.h" />
     <ClInclude Include="..\ExternalFetcher\ExternalFetchTask.h" />
+    <ClInclude Include="..\ExternalFetcher\FetchAccountLock.h" />
     <ClInclude Include="..\ExternalFetcher\FetchAccountUIDList.h" />
     <ClInclude Include="..\ExternalFetcher\POP3ClientConnection.h" />
     <ClInclude Include="..\IMAP\FolderListCreator.h" />

@@ -225,6 +225,7 @@
     <Compile Include="MIME\RoundTrip.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
     <Compile Include="POP3\Fetching\ExternalAccountSslTests.cs" />
+    <Compile Include="POP3\Fetching\MailboxCleanupTests.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />
     <Compile Include="POP3\Fetching\ServerBehaviors.cs" />
     <Compile Include="Shared\SmtpClientSimulator.cs" />
