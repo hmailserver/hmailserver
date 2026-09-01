@@ -985,6 +985,14 @@ namespace HM
          // Check whether we should delete this UID.
          std::shared_ptr<FetchAccountUID> pUID = GetUIDList_()->GetUID(sUID);
 
+         if (!pUID)
+         {
+            // The UID is no longer tracked, so we don't know how old the message is. This
+            // happens if the server lists the same UID twice - deleting the first copy
+            // removes the UID. Keep the message rather than deleting it too early.
+            return false;
+         }
+
          // Get the creation date of the UID.
          DateTime dtCreation = pUID->GetCreationDate();
          DateTime dtNow = Time::GetDateFromSystemDate(Time::GetCurrentDateTime());
