@@ -1,10 +1,11 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
 
 #include "IMAPCommandSEARCH.h"
 #include "IMAPConnection.h"
+#include "IMAPFolderView.h"
 #include "IMAPSort.h"
 #include "IMAPConfiguration.h"
 #include "IMAPListLookup.h"
@@ -83,50 +84,71 @@ namespace HM
       if (!pCurFolder)
          return IMAPResult(IMAPResult::ResultBad, "No selected folder");
 
-      std::vector<std::shared_ptr<Message>> messages = pCurFolder->GetMessages()->GetCopy();
+      auto view = pConnection->GetCurrentFolderView();
+
+      if (!view)
+         return IMAPResult(IMAPResult::ResultBad, "No selected folder");
+
+      // Search the messages in this session's view, using this session's numbering.
+      auto entries = view->GetAllEntries();
+
+      std::set<__int64> message_ids;
+      for (const auto &entry : entries)
+         message_ids.insert(entry.second.message_id);
+
+      auto messages = pCurFolder->GetMessages()->GetCopyByIds(message_ids);
 
       std::vector<String> sMatchingVec;
-      if (messages.size() > 0)
+      // Iterate through the messages and see which ones match.
+      std::vector<std::pair<int, std::shared_ptr<Message> > > vecMatchingMessages;
+
+      for (const auto &entry : entries)
       {
-         // Iterate through the messages and see which ones match.
-         std::vector<std::pair<int, std::shared_ptr<Message> > > vecMatchingMessages;
+         int index = entry.first;
 
-         int index = 0;
-         for(std::shared_ptr<Message> pMessage : messages)
+         auto iter = messages.find(entry.second.message_id);
+
+         if (iter == messages.end())
          {
-            const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
-
-            index++;
-            if (pMessage && DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
-            {
-               // Yup we got a match.
-               vecMatchingMessages.push_back(make_pair(index, pMessage));
-            }
+            // Expunged by another session. It can't match, and the client is told about
+            // the expunge the next time we're allowed to send one.
+            view->MarkVanished(entry.second.message_id);
+            continue;
          }
 
-         if (is_sort_)
+         std::shared_ptr<Message> pMessage = (*iter).second;
+
+         const String fileName = PersistentMessage::GetFileName(pConnection->GetAccount(), pMessage);
+
+         if (DoesMessageMatch_(pConnection, pParser->GetCriteria(), fileName, pMessage, index))
          {
-            IMAPSort oSorter;
-            oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetCharsetName(), pParser->GetSortParser());
-            // Sort the message vector
+            // Yup we got a match.
+            vecMatchingMessages.push_back(make_pair(index, pMessage));
          }
-
-         typedef std::pair<int, std::shared_ptr<Message> > MessagePair;
-         for(MessagePair messagePair : vecMatchingMessages)
-         {
-            int index = messagePair.first;
-            std::shared_ptr<Message> pMessage = messagePair.second;
-
-            String sID;
-            if (is_uid_)
-               sID.Format(_T("%u"), pMessage->GetUID());
-            else
-               sID.Format(_T("%d"), index);
-
-            sMatchingVec.push_back(sID);
-         }
-
       }
+
+      if (is_sort_)
+      {
+         IMAPSort oSorter;
+         oSorter.Sort(pConnection, vecMatchingMessages, pParser->GetCharsetName(), pParser->GetSortParser());
+         // Sort the message vector
+      }
+
+      typedef std::pair<int, std::shared_ptr<Message> > MessagePair;
+      for(MessagePair messagePair : vecMatchingMessages)
+      {
+         int index = messagePair.first;
+         std::shared_ptr<Message> pMessage = messagePair.second;
+
+         String sID;
+         if (is_uid_)
+            sID.Format(_T("%u"), pMessage->GetUID());
+         else
+            sID.Format(_T("%d"), index);
+
+         sMatchingVec.push_back(sID);
+      }
+
 
       // Send response
       String sMatching;

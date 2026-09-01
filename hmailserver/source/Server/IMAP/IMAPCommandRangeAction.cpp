@@ -1,9 +1,10 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 #include "stdafx.h"
 #include "IMAPCommandRangeAction.h"
 #include "IMAPConnection.h"
+#include "IMAPFolderView.h"
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/IMAPFolder.h"
@@ -19,7 +20,7 @@ namespace HM
    IMAPCommandRangeAction::IMAPCommandRangeAction() :
       is_uid_(false)
    {
-    
+
    }
 
    IMAPCommandRangeAction::~IMAPCommandRangeAction()
@@ -33,7 +34,7 @@ namespace HM
       is_uid_ = bIsUID;
    }
 
-   bool 
+   bool
    IMAPCommandRangeAction::GetIsUID()
    {
       return is_uid_;
@@ -42,126 +43,133 @@ namespace HM
    IMAPResult
    IMAPCommandRangeAction::DoForMails(std::shared_ptr<IMAPConnection> pConnection, const String &sMailNos, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      long lColonPos = -1;
+      auto view = pConnection->GetCurrentFolderView();
 
-      std::vector<String> sSplitted = StringParser::SplitString(sMailNos, ",");
+      if (!view)
+         return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
-      if (is_uid_)
+      // The message numbers are resolved against this session's view, so they mean the same
+      // messages they meant when the client was told about them, regardless of what other
+      // sessions have done to the folder since.
+      auto targets = ResolveTargets_(view, sMailNos);
+
+      if (targets.empty())
+         return IMAPResult();
+
+      std::set<__int64> message_ids;
+      for (const auto &target : targets)
+         message_ids.insert(target.second.message_id);
+
+      auto messages = pConnection->GetCurrentFolder()->GetMessages();
+
+      std::map<__int64, std::shared_ptr<Message>> resolved_messages;
+
+      if (UsesLiveMessages())
       {
-         for(String sCur : sSplitted)
-         {
-            lColonPos = sCur.Find(_T(":"));
-
-            if (lColonPos >= 0)
-            {
-               String sFirstPart = sCur.Mid(0, lColonPos);
-               String sSecondPart = sCur.Mid(lColonPos + 1);
-
-               unsigned int lStartDBID = _ttoi(sFirstPart);
-               unsigned int lEndDBID = -1;
-               if (sSecondPart != _T("*"))
-                  lEndDBID = _ttoi(sSecondPart);
-
-               std::vector<std::shared_ptr<Message>> messages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
-
-               int index = 0;
-               for(std::shared_ptr<Message> pMessage: messages)
-               {
-                  index++;
-                  unsigned int uid = pMessage->GetUID();
-
-                  if (uid >= lStartDBID)
-                  {
-                     if (lEndDBID == -1 || uid <= lEndDBID)
-                     {
-                        // UID doesn't fail just because the message is missing.
-                        // This is why we don't check the return value.
-                        IMAPResult result = DoAction(pConnection, index, pMessage, pArgument);
-                        if (result.GetResult() != IMAPResult::ResultOK)
-                        {
-                           return result;
-                        }
-                     }
-                  }
-               }
-
-            }
-            else 
-            {
-               unsigned int uid = _ttoi(sCur);
-
-               unsigned int foundIndex = 0;
-               std::shared_ptr<Messages> messages = pConnection->GetCurrentFolder()->GetMessages();
-               std::shared_ptr<Message> message = messages->GetItemByUID(uid, foundIndex);
-               if (!message)
-                  continue;
-               
-               IMAPResult result = DoAction(pConnection, foundIndex, message, pArgument);
-               if (result.GetResult() != IMAPResult::ResultOK)
-               {
-                  return result;
-               }
-            }
-         }            
-
+         // The caller updates the message, so it needs the objects the collection holds.
+         resolved_messages = messages->GetItemsByIds(message_ids);
       }
       else
       {
-         for(String sCur: sSplitted)
+         resolved_messages = messages->GetCopyByIds(message_ids);
+      }
+
+      /*
+         A message which is in this session's view but no longer in the folder has been
+         expunged by another session. The client hasn't been told yet - it's told the next
+         time we're allowed to send an EXPUNGE - so how the command reacts depends on how it's
+         addressed. The UID variants ignore it (RFC 3501 6.4.8), the others report it.
+      */
+      MissingMessagePolicy policy = is_uid_ ? MissingMessagePolicy::Ignore : GetMissingMessagePolicy();
+
+      bool any_missing = false;
+
+      for (const auto &target : targets)
+      {
+         if (resolved_messages.find(target.second.message_id) != resolved_messages.end())
+            continue;
+
+         view->MarkVanished(target.second.message_id);
+         any_missing = true;
+      }
+
+      if (any_missing && policy == MissingMessagePolicy::FailBeforeActing)
+         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+
+      for (const auto &target : targets)
+      {
+         auto iter = resolved_messages.find(target.second.message_id);
+
+         if (iter == resolved_messages.end())
+            continue;
+
+         IMAPResult result = DoAction(pConnection, target.first, (*iter).second, pArgument);
+
+         if (result.GetResult() != IMAPResult::ResultOK)
+            return result;
+      }
+
+      if (any_missing && policy == MissingMessagePolicy::ReportAfterActing)
+         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+
+      return IMAPResult();
+   }
+
+   std::vector<std::pair<int, IMAPViewEntry>>
+   IMAPCommandRangeAction::ResolveTargets_(std::shared_ptr<IMAPFolderView> view, const String &sMailNos)
+   {
+      std::vector<std::pair<int, IMAPViewEntry>> targets;
+
+      std::vector<String> sSplitted = StringParser::SplitString(sMailNos, ",");
+
+      for (String sCur : sSplitted)
+      {
+         long lColonPos = sCur.Find(_T(":"));
+
+         String sFirstPart = lColonPos >= 0 ? sCur.Mid(0, lColonPos) : sCur;
+         String sSecondPart = lColonPos >= 0 ? sCur.Mid(lColonPos + 1) : sCur;
+
+         bool endIsWildcard = sSecondPart == _T("*");
+
+         if (is_uid_)
          {
-            lColonPos = sCur.Find(_T(":"));
+            unsigned int startUID = _ttoi(sFirstPart);
+            unsigned int endUID = endIsWildcard ? UINT_MAX : _ttoi(sSecondPart);
 
             if (lColonPos >= 0)
             {
-               String sFirstPart = sCur.Mid(0, lColonPos);
-               String sSecondPart = sCur.Mid(lColonPos + 1);
-
-               int lStartIndex = _ttoi(sFirstPart);
-               int lEndIndex = -1;
-               if (sSecondPart != _T("*"))
-                  lEndIndex = _ttoi(sSecondPart);
-
-               auto vecMessages = pConnection->GetCurrentFolder()->GetMessages()->GetCopy();
-               
-               int index = 0;
-               for(std::shared_ptr<Message> message : vecMessages)
-               {
-                  index++;
-
-                  if (index >= lStartIndex)
-                  {
-                     if (lEndIndex == -1 || index <= lEndIndex)
-                     {
-                        IMAPResult result = DoAction(pConnection, index, message, pArgument);
-                        if (result.GetResult() != IMAPResult::ResultOK)
-                        {
-                           return result;
-                        }
-                     }
-                  }
-               }
-
+               for (const auto &entry : view->GetEntriesByUIDRange(startUID, endUID))
+                  targets.push_back(entry);
             }
-            else 
+            else
             {
-               int messageIndex = _ttoi(sCur);
-               std::shared_ptr<Message> pMessage = pConnection->GetCurrentFolder()->GetMessages()->GetItem(messageIndex-1);
+               int sequence = 0;
+               IMAPViewEntry entry;
 
-               if (!pMessage)
-                  continue;
-
-               IMAPResult result = DoAction(pConnection, messageIndex, pMessage, pArgument);
-               if (result.GetResult() != IMAPResult::ResultOK)
-               {
-                  return result;
-               }
+               if (view->GetEntryByUID(startUID, sequence, entry))
+                  targets.push_back(std::make_pair(sequence, entry));
             }
-         }   
+         }
+         else
+         {
+            int startIndex = _ttoi(sFirstPart);
+            int endIndex = endIsWildcard ? -1 : _ttoi(sSecondPart);
 
+            if (lColonPos >= 0)
+            {
+               for (const auto &entry : view->GetEntriesBySequenceRange(startIndex, endIndex))
+                  targets.push_back(entry);
+            }
+            else
+            {
+               IMAPViewEntry entry;
+
+               if (view->GetEntryBySequence(startIndex, entry))
+                  targets.push_back(std::make_pair(startIndex, entry));
+            }
+         }
       }
 
-      return IMAPResult();
-
+      return targets;
    }
-
 }

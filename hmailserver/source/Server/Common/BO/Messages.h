@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #pragma once
@@ -25,20 +25,27 @@ namespace HM
       
       std::vector<std::shared_ptr<Message>> GetCopy();
 
+      // Copies of the messages with the given database ids, keyed on id. One pass over the
+      // collection, so a caller resolving many ids doesn't scan the collection once per id.
+      std::map<__int64, std::shared_ptr<Message>> GetCopyByIds(const std::set<__int64> &message_ids) const;
+      std::shared_ptr<Message> GetCopyByDBID(__int64 message_id) const;
+
+      // The messages the collection holds, for callers which update them. Same one-pass
+      // lookup as GetCopyByIds.
+      std::map<__int64, std::shared_ptr<Message>> GetItemsByIds(const std::set<__int64> &message_ids) const;
+
       void GetRecentMessages(std::set<__int64> &recent_messages) const;
 
-      std::shared_ptr<Message> GetItemByUID(unsigned int uid);
-      std::shared_ptr<Message> GetItemByUID(unsigned int uid, unsigned int &foundIndex);
-
-      void DeleteMessages(std::function<bool(int, std::shared_ptr<Message>)> &filter);
+      // Deletes the messages the filter selects. Returns the database ids of the messages
+      // which were actually deleted, which is what change notifications carry.
+      std::vector<__int64> DeleteMessages(const std::function<bool(std::shared_ptr<Message>)> &filter);
+      std::vector<__int64> DeleteMessagesById(const std::set<__int64> &message_ids);
 
       // Returns false if the messages could not be loaded.
       bool Refresh(bool update_recent_flags);
 
       void AddToCollection(std::shared_ptr<DALRecordset> pRS);
       
-      void Remove(__int64 iDBID);
-
       void RemoveRecentFlags();
 
       __int64 GetAccountID() {return account_id_; }

@@ -6,6 +6,7 @@
 #include "IMAPNotificationClient.h"
 #include "IMAPConnection.h"
 #include "IMAPStore.h"
+#include "IMAPFolderView.h"
 
 #include "../Common/Tracking/ChangeNotification.h"
 #include "../common/Tracking/NotificationServer.h"
@@ -152,6 +153,8 @@ namespace HM
       int lastExists = -1;
       int lastRecent = -1;
 
+      auto view = connection->GetCurrentFolderView();
+
       std::set<__int64> flagMessages;
 
       for(std::shared_ptr<ChangeNotification> changeNotification : cached_changes_)
@@ -166,33 +169,38 @@ namespace HM
 
                std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
                pMessages->Refresh(false);
-               lastExists = pMessages->GetCount();
+
+               // New messages are added at the end, so telling the client about them never
+               // renumbers the messages it already knows about.
+               if (view)
+                  view->AppendNewMessages(pMessages);
+
+               lastExists = view ? view->GetMessageCount() : pMessages->GetCount();
                lastRecent = (int)connection->GetRecentMessageCount();
                break;
             }
          case ChangeNotification::NotificationMessageDeleted:
             {
-               if (send_expunge)
-               {
-                  // Send EXPUNGE
-                  SendEXPUNGE_(changeNotification->GetAffectedMessages());
-
-                  // Send EXISTS
-                  std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
-                  if (!currentFolder)
-                     break;
-
-                  std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
-                  lastExists = pMessages->GetCount();
-                  lastRecent = (int)connection->GetRecentMessageCount();
-
+               // If we may not send EXPUNGE yet, the notification stays cached and this
+               // session keeps its current numbering.
+               if (!send_expunge)
                   break;
-               }
+
+               // Send EXPUNGE. This is what removes the messages from this session's view.
+               SendEXPUNGE_(changeNotification->GetAffectedMessageIds());
+
+               // Send EXISTS
+               if (view)
+                  lastExists = view->GetMessageCount();
+
+               lastRecent = (int)connection->GetRecentMessageCount();
+
+               break;
             }
          case ChangeNotification::NotificationMessageFlagsChanged:
             {
                // Send flag notification
-               for(__int64 messageID : changeNotification->GetAffectedMessages())
+               for(__int64 messageID : changeNotification->GetAffectedMessageIds())
                {
                   if (flagMessages.find(messageID) == flagMessages.end())
                      flagMessages.insert(messageID);
@@ -200,6 +208,21 @@ namespace HM
 
                break;
             }
+         }
+      }
+
+      if (send_expunge && view)
+      {
+         // Messages a command found missing from the folder. Expunging them here means the
+         // session recovers even if it never received the delete notification.
+         auto vanished = view->TakeVanished();
+
+         if (!vanished.empty())
+         {
+            SendEXPUNGE_(vanished);
+
+            lastExists = view->GetMessageCount();
+            lastRecent = (int)connection->GetRecentMessageCount();
          }
       }
 
@@ -248,18 +271,25 @@ namespace HM
       case ChangeNotification::NotificationMessageAdded:
          {
             std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
-            SendEXISTS_(pMessages->GetCount());
+
+            auto view = connection->GetCurrentFolderView();
+            if (view)
+               view->AppendNewMessages(pMessages);
+
+            SendEXISTS_(view ? view->GetMessageCount() : pMessages->GetCount());
             SendRECENT_((int)connection->GetRecentMessageCount());
             break;
          }
       case ChangeNotification::NotificationMessageDeleted:
          {
-            // Send EXPUNGE
-            SendEXPUNGE_(pChangeNotification->GetAffectedMessages());
+            // Send EXPUNGE. This is what removes the messages from this session's view.
+            SendEXPUNGE_(pChangeNotification->GetAffectedMessageIds());
 
             // Send EXISTS
-            std::shared_ptr<Messages> pMessages = currentFolder->GetMessages();
-            SendEXISTS_(pMessages->GetCount());
+            auto view = connection->GetCurrentFolderView();
+            if (view)
+               SendEXISTS_(view->GetMessageCount());
+
             SendRECENT_((int)connection->GetRecentMessageCount());
 
             break;
@@ -268,7 +298,7 @@ namespace HM
          {
             // Send flag notification
             std::set<__int64> affectedMessages;
-               for(__int64 messageID : pChangeNotification->GetAffectedMessages())
+               for(__int64 messageID : pChangeNotification->GetAffectedMessageIds())
             {
                affectedMessages.insert(messageID);
             }
@@ -282,15 +312,27 @@ namespace HM
 
    void 
 
-   IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & vecMessages)
+   IMAPNotificationClient::SendEXPUNGE_(const std::vector<__int64> & message_ids)
    {
       std::shared_ptr<IMAPConnection> connection = parent_connection_.lock();
       if (!connection)
          return;
 
+      auto view = connection->GetCurrentFolderView();
+      if (!view)
+         return;
+
+      // The sequence numbers are this session's, and the view is updated as they're produced.
+      auto sequences = view->RemoveMessages(message_ids);
+
+      connection->RemoveRecentMessages(message_ids);
+
       String sResponse;
-      for(__int64 messageIndex : vecMessages)
-         sResponse.AppendFormat(_T("* %I64d EXPUNGE\r\n"), messageIndex);
+      for (int sequence : sequences)
+         sResponse.AppendFormat(_T("* %d EXPUNGE\r\n"), sequence);
+
+      if (sResponse.IsEmpty())
+         return;
 
       connection->SendAsciiData(sResponse);
 
@@ -303,21 +345,29 @@ namespace HM
       if (!connection)
          return;
 
+      std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
+      if (!currentFolder)
+         return;
+
+      auto view = connection->GetCurrentFolderView();
+      if (!view)
+         return;
+
       for(__int64 messageID : vecMessages)
       {
-         String sResponse;
+         int sequence = 0;
 
-         int foundIndex = 0;
-         std::shared_ptr<IMAPFolder> currentFolder = connection->GetCurrentFolder();
-         if (!currentFolder)
-            return;
+         // A message this session doesn't know about, or one which has been expunged. Skip it
+         // rather than abort - the messages after it still have flags worth reporting.
+         if (!view->GetSequenceByMessageID(messageID, sequence))
+            continue;
 
-         std::shared_ptr<Message> pMessage = currentFolder->GetMessages()->GetItemByDBID(messageID, foundIndex);
+         std::shared_ptr<Message> pMessage = currentFolder->GetMessages()->GetItemByDBID(messageID);
 
          if (!pMessage)
-            return;
+            continue;
 
-         connection->SendAsciiData(IMAPStore::GetMessageFlags(pMessage, foundIndex));
+         connection->SendAsciiData(IMAPStore::GetMessageFlags(pMessage, sequence));
       }
 
 

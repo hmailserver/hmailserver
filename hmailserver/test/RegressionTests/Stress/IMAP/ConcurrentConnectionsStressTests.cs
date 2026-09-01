@@ -546,5 +546,191 @@ namespace RegressionTests.Stress.IMAP
 
          return listing.Contains(quote + folderName + quote);
       }
+
+      private const int NumberingRaceMessageCount = 500;
+      private const int NumberingRaceReaderCount = 4;
+      private const int NumberingRaceExpungerCount = 2;
+      private static readonly TimeSpan NumberingRaceDuration = TimeSpan.FromSeconds(60);
+
+      private class NumberingRaceState
+      {
+         public int Fetches;
+         public int Expunges;
+      }
+
+      [Test]
+      [Description(
+         "Issue #458: a session issues only FETCH, during which the server may not send EXPUNGE, so " +
+         "every sequence number must keep resolving to the message it resolved to at SELECT time.")]
+      public void ConcurrentFetchAndExpungeNeverReturnsMismatchedBodies()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         PreloadMessages(account.Address, NumberingRaceMessageCount);
+
+         var failures = new List<string>();
+         var state = new NumberingRaceState();
+         var deadline = DateTime.UtcNow + NumberingRaceDuration;
+         var threads = new List<Thread>();
+
+         for (var i = 0; i < NumberingRaceReaderCount; i++)
+            threads.Add(new Thread(() => RepeatedlyFetchAndVerifyNumbering(account.Address, deadline, failures, state)));
+
+         for (var i = 0; i < NumberingRaceExpungerCount; i++)
+            threads.Add(new Thread(() => RepeatedlyExpungeAndReplenish(account.Address, deadline, failures, state)));
+
+         foreach (var thread in threads)
+            thread.Start();
+
+         foreach (var thread in threads)
+            thread.Join();
+
+         TestContext.WriteLine("Issue #458 numbering race: {0} FETCHes, {1} EXPUNGEs over {2}.",
+            state.Fetches, state.Expunges, NumberingRaceDuration);
+
+         Assert.IsEmpty(failures, string.Join(Environment.NewLine, failures));
+      }
+
+      private static void RepeatedlyFetchAndVerifyNumbering(string address, DateTime deadline, List<string> failures,
+         NumberingRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Reader could not log on.");
+               return;
+            }
+
+            if (!simulator.SelectFolderWithoutLiteral("INBOX"))
+            {
+               Record(failures, "Reader could not select INBOX.");
+               return;
+            }
+
+            // The numbering this session was given at SELECT time. This connection issues nothing
+            // but FETCH from here on, so it can never be told about an expunge, and every one of
+            // these numbers must keep meaning the same message.
+            var expected = ParseUids(simulator.Fetch("1:* (UID)"));
+
+            if (expected.Count == 0)
+            {
+               Record(failures, "Reader saw an empty folder.");
+               return;
+            }
+
+            var sequence = 0;
+
+            while (DateTime.UtcNow < deadline)
+            {
+               sequence = sequence % expected.Count + 1;
+
+               var response = simulator.Fetch(sequence + " (UID)");
+               var returned = ParseUids(response);
+
+               Interlocked.Increment(ref state.Fetches);
+
+               // No response at all is legal - the message may have been expunged elsewhere.
+               if (returned.Count == 0)
+                  continue;
+
+               int uid;
+               if (!returned.TryGetValue(sequence, out uid) || uid != expected[sequence])
+               {
+                  Record(failures, string.Format("FETCH {0} expected UID {1}, response: {2}",
+                     sequence, expected[sequence], response));
+                  return;
+               }
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Reader aborted: " + ex.Message);
+         }
+      }
+
+      private static void RepeatedlyExpungeAndReplenish(string address, DateTime deadline, List<string> failures,
+         NumberingRaceState state)
+      {
+         try
+         {
+            var simulator = new ImapClientSimulator();
+
+            if (!simulator.ConnectAndLogon(address, "test"))
+            {
+               Record(failures, "Expunger could not log on.");
+               return;
+            }
+
+            if (!simulator.SelectFolderWithoutLiteral("INBOX"))
+            {
+               Record(failures, "Expunger could not select INBOX.");
+               return;
+            }
+
+            while (DateTime.UtcNow < deadline)
+            {
+               simulator.SetDeletedFlag(1);
+               simulator.Expunge();
+
+               Interlocked.Increment(ref state.Expunges);
+
+               // Keep the folder large enough that the readers' sequence numbers stay in range.
+               AppendMessage(simulator);
+            }
+
+            simulator.Disconnect();
+         }
+         catch (Exception ex)
+         {
+            Record(failures, "Expunger aborted: " + ex.Message);
+         }
+      }
+
+      /// <summary>
+      ///    Not SendSingleCommandWithLiteral: that only treats the response as a literal request
+      ///    if the very first read starts with "+ Ready", and the other threads' unsolicited
+      ///    EXISTS and RECENT responses arrive ahead of it.
+      /// </summary>
+      private const string CrLf = "\r\n";
+
+      private static void AppendMessage(ImapClientSimulator simulator)
+      {
+         simulator.SendRaw("A01 APPEND INBOX {4}" + CrLf);
+         ReceiveUntil(simulator, "+ Ready");
+
+         simulator.SendRaw("ABCD" + CrLf);
+         ReceiveUntil(simulator, "A01 OK");
+      }
+
+      private static void ReceiveUntil(ImapClientSimulator simulator, string text)
+      {
+         var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+         var result = string.Empty;
+
+         while (DateTime.UtcNow < deadline)
+         {
+            result += simulator.Receive();
+
+            if (result.Contains(text))
+               return;
+         }
+
+         throw new TimeoutException("Timeout while waiting for: " + text);
+      }
+
+      private static Dictionary<int, int> ParseUids(string response)
+      {
+         var uids = new Dictionary<int, int>();
+
+         foreach (Match match in Regex.Matches(response, @"\* (\d+) FETCH \(UID (\d+)\)"))
+            uids[int.Parse(match.Groups[1].Value)] = int.Parse(match.Groups[2].Value);
+
+         return uids;
+      }
    }
 }

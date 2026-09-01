@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 #include "stdafx.h"
@@ -6,6 +6,10 @@
 #include "IMAPConnection.h"
 
 #include "MessagesContainer.h"
+#include "IMAPFolderView.h"
+
+#include "../Common/BO/Messages.h"
+#include "../Common/BO/Message.h"
 
 #include "../Common/BO/IMAPFolder.h"
 
@@ -40,47 +44,70 @@ namespace HM
       if (!pConnection->CheckPermission(pCurFolder, ACLPermission::PermissionExpunge))
          return IMAPResult(IMAPResult::ResultBad, "ACL: Expunge permission denied (Required for EXPUNGE command).");
 
-      std::vector<__int64> expunged_messages_uid;
-      std::vector<__int64> expunged_messages_index;
+      auto view = pConnection->GetCurrentFolderView();
 
-      std::function<bool(int, std::shared_ptr<Message>)> filter = [&expunged_messages_index, &expunged_messages_uid](int index, std::shared_ptr<Message> message)
-      {
-         if (message->GetFlagDeleted())
-         {
-            expunged_messages_index.push_back(index);
-            expunged_messages_uid.push_back(message->GetID());
-            return true;
-         }
-
-         return false;
-      };
+      if (!view)
+         return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
       auto messages = MessagesContainer::Instance()->GetMessages(pCurFolder->GetAccountID(), pCurFolder->GetID());
-      messages->DeleteMessages(filter);
 
-      auto iterExpunged = expunged_messages_index.begin();
+      // EXPUNGE may report new messages as well, so take them into the view first.
+      view->AppendNewMessages(messages);
+
+      // Only messages this session knows about may be expunged. It hasn't been told about the
+      // others, so their sequence numbers would mean nothing to the client.
+      std::set<__int64> messages_to_delete;
+
+      auto entries = view->GetAllEntries();
+
+      std::set<__int64> view_message_ids;
+      for (const auto &entry : entries)
+         view_message_ids.insert(entry.second.message_id);
+
+      auto view_messages = messages->GetCopyByIds(view_message_ids);
+
+      for (const auto &entry : entries)
+      {
+         auto iter = view_messages.find(entry.second.message_id);
+
+         if (iter == view_messages.end())
+         {
+            // Expunged by another session. The client is told about the expunge the next
+            // time we're allowed to send one.
+            view->MarkVanished(entry.second.message_id);
+            continue;
+         }
+
+         if (iter->second->GetFlagDeleted())
+            messages_to_delete.insert(entry.second.message_id);
+      }
+
+      auto deleted_message_ids = messages->DeleteMessagesById(messages_to_delete);
+      auto expunged_sequences = view->RemoveMessages(deleted_message_ids);
+
+      pConnection->RemoveRecentMessages(deleted_message_ids);
 
       String sResponse;
-      while (iterExpunged != expunged_messages_index.end())
+      for (int sequence : expunged_sequences)
       {
          String sTemp;
-         sTemp.Format(_T("* %d EXPUNGE\r\n"), (*iterExpunged));
+         sTemp.Format(_T("* %d EXPUNGE\r\n"), sequence);
          sResponse += sTemp;
-         iterExpunged++;
       }
 
       pConnection->SendAsciiData(sResponse);
 
-      if (!expunged_messages_uid.empty())
+      if (!deleted_message_ids.empty())
       {
          // Messages have been expunged
-         // Notify the mailbox notifier that the mailbox contents have changed.
+         // Notify the mailbox notifier that the mailbox contents have changed. The view is
+         // updated first, and no connection lock is held: the notification is delivered
+         // synchronously on this thread, into the other connections.
          std::shared_ptr<ChangeNotification> pNotification = 
-            std::shared_ptr<ChangeNotification>(new ChangeNotification(pCurFolder->GetAccountID(), pCurFolder->GetID(), ChangeNotification::NotificationMessageDeleted, expunged_messages_index));
+            std::shared_ptr<ChangeNotification>(new ChangeNotification(pCurFolder->GetAccountID(), pCurFolder->GetID(), ChangeNotification::NotificationMessageDeleted, deleted_message_ids));
 
          Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
       }
-
 
       // We're done.
       sResponse = pArgument->Tag() + " OK EXPUNGE Completed\r\n";
