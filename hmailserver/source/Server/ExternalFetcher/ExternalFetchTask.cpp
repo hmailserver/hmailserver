@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 #include "StdAfx.h"
@@ -6,7 +6,6 @@
 
 #include "ExternalFetch.h"
 #include "..\Common\BO\FetchAccount.h"
-#include "../Common/Persistence/PersistentFetchAccount.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -15,9 +14,10 @@
 
 namespace HM
 {
-   ExternalFetchTask::ExternalFetchTask(std::shared_ptr<FetchAccount> pFA) : 
+   ExternalFetchTask::ExternalFetchTask(std::shared_ptr<FetchAccount> pFA) :
       Task("ExternalFetchTask"),
-      fetch_account_(pFA)
+      fetch_account_(pFA),
+      lock_(pFA)
    {
    }
 
@@ -25,18 +25,13 @@ namespace HM
    {
    }
 
-   void 
+   void
    ExternalFetchTask::DoWork()
    {
-      // Do the actual delivery of the message.
+      // Do the actual delivery of the message. The account is unlocked when this task is
+      // destroyed, also if the fetch fails.
       ExternalFetch oFetcher;
       oFetcher.Start(fetch_account_);
-
-      // Set next fetch time 
-      PersistentFetchAccount::SetNextTryTime(fetch_account_);
-
-      // Unlock the account
-      PersistentFetchAccount::Unlock(fetch_account_->GetID());
    }
 
 }

@@ -85,8 +85,7 @@ namespace HM
 
             if (FetchIsAllowed_(pFA))
             {
-               // We're allowed to fetch. Lock fetchaccount and start the fetcher.
-               PersistentFetchAccount::Lock(pFA->GetID());
+               // We're allowed to fetch. The task locks the fetch account while it exists.
                std::shared_ptr<ExternalFetchTask> pTask = std::shared_ptr<ExternalFetchTask>(new ExternalFetchTask(pFA));
                WorkQueueManager::Instance()->AddTask(queue_id_, pTask);
             }
