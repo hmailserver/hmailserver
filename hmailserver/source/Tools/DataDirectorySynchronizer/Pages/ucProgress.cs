@@ -66,6 +66,11 @@ namespace DataDirectorySynchronizer.Pages
             // Process all domains
             IterateDomainFolders(dirInfo);
 
+            // Process the public folders. They are not stored below any of the
+            // domain folders, so they need to be handled separately.
+            if (Globals.SynchronizePublicFolders)
+               IteratePublicFolder(dirInfo);
+
             timer.Enabled = false;
 
             application.Reinitialize();
@@ -111,6 +116,29 @@ namespace DataDirectorySynchronizer.Pages
             }
 
             AddProcessedFile(fullName, imported);
+         }
+      }
+
+      private void IteratePublicFolder(DirectoryInfo dirRoot)
+      {
+         DirectoryInfo publicFolder =
+            new DirectoryInfo(Path.Combine(dirRoot.FullName, _application.Settings.PublicFolderDiskName));
+
+         if (!publicFolder.Exists)
+            return;
+
+         try
+         {
+            // Messages in public folders aren't owned by an account, which is why
+            // no account is given here.
+            ProcessFilesInFolder(publicFolder, 0);
+
+            foreach (DirectoryInfo publicSubFolder in publicFolder.GetDirectories())
+               ProcessFilesInFolder(publicSubFolder, 0);
+         }
+         catch (Exception)
+         {
+            AddProcessedFile(publicFolder.FullName, false);
          }
       }
 

@@ -78,6 +78,14 @@ namespace HM
          }
       }
 
+      // The message isn't referenced in the database. If it's stored in the public folder, we
+      // have no way of telling which public IMAP folder it belongs to - the folder isn't part
+      // of the path on disk. Rather than guessing, we leave the file alone.
+      String publicFolderPath = FileUtilities::Combine(dataDirectory, IMAPConfiguration::GetPublicFolderDiskName());
+
+      if (originalFullPath.StartsWith(publicFolderPath + FileUtilities::PathSeparator))
+         return false;
+
       String newFullPath = originalFullPath;
 
       // Construct a partial file name.

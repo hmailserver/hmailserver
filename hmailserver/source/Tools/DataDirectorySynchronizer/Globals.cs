@@ -19,12 +19,14 @@ namespace DataDirectorySynchronizer
 
       public static ModeType Mode { get; set; }
       public static List<string> SelectedDomains { get; set; }
+      public static bool SynchronizePublicFolders { get; set; }
 
       private static hMailServer.Application _application;
 
       static Globals()
       {
          SelectedDomains = new List<string>();
+         SynchronizePublicFolders = true;
       }
 
       public static void SetApp(hMailServer.Application application)

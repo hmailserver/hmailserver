@@ -1205,12 +1205,12 @@ namespace HM
       String filePath = fullPath.Mid(dataDirectory.GetLength() + 1);
 
       // Is the file in the public folder?
-      String publicFolderName = IMAPConfiguration::GetPublicFolderDiskName();
+      String publicFolderPrefix = IMAPConfiguration::GetPublicFolderDiskName() + FileUtilities::PathSeparator;
 
-      if (filePath.StartsWith(publicFolderName))
+      if (filePath.StartsWith(publicFolderPrefix))
       {
          // Trim it away.
-         filePath = filePath.Mid(publicFolderName.GetLength() + 1);
+         filePath = filePath.Mid(publicFolderPrefix.GetLength());
 
          int guidSlashPos = filePath.Find(FileUtilities::PathSeparator);
          if (guidSlashPos <= 0)
@@ -1220,7 +1220,7 @@ namespace HM
          if (guidSlashPos != 2)
             return false;
 
-         String lastLevelName = filePath.Mid(guidSlashPos);
+         String lastLevelName = filePath.Mid(0, guidSlashPos);
 
          filePath = filePath.Mid(guidSlashPos+1);
 
