@@ -28,7 +28,7 @@ namespace RegressionTests.SMTP.SRS
       /// not make it one of ours, so messages sent there are still leaving the server as
       /// far as SRS is concerned.
       /// </summary>
-      protected SmtpServerSimulator StartExternalServer(int numberOfConnections, params string[] recipients)
+      internal SmtpServerSimulator StartExternalServer(int numberOfConnections, params string[] recipients)
       {
          var port = TestSetup.GetNextFreePort();
 
@@ -83,7 +83,7 @@ namespace RegressionTests.SMTP.SRS
       /// <summary>
       /// Forwards a message and hands back the envelope sender the receiving server saw.
       /// </summary>
-      protected string GetSenderOfForwardedMessage(SmtpServerSimulator server, string from, string to)
+      internal string GetSenderOfForwardedMessage(SmtpServerSimulator server, string from, string to)
       {
          SmtpClientSimulator.StaticSend(from, to, "Forwarded message", "This is the body");
 
