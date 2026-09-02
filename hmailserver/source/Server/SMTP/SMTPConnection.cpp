@@ -162,6 +162,10 @@ namespace HM
          ResetLoginCredentials_();
          ResetCurrentMessage_();
 
+         // The session is back at the point right after the 220 greeting, so the
+         // client has to send a new EHLO before it can issue any other command.
+         current_state_ = INITIAL;
+
          EnqueueRead();
       }
    }
