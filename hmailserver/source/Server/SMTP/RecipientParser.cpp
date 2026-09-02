@@ -9,6 +9,8 @@
 
 #include "PlusAddressing.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 #include "../Common/Application/ObjectCache.h"
 #include "../common/Cache/CacheContainer.h"
 
@@ -97,6 +99,22 @@ namespace HM
             {
                sErrMsg = "Domain has been disabled.";
                return DP_RecipientUnknown;
+            }
+
+            // If this is an address we have handed out when forwarding a message, it is
+            // a bounce on its way back to whoever sent that message. Deliver it to them
+            // rather than looking for an account by that name. Reversing the address is
+            // only done if it validates - otherwise anyone could make up an address
+            // which relays mail through us.
+            if (SenderRewriteScheme::IsSrsRecipient(primaryAddressWithoutPlusaddressing))
+            {
+               String originalSender;
+
+               if (!SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, sErrMsg))
+                  return DP_RecipientUnknown;
+
+               recipientAddress = originalSender;
+               continue;
             }
 
             // Check for an account with this name.
@@ -233,7 +251,9 @@ namespace HM
 
       
       std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
-      
+
+      const String primaryAddressWithoutPlusaddressing = primaryAddress;
+
       // Apply plus addressing on the recipient address
       primaryAddress = PlusAddressing::ExtractAccountAddress(primaryAddress, pDomain); 
 
@@ -243,6 +263,21 @@ namespace HM
          // First check if this domain is really active.
          if (!pDomain->GetIsActive())
             return;
+
+         // A bounce coming back to an address we have handed out when forwarding a
+         // message. Where it should go is encoded in the address itself.
+         if (SenderRewriteScheme::IsSrsRecipient(primaryAddressWithoutPlusaddressing))
+         {
+            String originalSender;
+            String errorMessage;
+
+            if (!SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, errorMessage))
+               return;
+
+            CreateMessageRecipientList_(originalSender, sOriginalAddress, lRecurse, pRecipients, recipientOK);
+
+            return;
+         }
 
          // Check if there exists a account with this address.
          std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);

@@ -53,6 +53,12 @@ namespace RegressionTests.Shared
 
       public int RcptTosReceived { get; set; }
 
+      public string MailFrom { get; private set; } = "";
+      // The envelope sender of the last message the server was offered, without its
+      // angle brackets. Empty for a bounce, which is sent with no sender at all.
+
+      public List<string> RcptTos { get; } = new List<string>();
+
       public int QuitResult
       {
          set => _quitResult = value;
@@ -160,6 +166,12 @@ namespace RegressionTests.Shared
                return false;
             }
 
+            var mailFromStartPos = command.IndexOf("<") + 1;
+            var mailFromEndPos = command.LastIndexOf(">");
+
+            if (mailFromStartPos > 0 && mailFromEndPos >= mailFromStartPos)
+               MailFrom = command.Substring(mailFromStartPos, mailFromEndPos - mailFromStartPos);
+
             Send(_mailFromresult + "\r\n");
 
             if (_mailFromresult == 250)
@@ -189,6 +201,7 @@ namespace RegressionTests.Shared
 
             Send(result + " " + address + "\r\n");
 
+            RcptTos.Add(address);
             RcptTosReceived++;
 
             return false;

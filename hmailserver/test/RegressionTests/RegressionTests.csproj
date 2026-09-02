@@ -184,6 +184,11 @@
     <Compile Include="Security\AutoBan.cs" />
     <Compile Include="Security\SMTPAuthentication.cs" />
     <Compile Include="SMTP\Signatures.cs" />
+    <Compile Include="SMTP\SRS\Bounces.cs" />
+    <Compile Include="SMTP\SRS\Forwarding.cs" />
+    <Compile Include="SMTP\SRS\Settings.cs" />
+    <Compile Include="SMTP\SRS\SrsAddress.cs" />
+    <Compile Include="SMTP\SRS\SrsTestBase.cs" />
     <Compile Include="Infrastructure\Persistence\Limitations.cs" />
     <Compile Include="SSL\CertificateTypes.cs" />
     <Compile Include="Stress\StabilitySanityTests.cs" />

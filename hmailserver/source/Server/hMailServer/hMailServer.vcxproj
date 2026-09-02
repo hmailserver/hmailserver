@@ -643,6 +643,9 @@ EXIT 0
     <ClCompile Include="..\SMTP\SMTPMessageHeaderCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVacationMessageCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SRS.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SRSTester.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SenderRewriteScheme.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
     <ClCompile Include="hMailServer.cpp" />
@@ -1158,6 +1161,9 @@ EXIT 0
     <ClInclude Include="..\SMTP\SMTPMessageHeaderCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVacationMessageCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
+    <ClInclude Include="..\SMTP\SRS\SRS.h" />
+    <ClInclude Include="..\SMTP\SRS\SRSTester.h" />
+    <ClInclude Include="..\SMTP\SRS\SenderRewriteScheme.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
     <ClInclude Include="Resource.h" />

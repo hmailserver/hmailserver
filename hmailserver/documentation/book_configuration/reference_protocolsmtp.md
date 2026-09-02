@@ -114,3 +114,34 @@ Using this setting you can disconnect clients which sends to many invalid comman
 ### Maximum number of recipient hosts
 
 This options lets you specify the maximum number of MX records per domain that hMailserver will attempt delivery to. Default value is 15.
+
+
+## Sender Rewriting Scheme (SRS)
+
+When hMailServer forwards a message to another server - because an account forwards its mail, or because an account rule does - the message is sent on with the address of whoever wrote it as its envelope sender. The receiving server checks that address against the SPF record of the sender's domain, sees that hMailServer is not one of the servers that domain permits, and may treat the message as spam or reject it outright.
+
+The Sender Rewriting Scheme solves this by replacing the envelope sender with an address in one of hMailServer's own domains, which the original sender can be recovered from:
+
+`SRS0=Zsfr5j3M=7G=example.com=alice@yourdomain.example`
+
+The receiving server now checks the SPF record of your domain, which does list your server. Should the message bounce, the bounce comes back to that address, hMailServer recognizes it, recovers the address it was created from, and passes the bounce on to the person who wrote the message - which is what the older *RewriteEnvelopeFromWhenForwarding* ini-file setting could not do.
+
+Every address is signed with a secret, which is generated the first time the server starts after this feature has been installed and is stored in the database. Servers which share a database therefore share the secret, and can reverse each other's addresses. Without the secret, an address which decodes into a recipient of somebody else's choosing cannot be made up, so this cannot be used to relay mail through your server: an address which does not validate is rejected with a *550* error.
+
+### Rewrite sender when forwarding to other servers
+
+<div class="indented">Enables the rewriting described above. It is switched off by default.
+
+Senders are only rewritten when a message is actually leaving the server. Forwarding between two local accounts changes nothing, and neither does forwarding a message which was sent from one of your own domains, since your server is already a permitted sender for it and leaving the address alone keeps the message aligned with its From header for DMARC.
+
+Aliases and distribution lists which point at an external address are not affected: they hand the message on without a copy of their own, and a single message has a single envelope sender. Only the forwarding configured in the account settings and the <em>Forward email</em> rule action rewrite the sender.</div>
+
+### Number of days addresses are valid
+
+<div class="indented">How long a rewritten address can be used to send a bounce back through the server. The default is 21 days, and the maximum is 512. Once that time has passed, the address is rejected in the same way an address with an incorrect signature is.</div>
+
+### Interaction with RewriteEnvelopeFromWhenForwarding
+
+<div class="indented">The <a href="?page=reference_inifilesettings">ini-file setting</a> <em>RewriteEnvelopeFromWhenForwarding</em> replaces the envelope sender with the address of the account which forwards the message. It is the blunt version of the same idea: the message passes the SPF check, but a bounce ends up with the person who set up the forwarding rather than with whoever wrote the message.
+
+Where SRS rewrites a sender, it takes precedence. Where it deliberately does not - for a message which never leaves this server, for instance - the ini-file setting still applies if it is switched on.</div>

@@ -13,6 +13,8 @@
 
 #include "../Common/Persistence/PersistentMessage.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 
 #include "RecipientParser.h"
 
@@ -90,7 +92,18 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pNewMessage->GetFromAddress().IsEmpty())
+      // Rewrite the envelope sender so that the message passes the SPF check at the
+      // server we forward it to, while a bounce still finds its way back to whoever sent
+      // the message. When SRS is switched off, the ini-file setting below is the older,
+      // blunter version of the same thing: it passes SPF, but the bounce ends up with
+      // the account which forwarded the message rather than with the sender.
+      String rewrittenSender = SenderRewriteScheme::CreateForwardingSender(pNewMessage->GetFromAddress(),
+                                                                          pRecipientAccount->GetAddress(),
+                                                                          pRecipientAccount->GetForwardAddress());
+
+      if (!rewrittenSender.IsEmpty())
+         pNewMessage->SetFromAddress(rewrittenSender);
+      else if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pNewMessage->GetFromAddress().IsEmpty())
          pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
 
       pNewMessage->SetState(Message::Delivering);

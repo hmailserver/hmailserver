@@ -27,6 +27,8 @@
 
 #include "SMTPConfiguration.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 #include "../Common/Scripting/ScriptServer.h"
 #include "../Common/Scripting/ScriptObjectContainer.h"
 #include "../Common/Scripting/Result.h"
@@ -259,8 +261,21 @@ namespace HM
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
       std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pMsg->GetFromAddress().IsEmpty())
-         pMsg->SetFromAddress(pAccount->GetAddress());
+
+      if (pAccount)
+      {
+         // As when an account forwards a message: the sender is rewritten into one of
+         // our own domains, so that the message passes the SPF check at the next server
+         // and a bounce still comes back to us to be passed on to the sender.
+         String rewrittenSender = SenderRewriteScheme::CreateForwardingSender(pMsg->GetFromAddress(),
+                                                                             pAccount->GetAddress(),
+                                                                             pAction->GetTo());
+
+         if (!rewrittenSender.IsEmpty())
+            pMsg->SetFromAddress(rewrittenSender);
+         else if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pMsg->GetFromAddress().IsEmpty())
+            pMsg->SetFromAddress(pAccount->GetAddress());
+      }
       
       // Add new recipients
       bool recipientOK = false;
