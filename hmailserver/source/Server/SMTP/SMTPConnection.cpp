@@ -451,11 +451,15 @@ namespace HM
       if (!CheckStartTlsRequired_())
          return;
 
+      const bool isInitialState = (current_state_ == INITIAL);
+
       ResetCurrentMessage_();
 
-      EnqueueWrite_("250 OK");
+      if (isInitialState) {
+         current_state_ = INITIAL;
+      }
 
-      return;
+      EnqueueWrite_("250 OK");
    }
 
    void
