@@ -25,6 +25,7 @@
 #include "../../SMTP/SPF/SPFEvaluatorTester.h"
 #include "../../SMTP/SPF/SPFMacroExpanderTester.h"
 #include "../../SMTP/SPF/SPFRecordTester.h"
+#include "../../SMTP/SRS/SRSTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
@@ -154,6 +155,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
       SPFConformance::SPFConformanceTester spfConformanceTester;
       ReportSPFFailures_("the RFC 7208 conformance suite", spfConformanceTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SRS\n"));
+      SRSTester srsTester;
+      srsTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;

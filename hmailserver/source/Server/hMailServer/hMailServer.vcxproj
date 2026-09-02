@@ -646,6 +646,9 @@ EXIT 0
     <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceLookup.cpp" />
     <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceSuite.cpp" />
     <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceTester.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SRS.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SRSTester.cpp" />
+    <ClCompile Include="..\SMTP\SRS\SenderRewriteScheme.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPFAddress.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPFDnsResolver.cpp" />
@@ -1175,6 +1178,9 @@ EXIT 0
     <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceLookup.h" />
     <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceSuite.h" />
     <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceTester.h" />
+    <ClInclude Include="..\SMTP\SRS\SRS.h" />
+    <ClInclude Include="..\SMTP\SRS\SRSTester.h" />
+    <ClInclude Include="..\SMTP\SRS\SenderRewriteScheme.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
     <ClInclude Include="..\Smtp\Spf\SPFAddress.h" />
     <ClInclude Include="..\Smtp\Spf\SPFDnsLookup.h" />

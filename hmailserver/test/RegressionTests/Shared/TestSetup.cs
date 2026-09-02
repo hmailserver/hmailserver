@@ -141,6 +141,17 @@ namespace RegressionTests.Shared
          if (_settings.MaxNumberOfMXHosts != 15)
             _settings.MaxNumberOfMXHosts = 15;
 
+         if (_settings.SRSEnabled)
+            _settings.SRSEnabled = false;
+         if (_settings.SRSMaxAgeDays != 21)
+            _settings.SRSMaxAgeDays = 21;
+         if (_settings.SRSHashLength != 8)
+            _settings.SRSHashLength = 8;
+         if (_settings.RewriteEnvelopeFromWhenForwarding)
+            _settings.RewriteEnvelopeFromWhenForwarding = false;
+         if (_settings.DenyMailFromNull)
+            _settings.DenyMailFromNull = false;
+
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 

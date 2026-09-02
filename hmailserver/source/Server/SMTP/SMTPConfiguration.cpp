@@ -5,6 +5,8 @@
 #include "SMTPConfiguration.h"
 #include "SMTPDeliveryManager.h"
 
+#include "SRS/SRS.h"
+
 #include "../Common/Application/Property.h"
 
 #include "../Common/BO/Routes.h"
@@ -37,6 +39,8 @@ namespace HM
 
       routes_ = std::shared_ptr<Routes> (new Routes());
       routes_->Refresh();
+
+      EnsureSRSSecretExists_();
 
       return true;
    }
@@ -306,6 +310,95 @@ namespace HM
    SMTPConfiguration::GetAddDeliveredToHeader() 
    {
       return GetSettings_()->GetBool(PROPERTY_ADDDELIVEREDTOHEADER);
+   }
+
+   void
+   SMTPConfiguration::SetSRSEnabled(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_SRS_ENABLED, newValue);
+   }
+
+   bool
+   SMTPConfiguration::GetSRSEnabled()
+   {
+      return GetSettings_()->GetBool(PROPERTY_SRS_ENABLED);
+   }
+
+   void
+   SMTPConfiguration::SetSRSSecret(const String &newValue)
+   {
+      if (newValue.IsEmpty())
+      {
+         // Clearing the secret rotates it rather than switching SRS off: a server with
+         // SRS enabled and no secret can neither rewrite nor reverse an address. Every
+         // address handed out under the old secret stops being reversible.
+         AnsiString generatedSecret = SRS::GenerateSecret();
+
+         if (generatedSecret.IsEmpty())
+            return;
+
+         GetSettings_()->SetString(PROPERTY_SRS_SECRET, generatedSecret);
+
+         return;
+      }
+
+      GetSettings_()->SetString(PROPERTY_SRS_SECRET, newValue);
+   }
+
+   String
+   SMTPConfiguration::GetSRSSecret()
+   {
+      return GetSettings_()->GetString(PROPERTY_SRS_SECRET);
+   }
+
+   void
+   SMTPConfiguration::SetSRSMaxAgeDays(int newValue)
+   {
+      GetSettings_()->SetLong(PROPERTY_SRS_MAXAGEDAYS, newValue);
+   }
+
+   int
+   SMTPConfiguration::GetSRSMaxAgeDays()
+   {
+      int value = GetSettings_()->GetLong(PROPERTY_SRS_MAXAGEDAYS);
+
+      if (value <= 0)
+         return SRS::DefaultMaxAgeDays;
+
+      return value;
+   }
+
+   void
+   SMTPConfiguration::SetSRSHashLength(int newValue)
+   {
+      GetSettings_()->SetLong(PROPERTY_SRS_HASHLENGTH, newValue);
+   }
+
+   int
+   SMTPConfiguration::GetSRSHashLength()
+   {
+      int value = GetSettings_()->GetLong(PROPERTY_SRS_HASHLENGTH);
+
+      if (value <= 0)
+         return SRS::DefaultHashLength;
+
+      return value;
+   }
+
+   void
+   SMTPConfiguration::EnsureSRSSecretExists_()
+   {
+      // The secret is what tells an address this server has handed out from one someone
+      // else has made up, so every installation needs one of its own. It is generated
+      // once, on the first start after the setting appears in the database, and then
+      // left alone: changing it invalidates every address already out there.
+      //
+      // Servers sharing a database share the secret, which is what a set-up where mail
+      // for one domain arrives at more than one of them needs.
+      if (!GetSRSSecret().IsEmpty())
+         return;
+
+      SetSRSSecret("");
    }
 
    void 

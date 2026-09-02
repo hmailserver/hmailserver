@@ -156,6 +156,11 @@ namespace HM
       if (sPropertyName == PROPERTY_SMTPRELAYER_PASSWORD)
          return true;
 
+      // The SRS secret is what stops someone from making up an address which relays mail
+      // through this server, so it is stored the way the relay password is.
+      if (sPropertyName == PROPERTY_SRS_SECRET)
+         return true;
+
       return false;
    }
 
