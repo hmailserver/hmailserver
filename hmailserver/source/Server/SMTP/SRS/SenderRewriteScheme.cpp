@@ -68,10 +68,12 @@ namespace HM
 
       if (rewrittenSender.IsEmpty())
       {
-         String message = Formatter::Format("The envelope sender {0} could not be rewritten using SRS when forwarding to {1}. The message is forwarded with its original sender.",
-            originalSender, targetAddress);
-
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5732, "SenderRewriteScheme::CreateForwardingSender", message);
+         // Nothing went wrong with the server; the address simply cannot be rewritten -
+         // it is not one we can take apart, or rewriting it would make it longer than an
+         // address may be. The message is forwarded with the sender it arrived with,
+         // which is what hMailServer did before SRS existed.
+         LOG_DEBUG(Formatter::Format("SRS: The envelope sender {0} was not rewritten when forwarding to {1}.",
+            originalSender, targetAddress));
 
          return "";
       }
@@ -128,7 +130,7 @@ namespace HM
       {
          // The server generates one when it starts, so this means either that the
          // database could not be written to, or that someone has cleared it.
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5733, "SenderRewriteScheme::Create_",
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5732, "SenderRewriteScheme::Create_",
             "SRS is enabled, but no SRS secret has been configured. Addresses can neither be rewritten nor reversed.");
 
          std::shared_ptr<SRS> empty;
