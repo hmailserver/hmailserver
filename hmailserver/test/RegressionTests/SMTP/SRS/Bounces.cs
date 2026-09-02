@@ -57,10 +57,10 @@ namespace RegressionTests.SMTP.SRS
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
             // Whatever the receiving server was told to bounce to, we send a bounce to.
-            var bounceAddress = server.MailFrom;
+            Assert.IsTrue(Poll.Until(TimeSpan.FromSeconds(20), () => server.MailFrom.StartsWith("SRS0=")),
+               "The forwarded message did not have a rewritten sender: " + server.MailFrom);
 
-            Assert.IsTrue(bounceAddress.StartsWith("SRS0="),
-               "The forwarded message did not have a rewritten sender: " + bounceAddress);
+            var bounceAddress = server.MailFrom;
 
             SmtpClientSimulator.StaticSend("", bounceAddress, "Undelivered mail", "The message could not be delivered.");
 
