@@ -50,6 +50,10 @@ if($action == "save")
 	
 	$obSettings->MaxNumberOfMXHosts = hmailGetVar("MaxNumberOfMXHosts", 15);
 	
+	// Sender Rewriting Scheme
+	$obSettings->SRSEnabled = hmailGetVar("SRSEnabled",0);
+	$obSettings->SRSMaxAgeDays = hmailGetVar("SRSMaxAgeDays", 21);
+	
 	// Advanced
 	$obSettings->SMTPConnectionSecurity = hmailGetVar("SMTPConnectionSecurity", 0) ? CONNECTION_SECURITY_STARTTLSOPTIONAL : CONNECTION_SECURITY_NONE;
 }
@@ -90,6 +94,9 @@ $AllowIncorrectLineEndingsChecked = hmailCheckedIf1($AllowIncorrectLineEndings);
 $DisconnectInvalidClientsChecked = hmailCheckedIf1($DisconnectInvalidClients );
 
 $MaxNumberOfMXHosts = $obSettings->MaxNumberOfMXHosts;
+
+$SRSEnabled = $obSettings->SRSEnabled;
+$SRSMaxAgeDays = $obSettings->SRSMaxAgeDays;
 
 $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECURITY_STARTTLSOPTIONAL;
 ?>
@@ -225,6 +232,8 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
          <?php
             PrintCheckboxRow("AddDeliveredToHeader", "Add Delivered-To header", $AddDeliveredToHeader);
 			PrintPropertyEditRow("MaxNumberOfMXHosts", "Maximum number of recipient hosts", $MaxNumberOfMXHosts);
+			PrintCheckboxRow("SRSEnabled", "Rewrite sender when forwarding to other servers", $SRSEnabled);
+			PrintPropertyEditRow("SRSMaxAgeDays", "Number of days addresses are valid", $SRSMaxAgeDays);
          ?>
 		 
       	</table>

@@ -148,4 +148,9 @@
 #define PROPERTY_PASSWORDHASHITERATIONS         _T("PasswordHashIterations")
 #define PROPERTY_PASSWORDHASHAUTOUPGRADE        _T("PasswordHashAutoUpgrade")
 
-#define REQUIRED_DB_VERSION            5711
+#define PROPERTY_SRS_ENABLED                    _T("SRSEnabled")
+#define PROPERTY_SRS_SECRET                     _T("SRSSecret")
+#define PROPERTY_SRS_MAXAGEDAYS                 _T("SRSMaxAgeDays")
+#define PROPERTY_SRS_HASHLENGTH                 _T("SRSHashLength")
+
+#define REQUIRED_DB_VERSION            5712

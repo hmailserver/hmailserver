@@ -21,6 +21,7 @@
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
+#include "../../SMTP/SRS/SRSTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
@@ -104,6 +105,10 @@ namespace HM
       SPFTester *pSPF = new SPFTester();
       pSPF->Test();
       delete pSPF;
+
+      OutputDebugString(_T("hMailServer: Testing SRS\n"));
+      SRSTester srsTester;
+      srsTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;

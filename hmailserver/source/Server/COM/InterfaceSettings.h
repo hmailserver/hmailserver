@@ -246,6 +246,18 @@ END_COM_MAP()
    STDMETHOD(get_RewriteEnvelopeFromWhenForwarding)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_RewriteEnvelopeFromWhenForwarding)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_SRSEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_SRSEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_SRSSecret)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(put_SRSSecret)(/*[in]*/ BSTR newVal);
+
+   STDMETHOD(get_SRSMaxAgeDays)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_SRSMaxAgeDays)(/*[in]*/ long newVal);
+
+   STDMETHOD(get_SRSHashLength)(/*[out, retval]*/ long *pVal);
+   STDMETHOD(put_SRSHashLength)(/*[in]*/ long newVal);
+
    STDMETHOD(get_CreateDefaultSpecialUseFoldersEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_CreateDefaultSpecialUseFoldersEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 

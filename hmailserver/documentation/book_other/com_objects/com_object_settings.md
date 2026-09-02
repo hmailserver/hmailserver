@@ -302,6 +302,22 @@ The Settings object is the root-object for all hMailServer settings which are no
 
 <div class="api_description">Determines whether SSL should be used when delivering to the relay server.<br></div>
 
+<div class="api_method_name">bool SRSEnabled</div>
+
+<div class="api_description">Rewrite the envelope sender using the Sender Rewriting Scheme (SRS) when forwarding messages to other servers.<br></div>
+
+<div class="api_method_name">long SRSHashLength</div>
+
+<div class="api_description">The number of hash characters in an SRS address. Longer is harder to forge, shorter makes for a shorter address. Valid values are 4 to 20; 0 selects the default of 8.<br></div>
+
+<div class="api_method_name">long SRSMaxAgeDays</div>
+
+<div class="api_description">The number of days an SRS address stays valid, after which a bounce sent to it is rejected. Valid values are 1 to 512; 0 selects the default of 21.<br></div>
+
+<div class="api_method_name">string SRSSecret</div>
+
+<div class="api_description">The secret SRS addresses are signed with. The server generates one on first start, so this normally does not need to be set. Setting it to an empty string generates a new one, which makes every address already handed out impossible to reverse.<br></div>
+
 <div class="api_method_name"><a href="?page=com_object_sslcertificates">SSLCertificates</a> SSLCertificates</div>
 
 <div class="api_description">SSL certificates.<br> <i>(read-only)</i></div>

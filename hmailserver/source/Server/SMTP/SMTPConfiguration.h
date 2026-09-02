@@ -88,6 +88,18 @@ namespace HM
       bool GetAddDeliveredToHeader();
       void SetAddDeliveredToHeader(bool bNewVal);
 
+      bool GetSRSEnabled();
+      void SetSRSEnabled(bool newValue);
+
+      String GetSRSSecret();
+      void SetSRSSecret(const String &newValue);
+
+      int GetSRSMaxAgeDays();
+      void SetSRSMaxAgeDays(int newValue);
+
+      int GetSRSHashLength();
+      void SetSRSHashLength(int newValue);
+
       void OnPropertyChanged(std::shared_ptr<Property> pProperty);
 
       std::shared_ptr<IncomingRelays> GetIncomingRelays() {return incoming_relays_;}
@@ -96,6 +108,8 @@ namespace HM
    private:
 
       std::shared_ptr<PropertySet> GetSettings_() const;
+      void EnsureSRSSecretExists_();
+
       std::shared_ptr<IncomingRelays> incoming_relays_;
       std::shared_ptr<Routes> routes_;
    };
