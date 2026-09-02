@@ -20,33 +20,23 @@ namespace RegressionTests.AntiSpam
 
       private hMailServer.AntiSpam _antiSpam;
 
+      // The black list hosts below are under the reserved .test top level domain, so they never
+      // resolve. This test asserts on which look ups hMailServer makes - not on their result - so
+      // that it doesn't depend on the availability of, or the answers given by, a public black
+      // list.
+      private const string FirstActiveBlackList = "dnsbl1.example.test";
+      private const string InactiveBlackList = "dnsbl2.example.test";
+      private const string SecondActiveBlackList = "dnsbl3.example.test";
+
       [Test]
       public void TestDNSBlackList()
       {
          var dnsBlackLists = SingletonProvider<TestSetup>.Instance.GetApp().Settings.AntiSpam.DNSBlackLists;
 
-         var dnsBlackList = dnsBlackLists.Add();
-         dnsBlackList.DNSHost = "zen.spamhaus.org";
-         dnsBlackList.RejectMessage = "srv1";
-         dnsBlackList.Score = 5;
-         dnsBlackList.Active = true;
-         dnsBlackList.Save();
+         AddDNSBlackList(dnsBlackLists, FirstActiveBlackList, "srv1", true);
+         AddDNSBlackList(dnsBlackLists, InactiveBlackList, "srv2", false);
+         AddDNSBlackList(dnsBlackLists, SecondActiveBlackList, "srv3", true);
 
-         dnsBlackList = dnsBlackLists.Add();
-         dnsBlackList.DNSHost = "bl.spamcop.net";
-         dnsBlackList.RejectMessage = "srv2";
-         dnsBlackList.Score = 5;
-         dnsBlackList.Active = false;
-         dnsBlackList.Save();
-
-         dnsBlackList = dnsBlackLists.Add();
-         dnsBlackList.DNSHost = "dnsbl.njabl.org";
-         dnsBlackList.RejectMessage = "srv3";
-         dnsBlackList.Score = 5;
-         dnsBlackList.Active = true;
-         dnsBlackList.Save();
-
-         var application = SingletonProvider<TestSetup>.Instance.GetApp();
          _antiSpam.SpamMarkThreshold = 1;
          _antiSpam.SpamDeleteThreshold = 100;
 
@@ -59,9 +49,24 @@ namespace RegressionTests.AntiSpam
 
          var result = LogHandler.ReadCurrentDefaultLog();
 
-         Assert.IsTrue(result.Contains(".zen.spamhaus.org, 0 addresses found: (none), Match: False"), result);
-         Assert.IsTrue(result.Contains(".dnsbl.njabl.org, 0 addresses found: (none), Match: False"), result);
-         Assert.IsFalse(result.Contains(".bl.spamcop.net, 0 addresses found:"), result);
+         // The active black lists should be looked up, and since they don't resolve there should
+         // be no match.
+         Assert.IsTrue(result.Contains("." + FirstActiveBlackList + ", 0 addresses found: (none), Match: False"), result);
+         Assert.IsTrue(result.Contains("." + SecondActiveBlackList + ", 0 addresses found: (none), Match: False"), result);
+
+         // The inactive black list should not be looked up at all.
+         Assert.IsFalse(result.Contains(InactiveBlackList), result);
+      }
+
+      private static void AddDNSBlackList(hMailServer.DNSBlackLists dnsBlackLists, string dnsHost,
+         string rejectMessage, bool active)
+      {
+         var dnsBlackList = dnsBlackLists.Add();
+         dnsBlackList.DNSHost = dnsHost;
+         dnsBlackList.RejectMessage = rejectMessage;
+         dnsBlackList.Score = 5;
+         dnsBlackList.Active = active;
+         dnsBlackList.Save();
       }
 
       [Test]
