@@ -996,19 +996,47 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void TestPreventRSETByPassHELO()
+      [Description("RSET must not take the place of a HELO/EHLO greeting.")]
+      public void RsetBeforeGreetingShouldNotAllowMailFrom()
       {
-         var settings = _settings;
-         settings.DisconnectInvalidClients = true;
-         settings.MaxNumberOfInvalidCommands = 3;
-
          var sim = new TcpConnection();
          sim.Connect(25);
          sim.Receive(); // banner
 
-         sim.SendAndReceive("RSET\r\n");
+         var rsetResult = sim.SendAndReceive("RSET\r\n");
+         StringAssert.Contains("250 OK", rsetResult);
+
          var result = sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
-         Assert.IsTrue(result.Contains("503 Bad sequence of command"), result);
+         StringAssert.Contains("503 Bad sequence of commands", result);
+      }
+
+      [Test]
+      [Description("Closing the RSET greeting bypass must not break RSET itself.")]
+      public void RsetAfterGreetingShouldStillAllowMailFrom()
+      {
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         StringAssert.Contains("250 Hello.", sim.SendAndReceive("HELO example.com\r\n"));
+         StringAssert.Contains("250 OK", sim.SendAndReceive("RSET\r\n"));
+         StringAssert.Contains("250 OK", sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n"));
+      }
+
+      [Test]
+      [Description("Closing the RSET greeting bypass must not break RSET itself.")]
+      public void RsetShouldAbortTransactionInProgress()
+      {
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         StringAssert.Contains("250 Hello.", sim.SendAndReceive("HELO example.com\r\n"));
+         StringAssert.Contains("250 OK", sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n"));
+
+         // Without the RSET, a second MAIL FROM is rejected as a bad sequence.
+         StringAssert.Contains("250 OK", sim.SendAndReceive("RSET\r\n"));
+         StringAssert.Contains("250 OK", sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n"));
       }
 
       [Test]
