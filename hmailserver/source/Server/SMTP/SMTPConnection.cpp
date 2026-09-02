@@ -451,13 +451,7 @@ namespace HM
       if (!CheckStartTlsRequired_())
          return;
 
-      const bool isInitialState = (current_state_ == INITIAL);
-
       ResetCurrentMessage_();
-
-      if (isInitialState) {
-         current_state_ = INITIAL;
-      }
 
       EnqueueWrite_("250 OK");
    }
@@ -1544,7 +1538,13 @@ namespace HM
 
       // Switch back to normal ASCII mode and start of session, in
       // case we are in binary transmission mode.
-      current_state_ = HEADER;
+      //
+      // If the client hasn't greeted us yet, we must remain in the initial
+      // state. Resetting the current message must never take the place of a
+      // HELO/EHLO, since that would let a client skip the greeting - and with
+      // it the OnHELO/OnEHLO script events and the HELO-based spam tests.
+      if (current_state_ != INITIAL)
+         current_state_ = HEADER;
    }
 
 
