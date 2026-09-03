@@ -145,6 +145,14 @@ namespace HM
       {
          String name = pDnsRecord->pName;
 
+         // On some systems the in-addr.arpa or ip6.arpa addresses will have a trailing dot for local ip addresses in the PTR lookup. 
+         // Remove it to ensure we can compare the query with the result.
+         if (pDnsRecord->wType == DNS_TYPE_PTR) {
+            if (!name.empty() && name.back() == '.') {
+               name.pop_back();
+            }
+         }
+
          if (pDnsRecord->wType == resourceType && 
              query.Equals(name))
          {
