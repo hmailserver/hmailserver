@@ -117,6 +117,7 @@ namespace HM
       bool IsClient();
 
       void ProcessOperationQueue_(int recurse_level);
+      void DispatchProcessOperationQueue_();
 
       void Disconnect();
       void Shutdown(boost::asio::socket_base::shutdown_type);
@@ -134,6 +135,13 @@ namespace HM
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
+
+      /*
+         All operations on socket_/ssl_socket_ run in this strand. Read and write on a
+         ssl::stream drive the same SSL object, and notifications are sent from foreign
+         threads, so without it two threads could enter OpenSSL at the same time.
+      */
+      boost::asio::strand<boost::asio::io_context::executor_type> strand_;
 
       boost::asio::ip::tcp::socket socket_;
       ssl_socket ssl_socket_;
