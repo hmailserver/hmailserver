@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -11,6 +12,28 @@ namespace VolumeTests
 {
    public static class Shared
    {
+      /// <summary>
+      /// Locates a folder below test\TestData. The test assembly is built to different output
+      /// folders depending on platform, so the folder is searched for rather than assumed.
+      /// </summary>
+      public static string GetTestDataPath(string relativePath)
+      {
+         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+
+         while (directory != null)
+         {
+            string candidate = Path.Combine(directory.FullName, "TestData");
+
+            if (Directory.Exists(candidate))
+               return Path.Combine(candidate, relativePath);
+
+            directory = directory.Parent;
+         }
+
+         throw new Exception("Unable to locate the TestData folder above " +
+                             TestContext.CurrentContext.TestDirectory);
+      }
+
       public static long AssertLowMemoryUsage(long max)
       {
          System.Diagnostics.Process[] process = System.Diagnostics.Process.GetProcessesByName("hMailServer");

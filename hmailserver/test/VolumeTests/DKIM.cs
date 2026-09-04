@@ -40,8 +40,7 @@ namespace VolumeTests
         {
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
-            string folderGood = Path.GetFullPath("../../../TestData/DKIM/Good");
-            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folderGood);
+            string folderGood = Shared.GetTestDataPath("DKIM/Good");
             string[] files = Directory.GetFiles(folderGood);
 
             foreach (string file in files)
@@ -60,9 +59,8 @@ namespace VolumeTests
         {
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
-            string folderMissingBH = Path.GetFullPath("../../../TestData/DKIM/Neutral - Missing bodyhash");
-            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folderMissingBH);
-            string[] files = Directory.GetFiles(path);
+            string folderMissingBH = Shared.GetTestDataPath("DKIM/Neutral - Missing bodyhash");
+            string[] files = Directory.GetFiles(folderMissingBH);
 
             foreach (string file in files)
             {
@@ -76,9 +74,8 @@ namespace VolumeTests
         {
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
-            string folder = Path.GetFullPath("../../../TestData/DKIM/Unsupported");
-            string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folder);
-            string[] files = Directory.GetFiles(path);
+            string folder = Shared.GetTestDataPath("DKIM/Unsupported");
+            string[] files = Directory.GetFiles(folder);
 
             foreach (string file in files)
             {
@@ -95,9 +92,8 @@ namespace VolumeTests
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
            
 
-           string folder = Path.GetFullPath("../../../TestData/DKIM/PermFail");
-           string path = Path.Combine(TestContext.CurrentContext.TestDirectory, folder);
-           string[] files = Directory.GetFiles(path);
+           string folder = Shared.GetTestDataPath("DKIM/PermFail");
+           string[] files = Directory.GetFiles(folder);
 
            foreach (string file in files)
            {
@@ -115,7 +111,7 @@ namespace VolumeTests
 
             hMailServer.AntiSpam antiSpam = _application.Settings.AntiSpam;
 
-            string folderGood = Path.GetFullPath("../../../TestData/DKIM/Good");
+            string folderGood = Shared.GetTestDataPath("DKIM/Good");
             string goodFile = Directory.GetFiles(folderGood)[0];
 
             for (int i = 0; i < verificationCount; i++)

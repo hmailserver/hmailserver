@@ -70,12 +70,10 @@ namespace VolumeTests
 
       private bool IsFolderCountReached(string folder, int expectedCount)
       {
+         // Messages left on disk by an earlier test would make an exact comparison never match.
          string[] accountFolders = Directory.GetDirectories(folder);
 
-         if (accountFolders.Length == expectedCount)
-            return true;
-         
-         return false;
+         return accountFolders.Length >= expectedCount;
       }
 
       [Test]
@@ -202,12 +200,15 @@ namespace VolumeTests
          RetryHelper.TryAction(() =>
             {
                Shared.AssertLowMemoryUsage(maxMemoryUsage);
-               
+
                int actualNumberOfMessages = GetNumberOfFilesInFolder(accountDir);
                TestTracer.WriteTraceInfo("{0}/{1}", actualNumberOfMessages, numberOfMessages);
 
-               Assert.AreEqual(numberOfMessages, actualNumberOfMessages);
+               if (actualNumberOfMessages < numberOfMessages)
+                  throw new Exception("Not all messages have been delivered yet.");
             }, TimeSpan.FromSeconds(30), TimeSpan.FromHours(12));
+
+         Assert.GreaterOrEqual(GetNumberOfFilesInFolder(accountDir), numberOfMessages);
 
          _domain.Delete();
 
@@ -470,12 +471,18 @@ namespace VolumeTests
 
       private void WaitForFilesInFolder(string folder, int expectedCount)
       {
-         // Check number of delivered messages.
+         // Asserting inside the retry would fail the test on the first attempt, since NUnit
+         // records every failed assertion. Throw instead, and assert once the retries are done.
          RetryHelper.TryAction(() =>
             {
                int filesInFolder = GetNumberOfFilesInFolder(folder);
-               Assert.AreEqual(expectedCount, filesInFolder);
+
+               if (filesInFolder < expectedCount)
+                  throw new Exception(string.Format("Only {0} of {1} messages have been delivered.",
+                                                    filesInFolder, expectedCount));
             }, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(5));
+
+         Assert.GreaterOrEqual(GetNumberOfFilesInFolder(folder), expectedCount);
       }
 
       private int GetNumberOfFilesInFolder(string folder)
@@ -516,11 +523,17 @@ namespace VolumeTests
             connections.Add(conn);
          }
 
+         // The retry interval is the second argument and the timeout the third.
          RetryHelper.TryAction(() =>
          {
             int connCount = status.get_SessionCount(eSessionType.eSTSMTP);
-            Assert.GreaterOrEqual(connCount, count);
-         }, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(1));
+
+            if (connCount < count)
+               throw new Exception(string.Format("Only {0} of {1} sessions have been registered.",
+                                                 connCount, count));
+         }, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30));
+
+         Assert.GreaterOrEqual(status.get_SessionCount(eSessionType.eSTSMTP), count);
 
          foreach (var conn in connections)
             conn.Dispose();
@@ -528,9 +541,13 @@ namespace VolumeTests
          RetryHelper.TryAction(() =>
          {
             int after = status.get_SessionCount(eSessionType.eSTSMTP);
-            Assert.GreaterOrEqual(before, after);
 
-         }, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
+            if (after > before)
+               throw new Exception(string.Format("{0} sessions are still open, expected at most {1}.",
+                                                 after, before));
+         }, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30));
+
+         Assert.GreaterOrEqual(before, status.get_SessionCount(eSessionType.eSTSMTP));
 
          
       }

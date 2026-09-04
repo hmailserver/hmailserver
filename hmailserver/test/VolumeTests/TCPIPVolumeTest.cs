@@ -41,20 +41,28 @@ namespace VolumeTests
             socket.Disconnect();
          }
 
+         const string connectionCreated = "TCP - 127.0.0.1 connected to 127.0.0.1:25.";
+         const string connectionEnded = "Ending session ";
+
+         // The server writes its log asynchronously. Asserting inside the retry would fail the
+         // test on the first attempt, since NUnit records every failed assertion.
          RetryHelper.TryAction(() =>
             {
                string log = LogHandler.ReadCurrentDefaultLog();
 
-               string connectionCreated = "TCP - 127.0.0.1 connected to 127.0.0.1:25.";
-               string connectionEnded = "Ending session ";
+               int created = Regex.Matches(log, connectionCreated).Count;
+               int ended = Regex.Matches(log, connectionEnded).Count;
 
-               var created = Regex.Matches(log, connectionCreated);
-               var ended = Regex.Matches(log, connectionEnded);
+               if (created < count || ended < count)
+                  throw new Exception(string.Format("The log contains {0} created and {1} ended sessions, expected {2}.",
+                                                    created, ended, count));
 
-               Assert.AreEqual(count, created.Count);
-               Assert.AreEqual(count, ended.Count);
+            }, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30));
 
-            }, TimeSpan.FromSeconds(1),TimeSpan.FromSeconds(30));
+         string finalLog = LogHandler.ReadCurrentDefaultLog();
+
+         Assert.AreEqual(count, Regex.Matches(finalLog, connectionCreated).Count);
+         Assert.AreEqual(count, Regex.Matches(finalLog, connectionEnded).Count);
       }
    }
 }
