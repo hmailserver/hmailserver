@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "DNSResolverWinApi.h"
+#include "../Util/Assert.h"
 #include <iphlpapi.h>
 #include <windns.h>
 #include <boost/asio.hpp>
@@ -114,12 +115,15 @@ namespace HM
 
       DNS_STATUS nDnsStatus = DnsQuery(query, resourceType, fOptions, pSrvList, &pDnsRecord, NULL);
 
+      // DnsQuery only reads the server list, so it can be released immediately.
+      free(pSrvList);
+      pSrvList = NULL;
+
       PDNS_RECORD pDnsRecordsToDelete = pDnsRecord;
 
       if (nDnsStatus != 0)
       {
-         if (pDnsRecordsToDelete)
-            _FreeDNSRecord(pDnsRecordsToDelete);
+         _FreeDNSRecord(pDnsRecordsToDelete);
 
          bool bDNSError = IsDNSError_(nDnsStatus);
 
@@ -129,14 +133,8 @@ namespace HM
             sMessage.Format(_T("DNS - Query failure. Query: %s, Type: %d, DnsQuery return value: %d."), query.c_str(), resourceType, nDnsStatus);
             LOG_TCPIP(sMessage);
 
-            if (pSrvList != NULL)
-               free(pSrvList);
-
             return false;
          }
-
-         if (pSrvList != NULL)
-            free(pSrvList);
 
          return true;
       }
@@ -145,17 +143,8 @@ namespace HM
       {
          String name = pDnsRecord->pName;
 
-         // On some systems the in-addr.arpa or ip6.arpa addresses will have a trailing dot for local ip addresses in the PTR lookup. 
-         // Remove it to ensure we can compare the query with the result.
-         if (pDnsRecord->wType == DNS_TYPE_PTR) 
-         {
-            if (!name.empty() && name.back() == '.') {
-               name.pop_back();
-            }
-         }
-
-         if (pDnsRecord->wType == resourceType && 
-             query.Equals(name))
+         if (pDnsRecord->wType == resourceType &&
+             NameMatchesQuery(query, name))
          {
             switch (pDnsRecord->wType)
             {
@@ -246,19 +235,54 @@ namespace HM
          pDnsRecord = pDnsRecord->pNext;
       }
       
-      if (pDnsRecordsToDelete)
-      {
-         _FreeDNSRecord(pDnsRecordsToDelete);
-         pDnsRecordsToDelete = 0;
-      }
-
-      if (pSrvList != NULL)
-         free(pSrvList);
+      _FreeDNSRecord(pDnsRecordsToDelete);
 
       std::sort(foundRecords.begin(), foundRecords.end(), SortDnsRecordsByPreference);
 
 
       return true;
+   }
+
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Compares a record name with the queried name. A trailing dot is the root label,
+   // so example.com. and example.com are the same name (RFC 1035, 5.1) and it is ignored.
+   // Windows Server 2025 returns PTR names in that form.
+   //---------------------------------------------------------------------------()
+   bool
+   DNSResolverWinApi::NameMatchesQuery(const String &query, const String &recordName)
+   {
+      String name = recordName;
+
+      if (!name.empty() && name.back() == '.')
+         name.pop_back();
+
+      return query.Equals(name);
+   }
+
+   void
+   DNSResolverWinApiTester::Test()
+   {
+      // Names are compared as-is when neither side is fully qualified.
+      Assert::IsTrue(DNSResolverWinApi::NameMatchesQuery(_T("example.com"), _T("example.com")));
+      Assert::IsFalse(DNSResolverWinApi::NameMatchesQuery(_T("example.com"), _T("other.com")));
+
+      // A fully qualified name matches the same name without the root label.
+      Assert::IsTrue(DNSResolverWinApi::NameMatchesQuery(_T("1.0.0.127.in-addr.arpa"), _T("1.0.0.127.in-addr.arpa.")));
+      Assert::IsTrue(DNSResolverWinApi::NameMatchesQuery(
+         _T("1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa"),
+         _T("1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa.")));
+
+      // The root label is stripped for every record type, not just PTR.
+      Assert::IsTrue(DNSResolverWinApi::NameMatchesQuery(_T("example.com"), _T("example.com.")));
+
+      // Stripping the root label must not turn a different name into a match.
+      Assert::IsFalse(DNSResolverWinApi::NameMatchesQuery(_T("example.com"), _T("evil-example.com.")));
+      Assert::IsFalse(DNSResolverWinApi::NameMatchesQuery(_T("1.0.0.127.in-addr.arpa"), _T("1.0.0.127.in-addr.arpa.evil.com")));
+
+      // Empty names must not trip the trailing-dot handling.
+      Assert::IsFalse(DNSResolverWinApi::NameMatchesQuery(_T("example.com"), _T("")));
+      Assert::IsTrue(DNSResolverWinApi::NameMatchesQuery(_T(""), _T("")));
    }
 }
 

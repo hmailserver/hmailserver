@@ -14,6 +14,7 @@
 #include "../Util/RegularExpression.h"
 #include "../TCPIP/LocalIPAddresses.h"
 #include "../TCPIP/IPAddress.h"
+#include "../TCPIP/DNSResolverWinApi.h"
 #include "Time.h"
 #include "Utilities.h"
 #include "Parsing\AddresslistParser.h"
@@ -74,6 +75,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing IPAddress\n"));
       IPAddressTester ipAddressTester;
       ipAddressTester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing DNSResolverWinApi\n"));
+      DNSResolverWinApiTester dnsResolverWinApiTester;
+      dnsResolverWinApiTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing MessageUtilities\n"));
       MessageUtilitiesTester messageUtilitiesTester;
