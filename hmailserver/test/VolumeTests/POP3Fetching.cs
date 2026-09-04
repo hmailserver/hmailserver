@@ -6,7 +6,7 @@ using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
 
-namespace StressTest
+namespace VolumeTests
 {
    [TestFixture]
    public class POP3Fetching : TestFixtureBase

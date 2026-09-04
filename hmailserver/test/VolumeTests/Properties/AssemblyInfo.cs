@@ -8,11 +8,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("StressTest")]
+[assembly: AssemblyTitle("VolumeTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Halvar Information")]
-[assembly: AssemblyProduct("StressTest")]
+[assembly: AssemblyProduct("VolumeTests")]
 [assembly: AssemblyCopyright("Copyright © Halvar Information 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

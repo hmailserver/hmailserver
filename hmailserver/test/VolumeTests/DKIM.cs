@@ -7,7 +7,7 @@ using System.IO;
 using RegressionTests.Shared;
 
 
-namespace StressTest
+namespace VolumeTests
 {
     [TestFixture]
     public class DKIM : TestFixtureBase

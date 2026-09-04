@@ -9,10 +9,10 @@ using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 
-namespace StressTest
+namespace VolumeTests
 {
    [TestFixture]
-   public class TCPIPStressTest : TestFixtureBase
+   public class TCPIPVolumeTest : TestFixtureBase
    {
       [Test]
       public void TestManyTCPIPConnections()

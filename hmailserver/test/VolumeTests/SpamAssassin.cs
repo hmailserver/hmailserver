@@ -11,7 +11,7 @@ using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 
 
-namespace StressTest
+namespace VolumeTests
 {
    [TestFixture]
    public class SpamAssassin : TestFixtureBase

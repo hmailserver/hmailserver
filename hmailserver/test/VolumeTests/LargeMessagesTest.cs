@@ -7,7 +7,7 @@ using System.Text;
 using NUnit.Framework;
 using RegressionTests.Shared;
 
-namespace StressTest
+namespace VolumeTests
 {
    [TestFixture]
    public class LargeMessagesTest : TestFixtureBase

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-namespace StressTest
+namespace VolumeTests
 {
    public static class Shared
    {

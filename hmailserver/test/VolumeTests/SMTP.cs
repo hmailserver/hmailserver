@@ -15,7 +15,7 @@ using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using Attachment = System.Net.Mail.Attachment;
 
-namespace StressTest
+namespace VolumeTests
 {
    [TestFixture]
    public class Smtp : TestFixtureBase

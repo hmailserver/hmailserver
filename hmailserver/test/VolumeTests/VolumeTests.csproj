@@ -9,8 +9,8 @@
     <ProjectGuid>{BCB5B5E3-291F-475E-8200-32C918FB95C1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StressTest</RootNamespace>
-    <AssemblyName>StressTest</AssemblyName>
+    <RootNamespace>VolumeTests</RootNamespace>
+    <AssemblyName>VolumeTests</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
@@ -74,7 +74,7 @@
     <Compile Include="Shared.cs" />
     <Compile Include="SMTP.cs" />
     <Compile Include="SpamAssassin.cs" />
-    <Compile Include="TCPIPStressTest.cs" />
+    <Compile Include="TCPIPVolumeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="hMailServer">
