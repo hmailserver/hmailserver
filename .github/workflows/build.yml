@@ -1,8 +1,8 @@
 # Builds the hMailServer installer on a GitHub-hosted VS2026 runner.
 #
-# The steps mirror the TeamCity job this replaces: build the developer tools, stamp the
-# version with ConfigureInstallation.exe, build the server, build the administration tools,
-# and compile hMailServer64.iss with Inno Setup into a setup executable.
+# The steps mirror the TeamCity job this replaces: stamp the version into the sources, build
+# the server, build the administration tools, and compile hMailServer64.iss with Inno Setup
+# into a setup executable.
 #
 # The installer is then handed to tests.yml, which installs it on a runner of its own and
 # runs the regression tests against it, before the publish job releases it under its
@@ -430,20 +430,6 @@ jobs:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: ${{ steps.cache-mariadb.outputs.cache-primary-key }}
 
-      - name: Build the developer tools
-        env:
-          NETFX_OVERRIDE: ${{ steps.netfx.outputs.override }}
-        run: |
-          # DevTools.sln builds ConfigureInstallation.exe, which the next step runs.
-          . build\Find-MsBuild.ps1
-          $msbuild = Find-MsBuild
-          if (-not $msbuild) { throw "MSBuild was not found." }
-
-          $arguments = @('hmailserver\tools\DevTools.sln', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU')
-          if ($env:NETFX_OVERRIDE) { $arguments += "/p:TargetFrameworkVersion=$env:NETFX_OVERRIDE" }
-          & $msbuild @arguments
-          if ($LASTEXITCODE -ne 0) { throw "Building DevTools.sln failed with exit code $LASTEXITCODE" }
-
       - name: Stamp the version into the sources and the installer script
         env:
           PRODUCT_VERSION: ${{ steps.product.outputs.version }}
@@ -451,9 +437,8 @@ jobs:
         run: |
           # Writes Version.h, the WebAdmin version check and the version and output file name
           # in section_setup_64.iss, so it has to run before the server is compiled.
-          $configure = 'hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe'
-          & $configure $env:GITHUB_WORKSPACE $env:PRODUCT_VERSION $env:PRODUCT_BUILD
-          if ($LASTEXITCODE -ne 0) { throw "ConfigureInstallation.exe failed with exit code $LASTEXITCODE" }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Set-Version.ps1 $env:PRODUCT_VERSION $env:PRODUCT_BUILD
+          if ($LASTEXITCODE -ne 0) { throw "Set-Version.ps1 failed with exit code $LASTEXITCODE" }
 
       - name: Build hMailServer
         run: |
