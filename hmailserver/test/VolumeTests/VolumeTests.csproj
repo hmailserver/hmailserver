@@ -64,7 +64,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DKIM.cs" />
     <Compile Include="IMAP.cs" />
     <Compile Include="LargeMessagesTest.cs" />
     <Compile Include="PerfTestEnvironmentSetUp.cs" />
