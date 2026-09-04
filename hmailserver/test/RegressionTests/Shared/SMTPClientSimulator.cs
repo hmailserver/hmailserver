@@ -206,6 +206,10 @@ namespace RegressionTests.Shared
             SendAndReceive("STARTTLS\r\n");
 
             _tcpConnection.HandshakeAsClient();
+
+            // RFC 3207: the handshake resets the session to the initial state, so the
+            // server expects a new greeting before it accepts any other command.
+            SendAndReceive("EHLO example.com\r\n");
          }
 
          if (!string.IsNullOrEmpty(username))

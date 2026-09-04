@@ -150,17 +150,31 @@ namespace HM
                GetConnectionSecurity() == CSSTARTTLSRequired)
       {
          /*
-           Upon completion of the TLS handshake, the SMTP protocol is reset to
-           the initial state (the state in SMTP after a server issues a 220
-           service ready greeting). The server MUST discard any knowledge
-           obtained from the client, such as the argument to the EHLO command,
-           which was not obtained from the TLS negotiation itself.
+           RFC 3207, 4.2:
+
+             Upon completion of the TLS handshake, the SMTP protocol is reset to
+             the initial state (the state in SMTP after a server issues a 220
+             service ready greeting). The server MUST discard any knowledge
+             obtained from the client, such as the argument to the EHLO command,
+             which was not obtained from the TLS negotiation itself.
          */
 
          helo_host_.Empty();
          start_tls_used_ = true;
          ResetLoginCredentials_();
          ResetCurrentMessage_();
+
+         /*
+           The initial state is the state before any greeting, so the client has to
+           greet us again before it can send mail. RFC 5321, 4.1.4:
+
+             A session that will contain mail transactions MUST first be
+             initialized by the use of the EHLO command.
+
+           The commands which need no initialization are unaffected, since they are
+           dispatched ahead of the state switch in InternalParseData.
+         */
+         current_state_ = INITIAL;
 
          EnqueueRead();
       }
@@ -451,13 +465,19 @@ namespace HM
       if (!CheckStartTlsRequired_())
          return;
 
-      const bool isInitialState = (current_state_ == INITIAL);
+      /*
+        RSET is answered normally even before the client has greeted us.
+        RFC 5321, 4.1.4:
 
+          The NOOP, HELP, EXPN, VRFY, and RSET commands can be used at any time
+          during a session, or without previously initializing a session. SMTP
+          servers SHOULD process these normally (that is, not return a 503 code)
+          even if no EHLO command has yet been received [...]
+
+        ResetCurrentMessage_ leaves an ungreeted session in INITIAL, so the reply
+        below does not let the client past the greeting.
+      */
       ResetCurrentMessage_();
-
-      if (isInitialState) {
-         current_state_ = INITIAL;
-      }
 
       EnqueueWrite_("250 OK");
    }
@@ -1542,9 +1562,22 @@ namespace HM
       // message.
       cur_no_of_rcptto_ = 0;
 
-      // Switch back to normal ASCII mode and start of session, in
-      // case we are in binary transmission mode.
-      current_state_ = HEADER;
+      /*
+        Switch back to normal ASCII mode and start of session, in case we are in
+        binary transmission mode.
+
+        A session which hasn't been greeted stays in INITIAL: resetting the message
+        must never take the place of a HELO/EHLO. RFC 5321, 4.1.4:
+
+          A session that will contain mail transactions MUST first be initialized
+          by the use of the EHLO command.
+
+        A client which could reach HEADER by resetting would skip the greeting, and
+        with it the OnHELO/OnEHLO events and the HELO-based spam tests - the latter
+        would then run against an empty HELO host.
+      */
+      if (current_state_ != INITIAL)
+         current_state_ = HEADER;
    }
 
 

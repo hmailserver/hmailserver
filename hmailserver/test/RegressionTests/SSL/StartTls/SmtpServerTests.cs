@@ -122,6 +122,8 @@ namespace RegressionTests.SSL.StartTls
          smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
          smtpClientSimulator.HandshakeAsClient();
 
+         smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+
          var loginResult = smtpClientSimulator.SendAndReceive("AUTH LOGIN\r\n");
          Assert.IsTrue(loginResult.StartsWith("334"));
       }
@@ -159,6 +161,61 @@ namespace RegressionTests.SSL.StartTls
                "530 A SSL/TLS-connection is required for authentication.")); // must run starttls first.
       }
 
+
+      [Test]
+      [Description("RFC 3207: after the handshake the session is back in the initial state, " +
+                   "so the client has to greet the server again.")]
+      public void AfterStartTlsMailFromShouldRequireNewEhlo()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         smtpClientSimulator.Receive(); // banner
+         var capabilities = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         var result = smtpClientSimulator.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
+         StringAssert.Contains("503 Bad sequence of commands", result);
+      }
+
+      [Test]
+      [Description("RSET must not take the place of the EHLO the client owes us after STARTTLS.")]
+      public void AfterStartTlsRsetShouldNotAllowMailFrom()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         smtpClientSimulator.Receive(); // banner
+         var capabilities = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         StringAssert.Contains("250 OK", smtpClientSimulator.SendAndReceive("RSET\r\n"));
+
+         var result = smtpClientSimulator.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
+         StringAssert.Contains("503 Bad sequence of commands", result);
+      }
+
+      [Test]
+      public void AfterStartTlsMailFromShouldBeAcceptedOnceEhloHasBeenReissued()
+      {
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         smtpClientSimulator.Receive(); // banner
+         var capabilities = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+
+         var result = smtpClientSimulator.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
+         StringAssert.Contains("250 OK", result);
+      }
 
       [Test]
       public void TestPlaintextCommandInjection()
