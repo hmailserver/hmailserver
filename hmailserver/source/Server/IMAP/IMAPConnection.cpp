@@ -467,6 +467,8 @@ namespace HM
    void
    IMAPConnection::SendAsciiData(const AnsiString & sData)
    {
+      AnsiString log_data;
+
       if (Logger::Instance()->GetLogIMAP())
       {
          // Let's tame these logs a bit. Disables IMAP SENT
@@ -481,12 +483,20 @@ namespace HM
             String sLogData = _T("SENT: ") + sData;
             sLogData.TrimRight(_T("\r\n"));
 
-            LOG_IMAP(GetSessionID(),GetIPAddressString(), sLogData);
+            log_data = sLogData;
          }
          // Logging gets skipped otherwise
       }
 
-      EnqueueWrite(sData);
+      // The data is logged when the write completes, not here. It may sit in the operation
+      // queue for a while, and logging it now would claim it had reached the client.
+      EnqueueWrite(sData, log_data);
+   }
+
+   void
+   IMAPConnection::LogSentData(const AnsiString &log_data)
+   {
+      LOG_IMAP(GetSessionID(), GetIPAddressString(), String(log_data));
    }
 
    IMAPConnection::eIMAPCommandType 

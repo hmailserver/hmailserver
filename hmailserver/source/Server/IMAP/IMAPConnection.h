@@ -152,6 +152,7 @@ namespace HM
       
       virtual void OnExcessiveDataReceived();
       virtual void OnConnectionTimeout();
+      virtual void LogSentData(const AnsiString &log_data);
             
       eIMAPCommandType GetCommandType(String & sCommand);
 

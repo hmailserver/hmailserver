@@ -223,7 +223,7 @@ namespace HM
       case IOOperation::BCTWrite:
          {
             std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
-            AsyncWrite(pBuf);
+            AsyncWrite(pBuf, operation->GetLogData());
             break;
          }
       case IOOperation::BCTRead:
@@ -604,8 +604,14 @@ namespace HM
       ProcessOperationQueue_(0);
    }
 
-   void 
+   void
    TCPConnection::EnqueueWrite(const AnsiString &sData)
+   {
+      EnqueueWrite(sData, "");
+   }
+
+   void
+   TCPConnection::EnqueueWrite(const AnsiString &sData, const AnsiString &log_data)
    {
       AnsiString sTemp = sData;
       char *pBuf = sTemp.GetBuffer();
@@ -619,30 +625,38 @@ namespace HM
       OutputDebugString(sDebugOutput);
 #endif
 
-      EnqueueWrite(pBuffer);
+      EnqueueWrite(pBuffer, log_data);
 
    }
 
-   void 
+   void
    TCPConnection::EnqueueWrite(std::shared_ptr<ByteBuffer> pBuffer)
+   {
+      EnqueueWrite(pBuffer, "");
+   }
+
+   void
+   TCPConnection::EnqueueWrite(std::shared_ptr<ByteBuffer> pBuffer, const AnsiString &log_data)
    {
       ThrowIfNotConnected_();
 
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
+      operation->SetLogData(log_data);
 
       operation_queue_.Push(operation);
       ProcessOperationQueue_(0);
    }
 
-   void 
-   TCPConnection::AsyncWrite(std::shared_ptr<ByteBuffer> buffer)
+   void
+   TCPConnection::AsyncWrite(std::shared_ptr<ByteBuffer> buffer, const AnsiString &log_data)
    {
       UpdateAutoLogoutTimer();
 
       std::function<void (const boost::system::error_code&, size_t)> AsyncWriteCompletedFunction =
          std::bind(&TCPConnection::AsyncWriteCompleted, shared_from_this(),
          std::placeholders::_1,
-         std::placeholders::_2);
+         std::placeholders::_2,
+         log_data);
 
       if (is_ssl_)
          boost::asio::async_write
@@ -654,10 +668,13 @@ namespace HM
       
    }
 
-   void 
-   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error, size_t bytes_transferred)
+   void
+   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error, size_t bytes_transferred, const AnsiString &log_data)
    {
       UpdateAutoLogoutTimer();
+
+      if (!log_data.IsEmpty() && error.value() == 0)
+         LogSentData(log_data);
 
       if (error.value() != 0)
       {
