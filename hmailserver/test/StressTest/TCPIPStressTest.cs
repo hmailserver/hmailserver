@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 
 namespace StressTest

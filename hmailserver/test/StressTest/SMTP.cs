@@ -14,7 +14,6 @@ using System.Net.Mail;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using Attachment = System.Net.Mail.Attachment;
-using RetryHelper = hMailServer.Test.Infrastructure.RetryHelper;
 
 namespace StressTest
 {

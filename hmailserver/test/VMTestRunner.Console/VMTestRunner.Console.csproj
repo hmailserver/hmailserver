@@ -59,7 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\hMailServer.Test.Infrastructure\RetryHelper.cs">
+    <Compile Include="..\RegressionTests\Infrastructure\RetryHelper.cs">
       <Link>RetryHelper.cs</Link>
     </Compile>
     <Compile Include="Configuration\TestEnvironments.cs" />

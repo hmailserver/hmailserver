@@ -5,7 +5,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Security;
 using System.Threading;
-using hMailServer.Test.Infrastructure;
+using RegressionTests.Infrastructure;
 
 namespace VMTestRunner.Console
 {

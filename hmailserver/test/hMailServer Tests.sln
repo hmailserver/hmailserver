@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegressionTests", "Regressi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StressTest", "StressTest\StressTest.csproj", "{BCB5B5E3-291F-475E-8200-32C918FB95C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hMailServer.Test.Infrastructure", "hMailServer.Test.Infrastructure\hMailServer.Test.Infrastructure.csproj", "{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VMTestRunner.Console", "VMTestRunner.Console\VMTestRunner.Console.csproj", "{6F5E4D3C-2B1A-0F9E-8D7C-6B5A4F3E2D1C}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{BCB5B5E3-291F-475E-8200-32C918FB95C1}.Debug|x64.Build.0 = Debug|x64
 		{BCB5B5E3-291F-475E-8200-32C918FB95C1}.Release|x64.ActiveCfg = Release|x64
 		{BCB5B5E3-291F-475E-8200-32C918FB95C1}.Release|x64.Build.0 = Release|x64
-		{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}.Debug|x64.ActiveCfg = Debug|x64
-		{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}.Debug|x64.Build.0 = Debug|x64
-		{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}.Release|x64.ActiveCfg = Release|x64
-		{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}.Release|x64.Build.0 = Release|x64
 		{6F5E4D3C-2B1A-0F9E-8D7C-6B5A4F3E2D1C}.Debug|x64.ActiveCfg = Debug|x64
 		{6F5E4D3C-2B1A-0F9E-8D7C-6B5A4F3E2D1C}.Debug|x64.Build.0 = Debug|x64
 		{6F5E4D3C-2B1A-0F9E-8D7C-6B5A4F3E2D1C}.Release|x64.ActiveCfg = Release|x64

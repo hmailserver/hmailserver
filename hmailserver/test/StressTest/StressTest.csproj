@@ -87,10 +87,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\hMailServer.Test.Infrastructure\hMailServer.Test.Infrastructure.csproj">
-      <Project>{CBDEF4D1-5545-4693-B6DF-17D6EDE484CF}</Project>
-      <Name>hMailServer.Test.Infrastructure</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RegressionTests\RegressionTests.csproj">
       <Project>{8f691179-0851-4a25-ac78-3548dd0514fa}</Project>
       <Name>RegressionTests</Name>
