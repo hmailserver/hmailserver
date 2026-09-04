@@ -149,10 +149,22 @@ The automated test suite.
 ```
 test/
   RegressionTests/    # Integration test suite (C#, talks to a live running server via COM)
-  StressTest/         # Stress/load testing tools
+  VolumeTests/        # Long-running volume tests (200 000 messages, 100 MB messages, ...)
+  VMTestRunner.Console/ # Runs the regression tests in Hyper-V virtual machines
 ```
 
 `RegressionTests/` is the primary test suite — it executes against a real hMailServer instance and exercises it end-to-end over SMTP, IMAP, and POP3. The full suite covers 500+ scenarios.
+
+`RegressionTests/Stress/` holds stress tests: concurrency and malformed input. They are part of
+`RegressionTests.dll` and run when the test runner is asked to include stress tests.
+
+`VolumeTests/` is a separate assembly, built by `hMailServer Tests.sln`. Its tests push large
+volumes through the server and take a long time to run, so they are never run automatically. Run
+them by hand when needed:
+
+```
+nunit3-console.exe hmailserver\test\VolumeTests\bin\x64\Debug\VolumeTests.dll
+```
 
 **Every bug fix and every new feature needs a regression test.** Add it to `RegressionTests/`,
 next to the existing tests for the same protocol or area. For a bug fix, write the test first and
