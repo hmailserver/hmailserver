@@ -43,7 +43,9 @@ namespace HM
       void SetReceiveBinary(bool binary);
 
       void EnqueueWrite(const AnsiString &sData);
+      void EnqueueWrite(const AnsiString &sData, const AnsiString &log_data);
       void EnqueueWrite(std::shared_ptr<ByteBuffer> pByteBuffer);
+      void EnqueueWrite(std::shared_ptr<ByteBuffer> pByteBuffer, const AnsiString &log_data);
       void EnqueueRead();
       void EnqueueRead(const AnsiString &delimiter);
       void EnqueueShutdownSend();
@@ -89,6 +91,11 @@ namespace HM
       virtual void OnExcessiveDataReceived() = 0;
       virtual void OnDataSent() {};
       virtual void OnReadError(int errorCode) {};
+
+      // Called when a write has actually completed, for connections which pass log data to
+      // EnqueueWrite.
+      virtual void LogSentData(const AnsiString &log_data) {};
+
       virtual AnsiString GetCommandSeparator() const = 0;
 
       /* PARSING METHODS */
@@ -110,23 +117,31 @@ namespace HM
       bool IsClient();
 
       void ProcessOperationQueue_(int recurse_level);
+      void DispatchProcessOperationQueue_();
 
       void Disconnect();
       void Shutdown(boost::asio::socket_base::shutdown_type);
       
-      void AsyncWrite(std::shared_ptr<ByteBuffer> buffer);
+      void AsyncWrite(std::shared_ptr<ByteBuffer> buffer, const AnsiString &log_data);
       void AsyncRead(const AnsiString &delimiter);
       void AsyncHandshake();
 
       void AsyncConnectCompleted(const boost::system::error_code& err);
       void AsyncHandshakeCompleted(const boost::system::error_code& error);
       void AsyncReadCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
-      void AsyncWriteCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred);
+      void AsyncWriteCompleted(const boost::system::error_code& /*error*/, size_t bytes_transferred, const AnsiString &log_data);
 
       void ReportDebugMessage(const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::system_error &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error);
       void ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message);
+
+      /*
+         All operations on socket_/ssl_socket_ run in this strand. Read and write on a
+         ssl::stream drive the same SSL object, and notifications are sent from foreign
+         threads, so without it two threads could enter OpenSSL at the same time.
+      */
+      boost::asio::strand<boost::asio::io_context::executor_type> strand_;
 
       boost::asio::ip::tcp::socket socket_;
       ssl_socket ssl_socket_;

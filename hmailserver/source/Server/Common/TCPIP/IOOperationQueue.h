@@ -21,15 +21,9 @@ namespace HM
 
       bool ContainsQueuedSendOperation();
 
-      void SetIsSSL(bool is_ssl);
-
    private:
 
       boost::recursive_mutex mutex_;
-
-      // An ssl::stream cannot read and write concurrently, so a SSL connection needs a
-      // stricter rule than a plain socket.
-      bool is_ssl_;
 
       std::deque<std::shared_ptr<IOOperation> > queue_operations_;
       

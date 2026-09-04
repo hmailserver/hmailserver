@@ -34,6 +34,7 @@ namespace HM
                                 std::shared_ptr<Event> disconnected,
                                 AnsiString expected_remote_hostname) :
       connection_security_(connection_security),
+      strand_(boost::asio::make_strand(io_context)),
       socket_(io_context),
       ssl_socket_(socket_, context),
       resolver_(io_context),
@@ -155,7 +156,8 @@ namespace HM
       // Attempt a connection to the first endpoint in the list. Each endpoint
       // will be tried until we successfully establish a connection.
       socket_.async_connect(ep,
-               std::bind(&TCPConnection::AsyncConnectCompleted, shared_from_this(), std::placeholders::_1));
+               boost::asio::bind_executor(strand_,
+                  std::bind(&TCPConnection::AsyncConnectCompleted, shared_from_this(), std::placeholders::_1)));
 
    }
 
@@ -197,6 +199,19 @@ namespace HM
    }
 
    void
+   TCPConnection::DispatchProcessOperationQueue_()
+   {
+      // Runs inline if we're already in the strand, which is the case for the normal
+      // request-response flow. Notifications are sent from other threads and are posted.
+      auto self = shared_from_this();
+
+      boost::asio::dispatch(strand_, [self]()
+      {
+         self->ProcessOperationQueue_(0);
+      });
+   }
+
+   void
    TCPConnection::ProcessOperationQueue_(int recurse_level)
    {
       if (recurse_level > 10)
@@ -223,7 +238,7 @@ namespace HM
       case IOOperation::BCTWrite:
          {
             std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
-            AsyncWrite(pBuf);
+            AsyncWrite(pBuf, operation->GetLogData());
             break;
          }
       case IOOperation::BCTRead:
@@ -273,7 +288,7 @@ namespace HM
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_(0);
+      DispatchProcessOperationQueue_();
    }
 
 
@@ -307,7 +322,7 @@ namespace HM
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_(0);
+      DispatchProcessOperationQueue_();
    }
 
 
@@ -383,8 +398,9 @@ namespace HM
       boost::asio::ssl::stream_base::server;
 
       ssl_socket_.async_handshake(handshakeType,
-         std::bind(&TCPConnection::AsyncHandshakeCompleted, shared_from_this(),
-         std::placeholders::_1));
+         boost::asio::bind_executor(strand_,
+            std::bind(&TCPConnection::AsyncHandshakeCompleted, shared_from_this(),
+            std::placeholders::_1)));
    }
 
 
@@ -396,7 +412,6 @@ namespace HM
       if (!error)
       {
          is_ssl_ = true;
-         operation_queue_.SetIsSSL(true);
 
          // Send welcome message to client.
          auto cipher_info = GetCipherInfo();
@@ -442,7 +457,7 @@ namespace HM
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTShutdownSend, pBuf));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_(0);
+      DispatchProcessOperationQueue_();
    }
 
    void 
@@ -459,7 +474,7 @@ namespace HM
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimiter));
       operation_queue_.Push(operation);
 
-      ProcessOperationQueue_(0);
+      DispatchProcessOperationQueue_();
    }
 
    void 
@@ -467,10 +482,10 @@ namespace HM
    {
       UpdateAutoLogoutTimer();
 
-      std::function<void (const boost::system::error_code&, size_t)> AsyncReadCompletedFunction =
-         std::bind(&TCPConnection::AsyncReadCompleted, shared_from_this(), 
+      auto AsyncReadCompletedFunction = boost::asio::bind_executor(strand_,
+         std::bind(&TCPConnection::AsyncReadCompleted, shared_from_this(),
          std::placeholders::_1,
-         std::placeholders::_2);
+         std::placeholders::_2));
 
       if (is_ssl_)
       {
@@ -604,8 +619,14 @@ namespace HM
       ProcessOperationQueue_(0);
    }
 
-   void 
+   void
    TCPConnection::EnqueueWrite(const AnsiString &sData)
+   {
+      EnqueueWrite(sData, "");
+   }
+
+   void
+   TCPConnection::EnqueueWrite(const AnsiString &sData, const AnsiString &log_data)
    {
       AnsiString sTemp = sData;
       char *pBuf = sTemp.GetBuffer();
@@ -619,30 +640,38 @@ namespace HM
       OutputDebugString(sDebugOutput);
 #endif
 
-      EnqueueWrite(pBuffer);
+      EnqueueWrite(pBuffer, log_data);
 
    }
 
-   void 
+   void
    TCPConnection::EnqueueWrite(std::shared_ptr<ByteBuffer> pBuffer)
+   {
+      EnqueueWrite(pBuffer, "");
+   }
+
+   void
+   TCPConnection::EnqueueWrite(std::shared_ptr<ByteBuffer> pBuffer, const AnsiString &log_data)
    {
       ThrowIfNotConnected_();
 
       std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTWrite, pBuffer));
+      operation->SetLogData(log_data);
 
       operation_queue_.Push(operation);
-      ProcessOperationQueue_(0);
+      DispatchProcessOperationQueue_();
    }
 
-   void 
-   TCPConnection::AsyncWrite(std::shared_ptr<ByteBuffer> buffer)
+   void
+   TCPConnection::AsyncWrite(std::shared_ptr<ByteBuffer> buffer, const AnsiString &log_data)
    {
       UpdateAutoLogoutTimer();
 
-      std::function<void (const boost::system::error_code&, size_t)> AsyncWriteCompletedFunction =
+      auto AsyncWriteCompletedFunction = boost::asio::bind_executor(strand_,
          std::bind(&TCPConnection::AsyncWriteCompleted, shared_from_this(),
          std::placeholders::_1,
-         std::placeholders::_2);
+         std::placeholders::_2,
+         log_data));
 
       if (is_ssl_)
          boost::asio::async_write
@@ -654,10 +683,13 @@ namespace HM
       
    }
 
-   void 
-   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error, size_t bytes_transferred)
+   void
+   TCPConnection::AsyncWriteCompleted(const boost::system::error_code& error, size_t bytes_transferred, const AnsiString &log_data)
    {
       UpdateAutoLogoutTimer();
+
+      if (!log_data.IsEmpty() && error.value() == 0)
+         LogSentData(log_data);
 
       if (error.value() != 0)
       {
@@ -801,7 +833,8 @@ namespace HM
       // Put a timeout...
       timer_.expires_after(std::chrono::seconds(timeout_));
 
-      timer_.async_wait(std::bind(&TCPConnection::OnTimeout, std::weak_ptr<TCPConnection>(shared_from_this()), std::placeholders::_1));
+      timer_.async_wait(boost::asio::bind_executor(strand_,
+         std::bind(&TCPConnection::OnTimeout, std::weak_ptr<TCPConnection>(shared_from_this()), std::placeholders::_1)));
    }
 
    void

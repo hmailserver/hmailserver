@@ -237,6 +237,7 @@
     <Compile Include="SMTP\SMTPClientStartTLSTests.cs" />
     <Compile Include="SMTP\SMTPClientTests.cs" />
     <Compile Include="Shared\SmtpServerSimulator.cs" />
+    <Compile Include="SSL\ImapIdleSslTests.cs" />
     <Compile Include="SSL\SmtpDeliverySslTests.cs" />
     <Compile Include="SSL\SslSetup.cs" />
     <Compile Include="SSL\StartTls\ImapServerTests.cs" />
