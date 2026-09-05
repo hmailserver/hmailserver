@@ -21,6 +21,7 @@ namespace HM
  
       bool LaunchCommand_(const String &commandLine);
       String GetExecutableFullPath_();
+      String GetMultithreadingParameter_();
 
    };
 }

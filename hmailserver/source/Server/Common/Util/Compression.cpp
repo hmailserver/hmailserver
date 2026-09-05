@@ -6,6 +6,8 @@
 #include "Compression.h"
 #include "ProcessLauncher.h"
 
+#include <boost/thread/thread.hpp>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -27,10 +29,9 @@ namespace HM
    bool
    Compression::AddDirectory(const String &zipFile, const String &directoryToAdd)
    {
-      // -r = recurse -t = type 7z -mmt=off = single-threaded -mx1 = lowest compression
-      // Backups run while the server handles mail, so they use one core rather than all of them.
-      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -r -t7z -mmt=off -mx1  -w\"{3}\"",
-         GetExecutableFullPath_(), zipFile, directoryToAdd, IniFileSettings::Instance()->GetTempDirectory());
+      // -r = recurse -t = type 7z -mmt = number of threads -mx1 = lowest compression
+      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -r -t7z {3} -mx1  -w\"{4}\"",
+         GetExecutableFullPath_(), zipFile, directoryToAdd, GetMultithreadingParameter_(), IniFileSettings::Instance()->GetTempDirectory());
 
       return LaunchCommand_(commandLine);
    }
@@ -38,9 +39,9 @@ namespace HM
    bool
    Compression::AddFile(const String &zipFile, const String &fileToAdd)
    {
-      // -t = type 7z -mmt=off = single-threaded -mx1 = lowest compression
-      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -t7z -mmt=off -mx1 -w\"{3}\"",
-         GetExecutableFullPath_(), zipFile, fileToAdd, IniFileSettings::Instance()->GetTempDirectory());
+      // -t = type 7z -mmt = number of threads -mx1 = lowest compression
+      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -t7z {3} -mx1 -w\"{4}\"",
+         GetExecutableFullPath_(), zipFile, fileToAdd, GetMultithreadingParameter_(), IniFileSettings::Instance()->GetTempDirectory());
 
       return LaunchCommand_(commandLine);
    }
@@ -73,6 +74,20 @@ namespace HM
          return false;
 
       return true;
+   }
+
+   String
+   Compression::GetMultithreadingParameter_()
+   {
+      // Backups run while the server is processing email, so compression is given at most half of
+      // the logical processors rather than all of them.
+      unsigned int processorCount = boost::thread::hardware_concurrency();
+      unsigned int threadCount = processorCount / 2;
+
+      if (threadCount < 2)
+         return "-mmt=off";
+
+      return Formatter::Format("-mmt={0}", threadCount);
    }
 
    String 
