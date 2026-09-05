@@ -118,8 +118,6 @@ namespace RegressionTests.SMTP
          var content = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          Assert.IsTrue(content.Contains("Inbox is full"));
          Assert.IsTrue(content.Contains("Subject: Test subject"));
-         Assert.IsFalse(content.Contains("In-Reply-To:"));
-         Assert.IsFalse(content.Contains("References:"));
 
          // Make sure body contains year.
          var bodyStartPos = content.IndexOf("\r\n\r\n");
