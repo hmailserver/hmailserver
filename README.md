@@ -159,7 +159,6 @@ LGPL license text.
 
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
-- Windows 10 or 11 - the bundled tar.exe is used to unpack the download.
 
 Run, from the repository root:
 
@@ -167,9 +166,13 @@ Run, from the repository root:
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
    </pre>
 
-The download is checked against a SHA-256 pinned in the script, so only versions listed
-there are accepted. To move to a newer 7-Zip, record its hash in `$ArchiveHashes` and update
-the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and `hMailServer64.iss`.
+The package is a .7z, so the script also downloads `7zr.exe` from the same release and uses
+it to unpack the archive.
+
+Both downloads are checked against SHA-256 values pinned in the script, so only versions
+listed there are accepted. To move to a newer 7-Zip, record its hashes in `$ArchiveHashes`
+and `$BootstrapHashes` and update the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and
+`hMailServer64.iss`.
 
 Building hMailServer
 --------------------

@@ -14,14 +14,17 @@
     the prebuilt binary Igor Pavlov publishes. That is also why the download is hash-pinned
     rather than merely fetched - the bytes downloaded are the bytes installed on every
     hMailServer machine, so a substituted archive would go straight to users. The pinned
-    hashes live in $ArchiveHashes below.
+    hashes live in $ArchiveHashes and $BootstrapHashes below.
 
     x64\7za.exe is the standalone build: it carries its own codecs and needs no 7za.dll, so
     it is the only file the server requires.
 
+    The extra package is a .7z, so unpacking it needs a 7-Zip. The bootstrap is 7zr.exe,
+    the small standalone extractor published as a plain .exe in the same release: it is
+    downloaded and hash-pinned the same way, then used to unpack the archive.
+
     Prerequisites:
       - The environment variable hMailServerLibs, pointing at your library folder.
-      - Windows 10/11 (the bundled tar.exe extracts the .7z; see below).
 
 .PARAMETER Version
     The 7-Zip version to fetch, e.g. 26.03. Must be a version listed in $ArchiveHashes.
@@ -49,6 +52,16 @@ $ArchiveHashes = @{
     "26.03" = "191894E6ACB3647FFB69CE630479FF318523B2E2B9890AA7F05C1127C2E59B8F"
 }
 
+# SHA-256 of each release's 7zr.exe, the standalone extractor used to unpack the .7z above.
+# Recorded the same way, from the downloaded file:
+#
+#     (Get-FileHash 7zr.exe -Algorithm SHA256).Hash
+#
+# Every version listed in $ArchiveHashes needs an entry here too.
+$BootstrapHashes = @{
+    "26.03" = "AD4C82FADCBDF93C03B4FC440F300509C7D60C5C2F4D183E35D9D70D6957037D"
+}
+
 # --- Set up a build log ---------------------------------------------------------
 
 . (Join-Path -Path $PSScriptRoot -ChildPath "build-common.ps1")
@@ -62,10 +75,10 @@ $libsPath = Resolve-HMailServerLibs
 
 $destDir = Join-Path -Path $libsPath -ChildPath "7zip-$Version"
 
-if (-not $ArchiveHashes.ContainsKey($Version))
+if (-not $ArchiveHashes.ContainsKey($Version) -or -not $BootstrapHashes.ContainsKey($Version))
 {
-    $known = ($ArchiveHashes.Keys | Sort-Object) -join ", "
-    Throw "No pinned SHA-256 is recorded for 7-Zip $Version. Known versions: $known. To add one, download https://github.com/ip7z/7zip/releases and record the archive's hash in `$ArchiveHashes in $PSCommandPath."
+    $known = ($ArchiveHashes.Keys | Where-Object { $BootstrapHashes.ContainsKey($_) } | Sort-Object) -join ", "
+    Throw "No pinned SHA-256 is recorded for 7-Zip $Version. Known versions: $known. To add one, download https://github.com/ip7z/7zip/releases and record the hashes of both the extra archive and 7zr.exe in `$ArchiveHashes and `$BootstrapHashes in $PSCommandPath."
 }
 
 $expectedHash = $ArchiveHashes[$Version]
@@ -110,23 +123,34 @@ if (Test-Path $extractDir)
 }
 New-Item -ItemType Directory -Force -Path $extractDir | Out-Null
 
-Write-Log "Extracting $archiveName"
-# The Windows-bundled bsdtar reads .7z (its libarchive has liblzma), which avoids needing a
-# copy of 7-Zip to unpack 7-Zip. It is invoked by full path rather than resolved from PATH
-# for the same reason as Get-SourceArchive: a GNU tar treats the "C:" in a path as a remote
-# host and fails.
-$tarExe = Join-Path -Path $env:SystemRoot -ChildPath "System32\tar.exe"
-if (!(Test-Path $tarExe))
+# Unpacking the .7z needs a 7-Zip, so 7zr.exe is fetched first. The Windows-bundled tar.exe
+# was used here before, but only recent builds of its libarchive carry the LZMA codec: on
+# Windows Server 2019 it fails with "LZMA codec is unsupported". 7zr.exe is published as a
+# plain .exe in the same release, so it can be downloaded, hash-pinned and run directly.
+$bootstrapPath = Join-Path -Path $libsPath -ChildPath "7zr-$Version.exe"
+$bootstrapUrl = "https://github.com/ip7z/7zip/releases/download/$Version/7zr.exe"
+
+Write-Log "Downloading $bootstrapUrl"
+Invoke-WebRequest -Uri $bootstrapUrl -OutFile $bootstrapPath
+
+$expectedBootstrapHash = $BootstrapHashes[$Version]
+$actualBootstrapHash = (Get-FileHash -Path $bootstrapPath -Algorithm SHA256).Hash
+if ($actualBootstrapHash -ne $expectedBootstrapHash)
 {
-    Throw "The Windows-bundled tar.exe was not found at $tarExe. Windows 10/11 ships it; please install it or extract $archivePath manually."
+    Remove-Item $bootstrapPath -Force
+    Throw "The SHA-256 of 7zr.exe did not match the pinned value. Expected $expectedBootstrapHash, got $actualBootstrapHash. The download was discarded."
 }
 
+Write-Log "SHA-256 verified: $actualBootstrapHash"
+
 Invoke-BuildStep "Extracting $archiveName to $extractDir" {
-    & $tarExe -xf $archivePath -C $extractDir
+    & $bootstrapPath x $archivePath "-o$extractDir" -y
 }
-if ($LastExitCode -ne 0)
+$extractExitCode = $LastExitCode
+Remove-Item $bootstrapPath -Force
+if ($extractExitCode -ne 0)
 {
-    Throw "Extraction of $archivePath failed with exit code $LastExitCode. See $logPath for details."
+    Throw "Extraction of $archivePath failed with exit code $extractExitCode. See $logPath for details."
 }
 
 # --- Keep only what hMailServer ships -------------------------------------------

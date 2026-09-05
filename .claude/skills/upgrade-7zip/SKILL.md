@@ -60,27 +60,33 @@ script will run (step 2).
 gh api repos/ip7z/7zip/releases/tags/<target> --jq '.name, (.assets[].name)'
 ```
 
-The asset list must contain `7z<target-with-dot-removed>-extra.7z`. If it does not, the release
-layout changed — stop and report rather than working around it.
+The asset list must contain `7z<target-with-dot-removed>-extra.7z` and `7zr.exe`. If it does
+not, the release layout changed — stop and report rather than working around it.
 
 ### 2. Record the new release's SHA-256
 
-Only for a version bump. Download the archive and hash it:
+Only for a version bump. Download the archive and `7zr.exe`, and hash both:
 
 Run this through the native PowerShell tool, substituting the target version. It deliberately
 uses only single quotes and string concatenation — nesting double quotes inside a
 `powershell.exe -Command` string is what breaks these one-liners:
 
 ```powershell
-$v='<target>'; $t=$v.Replace('.',''); $u='https://github.com/ip7z/7zip/releases/download/'+$v+'/7z'+$t+'-extra.7z'; $f=Join-Path $env:TEMP ('7z'+$t+'-extra.7z'); Invoke-WebRequest -Uri $u -OutFile $f; (Get-FileHash $f -Algorithm SHA256).Hash
+$v='<target>'; $t=$v.Replace('.',''); $b='https://github.com/ip7z/7zip/releases/download/'+$v+'/'; $f=Join-Path $env:TEMP ('7z'+$t+'-extra.7z'); $r=Join-Path $env:TEMP ('7zr-'+$v+'.exe'); Invoke-WebRequest -Uri ($b+'7z'+$t+'-extra.7z') -OutFile $f; Invoke-WebRequest -Uri ($b+'7zr.exe') -OutFile $r; (Get-FileHash $f -Algorithm SHA256).Hash; (Get-FileHash $r -Algorithm SHA256).Hash
 ```
 
-Add the result to `$ArchiveHashes` in `libraries\build-7zip.ps1`, keeping the existing entries:
+Add the results to `$ArchiveHashes` and `$BootstrapHashes` in `libraries\build-7zip.ps1`,
+keeping the existing entries:
 
 ```powershell
 $ArchiveHashes = @{
     "26.03" = "191894E6ACB3647FFB69CE630479FF318523B2E2B9890AA7F05C1127C2E59B8F"
-    "26.04" = "<new hash>"
+    "26.04" = "<new archive hash>"
+}
+
+$BootstrapHashes = @{
+    "26.03" = "AD4C82FADCBDF93C03B4FC440F300509C7D60C5C2F4D183E35D9D70D6957037D"
+    "26.04" = "<new 7zr.exe hash>"
 }
 ```
 
@@ -100,14 +106,13 @@ authenticity.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version <target>
 ```
 
-**Run this through the native PowerShell tool, NOT the Bash tool.** The Bash tool prepends
-MSYS/Git (`/usr/bin`) to `PATH`, which puts a GNU `tar` ahead of the Windows `bsdtar` the script
-unpacks the `.7z` with (GNU tar misreads the `C:` in `C:\...` as a remote rmt host — "Cannot
-connect to C: resolve failed"). The native PowerShell tool has a clean Windows `PATH`.
+**Run this through the native PowerShell tool, NOT the Bash tool.** The native PowerShell tool
+has a clean Windows `PATH`.
 
-The script downloads, verifies the SHA-256, unpacks with the Windows-bundled `tar.exe`, keeps
-only `x64\7za.exe` and `License.txt` in `%hMailServerLibs%\7zip-<target>`, and deletes the
-archive and the extract folder. It mirrors progress to `libraries\build-7zip.log` (git-ignored
+The script downloads and verifies both the extra archive and the release's `7zr.exe`, unpacks
+the archive with `7zr.exe`, keeps only `x64\7za.exe` and `License.txt` in
+`%hMailServerLibs%\7zip-<target>`, and deletes the archive, the extract folder and `7zr.exe`.
+It mirrors progress to `libraries\build-7zip.log` (git-ignored
 via `*.log`). Only proceed if it exits 0.
 
 A hash mismatch is a hard stop — the script discards the download. Do not "fix" it by pasting in
@@ -194,7 +199,8 @@ ISCC validates that both `{#SEVENZIP_PATH}\7za.exe` and `{#SEVENZIP_PATH}\Licens
 
 ## Reference: all 7-Zip touch points
 
-- **Version-pinned (edited by steps 2 and 4):** `libraries\build-7zip.ps1` (`$ArchiveHashes`),
+- **Version-pinned (edited by steps 2 and 4):** `libraries\build-7zip.ps1` (`$ArchiveHashes`,
+  `$BootstrapHashes`),
   `hmailserver/source/Server/hMailServer/post-build.bat`,
   `hmailserver/installation/hMailServer64.iss`, `README.md`.
 - **Derived automatically (never edit for a version bump):** `build\Get-LibraryVersions.ps1`,
@@ -208,6 +214,7 @@ ISCC validates that both `{#SEVENZIP_PATH}\7za.exe` and `{#SEVENZIP_PATH}\Licens
 
 ## Note
 
-The script needs only `%hMailServerLibs%`, network access to github.com, and the Windows-bundled
-`tar.exe` (Windows 10/11). It validates these and fails early with a clear message if any is
-missing. No Visual Studio, CMake or Perl is involved.
+The script needs only `%hMailServerLibs%` and network access to github.com. It validates these
+and fails early with a clear message if either is missing. The `.7z` is unpacked with the
+release's own `7zr.exe` rather than the Windows-bundled `tar.exe`, whose libarchive lacks the
+LZMA codec on older Windows (Server 2019 fails with "LZMA codec is unsupported"). No Visual Studio, CMake or Perl is involved.
