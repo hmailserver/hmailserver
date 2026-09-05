@@ -856,10 +856,10 @@ begin
 
 end;
 
-// Creates the ProgramData directory used by new installations. ProgramData grants
-// read access to all users by default, and the ini file holds the database and
-// administrator passwords, so inheritance is turned off and only SYSTEM and the
-// administrators are granted access.
+// Creates the ProgramData directory used by new installations. Inheritance is turned
+// off so that the permissions are known, and users are given read access so that they
+// can open the logs. See the Security page in the documentation for how to restrict
+// this further.
 procedure CreateProgramDataDir();
 var
    szDir : AnsiString;
@@ -870,10 +870,11 @@ begin
    if (DirExists(szDir) = False) then
       CreateDir(szDir);
 
-   // S-1-5-18 is LocalSystem, S-1-5-32-544 is the local Administrators group. The
-   // SIDs are used rather than the names, since the names are localized.
+   // S-1-5-18 is LocalSystem, S-1-5-32-544 is the local Administrators group and
+   // S-1-5-32-545 is the local Users group. The SIDs are used rather than the names,
+   // since the names are localized.
    Exec(ExpandConstant('{sys}\icacls.exe'),
-        '"' + szDir + '" /inheritance:r /grant *S-1-5-18:(OI)(CI)F /grant *S-1-5-32-544:(OI)(CI)F',
+        '"' + szDir + '" /inheritance:r /grant *S-1-5-18:(OI)(CI)F /grant *S-1-5-32-544:(OI)(CI)F /grant *S-1-5-32-545:(OI)(CI)RX',
         '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 

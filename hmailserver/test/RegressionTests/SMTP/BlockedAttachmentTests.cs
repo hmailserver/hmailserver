@@ -81,7 +81,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(1, message.Attachments.Count);
          Assert.AreEqual("AUTOEXEC.dll.txt", message.Attachments[0].Filename);
 
-         var tempFile = Path.GetTempFileName();
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
          message.Attachments[0].SaveAs(tempFile);
          var contents = File.ReadAllText(tempFile);
 
@@ -101,7 +101,7 @@ namespace RegressionTests.SMTP
       public void TestSingleBlockedAttachment()
       {
          var attachmentName = Guid.NewGuid() + ".dll";
-         var tempFile = Path.Combine(Path.GetTempPath(), attachmentName);
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(tempFile, "A");
 
          try
@@ -137,8 +137,8 @@ namespace RegressionTests.SMTP
       {
          var attachment1Name = Guid.NewGuid() + ".dll";
          var attachment2Name = Guid.NewGuid() + ".dll";
-         var tempFile1 = Path.Combine(Path.GetTempPath(), attachment1Name);
-         var tempFile2 = Path.Combine(Path.GetTempPath(), attachment2Name);
+         var tempFile1 = Path.Combine(TestSetup.GetSharedTempDirectory(), attachment1Name);
+         var tempFile2 = Path.Combine(TestSetup.GetSharedTempDirectory(), attachment2Name);
          File.WriteAllText(tempFile1, "A");
          File.WriteAllText(tempFile2, "A");
 
@@ -216,7 +216,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(1, message.Attachments.Count);
          Assert.AreEqual(expectedName, message.Attachments[0].Filename);
 
-         var tempFile = Path.GetTempFileName();
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
          message.Attachments[0].SaveAs(tempFile);
          var contents = File.ReadAllText(tempFile);
          Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
@@ -266,7 +266,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(1, message.Attachments.Count);
          Assert.AreEqual(expectedName, message.Attachments[0].Filename);
 
-         var tempFile = Path.GetTempFileName();
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
          message.Attachments[0].SaveAs(tempFile);
          var contents = File.ReadAllText(tempFile);
          Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
@@ -315,7 +315,7 @@ namespace RegressionTests.SMTP
          Assert.AreEqual(1, message.Attachments.Count);
          Assert.AreEqual(expectedName, message.Attachments[0].Filename);
 
-         var tempFile = Path.GetTempFileName();
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
          message.Attachments[0].SaveAs(tempFile);
          var contents = File.ReadAllText(tempFile);
          Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
@@ -326,7 +326,7 @@ namespace RegressionTests.SMTP
       public void TestBlockedAttachmentWithUnicodeInName()
       {
          var attachmentName = Guid.NewGuid() + "漢語.dll";
-         var tempFile = Path.Combine(Path.GetTempPath(), attachmentName);
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(tempFile, "A");
 
          try
@@ -354,7 +354,7 @@ namespace RegressionTests.SMTP
             Assert.AreEqual(1, message.Attachments.Count);
             Assert.AreEqual(expectedNewAttachmentName, message.Attachments[0].Filename);
 
-            var attachmentOnDisk = Path.GetTempFileName();
+            var attachmentOnDisk = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
             message.Attachments[0].SaveAs(attachmentOnDisk);
             var contents = File.ReadAllText(attachmentOnDisk);
 

@@ -260,7 +260,7 @@ namespace RegressionTests.API
 
          var attachmentName = "本本本.zip";
 
-         var filename = Path.Combine(Path.GetTempPath(), attachmentName);
+         var filename = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(filename, "tjena moss");
 
          var message = new hMailServer.Message();
@@ -286,7 +286,7 @@ namespace RegressionTests.API
 
          var swedish = "abc.zip";
          var attachmentName = swedish + ".zip";
-         var filename = Path.Combine(Path.GetTempPath(), attachmentName);
+         var filename = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(filename, swedish);
 
 
@@ -366,7 +366,7 @@ namespace RegressionTests.API
          var swedishAndChinese = "ÅÄÖ汉语";
          var attachmentName = swedishAndChinese + ".zip";
 
-         var filename = Path.Combine(Path.GetTempPath(), attachmentName);
+         var filename = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(filename, swedishAndChinese);
 
          var message = new hMailServer.Message();

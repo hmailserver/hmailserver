@@ -30,7 +30,7 @@ namespace RegressionTests.Infrastructure
       public void InitializeBackupSettings()
       {
          _application = SingletonProvider<TestSetup>.Instance.GetApp();
-         SetBackupDir(Path.Combine(Path.GetTempPath(), TestSetup.UniqueString()));
+         SetBackupDir(Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString()));
 
          var dirInfo = new DirectoryInfo(_backupDir);
          dirInfo.Create();
@@ -929,7 +929,7 @@ namespace RegressionTests.Infrastructure
          // reading its attributes - which the parent directory answers. Both must be denied for
          // the directory to be unreachable, which is how a directory below another user's
          // profile behaves.
-         var inaccessibleParent = Path.Combine(Path.GetTempPath(), TestSetup.UniqueString());
+         var inaccessibleParent = Path.Combine(TestSetup.GetSharedTempDirectory(), TestSetup.UniqueString());
          var inaccessibleBackupDir = Path.Combine(inaccessibleParent, "Backup");
          Directory.CreateDirectory(inaccessibleBackupDir);
 

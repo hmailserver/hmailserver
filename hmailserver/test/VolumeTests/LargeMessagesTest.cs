@@ -24,7 +24,7 @@ namespace VolumeTests
          _settings.MaxMessageSize = 0;
 
          // create a 200mb attachment
-         var largeFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+         var largeFile = Path.Combine(TestSetup.GetSharedTempDirectory(), Guid.NewGuid().ToString());
 
          try
          {

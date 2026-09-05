@@ -492,7 +492,7 @@ namespace RegressionTests.IMAP
       /// </summary>
       private static void AddMessageWithAttachment(Account account, string attachmentName, string marker)
       {
-         var filename = Path.Combine(Path.GetTempPath(), attachmentName);
+         var filename = Path.Combine(TestSetup.GetSharedTempDirectory(), attachmentName);
          File.WriteAllText(filename, marker);
 
          var message = new Message();
