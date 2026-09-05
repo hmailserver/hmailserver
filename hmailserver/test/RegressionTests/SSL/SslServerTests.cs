@@ -154,14 +154,9 @@ namespace RegressionTests.SSL
                });
          }
 
-         RetryHelper.TryAction(TimeSpan.FromSeconds(10), () =>
-         {
-            var countAfter = _application.Status.get_SessionCount(eSessionType.eSTSMTP);
-
-            if (countBefore != countAfter)
-               throw new ArgumentException(
-                  $"Connection count not decreased. Expected: countBefore, Actual: {countAfter}");
-         });
+         // Sessions lingering from earlier tests may end during this test, so the count is
+         // allowed to drop below the baseline - it just must not stay above it.
+         SessionLimitingTests.AssertMaxSessionCount(eSessionType.eSTSMTP, countBefore);
       }
    }
 }
