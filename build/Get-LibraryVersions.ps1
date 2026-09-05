@@ -79,7 +79,7 @@ $postgresql = Get-PinnedVersion -Text $vcxprojText -Pattern 'postgresql-(\d+\.\d
 $mariadb = Get-PinnedVersion -Text $postBuildText -Pattern 'libmariadb-(\d+\.\d+\.\d+)' -Description 'MariaDB Connector/C' -Source $postBuild
 
 # 7-Zip is a prebuilt tool rather than something hMailServer links against, so it appears in
-# no compiler path; post-build.bat and hMailServer64.iss both name the 7zip-26.03 folder.
+# no compiler path; post-build.bat and hMailServer64.iss both name the 7zip-<version> folder.
 $sevenzip = Get-PinnedVersion -Text $postBuildText -Pattern '7zip-(\d+\.\d+)' -Description '7-Zip' -Source $postBuild
 
 # Boost is pinned as a folder name with underscores (boost_1_92_0); build-boost.ps1 takes the
