@@ -40,8 +40,8 @@ namespace RegressionTests.SMTP.SRS
          _settings.SRSMaxAgeDays = 5;
          Assert.AreEqual(5, _settings.SRSMaxAgeDays);
 
-         _settings.SRSHashLength = 6;
-         Assert.AreEqual(6, _settings.SRSHashLength);
+         _settings.SRSHashLength = 12;
+         Assert.AreEqual(12, _settings.SRSHashLength);
       }
 
       [Test]
@@ -53,6 +53,20 @@ namespace RegressionTests.SMTP.SRS
 
          _settings.SRSHashLength = 0;
          Assert.AreEqual(SrsAddress.DefaultHashLength, _settings.SRSHashLength);
+      }
+
+      [Test]
+      [Description("A setting outside the range the server goes by is reported as the value it goes by.")]
+      public void OutOfRangeSettingsAreReportedAsTheyAreApplied()
+      {
+         _settings.SRSHashLength = 1;
+         Assert.AreEqual(SrsAddress.MinHashLength, _settings.SRSHashLength);
+
+         _settings.SRSHashLength = 100;
+         Assert.AreEqual(SrsAddress.MaxHashLength, _settings.SRSHashLength);
+
+         _settings.SRSMaxAgeDays = 100000;
+         Assert.AreEqual(SrsAddress.MaxMaxAgeDays, _settings.SRSMaxAgeDays);
       }
    }
 }

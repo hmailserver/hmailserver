@@ -744,11 +744,11 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(114), helpstring("The secret SRS addresses are signed with. Setting it to an empty string generates a new one, which makes every address already handed out unusable.")] HRESULT SRSSecret([out, retval] BSTR *pVal);
    [propput, id(114), helpstring("The secret SRS addresses are signed with. Setting it to an empty string generates a new one, which makes every address already handed out unusable.")] HRESULT SRSSecret([in] BSTR newVal);
 
-   [propget, id(115), helpstring("The number of days an SRS address stays valid. 0 selects the default of 21 days.")] HRESULT SRSMaxAgeDays([out, retval] long *pVal);
-   [propput, id(115), helpstring("The number of days an SRS address stays valid. 0 selects the default of 21 days.")] HRESULT SRSMaxAgeDays([in] long newVal);
+   [propget, id(115), helpstring("The number of days an SRS address stays valid, from 1 to 512. 0 selects the default of 21 days.")] HRESULT SRSMaxAgeDays([out, retval] long *pVal);
+   [propput, id(115), helpstring("The number of days an SRS address stays valid, from 1 to 512. 0 selects the default of 21 days.")] HRESULT SRSMaxAgeDays([in] long newVal);
 
-   [propget, id(116), helpstring("The number of hash characters in an SRS address. 0 selects the default of 8.")] HRESULT SRSHashLength([out, retval] long *pVal);
-   [propput, id(116), helpstring("The number of hash characters in an SRS address. 0 selects the default of 8.")] HRESULT SRSHashLength([in] long newVal);
+   [propget, id(116), helpstring("The number of hash characters in an SRS address, from 8 to 20. 0 selects the default of 8.")] HRESULT SRSHashLength([out, retval] long *pVal);
+   [propput, id(116), helpstring("The number of hash characters in an SRS address, from 8 to 20. 0 selects the default of 8.")] HRESULT SRSHashLength([in] long newVal);
 
 };
 

@@ -18,6 +18,7 @@ namespace HM
       void TestCaseHandling_();
       void TestSeparators_();
       void TestTampering_();
+      void TestHashLengthChanges_();
       void TestMalformedAddresses_();
       void TestTimestamps_();
       void TestChaining_();
