@@ -582,7 +582,6 @@ end;
 function InitializeSetup(): Boolean;
 	var
 		sMessage : AnsiString;
-		SoftwareVersion: AnsiString;
 begin
 	Result := true;
 			
@@ -675,7 +674,6 @@ end;
 function InstallSQLCE() : boolean;
 var
    ResultCode: Integer;
-   szInstallApp: AnsiString;
    szParams: AnsiString;
 
    szIniFile : AnsiString;
