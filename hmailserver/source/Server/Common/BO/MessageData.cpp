@@ -269,13 +269,18 @@ namespace HM
    void
    MessageData::SetReplyThreadingHeaders(const MessageData &source)
    {
-      const String originalMessageID = source.GetFieldValue("Message-ID");
+      SetReplyThreadingHeaders(source.GetFieldValue("Message-ID"), source.GetFieldValue("References"));
+   }
+
+   void
+   MessageData::SetReplyThreadingHeaders(const String &originalMessageID, const String &originalReferences)
+   {
       if (originalMessageID.IsEmpty())
          return;
 
       SetFieldValue("In-Reply-To", originalMessageID);
 
-      String references = source.GetFieldValue("References");
+      String references = originalReferences;
       if (!references.ContainsNoCase(originalMessageID))
       {
          if (!references.IsEmpty())
