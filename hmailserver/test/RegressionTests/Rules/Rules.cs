@@ -1661,7 +1661,14 @@ namespace RegressionTests.Rules
          var smtpClientSimulator = new SmtpClientSimulator();
 
          // Test to send the message to account 2.
-         smtpClientSimulator.Send(account1.Address, account2.Address, "Test", "Test message.");
+         const string messageID = "<rule-threading@example.test>";
+         const string previousReference = "<previous-rule-message@example.test>";
+         smtpClientSimulator.SendRaw(account1.Address, account2.Address,
+            "Message-ID: " + messageID + "\r\n" +
+            "References: " + previousReference + "\r\n" +
+            "Subject: Test\r\n" +
+            "\r\n" +
+            "Test message.");
          ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
 
          // Make sure a reply is sent back to account 1.
@@ -1670,6 +1677,8 @@ namespace RegressionTests.Rules
 
          Assert.AreEqual(string.Empty, message.FromAddress);
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
+         Assert.AreEqual(messageID, message.get_HeaderValue("In-Reply-To"));
+         Assert.AreEqual(previousReference + " " + messageID, message.get_HeaderValue("References"));
       }
 
       [Test]

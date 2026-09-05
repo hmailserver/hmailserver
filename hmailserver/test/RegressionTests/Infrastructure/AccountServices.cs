@@ -128,7 +128,14 @@ namespace RegressionTests.Infrastructure
 
          // Send 2 messages to this account.
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send(account1.Address, account2.Address, "Test message", "This is the body");
+         const string messageID = "<vacation-threading@example.test>";
+         const string previousReference = "<previous-vacation-message@example.test>";
+         smtpClientSimulator.SendRaw(account1.Address, account2.Address,
+            "Message-ID: " + messageID + "\r\n" +
+            "References: " + previousReference + "\r\n" +
+            "Subject: Test message\r\n" +
+            "\r\n" +
+            "This is the body");
 
          var pop3ClientSimulator = new Pop3ClientSimulator();
          Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
@@ -138,6 +145,9 @@ namespace RegressionTests.Infrastructure
             throw new Exception("ERROR - Auto reply subject not set properly.");
          Assert.IsTrue(s.Contains("Return-Path: <>"),
             "Vacation reply envelope sender must be empty (<>) to prevent mail loops per RFC 3834.");
+         Assert.IsTrue(s.Contains("Auto-Submitted: auto-replied"));
+         Assert.IsTrue(s.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(s.Contains("References: " + previousReference + " " + messageID));
 
          account2.VacationMessageIsOn = false;
          account2.Save();

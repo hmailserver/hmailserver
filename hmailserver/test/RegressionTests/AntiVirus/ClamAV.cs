@@ -72,16 +72,25 @@ namespace RegressionTests.AntiVirus
       public void TestWithVirus()
       {
          _antiVirus.ClamAVEnabled = true;
+         _antiVirus.NotifySender = true;
          LogHandler.DeleteCurrentDefaultLog();
 
          var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
          var firstPart = @"X5O!P%@AP[4\PZX54(P^)7CC)7}";
          var secondPart = @"$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
-         SmtpClientSimulator.StaticSend(account1.Address, account1.Address, "Mail 1",
+         const string messageID = "<virus-threading@example.test>";
+         const string previousReference = "<previous-virus-message@example.test>";
+         SmtpClientSimulator.StaticSendRaw(account1.Address, account1.Address,
+            "Message-ID: " + messageID + "\r\n" +
+            "References: " + previousReference + "\r\n" +
+            "Subject: Mail 1\r\n" +
+            "\r\n" +
             firstPart + secondPart);
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
-         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 0);
+         var notification = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         Assert.IsTrue(notification.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(notification.Contains("References: " + previousReference + " " + messageID));
 
          var defaultLog = LogHandler.ReadCurrentDefaultLog();
          Assert.IsTrue(defaultLog.Contains("Connecting to ClamAV"));

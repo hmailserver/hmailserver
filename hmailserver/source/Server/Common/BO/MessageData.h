@@ -58,6 +58,7 @@ namespace HM
 
       void SetFieldValue(const String &sField, const String &sValue);
       String GetFieldValue(const String &sName) const;
+      void SetReplyThreadingHeaders(const MessageData &source);
 
       int GetRuleLoopCount();
       void SetRuleLoopCount(int iLoopCount);
