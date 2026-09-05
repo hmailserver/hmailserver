@@ -278,7 +278,7 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_TextHtmlBody_TextPlainAttachment);
 
-         var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), Guid.NewGuid().ToString());
          message.Attachments[1].SaveAs(tempFile);
 
          Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);
@@ -301,7 +301,7 @@ namespace RegressionTests.SMTP
          var message = SendMessageWithSignature("PlainTextSignature", "HtmlSignature",
             TestResources.EmailWith_TextPlainBody_TextHtmlBody_TextHtmlAttachment);
 
-         var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+         var tempFile = Path.Combine(TestSetup.GetSharedTempDirectory(), Guid.NewGuid().ToString());
          message.Attachments[1].SaveAs(tempFile);
 
          Assert.IsTrue(message.Body.Contains("PlainTextBody\r\n\r\nPlainTextSignature"), message.Body);

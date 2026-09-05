@@ -4,7 +4,10 @@
 #include "stdafx.h"
 #include "IniFileSettings.h"
 
+#include <shlobj.h>
+
 #include "../Util/Crypt.h"
+#include "../Util/FileUtilities.h"
 #include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/Utilities.h"
 
@@ -253,18 +256,34 @@ namespace HM
    }
 
    String
-   IniFileSettings::GetInitializationFile() 
+   IniFileSettings::GetProgramDataDirectory_()
+   {
+      TCHAR path[MAX_PATH] = {0};
+
+      if (FAILED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)))
+         return "";
+
+      return FileUtilities::Combine(path, _T("hMailServer"));
+   }
+
+   String
+   IniFileSettings::GetInitializationFile()
    {
       if (ini_file_.IsEmpty())
       {
-         String AppPath = Utilities::GetBinDirectory();
+         // New installations keep the ini file in ProgramData. Installations made
+         // before that change keep it in the Bin directory.
+         String program_data_directory = GetProgramDataDirectory_();
 
-         ini_file_ = AppPath;
+         if (!program_data_directory.IsEmpty())
+         {
+            String program_data_file = FileUtilities::Combine(program_data_directory, _T("hMailServer.ini"));
 
-         if (ini_file_.Right(1) != _T("\\"))
-            ini_file_ += "\\";
+            if (FileUtilities::Exists(program_data_file))
+               return ini_file_ = program_data_file;
+         }
 
-         ini_file_ += "hMailServer.ini";
+         ini_file_ = FileUtilities::Combine(Utilities::GetBinDirectory(), _T("hMailServer.ini"));
       }
 
       return ini_file_;

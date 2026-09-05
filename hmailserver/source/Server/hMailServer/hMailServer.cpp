@@ -191,14 +191,16 @@ extern "C" int WINAPI _tWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstan
 
    _AtlModule.InitializeCom();
 
-   // Register app id so that client can create instances
-   // of us even when running as a service under the local
-   // system account.
-   _AtlModule.RegisterAppID();
-
    // Run registration / unregistration of the server and service.
    bool bRegisterService = sLastParam.CompareNoCase(_T("/Register")) == 0;
    bool bRegisterTypelib = bRegisterService || (sLastParam.CompareNoCase(_T("/RegisterTypeLib")) == 0);
+
+   // Register app id so that client can create instances of us even when we're
+   // running as a service. Only done during registration - the service account
+   // isn't allowed to write to HKEY_CLASSES_ROOT.
+   if (bRegisterTypelib)
+      _AtlModule.RegisterAppID();
+
    if (bRegisterService)
    {
       // --- Register the hMailServer service.

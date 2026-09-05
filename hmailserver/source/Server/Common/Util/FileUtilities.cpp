@@ -164,7 +164,10 @@ namespace HM
    bool
    FileUtilities::Exists(const String &sFilename)
    {
-      return boost::filesystem::exists(sFilename);
+      // A path the server cannot inspect - denied permissions, a disconnected share - is
+      // reported as missing rather than throwing.
+      boost::system::error_code error_code;
+      return boost::filesystem::exists(sFilename, error_code);
    }
 
    String

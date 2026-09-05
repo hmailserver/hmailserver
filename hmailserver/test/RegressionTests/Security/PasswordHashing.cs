@@ -2,12 +2,10 @@
 // http://www.hmailserver.com
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Text;
-using Microsoft.Win32;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -57,28 +55,8 @@ namespace RegressionTests.Security
       private static string GetIniFileName()
       {
          // The server administrator password lives in hMailServer.ini rather than in
-         // the database. Utilities::GetBinDirectory (Utilities.cpp) resolves the ini
-         // location the same way the server does: from the registry install location
-         // first, only falling back to the running executable's own folder if that
-         // key isn't set.
-         // hMailServer.exe is 32-bit, so it writes under the WOW6432Node redirect -
-         // read the 32-bit view explicitly so this works regardless of whether the
-         // test process itself is 32- or 64-bit.
-         using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
-         using (var key = baseKey.OpenSubKey(@"SOFTWARE\hMailServer"))
-         {
-            var installLocation = key?.GetValue("InstallLocation") as string;
-
-            if (!string.IsNullOrEmpty(installLocation))
-               return Path.Combine(installLocation, "Bin", "hMailServer.ini");
-         }
-
-         var processes = Process.GetProcessesByName("hmailserver");
-
-         if (processes.Length != 1)
-            throw new InvalidOperationException("Expected exactly one running hMailServer.exe.");
-
-         return Path.Combine(Path.GetDirectoryName(processes[0].MainModule.FileName), "hMailServer.ini");
+         // the database.
+         return IniFileLocator.GetIniFileName();
       }
 
       private static string ReadStoredAdministratorPassword()

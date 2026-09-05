@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -53,9 +53,7 @@ namespace RegressionTests.Shared
 
          Assert.IsTrue(_workerThreadFinished.WaitOne(TimeSpan.FromSeconds(15), false));
 
-         if (_tcpListener != null)
-            _tcpListener.Stop();
-
+         // The listen thread stops the listener before signalling that it has finished.
          DisposeSocket();
       }
 
@@ -104,10 +102,13 @@ namespace RegressionTests.Shared
          }
          finally
          {
+            // Stop before signalling. TcpListener.Stop is not thread safe, and Dispose
+            // continues as soon as _workerThreadFinished is set.
+            if (_tcpListener != null)
+               _tcpListener.Stop();
+
             _listenThreadStarted.Set();
             _workerThreadFinished.Set();
-
-            _tcpListener.Stop();
          }
       }
 

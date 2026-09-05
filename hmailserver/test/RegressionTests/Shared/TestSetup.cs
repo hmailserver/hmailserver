@@ -628,6 +628,19 @@ namespace RegressionTests.Shared
          return s;
       }
 
+      // Files that the server itself opens cannot live in the temp directory of the account
+      // running the tests, since the service account has no access to another user's profile.
+      // The public directory is reachable by both.
+      public static string GetSharedTempDirectory()
+      {
+         var publicDirectory = Environment.GetEnvironmentVariable("PUBLIC");
+         var directory = Path.Combine(publicDirectory, "hMailServer.RegressionTests");
+
+         Directory.CreateDirectory(directory);
+
+         return directory;
+      }
+
 
       public static string ReadExistingTextFile(string fileName)
       {

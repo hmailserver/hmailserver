@@ -1,8 +1,8 @@
 [Dirs]
-Name: "{app}\Data"; Components: server;
-Name: "{app}\Database"; Components: server;
-Name: "{app}\Logs"; Components: server;
+Name: "{code:GetDefaultDir|Data}"; Components: server;
+Name: "{code:GetDefaultDir|Database}"; Components: server;
+Name: "{code:GetDefaultDir|Logs}"; Components: server;
 Name: "{app}\Languages"
 Name: "{app}\DBScripts"; Components: server;
-Name: "{app}\Events"; Components: server;
-Name: "{app}\Temp"; Components: server;
+Name: "{code:GetDefaultDir|Events}"; Components: server;
+Name: "{code:GetDefaultDir|Temp}"; Components: server;

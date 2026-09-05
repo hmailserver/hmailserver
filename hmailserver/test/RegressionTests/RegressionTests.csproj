@@ -96,6 +96,7 @@
     <Compile Include="Infrastructure\DomainServices.cs" />
     <Compile Include="IMAP\Basics.cs" />
     <Compile Include="Shared\ImapClientSimulator.cs" />
+    <Compile Include="Infrastructure\IniFileLocation.cs" />
     <Compile Include="Infrastructure\IPRanges.cs" />
     <Compile Include="Infrastructure\MainOperations.cs" />
     <Compile Include="Infrastructure\Persistence\Basics.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
+    <Compile Include="Shared\IniFileLocator.cs" />
     <Compile Include="Shared\Poll.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />

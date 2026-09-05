@@ -276,10 +276,24 @@ begin
 	Result := WaitForServiceStopped(ServiceName, SERVICE_STOP_TIMEOUT_MS);
 end;
 
+function GetProgramDataDir() : AnsiString;
+begin
+   Result := ExpandConstant('{commonappdata}\hMailServer');
+end;
+
 function GetInifile() : AnsiString;
 var
    szInifile : String;
 begin
+
+   // New installations keep the file in ProgramData.
+   szInifile := GetProgramDataDir() + '\hMailServer.ini';
+
+   if (FileExists(szInifile) = True) then
+   begin
+      Result := szInifile;
+      exit;
+   end;
 
    // Check if the file exists in the selected installation directory.
    szInifile := ExpandConstant('{app}\Bin\hMailServer.ini');
@@ -312,6 +326,32 @@ end;
 function GetHashedPassword(Param: String) : String;
 begin
   Result := GetMD5OfString(g_szAdminPassword);
+end;
+
+// True for new installations, which keep the ini file and the data directories
+// in ProgramData. Existing installations keep whatever layout they already have.
+function IsProgramDataInstallation() : Boolean;
+var
+   szIniFile : AnsiString;
+begin
+   szIniFile := GetInifile();
+   Result := (szIniFile = '') or (szIniFile = GetProgramDataDir() + '\hMailServer.ini');
+end;
+
+function GetIniPath(Param: String) : String;
+begin
+   if (IsProgramDataInstallation()) then
+      Result := GetProgramDataDir() + '\hMailServer.ini'
+   else
+      Result := GetInifile();
+end;
+
+function GetDefaultDir(Param: String) : String;
+begin
+   if (IsProgramDataInstallation()) then
+      Result := GetProgramDataDir() + '\' + Param
+   else
+      Result := ExpandConstant('{app}') + '\' + Param;
 end;
 
 function GetCurrentDatabaseType() : AnsiString;
@@ -645,7 +685,7 @@ var
    bUpgradeWithSQLCE : Boolean;
 begin
 
-   szIniFile := ExpandConstant('{app}\Bin\hMailServer.ini');
+   szIniFile := GetIniPath('');
    szDatabaseType := GetIniString('Database', 'Type', '', szIniFile);
    szDatabaseType := Lowercase(szDatabaseType);
 
@@ -723,6 +763,19 @@ begin
    end;
 end;
 
+// Gives the hMailServer service access to its own data. The service runs as the
+// virtual account NT SERVICE\hMailServer, which exists only once the service has
+// been created. On Windows versions before Windows 7, virtual accounts are not
+// available and the service stays on LocalSystem, which already has access.
+procedure GrantServiceAccountAccess();
+var
+   ResultCode : Integer;
+begin
+   Exec(ExpandConstant('{sys}\icacls.exe'),
+        '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
+        '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
 function RunPostInstallTasks() : Boolean;
    var
       ResultCode: Integer;
@@ -749,6 +802,11 @@ begin
       // Register hMaillServer service
       if (Exec(ExpandConstant('{app}\Bin\hMailServer.exe'), '/Register', '',  SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) then
          FailPostInstall('The hMailServer service could not be created. ' + SysErrorMessage(ResultCode));
+
+      // Must run after the service has been created - the virtual account doesn't
+      // exist until then.
+      if (IsProgramDataInstallation()) then
+         GrantServiceAccountAccess();
 
       ProgressPage.SetText('Initializing hMailServer database...', '');
       ProgressPage.SetProgress(4,6);
@@ -796,6 +854,28 @@ begin
 
    Result := true;
 
+end;
+
+// Creates the ProgramData directory used by new installations. Inheritance is turned
+// off so that the permissions are known, and users are given read access so that they
+// can open the logs. See the Security page in the documentation for how to restrict
+// this further.
+procedure CreateProgramDataDir();
+var
+   szDir : AnsiString;
+   ResultCode : Integer;
+begin
+   szDir := GetProgramDataDir();
+
+   if (DirExists(szDir) = False) then
+      CreateDir(szDir);
+
+   // S-1-5-18 is LocalSystem, S-1-5-32-544 is the local Administrators group and
+   // S-1-5-32-545 is the local Users group. The SIDs are used rather than the names,
+   // since the names are localized.
+   Exec(ExpandConstant('{sys}\icacls.exe'),
+        '"' + szDir + '" /inheritance:r /grant *S-1-5-18:(OI)(CI)F /grant *S-1-5-32-544:(OI)(CI)F /grant *S-1-5-32-545:(OI)(CI)RX',
+        '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 function MoveIni() : Boolean;
@@ -954,14 +1034,17 @@ begin
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
-var
-  szIniFile  : AnsiString;
 begin
 
 	if CurStep = ssInstall then
 	begin
 	   // Move hMailServer.ini before files are copied
 	   MoveIni();
+
+	   // Must run after MoveIni, so that an installation whose ini file was still
+	   // in the Windows directory is recognized as an existing installation.
+	   if (IsProgramDataInstallation()) then
+	      CreateProgramDataDir();
 	end;
 	
 	if CurStep = ssPostInstall then
@@ -970,9 +1053,6 @@ begin
 	  // other apps where we're installed.
 	  RegWriteStringValue(HKLM32, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
    	
-	  // Write db location to hMailServer.ini.
-	  szIniFile := ExpandConstant('{app}\Bin\hMailServer.ini');
-
   	// Create the hMailServer database
  	  if (IsComponentSelected('server')) then
 	  begin
