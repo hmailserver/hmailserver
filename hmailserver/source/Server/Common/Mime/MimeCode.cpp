@@ -859,16 +859,22 @@ namespace HM
    {
 	   for (;;)
 	   {
-		   string::size_type pos = strField.rfind("\r\n");
+		   // Any CR or LF is treated as a line break, not only a CRLF pair. Otherwise a
+		   // lone LF would remain in the value and could be used to inject headers.
+		   string::size_type pos = strField.find_last_of("\r\n");
 		   if (pos == string::npos)
 			   break;
 
-		   strField.erase(pos, 2);
+		   string::size_type start = pos;
+		   while (start > 0 && (strField[start-1] == '\r' || strField[start-1] == '\n'))
+			   start--;
 
-		   int nSpaces = 0;
-		   while (CMimeChar::IsSpace((unsigned char)strField[pos+nSpaces]))
+		   strField.erase(start, pos - start + 1);
+
+		   string::size_type nSpaces = 0;
+		   while (start + nSpaces < strField.size() && CMimeChar::IsSpace((unsigned char)strField[start+nSpaces]))
 			   nSpaces++;
-		   strField.replace(pos, nSpaces, " ");
+		   strField.replace(start, nSpaces, " ");
 	   }
    }
 

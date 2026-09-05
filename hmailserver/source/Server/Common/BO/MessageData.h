@@ -59,7 +59,7 @@ namespace HM
       void SetFieldValue(const String &sField, const String &sValue);
       String GetFieldValue(const String &sName) const;
       void SetReplyThreadingHeaders(const MessageData &source);
-      void SetReplyThreadingHeaders(const String &originalMessageID, const String &originalReferences);
+      void SetReplyThreadingHeaders(const String &sourceMessageID, const String &sourceReferences);
 
       int GetRuleLoopCount();
       void SetRuleLoopCount(int iLoopCount);
@@ -92,6 +92,8 @@ namespace HM
 	  bool IsAutoSubmitted();
 
    private:
+
+      static String RemoveControlCharacters_(const String &value);
 
       std::shared_ptr<MimeBody> GetViewBodyPart_(int recursion_level, std::shared_ptr<MimeBody> source, const String &requested_content_type) const;
 

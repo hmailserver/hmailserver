@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -1679,6 +1679,53 @@ namespace RegressionTests.Rules
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
          Assert.AreEqual(messageID, message.get_HeaderValue("In-Reply-To"));
          Assert.AreEqual(previousReference + " " + messageID, message.get_HeaderValue("References"));
+      }
+
+      [Test]
+      [Description("A control character in the original Message-ID must not inject headers into the reply.")]
+      public void ReplyMustNotAllowHeaderInjectionInThreadingHeaders()
+      {
+         // Add accounts
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest1@example.test", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@example.test", "test");
+
+         // Set up a rule to reply to any message sent to account2.
+         var rule = account2.Rules.Add();
+         rule.Name = "Criteria test";
+         rule.Active = true;
+
+         var ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
+
+         var ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAReply;
+         ruleAction.FromAddress = account2.Address;
+         ruleAction.FromName = "Rule Test 2";
+         ruleAction.Subject = "Autoreply";
+         ruleAction.Save();
+
+         rule.Save();
+
+         // The encoded words decode to a line feed followed by a header of the sender's choosing.
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.SendRaw(account1.Address, account2.Address,
+            "Message-ID: =?utf-8?Q?=3Cinjected=40example=2Etest=3E=0AX-Injected-Id=3A_yes?=\r\n" +
+            "References: =?utf-8?Q?=3Cprevious=40example=2Etest=3E=0AX-Injected-Ref=3A_yes?=\r\n" +
+            "Subject: Test\r\n" +
+            "\r\n" +
+            "Test message.");
+         ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var reply = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+
+         Assert.IsFalse(reply.Contains("\nX-Injected-Id"), reply);
+         Assert.IsFalse(reply.Contains("\nX-Injected-Ref"), reply);
       }
 
       [Test]

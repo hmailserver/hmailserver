@@ -272,15 +272,33 @@ namespace HM
       SetReplyThreadingHeaders(source.GetFieldValue("Message-ID"), source.GetFieldValue("References"));
    }
 
-   void
-   MessageData::SetReplyThreadingHeaders(const String &originalMessageID, const String &originalReferences)
+   // Control characters in a header value could be used to inject additional headers
+   // into the message we generate, so they are removed.
+   String
+   MessageData::RemoveControlCharacters_(const String &value)
    {
+      String result;
+
+      for (auto character : value)
+      {
+         if (character >= 32 && character != 127)
+            result += character;
+      }
+
+      return result;
+   }
+
+   void
+   MessageData::SetReplyThreadingHeaders(const String &sourceMessageID, const String &sourceReferences)
+   {
+      const String originalMessageID = RemoveControlCharacters_(sourceMessageID);
+
       if (originalMessageID.IsEmpty())
          return;
 
       SetFieldValue("In-Reply-To", originalMessageID);
 
-      String references = originalReferences;
+      String references = RemoveControlCharacters_(sourceReferences);
       if (!references.ContainsNoCase(originalMessageID))
       {
          if (!references.IsEmpty())
