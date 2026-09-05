@@ -15,14 +15,14 @@
 #endif
 
 ; The Universal CRT, for the Windows versions older than 10 that have none of their own.
-; build\Get-UCRTRedistPath.ps1 locates it and documents which SDK versions may be used.
-#ifndef UCRT_PATH
-  #define UCRT_PATH GetEnv("UCRTRedistPath")
-#endif
-#if UCRT_PATH == ""
-  #error "UCRT_PATH is not set. Set the UCRTRedistPath environment variable to the output of build\Get-UCRTRedistPath.ps1, or pass /DUCRT_PATH to ISCC."
-#endif
-
+; 10.0.14393 is the newest one Microsoft supports on Windows Vista through 8.1 - see
+; "Universal CRT deployment" on Microsoft Learn - so it is checked in here rather than taken
+; from whichever Windows SDK the build machine happens to carry. A newer one breaks Vista:
+; its loader cannot resolve the "kernel32.dll.VirtualAlloc" forwarders they use, and
+; hMailServer.exe then dies at startup. build\Test-DownlevelForwarders.ps1 guards that.
+; Taken from the Windows 10 SDK version 1607, Redist\ucrt\DLLs\x64:
+; https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive
+#define UCRT_PATH "Microsoft.UCRT.WindowsSDK14393"
 
 #include "section_setup.iss"
 #include "section_setup_64.iss"

@@ -5,6 +5,8 @@
 
 #include "ServiceManager.h"
 
+#include <VersionHelpers.h>
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -100,6 +102,12 @@ namespace HM
    // If this fails, the service keeps running as LocalSystem.
    //---------------------------------------------------------------------------//
    {
+      // Virtual accounts arrived in Windows 7. Vista accepts the account name here and
+      // then fails to start the service, so it has to be skipped rather than relied on
+      // to fail. LocalSystem, which it stays on, already has access to the data.
+      if (!IsWindows7OrGreater())
+         return true;
+
       // A virtual account requires the service to have an identity of its own.
       SERVICE_SID_INFO sid_info;
       sid_info.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
