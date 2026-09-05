@@ -55,8 +55,9 @@ namespace HM
    bool
    Compression::Uncompress(const String &zipFile, const String &targetDirectory, const String &wildCard)
    {
-      String commandLine = Formatter::Format("\"{0}\" x \"{1}\" \"{2}\" -o\"{3}\" -y", 
-         GetExecutableFullPath_(), zipFile, wildCard, targetDirectory);
+      // -o = output directory -mmt = number of threads -y = assume yes on all queries
+      String commandLine = Formatter::Format("\"{0}\" x \"{1}\" \"{2}\" -o\"{3}\" {4} -y", 
+         GetExecutableFullPath_(), zipFile, wildCard, targetDirectory, GetMultithreadingParameter_());
 
       return LaunchCommand_(commandLine);
    }
@@ -79,8 +80,10 @@ namespace HM
    String
    Compression::GetMultithreadingParameter_()
    {
-      // Backups run while the server is processing email, so compression is given at most half of
-      // the logical processors rather than all of them.
+      // Backup and restore both run while the server is processing email, so 7za is given at most
+      // half of the logical processors rather than all of them. This matters on restore too:
+      // an archive written with several threads is split into blocks that 7za will otherwise
+      // decode on every core at once.
       unsigned int processorCount = boost::thread::hardware_concurrency();
       unsigned int threadCount = processorCount / 2;
 
