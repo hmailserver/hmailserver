@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -211,6 +211,9 @@ namespace RegressionTests.Shared
 
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
+
+         if (antiVirus.NotifySender)
+            antiVirus.NotifySender = false;
 
          CustomAsserts.AssertNoReportedError();
 

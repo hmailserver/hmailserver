@@ -88,7 +88,12 @@ namespace RegressionTests.AntiVirus
             firstPart + secondPart);
 
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         // The infected message should have been deleted, so the notification is the only message.
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
+
          var notification = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+         Assert.IsFalse(notification.Contains(secondPart));
          Assert.IsTrue(notification.Contains("In-Reply-To: " + messageID));
          Assert.IsTrue(notification.Contains("References: " + previousReference + " " + messageID));
 

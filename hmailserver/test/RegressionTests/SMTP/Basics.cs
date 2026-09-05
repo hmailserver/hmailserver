@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -144,7 +144,7 @@ namespace RegressionTests.SMTP
                "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
 
          var content = "Message-ID: " + messageID + "\r\n" +
-                       "References: " + previousReference + " " + messageID + "\r\n" +
+                       "References: " + previousReference + "\r\n" +
                        "Subject: Test subject\r\n" +
                        "\r\n" +
                        builder;
