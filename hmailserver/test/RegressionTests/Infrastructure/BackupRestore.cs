@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using hMailServer;
 using NUnit.Framework;
@@ -914,6 +916,83 @@ namespace RegressionTests.Infrastructure
       {
          _backupMessages = false;
          Assert.IsTrue(Execute());
+      }
+
+      [Test]
+      public void TestBackupToInaccessibleDirectory()
+      {
+         _backupMessages = false;
+
+         LogHandler.DeleteErrorLog();
+
+         // The server checks that the backup directory exists by opening it, and falls back to
+         // reading its attributes - which the parent directory answers. Both must be denied for
+         // the directory to be unreachable, which is how a directory below another user's
+         // profile behaves.
+         var inaccessibleParent = Path.Combine(Path.GetTempPath(), TestSetup.UniqueString());
+         var inaccessibleBackupDir = Path.Combine(inaccessibleParent, "Backup");
+         Directory.CreateDirectory(inaccessibleBackupDir);
+
+         var denyEveryone = new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+            FileSystemRights.FullControl, AccessControlType.Deny);
+
+         var parentInfo = new DirectoryInfo(inaccessibleParent);
+         var backupDirInfo = new DirectoryInfo(inaccessibleBackupDir);
+
+         DenyAccess(backupDirInfo, denyEveryone);
+         DenyAccess(parentInfo, denyEveryone);
+
+         try
+         {
+            // The owner of a directory keeps the right to change its permissions, so confirm
+            // that the deny rules actually took effect before relying on them.
+            CustomAsserts.Throws<UnauthorizedAccessException>(() => Directory.GetFiles(inaccessibleParent));
+            CustomAsserts.Throws<UnauthorizedAccessException>(() => File.GetAttributes(inaccessibleBackupDir));
+
+            var backupSettings = _application.Settings.Backup;
+            backupSettings.BackupDomains = true;
+            backupSettings.BackupMessages = _backupMessages;
+            backupSettings.BackupSettings = true;
+            backupSettings.Destination = inaccessibleBackupDir;
+
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+            _application.BackupManager.StartBackup();
+
+            Assert.IsFalse(WaitForBackupCompletion());
+
+            var backupLog = TestSetup.ReadExistingTextFile(backupSettings.LogFile);
+            Assert.IsTrue(backupLog.Contains("BACKUP ERROR: The specified backup directory is not accessible"),
+               backupLog);
+
+            CustomAsserts.AssertReportedError("HM5014", "The specified backup directory is not accessible");
+
+            // The failed backup must not leave the backup manager running, so a backup to a
+            // directory the server can reach still works.
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+            Assert.IsTrue(BackupEnvironment());
+         }
+         finally
+         {
+            AllowAccess(parentInfo, denyEveryone);
+            AllowAccess(backupDirInfo, denyEveryone);
+
+            Directory.Delete(inaccessibleParent, true);
+         }
+      }
+
+      private static void DenyAccess(DirectoryInfo directory, FileSystemAccessRule rule)
+      {
+         var security = directory.GetAccessControl();
+         security.AddAccessRule(rule);
+         directory.SetAccessControl(security);
+      }
+
+      private static void AllowAccess(DirectoryInfo directory, FileSystemAccessRule rule)
+      {
+         var security = directory.GetAccessControl();
+         security.RemoveAccessRule(rule);
+         directory.SetAccessControl(security);
       }
    }
 }
