@@ -24,7 +24,8 @@ Environment set up
 
    * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2026 Community edition with the v142 (VS2019) build tools
-   * InnoSetup 5.5.4a (non-unicode version)
+   * InnoSetup 6.2.2 (https://github.com/jrsoftware/issrc/releases/tag/is-6_2_2) - the last
+     release whose installers run on Windows Vista, which hMailServer still supports
    * Perl 5 (https://strawberryperl.com/) - required by the OpenSSL and PostgreSQL library builds
    * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
    
@@ -180,7 +181,7 @@ Visual Studio must be started with _Run as Administrator_.
    This will build the hMailServer server-part (hMailServer.exe)
 3. Compile the solution hmailserver\source\Tools\hMailServer Tools.sln.
    This will build hMailServer related tools, such as hMailServer Administrator and hMailServer DB Setup.
-4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
+4. Compile hmailserver\installation\hMailServer64.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
    The installer ships two runtimes beside hMailServer.exe: the Visual C++ runtime, taken

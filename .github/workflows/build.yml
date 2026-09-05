@@ -72,9 +72,10 @@ env:
   # The Chocolatey package carrying that SDK, pinned: its version is the SDK servicing build,
   # so this is 10.0.19041.0 plus the package's own revision.
   UCRT_SDK_PACKAGE_VERSION: 10.0.19041.685
-  # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
-  # compiled it with.
-  INNOSETUP_VERSION: 5.6.1
+  # The last Inno Setup release whose installers still run on Windows Vista, which
+  # hMailServer64.iss sets as its MinVersion. 6.3 raised the floor to Windows 7, so no later
+  # release can be used until Vista support is dropped.
+  INNOSETUP_VERSION: 6.2.2
   # The build number continues the series TeamCity produced, which ended at 2869. GitHub's
   # run number cannot be seeded, so it is offset by that instead: build = offset + run number.
   # The run number is counted per workflow file path, so renaming this file restarts it at 1
@@ -632,11 +633,19 @@ jobs:
 
       - name: Install Inno Setup
         run: |
-          # The image carries Inno Setup 6 instead of the 5.6.1 hMailServer64.iss is written
-          # for. -AllowDowngrade is what makes choco step back from it - the two versions
-          # install side by side, in their own "Inno Setup 5" and "Inno Setup 6" folders.
+          # The image carries a newer Inno Setup 6 than the one the installer is pinned to.
+          # -AllowDowngrade is what makes choco step back from it; Inno Setup's own installer
+          # marks its files ignoreversion, so the older ones do replace the newer ones.
           . build\Install-ChocoPackage.ps1
           Install-ChocoPackage -Package 'innosetup' -Version $env:INNOSETUP_VERSION -AllowDowngrade
+
+          # A downgrade that silently left the newer files behind would compile the script
+          # with a compiler that no longer supports the Vista MinVersion it sets.
+          $installed = (Get-ItemProperty 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
+              Where-Object { $_.DisplayName -like 'Inno Setup*' }).DisplayVersion
+          if ($installed -ne $env:INNOSETUP_VERSION) {
+              throw "Inno Setup $env:INNOSETUP_VERSION was requested, but the installed version is '$installed'."
+          }
 
       - name: Locate the Visual C++ redistributable
         id: redist
@@ -694,7 +703,7 @@ jobs:
           VCREDIST_PATH: ${{ steps.redist.outputs.path }}
           UCRT_PATH: ${{ steps.ucrt.outputs.path }}
         run: |
-          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 5\ISCC.exe"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
 
           & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH=$env:VCREDIST_PATH" "/DUCRT_PATH=$env:UCRT_PATH" hmailserver\installation\hMailServer64.iss

@@ -419,7 +419,7 @@ begin
 	
 	      // If server installation has not been selected, we should skip it,
 	      // since the password is for the server...
-	      if (IsComponentSelected('server') = false) then
+	      if (WizardIsComponentSelected('server') = false) then
 	      begin
 	         Result := true;
 	      end;
@@ -441,7 +441,7 @@ begin
           Result := true;
        end;
 
-       if (IsComponentSelected('server') = false) then
+       if (WizardIsComponentSelected('server') = false) then
        begin
           Result := true;
        end;
@@ -1054,13 +1054,13 @@ begin
 	  RegWriteStringValue(HKLM32, 'Software\hMailServer', 'InstallLocation', ExpandConstant('{app}'));
    	
   	// Create the hMailServer database
- 	  if (IsComponentSelected('server')) then
+ 	  if (WizardIsComponentSelected('server')) then
 	  begin
 	    RunPostInstallTasks();
 	  end
 	 else
 	 begin
-	   if (IsComponentSelected('admintools')) then
+	   if (WizardIsComponentSelected('admintools')) then
 	   begin
 	      RegisterTypeLib();
 	   end;

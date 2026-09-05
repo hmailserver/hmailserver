@@ -30,7 +30,7 @@ hmailserver/
 
 ### `installation/`
 
-Contains InnoSetup 5 scripts (`.iss`) and third-party components bundled with the installer. The installer is built as the final step of the release pipeline. Do not add business logic here; this directory is purely packaging.
+Contains InnoSetup 6 scripts (`.iss`) and third-party components bundled with the installer. The installer is built as the final step of the release pipeline. Do not add business logic here; this directory is purely packaging.
 
 ---
 
@@ -198,7 +198,7 @@ Vendored third-party C++ libraries checked directly into the repository. Large e
 |---|---|
 | `hMailServer.exe` (the service) | `source/Server/hMailServer/hMailServer.sln` |
 | Admin tools | `source/Tools/hMailServer Tools.sln` |
-| Installer | `installation/hMailServer.iss` (InnoSetup) |
+| Installer | `installation/hMailServer64.iss` (InnoSetup) |
 
 **External dependencies** (not in repo): OpenSSL, Boost, PostgreSQL (libpq), MariaDB Connector/C (libmariadb). Set `%hMailServerLibs%` to the parent directory where these are built. See `README.md` for step-by-step build instructions.
 
