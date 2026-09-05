@@ -139,6 +139,43 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
+      [Description("Changing the hash length keeps the addresses already handed out reversible.")]
+      public void AddressesSurviveAChangeOfHashLength()
+      {
+         EnableSrs();
+
+         // Bounces keep arriving for addresses handed out under the previous setting for
+         // as long as those addresses are valid, so a hash of either length is accepted.
+         var shortHashAddress = SrsAddress.Create(Secret, ExternalSender, _domain.Name, DateTime.UtcNow,
+            SrsAddress.MinHashLength);
+
+         var longHashAddress = SrsAddress.Create(Secret, ExternalSender, _domain.Name, DateTime.UtcNow,
+            SrsAddress.MaxHashLength);
+
+         _settings.SRSHashLength = SrsAddress.MaxHashLength;
+         AssertAccepted(shortHashAddress);
+
+         _settings.SRSHashLength = SrsAddress.MinHashLength;
+         AssertAccepted(longHashAddress);
+      }
+
+      [Test]
+      [Description("An address carrying fewer hash characters than the minimum is rejected.")]
+      public void AnAddressWithATooShortHashIsRejected()
+      {
+         EnableSrs();
+
+         // How many characters of hash an address carries is the sender's choice, so
+         // comparing a short hash as far as it goes would leave one cheap to guess at.
+         var parsed = SrsAddress.Parse(SrsAddress.Create(Secret, ExternalSender, _domain.Name));
+
+         var truncated = "SRS0=" + parsed.Hash.Substring(0, SrsAddress.MinHashLength - 1) + "=" +
+                         parsed.Timestamp + "=" + parsed.Domain + "=" + parsed.LocalPart + "@" + _domain.Name;
+
+         AssertRejected(truncated, "The SRS address has an invalid hash.");
+      }
+
+      [Test]
       [Description("An address which looks like ours but does not hold the fields we write is rejected.")]
       public void AMalformedAddressIsRejected()
       {

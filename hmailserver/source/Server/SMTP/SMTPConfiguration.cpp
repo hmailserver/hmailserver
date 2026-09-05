@@ -365,6 +365,12 @@ namespace HM
       if (value <= 0)
          return SRS::DefaultMaxAgeDays;
 
+      // Clamped the way SRS clamps it, so that what is reported here is what the server
+      // actually goes by. Anything below the minimum of one day has already selected the
+      // default above.
+      if (value > SRS::MaxMaxAgeDays)
+         return SRS::MaxMaxAgeDays;
+
       return value;
    }
 
@@ -381,6 +387,12 @@ namespace HM
 
       if (value <= 0)
          return SRS::DefaultHashLength;
+
+      if (value < SRS::MinHashLength)
+         return SRS::MinHashLength;
+
+      if (value > SRS::MaxHashLength)
+         return SRS::MaxHashLength;
 
       return value;
    }
@@ -399,6 +411,12 @@ namespace HM
          return;
 
       SetSRSSecret("");
+
+      // Two servers sharing a database and starting together both find it empty and both
+      // generate one. The last write is the one the database keeps, so it is read back
+      // here and both servers go on with the same secret rather than one of them signing
+      // addresses the other cannot reverse.
+      GetSettings_()->Refresh();
    }
 
    void 

@@ -20,7 +20,11 @@ namespace RegressionTests.SMTP.SRS
    {
       public const string TimestampCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
       public const int DefaultHashLength = 8;
+      public const int MinHashLength = 8;
+      public const int MaxHashLength = 20;
       public const int DefaultMaxAgeDays = 21;
+      public const int MinMaxAgeDays = 1;
+      public const int MaxMaxAgeDays = 512;
 
       public string Tag { get; private set; }
       public string Hash { get; private set; }

@@ -34,6 +34,7 @@ namespace HM
       TestCaseHandling_();
       TestSeparators_();
       TestTampering_();
+      TestHashLengthChanges_();
       TestMalformedAddresses_();
       TestTimestamps_();
       TestChaining_();
@@ -218,8 +219,12 @@ namespace HM
       AssertTrue_(otherAddress.Compare(address) != 0);
       AssertReverse_(srs, otherAddress, SRS::ResultInvalidHash);
 
-      // A shorter hash is a weaker one, but it is still checked.
-      SRS shortHash(TestSecret, TestMaxAgeDays, SRS::MinHashLength);
+      // A hash can be made longer than the default but not shorter: a hash is compared
+      // without regard to case, so the minimum is already only 42 bits, and taking
+      // characters off it is what would make an address worth guessing at.
+      AssertTrue_(SRS::MinHashLength == SRS::DefaultHashLength);
+
+      SRS shortHash(TestSecret, TestMaxAgeDays, 1);
       String shortAddress = shortHash.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
 
       std::vector<String> parts = StringParser::SplitString(shortAddress, _T("="));
@@ -228,6 +233,50 @@ namespace HM
       String reversed;
       AssertTrue_(shortHash.Reverse(shortAddress, TestTime, reversed) == SRS::ResultSuccess);
       AssertEqual_(_T("user@example.com"), reversed);
+   }
+
+   void
+   SRSTester::TestHashLengthChanges_()
+   {
+      SRS srs = CreateSRS_();
+
+      String address = srs.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
+
+      String originalAddress;
+
+      // The hash in an address is as long as the setting was when the address was handed
+      // out. Bounces for those addresses keep arriving for as long as they are valid, so
+      // changing the setting must not strand them - in either direction.
+      SRS longer(TestSecret, TestMaxAgeDays, TestHashLength + 4);
+
+      AssertTrue_(longer.Reverse(address, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("user@example.com"), originalAddress);
+
+      String longAddress = longer.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
+      std::vector<String> longParts = StringParser::SplitString(longAddress, _T("="));
+      AssertTrue_(longParts[1].GetLength() == TestHashLength + 4);
+
+      AssertTrue_(srs.Reverse(longAddress, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("user@example.com"), originalAddress);
+
+      // How many characters of hash an address carries is the sender's choice, so a hash
+      // shorter than the minimum is rejected rather than compared as far as it goes.
+      std::vector<String> parts = StringParser::SplitString(address, _T("="));
+
+      String truncated = parts[0] + _T("=") + parts[1].Mid(0, SRS::MinHashLength - 1) +
+                         _T("=") + parts[2] + _T("=") + parts[3] + _T("=") + parts[4];
+
+      AssertReverse_(srs, truncated, SRS::ResultInvalidHash);
+
+      // As is one longer than any this server would ever create.
+      String padding;
+      for (int i = 0; i < SRS::MaxHashLength; i++)
+         padding += _T("a");
+
+      String overlong = parts[0] + _T("=") + parts[1] + padding +
+                        _T("=") + parts[2] + _T("=") + parts[3] + _T("=") + parts[4];
+
+      AssertReverse_(srs, overlong, SRS::ResultInvalidHash);
    }
 
    void
@@ -380,6 +429,23 @@ namespace HM
 
       String address = srs.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
       AssertTrue_(address.GetLength() <= SRS::MaxAddressLength);
+
+      // The limit is the one the rest of the server enforces on an address, so an address
+      // which is rewritten is one the bounce for it will also be accepted at. The rewrite
+      // is "SRS0=" + hash + "=" + timestamp + "=" + domain + "=" + local part + "@" + the
+      // forwarding domain, which is 19 characters plus the three of variable length.
+      const int fixedLength = 19 + String(_T("example.com")).GetLength() + String(_T("forwarder.test")).GetLength();
+
+      String longestLocalPart;
+      for (int i = 0; i < SRS::MaxAddressLength - fixedLength; i++)
+         longestLocalPart += _T("a");
+
+      String longestAddress = srs.Forward(longestLocalPart + _T("@example.com"), _T("forwarder.test"), TestTime);
+      AssertTrue_(longestAddress.GetLength() == SRS::MaxAddressLength);
+
+      // One character more, and the sender is left as it is rather than rewritten into an
+      // address which would be refused.
+      AssertTrue_(srs.Forward(longestLocalPart + _T("a@example.com"), _T("forwarder.test"), TestTime).IsEmpty());
 
       // The hash length and the maximum age are clamped to what makes sense, so that a
       // misconfiguration cannot produce an address nobody can validate.

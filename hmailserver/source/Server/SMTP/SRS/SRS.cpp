@@ -37,13 +37,20 @@ namespace HM
 
    const int SRS::DefaultMaxAgeDays = 21;
    const int SRS::DefaultHashLength = 8;
-   const int SRS::MinHashLength = 4;
+   // Base64 has 64 characters, but a hash is compared without regard to case, so it is
+   // really 38 of them a character can be. Eight of those are the 42 bits which make
+   // guessing an address hopeless; four would be 21 bits, which is not out of reach for
+   // someone willing to spend a few million RCPT TO commands on it.
+   const int SRS::MinHashLength = 8;
    const int SRS::MaxHashLength = 20;
    const int SRS::MinMaxAgeDays = 1;
    // The day counter wraps after TimestampCycle days, and an address must not stay valid
    // long enough for the counter to catch up with itself.
    const int SRS::MaxMaxAgeDays = TimestampCycle / 2;
-   const int SRS::MaxAddressLength = 255;
+   // RFC 5321 section 4.5.3.1.3 limits a path to 256 octets, which leaves 254 characters
+   // for the address inside it. This is the same limit StringParser enforces, so that an
+   // address we create is one we will also accept when the bounce comes back.
+   const int SRS::MaxAddressLength = 254;
    const int SRS::SecretLength = 32;
 
    SRS::SRS(const AnsiString &secret, int maxAgeDays, int hashLength) :
@@ -286,6 +293,12 @@ namespace HM
    String
    SRS::CreateHash_(const String &data) const
    {
+      return CreateFullHash_(data).Mid(0, hash_length_);
+   }
+
+   String
+   SRS::CreateFullHash_(const String &data) const
+   {
       // Everything hashed is lower-cased first. Mail servers are allowed to preserve the
       // case of a local part but not all of them do, and an address which comes back with
       // its case changed must still validate.
@@ -304,30 +317,36 @@ namespace HM
                (const unsigned char*) input.c_str(), (size_t) input.GetLength(),
                digest, &digestLength) == 0)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5731, "SRS::CreateHash_",
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5731, "SRS::CreateFullHash_",
             "Failed to calculate the SRS hash.");
 
          return "";
       }
 
-      AnsiString encoded = Base64::EncodeUnpadded((const char*) digest, (int) digestLength);
-
-      String result = encoded.Mid(0, hash_length_);
-
-      return result;
+      return Base64::EncodeUnpadded((const char*) digest, (int) digestLength);
    }
 
    bool
    SRS::ValidateHash_(const String &data, const String &hash) const
    {
-      String expected = CreateHash_(data);
+      int length = hash.GetLength();
 
-      if (expected.IsEmpty() || hash.IsEmpty())
+      // The hash was created at whatever length was configured when the address was handed
+      // out, which is not necessarily the length configured now. Only as many characters as
+      // the address carries are compared, so that changing the setting does not invalidate
+      // every address already out there - but never fewer than the minimum, since a short
+      // hash is an easy one to guess and the sender chooses how long the one they send is.
+      if (length < MinHashLength || length > MaxHashLength)
+         return false;
+
+      String expected = CreateFullHash_(data);
+
+      if (expected.GetLength() < length)
          return false;
 
       // Compared without regard to case, for the same reason the input is lower-cased
       // before it is hashed.
-      return expected.CompareNoCase(hash) == 0;
+      return expected.Mid(0, length).CompareNoCase(hash) == 0;
    }
 
    bool

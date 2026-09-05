@@ -308,11 +308,11 @@ The Settings object is the root-object for all hMailServer settings which are no
 
 <div class="api_method_name">long SRSHashLength</div>
 
-<div class="api_description">The number of hash characters in an SRS address. Longer is harder to forge, shorter makes for a shorter address. Valid values are 4 to 20; 0 selects the default of 8.<br></div>
+<div class="api_description">The number of hash characters in an SRS address. Longer is harder to forge, at the cost of a longer address. Valid values are 8 to 20; 0 selects the default of 8. A value outside that range is read back as the value the server applies.<br></div>
 
 <div class="api_method_name">long SRSMaxAgeDays</div>
 
-<div class="api_description">The number of days an SRS address stays valid, after which a bounce sent to it is rejected. Valid values are 1 to 512; 0 selects the default of 21.<br></div>
+<div class="api_description">The number of days an SRS address stays valid, after which a bounce sent to it is rejected. Valid values are 1 to 512; 0 selects the default of 21. A value outside that range is read back as the value the server applies.<br></div>
 
 <div class="api_method_name">string SRSSecret</div>
 

@@ -243,7 +243,7 @@ namespace RegressionTests.SMTP.SRS
       {
          EnableSrs();
 
-         _settings.SRSHashLength = 4;
+         _settings.SRSHashLength = 12;
 
          AddForwardingAccount("forwarder@example.test", ForwardTarget);
 
@@ -253,7 +253,7 @@ namespace RegressionTests.SMTP.SRS
 
             var address = SrsAddress.Parse(sender);
 
-            Assert.AreEqual(4, address.Hash.Length);
+            Assert.AreEqual(12, address.Hash.Length);
             Assert.IsTrue(address.HasValidHash(Secret), "The address was not signed with the server's SRS secret.");
          }
       }

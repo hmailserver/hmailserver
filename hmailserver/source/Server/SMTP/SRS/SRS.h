@@ -84,6 +84,7 @@ namespace HM
       String BuildSrs1_(const String &firstHop, const String &srs0Payload) const;
 
       String CreateHash_(const String &data) const;
+      String CreateFullHash_(const String &data) const;
       bool ValidateHash_(const String &data, const String &hash) const;
 
       static bool SplitAddress_(const String &address, String &localPart, String &domain);
