@@ -326,6 +326,15 @@ jobs:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
 
+      # 7-Zip is downloaded rather than compiled, so its key carries no runner image: the
+      # same prebuilt x64 binary is correct on every one of them.
+      - name: Restore 7-Zip
+        id: cache-sevenzip
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.sevenzip_dir }}
+          key: sevenzip-${{ steps.versions.outputs.sevenzip }}-${{ hashFiles('libraries/build-7zip.ps1', 'libraries/build-common.ps1') }}
+
       # Each build step prunes its tree before it is saved. What is kept is exactly what
       # hMailServer.vcxproj and post-build.bat reference; the rest is source and intermediates
       # that would multiply the cache size (Boost alone is ~2 GB unpruned against ~500 MB
@@ -429,6 +438,22 @@ jobs:
         with:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: ${{ steps.cache-mariadb.outputs.cache-primary-key }}
+
+      # No pruning here: build-7zip.ps1 already keeps only the two files that are installed.
+      - name: Fetch 7-Zip
+        if: steps.cache-sevenzip.outputs.cache-hit != 'true'
+        env:
+          LIB_VERSION: ${{ steps.versions.outputs.sevenzip }}
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version $env:LIB_VERSION
+          if ($LASTEXITCODE -ne 0) { throw "build-7zip.ps1 failed with exit code $LASTEXITCODE" }
+
+      - name: Save 7-Zip
+        if: success() && steps.cache-sevenzip.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.sevenzip_dir }}
+          key: ${{ steps.cache-sevenzip.outputs.cache-primary-key }}
 
       - name: Stamp the version into the sources and the installer script
         env:

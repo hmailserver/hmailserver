@@ -148,6 +148,28 @@ Pass `-Toolset &lt;name&gt;` to override the default `msvc-14.2`, or `-Jobs &lt;
 number of parallel compilations (defaults to the number of logical processors). Only Boost 1.x is
 supported.
 
+Fetching 7-Zip
+--------------
+The backup and restore feature launches the 7-Zip command line tool to compress and read
+backup archives. It is a prebuilt binary rather than something hMailServer compiles, so the
+`libraries\build-7zip.ps1` script downloads the "7-Zip Extra" package into
+%hMailServerLibs%\7zip-&lt;Version&gt; (e.g. `7zip-26.03`) and keeps the x64 `7za.exe` and its
+LGPL license text.
+
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- Windows 10 or 11 - the bundled tar.exe is used to unpack the download.
+
+Run, from the repository root:
+
+   <pre>
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
+   </pre>
+
+The download is checked against a SHA-256 pinned in the script, so only versions listed
+there are accepted. To move to a newer 7-Zip, record its hash in `$ArchiveHashes` and update
+the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and `hMailServer64.iss`.
+
 Building hMailServer
 --------------------
 
