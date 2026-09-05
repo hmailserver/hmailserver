@@ -763,6 +763,19 @@ begin
    end;
 end;
 
+// Gives the hMailServer service access to its own data. The service runs as the
+// virtual account NT SERVICE\hMailServer, which exists only once the service has
+// been created. On Windows versions before Windows 7, virtual accounts are not
+// available and the service stays on LocalSystem, which already has access.
+procedure GrantServiceAccountAccess();
+var
+   ResultCode : Integer;
+begin
+   Exec(ExpandConstant('{sys}\icacls.exe'),
+        '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
+        '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
 function RunPostInstallTasks() : Boolean;
    var
       ResultCode: Integer;
@@ -861,19 +874,6 @@ begin
    // SIDs are used rather than the names, since the names are localized.
    Exec(ExpandConstant('{sys}\icacls.exe'),
         '"' + szDir + '" /inheritance:r /grant *S-1-5-18:(OI)(CI)F /grant *S-1-5-32-544:(OI)(CI)F',
-        '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-end;
-
-// Gives the hMailServer service access to its own data. The service runs as the
-// virtual account NT SERVICE\hMailServer, which exists only once the service has
-// been created. On Windows versions before Windows 7, virtual accounts are not
-// available and the service stays on LocalSystem, which already has access.
-procedure GrantServiceAccountAccess();
-var
-   ResultCode : Integer;
-begin
-   Exec(ExpandConstant('{sys}\icacls.exe'),
-        '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
         '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
