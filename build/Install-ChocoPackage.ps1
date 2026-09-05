@@ -13,7 +13,7 @@ function Install-ChocoPackage {
         [Parameter(Mandatory = $true)][string]$Package,
         [Parameter(Mandatory = $true)][string]$Version,
         # innosetup needs this: the runner image already carries a newer Inno Setup, and
-        # stepping back to 5.6.1 counts as a downgrade.
+        # stepping back to the pinned version counts as a downgrade.
         [switch]$AllowDowngrade,
         [int]$Attempts = 3
     )

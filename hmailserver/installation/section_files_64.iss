@@ -8,7 +8,7 @@ Source: "{#VCREDIST_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Compon
 ; Windows 10 and later carry the Universal CRT themselves, and resolve api-ms-win-crt-* to it
 ; through the API set schema without ever looking in {app}\Bin - so it is shipped only to the
 ; older versions that need it.
-Source: "{#UCRT_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools; OnlyBelowVersion: 0,10.0;
+Source: "{#UCRT_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools; OnlyBelowVersion: 10.0;
 
 Source: "SQLCE\SSCERuntime_x64-ENU.msi"; Flags: deleteafterinstall ; Excludes: ".svn"; DestDir: "{tmp}"; Components: server;
 
