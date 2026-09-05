@@ -2,6 +2,7 @@
 #define OPENSSL_LIBS_PATH HMAILSERVERLIBS + "\openssl-3.5.8\out64\bin"
 #define POSTGRESQL_LIBPQ_PATH HMAILSERVERLIBS + "\postgresql-15.19\Release\libpq"
 #define MARIADB_LIBS_PATH HMAILSERVERLIBS + "\libmariadb-3.4.9\build64\libmariadb\RelWithDebInfo"
+#define SEVENZIP_PATH HMAILSERVERLIBS + "\7zip-26.03"
 
 ; The Visual C++ runtime shipped in Bin comes from the toolset that compiled hMailServer.exe,
 ; so the two cannot drift apart. build\Get-VCRedistPath.ps1 locates it: the build workflow

@@ -3,7 +3,10 @@ Source: isxdl.dll; DestDir: {tmp}; Flags: dontcopy
 Source: "License.rtf"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 
 ; 3'rd party dependencies
-Source: ".\Extras\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+; 7-Zip is fetched by libraries\build-7zip.ps1 rather than kept in the repository. It is
+; LGPL, so its license text is installed beside the executable.
+Source: "{#SEVENZIP_PATH}\7za.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
+Source: "{#SEVENZIP_PATH}\License.txt"; DestDir: "{app}\Bin"; DestName: "7za.exe.license.txt"; Flags: ignoreversion; Components: server;
 
 ; Database scripts
 Source: "..\source\DBScripts\*.sql"; DestDir: "{app}\DBScripts";Flags: ignoreversion recursesubdirs; Components: server;
