@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.IO;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Security;
 using System.Threading;
-using RegressionTests.Infrastructure;
 
 namespace VMTestRunner.Console
 {
-   class HyperV
+   /// <summary>
+   /// Controls the virtual machine itself. Everything which happens inside the
+   /// guest goes through an IGuestSession instead.
+   /// </summary>
+   public class HyperV
    {
       private string _vmName;
-      private PSCredential _credential;
       private readonly int _testIndex;
 
       private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -72,8 +73,6 @@ namespace VMTestRunner.Console
             if (errors.Any())
                throw new Exception($"PowerOn: {string.Join(Environment.NewLine, errors)}");
          }
-
-         WaitForHeartbeat();
       }
 
       public void PowerOff()
@@ -91,7 +90,11 @@ namespace VMTestRunner.Console
          }
       }
 
-      private void WaitForHeartbeat()
+      /// <summary>
+      /// Waits for the heartbeat integration service. Guests without integration
+      /// services never report one - those are waited for over the network instead.
+      /// </summary>
+      public void WaitForHeartbeat()
       {
          Debug($"Waiting for heartbeat from '{_vmName}'...");
 
@@ -126,160 +129,46 @@ namespace VMTestRunner.Console
          throw new Exception($"WaitForHeartbeat: Timed out waiting for heartbeat from '{_vmName}'.");
       }
 
-      public void SetCredentials(string username, string password)
+      /// <summary>
+      /// The addresses the guest reports through the data exchange integration
+      /// service. Empty for guests which don't have integration services.
+      /// </summary>
+      public List<string> GetReportedIPAddresses()
       {
-         var securePassword = new SecureString();
+         var addresses = new List<string>();
 
-         foreach (char c in password)
-            securePassword.AppendChar(c);
-
-         _credential = new PSCredential(username, securePassword);
-      }
-
-      public void CopyFileToGuest(string hostPath, string guestPath)
-      {
-         Debug($"Copying file {hostPath} to guest ({guestPath})...");
-
-         RetryHelper.TryAction(() =>
+         foreach (var adapter in GetNetworkAdapters())
          {
-            if (!File.Exists(hostPath))
-               throw new Exception($"CopyFileToGuest: The source file {hostPath} does not exist.");
+            if (!(adapter.Properties["IPAddresses"]?.Value is IEnumerable reported))
+               continue;
 
-            using (var ps = PowerShell.Create())
-            {
-               ps.AddCommand("Copy-VMFile")
-                 .AddParameter("Name", _vmName)
-                 .AddParameter("SourcePath", hostPath)
-                 .AddParameter("DestinationPath", guestPath)
-                 .AddParameter("FileSource", "Host")
-                 .AddParameter("CreateFullPath", true)
-                 .AddParameter("Force", true);
-
-               ps.Invoke();
-               HandleErrors(ps, "CopyFileToGuest");
-            }
-         }, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
-      }
-
-      public void CopyFileToHost(string guestPath, string hostPath)
-      {
-         Debug($"Copying file {guestPath} from guest to host...");
-
-         using (var ps = PowerShell.Create())
-         {
-            ps.AddCommand("Invoke-Command")
-              .AddParameter("VMName", _vmName)
-              .AddParameter("Credential", _credential)
-              .AddParameter("ScriptBlock",
-                  ScriptBlock.Create("param($src) [Convert]::ToBase64String([IO.File]::ReadAllBytes($src))"))
-              .AddParameter("ArgumentList", new object[] { guestPath });
-
-            var results = ps.Invoke();
-            HandleErrors(ps, "CopyFileToHost");
-
-            byte[] bytes = Convert.FromBase64String((string)results[0].BaseObject);
-            File.WriteAllBytes(hostPath, bytes);
-         }
-      }
-
-      public void CopyFolderToGuest(string source, string destination)
-      {
-         if (!Directory.Exists(source))
-            throw new Exception($"CopyFolderToGuest: The source directory {source} does not exist.");
-
-         CreateDirectory(destination);
-
-         foreach (string fileName in Directory.GetFiles(source))
-         {
-            var fileInfo = new FileInfo(fileName);
-            CopyFileToGuest(fileInfo.FullName, Path.Combine(destination, fileInfo.Name));
+            foreach (var address in reported)
+               addresses.Add(address?.ToString());
          }
 
-         foreach (string subDir in Directory.GetDirectories(source))
-         {
-            var dirInfo = new DirectoryInfo(subDir);
-            CopyFolderToGuest(subDir, Path.Combine(destination, dirInfo.Name));
-         }
+         return addresses.Where(address => !string.IsNullOrEmpty(address)).ToList();
       }
-
-      // The exit code is read inside the guest - a Process object doesn't keep its
-      // ExitCode when it's serialized back to us.
-      private const string RunProgramScript =
-         "param($exe, $argList) " +
-         "if ($argList) { $process = Start-Process -FilePath $exe -ArgumentList $argList -Wait -PassThru } " +
-         "else { $process = Start-Process -FilePath $exe -Wait -PassThru } " +
-         "$process.ExitCode";
 
       /// <summary>
-      /// Runs a program in the guest. throwOnFailure should only be used for programs
-      /// which are known to return a meaningful exit code - 'net stop' for example
-      /// fails if the service isn't running, which isn't an error to us.
+      /// The MAC addresses of the VM, as Hyper-V writes them: 12 hex digits, no separators.
       /// </summary>
-      public void RunProgramInGuest(string fullPath, string param, bool throwOnFailure = false)
+      public List<string> GetMacAddresses()
       {
-         Debug($"Executing {fullPath} {param}...");
-
-         using (var ps = PowerShell.Create())
-         {
-            ps.AddCommand("Invoke-Command")
-              .AddParameter("VMName", _vmName)
-              .AddParameter("Credential", _credential)
-              .AddParameter("ScriptBlock",
-                  ScriptBlock.Create(RunProgramScript))
-              .AddParameter("ArgumentList", new object[] { fullPath, param });
-
-            var results = ps.Invoke();
-            HandleErrors(ps, "RunProgramInGuest");
-
-            if (!throwOnFailure)
-               return;
-
-            int exitCode = GetExitCode(results);
-
-            if (exitCode != 0)
-               throw new Exception($"RunProgramInGuest: {fullPath} {param} failed with exit code {exitCode}.");
-         }
+         return GetNetworkAdapters()
+            .Select(adapter => adapter.Properties["MacAddress"]?.Value?.ToString())
+            .Where(mac => !string.IsNullOrEmpty(mac) && mac != "000000000000")
+            .ToList();
       }
 
-      private int GetExitCode(Collection<PSObject> results)
-      {
-         var exitCode = results.FirstOrDefault()?.BaseObject;
-
-         if (!(exitCode is int))
-            throw new Exception($"RunProgramInGuest: The exit code of the process could not be determined. Result: {exitCode ?? "(none)"}");
-
-         return (int) exitCode;
-      }
-
-      public void CreateDirectory(string name)
+      private List<PSObject> GetNetworkAdapters()
       {
          using (var ps = PowerShell.Create())
          {
-            ps.AddCommand("Invoke-Command")
-              .AddParameter("VMName", _vmName)
-              .AddParameter("Credential", _credential)
-              .AddParameter("ScriptBlock",
-                  ScriptBlock.Create("param($path) New-Item -ItemType Directory -Path $path -Force"))
-              .AddParameter("ArgumentList", new object[] { name });
+            ps.AddCommand("Get-VMNetworkAdapter")
+              .AddParameter("VMName", _vmName);
 
-            ps.Invoke();
-            HandleErrors(ps, "CreateDirectory");
-         }
-      }
-
-      public string RunScriptInGuest(string script)
-      {
-         using (var ps = PowerShell.Create())
-         {
-            ps.AddCommand("Invoke-Command")
-              .AddParameter("VMName", _vmName)
-              .AddParameter("Credential", _credential)
-              .AddParameter("ScriptBlock", ScriptBlock.Create(script));
-
-            var results = ps.Invoke();
-            HandleErrors(ps, "RunScriptInGuest");
-
-            return string.Join(Environment.NewLine, results.Select(r => r.ToString()));
+            // Errors are ignored - not being able to ask is the same as getting no answer.
+            return ps.Invoke().ToList();
          }
       }
 

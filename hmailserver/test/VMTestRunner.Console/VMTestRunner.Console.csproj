@@ -49,6 +49,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Management.Automation" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -64,6 +65,12 @@
     </Compile>
     <Compile Include="Configuration\TestEnvironments.cs" />
     <Compile Include="Infrastructure\CompletionEstimator.cs" />
+    <Compile Include="Infrastructure\Guest\GuestAddressResolver.cs" />
+    <Compile Include="Infrastructure\Guest\GuestSession.cs" />
+    <Compile Include="Infrastructure\Guest\IGuestSession.cs" />
+    <Compile Include="Infrastructure\Guest\NetworkGuestSession.cs" />
+    <Compile Include="Infrastructure\Guest\NetworkShare.cs" />
+    <Compile Include="Infrastructure\Guest\PowerShellDirectGuestSession.cs" />
     <Compile Include="Infrastructure\HyperV.cs" />
     <Compile Include="Infrastructure\NUnitResultParser.cs" />
     <Compile Include="Infrastructure\RunContext.cs" />
@@ -74,6 +81,7 @@
     <Compile Include="Infrastructure\TestRunner.cs" />
     <Compile Include="Infrastructure\TestSettings.cs" />
     <Compile Include="Models\FileCopyCommand.cs" />
+    <Compile Include="Models\GuestTransport.cs" />
     <Compile Include="Models\InstallCommand.cs" />
     <Compile Include="Models\TestEnvironment.cs" />
     <Compile Include="Models\TestRunReport.cs" />
