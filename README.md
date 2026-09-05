@@ -184,12 +184,16 @@ Visual Studio must be started with _Run as Administrator_.
 4. Compile hmailserver\installation\hMailServer64.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
-   The installer ships two runtimes beside hMailServer.exe. The Visual C++ runtime is taken
-   from the toolset that compiled it, so point the environment at it first:
+   The installer ships two runtimes beside hMailServer.exe. The Visual C++ runtime comes in
+   two versions, picked by Windows version at install time: the newest installed for Windows
+   10 and later, and the 14.29 one of the v142 toolset that compiled hMailServer.exe for
+   everything below, since the newer runtimes do not load there. Point the environment at
+   both first:
 
    ```
    . build\Get-VCRedistPath.ps1
-   $env:VCRedistPath = Get-VCRedistPath
+   $env:VCRedistPathModern = Get-VCRedistPath -Newest
+   $env:VCRedistPathLegacy = Get-VCRedistPath
    ```
 
    The Universal CRT, for the Windows versions older than 10 that have none of their own, is

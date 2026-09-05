@@ -599,7 +599,7 @@ jobs:
               throw "Inno Setup $env:INNOSETUP_VERSION was requested, but the installed version is '$installed'."
           }
 
-      - name: Locate the Visual C++ redistributable
+      - name: Locate the Visual C++ redistributables
         id: redist
         run: |
           # The installer ships the C++ runtime beside hMailServer.exe, and it must not be
@@ -607,47 +607,65 @@ jobs:
           # repository at 14.25 (VS2019 16.5) and were left behind when the build moved to
           # VS2022, whose v142 toolset is 14.29 - so they are taken from the installed
           # toolset now, and the two can no longer drift apart.
+          #
+          # Two of them are shipped, because the redistributable version is also an operating
+          # system floor, and Microsoft's advice is to use the latest available runtime. The
+          # newest installed goes to Windows 10 and later; 14.29, the newest that still runs
+          # below that, goes to everything older. section_files_64.iss picks by OS version.
           . build\Get-VCRedistPath.ps1
-          $redist = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
-          if (-not $redist) {
+          $legacy = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
+          if (-not $legacy) {
               throw "No Visual C++ redistributable of $env:REDIST_MIN_VERSION or later was found. hMailServer.exe is compiled with the v142 ($env:REDIST_MIN_VERSION) toolset and must not ship an older runtime."
           }
 
           # Get-VCRedistPath prefers the redistributable matching the toolset and only falls
-          # back to a newer one. On VS2026 that fallback would be the 14.4x/14.5x runtime,
-          # which no longer supports the pre-Windows 10 versions the installer still allows -
-          # so it is refused, as the step that installs the v142 components already did.
-          if (-not (Split-Path (Split-Path (Split-Path $redist -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) {
-              throw "The v142 ($env:REDIST_MIN_VERSION) redistributable is not installed - the newest one found is $redist. Add the 'MSVC v142 - VS 2019 C++ x64/x86 build tools' component to the Visual Studio installation; hMailServer.exe is compiled with v142 and the installer must not ship a runtime that no longer supports the Windows versions it still allows."
+          # back to a newer one. That fallback is fine for Windows 10 and later, but it is
+          # what the pre-Windows 10 tier must not be - the 14.4x/14.5x runtime does not load
+          # there - so it is refused, as the step that installs the v142 components already did.
+          if (-not (Split-Path (Split-Path (Split-Path $legacy -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) {
+              throw "The v142 ($env:REDIST_MIN_VERSION) redistributable is not installed - the newest one found is $legacy. Add the 'MSVC v142 - VS 2019 C++ x64/x86 build tools' component to the Visual Studio installation; hMailServer.exe is compiled with v142 and the installer must not ship a runtime that no longer supports the Windows versions it still allows."
           }
 
-          "Shipping the runtime from $redist"
-          Get-ChildItem $redist -File |
-              Select-Object Name, @{ Name = 'Version'; Expression = { $_.VersionInfo.FileVersion } } |
-              Format-Table -AutoSize | Out-String
+          $modern = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION -Newest
+          if (-not $modern) {
+              throw "No Visual C++ redistributable of $env:REDIST_MIN_VERSION or later was found for the Windows 10 and later tier."
+          }
 
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$redist"
+          # Whatever the runner image carries. Worth a look when it changes: the Windows 10
+          # floor holds for every 14.x redistributable Microsoft has shipped so far, but a
+          # future one raising it would need the MinVersion in section_files_64.iss raised too.
+          foreach ($tier in ([ordered]@{ 'Windows 10 and later' = $modern; 'below Windows 10' = $legacy }).GetEnumerator()) {
+              "Shipping the runtime for $($tier.Key) from $($tier.Value)"
+              Get-ChildItem $tier.Value -File |
+                  Select-Object Name, @{ Name = 'Version'; Expression = { $_.VersionInfo.FileVersion } } |
+                  Format-Table -AutoSize | Out-String
+          }
+
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "modern=$modern"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "legacy=$legacy"
 
       # The Universal CRT itself is checked in and needs no step of its own. What it does need
       # is this: the Windows Vista loader cannot resolve every forwarder form a redistributable
       # may use, and nothing else in the pipeline would notice, since these files are installed
-      # only below Windows 10 and so are never loaded by the tests.
+      # only below Windows 10 and so are never loaded by the tests. Only the files that go
+      # below Windows 10 are checked; the modern tier never reaches a loader that cares.
       - name: Check the shipped runtime against the oldest supported Windows
         run: |
           . build\Test-DownlevelForwarders.ps1
           Test-DownlevelForwarders -Path 'hmailserver\installation\Microsoft.UCRT.WindowsSDK14393'
-          Test-DownlevelForwarders -Path $env:VCREDIST_PATH
+          Test-DownlevelForwarders -Path $env:VCREDIST_PATH_LEGACY
         env:
-          VCREDIST_PATH: ${{ steps.redist.outputs.path }}
+          VCREDIST_PATH_LEGACY: ${{ steps.redist.outputs.legacy }}
 
       - name: Build the installer
         env:
-          VCREDIST_PATH: ${{ steps.redist.outputs.path }}
+          VCREDIST_PATH_MODERN: ${{ steps.redist.outputs.modern }}
+          VCREDIST_PATH_LEGACY: ${{ steps.redist.outputs.legacy }}
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
 
-          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH=$env:VCREDIST_PATH" hmailserver\installation\hMailServer64.iss
+          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH_MODERN=$env:VCREDIST_PATH_MODERN" "/DVCREDIST_PATH_LEGACY=$env:VCREDIST_PATH_LEGACY" hmailserver\installation\hMailServer64.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE" }
 
           # The script sets no OutputDir, so Inno Setup writes to Output next to it.

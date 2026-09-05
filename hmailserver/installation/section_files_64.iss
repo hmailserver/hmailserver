@@ -3,8 +3,12 @@
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.tlb"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 Source: "..\source\server\hMailServer\x64\Release\hMailServer.Minidump.exe"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server;
-; Taken from the toolset that compiled the binaries - see VCREDIST_PATH in hMailServer64.iss.
-Source: "{#VCREDIST_PATH}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
+; The Visual C++ runtime, in the newest version each Windows version can load - see
+; VCREDIST_PATH_MODERN and VCREDIST_PATH_LEGACY in hMailServer64.iss. vccorlib140.dll is left
+; out of both: it is the C++/CX runtime, nothing in Bin imports it, and it cannot even load on
+; the Windows versions below 8 that the installer still allows.
+Source: "{#VCREDIST_PATH_MODERN}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Excludes: "vccorlib140.dll"; Components: server admintools; MinVersion: 10.0;
+Source: "{#VCREDIST_PATH_LEGACY}\*"; DestDir: "{app}\Bin"; Flags: ignoreversion; Excludes: "vccorlib140.dll"; Components: server admintools; OnlyBelowVersion: 10.0;
 ; Windows 10 and later carry the Universal CRT themselves, and resolve api-ms-win-crt-* to it
 ; through the API set schema without ever looking in {app}\Bin - so it is shipped only to the
 ; older versions that need it.
