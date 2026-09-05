@@ -27,8 +27,9 @@ namespace HM
    bool
    Compression::AddDirectory(const String &zipFile, const String &directoryToAdd)
    {
-      // -r = recurse -t = type 7z -mmt = multithread off -mx1 = lowest compression (safer, faster & less cpu+ram)
-      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -r -t7z -mmt -mx1  -w\"{3}\"", 
+      // -r = recurse -t = type 7z -mmt=off = single-threaded -mx1 = lowest compression
+      // Backups run while the server handles mail, so they use one core rather than all of them.
+      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -r -t7z -mmt=off -mx1  -w\"{3}\"",
          GetExecutableFullPath_(), zipFile, directoryToAdd, IniFileSettings::Instance()->GetTempDirectory());
 
       return LaunchCommand_(commandLine);
@@ -37,8 +38,8 @@ namespace HM
    bool
    Compression::AddFile(const String &zipFile, const String &fileToAdd)
    {
-      // -t = type 7z -mmt = multithread off -mx1 = lowest compression (safer, faster & less cpu+ram)
-      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -t7z -mmt -mx1 -w\"{3}\"", 
+      // -t = type 7z -mmt=off = single-threaded -mx1 = lowest compression
+      String commandLine = Formatter::Format("\"{0}\" a \"{1}\" \"{2}\" -t7z -mmt=off -mx1 -w\"{3}\"",
          GetExecutableFullPath_(), zipFile, fileToAdd, IniFileSettings::Instance()->GetTempDirectory());
 
       return LaunchCommand_(commandLine);
