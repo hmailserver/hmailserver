@@ -75,13 +75,65 @@ namespace HM
 
             return false;
          }
-         
+
+         // Only done for new services. Existing services keep the account they were
+         // installed with, so that upgrades don't lose access to their data.
+         ConfigureVirtualServiceAccount_(hService, ServiceName);
+
          CloseServiceHandle (hService);
 
       }
 
       
       CloseServiceHandle (hSCManager);
+
+      return true;
+   }
+
+   bool
+   ServiceManager::ConfigureVirtualServiceAccount_(SC_HANDLE hService, const String &ServiceName)
+   //---------------------------------------------------------------------------//
+   // DESCRIPTION:
+   // Switches a newly created service to its virtual account, NT SERVICE\<name>.
+   // The account belongs to this service alone, so the mail data and the passwords
+   // in hMailServer.ini can be restricted to hMailServer.
+   // If this fails, the service keeps running as LocalSystem.
+   //---------------------------------------------------------------------------//
+   {
+      // A virtual account requires the service to have an identity of its own.
+      SERVICE_SID_INFO sid_info;
+      sid_info.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
+
+      if (ChangeServiceConfig2(hService, SERVICE_CONFIG_SERVICE_SID_INFO, &sid_info) == 0)
+      {
+         String sErrorMessage;
+         sErrorMessage.Format(_T("ChangeServiceConfig2 failed. (%d)"), GetLastError());
+
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5605, "ServiceManager::ConfigureVirtualServiceAccount_", sErrorMessage);
+         return false;
+      }
+
+      String sAccountName = _T("NT SERVICE\\") + ServiceName;
+
+      if (ChangeServiceConfig(
+               hService,           // handle of service
+               SERVICE_NO_CHANGE,  // service type: no change
+               SERVICE_NO_CHANGE,  // service start type: no change
+               SERVICE_NO_CHANGE,  // error control: no change
+               NULL,               // binary path: no change
+               NULL,               // load order group: no change
+               NULL,               // tag ID: no change
+               NULL,               // dependencies: no change
+               sAccountName,       // account name changed
+               NULL,               // password: virtual accounts have none
+               NULL) == 0)         // display name: no change
+      {
+         String sErrorMessage;
+         sErrorMessage.Format(_T("ChangeServiceConfig failed. (%d)"), GetLastError());
+
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5606, "ServiceManager::ConfigureVirtualServiceAccount_", sErrorMessage);
+         return false;
+      }
 
       return true;
    }

@@ -13,8 +13,7 @@ namespace RegressionTests.SMTP
       [SetUp]
       public void VerifyFeatureEnabled()
       {
-         var programDirectory = SingletonProvider<TestSetup>.Instance.GetApp().Settings.Directories.ProgramDirectory;
-         var hMailServerFile = Path.Combine(programDirectory, "Bin", "hMailServer.ini");
+         var hMailServerFile = IniFileLocator.GetIniFileName();
 
          var isEnabled =
             (from line in File.ReadAllLines(hMailServerFile)

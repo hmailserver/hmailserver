@@ -82,6 +82,13 @@ jobs:
           if (-not $service) { throw "The installer did not create the hMailServer service." }
           if ($service.Status -ne 'Running') { throw "The hMailServer service is $($service.Status), not Running." }
 
+          # A new installation runs as its virtual account. Falling back to LocalSystem is
+          # deliberate on Windows versions that have no virtual accounts, but on a runner it
+          # means the account was never applied - which would otherwise pass unnoticed, since
+          # LocalSystem can read and write everything the service needs.
+          $startName = (Get-CimInstance Win32_Service -Filter "Name='hMailServer'").StartName
+          if ($startName -ne 'NT SERVICE\hMailServer') { throw "The hMailServer service runs as '$startName', not the virtual account." }
+
           # The COM reference in RegressionTests.csproj resolves through the registered type
           # library, so a missing registration would surface as a compile error later.
           $application = New-Object -ComObject 'hMailServer.Application'
@@ -178,7 +185,11 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: regression-test-logs
-          path: C:\Program Files\hMailServer\Logs\*.log
+          # New installations log to ProgramData. The Program Files path is kept for
+          # installations made before that change.
+          path: |
+            C:\ProgramData\hMailServer\Logs\*.log
+            C:\Program Files\hMailServer\Logs\*.log
           if-no-files-found: ignore
 
       - name: Fail if any test failed

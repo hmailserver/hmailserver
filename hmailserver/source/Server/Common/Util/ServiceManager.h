@@ -28,5 +28,6 @@ namespace HM
    private:
 
       bool ReconfigureService_(SC_HANDLE hSCMManager, const String &ServiceName);
+      bool ConfigureVirtualServiceAccount_(SC_HANDLE hService, const String &ServiceName);
    };
 }
