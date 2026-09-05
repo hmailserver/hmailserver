@@ -108,4 +108,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <!-- The 4.5.2 reference assemblies come from a package. Build agents only carry the
+       targeting packs of the most recent .NET Framework versions. -->
+  <Import Project="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net452.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net452.targets" Condition="Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net452.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net452.targets')" />
+  <Target Name="EnsureReferenceAssembliesPackage" BeforeTargets="ResolveAssemblyReferences"
+          Condition="!Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net452.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net452.targets')">
+    <Error Text="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net452.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net452.targets is missing. Run a NuGet restore." />
+  </Target>
 </Project>
