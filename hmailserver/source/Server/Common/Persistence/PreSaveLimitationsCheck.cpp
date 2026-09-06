@@ -123,7 +123,7 @@ namespace HM
          if (domain->GetMaxNoOfAccountsEnabled() && 
              domain->GetAccounts()->GetCount() >= domain->GetMaxNoOfAccounts())
          {
-            resultDescription = "The maximum number of accounts have been created.";
+            resultDescription = "The maximum number of accounts has been created.";
             return false;
          }
       }
@@ -226,7 +226,7 @@ namespace HM
          if (domain->GetMaxNoOfAliasesEnabled() && 
              domain->GetAliases()->GetCount() >= domain->GetMaxNoOfAliases())
          {
-            resultDescription = "The maximum number of aliases have been created.";
+            resultDescription = "The maximum number of aliases has been created.";
             return false;
          }
       }
@@ -258,7 +258,7 @@ namespace HM
          if (domain->GetMaxNoOfDistributionLists()  && 
             domain->GetDistributionLists()->GetCount() >= domain->GetMaxNoOfDistributionLists())
          {
-            resultDescription = "The maximum number of distribution lists have been created.";
+            resultDescription = "The maximum number of distribution lists has been created.";
             return false;
          }
       }

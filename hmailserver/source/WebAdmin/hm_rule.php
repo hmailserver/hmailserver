@@ -63,7 +63,7 @@ else
             <?php
                PrintPropertyEditRow("Name", "Name", $Name);
                PrintCheckboxRow("Active", "Active", $Active);
-               PrintCheckboxRow("UseAND", "Use a AND", $UseAND);
+               PrintCheckboxRow("UseAND", "Use AND", $UseAND);
             ?>
          </table>
          
