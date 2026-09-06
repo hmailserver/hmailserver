@@ -62,7 +62,7 @@ namespace HM
    }
 
    bool
-   DNSResolverWinApi::Query(const String &query, int resourceType, std::vector<DNSRecord> &foundRecords)
+   DNSResolverWinApi::Query(const String &query, int resourceType, std::vector<DNSRecord> &foundRecords, bool bypassCache)
    {
       PDNS_RECORD pDnsRecord = NULL;
       
@@ -71,7 +71,7 @@ namespace HM
       DWORD fOptions;
       fOptions = DNS_QUERY_STANDARD;
 
-      if (!IniFileSettings::Instance()->GetUseDNSCache())
+      if (bypassCache || !IniFileSettings::Instance()->GetUseDNSCache())
       {
          fOptions |= DNS_QUERY_BYPASS_CACHE;
       }
