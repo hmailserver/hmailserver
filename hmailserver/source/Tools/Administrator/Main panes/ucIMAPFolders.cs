@@ -98,7 +98,7 @@ namespace hMailServer.Administrator
 
          if (textName.Text.Contains(_folderHierarchyDelimiter))
          {
-            MessageBox.Show(Strings.Localize("A folder name can not contain the hierarchy delimiter."), EnumStrings.hMailServerAdministrator);
+            MessageBox.Show(Strings.Localize("A folder name cannot contain the hierarchy delimiter."), EnumStrings.hMailServerAdministrator);
             return false;
          }
 
@@ -316,7 +316,7 @@ namespace hMailServer.Administrator
          }
          catch (Exception ex)
          {
-            MessageBox.Show(Strings.Localize("Creation of folder failed.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator);
+            MessageBox.Show(Strings.Localize("Creating the folder failed.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator);
          }
 
       }

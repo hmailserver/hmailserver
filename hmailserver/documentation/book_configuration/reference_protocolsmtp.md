@@ -33,7 +33,7 @@ This value can be overridden in the <a href="?page=reference_domain">domain sett
 
 <div class="indented">This setting defines the number of times hMailServer should try to deliver an email. Deliveries may fail for a number of reasons. For example, the recipient's email server may be rebooting or your network may be temporarily unavailable. The default value is 4 retries, which means hMailServer will try a total of 5 times before giving up and returning an error message to the sender.</div>
 
-### Minutes between every retry
+### Minutes between retries
 
 <div class="indented">This setting defines how many minutes hMailServer should wait before every retry, when delivering emails to other servers. The default value is 60 minutes.</div>
 

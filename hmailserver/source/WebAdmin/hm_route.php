@@ -86,8 +86,8 @@ if ($action == "edit")
             		<td width="70%"><input type="text" name="routenumberoftries" value="<?php echo PreprocessOutput($routenumberoftries)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Number of retries")?>"></td>
             	</tr> 
             	<tr>
-            		<td><?php EchoTranslation("Minutes between every retry")?></td>
-            		<td><input type="text" name="routemminutesbetweentry" value="<?php echo PreprocessOutput($routemminutesbetweentry)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Minutes between every retry")?>"></td>
+            		<td><?php EchoTranslation("Minutes between retries")?></td>
+            		<td><input type="text" name="routemminutesbetweentry" value="<?php echo PreprocessOutput($routemminutesbetweentry)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Minutes between retries")?>"></td>
             	</tr> 
                <?php
                   PrintCheckboxRow("routerequiresauth", "Server requires authentication", $routerequiresauth);

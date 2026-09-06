@@ -47,7 +47,7 @@ If you configure hMailServer to treat recipients matching the route as local add
 
 ### Delivery
 
-<div class="indented">Use Number of retries to specify the number of times you want hMailServer to retry when sending to this domain. If the route is used for MX backup, you will most likely want to set this to a rather high value. Minutes between every retry lets you specify the number of minutes between hMailServer's retries. For example, if the target SMTP host is down, there is no need to retry every minute. On the other hand, if the target SMTP host goes up, you don't want to wait 10 hours for the server to retry. Use Server requires authentication to specify user name and password if the target SMTP host requires authentication.</div>
+<div class="indented">Use Number of retries to specify the number of times you want hMailServer to retry when sending to this domain. If the route is used for MX backup, you will most likely want to set this to a rather high value. Minutes between retries lets you specify the number of minutes between hMailServer's retries. For example, if the target SMTP host is down, there is no need to retry every minute. On the other hand, if the target SMTP host goes up, you don't want to wait 10 hours for the server to retry. Use Server requires authentication to specify user name and password if the target SMTP host requires authentication.</div>
 
 ## Examples
 
