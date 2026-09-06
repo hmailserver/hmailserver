@@ -134,8 +134,8 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
       		<td><input type="text" name="smtpnooftries" value="<?php echo PreprocessOutput($smtpnooftries)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Number of retries")?>"></td>
       	</tr>
          <tr>
-      		<td width="30%"><?php EchoTranslation("Minutes between every retry")?></td>
-      		<td width="70%"><input type="text" name="smtpminutesbetweentry" value="<?php echo PreprocessOutput($smtpminutesbetweentry)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Minutes between every retry")?>"></td>
+      		<td width="30%"><?php EchoTranslation("Minutes between retries")?></td>
+      		<td width="70%"><input type="text" name="smtpminutesbetweentry" value="<?php echo PreprocessOutput($smtpminutesbetweentry)?>" size="4" checkallownull="false" checktype="number" checkmessage="<?php EchoTranslation("Minutes between retries")?>"></td>
       	</tr>	
          <tr>
       		<td width="30%"><?php EchoTranslation("Local host name")?></td>

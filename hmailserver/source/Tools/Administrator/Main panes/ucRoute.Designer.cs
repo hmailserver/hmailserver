@@ -412,7 +412,7 @@ namespace hMailServer.Administrator
            this.labelNoOfMinutesBetween.Name = "labelNoOfMinutesBetween";
            this.labelNoOfMinutesBetween.Size = new System.Drawing.Size(140, 13);
            this.labelNoOfMinutesBetween.TabIndex = 11;
-           this.labelNoOfMinutesBetween.Text = "Minutes between every retry";
+           this.labelNoOfMinutesBetween.Text = "Minutes between retries";
            // 
            // labelNoOfTries
            // 

@@ -352,7 +352,7 @@
            this.chkUseMXChecks.Name = "chkUseMXChecks";
            this.chkUseMXChecks.Size = new System.Drawing.Size(216, 17);
            this.chkUseMXChecks.TabIndex = 17;
-           this.chkUseMXChecks.Text = "Check that sender has DNS-MX records";
+           this.chkUseMXChecks.Text = "Check that the sender has DNS-MX records";
            this.chkUseMXChecks.UseVisualStyleBackColor = true;
            this.chkUseMXChecks.CheckedChanged += new System.EventHandler(this.chkUseMXChecks_CheckedChanged);
            // 

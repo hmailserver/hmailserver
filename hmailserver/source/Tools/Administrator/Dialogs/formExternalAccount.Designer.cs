@@ -136,7 +136,7 @@ namespace hMailServer.Administrator.Dialogs
             this.labelMinutesBetweenDownload.Name = "labelMinutesBetweenDownload";
             this.labelMinutesBetweenDownload.Size = new System.Drawing.Size(137, 13);
             this.labelMinutesBetweenDownload.TabIndex = 17;
-            this.labelMinutesBetweenDownload.Text = "Minutes between download";
+            this.labelMinutesBetweenDownload.Text = "Minutes between downloads";
             // 
             // labelDays
             // 

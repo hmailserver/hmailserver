@@ -149,9 +149,9 @@ if ($DaysToKeepMessages > 0)
          			<td colspan="2"><?php EchoTranslation("Settings")?></td>
          		</tr>
          		<tr>
-         			<td><?php EchoTranslation("Minutes between download")?></td>
+         			<td><?php EchoTranslation("Minutes between downloads")?></td>
          			<td>
-            				<input type="text" name="MinutesBetweenFetch" value="<?php echo PreprocessOutput($MinutesBetweenFetch)?>" checktype="number" checkallownull="false" checkmessage="<?php EchoTranslation("Minutes between download")?>">
+            				<input type="text" name="MinutesBetweenFetch" value="<?php echo PreprocessOutput($MinutesBetweenFetch)?>" checktype="number" checkallownull="false" checkmessage="<?php EchoTranslation("Minutes between downloads")?>">
                   	</td>			
          		</tr>		
          		<tr>
