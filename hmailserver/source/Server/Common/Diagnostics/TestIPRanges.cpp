@@ -65,7 +65,7 @@ namespace HM
 
       if (totalBanRanges > 0)
       {
-         result.append(Formatter::Format("There is a total of {0} auto-ban IP ranges.\r\n", totalBanRanges));
+         result.append(Formatter::Format("There are a total of {0} auto-ban IP ranges.\r\n", totalBanRanges));
       }
       else
       {

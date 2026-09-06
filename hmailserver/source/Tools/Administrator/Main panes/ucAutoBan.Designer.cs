@@ -133,7 +133,7 @@
          this.label1.Size = new System.Drawing.Size(471, 33);
          this.label1.TabIndex = 40;
          this.label1.Text = "If you are running a web mail system, this means that the webmail system may be b" +
-             "locked, if too many invalid logon attempts are made on it.";
+             "locked if too many invalid logon attempts are made on it.";
          // 
          // linkMoreDetails
          // 
