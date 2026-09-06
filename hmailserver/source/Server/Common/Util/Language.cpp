@@ -39,7 +39,9 @@ namespace HM
       std::map<String, String>::const_iterator iterString = strings_.find(sEnglishString);
       if (iterString == strings_.end())
       {
+#ifdef DEBUG
          ReportMissingString_(sEnglishString);
+#endif
          return sEnglishString;
       }
       else
