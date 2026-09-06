@@ -33,7 +33,7 @@ namespace HM
 
       std::vector<String> foundAddresses;
       DNSResolver resolver;
-      resolver.GetIpAddresses(sCheckHost, foundAddresses, false);
+      bool lookupSucceeded = resolver.GetIpAddressesWithRetry(sCheckHost, foundAddresses, false);
 
       bool isBlocked = false;
 
@@ -76,6 +76,13 @@ namespace HM
 
       String logMessage = Formatter::Format("DNS lookup: {0}, {1} addresses found: {2}, Match: {3}", sCheckHost, foundAddresses.size(), foundAddressesJoined, isBlocked);
       LOG_TCPIP(logMessage);
+
+      if (!lookupSucceeded)
+      {
+         // The lookup failed rather than came back empty, so the client hasn't been
+         // cleared by this blacklist. Let the message through, but say so in the log.
+         LOG_TCPIP(Formatter::Format("DNS lookup failed: {0}. The client could not be checked against this blacklist.", sCheckHost));
+      }
 
       return isBlocked;
    }

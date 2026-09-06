@@ -63,6 +63,29 @@ namespace HM
       return GetIpAddressesRecursive_(sDomain, vecFoundNames, 0, followCnameRecords);
    }
 
+   const int lookupAttempts = 2;
+
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Looks up a host, retrying if the lookup itself fails. Intended for callers
+   // which need a definitive answer, such as SURBL and the DNS blacklists, where a
+   // single bad response would otherwise turn a listed host into a clean one.
+   //---------------------------------------------------------------------------()
+   bool
+   DNSResolver::GetIpAddressesWithRetry(const String &sDomain, std::vector<String> &saFoundNames, bool followCnameRecords)
+   {
+      for (int attempt = 1; attempt <= lookupAttempts; attempt++)
+      {
+         if (GetIpAddresses(sDomain, saFoundNames, followCnameRecords))
+            return true;
+
+         if (attempt < lookupAttempts)
+            LOG_DEBUG(Formatter::Format(_T("DNS - Retrying lookup: {0}"), sDomain));
+      }
+
+      return false;
+   }
+
    bool
    DNSResolver::GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords)
    {
@@ -84,18 +107,25 @@ namespace HM
 
       std::vector<DNSRecord> foundRecords;
 
-      bool ipv4QueryResult = false;
-      bool ipv6QueryResult = false;
+      bool ipv6Available = Configuration::Instance()->IsIPv6Available();
+
+      // A query that fails tells us nothing; a query that succeeds without records
+      // tells us the host has none. Keep the two apart, so that callers needing a
+      // definitive answer can tell them apart.
+      bool queryFailed = false;
+
       // if IPv6 is preferred first do IPv6 DNS Lookup(s)
-      if (Configuration::Instance()->IsIPv6Available() && Configuration::Instance()->GetIPv6Preferred())
+      if (ipv6Available && Configuration::Instance()->GetIPv6Preferred())
       {
-         ipv6QueryResult = resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
-         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+         queryFailed |= !resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
+         queryFailed |= !resolver.Query(hostName, DNS_TYPE_A, foundRecords);
       }
       else // Standard 
       {
-         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
-         ipv6QueryResult = Configuration::Instance()->IsIPv6Available() ? resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords) : false;
+         queryFailed |= !resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+
+         if (ipv6Available)
+            queryFailed |= !resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
       }
 
       if (foundRecords.size() == 0 && followCnameRecords)
@@ -115,7 +145,9 @@ namespace HM
       std::vector<String> foundValues = GetDnsRecordsValues_(foundRecords);
       addresses.insert(addresses.end(), foundValues.begin(), foundValues.end());
 
-      return ipv4QueryResult || ipv6QueryResult;
+      // Records are usable even if the other query type failed. Without any records,
+      // a failed query means the result is unknown rather than empty.
+      return !foundRecords.empty() || !queryFailed;
    }
 
 
