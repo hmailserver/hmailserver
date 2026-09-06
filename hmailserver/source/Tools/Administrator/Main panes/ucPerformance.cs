@@ -18,11 +18,14 @@ namespace hMailServer.Administrator
 
          DirtyChecker.SubscribeToChange(this, OnContentChanged);
 
-         comboWorkerThreadPriority.AddItem("Highest", 2);
-         comboWorkerThreadPriority.AddItem("Above normal", 1);
-         comboWorkerThreadPriority.AddItem("Normal", 0);
-         comboWorkerThreadPriority.AddItem("Below normal", -1);
-         comboWorkerThreadPriority.AddItem("Lowest", -2);
+         comboWorkerThreadPriority.AddItem(Strings.Localize("Highest"), 2);
+         comboWorkerThreadPriority.AddItem(Strings.Localize("Above normal"), 1);
+         comboWorkerThreadPriority.AddItem(Strings.Localize("Normal"), 0);
+         comboWorkerThreadPriority.AddItem(Strings.Localize("Below normal"), -1);
+         comboWorkerThreadPriority.AddItem(Strings.Localize("Lowest"), -2);
+         // Not localized: "Idle" is also String_744, the name of the IMAP IDLE
+         // extension. The lookup is keyed on the English text, so translating this
+         // would give the thread priority the IMAP capability's translation.
          comboWorkerThreadPriority.AddItem("Idle", -15);
 
          new TabOrderManager(this).SetTabOrder(TabOrderManager.TabScheme.AcrossFirst);
