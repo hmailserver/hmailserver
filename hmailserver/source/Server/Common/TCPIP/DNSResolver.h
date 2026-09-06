@@ -19,6 +19,7 @@ namespace HM
       bool GetEmailServers(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames);
       bool GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames);
       bool GetIpAddresses(const String &sDomain, std::vector<String> &saFoundNames, bool followCnameRecords);
+      bool GetIpAddressesWithRetry(const String &sDomain, std::vector<String> &saFoundNames, bool followCnameRecords);
       bool GetTXTRecords(const String &sDomain, std::vector<String> &foundResult);
       bool GetPTRRecords(const String &sIP, std::vector<String> &vecFoundNames);
    private:
