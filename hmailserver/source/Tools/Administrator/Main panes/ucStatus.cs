@@ -178,7 +178,7 @@ namespace hMailServer.Administrator
            if (autobanRanges > 0)
            {
               string warning =
-                  Strings.Localize("There is a total of %s auto-ban IP ranges.");
+                  Strings.Localize("There are a total of %s auto-ban IP ranges.");
 
               warning = warning.Replace("%s", autobanRanges.ToString());
 

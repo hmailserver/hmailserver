@@ -55,7 +55,7 @@ namespace hMailServer.Administrator.Dialogs
          }
          catch (Exception e)
          {
-            MessageBox.Show(Strings.Localize("Retrieving of domains failed:") + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator);
+            MessageBox.Show(Strings.Localize("Retrieving domains failed:") + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator);
          }
       }
 

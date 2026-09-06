@@ -127,7 +127,7 @@ namespace hMailServer.Administrator.Dialogs
          this.ucDeleteRecipientsNotInList.Name = "ucDeleteRecipientsNotInList";
          this.ucDeleteRecipientsNotInList.Size = new System.Drawing.Size(181, 17);
          this.ucDeleteRecipientsNotInList.TabIndex = 33;
-         this.ucDeleteRecipientsNotInList.Text = "Delete recipients not in import-file";
+         this.ucDeleteRecipientsNotInList.Text = "Delete recipients not in the import file";
          this.ucDeleteRecipientsNotInList.UseVisualStyleBackColor = true;
          this.ucDeleteRecipientsNotInList.CheckedChanged += new System.EventHandler(this.ucDeleteRecipientsNotInList_CheckedChanged);
          // 

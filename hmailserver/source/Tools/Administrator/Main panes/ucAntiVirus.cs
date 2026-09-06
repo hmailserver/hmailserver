@@ -320,7 +320,7 @@ namespace hMailServer.Administrator
         {
             if (found)
             {
-                string message = Strings.Localize("Test virus was detected successfully. Virus name: ");
+                string message = Strings.Localize("The test virus was detected successfully. Virus name: ");
                 messageText = message + messageText;
                 MessageBox.Show(messageText, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
