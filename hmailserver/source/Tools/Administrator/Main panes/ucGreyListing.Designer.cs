@@ -240,7 +240,7 @@ namespace hMailServer.Administrator
            this.checkBypassGreyListingOnMailFromMX.Name = "checkBypassGreyListingOnMailFromMX";
            this.checkBypassGreyListingOnMailFromMX.Size = new System.Drawing.Size(319, 17);
            this.checkBypassGreyListingOnMailFromMX.TabIndex = 37;
-           this.checkBypassGreyListingOnMailFromMX.Text = "Bypass Greylisting when message arrives from A or MX record.";
+           this.checkBypassGreyListingOnMailFromMX.Text = "Bypass Greylisting when a message arrives from an A or MX record.";
            this.checkBypassGreyListingOnMailFromMX.UseVisualStyleBackColor = true;
            // 
            // ucGreyListing

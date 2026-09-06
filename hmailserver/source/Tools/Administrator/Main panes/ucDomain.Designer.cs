@@ -326,7 +326,7 @@ namespace hMailServer.Administrator
            this.radioSMSetIfNotSpecifiedInAccount.Size = new System.Drawing.Size(312, 17);
            this.radioSMSetIfNotSpecifiedInAccount.TabIndex = 6;
            this.radioSMSetIfNotSpecifiedInAccount.TabStop = true;
-           this.radioSMSetIfNotSpecifiedInAccount.Text = "Use signature if none has been specified in sender\'s account";
+           this.radioSMSetIfNotSpecifiedInAccount.Text = "Use signature if none has been specified in the sender\'s account";
            this.radioSMSetIfNotSpecifiedInAccount.UseVisualStyleBackColor = true;
            this.radioSMSetIfNotSpecifiedInAccount.CheckedChanged += new System.EventHandler(this.radioSMSetIfNotSpecifiedInAccount_CheckedChanged);
            // 

@@ -30,7 +30,7 @@ If hMailServer temporarily rejects a message, but the sender does not try to res
 <div class="indented">
 <h3>Bypass Greylisting on SPF Pass</h3>
 <p>The downside with greylisting is that it causes delays for legitimate email messages. Even if the delay is not very long, it may sometimes cause end-user frustration. As a partial solution to this problem, you can enable "Bypass Greylisting on SPF Pass". Larger email providers such as Gmail and Hotmail publishes SPF records for their domain. If hMailServer receives an email from a domain which has published SPF records, and the IP address connecting to hMailServer is authorized to send from this domain, and this option is enabled, hMailServer will not perform grey listing.</p>
-<h3>Bypass Greylisting when message arrives from A or MX record.</h3>
+<h3>Bypass Greylisting when a message arrives from an A or MX record.</h3>
 <p>Prior to running grey listing, hMailServer will do a DNS/A and DNS/MX lookup. If the connecting address is found in one of the records, the grey listing will be skipped if this option is enabled.</p>
 </div>
 <div class="indented">

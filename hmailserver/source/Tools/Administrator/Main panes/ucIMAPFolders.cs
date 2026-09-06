@@ -80,7 +80,7 @@ namespace hMailServer.Administrator
             {
                if (node.Text == currentNode.Text)
                {
-                  MessageBox.Show(Strings.Localize("There is already an folder with this name."),
+                  MessageBox.Show(Strings.Localize("There is already a folder with this name."),
                      EnumStrings.hMailServerAdministrator);
 
                   textName.Focus();
