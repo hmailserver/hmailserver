@@ -159,7 +159,7 @@ namespace hMailServer.Administrator
            this.labelTreatSenderAsLocalDomain.Name = "labelTreatSenderAsLocalDomain";
            this.labelTreatSenderAsLocalDomain.Size = new System.Drawing.Size(233, 13);
            this.labelTreatSenderAsLocalDomain.TabIndex = 16;
-           this.labelTreatSenderAsLocalDomain.Text = "When recipient matches route, treat recipient as";
+           this.labelTreatSenderAsLocalDomain.Text = "When the recipient matches the route, treat the recipient as";
            // 
            // panel1
            // 
@@ -200,7 +200,7 @@ namespace hMailServer.Administrator
            this.labelTreatThisRouteAs.Name = "labelTreatThisRouteAs";
            this.labelTreatThisRouteAs.Size = new System.Drawing.Size(217, 13);
            this.labelTreatThisRouteAs.TabIndex = 13;
-           this.labelTreatThisRouteAs.Text = "When sender matches route, treat sender as";
+           this.labelTreatThisRouteAs.Text = "When the sender matches the route, treat the sender as";
            // 
            // textTargetSMTPPort
            // 

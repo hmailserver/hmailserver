@@ -87,7 +87,7 @@ namespace hMailServer.Administrator
          // Each sentence is localized separately. english.ini is line based, so a
          // single string spanning several lines can not be stored in it.
          MessageBox.Show(Strings.Localize("hMailServer Administrator lost the connection to the hMailServer service.") + "\r\n" +
-                         Strings.Localize("This may happen for example if the hMailServer service stops or restarts.") + "\r\n" +
+                         Strings.Localize("This may happen, for example, if the hMailServer service stops or restarts.") + "\r\n" +
                          "\r\n" +
                          Strings.Localize("If the stop or restart was unexpected, please review the hMailServer logs.") + "\r\n" +
                          "\r\n" +
