@@ -112,20 +112,20 @@ namespace HM
       // A query that fails tells us nothing; a query that succeeds without records
       // tells us the host has none. Keep the two apart, so that callers needing a
       // definitive answer can tell them apart.
-      bool queryFailed = false;
+      bool querySucceeded = true;
 
       // if IPv6 is preferred first do IPv6 DNS Lookup(s)
       if (ipv6Available && Configuration::Instance()->GetIPv6Preferred())
       {
-         queryFailed |= !resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
-         queryFailed |= !resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_A, foundRecords);
       }
       else // Standard 
       {
-         queryFailed |= !resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_A, foundRecords);
 
          if (ipv6Available)
-            queryFailed |= !resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
+            querySucceeded &= resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
       }
 
       if (foundRecords.size() == 0 && followCnameRecords)
@@ -147,7 +147,7 @@ namespace HM
 
       // Records are usable even if the other query type failed. Without any records,
       // a failed query means the result is unknown rather than empty.
-      return !foundRecords.empty() || !queryFailed;
+      return !foundRecords.empty() || querySucceeded;
    }
 
 
