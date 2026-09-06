@@ -84,9 +84,9 @@ If you are experiencing a problem with rules, please read the [troubleshooting t
 <h4>Search types</h4>
 <ul>
     <li>Equals - The value / string must match exactly</li>
-    <li>Not equals - The value / string must not match.</li>
+    <li>Does not equal - The value / string must not match.</li>
     <li>Contains - Partial match</li>
-    <li>Not contains - The value must not exist in the Predefined field / custom header field.</li>
+    <li>Does not contain - The value must not exist in the Predefined field / custom header field.</li>
     <li>Less than - Can only be used for values</li>
     <li>Greater than - Can only be used for values.</li>
     <li>Regular expression - Use a regular expression to match the value.</li>

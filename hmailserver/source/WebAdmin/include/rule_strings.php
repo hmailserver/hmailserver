@@ -96,10 +96,10 @@ function GetMatchTypeString($matchType)
          $result = "Less than";
          break;
       case eMTNotContains:
-         $result = "Not contains";
+         $result = "Does not contain";
          break;
       case eMTNotEquals:
-         $result = "Not equals";
+         $result = "Does not equal";
          break;
       case eMTRegExMatch:
          $result = "Regular expression";

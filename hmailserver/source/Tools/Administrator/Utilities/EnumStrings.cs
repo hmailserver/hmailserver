@@ -68,10 +68,10 @@ namespace hMailServer.Administrator.Utilities
                result = "Less than";
                break;
             case eRuleMatchType.eMTNotContains:
-               result = "Not contains";
+               result = "Does not contain";
                break;
             case eRuleMatchType.eMTNotEquals:
-               result = "Not equals";
+               result = "Does not equal";
                break;
             case eRuleMatchType.eMTRegExMatch:
                result = "Regular expression";

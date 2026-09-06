@@ -104,7 +104,7 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 
 <div class="indented">This test is run after the message has been transmitted, since the From header and any DKIM signatures are part of the message.</div>
 
-<h3>Honor policy published by sender domain</h3>
+<h3>Honor the policy published by the sender domain</h3>
 <div class="indented">If you enable this option, hMailServer applies the policy the sender domain publishes in its DMARC record when the check fails, regardless of the spam score. A policy of <em>reject</em> makes hMailServer reject the message, and a policy of <em>quarantine</em> makes hMailServer mark the message as spam. A policy of <em>none</em> only adds the spam score. The <em>pct</em> tag of the DMARC record is respected, so a domain owner can roll a policy out gradually.</div>
 
 <div class="indented">If this option is disabled, a failed DMARC check only adds the spam score.</div>

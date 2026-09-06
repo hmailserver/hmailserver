@@ -152,7 +152,7 @@ namespace hMailServer.Administrator.Dialogs
               {
                  if (textIMAPFolder.Text.Contains(otherDelim.ToString()))
                  {
-                    string message = "The hMailServer IMAP hierarchy delimiter is %S1. The folder name you have specified contains the character %S2 which is not a hierarchy delimiter but may be a part of a folder name. If you choose to save the current folder name, a single folder named %S3 will be created when this action is executed. Do you want to use this folder name?";
+                    string message = "The hMailServer IMAP hierarchy delimiter is %S1. The folder name you have specified contains the character %S2, which is not a hierarchy delimiter but may be a part of a folder name. If you choose to save the current folder name, a single folder named %S3 will be created when this action is executed. Do you want to use this folder name?";
 
                     message = message.Replace("%S1", "\"" + delimiter.ToString() + "\"");
                     message = message.Replace("%S2", "\"" + otherDelim.ToString() + "\"");

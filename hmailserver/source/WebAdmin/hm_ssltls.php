@@ -65,7 +65,7 @@ $TlsOptionPrioritizeChaChaEnabled		= $obSettings->TlsOptionPrioritizeChaChaEnabl
 				PrintCheckboxRow("TlsVersion12Enabled", "TLS v1.2", $TlsVersion12Enabled);
 				PrintCheckboxRow("TlsVersion13Enabled", "TLS v1.3", $TlsVersion13Enabled);
 				PrintCheckboxRow("TlsOptionPreferServerCiphersEnabled", "Prefer server cipher order", $TlsOptionPreferServerCiphersEnabled);
-				PrintCheckboxRow("TlsOptionPrioritizeChaChaEnabled", "Prioritize ChaCha20-Poly1305 when client prefers it (requires TLS v1.2 or TLS v1.3)", $TlsOptionPrioritizeChaChaEnabled);
+				PrintCheckboxRow("TlsOptionPrioritizeChaChaEnabled", "Prioritize ChaCha20-Poly1305 when the client prefers it (requires TLS v1.2 or TLS v1.3)", $TlsOptionPrioritizeChaChaEnabled);
 			?>
 
       	</table>
