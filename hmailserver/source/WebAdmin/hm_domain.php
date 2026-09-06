@@ -239,7 +239,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
          		   <select name="SignatureMethod" style="font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif">
          		      <option value="1" <?php if ($SignatureMethod == "1") echo "selected";?> ><?php EchoTranslation("Use signature if none has been specified in the sender's account")?></option>
          		      <option value="2" <?php if ($SignatureMethod == "2") echo "selected";?> ><?php EchoTranslation("Overwrite account signature")?></option>
-         		      <option value="3" <?php if ($SignatureMethod == "3") echo "selected";?> ><?php EchoTranslation("Append signature to account signature")?></option>
+         		      <option value="3" <?php if ($SignatureMethod == "3") echo "selected";?> ><?php EchoTranslation("Append to account signature")?></option>
          		   </select>
       			</td>
       		</tr>   	
@@ -392,7 +392,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
          <table border="0" width="100%" cellpadding="5">
       		<?php
                PrintCheckboxRow("DKIMSignEnabled", $obLanguage->String("Enabled"), $DKIMSignEnabled);
-               PrintCheckboxRow("DKIMSignAliasesEnabled", $obLanguage->String("Sign aliases"), $DKIMSignAliasesEnabled, $obDomain->DomainAliases->Count == 0);
+               PrintCheckboxRow("DKIMSignAliasesEnabled", $obLanguage->String("Sign Aliases"), $DKIMSignAliasesEnabled, $obDomain->DomainAliases->Count == 0);
                PrintPropertyEditRow("DKIMPrivateKeyFile", $obLanguage->String("Private key file"), $DKIMPrivateKeyFile, 50);
                PrintPropertyEditRow("DKIMSelector", $obLanguage->String("Selector"), $DKIMSelector, 20);
             ?>
