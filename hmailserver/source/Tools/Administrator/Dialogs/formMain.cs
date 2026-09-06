@@ -244,7 +244,7 @@ namespace hMailServer.Administrator
 
             if (settingsControl.Dirty)
             {
-                DialogResult dr = MessageBox.Show("Do you want to save the changes?", EnumStrings.hMailServerAdministrator, MessageBoxButtons.YesNoCancel);
+                DialogResult dr = MessageBox.Show(Strings.Localize("Do you want to save the changes?"), EnumStrings.hMailServerAdministrator, MessageBoxButtons.YesNoCancel);
 
                 switch (dr)
                 {
@@ -458,7 +458,7 @@ namespace hMailServer.Administrator
             }
             catch (Exception e)
             {
-                MessageBox.Show("Changes could not be saved" + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
+                MessageBox.Show(Strings.Localize("Changes could not be saved") + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
             }
 
             return false;
@@ -671,7 +671,7 @@ namespace hMailServer.Administrator
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Web browser could not be started." + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Localize("Web browser could not be started.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
 
@@ -687,7 +687,7 @@ namespace hMailServer.Administrator
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Web browser could not be started." + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Localize("Web browser could not be started.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

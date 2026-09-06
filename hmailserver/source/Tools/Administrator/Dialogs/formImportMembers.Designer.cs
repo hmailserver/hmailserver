@@ -71,7 +71,7 @@ namespace hMailServer.Administrator.Dialogs
          this.label1.Name = "label1";
          this.label1.Size = new System.Drawing.Size(26, 13);
          this.label1.TabIndex = 28;
-         this.label1.Text = "File:";
+         this.label1.Text = "File";
          // 
          // ucImportFile
          // 

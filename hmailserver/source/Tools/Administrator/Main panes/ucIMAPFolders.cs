@@ -316,7 +316,7 @@ namespace hMailServer.Administrator
          }
          catch (Exception ex)
          {
-            MessageBox.Show("Creation of folder failed." + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator);
+            MessageBox.Show(Strings.Localize("Creation of folder failed.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator);
          }
 
       }

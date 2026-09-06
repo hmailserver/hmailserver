@@ -272,7 +272,7 @@ namespace hMailServer.Administrator
         {
             if (_representedAccount == null)
             {
-                MessageBox.Show("The account must be saved first.", EnumStrings.hMailServerAdministrator);
+                MessageBox.Show(Strings.Localize("The account must be saved first."), EnumStrings.hMailServerAdministrator);
                 return;
             }
 
@@ -425,7 +425,7 @@ namespace hMailServer.Administrator
         {
             if (_representedAccount == null)
             {
-                MessageBox.Show("The account must be saved first.", EnumStrings.hMailServerAdministrator);
+                MessageBox.Show(Strings.Localize("The account must be saved first."), EnumStrings.hMailServerAdministrator);
                 return;
             }
 

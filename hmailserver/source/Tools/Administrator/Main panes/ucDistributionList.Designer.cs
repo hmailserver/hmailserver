@@ -93,7 +93,7 @@ namespace hMailServer.Administrator
            this.checkRequireSMTPAuthentication.Name = "checkRequireSMTPAuthentication";
            this.checkRequireSMTPAuthentication.Size = new System.Drawing.Size(167, 17);
            this.checkRequireSMTPAuthentication.TabIndex = 20;
-           this.checkRequireSMTPAuthentication.Text = "Require SMTP Authentication";
+           this.checkRequireSMTPAuthentication.Text = "Require SMTP authentication";
            this.checkRequireSMTPAuthentication.UseVisualStyleBackColor = true;
            // 
            // labelSecurity

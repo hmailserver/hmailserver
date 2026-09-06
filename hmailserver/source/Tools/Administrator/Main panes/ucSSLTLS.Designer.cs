@@ -81,7 +81,7 @@ namespace hMailServer.Administrator
             this.labelVersions.Name = "labelVersions";
             this.labelVersions.Size = new System.Drawing.Size(47, 13);
             this.labelVersions.TabIndex = 20;
-            this.labelVersions.Text = "Versions\r\n";
+            this.labelVersions.Text = "Versions";
             // 
             // checkTlsVersion10
             // 
