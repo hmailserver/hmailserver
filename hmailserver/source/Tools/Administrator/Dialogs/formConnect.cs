@@ -107,7 +107,7 @@ namespace hMailServer.Administrator
 
          if (listServers.SelectedItems.Count > 1)
          {
-            MessageBox.Show("You can only connect to one server at a time.", EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Strings.Localize("You can only connect to one server at a time."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
          }
 
@@ -120,7 +120,7 @@ namespace hMailServer.Administrator
 
          if (item == null)
          {
-            MessageBox.Show("Please choose which server to connect to.", EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Strings.Localize("Please choose which server to connect to."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
          }
 

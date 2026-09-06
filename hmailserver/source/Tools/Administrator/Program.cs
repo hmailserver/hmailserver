@@ -53,6 +53,7 @@ namespace hMailServer.Administrator
       static void currentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
       {
          formErrorMessage dialog = new formErrorMessage(e);
+         Strings.Localize(dialog);
          dialog.ShowDialog();
 
          Instances.MainForm.Repaint();
@@ -75,6 +76,7 @@ namespace hMailServer.Administrator
          }
 
          formErrorMessage dialog = new formErrorMessage(t);
+         Strings.Localize(dialog);
          dialog.ShowDialog();
 
          Instances.MainForm.Repaint();
@@ -82,12 +84,14 @@ namespace hMailServer.Administrator
 
       private static void HandleConnectionLost()
       {
-         MessageBox.Show("hMailServer Administrator lost the connection to the hMailServer service.\r\n"+
-                         "This may happen for example if the hMailServer service stops or restarts.\r\n" +
+         // Each sentence is localized separately. english.ini is line based, so a
+         // single string spanning several lines can not be stored in it.
+         MessageBox.Show(Strings.Localize("hMailServer Administrator lost the connection to the hMailServer service.") + "\r\n" +
+                         Strings.Localize("This may happen for example if the hMailServer service stops or restarts.") + "\r\n" +
                          "\r\n" +
-                         "If the stop or restart was unexpected, please review the hMailServer logs.\r\n" +
+                         Strings.Localize("If the stop or restart was unexpected, please review the hMailServer logs.") + "\r\n" +
                          "\r\n" +
-                         "Press OK to restart hMailServer Administrator.", EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                         Strings.Localize("Press OK to restart hMailServer Administrator."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Error);
          System.Windows.Forms.Application.Restart();
 
       }

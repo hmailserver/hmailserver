@@ -30,7 +30,7 @@ namespace hMailServer.Administrator
          }
          catch (Exception ex)
          {
-            MessageBox.Show("Web browser could not be started." + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(Strings.Localize("Web browser could not be started.") + Environment.NewLine + ex.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
          }
       }
    }

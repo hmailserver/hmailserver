@@ -32,7 +32,7 @@ namespace hMailServer.Administrator.Utilities
          {
             if (comException.ErrorCode == -2147023174)
             {
-               MessageBox.Show("Unable to connect to the specified server.", EnumStrings.hMailServerAdministrator);
+               MessageBox.Show(Strings.Localize("Unable to connect to the specified server."), EnumStrings.hMailServerAdministrator);
             }
             else
             {
@@ -73,6 +73,7 @@ namespace hMailServer.Administrator.Utilities
             {
                // The user must input the password.
                formEnterPassword dlg = new formEnterPassword();
+               Strings.Localize(dlg);
                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
                   return false;
 
@@ -86,7 +87,7 @@ namespace hMailServer.Administrator.Utilities
                if (account == null)
                {
                   // Wrong password, try again.
-                  MessageBox.Show("The specified user name or password is incorrect.", EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
+                  MessageBox.Show(Strings.Localize("The specified user name or password is incorrect."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
 
                   wrongPassword = true;
                }
@@ -97,7 +98,7 @@ namespace hMailServer.Administrator.Utilities
                        if (account.AdminLevel != eAdminLevel.hAdminLevelServerAdmin)
                        {
                            // Wrong password, try again.
-                           MessageBox.Show("hMailServer server administration rights are required to run hMailServer Administrator.", EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                           MessageBox.Show(Strings.Localize("hMailServer server administration rights are required to run hMailServer Administrator."), EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                            return false;
                        }
@@ -113,7 +114,7 @@ namespace hMailServer.Administrator.Utilities
             catch (Exception e)
             {
                // Wrong password, try again.
-               MessageBox.Show("The specified user name or password is incorrect." + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
+               MessageBox.Show(Strings.Localize("The specified user name or password is incorrect.") + Environment.NewLine + e.Message, EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK);
 
                wrongPassword = true;
             }

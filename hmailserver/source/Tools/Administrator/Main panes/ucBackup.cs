@@ -123,7 +123,7 @@ namespace hMailServer.Administrator
 
         private void buttonSelectBackupFile_Click(object sender, EventArgs e)
         {
-            openFileDialog.Title = "Select backup file";
+            openFileDialog.Title = Strings.Localize("Select backup file");
 
             if (openFileDialog.ShowDialog() != DialogResult.OK)
                 return;

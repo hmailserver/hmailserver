@@ -22,7 +22,9 @@ namespace hMailServer.Administrator
       {
          set
          {
-            base.Text = value;
+            // Assigned after the constructor has localized the form, so the
+            // value has to be localized here instead.
+            base.Text = Strings.Localize(value);
          }
          get
          {
@@ -34,7 +36,9 @@ namespace hMailServer.Administrator
       {
          set
          {
-            labelText.Text = value;
+            // Assigned after the constructor has localized the form, so the
+            // value has to be localized here instead.
+            labelText.Text = Strings.Localize(value);
          }
          get
          {

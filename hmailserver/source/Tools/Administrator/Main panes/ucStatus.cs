@@ -280,8 +280,8 @@ namespace hMailServer.Administrator
                   timerLiveLog.Enabled = false;
                   DisplayLiveLogButtonCaption();
 
-                  MessageBox.Show("The live log was automatically disabled due to too high throughput." + Environment.NewLine + 
-                                  "To retrieve logging information, please read the log files.", 
+                  MessageBox.Show(Strings.Localize("The live log was automatically disabled due to too high throughput.") + Environment.NewLine +
+                                  Strings.Localize("To retrieve logging information, please read the log files."), 
                                   EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                   return;
                }

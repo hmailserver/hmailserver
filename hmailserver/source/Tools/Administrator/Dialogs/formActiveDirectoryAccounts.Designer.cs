@@ -80,7 +80,7 @@ namespace hMailServer.Administrator.Dialogs
          this.labelDomain.Name = "labelDomain";
          this.labelDomain.Size = new System.Drawing.Size(46, 13);
          this.labelDomain.TabIndex = 34;
-         this.labelDomain.Text = "Domain:";
+         this.labelDomain.Text = "Domain";
          // 
          // labelAccounts
          // 
@@ -89,7 +89,7 @@ namespace hMailServer.Administrator.Dialogs
          this.labelAccounts.Name = "labelAccounts";
          this.labelAccounts.Size = new System.Drawing.Size(55, 13);
          this.labelAccounts.TabIndex = 36;
-         this.labelAccounts.Text = "Accounts:";
+         this.labelAccounts.Text = "Accounts";
          // 
          // listAccounts
          // 
