@@ -11,8 +11,8 @@ namespace VMTestRunner.Console
    /// shares and programs are started with WMI. Used for guests which are too old
    /// for PowerShell Direct and Copy-VMFile (anything before Windows 10).
    ///
-   /// The address of the guest is looked up while it boots, unless the environment
-   /// names one.
+   /// The guest is reached at the fixed address the environment names, which is the
+   /// address of its adapter on the TestNet switch.
    ///
    /// The guest must allow file sharing and WMI through its firewall, and must have
    /// LocalAccountTokenFilterPolicy set to 1 so a local administrator account isn't
@@ -26,29 +26,23 @@ namespace VMTestRunner.Console
 
       private const string WorkFolder = @"C:\Temp";
 
-      private readonly GuestAddressResolver _addressResolver;
-      private readonly string _configuredAddress;
+      private readonly string _address;
       private readonly string _username;
       private readonly string _password;
 
-      private string _address;
       private NetworkShare _share;
 
-      public NetworkGuestSession(GuestAddressResolver addressResolver, string configuredAddress, string username,
-         string password, int testIndex)
+      public NetworkGuestSession(string address, string username, string password, int testIndex)
          : base(testIndex)
       {
-         _addressResolver = addressResolver;
-         _configuredAddress = configuredAddress;
+         _address = address;
          _username = username;
          _password = password;
       }
 
       public override void WaitUntilReady()
       {
-         Debug(_configuredAddress == null
-            ? "Waiting for the guest to report an address..."
-            : $"Waiting for '{_configuredAddress}' to become reachable...");
+         Debug($"Waiting for '{_address}' to become reachable...");
 
          var deadline = DateTime.UtcNow.Add(ReadyTimeout);
          string lastError = "(none)";
@@ -57,13 +51,6 @@ namespace VMTestRunner.Console
          {
             try
             {
-               if (!ResolveAddress())
-               {
-                  lastError = "The address of the guest could not be determined.";
-                  Thread.Sleep(PollInterval);
-                  continue;
-               }
-
                Connect();
 
                // Both transports are needed, so both are checked.
@@ -81,34 +68,17 @@ namespace VMTestRunner.Console
             {
                lastError = ex.Message;
 
-               // The credentials are re-established on the next attempt - the guest
-               // may not have been ready to accept them yet.
+               // The credentials are re-established on the next attempt - a guest
+               // which has just booted accepts the connection before its SMB server
+               // is ready to authenticate.
                Disconnect();
             }
 
             Thread.Sleep(PollInterval);
          }
 
-         throw new Exception($"WaitUntilReady: The guest ({_address ?? "address unknown"}) could not be reached. " +
+         throw new Exception($"WaitUntilReady: The guest ({_address}) could not be reached. " +
                              $"Last error: {lastError}");
-      }
-
-      /// <summary>
-      /// Looks up the address of the guest, unless the environment names one. The
-      /// lookup fails while the guest is still booting, so it is retried.
-      /// </summary>
-      private bool ResolveAddress()
-      {
-         if (_address != null)
-            return true;
-
-         _address = _configuredAddress ?? _addressResolver.Resolve();
-
-         if (_address == null)
-            return false;
-
-         Debug($"Using address '{_address}' for the guest.");
-         return true;
       }
 
       /// <summary>
@@ -304,9 +274,6 @@ namespace VMTestRunner.Console
 
       private void Connect()
       {
-         if (!ResolveAddress())
-            throw new Exception("The address of the guest could not be determined.");
-
          if (_share == null)
             _share = new NetworkShare(_address, QualifiedUsername, _password);
       }

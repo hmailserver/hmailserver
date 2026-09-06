@@ -177,7 +177,7 @@ namespace VMTestRunner.Console
          switch (_environment.GuestTransport)
          {
             case GuestTransport.Network:
-               return new NetworkGuestSession(new GuestAddressResolver(vm), _environment.GuestAddress, Username, Password, _testIndex);
+               return new NetworkGuestSession(_environment.GuestAddress, Username, Password, _testIndex);
             default:
                return new PowerShellDirectGuestSession(vm, _environment.VMName, Username, Password, _testIndex);
          }

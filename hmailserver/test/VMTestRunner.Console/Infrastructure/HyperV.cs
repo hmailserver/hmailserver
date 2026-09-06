@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Management.Automation;
 using System.Threading;
@@ -127,49 +125,6 @@ namespace VMTestRunner.Console
          }
 
          throw new Exception($"WaitForHeartbeat: Timed out waiting for heartbeat from '{_vmName}'.");
-      }
-
-      /// <summary>
-      /// The addresses the guest reports through the data exchange integration
-      /// service. Empty for guests which don't have integration services.
-      /// </summary>
-      public List<string> GetReportedIPAddresses()
-      {
-         var addresses = new List<string>();
-
-         foreach (var adapter in GetNetworkAdapters())
-         {
-            if (!(adapter.Properties["IPAddresses"]?.Value is IEnumerable reported))
-               continue;
-
-            foreach (var address in reported)
-               addresses.Add(address?.ToString());
-         }
-
-         return addresses.Where(address => !string.IsNullOrEmpty(address)).ToList();
-      }
-
-      /// <summary>
-      /// The MAC addresses of the VM, as Hyper-V writes them: 12 hex digits, no separators.
-      /// </summary>
-      public List<string> GetMacAddresses()
-      {
-         return GetNetworkAdapters()
-            .Select(adapter => adapter.Properties["MacAddress"]?.Value?.ToString())
-            .Where(mac => !string.IsNullOrEmpty(mac) && mac != "000000000000")
-            .ToList();
-      }
-
-      private List<PSObject> GetNetworkAdapters()
-      {
-         using (var ps = PowerShell.Create())
-         {
-            ps.AddCommand("Get-VMNetworkAdapter")
-              .AddParameter("VMName", _vmName);
-
-            // Errors are ignored - not being able to ask is the same as getting no answer.
-            return ps.Invoke().ToList();
-         }
       }
 
       private void Debug(string message)

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Restricts test VMs to the Hyper-V Default Switch network.
 
@@ -18,7 +18,11 @@ Must be run elevated.
 Applies the ACLs to every VM connected to the Default Switch.
 #>
 param(
-   [string[]] $VMName
+   [string[]] $VMName,
+
+   # Blocks DNS as well, leaving only DHCP and ICMP. The SURBL and DNS blacklist
+   # tests are DNS lookups, so they fail when this is set.
+   [switch] $BlockDns
 )
 
 $ErrorActionPreference = 'Stop'
@@ -53,12 +57,18 @@ foreach ($vm in $vms) {
          # Default: block everything.
          Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Deny -Weight 10
 
-         # Host-only network (includes the DHCP server and the test host).
+         # Host-only network (includes the DHCP server and the test host). This
+         # rule has no protocol, so it also covers ping to and from the host -
+         # extended ACLs cannot name ICMP.
          Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Allow -Weight 100 -RemoteIPAddress $subnet
 
-         # DNS, so name resolution keeps working even for external names.
-         Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Allow -Weight 200 -Protocol UDP -RemotePort 53
-         Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Allow -Weight 210 -Protocol TCP -RemotePort 53
+
+         # DNS, so name resolution keeps working even for external names. The
+         # SURBL and DNS blacklist tests depend on this.
+         if (-not $BlockDns) {
+            Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Allow -Weight 200 -Protocol UDP -RemotePort 53
+            Add-VMNetworkAdapterExtendedAcl -VMNetworkAdapter $na -Direction $dir -Action Allow -Weight 210 -Protocol TCP -RemotePort 53
+         }
       }
 
       # DHCP is broadcast-based, so it is not covered by the subnet rule above.

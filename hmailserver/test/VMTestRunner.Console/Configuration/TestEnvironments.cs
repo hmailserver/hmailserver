@@ -18,6 +18,9 @@ namespace VMTestRunner.Console
 
          foreach (var item in items)
          {
+            if (item.GuestTransport == GuestTransport.Network && string.IsNullOrEmpty(item.GuestAddress))
+               throw new System.Exception($"The environment '{item.Description}' uses the network transport, so it must specify guestAddress.");
+
             var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName,
                item.IncludeStressTests, item.GuestTransport, item.GuestAddress);
 

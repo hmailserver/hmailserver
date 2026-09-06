@@ -65,7 +65,6 @@
     </Compile>
     <Compile Include="Configuration\TestEnvironments.cs" />
     <Compile Include="Infrastructure\CompletionEstimator.cs" />
-    <Compile Include="Infrastructure\Guest\GuestAddressResolver.cs" />
     <Compile Include="Infrastructure\Guest\GuestSession.cs" />
     <Compile Include="Infrastructure\Guest\IGuestSession.cs" />
     <Compile Include="Infrastructure\Guest\NetworkGuestSession.cs" />
