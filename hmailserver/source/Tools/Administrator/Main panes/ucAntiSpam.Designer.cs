@@ -66,10 +66,6 @@
            this.textSpamAssassinPort = new hMailServer.Shared.ucText();
            this.textSpamAssassinHost = new hMailServer.Shared.ucText();
            this.checkSpamAssassinEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.ucText1 = new hMailServer.Shared.ucText();
-           this.ucCheckbox3 = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.ucCheckbox4 = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.ucCheckbox5 = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabControl.SuspendLayout();
            this.tabPage1.SuspendLayout();
            this.tabPage2.SuspendLayout();
@@ -485,45 +481,6 @@
            this.checkSpamAssassinEnabled.UseVisualStyleBackColor = true;
            this.checkSpamAssassinEnabled.CheckedChanged += new System.EventHandler(this.checkSpamAssassinEnabled_CheckedChanged);
            // 
-           // ucText1
-           // 
-           this.ucText1.Location = new System.Drawing.Point(20, 36);
-           this.ucText1.Name = "ucText1";
-           this.ucText1.Number = 0;
-           this.ucText1.Numeric = false;
-           this.ucText1.Size = new System.Drawing.Size(178, 20);
-           this.ucText1.TabIndex = 9;
-           // 
-           // ucCheckbox3
-           // 
-           this.ucCheckbox3.AutoSize = true;
-           this.ucCheckbox3.Location = new System.Drawing.Point(37, 117);
-           this.ucCheckbox3.Name = "ucCheckbox3";
-           this.ucCheckbox3.Size = new System.Drawing.Size(148, 17);
-           this.ucCheckbox3.TabIndex = 16;
-           this.ucCheckbox3.Text = "Prepend message subject";
-           this.ucCheckbox3.UseVisualStyleBackColor = true;
-           // 
-           // ucCheckbox4
-           // 
-           this.ucCheckbox4.AutoSize = true;
-           this.ucCheckbox4.Location = new System.Drawing.Point(37, 94);
-           this.ucCheckbox4.Name = "ucCheckbox4";
-           this.ucCheckbox4.Size = new System.Drawing.Size(154, 17);
-           this.ucCheckbox4.TabIndex = 15;
-           this.ucCheckbox4.Text = "Add X-hMailServer-Reason";
-           this.ucCheckbox4.UseVisualStyleBackColor = true;
-           // 
-           // ucCheckbox5
-           // 
-           this.ucCheckbox5.AutoSize = true;
-           this.ucCheckbox5.Location = new System.Drawing.Point(37, 71);
-           this.ucCheckbox5.Name = "ucCheckbox5";
-           this.ucCheckbox5.Size = new System.Drawing.Size(144, 17);
-           this.ucCheckbox5.TabIndex = 14;
-           this.ucCheckbox5.Text = "Add X-hMailServer-Spam";
-           this.ucCheckbox5.UseVisualStyleBackColor = true;
-           // 
            // ucAntiSpam
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -555,10 +512,6 @@
        private hMailServer.Administrator.Controls.ucCheckbox checkPrependSubject;
        private hMailServer.Administrator.Controls.ucCheckbox checkAddHeaderReason;
        private hMailServer.Administrator.Controls.ucCheckbox checkAddHeaderSpam;
-       private hMailServer.Shared.ucText ucText1;
-       private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox3;
-       private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox4;
-       private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox5;
        private hMailServer.Shared.ucText textCheckHostInHeloScore;
        private hMailServer.Shared.ucText textCheckPTRScore;
        private hMailServer.Shared.ucText textUseMXChecksScore;
