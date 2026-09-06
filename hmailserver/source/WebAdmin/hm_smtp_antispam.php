@@ -187,7 +187,7 @@ function TestSpamAssassinConnection()
                PrintPropertyEditRow("DKIMVerificationFailureScore", "Score", $DKIMVerificationFailureScore, 4, "number", true);
                PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
                PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number", true);
-               PrintCheckboxRow("DMARCHonorPolicy", "Honor policy published by sender domain", $DMARCHonorPolicy, false, true);
+               PrintCheckboxRow("DMARCHonorPolicy", "Honor the policy published by the sender domain", $DMARCHonorPolicy, false, true);
             ?>
          </table>
      </div>

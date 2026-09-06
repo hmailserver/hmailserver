@@ -157,7 +157,7 @@ namespace hMailServer.Administrator
             this.checkTlsOptionPrioritizeChaChaEnabled.Name = "checkTlsOptionPrioritizeChaChaEnabled";
             this.checkTlsOptionPrioritizeChaChaEnabled.Size = new System.Drawing.Size(198, 17);
             this.checkTlsOptionPrioritizeChaChaEnabled.TabIndex = 27;
-            this.checkTlsOptionPrioritizeChaChaEnabled.Text = "Prioritize ChaCha20-Poly1305 when client prefers it (requires TLS v1.2 or TLS v1.3)";
+            this.checkTlsOptionPrioritizeChaChaEnabled.Text = "Prioritize ChaCha20-Poly1305 when the client prefers it (requires TLS v1.2 or TLS v1.3)";
             this.checkTlsOptionPrioritizeChaChaEnabled.UseVisualStyleBackColor = true;
             //
             // ucSSLTLS

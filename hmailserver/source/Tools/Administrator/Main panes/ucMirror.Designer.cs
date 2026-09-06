@@ -40,7 +40,7 @@ namespace hMailServer.Administrator
            this.labelMirrorInfo.Size = new System.Drawing.Size(394, 30);
            this.labelMirrorInfo.TabIndex = 0;
            this.labelMirrorInfo.Text = "A copy of all e-mails sent on this server, including both incoming and outgoing m" +
-               "essages, will be sent to the e-mail address entered as mirror-address below.";
+               "essages, will be sent to the e-mail address entered as the mirror address below.";
            // 
            // labelMirrorAddress
            // 

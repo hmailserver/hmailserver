@@ -260,10 +260,10 @@ typedef
    [helpstring("RegExMatch")]
 	eMTRegExMatch = 5,
 
-   [helpstring("Not contains")]
+   [helpstring("Does not contain")]
 	eMTNotContains = 6,
 
-   [helpstring("Not equals")]
+   [helpstring("Does not equal")]
 	eMTNotEquals = 7,
 
    [helpstring("Wildcard match")]

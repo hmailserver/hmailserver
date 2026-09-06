@@ -306,7 +306,7 @@
            this.checkDMARCHonorPolicy.Name = "checkDMARCHonorPolicy";
            this.checkDMARCHonorPolicy.Size = new System.Drawing.Size(250, 17);
            this.checkDMARCHonorPolicy.TabIndex = 28;
-           this.checkDMARCHonorPolicy.Text = "Honor policy published by sender domain";
+           this.checkDMARCHonorPolicy.Text = "Honor the policy published by the sender domain";
            this.checkDMARCHonorPolicy.UseVisualStyleBackColor = true;
            //
            // textCheckHostInHeloScore
