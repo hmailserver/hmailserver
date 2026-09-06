@@ -141,7 +141,7 @@ namespace hMailServer.Administrator
                 AddWarning("W001", Strings.Localize("High"), Strings.Localize("You haven't specified the public host name for this computer in the SMTP settings."));
 
             if (settings.DenyMailFromNull)
-                AddWarning("W002", Strings.Localize("High"), Strings.Localize("You have configured hMailServer not to allow email with empty sender address. Many email server will not accept email from your server with this configuration."));
+                AddWarning("W002", Strings.Localize("High"), Strings.Localize("You have configured hMailServer not to allow email with an empty sender address. Many email servers will not accept email from your server with this configuration."));
 
             int autobanRanges = 0;
 

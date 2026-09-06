@@ -41,7 +41,7 @@ namespace hMailServer.Administrator
            this.labelProtocols.Size = new System.Drawing.Size(365, 37);
            this.labelProtocols.TabIndex = 0;
            this.labelProtocols.Text = "If you change the settings below you must restart the server before your changes " +
-               "take affect.";
+               "take effect.";
            // 
            // checkSMTP
            // 

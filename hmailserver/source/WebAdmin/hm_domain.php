@@ -237,7 +237,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
       			<td>&nbsp;</td>
       			<td>
          		   <select name="SignatureMethod" style="font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif">
-         		      <option value="1" <?php if ($SignatureMethod == "1") echo "selected";?> ><?php EchoTranslation("Use signature if none has been specified in sender's account")?></option>
+         		      <option value="1" <?php if ($SignatureMethod == "1") echo "selected";?> ><?php EchoTranslation("Use signature if none has been specified in the sender's account")?></option>
          		      <option value="2" <?php if ($SignatureMethod == "2") echo "selected";?> ><?php EchoTranslation("Overwrite account signature")?></option>
          		      <option value="3" <?php if ($SignatureMethod == "3") echo "selected";?> ><?php EchoTranslation("Append signature to account signature")?></option>
          		   </select>
