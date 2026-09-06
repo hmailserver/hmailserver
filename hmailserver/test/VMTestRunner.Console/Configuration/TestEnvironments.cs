@@ -18,7 +18,11 @@ namespace VMTestRunner.Console
 
          foreach (var item in items)
          {
-            var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName, item.IncludeStressTests);
+            if (item.GuestTransport == GuestTransport.Network && string.IsNullOrEmpty(item.GuestAddress))
+               throw new System.Exception($"The environment '{item.Description}' uses the network transport, so it must specify guestAddress.");
+
+            var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName,
+               item.IncludeStressTests, item.GuestTransport, item.GuestAddress);
 
             foreach (var cmd in item.PreInstallCommands)
                env.PreInstallCommands.Add(new InstallCommand(cmd.Executable, cmd.Parameters));
@@ -74,6 +78,8 @@ namespace VMTestRunner.Console
          public List<CommandDto> PostInstallCommands { get; set; } = new List<CommandDto>();
          public List<FileCopyDto> PostInstallFileCopy { get; set; } = new List<FileCopyDto>();
          public bool IncludeStressTests = false;
+         public GuestTransport GuestTransport { get; set; } = GuestTransport.PowerShellDirect;
+         public string GuestAddress { get; set; }
       }
 
       private class CommandDto

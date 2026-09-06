@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Xml;
 
 namespace VMTestRunner.Console
@@ -10,7 +9,7 @@ namespace VMTestRunner.Console
    {
       private const string NuGetPackagesRelativePath = @"..\..\..\..\packages\";
       private const string RegressionTestsBinRelativePath = @"..\..\..\..\RegressionTests\bin\x64\Debug\";
-      private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.16.3\tools";
+      private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.15.5\tools";
       private const string NUnitPackagePath = @"NUnit.3.13.3\lib\net45";
       private readonly string _nUnitPath;
       private readonly string _nUnitConsolePath;
@@ -21,8 +20,6 @@ namespace VMTestRunner.Console
       private const string RunTestScriptName = "RunTestsInHyperV.bat";
 
       private const string SetupLogPath = @"C:\setup.log";
-
-      private const string NetworkTestHostname = "www.google.com";
 
       private readonly TestEnvironment _environment;
 
@@ -83,79 +80,80 @@ namespace VMTestRunner.Console
          try
          {
             vm.RevertToSnapshot(_environment.SnapshotName);
-            vm.SetCredentials(Username, Password);
 
-            // Make sure we have an IP address.
-            EnsureNetworkAccess(vm);
-
-            // Set up test paths.
-            vm.CreateDirectory(guestTestPath);
-            vm.CreateDirectory(@"C:\Temp");
-
-            foreach (var command in _environment.PreInstallCommands)
-               vm.RunProgramInGuest(command.Executable, command.Parameters);
-
-            foreach (var copyOperation in _environment.PreInstallFileCopy)
-               vm.CopyFileToGuest(copyOperation.From, copyOperation.To);
-
-            vm.CopyFolderToGuest(_nUnitConsolePath, guestTestPath);
-            vm.CopyFolderToGuest(_nUnitPath, guestTestPath);
-
-            foreach (var testAssemblyName in testAssemblyNames)
-               vm.CopyFileToGuest(Path.Combine(testAssemblyDirectory, testAssemblyName), Path.Combine(guestTestPath, testAssemblyName));
-
-            vm.CopyFileToGuest(Path.Combine(currentDirectory, RunTestScriptName), Path.Combine(guestTestPath, RunTestScriptName));
-
-            // Other required stuff.
-            vm.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
-
-            vm.CopyFileToGuest(softwareUnderTestFullPath, Path.Combine(guestTestPath, softwareUnderTestName));
-            RunSetup(vm, Path.Combine(guestTestPath, softwareUnderTestName), softwareUnderTestSilentParmas);
-
-            foreach (var copyOperation in _environment.PostInstallFileCopy)
-               vm.CopyFileToGuest(copyOperation.From, copyOperation.To);
-
-            foreach (var command in _environment.PostInstallCommands)
-               vm.RunProgramInGuest(command.Executable, command.Parameters);
-
-            bool useLocalVersion = false;
-
-            if (useLocalVersion)
+            using (var guest = CreateGuestSession(vm))
             {
-               CopyLocalVersion(vm);
+               guest.WaitUntilReady();
+
+               // Set up test paths.
+               guest.CreateDirectory(guestTestPath);
+               guest.CreateDirectory(@"C:\Temp");
+
+               foreach (var command in _environment.PreInstallCommands)
+                  guest.RunProgram(command.Executable, command.Parameters);
+
+               foreach (var copyOperation in _environment.PreInstallFileCopy)
+                  guest.CopyFileToGuest(copyOperation.From, copyOperation.To);
+
+               guest.CopyFolderToGuest(_nUnitConsolePath, guestTestPath);
+               guest.CopyFolderToGuest(_nUnitPath, guestTestPath);
+
+               foreach (var testAssemblyName in testAssemblyNames)
+                  guest.CopyFileToGuest(Path.Combine(testAssemblyDirectory, testAssemblyName), Path.Combine(guestTestPath, testAssemblyName));
+
+               guest.CopyFileToGuest(Path.Combine(currentDirectory, RunTestScriptName), Path.Combine(guestTestPath, RunTestScriptName));
+
+               // Other required stuff.
+               guest.CopyFolderToGuest(sslFolder, @"C:\SSL examples");
+
+               guest.CopyFileToGuest(softwareUnderTestFullPath, Path.Combine(guestTestPath, softwareUnderTestName));
+               RunSetup(guest, Path.Combine(guestTestPath, softwareUnderTestName), softwareUnderTestSilentParmas);
+
+               foreach (var copyOperation in _environment.PostInstallFileCopy)
+                  guest.CopyFileToGuest(copyOperation.From, copyOperation.To);
+
+               foreach (var command in _environment.PostInstallCommands)
+                  guest.RunProgram(command.Executable, command.Parameters);
+
+               bool useLocalVersion = false;
+
+               if (useLocalVersion)
+               {
+                  CopyLocalVersion(guest);
+               }
+
+               // Run NUnit
+               if (_environment.IncludeStressTests)
+               {
+                  guest.RunProgram(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
+               }
+               else
+               {
+                  guest.RunProgram(Path.Combine(guestTestPath, RunTestScriptName), "");
+               }
+
+               // Collect results. The NUnit result is kept next to the log file of this run.
+               string localResultFile = RunContext.GetResultFilePath(_environment);
+               string localLogFile = Path.GetTempFileName() + ".log";
+               guest.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.xml"), localResultFile);
+               guest.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.log"), localLogFile);
+
+               Logger.Info($"Test {_testIndex} - NUnit result saved to {localResultFile}");
+
+               var doc = new XmlDocument();
+               doc.Load(localResultFile);
+
+               var failedAttribute = doc.LastChild?.Attributes?["failed"]?.Value;
+               int failedCount = failedAttribute != null ? Convert.ToInt32(failedAttribute) : 0;
+
+               if (failedCount == 0)
+                  return;
+
+               string resultContent = File.ReadAllText(localResultFile);
+               string logContent = File.ReadAllText(localLogFile);
+               string failureSummary = NUnitResultParser.SummarizeFailures(doc);
+               throw new TestFailedException($"{resultContent}\r\n\r\n{logContent}", failureSummary);
             }
-
-            // Run NUnit
-            if (_environment.IncludeStressTests)
-            {
-               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
-            }
-            else
-            {
-               vm.RunProgramInGuest(Path.Combine(guestTestPath, RunTestScriptName), "");
-            }
-
-            // Collect results. The NUnit result is kept next to the log file of this run.
-            string localResultFile = RunContext.GetResultFilePath(_environment);
-            string localLogFile = Path.GetTempFileName() + ".log";
-            vm.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.xml"), localResultFile);
-            vm.CopyFileToHost(Path.Combine(guestTestPath, "TestResult.log"), localLogFile);
-
-            Logger.Info($"Test {_testIndex} - NUnit result saved to {localResultFile}");
-
-            var doc = new XmlDocument();
-            doc.Load(localResultFile);
-
-            var failedAttribute = doc.LastChild?.Attributes?["failed"]?.Value;
-            int failedCount = failedAttribute != null ? Convert.ToInt32(failedAttribute) : 0;
-
-            if (failedCount == 0)
-               return;
-
-            string resultContent = File.ReadAllText(localResultFile);
-            string logContent = File.ReadAllText(localLogFile);
-            string failureSummary = NUnitResultParser.SummarizeFailures(doc);
-            throw new TestFailedException($"{resultContent}\r\n\r\n{logContent}", failureSummary);
          }
          finally
          {
@@ -171,27 +169,42 @@ namespace VMTestRunner.Console
       }
 
       /// <summary>
-      /// Runs the setup program. Setup returns a non-zero exit code if the installation
-      /// fails, for example if the database couldn't be upgraded.
+      /// Creates the session used to reach the inside of the guest. Guests older than
+      /// Windows 10 have neither PowerShell Direct nor the guest service interface.
       /// </summary>
-      private void RunSetup(HyperV vm, string setupPath, string parameters)
+      private IGuestSession CreateGuestSession(HyperV vm)
       {
-         try
+         switch (_environment.GuestTransport)
          {
-            vm.RunProgramInGuest(setupPath, parameters, true);
-         }
-         catch (Exception ex)
-         {
-            throw new Exception($"{ex.Message}{Environment.NewLine}{Environment.NewLine}{GetSetupLog(vm)}", ex);
+            case GuestTransport.Network:
+               return new NetworkGuestSession(_environment.GuestAddress, Username, Password, _testIndex);
+            default:
+               return new PowerShellDirectGuestSession(vm, _environment.VMName, Username, Password, _testIndex);
          }
       }
 
-      private string GetSetupLog(HyperV vm)
+      /// <summary>
+      /// Runs the setup program. Setup returns a non-zero exit code if the installation
+      /// fails, for example if the database couldn't be upgraded.
+      /// </summary>
+      private void RunSetup(IGuestSession guest, string setupPath, string parameters)
+      {
+         try
+         {
+            guest.RunProgram(setupPath, parameters, true);
+         }
+         catch (Exception ex)
+         {
+            throw new Exception($"{ex.Message}{Environment.NewLine}{Environment.NewLine}{GetSetupLog(guest)}", ex);
+         }
+      }
+
+      private string GetSetupLog(IGuestSession guest)
       {
          try
          {
             string localSetupLog = Path.GetTempFileName() + ".log";
-            vm.CopyFileToHost(SetupLogPath, localSetupLog);
+            guest.CopyFileToHost(SetupLogPath, localSetupLog);
 
             return File.ReadAllText(localSetupLog);
          }
@@ -201,7 +214,7 @@ namespace VMTestRunner.Console
          }
       }
 
-      private void CopyLocalVersion(HyperV vm)
+      private void CopyLocalVersion(IGuestSession guest)
       {
          string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -213,67 +226,10 @@ namespace VMTestRunner.Console
             throw new Exception($"The executable {localExecutable} could not be found.");
          }
 
-         vm.RunScriptInGuest("NET STOP HMAILSERVER");
-         vm.CopyFileToGuest(localExecutable, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
-         vm.RunScriptInGuest("NET START HMAILSERVER");
+         guest.RunProgram(@"C:\Windows\System32\net.exe", "stop hMailServer");
+         guest.CopyFileToGuest(localExecutable, @"C:\Program Files\hMailServer\Bin\hMailServer.exe");
+         guest.RunProgram(@"C:\Windows\System32\net.exe", "start hMailServer");
       }
 
-      private void Debug(string message)
-      {
-         // The test index tells the status board which row the message belongs to.
-         var logEvent = new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, $"[Test {_testIndex}] {message}");
-         logEvent.Properties[TestBoardConsoleTarget.TestIndexProperty] = _testIndex;
-         Logger.Log(logEvent);
-      }
-
-      private void EnsureNetworkAccess(HyperV vm)
-      {
-         Debug("Ensuring network access...");
-
-         // ICMP and general internet access are blocked on the host, so check
-         // for a usable IP address and a working DNS lookup instead of pinging.
-         string script = @"
-            $ErrorActionPreference = 'SilentlyContinue'
-
-            ipconfig /renew | Out-Null
-
-            $ip = (Get-NetIPAddress -AddressFamily IPv4 |
-                   Where-Object { $_.IPAddress -notlike '169.254.*' -and $_.IPAddress -ne '127.0.0.1' } |
-                   Select-Object -First 1).IPAddress
-
-            if (-not $ip) { 'NO_IP'; return }
-
-            try
-            {
-               [void][System.Net.Dns]::GetHostEntry('" + NetworkTestHostname + @"')
-               ""OK $ip""
-            }
-            catch
-            {
-               ""NO_DNS $ip""
-            }";
-
-         string resultData = string.Empty;
-
-         var timeoutTime = DateTime.UtcNow.AddSeconds(60);
-
-         while (DateTime.UtcNow < timeoutTime)
-         {
-            try
-            {
-               resultData = vm.RunScriptInGuest(script);
-
-               if (resultData.StartsWith("OK "))
-                  return;
-            }
-            catch (Exception)
-            {
-            }
-
-            Thread.Sleep(TimeSpan.FromSeconds(2));
-         }
-
-         throw new Exception($"No network access. Result: {resultData}");
-      }
    }
 }

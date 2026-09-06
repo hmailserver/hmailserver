@@ -582,7 +582,6 @@ end;
 function InitializeSetup(): Boolean;
 	var
 		sMessage : AnsiString;
-		SoftwareVersion: AnsiString;
 begin
 	Result := true;
 			
@@ -675,7 +674,6 @@ end;
 function InstallSQLCE() : boolean;
 var
    ResultCode: Integer;
-   szInstallApp: AnsiString;
    szParams: AnsiString;
 
    szIniFile : AnsiString;
@@ -770,7 +768,12 @@ end;
 procedure GrantServiceAccountAccess();
 var
    ResultCode : Integer;
+   Version : TWindowsVersion;
 begin
+   GetWindowsVersionEx(Version);
+   if (Version.Major < 6) or ((Version.Major = 6) and (Version.Minor < 1)) then
+      exit;
+
    Exec(ExpandConstant('{sys}\icacls.exe'),
         '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
         '', SW_HIDE, ewWaitUntilTerminated, ResultCode);

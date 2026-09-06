@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -944,10 +944,11 @@ namespace RegressionTests.Infrastructure
 
          try
          {
-            // The owner of a directory keeps the right to change its permissions, so confirm
-            // that the deny rules actually took effect before relying on them.
-            CustomAsserts.Throws<UnauthorizedAccessException>(() => Directory.GetFiles(inaccessibleParent));
-            CustomAsserts.Throws<UnauthorizedAccessException>(() => File.GetAttributes(inaccessibleBackupDir));
+            // The owner of a directory keeps the right to change its permissions, so the deny
+            // rules don't take effect everywhere - Windows Vista lets the owner read the
+            // directory anyway. There is nothing to test when the server can reach it.
+            if (!IsInaccessible(inaccessibleParent, inaccessibleBackupDir))
+               Assert.Ignore("The backup directory could not be made inaccessible on this version of Windows.");
 
             var backupSettings = _application.Settings.Backup;
             backupSettings.BackupDomains = true;
@@ -979,6 +980,33 @@ namespace RegressionTests.Infrastructure
 
             Directory.Delete(inaccessibleParent, true);
          }
+      }
+
+      /// <summary>
+      /// Tells whether Windows denies access to the directory, which is what the server
+      /// is expected to run into.
+      /// </summary>
+      private static bool IsInaccessible(string parent, string backupDirectory)
+      {
+         try
+         {
+            Directory.GetFiles(parent);
+            return false;
+         }
+         catch (UnauthorizedAccessException)
+         {
+         }
+
+         try
+         {
+            File.GetAttributes(backupDirectory);
+            return false;
+         }
+         catch (UnauthorizedAccessException)
+         {
+         }
+
+         return true;
       }
 
       private static void DenyAccess(DirectoryInfo directory, FileSystemAccessRule rule)

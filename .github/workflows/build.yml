@@ -66,12 +66,6 @@ env:
   # The v142 toolset the projects are pinned to, and so the oldest C++ runtime the installer
   # may ship. A later one is fine - the 14.x runtimes are backwards compatible.
   REDIST_MIN_VERSION: '14.29'
-  # The Windows SDK whose Universal CRT redistributable the installer ships: the newest
-  # version Get-UCRTRedistPath.ps1 allows, and one the runner image does not carry.
-  UCRT_VERSION: 10.0.19041.0
-  # The Chocolatey package carrying that SDK, pinned: its version is the SDK servicing build,
-  # so this is 10.0.19041.0 plus the package's own revision.
-  UCRT_SDK_PACKAGE_VERSION: 10.0.19041.685
   # The last Inno Setup release whose installers still run on Windows Vista, which
   # hMailServer64.iss sets as its MinVersion. 6.3 raised the floor to Windows 7, so no later
   # release can be used until Vista support is dropped.
@@ -260,48 +254,6 @@ jobs:
           $redistVersion = Split-Path (Split-Path $redist -Parent) -Parent
           $redistTarget = Join-Path $redistStaging (Split-Path $redistVersion -Leaf)
           if (-not (Test-Path $redistTarget)) { Copy-Tree $redistVersion $redistTarget }
-
-      # Only the redistributable DLLs are taken from the SDK - a couple of megabytes - so
-      # they are cached instead of the 2.5-minute install being paid on every run. The key
-      # carries no runner image: these files are SDK payload, identical wherever they come
-      # from, and nothing here compiles them.
-      - name: Cache the Universal CRT redistributable
-        id: cache-ucrt
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: C:\Program Files (x86)\Windows Kits\10\Redist\${{ env.UCRT_VERSION }}\ucrt
-          key: ucrt-${{ env.UCRT_SDK_PACKAGE_VERSION }}
-
-      # Deliberately not conditioned on the cache: the step decides by looking for the files,
-      # so an empty or half-restored cache heals itself instead of failing two steps later.
-      - name: Install the Windows 10 SDK the Universal CRT is taken from
-        run: |
-          # The installer ships the Universal CRT for the Windows versions that have none of
-          # their own, and Get-UCRTRedistPath.ps1 only allows the 10.0.19041 and 10.0.18362
-          # redistributables - see the comment there for what that restriction protects. The
-          # VS2026 image carries only the 10.0.26100 SDK, so the allowed one is installed here
-          # rather than the allow-list being widened.
-          . build\Get-UCRTRedistPath.ps1
-          $ucrt = Get-UCRTRedistPath
-          if ($ucrt) {
-              "An allowed Universal CRT redistributable is already there: $ucrt"
-              exit 0
-          }
-
-          # Not a Visual Studio component: VS2026 no longer offers the older Windows 10 SDKs,
-          # so the standalone SDK is installed instead. It lands in the same
-          # Windows Kits\10\Redist\$env:UCRT_VERSION that Get-UCRTRedistPath.ps1 looks in.
-          . build\Install-ChocoPackage.ps1
-          Install-ChocoPackage -Package 'windows-sdk-10-version-2004-all' -Version $env:UCRT_SDK_PACKAGE_VERSION
-
-          $ucrt = Get-UCRTRedistPath
-          if (-not $ucrt) { throw "The Windows 10 SDK installed, but no allowed Universal CRT redistributable appeared under Windows Kits\10\Redist." }
-          "Universal CRT redistributable: $ucrt"
-
-          # The cache above saves one path only. If the SDK ever lands somewhere else, it
-          # would quietly store nothing and every later run would reinstall it.
-          $cached = "${env:ProgramFiles(x86)}\Windows Kits\10\Redist\$env:UCRT_VERSION\ucrt"
-          if (-not $ucrt.StartsWith($cached)) { throw "The Universal CRT was installed to $ucrt, which the 'Cache the Universal CRT redistributable' step does not cache ($cached). Point that step's path at it." }
 
       - name: Read the pinned library versions
         id: versions
@@ -647,7 +599,7 @@ jobs:
               throw "Inno Setup $env:INNOSETUP_VERSION was requested, but the installed version is '$installed'."
           }
 
-      - name: Locate the Visual C++ redistributable
+      - name: Locate the Visual C++ redistributables
         id: redist
         run: |
           # The installer ships the C++ runtime beside hMailServer.exe, and it must not be
@@ -655,58 +607,65 @@ jobs:
           # repository at 14.25 (VS2019 16.5) and were left behind when the build moved to
           # VS2022, whose v142 toolset is 14.29 - so they are taken from the installed
           # toolset now, and the two can no longer drift apart.
+          #
+          # Two of them are shipped, because the redistributable version is also an operating
+          # system floor, and Microsoft's advice is to use the latest available runtime. The
+          # newest installed goes to Windows 10 and later; 14.29, the newest that still runs
+          # below that, goes to everything older. section_files_64.iss picks by OS version.
           . build\Get-VCRedistPath.ps1
-          $redist = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
-          if (-not $redist) {
+          $legacy = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
+          if (-not $legacy) {
               throw "No Visual C++ redistributable of $env:REDIST_MIN_VERSION or later was found. hMailServer.exe is compiled with the v142 ($env:REDIST_MIN_VERSION) toolset and must not ship an older runtime."
           }
 
           # Get-VCRedistPath prefers the redistributable matching the toolset and only falls
-          # back to a newer one. On VS2026 that fallback would be the 14.4x/14.5x runtime,
-          # which no longer supports the pre-Windows 10 versions the installer still allows -
-          # so it is refused, as the step that installs the v142 components already did.
-          if (-not (Split-Path (Split-Path (Split-Path $redist -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) {
-              throw "The v142 ($env:REDIST_MIN_VERSION) redistributable is not installed - the newest one found is $redist. Add the 'MSVC v142 - VS 2019 C++ x64/x86 build tools' component to the Visual Studio installation; hMailServer.exe is compiled with v142 and the installer must not ship a runtime that no longer supports the Windows versions it still allows."
+          # back to a newer one. That fallback is fine for Windows 10 and later, but it is
+          # what the pre-Windows 10 tier must not be - the 14.4x/14.5x runtime does not load
+          # there - so it is refused, as the step that installs the v142 components already did.
+          if (-not (Split-Path (Split-Path (Split-Path $legacy -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) {
+              throw "The v142 ($env:REDIST_MIN_VERSION) redistributable is not installed - the newest one found is $legacy. Add the 'MSVC v142 - VS 2019 C++ x64/x86 build tools' component to the Visual Studio installation; hMailServer.exe is compiled with v142 and the installer must not ship a runtime that no longer supports the Windows versions it still allows."
           }
 
-          "Shipping the runtime from $redist"
-          Get-ChildItem $redist -File |
-              Select-Object Name, @{ Name = 'Version'; Expression = { $_.VersionInfo.FileVersion } } |
-              Format-Table -AutoSize | Out-String
+          $modern = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION -Newest
+          if (-not $modern) {
+              throw "No Visual C++ redistributable of $env:REDIST_MIN_VERSION or later was found for the Windows 10 and later tier."
+          }
 
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$redist"
+          # Whatever the runner image carries. Worth a look when it changes: the Windows 10
+          # floor holds for every 14.x redistributable Microsoft has shipped so far, but a
+          # future one raising it would need the MinVersion in section_files_64.iss raised too.
+          foreach ($tier in ([ordered]@{ 'Windows 10 and later' = $modern; 'below Windows 10' = $legacy }).GetEnumerator()) {
+              "Shipping the runtime for $($tier.Key) from $($tier.Value)"
+              Get-ChildItem $tier.Value -File |
+                  Select-Object Name, @{ Name = 'Version'; Expression = { $_.VersionInfo.FileVersion } } |
+                  Format-Table -AutoSize | Out-String
+          }
 
-      - name: Locate the Universal CRT
-        id: ucrt
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "modern=$modern"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "legacy=$legacy"
+
+      # The Universal CRT itself is checked in and needs no step of its own. What it does need
+      # is this: the Windows Vista loader cannot resolve every forwarder form a redistributable
+      # may use, and nothing else in the pipeline would notice, since these files are installed
+      # only below Windows 10 and so are never loaded by the tests. Only the files that go
+      # below Windows 10 are checked; the modern tier never reaches a loader that cares.
+      - name: Check the shipped runtime against the oldest supported Windows
         run: |
-          # Shipped for the pre-Windows 10 versions the installer still supports, which have
-          # no Universal CRT of their own. Windows 10 and later never load these, so the
-          # installer only puts them on the older ones - but they still have to be present
-          # here, and current: what shipped before was the 2015 RTM set.
-          . build\Get-UCRTRedistPath.ps1
-          $ucrt = Get-UCRTRedistPath
-          if (-not $ucrt) {
-              $kits = "${env:ProgramFiles(x86)}\Windows Kits\10\Redist"
-              $available = (Get-ChildItem $kits -Directory -ErrorAction SilentlyContinue |
-                  Where-Object { Test-Path (Join-Path $_.FullName 'ucrt\DLLs\x64\ucrtbase.dll') } |
-                  ForEach-Object { $_.Name }) -join ', '
-              throw "None of the Windows SDK versions allowed by Get-UCRTRedistPath.ps1 are installed. SDKs carrying a UCRT redistributable here: $available. Install one of the allowed versions rather than widening the allow-list - see the comment in that script for what the restriction protects."
-          }
-
-          "Shipping the Universal CRT from $ucrt"
-          "ucrtbase.dll {0}" -f (Get-Item (Join-Path $ucrt 'ucrtbase.dll')).VersionInfo.FileVersion
-
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$ucrt"
+          . build\Test-DownlevelForwarders.ps1
+          Test-DownlevelForwarders -Path 'hmailserver\installation\Microsoft.UCRT.WindowsSDK14393'
+          Test-DownlevelForwarders -Path $env:VCREDIST_PATH_LEGACY
+        env:
+          VCREDIST_PATH_LEGACY: ${{ steps.redist.outputs.legacy }}
 
       - name: Build the installer
         env:
-          VCREDIST_PATH: ${{ steps.redist.outputs.path }}
-          UCRT_PATH: ${{ steps.ucrt.outputs.path }}
+          VCREDIST_PATH_MODERN: ${{ steps.redist.outputs.modern }}
+          VCREDIST_PATH_LEGACY: ${{ steps.redist.outputs.legacy }}
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
 
-          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH=$env:VCREDIST_PATH" "/DUCRT_PATH=$env:UCRT_PATH" hmailserver\installation\hMailServer64.iss
+          & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH_MODERN=$env:VCREDIST_PATH_MODERN" "/DVCREDIST_PATH_LEGACY=$env:VCREDIST_PATH_LEGACY" hmailserver\installation\hMailServer64.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE" }
 
           # The script sets no OutputDir, so Inno Setup writes to Output next to it.
