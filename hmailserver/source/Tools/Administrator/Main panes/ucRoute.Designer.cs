@@ -63,18 +63,6 @@ namespace hMailServer.Administrator
            this.checkServerRequiresAuth = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textNumberOfMinutesBetween = new hMailServer.Shared.ucText();
            this.textNumberOfTries = new hMailServer.Shared.ucText();
-           this.label2 = new System.Windows.Forms.Label();
-           this.label3 = new System.Windows.Forms.Label();
-           this.label4 = new System.Windows.Forms.Label();
-           this.label5 = new System.Windows.Forms.Label();
-           this.label6 = new System.Windows.Forms.Label();
-           this.ucRadioButton1 = new hMailServer.Administrator.Controls.ucRadioButton();
-           this.ucRadioButton2 = new hMailServer.Administrator.Controls.ucRadioButton();
-           this.ucCheckbox1 = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.ucText1 = new hMailServer.Shared.ucText();
-           this.ucText2 = new hMailServer.Shared.ucText();
-           this.ucText3 = new hMailServer.Shared.ucText();
-           this.ucText4 = new hMailServer.Shared.ucText();
            this.labelConnectionSecurity = new System.Windows.Forms.Label();
            this.comboConnectionSecurity = new hMailServer.Administrator.Controls.ucComboBox();
            this.tabControl.SuspendLayout();
@@ -466,124 +454,6 @@ namespace hMailServer.Administrator
            this.textNumberOfTries.TabIndex = 10;
            this.textNumberOfTries.Text = "4";
            // 
-           // label2
-           // 
-           this.label2.AutoSize = true;
-           this.label2.Location = new System.Drawing.Point(6, 251);
-           this.label2.Name = "label2";
-           this.label2.Size = new System.Drawing.Size(101, 13);
-           this.label2.TabIndex = 10;
-           this.label2.Text = "Treat this route as a";
-           // 
-           // label3
-           // 
-           this.label3.AutoSize = true;
-           this.label3.Location = new System.Drawing.Point(201, 171);
-           this.label3.Name = "label3";
-           this.label3.Size = new System.Drawing.Size(26, 13);
-           this.label3.TabIndex = 7;
-           this.label3.Text = "Port";
-           // 
-           // label4
-           // 
-           this.label4.AutoSize = true;
-           this.label4.Location = new System.Drawing.Point(6, 171);
-           this.label4.Name = "label4";
-           this.label4.Size = new System.Drawing.Size(103, 13);
-           this.label4.TabIndex = 5;
-           this.label4.Text = "Target SMTP server";
-           // 
-           // label5
-           // 
-           this.label5.AutoSize = true;
-           this.label5.Location = new System.Drawing.Point(5, 56);
-           this.label5.Name = "label5";
-           this.label5.Size = new System.Drawing.Size(60, 13);
-           this.label5.TabIndex = 3;
-           this.label5.Text = "Description";
-           // 
-           // label6
-           // 
-           this.label6.AutoSize = true;
-           this.label6.Location = new System.Drawing.Point(4, 7);
-           this.label6.Name = "label6";
-           this.label6.Size = new System.Drawing.Size(43, 13);
-           this.label6.TabIndex = 1;
-           this.label6.Text = "Domain";
-           // 
-           // ucRadioButton1
-           // 
-           this.ucRadioButton1.AutoSize = true;
-           this.ucRadioButton1.Location = new System.Drawing.Point(36, 273);
-           this.ucRadioButton1.Name = "ucRadioButton1";
-           this.ucRadioButton1.Size = new System.Drawing.Size(94, 17);
-           this.ucRadioButton1.TabIndex = 11;
-           this.ucRadioButton1.TabStop = true;
-           this.ucRadioButton1.Text = "A local domain";
-           this.ucRadioButton1.UseVisualStyleBackColor = true;
-           // 
-           // ucRadioButton2
-           // 
-           this.ucRadioButton2.AutoSize = true;
-           this.ucRadioButton2.Location = new System.Drawing.Point(36, 296);
-           this.ucRadioButton2.Name = "ucRadioButton2";
-           this.ucRadioButton2.Size = new System.Drawing.Size(115, 17);
-           this.ucRadioButton2.TabIndex = 12;
-           this.ucRadioButton2.TabStop = true;
-           this.ucRadioButton2.Text = "An external domain";
-           this.ucRadioButton2.UseVisualStyleBackColor = true;
-           // 
-           // ucCheckbox1
-           // 
-           this.ucCheckbox1.AutoSize = true;
-           this.ucCheckbox1.Location = new System.Drawing.Point(9, 217);
-           this.ucCheckbox1.Name = "ucCheckbox1";
-           this.ucCheckbox1.Size = new System.Drawing.Size(68, 17);
-           this.ucCheckbox1.TabIndex = 9;
-           this.ucCheckbox1.Text = "Use SSL";
-           this.ucCheckbox1.UseVisualStyleBackColor = true;
-           // 
-           // ucText1
-           // 
-           this.ucText1.Location = new System.Drawing.Point(204, 190);
-           this.ucText1.Name = "ucText1";
-           this.ucText1.Number = 0;
-           this.ucText1.Number64 = ((long)(0));
-           this.ucText1.Numeric = true;
-           this.ucText1.Size = new System.Drawing.Size(85, 20);
-           this.ucText1.TabIndex = 8;
-           // 
-           // ucText2
-           // 
-           this.ucText2.Location = new System.Drawing.Point(8, 190);
-           this.ucText2.Name = "ucText2";
-           this.ucText2.Number = 0;
-           this.ucText2.Number64 = ((long)(0));
-           this.ucText2.Numeric = false;
-           this.ucText2.Size = new System.Drawing.Size(190, 20);
-           this.ucText2.TabIndex = 6;
-           // 
-           // ucText3
-           // 
-           this.ucText3.Location = new System.Drawing.Point(7, 75);
-           this.ucText3.Multiline = true;
-           this.ucText3.Name = "ucText3";
-           this.ucText3.Number = 0;
-           this.ucText3.Number64 = ((long)(0));
-           this.ucText3.Numeric = false;
-           this.ucText3.Size = new System.Drawing.Size(282, 91);
-           this.ucText3.TabIndex = 4;
-           // 
-           // ucText4
-           // 
-           this.ucText4.Location = new System.Drawing.Point(6, 26);
-           this.ucText4.Name = "ucText4";
-           this.ucText4.Number = 0;
-           this.ucText4.Number64 = ((long)(0));
-           this.ucText4.Numeric = false;
-           this.ucText4.Size = new System.Drawing.Size(187, 20);
-           this.ucText4.TabIndex = 2;
-           // 
            // labelConnectionSecurity
            // 
            this.labelConnectionSecurity.AutoSize = true;
@@ -649,18 +519,6 @@ namespace hMailServer.Administrator
        private hMailServer.Administrator.Controls.ucPassword textPassword;
        private hMailServer.Administrator.Controls.ucRadioButton radioRouteForAddresses;
        private hMailServer.Administrator.Controls.ucRadioButton radioRouteForAll;
-       private hMailServer.Administrator.Controls.ucRadioButton ucRadioButton1;
-       private hMailServer.Administrator.Controls.ucRadioButton ucRadioButton2;
-       private System.Windows.Forms.Label label2;
-       private hMailServer.Administrator.Controls.ucCheckbox ucCheckbox1;
-       private hMailServer.Shared.ucText ucText1;
-       private System.Windows.Forms.Label label3;
-       private hMailServer.Shared.ucText ucText2;
-       private System.Windows.Forms.Label label4;
-       private hMailServer.Shared.ucText ucText3;
-       private System.Windows.Forms.Label label5;
-       private hMailServer.Shared.ucText ucText4;
-       private System.Windows.Forms.Label label6;
        private ucListView listAddresses;
        private System.Windows.Forms.Button buttonDeleteWhiteList;
        private System.Windows.Forms.Button buttonAddRecipient;
