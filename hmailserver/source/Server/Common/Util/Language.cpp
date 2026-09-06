@@ -15,6 +15,9 @@
 namespace HM
 {
    std::map<int, String> Language::mapEnglishContent;
+   std::set<String> Language::english_strings_;
+   std::set<String> Language::reported_missing_strings_;
+   boost::recursive_mutex Language::missing_string_mutex_;
 
    Language::Language(const String &sName, bool isDownloded) :
       is_loaded_(false),
@@ -35,7 +38,10 @@ namespace HM
 
       std::map<String, String>::const_iterator iterString = strings_.find(sEnglishString);
       if (iterString == strings_.end())
+      {
+         ReportMissingString_(sEnglishString);
          return sEnglishString;
+      }
       else
       {
          String translatedString = (*iterString).second;
@@ -70,6 +76,35 @@ namespace HM
          mapEnglishContent[pair.first] = pair.second;
       }
 
+      // Rebuilt from the map rather than filled in the loop above, so that the two
+      // cannot drift apart if LoadEnglish is called more than once.
+      boost::lock_guard<boost::recursive_mutex> guard(missing_string_mutex_);
+
+      english_strings_.clear();
+
+      for (const auto &englishString : mapEnglishContent)
+         english_strings_.insert(englishString.second);
+   }
+
+   void
+   Language::ReportMissingString_(const String &sEnglishString)
+   {
+      // A lookup misses for two different reasons. Either the string is not defined in
+      // english.ini at all, in which case it can never be translated, in any language,
+      // and whoever added it to the user interface has to add it here as well. Or it is
+      // defined but the language file being used has no translation for it yet, which is
+      // ordinary and would report most of the file for a partly translated language.
+      // Only the first is worth reporting.
+      boost::lock_guard<boost::recursive_mutex> guard(missing_string_mutex_);
+
+      if (english_strings_.find(sEnglishString) != english_strings_.end())
+         return;
+
+      if (!reported_missing_strings_.insert(sEnglishString).second)
+         return;
+
+      LOG_DEBUG("Language::GetString - The user interface asked for the string \"" + sEnglishString +
+                "\" which is not defined in english.ini. It is shown in English in every language.");
    }
 
    void 

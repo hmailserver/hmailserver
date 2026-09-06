@@ -26,8 +26,18 @@ namespace HM
 
       static std::pair<int, String> GetString_(const String &sLine);
       static void CleanString_(String &sText);
+      static void ReportMissingString_(const String &sEnglishString);
       std::map<String, String> strings_;
       
       static std::map<int, String> mapEnglishContent;
+
+      // The values of mapEnglishContent, so that a lookup miss can be classified
+      // without searching that map by value on every miss.
+      static std::set<String> english_strings_;
+
+      // Strings already reported, so that each one is logged once per process
+      // instead of every time the user interface re-reads the pane it is on.
+      static std::set<String> reported_missing_strings_;
+      static boost::recursive_mutex missing_string_mutex_;
    };
 }
