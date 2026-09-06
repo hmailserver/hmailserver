@@ -31,7 +31,10 @@ namespace hMailServer.Administrator.Controls
       {
          foreach (var item in items)
          {
-            base.Items.Add(item.Key);
+            // The caption is translated here rather than by the caller, so that the
+            // dictionary stays keyed on the English text. AddItem is left alone: its
+            // callers pass either data or captions they have already localized.
+            base.Items.Add(Strings.Localize(item.Key));
             _keys.Add(item.Value);
          }
       }
