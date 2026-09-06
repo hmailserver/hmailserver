@@ -22,7 +22,7 @@ if ($action == "edit")
 }
 ?>
 
-<h1><?php EchoTranslation("SSL certificate")?></h1>
+<h1><?php EchoTranslation("SSL Certificate")?></h1>
 
 <form action="index.php" method="post" onSubmit="return formCheck(this);">
 

@@ -106,7 +106,7 @@ $listrequiresmtpauthchecked = hmailCheckedIf1($listrequiresmtpauth);
                   </td>			
       		</tr>
       		<tr>
-      			<td><?php EchoTranslation("Require SMTP Authentication")?></td>
+      			<td><?php EchoTranslation("Require SMTP authentication")?></td>
       			<td><input type="checkbox" name="listrequiresmtpauth" value="1" <?php echo $listrequiresmtpauthchecked?>></td>
       		</tr>
 
