@@ -21,9 +21,12 @@ namespace VMTestRunner.Console
       public static string GetResultFilePath(TestEnvironment environment)
       {
          var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         var name = Sanitize($"{environment.OperatingSystem} {environment.Description}");
+         var name = Sanitize(environment.BaseName);
 
-         return Path.Combine(baseDirectory, $"vmtestrunner-{Timestamp}_{name}.xml");
+         // The run number keeps repeated runs of the same test from overwriting each other.
+         var run = environment.RunNumber == 0 ? string.Empty : $"_run{environment.RunNumber}";
+
+         return Path.Combine(baseDirectory, $"vmtestrunner-{Timestamp}_{name}{run}.xml");
       }
 
       /// <summary>

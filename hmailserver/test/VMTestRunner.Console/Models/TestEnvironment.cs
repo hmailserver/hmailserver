@@ -1,12 +1,13 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace VMTestRunner.Console
 {
    public class TestEnvironment
    {
-      public TestEnvironment(string operatingSystem, string description, string vmName, string snapshotName,
+      public TestEnvironment(string name, string operatingSystem, string description, string vmName, string snapshotName,
          bool includeStressTests, GuestTransport guestTransport, string guestAddress)
       {
+         BaseName = name;
          VMName = vmName;
          SnapshotName = snapshotName;
          OperatingSystem = operatingSystem;
@@ -21,7 +22,18 @@ namespace VMTestRunner.Console
       /// <summary>
       /// Identifies the test in the status board and in the JSON result file.
       /// </summary>
-      public string Name => $"{OperatingSystem} - {Description}";
+      public string Name => RunNumber == 0 ? BaseName : $"{BaseName} (run {RunNumber})";
+
+      /// <summary>
+      /// The name of the test as configured, without the run number. This is the name
+      /// the --test command line parameter selects on.
+      /// </summary>
+      public string BaseName { get; }
+
+      /// <summary>
+      /// One-based position when the same test is run several times, otherwise zero.
+      /// </summary>
+      public int RunNumber { get; private set; }
 
       public string Description { get; }
 
@@ -49,5 +61,21 @@ namespace VMTestRunner.Console
       public List<FileCopyCommand> PreInstallFileCopy { get; } = new List<FileCopyCommand>();
 
       public List<InstallCommand> PreInstallCommands { get; } = new List<InstallCommand>();
+
+      /// <summary>
+      /// Returns a copy of this environment, marked as the given run in a repeated run.
+      /// </summary>
+      public TestEnvironment CopyForRun(int runNumber)
+      {
+         var copy = new TestEnvironment(BaseName, OperatingSystem, Description, VMName, SnapshotName,
+            IncludeStressTests, GuestTransport, GuestAddress) { RunNumber = runNumber };
+
+         copy.PreInstallCommands.AddRange(PreInstallCommands);
+         copy.PreInstallFileCopy.AddRange(PreInstallFileCopy);
+         copy.PostInstallCommands.AddRange(PostInstallCommands);
+         copy.PostInstallFileCopy.AddRange(PostInstallFileCopy);
+
+         return copy;
+      }
    }
 }

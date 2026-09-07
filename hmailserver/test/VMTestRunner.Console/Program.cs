@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,6 +39,12 @@ namespace VMTestRunner.Console
             return -1;
          }
 
+         if (options.Count < 1)
+         {
+            Logger.Error("The count must be at least 1.");
+            return -1;
+         }
+
          var report = new TestRunReport
          {
             SoftwareUnderTest = Path.GetFullPath(softwareUnderTest),
@@ -50,8 +56,13 @@ namespace VMTestRunner.Console
          Logger.Info("Loading test suite...");
 
          // Load static container of all tests.
-         var listEnvironments = new List<TestEnvironment>();
-         TestEnvironments.AddAll(listEnvironments);
+         var allEnvironments = new List<TestEnvironment>();
+         TestEnvironments.AddAll(allEnvironments);
+
+         var listEnvironments = SelectEnvironments(allEnvironments, options.Test, options.Count);
+
+         if (listEnvironments == null)
+            return -1;
 
          // The one-based position in this list identifies the test, both in the log
          // and in the row it occupies on the status board.
@@ -144,6 +155,49 @@ namespace VMTestRunner.Console
 
          return failedCount == 0 ? 0 : 1;
       }
+
+      /// <summary>
+      /// Narrows the test suite down to the test the user asked for and repeats it the
+      /// requested number of times. Returns null if no single test matches.
+      /// </summary>
+      private static List<TestEnvironment> SelectEnvironments(List<TestEnvironment> allEnvironments,
+         string test, int count)
+      {
+         var selected = allEnvironments;
+
+         if (!string.IsNullOrWhiteSpace(test))
+         {
+            selected = allEnvironments
+               .Where(environment => Matches(environment, test))
+               .ToList();
+
+            if (selected.Count == 0)
+            {
+               Logger.Error($"No test matches '{test}'. Available tests:{Environment.NewLine}" +
+                  string.Join(Environment.NewLine, allEnvironments.Select(environment => $"  {environment.Name}")));
+               return null;
+            }
+
+            if (selected.Count > 1)
+            {
+               Logger.Error($"'{test}' matches more than one test. Every test must have a unique name:{Environment.NewLine}" +
+                  string.Join(Environment.NewLine, selected.Select(environment => $"  {environment.Name}")));
+               return null;
+            }
+         }
+
+         if (count == 1)
+            return selected;
+
+         // Repeats of the same test share a VM, so they run one after the other.
+         return selected
+            .SelectMany(environment => Enumerable.Range(1, count)
+               .Select(runNumber => environment.CopyForRun(runNumber)))
+            .ToList();
+      }
+
+      private static bool Matches(TestEnvironment environment, string test) =>
+         string.Equals(environment.Name, test, StringComparison.OrdinalIgnoreCase);
 
       /// <summary>
       /// Tells the user which installer is being tested.

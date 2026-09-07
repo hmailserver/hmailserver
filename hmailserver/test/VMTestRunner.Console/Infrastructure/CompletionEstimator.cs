@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,32 +18,34 @@ namespace VMTestRunner.Console
       {
          previousRun = null;
 
-         var previousResultFile = FindPreviousResultFile();
+         // The most recent run that covers every test is used; a run of a single test does not.
+         foreach (var previousResultFile in FindPreviousResultFiles())
+         {
+            var previousReport = TestResultWriter.TryRead(previousResultFile);
+            var previousResults = previousReport?.Tests;
 
-         if (previousResultFile == null)
-            return null;
+            if (previousResults == null || previousResults.Count == 0)
+               continue;
 
-         var previousReport = TestResultWriter.TryRead(previousResultFile);
-         var previousResults = previousReport?.Tests;
+            if (previousResults.Any(result => result.Status != TestStatus.Passed))
+               continue;
 
-         if (previousResults == null || previousResults.Count == 0)
-            return null;
+            var durations = new Dictionary<string, double>();
 
-         if (previousResults.Any(result => result.Status != TestStatus.Passed))
-            return null;
+            foreach (var result in previousResults)
+               durations[result.Name] = result.DurationSeconds;
 
-         var durations = new Dictionary<string, double>();
+            // Every test must be known, otherwise the estimate would be too low. Repeated
+            // runs of a test are looked up under the name the test has in a normal run.
+            if (environments.Any(environment => !durations.ContainsKey(environment.BaseName)))
+               continue;
 
-         foreach (var result in previousResults)
-            durations[result.Name] = result.DurationSeconds;
+            previousRun = Path.GetFileName(previousResultFile);
 
-         // Every test must be known, otherwise the estimate would be too low.
-         if (environments.Any(environment => !durations.ContainsKey(environment.Name)))
-            return null;
+            return TimeSpan.FromSeconds(EstimateSeconds(environments, durations, maxParallelism));
+         }
 
-         previousRun = Path.GetFileName(previousResultFile);
-
-         return TimeSpan.FromSeconds(EstimateSeconds(environments, durations, maxParallelism));
+         return null;
       }
 
       /// <summary>
@@ -55,7 +57,7 @@ namespace VMTestRunner.Console
       {
          var groupDurations = environments
             .GroupBy(environment => environment.VMName)
-            .Select(group => group.Sum(environment => durations[environment.Name]))
+            .Select(group => group.Sum(environment => durations[environment.BaseName]))
             .ToList();
 
          var workers = new double[Math.Max(1, maxParallelism)];
@@ -69,15 +71,14 @@ namespace VMTestRunner.Console
          return workers.Max();
       }
 
-      private static string FindPreviousResultFile()
+      private static IEnumerable<string> FindPreviousResultFiles()
       {
          var currentFile = RunContext.GetResultSummaryFilePath();
          var directory = Path.GetDirectoryName(currentFile);
 
          return Directory.GetFiles(directory, "vmtestrunner-*_results.json")
             .Where(file => !string.Equals(file, currentFile, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(file => file, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
+            .OrderByDescending(file => file, StringComparer.OrdinalIgnoreCase);
       }
    }
 }

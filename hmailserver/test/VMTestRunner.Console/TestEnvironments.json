@@ -1,5 +1,6 @@
 ﻿[
   {
+    "name": "Windows 10 - Internal: Upgrade, 4.1.1",
     "operatingSystem": "Windows 10",
     "description": "Internal: Upgrade, 4.1.1",
     "vmName": "Windows-10-hMailServer-4.4.4-InternalMySQL",
@@ -33,6 +34,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - PostgreSQL 9.6.24: Upgrade, 5.0.0",
     "operatingSystem": "Windows 10",
     "description": "PostgreSQL 9.6.24: Upgrade, 5.0.0",
     "vmName": "Windows-10-hMailServer-5.0.0-PostgreSQL9.6.24",
@@ -48,6 +50,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - Internal: Upgrade, 5.0.0",
     "operatingSystem": "Windows 10",
     "description": "Internal: Upgrade, 5.0.0",
     "vmName": "Windows-10-hMailServer-5.0.0-InternalSQLCompact",
@@ -63,6 +66,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - SQL Server 2019: Upgrade, 4.4.4",
     "operatingSystem": "Windows 10",
     "description": "SQL Server 2019: Upgrade, 4.4.4",
     "vmName": "Windows-10-hMailServer-4.4.4-SQLServer2019",
@@ -78,6 +82,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - MySQL 8.0.29: Upgrade, 4.4.4",
     "operatingSystem": "Windows 10",
     "description": "MySQL 8.0.29: Upgrade, 4.4.4",
     "vmName": "Windows-10-hMailServer-4.4.4-MySQL 8.0.29",
@@ -111,6 +116,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - PostgreSQL 9.6.24: New installation",
     "operatingSystem": "Windows 10",
     "description": "PostgreSQL 9.6.24: New installation",
     "vmName": "Windows10-PostgreSQL9.6.24",
@@ -127,6 +133,7 @@
     "includeStressTests": true
   },
   {
+    "name": "Windows 10 - SQL Server 2019: New installation",
     "operatingSystem": "Windows 10",
     "description": "SQL Server 2019: New installation",
     "vmName": "Windows10-SQLServer2019",
@@ -142,6 +149,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 10 - MySQL 8.0.29: New installation - MySQL client",
     "operatingSystem": "Windows 10",
     "description": "MySQL 8.0.29: New installation - MySQL client",
     "vmName": "Windows10-MySQL8.0.29",
@@ -179,6 +187,7 @@
     ]
   },
   {
+    "name": "Windows 10 - MySQL 26.7.0: New installation - MariaDB client",
     "operatingSystem": "Windows 10",
     "description": "MySQL 26.7.0: New installation - MariaDB client",
     "vmName": "Windows10-MySQL-26.7.0",
@@ -200,6 +209,7 @@
   },
 
   {
+    "name": "Windows 10 - Internal (SQL Compact): New installation",
     "operatingSystem": "Windows 10",
     "description": "Internal (SQL Compact): New installation",
     "vmName": "Windows10",
@@ -210,6 +220,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows Server 2025 - Internal (SQL Compact): New installation",
     "operatingSystem": "Windows Server 2025",
     "description": "Internal (SQL Compact): New installation",
     "vmName": "Windows-Server-2025",
@@ -227,6 +238,7 @@
   // firewall, and have HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
   // \LocalAccountTokenFilterPolicy set to 1.
   {
+    "name": "Windows Vista SP2 - Internal (SQL Compact): New installation",
     "operatingSystem": "Windows Vista SP2",
     "description": "Internal (SQL Compact): New installation",
     "vmName": "Windows-Vista-SP2",
@@ -239,6 +251,7 @@
     "postInstallFileCopy": []
   },
   {
+    "name": "Windows 8.1 - Internal (SQL Compact): New installation",
     "operatingSystem": "Windows 8.1",
     "description": "Internal (SQL Compact): New installation",
     "vmName": "Windows-8.1",

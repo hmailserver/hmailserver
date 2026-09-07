@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -21,7 +21,10 @@ namespace VMTestRunner.Console
             if (item.GuestTransport == GuestTransport.Network && string.IsNullOrEmpty(item.GuestAddress))
                throw new System.Exception($"The environment '{item.Description}' uses the network transport, so it must specify guestAddress.");
 
-            var env = new TestEnvironment(item.OperatingSystem, item.Description, item.VmName, item.SnapshotName,
+            // The name is what --test selects on; it defaults to the operating system and the description.
+            var name = string.IsNullOrWhiteSpace(item.Name) ? $"{item.OperatingSystem} - {item.Description}" : item.Name;
+
+            var env = new TestEnvironment(name, item.OperatingSystem, item.Description, item.VmName, item.SnapshotName,
                item.IncludeStressTests, item.GuestTransport, item.GuestAddress);
 
             foreach (var cmd in item.PreInstallCommands)
@@ -69,6 +72,7 @@ namespace VMTestRunner.Console
 
       private class EnvironmentDto
       {
+         public string Name { get; set; }
          public string OperatingSystem { get; set; }
          public string Description { get; set; }
          public string VmName { get; set; }
